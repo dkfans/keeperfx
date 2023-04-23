@@ -797,30 +797,29 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
     int i;
     // Block name and parameter word store variables
     // Initialize the rooms array
-    int arr_size;
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    int arr_size = TERRAIN_ITEMS_MAX;
+    for (i = 0; i < arr_size; i++)
     {
-        arr_size = sizeof(slab_conf.room_cfgstats)/sizeof(slab_conf.room_cfgstats[0]);
-        for (i=0; i < arr_size; i++)
+        if (((flags & CnfLd_AcceptPartial) == 0) || ((room_desc[i].name) == NULL)) //(room_desc[i].num == 0))//(room_desc[i].name != NULL))
         {
-            roomst = &slab_conf.room_cfgstats[i];
-            LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
-            roomst->name_stridx = GUIStr_Empty;
-            roomst->tooltip_stridx = GUIStr_Empty;
-            roomst->creature_creation_model = 0;
-            roomst->bigsym_sprite_idx = 0;
-            roomst->medsym_sprite_idx = 0;
-            roomst->pointer_sprite_idx = 0;
-            roomst->panel_tab_idx = 0;
-            roomst->ambient_snd_smp_id = 0;
-            roomst->msg_needed = 0;
-            roomst->msg_too_small = 0;
-            roomst->msg_no_route = 0;
-            roomst->roles = RoRoF_None;
-            roomst->cost = 0;
-            roomst->health = 0;
             if (i < slab_conf.room_types_count)
             {
+                roomst = &slab_conf.room_cfgstats[i];
+                LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+                roomst->name_stridx = GUIStr_Empty;
+                roomst->tooltip_stridx = GUIStr_Empty;
+                roomst->creature_creation_model = 0;
+                roomst->bigsym_sprite_idx = 0;
+                roomst->medsym_sprite_idx = 0;
+                roomst->pointer_sprite_idx = 0;
+                roomst->panel_tab_idx = 0;
+                roomst->ambient_snd_smp_id = 0;
+                roomst->msg_needed = 0;
+                roomst->msg_too_small = 0;
+                roomst->msg_no_route = 0;
+                roomst->roles = RoRoF_None;
+                roomst->cost = 0;
+                roomst->health = 0;
                 room_desc[i].name = roomst->code_name;
                 room_desc[i].num = i;
             } else
