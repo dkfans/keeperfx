@@ -287,6 +287,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                     }
                 }
                 check_and_asimilate_thing_by_room(thing);
+                thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
                 // make sure we don't have invalid pointer
                 thing = INVALID_THING;
             } else
@@ -314,6 +315,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                     level --; //levels are in readable format in file, gamecode always has them 1 lower
                 }
                 init_creature_level(thing, level);
+                thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
             }
             break;
         case TCls_EffectGen:
@@ -334,6 +336,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 ERRORLOG("Couldn't create trap model %d", (int)model);
                 return false;
             }
+            thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
             break;
         case TCls_Door:
             {
