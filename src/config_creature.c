@@ -1800,8 +1800,7 @@ const char *creature_own_name(const struct Thing *creatng)
     }
     if (cctrl->creature_name[0] > 0)
     {
-        text = cctrl->creature_name;
-        return text;
+        return cctrl->creature_name;
     }
     const char ** starts;
     long starts_len;
@@ -1826,7 +1825,6 @@ const char *creature_own_name(const struct Thing *creatng)
         end_consonants_len = sizeof(name_consonants)/sizeof(name_consonants[0]);
     }
     {
-        //TODO CREATURE store creature name seed somewhere in CreatureControl instead making it from other parameters
         unsigned long seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
         // Get amount of nucleus
         int name_len;
@@ -1873,6 +1871,7 @@ const char *creature_own_name(const struct Thing *creatng)
             strcat(text,part);
         }
     }
+    strcpy(cctrl->creature_name, text);
     return text;
 }
 
