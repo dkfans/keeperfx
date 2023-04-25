@@ -321,9 +321,9 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 const char* creatureName = value_string(value_dict_get(init_data, "CreatureName"));
                 if(creatureName != NULL)
                 {
-                    if(strlen(creatureName) >= 24)
+                    if(strlen(creatureName) > 24)
                     {
-                        ERRORLOG("creature name to long max 23 chars (%s)", creatureName);
+                        ERRORLOG("init creature name (%s) to long max 24 chars", creatureName);
                         break;
                     }
                     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
