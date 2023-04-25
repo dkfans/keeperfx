@@ -1798,7 +1798,7 @@ const char *creature_own_name(const struct Thing *creatng)
         text = buf_sprintf("%s",get_string(crconf->namestr_idx));
         return text;
     }
-    if (cctrl->creature_name > 0)
+    if (cctrl->creature_name[0] > 0)
     {
         text = cctrl->creature_name;
         return text;
@@ -1873,7 +1873,6 @@ const char *creature_own_name(const struct Thing *creatng)
             strcat(text,part);
         }
     }
-    cctrl->creature_name = text;
     return text;
 }
 

@@ -317,6 +317,19 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 init_creature_level(thing, level);
                 thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
                 thing->creature.gold_carried = value_int32(value_dict_get(init_data, "CreatureGold"));
+
+                const char* creatureName = value_string(value_dict_get(init_data, "CreatureName"));
+                if(creatureName != NULL)
+                {
+                    if(strlen(creatureName) >= 24)
+                    {
+                        ERRORLOG("creature name to long max 23 chars (%s)", creatureName);
+                        break;
+                    }
+                    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+                    strcpy(cctrl->creature_name,creatureName);
+                }
+
             }
             break;
         case TCls_EffectGen:
