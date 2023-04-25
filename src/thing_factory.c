@@ -316,6 +316,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 }
                 init_creature_level(thing, level);
                 thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
+                thing->creature.gold_carried = value_int32(value_dict_get(init_data, "CreatureGold"));
             }
             break;
         case TCls_EffectGen:
