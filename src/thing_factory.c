@@ -286,6 +286,10 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                         gameadd.max_custom_box_kind = box_kind;
                     }
                 }
+                else if (object_is_gold_pile(thing))
+                {
+                    thing->valuable.gold_stored = value_int32(value_dict_get(init_data, "GoldValue"));
+                }
                 check_and_asimilate_thing_by_room(thing);
                 thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
                 // make sure we don't have invalid pointer
