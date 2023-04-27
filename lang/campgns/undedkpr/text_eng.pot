@@ -29,7 +29,7 @@ msgstr ""
 #: guitext:1
 msgctxt "In-game message"
 msgid ""
-"Make haste Master. It won't be long before your rival breaks into this realm."
+"The heroes of Winterrage will be no match for our undead army. But make haste Master, it won't be long before your rival breaks into this realm!"
 msgstr ""
 
 #: guitext:2

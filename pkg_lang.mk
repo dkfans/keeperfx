@@ -79,20 +79,26 @@ pkg/campgns/revlord/text_chi.dat \
 pkg/campgns/revlord/text_spa.dat \
 pkg/campgns/twinkprs/text_eng.dat \
 pkg/campgns/twinkprs/text_chi.dat \
+pkg/campgns/twinkprs/text_fre.dat \
 pkg/campgns/twinkprs/text_jpn.dat \
 pkg/campgns/twinkprs/text_pol.dat \
 pkg/campgns/twinkprs/text_spa.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
+pkg/campgns/undedkpr/text_ger.dat \
 pkg/campgns/undedkpr/text_pol.dat \
 pkg/campgns/undedkpr/text_spa.dat
 
 MPTEXTDATS = \
 pkg/levels/classic/text_eng.dat \
 pkg/levels/classic/text_chi.dat \
+pkg/levels/classic/text_fre.dat \
+pkg/levels/classic/text_ger.dat \
 pkg/levels/classic/text_spa.dat \
 pkg/levels/standard/text_eng.dat \
 pkg/levels/standard/text_chi.dat \
+pkg/levels/standard/text_fre.dat \
+pkg/levels/standard/text_ger.dat \
 pkg/levels/standard/text_spa.dat
 
 EU_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_eu.txt

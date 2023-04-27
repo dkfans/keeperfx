@@ -1,23 +1,22 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file undedkpr/text_pol.po
+#   @file undedkpr/text_fre.po
 #      KeeperFX Campaign Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Jun 2014
+#  @date     25 Aug 2012 - 02 Jan 2014
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-# *****************************************************************************
+# ******************************************************************************
 "Project-Id-Version: Undead Keeper campaign for KeeperFX\n"
-"Language: pl_PL\n"
 
 #. Generic victory message
 #: guitext:0
@@ -26,196 +25,131 @@ msgid ""
 msgstr ""
 
 #: guitext:1
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The heroes of Winterrage will be no match for our undead army. But make haste Master, it won't be long before your rival breaks into this realm!"
 msgstr ""
-"Dodać mistrza pośpiech, nie będzie długo przed swoim rywalem włamuje się do "
-"tej sfery."
 
 #: guitext:2
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Your rival is advancing from the south. There is also word that reinforcements from Rosefield have arrived."
 msgstr ""
-"Twój rywal posuwa się naprzód z południa. Jest też słowo, że posiłki z "
-"Rosefield dotarły."
 
 #: guitext:3
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The first domino falls here! Can we assume the prisoners will be properly taken care of?!"
 msgstr ""
-"Pierwszy domino spada tutaj. Więźniowie będą załatwione poza prawidłowo, mam "
-"nadzieję?"
 
 #: guitext:4
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The Cathedral is currently under siege by one of Keeper Bane's underlings. Make haste and unearth the treasuries buried here."
 msgstr ""
-"Katedra jest obecnie w stanie oblężenia przez jednego z podwładnych zgody "
-"Bez Bane&#39;a. Śpiesz się i odkryć skarby pochowany tutaj."
 
 #: guitext:5
-#, fuzzy
 msgctxt "In-game message"
 msgid "Outstanding, Master! Now things will become more interesting."
-msgstr "Znakomita, mistrz. Teraz wszystko będzie trochę bardziej intresting."
+msgstr ""
 
 #: guitext:6
-#, fuzzy
 msgctxt "In-game message"
 msgid "Just as I thought, the Victor was decided before the fight even began!"
-msgstr "Tak jak myślałem, Victor zdecydowano jeszcze zanim zaczął walczyć!"
+msgstr ""
 
 #: guitext:7
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "This fortress is the last bastion of the Heroes. It is said that the construction took several hundred years, but I'm sure you can demolish it in an instant? However, be warned; there is evil within those walls."
 msgstr ""
-"Ta twierdza jest ostatnim bastionem Bohaterów. Niektórzy ludzie twierdzą, "
-"jego budowa trwała kilka hunderd lat, więc być może można zburzyć go w "
-"worldrecord. Bądź czujny jednak czuję coś złego w tych murach."
 
 #: guitext:8
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The Wizards of this realm have robbed you of your spells. They obviously haven't heard of the saying ''What goes around comes around''! Reprisals are to be expected."
 msgstr ""
-"Czarodzieje z tej sfery nie okradł cię z twoich zaklęć. Oni nie mają "
-"oczywiste słyszał powiedzenie&#39;&#39; Co rzucisz za siebie!&#39;&#39; "
-"Spodziewać się odwetu za robi tego jednak."
 
 #: guitext:9
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The Avatar is also among us! May I suggest we capture, torture him and listen to the wonderful sound of his bones being shattered?"
 msgstr ""
-"Awatar jest obecny aswel! Mogę zaproponować nam uchwycić, torturować go i "
-"słuchać wspaniały dźwięk kości jest rozbita?"
 
 #: guitext:10
-#, fuzzy
 msgctxt "In-game message"
 msgid "Ahh, now this is what I like to call absolute CARNAGE! Can we move on please? This place has become too corpsy for my liking."
 msgstr ""
-"Ahh, teraz to jest to, co lubię nazywać bezwzględną rzeź! Możemy przejść, "
-"proszę? To miejsce jest już zbyt corpsy mi do gustu."
 
 #: guitext:11
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "This is an ancient realm full of riches, which you must use to your advantage. You are outnumbered, and your library has been captured by the vile warlocks in the East. Make them pay for this theft with their lives!"
 msgstr ""
-"Jesteś w mniejszości tutaj, więc należy użyć grunt na swoją korzyść. Mówiąc "
-"o tym; Ta starożytna kraina pełna jest bogactw, wszystko dla Ciebie do "
-"wzięcia. Również biblioteka została przejęta przez niektórych nikczemnych "
-"nieuczciwych czarnoksiężników na wschodzie, ich żałować z ich natury."
 
 #: guitext:12
-#, fuzzy
 msgctxt "In-game message"
 msgid "Excellent, now we can research spells and rooms!"
-msgstr "Doskonały, teraz możemy badać zaklęć i pokoje!"
+msgstr ""
 
 #: guitext:13
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Another one bites the dust! Let us not waste too much time on these rookies, as greater challenges await on the horizon."
 msgstr ""
-"Kolejny gryzie piach. Daj nam nie tracić zbyt wiele czasu na tych "
-"nowicjuszy, jest więcej wyzwań na horyzoncie."
 
 #: guitext:14
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "A vast legion is hosted in this realm. However, with it's commanders being at odds, this makes the battle quite diverse. Quickly gather your forces and attack whilst there is still a state of confusion!"
 msgstr ""
-"Zdecydowana legion jest obsługiwana w tej dziedzinie, jednak z jego "
-"dowódców, w tym kursów sprawiają, walka dość bardziej zróżnicowana. Szybko, "
-"zebrać siły i ataku, gdy jest jeszcze stan zamieszania!"
 
 #: guitext:15
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "You cannot hope for victory without a portal to attract creatures. Go out and seek one."
 msgstr ""
-"Nie można liczyć na zwycięstwo bez portalu przyciągnięcia stworzeń. Wyjść i "
-"szukać jednego."
 
 #: guitext:16
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "A truly devastating victory. You've just routed and destroyed the last barrier between Keeper Bane and yourself. Now... let's kill that dirtbag!"
 msgstr ""
-"Naprawdę druzgocące zwycięstwo. Właśnie kierowane i zniszczył ostatnią "
-"barierę między bramkarzem Bane i ciebie, teraz ... niech zabić tego Dirtbag."
 
 #: guitext:17
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Keeper Bane has barricaded himself in, the pathetic wretch. But the more suprising news is that most of the Elite Heroes along with their leader, the Avatar, have survived and are preparing to attack you!"
 msgstr ""
-"Opiekun Bane zabarykadował się w, żałosne łajdaka. Ale bardziej zaskakujące "
-"nowości jest to, że większość elity Heroes wraz z ich przywódcą, Awatar, "
-"przetrwały i przygotowują się do ataku na ciebie!"
 
 #: guitext:18
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Keeper Bane is very powerful because he has the support of all the creatures in this realm. The Dark Gods, however, are willing to help you, but they demand a tribute in the form of 100 Souls; preferably dead, of course!"
 msgstr ""
-"Opiekun Bane jest bardzo silny, ponieważ wszystkie stworzenia w tej "
-"dziedzinie wspierają go. Mroczni Bogowie jednak są chętni do pomocy, ale "
-"domagają się hołd w postaci 100 dusz, najlepiej martwych, oczywiście!"
 
 #: guitext:19
 msgctxt "In-game message"
 msgid "The Dark Gods are pleased with your sacrifice!"
-msgstr "Mroczni Bogowie są zadowoleni z twojej ofiary!"
+msgstr ""
 
 #: guitext:20
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Beware, the Avatar has returned. He won't give up and he's stronger than ever, so show this lunatic the error of his ways!"
 msgstr ""
-"Uważaj, Awatar powrócił i jest silniejsza niż kiedykolwiek. Uczynić to "
-"wariat zobaczyć swój błąd, bo po prostu nie da się!"
 
 #: guitext:21
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "The Avatar is badly wounded. Finish him off now so we can turn to the real prize of this realm - Bane!"
 msgstr ""
-"Awatar jest ciężko ranny, wykończyć go teraz tak, możemy zwrócić się do "
-"prawdziwej nagrody tej dziedzinie, Bane."
 
 #: guitext:22
-#, fuzzy
 msgctxt "In-game message"
 msgid ""
 "Finally, Keeper Bane is destroyed, his minions are dead, and so are the Heroes. There are no more living creatures on this continent, and there is nothing left to conquer; you have won!"
 msgstr ""
-"Wreszcie Keeper Bane jest zniszczony, wszystkie jego sługi żyje, i tak są "
-"bohaterami. Nie ma już żywych stworzeń na tym kontynencie, a nie ma nic do "
-"zdobycia; wygrałeś."
 
 #: guitext:23
 msgctxt "In-game message"
@@ -421,37 +355,37 @@ msgstr ""
 #: guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr "Muuuu"
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Winterrage"
-msgstr "Zimoszał"
+msgstr ""
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Rosefield Cathedral"
-msgstr "Katedra Rosefield"
+msgstr ""
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Arbor Heights"
-msgstr "Wzniesienia Arboru"
+msgstr ""
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Drachenfeld"
-msgstr "Równiny Drachenu"
+msgstr ""
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Ashspire"
-msgstr "Pruszków"
+msgstr ""
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Dawnterror"
-msgstr "Zmierzchostrachy"
+msgstr ""
 
 #: guitext:208
 msgctxt "Level name"
