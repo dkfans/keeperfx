@@ -477,10 +477,13 @@ void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
 {
     MapSubtlCoord stl_x = traptng->mappos.x.stl.num;
     MapSubtlCoord stl_y = traptng->mappos.y.stl.num;
-    if (subtile_is_room(stl_x, stl_y)) {
+    SlabKind slab = gameadd.trap_stats[traptng->model].created_itm_model;
+    if (subtile_is_room(stl_x, stl_y))
+    {
+        // deleting the room also deletes the trap
         delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
     }
-    place_slab_type_on_map(gameadd.trap_stats[traptng->model].created_itm_model, stl_x, stl_y, game.neutral_player_num, 0);
+    place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
     // TODO
     //remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);

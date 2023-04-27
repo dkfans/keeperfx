@@ -43,7 +43,7 @@ msgctxt "In-game message"
 msgid "Your capture of the second portal has forced the heroes to act, and an attack is on the way. Your spies report however, that the main hero army is being held in reserve. Your preparations will be thoroughly tested Master!"
 msgstr "你占领了第二个入口，使得英雄们不得不采取行动了，他们很快就会发起进攻。但是，你的探子报告，英雄的主力军还没有出动。你的准备工作将面临全方位的考验，主人！"
 
-#. Level Swedish spirit outside hero heart"
+#. Level Swedish spirit outside hero heart
 #: guitext:4
 msgctxt "In-game message"
 msgid "Beware, the main hero army approaches! I hope you're prepared for this, otherwise it may be a very short fight. Destroy the heart tainted by their rightfulness!"
@@ -192,7 +192,7 @@ msgstr "看到他们的骑士阵亡后，英雄们意识到这将是一场殊死
 #. Level Okehazama hero onslaught message
 #: guitext:30
 msgctxt "In-game message"
-msgid "You have unleashed waves of hero raiding parties Master, as these heroes make their last stand in this realm. Your defences need to be extensive and well placed if you are to triumph here."
+msgid "You have unleashed waves of hero raiding parties Master, as these heroes make their last stand in this realm. Your defenses need to be extensive and well-placed if you are to triumph here."
 msgstr "你惊动了一群英雄突击部队，主人。这些英雄为了保卫王国而背水一战。要想获得胜利，你必须部署全方位的防御措施。"
 
 #. Level Embattled Formation opening message
@@ -216,7 +216,7 @@ msgstr "又一次出色的胜利。在这个曾经绿草如茵，令人愉悦的
 #. Level Embattled formation death of a keeper message
 #: guitext:34
 msgctxt "In-game message"
-msgid "A good start kepper, but beware. The remaining keepers grow stronger by pilfering the remnants of this dead kingdom, and therefore attract more creatures anxious to share the spoils!"
+msgid "A good start keeper, but beware. The remaining keepers grow stronger by pilfering the remnants of this dead kingdom, and therefore attract more creatures anxious to share the spoils!"
 msgstr "不错的开端，守护者。但要注意，其他守护者会掠夺灭亡守护者的遗产而变得更加强大，同时会吸引很多迫不及待前来分赃的怪物加入！"
 
 #: guitext:35 guitext:36 guitext:37 guitext:38 guitext:39 guitext:40

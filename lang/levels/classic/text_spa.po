@@ -1,7 +1,7 @@
 # ******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # ******************************************************************************
-#   @file gtext_spa.po
+#   @file text_spa.po
 #      KeeperFX GUI Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
@@ -329,7 +329,7 @@ msgstr "Corrígeme si me equivoco, lo que dudo, pero… ¿No había una tercera 
 #. Return to Skybird Trill (lv416)
 #: guitext:51
 msgctxt "In-game message"
-msgid "Where does the Monk of Cowardice hide?. Use your instinct to make the right choice "
+msgid "Where does the Monk of Cowardice hide? Use your instinct to make the right choice."
 msgstr "¿Dónde se esconde el Monje de la Cobardía? Usa tu instinto para tomar la decisión correcta."
 
 #. Return to Skybird Trill (lv416)

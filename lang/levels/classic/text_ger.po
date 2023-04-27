@@ -1,13 +1,12 @@
-# *****************************************************************************
+# ******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
-# *****************************************************************************
-#   @file /lang/levels/classic/text_eng.pot
-#      KeeperFX Campaign Strings translation template
+# ******************************************************************************
+#   @file classic/text_ger.po
+#      KeeperFX GUI Strings translation file
 #  @par Purpose:
-#      Allows to create .po files used for translating the game.
-#      Also, acts as a source of english translation strings.
+#      Contains translation of the national strings in the game.
 #  @par Comment:
-#      Use this file to create or update source strings in translations.
+#      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
 #  @date     25 Aug 2012 - 20 Jan 2023
 #  @par  Copying and copyrights:
@@ -16,7 +15,7 @@
 #      the Free Software Foundation; either version 2 of the License, or
 #      (at your option) any later version.
 #
-# *****************************************************************************
+# ******************************************************************************
 "Project-Id-Version: Classic levels for KeeperFX\n"
 
 #. Generic victory message
@@ -30,12 +29,14 @@ msgctxt "In-game message"
 msgid ""
 "Here you are in enemy territory Keeper. The smugglers are organised and have numerous defense posts at their disposal. Be quick and tactical to ensure your victory!"
 msgstr ""
+"Ihr befindet Euch in feindlichem Gebiet, Keeper. Die Schmuggler sind gut organisiert und verfügen über zahlreiche Verteidigungsposten. Seid flink und handelt geschickt, um Euren Sieg zu sichern!"
 
 #. Syndika (lv206)
 #: guitext:2
 msgctxt "In-game message"
 msgid "A Baron whose lands have been pillaged has joined your lines. Your chances of victory over the syndicate's agents have improved significantly!"
 msgstr ""
+"Ein Baron, dessen Ländereien geplündert wurden, hat sich Euren Reihen angeschlossen. Eure Aussichten auf einen Sieg über die Agenten des Syndikats haben sich beachtlich verbessert!"
 
 #. Syndika (lv206)
 #: guitext:3
@@ -43,6 +44,7 @@ msgctxt "In-game message"
 msgid ""
 "Now that you have slaughtered the syndicate's troops, his director seems pretty angry. Atrociously played Keeper! Now you must decimate his army, a necessary task in order to take control over these lands."
 msgstr ""
+"Jetzt, wo Ihr die Truppen des Syndikats niedergemetzelt habt, scheint dessen Direktor ziemlich zornig zu sein. Abscheulich gespielt, Keeper! Jetzt müsst Ihr seine Armee zerschlagen, eine notwendige Aufgabe, um die Herrschaft über dieses Gebiet zu erlangen."
 
 #. Syndika (lv206)
 #: guitext:4
@@ -50,12 +52,14 @@ msgctxt "In-game message"
 msgid ""
 "The syndicate has been eradicated! Congratulations Keeper on your victory against the Director. "
 msgstr ""
+"Das Syndikat wurde ausgemerzt! Gratulation, Keeper, zu Eurem Sieg über den Direktor. "
 
 #. Kzelbatu (lv207)
 #: guitext:5
 msgctxt "In-game message"
 msgid "Magic powers in this realm have reduced your abilities. The meager resources of this realm are fiercely guarded by smugglers whom you must overcome if you are to be victorious Keeper! Maybe separate them from their heads?"
 msgstr ""
+"Die Zauberkraft in diesem Reich hat Eure Fähigkeiten eingeschränkt. Die spärlichen Ressourcen dieses Landes werden hartnäckig von Schmugglern bewacht, die Ihr bezwingen müsst, wenn Ihr siegreich sein wollt, Keeper! Vielleicht trennt Ihr sie von ihren Köpfen?"
 
 #. Kzelbatu (lv207)
 #: guitext:6
@@ -63,6 +67,7 @@ msgctxt "In-game message"
 msgid ""
 "The smugglers have sent a raiding party towards you. You know what must be done! "
 msgstr ""
+"Die Schmuggler haben einen Schlägertrupp zu Euch geschickt. Ihr wisst, was zu tun ist! "
 
 #. Kzelbatu (lv207)
 #: guitext:7
@@ -70,12 +75,14 @@ msgctxt "In-game message"
 msgid ""
 "The elite troupe has been resurrected. Destroy them again, and this time let it be once and for all! "
 msgstr ""
+"Die Elitetruppe wurde wieder zum Leben erweckt. Vernichtet sie erneut, und nun ein für alle Mal! "
 
 #. Kzelbatu (lv207)
 #: guitext:8
 msgctxt "In-game message"
 msgid "A second bandit king has been raised in the secret altar, with a formidable army. When he counts his troops after the forthcoming battles, teach him to understand the number zero!"
 msgstr ""
+"Im verborgenen Altar ist ein zweiter Banditenkönig mit einer beachtlichen Armee aufgetaucht. Wenn er nach den anstehenden Schlachten seine Truppen zählt, lehre ihn, die Zahl Null zu verstehen!"
 
 #. Kzelbatu (lv207)
 #: guitext:9
@@ -83,6 +90,7 @@ msgctxt "In-game message"
 msgid ""
 "Heroic reinforcements have arrived on your land to take your belongings. Reward them for their impudence! "
 msgstr ""
+"Nachschub der Helden ist auf Eurem Land eingetroffen, um Euer Hab und Gut zu nehmen. Belohnt sie für ihre Frechheit! "
 
 #. Kzelbatu (lv207)
 #: guitext:10
@@ -90,6 +98,7 @@ msgctxt "In-game message"
 msgid ""
 "Agents have infiltrated your dungeon to steal gold. Find a way to make their suffering special!"
 msgstr ""
+"Agenten sind in Euren Dungeon eingedrungen, um Gold zu stehlen. Finde einen Weg, um ihr Leiden zu etwas Besonderem zu machen!"
 
 #. Kzelbatu (lv207)
 #: guitext:11
@@ -97,6 +106,7 @@ msgctxt "In-game message"
 msgid ""
 "Hell must have a pact with these smugglers?  Make preparations Keeper, as these Demons have come to obliterate you! "
 msgstr ""
+"Die Hölle muss einen Pakt mit diesen Schmugglern haben?  Trefft Vorbereitungen, Keeper, denn diese Dämonen sind gekommen, um Euch auszulöschen! "
 
 #. Kzelbatu (lv207)
 #: guitext:12
@@ -104,6 +114,7 @@ msgctxt "In-game message"
 msgid ""
 "The last of the bandit masters is preparing to return. You must raze his realm to the ground! "
 msgstr ""
+"Der letzte der Banditenmeister bereitet sich auf seine Rückkehr vor. Ihr müsst sein Reich dem Erdboden gleichmachen! "
 
 #. Kzelbatu (lv207)
 #: guitext:13
@@ -111,6 +122,7 @@ msgctxt "In-game message"
 msgid ""
 "The Lord has returned with a bunch of optimistic puppets. Let the reward for their impudence be a slow death!"
 msgstr ""
+"Der Landesherr ist mit einem Haufen hoffnungsvoller Hampelmänner zurückgekehrt. Möge der Lohn für ihre Unverschämtheit ein langsamer Tod sein!"
 
 #. Kzelbatu (lv207)
 #: guitext:14
@@ -118,6 +130,7 @@ msgctxt "In-game message"
 msgid ""
 "The bandits and smugglers will not dare to return now.You have won a great Victory Master! "
 msgstr ""
+"Die Banditen und Schmuggler werden es nun nicht mehr wagen, zurückzukehren. Ihr habt einen großen Sieg errungen, Meister! "
 
 #. Titan 2 (lv254)
 #: guitext:15
@@ -125,6 +138,7 @@ msgctxt "In-game message"
 msgid ""
 "Congratulations. You have conquered the enemy hordes. "
 msgstr ""
+"Glückwunsch. Ihr habt die Horden des Feindes bezwungen. "
 
 #. Titan 2 (lv254)
 #: guitext:16
@@ -132,6 +146,7 @@ msgctxt "In-game message"
 msgid ""
 "Only one Dungeon Keeper can reign victorious over this land. Do not suffer a humiliating defeat Keeper, the penalty for such failure is torture and death!"
 msgstr ""
+"Nur ein Dungeon Keeper kann siegreich über dieses Land herrschen. Erleidet keine demütigende Niederlage Keeper, die Strafe für ein solches Versagen ist Folter und Tod!"
 
 #. Titan 2 (lv254)
 #: guitext:17
@@ -139,6 +154,7 @@ msgctxt "In-game message"
 msgid ""
 "When your troops are sufficient in number and have had some training, lead them north and crush any who oppose you."
 msgstr ""
+"Wenn Eure Truppen vollzählig sind und eine angemessenes Training erhalten haben, führt sie nach Norden und vernichtet alle, die sich Euch widersetzen."
 
 #. Vassago (lv302)
 #: guitext:18
@@ -146,6 +162,7 @@ msgctxt "In-game message"
 msgid ""
 "This realm sees you and the Heroes as unlikely allies against a trio of rival Keepers. Dispose of them all, and I do mean ALL!"
 msgstr ""
+"In diesem Reich seid Ihr und die Helden ungewöhnliche Verbündete gegen ein Trio von rivalisierenden Keepern. Beseitige sie alle, und ich meine ALLE!"
 
 #. Vassago (lv302)
 #: guitext:19
@@ -153,6 +170,7 @@ msgctxt "In-game message"
 msgid ""
 "You have triggered an alarm Keeper. More Heroes are on their way! "
 msgstr ""
+"Ihr habt einen Alarm ausgelöst, Keeper. Weitere Helden sind auf dem Weg!"
 
 #. Vassago (lv302)
 #: guitext:20
@@ -160,12 +178,14 @@ msgctxt "In-game message"
 msgid ""
 "You have more attacks to endure Keeper. Can you survive these relentless attacks?"
 msgstr ""
+"Ihr müsst mehr Angriffe überstehen, Keeper. Könnt Ihr diese unerbittlichen Angriffe überleben?"
 
 #. Vassago (lv302)
 #: guitext:21
 msgctxt "In-game message"
 msgid "Yet more Hero reinforcements are on their way! But I think this is their last desperate attack. Survive this and victory may be yours!"
 msgstr ""
+"Noch mehr Verstärkung der Helden ist auf dem Weg! Aber ich glaube, dies ist ihr letzter verzweifelter Angriff. Übersteht dies und der Sieg kann der Eure sein!"
 
 #. Vassago (lv302)
 #: guitext:22
@@ -173,6 +193,7 @@ msgctxt "In-game message"
 msgid ""
 "Your tenacity has won you a remarkable victory here Keeper. Legends will tell of your achievements here today!"
 msgstr ""
+"Eure Beharrlichkeit hat Euch hier einen bemerkenswerten Sieg beschert, Keeper. Die Legenden werden von Euren heutigen Errungenschaften erzählen!"
 
 #. Vassago (lv302)
 #: guitext:23
@@ -180,6 +201,7 @@ msgctxt "In-game message"
 msgid ""
 "The hounds have been released!"
 msgstr ""
+"Die Hunde sind los!"
 
 #. Midway (lv336)
 #: guitext:24
@@ -187,6 +209,7 @@ msgctxt "In-game message"
 msgid ""
 "Souls of ancient keepers lurk to the south-west. They watch you intently with what is left of their magical powers!"
 msgstr ""
+"Die Seelen der alten Keeper lauern im Südwesten. Sie beobachten Euch wachsam mit dem, was von ihren magischen Kräften übrig ist!"
 
 #. Midway (lv336)
 #: guitext:25
@@ -194,6 +217,7 @@ msgctxt "In-game message"
 msgid ""
 "Welcome to the Avatar's castle! His domain lies to the North-East, while his followers lurk to the North-West."
 msgstr ""
+"Willkommen in der Burg des Avatar! Sein Herrschaftsgebiet befindet sich im Nordosten, während seine Anhänger im Nordwesten lauern."
 
 #. Midway (lv336)
 #: guitext:26
@@ -201,6 +225,7 @@ msgctxt "In-game message"
 msgid ""
 "Beware, the Avatar is escaping even now...."
 msgstr ""
+"Obacht, der Avatar entkommt auch jetzt noch...."
 
 #. Midway (lv336)
 #: guitext:27
@@ -208,6 +233,7 @@ msgctxt "In-game message"
 msgid ""
 "The door to the east bears a simple plaque which reads, Emergency Exit - Keep Clear at all Times - Offenders will be shot!"
 msgstr ""
+"Die Tür im Osten trägt ein einfaches Schild mit der Aufschrift: Notausgang - Jederzeit freihalten - Zuwiderhandelnde werden erschossen!"
 
 #. Midway (lv336)
 #: guitext:28
@@ -215,6 +241,7 @@ msgctxt "In-game message"
 msgid ""
 "The Battle of Midway is afoot. Beware Evil one, the enemy is strong and well defended. Turn their misled minions against each other, sit back and let the butchery begin."
 msgstr ""
+"Die Schlacht um Midway ist im Gange. Hütet Euch Bösewicht, der Feind ist stark und gut verteidigt. Bringt ihre fehlgeleiteten Lakaien gegeneinander auf, lehnt Euch zurück und lasst das Gemetzel beginnen."
 
 #. Midway (lv336)
 #: guitext:29
@@ -222,6 +249,7 @@ msgctxt "In-game message"
 msgid ""
 "A fine victory Keeper!"
 msgstr ""
+"Ein feiner Sieg Keeper!"
 
 #. Reaver Verruckt (lv406)
 #: guitext:30
@@ -229,6 +257,7 @@ msgctxt "In-game message"
 msgid ""
 "Noble one, a massive army serves a Keeper by the name of Urien in this realm. Many of your forces are engaged in the East against Urien. However, you must also support our ally Keeper Morgant in the North who is also suffering from Urien's advancing onslaught. Quite a task Keeper! "
 msgstr ""
+"Erhabener, eine gewaltige Armee dient einem Keeper namens Urien in diesem Reich. Viele Eurer Einheiten sind im Osten gegen diesen Urien im Einsatz. Ihr müsst aber auch unseren Verbündeten Keeper Morgant im Norden unterstützen, der ebenfalls unter Uriens Angriffen leidet. Eine wahrlich schwierige Aufgabe, Keeper!"
 
 #. Reaver Verruckt (lv406)
 #: guitext:31
@@ -236,6 +265,7 @@ msgctxt "In-game message"
 msgid "Morgant has fallen to Urien's armies because you have failed in your duties Keeper. Defeat and shame are your reward."
 ""
 msgstr ""
+"Morgant ist an Uriens Armeen gefallen, weil Ihr Eure Pflichten nicht erfüllt habt, Keeper. Schmach und Schande ist Euer Lohn."
 
 #. Reaver Verruckt (lv406)
 #: guitext:32
@@ -243,6 +273,7 @@ msgctxt "In-game message"
 msgid ""
 "An army without a Knight can never succeed, so your defeat is now sealed. Shame is your reward."
 msgstr ""
+"Eine Armee ohne Ritter kann niemals Erfolg haben, und so ist Eure Niederlage nun besiegelt. Schande ist Euer Lohn."
 
 #. Reaver Verruckt (lv406)
 #: guitext:33
@@ -250,6 +281,7 @@ msgctxt "In-game message"
 msgid ""
 "Well done noble one. Urien has fallen and Morgant flourishes. A rare act of loyalty has delivered a fine victory!"
 msgstr ""
+"Gut gemacht, Erhabener. Urien ist gestürzt und Morgant gedeiht. Ein ungewöhnlicher Akt der Loyalität hat einen großen Sieg gebracht!"
 
 #. Reaver Verruckt (lv406)
 #: guitext:34
@@ -257,6 +289,7 @@ msgctxt "In-game message"
 msgid ""
 "Urien must have great power to recruit skeletons to the hero cause?!"
 msgstr ""
+"Urien muss große Macht haben, um Skelette für die Sache der Helden zu gewinnen?!"
 
 #. Frostsorrow Glacier (lv407)
 #: guitext:35
@@ -264,6 +297,7 @@ msgctxt "In-game message"
 msgid ""
 "Davaraux and Eis have suffered the same fate, and your rule over this land is now certain. A famous victory Keeper! "
 msgstr ""
+"Davaraux und Eis hat das gleiche Schicksal ereilt, und Eure Herrschaft über dieses Land ist nun gewiss. Ein ruhmreicher Sieg, Keeper!"
 
 #. Frostsorrow Glacier (lv407)
 #: guitext:36
@@ -271,6 +305,7 @@ msgctxt "In-game message"
 msgid ""
 "Welcome Noble one! The ruler of this realm, Lord Davaraux, has gone rogue at the expense of the innocent citizens who are now overtaxed. Deal with this bandit king appropriately! Do not let other matters distract you; he is your first and only priority."
 msgstr ""
+"Willkommen, Erhabener! Der Herrscher dieses Reiches, Fürst Davaraux, ist auf Kosten der unschuldigen Bürger, die nun übervorteilt werden, abtrünnig geworden. Kümmert Euch um diesen Banditenkönig auf angemessene Art! Lasst Euch nicht von anderen Dingen ablenken; er ist Eure oberste und alleinige Priorität."
 
 #. Frostsorrow Glacier (lv407)
 #: guitext:37
@@ -278,6 +313,7 @@ msgctxt "In-game message"
 msgid ""
 "Beware, we have detected the presence of a relentless Keeper called Eis whose massive demonic army will arrive within some days. Deal with Lord Davaraux swiftly, as you cannot hold Eis out indefinitely. "
 msgstr ""
+"Seid wachsam, wir haben die Gegenwart eines unerbittlichen Keepers namens Eis entdeckt, dessen gewaltige dämonische Armee in einigen Tagen hier eintreffen wird. Erledigt Lord Davaraux rasch, denn Ihr könnt Eis nicht ewig hinhalten."
 
 #. Frostsorrow Glacier (lv407)
 #: guitext:38
@@ -285,6 +321,7 @@ msgctxt "In-game message"
 msgid ""
 "The forces of Eis have arrived! Defeat must now be certain? "
 msgstr ""
+"Die Streitkräfte von Eis sind da! Die Niederlage dürfte nun gewiss sein?"
 
 #. Frostsorrow Glacier (lv407)
 #: guitext:39
@@ -292,6 +329,7 @@ msgctxt "In-game message"
 msgid ""
 "We have found construction plans for bridges. These will be essential if you are to defeat Eis. "
 msgstr ""
+"Wir haben Baupläne für Brücken gefunden. Sie sind unerlässlich, wenn Ihr Eis besiegen wollt."
 
 #. Return to Skybird Trill (lv416)
 #: guitext:40
@@ -299,6 +337,7 @@ msgctxt "In-game message"
 msgid ""
 "Apologies Master, but grave developments have necessitated your return to the land of one of your greatest conquests. Four magical Heroes plan to create a skillful new Keeper to serve them! They must be reminded of your authority in this land? However, they have acquired great power, so you must expect an even greater challenge than your last visit. I'm sure you relish the opportunity to punish these Heroes for their impudence? To work your Evilness! "
 msgstr ""
+"Verzeiht, Meister, aber ernsthafte Umstände haben Eure Rückkehr in das Land einer Eurer größten Errungenschaften nötig gemacht. Vier magische Helden versuchen, einen fähigen neuen Keeper zu finden, der ihnen dient! Sie müssen an Eure Autorität in diesem Land erinnert werden? Allerdings haben sie große Macht erlangt, so dass Euch eine noch schwierigere Prüfung erwartet als bei Eurem letzten Besuch. Ihr genießt sicher die Gelegenheit, diese Helden für ihre Unverschämtheiten zu bestrafen? Eure Bösartigkeit auszuleben!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:41
@@ -306,6 +345,7 @@ msgctxt "In-game message"
 msgid ""
 "Your powers in this realm have been limited by the Magical Heroes, which will make progress difficult. However, their arrogance prevents them working together effectively, which will give you an opportunity to slay them all! "
 msgstr ""
+"Eure Macht in diesem Reich ist durch die Magischen Helden begrenzt, was das Fortkommen erschweren wird. Ihre Arroganz hindert sie jedoch daran, wirksam zusammenzuarbeiten, was Euch die Gelegenheit geben wird, sie alle zu vernichten!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:42
@@ -313,6 +353,7 @@ msgctxt "In-game message"
 msgid ""
 "How much do you recall of this realm Keeper? A trip down memory lane might prove useful? "
 msgstr ""
+"An wie viel könnt Ihr Euch von diesem Reich erinnern, Keeper? Eine Reise in die Vergangenheit könnte sich als nützlich erweisen?"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:43
@@ -320,6 +361,7 @@ msgctxt "In-game message"
 msgid ""
 "Your Majesty, I have received word that the Witch of Summonings awaits you. It would be rude not to visit her, especially as she holds many assets that you need? Best to make the visit short and simple! "
 msgstr ""
+"Eure Hoheit, ich habe die Nachricht erhalten, dass die Hexe der Beschwörung auf Euch wartet. Es wäre unhöflich, sie nicht zu besuchen, zumal sie viele Dinge besitzt, die Ihr braucht? Am besten, Ihr macht den Besuch kurz und schmerzvoll!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:44
@@ -327,6 +369,7 @@ msgctxt "In-game message"
 msgid ""
 "I hope this isn't her only defense against you? She is but a trifle to be dealt with on your journey to reclaim this realm! "
 msgstr ""
+"Ich kann nur hoffen, dass dies nicht ihre einzige Verteidigung gegen Euch ist? Sie ist nur eine Lappalie, mit der Ihr Euch auf Eurer Reise zur Rückeroberung dieses Reiches herumschlagen müsst!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:45
@@ -334,6 +377,7 @@ msgctxt "In-game message"
 msgid ""
 "I see you've found some Orcs? These will be fine additions to your army, and help crush those who are against you! "
 msgstr ""
+"Ich sehe, Ihr habt ein paar Orks gefunden? Sie werden Eure Armee gut ergänzen und Euch helfen, Eure Widersacher zu zerschmettern!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:46
@@ -341,6 +385,7 @@ msgctxt "In-game message"
 msgid ""
 "The Witch of Summonings can call forth Bile Demons at will. Maybe she is stronger than we thought? "
 msgstr ""
+"Die Hexe der Beschwörung kann nach Belieben Teufler herbeirufen. Vielleicht ist sie stärker, als wir dachten?"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:47
@@ -348,6 +393,7 @@ msgctxt "In-game message"
 msgid ""
 "Behold the Witch of Summonings! Isn't she happy to see you? Why don't you repay the compliment. Good manners demand that you introduce yourself properly? "
 msgstr ""
+"Seht die Hexe der Beschwörung! Ist sie nicht froh, Euch zu sehen? Warum gebt Ihr das Kompliment nicht zurück. Die Regeln der Höflichkeit verlangen schließlich, dass Ihr Euch richtig vorstellt?"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:48
@@ -355,6 +401,7 @@ msgctxt "In-game message"
 msgid ""
 "The Witch of Summonings is defeated! Seize her collection of spells and head to the East, where the gold you need will be found. Of course, it's not going to be handed to you for nothing! "
 msgstr ""
+"Die Hexe der Beschwörung ist besiegt! Nehmt ihre Sammlung von Zaubersprüchen an Euch und macht Euch auf den Weg in den Osten, wo Ihr das nötige Gold finden werdet. Natürlich wird es Euch nicht geschenkt!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:49
@@ -364,12 +411,16 @@ msgid ""
 "Use this reclaimed power to break down the doors to their dungeon and teach the real meaning of fear!"
 "The Monk of Might will be your first victim. Armed with his faith, he waits to face you nearby!"
 msgstr ""
+"Diese Helden haben den Glauben, dass sie sich nehmen könnten, was Euch gehört. Da Ihr an gar nichts glaubt, muss Macht Euer Ausgleich sein!"
+"Nutzt diese wiedergewonnene Macht, um die Türen zu ihrem Dungeon aufzubrechen und die wahre Bedeutung der Angst zu lehren! "
+"Der Mönch der Macht wird Euer erstes Opfer sein. Bewaffnet mit seinem Glauben wartet er ganz in der Nähe, Euch gegenüberzutreten!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:50
 msgctxt "In-game message"
-msgid "Correct me if I'm wrong, which I doubt, but wasn't there a third way in?"
+msgid "Correct me if I'm wrong, which I doubt, but wasn't there a third way in? "
 msgstr ""
+"Verbessert mich, wenn ich falsch liege, was ich bezweifle, aber gab es nicht einen dritten Weg dort hinein?"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:51
@@ -377,20 +428,23 @@ msgctxt "In-game message"
 msgid ""
 "Where does the Monk of Cowardice hide? Use your instinct to make the right choice."
 msgstr ""
+"Wo versteckt sich der Mönch der Feigheit? Nutzt Euren Instinkt, und trefft die richtige Wahl."
 
 #. Return to Skybird Trill (lv416)
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
-"Looks like this worthless Dwarf has been hiding behind locked doors creating boulder traps? He was stupid enough not to use them all which you can use to your advantage!"
+"Looks like this worthless Dwarf has been hiding behind locked doors creating boulder traps? He was stupid enough not to use them all which you can use to your advantage! "
 msgstr ""
+"Sieht so aus, als hätte sich dieser schmächtige Zwerg hinter verschlossenen Türen versteckt und Indy-Fallen gebaut? Er war dumm genug, sie nicht alle zu benutzen, was Ihr sicherlich zu Eurem Vorteil nutzen werdet!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:53
 msgctxt "In-game message"
 msgid ""
-"Such holy actions by such a holy Monk? Now take his holiness and corrupt it with your dark ways. This should be fun, right my lord?"
+"Such holy actions by such a holy Monk? Now take his holiness and corrupt it with your dark ways. This should be fun, right my lord? "
 msgstr ""
+"Solch heilige Taten von einem so heiligen Mönch? Nun nehmt seine Heiligkeit und verderbt sie mit Euren dunklen Machenschaften. Das wird ein Spaß, nicht wahr, mein Herr?"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:54
@@ -398,6 +452,7 @@ msgctxt "In-game message"
 msgid ""
 "You have acquired more power! This torture room allows you to attract the Dark Mistress. Now that the Monk has been dealt with, you must proceed to where an old rival, the Lava Fairy eagerly awaits you! Lets stop by to visit, and tell her how her friends are doing? "
 msgstr ""
+"Ihr habt mehr Möglichkeiten erhalten! Diese Folterkammer erlaubt es Euch, die Eiserne Jungfrau anzulocken. Da der Mönch nun erledigt ist, müsst Ihr Euch auf den Weg zu einer alten Rivalin machen, der Lava-Fee, die Euch schon sehnsüchtig erwartet! Lasst uns bei ihr vorbeischauen um zu berichten, wie es ihren Freunden geht?"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:55
@@ -405,6 +460,7 @@ msgctxt "In-game message"
 msgid ""
 "And now to engage the Lava Fairy! Look at her abilities, and then look at her pitifulness in beseeching the great spirits to aid in her 'holy' quest. How brave, noble, and stupid! "
 msgstr ""
+"Und jetzt kümmern wir uns um die Lava-Fee! Seht Euch ihre Fähigkeiten an, und dann seht, wie armselig sie die großen Geister anfleht, ihr bei ihrer "heiligen" Suche zu helfen. Wie mutig, edel und dumm!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:56
@@ -412,6 +468,7 @@ msgctxt "In-game message"
 msgid ""
 "The Lava-Fairy is eliminated and the Training Room now yours to build! Next the Wizard of Allknowing awaits you in the northwestern area of this land. His power is great, yet no match for yours? Pay him a visit and deliver agonies he has never known; wretched evil deeds by someone dark and powerful who will show absolutely no mercy. In the unlikely event he survives, he should never forget it! "
 msgstr ""
+"Die Lava-Fee ist beseitigt und der Trainingsraum gehört nun Euch! Als Nächstes erwartet Euch der Magier der Alleswissens im nordwestlichen Teil des Landes. Er besitzt große Macht, doch ist er Eurer nicht gewachsen? Stattet ihm einen Besuch ab und überbringt ihm Qualen, die er noch nie erlebt hat; trostlose böse Taten von jemandem, der dunkel und mächtig ist und absolut keine Gnade kennt. Im unwahrscheinlichen Fall seines Überlebens, sollte er dies nie vergessen!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:57
@@ -419,6 +476,7 @@ msgctxt "In-game message"
 msgid ""
 "The Mighty Wizard of All-Knowing appears to be neither Mighty nor All-Knowing! Time to share your own knowledge Master? "
 msgstr ""
+"Der Mächtige Zauberer des Alleswissens scheint weder Mächtig noch Allwissend zu sein! Zeit, Eure eigene Weisheit zu teilen, Meister?"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:58
@@ -426,6 +484,7 @@ msgctxt "In-game message"
 msgid ""
 "The four Magical Heroes are defeated! But you cannot relax yet Master. Their final act was to invoke their Keeper creation, who is even now preparing his attack!. If you are to restore your authority in this land you must defeat him. Restoration of the Skybird Trill throne awaits you!"
 msgstr ""
+"Die vier magischen Helden sind besiegt! Doch noch könnt Ihr Euch nicht zurücklehnen, Meister. Ihre letzte Tat war die Herbeiberufung ihres Keeper-Geschöpfs, das gerade jetzt seinen Angriff vorbereitet! Wenn Ihr Eure Herrschaft in diesem Land zurückerlangen wollt, müsst Ihr ihn vernichten. Die Wiedererrichtung des Throns von Vogelsang erwartet Euch!"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:59
@@ -433,6 +492,7 @@ msgctxt "In-game message"
 msgid ""
 "Your total victory is now complete Master! This land is yours once more. Let no-one dare to challenge you here again! However, I suspect they probably will?"
 msgstr ""
+"Euer endgültiger Sieg ist nun vollbracht, Meister! Dieses Land ist wieder das Eure. Niemand soll es wagen, Euch hier noch einmal herauszufordern! Vermutlich werden sie es aber doch tun?"
 
 #. Heroic Invasion (lv442)
 #: guitext:60
@@ -440,6 +500,7 @@ msgctxt "In-game message"
 msgid ""
 "Beware Master, for many Keepers have tried to conquer this land but they have all failed. These Heroes are not to be underestimated, and your presence in this realm is already known! Prepare for a tough war. The local forces are numerous, and determined to eject you before you can establish an effective army. You must train your forces swiftly, as attacks must surely start soon!"
 msgstr ""
+"Nehmt Euch in Acht, Meister, schon viele Keeper haben versucht, dieses Land zu erobern. Sie sind alle gescheitert. Diese Helden sind nicht zu unterschätzen, und Eure Anwesenheit in diesem Reich ist bereits bekannt! Bereitet Euch auf einen zähen Krieg vor. Die einheimischen Kräfte sind zahlreich und entschlossen, Euch zu verjagen, bevor Ihr eine schlagkräftige Armee aufstellen könnt. Ihr müsst Eure Truppen schnell trainieren, denn die Angriffe werden mit Sicherheit bald beginnen!"
 
 #. Heroic Invasion (lv442)
 #: guitext:61
@@ -447,6 +508,7 @@ msgctxt "In-game message"
 msgid ""
 "Beware Keeper. An attack is on its way! Are your forces ready for battle?"
 msgstr ""
+"Achtung Keeper. Ein Angriff ist im Gange! Sind Eure Truppen bereit für die Schlacht?"
 
 #. Heroic Invasion (lv442)
 #: guitext:62
@@ -454,6 +516,7 @@ msgctxt "In-game message"
 msgid ""
 "Yet more Heroes? These people are determined to defeat you. You must stay focussed Keeper!"
 msgstr ""
+"Noch mehr Helden? Diese Leute sind fest entschlossen, Euch zu erledigen. Ihr müsst Euch konzentrieren, Keeper!"
 
 #. Heroic Invasion (lv442)
 #: guitext:63
@@ -461,6 +524,7 @@ msgctxt "In-game message"
 msgid ""
 "Spies inform us that there are some abandoned magic spells to the South-West. These would be useful, but can you spare the time to find them? Oh, hang on, another raiding party is on its way!"
 msgstr ""
+"Spitzel haben uns informiert, dass es im Südwesten einige vergessene Zaubersprüche gibt. Diese wären nützlich, aber könnt Ihr Euch die Zeit nehmen, sie aufzuspüren? Oh, wartet, ein weiterer Überfalltrupp ist auf dem Weg!"
 
 #. Heroic Invasion (lv442)
 #: guitext:64
@@ -468,6 +532,7 @@ msgctxt "In-game message"
 msgid ""
 "Another hero raiding party?! Where are they coming from? These people are relentless!"
 msgstr ""
+"Noch ein Heldenüberfallkommando?! Wo kommen die denn her? Diese Menschen sind unermüdlich!"
 
 #. Heroic Invasion (lv442)
 #: guitext:65
@@ -475,6 +540,7 @@ msgctxt "In-game message"
 msgid ""
 "Apparently a Knight has gathered an army to finish you off, and is on his way. You must force your exhausted minions back into action!"
 msgstr ""
+"Anscheinend hat ein Ritter eine Armee aufgestellt, um Euch den Todesstoß zu versetzen, und ist bereits unterwegs. Ihr müsst Eure erschöpften Untergebenen erneut zum Einsatz zwingen!"
 
 #. Heroic Invasion (lv442)
 #: guitext:66
@@ -482,6 +548,7 @@ msgctxt "In-game message"
 msgid ""
 "Now a Knight has gathered a tunnelling party to drive you from this realm. Have you found the time to research any useful spells yet Keeper? "
 msgstr ""
+"Jetzt hat ein Ritter einen Buddeltrupp zusammengestellt, um Euch aus diesem Reich zu vertreiben. Habt Ihr schon Zeit gefunden, nützliche Zaubersprüche zu erforschen, Keeper?"
 
 #. Heroic Invasion (lv442)
 #: guitext:67
@@ -489,6 +556,7 @@ msgctxt "In-game message"
 msgid ""
 "An impressive victory Keeper! I'm sure you will enjoy plundering this land in your own time, but your remaining minions must need a rest?!"
 msgstr ""
+"Ein eindrucksvoller Sieg, Keeper! Ich bin mir sicher, dass Ihr es genießen werdet, dieses Land in Eurer kostbaren Zeit zu plündern, aber Eure verbleibenden Untergebenen müssen sich ausruhen?!"
 
 #. Skybird's Other Side (lv920)
 #: guitext:68
@@ -496,6 +564,7 @@ msgctxt "In-game message"
 msgid ""
 "You're in Skybird Trill again! What dark forces compel you to return to this realm? It seems the gods seek proof that you can achieve victory no matter which side of the realm your quest begins? Prove that your victory versus the Avatar is unavoidable, no matter where your dungeon must be built!"
 msgstr ""
+"Du bist wieder in Vogelsang! Welche dunklen Mächte treiben Euch dazu, in dieses Reich zurückzukehren? Es scheint, als wollten die Götter den Beweis, dass Ihr siegen könnt, egal auf welcher Seite des Reiches Eure Herausforderung beginnt? Zeige, dass Euer Sieg über den Avatar unvermeidbar ist, ganz gleich, wo Euer Dungeon gebaut wird!"
 
 #. Skybird's Other Side (lv920)
 #: guitext:69
@@ -503,13 +572,15 @@ msgctxt "In-game message"
 msgid ""
 "You have destroyed the Avatar's castle but your rival has already taken the Avatar prisoner. Be that as it may, only the Keeper with the blackest heart can destroy this legendary hero, so ransack your rival's dungeon and take the prize. Hmm, getting a sense of deja-vu Master?"
 msgstr ""
-
+"Ihr habt zwar die Burg des Avatars zerstört, der andere Keeper hat ihn aber gefangen genommen. Sei es, wie es sei, nur der Keeper mit der schwärzesten Seele kann den legendären Helden zur Strecke bringen, also plündert den Dungeon Eures Rivalen und nehmt die Trophäe entgegen. Hmm, bekommt Ihr etwa ein Déjà-vu, Meister?"
+ 
 #. Skybird's Other Side (lv920)
 #: guitext:70
 msgctxt "In-game message"
 msgid ""
 "You have once more proved yourself to be the ruler of Skybird Trill! The latest Avatar lies amongst your defeated foes; you can put him with his predecessors! Your authority in this realm is unchallenged. For now, anyway........ "
 msgstr ""
+"Ihr habt einmal mehr bewiesen, dass Ihr der Herrscher von Vogelsang seid! Der nächste Avatar liegt inmitten Eurer besiegten Feinde; Er kann sich zu seinen Vorgängern gesellen! Eure Vorherrschaft in diesem Reich ist unanfechtbar. Für den Augenblick jedenfalls........ "
 
 #. Skybird's Other Side (lv920)
 #: guitext:71
@@ -517,6 +588,7 @@ msgctxt "In-game message"
 msgid ""
 "Prepare yourself for a plague of angry dwarves! You must deal with these irritating minions robustly Keeper. They are the advance Heroes for a forthcoming attack it seems? "
 msgstr ""
+"Macht Euch auf eine Flut von wütenden Zwergen gefasst! Ihr müsst diesen lästigen Lakaien entschieden entgegentreten, Keeper. Sie sind die Vorhut für einen bevorstehenden Angriff, wie es scheint?"
 
 #. Skybird's Other Side (lv920)
 #: guitext:72
@@ -524,6 +596,7 @@ msgctxt "In-game message"
 msgid ""
 "You have defeated the Avatar! However, you are familiar with this realm, and will know it's never safe to assume victory? "
 msgstr ""
+"Ihr habt den Avatar geschlagen! Aber Ihr kennt Euch in diesem Reich aus und wisst, dass man sich niemals auf den Sieg verlassen kann? "
 
 #. Skybird's Other Side (lv920)
 #: guitext:73
@@ -531,6 +604,7 @@ msgctxt "In-game message"
 msgid ""
 "And so the Avatar has returned with a formidable army! Prepare for the final battle Keeper. The fate of this realm must be decided very soon. "
 msgstr ""
+"Und so ist der Avatar mit einer beachtlichen Armee zurückgekehrt! Die letzte Schlacht steht bevor, Keeper. Das Schicksal dieses Reiches entscheidet sich schon bald."
 
 #: guitext:74 guitext:75 guitext:76 guitext:77
 #: guitext:78 guitext:79 guitext:80 guitext:81 guitext:82 guitext:83
@@ -561,49 +635,49 @@ msgstr ""
 #: guitext:201
 msgctxt "Level name"
 msgid "Syndika"
-msgstr ""
+msgstr "Das Syndikat"
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Kzelbatu"
-msgstr ""
+msgstr "Kzelbatu"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Titan 2"
-msgstr ""
+msgstr "Titan 2"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Vassago"
-msgstr ""
+msgstr "Vassago"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Battle of Midway"
-msgstr ""
+msgstr "Schlacht um Midway"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Reaver Verruckt"
-msgstr ""
+msgstr "Irrer Plünderer"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Frostsorrow Glacier"
-msgstr ""
+msgstr "Forstsorgen Gletscher"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Return to Skybird Trill"
-msgstr ""
+msgstr "Rückkehr nach Vogelsang"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Heroic invasion"
-msgstr ""
+msgstr "Heldenhafte Invasion"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Skybird's Other Side"
-msgstr ""
+msgstr "Vogelsangs andere Seite"
