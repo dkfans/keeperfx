@@ -511,7 +511,7 @@ msgctxt "In-game message"
 msgid "The Necromancer is defeated at last. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
 "on your heroes."
 msgstr ""
-"El último nigromante ha sido derrotado. Ahora, debes acabar con todos los vampiros supervivientes del pantano, que han llegado con "
+"El nigromante ha sido derrotado al fin. Ahora, debes acabar con todos los vampiros supervivientes del pantano, que han llegado con "
 "retraso en busca de venganza sobre tus héroes."
 
 #: guitext:57
