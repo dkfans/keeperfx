@@ -271,9 +271,7 @@ struct EffectElementStats { // sizeof = 79
   unsigned char fall_acceleration;
   unsigned char field_19;
   short inertia_floor;
-  unsigned char _field_1B;
   short inertia_air;
-  unsigned char _field_1D;
   unsigned short subeffect_model;
   unsigned short subeffect_delay;
   unsigned char field_22;
@@ -293,10 +291,6 @@ struct EffectElementStats { // sizeof = 79
   unsigned short light_radius;
   unsigned char light_intensity;
   long light_field_3D;
-  long _field_41;
-  long _field_45;
-  long _field_49;
-  unsigned char _field_4D;
   unsigned char affected_by_wind;
 };
 
