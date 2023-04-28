@@ -271,9 +271,9 @@ struct EffectElementStats { // sizeof = 79
   unsigned char fall_acceleration;
   unsigned char field_19;
   char inertia_floor;
-  unsigned char field_1B;
   char inertia_air;
-  unsigned char field_1D;
+  unsigned char _field_1B;
+  unsigned char _field_1D;
   unsigned short subeffect_model;
   unsigned short subeffect_delay;
   unsigned char field_22;
@@ -290,13 +290,13 @@ struct EffectElementStats { // sizeof = 79
   unsigned short lava_loudness;
   unsigned char lava_destroy_on_impact;
   unsigned short transform_model;
-  unsigned short field_3A;
-  unsigned char field_3C;
-  long field_3D;
-  long field_41;
-  long field_45;
-  long field_49;
-  unsigned char field_4D;
+  unsigned short light_radius;
+  unsigned char light_intensity;
+  long light_field_3D;
+  long _field_41;
+  long _field_45;
+  long _field_49;
+  unsigned char _field_4D;
   unsigned char affected_by_wind;
 };
 

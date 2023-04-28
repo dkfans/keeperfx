@@ -583,15 +583,15 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         thing->transformation_speed = 0;
     }
 
-    if (eestat->field_3A != 0)
+    if (eestat->light_radius != 0)
     {
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
         ilght.mappos.z.val = thing->mappos.z.val;
-        ilght.radius = eestat->field_3A;
-        ilght.intensity = eestat->field_3C;
+        ilght.radius = eestat->light_radius;
+        ilght.intensity = eestat->light_intensity;
         ilght.is_dynamic = 1;
-        ilght.field_3 = eestat->field_3D;
+        ilght.field_3 = eestat->light_field_3D;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id <= 0) {
             SYNCDBG(8,"Cannot allocate dynamic light to %s.",thing_model_name(thing));
