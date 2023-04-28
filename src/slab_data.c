@@ -474,6 +474,7 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
                   case SlbT_WALLDRAPE:
                     if (slabmap_owner(round_slb) == slabmap_owner(slb))
                         eff_score += 2;
+                    eff_score++;
                     break;
                   case SlbT_DOORWOOD1:
                     if (slabmap_owner(round_slb) == slabmap_owner(slb))
