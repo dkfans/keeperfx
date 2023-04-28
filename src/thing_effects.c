@@ -48,7 +48,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern struct EffectElementStats _DK_effect_element_stats[95];
 /******************************************************************************/
 struct EffectGeneratorStats effect_generator_stats[] = {
     { 0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0},

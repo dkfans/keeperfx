@@ -286,8 +286,8 @@ struct ShotConfigStats {
     unsigned char hidden_projectile;
     unsigned char destroy_on_first_hit;
     short experience_given_to_shooter;
-    unsigned char inertia_floor;
-    unsigned char inertia_air;
+    char inertia_floor;
+    char inertia_air;
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
