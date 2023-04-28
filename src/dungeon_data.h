@@ -43,7 +43,7 @@ extern "C" {
 /******************************************************************************/
 #define DUNGEONS_COUNT              5
 #define DIGGER_TASK_MAX_COUNT       64
-#define DUNGEON_RESEARCH_COUNT      34
+#define DUNGEON_RESEARCH_COUNT      64
 #define MAX_THINGS_IN_HAND          8
 #define KEEPER_POWERS_COUNT         20
 #define TURN_TIMERS_COUNT           8
