@@ -131,7 +131,10 @@ int get_next_research_item(const struct Dungeon *dungeon)
             }
             break;
         case RsCat_Creature:
-            WARNLOG("Creature research skipped - not implemented");
+            if (dungeon->creature_allowed[rsrchval->rkind] == 0)
+            {
+                return resnum;
+            }
             break;
         case RsCat_None:
             break;
