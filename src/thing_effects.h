@@ -270,9 +270,9 @@ struct EffectElementStats { // sizeof = 79
   unsigned char field_17;
   unsigned char fall_acceleration;
   unsigned char field_19;
-  char inertia_floor;
-  char inertia_air;
+  short inertia_floor;
   unsigned char _field_1B;
+  short inertia_air;
   unsigned char _field_1D;
   unsigned short subeffect_model;
   unsigned short subeffect_delay;
