@@ -73,7 +73,7 @@ msgid ""
 "rightfulness!"
 msgstr ""
 "Attention, l'armée principale des héros approche ! J'espère que vous êtes "
-"prêts, autrement le combat risque d'être très court. Détruisez le cœur "
+"prêts, autrement le combat risque d'être très court. Détruisez le coeur "
 "souillé par leur justesse !"
 
 #. Level Swedish Spirit. Orc from steal hero message

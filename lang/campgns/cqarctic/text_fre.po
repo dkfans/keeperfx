@@ -15,12 +15,6 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-"Project-Id-Version: Conquest of the Arctic campaign for KeeperFX\n"
-"Language-Team: KeeperFX Team \n"
-"MIME-Version: 1.0\n"
-"Content-Transfer-Encoding: 8bit\n"
-"Language: fr\n"
-
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
@@ -35,6 +29,10 @@ msgid ""
 "and kill him for any cost! For starters, let us take over the dungeon of "
 "other keeper!"
 msgstr ""
+"Bienvenue Gardien dans la campagne Conquête de l'Arctique. Cette fois, nous "
+"nous battrons sur les terres glacées du Pôle Nord. Nous devons trouver le "
+"chef de cette terre et le tuer à tout prix ! Pour commencer, prenons le "
+"contrôle du donjon d'un autre gardien !"
 
 #: guitext:2
 msgctxt "In-game message"
@@ -42,6 +40,8 @@ msgid ""
 "The initial task is done. You have killed the miserable opponent and now "
 "this land is ours to rule!"
 msgstr ""
+"La tâche initiale est accomplie. Vous avez tué le misérable adversaire et "
+"maintenant cette terre est à nous !"
 
 #: guitext:3
 msgctxt "In-game message"
@@ -50,6 +50,10 @@ msgid ""
 "cave to the west, lives the Avatar. I've heard he mastered several "
 "interesting incantations. Perhaps it is proper to visit him?"
 msgstr ""
+"De puissants barbares règnent sur cette terre. Mais ils ne savent pas que "
+"dans une certaine grotte à l'ouest, vit l'Avatar. J'ai entendu dire qu'il "
+"maîtrisait plusieurs incantations intéressantes. Peut-être serait-il bon de "
+"lui rendre visite ?"
 
 #: guitext:4
 msgctxt "In-game message"
@@ -58,6 +62,9 @@ msgid ""
 "land. The rumors of your power was reflected with the wide echo through all "
 "the Arctic. Now, where will we strike next?"
 msgstr ""
+"Aujourd'hui, les barbares ne font plus partie des vivants, et c'est vous qui "
+"régnez sur cette terre. Les rumeurs de votre pouvoir se sont répercutées "
+"avec un large écho dans tout l'Arctique. Où allons nous frapper maintenant ?"
 
 #: guitext:5
 msgctxt "In-game message"
@@ -66,6 +73,9 @@ msgid ""
 "and he doesn't seem to be pleased by your company. It is likely that we will "
 "have to dispose of him too!"
 msgstr ""
+"Cette terre est surveillée par des héros. Mais un autre gardien est "
+"également présent, et votre compagnie ne semble pas lui plaire. Il est "
+"probable que nous devrons nous débarrasser de lui aussi !"
 
 #: guitext:6
 msgctxt "In-game message"
@@ -73,6 +83,8 @@ msgid ""
 "Rotting bodies of the good heroes are left as a food for black beetles. What "
 "the next task would be?"
 msgstr ""
+"Les corps pourrissants des héros sont laissés en pâture aux scarabées noirs. "
+"Quelle sera la prochaine tâche ?"
 
 #: guitext:7
 msgctxt "In-game message"
@@ -81,6 +93,9 @@ msgid ""
 "south. We must kill him, to gain these the land! The conquest of Arctic this "
 "our fate!"
 msgstr ""
+"L'Avatar règne sur cette terre, il est puissant et se cache dans son propre "
+"château au sud. Nous devons le tuer, pour gagner ces terres ! La conquête de "
+"l'Arctique est notre destin !"
 
 #: guitext:8
 msgctxt "In-game message"
@@ -88,6 +103,8 @@ msgid ""
 "Powerful Avatar became dead by our splendid warriors of the shadow, the "
 "perfect work, my lord!"
 msgstr ""
+"Le puissant Avatar a été vaincu par nos splendides guerriers de l'ombre, "
+"l'œuvre parfaite, monseigneur !"
 
 #: guitext:9
 msgctxt "In-game message"
@@ -96,6 +113,9 @@ msgid ""
 "themselves however hide in their own of castle in the north. The time to "
 "gain these the land!"
 msgstr ""
+"Les héros de cette terre ont engagés deux autres gardiens pour qu'ils vous "
+"tuent, eux-mêmes se cachant cependant dans leur propre château au nord. Il "
+"est temps de gagner ces terres !"
 
 #: guitext:10
 msgctxt "In-game message"
@@ -103,6 +123,8 @@ msgid ""
 "Nobody is in a position to overcome our power, NOBODY! The perfect work, "
 "Ninja!"
 msgstr ""
+"Personne n'est en mesure de vaincre notre pouvoir, PERSONNE ! L'œuvre "
+"parfaite, Ninja !"
 
 #: guitext:11
 msgctxt "In-game message"
@@ -111,6 +133,9 @@ msgid ""
 "which also want to conquer this land. Promises the interested battle, not "
 "the truth?"
 msgstr ""
+"Dans cette terre règnent des héros qui ne prendront pas peur face à deux "
+"gardiens qui veulent aussi conquérir ce pays. Cela promet une bataille "
+"intéressante, n'est ce pas ?"
 
 #: guitext:12
 msgctxt "In-game message"
@@ -118,6 +143,8 @@ msgid ""
 "You always you amaze made me so great thing, I am under the impression! "
 "Congratulations, Ninja!"
 msgstr ""
+"Vous êtes étonnant, vous avez accompli de si grande chose, j'en ai "
+"l'impression ! Félicitations, Ninja !"
 
 #: guitext:13
 msgctxt "In-game message"
@@ -126,6 +153,9 @@ msgid ""
 "we. To this other keeper also tries to take over this land, do not permit to "
 "him this!"
 msgstr ""
+"Cette terre se trouve entre deux ravins, dans l'un d'eux vivent des "
+"personnes, dans le second nous. Cet autre gardien tente également de "
+"s'emparer de ce terrain, ne le lui permettez pas !"
 
 #: guitext:14
 msgctxt "In-game message"
@@ -133,6 +163,8 @@ msgid ""
 "The ruler of the land exploded so as and his heart, the now this land is "
 "belonging to us! Congratulations, the warrior of the shadow!"
 msgstr ""
+"Le souverain de la terre a explosé ainsi que son cœur, et maintenant cette "
+"terre nous appartient ! Félicitations, le guerrier de l'ombre !"
 
 #: guitext:15
 msgctxt "In-game message"
@@ -141,6 +173,9 @@ msgid ""
 "other keeper also sticks out for these the land, the time to pay a visit to "
 "them!"
 msgstr ""
+"Au centre de la terre se trouvent de grandes richesses, gardez par des "
+"héros. Au contraire, deux autres gardiens se distinguent également pour ces "
+"terres, c'est le moment de leur rendre visite !"
 
 #: guitext:16
 msgctxt "In-game message"
@@ -148,6 +183,8 @@ msgid ""
 "The perfect work young warrior, in spite of the attack two other keeper you "
 "made this! Congratulations!"
 msgstr ""
+"Le travail parfait jeune guerrier, malgré l'attaque des deux autres gardiens "
+"vous avez réussi ! Félicitations !"
 
 #: guitext:17
 msgctxt "In-game message"
@@ -156,11 +193,14 @@ msgid ""
 "walls, the ruler of this land walled up the entry to its own heart. This "
 "incantation will be not superfluous to the inroad to his heart. Successes!"
 msgstr ""
+"L'un des trois autres gardiens possède l'incantation la destruction des "
+"murs, le souverain de cette terre a muré l'entrée de son propre cœur. Cette "
+"incantation ne sera pas superflue pour atteindre son cœur. Réussissez !"
 
 #: guitext:18
 msgctxt "In-game message"
 msgid "The following subject land, nobody is in a position to overcome us!"
-msgstr ""
+msgstr " Personne ne sera en mesure de nous vaincre sur la prochaine terre !"
 
 #: guitext:19
 msgctxt "In-game message"
@@ -168,6 +208,9 @@ msgid ""
 "It is the already last land lived by men and keeper. Here are best warriors "
 "from all Arctic, easy does it and remember, now hesitate lots for Arctic."
 msgstr ""
+"C'est la dernière terre déjà habitée par les héros et d'autres gardiens. "
+"Voici les meilleurs guerriers de tout l'Arctique, c'est facile et n'oubliez "
+"pas, maintenant n'hésitez plus pour l'Arctique."
 
 #: guitext:20
 msgctxt "In-game message"
@@ -175,102 +218,104 @@ msgid ""
 "Congratulations you finished campaigns Conquest of the Arctic! The inch "
 "Arctic belongs to You!"
 msgstr ""
+"Félicitations vous avez terminé la campagne Conquête de l'Arctique ! Le Pôle "
+"Nord vous appartient !"
 
 #: guitext:21
 msgctxt "In-game message"
 msgid "The moonshine showed me this land, the time has come to conquer!"
 msgstr ""
+"Les rayons lunaires ont dévoilés cette terre, le temps est venu de la "
+"conquérir !"
 
 #: guitext:22
 msgctxt "In-game message"
 msgid "It's time to watch this land in the bright of full moon..."
-msgstr ""
+msgstr "Il est temps d'observer cette terre à la lumière de la pleine lune…"
 
-#: guitext:23 guitext:24 guitext:25 guitext:26 guitext:27 guitext:28
-#: guitext:29 guitext:30 guitext:31 guitext:32 guitext:33 guitext:34
-#: guitext:35 guitext:36 guitext:37 guitext:38 guitext:39 guitext:40
-#: guitext:41 guitext:42 guitext:43 guitext:44 guitext:45 guitext:46
-#: guitext:47 guitext:48 guitext:49 guitext:50 guitext:51 guitext:52
-#: guitext:53 guitext:54 guitext:55 guitext:56 guitext:57 guitext:58
-#: guitext:59 guitext:60 guitext:61 guitext:62 guitext:63 guitext:64
-#: guitext:65 guitext:66 guitext:67 guitext:68 guitext:69 guitext:70
-#: guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76
-#: guitext:77 guitext:78 guitext:79 guitext:80 guitext:81 guitext:82
-#: guitext:83 guitext:84 guitext:85 guitext:86 guitext:87 guitext:88
-#: guitext:89 guitext:90 guitext:91 guitext:92 guitext:93 guitext:94
-#: guitext:95 guitext:96 guitext:97 guitext:98 guitext:99 guitext:100
-#: guitext:101 guitext:102 guitext:103 guitext:104 guitext:105 guitext:106
-#: guitext:107 guitext:108 guitext:109 guitext:110 guitext:111 guitext:112
-#: guitext:113 guitext:114 guitext:115 guitext:116 guitext:117 guitext:118
-#: guitext:119 guitext:120 guitext:121 guitext:122 guitext:123 guitext:124
-#: guitext:125 guitext:126 guitext:127 guitext:128 guitext:129 guitext:130
-#: guitext:131 guitext:132 guitext:133 guitext:134 guitext:135 guitext:136
-#: guitext:137 guitext:138 guitext:139 guitext:140 guitext:141 guitext:142
-#: guitext:143 guitext:144 guitext:145 guitext:146 guitext:147 guitext:148
-#: guitext:149 guitext:150 guitext:151 guitext:152 guitext:153 guitext:154
-#: guitext:155 guitext:156 guitext:157 guitext:158 guitext:159 guitext:160
-#: guitext:161 guitext:162 guitext:163 guitext:164 guitext:165 guitext:166
-#: guitext:167 guitext:168 guitext:169 guitext:170 guitext:171 guitext:172
-#: guitext:173 guitext:174 guitext:175 guitext:176 guitext:177 guitext:178
-#: guitext:179 guitext:180 guitext:181 guitext:182 guitext:183 guitext:184
-#: guitext:185 guitext:186 guitext:187 guitext:188 guitext:189 guitext:190
-#: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
-#: guitext:197 guitext:198 guitext:199 guitext:200
+#: guitext:23 guitext:24 guitext:25 guitext:26 guitext:27 guitext:28 guitext:29
+#: guitext:30 guitext:31 guitext:32 guitext:33 guitext:34 guitext:35 guitext:36
+#: guitext:37 guitext:38 guitext:39 guitext:40 guitext:41 guitext:42 guitext:43
+#: guitext:44 guitext:45 guitext:46 guitext:47 guitext:48 guitext:49 guitext:50
+#: guitext:51 guitext:52 guitext:53 guitext:54 guitext:55 guitext:56 guitext:57
+#: guitext:58 guitext:59 guitext:60 guitext:61 guitext:62 guitext:63 guitext:64
+#: guitext:65 guitext:66 guitext:67 guitext:68 guitext:69 guitext:70 guitext:71
+#: guitext:72 guitext:73 guitext:74 guitext:75 guitext:76 guitext:77 guitext:78
+#: guitext:79 guitext:80 guitext:81 guitext:82 guitext:83 guitext:84 guitext:85
+#: guitext:86 guitext:87 guitext:88 guitext:89 guitext:90 guitext:91 guitext:92
+#: guitext:93 guitext:94 guitext:95 guitext:96 guitext:97 guitext:98 guitext:99
+#: guitext:100 guitext:101 guitext:102 guitext:103 guitext:104 guitext:105
+#: guitext:106 guitext:107 guitext:108 guitext:109 guitext:110 guitext:111
+#: guitext:112 guitext:113 guitext:114 guitext:115 guitext:116 guitext:117
+#: guitext:118 guitext:119 guitext:120 guitext:121 guitext:122 guitext:123
+#: guitext:124 guitext:125 guitext:126 guitext:127 guitext:128 guitext:129
+#: guitext:130 guitext:131 guitext:132 guitext:133 guitext:134 guitext:135
+#: guitext:136 guitext:137 guitext:138 guitext:139 guitext:140 guitext:141
+#: guitext:142 guitext:143 guitext:144 guitext:145 guitext:146 guitext:147
+#: guitext:148 guitext:149 guitext:150 guitext:151 guitext:152 guitext:153
+#: guitext:154 guitext:155 guitext:156 guitext:157 guitext:158 guitext:159
+#: guitext:160 guitext:161 guitext:162 guitext:163 guitext:164 guitext:165
+#: guitext:166 guitext:167 guitext:168 guitext:169 guitext:170 guitext:171
+#: guitext:172 guitext:173 guitext:174 guitext:175 guitext:176 guitext:177
+#: guitext:178 guitext:179 guitext:180 guitext:181 guitext:182 guitext:183
+#: guitext:184 guitext:185 guitext:186 guitext:187 guitext:188 guitext:189
+#: guitext:190 guitext:191 guitext:192 guitext:193 guitext:194 guitext:195
+#: guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
 msgid "Moo"
-msgstr ""
+msgstr "Meuh!"
 
 #: guitext:202
 msgctxt "Level name"
 msgid "Ice blood"
-msgstr ""
+msgstr "Sang glacé"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Barbarian land"
-msgstr ""
+msgstr "Terre barbare"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Magma land"
-msgstr ""
+msgstr "Terre magmatique"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Mortal fight"
-msgstr ""
+msgstr "Combat mortel"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Death in ice"
-msgstr ""
+msgstr "Mort de glace"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Land of blood"
-msgstr ""
+msgstr "Terre de sang"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Cold reality"
-msgstr ""
+msgstr "Froide réalité"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Eye of battle"
-msgstr ""
+msgstr "Oeil de bataille"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Battlefield"
-msgstr ""
+msgstr "Champ de bataille"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "United kingdom"
-msgstr ""
+msgstr "Royaume-uni"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "moon level"
-msgstr ""
+msgstr "Pleine Lune"

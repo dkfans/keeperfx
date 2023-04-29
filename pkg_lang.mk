@@ -52,6 +52,7 @@ pkg/campgns/burdnimp/text_pol.dat \
 pkg/campgns/burdnimp/text_spa.dat \
 pkg/campgns/cqarctic/text_eng.dat \
 pkg/campgns/cqarctic/text_chi.dat \
+pkg/campgns/cqarctic/text_fre.dat \
 pkg/campgns/cqarctic/text_pol.dat \
 pkg/campgns/cqarctic/text_spa.dat \
 pkg/campgns/dstninja/text_eng.dat \
