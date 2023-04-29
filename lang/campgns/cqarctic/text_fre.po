@@ -303,7 +303,7 @@ msgstr "Froide réalité"
 #: guitext:209
 msgctxt "Level name"
 msgid "Eye of battle"
-msgstr "Œil de bataille"
+msgstr "Oeil de bataille"
 
 #: guitext:210
 msgctxt "Level name"
