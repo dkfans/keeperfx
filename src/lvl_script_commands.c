@@ -2656,6 +2656,55 @@ static void reveal_map_location_process(struct ScriptContext *context)
         reveal_map_area(context->player_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
+//USE_SPELL_ON_PLAYERS_CREATURES([player],[spell],[level])
+static void use_spell_on_creature_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    const char *mag_name = scline->tp[1];
+    short mag_id = get_rid(spell_desc, mag_name);
+    short splevel = scline->np[2];
+
+    if (mag_id == -1)
+    {
+        SCRPTERRLOG("Invalid spell: %s", mag_name);
+        return;
+    }
+
+    if (splevel < 1)
+    {
+        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        {
+            SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
+        }
+        splevel = 1;
+    }
+    if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) //Creatures cast spells from level 1 to 10, but 10=9.
+    {
+        SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
+        splevel = MAGIC_OVERCHARGE_LEVELS;
+    }
+    splevel--;
+    if (mag_id == -1)
+    {
+        SCRPTERRLOG("Unknown magic, '%s'", mag_name);
+        return;
+    }
+
+    value->shorts[1] = mag_id;
+    value->shorts[2] = splevel;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void use_spell_on_creature_process(struct ScriptContext* context)
+{
+    long spl_idx = context->value->shorts[1];
+    long overchrg = context->value->shorts[2];
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        apply_spell_effect_to_players_creatures(i, spl_idx, overchrg);
+    }
+}
+
 static void set_creature_instance_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -3227,6 +3276,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
   {"USE_SPELL_ON_CREATURE",             "PC!AAN  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
+  {"USE_SPELL_ON_PLAYERS_CREATURES",    "PAN     ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_spell_on_creature_check, &use_spell_on_creature_process },
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
   {"ADD_HEART_HEALTH",                  "PNn     ", Cmd_ADD_HEART_HEALTH, &add_heart_health_check, &add_heart_health_process},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
