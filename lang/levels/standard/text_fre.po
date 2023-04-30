@@ -360,7 +360,7 @@ msgstr "Vous avez trouvé un chemin au-delà des montagnes. Détruisez bleu et d
 #: guitext:56
 msgctxt "In-game message"
 msgid "With blue out of the way it is time to destroy the hero heart and rule this realm!"
-msgstr "Avec le bleu à l'écart, il est temps de détruire le cœur du héros et de régner sur ce royaume !"
+msgstr "Avec le bleu à l'écart, il est temps de détruire le coeur du héros et de régner sur ce royaume !"
 
 #. Dread Mountain (lv454)
 #: guitext:57
