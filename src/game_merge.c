@@ -218,10 +218,7 @@ struct ThingAdd *get_thingadd(Thingid thing_idx)
 {
     return &gameadd.things[thing_idx];
 }
-struct LightAdd *get_lightadd(unsigned short light_idx)
-{
-    return &gameadd.lights[light_idx];
-}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
