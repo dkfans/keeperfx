@@ -78,9 +78,8 @@ unsigned long thing_create_errors = 0;
 /******************************************************************************/
 
 void set_previous_thing_position(struct Thing *thing) {
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->previous_mappos = thing->mappos;
-    thingadd->previous_floor_height = thing->floor_height;
+    thing->previous_mappos = thing->mappos;
+    thing->previous_floor_height = thing->floor_height;
 }
 
 /**

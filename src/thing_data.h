@@ -271,6 +271,19 @@ unsigned short floor_height;
     unsigned char snd_emitter_id;
     short next_of_class;
     short prev_of_class;
+    unsigned long flags; //ThingAddFlags
+    long last_turn_drawn;
+    float time_spent_displaying_hurt_colour; // Used for delta time interpolated render position
+    unsigned short previous_floor_height;
+    unsigned short interp_floor_height;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long interp_minimap_pos_x;
+    long interp_minimap_pos_y;
+    long previous_minimap_pos_x;
+    long previous_minimap_pos_y;
+    long interp_minimap_update_turn;
+    PlayerNumber holding_player;
 };
 
 #define INVALID_THING (game.things.lookup[0])
@@ -289,21 +302,7 @@ enum ThingAddFlags
 
 struct ThingAdd // Additional thing data
 {
-    unsigned long flags; //ThingAddFlags
-    long last_turn_drawn;
-    float time_spent_displaying_hurt_colour;
-    // Used for delta time interpolated render position
-    unsigned short previous_floor_height;
-    unsigned short interp_floor_height;
-    struct Coord3d previous_mappos;
-    struct Coord3d interp_mappos;
-    
-    long interp_minimap_pos_x;
-    long interp_minimap_pos_y;
-    long previous_minimap_pos_x;
-    long previous_minimap_pos_y;
-    long interp_minimap_update_turn;
-    PlayerNumber holding_player;
+
 };
 
 #pragma pack()
