@@ -181,15 +181,6 @@ long light_create_light(struct InitLight *ilght)
     lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
-    lgt->interp_has_been_initialized = false;
-    lgt->previous_mappos.x.val = 0;
-    lgt->previous_mappos.y.val = 0;
-    lgt->previous_mappos.z.val = 0;
-    lgt->interp_mappos.x.val = 0;
-    lgt->interp_mappos.y.val = 0;
-    lgt->interp_mappos.z.val = 0;
-    lgt->last_turn_drawn = 0;
-    lgt->disable_interp_for_turns = 0;
     return lgt->index;
 }
 
@@ -235,16 +226,6 @@ TbBool light_create_light_adv(VALUE *init_data)
 
     lgt->attached_slb = ilght->attached_slb;
      */
-
-    lgt->interp_has_been_initialized = false;
-    lgt->previous_mappos.x.val = 0;
-    lgt->previous_mappos.y.val = 0;
-    lgt->previous_mappos.z.val = 0;
-    lgt->interp_mappos.x.val = 0;
-    lgt->interp_mappos.y.val = 0;
-    lgt->interp_mappos.z.val = 0;
-    lgt->last_turn_drawn = 0;
-    lgt->disable_interp_for_turns = 0;
 
     return true;
 }
