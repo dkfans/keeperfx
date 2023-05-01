@@ -33,6 +33,7 @@
 #include "thing_navigate.h"
 #include "creature_senses.h"
 #include "config_creature.h"
+#include "config_effects.h"
 #include "front_simple.h"
 #include "map_data.h"
 #include "map_blocks.h"
