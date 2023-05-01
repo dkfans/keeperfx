@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "config_strings.h"
+#include "console_cmd.h"
 #include "thing_doors.h"
 #include "player_instances.h"
 #include "player_states.h"
@@ -877,13 +878,9 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  trapst->destructible = k;
-                  n++;
-              }
+              trapst->destructible = k;
           }
-          if (n < 1)
+          if (!parameter_is_number(word_buf))
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
