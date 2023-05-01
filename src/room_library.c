@@ -151,7 +151,7 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
         }
     } else
     {
-        WARNLOG("Strange pickup (model %d) - no event",(int)picktng->model);
+        WARNLOG("Strange pickup (%s) - no event",thing_class_and_model_name(picktng->class_id, picktng->model));
         evidx = 0;
     }
     return evidx;
