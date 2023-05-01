@@ -430,6 +430,9 @@ TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, in
     case 'L':
         get_map_location_code_name(scline->np[idx], scline->tp[idx]);
         break;
+    case 'S':
+        strcpy(scline->tp[idx], slab_code_name(scline->np[idx]));
+        break;
     case 'A':
         break;
     case '!': // extended sign
