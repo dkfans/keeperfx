@@ -33,6 +33,7 @@
 #include "thing_navigate.h"
 #include "creature_senses.h"
 #include "config_creature.h"
+#include "config_effects.h"
 #include "front_simple.h"
 #include "map_data.h"
 #include "map_blocks.h"
@@ -1275,7 +1276,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     }
     struct Thing* thing = allocate_free_thing_structure(1);
     if (thing->index == 0) {
-        ERRORDBG(8,"Should be able to allocate effect %d for player %d, but failed.",(int)effmodel,(int)owner);
+        ERRORDBG(8,"Should be able to allocate effect %d (%s) for player %d, but failed.",(int)effmodel,effect_code_name(effmodel),(int)owner);
         return INVALID_THING;
     }
     thing->creation_turn = game.play_gameturn;
