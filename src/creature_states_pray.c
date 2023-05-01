@@ -259,15 +259,27 @@ long force_complete_current_manufacturing(long plyr_idx)
     return 0;
 }
 
-void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long spl_idx, long overchrg)
+void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long crmodel, long spl_idx, long overchrg)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
-    int i = dungeon->creatr_list_start;
+
+    TbBool need_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
+    struct Thing* thing = INVALID_THING;
+    int i;
+    if ((!need_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
+    {
+        i = dungeon->creatr_list_start;
+    }
+    else
+    {
+        i = dungeon->digger_list_start;
+    }
+
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        thing = thing_get(i);
         TRACE_THING(thing);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
@@ -277,7 +289,10 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long spl_idx
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        apply_spell_effect_to_thing(thing, spl_idx, overchrg);
+        if (creature_matches_model(thing,crmodel))
+        {      
+            apply_spell_effect_to_thing(thing, spl_idx, overchrg);
+        }
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -528,12 +543,12 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
             break;
         case SacA_NegSpellAll:
             if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
-            apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
+            apply_spell_effect_to_players_creatures(plyr_idx, CREATURE_NOT_A_DIGGER, sac->param, explevel);
             ret = SacR_Punished;
             break;
         case SacA_PosSpellAll:
             if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
-            apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
+            apply_spell_effect_to_players_creatures(plyr_idx, CREATURE_NOT_A_DIGGER, sac->param, explevel);
             ret = SacR_Awarded;
             break;
         case SacA_NegUniqFunc:
