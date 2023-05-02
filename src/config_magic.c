@@ -282,9 +282,9 @@ TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
 
 struct SpellData *get_power_data(int pwkind)
 {
-  if ((pwkind > 0) && (pwkind < POWER_TYPES_COUNT))
+  if ((pwkind > 0) && (pwkind < magic_conf.power_types_count))
     return &spell_data[pwkind];
-  if ((pwkind < -1) || (pwkind >= POWER_TYPES_COUNT))
+  if ((pwkind < -1) || (pwkind >= magic_conf.power_types_count))
     ERRORLOG("Request of invalid power (no %d) intercepted",pwkind);
   return &spell_data[0];
 }
@@ -351,7 +351,7 @@ TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst)
 
 struct MagicStats *get_power_dynamic_stats(PowerKind pwkind)
 {
-    if (pwkind >= POWER_TYPES_COUNT)
+    if (pwkind >= magic_conf.power_types_count)
         return &game.keeper_power_stats[0];
     return &game.keeper_power_stats[pwkind];
 }
@@ -2299,7 +2299,7 @@ int power_model_id(const char * code_name)
  */
 TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
-    if (pwkind >= KEEPER_POWERS_COUNT)
+    if (pwkind >= magic_conf.power_types_count)
     {
         ERRORLOG("Can't add incorrect power %d to player %d",(int)pwkind, (int)plyr_idx);
         return false;
@@ -2377,7 +2377,7 @@ TbBool make_all_powers_cost_free(void)
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    for (long i = 0; i < KEEPER_POWERS_COUNT; i++)
+    for (long i = 0; i < magic_conf.power_types_count; i++)
     {
         dungeon->magic_resrchable[i] = 1;
     }
@@ -2435,7 +2435,7 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if (pwkind >= KEEPER_POWERS_COUNT)
+    if (pwkind >= magic_conf.power_types_count)
     {
         ERRORLOG("Incorrect power %ld (player %ld)", pwkind, plyr_idx);
         return false;
@@ -2466,7 +2466,7 @@ TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind)
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if (pwkind >= KEEPER_POWERS_COUNT) {
+    if (pwkind >= magic_conf.power_types_count) {
         ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
         return false;
     }
@@ -2485,7 +2485,7 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
       ERRORDBG(11,"Cannot make research available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
-  for (long i = 0; i < KEEPER_POWERS_COUNT; i++)
+  for (long i = 0; i < magic_conf.power_types_count; i++)
   {
     if (dungeon->magic_resrchable[i])
     {

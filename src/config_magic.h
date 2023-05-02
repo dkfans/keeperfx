@@ -34,7 +34,7 @@ extern "C" {
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
 #define MAGIC_TYPES_COUNT      30
-#define POWER_TYPES_COUNT      20
+#define POWER_TYPES_MAX      64
 
 enum SpellKinds {
     SplK_None = 0,
