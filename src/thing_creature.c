@@ -883,7 +883,6 @@ TbBool free_spell_slot(struct Thing *thing, long slot_idx)
 void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx, long spell_lev)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    const struct MagicStats *pwrdynst;
     struct ComponentVector cvect;
     struct Coord3d pos;
     struct Thing *ntng;
@@ -894,6 +893,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         spell_lev = SPELL_MAX_LEVEL;
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
     const struct SpellConfig* spconf = get_spell_config(spell_idx);
+    const struct MagicStats* pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     long n;
     switch (spell_idx)
     {
@@ -915,7 +915,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            pwrdynst = get_power_dynamic_stats(PwrK_PROTECT);
             fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
             n = 0;
             cctrl->spell_flags |= CSAfF_Armour;
@@ -950,7 +949,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         }
         break;
     case SplK_Heal:
-        pwrdynst = get_power_dynamic_stats(PwrK_HEALCRTR);
         i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev],16);
         if (i < 0)
         {
@@ -965,7 +963,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            pwrdynst = get_power_dynamic_stats(PwrK_CONCEAL);
             fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
             cctrl->spell_flags |= CSAfF_Invisibility;
             cctrl->force_visible = 0;
@@ -983,7 +980,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            pwrdynst = get_power_dynamic_stats(PwrK_SPEEDCRTR);
             fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
             cctrl->spell_flags |= CSAfF_Speed;
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
@@ -1025,7 +1021,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
           {
               cctrl->disease_caster_plyridx = game.neutral_player_num;
           }
-          pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
           fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
           n = 0;
           cctrl->spell_flags |= CSAfF_Disease;
@@ -1064,7 +1059,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
-            pwrdynst = get_power_dynamic_stats(PwrK_CHICKEN);
             fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
             external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
             cctrl->countdown_282 = 10;
@@ -1116,7 +1110,7 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     struct CastedSpellData* cspell = &cctrl->casted_spells[idx];
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
     struct SpellConfig* spconf = get_spell_config(spell_idx);
-    const struct MagicStats* pwrdynst;
+    const struct MagicStats* pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     switch (spell_idx)
     {
     case SplK_Freeze:
@@ -1124,7 +1118,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         creature_set_speed(thing, 0);
         break;
     case SplK_Armour:
-        pwrdynst = get_power_dynamic_stats(PwrK_PROTECT);
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     case SplK_Rebound:
@@ -1132,7 +1125,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     case SplK_Heal:
     {
-        pwrdynst = get_power_dynamic_stats(PwrK_HEALCRTR);
         long i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
         if (i < 0)
         {
@@ -1145,14 +1137,12 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         break;
     }
     case SplK_Invisibility:
-        pwrdynst = get_power_dynamic_stats(PwrK_CONCEAL);
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     case SplK_Teleport:
         cspell->duration = spconf->duration;
         break;
     case SplK_Speed:
-        pwrdynst = get_power_dynamic_stats(PwrK_SPEEDCRTR);
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     case SplK_Slow:
@@ -1168,13 +1158,11 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cspell->duration = spconf->duration;
         break;
     case SplK_Disease:
-        pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
         cctrl->countdown_282 = 2;
-        pwrdynst = get_power_dynamic_stats(PwrK_CHICKEN);
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     default:

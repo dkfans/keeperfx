@@ -401,8 +401,8 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
 
-    get_thingadd(thing->index)->flags = 0;
-    get_thingadd(thing->index)->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+    thing->flags = 0;
+    thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
 
     return thing;
 }

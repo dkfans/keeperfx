@@ -1413,9 +1413,8 @@ short creature_being_dropped(struct Thing *creatng)
     set_start_state(creatng);
     // Check job which we can do after dropping at these coordinates
     CreatureJob new_job;
-    struct ThingAdd* creatngadd = get_thingadd(creatng->index);
     struct Room* room = room_get(slb->room_index);
-    if ((!room_is_invalid(room)) && (room->owner != creatngadd->holding_player))
+    if ((!room_is_invalid(room)) && (room->owner != creatng->holding_player))
     {
         new_job = Job_NULL;
     }
