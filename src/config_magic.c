@@ -60,6 +60,7 @@ const struct NamedCommand magic_spell_commands[] = {
   {"SHOTMODEL",       5},
   {"EFFECTMODEL",     6},
   {"SYMBOLSPRITES",   7},
+  {"SPELLPOWER",      8},
   {NULL,              0},
   };
 
@@ -518,6 +519,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             }
 
             spconf = get_spell_config(i);
+            spconf->linked_power = 0;
             spconf->duration = 0;
             spconf->caster_affected = 0;
             spconf->caster_affect_sound = 0;
@@ -690,6 +692,29 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 8: // SPELLPOWER
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+              }
+              else
+              {
+                  k = get_id(power_desc, word_buf);
+              }
+              if (k >= 0)
+              {
+                  spconf->linked_power = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment

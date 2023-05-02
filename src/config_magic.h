@@ -359,6 +359,7 @@ struct SpellConfig {
     /** Sprite index of medium symbol icon representing the spell. */
     short medsym_sprite_idx;
     short cast_sound;
+    short linked_power;
     int duration;
 };
 
