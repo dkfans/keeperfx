@@ -955,8 +955,8 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         } else {
           thing->health = min(i,cctrl->max_health);
         }
-        cctrl->field_2B0 = 7;
-        cctrl->field_2AE = pwrdynst->duration;
+        cctrl->spell_aura = SplK_Heal;
+        cctrl->spell_aura_duration = pwrdynst->duration;
         break;
     case SplK_Invisibility:
         i = get_free_spell_slot(thing);
@@ -1117,8 +1117,8 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         } else {
           thing->health = min(i,cctrl->max_health);
         }
-        cctrl->field_2B0 = 7;
-        cctrl->field_2AE = pwrdynst->duration;
+        cctrl->spell_aura = SplK_Heal;
+        cctrl->spell_aura_duration = pwrdynst->duration;
         break;
     }
     case SplK_Invisibility:
@@ -5407,9 +5407,9 @@ TngUpdateRet update_creature(struct Thing *thing)
     process_disease(thing);
     move_thing_in_map(thing, &thing->mappos);
     set_creature_graphic(thing);
-    if (cctrl->field_2B0)
+    if (cctrl->spell_aura)
     {
-        process_keeper_spell_effect(thing);
+        process_keeper_spell_aura(thing);
     }
 
     if (thing->creature.health_bar_turns > 0)

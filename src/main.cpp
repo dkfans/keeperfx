@@ -283,18 +283,18 @@ long get_foot_creature_has_down(struct Thing *thing)
     return 0;
 }
 
-void process_keeper_spell_effect(struct Thing *thing)
+void process_keeper_spell_aura(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_2AE--;
-    if (cctrl->field_2AE <= 0)
+    cctrl->spell_aura_duration--;
+    if (cctrl->spell_aura_duration <= 0)
     {
-        cctrl->field_2B0 = 0;
+        cctrl->spell_aura = 0;
         return;
     }
-    if (cctrl->field_2B0 == 7)
+    if (cctrl->spell_aura == SplK_Heal)
     {
         struct Coord3d pos;
         long amp;
@@ -308,7 +308,7 @@ void process_keeper_spell_effect(struct Thing *thing)
         pos.x.val = thing->mappos.x.val + (delta_x >> 8);
         pos.y.val = thing->mappos.y.val - (delta_y >> 8);
         pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, TngEffElm_Heal, thing->owner); // Heal
+        create_effect_element(&pos, TngEffElm_Heal, thing->owner);
     }
 }
 

@@ -380,8 +380,8 @@ unsigned char cowers_from_slap_turns;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
     unsigned short prev_in_room;//field_2AC
-short field_2AE;
-    unsigned char field_2B0; // 7 == heal
+    short spell_aura_duration;
+    unsigned char spell_aura;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
