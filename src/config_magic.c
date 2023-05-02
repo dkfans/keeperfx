@@ -1622,29 +1622,29 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   // Block name and parameter word store variables
   // Initialize the array
   int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
+  arr_size = sizeof(magic_conf.power_cfgstats) / sizeof(magic_conf.power_cfgstats[0]);
+  for (i = 0; i < arr_size; i++)
   {
-      arr_size = sizeof(magic_conf.power_cfgstats)/sizeof(magic_conf.power_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
+      if ((flags & CnfLd_AcceptPartial) == 0)
       {
-          powerst = get_power_model_stats(i);
-          LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
-          powerst->artifact_model = 0;
-          powerst->can_cast_flags = 0;
-          powerst->config_flags = 0;
-          powerst->overcharge_check = NULL;
-          powerst->work_state = 0;
-          powerst->bigsym_sprite_idx = 0;
-          powerst->medsym_sprite_idx = 0;
-          powerst->name_stridx = 0;
-          powerst->tooltip_stridx = 0;
-          powerst->select_sample_idx = 0;
-          powerst->pointer_sprite_idx = 0;
-          powerst->panel_tab_idx = 0;
-          powerst->select_sound_idx = 0;
-          powerst->cast_cooldown = 0;
-          if (i < magic_conf.power_types_count)
+          if ((i < magic_conf.power_types_count) || (strlen(power_desc[i].name) <= 0))
           {
+              powerst = get_power_model_stats(i);
+              LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+              powerst->artifact_model = 0;
+              powerst->can_cast_flags = 0;
+              powerst->config_flags = 0;
+              powerst->overcharge_check = NULL;
+              powerst->work_state = 0;
+              powerst->bigsym_sprite_idx = 0;
+              powerst->medsym_sprite_idx = 0;
+              powerst->name_stridx = 0;
+              powerst->tooltip_stridx = 0;
+              powerst->select_sample_idx = 0;
+              powerst->pointer_sprite_idx = 0;
+              powerst->panel_tab_idx = 0;
+              powerst->select_sound_idx = 0;
+              powerst->cast_cooldown = 0;
               power_desc[i].name = powerst->code_name;
               power_desc[i].num = i;
           } else
@@ -1701,6 +1701,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
               break;
           }
+          power_desc[i].name = powerst->code_name;
+          power_desc[i].num = i;
           break;
       case 2: // POWER
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
