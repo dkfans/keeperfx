@@ -90,9 +90,6 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     game.free_things_start_index++;
     TRACE_THING(thing);
 
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    LbMemorySet(thingadd, 0, sizeof(struct ThingAdd)); // Clear any previously used ThingAdd stuff
-    
     return thing;
 }
 

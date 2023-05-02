@@ -583,8 +583,7 @@ void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
         external_set_thing_state(thing, CrSt_InPowerHand);
         remove_all_traces_of_combat(thing);
     }
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->holding_player = comp->dungeon->owner;
+    thing->holding_player = comp->dungeon->owner;
     place_thing_in_limbo(thing);
 }
 
