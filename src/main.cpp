@@ -2185,14 +2185,14 @@ void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
 {
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
     struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    struct LightAdd* lightadd = get_lightadd(player->cursor_light_idx);
+    struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
     if (playeradd->mouse_is_offmap == true) {
-        lightadd->disable_interp_for_turns = 2;
+        light->disable_interp_for_turns = 2;
     }
-    if (lightadd->disable_interp_for_turns > 0) {
-        lightadd->disable_interp_for_turns -= 1;
-        lightadd->last_turn_drawn = 0;
+    if (light->disable_interp_for_turns > 0) {
+        light->disable_interp_for_turns -= 1;
+        light->last_turn_drawn = 0;
     }
 }
 

@@ -237,8 +237,8 @@ struct Thing {
     unsigned char class_id;
     unsigned char fall_acceleration;
     unsigned char bounce_angle;
-    unsigned char inertia_floor;
-    unsigned char inertia_air;
+    short inertia_floor;
+    short inertia_air;
     unsigned char movement_flags;
     struct CoordDelta3d veloc_push_once;
     struct CoordDelta3d veloc_base;

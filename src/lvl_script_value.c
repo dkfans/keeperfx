@@ -74,7 +74,7 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
@@ -92,7 +92,7 @@ TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, 
 {
     struct Thing *thing = script_get_creature_by_criteria(origin_plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)origin_plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)origin_plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
     change_creature_owner(thing, dest_plyr_idx);
@@ -119,7 +119,7 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to level up",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to level up",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
     creature_increase_multiple_levels(thing,count);
@@ -138,7 +138,7 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to use power on.",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use power on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
 
@@ -202,7 +202,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to use spell on.",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use spell on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;

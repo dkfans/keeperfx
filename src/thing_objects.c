@@ -299,13 +299,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
 
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
-        ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        ERRORDBG(3,"Cannot create object model %d (%s) for player %d. There are too many things allocated.",(int)model,object_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
-        ERRORDBG(3,"Should be able to allocate object %d for player %d, but failed.",(int)model,(int)owner);
+        ERRORDBG(3,"Should be able to allocate object %d (%s) for player %d, but failed.",(int)model,object_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }

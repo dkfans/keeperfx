@@ -475,13 +475,14 @@ long sacrifice_victim_model_count(struct SacrificeRecipe *sac, long model)
 TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
 {
     // Some models may be checked more than once; dut we don't really care...
+    // Some models may be checked more than once; but we don't really care...
     for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
         long model = sac->victims[i];
         if (model < 1)
             continue;
         long required = sacrifice_victim_model_count(sac, model);
-        SYNCDBG(6, "Model %d exists %d times", (int)model, (int)required);
+        SYNCDBG(6, "Model %d (%s) exists %d times", (int)model, creature_code_name(model), (int)required);
         if (dungeon->creature_sacrifice[model] < required)
             return false;
   }

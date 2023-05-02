@@ -214,11 +214,6 @@ void update_extra_levels_visibility(void)
 {
 }
 
-struct LightAdd *get_lightadd(unsigned short light_idx)
-{
-    return &gameadd.lights[light_idx];
-}
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
