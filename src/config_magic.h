@@ -231,7 +231,7 @@ struct ShotHitConfig {
 
 struct ShotDetonateConfig {
     short effect1_model;
-    short effect2_model; 
+    short effect2_model;
     short around_effect1_model;
     short around_effect2_model;
 };
