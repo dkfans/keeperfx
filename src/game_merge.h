@@ -207,7 +207,6 @@ struct GameAdd {
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 
     struct ThingAdd things[THINGS_COUNT];
-    struct LightAdd lights[LIGHTS_COUNT];
 
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
@@ -272,7 +271,6 @@ TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *play
 /******************************************************************************/
 
 struct ThingAdd *get_thingadd(Thingid thing_idx);
-struct LightAdd *get_lightadd(unsigned short light_idx);
 
 #ifdef __cplusplus
 }
