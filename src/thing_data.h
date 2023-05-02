@@ -294,15 +294,10 @@ unsigned short floor_height;
  */
 #define TRACE_THING(thing)
 
-enum ThingAddFlags
+enum ThingAddFlags //named this way because they were part of the ThingAdd structure
 {
     TAF_ROTATED_SHIFT = 16,
     TAF_ROTATED_MASK = 0x070000,
-};
-
-struct ThingAdd // Additional thing data
-{
-
 };
 
 #pragma pack()
