@@ -1181,14 +1181,8 @@ TbBool set_position_at_slab_for_thing(struct Coord3d *pos, const struct Thing *t
 {
     long block_radius = subtile_coord(thing_nav_block_sizexy(thing), 0) / 2;
     struct Coord3d locpos;
-    if (creature_find_safe_position_to_move_within_slab(&locpos, thing, slb_x, slb_y, start_stl))
+    if (creature_find_safe_position_to_move_within_slab_with_radius(&locpos, thing, slb_x, slb_y, start_stl))
     {
-        if (thing_in_wall_at_with_radius(thing, &locpos, block_radius))
-        {
-            SYNCDBG(8,"The %s index %d can't fit to safe position (%d,%d)", thing_model_name(thing),
-                (int)thing->index, (int)locpos.x.stl.num, (int)locpos.y.stl.num);
-            return false;
-        }
         pos->x.val = locpos.x.val;
         pos->y.val = locpos.y.val;
         pos->z.val = locpos.z.val;
