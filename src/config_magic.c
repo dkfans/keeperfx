@@ -61,6 +61,8 @@ const struct NamedCommand magic_spell_commands[] = {
   {"EFFECTMODEL",     6},
   {"SYMBOLSPRITES",   7},
   {"SPELLPOWER",      8},
+  {"AURAEFFECT",      9},
+  {"SPELLFLAGS",     10},
   {NULL,              0},
   };
 
@@ -528,6 +530,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             spconf->cast_effect_model = 0;
             spconf->bigsym_sprite_idx = 0;
             spconf->medsym_sprite_idx = 0;
+            spconf->aura_effect = 0;
+            spconf->spell_flags = 0;
         }
     }
     
@@ -708,6 +712,46 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               if (k >= 0)
               {
                   spconf->linked_power = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 9: // AURAEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+                  n++;
+              }
+              else
+              {
+                  k = get_id(effect_desc, word_buf);
+                  if (k >= 0)
+                  {
+                      spconf->aura_effect = k;
+                      n++;
+                  }
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 10: // SPELLFLAGS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  spconf->spell_flags = k;
                   n++;
               }
           }

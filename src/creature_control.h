@@ -379,9 +379,9 @@ unsigned char cowers_from_slap_turns;
     long flee_start_turn;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
-    unsigned short prev_in_room;//field_2AC
+    unsigned short prev_in_room;
+    short spell_aura;
     short spell_aura_duration;
-    unsigned char spell_aura;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
