@@ -78,9 +78,8 @@ unsigned long thing_create_errors = 0;
 /******************************************************************************/
 
 void set_previous_thing_position(struct Thing *thing) {
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->previous_mappos = thing->mappos;
-    thingadd->previous_floor_height = thing->floor_height;
+    thing->previous_mappos = thing->mappos;
+    thing->previous_floor_height = thing->floor_height;
 }
 
 /**
@@ -268,6 +267,47 @@ long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, Max
                     refpos.z.val = 0;
                     // This function should return max value when the distance is minimal, so:
                     return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct Thing* thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if (thing_matches_model(thing, param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                struct Thing* traptng = thing_get(param->num1);
+                if (players_are_enemies(traptng->owner, thing->owner) || is_neutral_thing(traptng))
+                {
+                    if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
+                        && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
+                        && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
+                    {
+                        MapCoordDelta distance = get_2d_distance(&thing->mappos, &traptng->mappos);
+                        MapCoordDelta max_range = param->num2;
+                        if ((distance <= max_range) || (max_range <= 0))
+                        {
+                            if (line_of_sight_2d(&traptng->mappos, &thing->mappos))
+                            {
+                                // This function should return max value when the distance is minimal, so:
+                                return LONG_MAX - distance;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -1765,6 +1805,23 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
     return get_nth_thing_of_class_with_filter(filter, &param, n);
 }
 
+struct Thing* get_nearest_enemy_creature_in_sight_and_range_of_trap(struct Thing* traptng)
+{
+    const struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
+
+    SYNCDBG(19, "Starting");
+    Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Creature;
+    param.model_id = CREATURE_ANY;
+    param.plyr_idx = -1;
+    param.num1 = traptng->index;
+    param.num2 = shotst->max_range;
+    param.num3 = -1;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
+}
+
 struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *creatng)
 {
     SYNCDBG(19,"Starting");
@@ -1793,7 +1850,7 @@ struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creat
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
-struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist)
+struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist, long move_on_ground)
 {
     SYNCDBG(19,"Starting");
     Thing_Maximizer_Filter filter = highest_score_thing_filter_is_enemy_within_distance_which_can_be_attacked_by_creature;
@@ -1803,7 +1860,7 @@ struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attac
     param.plyr_idx = -1;
     param.num1 = creatng->index;
     param.num2 = dist;
-    param.num3 = 0;
+    param.num3 = move_on_ground;
     return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
@@ -3100,9 +3157,9 @@ TbBool update_thing(struct Thing *thing)
         if (thing->mappos.z.val > thing->floor_height)
         {
             if (thing->veloc_base.x.val != 0)
-                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_air) / 256;
+                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)
-                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_air) / 256;
+                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
                 thing->veloc_push_add.z.val -= thing->fall_acceleration;
@@ -3112,7 +3169,7 @@ TbBool update_thing(struct Thing *thing)
                 // For flying creatures, the Z velocity should also decrease over time
                 if (thing->veloc_base.z.val != 0)
                 {
-                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->inertia_air) / 256;
+                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - thing->inertia_air) / 256;
                 }
                 else 
                 {
@@ -3126,9 +3183,9 @@ TbBool update_thing(struct Thing *thing)
         } else
         {
             if (thing->veloc_base.x.val != 0)
-              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_floor) / 256;
+              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_floor) / 256;
             if (thing->veloc_base.y.val != 0)
-              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_floor) / 256;
+              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_floor) / 256;
             thing->mappos.z.val = thing->floor_height;
             if ((thing->movement_flags & TMvF_Unknown08) != 0)
             {
@@ -3946,12 +4003,12 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
   {
     n = 0;
     y = stl_y + k;  
-    if ( (y >= 0) && (y < 256) )
+    if ( (y >= 0) && (y < gameadd.map_subtiles_y) )
     {
       do
       {
         x = stl_x + n;  
-        if ( (x >= 0) && (x < 256) )
+        if ( (x >= 0) && (x < gameadd.map_subtiles_x) )
         {
           struct Map *blk = get_map_block_at(x, y);
           thing = thing_get(get_mapwho_thing_index(blk));

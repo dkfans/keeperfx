@@ -843,6 +843,10 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     if (target->health < 0) {
         shot_kill_object(shotng, target);
     }
+    if (!shotst->hit_door.withstand)
+    {
+        return detonate_shot(shotng);
+    }
     if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
         // If thing was deleted something was hit
@@ -999,6 +1003,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     //throw_strength = shotng->fall_acceleration; //this seems to be always 0, this is why it didn't work;
     long throw_strength = shotst->push_on_hit;
+    long n;
     if (trgtng->health < 0)
         return 0;
     struct Thing* shooter = INVALID_THING;
@@ -1017,6 +1022,38 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
       } else {
           apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+      }
+      if (shotst->model_flags & ShMF_LifeDrain)
+      {
+          give_shooter_drained_health(shooter, damage / 2);
+      }
+      if (shotst->cast_spell_kind != 0)
+      {
+          struct CreatureControl* scctrl = creature_control_get_from_thing(shooter);
+          if (!creature_control_invalid(scctrl)) {
+              n = scctrl->explevel;
+          }
+          else {
+              n = 0;
+          }
+          if (shotst->cast_spell_kind == SplK_Disease)
+          {
+              tgcctrl->disease_caster_plyridx = shotng->owner;
+          }
+          apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
+      }
+      if (shotst->model_flags & ShMF_GroupUp)
+      {
+          if (thing_is_creature(shooter))
+          {
+              if (get_no_creatures_in_group(shooter) < GROUP_MEMBERS_COUNT) {
+                  add_creature_to_group(trgtng, shooter);
+              }
+          }
+          else
+          {
+              WARNDBG(8, "The %s index %d owner %d cannot group; invalid parent", thing_model_name(shotng), (int)shotng->index, (int)shotng->owner);
+          }
       }
       if (shotst->target_hitstop_turns != 0) {
           tgcctrl->frozen_on_hit = shotst->target_hitstop_turns;
@@ -1644,14 +1681,14 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
 {
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
-        ERRORDBG(3,"Cannot create shot %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        ERRORDBG(3,"Cannot create shot %d (%s) for player %d. There are too many things allocated.",(int)model,shot_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     struct ShotConfigStats* shotst = get_shot_model_stats(model);
     struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
-        ERRORDBG(3,"Should be able to allocate shot %d for player %d, but failed.",(int)model,(int)owner);
+        ERRORDBG(3,"Should be able to allocate shot %d (%s) for player %d, but failed.",(int)model,shot_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }

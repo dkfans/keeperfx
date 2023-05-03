@@ -452,8 +452,7 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
             play_creature_sound(thing, CrSnd_Hang, 3, 1);
         }
     }
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->holding_player = plyr_idx;
+    thing->holding_player = plyr_idx;
     return true;
 }
 

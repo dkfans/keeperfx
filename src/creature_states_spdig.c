@@ -962,7 +962,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
       {
           struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
           struct SlabAttr* slbattr = get_slab_attrs(slb);
-          set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0, 0);
+          set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0);
           // If the area we're converting is an enemy room, issue event to that player
           if (slbattr->category == SlbAtCtg_RoomInterior)
           {
@@ -994,7 +994,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
         return 0;
     }
     if (cctrl->instance_id != CrInst_PRETTY_PATH) {
-        set_creature_instance(spdigtng, CrInst_PRETTY_PATH, 0, 0, 0);
+        set_creature_instance(spdigtng, CrInst_PRETTY_PATH, 0, 0);
     }
     return 1;
 }
@@ -1055,7 +1055,7 @@ short imp_digs_mines(struct Thing *spdigtng)
 
     if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(spdigtng, CrInst_DIG, 0, 0, 0);
+        set_creature_instance(spdigtng, CrInst_DIG, 0, 0);
     }
 
     if (mtask->kind == SDDigTask_MineGold)
@@ -1218,7 +1218,7 @@ short imp_improves_dungeon(struct Thing *spdigtng)
         return 0;
     }
     if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(spdigtng, CrInst_PRETTY_PATH, 0, 0, 0);
+        set_creature_instance(spdigtng, CrInst_PRETTY_PATH, 0, 0);
     }
     return 1;
 }
@@ -1349,7 +1349,7 @@ short imp_reinforces(struct Thing *thing)
         return 1;
     }
     if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(thing, CrInst_REINFORCE, 0, 0, 0);
+        set_creature_instance(thing, CrInst_REINFORCE, 0, 0);
     }
     return 1;
 }
@@ -1391,9 +1391,9 @@ short imp_toking(struct Thing *creatng)
         if (cctrl->instance_id == CrInst_NULL)
         {
             if ( CREATURE_RANDOM(creatng, 8) )
-                set_creature_instance(creatng, CrInst_RELAXING, 0, 0, 0);
+                set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
             else
-                set_creature_instance(creatng, CrInst_TOKING, 0, 0, 0);
+                set_creature_instance(creatng, CrInst_TOKING, 0, 0);
         }
     }
     if ((cctrl->instance_id == CrInst_TOKING) && (cctrl->inst_turn == cctrl->inst_action_turns))

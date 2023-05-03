@@ -1567,13 +1567,14 @@ CrAttackType check_for_possible_combat_with_enemy_object_within_distance(struct 
 
 CrAttackType check_for_possible_combat_with_enemy_creature_within_distance(struct Thing *fightng, struct Thing **outenmtng, long maxdist)
 {
-    struct Thing* thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist);
+    long move_on_ground = 0;
+    struct Thing* thing = get_highest_score_enemy_creature_within_distance_possible_to_attack_by(fightng, maxdist, move_on_ground);
     if (!thing_is_invalid(thing))
     {
         SYNCDBG(9,"Best enemy for %s index %d is %s index %d",thing_model_name(fightng),(int)fightng->index,thing_model_name(thing),(int)thing->index);
         // When counting distance, take size of creatures into account
         long distance = get_combat_distance(fightng, thing);
-        CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, 1, 0);
+        CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, distance, move_on_ground, 0);
         if (attack_type > AttckT_Unset) {
             *outenmtng = thing;
             return attack_type;
@@ -2266,7 +2267,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
                 CrInstance inst_id = get_best_ranged_offensive_weapon(thing, enmdist);
                 if (inst_id > CrInst_NULL)
                 {
-                    set_creature_instance(thing, inst_id, 1, enmtng->index, 0);
+                    set_creature_instance(thing, inst_id, enmtng->index, 0);
                     return false;
                 }
             }
@@ -2281,7 +2282,7 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
             CrInstance inst_id = get_best_self_preservation_instance_to_use(thing);
             if (inst_id > CrInst_NULL)
             {
-                set_creature_instance(thing, inst_id, 1, 0, 0);
+                set_creature_instance(thing, inst_id, 0, 0);
             } else
             if (creature_retreat_from_combat(thing, enmtng, nstat, 0) == Lb_FAIL)
             {
@@ -2649,7 +2650,7 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
         {
             CrInstance weapon = get_best_ranged_offensive_weapon(figtng, enmdist);
             if (weapon > CrInst_NULL) {
-                set_creature_instance(figtng, weapon, 1, enmtng->index, 0);
+                set_creature_instance(figtng, weapon, enmtng->index, 0);
                 return 0;
             }
         } else
@@ -2740,7 +2741,7 @@ void creature_in_ranged_combat(struct Thing *creatng)
     }
     if (weapon > 0)
     {
-        set_creature_instance(creatng, weapon, 1, enmtng->index, 0);
+        set_creature_instance(creatng, weapon, enmtng->index, 0);
     }
 }
 
@@ -2778,7 +2779,7 @@ void creature_in_melee_combat(struct Thing *creatng)
     }
     if (weapon > CrInst_NULL)
     {
-        set_creature_instance(creatng, weapon, 1, enmtng->index, 0);
+        set_creature_instance(creatng, weapon, enmtng->index, 0);
     }
 }
 
@@ -2832,7 +2833,7 @@ void combat_object_state_melee_combat(struct Thing *creatng)
     if (melee_combat_move(creatng, objtng, dist, CrSt_CreatureObjectCombat))
     {
         if (inst_id > CrInst_NULL) {
-            set_creature_instance(creatng, inst_id, 1, objtng->index, 0);
+            set_creature_instance(creatng, inst_id, objtng->index, 0);
         }
     }
 }
@@ -2851,7 +2852,7 @@ void combat_object_state_melee_snipe(struct Thing* creatng)
     if (melee_combat_move(creatng, objtng, dist, CrSt_CreatureObjectSnipe))
     {
         if (inst_id > CrInst_NULL) {
-            set_creature_instance(creatng, inst_id, 1, objtng->index, 0);
+            set_creature_instance(creatng, inst_id, objtng->index, 0);
         }
     }
 }
@@ -2869,7 +2870,7 @@ void combat_object_state_ranged_combat(struct Thing *creatng)
     if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureObjectCombat))
     {
         if (inst_id > CrInst_NULL) {
-            set_creature_instance(creatng, inst_id, 0, objtng->index, 0);
+            set_creature_instance(creatng, inst_id, objtng->index, 0);
         }
     }
 }
@@ -2887,7 +2888,7 @@ void combat_object_state_ranged_snipe(struct Thing* creatng)
     if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureObjectSnipe))
     {
         if (inst_id > CrInst_NULL) {
-            set_creature_instance(creatng, inst_id, 0, objtng->index, 0);
+            set_creature_instance(creatng, inst_id, objtng->index, 0);
         }
     }
 }
@@ -2906,7 +2907,7 @@ void combat_door_state_melee_combat(struct Thing *creatng)
     if (melee_combat_move(creatng, objtng, dist, CrSt_CreatureDoorCombat))
     {
         if (inst_id > CrInst_NULL) {
-            set_creature_instance(creatng, inst_id, 1, objtng->index, 0);
+            set_creature_instance(creatng, inst_id, objtng->index, 0);
         }
     }
 }
@@ -2924,7 +2925,7 @@ void combat_door_state_ranged_combat(struct Thing *creatng)
     if (ranged_combat_move(creatng, objtng, dist, CrSt_CreatureDoorCombat))
     {
         if (inst_id > CrInst_NULL) {
-            set_creature_instance(creatng, inst_id, 0, objtng->index, 0);
+            set_creature_instance(creatng, inst_id, objtng->index, 0);
         }
     }
 }
@@ -2980,7 +2981,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
         CrInstance inst_id = get_best_self_preservation_instance_to_use(creatng);
         if (inst_id > CrInst_NULL)
         {
-            set_creature_instance(creatng, inst_id, 0, 0, 0);
+            set_creature_instance(creatng, inst_id, 0, 0);
             return false;
         } else
         if (!external_set_thing_state(creatng, CrSt_CreatureCombatFlee)) {
@@ -3250,7 +3251,7 @@ short creature_attack_rooms(struct Thing *creatng)
     if (thing_is_on_any_room_tile(creatng))
     {
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 0, 0);
         }
         return 1;
     }
@@ -3315,7 +3316,7 @@ short creature_damage_walls(struct Thing *creatng)
                     pos.y.val = subtile_coord_center(stl_y);
                     if ( !creature_turn_to_face(creatng, &pos) )
                     {
-                        set_creature_instance(creatng, CrInst_DAMAGE_WALL, 1, 0, 0);
+                        set_creature_instance(creatng, CrInst_DAMAGE_WALL, 0, 0);
                     }
                 }
                 return 1;

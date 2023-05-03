@@ -368,28 +368,28 @@ msgstr ""
 #. Return to Skybird Trill (lv416)
 #: guitext:50
 msgctxt "In-game message"
-msgid "Correct me if I'm wrong, which I doubt, but wasn't there a third way in? "
+msgid "Correct me if I'm wrong, which I doubt, but wasn't there a third way in?"
 msgstr ""
 
 #. Return to Skybird Trill (lv416)
 #: guitext:51
 msgctxt "In-game message"
 msgid ""
-"Where does the Monk of Cowardice hide?. Use your instinct to make the right choice "
+"Where does the Monk of Cowardice hide? Use your instinct to make the right choice."
 msgstr ""
 
 #. Return to Skybird Trill (lv416)
 #: guitext:52
 msgctxt "In-game message"
 msgid ""
-"Looks like this worthless Dwarf has been hiding behind locked doors creating boulder traps? He was stupid enough not to use them all which you can use to your advantage! "
+"Looks like this worthless Dwarf has been hiding behind locked doors creating boulder traps? He was stupid enough not to use them all which you can use to your advantage!"
 msgstr ""
 
 #. Return to Skybird Trill (lv416)
 #: guitext:53
 msgctxt "In-game message"
 msgid ""
-"Such holy actions by such a holy Monk? Now take his holiness and corrupt it with your dark ways. This should be fun, right my lord? "
+"Such holy actions by such a holy Monk? Now take his holiness and corrupt it with your dark ways. This should be fun, right my lord?"
 msgstr ""
 
 #. Return to Skybird Trill (lv416)

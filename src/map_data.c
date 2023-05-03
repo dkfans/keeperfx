@@ -842,7 +842,7 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
     gameadd.around_slab[2] = -gameadd.map_tiles_x  + 1;
     gameadd.around_slab[3] = -1;
     gameadd.around_slab[4] = 0;
-    gameadd.around_slab[4] = 1;
+    gameadd.around_slab[5] = 1;
     gameadd.around_slab[6] = gameadd.map_tiles_x - 1;
     gameadd.around_slab[7] = gameadd.map_tiles_x;
     gameadd.around_slab[8] = gameadd.map_tiles_x + 1;

@@ -269,6 +269,17 @@ TbBool instance_is_disarming_weapon(CrInstance inum)
     return false;
 }
 
+TbBool instance_draws_possession_swipe(CrInstance inum)
+{
+    struct InstanceInfo* inst_inf;
+    inst_inf = creature_instance_info_get(inum);
+    if (inst_inf->flags & InstPF_UsesSwipe)
+    {
+        return true;
+    }
+    return false;
+}
+
 TbBool instance_is_ranged_weapon(CrInstance inum)
 {
     struct InstanceInfo* inst_inf;
@@ -473,7 +484,7 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    long spl_idx = *param;
+    long spl_idx = param[0];
     struct SpellConfig* spconf = get_spell_config(spl_idx);
     SYNCDBG(8,"The %s index %d casts %s",thing_model_name(creatng),(int)creatng->index,spell_code_name(spl_idx));
     if (spconf->cast_at_thing)
@@ -514,7 +525,7 @@ long process_creature_self_spell_casting(struct Thing* creatng)
     if (inst_idx <= 0) {
         return 0;
     }
-    set_creature_instance(creatng, inst_idx, 1, creatng->index, 0);
+    set_creature_instance(creatng, inst_idx, creatng->index, 0);
     return 1;
 }
 
@@ -975,13 +986,10 @@ long instf_reinforce(struct Thing *creatng, long *param)
     cctrl->digger.consecutive_reinforcements = 0;
     place_and_process_pretty_wall_slab(creatng, slb_x, slb_y);
     struct Coord3d pos;
-    pos.x.stl.pos = 128;
-    pos.y.stl.pos = 128;
-    pos.z.stl.pos = 128;
     for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
-        pos.x.stl.num = stl_x + 2 * small_around[n].delta_x;
-        pos.y.stl.num = stl_y + 2 * small_around[n].delta_y;
+        pos.x.val = subtile_coord_center(stl_x + 2 * small_around[n].delta_x);
+        pos.y.val = subtile_coord_center(stl_y + 2 * small_around[n].delta_y);
         struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
         if (map_block_revealed(mapblk, creatng->owner) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {

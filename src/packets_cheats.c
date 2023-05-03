@@ -259,7 +259,7 @@ TbBool packets_process_cheats(
         }
         else
         {
-            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[playeradd->cheatselection.chosen_creature_kind + 13];
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[playeradd->cheatselection.chosen_creature_kind];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), playeradd->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
@@ -286,7 +286,7 @@ TbBool packets_process_cheats(
                 }
                 else
                 {
-                    crmodel = playeradd->cheatselection.chosen_creature_kind + 13;
+                    crmodel = playeradd->cheatselection.chosen_creature_kind;
                     exp = playeradd->cheatselection.chosen_experience_level;
                 }
                 unsigned short param2 = playeradd->cheatselection.chosen_player | (exp << 8);

@@ -57,13 +57,12 @@ long nav_thing_can_travel_over_lava;
 // Call this function if you don't want the creature/thing to (visually) fly across the map whenever suddenly moving a very far distance. (teleporting for example)
 void reset_interpolation_of_thing(struct Thing *thing)
 {
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->previous_mappos = thing->mappos;
-    thingadd->previous_floor_height = thing->floor_height;
-    thingadd->interp_mappos = thing->mappos;
-    thingadd->interp_floor_height = thing->floor_height;
-    thingadd->previous_minimap_pos_x = 0;
-    thingadd->previous_minimap_pos_y = 0;
+    thing->previous_mappos = thing->mappos;
+    thing->previous_floor_height = thing->floor_height;
+    thing->interp_mappos = thing->mappos;
+    thing->interp_floor_height = thing->floor_height;
+    thing->previous_minimap_pos_x = 0;
+    thing->previous_minimap_pos_y = 0;
 }
 
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *creatng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name)
@@ -546,7 +545,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
              // Use teleport only over large enough distances
              if (get_2d_box_distance(&thing->mappos, pos) > COORD_PER_STL*game.min_distance_for_teleport)
              {
-                 set_creature_instance(thing, CrInst_TELEPORT, 1, 0, pos);
+                 set_creature_instance(thing, CrInst_TELEPORT, 0, pos);
                  return true;
              }
          }

@@ -31,10 +31,6 @@
 extern "C" {
 #endif
 
-#define CREATURE_TYPES_MAX 64
-#define SWAP_CREATURE_TYPES_MAX 64
-#define CREATURE_STATES_MAX 256
-
 #define CREATURE_NONE 255
 #define CREATURE_ANY  254
 #define CREATURE_NOT_A_DIGGER  253
@@ -148,6 +144,7 @@ enum InstancePropertiesFlags {
     InstPF_Destructive        = 0x0040,
     InstPF_Quick              = 0x0080,
     InstPF_Disarming          = 0x0100,
+    InstPF_UsesSwipe          = 0x0200,
 };
 
 enum CreatureDeathKind {

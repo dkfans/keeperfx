@@ -610,6 +610,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
     MapSlabCoord drag_start_y = slb_y;
     struct Packet* pckt = get_packet_direct(player->packet_num);
     playeradd->one_click_lock_cursor = false;
+    playeradd->one_click_mode_exclusive = false;
     if (playeradd->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled with RMB, we need to default back to vanilla 1x1 box
@@ -777,6 +778,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             can_drag = ((can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) || 
                         (room_role_matches(rkind,RoRoF_PassWater) && (players_land_by_slab_kind(plyr_idx, drag_start_x, drag_start_y,SlbT_WATER))) ||
                         (room_role_matches(rkind,RoRoF_PassLava)  && (players_land_by_slab_kind(plyr_idx, drag_start_x, drag_start_y,SlbT_LAVA))) );
+            playeradd->one_click_mode_exclusive = false;
         }
         else
         {

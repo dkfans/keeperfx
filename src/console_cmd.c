@@ -791,7 +791,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         crmodel = atoi(pr2str);
                     }
                 }
-                if ((crmodel > 0) && (crmodel <= 31))
+                if ((crmodel > 0) && (crmodel < gameadd.crtr_conf.model_count))
                 {
                     player = get_player(plyr_idx);
                     pckt = get_packet_direct(player->packet_num);
@@ -1111,7 +1111,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 unsigned char inst = atoi(pr2str);
                 if (thing_is_creature(thing))
                 {
-                    set_creature_instance(thing, inst, 0, 0, 0);
+                    set_creature_instance(thing, inst, 0, 0);
                     return true;
                 }
             }
