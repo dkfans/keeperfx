@@ -1090,14 +1090,14 @@ TbBool creature_find_safe_position_to_move_within_slab_with_radius(struct Coord3
                 {
                     int block_radius = subtile_coord(thing_nav_block_sizexy(thing), 0) / 2;
                     struct Coord3d locpos;
-                    locpos.x.val = x;
-                    locpos.y.val = y;
+                    locpos.x.val = subtile_coord_center(x);
+                    locpos.y.val = subtile_coord_center(y);
                     locpos.z.val = get_thing_height_at_with_radius(thing, pos, block_radius);
 
                     if (!thing_in_wall_at_with_radius(thing, &locpos, block_radius))
                     {
-                        pos->x.val = subtile_coord_center(x);
-                        pos->y.val = subtile_coord_center(y);
+                        pos->x.val = locpos.x.val;
+                        pos->y.val = locpos.y.val;
                         pos->z.val = locpos.z.val;
                         return true;
                     }
