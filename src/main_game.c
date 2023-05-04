@@ -124,7 +124,6 @@ static void init_level(void)
 {
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
-    TbBool script_preloaded;
     //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
@@ -160,22 +159,9 @@ static void init_level(void)
     init_dungeons();
     init_map_size(get_selected_level_number());
     clear_messages();
-    #ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    {
-      game.action_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
-    }
-    else
-#else
-    // Initialize random seeds (the value may be different
-    // on computers in MP, as it shouldn't affect game actions)
-    game.unsync_rand_seed = (unsigned long)LbTimeSec();
-    game.action_rand_seed = game.unsync_rand_seed;
-#endif
+    init_seeds();
     // Load the actual level files
-    script_preloaded = preload_script(get_selected_level_number());
+    TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
@@ -431,4 +417,22 @@ void clear_complete_game(void)
     game.packet_save_enable = start_params.packet_save_enable;
     game.packet_load_enable = start_params.packet_load_enable;
     my_player_number = default_loc_player;
+}
+
+void init_seeds()
+{
+    #ifdef AUTOTESTING
+    if (start_params.autotest_flags & ATF_FixedSeed)
+    {
+      game.action_rand_seed = 1;
+      game.unsync_rand_seed = 1;
+      srand(1);
+    }
+    else
+#else
+    // Initialize random seeds (the value may be different
+    // on computers in MP, as it shouldn't affect game actions)
+    game.unsync_rand_seed = (unsigned long)LbTimeSec();
+    game.action_rand_seed = game.unsync_rand_seed;
+#endif
 }
