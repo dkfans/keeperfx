@@ -124,6 +124,7 @@ static void init_level(void)
 {
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
+    TbBool script_preloaded;
     //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
@@ -174,7 +175,7 @@ static void init_level(void)
     game.action_rand_seed = game.unsync_rand_seed;
 #endif
     // Load the actual level files
-    TbBool script_preloaded = preload_script(get_selected_level_number());
+    script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
     {
         // TODO: whine about missing file to screen
