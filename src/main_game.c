@@ -128,7 +128,6 @@ static void init_level(void)
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
     set_flag_byte(&game.system_flags, GSF_RunAfterVictory, false);
-    game.action_rand_seed = 1;
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
@@ -160,6 +159,20 @@ static void init_level(void)
     init_dungeons();
     init_map_size(get_selected_level_number());
     clear_messages();
+    #ifdef AUTOTESTING
+    if (start_params.autotest_flags & ATF_FixedSeed)
+    {
+      game.action_rand_seed = 1;
+      game.unsync_rand_seed = 1;
+      srand(1);
+    }
+    else
+#else
+    // Initialize random seeds (the value may be different
+    // on computers in MP, as it shouldn't affect game actions)
+    game.unsync_rand_seed = (unsigned long)LbTimeSec();
+    game.action_rand_seed = game.unsync_rand_seed;
+#endif
     // Load the actual level files
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
@@ -179,19 +192,6 @@ static void init_level(void)
 
     init_navigation();
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
-#ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    {
-      game.action_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
-    }
-    else
-#else
-    // Initialize unsynchronized random seed (the value may be different
-    // on computers in MP, as it shouldn't affect game actions)
-    game.unsync_rand_seed = (unsigned long)LbTimeSec();
-#endif
     light_set_lights_on(1);
     {
         struct PlayerInfo *player;
