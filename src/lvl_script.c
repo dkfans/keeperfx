@@ -629,7 +629,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     break;
                 }
                 // DRAWFROM support - select random index now
-                long range_index = rand() % range_total;
+                long range_index = GAME_RANDOM(range_total);
                 // Get value from ranges array
                 range_total = 0;
                 for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
