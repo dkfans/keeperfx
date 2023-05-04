@@ -30,22 +30,15 @@ extern "C" {
 #endif
 /******************************************************************************/
 static unsigned char * frontstory_background;
-struct TbSprite *frontstory_end_font;
-unsigned char * frontstory_font_data;
-static unsigned char * frontstory_end_font_data;
 
 #ifdef SPRITE_FORMAT_V2
 struct TbLoadFiles frontstory_load_files_640[] = {
   {"ldata/front-64.raw", &frontstory_background,                 NULL,                                          0, 0, 0},
-  {"ldata/frontft1-64.dat",&frontstory_font_data,                &frontstory_end_font_data,                     0, 0, 0},
-  {"ldata/frontft1-64.tab",(unsigned char **)&frontstory_font,   (unsigned char **)&frontstory_end_font,        0, 0, 0},
   {"",                   NULL,                                   NULL,                                          0, 0, 0},
 };
 #else
 struct TbLoadFiles frontstory_load_files_640[] = {
   {"ldata/front.raw",    &frontstory_background,                 NULL,                                          0, 0, 0},
-  {"ldata/frontft1.dat", &frontstory_font_data,                  &frontstory_end_font_data,                     0, 0, 0},
-  {"ldata/frontft1.tab", (unsigned char **)&frontstory_font,     (unsigned char **)&frontstory_end_font,        0, 0, 0},
   {"",                   NULL,                                   NULL,                                          0, 0, 0},
 };
 #endif

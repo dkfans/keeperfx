@@ -85,15 +85,13 @@ struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
 unsigned char * pointer_data;
 
-struct TbSprite *end_map_font;
 struct TbSprite *end_map_hand;
-TbSpriteData map_font_data;
-TbSpriteData end_map_font_data;
 TbSpriteData map_hand_data;
 TbSpriteData end_map_hand_data;
 struct MapLevelInfo map_info;
 
 int MinimalResolutionSetup;
+int hires_mode = 0;
 
 struct TbColorTables pixmap;
 struct TbAlphaTables alpha_sprite_table;
@@ -101,11 +99,9 @@ unsigned char white_pal[256];
 unsigned char red_pal[256];
 /******************************************************************************/
 
-extern struct TbSetupSprite setup_sprites_minimal[];
 extern struct TbSetupSprite setup_sprites[];
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
-extern struct TbSetupSprite setup_testfont[];
 extern struct TbLoadFiles testfont_load_files[];
 #endif
 
@@ -309,6 +305,7 @@ void set_frontend_vidmode(unsigned short nmode)
 
 void load_pointer_file(short hi_res)
 {
+  hires_mode = hi_res;
   struct TbLoadFiles *ldfiles;
   if ((features_enabled & Ft_BigPointer) == 0)
   {
@@ -325,7 +322,7 @@ void load_pointer_file(short hi_res)
   }
   if ( LbDataLoadAll(ldfiles) )
     ERRORLOG("Unable to load pointer files");
-  LbSpriteSetup(pointer_sprites, end_pointer_sprites, pointer_data);
+  LbSpriteSetup(&pointer_sprites, &end_pointer_sprites, pointer_data);
 }
 
 TbBool set_pointer_graphic_none(void)
@@ -802,11 +799,34 @@ TbBool update_screen_mode_data(long width, long height)
   calculate_aspect_ratio_factor(width, height);
   first_person_vertical_fov = DEFAULT_FIRST_PERSON_VERTICAL_FOV;
   first_person_horizontal_fov = FOV_based_on_aspect_ratio();
-
-  if (MinimalResolutionSetup)
-    LbSpriteSetupAll(setup_sprites_minimal);
-  else
+  if (!MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites);
+  DeleteSprites(&frontend_font[0]);
+  DeleteSprites(&frontend_font[1]);
+  DeleteSprites(&frontend_font[2]);
+  DeleteSprites(&frontend_font[3]);
+  DeleteSprites(&font_sprites);
+  DeleteSprites(&winfont);
+
+  if (MinimalResolutionSetup) {
+#ifdef SPRITE_FORMAT_V2
+    frontend_font[0] = LoadSprites("ldata/frontft1-64");
+    frontend_font[1] = LoadSprites("ldata/frontft2-64");
+    frontend_font[2] = LoadSprites("ldata/frontft3-64");
+    frontend_font[3] = LoadSprites("ldata/frontft4-64");
+#else
+    frontend_font[0] = LoadSprites("ldata/frontft1");
+    frontend_font[1] = LoadSprites("ldata/frontft2");
+    frontend_font[2] = LoadSprites("ldata/frontft3");
+    frontend_font[3] = LoadSprites("ldata/frontft4");
+#endif
+  } else if (hires_mode) {
+    font_sprites = LoadSprites("data/font1-64");
+    winfont = LoadSprites("data/font2-64");
+  } else {
+    font_sprites = LoadSprites("data/font1-32");
+    winfont = LoadSprites("data/font2-32");
+  }
   LbMouseChangeMoveRatio(base_mouse_sensitivity*units_per_pixel/16, base_mouse_sensitivity*units_per_pixel/16);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
@@ -1014,18 +1034,31 @@ TbScreenMode switch_to_next_video_mode(void)
 #if (BFDEBUG_LEVEL > 0)
 TbBool load_testfont_fonts(void)
 {
-  if ( LbDataLoadAll(testfont_load_files) )
-  {
-    ERRORLOG("Unable to load testfont_load_files files");
-    return false;
-  }
-  LbSpriteSetupAll(setup_testfont);
-  return true;
+    if ( LbDataLoadAll(testfont_load_files) )
+    {
+        ERRORLOG("Unable to load testfont_load_files files");
+        return false;
+    }
+    testfont[0] = LoadSprites("ldata/frontft1");
+    testfont[1] = LoadSprites("ldata/frontft2");
+    testfont[2] = LoadSprites("ldata/frontft3");
+    testfont[3] = LoadSprites("ldata/frontft4");
+    testfont[4] = LoadSprites("data/font0-0");
+    testfont[5] = LoadSprites("data/font0-1");
+    testfont[6] = LoadSprites("data/font2-32");
+    testfont[7] = LoadSprites("data/font2-64");
+    testfont[8] = LoadSprites("data/font1-64");
+    testfont[9] = LoadSprites("data/font1-32");
+    testfont[10] = LoadSprites("ldata/netfont");
+    return true;
 }
 
 void free_testfont_fonts(void)
 {
-  LbDataFreeAll(testfont_load_files);
+    for (int i = 0; i < TESTFONTS_COUNT; ++i) {
+        DeleteSprites(&testfont[0]);
+    }
+    LbDataFreeAll(testfont_load_files);
 }
 #endif
 

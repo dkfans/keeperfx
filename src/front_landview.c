@@ -93,7 +93,7 @@ TbSpriteData map_flag_data;
 unsigned long end_map_flag_data;
 struct TbSprite *map_flag;
 struct TbSprite *end_map_flag;
-struct TbSprite *map_font;
+struct SpriteSheet *map_font;
 struct TbSprite *map_hand;
 long map_sound_fade;
 unsigned char *map_screen;
@@ -962,6 +962,7 @@ TbBool frontnetmap_load(void)
       return false;
     }
     LbSpriteSetupAll(netmap_flag_setup_sprites);
+    map_font = LoadSprites("ldata/netfont");
     frontend_load_data_reset();
     frontnet_init_level_descriptions();
     frontmap_zoom_skip_init(SINGLEPLAYER_NOTSTARTED);

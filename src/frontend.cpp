@@ -365,9 +365,7 @@ const unsigned long alliance_grid[4][4] = {
 
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
-struct TbSprite *testfont[TESTFONTS_COUNT];
-struct TbSprite *testfont_end[TESTFONTS_COUNT];
-unsigned char * testfont_data[TESTFONTS_COUNT];
+struct SpriteSheet *testfont[TESTFONTS_COUNT];
 unsigned char *testfont_palette[3];
 long num_chars_in_font = 128;
 #endif
@@ -407,21 +405,13 @@ int load_game_scroll_offset;
 unsigned char video_gamma_correction;
 
 // *** SPRITES ***
-struct TbSprite *font_sprites;
-struct TbSprite *end_font_sprites;
-unsigned char * font_data;
-struct TbSprite *frontend_font[FRONTEND_FONTS_COUNT];
-struct TbSprite *frontend_end_font[FRONTEND_FONTS_COUNT];
-unsigned char * frontend_font_data[FRONTEND_FONTS_COUNT];
-unsigned char * frontend_end_font_data[FRONTEND_FONTS_COUNT];
+struct SpriteSheet *font_sprites = NULL;
+struct SpriteSheet *frontend_font[FRONTEND_FONTS_COUNT] = {0};
 struct TbSprite *button_sprite;
 struct TbSprite *end_button_sprites;
 unsigned char * button_sprite_data;
 unsigned long end_button_sprite_data;
-struct TbSprite *winfont;
-struct TbSprite *end_winfonts;
-unsigned char * winfont_data;
-unsigned char * end_winfont_data;
+struct SpriteSheet *winfont = NULL;
 struct TbSprite *edit_icon_sprites;
 struct TbSprite *end_edit_icon_sprites;
 unsigned char * edit_icon_data;
@@ -465,12 +455,12 @@ TbBool a_menu_window_is_active(void)
 
 int frontend_font_char_width(int fnt_idx,char c)
 {
-    struct TbSprite *fnt;
+    struct SpriteSheet *fnt;
     int i;
     fnt = frontend_font[fnt_idx];
     i = (unsigned short)c - 31;
     if (i >= 0)
-        return fnt[i].SWidth;
+        return GetSprite(fnt, i)->SWidth;
     return 0;
 }
 
@@ -937,9 +927,7 @@ void frontend_set_alliance(long idx1, long idx2)
 TbResult frontend_load_data(void)
 {
     char *fname;
-    TbResult ret;
     long len;
-    ret = Lb_SUCCESS;
     wait_for_cd_to_be_available();
     frontend_background = (unsigned char *)game.map;
 #ifdef SPRITE_FORMAT_V2
@@ -949,42 +937,49 @@ TbResult frontend_load_data(void)
 #endif
     len = LbFileLoadAt(fname, frontend_background);
     if (len < 307200) {
-        ret = Lb_FAIL;
+        return Lb_FAIL;
     }
     if (len > sizeof(game.map)) {
         WARNLOG("Reused memory area exceeded for frontend background.");
     }
-    frontend_sprite_data = (unsigned char *)poly_pool;
+    LbMemoryFree(frontend_sprite_data);
+    LbMemoryFree(frontend_sprite);
+    frontend_sprite_data = NULL;
+    frontend_end_sprite_data = NULL;
+    frontend_sprite = NULL;
+    frontend_end_sprite = NULL;
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.dat",64);
 #else
     fname = prepare_file_path(FGrp_LoData,"frontbit.dat");
 #endif
+    len = LbFileLengthRnc(fname);
+    frontend_sprite_data = LbMemoryAlloc(len);
+    if (frontend_sprite_data == NULL) {
+        return Lb_FAIL;
+    }
+    frontend_end_sprite_data = frontend_sprite_data + len;
     len = LbFileLoadAt(fname, frontend_sprite_data);
     if (len < 12) {
-        frontend_end_sprite_data = frontend_sprite_data;
-        ret = Lb_FAIL;
-    } else {
-        frontend_end_sprite_data = ((unsigned char *)frontend_sprite_data + len);
+        return Lb_FAIL;
     }
-    frontend_sprite = (struct TbSprite *)frontend_end_sprite_data;
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.tab",64);
 #else
     fname = prepare_file_path(FGrp_LoData,"frontbit.tab");
 #endif
+    len = LbFileLengthRnc(fname);
+    frontend_sprite = (struct TbSprite *) LbMemoryAlloc(len);
+    if (frontend_sprite_data == NULL) {
+        return Lb_FAIL;
+    }
+    frontend_end_sprite = (struct TbSprite *)((unsigned char *)frontend_sprite + len);
     len = LbFileLoadAt(fname, frontend_sprite);
     if (len < 12) {
-        frontend_end_sprite = frontend_sprite;
-        ret = Lb_FAIL;
-    } else {
-        frontend_end_sprite = (struct TbSprite *)((unsigned char *)frontend_sprite + len);
+        return Lb_FAIL;
     }
-    if (((long)frontend_end_sprite - (long)frontend_sprite_data) > sizeof(poly_pool)) {
-        WARNLOG("Reused memory area exceeded for frontend sprites.");
-    }
-    LbSpriteSetup(frontend_sprite, frontend_end_sprite, frontend_sprite_data);
-    return ret;
+    LbSpriteSetup(&frontend_sprite, &frontend_end_sprite, frontend_sprite_data);
+    return Lb_SUCCESS;
 }
 
 void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
@@ -1283,7 +1278,7 @@ TbBool fronttestfont_input(void)
     if (lbKeyOn[keys[i]])
     {
       lbKeyOn[keys[i]] = 0;
-      num_chars_in_font = testfont_end[i]-testfont[i];
+      num_chars_in_font = CountSprites(testfont[i]);
       SYNCDBG(9,"Characters in font %d: %d",i,num_chars_in_font);
       if (i < 4)
         LbPaletteSet(frontend_palette);//testfont_palette[0]

@@ -2,7 +2,7 @@
 // Bullfrog Engine Emulation Library - for use to remake classic games like
 // Syndicate Wars, Magic Carpet or Dungeon Keeper.
 /******************************************************************************/
-/** @file bflib_guibtns.c
+/** @file bflib_sprite.c
  *     Graphics sprites support library.
  * @par Purpose:
  *     Functions for reading/writing, decoding/encodeing of sprites.
@@ -19,31 +19,67 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_sprite.h"
-
-#include "bflib_basics.h"
-#include "globals.h"
+// #include "bflib_basics.h"
+#include "bflib_memory.h"
+// #include "globals.h"
 #include "post_inc.h"
+
+#pragma packed(1)
+struct TbDiskSprite {
+    uint32_t offset;
+#ifdef SPRITE_FORMAT_V2
+    uint16_t width;
+    uint16_t height;
+#else
+    uint8_t width;
+    uint8_t height;
+#endif
+};
+#pragma packed()
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /******************************************************************************/
-short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char * data)
+int LbSpriteSetup(struct TbSprite ** start, struct TbSprite ** end, const uint8_t * data)
 {
-    int n = 0;
-    struct TbSprite* sprt = start;
-    while (sprt < end)
-    {
-      if ((unsigned long)sprt->Data < (unsigned long)data)
-      {
-        sprt->Data += (unsigned long)data;
-        n++;
-      }
-      sprt++;
+    // The on-disk sprites have a 32-bit offset whereas the in-memory sprites have a
+    // pointer to RLE-encoded data. This causes all kinds of breakage in 64-bit builds.
+    // In addition, LbDataLoad does not understand sprites are being loaded and
+    // allocates insufficient memory to hold the sprite descriptors.
+
+    // Lots of pointer shenanigans ahead because of above and compiler
+    // really wants to align TbDiskSprite on 8-byte boundaries.
+
+    const long sprite_size = sizeof(struct TbSprite);
+#ifdef SPRITE_FORMAT_V2
+    const long disk_sprite_size = 8;
+#else
+    const long disk_sprite_size = 6;
+#endif
+    struct TbDiskSprite * disk_sprites = (struct TbDiskSprite*) *start;
+    const long num_sprites = (((char *)*end) - ((char *)*start)) / disk_sprite_size;
+    if (num_sprites == 0) {
+        return 1;
     }
+    struct TbSprite * sprites = (struct TbSprite *) LbMemoryAlloc(num_sprites * sprite_size);
+    if (sprites == NULL) {
+        return 0;
+    }
+    for (long i = 0; i < num_sprites; ++i)
+    {
+        struct TbDiskSprite * src = (struct TbDiskSprite *) &((char *) disk_sprites)[i * disk_sprite_size];
+        struct TbSprite * dst = &sprites[i];
+        dst->Data = &data[src->offset];
+        dst->SWidth = src->width;
+        dst->SHeight = src->height;
+    }
+    LbMemoryFree(*start);
+    *start = sprites;
+    *end = &sprites[num_sprites];
 #ifdef __DEBUG
-    LbSyncLog("%s: initied %d of %d sprites\n",func_name,n,(sprt-start));
+    SYNCLOG("Initialized %d sprites", num_sprites);
 #endif
     return 1;
 }
@@ -55,12 +91,12 @@ int LbSpriteSetupAll(struct TbSetupSprite t_setup[])
     while (stp_sprite->Data != NULL)
     {
       if ((stp_sprite->Start != NULL) && (stp_sprite->End != NULL))
-        LbSpriteSetup(*(stp_sprite->Start), *(stp_sprite->End), (unsigned char *)*(stp_sprite->Data));
+        LbSpriteSetup(stp_sprite->Start, stp_sprite->End, (unsigned char *)*(stp_sprite->Data));
       idx++;
       stp_sprite=&t_setup[idx];
     }
 #ifdef __DEBUG
-    LbSyncLog("%s: Initiated %d SetupSprite lists\n",func_name,idx);
+    SYNCLOG("Initiated %d SetupSprite lists",idx);
 #endif
     return 1;
 }
@@ -81,7 +117,7 @@ int LbSpriteClearAll(struct TbSetupSprite t_setup[])
         stp_sprite = &t_setup[idx];
   }
 #ifdef __DEBUG
-  LbSyncLog("%s: Cleaned %d SetupSprite lists\n",func_name,idx);
+  SYNCLOG("Cleaned %d SetupSprite lists",idx);
 #endif
   return 1;
 }

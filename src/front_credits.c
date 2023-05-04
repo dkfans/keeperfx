@@ -42,15 +42,10 @@
 
 /******************************************************************************/
 extern struct TbLoadFiles frontstory_load_files_640[];
-extern struct TbSprite *frontstory_end_font;
-extern unsigned char * frontstory_font_data;
-
 static long frontstory_text_no;
-static struct TbSetupSprite frontstory_setup_sprites[2] = {{  &frontstory_font, &frontstory_end_font, &frontstory_font_data },
-                                                           { NULL, NULL, NULL}};
 static long credits_scroll_speed;
 
-struct TbSprite *frontstory_font;
+struct SpriteSheet *frontstory_font;
 long credits_offset;
 int credits_end;
 /******************************************************************************/
@@ -64,7 +59,11 @@ void frontstory_load(void)
     } else
     {
         LbDataLoadSetModifyFilenameFunction(mdlf_default);
-        LbSpriteSetupAll(frontstory_setup_sprites);
+#ifdef SPRITE_FORMAT_V2
+        frontstory_font = LoadSprites("ldata/frontft1-64");
+#else
+        frontstory_font = LoadSprites("ldata/frontft1");
+#endif
         LbPaletteSet(frontend_palette);
 #if AUTOTESTING
         if (start_params.autotest_flags & ATF_FixedSeed)
@@ -79,6 +78,7 @@ void frontstory_load(void)
 void frontstory_unload(void)
 {
     LbDataFreeAll(frontstory_load_files_640);
+    DeleteSprites(&frontstory_font);
 }
 
 void frontstory_draw(void)

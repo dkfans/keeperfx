@@ -135,21 +135,13 @@ extern unsigned char video_gamma_correction;
 extern MenuID vid_change_query_menu;
 
 // *** SPRITES ***
-extern struct TbSprite *font_sprites;
-extern struct TbSprite *end_font_sprites;
-extern unsigned char * font_data;
-extern struct TbSprite *frontend_font[FRONTEND_FONTS_COUNT];
-extern struct TbSprite *frontend_end_font[FRONTEND_FONTS_COUNT];
-extern unsigned char * frontend_font_data[FRONTEND_FONTS_COUNT];
-extern unsigned char * frontend_end_font_data[FRONTEND_FONTS_COUNT];
+extern struct SpriteSheet *font_sprites;
+extern struct SpriteSheet *frontend_font[FRONTEND_FONTS_COUNT];
 extern struct TbSprite *button_sprite;
 extern struct TbSprite *end_button_sprites;
 extern unsigned char * button_sprite_data;
 extern unsigned long end_button_sprite_data;
-extern struct TbSprite *winfont;
-extern struct TbSprite *end_winfonts;
-extern unsigned char * winfont_data;
-extern unsigned char * end_winfont_data;
+extern struct SpriteSheet *winfont;
 extern struct TbSprite *edit_icon_sprites;
 extern struct TbSprite *end_edit_icon_sprites;
 extern unsigned char * edit_icon_data;
@@ -186,9 +178,7 @@ extern const unsigned long alliance_grid[4][4];
 
 #if (BFDEBUG_LEVEL > 0)
 #define TESTFONTS_COUNT 12
-extern struct TbSprite *testfont[TESTFONTS_COUNT];
-extern struct TbSprite *testfont_end[TESTFONTS_COUNT];
-extern unsigned char * testfont_data[TESTFONTS_COUNT];
+extern struct SpriteSheet *testfont[TESTFONTS_COUNT];
 extern unsigned char *testfont_palette[3];
 #endif
 /******************************************************************************/

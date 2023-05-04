@@ -31,16 +31,16 @@ extern "C" {
 /**
  * Type which contains buffer of a sprite, with RLE-encoded alpha channel.
  */
-typedef unsigned char * TbSpriteData;
+typedef uint8_t * TbSpriteData;
 
 struct TbSprite {
-    TbSpriteData Data;
+    const uint8_t * Data;
 #ifdef SPRITE_FORMAT_V2
-    unsigned short SWidth;
-    unsigned short SHeight;
+    uint16_t SWidth;
+    uint16_t SHeight;
 #else
-    unsigned char SWidth;
-    unsigned char SHeight;
+    uint8_t SWidth;
+    uint8_t SHeight;
 #endif
 };
 
@@ -64,16 +64,18 @@ struct TiledSprite {
 };
 
 #pragma pack()
+
+struct SpriteSheet;
+
 /******************************************************************************/
-/*
-extern struct TbSetupSprite setup_sprites[];
-extern char mouse_pointer_sprite;
-extern char lang_selection;
-*/
-/******************************************************************************/
+
 int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
 int LbSpriteClearAll(struct TbSetupSprite t_setup[]);
-short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char * data);
+int LbSpriteSetup(struct TbSprite ** start, struct TbSprite ** end, const uint8_t * data);
+struct SpriteSheet * LoadSprites(const char * basename);
+void DeleteSprites(struct SpriteSheet **);
+const struct TbSprite * GetSprite(const struct SpriteSheet *, size_t index);
+size_t CountSprites(const struct SpriteSheet *);
 
 /******************************************************************************/
 #ifdef __cplusplus

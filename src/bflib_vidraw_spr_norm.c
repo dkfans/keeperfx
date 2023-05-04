@@ -67,7 +67,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline, int
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -82,7 +82,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline, int
     {
         if (ycurstep[1] != 0)
         {
-            unsigned char *prevdata;
+            const uint8_t *prevdata;
             int xdup;
             int ydup;
             long *xcurstep;
@@ -173,7 +173,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline, int
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -188,7 +188,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline, int
     {
         if (ycurstep[1] != 0)
         {
-            unsigned char *prevdata;
+            const uint8_t *prevdata;
             int xdup;
             int ydup;
             long *xcurstep;
@@ -279,7 +279,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline, int
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -294,7 +294,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline, int
     {
         if (ycurstep[1] != 0)
         {
-            unsigned char *prevdata;
+            const uint8_t *prevdata;
             int xdup;
             int ydup;
             long *xcurstep;
@@ -385,7 +385,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline, int
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -400,7 +400,7 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline, int
     {
         if (ycurstep[1] != 0)
         {
-            unsigned char *prevdata;
+            const uint8_t *prevdata;
             int xdup;
             int ydup;
             long *xcurstep;
@@ -490,7 +490,7 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int 
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -613,7 +613,7 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int 
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -734,7 +734,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1RL(uchar *outbuf, int scanline, i
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -824,7 +824,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1LR(uchar *outbuf, int scanline, i
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -914,7 +914,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2RL(uchar *outbuf, int scanline, i
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -1004,7 +1004,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2LR(uchar *outbuf, int scanline, i
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -1093,7 +1093,7 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidRL(uchar *outbuf, int scanline, in
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -1181,7 +1181,7 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidLR(uchar *outbuf, int scanline, in
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
