@@ -727,6 +727,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               if (parameter_is_number(word_buf))
               {
                   k = atoi(word_buf);
+                  spconf->aura_effect = k;
                   n++;
               }
               else

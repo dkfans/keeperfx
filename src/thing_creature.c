@@ -919,6 +919,11 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         {
             thing->health = min(n, cctrl->max_health);
         }
+        if (spconf->aura_effect != 0)
+        {
+            cctrl->spell_aura = spconf->aura_effect;
+            cctrl->spell_aura_duration = spconf->duration;
+        }
     } else
     if (spell_idx == SplK_Disease)
     {
@@ -960,6 +965,11 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     n += 2 * LbFPMath_PI / 3;
                 }
             }
+            if (spconf->aura_effect != 0)
+            {
+                cctrl->spell_aura = spconf->aura_effect;
+                cctrl->spell_aura_duration = spconf->duration;
+            }
         }
     } else
     if (spell_idx == SplK_Chicken)
@@ -972,6 +982,11 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
                 cctrl->countdown_282 = duration;
                 cctrl->spell_flags |= spconf->spell_flags;
+            }
+            if (spconf->aura_effect != 0)
+            {
+                cctrl->spell_aura = spconf->aura_effect;
+                cctrl->spell_aura_duration = spconf->duration;
             }
         }
     } else
@@ -987,6 +1002,11 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 {
                     cctrl->spell_flags |= spconf->spell_flags;
                     illuminate_creature(thing);
+                }
+                if (spconf->aura_effect != 0)
+                {
+                    cctrl->spell_aura = spconf->aura_effect;
+                    cctrl->spell_aura_duration = spconf->duration;
                 }
             }
         }
