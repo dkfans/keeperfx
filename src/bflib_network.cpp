@@ -206,7 +206,6 @@ struct NetState
     char                    msg_buffer[(sizeof(NetFrame) + sizeof(struct Packet)) * PACKETS_COUNT + 1]; //completely estimated for now
     char                    msg_buffer_null;    //theoretical safe guard vs non-terminated strings
     TbBool                  locked;             //if set, no players may join
-    unsigned long           action_seed;
 };
 
 //the "new" code contained in this struct
@@ -801,7 +800,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     }
 
     *plyr_num = netstate.my_id;
-    game.action_rand_seed = netstate.action_seed;
+
     return Lb_OK;
 }
 
@@ -860,8 +859,6 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
     strcpy(localPlayerInfoPtr[netstate.my_id].name, netstate.users[netstate.my_id].name);
 
     LbNetwork_EnableNewPlayers(true);
-    netstate.action_seed = (unsigned long)LbTimeSec();
-    game.action_rand_seed = netstate.action_seed;
     return Lb_OK;
 }
 
