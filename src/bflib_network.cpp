@@ -1058,6 +1058,10 @@ static void ConsumeServerFrame(void *server_buf, int frame_size)
  */
 TbError LbNetwork_ExchangeServer(void *server_buf, size_t client_frame_size)
 {
+    if (netstate.users[netstate.my_id].progress != USER_SERVER)
+    {
+        return Lb_OK;
+    }
     //server needs to be careful about how it reads messages
     for (NetUserId id = 0; id < MAX_N_USERS; ++id)
     {
