@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_coroutine.h"
-#include "bflib_datetm.h"
 #include "bflib_memory.h"
 #include "bflib_network.h"
 
@@ -204,7 +203,7 @@ long network_session_join(void)
 
 void init_network_seed()
 {
-   game.action_rand_seed = LbTimeSec();
+   game.action_rand_seed = game.unsync_rand_seed;
    if (LbNetwork_ExchangeServer(&game.action_rand_seed, 4))
       ERRORLOG("Action seed initialisation failed"); 
 }
