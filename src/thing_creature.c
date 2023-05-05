@@ -982,11 +982,11 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
                 cctrl->countdown_282 = duration;
                 cctrl->spell_flags |= spconf->spell_flags;
-            }
-            if (spconf->aura_effect != 0)
-            {
-                cctrl->spell_aura = spconf->aura_effect;
-                cctrl->spell_aura_duration = spconf->duration;
+                if (spconf->aura_effect != 0)
+                {
+                    cctrl->spell_aura = spconf->aura_effect;
+                    cctrl->spell_aura_duration = spconf->duration;
+                }
             }
         }
     } else
