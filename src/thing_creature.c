@@ -917,7 +917,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             thing->health = 0;
         } else 
         {
-            thing->health = min(i, cctrl->max_health);
+            thing->health = min(n, cctrl->max_health);
         }
     } else
     if (spell_idx == SplK_Disease)
