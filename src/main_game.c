@@ -429,12 +429,13 @@ void init_seeds()
       srand(1);
     }
     else
-#else
-    // Initialize random seeds (the value may be different
-    // on computers in MP, as it shouldn't affect game actions)
-    game.unsync_rand_seed = (unsigned long)LbTimeSec();
-    game.action_rand_seed = game.unsync_rand_seed;
-    if ((game.system_flags & GSF_NetworkActive) != 0)
-        init_network_seed();
 #endif
+    {
+        // Initialize random seeds (the value may be different
+        // on computers in MP, as it shouldn't affect game actions)
+        game.unsync_rand_seed = (unsigned long)LbTimeSec();
+        game.action_rand_seed = game.unsync_rand_seed;
+        if ((game.system_flags & GSF_NetworkActive) != 0)
+            init_network_seed();
+    }
 }
