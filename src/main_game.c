@@ -435,8 +435,6 @@ void init_seeds()
     game.unsync_rand_seed = (unsigned long)LbTimeSec();
     game.action_rand_seed = game.unsync_rand_seed;
     if ((game.system_flags & GSF_NetworkActive) != 0)
-    {
         init_network_seed();
-    }
 #endif
 }
