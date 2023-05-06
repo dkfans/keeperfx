@@ -1963,7 +1963,6 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     short attribute2_value = 0;
     if (creatvar == 20) // ATTACKPREFERENCE
     {
-        
         attribute_value = get_id(attackpref_desc, scline->tp[2]);
     }
     else if (creatvar == 34) // LAIROBJECT
@@ -2153,6 +2152,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         {
         case 1: // PRIMARYJOBS
             crstat->job_primary = value;
+            crstat->job_primary |= value2;
             break;
         case 2: // SECONDARYJOBS
             crstat->job_secondary = value;
