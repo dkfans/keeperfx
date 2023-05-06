@@ -1960,6 +1960,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     }
 
     short attribute_value;
+    short attribute2_value = 0;
     if (creatvar == 20) // ATTACKPREFERENCE
     {
         
@@ -1979,23 +1980,44 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
             return;
         }
         attribute_value = job_value;
-            //todo use scline->tp[3]; to get a second job
+
+        if (scline->tp[3][0] != '\0')
+        {
+            long job2_value = get_id(creaturejob_desc, scline->tp[3]);
+            if (job2_value > SHRT_MAX)
+            {
+                SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            attribute2_value = job2_value;
+        }
     }
     else
     {
             attribute_value = atoi(scline->tp[2]);
+            if (scline->tp[3][0] != '\0')
+            {
+                attribute2_value = atoi(scline->tp[3]);
+            }
     }
     if (attribute_value == -1)
     {
         SCRPTERRLOG("Unknown creature attribute value %s", scline->tp[2]);
         DEALLOCATE_SCRIPT_VALUE
-            return;
+        return;
+    }
+    if (attribute2_value == -1)
+    {
+        SCRPTERRLOG("Unknown second creature attribute value %s", scline->tp[3]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
     }
 
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
     value->shorts[2] = attribute_value;
-    value->shorts[3] = scline->np[3];
+    value->shorts[3] = attribute2_value;
     SCRIPTDBG(7,"Setting creature %s attribute %d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[1], value->shorts[2], value->shorts[3]);
 
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -2134,12 +2156,15 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 2: // SECONDARYJOBS
             crstat->job_secondary = value;
+            crstat->job_secondary |= value2;
             break;
         case 3: // NOTDOJOBS
             crstat->jobs_not_do = value;
+            crstat->jobs_not_do |= value2;
             break;
         case 4: // STRESSFULJOBS
             crstat->job_stress = value;
+            crstat->job_stress |= value2;
             break;
         case 5: // TRAININGVALUE
             crstat->training_value = value;
@@ -3336,7 +3361,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
-  {"SET_CREATURE_CONFIGURATION",        "CAAn    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
+  {"SET_CREATURE_CONFIGURATION",        "CAAa    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
