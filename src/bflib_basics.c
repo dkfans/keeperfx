@@ -489,7 +489,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
             curr_time.Hour,curr_time.Minute,curr_time.Second);
     }
     if (log->prefix[0] != '\0')
-      fprintf(file, log->prefix);
+      fputs(log->prefix, file);
   vfprintf(file, fmt_str, arg);
   log->position = ftell(file);
   // fclose is slow and automatically happens on normal program exit.
