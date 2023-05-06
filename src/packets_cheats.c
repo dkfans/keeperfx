@@ -342,7 +342,7 @@ TbBool packets_process_cheats(
         allowed = ( (room_exists(room)) && (room->owner != playeradd->cheatselection.chosen_player) );
         if (allowed)
         {
-            sprintf(str, get_string(419));
+            snprintf(str, sizeof(str), "%s", get_string(419));
         }
         targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
