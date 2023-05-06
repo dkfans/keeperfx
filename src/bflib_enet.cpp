@@ -124,7 +124,8 @@ namespace
     TbError bf_enet_join(const char *session, void *options)
     {
         char buf[64] = {0};
-        char *P, *E;
+        const char *P;
+        char *E;
         ENetAddress address = {ENET_HOST_ANY, ENET_PORT_ANY};
         host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
         if (!host)
