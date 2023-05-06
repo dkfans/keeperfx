@@ -33,26 +33,18 @@ extern "C" {
  *  are of interest, other registers will be modified by the operation,
  *  so we need to tell the compiler about it.
  */
-static inline void cpuid(int code, unsigned long *a, unsigned long *d) {
-#if __GNUC__
+static inline void cpuid(int code, uint32_t *a, uint32_t *d) {
+  // This wouldn't work on Windows because...?
   asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
-#else
-  int regs[4] = { 0 };
-  __cpuid(regs, code);
-  *a = regs[0]; // EAX
-  *d = regs[3]; // EDX
-#endif
 }
 
 /** Issue a complete request, storing general registers output in an array.
  */
-static inline void cpuid_string(int code, unsigned long where[4]) {
-#if __GNUC__
+static inline void cpuid_string(int code, void * destination) {
+  uint32_t * where = (uint32_t *) destination;
+  // This wouldn't work on Windows because...?
   asm volatile("cpuid":"=a"(*where),"=b"(*(where+1)),
-               "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
-#else
-  __cpuid(where, code);
-#endif
+      "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
 }
 /******************************************************************************/
 
@@ -65,7 +57,7 @@ void cpu_detect(struct CPU_INFO *cpu)
   cpu->feature_intl = 0;
   cpu->feature_edx = 0;
   {
-    unsigned long where[4];
+    uint32_t where[4];
     cpuid_string(CPUID_GETVENDORSTRING, where);
     memcpy(&cpu->vendor[0],&where[1],4);
     memcpy(&cpu->vendor[4],&where[3],4);
@@ -83,9 +75,9 @@ void cpu_detect(struct CPU_INFO *cpu)
     cpu->BrandString = (where[0] >= CPUID_INTELBRANDSTRING);
     if (cpu->BrandString)
     {
-        cpuid_string(CPUID_INTELBRANDSTRING, (unsigned long*)&cpu->brand[0]);
-        cpuid_string(CPUID_INTELBRANDSTRINGMORE, (unsigned long*)&cpu->brand[16]);
-        cpuid_string(CPUID_INTELBRANDSTRINGEND, (unsigned long*)&cpu->brand[32]);       
+        cpuid_string(CPUID_INTELBRANDSTRING, &cpu->brand[0]);
+        cpuid_string(CPUID_INTELBRANDSTRINGMORE, &cpu->brand[16]);
+        cpuid_string(CPUID_INTELBRANDSTRINGEND, &cpu->brand[32]);
     }
   }
 }
