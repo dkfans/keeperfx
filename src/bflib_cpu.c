@@ -124,11 +124,11 @@ unsigned char cpu_get_model(struct CPU_INFO *cpu)
     unsigned char model = ((cpu->feature_intl>>4) & 0xF);
     if ( (family == 6) || (family == 15) )
     {
-        return (((cpu->feature_intl>>16 & 0xF)) << 4) + model; 
+        return (((cpu->feature_intl>>16 & 0xF)) << 4) + model;
     }
     else
     {
-        return model;   
+        return model;
     }
 }
 

@@ -71,7 +71,7 @@ float get_delta_time()
 void frametime_set_all_measurements_to_be_displayed()
 {
     // Display the frametime of the previous frame only, not the current frametime. Drawing "frametime_current" is a bad idea because frametimes are displayed on screen half-way through the rest of the measurements.
-    
+
     bool once_per_half_second = false;
     if (debug_display_frametime == 2)
     {
@@ -119,7 +119,7 @@ void frametime_end_measurement(int frametime_kind)
     long double current_milliseconds = current_nanoseconds/1000000.0;
     float result = float(current_milliseconds) - frametime_measurements.starting_measurement[frametime_kind];
     frametime_measurements.frametime_current[frametime_kind] = result;
-    
+
     if (frametime_kind == Frametime_FullFrame) {
         // Done last at end of frame
         frametime_set_all_measurements_to_be_displayed();

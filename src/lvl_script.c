@@ -326,7 +326,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         }
         break;
     }
-    case 'P': 
+    case 'P':
     {
         long plr_range_id;
         if (!get_player_id(scline->tp[idx], &plr_range_id))

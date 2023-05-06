@@ -283,9 +283,9 @@ void update_player_sounds(void)
     if (bonus_timer_enabled())
     {
         if ((game.bonus_time == game.play_gameturn) ||
-            ((game.bonus_time > game.play_gameturn) && 
+            ((game.bonus_time > game.play_gameturn) &&
             (   ((k <= 100)  && ((k % 10) == 0)) ||
-                ((k <= 300)  && ((k % 50) == 0)) || 
+                ((k <= 300)  && ((k % 50) == 0)) ||
                 ((k <= 5000) && ((k % 250) == 0)) ||
                                 ((k % 5000) == 0)    )  ))
         play_non_3d_sample(89);

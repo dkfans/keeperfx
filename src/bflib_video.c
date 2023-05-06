@@ -480,7 +480,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         {
             SDL_DestroyWindow(lbWindow); // destroy window on transition from fullscreen to window, as it is quicker than using SDL_SetWindowFullscreen
             lbWindow = NULL;
-        } 
+        }
         else
         {
             if (!sameResolution)

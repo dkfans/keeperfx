@@ -246,7 +246,7 @@ namespace
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
         if (client_peer) // Just send to server
         {
-            enet_peer_send(client_peer, 0, packet); 
+            enet_peer_send(client_peer, 0, packet);
         }
         else
         {

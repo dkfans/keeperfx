@@ -1393,7 +1393,7 @@ void gui_area_text(struct GuiButton *gbtn)
                 lit_width += 32;
             }
             draw_lit_bar64k(gbtn->scr_pos_x - 6*units_per_pixel/16, gbtn->scr_pos_y - 6*units_per_pixel/16, bs_units_per_px, lit_width);
-        } 
+        }
         else
         {
             draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
