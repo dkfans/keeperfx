@@ -6097,7 +6097,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             {
                 strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
                 strcpy(msg_buf, str);
-                sprintf(str, strtok(msg_buf, ":"));
+                snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
             }
             else
             {
@@ -6106,7 +6106,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
                 if ((int)(split - str) > -1)
                 {
                     strcpy(msg_buf, str);
-                    sprintf(str, strtok(msg_buf, ":"));
+                    snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
                 }
             }
         }
@@ -6114,7 +6114,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         {
             strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
             strcpy(msg_buf, str);
-            sprintf(str, strtok(msg_buf, ":"));
+            snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
         }
         id = -81;
     }
