@@ -2120,7 +2120,7 @@ static char light_render_light(struct Light* lgt)
         lighting_tables_idx = *shdc->field_1;
         if ( y_end >= y_start )
         {
-          unsigned int shadow_cache_pointer = (unsigned int)shdc->field_1;
+          unsigned int * shadow_cache_pointer = shdc->field_1;
           MapCoord y = y_start;
           do
           {
@@ -2143,7 +2143,7 @@ static char light_render_light(struct Light* lgt)
 
             lightness += v33;
             y += COORD_PER_STL;
-            lighting_tables_idx = *((unsigned int*)shadow_cache_pointer + 1);
+            lighting_tables_idx = shadow_cache_pointer[1];
             shadow_cache_pointer += 4;
           }
           while ( y_end >= y );
