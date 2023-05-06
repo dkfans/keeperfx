@@ -640,7 +640,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                             if (is_if_statement)
                             {
                                 scline->np[dst] = ranges[fi].min + range_index - range_total;
-                                ltoa(scline->np[dst], scline->tp[dst], 10);
+                                snprintf(scline->tp[dst], sizeof(scline->tp[dst]), "%ld", scline->np[dst]);
                             }
                             else
                             {
