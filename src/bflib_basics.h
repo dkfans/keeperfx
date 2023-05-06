@@ -158,7 +158,7 @@ int LbLogSetPrefixFmt(struct TbLog *log, const char *format, ...);
 
 void LbCloseLog();
 /******************************************************************************/
-typedef void (__stdcall *TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
+typedef void (*TbNetworkCallbackFunc)(struct TbNetworkCallbackData *, void *);
 /******************************************************************************/
 unsigned long blong (unsigned char *p);
 unsigned long llong (unsigned char *p);
