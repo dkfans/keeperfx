@@ -21,6 +21,7 @@
 #define BFLIB_BASICS_H
 
 #include <io.h>
+#include <time.h>
 
 #ifdef __cplusplus
 extern "C" {

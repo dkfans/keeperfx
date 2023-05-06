@@ -24,6 +24,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <io.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
 
