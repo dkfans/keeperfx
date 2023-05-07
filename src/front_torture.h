@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_sprite.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,11 +43,8 @@ struct DoorDesc { // sizeof = 44
   long pos_y;
   long width;
   long height;
-  struct TbSprite *sprites;
-  struct TbSprite *sprites_end;
-  unsigned char *data;
-  unsigned char *data_end;
   long smptbl_id;
+  struct SpriteSheet * sprites;
 };
 
 struct TortureState { // sizeof = 4
