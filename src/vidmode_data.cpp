@@ -51,15 +51,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern struct TbSprite *pointer_sprites;
-extern struct TbSprite *end_pointer_sprites;
-extern unsigned char * pointer_data;
+extern struct SpriteSheet *pointer_sprites;
 
 auto gui_panel_sprites_ptr = &gui_panel_sprites[0];
 auto end_gui_panel_sprites = &gui_panel_sprites[GUI_PANEL_SPRITES_COUNT];
 
 struct TbSetupSprite setup_sprites[] = {
-  {&pointer_sprites,      &end_pointer_sprites,   &pointer_data}, // 144 Sprites
   {&button_sprite,        &end_button_sprites,    &button_sprite_data}, // 215 Sprites
   {&port_sprite,          &end_port_sprites,      &port_sprite_data}, // 0 Sprites
   {&gui_panel_sprites_ptr,    &end_gui_panel_sprites, &gui_panel_sprite_data}, // 600 Sprites
@@ -104,60 +101,12 @@ struct TbLoadFiles front_load_files_minimal_640[] = {
   {"*FE_BACKUP_PAL",       (unsigned char **)&frontend_backup_palette,NULL,                            PALETTE_SIZE, 0, 0},
   {"",                     NULL,                                  NULL,                                           0, 0, 0},
 };
-
-struct TbLoadFiles pointer_load_files_320[] = {
-  {"data/pointer-32.dat",(unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointer-32.tab",(unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles pointer_small_load_files_320[] = {
-  {"data/pointsm-32.dat",(unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointsm-32.tab",(unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles pointer_load_files_640[] = {
-  {"data/pointer-64.dat",(unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointer-64.tab",(unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles pointer_small_load_files_640[] = {
-  {"data/pointsm-64.dat",(unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointsm-64.tab",(unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
 #else
 struct TbLoadFiles front_load_files_minimal_640[] = {
   {"data/gui1-32.dat",   (unsigned char **)&button_sprite_data, (unsigned char **)&end_button_sprite_data,      0, 0, 0},
   {"data/gui1-32.tab",   (unsigned char **)&button_sprite,      (unsigned char **)&end_button_sprites,          0, 0, 0},
   {"*FE_BACKUP_PAL",     (unsigned char **)&frontend_backup_palette,NULL,                            PALETTE_SIZE, 0, 0},
   {"",                   NULL,                                  NULL,                                           0, 0, 0},
-};
-
-struct TbLoadFiles pointer_load_files_320[] = {
-  {"data/pointer32.dat", (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointer32.tab", (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles pointer_small_load_files_320[] = {
-  {"data/points32.dat",  (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/points32.tab",  (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles pointer_load_files_640[] = {
-  {"data/pointer64.dat", (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointer64.tab", (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles pointer_small_load_files_640[] = {
-  {"data/points64.dat",  (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/points64.tab",  (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
 };
 #endif
 

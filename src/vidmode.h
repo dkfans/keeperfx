@@ -129,7 +129,7 @@ struct TbAlphaTables {
 };
 
 /******************************************************************************/
-extern struct TbSprite *pointer_sprites;
+extern struct SpriteSheet *pointer_sprites;
 extern struct TbLoadFiles legal_load_files[];
 extern struct TbLoadFiles game_load_files[];
 extern unsigned short units_per_pixel_min;
