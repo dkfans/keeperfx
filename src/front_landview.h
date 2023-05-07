@@ -77,12 +77,9 @@ struct ScreenPacket { // sizeof = 12
 extern TbClockMSec play_desc_speech_time;
 extern unsigned long played_bad_descriptive_speech;
 extern unsigned long played_good_descriptive_speech;
-extern TbSpriteData map_flag_data;
-extern unsigned long end_map_flag_data;
-extern struct TbSprite *map_flag;
-extern struct TbSprite *end_map_flag;
+extern struct SpriteSheet *map_flag;
 extern struct SpriteSheet *map_font;
-extern struct TbSprite *map_hand;
+extern struct SpriteSheet *map_hand;
 extern long map_sound_fade;
 extern unsigned char *map_screen;
 extern long fe_net_level_selected;
@@ -92,9 +89,6 @@ extern long players_currently_in_session;
 
 #pragma pack()
 /******************************************************************************/
-extern struct TbSprite *end_map_hand;
-extern TbSpriteData map_hand_data;
-extern TbSpriteData end_map_hand_data;
 extern struct MapLevelInfo map_info;
 
 extern long map_window_len;

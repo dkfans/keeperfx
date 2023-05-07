@@ -85,9 +85,6 @@ struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
 unsigned char * pointer_data;
 
-struct TbSprite *end_map_hand;
-TbSpriteData map_hand_data;
-TbSpriteData end_map_hand_data;
 struct MapLevelInfo map_info;
 
 int MinimalResolutionSetup;

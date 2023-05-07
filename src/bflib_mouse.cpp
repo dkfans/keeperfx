@@ -168,7 +168,7 @@ TbBool IsMouseInsideWindow(void)
     return isMouseInsideWindow;
 }
 
-TbResult LbMouseChangeSprite(struct TbSprite *pointerSprite)
+TbResult LbMouseChangeSprite(const struct TbSprite *pointerSprite)
 {
 #if (BFDEBUG_LEVEL > 18)
   if (pointerSprite == NULL)
