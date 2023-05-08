@@ -25,6 +25,7 @@
 #include "game_legacy.h"
 #include "game_saves.h"
 #include "gui_topmsg.h"
+#include "config_settings.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -274,6 +275,9 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.players_exist = 0;
     game.packet_save_head.players_comp = 0;
     game.packet_save_head.chksum_available = game.packet_checksum_verify;
+    game.packet_save_head.isometric_view_zoom_level = settings.isometric_view_zoom_level;
+    game.packet_save_head.frontview_zoom_level = settings.frontview_zoom_level;
+    game.packet_save_head.video_rotate_mode = settings.video_rotate_mode;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
