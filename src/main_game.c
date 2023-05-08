@@ -434,10 +434,11 @@ void init_seeds()
         // Initialize random seeds (the value may be different
         // on computers in MP, as it shouldn't affect game actions)
         game.unsync_rand_seed = (unsigned long)LbTimeSec();
-        game.action_rand_seed = game.unsync_rand_seed;
+        game.action_rand_seed = (game.packet_save_head.action_seed != 0) ? game.packet_save_head.action_seed : game.unsync_rand_seed;
         if ((game.system_flags & GSF_NetworkActive) != 0)
         {
             init_network_seed();
         }
+        start_seed = game.action_rand_seed;
     }
 }

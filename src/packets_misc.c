@@ -33,6 +33,7 @@ extern "C" {
 /******************************************************************************/
 #define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct PacketEx) + sizeof(TbBigChecksum))
 struct Packet bad_packet;
+unsigned long start_seed;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -274,6 +275,7 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.players_exist = 0;
     game.packet_save_head.players_comp = 0;
     game.packet_save_head.chksum_available = game.packet_checksum_verify;
+    game.packet_save_head.action_seed = start_seed;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);

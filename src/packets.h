@@ -242,6 +242,8 @@ enum ChecksumKind {
 struct PlayerInfo;
 struct CatalogueEntry;
 
+extern unsigned long start_seed;
+
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
  */
@@ -266,6 +268,7 @@ struct PacketSaveHead { // sizeof=0xF (15)
     unsigned char players_exist;
     unsigned char players_comp;
     TbBool chksum_available; // if needed, this can be replaced with flags
+    unsigned long action_seed;
 };
 
 struct PacketEx
