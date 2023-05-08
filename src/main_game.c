@@ -39,6 +39,7 @@
 #include "room_library.h"
 #include "room_list.h"
 #include "power_specials.h"
+#include "player_data.h"
 #include "player_utils.h"
 #include "vidfade.h"
 #include "vidmode.h"
