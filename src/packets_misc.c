@@ -34,6 +34,7 @@ extern "C" {
 /******************************************************************************/
 #define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct PacketEx) + sizeof(TbBigChecksum))
 struct Packet bad_packet;
+unsigned long start_seed;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -278,6 +279,7 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.isometric_view_zoom_level = settings.isometric_view_zoom_level;
     game.packet_save_head.frontview_zoom_level = settings.frontview_zoom_level;
     game.packet_save_head.video_rotate_mode = settings.video_rotate_mode;
+    game.packet_save_head.action_seed = start_seed;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
