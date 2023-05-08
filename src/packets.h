@@ -259,7 +259,7 @@ struct Packet {
     unsigned char additional_packet_values; // uses the flags and values from TbPacketAddValues
 };
 
-struct PacketSaveHead { // sizeof=0xF (15)
+struct PacketSaveHead {
     unsigned short game_ver_major;
     unsigned short game_ver_minor;
     unsigned short game_ver_release;
@@ -267,6 +267,9 @@ struct PacketSaveHead { // sizeof=0xF (15)
     unsigned long level_num;
     unsigned char players_exist;
     unsigned char players_comp;
+    unsigned long isometric_view_zoom_level;
+    unsigned long frontview_zoom_level;
+    unsigned char video_rotate_mode;
     TbBool chksum_available; // if needed, this can be replaced with flags
     unsigned long action_seed;
 };
