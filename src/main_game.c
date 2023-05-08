@@ -21,6 +21,7 @@
 #include "bflib_sound.h"
 
 #include "config_compp.h"
+#include "config_settings.h"
 #include "dungeon_data.h"
 #include "engine_lenses.h"
 #include "engine_redraw.h"
@@ -285,6 +286,8 @@ void startup_saved_packet_game(void)
         my_player_number = 0;
     else
         my_player_number = game.local_plyr_idx;
+    settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
+    settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
