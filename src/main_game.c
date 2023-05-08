@@ -304,7 +304,7 @@ void startup_saved_packet_game(void)
         case 0: mode = PVM_IsoWibbleView; break;
         case 1: mode = PVM_IsoStraightView; break;
         case 2: mode = PVM_FrontView; break;
-        default: ERRORLOG("Unrecognised video rotate mode: %d", game.packet_save_head.video_rotate_mode); mode = PVM_IsoWibbleView; break;
+        default: ERRORLOG("Unrecognised video rotate mode: %u", game.packet_save_head.video_rotate_mode); mode = PVM_IsoWibbleView; break;
     }
     set_engine_view(player, mode);
 }
