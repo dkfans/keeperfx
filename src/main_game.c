@@ -298,11 +298,15 @@ void startup_saved_packet_game(void)
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
-    if (is_key_pressed(KC_LALT, KMod_NONE))
-    {
-        struct PlayerInfo* player = get_my_player();
-        set_engine_view(player, PVM_FrontView);
+    struct PlayerInfo* player = get_my_player();
+    unsigned char mode;
+    switch (game.packet_save_head.video_rotate_mode) {
+        case 0: mode = PVM_IsoWibbleView; break;
+        case 1: mode = PVM_IsoStraightView; break;
+        case 2: mode = PVM_FrontView; break;
+        default: ERRORLOG("Unrecognised video rotate mode: %d", game.packet_save_head.video_rotate_mode); mode = PVM_IsoWibbleView; break;
     }
+    set_engine_view(player, mode);
 }
 
 static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);

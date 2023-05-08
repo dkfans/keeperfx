@@ -267,6 +267,7 @@ struct PacketSaveHead {
     unsigned char players_comp;
     unsigned long isometric_view_zoom_level;
     unsigned long frontview_zoom_level;
+    unsigned char video_rotate_mode;
     TbBool chksum_available; // if needed, this can be replaced with flags
 };
 
