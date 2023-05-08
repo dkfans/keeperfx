@@ -200,6 +200,12 @@ long network_session_join(void)
     }
     return plyr_num;
 }
+
+void init_network_seed()
+{
+   if (!LbNetwork_Resync(&game.action_rand_seed, 4))
+      ERRORLOG("Action seed initialisation failed"); 
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
