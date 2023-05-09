@@ -1970,7 +1970,7 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
                         create_shadow_limits(lish, shadow_start, shadow_end);
                     }
                     TbBool v24 = false;
-                    
+
                     if (too_high)
                     {
                         switch (quadrant)
@@ -2203,7 +2203,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
 
   SubtlCodedCoords start_num = get_subtile_number(startx, starty);
 
-  
+
   if ( starty <= endy )
   {
     unsigned short *stl_lightness = &game.lish.subtile_lightness[start_num];
