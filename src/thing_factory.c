@@ -168,7 +168,7 @@ TbBool thing_create_thing(struct InitThing *itng)
             thing = INVALID_THING;
         } else
         {
-            ERRORLOG("Couldn't create object model %d", (int)itng->model);
+            ERRORLOG("Couldn't create object model %d (%s)", (int)itng->model, object_code_name(itng->model));
             return false;
         }
         break;
@@ -176,7 +176,7 @@ TbBool thing_create_thing(struct InitThing *itng)
         thing = create_creature(&itng->mappos, itng->model, itng->owner);
         if (thing_is_invalid(thing))
         {
-            ERRORLOG("Couldn't create creature model %d", (int)itng->model);
+            ERRORLOG("Couldn't create creature model %d (%s)", (int)itng->model, creature_code_name(itng->model));
             return false;
         }
         init_creature_level(thing, itng->params[1]);
@@ -193,7 +193,7 @@ TbBool thing_create_thing(struct InitThing *itng)
         thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
         if (thing_is_invalid(thing))
         {
-            ERRORLOG("Couldn't create trap model %d", (int)itng->model);
+            ERRORLOG("Couldn't create trap model %d (%s)", (int)itng->model, trap_code_name(itng->model));
             return false;
         }
         break;
@@ -201,7 +201,7 @@ TbBool thing_create_thing(struct InitThing *itng)
         thing = create_door(&itng->mappos, itng->model, itng->params[0], itng->owner, itng->params[1]);
         if (thing_is_invalid(thing))
         {
-            ERRORLOG("Couldn't create door model %d", (int)itng->model);
+            ERRORLOG("Couldn't create door model %d (%s)", (int)itng->model, door_code_name(itng->model));
             return false;
         }
         break;
@@ -296,7 +296,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 thing = INVALID_THING;
             } else
             {
-                ERRORLOG("Couldn't create object model %d", (int)model);
+                ERRORLOG("Couldn't create object model %d (%s)", (int)model, object_code_name(model));
                 return false;
             }
             break;
@@ -304,7 +304,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             thing = create_creature(&mappos, model, owner);
             if (thing_is_invalid(thing))
             {
-                ERRORLOG("Couldn't create creature model %d", model);
+                ERRORLOG("Couldn't create creature model %d (%s)", model, creature_code_name(model));
                 return false;
             }
             {
@@ -351,7 +351,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             thing = create_thing(&mappos, oclass, model, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
             if (thing_is_invalid(thing))
             {
-                ERRORLOG("Couldn't create trap model %d", (int)model);
+                ERRORLOG("Couldn't create trap model %d (%s)", (int)model, trap_code_name(model));
                 return false;
             }
             thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
@@ -368,7 +368,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             }
             if (thing_is_invalid(thing))
             {
-                ERRORLOG("Couldn't create door model %d", (int)model);
+                ERRORLOG("Couldn't create door model %d (%s)", (int)model, door_code_name(model));
                 return false;
             }
             break;

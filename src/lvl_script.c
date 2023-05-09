@@ -430,6 +430,9 @@ TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, in
     case 'L':
         get_map_location_code_name(scline->np[idx], scline->tp[idx]);
         break;
+    case 'S':
+        strcpy(scline->tp[idx], slab_code_name(scline->np[idx]));
+        break;
     case 'A':
         break;
     case '!': // extended sign
@@ -626,7 +629,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     break;
                 }
                 // DRAWFROM support - select random index now
-                long range_index = rand() % range_total;
+                long range_index = GAME_RANDOM(range_total);
                 // Get value from ranges array
                 range_total = 0;
                 for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)

@@ -78,9 +78,8 @@ unsigned long thing_create_errors = 0;
 /******************************************************************************/
 
 void set_previous_thing_position(struct Thing *thing) {
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->previous_mappos = thing->mappos;
-    thingadd->previous_floor_height = thing->floor_height;
+    thing->previous_mappos = thing->mappos;
+    thing->previous_floor_height = thing->floor_height;
 }
 
 /**
@@ -3158,9 +3157,9 @@ TbBool update_thing(struct Thing *thing)
         if (thing->mappos.z.val > thing->floor_height)
         {
             if (thing->veloc_base.x.val != 0)
-                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_air) / 256;
+                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)
-                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_air) / 256;
+                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
                 thing->veloc_push_add.z.val -= thing->fall_acceleration;
@@ -3170,7 +3169,7 @@ TbBool update_thing(struct Thing *thing)
                 // For flying creatures, the Z velocity should also decrease over time
                 if (thing->veloc_base.z.val != 0)
                 {
-                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->inertia_air) / 256;
+                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - thing->inertia_air) / 256;
                 }
                 else 
                 {
@@ -3184,9 +3183,9 @@ TbBool update_thing(struct Thing *thing)
         } else
         {
             if (thing->veloc_base.x.val != 0)
-              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_floor) / 256;
+              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_floor) / 256;
             if (thing->veloc_base.y.val != 0)
-              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_floor) / 256;
+              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_floor) / 256;
             thing->mappos.z.val = thing->floor_height;
             if ((thing->movement_flags & TMvF_Unknown08) != 0)
             {

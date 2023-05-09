@@ -599,34 +599,34 @@ long interpolate_angle(long variable_to_interpolate, long previous, long current
     return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
-void interpolate_thing(struct Thing *thing, struct ThingAdd *thingadd)
+void interpolate_thing(struct Thing *thing)
 {
     // Note: if delta_time is off the interpolated position will also reflect that
 
-    if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thingadd->last_turn_drawn > 1 ) {
+    if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thing->last_turn_drawn > 1 ) {
         // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
-        thingadd->interp_mappos = thing->mappos;
-        thingadd->interp_floor_height = thing->floor_height;
+        thing->interp_mappos = thing->mappos;
+        thing->interp_floor_height = thing->floor_height;
         
-        if (thingadd->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
-            thingadd->interp_mappos.z.val = thingadd->interp_floor_height;
+        if (thing->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
+            thing->interp_mappos.z.val = thing->interp_floor_height;
         }
     } else {
         // Interpolate position every frame
-        thingadd->interp_mappos.x.val = interpolate(thingadd->interp_mappos.x.val, thingadd->previous_mappos.x.val, thing->mappos.x.val);
-        thingadd->interp_mappos.z.val = interpolate(thingadd->interp_mappos.z.val, thingadd->previous_mappos.z.val, thing->mappos.z.val);
-        thingadd->interp_mappos.y.val = interpolate(thingadd->interp_mappos.y.val, thingadd->previous_mappos.y.val, thing->mappos.y.val);
-        thingadd->interp_floor_height = interpolate(thingadd->interp_floor_height, thingadd->previous_floor_height, thing->floor_height);
+        thing->interp_mappos.x.val = interpolate(thing->interp_mappos.x.val, thing->previous_mappos.x.val, thing->mappos.x.val);
+        thing->interp_mappos.z.val = interpolate(thing->interp_mappos.z.val, thing->previous_mappos.z.val, thing->mappos.z.val);
+        thing->interp_mappos.y.val = interpolate(thing->interp_mappos.y.val, thing->previous_mappos.y.val, thing->mappos.y.val);
+        thing->interp_floor_height = interpolate(thing->interp_floor_height, thing->previous_floor_height, thing->floor_height);
         
         // Cancel interpolation if distance to interpolate is too far. This is a catch-all to solve any remaining interpolation bugs.
-        if ((abs(thingadd->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
-            (abs(thingadd->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
-            (abs(thingadd->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
+        if ((abs(thing->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
+            (abs(thing->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
+            (abs(thing->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
         {
             ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation."
-                ,thing_model_name(thing), (int)thing->index, (int)thing->owner, thingadd->interp_mappos.x.stl.num, thingadd->interp_mappos.y.stl.num, thingadd->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
-            thingadd->interp_mappos = thing->mappos;
-            thingadd->interp_floor_height = thing->floor_height;
+                ,thing_model_name(thing), (int)thing->index, (int)thing->owner, thing->interp_mappos.x.stl.num, thing->interp_mappos.y.stl.num, thing->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
+            thing->interp_mappos = thing->mappos;
+            thing->interp_floor_height = thing->floor_height;
         }
     }
 }
@@ -4917,7 +4917,6 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     unsigned char alpha_mem;
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = jspr->thing;
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
     short angle;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
@@ -4992,10 +4991,10 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
-                thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
-                if (thingadd->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
+                thing->time_spent_displaying_hurt_colour += gameadd.delta_time;
+                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
                 {
-                    thingadd->time_spent_displaying_hurt_colour = 0;
+                    thing->time_spent_displaying_hurt_colour = 0;
                     thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
                 }
             }
@@ -8086,7 +8085,6 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     unsigned char alpha_mem;
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = jspr->thing;
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
     long angle;
     long scale;
     flg_mem = lbDisplay.DrawFlags;
@@ -8094,7 +8092,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     if (keepersprite_rotable(thing->anim_sprite))
     {
       angle = thing->move_angle_xy - spr_map_angle;
-      angle += 256 * (long)((thingadd->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
+      angle += 256 * (long)((thing->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
     }
     else
       angle = thing->move_angle_xy;
@@ -8155,10 +8153,10 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
-                thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
-                if (thingadd->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
+                thing->time_spent_displaying_hurt_colour += gameadd.delta_time;
+                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
                 {
-                    thingadd->time_spent_displaying_hurt_colour = 0;
+                    thing->time_spent_displaying_hurt_colour = 0;
                     thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
                 }
             }
@@ -8811,17 +8809,16 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 }
 static void do_map_who_for_thing(struct Thing *thing)
 {
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
     int bckt_idx;
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
 
-    interpolate_thing(thing, thingadd);
+    interpolate_thing(thing);
     int render_pos_x, render_floorpos, render_pos_y, render_pos_z;
-    render_pos_x = thingadd->interp_mappos.x.val;
-    render_pos_y = thingadd->interp_mappos.z.val;
-    render_pos_z = thingadd->interp_mappos.y.val;
-    render_floorpos = thingadd->interp_floor_height;
+    render_pos_x = thing->interp_mappos.x.val;
+    render_pos_y = thing->interp_mappos.z.val;
+    render_pos_z = thing->interp_mappos.y.val;
+    render_floorpos = thing->interp_floor_height;
 
     switch (thing->field_50 >> 2) // draw_class
     {
@@ -8928,7 +8925,7 @@ static void do_map_who_for_thing(struct Thing *thing)
     default:
         break;
     }
-    thingadd->last_turn_drawn = game.play_gameturn;
+    thing->last_turn_drawn = game.play_gameturn;
 }
 
 static void do_map_who(short tnglist_idx)
@@ -8966,8 +8963,7 @@ static void do_map_who(short tnglist_idx)
 static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struct Camera *cam)
 {
     // The draw_frontview_thing_on_element() function is the FrontView equivalent of do_map_who_for_thing()
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    interpolate_thing(thing, thingadd);
+    interpolate_thing(thing);
 
     long cx;
     long cy;
@@ -8977,7 +8973,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     switch (thing->field_50 >> 2)
     {
     case 2: // Things
-        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
@@ -8988,7 +8984,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
         break;
     case 4: // Floating gold text when buying and selling
-        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_number_to_polypool(cx, cy, thing->creature.gold_carried, 1);
@@ -8999,7 +8995,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         if (hud_scale == 0) {
             break;
         }
-        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
@@ -9024,7 +9020,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
         break;
     case 6:
-        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_unkn18_to_polypool(thing, cx, cy, cy, cz-3);
@@ -9033,7 +9029,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     default:
         break;
     }
-    thingadd->last_turn_drawn = game.play_gameturn;
+    thing->last_turn_drawn = game.play_gameturn;
 }
 
 static void draw_frontview_things_on_element(struct Map *mapblk, struct Camera *cam)

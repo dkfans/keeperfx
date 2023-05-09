@@ -79,8 +79,7 @@ msgstr "Mi Señor, uno de los monjes que huía de la sitiada Piedrabadía, se ha
 #. Dwarfton (lv1)
 #: guitext:7
 msgctxt "In-game message"
-msgid ""
-"My Liege, you shouldn't have heard that!"
+msgid "My Liege, you shouldn't have heard that!"
 msgstr "¡Mi Señor, no deberías haber oído eso!"
 
 #. Dwarfton (lv1)
@@ -264,7 +263,7 @@ msgid ""
 "Abbeystone, where the evil keeper seeks to quash one of the last few bastions of virtue in Dominus."
 msgstr ""
 "Todos los monstruos están muertos y la gente de Bosque centelleante ahora están a salvo. Pero ahora es el momento de dirigirse "
-"a la sitiada Piedrabadía, donde un malvado Guardián busca aplastar a uno de los últimos bastiones de la virtud en Dominus.
+"a la sitiada Piedrabadía, donde un malvado Guardián busca aplastar a uno de los últimos bastiones de la virtud en Dominus."
 
 #. Abbeystone (lv3)
 #: guitext:29
@@ -419,8 +418,7 @@ msgstr ""
 #. Widerwilds (lv4)
 #: guitext:45
 msgctxt "In-game message"
-msgid ""
-"Treachery! The Barbarian who challenged you has turned out to have been a Demon all along! Put him and his remaining minions down, quickly!"
+msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! Put him and his remaining minions down, quickly!"
 msgstr ""
 "¡Traición! ¡El bárbaro que te desafió resultó ser un demonio todo el tiempo! ¡Ponlo a él y a sus servidores restantes donde deben estar, rápido!"
 
@@ -437,7 +435,7 @@ msgstr ""
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
-"The vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires "
+"A vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires "
 "who have brought the Knightly Order of Dominus to ruin!"
 msgstr ""
 "Un vil nigromante tiene a este reino en su puño mortal. Reúne a los lugareños para vencer a los muertos vivientes y promulga tu venganza "
@@ -496,38 +494,30 @@ msgstr "¡Nuestro Corazón de Mazmorra ha sido profanado por las fuerzas de los 
 #. Misty Bog (lv5)
 #: guitext:54
 msgctxt "In-game message"
-msgid ""
-"The people speak of a haunted Temple in the area. You would be wise to cleanse it of the taint?"
+msgid "The people speak of a haunted Temple in the area. You would be wise to cleanse it of the taint?"
 msgstr "La gente habla de un templo embrujado en la zona. ¿Sería prudente limpiarlo de la corrupción?"
 
 #. Misty Bog (lv5)
 #: guitext:55
 msgctxt "In-game message"
-msgid "The heart of one evil Necromancer is destroyed, but there is another! Find and destroy his second phylactery, and then proceed to "
-" stake all surviving vampires in the bog."
+msgid "The heart of the evil Necromancer is destroyed, but he has another! Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog."
 msgstr ""
-"El Corazón del nigromante malvado está destruido, ¡pero hay otro! Encuentra y destruye su segunda filacteria, y luego procede a clavar "
+"El Corazón del nigromante malvado está destruido, pero hay otro. Encuentra y destruye su segunda filacteria, y luego procede a clavar "
 "estacas a todos los vampiros supervivientes en el pantano."
 
 #. Misty Bog (lv5)
 #: guitext:56
 msgctxt "In-game message"
-msgid ""
-"The last Necromancer is defeated. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
+msgid "The Necromancer is defeated at last. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
 "on your heroes."
 msgstr ""
-"El último nigromante ha sido derrotado. Ahora, debes acabar con todos los vampiros supervivientes del pantano, que han llegado con "
+"El nigromante ha sido derrotado al fin. Ahora, debes acabar con todos los vampiros supervivientes del pantano, que han llegado con "
 "retraso en busca de venganza sobre tus héroes."
 
-#. Misty Bog (lv5)
 #: guitext:57
 msgctxt "In-game message"
-msgid ""
-"The heart of an evil Necromancer is destroyed, but another remains. Find and destroy his second phylactery, and then proceed to stake "
-"all surviving vampires in the bog. "
+msgid "Moo"
 msgstr ""
-"El Corazón del nigromante malvado está destruido, pero hay otro. Encuentra y destruye su segunda filacteria, y luego procede a clavar "
-"estacas a todos los vampiros supervivientes en el pantano."
 
 #. Misty Bog (lv5) victory message
 #: guitext:58
@@ -538,15 +528,11 @@ msgstr ""
 "¡Gloriosa victoria, mi Señor! ¡Los muertos vivientes han sido derrotados y Pantano brumoso está a salvo! Ahora es posible restaurar el "
 "Castillo de los Caballeros, que está en mal estado después de que los vampiros se establecieran allí."
 
-#. Widerwilds (lv3)
+#. Widerwilds (lv4)
 #: guitext:59
 msgctxt "In-game message"
-msgid ""
-"Treachery! The Barbarian who challenged you has turned out to have been a demon all along! You now must breach his fortress and destroy "
-"both the dungeon heart and the monster himself!"
-msgstr ""
-"¡Traición! ¡El bárbaro que te desafió resultó ser un demonio todo el tiempo! ¡Ahora debes destruir su fortaleza y acabar con el Corazón 
-"de Mazmorra y con el monstruo mismo!"
+msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! You now must breach his fortress and destroy both the dungeon heart and the monster himself!"
+msgstr "¡Traición! ¡El bárbaro que te desafió resultó ser un demonio todo el tiempo! ¡Ahora debes destruir su fortaleza y acabar con el Corazón de Mazmorra y con el monstruo mismo!"
 
 #. Knight's castle (lv6)
 #: guitext:60
@@ -619,7 +605,7 @@ msgid ""
 "You have established a new Knightly Order, and a wise and powerful Wizard has joined your cause! he brings with him the ability to "
 " Destroy Walls. It is now possible to finally eradicate the evil presence in these lands by destroying its very heart."
 msgstr ""
-"¡Has establecido una nueva orden caballeresca y un mago sabio y poderoso se ha unido a tu causa! trae consigo la capacidad de ,
+"¡Has establecido una nueva orden caballeresca y un mago sabio y poderoso se ha unido a tu causa! trae consigo la capacidad de ,"
 "Destruir Muros. Ahora es posible erradicar finalmente la presencia del mal en estas tierras destruyendo su mismo Corazón."
 
 #. Knight's castle (lv6)
@@ -630,7 +616,7 @@ msgid ""
 " upon the Wickedridge itself."
 msgstr ""
 "El mal que contamina esta tierra ya no existe, y los muros del Castillo de los Caballeros una vez más se alzan orgullosos al amanecer."
-" Ahora es el momento de moverse sobre la propia Cresta Malvada.
+" Ahora es el momento de moverse sobre la propia Cresta Malvada."
 
 #. Knight's castle (lv6)
 #: guitext:69

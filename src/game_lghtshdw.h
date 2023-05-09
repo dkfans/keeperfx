@@ -51,7 +51,7 @@ struct ShadowCache { // sizeof = 129
 /**
  * Structure which stores data of lights and shadows system.
  */
-struct LightsShadows { // sizeof = 164886
+struct LightsShadows {
     struct LightingTable lighting_tables[1024]; // only the first 700 elements are populated
     unsigned char shadow_limits[SHADOW_LIMITS_COUNT];
     struct Light lights[LIGHTS_COUNT];

@@ -1949,33 +1949,75 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     short creatvar = get_id(creatmodel_attributes_commands, scline->tp[1]);
     if (creatvar == -1)
     {
-        SCRPTERRLOG("Unknown creature attribute");
-        DEALLOCATE_SCRIPT_VALUE
+        creatvar = get_id(creatmodel_jobs_commands, scline->tp[1]);
+        if (creatvar == -1)
+        {
+            SCRPTERRLOG("Unknown creature attribute");
+            DEALLOCATE_SCRIPT_VALUE
             return;
+        }
+        creatvar = (creatvar << 8);
     }
 
+    short attribute_value;
+    short attribute2_value = 0;
     if (creatvar == 20) // ATTACKPREFERENCE
     {
-        value->shorts[2] = get_id(attackpref_desc, scline->tp[2]);
+        attribute_value = get_id(attackpref_desc, scline->tp[2]);
+    }
+    else if (creatvar == 34) // LAIROBJECT
+    {
+        attribute_value = get_id(object_desc, scline->tp[2]);
+    }
+    else if (((creatvar>>8) > 0 ) && ((creatvar >> 8) <= 4)) // Jobs
+    {
+        long job_value = get_id(creaturejob_desc, scline->tp[2]);
+        if (job_value > SHRT_MAX)
+        {
+            SCRPTERRLOG("JOB %s not supported",creature_job_code_name(job_value));
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        attribute_value = job_value;
+
+        if (scline->tp[3][0] != '\0')
+        {
+            long job2_value = get_id(creaturejob_desc, scline->tp[3]);
+            if (job2_value > SHRT_MAX)
+            {
+                SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            attribute2_value = job2_value;
+        }
     }
     else
     {
-        value->shorts[2] = atoi(scline->tp[2]);
+            attribute_value = atoi(scline->tp[2]);
+            if (scline->tp[3][0] != '\0')
+            {
+                attribute2_value = atoi(scline->tp[3]);
+            }
+    }
+    if (attribute_value == -1)
+    {
+        SCRPTERRLOG("Unknown creature attribute value %s", scline->tp[2]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if (attribute2_value == -1)
+    {
+        SCRPTERRLOG("Unknown second creature attribute value %s", scline->tp[3]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
     }
 
-    if (creatvar == 34) // LAIROBJECT
-    {
-        value->shorts[2] = get_id(object_desc, scline->tp[2]);
-    }
-    else
-    {
-        value->shorts[2] = atoi(scline->tp[2]);
-    }
-
-    SCRIPTDBG(7, "Setting creature %s attribute %d to %d (%d)", creature_code_name(scline->np[0]), scline->np[1], scline->np[2], scline->np[3]);
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
-    value->shorts[3] = scline->np[3];
+    value->shorts[2] = attribute_value;
+    value->shorts[3] = attribute2_value;
+    SCRIPTDBG(7,"Setting creature %s attribute %d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[1], value->shorts[2], value->shorts[3]);
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1990,116 +2032,165 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     short value = context->value->shorts[2];
     short value2 = context->value->shorts[3];
 
-    switch (attribute)
+    if (attribute <= CHAR_MAX)
     {
-    case 1: // NAME
-        CONFWRNLOG("Attribute (%d) not supported", attribute);
-        break;
-    case 2: // HEALTH
-        crstat->health = value;
-        break;
-    case 3: // HEALREQUIREMENT
-        crstat->heal_requirement = value;
-        break;
-    case 4: // HEALTHRESHOLD
-        crstat->heal_threshold = value;
-        break;
-    case 5: // STRENGTH
-        crstat->strength = value;
-        break;
-    case 6: // ARMOUR
-        crstat->armour = value;
-        break;
-    case 7: // DEXTERITY
-        crstat->dexterity = value;
-        break;
-    case 8: // FEARWOUNDED
-        crstat->fear_wounded = value;
-        break;
-    case 9: // FEARSTRONGER
-        crstat->fear_stronger = value;
-        break;
-    case 10: // DEFENCE
-        crstat->defense = value;
-        break;
-    case 11: // LUCK
-        crstat->luck = value;
-        break;
-    case 12: // RECOVERY
-        crstat->sleep_recovery = value;
-        break;
-    case 13: // HUNGERRATE
-        crstat->hunger_rate = value;
-        break;
-    case 14: // HUNGERFILL
-        crstat->hunger_fill = value;
-        break;
-    case 15: // LAIRSIZE
-        crstat->lair_size = value;
-        break;
-    case 16: // HURTBYLAVA
-        crstat->hurt_by_lava = value;
-        break;
-    case 17: // BASESPEED
-        crstat->base_speed = value;
-        break;
-    case 18: // GOLDHOLD
-        crstat->gold_hold = value;
-        break;
-    case 19: // SIZE
-        crstat->size_xy = value;
-        crstat->size_yz = value2;
-        break;
-    case 20: // ATTACKPREFERENCE
-        //todo
-        crstat->attack_preference = value;
-        break;
-    case 21: // PAY
-        crstat->pay = value;
-        break;
-    case 22: // HEROVSKEEPERCOST
-        crstat->hero_vs_keeper_cost = value;
-        break;
-    case 23: // SLAPSTOKILL
-        crstat->slaps_to_kill = value;
-        break;
-    case 24: // CREATURELOYALTY
-    case 25: // LOYALTYLEVEL
-    case 28: // PROPERTIES
-        CONFWRNLOG("Attribute (%d) not supported", attribute);
-        break;
-    case 26: // DAMAGETOBOULDER
-        crstat->damage_to_boulder = value;
-        break;
-    case 27: // THINGSIZE
-        crstat->thing_size_xy = value;
-        crstat->thing_size_yz = value2;
-        break;
-    case 29: // NAMETEXTID
-        crconf->namestr_idx = value;
-        break;
-    case 30: // FEARSOMEFACTOR
-        crstat->fearsome_factor = value;
-        break;
-    case 31: // TOKINGRECOVERY
-        crstat->toking_recovery = value;
-        break;
-    case 32: // CORPSEVANISHEFFECT
-        crstat->corpse_vanish_effect = value;
-        break;
-    case 33: // FOOTSTEPPITCH
-        crstat->footstep_pitch = value;
-        break;
-    case 34: // LAIROBJECT
-        crstat->lair_object = value;
-        break;
-    case 0: // comment
-        break;
-    case -1: // end of buffer
-        break;
-    default:
-        CONFWRNLOG("Unrecognized command (%d)",attribute);
-        break;
+        switch (attribute)
+        {
+        case 1: // NAME
+            CONFWRNLOG("Attribute (%d) not supported", attribute);
+            break;
+        case 2: // HEALTH
+            crstat->health = value;
+            break;
+        case 3: // HEALREQUIREMENT
+            crstat->heal_requirement = value;
+            break;
+        case 4: // HEALTHRESHOLD
+            crstat->heal_threshold = value;
+            break;
+        case 5: // STRENGTH
+            crstat->strength = value;
+            break;
+        case 6: // ARMOUR
+            crstat->armour = value;
+            break;
+        case 7: // DEXTERITY
+            crstat->dexterity = value;
+            break;
+        case 8: // FEARWOUNDED
+            crstat->fear_wounded = value;
+            break;
+        case 9: // FEARSTRONGER
+            crstat->fear_stronger = value;
+            break;
+        case 10: // DEFENCE
+            crstat->defense = value;
+            break;
+        case 11: // LUCK
+            crstat->luck = value;
+            break;
+        case 12: // RECOVERY
+            crstat->sleep_recovery = value;
+            break;
+        case 13: // HUNGERRATE
+            crstat->hunger_rate = value;
+            break;
+        case 14: // HUNGERFILL
+            crstat->hunger_fill = value;
+            break;
+        case 15: // LAIRSIZE
+            crstat->lair_size = value;
+            break;
+        case 16: // HURTBYLAVA
+            crstat->hurt_by_lava = value;
+            break;
+        case 17: // BASESPEED
+            crstat->base_speed = value;
+            break;
+        case 18: // GOLDHOLD
+            crstat->gold_hold = value;
+            break;
+        case 19: // SIZE
+            crstat->size_xy = value;
+            crstat->size_yz = value2;
+            break;
+        case 20: // ATTACKPREFERENCE
+            crstat->attack_preference = value;
+            break;
+        case 21: // PAY
+            crstat->pay = value;
+            break;
+        case 22: // HEROVSKEEPERCOST
+            crstat->hero_vs_keeper_cost = value;
+            break;
+        case 23: // SLAPSTOKILL
+            crstat->slaps_to_kill = value;
+            break;
+        case 24: // CREATURELOYALTY
+        case 25: // LOYALTYLEVEL
+        case 28: // PROPERTIES
+            CONFWRNLOG("Attribute (%d) not supported", attribute);
+            break;
+        case 26: // DAMAGETOBOULDER
+            crstat->damage_to_boulder = value;
+            break;
+        case 27: // THINGSIZE
+            crstat->thing_size_xy = value;
+            crstat->thing_size_yz = value2;
+            break;
+        case 29: // NAMETEXTID
+            crconf->namestr_idx = value;
+            break;
+        case 30: // FEARSOMEFACTOR
+            crstat->fearsome_factor = value;
+            break;
+        case 31: // TOKINGRECOVERY
+            crstat->toking_recovery = value;
+            break;
+        case 32: // CORPSEVANISHEFFECT
+            crstat->corpse_vanish_effect = value;
+            break;
+        case 33: // FOOTSTEPPITCH
+            crstat->footstep_pitch = value;
+            break;
+        case 34: // LAIROBJECT
+            crstat->lair_object = value;
+            break;
+        case 0: // comment
+            break;
+        case -1: // end of buffer
+            break;
+        default:
+            CONFWRNLOG("Unrecognized command (%d)", attribute);
+            break;
+        }
+    }
+    else
+    {
+        attribute = (attribute >> 8); // creatmodel_jobs_commands
+        switch (attribute)
+        {
+        case 1: // PRIMARYJOBS
+            crstat->job_primary = value;
+            crstat->job_primary |= value2;
+            break;
+        case 2: // SECONDARYJOBS
+            crstat->job_secondary = value;
+            crstat->job_secondary |= value2;
+            break;
+        case 3: // NOTDOJOBS
+            crstat->jobs_not_do = value;
+            crstat->jobs_not_do |= value2;
+            break;
+        case 4: // STRESSFULJOBS
+            crstat->job_stress = value;
+            crstat->job_stress |= value2;
+            break;
+        case 5: // TRAININGVALUE
+            crstat->training_value = value;
+            break;
+        case 6: // TRAININGCOST
+            crstat->training_cost = value;
+            break;
+        case 7: // SCAVENGEVALUE
+            crstat->scavenge_value = value;
+            break;
+        case 8: // SCAVENGERCOST
+            crstat->scavenger_cost = value;
+            break;
+        case 9: // RESEARCHVALUE
+            crstat->research_value = value;
+            break;
+        case 10: // MANUFACTUREVALUE
+            crstat->manufacture_value = value;
+            break;
+        case 11: // PARTNERTRAINING
+            crstat->partner_training = value;
+            break;
+        default:
+            CONFWRNLOG("Unrecognized Job command (%d)", attribute);
+            break;
+        }
     }
     check_and_auto_fix_stats();
 }
@@ -2654,6 +2745,62 @@ static void reveal_map_location_process(struct ScriptContext *context)
         slabs_fill_iterate_from_slab(subtile_slab(x), subtile_slab(y), slabs_reveal_slab_and_corners, &iter_param);
     } else
         reveal_map_area(context->player_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
+}
+
+static void use_spell_on_creature_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    long crtr_id = parse_creature_name(scline->tp[1]);
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    const char *mag_name = scline->tp[2];
+    short mag_id = get_rid(spell_desc, mag_name);
+    short splevel = scline->np[2];
+
+    if (mag_id == -1)
+    {
+        SCRPTERRLOG("Invalid spell: %s", mag_name);
+        return;
+    }
+
+    if (splevel < 1)
+    {
+        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        {
+            SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
+        }
+        splevel = 1;
+    }
+    if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) //Creatures cast spells from level 1 to 10, but 10=9.
+    {
+        SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
+        splevel = MAGIC_OVERCHARGE_LEVELS;
+    }
+    splevel--;
+    if (mag_id == -1)
+    {
+        SCRPTERRLOG("Unknown magic, '%s'", mag_name);
+        return;
+    }
+    value->shorts[1] = crtr_id;
+    value->shorts[2] = mag_id;
+    value->shorts[3] = splevel;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void use_spell_on_creature_process(struct ScriptContext* context)
+{
+    long crmodel = context->value->shorts[1];
+    long spl_idx = context->value->shorts[2];
+    long overchrg = context->value->shorts[3];
+
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        apply_spell_effect_to_players_creatures(i, crmodel, spl_idx, overchrg);
+    }
 }
 
 static void set_creature_instance_check(const struct ScriptLine *scline)
@@ -3214,7 +3361,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
-  {"SET_CREATURE_CONFIGURATION",        "CAAn    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
+  {"SET_CREATURE_CONFIGURATION",        "CAAa    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
@@ -3226,7 +3373,8 @@ const struct CommandDesc command_desc[] = {
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
-  {"USE_SPELL_ON_CREATURE",             "PC!AAN  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
+  {"USE_SPELL_ON_CREATURE",             "PC!AAn  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
+  {"USE_SPELL_ON_PLAYERS_CREATURES",    "PC!An   ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_spell_on_creature_check, &use_spell_on_creature_process },
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
   {"ADD_HEART_HEALTH",                  "PNn     ", Cmd_ADD_HEART_HEALTH, &add_heart_health_check, &add_heart_health_process},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},

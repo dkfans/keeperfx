@@ -53,7 +53,7 @@ msgid ""
 "being held in reserve. Your preparations will be thoroughly tested Master!"
 msgstr ""
 
-#. Level Swedish spirit outside hero heart"
+#. Level Swedish spirit outside hero heart
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
@@ -111,8 +111,8 @@ msgstr ""
 #: guitext:10
 msgctxt "In-game message"
 msgid ""
-"While traveling to this land, we lost our Treasure Room plans. Fortunately "
-"there is an ancient library in this land, left by a powerful long dead "
+"While traveling to this land, we lost our Treasure Room plans. Fortunately, "
+"there is an ancient library in this land, left by a powerful long-dead "
 "keeper. Use it well!"
 msgstr ""
 
@@ -272,8 +272,8 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "You have unleashed waves of hero raiding parties Master, as these heroes "
-"make their last stand in this realm. Your defences need to be extensive and "
-"well placed if you are to triumph here."
+"make their last stand in this realm. Your defenses need to be extensive and "
+"well-placed if you are to triumph here."
 msgstr ""
 
 #. Level Embattled Formation opening message
@@ -300,7 +300,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "An excellent victory once again. All three enemies lie amongst the dust of "
-"this once green and pleasant land. I sense you want to find the next land "
+"this once green and pleasant land. I sense you want to find the next land, "
 "Master?"
 msgstr ""
 
@@ -308,7 +308,7 @@ msgstr ""
 #: guitext:34
 msgctxt "In-game message"
 msgid ""
-"A good start kepper, but beware. The remaining keepers grow stronger by "
+"A good start keeper, but beware. The remaining keepers grow stronger by "
 "pilfering the remnants of this dead kingdom, and therefore attract more "
 "creatures anxious to share the spoils!"
 msgstr ""

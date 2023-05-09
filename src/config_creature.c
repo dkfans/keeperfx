@@ -311,40 +311,40 @@ void check_and_auto_fix_stats(void)
         struct CreatureStats* crstat = creature_stats_get(model);
         if ( (crstat->lair_size <= 0) && (crstat->toking_recovery <= 0) && (crstat->heal_requirement != 0) )
         {
-            ERRORLOG("Creature model %d has no LairSize and no TokingRecovery but has HealRequirment - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) has no LairSize and no TokingRecovery but has HealRequirment - Fixing", (int)model, creature_code_name(model));
             crstat->heal_requirement = 0;
         }
         if (crstat->heal_requirement > crstat->heal_threshold)
         {
-            ERRORLOG("Creature model %d Heal Requirment > Heal Threshold - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) Heal Requirment > Heal Threshold - Fixing", (int)model, creature_code_name(model));
             crstat->heal_threshold = crstat->heal_requirement;
         }
         if ( (crstat->hunger_rate != 0) && (crstat->hunger_fill == 0) )
         {
-            ERRORLOG("Creature model %d HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->hunger_fill = 1;
         }
         if ( (crstat->sleep_exp_slab != 0) && (crstat->sleep_experience == 0) )
         {
-            ERRORLOG("Creature model %d SleepSlab set but SleepExperience = 0 - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->sleep_exp_slab = 0;
         }
         if (crstat->grow_up >= gameadd.crtr_conf.model_count)
         {
-            ERRORLOG("Creature model %d Invalid GrowUp model - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) Invalid GrowUp model - Fixing", (int)model, creature_code_name(model));
             crstat->grow_up = 0;
         }
         if (crstat->grow_up > 0)
         {
           if ( (crstat->grow_up_level < 1) || (crstat->grow_up_level > CREATURE_MAX_LEVEL) )
           {
-              ERRORLOG("Creature model %d GrowUp & GrowUpLevel invalid - Fixing", (int)model);
+              ERRORLOG("Creature model %d (%s) GrowUp & GrowUpLevel invalid - Fixing", (int)model, creature_code_name(model));
               crstat->grow_up_level = 1;
           }
         }
         if (crstat->rebirth > CREATURE_MAX_LEVEL)
         {
-            ERRORLOG("Creature model %d Rebirth Invalid - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) Rebirth Invalid - Fixing", (int)model, creature_code_name(model));
             crstat->rebirth = 0;
         }
         for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
@@ -354,14 +354,14 @@ void check_and_auto_fix_stats(void)
             {
                 if ((n < 1) || (n > CREATURE_MAX_LEVEL))
                 {
-                    ERRORLOG("Creature model %d Learn Level for Instance slot %d Invalid - Fixing", (int)model, (int)(i+1));
+                    ERRORLOG("Creature model %d (%s) Learn Level for Instance slot %d Invalid - Fixing", (int)model, creature_code_name(model), (int)(i+1));
                     crstat->learned_instance_level[i] = 1;
                 }
             } else
             {
                 if (n != 0)
                 {
-                    ERRORLOG("Creature model %d Learn Level for Empty Instance slot %d - Fixing", (int)model, (int)(i+1));
+                    ERRORLOG("Creature model %d (%s) Learn Level for Empty Instance slot %d - Fixing", (int)model, creature_code_name(model), (int)(i+1));
                     crstat->learned_instance_level[i] = 0;
                 }
             }
