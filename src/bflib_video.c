@@ -405,19 +405,6 @@ TbResult LbScreenInitialize(void)
     return Lb_SUCCESS;
 }
 
-// this function is unused
-LPCTSTR MsResourceMapping(int index)
-{
-  switch (index)
-  {
-  case 1:
-      return "A";
-      //return MAKEINTRESOURCE(110); -- may work for other resource compilers
-  default:
-      return NULL;
-  }
-}
-
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
@@ -480,7 +467,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         {
             SDL_DestroyWindow(lbWindow); // destroy window on transition from fullscreen to window, as it is quicker than using SDL_SetWindowFullscreen
             lbWindow = NULL;
-        } 
+        }
         else
         {
             if (!sameResolution)

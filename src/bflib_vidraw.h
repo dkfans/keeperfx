@@ -38,7 +38,7 @@ struct TiledSprite;
 struct TbSprite;
 struct TbHugeSprite;
 
-typedef void __fastcall FlicFunc(void);
+typedef void FlicFunc(void);
 
 struct StartScreenPoint {
         short X;

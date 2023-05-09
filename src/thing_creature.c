@@ -547,7 +547,7 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
     cctrl->field_AA = 0;
     cctrl->combat_flags |= CmbtF_ObjctFight;
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((crstat->attack_preference == AttckT_Ranged) && creature_has_ranged_object_weapon(creatng)) 
+    if ((crstat->attack_preference == AttckT_Ranged) && creature_has_ranged_object_weapon(creatng))
     {
         if (combattype == CrSt_CreatureObjectSnipe)
         {
@@ -557,8 +557,8 @@ void set_creature_combat_object_state(struct Thing *creatng, struct Thing *obthi
         {
             cctrl->combat.state_id = ObjCmbtSt_Ranged;
         }
-    } 
-    else 
+    }
+    else
     {
         if (combattype == CrSt_CreatureObjectSnipe)
         {
@@ -1273,7 +1273,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
     crstat = creature_stats_get(thing->model);
     if (!crstat->illuminated)
     {
-        if (thing->light_id != 0) 
+        if (thing->light_id != 0)
         {
             cctrl->spell_flags &= ~CSAfF_Light;
             if ((thing->rendering_flags & TRF_Unknown01) != 0)
@@ -1424,7 +1424,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                 long count = 0;
                 if (playeradd->nearest_teleport)
                 {
-                    room = find_room_nearest_to_position(thing->owner, rkind, &thing->mappos, &distance); 
+                    room = find_room_nearest_to_position(thing->owner, rkind, &thing->mappos, &distance);
                 }
                 else
                 {
@@ -2254,7 +2254,7 @@ void throw_out_gold(struct Thing *thing)
             num_pots_to_drop = 8;
         }
     }
-   
+
     GoldAmount gold_dropped = 0;
     // Now do the dropping
     for (int npot = 0; npot < num_pots_to_drop; npot++)
@@ -3143,7 +3143,7 @@ ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primar
         stl_y_lower = 0;
 
     if (stl_y_upper < stl_y_lower)
-    {   
+    {
         return 0;
     }
     if (stl_y_upper >= stl_y_lower)
@@ -3342,9 +3342,9 @@ unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short 
     struct CreatureControl* cctrl;
 
     if ((current_annoyed_creature->alloc_flags & TAlF_Exists) == 0 ||
-         !thing_is_creature(current_annoyed_creature) || 
-         (current_annoyed_creature->alloc_flags & TAlF_IsInLimbo) != 0 || 
-         (current_annoyed_creature->state_flags & TAlF_IsInMapWho) != 0 || 
+         !thing_is_creature(current_annoyed_creature) ||
+         (current_annoyed_creature->alloc_flags & TAlF_IsInLimbo) != 0 ||
+         (current_annoyed_creature->state_flags & TAlF_IsInMapWho) != 0 ||
          current_annoyed_creature->active_state == CrSt_CreatureUnconscious)
     {
         creatng = thing_get(dungeon->creatr_list_start);
@@ -3465,7 +3465,7 @@ struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord 
 
     for (long k = 0; k < AROUND_TILES_COUNT; k++)
     {
-        
+
         MapSubtlCoord stl_x = coord_subtile(x) + around[k].delta_x;
         MapSubtlCoord stl_y = coord_subtile(y) + around[k].delta_y;
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
@@ -3485,7 +3485,7 @@ struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord 
                     nearest_thing = thing;
                 }
             }
-            
+
             j++;
             if (j > THINGS_COUNT)
             {
@@ -5648,7 +5648,7 @@ void illuminate_creature(struct Thing *creatng)
     }
     light_set_light_intensity(creatng->light_id, (light_get_light_intensity(creatng->light_id) + 20));
     struct Light* lgt = &game.lish.lights[creatng->light_id];
-    lgt->radius <<= 1;    
+    lgt->radius <<= 1;
 }
 
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)
@@ -5704,7 +5704,7 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
         effect = 0;
         return INVALID_THING;
     }
-    
+
     struct Thing* thing = create_thing_at_position_then_move_to_valid_and_add_light(&pos, tngclass, crmodel, plyr_idx);
     if (thing_is_invalid(thing))
     {
@@ -5911,7 +5911,7 @@ void controlled_creature_drop_thing(struct Thing *creatng, struct Thing *droptng
                             output_message(SMsg_LibraryTooSmall, 0, true);
                         }
                     }
-                } 
+                }
                 else if (thing_is_special_box(droptng))
                 {
                     droptng->owner = creatng->owner;
@@ -5993,7 +5993,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
             if (!thing_is_invalid(traptng))
             {
                 if (traptng->class_id == TCls_Trap)
-                {   
+                {
                     cctrl->arming_thing_id = traptng->index;
                     internal_set_thing_state(creatng, CrSt_CreatureArmsTrap);
                     return;
@@ -6043,7 +6043,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
                                 return;
                             }
                             if (remove_workshop_item_from_amount_stored(picktng->owner, crate_thing_to_workshop_item_class(picktng), crate_thing_to_workshop_item_model(picktng), WrkCrtF_NoOffmap) != WrkCrtS_Stored)
-                            {                                                  
+                            {
                                 return;
                             }
                         }
@@ -6069,7 +6069,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
             if (!room_is_invalid(room))
             {
                 if (room_role_matches(room->kind, RoRoF_GoldStorage))
-                {                                
+                {
                     if (room->owner == creatng->owner)
                     {
                         if (creatng->creature.gold_carried > 0)
@@ -6111,9 +6111,9 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         {
             if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
-                strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng)))); 
+                strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
                 strcpy(msg_buf, str);
-                sprintf(str, strtok(msg_buf, ":"));
+                snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
             }
             else
             {
@@ -6122,7 +6122,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
                 if ((int)(split - str) > -1)
                 {
                     strcpy(msg_buf, str);
-                    sprintf(str, strtok(msg_buf, ":"));
+                    snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
                 }
             }
         }
@@ -6130,7 +6130,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
         {
             strcat(str, get_string(get_special_description_strindex(box_thing_to_special(picktng))));
             strcpy(msg_buf, str);
-            sprintf(str, strtok(msg_buf, ":"));
+            snprintf(str, sizeof(str), "%s", strtok(msg_buf, ":"));
         }
         id = -81;
     }
@@ -6149,7 +6149,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
             }
             else
             {
-                sprintf(str, "%ld", picktng->creature.gold_carried); 
+                sprintf(str, "%ld", picktng->creature.gold_carried);
             }
         }
         id = -116;
@@ -6193,7 +6193,7 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
         {
             if (picktng != creatng)
             {
-                if (thing_is_pickable_by_digger(picktng, creatng))                 
+                if (thing_is_pickable_by_digger(picktng, creatng))
                 {
                     if (line_of_sight_3d(&creatng->mappos, &picktng->mappos))
                     {
@@ -6217,7 +6217,7 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
 
 TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
 {
-    if (check_place_to_pretty_excluding(creatng, subtile_slab(creatng->mappos.x.stl.num), subtile_slab(creatng->mappos.y.stl.num)) 
+    if (check_place_to_pretty_excluding(creatng, subtile_slab(creatng->mappos.x.stl.num), subtile_slab(creatng->mappos.y.stl.num))
         || (check_place_to_convert_excluding(creatng, subtile_slab(creatng->mappos.x.stl.num), subtile_slab(creatng->mappos.y.stl.num)) ) )
     {
         return false;
@@ -6230,7 +6230,7 @@ TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng)
                   (creatng->creature.gold_carried < crstat->gold_hold) );
     }
     else if (thing_is_creature(picktng))
-    {        
+    {
         if (creature_is_being_unconscious(picktng))
         {
             return (picktng->owner != creatng->owner);
