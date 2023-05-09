@@ -2121,7 +2121,7 @@ long move_creature(struct Thing *thing)
                 }
                 else
                 {
-                    nxpos.z.val = get_thing_height_at(thing, &nxpos);
+                    nxpos.z.val = tngpos->z.val;
                 }
             }
         }
@@ -2139,7 +2139,7 @@ long move_creature(struct Thing *thing)
                 }
                 else
                 {
-                    nxpos.z.val = get_thing_height_at(thing, &nxpos);
+                    nxpos.z.val = tngpos->z.val;
                 }
             }
         }
