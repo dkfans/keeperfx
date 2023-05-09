@@ -756,8 +756,14 @@ void init_player(struct PlayerInfo *player, short no_explore)
     case GKind_MultiGame:
         //workaround until settings are synced through multiplayer
         player->minimap_zoom = 256;
-        player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
-        player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
+        if (game.packet_save_head.isometric_view_zoom_level == 0)
+        {
+            player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
+        }
+        if (game.packet_save_head.frontview_zoom_level == 0)
+        {
+            player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
+        }
         if (player->is_active != 1)
         {
           ERRORLOG("Non Keeper in Keeper game");

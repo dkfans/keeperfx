@@ -3895,8 +3895,7 @@ short process_command_line(unsigned short argc, char *argv[])
 {
   char fullpath[CMDLN_MAXLEN+1];
   snprintf(fullpath, CMDLN_MAXLEN, "%s", argv[0]);
-
-  sprintf( keeper_runtime_directory, fullpath);
+  snprintf(keeper_runtime_directory, sizeof(keeper_runtime_directory), "%s", fullpath);
   char *endpos = strrchr( keeper_runtime_directory, '\\');
   if (endpos==NULL)
       endpos=strrchr( keeper_runtime_directory, '/');

@@ -1134,8 +1134,8 @@ TbBool change_campaign(const char *cmpgn_fname)
     //load_stats_files();
     //check_and_auto_fix_stats();
     // Make sure all additional levels are loaded
-    //   Only the original campaign need to list the multiplayer levels 
-    //   (until there are multiplayer mappacks) as all multi maps go on 
+    //   Only the original campaign need to list the multiplayer levels
+    //   (until there are multiplayer mappacks) as all multi maps go on
     //   the same "campaign" screen (and need to be in the same list to do so)
     if (strcasecmp(campaign.fname,keeper_campaign_file) == 0)
     {
@@ -1389,7 +1389,7 @@ TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
     TbBool result  = (campaign.freeplay_levels_count != 0);
     if (!result) {
         // Could be either: no valid levels in LEVELS_LOCATION, no LEVELS_LOCATION specified, or LEVELS_LOCATION does not exist
-        WARNMSG("Couldn't load Map Pack \"%s\", no .LIF files could be found.", campgn->fname); 
+        WARNMSG("Couldn't load Map Pack \"%s\", no .LIF files could be found.", campgn->fname);
     }
     LbMemoryCopy(campgn, &campaign, sizeof(struct GameCampaign));
     LbMemoryCopy(&campaign, &campbuf, sizeof(struct GameCampaign));

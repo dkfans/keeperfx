@@ -285,6 +285,7 @@ void setup_stuff(void);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
 void process_keeper_spell_aura(struct Thing *thing);
+void init_seeds();
 
 TbPixel get_player_path_colour(unsigned short owner);
 

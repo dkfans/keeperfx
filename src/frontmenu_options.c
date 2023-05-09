@@ -270,11 +270,7 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
     struct Packet* pckt = get_packet(my_player_number);
-    switch (settings.video_rotate_mode) {
-        case 0: set_packet_action(pckt, PckA_SwitchView, PVM_IsoWibbleView, 0, 0, 0); break;
-        case 1: set_packet_action(pckt, PckA_SwitchView, PVM_IsoStraightView, 0, 0, 0); break;
-        case 2: set_packet_action(pckt, PckA_SwitchView, PVM_FrontView, 0, 0, 0); break;
-    }
+    set_packet_action(pckt, PckA_SwitchView, rotate_mode_to_view_mode(settings.video_rotate_mode), 0, 0, 0);
     save_settings();
 }
 
