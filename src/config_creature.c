@@ -1871,7 +1871,7 @@ const char *creature_own_name(const struct Thing *creatng)
             strcat(text,part);
         }
     }
-    strcpy(cctrl->creature_name, text);
+    strncpy(cctrl->creature_name, text, sizeof(cctrl->creature_name));
     return text;
 }
 
