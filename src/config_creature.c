@@ -191,7 +191,7 @@ const struct NamedCommand creature_graphics_desc[] = {
   };
 
 const struct NamedCommand instance_range_desc[] = {
-  {"MAX",         LONG_MAX},
+  {"MAX",          INT_MAX},
   {"MIN",                0},
   {NULL,                -1},
 };

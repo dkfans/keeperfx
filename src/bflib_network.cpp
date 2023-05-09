@@ -52,7 +52,7 @@ TbError CompleteTwoPlayerExchange(void *buf);
 TbError CompleteMultiPlayerExchange(void *buf);
 TbError HostDataCollection(void);
 TbError HostDataBroadcast(void);
-void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
+void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
 void *MultiPlayerCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4);
 void MultiPlayerReqExDataMsgCallback(unsigned long a1, unsigned long a2, void *a3);
 void AddMsgCallback(unsigned long, char *, void *);
@@ -1352,7 +1352,7 @@ TbError GetCurrentPlayers(void)
   return Lb_OK;
 }
 
-void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2)
+void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
   AddAPlayer((struct TbNetworkPlayerNameEntry *)netcdat);
 }

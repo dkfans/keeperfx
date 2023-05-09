@@ -1402,7 +1402,7 @@ static TbBool load_static_light_file(unsigned long lv_num)
         ilght.mappos.x.val = legilght.mappos.x.val;
         ilght.mappos.y.val = legilght.mappos.y.val;
         ilght.mappos.z.val = legilght.mappos.z.val;
-        
+
         if (light_create_light(&ilght) == 0)
         {
             WARNLOG("Couldn't allocate static light %d",(int)k);
