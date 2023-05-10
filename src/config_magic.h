@@ -361,7 +361,9 @@ struct SpellConfig {
     short medsym_sprite_idx;
     short cast_sound;
     short linked_power;
-    int duration;
+    short duration;
+    short aura_effect;
+    unsigned short spell_flags;
 };
 
 struct MagicConfig {

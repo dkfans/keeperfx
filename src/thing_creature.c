@@ -895,13 +895,145 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     const struct SpellConfig* spconf = get_spell_config(spell_idx);
     const struct MagicStats* pwrdynst = get_power_dynamic_stats(spconf->linked_power);
     long n;
-    switch (spell_idx)
+    short duration;
+    if (spconf->linked_power == 0)
     {
-    case SplK_Freeze:
+        duration = spconf->duration;
+    } else
+    if (pwrdynst->duration == 0)
+    {
+        duration = pwrdynst->strength[spell_lev];
+    }
+    else
+    {
+        duration = pwrdynst->duration;
+    }
+
+    i = get_free_spell_slot(thing);
+    if (spell_idx == SplK_Heal)
+    {
+        n = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev], 16);
+        if (n < 0)
+        {
+            thing->health = 0;
+        } else 
+        {
+            thing->health = min(n, cctrl->max_health);
+        }
+        if (spconf->aura_effect != 0)
+        {
+            cctrl->spell_aura = spconf->aura_effect;
+            cctrl->spell_aura_duration = spconf->duration;
+        }
+    } else
+    if (spell_idx == SplK_Disease)
+    {
+        if ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
+        {
+            if (i != -1)
+            {
+                if (cctrl->disease_caster_plyridx == thing->owner)
+                {
+                    cctrl->disease_caster_plyridx = game.neutral_player_num;
+                }
+                fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
+                n = 0;
+                cctrl->spell_flags |= spconf->spell_flags;
+                cctrl->disease_start_turn = game.play_gameturn;
+                for (k = 0; k < 3; k++)
+                {
+                    pos.x.val = thing->mappos.x.val;
+                    pos.y.val = thing->mappos.y.val;
+                    pos.z.val = thing->mappos.z.val;
+                    pos.x.val += distance_with_angle_to_coord_x(32, n);
+                    pos.y.val += distance_with_angle_to_coord_y(32, n);
+                    pos.z.val += k * (long)(thing->clipbox_size_yz >> 1);
+                    ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1);
+                    if (!thing_is_invalid(ntng))
+                    {
+                        cctrl->spell_tngidx_disease[k] = ntng->index;
+                        ntng->health = pwrdynst->strength[spell_lev] + 1;
+                        ntng->disease.belongs_to = thing->index;
+                        ntng->disease.effect_slot = k;
+                        ntng->move_angle_xy = thing->move_angle_xy;
+                        ntng->move_angle_z = thing->move_angle_z;
+                        angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
+                        ntng->veloc_push_add.x.val += cvect.x;
+                        ntng->veloc_push_add.y.val += cvect.y;
+                        ntng->veloc_push_add.z.val += cvect.z;
+                        ntng->state_flags |= TF1_PushAdd;
+                    }
+                    n += 2 * LbFPMath_PI / 3;
+                }
+            }
+            if (spconf->aura_effect != 0)
+            {
+                cctrl->spell_aura = spconf->aura_effect;
+                cctrl->spell_aura_duration = spconf->duration;
+            }
+        }
+    } else
+    if (spell_idx == SplK_Chicken)
+    {
+        if ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0)
+        {
+            if (i != -1)
+            {
+                fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
+                external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
+                cctrl->countdown_282 = duration;
+                cctrl->spell_flags |= spconf->spell_flags;
+                if (spconf->aura_effect != 0)
+                {
+                    cctrl->spell_aura = spconf->aura_effect;
+                    cctrl->spell_aura_duration = spconf->duration;
+                }
+            }
+        }
+    } else
+    if (spell_idx == SplK_Light)
+    {
+        crstat = creature_stats_get(thing->model);
+        if (!crstat->illuminated)
+        {
+            if (i != -1)
+            {
+                fill_spell_slot(thing, i, spell_idx, duration);
+                if (!creature_affected_by_spell(thing, SplK_Light))
+                {
+                    cctrl->spell_flags |= spconf->spell_flags;
+                    illuminate_creature(thing);
+                }
+                if (spconf->aura_effect != 0)
+                {
+                    cctrl->spell_aura = spconf->aura_effect;
+                    cctrl->spell_aura_duration = spconf->duration;
+                }
+            }
+        }
+    } else
+    if (spell_idx == SplK_TimeBomb)
+    {
         i = get_free_spell_slot(thing);
         if (i != -1)
         {
             fill_spell_slot(thing, i, spell_idx, spconf->duration);
+            if (!creature_affected_by_spell(thing, SplK_TimeBomb))
+            {
+                cctrl->spell_flags |= CSAfF_Timebomb;
+                pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
+                cctrl->timebomb_countdown = pwrdynst->duration;
+                cctrl->timebomb_radius = spell_lev;
+            }
+        }
+    } else
+    if (i != -1)
+    {
+        fill_spell_slot(thing, i, spell_idx, spconf->duration);
+        cctrl->spell_flags |= spconf->spell_flags;
+        switch (spell_idx)
+        {
+        case SplK_Freeze:
             cctrl->stateblock_flags |= CCSpl_Freeze;
             if ((thing->movement_flags & TMvF_Flying) != 0)
             {
@@ -909,18 +1041,12 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 thing->movement_flags &= ~TMvF_Flying;
             }
             creature_set_speed(thing, 0);
-        }
-        break;
-    case SplK_Armour:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
+            break;
+        case SplK_Armour:
             n = 0;
-            cctrl->spell_flags |= CSAfF_Armour;
-            for (k=0; k < 2; k++)
+            for (k = 0; k < 2; k++)
             {
-                set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->clipbox_size_yz >> 1) );
+                set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->clipbox_size_yz >> 1));
                 ntng = create_object(&pos, ObjMdl_LightBall, thing->owner, -1);
                 if (!thing_is_invalid(ntng))
                 {
@@ -936,169 +1062,29 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     ntng->veloc_push_add.z.val += cvect.z;
                     ntng->state_flags |= TF1_PushAdd;
                 }
-                n += 2*LbFPMath_PI/3;
+                n += 2 * LbFPMath_PI / 3;
             }
-        }
-        break;
-    case SplK_Rebound:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, spconf->duration);
-            cctrl->spell_flags |= CSAfF_Rebound;
-        }
-        break;
-    case SplK_Heal:
-        i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev],16);
-        if (i < 0)
-        {
-          thing->health = 0;
-        } else {
-          thing->health = min(i,cctrl->max_health);
-        }
-        cctrl->field_2B0 = 7;
-        cctrl->field_2AE = pwrdynst->duration;
-        break;
-    case SplK_Invisibility:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
-            cctrl->spell_flags |= CSAfF_Invisibility;
+            break;
+        case SplK_Invisibility:
             cctrl->force_visible = 0;
-        }
-        break;
-    case SplK_Teleport:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, spconf->duration);
+            break;
+        case SplK_Teleport:
             cctrl->stateblock_flags |= CCSpl_Teleport;
-        }
-        break;
-    case SplK_Speed:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
-            cctrl->spell_flags |= CSAfF_Speed;
+            break;
+        case SplK_Speed:
+        case SplK_Slow:
             cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-        }
-        break;
-    case SplK_Slow:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, spconf->duration);
-            cctrl->spell_flags |= CSAfF_Slow;
-            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-        }
-        break;
-    case SplK_Fly:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, spconf->duration);
-            cctrl->spell_flags |= CSAfF_Flying;
+            break;
+        case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;
+            break;
+
         }
-        break;
-    case SplK_Sight:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
+        if (spconf->aura_effect != 0)
         {
-            fill_spell_slot(thing, i, spell_idx, spconf->duration);
-            cctrl->spell_flags |= CSAfF_Sight;
+            cctrl->spell_aura = spconf->aura_effect;
+            cctrl->spell_aura_duration = spconf->duration;
         }
-        break;
-    case SplK_Disease:
-    if ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
-    {
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-          if (cctrl->disease_caster_plyridx == thing->owner)
-          {
-              cctrl->disease_caster_plyridx = game.neutral_player_num;
-          }
-          fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
-          n = 0;
-          cctrl->spell_flags |= CSAfF_Disease;
-          cctrl->disease_start_turn = game.play_gameturn;
-          for (k=0; k < 3; k++)
-          {
-              pos.x.val = thing->mappos.x.val;
-              pos.y.val = thing->mappos.y.val;
-              pos.z.val = thing->mappos.z.val;
-              pos.x.val += distance_with_angle_to_coord_x(32,n);
-              pos.y.val += distance_with_angle_to_coord_y(32,n);
-              pos.z.val += k * (long)(thing->clipbox_size_yz >> 1);
-              ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1);
-              if (!thing_is_invalid(ntng))
-              {
-                cctrl->spell_tngidx_disease[k] = ntng->index;
-                ntng->health = pwrdynst->strength[spell_lev] + 1;
-                ntng->disease.belongs_to = thing->index;
-                ntng->disease.effect_slot = k;
-                ntng->move_angle_xy = thing->move_angle_xy;
-                ntng->move_angle_z = thing->move_angle_z;
-                angles_to_vector(ntng->move_angle_xy, ntng->move_angle_z, 32, &cvect);
-                ntng->veloc_push_add.x.val += cvect.x;
-                ntng->veloc_push_add.y.val += cvect.y;
-                ntng->veloc_push_add.z.val += cvect.z;
-                ntng->state_flags |= TF1_PushAdd;
-              }
-              n += 2*LbFPMath_PI/3;
-          }
-        }
-    }
-        break;
-    case SplK_Chicken:
-    if ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0)
-    {
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
-            external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-            cctrl->countdown_282 = 10;
-            cctrl->spell_flags |= CSAfF_Chicken;
-        }
-    }
-        break;
-    case SplK_Light:
-        crstat = creature_stats_get(thing->model);
-        if (!crstat->illuminated)
-        {
-            i = get_free_spell_slot(thing);
-            if (i != -1)
-            {
-                fill_spell_slot(thing, i, spell_idx, spconf->duration);
-                if (!creature_affected_by_spell(thing, SplK_Light))
-                {
-                    cctrl->spell_flags |= CSAfF_Light;
-                    illuminate_creature(thing);
-                }
-            }
-        }
-        break;
-    case SplK_TimeBomb:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, spconf->duration);
-            if (!creature_affected_by_spell(thing, SplK_TimeBomb))
-            {
-                cctrl->spell_flags |= CSAfF_Timebomb;
-                pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
-                cctrl->timebomb_countdown = pwrdynst->duration;
-                cctrl->timebomb_radius = spell_lev;
-            }
-        }
-        break;
-    default:
-        WARNLOG("No action for spell %d at level %d",(int)spell_idx,(int)spell_lev);
-        break;
     }
 }
 
@@ -1111,17 +1097,25 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     // This pointer may be invalid if spell_idx is incorrect. But we're using it only when correct.
     struct SpellConfig* spconf = get_spell_config(spell_idx);
     const struct MagicStats* pwrdynst = get_power_dynamic_stats(spconf->linked_power);
+
+    short duration;
+    if (spconf->linked_power == 0)
+    {
+        duration = spconf->duration;
+    } else
+    if (pwrdynst->duration == 0)
+    {
+        duration = pwrdynst->strength[spell_lev];
+    } else
+    {
+        duration = pwrdynst->duration;
+    }
+    cspell->duration = duration;
+
     switch (spell_idx)
     {
     case SplK_Freeze:
-        cspell->duration = spconf->duration;
         creature_set_speed(thing, 0);
-        break;
-    case SplK_Armour:
-        cspell->duration = pwrdynst->strength[spell_lev];
-        break;
-    case SplK_Rebound:
-        cspell->duration = spconf->duration;
         break;
     case SplK_Heal:
     {
@@ -1132,42 +1126,20 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         } else {
           thing->health = min(i,cctrl->max_health);
         }
-        cctrl->field_2B0 = 7;
-        cctrl->field_2AE = pwrdynst->duration;
         break;
     }
-    case SplK_Invisibility:
-        cspell->duration = pwrdynst->strength[spell_lev];
-        break;
-    case SplK_Teleport:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Speed:
-        cspell->duration = pwrdynst->strength[spell_lev];
-        break;
-    case SplK_Slow:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Light:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Fly:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Sight:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Disease:
-        cspell->duration = pwrdynst->strength[spell_lev];
-        break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
-        cctrl->countdown_282 = 2;
+        cctrl->countdown_282 = duration/5;
         cspell->duration = pwrdynst->strength[spell_lev];
         break;
     default:
-        WARNLOG("No action for spell %d at level %d",(int)spell_idx,(int)spell_lev);
         break;
+    }
+    if (spconf->aura_effect != 0)
+    {
+        cctrl->spell_aura = spconf->aura_effect;
+        cctrl->spell_aura_duration = spconf->duration;
     }
 }
 
@@ -5423,9 +5395,9 @@ TngUpdateRet update_creature(struct Thing *thing)
     process_timebomb(thing);
     move_thing_in_map(thing, &thing->mappos);
     set_creature_graphic(thing);
-    if (cctrl->field_2B0)
+    if (cctrl->spell_aura)
     {
-        process_keeper_spell_effect(thing);
+        process_keeper_spell_aura(thing);
     }
 
     if (thing->creature.health_bar_turns > 0)
