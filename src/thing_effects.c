@@ -43,6 +43,7 @@
 #include "engine_redraw.h"
 #include "keeperfx.hpp"
 #include "gui_soundmsgs.h"
+#include "room_util.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1104,9 +1105,15 @@ TbBool destroy_effect_thing(struct Thing *efftng)
 {
     if (efftng->model == TngEff_Eruption)
     {
-        struct SlabMap* slb = get_slabmap_block(subtile_slab(efftng->mappos.x.stl.num), subtile_slab(efftng->mappos.y.stl.num));
+        MapSubtlCoord stl_x = efftng->mappos.x.stl.num;
+        MapSubtlCoord stl_y = efftng->mappos.y.stl.num;
+        struct SlabMap* slb = get_slabmap_block(subtile_slab(stl_x), subtile_slab(stl_y));
         if (slab_kind_is_indestructible(slb->kind) == false)
         {
+            if (subtile_is_room(stl_x, stl_y))
+            {
+                delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
+            }
             neutralise_enemy_block(efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner);
             if (slb->kind == SlbT_PATH) //Do not turn water into lava
             {
