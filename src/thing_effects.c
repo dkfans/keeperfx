@@ -439,8 +439,10 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
         if (!thing_is_invalid(effeltng))
         {
-            // TODO: looks like some "struct AnimSpeed"
-            memcpy(&effeltng->anim_speed, &thing->anim_speed, 20);
+            //make an afterimage of the speeding unit
+            effeltng->anim_time = thing->anim_time;
+            effeltng->anim_sprite = thing->anim_sprite;
+            effeltng->sprite_size = thing->sprite_size;
             effeltng->rendering_flags &= ~TRF_Transpar_8;
             effeltng->rendering_flags |= TRF_Transpar_4;
             effeltng->anim_speed = 0;
@@ -457,10 +459,13 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_effect_element(&thing->mappos, TngEffElm_FlashBall2, thing->owner);
             if (!thing_is_invalid(effeltng))
             {
-                memcpy(&effeltng->anim_speed, &thing->anim_speed, 0x14u);
+                //make an afterimage of the teleporting unit
+                effeltng->anim_speed = 0;
+                effeltng->anim_time = thing->anim_time;
+                effeltng->anim_sprite = thing->anim_sprite;
+                effeltng->sprite_size = thing->sprite_size;
                 effeltng->rendering_flags &= ~TRF_Transpar_8;
                 effeltng->rendering_flags |= TRF_Transpar_4;
-                effeltng->anim_speed = 0;
                 effeltng->move_angle_xy = thing->move_angle_xy;
             }
         } else
