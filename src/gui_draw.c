@@ -47,10 +47,7 @@ unsigned char * gui_panel_sprite_data;
 unsigned char * end_gui_panel_sprite_data;
 unsigned char *gui_slab;
 unsigned char *frontend_background;
-struct TbSprite *frontend_sprite;
-struct TbSprite *frontend_end_sprite;
-unsigned char * frontend_sprite_data;
-unsigned char * frontend_end_sprite_data;
+struct SpriteSheet *frontend_sprite = NULL;
 /******************************************************************************/
 
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
@@ -560,74 +557,74 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
 
 void draw_message_box_at(long startx, long starty, long box_width, long box_height, long spritesx, long spritesy)
 {
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     long n;
 
     // Draw top line of sprites
     long x = startx;
     long y = starty;
     {
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+        spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_tl);
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
         x += spr->SWidth * units_per_pixel / 16;
     }
     for (n=0; n < spritesx; n++)
     {
-        spr = &frontend_sprite[(n % 4) + GFS_hugearea_thn_tx1_tc];
+        spr = GetSprite(frontend_sprite, (n % 4) + GFS_hugearea_thn_tx1_tc);
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
         x += spr->SWidth * units_per_pixel / 16;
     }
     x = startx;
     {
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+        spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_tl);
         x += spr->SWidth * units_per_pixel / 16;
     }
     for (n=0; n < spritesx; n++)
     {
-        spr = &frontend_sprite[(n % 4) + GFS_hugearea_thn_tx1_tc];
+        spr = GetSprite(frontend_sprite, (n % 4) + GFS_hugearea_thn_tx1_tc);
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
         x += spr->SWidth * units_per_pixel / 16;
     }
     {
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_tr];
+        spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_tr);
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
     }
     // Draw centered line of sprites
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+    spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_tl);
     x = startx;
     y += spr->SHeight * units_per_pixel / 16;
     {
-        spr = &frontend_sprite[GFS_hugearea_thc_cor_ml];
+        spr = GetSprite(frontend_sprite, GFS_hugearea_thc_cor_ml);
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
         x += spr->SWidth * units_per_pixel / 16;
     }
     for (n=0; n < spritesx; n++)
     {
-        spr = &frontend_sprite[(n % 4) + GFS_hugearea_thc_tx1_mc];
+        spr = GetSprite(frontend_sprite, (n % 4) + GFS_hugearea_thc_tx1_mc);
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
         x += spr->SWidth * units_per_pixel / 16;
     }
     {
-        spr = &frontend_sprite[GFS_hugearea_thc_cor_mr];
+        spr = GetSprite(frontend_sprite, GFS_hugearea_thc_cor_mr);
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
     }
     // Draw bottom line of sprites
-    spr = &frontend_sprite[GFS_hugearea_thc_cor_ml];
+    spr = GetSprite(frontend_sprite, GFS_hugearea_thc_cor_ml);
     x = startx;
     y += spr->SHeight * units_per_pixel / 16;
     {
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_bl];
+        spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_bl);
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
         x += spr->SWidth * units_per_pixel / 16;
     }
     for (n=0; n < spritesx; n++)
     {
-        spr = &frontend_sprite[(n % 4) + GFS_hugearea_thn_tx1_bc];
+        spr = GetSprite(frontend_sprite, (n % 4) + GFS_hugearea_thn_tx1_bc);
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
         x += spr->SWidth * units_per_pixel / 16;
     }
     {
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_br];
+        spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_br);
         LbSpriteDrawResized(x, y, units_per_pixel, spr);
     }
 }
@@ -689,14 +686,14 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
     int pos_y = gbtn->scr_pos_y;
     { // First row
         pos_x = gbtn->scr_pos_x;
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+        spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_tl);
         for (i = 6; i > 0; i--)
         {
             LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
             pos_x += spr->SWidth * units_per_px / 16;
             spr++;
         }
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+        spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_tl);
         pos_y += spr->SHeight * units_per_px / 16;
     }
     // Further rows
@@ -713,7 +710,7 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
             pos_x += spr->SWidth * units_per_px / 16;
             spr++;
         }
-        spr = &frontend_sprite[spridx];
+        spr = GetSprite(frontend_sprite, spridx);
         pos_y += spr->SHeight * units_per_px / 16;
         int delta = 3;
         if (num_rows < 3)
@@ -721,7 +718,7 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
         num_rows -= delta;
     }
     // Last row
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_bl];
+    spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_bl);
     pos_x = gbtn->scr_pos_x;
     for (i = 6; i > 0; i--)
     {

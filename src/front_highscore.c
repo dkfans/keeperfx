@@ -26,6 +26,7 @@
 #include "bflib_sprite.h"
 #include "bflib_guibtns.h"
 #include "bflib_vidraw.h"
+#include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "kjm_input.h"
 #include "config_campaigns.h"
@@ -80,13 +81,13 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
 
 void frontend_draw_high_score_table(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     long i;
     // Detect scaling factor is quite complicated for this item
     int fs_units_per_px;
     {
         int orig_size = 0;
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
+        spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_ml);
         for (i=0; i < 6; i++)
         {
             orig_size += spr->SWidth;
@@ -97,8 +98,8 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     // Draw the high scores area - top
     long pos_x = gbtn->scr_pos_x;
     long pos_y = gbtn->scr_pos_y;
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
-    struct TbSprite* swpspr = spr;
+    spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_tl);
+    const struct TbSprite* swpspr = spr;
     for (i=6; i > 0; i--)
     {
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, swpspr);
@@ -114,7 +115,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
           i = GFS_hugearea_thn_cor_ml;
         else
           i = GFS_hugearea_thc_cor_ml;
-        spr = &frontend_sprite[i];
+        spr = GetSprite(frontend_sprite, i);
         pos_x = gbtn->scr_pos_x;
         swpspr = spr;
         for (i=6; i > 0; i--)
@@ -131,7 +132,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     }
     // Draw the high scores area - bottom
     pos_x = gbtn->scr_pos_x;
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_bl];
+    spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_bl);
     swpspr = spr;
     for (i=6; i > 0; i--)
     {
@@ -141,9 +142,9 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     }
     LbTextSetFont(frontend_font[1]);
     lbDisplay.DrawFlags = 0;
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
+    spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_ml);
     pos_x = gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+    spr = GetSprite(frontend_sprite, GFS_hugearea_thn_cor_tl);
     pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
     // The GUI item height should be 11 lines of text
     int tx_units_per_px = gbtn->height * 16 / (11 * (LbTextLineHeight()));

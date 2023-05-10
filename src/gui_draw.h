@@ -55,10 +55,7 @@ extern unsigned char *gui_slab;
 
 extern unsigned char *frontend_background;
 
-extern struct TbSprite *frontend_sprite;
-extern struct TbSprite *frontend_end_sprite;
-extern unsigned char * frontend_sprite_data;
-extern unsigned char * frontend_end_sprite_data;
+extern struct SpriteSheet *frontend_sprite;
 
 #pragma pack()
 /******************************************************************************/

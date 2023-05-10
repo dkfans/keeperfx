@@ -939,43 +939,16 @@ TbResult frontend_load_data(void)
     if (len > sizeof(game.map)) {
         WARNLOG("Reused memory area exceeded for frontend background.");
     }
-    LbMemoryFree(frontend_sprite_data);
-    LbMemoryFree(frontend_sprite);
-    frontend_sprite_data = NULL;
-    frontend_end_sprite_data = NULL;
-    frontend_sprite = NULL;
-    frontend_end_sprite = NULL;
+    DeleteSprites(&frontend_sprite);
 #ifdef SPRITE_FORMAT_V2
-    fname = prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.dat",64);
+    fname = prepare_file_fmtpath(FGrp_LoData,"frontbit-%d",64);
 #else
-    fname = prepare_file_path(FGrp_LoData,"frontbit.dat");
+    fname = prepare_file_path(FGrp_LoData,"frontbit");
 #endif
-    len = LbFileLengthRnc(fname);
-    frontend_sprite_data = LbMemoryAlloc(len);
-    if (frontend_sprite_data == NULL) {
+    frontend_sprite = LoadSprites(fname);
+    if (frontend_sprite == NULL) {
         return Lb_FAIL;
     }
-    frontend_end_sprite_data = frontend_sprite_data + len;
-    len = LbFileLoadAt(fname, frontend_sprite_data);
-    if (len < 12) {
-        return Lb_FAIL;
-    }
-#ifdef SPRITE_FORMAT_V2
-    fname = prepare_file_fmtpath(FGrp_LoData,"frontbit-%d.tab",64);
-#else
-    fname = prepare_file_path(FGrp_LoData,"frontbit.tab");
-#endif
-    len = LbFileLengthRnc(fname);
-    frontend_sprite = (struct TbSprite *) LbMemoryAlloc(len);
-    if (frontend_sprite_data == NULL) {
-        return Lb_FAIL;
-    }
-    frontend_end_sprite = (struct TbSprite *)((unsigned char *)frontend_sprite + len);
-    len = LbFileLoadAt(fname, frontend_sprite);
-    if (len < 12) {
-        return Lb_FAIL;
-    }
-    LbSpriteSetup(&frontend_sprite, &frontend_end_sprite, frontend_sprite_data);
     return Lb_SUCCESS;
 }
 
@@ -1123,13 +1096,13 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 
 void frontend_draw_scroll_tab(struct GuiButton *gbtn, long scroll_offset, long first_elem, long last_elem)
 {
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     long i;
     long k;
     long n;
     int units_per_px;
     units_per_px = simple_frontend_sprite_width_units_per_px(gbtn, GFS_slider_indicator_std, 100);
-    spr = &frontend_sprite[GFS_slider_indicator_std];
+    spr = GetSprite(frontend_sprite, GFS_slider_indicator_std);
     i = last_elem - first_elem;
     k = gbtn->height - spr->SHeight * units_per_px / 16;
     if (i <= 1)
@@ -1306,23 +1279,23 @@ void frontend_draw_slider(struct GuiButton *gbtn)
     const int fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_slider_horiz_c, 100);
     const float scale = float(fs_units_per_px) / 16;
 
-    const auto left_sprite = &frontend_sprite[GFS_slider_horiz_l]; // 40 units wide
+    const auto left_sprite = GetSprite(frontend_sprite, GFS_slider_horiz_l); // 40 units wide
     LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, fs_units_per_px, left_sprite);
 
     // Draw center sprite draw as many times as necessary
-    const auto center_sprite = &frontend_sprite[GFS_slider_horiz_c]; // 110 units wide
+    const auto center_sprite = GetSprite(frontend_sprite, GFS_slider_horiz_c); // 110 units wide
     const int right_sprite_x = (gbtn->scr_pos_x + gbtn->width) - (40 * scale);
     for (int x = gbtn->scr_pos_x + (40 * scale); x < right_sprite_x; x += (110 * scale))
     {
         LbSpriteDrawResized(x, gbtn->scr_pos_y, fs_units_per_px, center_sprite);
     }
 
-    const auto right_sprite = &frontend_sprite[GFS_slider_horiz_r]; // 40 units wide
+    const auto right_sprite = GetSprite(frontend_sprite, GFS_slider_horiz_r); // 40 units wide
     LbSpriteDrawResized(right_sprite_x, gbtn->scr_pos_y, fs_units_per_px, right_sprite);
 
     const int knob_position = gbtn->slide_val * (gbtn->width - int(64 * scale)) >> 8;
     const auto knob_sprite = (gbtn->gbactn_1 != 0) ?
-        &frontend_sprite[GFS_slider_indicator_act] : &frontend_sprite[GFS_slider_indicator_std];
+        GetSprite(frontend_sprite, GFS_slider_indicator_act) : GetSprite(frontend_sprite, GFS_slider_indicator_std);
     LbSpriteDrawResized(
         (gbtn->scr_pos_x + knob_position + (24 * scale)) / pixel_size,
         (gbtn->scr_pos_y + (3 * scale)) / pixel_size,
@@ -1342,21 +1315,21 @@ void frontend_draw_small_slider(struct GuiButton *gbtn)
     int scr_y;
     scr_x = gbtn->scr_pos_x;
     scr_y = gbtn->scr_pos_y;
-    struct TbSprite *spr;
-    spr = &frontend_sprite[GFS_slider_horiz_l];
+    const struct TbSprite *spr;
+    spr = GetSprite(frontend_sprite, GFS_slider_horiz_l);
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     scr_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_slider_horiz_c];
+    spr = GetSprite(frontend_sprite, GFS_slider_horiz_c);
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     scr_x += spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[GFS_slider_horiz_r];
+    spr = GetSprite(frontend_sprite, GFS_slider_horiz_r);
     LbSpriteDrawResized(scr_x, scr_y, fs_units_per_px, spr);
     int val;
     val = gbtn->slide_val * (gbtn->width - 64*fs_units_per_px/16) >> 8;
     if (gbtn->gbactn_1 != 0) {
-        spr = &frontend_sprite[GFS_slider_indicator_act];
+        spr = GetSprite(frontend_sprite, GFS_slider_indicator_act);
     } else {
-        spr = &frontend_sprite[GFS_slider_indicator_std];
+        spr = GetSprite(frontend_sprite, GFS_slider_indicator_std);
     }
     LbSpriteDrawResized((gbtn->scr_pos_x + val + 24*fs_units_per_px/16) / pixel_size, (gbtn->scr_pos_y + 3*fs_units_per_px/16) / pixel_size, fs_units_per_px, spr);
 }

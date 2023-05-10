@@ -150,7 +150,7 @@ struct GuiMenu frontend_add_session_box =
 /******************************************************************************/
 void frontnet_draw_session_selected(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     long pos_x;
     long pos_y;
     int i;
@@ -158,7 +158,7 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
     pos_y = gbtn->scr_pos_y;
     int fs_units_per_px;
     fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_largearea_xts_tx1_c, 100);
-    spr = &frontend_sprite[GFS_largearea_xts_cor_l];
+    spr = GetSprite(frontend_sprite, GFS_largearea_xts_cor_l);
     for (i=0; i < 6; i++)
     {
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
