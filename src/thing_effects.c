@@ -1105,10 +1105,13 @@ TbBool destroy_effect_thing(struct Thing *efftng)
     if (efftng->model == TngEff_Eruption)
     {
         struct SlabMap* slb = get_slabmap_block(subtile_slab(efftng->mappos.x.stl.num), subtile_slab(efftng->mappos.y.stl.num));
-        neutralise_enemy_block(efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner);
-        if (slb->kind == SlbT_PATH) //Do not turn water into lava
+        if (slab_kind_is_indestructible(slb->kind) == false)
         {
-           place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, game.neutral_player_num, 0);
+            neutralise_enemy_block(efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, efftng->owner);
+            if (slb->kind == SlbT_PATH) //Do not turn water into lava
+            {
+                place_slab_type_on_map(SlbT_LAVA, efftng->mappos.x.stl.num, efftng->mappos.y.stl.num, game.neutral_player_num, 0);
+            }
         }
     }
     if (efftng->snd_emitter_id != 0)
