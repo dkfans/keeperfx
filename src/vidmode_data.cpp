@@ -60,7 +60,6 @@ auto end_gui_panel_sprites = &gui_panel_sprites[GUI_PANEL_SPRITES_COUNT];
 
 struct TbSetupSprite setup_sprites[] = {
   {&pointer_sprites,      &end_pointer_sprites,   &pointer_data}, // 144 Sprites
-  {&edit_icon_sprites,    &end_edit_icon_sprites, &edit_icon_data},
   {&button_sprite,        &end_button_sprites,    &button_sprite_data}, // 215 Sprites
   {&port_sprite,          &end_port_sprites,      &port_sprite_data}, // 0 Sprites
   {&gui_panel_sprites_ptr,    &end_gui_panel_sprites, &gui_panel_sprite_data}, // 600 Sprites
