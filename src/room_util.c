@@ -292,6 +292,10 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     struct Room* room = slab_room_get(slb_x, slb_y);
     struct SlabMap* slb = get_slabmap_for_subtile(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
     short plyr_idx = slabmap_owner(slb);
+    if (slab_kind_has_no_ownership(slabkind))
+    {
+        plyr_idx = game.neutral_player_num;
+    }
     RoomKind rkind = slab_corresponding_room(slabkind);
     //When the slab to be replaced does not have a room yes, simply place the room/slab.
     if (room_is_invalid(room))
