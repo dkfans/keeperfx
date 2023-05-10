@@ -382,7 +382,7 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
         struct Room* room = room_get(slb->room_index);
         take_over_room(room, plyr_idx);
     } else
-    if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
+    if (slab_kind_has_no_ownership(slb->kind) == false)
     {
         short slbkind;
         if (slb->kind == SlbT_PATH)
