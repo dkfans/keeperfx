@@ -39,6 +39,7 @@ extern "C" {
 
 #define SWIPE_SPRITES_X 3
 #define SWIPE_SPRITES_Y 2
+#define SWIPE_SPRITES_PER_FRAME (SWIPE_SPRITES_X*SWIPE_SPRITES_Y)
 #define SWIPE_SPRITE_FRAMES 5
 
 /* Group leader index mask. Group leader is stored in every member and starts the group chain. */
@@ -74,8 +75,7 @@ static_assert(sizeof(struct CreatureStorage) == 2, "");
 
 #pragma pack()
 /******************************************************************************/
-extern struct TbSprite *swipe_sprites;
-extern struct TbSprite *end_swipe_sprites;
+extern struct SpriteSheet *swipe_sprites;
 extern int creature_swap_idx[CREATURE_TYPES_COUNT];
 extern unsigned long creature_create_errors;
 /******************************************************************************/

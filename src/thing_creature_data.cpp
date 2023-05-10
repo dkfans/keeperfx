@@ -28,21 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-unsigned char * swipe_sprite_data;
-struct TbSprite *swipe_sprites;
-unsigned char * end_swipe_sprite_data;
-struct TbSprite *end_swipe_sprites;
-
-struct TbLoadFiles swipe_load_file[] = {
-  {"data/swipe??.dat", &swipe_sprite_data,               &end_swipe_sprite_data,               0, 0, 0},
-  {"data/swipe??.tab", (unsigned char **)&swipe_sprites, (unsigned char **)&end_swipe_sprites, 0, 0, 0},
-  {"",                 NULL,                             NULL,                                 0, 0, 0},
-};
-
-struct TbSetupSprite swipe_setup_sprites[] = {
-    {&swipe_sprites,  &end_swipe_sprites, (unsigned char **)&swipe_sprite_data},
-    {NULL,            NULL,               NULL},
-};
+struct SpriteSheet * swipe_sprites = NULL;
 
 /******************************************************************************/
 #ifdef __cplusplus

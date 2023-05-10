@@ -135,9 +135,6 @@ struct Creatures creatures[] = {
 };
 
 /******************************************************************************/
-extern struct TbLoadFiles swipe_load_file[];
-extern struct TbSetupSprite swipe_setup_sprites[];
-/******************************************************************************/
 /**
  * Returns creature health scaled 0..1000.
  * @param thing The creature thing.
@@ -349,44 +346,30 @@ TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *th
 void free_swipe_graphic(void)
 {
     SYNCDBG(6,"Starting");
-    if (game.loaded_swipe_idx != -1)
-    {
-        LbDataFreeAll(swipe_load_file);
-        game.loaded_swipe_idx = -1;
-    }
-    LbSpriteClearAll(swipe_setup_sprites);
+    game.loaded_swipe_idx = -1;
+    DeleteSprites(&swipe_sprites);
 }
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
 {
     SYNCDBG(6,"Starting for %s",thing_model_name(thing));
 
-    int i = creatures[thing->model % gameadd.crtr_conf.model_count].swipe_idx;
-    if ((i == 0) || (game.loaded_swipe_idx == i))
+    int swpe_idx = creatures[thing->model % gameadd.crtr_conf.model_count].swipe_idx;
+    if ((swpe_idx == 0) || (game.loaded_swipe_idx == swpe_idx)) {
         return true;
-    free_swipe_graphic();
-    int swpe_idx = i;
-    {
-        struct TbLoadFiles* t_lfile = &swipe_load_file[0];
-#ifdef SPRITE_FORMAT_V2
-        sprintf(t_lfile->FName, "data/swipe%02d-%d.dat", swpe_idx, 32);
-        t_lfile++;
-        sprintf(t_lfile->FName, "data/swipe%02d-%d.tab", swpe_idx, 32);
-        t_lfile++;
-#else
-        sprintf(t_lfile->FName, "data/swipe%02d.dat", swpe_idx);
-        t_lfile++;
-        sprintf(t_lfile->FName, "data/swipe%02d.tab", swpe_idx);
-        t_lfile++;
-#endif
     }
-    if ( LbDataLoadAll(swipe_load_file) )
+    free_swipe_graphic();
+#ifdef SPRITE_FORMAT_V2
+    const char * fname = prepare_file_fmtpath(FGrp_StdData, "swipe%02d-%d", swpe_idx, 32);
+#else
+    const char * fname = prepare_file_fmtpath(FGrp_StdData, "swipe%02d", swpe_idx);
+#endif
+    swipe_sprites = LoadSprites(fname);
+    if (swipe_sprites == NULL)
     {
-        free_swipe_graphic();
         ERRORLOG("Unable to load swipe graphics for %s",thing_model_name(thing));
         return false;
     }
-    LbSpriteSetupAll(swipe_setup_sprites);
     game.loaded_swipe_idx = swpe_idx;
     return true;
 }
@@ -400,55 +383,57 @@ void draw_swipe_graphic(void)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (instance_draws_possession_swipe(cctrl->instance_id))
         {
-            lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
-            long n = (int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns;
-            long allwidth = 0;
-            long i = abs(n) >> 8;
-            if (i >= SWIPE_SPRITE_FRAMES)
-                i = SWIPE_SPRITE_FRAMES-1;
-            struct TbSprite* sprlist = &swipe_sprites[SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i];
-            struct TbSprite* startspr = &sprlist[1];
-            struct TbSprite* endspr = &sprlist[1];
-            for (n=0; n < SWIPE_SPRITES_X; n++)
+            int frame = abs((int)cctrl->inst_turn * (5 << 8) / cctrl->inst_total_turns) >> 8;
+            if (frame >= SWIPE_SPRITE_FRAMES)
             {
-                allwidth += endspr->SWidth;
-                endspr++;
+                frame = SWIPE_SPRITE_FRAMES - 1;
             }
-            int units_per_px = (LbScreenWidth() * 59 / 64) * 16 / allwidth;
-            int scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
-            struct TbSprite *spr;
-            int scrpos_x;
-            if ((myplyr->field_1 & 4) != 0)
+            const int mirror = (myplyr->field_1 & 4) == 0;
+            lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4;
+            const struct TbSprite * sprlist[SWIPE_SPRITES_PER_FRAME];
+            if (mirror)
             {
-                int delta_y = sprlist[1].SHeight;
-                for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
-                {
-                    spr = &startspr[i];
-                    scrpos_x = (MyScreenWidth * 16 / units_per_px - allwidth) / 2;
-                    for (n=0; n < SWIPE_SPRITES_X; n++)
-                    {
-                        LbSpriteDrawResized(scrpos_x * units_per_px / 16, scrpos_y * units_per_px / 16, units_per_px, spr);
-                        scrpos_x += spr->SWidth;
-                        spr++;
+                lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
+                for (int y = 0; y < SWIPE_SPRITES_Y; ++y) {
+                    for (int x = 0; x < SWIPE_SPRITES_X; ++x) {
+                        const int index = (SWIPE_SPRITES_PER_FRAME * frame) + (SWIPE_SPRITES_X * y) + x + 1;
+                        sprlist[(SWIPE_SPRITES_X * y) + x] = GetSprite(swipe_sprites, index);
                     }
-                    scrpos_y += delta_y;
                 }
-            } else
+            }
+            else
             {
-                lbDisplay.DrawFlags = Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_FLIP_HORIZ;
-                for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
-                {
-                    spr = &sprlist[SWIPE_SPRITES_X+i];
-                    int delta_y = spr->SHeight;
-                    scrpos_x = (MyScreenWidth * 16 / units_per_px - allwidth) / 2;
-                    for (n=0; n < SWIPE_SPRITES_X; n++)
-                    {
-                        LbSpriteDrawResized(scrpos_x * units_per_px / 16, scrpos_y * units_per_px / 16, units_per_px, spr);
-                        scrpos_x += spr->SWidth;
-                        spr--;
-                    }
-                    scrpos_y += delta_y;
+                for (int i = 0; i < SWIPE_SPRITES_PER_FRAME; ++i) {
+                    const int index = (SWIPE_SPRITES_PER_FRAME * frame) + i + 1;
+                    sprlist[i] = GetSprite(swipe_sprites, index);
                 }
+            }
+            int total_width = 0;
+            for (int i = 0; i < SWIPE_SPRITES_X; ++i)
+            {
+                total_width += sprlist[i]->SWidth;
+            }
+            int total_height = 0;
+            for (int i = 0; i < SWIPE_SPRITES_Y; ++i)
+            {
+                total_height += sprlist[SWIPE_SPRITES_X * i]->SHeight;
+            }
+            int units_per_px = (LbScreenWidth() * 59 / 64) * 16 / total_width;
+            int scrpos_y = (MyScreenHeight * 16 / units_per_px - total_height) / 2;
+            for (int y = 0; y < SWIPE_SPRITES_Y; ++y)
+            {
+                int scrpos_x = (MyScreenWidth * 16 / units_per_px - total_width) / 2;
+                for (int x = 0; x < SWIPE_SPRITES_X; ++x)
+                {
+                    const struct TbSprite * spr = sprlist[(SWIPE_SPRITES_X * y) + x];
+                    LbSpriteDrawResized(
+                        scrpos_x * units_per_px / 16,
+                        scrpos_y * units_per_px / 16,
+                        units_per_px, spr
+                    );
+                    scrpos_x += spr->SWidth;
+                }
+                scrpos_y += sprlist[SWIPE_SPRITES_X * y]->SHeight;
             }
             lbDisplay.DrawFlags = 0;
             return;
