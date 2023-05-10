@@ -1014,7 +1014,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     } else
     if (spell_idx == SplK_TimeBomb)
     {
-        i = get_free_spell_slot(thing);
         if (i != -1)
         {
             fill_spell_slot(thing, i, spell_idx, spconf->duration);
