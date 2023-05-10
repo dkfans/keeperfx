@@ -2758,7 +2758,7 @@ static void use_spell_on_creature_check(const struct ScriptLine* scline)
     }
     const char *mag_name = scline->tp[2];
     short mag_id = get_rid(spell_desc, mag_name);
-    short splevel = scline->np[2];
+    short splevel = scline->np[3];
 
     if (mag_id == -1)
     {
