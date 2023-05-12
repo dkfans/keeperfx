@@ -1358,7 +1358,7 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
  */
 TbBool slab_kind_is_indestructible(RoomKind slbkind)
 {
-    return (slbkind == SlbT_ROCK) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_ENTRANCE);
+    return (slbkind == SlbT_ROCK) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_ENTRANCE) || (slbkind == SlbT_DUNGHEART);
 }
 
 /**
