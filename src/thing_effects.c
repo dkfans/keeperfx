@@ -443,8 +443,16 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng->anim_time = thing->anim_time;
             effeltng->anim_sprite = thing->anim_sprite;
             effeltng->sprite_size = thing->sprite_size;
+            effeltng->current_frame = thing->current_frame;
+            effeltng->max_frames = thing->max_frames;
+            effeltng->transformation_speed = thing->transformation_speed;
+            effeltng->sprite_size_min = thing->sprite_size_min;
+            effeltng->sprite_size_max = thing->sprite_size_max;
+            effeltng->rendering_flags = thing->rendering_flags;
             effeltng->rendering_flags &= ~TRF_Transpar_8;
             effeltng->rendering_flags |= TRF_Transpar_4;
+            effeltng->field_50 = thing->field_50;
+            effeltng->tint_colour = thing->tint_colour;
             effeltng->anim_speed = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
         }
@@ -464,6 +472,16 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
                 effeltng->anim_time = thing->anim_time;
                 effeltng->anim_sprite = thing->anim_sprite;
                 effeltng->sprite_size = thing->sprite_size;
+                effeltng->current_frame = thing->current_frame;
+                effeltng->max_frames = thing->max_frames;
+                effeltng->transformation_speed = thing->transformation_speed;
+                effeltng->sprite_size_min = thing->sprite_size_min;
+                effeltng->sprite_size_max = thing->sprite_size_max;
+                effeltng->rendering_flags = thing->rendering_flags;
+                effeltng->rendering_flags &= ~TRF_Transpar_8;
+                effeltng->rendering_flags |= TRF_Transpar_4;
+                effeltng->field_50 = thing->field_50;
+                effeltng->tint_colour = thing->tint_colour;
                 effeltng->rendering_flags &= ~TRF_Transpar_8;
                 effeltng->rendering_flags |= TRF_Transpar_4;
                 effeltng->move_angle_xy = thing->move_angle_xy;
