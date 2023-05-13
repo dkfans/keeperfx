@@ -1724,8 +1724,12 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
       }
       arr_size = sizeof(gameadd.object_conf.object_to_power_artifact)/sizeof(gameadd.object_conf.object_to_power_artifact[0]);
-      for (i=0; i < arr_size; i++) {
-          gameadd.object_conf.object_to_power_artifact[i] = 0;
+      for (i = 0; i < arr_size; i++)
+      {
+          if ((flags & CnfLd_AcceptPartial) == 0)
+          {
+              gameadd.object_conf.object_to_power_artifact[i] = 0;
+          }
       }
   }
   arr_size = magic_conf.power_types_count;
