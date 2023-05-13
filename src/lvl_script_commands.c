@@ -430,6 +430,10 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     unsigned long k = 0;
     TbBool is_spec_digger;
     int i = dungeon->creatr_list_start;
+    if ((crmodel == get_players_special_digger_model(plyr_idx)) || (crmodel == CREATURE_DIGGER))
+    {
+        i = dungeon->digger_list_start;
+    }
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
