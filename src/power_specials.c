@@ -344,7 +344,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y-1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y - 1);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 1u);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 1);
                     do_slab_efficiency_alteration(slb_x, slb_y-1);
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y-1);
                 }
@@ -367,7 +367,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y+1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y + 1);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 1u);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 1);
                     do_slab_efficiency_alteration(slb_x, slb_y+1);
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y+1);
                 }
