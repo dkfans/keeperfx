@@ -42,7 +42,7 @@ void message_draw(void)
     LbTextSetFont(winfont);
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[488];
+        const struct TbSprite* spr = GetSprite(gui_panel_sprites, 488);
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     TbBool low_res = (MyScreenHeight < 400);

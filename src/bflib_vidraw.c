@@ -2243,7 +2243,7 @@ TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
  * @param sprite
  * @note originally named DrawBigSprite()
  */
-void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite)
+void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, const struct SpriteSheet *sprites)
 {
     long x;
     long y;
@@ -2260,11 +2260,11 @@ void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Til
         spr_idx = &bigspr->spr_idx[spnum_y][0];
         for (spnum_x = 0; spnum_x < bigspr->x_num; spnum_x++)
         {
-            delta_x = sprite[*spr_idx].SWidth * units_per_px / 16;
-            delta_y = sprite[*spr_idx].SHeight * units_per_px / 16;
+            delta_x = GetSprite(sprites, *spr_idx)->SWidth * units_per_px / 16;
+            delta_y = GetSprite(sprites, *spr_idx)->SHeight * units_per_px / 16;
             if (*spr_idx)
             {
-                LbSpriteDrawScaled(x, y, &sprite[*spr_idx], delta_x, delta_y);
+                LbSpriteDrawScaled(x, y, GetSprite(sprites, *spr_idx), delta_x, delta_y);
             } else
             {
                 unsigned short *prev_spr_idx;
@@ -2273,7 +2273,7 @@ void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Til
                 for (spnum_p = 1; spnum_p <= spnum_y; spnum_p++)
                 {
                     if (*prev_spr_idx) {
-                        delta_x = sprite[bigspr->spr_idx[(spnum_y - spnum_p)][spnum_x]].SWidth * units_per_px / 16;
+                        delta_x = GetSprite(sprites, bigspr->spr_idx[(spnum_y - spnum_p)][spnum_x])->SWidth * units_per_px / 16;
                         break;
                     }
                     prev_spr_idx -= 10;
@@ -2286,7 +2286,7 @@ void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Til
     }
 }
 
-int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite)
+int LbTiledSpriteHeight(struct TiledSprite *bigspr, const struct SpriteSheet *sprites)
 {
     long height;
     int spnum_y;
@@ -2295,7 +2295,7 @@ int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite)
     {
         unsigned short *spr_idx;
         spr_idx = &bigspr->spr_idx[spnum_y][0];
-        height += sprite[*spr_idx].SHeight;
+        height += GetSprite(sprites, *spr_idx)->SHeight;
     }
     return height;
 }

@@ -1176,7 +1176,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     int tx_units_per_px;
     int text_x;
     int text_y = -6*dst_w/base_w;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
     {
         tx_units_per_px = scale_ui_value(32);
         text_x = 12;
@@ -1206,7 +1206,7 @@ void draw_name_box(long x, long y, int width, struct Thing *thing)
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[GPS_rpanel_bar_long_full];
+        const struct TbSprite* spr = GetSprite(gui_panel_sprites, GPS_rpanel_bar_long_full);
         ps_units_per_px = (width*95/100) * 16 / spr->SWidth;
     }
     draw_gui_panel_sprite_left(x, y, ps_units_per_px, GPS_rpanel_bar_long_full);
@@ -1262,7 +1262,7 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
         }
     }
     {
-        struct TbSprite* spr = &gui_panel_sprites[GPS_rpanel_frame_double_hex_med];
+        const struct TbSprite* spr = GetSprite(gui_panel_sprites, GPS_rpanel_frame_double_hex_med);
         int ps_units_per_px = (gmnu->width * 52 / 100) * 16 / spr->SWidth;
         draw_gui_panel_sprite_left(portrt_x, portrt_y, ps_units_per_px, GPS_rpanel_frame_double_hex_med);
     }
@@ -1280,7 +1280,7 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx = get_creature_model_graphics(ctrltng->model, CGI_HandSymbol);
-        struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+        const struct TbSprite* spr = GetSprite(gui_panel_sprites, spr_idx);
         int ps_units_per_px = (gmnu->width * 22 / 100) * 16 / spr->SWidth;
         draw_gui_panel_sprite_left(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx);
     }
@@ -1668,7 +1668,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
       spr_idx++;
     if (MyScreenHeight < 400)
     {
-        struct TbSprite* spr = &gui_panel_sprites[488];
+        const struct TbSprite* spr = GetSprite(gui_panel_sprites, 488);
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 8*units_per_px/16, ps_units_per_px, spr_idx);
@@ -2417,7 +2417,7 @@ void update_powers_tab_to_config(void)
 
 void draw_placefiller(long scr_x, long scr_y, long units_per_px)
 {
-    struct TbSprite* spr = &gui_panel_sprites[547];
+    const struct TbSprite* spr = GetSprite(gui_panel_sprites, 547);
     LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
 }
 /******************************************************************************/

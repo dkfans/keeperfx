@@ -45,11 +45,8 @@ extern "C" {
 
 struct GuiButton;
 /******************************************************************************/
-extern struct TbSprite gui_panel_sprites[];
+extern struct SpriteSheet *gui_panel_sprites;
 extern int num_custom_sprites;
-
-extern unsigned char * gui_panel_sprite_data;
-extern unsigned char * end_gui_panel_sprite_data;
 
 extern unsigned char *gui_slab;
 

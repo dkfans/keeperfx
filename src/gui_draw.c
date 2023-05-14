@@ -43,9 +43,7 @@ extern "C" {
 /******************************************************************************/
 char gui_textbuf[TEXT_BUFFER_LENGTH];
 
-struct TbSprite gui_panel_sprites[GUI_PANEL_SPRITES_COUNT];
-unsigned char * gui_panel_sprite_data;
-unsigned char * end_gui_panel_sprite_data;
+struct SpriteSheet * gui_panel_sprites = NULL;
 unsigned char *gui_slab;
 unsigned char *frontend_background;
 struct SpriteSheet *frontend_sprite = NULL;
@@ -303,38 +301,38 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     int x;
     int y;
-    struct TbSprite* spr = &gui_panel_sprites[242];
+    const struct TbSprite* spr = GetSprite(gui_panel_sprites, 242);
     int ps_units_per_spr = 26*units_per_px/spr->SWidth;
     long i;
     for (i = 0; i < width - 68*units_per_px/16; i += 26*units_per_px/16)
     {
         x = pos_x + i + 34*units_per_px/16;
         y = pos_y;
-        spr = &gui_panel_sprites[242];
+        spr = GetSprite(gui_panel_sprites, 242);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
         y += height - 4*units_per_px/16;
-        spr = &gui_panel_sprites[248];
+        spr = GetSprite(gui_panel_sprites, 248);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
     }
     for (i = 0; i < height - 56*units_per_px/16; i += 20*units_per_px/16)
     {
         x = pos_x;
         y = pos_y + i + 28*units_per_px/16;
-        spr = &gui_panel_sprites[244];
+        spr = GetSprite(gui_panel_sprites, 244);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
         x += width - 4*units_per_px/16;
-        spr = &gui_panel_sprites[246];
+        spr = GetSprite(gui_panel_sprites, 246);
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
     }
     x = pos_x + width - 34*units_per_px/16;
     y = pos_y + height - 28*units_per_px/16;
-    spr = &gui_panel_sprites[241];
+    spr = GetSprite(gui_panel_sprites, 241);
     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_spr, spr);
-    spr = &gui_panel_sprites[243];
+    spr = GetSprite(gui_panel_sprites, 243);
     LbSpriteDrawResized(x,     pos_y, ps_units_per_spr, spr);
-    spr = &gui_panel_sprites[247];
+    spr = GetSprite(gui_panel_sprites, 247);
     LbSpriteDrawResized(pos_x, y,     ps_units_per_spr, spr);
-    spr = &gui_panel_sprites[249];
+    spr = GetSprite(gui_panel_sprites, 249);
     LbSpriteDrawResized(x,     y,     ps_units_per_spr, spr);
     lbDisplay.DrawFlags = drwflags_mem;
 }
@@ -348,7 +346,7 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
  */
 int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = GetSprite(gui_panel_sprites, spridx);
     if (spr->SHeight < 1)
         return 16;
     int units_per_px = ((gbtn->height * fraction / 100) * 16 + spr->SHeight / 2) / spr->SHeight;
@@ -366,7 +364,7 @@ int simple_gui_panel_sprite_height_units_per_px(const struct GuiButton *gbtn, lo
  */
 int simple_gui_panel_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction)
 {
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = GetSprite(gui_panel_sprites, spridx);
     if (spr->SWidth < 1)
         return 16;
     int units_per_px = ((gbtn->width * fraction / 100) * 16 + spr->SWidth / 2) / spr->SWidth;
@@ -733,7 +731,7 @@ void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx)
 {
     if ((spridx <= 0) || (spridx >= GUI_PANEL_SPRITES_COUNT + num_custom_sprites))
       return;
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 
@@ -741,7 +739,7 @@ void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx,
 {
     if ((spridx <= 0) || (spridx >= GUI_PANEL_SPRITES_COUNT + num_custom_sprites))
       return;
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
 }
 
@@ -749,7 +747,7 @@ void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx,
 {
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT + num_custom_sprites))
       return;
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
 }
 
@@ -757,7 +755,7 @@ void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long sprid
 {
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT + num_custom_sprites))
       return;
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
     LbSpriteDrawResized(x, y, units_per_px, spr);
@@ -767,7 +765,7 @@ void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spr
 {
     if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT + num_custom_sprites))
       return;
-    struct TbSprite* spr = &gui_panel_sprites[spridx];
+    const struct TbSprite* spr = get_panel_sprite(spridx);
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
     LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);

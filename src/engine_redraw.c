@@ -91,10 +91,10 @@ static void draw_creature_view_icons(struct Thing* creatng)
     struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
     ScreenCoord x = gmnu->width + scale_value_by_horizontal_resolution(5);
     ScreenCoord y;
-    struct TbSprite* spr;
+    const struct TbSprite* spr;
     int ps_units_per_px;
     {
-        spr = &gui_panel_sprites[488];
+        spr = GetSprite(gui_panel_sprites, 488);
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
         y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }

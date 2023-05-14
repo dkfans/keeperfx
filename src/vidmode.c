@@ -797,6 +797,7 @@ TbBool update_screen_mode_data(long width, long height)
   first_person_horizontal_fov = FOV_based_on_aspect_ratio();
   if (!MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites);
+  DeleteSprites(&gui_panel_sprites);
   DeleteSprites(&frontend_font[0]);
   DeleteSprites(&frontend_font[1]);
   DeleteSprites(&frontend_font[2]);
@@ -819,9 +820,11 @@ TbBool update_screen_mode_data(long width, long height)
   } else if (hires_mode) {
     font_sprites = LoadSprites("data/font1-64");
     winfont = LoadSprites("data/font2-64");
+    gui_panel_sprites = LoadSprites("data/gui2-64");
   } else {
     font_sprites = LoadSprites("data/font1-32");
     winfont = LoadSprites("data/font2-32");
+    gui_panel_sprites = LoadSprites("data/gui2-32");
   }
   LbMouseChangeMoveRatio(base_mouse_sensitivity*units_per_pixel/16, base_mouse_sensitivity*units_per_pixel/16);
   LbMouseSetPointerHotspot(0, 0);

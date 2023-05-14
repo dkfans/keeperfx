@@ -205,7 +205,7 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
         return;
     }
     short spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
-    struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+    const struct TbSprite* spr = GetSprite(gui_panel_sprites, spr_idx);
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
     int curscr_y = scr_y - (spr->SHeight * ps_units_per_px / 16) / 2;
@@ -403,8 +403,8 @@ void draw_bonus_timer(void)
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
@@ -417,7 +417,7 @@ void draw_bonus_timer(void)
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -479,8 +479,8 @@ void draw_timer(void)
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
@@ -493,7 +493,7 @@ void draw_timer(void)
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
@@ -560,8 +560,8 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) )
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
@@ -574,7 +574,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }

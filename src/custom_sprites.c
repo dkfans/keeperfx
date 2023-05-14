@@ -1453,7 +1453,7 @@ const struct TbSprite *get_frontend_sprite(short sprite_idx)
 const struct TbSprite *get_panel_sprite(short sprite_idx)
 {
     if (sprite_idx < GUI_PANEL_SPRITES_COUNT) {
-        return &gui_panel_sprites[sprite_idx];
+        return GetSprite(gui_panel_sprites, sprite_idx);
     } else if (sprite_idx < FIRST_CUSTOM_SPRITE) {
         return &custom_sprites[bad_icon_id];
     } else if (sprite_idx < FIRST_CUSTOM_SPRITE + num_custom_sprites) {
