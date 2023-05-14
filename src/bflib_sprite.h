@@ -44,12 +44,6 @@ struct TbSprite {
 #endif
 };
 
-struct TbSetupSprite {
-    struct TbSprite **Start;
-    struct TbSprite **End;
-    TbSpriteData *Data;
-};
-
 struct TbHugeSprite {
     TbSpriteData Data;  //**< Raw sprite data, with RLE coded transparency.
     long * Lines;  //**< Index of line starts in the sprite data.
@@ -69,9 +63,6 @@ struct SpriteSheet;
 
 /******************************************************************************/
 
-int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
-int LbSpriteClearAll(struct TbSetupSprite t_setup[]);
-int LbSpriteSetup(struct TbSprite ** start, struct TbSprite ** end, const uint8_t * data);
 struct SpriteSheet * LoadSprites(const char * basename);
 void DeleteSprites(struct SpriteSheet **);
 const struct TbSprite * GetSprite(const struct SpriteSheet *, size_t index);

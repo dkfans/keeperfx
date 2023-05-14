@@ -93,7 +93,6 @@ unsigned char white_pal[256];
 unsigned char red_pal[256];
 /******************************************************************************/
 
-extern struct TbSetupSprite setup_sprites[];
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
 extern struct TbLoadFiles testfont_load_files[];
@@ -795,8 +794,6 @@ TbBool update_screen_mode_data(long width, long height)
   calculate_aspect_ratio_factor(width, height);
   first_person_vertical_fov = DEFAULT_FIRST_PERSON_VERTICAL_FOV;
   first_person_horizontal_fov = FOV_based_on_aspect_ratio();
-  if (!MinimalResolutionSetup)
-    LbSpriteSetupAll(setup_sprites);
   DeleteSprites(&button_sprite);
   DeleteSprites(&gui_panel_sprites);
   DeleteSprites(&frontend_font[0]);

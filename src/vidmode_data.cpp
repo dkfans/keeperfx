@@ -53,10 +53,6 @@ extern "C" {
 /******************************************************************************/
 extern struct SpriteSheet *pointer_sprites;
 
-struct TbSetupSprite setup_sprites[] = {
-  {NULL,                  NULL,                   NULL},
-};
-
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
 

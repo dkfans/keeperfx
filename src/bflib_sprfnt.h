@@ -41,7 +41,6 @@ enum TbFontDrawFlags {
 #pragma pack(1)
 
 struct TbSprite;
-struct TbSetupSprite;
 
 struct AsianFont {
   const char *fname;
