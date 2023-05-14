@@ -79,7 +79,7 @@ void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width)
         return;
     }
     // Button opening sprite
-    struct TbSprite* spr = &button_sprite[GBS_frontend_button_std_l];
+    const struct TbSprite* spr = GetSprite(button_sprite, GBS_frontend_button_std_l);
     long x = pos_x;
     LbSpriteDrawResized(x, pos_y, units_per_px, spr);
     x += (spr->SWidth * units_per_px + 8) / 16;
@@ -87,16 +87,16 @@ void draw_bar64k(long pos_x, long pos_y, int units_per_px, long width)
     long body_end = pos_x + width - 2 * ((32 * units_per_px + 8) / 16);
     while (x < body_end)
     {
-        spr = &button_sprite[GBS_frontend_button_std_c];
+        spr = GetSprite(button_sprite, GBS_frontend_button_std_c);
         LbSpriteDrawResized(x/pixel_size, pos_y/pixel_size, units_per_px, spr);
         x += spr->SWidth * units_per_px / 16;
     }
     x = body_end;
-    spr = &button_sprite[GBS_frontend_button_std_c];
+    spr = GetSprite(button_sprite, GBS_frontend_button_std_c);
     LbSpriteDrawResized(x/pixel_size, pos_y/pixel_size, units_per_px, spr);
     x += (spr->SWidth * units_per_px + 8) / 16;
     // Button ending sprite
-    spr = &button_sprite[GBS_frontend_button_std_r];
+    spr = GetSprite(button_sprite, GBS_frontend_button_std_r);
     LbSpriteDrawResized(x/pixel_size, pos_y/pixel_size, units_per_px, spr);
 }
 
@@ -109,23 +109,23 @@ void draw_lit_bar64k(long pos_x, long pos_y, int units_per_px, long width)
     }
     // opening sprite
     long x = pos_x;
-    struct TbSprite* spr = &button_sprite[GBS_frontend_button_sta_l];
+    const struct TbSprite* spr = GetSprite(button_sprite, GBS_frontend_button_sta_l);
     LbSpriteDrawResized(x, pos_y, units_per_px, spr);
     x += (spr->SWidth * units_per_px + 8) / 16;
     // body
     long body_end = pos_x + width - 2 * ((32 * units_per_px + 8) / 16);
     while (x < body_end)
     {
-        spr = &button_sprite[GBS_frontend_button_sta_c];
+        spr = GetSprite(button_sprite, GBS_frontend_button_sta_c);
         LbSpriteDrawResized(x, pos_y, units_per_px, spr);
         x += (spr->SWidth * units_per_px + 8) / 16;
     }
     x = body_end;
-    spr = &button_sprite[GBS_frontend_button_sta_c];
+    spr = GetSprite(button_sprite, GBS_frontend_button_sta_c);
     LbSpriteDrawResized(x, pos_y, units_per_px, spr);
     x += (spr->SWidth * units_per_px + 8) / 16;
     // ending sprite
-    spr = &button_sprite[GBS_frontend_button_sta_r];
+    spr = GetSprite(button_sprite, GBS_frontend_button_sta_r);
     LbSpriteDrawResized(x, pos_y, units_per_px, spr);
 }
 
@@ -181,113 +181,113 @@ void draw_slab64k(long pos_x, long pos_y, int units_per_px, long width, long hei
 {
     // Draw one pixel more, to make sure we won't get empty area after scaling
     draw_slab64k_background(pos_x, pos_y, width+scale_value_for_resolution_with_upp(1,units_per_px), height+scale_value_for_resolution_with_upp(1,units_per_px));
-    struct TbSprite* spr = &button_sprite[GBS_borders_frame_thck_tl];
+    const struct TbSprite* spr = GetSprite(button_sprite, GBS_borders_frame_thck_tl);
     int bs_units_per_spr = calculate_relative_upp(16, units_per_px, spr->SWidth);
     int border_shift = scale_value_for_resolution_with_upp(6,units_per_px);
     int i;
     int i_increment = units_per_px;
     for (i = i_increment - border_shift; i < width-2*border_shift; i += i_increment)
     {
-        spr = &button_sprite[GBS_borders_frame_thck_tc];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thck_tc);
         LbSpriteDrawResized(pos_x + i, pos_y - border_shift, bs_units_per_spr, spr);
-        spr = &button_sprite[GBS_borders_frame_thck_bc];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thck_bc);
         LbSpriteDrawResized(pos_x + i, pos_y + height, bs_units_per_spr, spr);
     }
     for (i = i_increment - border_shift; i < height-2*border_shift; i += i_increment)
     {
-        spr = &button_sprite[GBS_borders_frame_thck_ml];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thck_ml);
         LbSpriteDrawResized(pos_x - border_shift, pos_y + i, bs_units_per_spr, spr);
-        spr = &button_sprite[GBS_borders_frame_thck_mr];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thck_mr);
         LbSpriteDrawResized(pos_x + width, pos_y + i, bs_units_per_spr, spr);
     }
-    spr = &button_sprite[GBS_borders_frame_thck_tl];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thck_tl);
     LbSpriteDrawResized(pos_x - border_shift, pos_y - border_shift, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_borders_frame_thck_tr];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thck_tr);
     LbSpriteDrawResized(pos_x + width - 2*border_shift, pos_y - border_shift, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_borders_frame_thck_bl];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thck_bl);
     LbSpriteDrawResized(pos_x - border_shift, pos_y + height - 2*border_shift, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_borders_frame_thck_br];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thck_br);
     LbSpriteDrawResized(pos_x + width - 2*border_shift, pos_y + height - 2*border_shift, bs_units_per_spr, spr);
 }
 
 void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height)
 {
     draw_slab64k_background(pos_x, pos_y, width, height);
-    struct TbSprite* spr = &button_sprite[GBS_parchment_map_frame_deco_a_tl];
+    const struct TbSprite* spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_a_tl);
     int bs_units_per_spr = 128*units_per_px/spr->SWidth;
     int i;
     for (i=10*units_per_px/16; i < width-12*units_per_px/16; i+=32*units_per_px/16)
     {
-        spr = &button_sprite[GBS_borders_frame_thin_tc];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thin_tc);
         LbSpriteDrawResized(pos_x + i, pos_y - 4*units_per_px/16, bs_units_per_spr, spr);
-        spr = &button_sprite[GBS_borders_frame_thin_bc];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thin_bc);
         LbSpriteDrawResized(pos_x + i, pos_y + height, bs_units_per_spr, spr);
     }
     for (i=10*units_per_px/16; i < height-16*units_per_px/16; i+=32*units_per_px/16)
     {
-        spr = &button_sprite[GBS_borders_frame_thin_ml];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thin_ml);
         LbSpriteDrawResized(pos_x - 4*units_per_px/16, pos_y + i, bs_units_per_spr, spr);
-        spr = &button_sprite[GBS_borders_frame_thin_mr];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thin_mr);
         LbSpriteDrawResized(pos_x + width, pos_y + i, bs_units_per_spr, spr);
     }
-    spr = &button_sprite[GBS_borders_frame_thin_tl];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thin_tl);
     LbSpriteDrawResized(pos_x - 4*units_per_px/16, pos_y - 4*units_per_px/16, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_borders_frame_thin_tr];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thin_tr);
     LbSpriteDrawResized(pos_x + width - 28*units_per_px/16, pos_y - 4*units_per_px/16, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_borders_frame_thin_bl];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thin_bl);
     LbSpriteDrawResized(pos_x - 4*units_per_px/16, pos_y + height - 28*units_per_px/16, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_borders_frame_thin_br];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thin_br);
     LbSpriteDrawResized(pos_x + width - 28*units_per_px/16, pos_y + height - 28*units_per_px/16, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_parchment_map_frame_deco_a_tl];
+    spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_a_tl);
     LbSpriteDrawResized(pos_x - 32*units_per_px/16, pos_y - 14*units_per_px/16, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_parchment_map_frame_deco_a_bl];
+    spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_a_bl);
     LbSpriteDrawResized(pos_x - 34*units_per_px/16, pos_y + height - 78*units_per_px/16, bs_units_per_spr, spr);
     lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
-    spr = &button_sprite[GBS_parchment_map_frame_deco_a_tl];
+    spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_a_tl);
     LbSpriteDrawResized(pos_x + width - 96*units_per_px/16, pos_y - 14*units_per_px/16, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_parchment_map_frame_deco_a_bl];
+    spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_a_bl);
     LbSpriteDrawResized(pos_x + width - 92*units_per_px/16, pos_y + height - 78*units_per_px/16, bs_units_per_spr, spr);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
 }
 
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long width, long height)
 {
-    struct TbSprite* spr = &button_sprite[GBS_parchment_map_frame_deco_a_tl];
+    const struct TbSprite* spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_a_tl);
     int bs_units_per_spr = 128*units_per_px/spr->SWidth;
     long x = pos_x;
     long y = pos_y;
     int i;
     for (i=10*units_per_px/16; i < width - 12*units_per_px/16; i+=32*units_per_px/16)
     {
-        spr = &button_sprite[GBS_borders_frame_thin_tc];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thin_tc);
         LbSpriteDrawResized(pos_x + i, pos_y - 4*units_per_px/16, bs_units_per_spr, spr);
-        spr = &button_sprite[GBS_borders_frame_thin_bc];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thin_bc);
         LbSpriteDrawResized(pos_x + i, pos_y + height, bs_units_per_spr, spr);
     }
-    spr = button_sprite;
+    spr = GetSprite(button_sprite, 0);
     for (i=10*units_per_px/16; i < height - 16*units_per_px/16; i+=32*units_per_px/16)
     {
-        spr = &button_sprite[GBS_borders_frame_thin_ml];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thin_ml);
         LbSpriteDrawResized(x - 4*units_per_px/16, y + i, bs_units_per_spr, spr);
-        spr = &button_sprite[GBS_borders_frame_thin_mr];
+        spr = GetSprite(button_sprite, GBS_borders_frame_thin_mr);
         LbSpriteDrawResized(x + width, y + i, bs_units_per_spr, spr);
     }
-    spr = &button_sprite[GBS_borders_frame_thin_tl];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thin_tl);
     LbSpriteDrawResized(x - 4*units_per_px/16,          y - 4*units_per_px/16,           bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_borders_frame_thin_tr];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thin_tr);
     LbSpriteDrawResized(x + width - 28*units_per_px/16, y - 4*units_per_px/16,           bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_borders_frame_thin_bl];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thin_bl);
     LbSpriteDrawResized(x - 4*units_per_px/16,          y + height - 28*units_per_px/16, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_borders_frame_thin_br];
+    spr = GetSprite(button_sprite, GBS_borders_frame_thin_br);
     LbSpriteDrawResized(x + width - 28*units_per_px/16, y + height - 28*units_per_px/16, bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_parchment_map_frame_deco_a_tl];
+    spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_a_tl);
     LbSpriteDrawResized(x - 32*units_per_px/16,         y - 14*units_per_px/16,          bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_parchment_map_frame_deco_a_bl];
+    spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_a_bl);
     LbSpriteDrawResized(x - 34*units_per_px/16,         y + height - 78*units_per_px/16, bs_units_per_spr, spr);
     lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
-    spr = &button_sprite[GBS_parchment_map_frame_deco_a_tl];
+    spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_a_tl);
     LbSpriteDrawResized(x + width - 96*units_per_px/16, y - 14*units_per_px/16,          bs_units_per_spr, spr);
-    spr = &button_sprite[GBS_parchment_map_frame_deco_a_bl];
+    spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_a_bl);
     LbSpriteDrawResized(x + width - 92*units_per_px/16, y + height - 78*units_per_px/16, bs_units_per_spr, spr);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
 }

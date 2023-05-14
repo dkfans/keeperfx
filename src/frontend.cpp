@@ -407,10 +407,7 @@ unsigned char video_gamma_correction;
 // *** SPRITES ***
 struct SpriteSheet *font_sprites = NULL;
 struct SpriteSheet *frontend_font[FRONTEND_FONTS_COUNT] = {0};
-struct TbSprite *button_sprite;
-struct TbSprite *end_button_sprites;
-unsigned char * button_sprite_data;
-unsigned long end_button_sprite_data;
+struct SpriteSheet *button_sprite = NULL;
 struct SpriteSheet *winfont = NULL;
 struct TbSprite *port_sprite;
 struct TbSprite *end_port_sprites;
@@ -1158,10 +1155,10 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
     int cur_x = base_x;
     int cur_y = base_y;
     // int end_x = base_x + base_w - 64*units_per_px/16;
-    struct TbSprite *spr = &button_sprite[GBS_borders_bar_std_l];
+    const struct TbSprite *spr = GetSprite(button_sprite, GBS_borders_bar_std_l);
     LbSpriteDrawResized(cur_x, cur_y, units_per_px, spr);
     cur_x += spr->SWidth*units_per_px/16;
-    spr = &button_sprite[GBS_borders_bar_std_c];
+    spr = GetSprite(button_sprite, GBS_borders_bar_std_c);
     while (cur_x < end_x)
     {
         LbSpriteDrawResized(cur_x, cur_y, units_per_px, spr);
@@ -1170,7 +1167,7 @@ void draw_slider64k(long scr_x, long scr_y, int units_per_px, long width)
     cur_x = end_x;
     LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
     cur_x += spr->SWidth*units_per_px/16;
-    spr = &button_sprite[GBS_borders_bar_std_r];
+    spr = GetSprite(button_sprite, GBS_borders_bar_std_r);
     LbSpriteDrawResized(cur_x/pixel_size, cur_y/pixel_size, units_per_px, spr);
 }
 
@@ -1188,11 +1185,11 @@ void gui_area_slider(struct GuiButton *gbtn)
     }
     draw_slider64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, bar_width);
     int shift_x = (gbtn->width - 64*units_per_px/16) * gbtn->slide_val >> 8;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     if (gbtn->flags != 0) {
-        spr = &button_sprite[GBS_guisymbols_jewel_on];
+        spr = GetSprite(button_sprite, GBS_guisymbols_jewel_on);
     } else {
-        spr = &button_sprite[GBS_guisymbols_jewel_off];
+        spr = GetSprite(button_sprite, GBS_guisymbols_jewel_off);
     }
     LbSpriteDrawResized(gbtn->scr_pos_x + shift_x + 24*units_per_px/16, gbtn->scr_pos_y + 6*units_per_px/16, bs_units_per_px, spr);
 }
@@ -3165,8 +3162,8 @@ void draw_active_menus_buttons(void)
 
 void spangle_button(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
-    spr = &button_sprite[GBS_guisymbols_new_function_1];
+    const struct TbSprite *spr;
+    spr = GetSprite(button_sprite, GBS_guisymbols_new_function_1);
     int bs_units_per_px;
     bs_units_per_px = 50 * units_per_pixel / spr->SHeight;
     long x;
@@ -3175,7 +3172,7 @@ void spangle_button(struct GuiButton *gbtn)
     x = gbtn->pos_x + (gbtn->width >> 1)  - ((spr->SWidth*bs_units_per_px/16) / 2);
     y = gbtn->pos_y + (gbtn->height >> 1) - ((spr->SHeight*bs_units_per_px/16) / 2);
     i = GBS_guisymbols_new_function_1+((game.play_gameturn >> 1) & 7);
-    spr = &button_sprite[i];
+    spr = GetSprite(button_sprite, i);
     LbSpriteDrawResized(x, y, bs_units_per_px, spr);
 }
 

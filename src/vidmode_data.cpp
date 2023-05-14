@@ -54,7 +54,6 @@ extern "C" {
 extern struct SpriteSheet *pointer_sprites;
 
 struct TbSetupSprite setup_sprites[] = {
-  {&button_sprite,        &end_button_sprites,    &button_sprite_data}, // 215 Sprites
   {&port_sprite,          &end_port_sprites,      &port_sprite_data}, // 0 Sprites
   {NULL,                  NULL,                   NULL},
 };
@@ -70,15 +69,11 @@ struct TbLoadFiles testfont_load_files[] = {
 #endif
 
 struct TbLoadFiles gui_load_files_320[] = {
-  {"data/gui1-32.dat",   (unsigned char **)&button_sprite_data, (unsigned char **)&end_button_sprite_data,      0, 0, 0},
-  {"data/gui1-32.tab",   (unsigned char **)&button_sprite,      (unsigned char **)&end_button_sprites,          0, 0, 0},
   {"data/slab0-0.dat",   (unsigned char **)&gui_slab,           NULL,                                           0, 0, 0},
   {"",                    NULL,                                 NULL,                                           0, 0, 0},
 };
 
 struct TbLoadFiles gui_load_files_640[] = {
-  {"data/gui1-64.dat",   (unsigned char **)&button_sprite_data, (unsigned char **)&end_button_sprite_data,      0, 0, 0},
-  {"data/gui1-64.tab",   (unsigned char **)&button_sprite,      (unsigned char **)&end_button_sprites,          0, 0, 0},
   {"data/slab0-1.dat",   (unsigned char **)&gui_slab,           NULL,                                           0, 0, 0},
   {"*B_SCREEN",          (unsigned char **)&hires_parchment,    NULL,                                     640*480, 0, 0},
   {"",                   NULL,                                  NULL,                                           0, 0, 0},
@@ -95,8 +90,6 @@ struct TbLoadFiles front_load_files_minimal_640[] = {
 };
 #else
 struct TbLoadFiles front_load_files_minimal_640[] = {
-  {"data/gui1-32.dat",   (unsigned char **)&button_sprite_data, (unsigned char **)&end_button_sprite_data,      0, 0, 0},
-  {"data/gui1-32.tab",   (unsigned char **)&button_sprite,      (unsigned char **)&end_button_sprites,          0, 0, 0},
   {"*FE_BACKUP_PAL",     (unsigned char **)&frontend_backup_palette,NULL,                            PALETTE_SIZE, 0, 0},
   {"",                   NULL,                                  NULL,                                           0, 0, 0},
 };

@@ -1427,7 +1427,7 @@ short get_anim_id(const char *name, struct Objects *objdat)
 const struct TbSprite *get_button_sprite(short sprite_idx)
 {
     if (sprite_idx < GUI_BUTTON_SPRITES_COUNT) {
-        return &button_sprite[sprite_idx];
+        return GetSprite(button_sprite, sprite_idx);
     } else if (sprite_idx < FIRST_CUSTOM_SPRITE) {
         return &custom_sprites[bad_icon_id];
     } else if (sprite_idx < FIRST_CUSTOM_SPRITE + num_custom_sprites) {

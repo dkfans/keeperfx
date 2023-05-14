@@ -2228,7 +2228,7 @@ void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_p
     for (i = value; i > 0; i /= 10) {
         ndigits++;
     }
-    struct TbSprite* spr = &button_sprite[GBS_fontchars_number_dig0];
+    const struct TbSprite* spr = GetSprite(button_sprite, GBS_fontchars_number_dig0);
     val_width = scale_value_for_resolution_with_upp(spr->SWidth, units_per_px) * ndigits;
     if (ndigits > 0)
     {
@@ -2237,13 +2237,13 @@ void draw_gold_total(PlayerNumber plyr_idx, long scr_x, long scr_y, long units_p
         {
             // Make space for the character first, as we're drawing right char towards left
             pos_x -= scale_value_for_resolution_with_upp(spr->SWidth, units_per_px);
-            spr = &button_sprite[i % 10 + GBS_fontchars_number_dig0];
+            spr = GetSprite(button_sprite, i % 10 + GBS_fontchars_number_dig0);
             LbSpriteDrawResized(pos_x, scr_y, units_per_px, spr);
         }
     } else
     {
         // Just draw zero
-        spr = &button_sprite[GBS_fontchars_number_dig0];
+        spr = GetSprite(button_sprite, GBS_fontchars_number_dig0);
         LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
     }
     lbDisplay.DrawFlags = flg_mem;
