@@ -1,10 +1,8 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file game_heap.c
- *     Definition of heap, used for storing memory-expensive sounds and graphics.
- * @par Purpose:
- *     Functions to create and maintain memory heap.
+/** @file custom_sprites.c
+ *     Adds custom sprites to the game.
  * @par Comment:
  *     None.
  * @author   KeeperFX Team
@@ -40,7 +38,7 @@
 static short next_free_sprite = 0;
 static short next_free_icon = 0;
 
-struct TbSprite gui_panel_sprites[NEW_GUI_PANEL_SPRITES_COUNT];
+struct TbSprite custom_sprites[GUI_PANEL_SPRITES_NEW] = {0};
 struct NamedCommand *anim_names = NULL;
 
 short iso_td_add[KEEPERSPRITE_ADD_NUM];
@@ -90,7 +88,7 @@ static struct NamedCommand added_sprites[KEEPERSPRITE_ADD_NUM];
 static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
 static int num_added_icons = 0;
-int num_icons_total = GUI_PANEL_SPRITES_COUNT;
+int num_custom_sprites = 0;
 unsigned char base_pal[PALETTE_SIZE];
 
 static unsigned char big_scratch_data[1024*1024*16] = {0};
@@ -128,8 +126,6 @@ static const unsigned char bad_icon_data[] = // 16x16
                 16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
                 16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
         };
-
-short bad_icon_id = GUI_PANEL_SPRITES_COUNT;
 
 static int pal_compare_fn(const void *a, const void *b)
 {
@@ -214,24 +210,24 @@ void init_custom_sprites(LevelNumber lvnum)
     num_added_sprite = 0;
     memset(added_sprites, 0, sizeof(added_sprites));
 
-    // Clear added icons
-    for (int i = 0; i < num_added_icons; i++)
+    // Clear added icons, skipping bad_icon
+    for (int i = 1; i < num_added_icons; i++)
     {
         if (added_icons[i].name != NULL)
         {
             free((char *) added_icons[i].name);
-            free((char *) gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data);
+            free((char *) custom_sprites[i].Data);
         }
     }
     num_added_icons = 0;
     memset(added_icons, 0, sizeof(added_icons));
-    memset(&gui_panel_sprites[GUI_PANEL_SPRITES_COUNT], 0, sizeof(gui_panel_sprites[0]) * GUI_PANEL_SPRITES_NEW);
+    memset(custom_sprites, 0, sizeof(custom_sprites[0]) * GUI_PANEL_SPRITES_NEW);
 
-    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].Data = (unsigned char *) bad_icon_data;
-    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SWidth = 16;
-    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SHeight = 16;
+    custom_sprites[bad_icon_id].Data = (unsigned char *) bad_icon_data;
+    custom_sprites[bad_icon_id].SWidth = 16;
+    custom_sprites[bad_icon_id].SHeight = 16;
     next_free_icon = 1;
-    num_icons_total = GUI_PANEL_SPRITES_COUNT + 1;
+    num_custom_sprites = 1;
 
     // Clear creature table (there sprites live)
     memset(creature_table_add, 0, sizeof(creature_table_add));
@@ -658,10 +654,10 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
         return 0;
     }
 
-    gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].Data = sprite.Data;
-    gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].SHeight = sprite.SHeight;
-    gui_panel_sprites[next_free_icon + GUI_PANEL_SPRITES_COUNT].SWidth = sprite.SWidth;
-    *icon_ptr = next_free_icon + GUI_PANEL_SPRITES_COUNT;
+    custom_sprites[next_free_icon].Data = sprite.Data;
+    custom_sprites[next_free_icon].SHeight = sprite.SHeight;
+    custom_sprites[next_free_icon].SWidth = sprite.SWidth;
+    *icon_ptr = next_free_icon;
     next_free_icon++;
 
     return 1;
@@ -1274,7 +1270,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
                                        &cmp_named_command);
     if (spr)
     {
-        num_icons_total += icons_count;
+        num_custom_sprites += icons_count;
         spr->num = first_icon;
         JUSTLOG("Overriding icon '%s'", name);
     }
@@ -1285,7 +1281,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
             ERRORLOG("Too many custom icons");
             return 0;
         }
-        num_icons_total += icons_count;
+        num_custom_sprites += icons_count;
         spr = &added_icons[num_added_icons++];
         spr->name = strdup(name);
         spr->num = first_icon;
@@ -1430,32 +1426,56 @@ short get_anim_id(const char *name, struct Objects *objdat)
 
 const struct TbSprite *get_button_sprite(short sprite_idx)
 {
-    if (sprite_idx < GUI_BUTTON_SPRITES_COUNT)
+    if (sprite_idx < GUI_BUTTON_SPRITES_COUNT) {
         return &button_sprite[sprite_idx];
-    else if (sprite_idx < num_icons_total)
-        return &gui_panel_sprites[sprite_idx];
-    else
-        return &button_sprite[0];
+    } else if (sprite_idx < FIRST_CUSTOM_SPRITE) {
+        return &custom_sprites[bad_icon_id];
+    } else if (sprite_idx < FIRST_CUSTOM_SPRITE + num_custom_sprites) {
+        return &custom_sprites[sprite_idx - FIRST_CUSTOM_SPRITE];
+    } else {
+        return &custom_sprites[bad_icon_id];
+    }
 }
 
 const struct TbSprite *get_frontend_sprite(short sprite_idx)
 {
-    if (sprite_idx < GUI_PANEL_SPRITES_COUNT)
+    if (sprite_idx < GUI_FRONTEND_SPRITE_COUNT) {
         return GetSprite(frontend_sprite, sprite_idx);
-    else if (sprite_idx < num_icons_total)
+    } else if (sprite_idx < FIRST_CUSTOM_SPRITE) {
+        return &custom_sprites[bad_icon_id];
+    } else if (sprite_idx < FIRST_CUSTOM_SPRITE + num_custom_sprites) {
+        return &custom_sprites[sprite_idx - FIRST_CUSTOM_SPRITE];
+    } else {
+        return &custom_sprites[bad_icon_id];
+    }
+}
+
+const struct TbSprite *get_panel_sprite(short sprite_idx)
+{
+    if (sprite_idx < GUI_PANEL_SPRITES_COUNT) {
         return &gui_panel_sprites[sprite_idx];
-    else
-        return GetSprite(frontend_sprite, 0);
+    } else if (sprite_idx < FIRST_CUSTOM_SPRITE) {
+        return &custom_sprites[bad_icon_id];
+    } else if (sprite_idx < FIRST_CUSTOM_SPRITE + num_custom_sprites) {
+        return &custom_sprites[sprite_idx - FIRST_CUSTOM_SPRITE];
+    } else {
+        return &custom_sprites[bad_icon_id];
+    }
 }
 
 const struct TbSprite *get_new_icon_sprite(short sprite_idx)
 {
-    if ((sprite_idx < GUI_PANEL_SPRITES_COUNT) || (sprite_idx > num_icons_total))
+    if (sprite_idx < FIRST_CUSTOM_SPRITE) {
         return NULL;
-    return &gui_panel_sprites[sprite_idx];
+    } else if (sprite_idx >= FIRST_CUSTOM_SPRITE + num_custom_sprites) {
+        return NULL;
+    } else {
+        return &custom_sprites[sprite_idx - FIRST_CUSTOM_SPRITE];
+    }
 }
 
 int is_custom_icon(short icon_idx)
 {
-    return (icon_idx >= GUI_PANEL_SPRITES_COUNT) && (icon_idx < num_icons_total);
+    return (icon_idx >= FIRST_CUSTOM_SPRITE)
+        && (icon_idx < FIRST_CUSTOM_SPRITE + num_custom_sprites);
 }

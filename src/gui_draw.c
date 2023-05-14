@@ -43,6 +43,7 @@ extern "C" {
 /******************************************************************************/
 char gui_textbuf[TEXT_BUFFER_LENGTH];
 
+struct TbSprite gui_panel_sprites[GUI_PANEL_SPRITES_COUNT];
 unsigned char * gui_panel_sprite_data;
 unsigned char * end_gui_panel_sprite_data;
 unsigned char *gui_slab;
@@ -730,7 +731,7 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
 
 void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx)
 {
-    if ((spridx <= 0) || (spridx >= num_icons_total))
+    if ((spridx <= 0) || (spridx >= GUI_PANEL_SPRITES_COUNT + num_custom_sprites))
       return;
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResized(x, y, units_per_px, spr);
@@ -738,7 +739,7 @@ void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx)
 
 void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap)
 {
-    if ((spridx <= 0) || (spridx >= num_icons_total))
+    if ((spridx <= 0) || (spridx >= GUI_PANEL_SPRITES_COUNT + num_custom_sprites))
       return;
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
@@ -746,7 +747,7 @@ void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx,
 
 void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color)
 {
-    if ((spridx <= 0) || (spridx > num_icons_total))
+    if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT + num_custom_sprites))
       return;
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
@@ -754,7 +755,7 @@ void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx,
 
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx)
 {
-    if ((spridx <= 0) || (spridx > num_icons_total))
+    if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT + num_custom_sprites))
       return;
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     x -= ((spr->SWidth*units_per_px/16) >> 1);
@@ -764,7 +765,7 @@ void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long sprid
 
 void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spridx, TbPixel color)
 {
-    if ((spridx <= 0) || (spridx > num_icons_total))
+    if ((spridx <= 0) || (spridx > GUI_PANEL_SPRITES_COUNT + num_custom_sprites))
       return;
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     x -= ((spr->SWidth*units_per_px/16) >> 1);
