@@ -101,6 +101,40 @@ struct SpriteSheet {
 	}
 };
 
+struct HugeSprite {
+
+	uint32_t width;
+	uint32_t height;
+	std::vector<uint8_t> data;
+	std::vector<uint32_t> offsets;
+
+	HugeSprite(
+		const std::string & filename,
+		uint32_t w,
+		uint32_t h
+	) : width(w), height(h)
+	{
+		const auto unpacked_size = LbFileLengthRnc(filename.c_str());
+		if (unpacked_size < 0) {
+			throw std::runtime_error("Cannot access huge sprite " + filename);
+		} else if (unpacked_size == 0) {
+			throw std::runtime_error("Huge sprite " + filename + " empty");
+		}
+		std::vector<uint8_t> raw(unpacked_size);
+		if (LbFileLoadAt(filename.c_str(), raw.data()) != raw.size()) {
+			throw std::runtime_error("Error loading huge sprite " + filename);
+		}
+		const auto offsets_size = height * sizeof(uint32_t);
+		const auto encoded_size = unpacked_size - offsets_size;
+		data.resize(encoded_size);
+		memcpy(data.data(), &raw[offsets_size], data.size());
+		offsets.resize(height);
+		for (uint32_t i = 0; i < height; ++i) {
+			offsets[i] = *reinterpret_cast<uint32_t *>(&raw[i * sizeof(uint32_t)]);
+		}
+	}
+};
+
 extern "C" SpriteSheet * LoadSprites(
 	const char * basename
 ) {
@@ -138,4 +172,46 @@ size_t CountSprites(
 		return sheet->sprites.size();
 	}
 	return 0;
+}
+
+extern "C" HugeSprite * LoadHugeSprite(
+	const char * filename,
+	uint32_t width,
+	uint32_t height
+) {
+	try {
+		return new HugeSprite(filename, width, height);
+	} catch (const std::exception & e) {
+		ERRORLOG("%s", e.what());
+	}
+	return nullptr;
+}
+
+extern "C" void DeleteHugeSprite(
+	struct HugeSprite ** sprite
+) {
+	if (sprite && *sprite) {
+		delete *sprite;
+		*sprite = nullptr;
+	}
+}
+
+extern "C" const uint8_t * HugeSpriteLine(
+	const struct HugeSprite * sprite,
+	int row
+) {
+	const auto offset = sprite->offsets[row];
+	return &sprite->data[offset];
+}
+
+extern "C" uint32_t HugeSpriteWidth(
+	const struct HugeSprite * sprite
+) {
+	return sprite->width;
+}
+
+extern "C" uint32_t HugeSpriteHeight(
+	const struct HugeSprite * sprite
+) {
+	return sprite->height;
 }

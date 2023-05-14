@@ -72,8 +72,6 @@ struct NetMapPlayersState {
 };
 
 /******************************************************************************/
-#define WINDOW_X_SIZE 960
-#define WINDOW_Y_SIZE 720
 TbPixel net_player_colours[] = { 251, 58, 182, 11};
 const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
 const long hand_limp_yoffset[] = {-11, -10,  -9,  -8,  -7,  -6,  -5,  -4,  -3,  -2,  -1,  0, };
@@ -83,8 +81,7 @@ long limp_hand_x = 0;
 long limp_hand_y = 0;
 LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
-struct TbHugeSprite map_window;
-long map_window_len = 0;
+struct HugeSprite * map_window = NULL;
 
 TbClockMSec play_desc_speech_time;
 unsigned long played_bad_descriptive_speech;
@@ -788,7 +785,7 @@ void compressed_window_draw(void)
     SYNCDBG(18,"Starting");
     long xshift = map_info.screen_shift_x / 2;
     long yshift = map_info.screen_shift_y / 2;
-    LbHugeSpriteDraw(&map_window, map_window_len,
+    LbHugeSpriteDraw(map_window,
         lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.PhysicalScreenHeight,
         xshift, yshift, units_per_pixel);
 }
@@ -803,7 +800,7 @@ void unload_map_and_window(void)
     clear_rooms();
     clear_dungeons();
     LbMemoryCopy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-    map_window_len = 0;
+    DeleteHugeSprite(&map_window);
 }
 
 TbBool load_map_and_window(LevelNumber lvnum)
@@ -859,27 +856,17 @@ TbBool load_map_and_window(LevelNumber lvnum)
     }
     map_screen = &game.land_map_start;
     // Texture blocks memory isn't used here, so reuse it instead of allocating
-    unsigned char* ptr = block_mem;
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Now prepare window sprite file name and load the file
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
     wait_for_cd_to_be_available();
-    map_window_len = LbFileLoadAt(fname, ptr);
-    if (map_window_len < (long)(WINDOW_Y_SIZE*sizeof(long)))
+    map_window = LoadHugeSprite(fname, 960, 720);
+    if (map_window == NULL)
     {
         ERRORLOG("Unable to load Land Map Window \"%s.dat\"",land_window);
         unload_map_and_window();
         return false;
     }
-    // Prepare pointer to offsets array; WINDOW_Y_SIZE entries
-    map_window.Lines = (long *)&ptr[0];
-    // Prepare pointer to window data
-    map_window.Data = &ptr[WINDOW_Y_SIZE*sizeof(long)];
-    // Fill the rest of huge sprite
-    map_window.SWidth = WINDOW_X_SIZE;
-    map_window.SHeight = WINDOW_Y_SIZE;
-    // Update length, so that it corresponds to map_window pointer
-    map_window_len -= WINDOW_Y_SIZE*sizeof(long);
     // Load palette
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
     wait_for_cd_to_be_available();

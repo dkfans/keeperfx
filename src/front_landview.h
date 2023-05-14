@@ -90,8 +90,6 @@ extern long players_currently_in_session;
 #pragma pack()
 /******************************************************************************/
 extern struct MapLevelInfo map_info;
-
-extern long map_window_len;
 /******************************************************************************/
 void frontnetmap_unload(void);
 TbBool frontnetmap_load(void);

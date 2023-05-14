@@ -54,9 +54,17 @@ struct KeeperSprite creature_table_add[KEEPERSPRITE_ADD_NUM] = {
 
 struct KeeperSpriteExt creatures_table_ext[KEEPERSPRITE_ADD_NUM] = {{0}};
 
+struct PNGSprite
+{
+    uint8_t * Data;
+    uint32_t * Lines;
+    uint32_t SWidth;
+    uint32_t SHeight;
+};
+
 struct SpriteContext
 {
-    struct TbHugeSprite sprite;
+    struct PNGSprite sprite;
 
     unsigned long x, y;
     struct KeeperSprite *ksp_first;
@@ -96,7 +104,7 @@ unsigned char *big_scratch = big_scratch_data;
 
 static void init_pal_conversion();
 
-static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h);
+static void compress_raw(struct PNGSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h);
 
 static TbBool add_custom_sprite(const char *path);
 
@@ -384,7 +392,7 @@ static int dir_from_camera_name(const char *camera_name)
 static int read_png_info(unzFile zip, const char *path, struct SpriteContext *context, const char *blender_filename,
                          const char *subpath, VALUE *node)
 {
-    struct TbHugeSprite *sprite = &context->sprite;
+    struct PNGSprite *sprite = &context->sprite;
     const char *camera = NULL;
     size_t out_size;
     sprite->SHeight = 0;
@@ -589,7 +597,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
 
 static int read_png_icon(unzFile zip, const char *path, const char *subpath, int *icon_ptr)
 {
-    struct TbHugeSprite sprite = {0};
+    struct PNGSprite sprite = {0};
     size_t out_size;
 
     spng_ctx *ctx = NULL;
@@ -668,7 +676,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
 static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath,
                          int fp, VALUE *def, VALUE *itm)
 {
-    struct TbHugeSprite *sprite = &context->sprite;
+    struct PNGSprite *sprite = &context->sprite;
     size_t out_size;
     sprite->SHeight = 0;
     sprite->SWidth = 0;
@@ -825,7 +833,7 @@ static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
 #undef SCALE
 }
 
-static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, int w, int h)
+static void compress_raw(struct PNGSprite *sprite, unsigned char *inp_buf, int x, int y, int w, int h)
 {
 #define TEST_TRANSP(x) ((x & 0xFF000000u) < 0x40000000u)
 

@@ -44,12 +44,7 @@ struct TbSprite {
 #endif
 };
 
-struct TbHugeSprite {
-    TbSpriteData Data;  //**< Raw sprite data, with RLE coded transparency.
-    long * Lines;  //**< Index of line starts in the sprite data.
-    unsigned long SWidth;
-    unsigned long SHeight;
-};
+struct HugeSprite;
 
 struct TiledSprite {
     unsigned char x_num;
@@ -67,6 +62,11 @@ struct SpriteSheet * LoadSprites(const char * basename);
 void DeleteSprites(struct SpriteSheet **);
 const struct TbSprite * GetSprite(const struct SpriteSheet *, size_t index);
 size_t CountSprites(const struct SpriteSheet *);
+struct HugeSprite * LoadHugeSprite(const char * filename, uint32_t width, uint32_t height);
+void DeleteHugeSprite(struct HugeSprite **);
+const uint8_t * HugeSpriteLine(const struct HugeSprite *, int row);
+uint32_t HugeSpriteWidth(const struct HugeSprite *);
+uint32_t HugeSpriteHeight(const struct HugeSprite *);
 
 /******************************************************************************/
 #ifdef __cplusplus
