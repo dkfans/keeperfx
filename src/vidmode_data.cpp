@@ -54,7 +54,6 @@ extern "C" {
 extern struct SpriteSheet *pointer_sprites;
 
 struct TbSetupSprite setup_sprites[] = {
-  {&port_sprite,          &end_port_sprites,      &port_sprite_data}, // 0 Sprites
   {NULL,                  NULL,                   NULL},
 };
 
