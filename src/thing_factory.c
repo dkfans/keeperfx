@@ -302,6 +302,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             break;
         case TCls_Creature:
             thing = create_creature(&mappos, model, owner);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             if (thing_is_invalid(thing))
             {
                 ERRORLOG("Couldn't create creature model %d (%s)", model, creature_code_name(model));
@@ -321,7 +322,11 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 init_creature_level(thing, level);
                 thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
                 thing->creature.gold_carried = value_int32(value_dict_get(init_data, "CreatureGold"));
-
+                char health_percentage = value_int32(value_dict_get(init_data, "CreatureInitialHealth"));
+                if (health_percentage)
+                {
+                    thing->health = health_percentage * cctrl->max_health / 100;
+                }
                 const char* creatureName = value_string(value_dict_get(init_data, "CreatureName"));
                 if(creatureName != NULL)
                 {
@@ -330,7 +335,6 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                         ERRORLOG("init creature name (%s) to long max 24 chars", creatureName);
                         break;
                     }
-                    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                     strcpy(cctrl->creature_name,creatureName);
                 }
 
