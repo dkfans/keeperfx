@@ -59,6 +59,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"
+#include "math.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1070,36 +1071,29 @@ void process_things_in_dungeon_hand(void)
 void draw_mini_things_in_hand(long x, long y)
 {
     SYNCDBG(7,"Starting");
-    struct Dungeon *dungeon;
-    dungeon = get_my_dungeon();
+    struct Dungeon *dungeon = get_my_dungeon();
     int i;
     int expshift_x;
     // Scale factor
     int ps_units_per_px;
     {
-        struct TbSprite *spr;
-        spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        struct TbSprite *spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
-    unsigned long spr_idx;
-    spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
+    unsigned long spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
     if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT))
         i = gui_panel_sprites[spr_idx].SWidth - button_sprite[GBS_creature_flower_level_01].SWidth;
     else
         i = 0;
-    long scrbase_x;
-    long scrbase_y;
-    scrbase_x = x;
-    scrbase_y = y - scale_ui_value(58);
+    long scrbase_x = x;
+    long scrbase_y = y - scale_ui_value(58);
     expshift_x = scale_ui_value(abs(i)) / 2;
     for (i = dungeon->num_things_in_hand-1; i >= 0; i--)
     {
-        int icol;
-        int irow;
-        icol = i % 4;
-        irow = (i / 4);
-        struct Thing *thing;
-        thing = thing_get(dungeon->things_in_hand[i]);
+        unsigned char ratio = ceil(((float)dungeon->num_things_in_hand / 8)) * 4;
+        int icol = i % ratio;
+        int irow = (i / ratio);
+        struct Thing *thing = thing_get(dungeon->things_in_hand[i]);
         if (!thing_exists(thing)) {
             continue;
         }
@@ -1111,8 +1105,7 @@ void draw_mini_things_in_hand(long x, long y)
             spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
             if (spr_idx > 0)
             {
-                struct CreatureControl *cctrl;
-                cctrl = creature_control_get_from_thing(thing);
+                struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
                 int expspr_idx = GBS_creature_flower_level_01 + cctrl->explevel;
                 if (irow > 0)
                     shift_y = 40;
