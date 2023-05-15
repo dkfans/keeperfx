@@ -348,7 +348,7 @@ TbBool power_hand_is_full(const struct PlayerInfo *player)
 {
     const struct Dungeon *dungeon;
   dungeon = get_dungeon(player->id_number);
-  return (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND);
+  return (dungeon->num_things_in_hand >= gameadd.max_things_in_hand);
 }
 
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
@@ -371,8 +371,8 @@ TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx)
   long num_in_hand;
   dungeon = get_dungeon(plyr_idx);
   num_in_hand = dungeon->num_things_in_hand;
-  if (num_in_hand > MAX_THINGS_IN_HAND)
-      num_in_hand = MAX_THINGS_IN_HAND;
+  if (num_in_hand > gameadd.max_things_in_hand)
+      num_in_hand = gameadd.max_things_in_hand;
   if (num_in_hand > 0)
   {
       for (i = 0; i < num_in_hand-1; i++)
@@ -400,8 +400,8 @@ TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     long num_in_hand;
     dungeon = get_dungeon(plyr_idx);
     num_in_hand = dungeon->num_things_in_hand;
-    if (num_in_hand > MAX_THINGS_IN_HAND)
-        num_in_hand = MAX_THINGS_IN_HAND;
+    if (num_in_hand > gameadd.max_things_in_hand)
+        num_in_hand = gameadd.max_things_in_hand;
     for (i = 0; i < num_in_hand; i++)
     {
         if (dungeon->things_in_hand[i] == thing->index)
@@ -431,10 +431,10 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     long i;
     struct PowerConfigStats *powerst;
     dungeon = get_dungeon(plyr_idx);
-    if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND)
+    if (dungeon->num_things_in_hand >= gameadd.max_things_in_hand)
       return false;
     // Move all things in list up, to free position 0
-    for (i = MAX_THINGS_IN_HAND-1; i > 0; i--)
+    for (i = gameadd.max_things_in_hand-1; i > 0; i--)
     {
       dungeon->things_in_hand[i] = dungeon->things_in_hand[i-1];
     }
@@ -1005,7 +1005,7 @@ void clear_things_in_hand(struct PlayerInfo *player)
   struct Dungeon *dungeon;
   long i;
   dungeon = get_dungeon(player->id_number);
-  for (i=0; i < MAX_THINGS_IN_HAND; i++)
+  for (i=0; i < gameadd.max_things_in_hand; i++)
     dungeon->things_in_hand[i] = 0;
 }
 
@@ -1211,7 +1211,7 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     if (player->hand_thing_idx == 0) {
         create_power_hand(plyr_idx);
     }
-    if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND) {
+    if (dungeon->num_things_in_hand >= gameadd.max_things_in_hand) {
       return 0;
     }
     struct Thing *thing;

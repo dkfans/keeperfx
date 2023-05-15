@@ -1272,6 +1272,17 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
           game.barrack_max_party_size = (TbBool)val3;
           break;
+      case 33: //MaxThingsInHand
+          if (val3 <= MAX_THINGS_IN_HAND)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
+              gameadd.max_things_in_hand = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
+          }
+          break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
           break;
