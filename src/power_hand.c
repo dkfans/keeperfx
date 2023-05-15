@@ -59,7 +59,6 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"
-#include "math.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1090,7 +1089,7 @@ void draw_mini_things_in_hand(long x, long y)
     expshift_x = scale_ui_value(abs(i)) / 2;
     for (i = dungeon->num_things_in_hand-1; i >= 0; i--)
     {
-        unsigned char ratio = ceil(((float)dungeon->num_things_in_hand / 8)) * 4;
+        unsigned char ratio = ((dungeon->num_things_in_hand + 7) / 8) * 4;
         int icol = i % ratio;
         int irow = (i / ratio);
         struct Thing *thing = thing_get(dungeon->things_in_hand[i]);
