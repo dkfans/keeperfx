@@ -78,7 +78,7 @@ const struct NamedCommand rules_game_commands[] = {
   {"ALLIESSHAREVISION",          34},
   {"ALLIESSHAREDROP",            35},
   {"ALLIESSHARECTA",             36},
-  {"MAXTHINGSINHAND",             37},
+  {"MAXTHINGSINHAND",            37},
   {NULL,                          0},
   };
 
