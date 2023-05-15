@@ -33,7 +33,7 @@ extern "C" {
 /******************************************************************************/
 #define PARTY_TRIGGERS_COUNT     256
 #define CREATURE_PARTYS_COUNT    256
-#define CONDITIONS_COUNT         255
+#define CONDITIONS_COUNT         512
 #define TUNNELLER_TRIGGERS_COUNT 256
 #define SCRIPT_VALUES_COUNT      1024
 #define WIN_CONDITIONS_COUNT      4
