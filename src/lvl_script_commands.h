@@ -37,6 +37,7 @@ extern const struct NamedCommand msgtype_desc[];
 extern const struct NamedCommand tendency_desc[];
 extern const struct NamedCommand creature_select_criteria_desc[];
 extern const struct NamedCommand trap_config_desc[];
+extern const struct NamedCommand room_config_desc[];
 extern const struct NamedCommand gui_button_group_desc[];
 extern const struct NamedCommand campaign_flag_desc[];
 extern const struct NamedCommand script_operator_desc[];
