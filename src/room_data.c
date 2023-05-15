@@ -207,6 +207,8 @@ long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind)
  */
 long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole)
 {
+    if (plyr_idx == game.neutral_player_num)
+        return -1;
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     long count = 0;
 
@@ -243,6 +245,8 @@ long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole)
 
 long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
+    if (plyr_idx == game.neutral_player_num)
+        return -1;
     long nslabs = 0;
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     long i = dungeonadd->room_kind[rkind];

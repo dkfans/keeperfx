@@ -430,6 +430,10 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     unsigned long k = 0;
     TbBool is_spec_digger;
     int i = dungeon->creatr_list_start;
+    if ((crmodel == get_players_special_digger_model(plyr_idx)) || (crmodel == CREATURE_DIGGER))
+    {
+        i = dungeon->digger_list_start;
+    }
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -2758,7 +2762,7 @@ static void use_spell_on_creature_check(const struct ScriptLine* scline)
     }
     const char *mag_name = scline->tp[2];
     short mag_id = get_rid(spell_desc, mag_name);
-    short splevel = scline->np[2];
+    short splevel = scline->np[3];
 
     if (mag_id == -1)
     {
