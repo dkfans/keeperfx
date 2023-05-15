@@ -1430,9 +1430,9 @@ static void set_room_configuration_process(struct ScriptContext *context)
         case 7: // Health
             roomst->health = value;
             break;
-        //case 8: // CreatureCreation - I don't think it works that way?
-		//roomst->creature_creation_model = value;
-        //    break;
+        case 8: // CreatureCreation
+		roomst->creature_creation_model = value;
+            break;
         default:
             WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
             break;
