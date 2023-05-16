@@ -1029,7 +1029,18 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         newvalue = get_id(creature_desc, valuestring);
         if (newvalue == -1)
             {
-                SCRPTERRLOG("Unknown object variable");
+                SCRPTERRLOG("Unknown creature variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+        value->shorts[2] = newvalue;
+    }
+    else if (roomvar == 10) // SlabAssign
+    {
+        newvalue = get_id(slab_desc, valuestring);
+        if (newvalue == -1)
+            {
+                SCRPTERRLOG("Unknown slab variable");
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
@@ -1451,6 +1462,14 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 8: // CreatureCreation
 		roomst->creature_creation_model = value;
+            break;
+        default:
+        case 9: // AmbientSndSample
+		roomst->ambient_snd_smp_id = value;
+            break;
+        default:
+        case 10: // SlabAssign
+		roomst->assigned_slab = value;
             break;
         default:
             WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
