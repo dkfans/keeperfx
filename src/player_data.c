@@ -478,4 +478,14 @@ PlayerNumber player_bit_to_player_number(unsigned char plyr_bit)
     }
     return (result - 1);
 }
+
+unsigned char rotate_mode_to_view_mode(unsigned char mode)
+{
+    switch (mode) {
+        case 0: return PVM_IsoWibbleView;
+        case 1: return PVM_IsoStraightView;
+        case 2: return PVM_FrontView;
+        default: ERRORLOG("Unrecognised video rotate mode: %u", mode); return PVM_IsoWibbleView;
+    }
+}
 /******************************************************************************/

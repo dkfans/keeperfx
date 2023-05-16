@@ -1029,7 +1029,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "당신은 제조한 바위 함정을 가지고 있습니다. 복도에 놓으면 무단침입자들을 향해 "

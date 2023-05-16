@@ -326,7 +326,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         }
         break;
     }
-    case 'P': 
+    case 'P':
     {
         long plr_range_id;
         if (!get_player_id(scline->tp[idx], &plr_range_id))
@@ -429,6 +429,9 @@ TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, in
         break;
     case 'L':
         get_map_location_code_name(scline->np[idx], scline->tp[idx]);
+        break;
+    case 'S':
+        strcpy(scline->tp[idx], slab_code_name(scline->np[idx]));
         break;
     case 'A':
         break;
@@ -626,7 +629,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     break;
                 }
                 // DRAWFROM support - select random index now
-                long range_index = rand() % range_total;
+                long range_index = GAME_RANDOM(range_total);
                 // Get value from ranges array
                 range_total = 0;
                 for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
@@ -637,7 +640,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                             if (is_if_statement)
                             {
                                 scline->np[dst] = ranges[fi].min + range_index - range_total;
-                                ltoa(scline->np[dst], scline->tp[dst], 10);
+                                snprintf(scline->tp[dst], sizeof(scline->tp[dst]), "%ld", scline->np[dst]);
                             }
                             else
                             {

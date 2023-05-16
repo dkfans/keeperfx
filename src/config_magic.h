@@ -34,7 +34,7 @@ extern "C" {
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
 #define MAGIC_TYPES_COUNT      30
-#define POWER_TYPES_COUNT      20
+#define POWER_TYPES_MAX      64
 
 enum SpellKinds {
     SplK_None = 0,
@@ -286,8 +286,8 @@ struct ShotConfigStats {
     unsigned char hidden_projectile;
     unsigned char destroy_on_first_hit;
     short experience_given_to_shooter;
-    unsigned char inertia_floor;
-    unsigned char inertia_air;
+    short inertia_floor;
+    short inertia_air;
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
@@ -359,7 +359,10 @@ struct SpellConfig {
     /** Sprite index of medium symbol icon representing the spell. */
     short medsym_sprite_idx;
     short cast_sound;
-    int duration;
+    short linked_power;
+    short duration;
+    short aura_effect;
+    unsigned short spell_flags;
 };
 
 struct MagicConfig {
