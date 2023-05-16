@@ -237,6 +237,13 @@ const struct NamedCommand room_config_desc[] = {
   {"Cost",                 6},
   {"Health",               7},
   {"CreatureCreation",     8},
+  {"AmbientSndSample",     9},
+  {"SlabAssign",          10},
+  {"Messages",            11},//Todo
+  {"Roles",               12},//Todo
+  {"Properties",          13},//Todo
+  {"TotalCapacity",       14},//Todo
+  {"UsedCapacity",        15},//Todo
   {NULL,                   0},
 };
 
