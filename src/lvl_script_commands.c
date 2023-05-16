@@ -1024,7 +1024,18 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if ((roomvar != 4) && (roomvar != 12))  // PointerSprites && Model
+    else if (roomvar == 8) // CreatureCreation
+    {
+        newvalue = get_id(creature_desc, valuestring);
+        if (newvalue == -1)
+            {
+                SCRPTERRLOG("Unknown object variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+        value->shorts[2] = newvalue;
+    }
+    else if (roomvar != 4) // PointerSprites
     {
         if (parameter_is_number(valuestring))
         {
@@ -1400,7 +1411,8 @@ static void set_room_configuration_process(struct ScriptContext *context)
     long room_type = context->value->shorts[0];
     struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
     short value = context->value->shorts[2];
-    short value2 = context->value->shorts[3];
+    //short value2 = context->value->shorts[3];
+    //short value3 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
