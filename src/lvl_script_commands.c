@@ -1463,11 +1463,9 @@ static void set_room_configuration_process(struct ScriptContext *context)
         case 8: // CreatureCreation
 		roomst->creature_creation_model = value;
             break;
-        default:
         case 9: // AmbientSndSample
 		roomst->ambient_snd_smp_id = value;
             break;
-        default:
         case 10: // SlabAssign
 		roomst->assigned_slab = value;
             break;
