@@ -374,7 +374,11 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 ERRORLOG("Couldn't create trap model %d (%s)", (int)model, trap_code_name(model));
                 return false;
             }
-            thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
+            VALUE* trap_rotation = value_dict_get(init_data, "Orientation");
+            if (trap_rotation != NULL)
+            {
+                thing->move_angle_xy = value_int32(trap_rotation);
+            }
             break;
         case TCls_Door:
             {
