@@ -1089,9 +1089,13 @@ void draw_mini_things_in_hand(long x, long y)
     expshift_x = scale_ui_value(abs(i)) / 2;
     for (i = dungeon->num_things_in_hand-1; i >= 0; i--)
     {
-        unsigned char ratio = ((dungeon->num_things_in_hand + 7) / 8) * 4;
+        unsigned char ratio = (gameadd.max_things_in_hand >> 1);
+        if (gameadd.max_things_in_hand & 1)
+        {
+            ratio ++;
+        }
         int icol = i % ratio;
-        int irow = (i / ratio);
+        int irow = i / ratio;
         struct Thing *thing = thing_get(dungeon->things_in_hand[i]);
         if (!thing_exists(thing)) {
             continue;
