@@ -333,7 +333,6 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 {
                     thing->move_angle_xy = value_int32(creature_rotation);
                 }
-                thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
                 VALUE* gold_held = value_dict_get(init_data, "CreatureGold");
                 if (gold_held != NULL)
                 {
