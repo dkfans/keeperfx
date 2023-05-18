@@ -1189,7 +1189,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 19: //PayDaySpeed
           if (val3 >= 0)
           {
-              SCRIPTDBG(7, "Changing rule %s from %d to %d", val2, gameadd.pay_day_speed, val3);
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.pay_day_speed, val3);
               gameadd.pay_day_speed = val3;
           }
           else
