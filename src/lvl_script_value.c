@@ -1275,7 +1275,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 33: //MaxThingsInHand
           if (val3 <= MAX_THINGS_IN_HAND)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.max_things_in_hand, val3);
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.max_things_in_hand, val3);
               gameadd.max_things_in_hand = val3;
           }
           else
