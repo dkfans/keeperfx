@@ -1089,8 +1089,8 @@ void draw_mini_things_in_hand(long x, long y)
     expshift_x = scale_ui_value(abs(i)) / 2;
     for (i = dungeon->num_things_in_hand-1; i >= 0; i--)
     {
-        unsigned char ratio = (gameadd.max_things_in_hand >> 1);
-        if (gameadd.max_things_in_hand & 1)
+        unsigned char ratio = (gameadd.max_things_in_hand / 2);
+        if (gameadd.max_things_in_hand % 2)
         {
             ratio ++;
         }
