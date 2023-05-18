@@ -322,10 +322,10 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 init_creature_level(thing, level);
                 thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
                 thing->creature.gold_carried = value_int32(value_dict_get(init_data, "CreatureGold"));
-                char health_percentage = value_int32(value_dict_get(init_data, "CreatureInitialHealth"));
-                if (health_percentage >= 0)
+                VALUE *HealthPercentage = value_dict_get(init_data, "CreatureInitialHealth");
+                if (HealthPercentage != NULL)
                 {
-                    thing->health = health_percentage * cctrl->max_health / 100;
+                    thing->health = value_int32(HealthPercentage) * cctrl->max_health / 100;
                 }
                 const char* creatureName = value_string(value_dict_get(init_data, "CreatureName"));
                 if(creatureName != NULL)
