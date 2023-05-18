@@ -269,10 +269,10 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             {
                 if (object_is_hero_gate(thing))
                 {
-                    int gate = value_int32(value_dict_get(init_data, "HerogateNumber"));
-                    if (gate >= 0)
+                    VALUE* gate = value_dict_get(init_data, "HerogateNumber");
+                    if (gate != NULL)
                     {
-                        thing->hero_gate.number = (unsigned char) gate;
+                        thing->hero_gate.number = value_int32(gate);
                     }
                 }
                 else if (thing->model == ObjMdl_SpecboxCustom)
@@ -288,10 +288,18 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 }
                 else if (object_is_gold_pile(thing))
                 {
-                    thing->valuable.gold_stored = value_int32(value_dict_get(init_data, "GoldValue"));
+                    VALUE* value = value_dict_get(init_data, "GoldValue");
+                    if (value != NULL)
+                    {
+                        thing->valuable.gold_stored = value_int32(value);
+                    }
                 }
                 check_and_asimilate_thing_by_room(thing);
-                thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
+                VALUE* rotation = value_dict_get(init_data, "Orientation");
+                if (rotation != NULL)
+                {
+                    thing->move_angle_xy = value_int32(rotation);
+                }
                 // make sure we don't have invalid pointer
                 thing = INVALID_THING;
             } else
@@ -320,8 +328,17 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                     level --; //levels are in readable format in file, gamecode always has them 1 lower
                 }
                 init_creature_level(thing, level);
+                VALUE* creature_rotation = value_dict_get(init_data, "Orientation");
+                if (creature_rotation != NULL)
+                {
+                    thing->move_angle_xy = value_int32(creature_rotation);
+                }
                 thing->move_angle_xy = value_int32(value_dict_get(init_data, "Orientation"));
-                thing->creature.gold_carried = value_int32(value_dict_get(init_data, "CreatureGold"));
+                VALUE* gold_held = value_dict_get(init_data, "CreatureGold");
+                if (gold_held != NULL)
+                {
+                    thing->creature.gold_carried = value_int32(gold_held);
+                }
                 VALUE *HealthPercentage = value_dict_get(init_data, "CreatureInitialHealth");
                 if (HealthPercentage != NULL)
                 {
