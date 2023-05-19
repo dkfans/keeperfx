@@ -1189,7 +1189,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 19: //PayDaySpeed
           if (val3 >= 0)
           {
-              SCRIPTDBG(7, "Changing rule %s from %d to %d", val2, gameadd.pay_day_speed, val3);
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.pay_day_speed, val3);
               gameadd.pay_day_speed = val3;
           }
           else
@@ -1271,6 +1271,17 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 32: //BarrackMaxPartySize
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
           game.barrack_max_party_size = (TbBool)val3;
+          break;
+      case 33: //MaxThingsInHand
+          if (val3 <= MAX_THINGS_IN_HAND)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.max_things_in_hand, val3);
+              gameadd.max_things_in_hand = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
+          }
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
