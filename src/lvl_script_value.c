@@ -550,6 +550,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           dungeon = get_dungeon(i);
           if (dungeon_invalid(dungeon))
               continue;
+          if (val3 == 0)
+              val3 = CREATURE_MAX_LEVEL + 1;
           dungeon->creature_max_level[val2%gameadd.crtr_conf.model_count] = val3;
       }
       break;
