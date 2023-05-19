@@ -1120,13 +1120,22 @@ void draw_mini_things_in_hand(long x, long y)
                 draw_gui_panel_sprite_left(scrpos_x, scrpos_y, ps_units_per_px, spr_idx);
                 if (MyScreenHeight < 400)
                 {
-                    char expshift_y = (irow == 1) ? 32 : -6;                   
+                    char expshift_y = (irow > 0) ? 32 : -6;                   
                     draw_button_sprite_left(scrpos_x, scrpos_y + scale_ui_value(expshift_y), ps_units_per_px, expspr_idx);
+                    if (thing->owner != my_player_number)
+                    {
+                        char ownshift_y = (irow == 0) ? 1 : 56;
+                        LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_room_colours[thing->owner]);
+                    }
                 }
                 else
                 {
                     // Draw exp level
                     draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, expspr_idx);
+                    if (thing->owner != my_player_number)
+                    {
+                        LbDrawCircle(scrpos_x + ((expshift_x * 2) + (expshift_x / 2)), scrpos_y + scale_ui_value(shift_y + ((shift_y / 3) + (shift_y / 16))), ps_units_per_px / 8, player_room_colours[thing->owner]);
+                    }
                 }
             }
         } else
