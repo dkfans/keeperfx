@@ -1131,7 +1131,6 @@ void draw_mini_things_in_hand(long x, long y)
                 }
                 else
                 {
-                    // Draw exp level
                     if (thing->owner != my_player_number)
                     {
                         ScreenCoord coord_y = scrpos_y + scale_ui_value(shift_y + ((shift_y / 3) + (shift_y / 3)));
@@ -1144,6 +1143,7 @@ void draw_mini_things_in_hand(long x, long y)
                             }
                         }
                     }
+                    // Draw exp level
                     draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, expspr_idx);
                 }
             }
