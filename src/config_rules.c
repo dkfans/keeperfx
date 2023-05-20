@@ -78,6 +78,7 @@ const struct NamedCommand rules_game_commands[] = {
   {"ALLIESSHAREVISION",          34},
   {"ALLIESSHAREDROP",            35},
   {"ALLIESSHARECTA",             36},
+  {"MAXTHINGSINHAND",            37},
   {NULL,                          0},
   };
 
@@ -747,6 +748,25 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 37: // MAXTHINGSINHAND
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+              k = atoi(word_buf);
+              if (k > MAX_THINGS_IN_HAND)
+              {
+                  CONFWRNLOG("Value of \"%s\" parameter in [%s] block of %s file is out of range. Max %d.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname, MAX_THINGS_IN_HAND);
+                  k = MAX_THINGS_IN_HAND;
+              }
+              gameadd.max_things_in_hand = k;
+              n++;
+            }
+            if (n < 1)
+            {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
         case 0: // comment
