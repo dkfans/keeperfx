@@ -239,11 +239,9 @@ const struct NamedCommand room_config_desc[] = {
   {"CreatureCreation",     8},
   {"AmbientSndSample",     9},
   {"SlabAssign",          10},
-  {"Messages",            11},//Todo
-  {"Roles",               12},//Todo
-  {"Properties",          13},//Todo
-  {"TotalCapacity",       14},//Todo
-  {"UsedCapacity",        15},//Todo
+  {"Messages",            11},
+  {"TotalCapacity",       12},//Todo
+  {"UsedCapacity",        13},//Todo
   {NULL,                   0},
 };
 
@@ -3544,6 +3542,8 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
+  {"SET_ROOM_PROPERTY",                 "CAN     ", Cmd_SET_ROOM_PROPERTY, &set_room_property_check, &set_room_property_process},
+  {"SET_ROOM_ROLE",                     "CAN     ", Cmd_SET_ROOM_ROLE, &set_room_role_check, &set_room_role_process},
   {"SET_ROOM_CONFIGURATION",            "AAAn!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
