@@ -1134,9 +1134,14 @@ void draw_mini_things_in_hand(long x, long y)
                     // Draw exp level
                     if (thing->owner != my_player_number)
                     {
+                        ScreenCoord coord_y = scrpos_y + scale_ui_value(shift_y + ((shift_y / 3) + (shift_y / 3)));
                         for (int p = 0; p < 36; p++)
                         {
-                            LbDrawPixel(scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x, scrpos_y + scale_ui_value(shift_y + ((shift_y / 3) + (shift_y / 3))) + draw_square[p].delta_y, player_path_colours[thing->owner]);
+                            ScreenCoord draw_y = coord_y + draw_square[p].delta_y;
+                            if (draw_y >= 0)
+                            {
+                                LbDrawPixel(scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x, draw_y, player_path_colours[thing->owner]);
+                            }
                         }
                     }
                     draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, expspr_idx);
