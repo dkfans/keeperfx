@@ -1422,8 +1422,8 @@ static void set_room_configuration_process(struct ScriptContext *context)
     long room_type = context->value->shorts[0];
     struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
     short value = context->value->shorts[2];
-    //short value2 = context->value->shorts[3];
-    //short value3 = context->value->shorts[4];
+    short value2 = context->value->shorts[3];
+    short value3 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
@@ -1468,6 +1468,11 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 10: // SlabAssign
 		roomst->assigned_slab = value;
+            break;
+        case 11: // Messages
+		roomst->msg_needed = value;
+		roomst->msg_too_small = value2;
+		roomst->msg_no_route = value3;
             break;
         default:
             WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
