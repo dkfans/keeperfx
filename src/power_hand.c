@@ -59,6 +59,7 @@
 #include "sounds.h"
 #include "game_legacy.h"
 #include "sprites.h"
+#include "frontmenu_ingame_tabs.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1125,7 +1126,7 @@ void draw_mini_things_in_hand(long x, long y)
                     if (thing->owner != my_player_number)
                     {
                         char ownshift_y = (irow == 0) ? 1 : 56;
-                        LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_room_colours[thing->owner]);
+                        LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[thing->owner]);
                     }
                 }
                 else
@@ -1134,7 +1135,10 @@ void draw_mini_things_in_hand(long x, long y)
                     draw_button_sprite_left(scrpos_x + expshift_x, scrpos_y + scale_ui_value(shift_y), ps_units_per_px, expspr_idx);
                     if (thing->owner != my_player_number)
                     {
-                        LbDrawCircle(scrpos_x + ((expshift_x * 2) + (expshift_x / 2)), scrpos_y + scale_ui_value(shift_y + ((shift_y / 3) + (shift_y / 16))), ps_units_per_px / 8, player_room_colours[thing->owner]);
+                        for (int p = 0; p < 36; p++)
+                        {
+                            LbDrawPixel(scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x, scrpos_y + scale_ui_value(shift_y + ((shift_y / 3) + (shift_y / 3))) + draw_square[p].delta_y, player_path_colours[thing->owner]);
+                        }
                     }
                 }
             }
