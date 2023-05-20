@@ -538,9 +538,7 @@ TbBool thing_is_door_crate(const struct Thing *thing)
 
 TbBool thing_is_dungeon_heart(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing))
-        return false;
-    if (thing->class_id != TCls_Object)
+    if (!thing_is_object(thing))
         return false;
     struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
     return (objconf->is_heart) != 0;
@@ -551,6 +549,14 @@ TbBool thing_is_mature_food(const struct Thing *thing)
     if (thing_is_invalid(thing))
         return false;
     return (thing->class_id == TCls_Object) && (thing->model == ObjMdl_ChickenMature);
+}
+
+TbBool object_floats(const struct Thing* thing)
+{
+    if (!thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->model_flags & OMF_Floats);
 }
 
 TbBool thing_is_spellbook(const struct Thing *thing)
