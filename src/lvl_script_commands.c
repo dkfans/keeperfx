@@ -1079,7 +1079,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->shorts[2] = newvalue;
         }
         else 
         {
