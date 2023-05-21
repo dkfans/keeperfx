@@ -73,6 +73,7 @@ const struct NamedCommand objects_properties_commands[] = {
   {"DESTROYED_ON_ROOM_CLAIM", 2},
   {"CHOWNED_ON_ROOM_CLAIM",   3},
   {"DESTROYED_ON_ROOM_PLACE", 4},
+  {"BUOYANT",                 5},
   {NULL,                      0},
   };
 
@@ -342,6 +343,10 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                       break;
                   case 4: // DESTROYED_ON_ROOM_PLACE
                       objst->model_flags |= OMF_DestroyedOnRoomPlace;
+                      n++;
+                      break;
+                  case 5: // BOUYANT
+                      objst->model_flags |= OMF_Buoyant;
                       n++;
                       break;
                   default:
