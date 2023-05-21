@@ -1100,7 +1100,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         }
         else 
         {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[3]);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
@@ -1117,7 +1117,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         }
         else 
         {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[4]);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
