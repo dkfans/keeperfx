@@ -1049,7 +1049,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         newvalue = get_id(creature_desc, valuestring);
         if (newvalue == -1)
             {
-                SCRPTERRLOG("Unknown creature variable");
+                SCRPTERRLOG("Unknown CreatureCreation variable");
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
@@ -1125,6 +1125,28 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
+    }
+    else if (roomvar == 14) // TotalCapacity
+    {
+        newvalue = get_id(terrain_room_total_capacity_func_type, valuestring);
+        if (newvalue == -1)
+            {
+                SCRPTERRLOG("Unknown TotalCapacity variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+        value->shorts[2] = newvalue;
+    }
+    else if (roomvar == 15) // UsedCapacity
+    {
+        newvalue = get_id(terrain_room_used_capacity_func_type, valuestring);
+        if (newvalue == -1)
+            {
+                SCRPTERRLOG("Unknown UsedCapacity variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+        value->shorts[2] = newvalue;
     }
     else if (roomvar != 4) // PointerSprites, Cost, Health, AmbientSndSample
     {
