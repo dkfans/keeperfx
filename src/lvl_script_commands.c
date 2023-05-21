@@ -242,8 +242,8 @@ const struct NamedCommand room_config_desc[] = {
   {"Messages",            11},
   {"Properties",          12},
   {"Roles",               13},
-  {"TotalCapacity",       14},//Todo
-  {"UsedCapacity",        15},//Todo
+  {"TotalCapacity",       14},
+  {"UsedCapacity",        15},
   {NULL,                   0},
 };
 
@@ -1502,7 +1502,6 @@ static void set_room_configuration_process(struct ScriptContext *context)
     long room_type = context->value->shorts[0];
     struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
     unsigned long value = context->value->uarg1;
-    short value1 = context->value->shorts[2];
     short value2 = context->value->shorts[3];
     short value3 = context->value->shorts[4];
     switch (context->value->shorts[1])
@@ -1551,7 +1550,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
 		roomst->assigned_slab = value;
             break;
         case 11: // Messages
-		roomst->msg_needed = value1;
+		roomst->msg_needed = value;
 		roomst->msg_too_small = value2;
 		roomst->msg_no_route = value3;
             break;
@@ -1560,6 +1559,13 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 13: // Roles
                 roomst->roles = value;
+            break;
+        case 14: // TotalCapacity
+                roomst->update_total_capacity = value;
+            break;
+        case 15: // UsedCapacity
+                roomst->update_storage_in_room = value;
+                roomst->update_workers_in_room = value2;
             break;
         default:
             WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
