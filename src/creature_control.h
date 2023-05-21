@@ -373,6 +373,7 @@ unsigned char cowers_from_slap_turns;
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
+    char creature_name[25];
     struct Coord3d flee_pos;
     long flee_start_turn;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
