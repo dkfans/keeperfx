@@ -985,7 +985,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
 
     const char *roomname = scline->tp[0];
     const char *valuestring = scline->tp[2];
-    unsigned long newvalue;
+    long newvalue;
     short room_id = get_id(room_desc, roomname);
     if (room_id == -1)
     {
@@ -1461,7 +1461,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
 {
     long room_type = context->value->shorts[0];
     struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
-    unsigned long value = context->value->uarg1
+    unsigned long value = context->value->uarg1;
     short value2 = context->value->shorts[3];
     short value3 = context->value->shorts[4];
     switch (context->value->shorts[1])
