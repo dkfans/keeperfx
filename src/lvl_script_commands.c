@@ -247,7 +247,7 @@ const struct NamedCommand room_config_desc[] = {
   {NULL,                   0},
 };
 
-const struct NamedCommand room_total_capacity[] = {
+const struct NamedCommand terrain_room_total_capacity_func_type[] = {
   {"slabs_all_only",          1},
   {"slabs_all_wth_effcncy",   2},
   {"slabs_div2_wth_effcncy",  3},
@@ -256,7 +256,7 @@ const struct NamedCommand room_total_capacity[] = {
   {NULL,                      0},
 };
 
-const struct NamedCommand room_used_capacity[] = {
+const struct NamedCommand terrain_room_used_capacity_func_type[] = {
   {"gold_hoardes_in_room", 1},
   {"books_in_room",        2},
   {"workers_in_room",      3},
@@ -1149,7 +1149,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else if (roomvar == 14) // TotalCapacity
     {
-        newvalue = get_id(room_total_capacity, valuestring);
+        newvalue = get_id(terrain_room_total_capacity_func_type, valuestring);
         if (newvalue == -1)
             {
                 SCRPTERRLOG("Unknown TotalCapacity variable");
@@ -1160,7 +1160,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else if (roomvar == 15) // UsedCapacity
     {
-        newvalue = get_id(room_used_capacity, valuestring);
+        newvalue = get_id(terrain_room_used_capacity_func_type, valuestring);
         if (newvalue == -1)
             {
                 SCRPTERRLOG("Unknown UsedCapacity variable");
@@ -1604,11 +1604,11 @@ static void set_room_configuration_process(struct ScriptContext *context)
                 roomst->roles = value;
             break;
         case 14: // TotalCapacity
-                roomst->update_total_capacity = room_total_capacity[value];
+                roomst->update_total_capacity = terrain_room_total_capacity_func_type[value];
             break;
         case 15: // UsedCapacity
-                roomst->update_storage_in_room = room_used_capacity[value];
-                roomst->update_workers_in_room = room_used_capacity[value2];
+                roomst->update_storage_in_room = terrain_room_used_capacity_func_type[value];
+                roomst->update_workers_in_room = terrain_room_used_capacity_func_type[value2];
             break;
         default:
             WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
