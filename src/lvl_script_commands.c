@@ -1149,7 +1149,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else if (roomvar == 14) // TotalCapacity
     {
-        newvalue = get_id(terrain_room_total_capacity_func_type, valuestring);
+        newvalue = get_id(room_total_capacity, valuestring);
         if (newvalue == -1)
             {
                 SCRPTERRLOG("Unknown TotalCapacity variable");
@@ -1160,7 +1160,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else if (roomvar == 15) // UsedCapacity
     {
-        newvalue = get_id(terrain_room_used_capacity_func_type, valuestring);
+        newvalue = get_id(room_used_capacity, valuestring);
         if (newvalue == -1)
             {
                 SCRPTERRLOG("Unknown UsedCapacity variable");
