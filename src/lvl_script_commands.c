@@ -247,7 +247,7 @@ const struct NamedCommand room_config_desc[] = {
   {NULL,                   0},
 };
 
-const struct NamedCommand room_total_capacity[] = {
+const struct NamedCommand terrain_room_total_capacity_func_type[] = {
   {"slabs_all_only",          1},
   {"slabs_all_wth_effcncy",   2},
   {"slabs_div2_wth_effcncy",  3},
@@ -256,7 +256,7 @@ const struct NamedCommand room_total_capacity[] = {
   {NULL,                      0},
 };
 
-const struct NamedCommand room_used_capacity[] = {
+const struct NamedCommand terrain_room_used_capacity_func_type[] = {
   {"gold_hoardes_in_room", 1},
   {"books_in_room",        2},
   {"workers_in_room",      3},
@@ -1149,7 +1149,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else if (roomvar == 14) // TotalCapacity
     {
-        newvalue = get_id(room_total_capacity, valuestring);
+        newvalue = get_id(terrain_room_total_capacity_func_type, valuestring);
         if (newvalue == -1)
             {
                 SCRPTERRLOG("Unknown TotalCapacity variable");
@@ -1160,7 +1160,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else if (roomvar == 15) // UsedCapacity
     {
-        newvalue = get_id(room_used_capacity, valuestring);
+        newvalue = get_id(terrain_room_used_capacity_func_type, valuestring);
         if (newvalue == -1)
             {
                 SCRPTERRLOG("Unknown UsedCapacity variable");
@@ -1584,18 +1584,18 @@ static void set_room_configuration_process(struct ScriptContext *context)
             roomst->health = value;
             break;
         case 8: // CreatureCreation
-		roomst->creature_creation_model = value;
+        roomst->creature_creation_model = value;
             break;
         case 9: // AmbientSndSample
-		roomst->ambient_snd_smp_id = value;
+        roomst->ambient_snd_smp_id = value;
             break;
         case 10: // SlabAssign
-		roomst->assigned_slab = value;
+        roomst->assigned_slab = value;
             break;
         case 11: // Messages
-		roomst->msg_needed = value;
-		roomst->msg_too_small = value2;
-		roomst->msg_no_route = value3;
+        roomst->msg_needed = value;
+        roomst->msg_too_small = value2;
+        roomst->msg_no_route = value3;
             break;
         case 12: // Properties
                 roomst->flags = value;
