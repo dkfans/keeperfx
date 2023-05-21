@@ -1607,8 +1607,8 @@ static void set_room_configuration_process(struct ScriptContext *context)
             roomst->update_total_capacity = terrain_room_total_capacity_func_list[value];
             break;
         case 15: // UsedCapacity
-            roomst->update_storage_in_room = terrain_room_total_capacity_func_list[value];
-            roomst->update_workers_in_room = terrain_room_total_capacity_func_list[value2];
+            roomst->update_storage_in_room = terrain_room_used_capacity_func_list[value];
+            roomst->update_workers_in_room = terrain_room_used_capacity_func_list[value2];
             break;
         default:
             WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
