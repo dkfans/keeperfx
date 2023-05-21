@@ -985,6 +985,8 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
 
     const char *roomname = scline->tp[0];
     const char *valuestring = scline->tp[2];
+    const char *valuestring2 = scline->tp[3];
+    const char *valuestring3 = scline->tp[4];
     long newvalue;
     short room_id = get_id(room_desc, roomname);
     if (room_id == -1)
@@ -1024,6 +1026,26 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
+    else if (roomvar == 5) // PanelTabIndex
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+            if ((newvalue > 16) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->uarg1 = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
     else if (roomvar == 8) // CreatureCreation
     {
         newvalue = get_id(creature_desc, valuestring);
@@ -1045,6 +1067,60 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                     return;
             }
         value->uarg1 = newvalue;
+    }
+    else if (roomvar == 11) // Messages
+    {
+        if (parameter_is_number(valuestring)) // First
+        {
+            newvalue = atoi(valuestring);
+            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->uarg1 = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        if (parameter_is_number(valuestring2)) // Second
+        {
+            newvalue = atoi(valuestring2);
+            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[3] = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        if (parameter_is_number(valuestring3)) // Third
+        {
+            newvalue = atoi(valuestring3);
+            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[4] = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
     else if (roomvar == 12) // Properties
     {
@@ -1086,7 +1162,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (roomvar != 4) // PointerSprites
+    else if (roomvar != 4) // PointerSprites, Cost, Health, AmbientSndSample
     {
         if (parameter_is_number(valuestring))
         {
