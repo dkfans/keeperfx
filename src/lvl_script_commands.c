@@ -985,8 +985,6 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
 
     const char *roomname = scline->tp[0];
     const char *valuestring = scline->tp[2];
-    const char *valuestring2 = scline->tp[3];
-    const char *valuestring3 = scline->tp[4];
     long newvalue;
     short room_id = get_id(room_desc, roomname);
     if (room_id == -1)
@@ -1070,7 +1068,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else if (roomvar == 11) // Messages
     {
-        if (parameter_is_number(valuestring)) // First
+        if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
@@ -1084,40 +1082,6 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         else 
         {
             SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        if (parameter_is_number(valuestring2)) // Second
-        {
-            newvalue = atoi(valuestring2);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->shorts[3] = newvalue;
-        }
-        else 
-        {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[3]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        if (parameter_is_number(valuestring3)) // Third
-        {
-            newvalue = atoi(valuestring3);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
-            {
-                SCRPTERRLOG("Value out of range: %d", newvalue);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            value->shorts[4] = newvalue;
-        }
-        else 
-        {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[4]);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
@@ -1538,6 +1502,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
     long room_type = context->value->shorts[0];
     struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
     unsigned long value = context->value->uarg1;
+    short value1 = context->value->shorts[2];
     short value2 = context->value->shorts[3];
     short value3 = context->value->shorts[4];
     switch (context->value->shorts[1])
@@ -1586,7 +1551,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
 		roomst->assigned_slab = value;
             break;
         case 11: // Messages
-		roomst->msg_needed = value;
+		roomst->msg_needed = value1;
 		roomst->msg_too_small = value2;
 		roomst->msg_no_route = value3;
             break;
