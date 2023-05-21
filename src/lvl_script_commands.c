@@ -1006,7 +1006,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = room_id;
     value->shorts[1] = roomvar;
-    value->uarg1 = scline->np[2];
+    value->shorts[2] = scline->np[2];
     value->shorts[3] = scline->np[3];
     value->shorts[4] = scline->np[4];
     if (roomvar == 3) // SymbolSprites
@@ -1037,7 +1037,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->shorts[2] = newvalue;
         }
         else 
         {
@@ -1055,7 +1055,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-        value->uarg1 = newvalue;
+        value->shorts[2] = newvalue;
     }
     else if (roomvar == 10) // SlabAssign
     {
@@ -1066,7 +1066,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-        value->uarg1 = newvalue;
+        value->shorts[2] = newvalue;
     }
     else if (roomvar == 11) // Messages
     {
@@ -1133,7 +1133,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->shorts[2] = newvalue;
         }
         else 
         {
@@ -1173,7 +1173,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->uarg1 = newvalue;
+            value->shorts[2] = newvalue;
         }
         else 
         {
@@ -1192,7 +1192,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    SCRIPTDBG(7, "Setting room %s property %s to %d", roomname, scline->tp[1], value->uarg1);
+    SCRIPTDBG(7, "Setting room %s property %s to %d", roomname, scline->tp[1], value->shorts[2]);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
