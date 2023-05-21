@@ -985,7 +985,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
 
     const char *roomname = scline->tp[0];
     const char *valuestring = scline->tp[2];
-    long newvalue;
+    unsigned long newvalue;
     short room_id = get_id(room_desc, roomname);
     if (room_id == -1)
     {
@@ -1004,7 +1004,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = room_id;
     value->shorts[1] = roomvar;
-    value->shorts[2] = scline->np[2];
+    value->uarg1 = scline->np[2];
     value->shorts[3] = scline->np[3];
     value->shorts[4] = scline->np[4];
     if (roomvar == 3) // SymbolSprites
@@ -1033,7 +1033,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-        value->shorts[2] = newvalue;
+        value->uarg1 = newvalue;
     }
     else if (roomvar == 10) // SlabAssign
     {
@@ -1044,7 +1044,47 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-        value->shorts[2] = newvalue;
+        value->uarg1 = newvalue;
+    }
+    else if (roomvar == 12) // Properties
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+            if ((newvalue > 7) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->uarg1 = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    else if (roomvar == 13) // Roles
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+            if ((newvalue > 33554431) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->uarg1 = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
     else if (roomvar != 4) // PointerSprites
     {
@@ -1057,7 +1097,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
         }
         else 
         {
@@ -1076,7 +1116,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    SCRIPTDBG(7, "Setting room %s property %s to %d", roomname, scline->tp[1], value->shorts[2]);
+    SCRIPTDBG(7, "Setting room %s property %s to %d", roomname, scline->tp[1], value->uarg1);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
