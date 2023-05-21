@@ -247,6 +247,27 @@ const struct NamedCommand room_config_desc[] = {
   {NULL,                   0},
 };
 
+const struct NamedCommand terrain_room_total_capacity_func_type[] = {
+  {"slabs_all_only",          1},
+  {"slabs_all_wth_effcncy",   2},
+  {"slabs_div2_wth_effcncy",  3},
+  {"gold_slabs_wth_effcncy",  4},
+  {"none",                    5},
+  {NULL,                      0},
+};
+
+const struct NamedCommand terrain_room_used_capacity_func_type[] = {
+  {"gold_hoardes_in_room", 1},
+  {"books_in_room",        2},
+  {"workers_in_room",      3},
+  {"crates_in_room",       4},
+  {"bodies_in_room",       5},
+  {"food_in_room",         6},
+  {"lair_occupants",       7},
+  {"none",                 8},
+  {NULL,                   0},
+};
+
 /**
  * Text names of groups of GUI Buttons.
  */
