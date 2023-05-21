@@ -1604,11 +1604,11 @@ static void set_room_configuration_process(struct ScriptContext *context)
                 roomst->roles = value;
             break;
         case 14: // TotalCapacity
-                roomst->update_total_capacity = value;
+                roomst->update_total_capacity = room_total_capacity[value];
             break;
         case 15: // UsedCapacity
-                roomst->update_storage_in_room = value;
-                roomst->update_workers_in_room = value2;
+                roomst->update_storage_in_room = room_used_capacity[value];
+                roomst->update_workers_in_room = room_used_capacity[value2];
             break;
         default:
             WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
