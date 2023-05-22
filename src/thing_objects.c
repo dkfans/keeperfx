@@ -551,12 +551,12 @@ TbBool thing_is_mature_food(const struct Thing *thing)
     return (thing->class_id == TCls_Object) && (thing->model == ObjMdl_ChickenMature);
 }
 
-TbBool object_is_bouyant(const struct Thing* thing)
+TbBool object_is_buoyant(const struct Thing* thing)
 {
     if (!thing_is_object(thing))
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return (objst->model_flags & OMF_Bouyant);
+    return (objst->model_flags & OMF_Buoyant);
 }
 
 TbBool thing_is_spellbook(const struct Thing *thing)
