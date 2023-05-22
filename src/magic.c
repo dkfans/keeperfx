@@ -326,6 +326,10 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
                 SYNCDBG(8,"Player %d cannot cast %s on %s index %d while teleporting",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
                 return false;
             }
+            if (creature_affected_by_spell(thing, SplK_TimeBomb)) {
+                SYNCDBG(8,"Player %d cannot cast %s on %s index %d because TimeBomb blocks it",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+                return false;
+            }
         }
         // If allowed custody creatures - allow some enemies
         if ((powerst->can_cast_flags & PwCast_CustodyCrtrs) != 0)
