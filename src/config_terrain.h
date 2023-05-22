@@ -165,6 +165,8 @@ extern const char keeper_terrain_file[];
 extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 extern const struct NamedCommand  room_roles_desc[];
+extern struct NamedCommand terrain_room_total_capacity_func_type[6];
+extern struct NamedCommand terrain_room_used_capacity_func_type[9];
 extern Room_Update_Func terrain_room_total_capacity_func_list[7];
 extern Room_Update_Func terrain_room_used_capacity_func_list[10];
 extern struct SlabsConfig slab_conf;
