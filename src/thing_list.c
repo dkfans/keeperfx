@@ -799,13 +799,13 @@ TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
     if (!is_creature_model_wildcard(crmodel))
         return crmodel == creatng->model;
     else if (crmodel == CREATURE_ANY)
-        return true;
+        return (creatng->model != get_players_spectator_model(creatng->owner)); //we can assume we do not want to cast on the floating spirit
     else if (crmodel == CREATURE_NONE)
         return false;
     if (crmodel == CREATURE_DIGGER)
         return creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
     else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return !creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
+        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel)) && (creatng->model != get_players_spectator_model(creatng->owner)));
     else
         ERRORLOG("Invalid model wildcard detected: %d", crmodel);
     return false;

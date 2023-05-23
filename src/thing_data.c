@@ -142,6 +142,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     }
     if (!a2)
     {
+        delete_effects_attached_to_creature(thing);
         if (thing->light_id != 0) {
             light_delete_light(thing->light_id);
             thing->light_id = 0;
