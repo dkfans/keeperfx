@@ -977,7 +977,7 @@ TbBool trap_can_place_on_room(unsigned char model)
     return trapst->placeonroom;
 }
 
-TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trapmodel)
 {
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -986,7 +986,6 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     struct PlayerInfo* player = get_player(plyr_idx);
     TbBool HasTrap = true;
     TbBool HasDoor = true;
-    TbBool OnRoom = true;//temporary for testing, TODO: add a check that look at trap model property PlaceOnRoom?
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
         return false;
     }
@@ -996,7 +995,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     if (slab_kind_is_liquid(slb->kind)) {
         return false;
     }
-    if ((slabmap_owner(slb) == plyr_idx) && ((((slbattr->block_flags & (SlbAtFlg_IsRoom)) != 0) && (OnRoom == true)) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
+    if ((slabmap_owner(slb) == plyr_idx) && ((((slbattr->block_flags & (SlbAtFlg_IsRoom)) != 0) && (trap_can_place_on_room(trapmodel))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
         if ((!gameadd.place_traps_on_subtiles))
         {
