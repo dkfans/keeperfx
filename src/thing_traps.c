@@ -183,6 +183,16 @@ TbBool thing_is_sellable_trap(const struct Thing* thing)
     return (trapst->unsellable == 0);
 }
 
+TbBool trap_can_place_on_room(const struct Thing* thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Trap)
+        return false;
+    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+    return (trapst->placeonroom == 0);
+}
+
 TbBool thing_is_deployed_trap(const struct Thing* thing)
 {
     if (thing_is_invalid(thing))
