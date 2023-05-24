@@ -59,6 +59,7 @@ const struct NamedCommand terrain_slab_commands[] = {
   {"ISSAFELAND",     11},
   {"ISDIGGABLE",     12},
   {"WLBTYPE",        13},
+  {"FOUNDATION",     14},
   {NULL,              0},
 };
 
@@ -720,6 +721,22 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
+        case 14:
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->foundation = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         case 0: // comment
