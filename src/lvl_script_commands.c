@@ -225,7 +225,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"Destructible",        32},
   {"Unstable",            33},
   {"Unsellable",          34},
-  {"PlaceOnRoom",         35},
+  {"Foundation",          35},
   {NULL,                   0},
 };
 
@@ -1292,8 +1292,8 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 34: // Unsellable
             trapst->unsellable = value;
             break;
-        case 35: // PlaceOnRoom
-            trapst->placeonroom = value;
+        case 35: // Foundation
+            trapst->foundation = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
