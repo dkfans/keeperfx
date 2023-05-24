@@ -56,6 +56,7 @@ enum SlabAttrFlags {
     SlbAtFlg_Filled = 0x20,
     SlbAtFlg_IsDoor = 0x40,
     SlbAtFlg_TaggedValuable = 0x80,
+    SlbAtFlg_Foundation = 0x100,
 };
 
 enum SlabFillStyle {
