@@ -183,12 +183,6 @@ TbBool thing_is_sellable_trap(const struct Thing* thing)
     return (trapst->unsellable == 0);
 }
 
-TbBool trap_can_place_on_room(unsigned char model)
-{
-    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[model];
-    return trapst->placeonroom;
-}
-
 TbBool thing_is_deployed_trap(const struct Thing* thing)
 {
     if (thing_is_invalid(thing))
@@ -986,6 +980,11 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     struct PlayerInfo* player = get_player(plyr_idx);
     TbBool HasTrap = true;
     TbBool HasDoor = true;
+    TbBool trap_can_place_on_room(unsigned char model)
+    {
+        struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[model];
+        return trapst->placeonroom;
+    }
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
         return false;
     }
