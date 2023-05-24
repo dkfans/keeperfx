@@ -117,7 +117,7 @@ struct SlabAttr {
     unsigned char slb_id;
     unsigned char wibble;
     unsigned char is_safe_land;
-    unsigned char is_unknflg13;
+    unsigned char foundation;
     unsigned char is_diggable;
     unsigned char wlb_type;
 };
