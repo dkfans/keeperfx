@@ -100,7 +100,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"DESTRUCTIBLE",         33},
   {"UNSTABLE",             34},
   {"UNSELLABLE",           35},
-  {"FOUNDATION",          36},
+  {"FOUNDATION",           36},
   {NULL,                    0},
 };
 /******************************************************************************/
