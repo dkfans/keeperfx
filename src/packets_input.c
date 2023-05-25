@@ -566,9 +566,9 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
                 return false;
             }
             // Trying to sell trap
-            if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
+            if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
             {
-                // Nothing to do here - trap already sold
+                player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
             } else
                 // Trying to sell door
             if (player_sell_door_at_subtile(plyr_idx, stl_x, stl_y))
@@ -576,9 +576,9 @@ TbBool process_dungeon_control_packet_sell_operation(long plyr_idx)
                 // Nothing to do here - door already sold
             } else
                 // Trying to sell room
-            if (subtile_is_sellable_room(plyr_idx, stl_x, stl_y))
+            if (player_sell_trap_at_subtile(plyr_idx, stl_x, stl_y))
             {
-                player_sell_room_at_subtile(plyr_idx, stl_x, stl_y);
+                // Nothing to do here - trap already sold
             } else
             {
                 WARNLOG("Nothing to do for player %d request",(int)plyr_idx);
