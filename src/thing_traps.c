@@ -977,6 +977,42 @@ TbBool trap_on_foundation(ThingModel trpkind)
     return trapst->placeonroom;
 }
 
+
+TbBool blocking_thing_on_map_block(struct Map* mapblk)
+{
+    unsigned long k = 0;
+    struct ObjectConfigStats* objst;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            WARNLOG("Jump out of things array");
+            break;
+        }
+        i = thing->next_on_mapblk;
+        if (thing->class_id == TCls_Object)
+        {
+            objst = get_object_model_stats(thing->model);
+            if (objst->genre == OCtg_Furniture)
+                return true;
+            if (objst->genre == OCtg_LairTotem)
+                return true;
+            if (objst->genre == OCtg_GoldHoard)
+                return true;
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    return false;
+}
+
 TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
 {
     MapSlabCoord slb_x = subtile_slab(stl_x);
@@ -1000,6 +1036,10 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     {
         if ((!gameadd.place_traps_on_subtiles))
         {
+            if (blocking_thing_on_map_block(get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y))))
+            {
+                return false;
+            }
             if (is_dangerous_drop_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y)))
             {
                 return false;
@@ -1010,6 +1050,10 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
         }
         else if ( (gameadd.place_traps_on_subtiles) && (player->chosen_trap_kind == TngTrp_Boulder) ) 
         {
+            if (blocking_thing_on_map_block(get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y))))
+            {
+                return false;
+            }
             if (is_dangerous_drop_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y)))
             {
                 return false;
@@ -1020,6 +1064,10 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
         }
         else
         {
+            if (blocking_thing_on_map_block(get_map_block_at(stl_x,stl_y)))
+            {
+                return false;
+            }
             if (is_dangerous_drop_subtile(stl_x,stl_y))
             {
                 return false;
