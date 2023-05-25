@@ -977,41 +977,6 @@ TbBool trap_on_bridge(ThingModel trpkind)
     return trapst->placeonbridge;
 }
 
-TbBool blocking_thing_on_map_block(struct Map* mapblk)
-{
-    unsigned long k = 0;
-    struct ObjectConfigStats* objst;
-    long i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
-    {
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            WARNLOG("Jump out of things array");
-            break;
-        }
-        i = thing->next_on_mapblk;
-        if (thing->class_id == TCls_Object)
-        {
-            objst = get_object_model_stats(thing->model);
-            if (objst->genre == OCtg_Furniture)
-                return true;
-            if (objst->genre == OCtg_LairTotem)
-                return true;
-            if (objst->genre == OCtg_GoldHoard)
-                return true;
-        }
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break_mapwho_infinite_chain(mapblk);
-            break;
-        }
-    }
-    return false;
-}
-
 TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
 {
     MapSlabCoord slb_x = subtile_slab(stl_x);
@@ -1021,7 +986,6 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     struct PlayerInfo* player = get_player(plyr_idx);
     TbBool HasTrap = true;
     TbBool HasDoor = true;
-    TbBool HasColumn = true;
     if (!subtile_revealed(stl_x, stl_y, plyr_idx)) {
         return false;
     }
@@ -1035,44 +999,17 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     {
         if ((!gameadd.place_traps_on_subtiles))
         {
-            if (blocking_thing_on_map_block(get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y))))
-            {
-                return false;
-            }
-            if (is_dangerous_drop_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y)))
-            {
-                return false;
-            }
-            HasTrap = slab_has_trap_on(slb_x, slb_y);
-            HasDoor = slab_is_door(slb_x, slb_y);
-            HasColumn = (get_floor_filled_subtiles_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y)) > 2);
+                HasTrap = slab_has_trap_on(slb_x, slb_y);
+                HasDoor = slab_is_door(slb_x, slb_y);
         }
         else if ( (gameadd.place_traps_on_subtiles) && (player->chosen_trap_kind == TngTrp_Boulder) ) 
         {
-            if (blocking_thing_on_map_block(get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y))))
-            {
-                return false;
-            }
-            if (is_dangerous_drop_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y)))
-            {
-                return false;
-            }
-            HasTrap = subtile_has_trap_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-            HasDoor = slab_is_door(slb_x, slb_y);
-            HasColumn = (get_floor_filled_subtiles_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y)) > 2);
+                HasTrap = subtile_has_trap_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+                HasDoor = slab_is_door(slb_x, slb_y);
         }
         else
         {
-            if (blocking_thing_on_map_block(get_map_block_at(stl_x,stl_y)))
-            {
-                return false;
-            }
-            if (is_dangerous_drop_subtile(stl_x,stl_y))
-            {
-                return false;
-            }
             HasTrap = subtile_has_trap_on(stl_x, stl_y);
-            HasColumn = (get_floor_filled_subtiles_at(stl_x, stl_y) > 2);
             switch(get_door_orientation(slb_x, slb_y))
             {
                 case -1:
@@ -1093,7 +1030,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
             }
             // HasDoor = ((subtile_has_door_thing_on(stl_x, stl_y)) || (subtile_is_door(stl_x, stl_y)) );
         }
-        if (!HasTrap && !HasDoor && !HasColumn)
+        if (!HasTrap && !HasDoor)
         {
             return true;
         }
