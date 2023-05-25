@@ -71,7 +71,7 @@ struct TrapConfigStats {
     short unstable;
     short notify;
     short unsellable;
-    short foundation;
+    short placeonroom;
 };
 
 /**
