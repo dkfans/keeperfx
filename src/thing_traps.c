@@ -971,12 +971,11 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     }
 }
 
-TbBool trap_on_foundation(ThingModel trpkind)
+TbBool trap_on_bridge(ThingModel trpkind)
 {
     struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpkind];
-    return trapst->placeonroom;
+    return trapst->placeonbridge;
 }
-
 
 TbBool blocking_thing_on_map_block(struct Map* mapblk)
 {
@@ -1032,7 +1031,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     if (slab_kind_is_liquid(slb->kind)) {
         return false;
     }
-    if ((slabmap_owner(slb) == plyr_idx) && (((slbattr->foundation != 0) && (trap_on_foundation(trpkind))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
+    if ((slabmap_owner(slb) == plyr_idx) && (((slb->kind == SlbT_BRIDGE) && (trap_on_bridge(trpkind))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
         if ((!gameadd.place_traps_on_subtiles))
         {
