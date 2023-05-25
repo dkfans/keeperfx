@@ -974,7 +974,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
 TbBool trap_on_foundation(ThingModel trpkind)
 {
     struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpkind];
-    return trapst->foundation;
+    return trapst->placeonroom;
 }
 
 TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
