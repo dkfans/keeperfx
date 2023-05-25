@@ -59,7 +59,7 @@ const struct NamedCommand terrain_slab_commands[] = {
   {"ISSAFELAND",     11},
   {"ISDIGGABLE",     12},
   {"WLBTYPE",        13},
-  {"FOUNDATION",     14},
+  {"FOUNDATION",     14},//Left as is, so it can be used for something else if needed?
   {NULL,              0},
 };
 
