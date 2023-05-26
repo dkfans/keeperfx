@@ -398,7 +398,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
     return true;
 }
 
-static TbBool is_condition_met(unsigned char cond_idx)
+static TbBool is_condition_met(unsigned short cond_idx)
 {
     if (cond_idx >= CONDITIONS_COUNT)
     {
