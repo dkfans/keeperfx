@@ -245,13 +245,31 @@ TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    if ( (slb->kind <= SlbT_WALLPAIRSHR) || (slb->kind == SlbT_GEMS) )
+    switch(slb->kind)
     {
-        return true;
-    }
-    else
-    {
-        return false;
+        case SlbT_ROCK ... SlbT_DAMAGEDWALL:
+        case SlbT_ENTRANCE_WALL:
+        case SlbT_TREASURE_WALL:
+        case SlbT_LIBRARY_WALL:
+        case SlbT_PRISON_WALL:
+        case SlbT_TORTURE_WALL:
+        case SlbT_TRAINING_WALL:
+        case SlbT_DUNGHEART_WALL:
+        case SlbT_WORKSHOP_WALL:
+        case SlbT_SCAVENGER_WALL:
+        case SlbT_TEMPLE_WALL:
+        case SlbT_GRAVEYARD_WALL:
+        case SlbT_GARDEN_WALL:
+        case SlbT_LAIR_WALL:
+        case SlbT_BARRACKS_WALL:
+        case SlbT_GEMS:
+        {
+            return true;
+        }
+        default:
+        {
+            return false;
+        }
     }
 }
 
