@@ -245,7 +245,7 @@ TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    switch(slb->kind)
+    switch (slb->kind)
     {
         case SlbT_ROCK ... SlbT_DAMAGEDWALL:
         case SlbT_ENTRANCE_WALL:
