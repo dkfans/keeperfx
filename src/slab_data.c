@@ -244,33 +244,19 @@ TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    switch (slb->kind)
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_x);
+    struct Column* col;
+
+    for (int i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
     {
-        case SlbT_ROCK ... SlbT_DAMAGEDWALL:
-        case SlbT_ENTRANCE_WALL:
-        case SlbT_TREASURE_WALL:
-        case SlbT_LIBRARY_WALL:
-        case SlbT_PRISON_WALL:
-        case SlbT_TORTURE_WALL:
-        case SlbT_TRAINING_WALL:
-        case SlbT_DUNGHEART_WALL:
-        case SlbT_WORKSHOP_WALL:
-        case SlbT_SCAVENGER_WALL:
-        case SlbT_TEMPLE_WALL:
-        case SlbT_GRAVEYARD_WALL:
-        case SlbT_GARDEN_WALL:
-        case SlbT_LAIR_WALL:
-        case SlbT_BARRACKS_WALL:
-        case SlbT_GEMS:
-        {
-            return true;
-        }
-        default:
+        col = get_column_at((stl_x + small_around_mid[i].delta_x), (stl_y + small_around_mid[i].delta_y));
+        if (get_column_floor_filled_subtiles(col) < COLUMN_WALL_HEIGHT)
         {
             return false;
         }
     }
+    return true;
 }
 
 TbBool is_slab_type_walkable(SlabKind slbkind)
