@@ -266,12 +266,8 @@ TbBool is_slab_type_walkable(SlabKind slbkind)
 
 TbBool slab_kind_is_animated(SlabKind slbkind)
 {
-    if (slab_kind_is_door(slbkind))
-        return true;
-    // if ((slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
-        if (slbkind >= SlbT_SLAB50)
-        return true;
-    return false;
+    struct SlabAttr* slbattr = get_slab_kind_attrs(slbkind);
+    return slbattr->animated;
 }
 
 TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
