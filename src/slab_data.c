@@ -245,7 +245,7 @@ TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
-    MapSubtlCoord stl_y = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
     struct Column* col;
 
     for (int i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
