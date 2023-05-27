@@ -246,12 +246,11 @@ TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
-    struct Column* col;
-
     for (int i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
     {
-        col = get_column_at((stl_x + small_around_mid[i].delta_x), (stl_y + small_around_mid[i].delta_y));
-        if (get_column_floor_filled_subtiles(col) < COLUMN_WALL_HEIGHT)
+        MapSubtlCoord astl_x = stl_x + small_around_mid[i].delta_x;
+        MapSubtlCoord astl_y = stl_y + small_around_mid[i].delta_y;
+        if (!subtile_is_wall(astl_x, astl_y))
         {
             return false;
         }
