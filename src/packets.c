@@ -1202,7 +1202,7 @@ void process_players_creature_control_packet_control(long idx)
                     {
                         inst_inf = creature_instance_info_get(i);
                         n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
-                        set_creature_instance(cctng, i, 1, n, 0);
+                        set_creature_instance(cctng, i, n, 0);
                     }
                 }
             }
@@ -1210,7 +1210,7 @@ void process_players_creature_control_packet_control(long idx)
             {
                 inst_inf = creature_instance_info_get(i);
                 n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
-                set_creature_instance(cctng, i, 1, n, 0);
+                set_creature_instance(cctng, i, n, 0);
             }
         }
     }
@@ -1228,7 +1228,7 @@ void process_players_creature_control_packet_control(long idx)
                     if (creature_instance_has_reset(cctng, i))
                     {
                         n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
-                        set_creature_instance(cctng, i, 1, n, 0);
+                        set_creature_instance(cctng, i, n, 0);
                     }
                 }
             }
@@ -1313,7 +1313,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
           i = pckt->actn_par1;
           inst_inf = creature_instance_info_get(i);
           k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
-          set_creature_instance(thing, i, 1, k, 0);
+          set_creature_instance(thing, i, k, 0);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
           }
@@ -1338,7 +1338,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
           i = pckt->actn_par1;
           inst_inf = creature_instance_info_get(i);
           k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
-          set_creature_instance(thing, i, 1, k, 0);
+          set_creature_instance(thing, i, k, 0);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
           }

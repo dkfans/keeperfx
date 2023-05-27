@@ -20,6 +20,7 @@
 #define DK_CRTRINSTANCE_H
 
 #include "globals.h"
+#include "creature_control.h"
 #include "bflib_basics.h"
 #include "config.h"
 
@@ -101,15 +102,13 @@ struct InstanceInfo {
     unsigned char primary_target;
     Creature_Instf_Func func_cb;
     long func_params[2];
-};
-
-struct InstanceButtonInit {  // sizeof=0x6
+    long range_min;
+    long range_max;
     long symbol_spridx;
     short tooltip_stridx;
 };
-/******************************************************************************/
 
-extern struct InstanceButtonInit instance_button_init[48];
+/******************************************************************************/
 
 #pragma pack()
 /******************************************************************************/
@@ -135,6 +134,8 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng);
 int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
+
+TbBool instance_draws_possession_swipe(CrInstance inum);
 
 void delay_teleport(struct Thing *creatng);
 void delay_heal_sleep(struct Thing *creatng);

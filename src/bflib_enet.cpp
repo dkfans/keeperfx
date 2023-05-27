@@ -19,6 +19,7 @@
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #include <enet/enet.h>
+#include <cstddef>
 
 #include "post_inc.h"
 
@@ -123,7 +124,8 @@ namespace
     TbError bf_enet_join(const char *session, void *options)
     {
         char buf[64] = {0};
-        char *P, *E;
+        const char *P;
+        char *E;
         ENetAddress address = {ENET_HOST_ANY, ENET_PORT_ANY};
         host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
         if (!host)
@@ -192,7 +194,7 @@ namespace
                     }
                     break;
                 case ENET_EVENT_TYPE_DISCONNECT:
-                    user_id = reinterpret_cast<NetUserId>(ev.peer->data);
+                    user_id = NetUserId(reinterpret_cast<ptrdiff_t>(ev.peer->data));
                     g_drop_callback(user_id, NETDROP_ERROR);
                     break;
                 case ENET_EVENT_TYPE_RECEIVE:
@@ -246,7 +248,7 @@ namespace
         ENetPacket *packet = enet_packet_create(buffer, size, ENET_PACKET_FLAG_RELIABLE);
         if (client_peer) // Just send to server
         {
-            enet_peer_send(client_peer, 0, packet); 
+            enet_peer_send(client_peer, 0, packet);
         }
         else
         {
@@ -254,7 +256,7 @@ namespace
             {
                 if (currentPeer->state != ENET_PEER_STATE_CONNECTED)
                     continue;
-                if (reinterpret_cast<NetUserId>(currentPeer->data) == destination)
+                if (NetUserId(reinterpret_cast<ptrdiff_t>(currentPeer->data)) == destination)
                 {
                     enet_peer_send(currentPeer, 0, packet);
                 }

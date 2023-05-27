@@ -74,7 +74,7 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
@@ -92,7 +92,7 @@ TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, 
 {
     struct Thing *thing = script_get_creature_by_criteria(origin_plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)origin_plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)origin_plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
     change_creature_owner(thing, dest_plyr_idx);
@@ -119,13 +119,12 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to level up",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to level up",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
     creature_increase_multiple_levels(thing,count);
     return true;
 }
-
 
 /**
  * Adds a dig task for the player between 2 map locations.
@@ -333,6 +332,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           dungeon = get_dungeon(i);
           if (dungeon_invalid(dungeon))
               continue;
+          if (val3 == -1)
+              val3 = CREATURE_MAX_LEVEL + 1;
           dungeon->creature_max_level[val2%gameadd.crtr_conf.model_count] = val3;
       }
       break;
@@ -792,7 +793,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_RANDOMISE_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_variable(i, val4, val2, (rand() % val3) + 1);
+          set_variable(i, val4, val2, GAME_RANDOM(val3) + 1);
       }
       break;
   case Cmd_COMPUTE_FLAG:
@@ -972,7 +973,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 19: //PayDaySpeed
           if (val3 >= 0)
           {
-              SCRIPTDBG(7, "Changing rule %s from %d to %d", val2, gameadd.pay_day_speed, val3);
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.pay_day_speed, val3);
               gameadd.pay_day_speed = val3;
           }
           else
@@ -1054,6 +1055,17 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 32: //BarrackMaxPartySize
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
           game.barrack_max_party_size = (TbBool)val3;
+          break;
+      case 33: //MaxThingsInHand
+          if (val3 <= MAX_THINGS_IN_HAND)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.max_things_in_hand, val3);
+              gameadd.max_things_in_hand = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
+          }
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

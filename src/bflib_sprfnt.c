@@ -1336,7 +1336,7 @@ int LbTextCharWidthM(const long chr, long units_per_px)
         return dbc_char_widthM(chr, units_per_px);
     }
     else
-    {        
+    {
         return LbSprFontCharWidth(lbFontPtr, (unsigned char)chr) * units_per_px / 16;
     }
 }

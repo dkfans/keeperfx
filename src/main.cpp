@@ -284,33 +284,31 @@ long get_foot_creature_has_down(struct Thing *thing)
     return 0;
 }
 
-void process_keeper_spell_effect(struct Thing *thing)
+void process_keeper_spell_aura(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_2AE--;
-    if (cctrl->field_2AE <= 0)
+    cctrl->spell_aura_duration--;
+    if (cctrl->spell_aura_duration <= 0)
     {
-        cctrl->field_2B0 = 0;
+        cctrl->spell_aura = 0;
         return;
     }
-    if (cctrl->field_2B0 == 7)
-    {
-        struct Coord3d pos;
-        long amp;
-        long direction;
-        long delta_x;
-        long delta_y;
-        amp = 5 * thing->clipbox_size_xy / 8;
-        direction = CREATURE_RANDOM(thing, 2*LbFPMath_PI);
-        delta_x = (amp * LbSinL(direction) >> 8);
-        delta_y = (amp * LbCosL(direction) >> 8);
-        pos.x.val = thing->mappos.x.val + (delta_x >> 8);
-        pos.y.val = thing->mappos.y.val - (delta_y >> 8);
-        pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, TngEffElm_Heal, thing->owner); // Heal
-    }
+    struct Coord3d pos;
+    long amp;
+    long direction;
+    long delta_x;
+    long delta_y;
+    amp = 5 * thing->clipbox_size_xy / 8;
+    direction = CREATURE_RANDOM(thing, 2*LbFPMath_PI);
+    delta_x = (amp * LbSinL(direction) >> 8);
+    delta_y = (amp * LbCosL(direction) >> 8);
+    pos.x.val = thing->mappos.x.val + (delta_x >> 8);
+    pos.y.val = thing->mappos.y.val - (delta_y >> 8);
+    pos.z.val = thing->mappos.z.val;
+
+    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner);
 }
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
@@ -2101,14 +2099,14 @@ void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
 {
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
     struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    struct LightAdd* lightadd = get_lightadd(player->cursor_light_idx);
+    struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
     if (playeradd->mouse_is_offmap == true) {
-        lightadd->disable_interp_for_turns = 2;
+        light->disable_interp_for_turns = 2;
     }
-    if (lightadd->disable_interp_for_turns > 0) {
-        lightadd->disable_interp_for_turns -= 1;
-        lightadd->last_turn_drawn = 0;
+    if (light->disable_interp_for_turns > 0) {
+        light->disable_interp_for_turns -= 1;
+        light->last_turn_drawn = 0;
     }
 }
 
@@ -3814,8 +3812,7 @@ short process_command_line(unsigned short argc, char *argv[])
 {
   char fullpath[CMDLN_MAXLEN+1];
   snprintf(fullpath, CMDLN_MAXLEN, "%s", argv[0]);
-
-  sprintf( keeper_runtime_directory, fullpath);
+  snprintf(keeper_runtime_directory, sizeof(keeper_runtime_directory), "%s", fullpath);
   char *endpos = strrchr( keeper_runtime_directory, '\\');
   if (endpos==NULL)
       endpos=strrchr( keeper_runtime_directory, '/');

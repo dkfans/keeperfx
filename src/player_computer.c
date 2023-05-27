@@ -809,7 +809,7 @@ TbBool computer_get_trap_place_location_and_update_locations(struct Computer2 *c
             location->y.val = 0;
             continue;
         }
-        if (can_place_trap_on(dungeon->owner, location->x.stl.num, location->y.stl.num))
+        if (can_place_trap_on(dungeon->owner, location->x.stl.num, location->y.stl.num, trapmodel))
         { // If it's our owned claimed ground, give it a try
             retloc->x.val = location->x.val;
             retloc->y.val = location->y.val;

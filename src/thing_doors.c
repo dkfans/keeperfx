@@ -130,13 +130,13 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
 {
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
-        ERRORDBG(3,"Cannot create door model %d for player %d. There are too many things allocated.",(int)tngmodel,(int)plyr_idx);
+        ERRORDBG(3,"Cannot create door model %d (%s) for player %d. There are too many things allocated.",(int)tngmodel, door_code_name(tngmodel), (int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     struct Thing* doortng = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (doortng->index == 0) {
-        ERRORDBG(3,"Should be able to allocate door %d for player %d, but failed.",(int)tngmodel,(int)plyr_idx);
+        ERRORDBG(3,"Should be able to allocate door %d (%s) for player %d, but failed.",(int)tngmodel, door_code_name(tngmodel), (int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }

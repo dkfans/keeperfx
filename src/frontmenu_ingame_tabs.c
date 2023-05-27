@@ -637,7 +637,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_special_spell code to choose_special_spell
     //TODO: equivalent to gui_choose_spell now... try merge
-    choose_spell(((int) gbtn->content) % POWER_TYPES_COUNT, gbtn->tooltip_stridx);
+    choose_spell(((int) gbtn->content) % POWER_TYPES_MAX, gbtn->tooltip_stridx);
 }
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
@@ -1019,7 +1019,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 void maintain_big_spell(struct GuiButton *gbtn)
 {
     long spl_idx = game.chosen_spell_type;
-    if ((spl_idx < 0) || (spl_idx >= KEEPER_POWERS_COUNT)) {
+    if ((spl_idx < 0) || (spl_idx >= magic_conf.power_types_count)) {
         return;
     }
     gbtn->content = (unsigned long *)spl_idx;
@@ -1690,8 +1690,9 @@ void maintain_instance(struct GuiButton *gbtn)
     }
     int curbtn_avail_pos = (long)gbtn->content;
     int curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
-    gbtn->sprite_idx = instance_button_init[curbtn_inst_id].symbol_spridx;
-    gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].tooltip_stridx;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(curbtn_inst_id);
+    gbtn->sprite_idx = inst_inf->symbol_spridx;
+    gbtn->tooltip_stridx = inst_inf->tooltip_stridx;
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;

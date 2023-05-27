@@ -207,6 +207,8 @@ long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind)
  */
 long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole)
 {
+    if (plyr_idx == game.neutral_player_num)
+        return -1;
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     long count = 0;
 
@@ -243,6 +245,8 @@ long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole)
 
 long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
+    if (plyr_idx == game.neutral_player_num)
+        return -1;
     long nslabs = 0;
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     long i = dungeonadd->room_kind[rkind];
@@ -4523,7 +4527,7 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
     struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     SlabCodedCoords i = get_slab_number(slb_x, slb_y);
     delete_room_slabbed_objects(i);
-    if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE))
+    if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE)) //todo Make configurable
     {
         place_animating_slab_type_on_map(roomst->assigned_slab, 0, stl_x, stl_y, owner);
     } else
@@ -5177,7 +5181,7 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
 {
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     struct Room* room = get_room_thing_is_on(heartng);
-    if (room_is_invalid(room) || (room_role_matches(room->kind,RoRoF_KeeperStorage)))
+    if (room_is_invalid(room) || (!room_role_matches(room->kind,RoRoF_KeeperStorage)))
     {
         WARNLOG("The heart thing is not in heart room");
         long i = dungeonadd->room_kind[RoK_DUNGHEART];

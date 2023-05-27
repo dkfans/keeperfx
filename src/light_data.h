@@ -50,7 +50,7 @@ enum LightFlags {
     LgtF_Unkn80       = 0x80,
 };
 
-struct Light { // sizeof = 46
+struct Light {
   unsigned char flags;
   unsigned char flags2;
   unsigned char intensity;
@@ -75,15 +75,11 @@ struct Light { // sizeof = 46
   unsigned short min_intensity;
   unsigned short next_in_list;
   struct Coord3d mappos;
-};
-
-struct LightAdd // Additional light data
-{
-    TbBool interp_has_been_initialized;
-    struct Coord3d previous_mappos;
-    struct Coord3d interp_mappos;
-    long last_turn_drawn;
-    long disable_interp_for_turns;
+  TbBool interp_has_been_initialized;
+  struct Coord3d previous_mappos;
+  struct Coord3d interp_mappos;
+  long last_turn_drawn;
+  long disable_interp_for_turns;
 };
 
 struct InitLight { // sizeof=0x14

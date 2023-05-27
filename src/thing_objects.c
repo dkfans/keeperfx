@@ -299,13 +299,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
 
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
-        ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        ERRORDBG(3,"Cannot create object model %d (%s) for player %d. There are too many things allocated.",(int)model,object_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
-        ERRORDBG(3,"Should be able to allocate object %d for player %d, but failed.",(int)model,(int)owner);
+        ERRORDBG(3,"Should be able to allocate object %d (%s) for player %d, but failed.",(int)model,object_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
@@ -401,8 +401,8 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
 
-    get_thingadd(thing->index)->flags = 0;
-    get_thingadd(thing->index)->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+    thing->flags = 0;
+    thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
 
     return thing;
 }
@@ -538,9 +538,7 @@ TbBool thing_is_door_crate(const struct Thing *thing)
 
 TbBool thing_is_dungeon_heart(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing))
-        return false;
-    if (thing->class_id != TCls_Object)
+    if (!thing_is_object(thing))
         return false;
     struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
     return (objconf->is_heart) != 0;
@@ -551,6 +549,14 @@ TbBool thing_is_mature_food(const struct Thing *thing)
     if (thing_is_invalid(thing))
         return false;
     return (thing->class_id == TCls_Object) && (thing->model == ObjMdl_ChickenMature);
+}
+
+TbBool object_is_buoyant(const struct Thing* thing)
+{
+    if (!thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->model_flags & OMF_Buoyant);
 }
 
 TbBool thing_is_spellbook(const struct Thing *thing)
@@ -1360,11 +1366,6 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     {
         dungeon = get_players_num_dungeon(heartng->owner);
     }
-    if (heartng->index != dungeon->dnheart_idx)
-    {
-        SYNCDBG(18, "Inactive Heart");
-        return TUFRet_Unchanged;
-    }
 
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
@@ -1387,7 +1388,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
         heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
     }
-    else if (dungeon != INVALID_DUNGEON)
+    else if ((dungeon != INVALID_DUNGEON) && (heartng->index == dungeon->dnheart_idx))
     {
         if (dungeon->heart_destroy_state == 0)
         {
@@ -1398,7 +1399,31 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             dungeon->essential_pos.z.val = heartng->mappos.z.val;
         }
     }
+    if (heartng->index != dungeon->dnheart_idx)
+    {
+        SYNCDBG(18, "Inactive Heart");
+        if (heartng->health <= 0)
+        {
+            struct Thing* efftng;
+            struct DungeonAdd* dungeonadd;
+            efftng = create_effect(&heartng->mappos, TngEff_Explosion4, heartng->owner);
+            if (!thing_is_invalid(efftng))
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+            efftng = create_effect(&heartng->mappos, TngEff_WoPExplosion, heartng->owner);
+            if (!thing_is_invalid(efftng))
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+            destroy_dungeon_heart_room(heartng->owner, heartng);
+            dungeonadd = get_dungeonadd(heartng->owner);
+            if (heartng->index == dungeonadd->backup_heart_idx)
+            {
+                dungeonadd->backup_heart_idx = 0;
+            }
+            delete_thing_structure(heartng, 0);
+        }
+        return TUFRet_Unchanged;
+    }
     process_dungeon_destroy(heartng);
+
     SYNCDBG(18,"Beat update");
     if ((heartng->alloc_flags & TAlF_Exists) == 0)
       return TUFRet_Modified;

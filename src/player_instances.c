@@ -211,6 +211,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SLAP);
     struct Thing* thing = thing_get(player->influenced_thing_idx);
     struct TrapConfigStats *trapst;
+    struct ShotConfigStats* shotst;
     if (!thing_exists(thing) || (thing->creation_turn != player->influenced_thing_creation) || (!thing_slappable(thing, player->id_number)))
     {
         player->influenced_thing_creation = 0;
@@ -244,14 +245,14 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       break;
   }
   case TCls_Shot:
-      if (thing->model == ShM_Boulder) //TODO CONFIG shot model dependency, make config option instead
+      shotst = get_shot_model_stats(thing->model);
+      if (shotst->model_flags & ShMF_Boulder)
       {
           thing->move_angle_xy = player->acamera->orient_a;
-          thing->health -= game.boulder_reduce_health_slap;
-      } else
-      if (thing->model == ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
-      {
-          thing->move_angle_xy = player->acamera->orient_a;
+          if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
+          {
+              thing->health -= game.boulder_reduce_health_slap;
+          }
       } else
       {
           detonate_shot(thing);
@@ -623,7 +624,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   if (player->view_mode == PVM_FrontView)
   {
     cam->mappos.y.val = thing->mappos.y.val;
-    cam->zoom = settings.frontview_zoom_level;
+    cam->zoom = player->frontview_zoom_level;
   } else
   {
     cam->mappos.y.val = thing->mappos.y.val - (thing->clipbox_size_yz >> 1) -  thing->mappos.z.val;
@@ -649,7 +650,7 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         unsigned long addval;
         if (cam != NULL)
         {
-          cam->zoom -= (24000 - settings.isometric_view_zoom_level) / 16;
+          cam->zoom -= (24000 - player->isometric_view_zoom_level) / 16;
           cam->orient_a += LbFPMath_PI/64;
           addval = (thing->clipbox_size_yz >> 1);
           deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
@@ -678,7 +679,7 @@ long pinstfe_zoom_out_of_heart(struct PlayerInfo *player, long *n)
   struct Camera* cam = player->acamera;
   if ((player->view_mode != PVM_FrontView) && (cam != NULL))
   {
-    cam->zoom = settings.isometric_view_zoom_level;
+    cam->zoom = player->isometric_view_zoom_level;
     cam->orient_a = LbFPMath_PI/4;
   }
   light_turn_light_on(player->cursor_light_idx);

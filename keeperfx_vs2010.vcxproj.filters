@@ -75,9 +75,6 @@
     <ClCompile Include="src\bflib_guibtns.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\bflib_heapmgr.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\bflib_keybrd.c">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -801,9 +798,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_guibtns.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\bflib_heapmgr.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\bflib_inputctrl.h">

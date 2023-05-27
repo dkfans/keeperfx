@@ -116,9 +116,13 @@ void process_dungeon_destroy(struct Thing* heartng)
                     dungeon->num_active_creatrs--;
                     dungeon->owned_creatures_of_model[soultng->model]--;
                     dungeonadd->free_soul_idx = soultng->index;
-                    short xplevel = min(((dungeon->lvstats.player_score - 1000) / 10), (CREATURE_MAX_LEVEL - 1));
+                    short xplevel = 0;
+                    if (dungeon->lvstats.player_score > 1000)
+                    {
+                        xplevel = min(((dungeon->lvstats.player_score - 1000) / 10), (CREATURE_MAX_LEVEL - 1));
+                    }
                     set_creature_level(soultng, xplevel);
-                    set_start_state(soultng);
+                    initialise_thing_state(soultng, CrSt_CreatureWantsAHome);
                 }
             }
             else if (dungeon->heart_destroy_turn == 20)

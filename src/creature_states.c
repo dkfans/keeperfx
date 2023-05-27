@@ -1410,9 +1410,8 @@ short creature_being_dropped(struct Thing *creatng)
     set_start_state(creatng);
     // Check job which we can do after dropping at these coordinates
     CreatureJob new_job;
-    struct ThingAdd* creatngadd = get_thingadd(creatng->index);
     struct Room* room = room_get(slb->room_index);
-    if ((!room_is_invalid(room)) && (room->owner != creatngadd->holding_player))
+    if ((!room_is_invalid(room)) && (room->owner != creatng->holding_player))
     {
         new_job = Job_NULL;
     }
@@ -2187,7 +2186,7 @@ short creature_in_hold_audience(struct Thing *creatng)
     } else
     {
         cctrl->turns_at_job = 1;
-        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
     }
     return 1;
 }
@@ -3043,7 +3042,7 @@ short creature_vandalise_rooms(struct Thing *creatng)
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 0, 0);
     }
     return 1;
 }
@@ -3833,7 +3832,7 @@ short person_sulking(struct Thing *creatng)
           cctrl->turns_at_job = 0;
         } else
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_MOAN, 0, 0);
         }
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
@@ -3946,7 +3945,10 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
             pos.z.val = coord_z_beg;
             while (pos.z.val <= coord_z_end)
             {
-                create_effect(&pos, eff_kind, thing->owner);
+                if (eff_kind != 0)
+                {
+                    create_used_effect_or_element(&pos, eff_kind, thing->owner);
+                }
                 pos.z.val += COORD_PER_STL;
             }
             pos.y.val += COORD_PER_STL;
@@ -4288,7 +4290,7 @@ short seek_the_enemy(struct Thing *creatng)
             {
               if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
               {
-                set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+                set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
                 thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 return 1;
               }
@@ -5048,14 +5050,14 @@ long process_training_need(struct Thing *thing, const struct CreatureStats *crst
 long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->field_B9 == 0) {
+    if (cctrl->corpse_to_piss_on == 0) {
         return 0;
     }
-    struct Thing* pisstng = thing_get(cctrl->field_B9);
+    struct Thing* pisstng = thing_get(cctrl->corpse_to_piss_on);
     if ((pisstng->owner == thing->owner) || !crstat->piss_on_dead) {
         return 0;
     }
-    if (game.play_gameturn - cctrl->field_B2 <= 200) {
+    if (game.play_gameturn - cctrl->last_piss_turn <= 200) {
         return 0;
     }
     if (!external_set_thing_state(thing, CrSt_CreaturePiss))
@@ -5063,7 +5065,7 @@ long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
         return 0;
     }
     cctrl->countdown_282 = 50;
-    cctrl->field_B2 = game.play_gameturn;
+    cctrl->last_piss_turn = game.play_gameturn;
     return 1;
 }
 
