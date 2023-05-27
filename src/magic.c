@@ -2321,7 +2321,7 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to use power on.",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use power on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
 
@@ -2385,13 +2385,13 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to use spell on.",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use spell on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    const struct SpellInfo* spinfo = get_magic_info(spkind);
+    const struct SpellConfig* spconf = get_spell_config(spkind);
 
-    if (spinfo->caster_affected ||
+    if (spconf->caster_affected ||
             (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These four should be also marked at configs somehow
             ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
             ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
@@ -2402,9 +2402,9 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
             return Lb_FAIL;
         }
         unsigned short sound;
-        if (spinfo->caster_affected)
+        if (spconf->caster_affected)
         {
-            sound = spinfo->caster_affect_sound;
+            sound = spconf->caster_affect_sound;
         }
         else if ( (spkind == SplK_Freeze) || (spkind == SplK_Slow) )
         {
