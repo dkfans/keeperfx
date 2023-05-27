@@ -76,10 +76,8 @@ char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr
         wall_flags <<= 1;
         MapSlabCoord slb_x = door_slb_x + small_around[i].delta_x;
         MapSlabCoord slb_y = door_slb_y + small_around[i].delta_y;
-        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-        struct SlabAttr* slbattr = get_slab_attrs(slb);
 
-        if ((slbattr->category == SlbAtCtg_FortifiedWall) || (slb->kind == SlbT_ROCK) || (slbattr->category == SlbAtCtg_FriableDirt) || (slb->kind == SlbT_GOLD) || (slb->kind == SlbT_GEMS))
+        if (slab_is_wall(slb_x,slb_y))
             wall_flags |= 0x01;
     }
 
