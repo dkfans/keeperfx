@@ -23,12 +23,17 @@
 #include "globals.h"
 
 #include "ariadne.h"
+#include "creature_graphics.h"
 #include "creature_groups.h"
 #include "thing_stats.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define CREATURE_TYPES_MAX 64
+#define SWAP_CREATURE_TYPES_MAX 64
+#define CREATURE_STATES_MAX 256
 
 #define MAX_SIZEXY            768
 /** Max amount of spells casted at the creature at once. */
@@ -370,13 +375,14 @@ unsigned char cowers_from_slap_turns;
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
+    char creature_name[25];
     struct Coord3d flee_pos;
     long flee_start_turn;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
-    unsigned short prev_in_room;//field_2AC
-short field_2AE;
-    unsigned char field_2B0; // 7 == heal
+    unsigned short prev_in_room;
+    short spell_aura;
+    short spell_aura_duration;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
@@ -498,7 +504,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char slaps_to_kill;
     short lair_enemy;
     short hero_vs_keeper_cost;
-    TbBool rebirth;
+    unsigned char rebirth;
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;
     TbBool bleeds;
@@ -519,6 +525,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short footstep_pitch;
     short lair_object;
     short status_offset;
+    struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
 struct Persons {

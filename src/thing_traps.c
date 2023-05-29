@@ -235,7 +235,14 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
 
 TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 {
-    static const MapSubtlDelta line_of_sight_90_range = 20;
+    const struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
+
+    MapSubtlDelta line_of_sight_90_range = (shotst->max_range / COORD_PER_STL);
+    if (line_of_sight_90_range == 0)
+    {
+        line_of_sight_90_range = max(gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+    }
     MapSubtlCoord stl_x_beg;
     MapSubtlCoord stl_x_end;
     MapSubtlCoord stl_y_beg;
@@ -470,10 +477,13 @@ void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
 {
     MapSubtlCoord stl_x = traptng->mappos.x.stl.num;
     MapSubtlCoord stl_y = traptng->mappos.y.stl.num;
-    if (subtile_is_room(stl_x, stl_y)) {
+    SlabKind slab = gameadd.trap_stats[traptng->model].created_itm_model;
+    if (subtile_is_room(stl_x, stl_y))
+    {
+        // deleting the room also deletes the trap
         delete_room_slab(subtile_slab(stl_x), subtile_slab(stl_y), true);
     }
-    place_slab_type_on_map(gameadd.trap_stats[traptng->model].created_itm_model, stl_x, stl_y, game.neutral_player_num, 0);
+    place_slab_type_on_map(slab, stl_x, stl_y, game.neutral_player_num, 0);
     // TODO
     //remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), NULL);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
@@ -647,9 +657,8 @@ TbBool update_trap_trigger_pressure_subtile(struct Thing *traptng)
 
 TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
 {
-    struct Thing* trgtng = get_nearest_enemy_creature_possible_to_attack_by(traptng);
-
-    if (line_of_sight_2d(&traptng->mappos, &trgtng->mappos))
+    struct Thing* trgtng = get_nearest_enemy_creature_in_sight_and_range_of_trap(traptng);
+    if (!thing_is_invalid(trgtng))
     {
         activate_trap(traptng, trgtng);
         return true;
@@ -962,7 +971,13 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     }
 }
 
-TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+TbBool trap_on_bridge(ThingModel trpkind)
+{
+    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpkind];
+    return trapst->placeonbridge;
+}
+
+TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind)
 {
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -980,7 +995,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     if (slab_kind_is_liquid(slb->kind)) {
         return false;
     }
-    if ((slabmap_owner(slb) == plyr_idx) && ((slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
+    if ((slabmap_owner(slb) == plyr_idx) && (((slb->kind == SlbT_BRIDGE) && (trap_on_bridge(trpkind))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
         if ((!gameadd.place_traps_on_subtiles))
         {

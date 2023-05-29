@@ -60,7 +60,10 @@ const struct NamedCommand magic_spell_commands[] = {
   {"SHOTMODEL",       5},
   {"EFFECTMODEL",     6},
   {"SYMBOLSPRITES",   7},
-  {"SUMMONCREATURE",  8},
+  {"SPELLPOWER",      8},
+  {"AURAEFFECT",      9},
+  {"SPELLFLAGS",     10},
+  {"SUMMONCREATURE", 11},
   {NULL,              0},
   };
 
@@ -283,9 +286,9 @@ TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
 
 struct SpellData *get_power_data(int pwkind)
 {
-  if ((pwkind > 0) && (pwkind < POWER_TYPES_COUNT))
+  if ((pwkind > 0) && (pwkind < magic_conf.power_types_count))
     return &spell_data[pwkind];
-  if ((pwkind < -1) || (pwkind >= POWER_TYPES_COUNT))
+  if ((pwkind < -1) || (pwkind >= magic_conf.power_types_count))
     ERRORLOG("Request of invalid power (no %d) intercepted",pwkind);
   return &spell_data[0];
 }
@@ -352,7 +355,7 @@ TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst)
 
 struct MagicStats *get_power_dynamic_stats(PowerKind pwkind)
 {
-    if (pwkind >= POWER_TYPES_COUNT)
+    if (pwkind >= magic_conf.power_types_count)
         return &game.keeper_power_stats[0];
     return &game.keeper_power_stats[pwkind];
 }
@@ -519,6 +522,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             }
 
             spconf = get_spell_config(i);
+            spconf->linked_power = 0;
             spconf->duration = 0;
             spconf->caster_affected = 0;
             spconf->caster_affect_sound = 0;
@@ -529,6 +533,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             spconf->medsym_sprite_idx = 0;
             spconf->crtr_summon_model = 0;
             spconf->crtr_summon_level = 0;
+            spconf->aura_effect = 0;
+            spconf->spell_flags = 0;
         }
     }
     
@@ -695,7 +701,71 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 8: // SUMMONCREATURE
+      case 8: // SPELLPOWER
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+              }
+              else
+              {
+                  k = get_id(power_desc, word_buf);
+              }
+              if (k >= 0)
+              {
+                  spconf->linked_power = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 9: // AURAEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+                  spconf->aura_effect = k;
+                  n++;
+              }
+              else
+              {
+                  k = get_id(effect_desc, word_buf);
+                  if (k >= 0)
+                  {
+                      spconf->aura_effect = k;
+                      n++;
+                  }
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 10: // SPELLFLAGS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  spconf->spell_flags = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+        case 11: // SUMMONCREATURE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = get_id(creature_desc, word_buf);
@@ -722,8 +792,8 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           if (n < 2)
           {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 0: // comment
@@ -1656,29 +1726,29 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   // Block name and parameter word store variables
   // Initialize the array
   int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
+  arr_size = sizeof(magic_conf.power_cfgstats) / sizeof(magic_conf.power_cfgstats[0]);
+  for (i = 0; i < arr_size; i++)
   {
-      arr_size = sizeof(magic_conf.power_cfgstats)/sizeof(magic_conf.power_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
+      if ((flags & CnfLd_AcceptPartial) == 0)
       {
-          powerst = get_power_model_stats(i);
-          LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
-          powerst->artifact_model = 0;
-          powerst->can_cast_flags = 0;
-          powerst->config_flags = 0;
-          powerst->overcharge_check = NULL;
-          powerst->work_state = 0;
-          powerst->bigsym_sprite_idx = 0;
-          powerst->medsym_sprite_idx = 0;
-          powerst->name_stridx = 0;
-          powerst->tooltip_stridx = 0;
-          powerst->select_sample_idx = 0;
-          powerst->pointer_sprite_idx = 0;
-          powerst->panel_tab_idx = 0;
-          powerst->select_sound_idx = 0;
-          powerst->cast_cooldown = 0;
-          if (i < magic_conf.power_types_count)
+          if ((i < magic_conf.power_types_count) || (strlen(power_desc[i].name) <= 0))
           {
+              powerst = get_power_model_stats(i);
+              LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+              powerst->artifact_model = 0;
+              powerst->can_cast_flags = 0;
+              powerst->config_flags = 0;
+              powerst->overcharge_check = NULL;
+              powerst->work_state = 0;
+              powerst->bigsym_sprite_idx = 0;
+              powerst->medsym_sprite_idx = 0;
+              powerst->name_stridx = 0;
+              powerst->tooltip_stridx = 0;
+              powerst->select_sample_idx = 0;
+              powerst->pointer_sprite_idx = 0;
+              powerst->panel_tab_idx = 0;
+              powerst->select_sound_idx = 0;
+              powerst->cast_cooldown = 0;
               power_desc[i].name = powerst->code_name;
               power_desc[i].num = i;
           } else
@@ -1688,8 +1758,12 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
       }
       arr_size = sizeof(gameadd.object_conf.object_to_power_artifact)/sizeof(gameadd.object_conf.object_to_power_artifact[0]);
-      for (i=0; i < arr_size; i++) {
-          gameadd.object_conf.object_to_power_artifact[i] = 0;
+      for (i = 0; i < arr_size; i++)
+      {
+          if ((flags & CnfLd_AcceptPartial) == 0)
+          {
+              gameadd.object_conf.object_to_power_artifact[i] = 0;
+          }
       }
   }
   arr_size = magic_conf.power_types_count;
@@ -1735,6 +1809,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
               break;
           }
+          power_desc[i].name = powerst->code_name;
+          power_desc[i].num = i;
           break;
       case 2: // POWER
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -2333,7 +2409,7 @@ int power_model_id(const char * code_name)
  */
 TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
-    if (pwkind >= KEEPER_POWERS_COUNT)
+    if (pwkind >= magic_conf.power_types_count)
     {
         ERRORLOG("Can't add incorrect power %d to player %d",(int)pwkind, (int)plyr_idx);
         return false;
@@ -2411,7 +2487,7 @@ TbBool make_all_powers_cost_free(void)
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    for (long i = 0; i < KEEPER_POWERS_COUNT; i++)
+    for (long i = 0; i < magic_conf.power_types_count; i++)
     {
         dungeon->magic_resrchable[i] = 1;
     }
@@ -2469,7 +2545,7 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if (pwkind >= KEEPER_POWERS_COUNT)
+    if (pwkind >= magic_conf.power_types_count)
     {
         ERRORLOG("Incorrect power %ld (player %ld)", pwkind, plyr_idx);
         return false;
@@ -2500,7 +2576,7 @@ TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind)
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if (pwkind >= KEEPER_POWERS_COUNT) {
+    if (pwkind >= magic_conf.power_types_count) {
         ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
         return false;
     }
@@ -2519,7 +2595,7 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
       ERRORDBG(11,"Cannot make research available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
-  for (long i = 0; i < KEEPER_POWERS_COUNT; i++)
+  for (long i = 0; i < magic_conf.power_types_count; i++)
   {
     if (dungeon->magic_resrchable[i])
     {

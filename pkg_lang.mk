@@ -52,6 +52,7 @@ pkg/campgns/burdnimp/text_pol.dat \
 pkg/campgns/burdnimp/text_spa.dat \
 pkg/campgns/cqarctic/text_eng.dat \
 pkg/campgns/cqarctic/text_chi.dat \
+pkg/campgns/cqarctic/text_fre.dat \
 pkg/campgns/cqarctic/text_pol.dat \
 pkg/campgns/cqarctic/text_spa.dat \
 pkg/campgns/dstninja/text_eng.dat \
@@ -79,19 +80,26 @@ pkg/campgns/revlord/text_chi.dat \
 pkg/campgns/revlord/text_spa.dat \
 pkg/campgns/twinkprs/text_eng.dat \
 pkg/campgns/twinkprs/text_chi.dat \
+pkg/campgns/twinkprs/text_fre.dat \
+pkg/campgns/twinkprs/text_jpn.dat \
 pkg/campgns/twinkprs/text_pol.dat \
 pkg/campgns/twinkprs/text_spa.dat \
 pkg/campgns/undedkpr/text_eng.dat \
 pkg/campgns/undedkpr/text_chi.dat \
+pkg/campgns/undedkpr/text_ger.dat \
 pkg/campgns/undedkpr/text_pol.dat \
 pkg/campgns/undedkpr/text_spa.dat
 
 MPTEXTDATS = \
 pkg/levels/classic/text_eng.dat \
 pkg/levels/classic/text_chi.dat \
+pkg/levels/classic/text_fre.dat \
+pkg/levels/classic/text_ger.dat \
 pkg/levels/classic/text_spa.dat \
 pkg/levels/standard/text_eng.dat \
 pkg/levels/standard/text_chi.dat \
+pkg/levels/standard/text_fre.dat \
+pkg/levels/standard/text_ger.dat \
 pkg/levels/standard/text_spa.dat
 
 EU_CHAR_ENCODING = tools/po2ngdat/res/char_encoding_tbl_eu.txt
@@ -143,6 +151,9 @@ pkg/%/text_fre.dat: lang/%/text_fre.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 
 pkg/%/text_ger.dat: lang/%/text_ger.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
+
+pkg/%/text_jpn.dat: lang/%/text_jpn.po $(POTONGDAT) $(JP_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(JP_CHAR_ENCODING) $< >/dev/null
 
 pkg/%/text_pol.dat: lang/%/text_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null

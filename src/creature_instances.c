@@ -269,6 +269,17 @@ TbBool instance_is_disarming_weapon(CrInstance inum)
     return false;
 }
 
+TbBool instance_draws_possession_swipe(CrInstance inum)
+{
+    struct InstanceInfo* inst_inf;
+    inst_inf = creature_instance_info_get(inum);
+    if (inst_inf->flags & InstPF_UsesSwipe)
+    {
+        return true;
+    }
+    return false;
+}
+
 TbBool instance_is_ranged_weapon(CrInstance inum)
 {
     struct InstanceInfo* inst_inf;

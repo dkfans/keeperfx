@@ -73,6 +73,7 @@ const struct NamedCommand objects_properties_commands[] = {
   {"DESTROYED_ON_ROOM_CLAIM", 2},
   {"CHOWNED_ON_ROOM_CLAIM",   3},
   {"DESTROYED_ON_ROOM_PLACE", 4},
+  {"BUOYANT",                 5},
   {NULL,                      0},
   };
 
@@ -342,6 +343,10 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                       break;
                   case 4: // DESTROYED_ON_ROOM_PLACE
                       objst->model_flags |= OMF_DestroyedOnRoomPlace;
+                      n++;
+                      break;
+                  case 5: // BOUYANT
+                      objst->model_flags |= OMF_Buoyant;
                       n++;
                       break;
                   default:
@@ -634,8 +639,8 @@ void update_all_object_stats()
         struct Objects* objdat = get_objects_data_for_thing(thing);
         set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
         // TODO: Should we rotate this on per-object basis?
-        get_thingadd(thing->index)->flags = 0;
-        get_thingadd(thing->index)->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+        thing->flags = 0;
+        thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
 
         struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
         if (thing->light_id != 0)

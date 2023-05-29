@@ -78,9 +78,8 @@ unsigned long thing_create_errors = 0;
 /******************************************************************************/
 
 void set_previous_thing_position(struct Thing *thing) {
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->previous_mappos = thing->mappos;
-    thingadd->previous_floor_height = thing->floor_height;
+    thing->previous_mappos = thing->mappos;
+    thing->previous_floor_height = thing->floor_height;
 }
 
 /**
@@ -268,6 +267,47 @@ long near_map_block_thing_filter_call_bool_filter(const struct Thing *thing, Max
                     refpos.z.val = 0;
                     // This function should return max value when the distance is minimal, so:
                     return LONG_MAX-get_2d_distance(&thing->mappos, &refpos);
+                }
+            }
+        }
+    }
+    // If conditions are not met, return -1 to be sure thing will not be returned.
+    return -1;
+}
+
+
+/**
+ * Filter function.
+ * @param thing The thing being checked.
+ * @param param Parameters exchanged between filter calls.
+ * @param maximizer Previous value which made a thing pass the filter.
+ */
+long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct Thing* thing, MaxTngFilterParam param, long maximizer)
+{
+    if ((param->class_id == -1) || (thing->class_id == param->class_id))
+    {
+        if (thing_matches_model(thing, param->model_id))
+        {
+            if ((param->plyr_idx == -1) || (thing->owner == param->plyr_idx))
+            {
+                struct Thing* traptng = thing_get(param->num1);
+                if (players_are_enemies(traptng->owner, thing->owner) || is_neutral_thing(traptng))
+                {
+                    if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
+                        && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
+                        && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
+                    {
+                        MapCoordDelta distance = get_2d_distance(&thing->mappos, &traptng->mappos);
+                        MapCoordDelta max_range = param->num2;
+                        if ((distance <= max_range) || (max_range <= 0))
+                        {
+                            if (line_of_sight_2d(&traptng->mappos, &thing->mappos))
+                            {
+                                // This function should return max value when the distance is minimal, so:
+                                return LONG_MAX - distance;
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -759,13 +799,13 @@ TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
     if (!is_creature_model_wildcard(crmodel))
         return crmodel == creatng->model;
     else if (crmodel == CREATURE_ANY)
-        return true;
+        return (creatng->model != get_players_spectator_model(creatng->owner)); //we can assume we do not want to cast on the floating spirit
     else if (crmodel == CREATURE_NONE)
         return false;
     if (crmodel == CREATURE_DIGGER)
         return creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
     else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return !creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
+        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel)) && (creatng->model != get_players_spectator_model(creatng->owner)));
     else
         ERRORLOG("Invalid model wildcard detected: %d", crmodel);
     return false;
@@ -1763,6 +1803,23 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
     param.num2 = -1;
     param.ptr3 = (void *)matcher_cb;
     return get_nth_thing_of_class_with_filter(filter, &param, n);
+}
+
+struct Thing* get_nearest_enemy_creature_in_sight_and_range_of_trap(struct Thing* traptng)
+{
+    const struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
+
+    SYNCDBG(19, "Starting");
+    Thing_Maximizer_Filter filter = near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap;
+    struct CompoundTngFilterParam param;
+    param.class_id = TCls_Creature;
+    param.model_id = CREATURE_ANY;
+    param.plyr_idx = -1;
+    param.num1 = traptng->index;
+    param.num2 = shotst->max_range;
+    param.num3 = -1;
+    return get_nth_thing_of_class_with_filter(filter, &param, 0);
 }
 
 struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *creatng)
@@ -3100,9 +3157,9 @@ TbBool update_thing(struct Thing *thing)
         if (thing->mappos.z.val > thing->floor_height)
         {
             if (thing->veloc_base.x.val != 0)
-                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_air) / 256;
+                thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_air) / 256;
             if (thing->veloc_base.y.val != 0)
-                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_air) / 256;
+                thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_air) / 256;
             if ((thing->movement_flags & TMvF_Flying) == 0)
             {
                 thing->veloc_push_add.z.val -= thing->fall_acceleration;
@@ -3112,7 +3169,7 @@ TbBool update_thing(struct Thing *thing)
                 // For flying creatures, the Z velocity should also decrease over time
                 if (thing->veloc_base.z.val != 0)
                 {
-                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - (int)thing->inertia_air) / 256;
+                    thing->veloc_base.z.val = thing->veloc_base.z.val * (256 - thing->inertia_air) / 256;
                 }
                 else 
                 {
@@ -3126,9 +3183,9 @@ TbBool update_thing(struct Thing *thing)
         } else
         {
             if (thing->veloc_base.x.val != 0)
-              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - (int)thing->inertia_floor) / 256;
+              thing->veloc_base.x.val = thing->veloc_base.x.val * (256 - thing->inertia_floor) / 256;
             if (thing->veloc_base.y.val != 0)
-              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - (int)thing->inertia_floor) / 256;
+              thing->veloc_base.y.val = thing->veloc_base.y.val * (256 - thing->inertia_floor) / 256;
             thing->mappos.z.val = thing->floor_height;
             if ((thing->movement_flags & TMvF_Unknown08) != 0)
             {

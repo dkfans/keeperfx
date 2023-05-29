@@ -219,6 +219,8 @@ short cursor_light_idx;
     GameTurn power_of_cooldown_turn;
     long game_version;
     GameTurn display_objective_turn;
+    unsigned long isometric_view_zoom_level;
+    unsigned long frontview_zoom_level;
     };
 
 struct CheatSelection
@@ -305,6 +307,7 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 void clear_players(void);
 
 PlayerNumber player_bit_to_player_number(unsigned char plyr_bit);
+unsigned char rotate_mode_to_view_mode(unsigned char mode);
 /******************************************************************************/
 #ifdef __cplusplus
 }
