@@ -409,12 +409,12 @@ TbBool update_creature_pool_state(void)
     return true;
 }
 
-void add_creature_to_pool(long kind, long amount, unsigned long a3)
+void add_creature_to_pool(ThingModel kind, long amount, TbBool from_death)
 {
     long prev_amount;
     kind %= gameadd.crtr_conf.model_count;
     prev_amount = game.pool.crtr_kind[kind];
-    if ((a3 == 0) || (prev_amount != -1))
+    if ((from_death == false) || (prev_amount != -1))
     {
         if ((amount != -1) && (amount != 0) && (prev_amount != -1))
             game.pool.crtr_kind[kind] = prev_amount + amount;

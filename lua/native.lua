@@ -407,7 +407,7 @@ function DISPLAY_MESSAGE() end
 
 ---Flashes a button on the toolar until the player selects it.
 ---@param button integer Id of the button.
----@param player playerrange Probably the music track number.
+---@param gameturns integer how long the button should flash for in 1/20th of a secon.
 function TUTORIAL_FLASH_BUTTON(button,player) end
 
 function ADD_TO_TIMER() end

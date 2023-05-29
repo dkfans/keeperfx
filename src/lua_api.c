@@ -16,6 +16,8 @@
 #include "lvl_script_lib.h"
 #include "room_library.h"
 #include "keeperfx.hpp"
+#include "music_player.h"
+
 
 #include "post_inc.h"
 
@@ -82,7 +84,6 @@ static TbMapLocation luaL_optLocation(lua_State *L, int index)
         return 0;
     else
         return luaL_checkLocation(L,index);
-
 }
 
 static TbMapLocation luaL_checkHeadingLocation(lua_State *L, int index)
@@ -147,6 +148,20 @@ static MapSubtlCoord luaL_checkstl_y(lua_State *L, int index)
                        "y subtile coord out of range");
     return stl_y;
 }
+
+static ActionPointId luaL_checkActionPoint(lua_State *L, int index)
+{
+    int apt_num = luaL_checkint(L,index);
+    long apt_idx = action_point_number_to_index(apt_num);
+    if (!action_point_exists_idx(apt_idx))
+    {
+        luaL_error(L,"Non-existing Action Point, no %d", apt_num);
+        return;
+    }
+    return apt_idx;
+}
+
+
 
 
 
@@ -605,20 +620,89 @@ static int lua_ADD_TUNNELLER_PARTY_TO_LEVEL(lua_State *L)
     PlayerNumber owner           = luaL_checkPlayerSingle(L, 1);
     const char *party_name       = luaL_checkstring(L,  2);
     TbMapLocation spawn_location = luaL_checkLocation(L,  3);
-    TbMapLocation head_for       = luaL_checkHeadingLocation(L,3);
-    long target                  = luaL_checkinteger(L, 4);
-    long experience              = luaL_checkinteger(L, 4);
-    GoldAmount gold              = luaL_checkinteger(L, 4);
+    TbMapLocation head_for       = luaL_checkHeadingLocation(L,4);
+    long target                  = luaL_checkinteger(L, 5);
+    long crtr_level              = luaL_checkinteger(L, 6);
+    GoldAmount carried_gold      = luaL_checkinteger(L, 7);
 
+    if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Invalid CREATURE LEVEL parameter");
+        return 0;
+    }
+    // Recognize party name
+    long prty_id = get_party_index_of_name(party_name);
+    if (prty_id < 0)
+    {
+        SCRPTERRLOG("Party of requested name, '%s', is not defined", party_name);
+        return 0;
+    }
+    struct Party* party = &gameadd.script.creature_partys[prty_id];
+    if (party->members_num >= GROUP_MEMBERS_COUNT-1)
+    {
+        SCRPTERRLOG("Party too big for ADD_TUNNELLER (Max %d members)", GROUP_MEMBERS_COUNT-1);
+        return 0;
+    }
 
+    script_process_new_tunneller_party(owner, prty_id, spawn_location, head_for, crtr_level-1, carried_gold);
+    return 0;
 }
-//static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
-/*
+
+static int lua_ADD_CREATURE_TO_POOL(lua_State *L)
+{
+    long crtr_model = luaL_checkNamedCommand(L,1,creature_desc);
+    long amount     = luaL_checkinteger(L, 2);
+
+    add_creature_to_pool(crtr_model, amount, false);
+    return 0;
+}
+
 static int lua_RESET_ACTION_POINT(lua_State *L)
+{
+    ActionPointId apt_idx     = luaL_checkActionPoint(L, 1);
+
+    action_point_reset_idx(apt_idx);
+    return 0;
+}
+
 static int lua_SET_CREATURE_MAX_LEVEL(lua_State *L)
+{
+
+    struct PlayerRange player_range = luaL_checkPlayerRange(L, 1);
+    long crtr_model                 = luaL_checkNamedCommand(L,2,creature_desc);
+    long max_level                  = luaL_checkinteger(L, 3);
+
+    for (PlayerNumber i = player_range.start_idx; i < player_range.end_idx; i++)
+    {
+        struct Dungeon* dungeon = get_dungeon(i);
+        if (dungeon_invalid(dungeon))
+            continue;
+        if (max_level == -1)
+            max_level = CREATURE_MAX_LEVEL + 1;
+        dungeon->creature_max_level[crtr_model%gameadd.crtr_conf.model_count] = max_level;
+    }
+    return 0;
+}
+
 static int lua_SET_MUSIC(lua_State *L)
-*/
-//static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
+{
+    long track_number                  = luaL_checkinteger(L, 1);
+
+    if (track_number >= FIRST_TRACK && track_number <= max_track)
+    {
+        game.audiotrack = track_number;
+    }
+    
+}
+
+static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
+{
+
+    long          button    = luaL_checkinteger(L, 1);
+    GameTurnDelta gameturns = luaL_checkinteger(L, 2);
+
+    gui_set_button_flashing(button,gameturns);
+}
 /*
 static int lua_SET_CREATURE_STRENGTH(lua_State *L)
 static int lua_SET_CREATURE_HEALTH(lua_State *L)
@@ -785,7 +869,6 @@ static const luaL_reg game_methods[] = {
     {"ADD_TUNNELLER_TO_LEVEL",              lua_ADD_TUNNELLER_TO_LEVEL},
     {"WIN_GAME",                            lua_WIN_GAME},
     {"LOSE_GAME",                           lua_LOSE_GAME},
-        /*
     {"MAX_CREATURES",                       lua_MAX_CREATURES},
     {"DOOR_AVAILABLE",                      lua_DOOR_AVAILABLE},
     {"DISPLAY_OBJECTIVE",                   lua_DISPLAY_OBJECTIVE},
@@ -798,6 +881,7 @@ static const luaL_reg game_methods[] = {
     {"SET_CREATURE_MAX_LEVEL",              lua_SET_CREATURE_MAX_LEVEL},
     {"SET_MUSIC",                           lua_SET_MUSIC},
     {"TUTORIAL_FLASH_BUTTON",               lua_TUTORIAL_FLASH_BUTTON},
+    /*
     {"SET_CREATURE_STRENGTH",               lua_SET_CREATURE_STRENGTH},
     {"SET_CREATURE_HEALTH",                 lua_SET_CREATURE_HEALTH},
     {"SET_CREATURE_ARMOUR",                 lua_SET_CREATURE_ARMOUR},
