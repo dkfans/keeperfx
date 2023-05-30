@@ -72,6 +72,7 @@ struct TrapConfigStats {
     short notify;
     short unsellable;
     short placeonbridge;
+    short placeonsubtile;
 };
 
 /**
