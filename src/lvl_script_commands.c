@@ -226,6 +226,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"Unstable",            33},
   {"Unsellable",          34},
   {"PlaceOnBridge",       35},
+  {"PlaceOnSubtile",      36},
   {NULL,                   0},
 };
 
@@ -1294,6 +1295,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 35: // PlaceOnBridge
             trapst->placeonbridge = value;
+            break;
+        case 36: // PlaceOnSubtile
+            trapst->placeonsubtile = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
