@@ -971,6 +971,12 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     }
 }
 
+TbBool trap_on_subtile(ThingModel trpkind)
+{
+    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpkind];
+    return trapst->placeonsubtile;
+}
+
 TbBool trap_on_bridge(ThingModel trpkind)
 {
     struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpkind];
@@ -997,14 +1003,9 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     }
     if ((slabmap_owner(slb) == plyr_idx) && (((slb->kind == SlbT_BRIDGE) && (trap_on_bridge(trpkind))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
-        if ((!gameadd.place_traps_on_subtiles))
+        if (!trap_on_subtile(trpkind))
         {
                 HasTrap = slab_has_trap_on(slb_x, slb_y);
-                HasDoor = slab_is_door(slb_x, slb_y);
-        }
-        else if ( (gameadd.place_traps_on_subtiles) && (player->chosen_trap_kind == TngTrp_Boulder) ) 
-        {
-                HasTrap = subtile_has_trap_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
                 HasDoor = slab_is_door(slb_x, slb_y);
         }
         else
