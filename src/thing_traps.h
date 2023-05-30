@@ -109,6 +109,7 @@ TbBool thing_is_deployed_trap(const struct Thing *thing);
 short thing_is_destructible_trap(const struct Thing* thing);
 TbBool thing_is_sellable_trap(const struct Thing* thing);
 TbBool trap_on_bridge(ThingModel trpkind);
+TbBool trap_on_subtile(ThingModel trpkind);
 TbBool rearm_trap(struct Thing *traptng);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);
