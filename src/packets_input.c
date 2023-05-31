@@ -635,7 +635,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         return false;
     }
     player->full_slab_cursor = ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles));
-    long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+    long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->full_slab_cursor, player->chosen_trap_kind);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
