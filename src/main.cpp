@@ -3527,7 +3527,10 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
     if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
         return 0;
     }
-    remove_dead_creatures_from_slab(subtile_slab(stl_x), subtile_slab(stl_y));
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+    remove_dead_creatures_from_slab(slb_x, slb_y);
     return 1;
 }
 
