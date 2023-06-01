@@ -62,25 +62,24 @@ char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr
 {
     MapSlabCoord door_slb_x = subtile_slab(stl_x);
     MapSlabCoord door_slb_y = subtile_slab(stl_y);
-
     struct SlabMap* door_slb = get_slabmap_block(door_slb_x, door_slb_y);
-    
     if ( door_slb->kind != SlbT_CLAIMED || slabmap_owner(door_slb) != plyr_idx )
     {
         return -1;
     }
-
     unsigned int wall_flags = 0;
+    MapSubtlCoord door_stl_x = slab_subtile_center(door_slb_x);
+    MapSubtlCoord door_stl_y = slab_subtile_center(door_slb_y);
     for ( int i = 0; i < SMALL_AROUND_LENGTH; ++i )
     {
         wall_flags <<= 1;
-        MapSlabCoord slb_x = door_slb_x + small_around[i].delta_x;
-        MapSlabCoord slb_y = door_slb_y + small_around[i].delta_y;
-
-        if (slab_is_wall(slb_x,slb_y))
+        MapSubtlCoord astl_x = door_stl_x + (small_around[i].delta_x * 2);
+        MapSubtlCoord astl_y = door_stl_y + (small_around[i].delta_y * 2);
+        if (subtile_is_wall(astl_x,astl_y))
+        {
             wall_flags |= 0x01;
+        }
     }
-
     return build_door_angle[wall_flags];
 }
 
