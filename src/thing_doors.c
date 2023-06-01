@@ -67,20 +67,7 @@ char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr
     {
         return -1;
     }
-    unsigned int wall_flags = 0;
-    MapSubtlCoord door_stl_x = slab_subtile_center(door_slb_x);
-    MapSubtlCoord door_stl_y = slab_subtile_center(door_slb_y);
-    for ( int i = 0; i < SMALL_AROUND_LENGTH; ++i )
-    {
-        wall_flags <<= 1;
-        MapSubtlCoord astl_x = door_stl_x + (small_around[i].delta_x * 2);
-        MapSubtlCoord astl_y = door_stl_y + (small_around[i].delta_y * 2);
-        if (subtile_is_wall(astl_x,astl_y))
-        {
-            wall_flags |= 0x01;
-        }
-    }
-    return build_door_angle[wall_flags];
+    return determine_door_angle(door_slb_x, door_slb_y);
 }
 
 char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -89,6 +76,11 @@ char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y)
     {
         return -1;
     }
+    return determine_door_angle(slb_x, slb_y);
+}
+
+char determine_door_angle(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
     unsigned int wall_flags = 0;
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
