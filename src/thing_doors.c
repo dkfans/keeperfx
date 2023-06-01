@@ -90,38 +90,20 @@ char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y)
     {
         return -1;
     }
-    else if ( ((slab_is_wall(slb_x-1, slb_y))) && ((slab_is_wall(slb_x+1, slb_y))) && ((!slab_is_wall(slb_x, slb_y-1))) && ((!slab_is_wall(slb_x, slb_y+1))) )
+    unsigned int wall_flags = 0;
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    for ( int i = 0; i < SMALL_AROUND_LENGTH; ++i )
     {
-        return 0;    
+        wall_flags <<= 1;
+        MapSubtlCoord astl_x = stl_x + (small_around[i].delta_x * 2);
+        MapSubtlCoord astl_y = stl_y + (small_around[i].delta_y * 2);
+        if (subtile_is_wall(astl_x,astl_y))
+        {
+            wall_flags |= 0x01;
+        }
     }
-    else if ( ((slab_is_wall(slb_x-1, slb_y))) && ((slab_is_wall(slb_x+1, slb_y))) && ((slab_is_wall(slb_x, slb_y-1))) && ((!slab_is_wall(slb_x, slb_y+1))) )
-    {
-        return 0;    
-    }
-    else if ( ((slab_is_wall(slb_x-1, slb_y))) && ((slab_is_wall(slb_x+1, slb_y))) && ((!slab_is_wall(slb_x, slb_y-1))) && ((slab_is_wall(slb_x, slb_y+1))) )
-    {
-        return 0;    
-    }
-    else if ( ((slab_is_wall(slb_x, slb_y-1))) && ((slab_is_wall(slb_x, slb_y+1))) && ((!slab_is_wall(slb_x-1, slb_y))) && ((!slab_is_wall(slb_x+1, slb_y))) )
-    {
-        return 1;    
-    }
-    else if ( ((slab_is_wall(slb_x, slb_y-1))) && ((slab_is_wall(slb_x, slb_y+1))) && ((slab_is_wall(slb_x-1, slb_y))) && ((!slab_is_wall(slb_x+1, slb_y))) )
-    {
-        return 1;    
-    }
-    else if ( ((slab_is_wall(slb_x, slb_y-1))) && ((slab_is_wall(slb_x, slb_y+1))) && ((!slab_is_wall(slb_x-1, slb_y))) && ((slab_is_wall(slb_x+1, slb_y))) )
-    {
-        return 1;    
-    }
-    else if ( ((slab_is_wall(slb_x, slb_y-1))) && ((slab_is_wall(slb_x, slb_y+1))) && ((slab_is_wall(slb_x-1, slb_y))) && ((slab_is_wall(slb_x+1, slb_y))) )
-    {
-        return -1;    
-    }
-    else
-    {
-        return -1;
-    }
+    return build_door_angle[wall_flags];
 }
 
 struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned char orient, PlayerNumber plyr_idx, TbBool is_locked)
