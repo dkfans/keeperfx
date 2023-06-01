@@ -1092,11 +1092,11 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[2]);
         return;
     }
-    long ap_num = scline->np[0];
-    long flag_player_id = scline->np[3];
+    short ap_num = scline->np[0];
+    char flag_player_id = scline->np[3];
     const char *flag_name = scline->tp[4];
 
-    short flag_id, flag_type;
+    long flag_id, flag_type;
     if (!parse_get_varib(flag_name, &flag_id, &flag_type))
     {
         SCRPTERRLOG("Unknown flag, '%s'", flag_name);
@@ -1104,10 +1104,10 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     }
 
     value->shorts[0] = ap_num;
-    value->bytes[2] = crmodel;
+    value->bytes[2] = (unsigned char)crmodel;
     value->chars[3] = flag_player_id;
-    value->shorts[4] = flag_id;
-    value->chars[6] = flag_type;
+    value->shorts[4] = (short)flag_id;
+    value->chars[6] = (char)flag_type;
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
