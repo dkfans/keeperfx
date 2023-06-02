@@ -1032,7 +1032,15 @@ void reset_scroll_window(struct GuiMenu *gmnu)
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
 {
-    set_menu_mode(gbtn->btype_value & LbBFeF_IntValueMask);
+    long mnu_idx = gbtn->btype_value & LbBFeF_IntValueMask;
+    if (mnu_idx == GMnu_SPELL)
+    {
+        if (menu_is_active(GMnu_SPELL2))
+        {
+            mnu_idx = GMnu_SPELL2;
+        }
+    }
+    set_menu_mode(mnu_idx);
 }
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)
