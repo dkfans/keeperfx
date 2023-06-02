@@ -2344,7 +2344,7 @@ static void display_variable_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->bytes[0] = scline->np[0];
     value->bytes[1] = scline->np[3];
-    gameadd.script_value_type = varib_type;
+    value->bytes[2] = varib_type;
     value->arg1 = varib_id;
     value->arg2 = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -2353,6 +2353,7 @@ static void display_variable_check(const struct ScriptLine *scline)
 static void display_variable_process(struct ScriptContext *context)
 {
    gameadd.script_player = context->value->bytes[0];
+   gameadd.script_value_type = context->value->bytes[2];
    gameadd.script_value_id = context->value->arg1;
    gameadd.script_variable_target = context->value->arg2;
    gameadd.script_variable_target_type = context->value->bytes[1];
