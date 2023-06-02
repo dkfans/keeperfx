@@ -62,6 +62,7 @@ TbBool remove_key_on_door(struct Thing *thing);
 
 char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y);
+char determine_door_angle(MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 TbBool player_has_deployed_door_of_model(PlayerNumber owner, int model, short locked);
 long count_player_deployed_doors_of_model(PlayerNumber owner, int model);

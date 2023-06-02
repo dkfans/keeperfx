@@ -1092,8 +1092,8 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[2]);
         return;
     }
-    long ap_num = scline->np[0];
-    long flag_player_id = scline->np[3];
+    short ap_num = scline->np[0];
+    char flag_player_id = scline->np[3];
     const char *flag_name = scline->tp[4];
 
     long flag_id, flag_type;
@@ -1104,10 +1104,10 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     }
 
     value->shorts[0] = ap_num;
-    value->bytes[2] = crmodel;
+    value->bytes[2] = crmodel % CREATURE_TYPES_MAX;
     value->chars[3] = flag_player_id;
-    value->chars[4] = flag_id;
-    value->chars[5] = flag_type;
+    value->shorts[2] = flag_id;
+    value->chars[6] = flag_type;
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1381,8 +1381,8 @@ static void count_creatures_at_action_point_process(struct ScriptContext* contex
     long ap_num = context->value->shorts[0];
     long crmodel = context->value->bytes[2];
     long flag_player_id = context->value->chars[3];
-    long flag_id = context->value->chars[4];
-    long flag_type = context->value->chars[5];
+    long flag_id = context->value->shorts[2];
+    long flag_type = context->value->chars[6];
 
     long sum = 0;
     for (int i = context->plr_start; i < context->plr_end; i++) {
@@ -2344,7 +2344,7 @@ static void display_variable_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->bytes[0] = scline->np[0];
     value->bytes[1] = scline->np[3];
-    gameadd.script_value_type = varib_type;
+    value->bytes[2] = varib_type;
     value->arg1 = varib_id;
     value->arg2 = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -2353,6 +2353,7 @@ static void display_variable_check(const struct ScriptLine *scline)
 static void display_variable_process(struct ScriptContext *context)
 {
    gameadd.script_player = context->value->bytes[0];
+   gameadd.script_value_type = context->value->bytes[2];
    gameadd.script_value_id = context->value->arg1;
    gameadd.script_variable_target = context->value->arg2;
    gameadd.script_variable_target_type = context->value->bytes[1];
