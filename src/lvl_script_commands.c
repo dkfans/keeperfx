@@ -1127,9 +1127,14 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         }
         else 
         {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
+            newvalue = get_id(room_roles_desc, valuestring);
+            if (newvalue == -1)
+                {
+                    SCRPTERRLOG("Unknown Roles variable");
+                    DEALLOCATE_SCRIPT_VALUE
+                        return;
+                }
+            value->uarg1 = newvalue;
         }
     }
     else if (roomvar == 14) // TotalCapacity
