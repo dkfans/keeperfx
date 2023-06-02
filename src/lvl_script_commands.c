@@ -1102,9 +1102,14 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         }
         else 
         {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
+            newvalue = get_id(terrain_room_properties_commands, valuestring);
+            if (newvalue == -1)
+                {
+                    SCRPTERRLOG("Unknown Properties variable");
+                    DEALLOCATE_SCRIPT_VALUE
+                        return;
+                }
+            value->shorts[2] = newvalue;
         }
     }
     else if (roomvar == 13) // Roles
@@ -1122,9 +1127,14 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         }
         else 
         {
-            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
+            newvalue = get_id(room_roles_desc, valuestring);
+            if (newvalue == -1)
+                {
+                    SCRPTERRLOG("Unknown Properties variable");
+                    DEALLOCATE_SCRIPT_VALUE
+                        return;
+                }
+            value->uarg1 = newvalue;
         }
     }
     else if (roomvar == 14) // TotalCapacity
@@ -1582,9 +1592,13 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 12: // Properties
             roomst->flags = value;
+            roomst->flags |= value2;
+            roomst->flags |= value3;
             break;
         case 13: // Roles
             roomst->roles = value;
+            roomst->roles |= value2;
+            roomst->roles |= value3;
             break;
         case 14: // TotalCapacity
             roomst->update_total_capacity = terrain_room_total_capacity_func_list[value];
