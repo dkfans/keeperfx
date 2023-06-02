@@ -1130,7 +1130,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             newvalue = get_id(room_roles_desc, valuestring);
             if (newvalue == -1)
                 {
-                    SCRPTERRLOG("Unknown Properties variable");
+                    SCRPTERRLOG("Unknown Room Roles variable");
                     DEALLOCATE_SCRIPT_VALUE
                         return;
                 }
