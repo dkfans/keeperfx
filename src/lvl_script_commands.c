@@ -1114,14 +1114,23 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     }
     else if (roomvar == 13) // Roles
     {
-        newvalue = get_id(room_roles_desc, valuestring);
-        if (newvalue == -1)
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+            if ((newvalue > 33554431) || (newvalue < 0))
             {
-                SCRPTERRLOG("Unknown Roles variable");
+                SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
-                    return;
+                return;
             }
-        value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
     else if (roomvar == 14) // TotalCapacity
     {
@@ -1523,7 +1532,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
 {
     long room_type = context->value->shorts[0];
     struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
-    short value = context->value->shorts[2];
+    unsigned long value = context->value->uarg1;
     short value2 = context->value->shorts[3];
     short value3 = context->value->shorts[4];
     switch (context->value->shorts[1])
@@ -1583,8 +1592,6 @@ static void set_room_configuration_process(struct ScriptContext *context)
             break;
         case 13: // Roles
             roomst->roles = value;
-            roomst->roles |= value2;
-            roomst->roles |= value3;
             break;
         case 14: // TotalCapacity
             roomst->update_total_capacity = terrain_room_total_capacity_func_list[value];
