@@ -1139,7 +1139,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
             }
         value->shorts[2] = newvalue;
     }
-    else if (roomvar != 4) // Cost, Health, AmbientSndSample, Messages
+    else if (roomvar != 4) // NameTextID, TooltipTextID, Cost, Health, AmbientSndSample, Messages
     {
         if (parameter_is_number(valuestring))
         {
