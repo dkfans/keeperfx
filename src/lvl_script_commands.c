@@ -986,7 +986,9 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
 
     const char *roomname = scline->tp[0];
     const char *valuestring = scline->tp[2];
+    const char* valuestring2 = scline->tp[3];
     long newvalue;
+    long newvalue2;
     short room_id = get_id(room_desc, roomname);
     if (room_id == -1)
     {
@@ -1115,6 +1117,28 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
                         return;
                 }
             value->uarg1 = newvalue;
+        }
+        if (parameter_is_number(valuestring2))
+        {
+            newvalue2 = atoi(valuestring2);
+            if ((newvalue2 > 33554431) || (newvalue2 < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue2);
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+            value->uarg2 = newvalue2;
+        }
+        else
+        {
+            newvalue2 = get_id(room_roles_desc, valuestring2);
+            if (newvalue2 == -1)
+            {
+                SCRPTERRLOG("Unknown Roles variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+            value->uarg2 = newvalue2;
         }
     }
     else if (roomvar == 14) // TotalCapacity
@@ -1517,9 +1541,15 @@ static void set_room_configuration_process(struct ScriptContext *context)
 {
     long room_type = context->value->shorts[0];
     struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
-    unsigned long value = context->value->uarg1;
-    short value2 = context->value->shorts[3];
-    short value3 = context->value->shorts[4];
+    unsigned short value;
+    short value2;
+    short value3;
+    if (context->value->shorts[1] != 13) // Roles need larger values, so can fit fewer
+    {
+        value = context->value->shorts[2];
+        value2 = context->value->shorts[3];
+        value3 = context->value->shorts[4];
+    }
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
@@ -1576,7 +1606,9 @@ static void set_room_configuration_process(struct ScriptContext *context)
             roomst->flags |= value3;
             break;
         case 13: // Roles
-            roomst->roles = value;
+            roomst->roles = context->value->uarg1;
+            if (context->value->uarg2 > 0)
+                roomst->roles |= context->value->uarg2;
             break;
         case 14: // TotalCapacity
             roomst->update_total_capacity = terrain_room_total_capacity_func_list[value];
@@ -3656,7 +3688,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
-  {"SET_ROOM_CONFIGURATION",            "AAAn!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
+  {"SET_ROOM_CONFIGURATION",            "AAAa!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
