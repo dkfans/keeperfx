@@ -768,7 +768,6 @@ static int lua_SET_HEART_HEALTH(lua_State *L)
 static int lua_ADD_HEART_HEALTH(lua_State *L)
 static int lua_CREATURE_ENTRANCE_LEVEL(lua_State *L)
 static int lua_RANDOMISE_FLAG(lua_State *L)
-static int lua_COMPUTE_FLAG(lua_State *L)
 static int lua_DISPLAY_TIMER(lua_State *L)
 static int lua_ADD_TO_TIMER(lua_State *L)
 static int lua_ADD_BONUS_TIME(lua_State *L)
@@ -787,9 +786,6 @@ static int lua_MOVE_CREATURE(lua_State *L)
 static int lua_COUNT_CREATURES_AT_ACTION_POINT(lua_State *L)
 static int lua_SET_TEXTURE(lua_State *L)
 static int lua_HIDE_HERO_GATE(lua_State *L)
-
-
-
 
 */
 
@@ -924,10 +920,6 @@ static const luaL_reg game_methods[] = {
     {"USE_SPECIAL_TRANSFER_CREATURE",       lua_USE_SPECIAL_TRANSFER_CREATURE},
     {"TRANSFER_CREATURE",                   lua_TRANSFER_CREATURE},
     {"CHANGE_CREATURES_ANNOYANCE",          lua_CHANGE_CREATURES_ANNOYANCE},
-    {"ADD_TO_FLAG",                         lua_ADD_TO_FLAG},
-    {"SET_CAMPAIGN_FLAG",                   lua_SET_CAMPAIGN_FLAG},
-    {"ADD_TO_CAMPAIGN_FLAG",                lua_ADD_TO_CAMPAIGN_FLAG},
-    {"EXPORT_VARIABLE",                     lua_EXPORT_VARIABLE},
     {"RUN_AFTER_VICTORY",                   lua_RUN_AFTER_VICTORY},
     {"LEVEL_UP_CREATURE",                   lua_LEVEL_UP_CREATURE},
     {"CHANGE_CREATURE_OWNER",               lua_CHANGE_CREATURE_OWNER},
@@ -950,7 +942,6 @@ static const luaL_reg game_methods[] = {
     {"ADD_HEART_HEALTH",                    lua_ADD_HEART_HEALTH},
     {"CREATURE_ENTRANCE_LEVEL",             lua_CREATURE_ENTRANCE_LEVEL},
     {"RANDOMISE_FLAG",                      lua_RANDOMISE_FLAG},
-    {"COMPUTE_FLAG",                        lua_COMPUTE_FLAG},
     {"DISPLAY_TIMER",                       lua_DISPLAY_TIMER},
     {"ADD_TO_TIMER",                        lua_ADD_TO_TIMER},
     {"ADD_BONUS_TIME",                      lua_ADD_BONUS_TIME},
