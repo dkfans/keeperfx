@@ -2509,7 +2509,7 @@ void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
             add_creature_to_pool(crmodel, 1, 1);
         thing_death_ice_explosion(thing);
     } else
-    if (shot_model_makes_flesh_explosion(cctrl->shot_model))
+    if ( (shot_model_makes_flesh_explosion(cctrl->shot_model)) || (cctrl->timebomb_death) )
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
