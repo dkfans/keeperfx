@@ -5391,7 +5391,6 @@ TngUpdateRet update_creature(struct Thing *thing)
     process_spells_affected_by_effect_elements(thing);
     process_landscape_affecting_creature(thing);
     process_disease(thing);
-    process_timebomb(thing);
     move_thing_in_map(thing, &thing->mappos);
     set_creature_graphic(thing);
     if (cctrl->spell_aura)
@@ -5435,6 +5434,7 @@ TngUpdateRet update_creature(struct Thing *thing)
     cctrl->flgfield_1 &= ~CCFlg_Unknown80;
     cctrl->spell_flags &= ~CSAfF_PoisonCloud;
     process_thing_spell_effects(thing);
+    process_timebomb(thing);
     SYNCDBG(19,"Finished");
     return TUFRet_Modified;
 }
