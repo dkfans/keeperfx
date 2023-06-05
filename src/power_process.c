@@ -704,26 +704,41 @@ void process_timebomb(struct Thing *creatng)
             move_thing_in_map(timetng, &pos);
         }
     }
+    struct Thing* trgtng = thing_get(cctrl->timebomb_target_id);
+    if (!thing_is_invalid(trgtng))
+    {
+        if ( (creatng->mappos.x.stl.num == trgtng->mappos.x.stl.num) && (creatng->mappos.y.stl.num == trgtng->mappos.y.stl.num) && (creatng->mappos.z.stl.num == trgtng->mappos.z.stl.num) )
+        {
+            timebomb_explode(creatng);
+            return;
+        }
+    }
     if (cctrl->timebomb_countdown != 0)
     {
         cctrl->timebomb_countdown--;
     }
     else
     {
-        if (creature_model_bleeds(creatng->model))
-        {
-            create_effect_around_thing(creatng, TngEff_Blood5);
-        }
-        create_effect_around_thing(creatng, TngEff_Explosion6);
-        struct ShotConfigStats* shotst = get_shot_model_stats(SplK_TimeBomb);
-        HitTargetFlags hit_targets = HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|
-            HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
-            HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
-            HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
-            HitTF_EnemyDeployedDoors|HitTF_AlliedDeployedDoors|HitTF_OwnedDeployedDoors|
-            HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
-        struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
-        timebomb_explosion_affecting_area(creatng, &creatng->mappos, subtile_coord(cctrl->timebomb_radius + 1, 0), compute_creature_weight(creatng) * pwrdynst->strength[cctrl->timebomb_radius], shotst->area_blow * (cctrl->timebomb_radius + 1), hit_targets, shotst->damage_type);
+        timebomb_explode(creatng);
     }
+}
+
+void timebomb_explode(struct Thing *creatng)
+{
+    if (creature_model_bleeds(creatng->model))
+    {
+        create_effect_around_thing(creatng, TngEff_Blood5);
+    }
+    create_effect_around_thing(creatng, TngEff_Explosion6);
+    struct ShotConfigStats* shotst = get_shot_model_stats(SplK_TimeBomb);
+    HitTargetFlags hit_targets = HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|
+        HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
+        HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
+        HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
+        HitTF_EnemyDeployedDoors|HitTF_AlliedDeployedDoors|HitTF_OwnedDeployedDoors|
+        HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
+    struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    timebomb_explosion_affecting_area(creatng, &creatng->mappos, subtile_coord(cctrl->timebomb_radius + 1, 0), compute_creature_weight(creatng) * pwrdynst->strength[cctrl->timebomb_radius], shotst->area_blow * (cctrl->timebomb_radius + 1), hit_targets, shotst->damage_type);
 }
 /******************************************************************************/

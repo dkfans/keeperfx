@@ -5284,6 +5284,7 @@ short creature_timebomb(struct Thing *creatng)
         struct Thing* trgtng = find_nearest_enemy_creature(creatng);
         if ( (!thing_is_invalid(trgtng)) && (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default)) )
         {
+            cctrl->timebomb_target_id = trgtng->index;
             cctrl->moveto_pos.x.val = trgtng->mappos.x.val;
             cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
             cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
@@ -5292,6 +5293,7 @@ short creature_timebomb(struct Thing *creatng)
         }
         else
         {
+            cctrl->timebomb_target_id = 0;
             creature_choose_random_destination_on_valid_adjacent_slab(creatng);
         }
         creatng->continue_state = CrSt_Timebomb;
