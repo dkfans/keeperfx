@@ -775,6 +775,23 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
     return 0;
 }
 
+void set_player_zoom_to_position(struct PlayerInfo *player,struct Coord3d *pos)
+{
+    if(player->instance_num == PI_DirctCtrl ||
+       player->instance_num == PI_PsngrCtrl ||
+       player->instance_num == PI_HeartZoom ||
+       player->instance_num == PI_HeartZoomOut ||
+       player->instance_num == PI_CrCtrlFade ||
+       player->instance_num == PI_MapFadeTo ||
+       player->instance_num == PI_MapFadeFrom)
+        return;
+
+    player->zoom_to_pos_x = pos->x.val;
+    player->zoom_to_pos_y = pos->y.val;
+
+    set_player_instance(player, PI_ZoomToPos, 0);
+}
+
 long pinstfs_zoom_to_position(struct PlayerInfo *player, long *n)
 {
     player->controlled_thing_idx = 0;
