@@ -2759,12 +2759,12 @@ static void reveal_map_location_process(struct ScriptContext *context)
 static void player_zoom_to_check(const struct ScriptLine *scline)
 {
     TbMapLocation location;
-    const char *where = scline->tp[0];
+    const char *where = scline->tp[1];
         if (!get_map_location_id(where, &location)) {
         return;
     }
 
-    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[1]);
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     value->arg0 = location;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -3423,7 +3423,7 @@ const struct CommandDesc command_desc[] = {
   {"HEART_LOST_QUICK_OBJECTIVE",        "NAl     ", Cmd_HEART_LOST_QUICK_OBJECTIVE, &heart_lost_quick_objective_check, &heart_lost_quick_objective_process},
   {"HEART_LOST_OBJECTIVE",              "Nl      ", Cmd_HEART_LOST_OBJECTIVE, &heart_lost_objective_check, &heart_lost_objective_process},
   {"SET_DOOR",                          "ANN     ", Cmd_SET_DOOR, &set_door_check, &set_door_process},
-  {"MOVE_PLAYER_CAMERA_TO_LOCATION",    "LP      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
+  {"MOVE_PLAYER_CAMERA_TO_LOCATION",    "PL      ", Cmd_MOVE_PLAYER_CAMERA_TO, &player_zoom_to_check, &player_zoom_to_process},
   {"SET_CREATURE_INSTANCE",             "CNAN    ", Cmd_SET_CREATURE_INSTANCE, &set_creature_instance_check, &set_creature_instance_process},
   {"SET_HAND_RULE",                     "PC!Aaaa ", Cmd_SET_HAND_RULE, &set_hand_rule_check, &set_hand_rule_process},
   {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
