@@ -2760,7 +2760,8 @@ static void player_zoom_to_check(const struct ScriptLine *scline)
 {
     TbMapLocation location;
     const char *where = scline->tp[1];
-        if (!get_map_location_id(where, &location)) {
+    if (!get_map_location_id(where, &location) || location == MLoc_NONE) {
+        SCRPTERRLOG("invalid zoom location \"%s\"",where);
         return;
     }
 
