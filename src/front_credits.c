@@ -42,6 +42,17 @@
 
 /******************************************************************************/
 extern struct TbLoadFiles frontstory_load_files_640[];
+extern struct TbSprite *frontstory_end_font;
+extern unsigned char * frontstory_font_data;
+
+static long frontstory_text_no;
+static struct TbSetupSprite frontstory_setup_sprites[2] = {{  &frontstory_font, &frontstory_end_font, &frontstory_font_data },
+                                                           { NULL, NULL, NULL}};
+static long credits_scroll_speed;
+
+struct TbSprite *frontstory_font;
+long credits_offset;
+int credits_end;
 /******************************************************************************/
 void frontstory_load(void)
 {
@@ -52,7 +63,7 @@ void frontstory_load(void)
         ERRORLOG("Unable to Load FRONT STORY FILES");
     } else
     {
-        LbDataLoadSetModifyFilenameFunction(_DK_mdlf_default);
+        LbDataLoadSetModifyFilenameFunction(mdlf_default);
         LbSpriteSetupAll(frontstory_setup_sprites);
         LbPaletteSet(frontend_palette);
 #if AUTOTESTING

@@ -35,12 +35,8 @@ extern "C" {
 
 
 static int script_current_condition = 0;
-
-
-DLLIMPORT unsigned short _DK_condition_stack_pos;
-#define condition_stack_pos _DK_condition_stack_pos
-DLLIMPORT unsigned short _DK_condition_stack[48];
-#define condition_stack _DK_condition_stack
+static unsigned short condition_stack_pos;
+static unsigned short condition_stack[48];
 
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
@@ -184,7 +180,11 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return dungeon->creatures_scavenge_gain;
     case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
-        return is_power_available(plyr_idx, validx);
+        dungeon = get_dungeon(plyr_idx);
+        if (is_power_available(plyr_idx, validx)) {
+            return dungeon->magic_level[validx];
+        }
+        return 0;
     case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->mnfct_info.trap_amount_stored[validx%gameadd.trapdoor_conf.trap_types_count]
@@ -199,7 +199,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
         dungeon = get_dungeon(plyr_idx);
         if (creature_will_generate_for_dungeon(dungeon, validx)) {
-            return min(game.pool.crtr_kind[validx%CREATURE_TYPES_COUNT],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
+            return min(game.pool.crtr_kind[validx%gameadd.crtr_conf.model_count],dungeon->max_creatures_attracted - (long)dungeon->num_active_creatrs);
         }
         return 0;
     case SVar_SLAB_OWNER: //IF_SLAB_OWNER
@@ -216,7 +216,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
     }
     case SVar_CONTROLS_CREATURE: // IF_CONTROLS(CREATURE)
         dungeon = get_dungeon(plyr_idx);
-        return dungeon->owned_creatures_of_model[validx%CREATURE_TYPES_COUNT]
+        return dungeon->owned_creatures_of_model[validx%gameadd.crtr_conf.model_count]
           - count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, validx, creature_is_kept_in_custody_by_enemy_or_dying);
     case SVar_CONTROLS_TOTAL_CREATURES:// IF_CONTROLS(TOTAL_CREATURES)
         dungeon = get_dungeon(plyr_idx);
@@ -361,9 +361,9 @@ static void process_condition(struct Condition *condt, int idx)
                         WARNLOG("Invalid player range %d in CONDITION command %d.", (int)condt->plyr_range, (int)condt->variabl_type);
                         return;
                     }
-                    for (i = plr_start; i < plr_end; i++)
+                    for (long j = plr_start_right; j < plr_end_right; j++)
                     {
-                        right_value = get_condition_value(i, condt->variabl_type_right, condt->variabl_idx_right);
+                        right_value = get_condition_value(j, condt->variabl_type_right, condt->variabl_idx_right);
                         new_status = get_condition_status(condt->operation, left_value, right_value);
                         if (new_status != false)
                         {

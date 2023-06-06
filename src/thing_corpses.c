@@ -152,7 +152,7 @@ void remove_body_from_graveyard(struct Thing *thing)
         ERRORLOG("The %s is not in room",thing_model_name(thing));
         return;
     }
-    if (room->kind != RoK_GRAVEYARD) {
+    if (!room_role_matches(room->kind,RoRoF_DeadStorage)) {
         ERRORLOG("The %s is in %s instead of graveyard",thing_model_name(thing),room_code_name(room->kind));
         return;
     }
@@ -180,12 +180,12 @@ long move_dead_creature(struct Thing *thing)
     if ( (thing->velocity.x.val != 0) || (thing->velocity.y.val != 0) || (thing->velocity.z.val != 0) )
     {
         long i = (long)thing->mappos.x.val + (long)thing->velocity.x.val;
-        if (i >= subtile_coord(map_subtiles_x,0)) i = subtile_coord(map_subtiles_x,0)-1;
+        if (i >= subtile_coord(gameadd.map_subtiles_x,0)) i = subtile_coord(gameadd.map_subtiles_x,0)-1;
         if (i < 0) i = 0;
         struct Coord3d pos;
         pos.x.val = i;
         i = (long)thing->mappos.y.val + (long)thing->velocity.y.val;
-        if (i >= subtile_coord(map_subtiles_y,0)) i = subtile_coord(map_subtiles_y,0)-1;
+        if (i >= subtile_coord(gameadd.map_subtiles_y,0)) i = subtile_coord(gameadd.map_subtiles_y,0)-1;
         if (i < 0) i = 0;
         pos.y.val = i;
         i = (long)thing->mappos.z.val + (long)thing->velocity.z.val;
@@ -441,8 +441,8 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->solid_size_xy = 0;
     thing->solid_size_yz = 0;
     thing->fall_acceleration = 16;
-    thing->field_23 = 204;
-    thing->field_24 = 51;
+    thing->inertia_floor = 204;
+    thing->inertia_air = 51;
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
     thing->creation_turn = game.play_gameturn;
@@ -517,14 +517,7 @@ void delete_corpse(struct Thing *deadtng)
     struct CreatureStats* crstat = creature_stats_get(deadtng->model);
     if (crstat->corpse_vanish_effect != 0)
     {
-       if (crstat->corpse_vanish_effect > 0)
-       {
-            create_effect(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner);
-       }
-       else
-       {
-            create_effect_element(&deadtng->mappos, ~(crstat->corpse_vanish_effect)+1, deadtng->owner);
-       }            
+        create_used_effect_or_element(&deadtng->mappos, crstat->corpse_vanish_effect, deadtng->owner);
     }
     delete_thing_structure(deadtng, 0);
 }

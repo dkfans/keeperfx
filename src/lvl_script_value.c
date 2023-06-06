@@ -74,7 +74,7 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
@@ -92,7 +92,7 @@ TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, 
 {
     struct Thing *thing = script_get_creature_by_criteria(origin_plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to kill",(int)origin_plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)origin_plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
     change_creature_owner(thing, dest_plyr_idx);
@@ -119,7 +119,7 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to level up",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to level up",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
     creature_increase_multiple_levels(thing,count);
@@ -138,7 +138,7 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to use power on.",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use power on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
 
@@ -202,13 +202,13 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
     if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d found to use spell on.",(int)plyr_idx,(int)crmodel);
+        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use spell on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    const struct SpellInfo* spinfo = get_magic_info(spkind);
+    const struct SpellConfig* spconf = get_spell_config(spkind);
 
-    if (spinfo->caster_affected ||
+    if (spconf->caster_affected ||
             (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These four should be also marked at configs somehow
             ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
             ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
@@ -219,9 +219,9 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
             return Lb_FAIL;
         }
         unsigned short sound;
-        if (spinfo->caster_affected)
+        if (spconf->caster_affected)
         {
-            sound = spinfo->caster_affect_sound;
+            sound = spconf->caster_affect_sound;
         }
         else if ( (spkind == SplK_Freeze) || (spkind == SplK_Slow) )
         {
@@ -550,7 +550,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           dungeon = get_dungeon(i);
           if (dungeon_invalid(dungeon))
               continue;
-          dungeon->creature_max_level[val2%CREATURE_TYPES_COUNT] = val3;
+          if (val3 == -1)
+              val3 = CREATURE_MAX_LEVEL + 1;
+          dungeon->creature_max_level[val2%gameadd.crtr_conf.model_count] = val3;
       }
       break;
   case Cmd_SET_CREATURE_HEALTH:
@@ -561,35 +563,30 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       if (creature_stats_invalid(crstat))
           break;
       crstat->strength = saturate_set_unsigned(val3, 8);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_ARMOUR:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->armour = saturate_set_unsigned(val3, 8);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEAR_WOUNDED:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->fear_wounded = saturate_set_unsigned(val3, 8);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEAR_STRONGER:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->fear_stronger = saturate_set_unsigned(val3, 16);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_FEARSOME_FACTOR:
       crstat = creature_stats_get(val2);
       if (creature_stats_invalid(crstat))
           break;
       crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
-      creature_stats_updated(val2);
       break;
   case Cmd_SET_CREATURE_PROPERTY:
       crconf = &gameadd.crtr_conf.model[val2];
@@ -797,7 +794,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           SCRPTERRLOG("Unknown creature property '%d'", val3);
           break;
       }
-      creature_stats_updated(val2);
       break;
   case Cmd_ALLY_PLAYERS:
       for (i=plr_start; i < plr_end; i++)
@@ -1015,7 +1011,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_RANDOMISE_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
-          set_variable(i, val4, val2, (rand() % val3) + 1);
+          set_variable(i, val4, val2, GAME_RANDOM(val3) + 1);
       }
       break;
   case Cmd_COMPUTE_FLAG:
@@ -1195,7 +1191,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 19: //PayDaySpeed
           if (val3 >= 0)
           {
-              SCRIPTDBG(7, "Changing rule %s from %d to %d", val2, gameadd.pay_day_speed, val3);
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.pay_day_speed, val3);
               gameadd.pay_day_speed = val3;
           }
           else
@@ -1230,7 +1226,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 23:  //DungeonHeartHealth
-          if (val3 <= SHRT_MAX)
+          if (val3 <= LONG_MAX)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_health, val3);
               game.dungeon_heart_health = val3;
@@ -1273,6 +1269,21 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 31: //AlliesShareCta
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
           gameadd.allies_share_cta = (TbBool)val3;
+          break; 
+      case 32: //BarrackMaxPartySize
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
+          game.barrack_max_party_size = (TbBool)val3;
+          break;
+      case 33: //MaxThingsInHand
+          if (val3 <= MAX_THINGS_IN_HAND)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.max_things_in_hand, val3);
+              gameadd.max_things_in_hand = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
+          }
           break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);

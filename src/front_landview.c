@@ -85,6 +85,22 @@ LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
 struct TbHugeSprite map_window;
 long map_window_len = 0;
+
+TbClockMSec play_desc_speech_time;
+unsigned long played_bad_descriptive_speech;
+unsigned long played_good_descriptive_speech;
+TbSpriteData map_flag_data;
+unsigned long end_map_flag_data;
+struct TbSprite *map_flag;
+struct TbSprite *end_map_flag;
+struct TbSprite *map_font;
+struct TbSprite *map_hand;
+long map_sound_fade;
+unsigned char *map_screen;
+long fe_net_level_selected;
+long net_map_limp_time;
+struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
+long players_currently_in_session;
 /******************************************************************************/
 extern struct TbSetupSprite map_flag_setup_sprites[];
 extern struct TbSetupSprite netmap_flag_setup_sprites[];
@@ -1621,7 +1637,7 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     if (fe_network_active)
     {
-      if ( LbNetwork_Exchange(nspck) )
+      if ( LbNetwork_Exchange(nspck, &net_screen_packet, sizeof(struct ScreenPacket)) )
       {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;

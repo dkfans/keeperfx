@@ -23,13 +23,13 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
 #include "bflib_render.h"
-#include "bflib_heapmgr.h"
 
 #include "engine_lenses.h"
 #include "engine_camera.h"
@@ -63,11 +63,289 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-static const unsigned short shield_offset[] = {
- 0x0,  0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x100, 0x118, 0x80,
- 0x80, 0x100,  0x80,  0x80, 0x100, 0x100, 0x138,  0x80,  0x80, 0x138,  0x80,  0x80, 0x100,  0x80, 0x80, 0x100,
+
+enum QKinds {
+    QK_PolygonStandard = 0,
+    QK_PolygonSimple,
+    QK_PolyMode0,
+    QK_PolyMode4,
+    QK_TrigMode2,
+    QK_PolyMode5,
+    QK_TrigMode3,
+    QK_TrigMode6,
+    QK_RotableSprite, // 8
+    QK_PolygonNearFP,
+    QK_Unknown10,
+    QK_JontySprite,
+    QK_CreatureShadow,
+    QK_SlabSelector,
+    QK_CreatureStatus,
+    QK_TextureQuad,
+    QK_FloatingGoldText, // 16
+    QK_RoomFlagBottomPole,
+    QK_JontyISOSprite,
+    QK_RoomFlagStatusBox,
+    QK_Unknown20,
 };
+
+struct MinMax;
+struct Camera;
+struct PlayerInfo;
+
+typedef unsigned char QKind;
+
+struct BasicQ { // sizeof = 5
+  struct BasicQ *next;
+  QKind kind;
+};
+
+struct BucketKindPolygonStandard {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short block;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+};
+
+struct BucketKindPolygonSimple {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short block;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+};
+
+struct BucketKindPolyMode0 {
+    struct BasicQ b;
+    unsigned char colour;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+};
+
+struct BucketKindPolyMode4 {
+    struct BasicQ b;
+    unsigned char colour;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned char vf1;
+    unsigned char vf2;
+    unsigned char vf3;
+    unsigned char field_15[3];
+    unsigned char field_18;
+    unsigned char field_19[3];
+};
+
+struct BucketKindTrigMode2 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+};
+
+struct BucketKindPolyMode5 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+    unsigned char wf1;
+    unsigned char wf2;
+    unsigned char wf3;
+};
+
+struct BucketKindTrigMode3 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+};
+
+struct BucketKindTrigMode6 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short x1;
+    unsigned short y1;
+    unsigned short x2;
+    unsigned short y2;
+    unsigned short x3;
+    unsigned short y3;
+    unsigned short field_12;
+    unsigned char uf1;
+    unsigned char vf1;
+    unsigned char uf2;
+    unsigned char vf2;
+    unsigned char uf3;
+    unsigned char vf3;
+    unsigned char wf1;
+    unsigned char wf2;
+    unsigned char wf3;
+};
+
+struct BucketKindRotableSprite {
+    struct BasicQ b;
+    unsigned char field_5[3];
+    long field_8;
+    long field_C;
+    long field_10;
+    long field_14;
+    char field_18;
+    unsigned char field_19[3];
+};
+
+struct BucketKindPolygonNearFP {
+    struct BasicQ b;
+    unsigned char subtype;
+    unsigned short block;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+    struct XYZ c1;
+    struct XYZ c2;
+    struct XYZ c3;
+};
+
+struct BucketKindBasicUnk10 {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned char field_6;
+    unsigned char field_7;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+};
+
+struct BucketKindJontySprite {  // BasicQ type 11,18
+    struct BasicQ b;
+    unsigned char field_5[3];
+    struct Thing *thing;
+    long scr_x;
+    long scr_y;
+    long field_14;
+    unsigned char field_18;
+    unsigned char field_19[3];
+};
+
+struct BucketKindCreatureShadow {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short field_6;
+    struct PolyPoint p1;
+    struct PolyPoint p2;
+    struct PolyPoint p3;
+    struct PolyPoint p4;
+    long angle;
+    unsigned short anim_sprite;
+    unsigned char thing_field48;
+};
+
+struct BucketKindSlabSelector {
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short field_6;
+    struct PolyPoint p;
+    unsigned char field_19[3];
+};
+
+struct BucketKindCreatureStatus { // sizeof = 24
+    struct BasicQ b;
+    unsigned char padding[3];
+    struct Thing *thing;
+    long x;
+    long y;
+    long z;
+};
+
+#define SHADOW_SOURCES_MAX_COUNT 4
+struct NearestLights {
+    struct Coord3d coord[SHADOW_SOURCES_MAX_COUNT];
+};
+struct BucketKindTexturedQuad { // sizeof = 46
+    struct BasicQ b;
+    unsigned char field_5;
+    long field_6;
+    long field_A;
+    long field_E;
+    long field_12;
+    long field_16;
+    long field_1A;
+    long field_1E;
+    long field_22;
+    long field_26;
+    long field_2A;
+};
+
+struct BucketKindFloatingGoldText { // BasicQ type 16
+    struct BasicQ b;
+    unsigned char field_5[3];
+    long x;
+    long y;
+    long lvl;
+};
+
+struct BucketKindRoomFlag { // BasicQ type 17,19
+    struct BasicQ b;
+    unsigned char field_5;
+    unsigned short lvl;
+    long x;
+    long y;
+};
+
+
+
+struct EngineCol {
+    struct EngineCoord cors[16];
+};
+
+struct SideOri {
+    unsigned char field_0;
+    unsigned char field_1;
+    unsigned char field_2;
+    unsigned char field_3;
+};
+
+/******************************************************************************/
 static const struct SideOri sideoris[] = {
     { 0,  1,  2,  3},
     { 0,  0,  3,  2},
@@ -152,13 +430,87 @@ float hud_scale;
 int creature_status_size = 16; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
-//static unsigned char temp_cluedo_mode;
 static unsigned long render_problems;
 static long render_prob_kind;
 static long sp_x, sp_y, sp_dx, sp_dy;
 
-DLLIMPORT char _DK_splittypes[64];
-#define splittypes _DK_splittypes
+Offset vert_offset[3];
+Offset hori_offset[3];
+Offset high_offset[3];
+long x_init_off;
+long y_init_off;
+long floor_pointed_at_x;
+long floor_pointed_at_y;
+
+static long fade_scaler;
+static long fade_way_out;
+static long map_roll;
+static long map_tilt;
+static long view_alt;
+static long fade_min;
+static long fade_range;
+static long depth_init_off;
+static int normal_shade_left;
+static int normal_shade_right;
+static long apos;
+static long bpos;
+static long split1at;
+static long split2at;
+static long map_x_pos;
+static long map_y_pos;
+static long map_z_pos;
+static int normal_shade_front;
+static int normal_shade_back;
+static long me_distance;
+static unsigned char engine_player_number;
+static long UseFastBlockDraw;
+static long thelens;
+static long fade_mmm;
+static long spr_map_angle;
+static long lfade_max;
+static long lfade_min;
+static unsigned char thing_being_displayed_is_creature;
+static long global_scaler;
+static long water_source_cutoff;
+static long water_y_offset;
+static long cam_map_angle;
+
+static struct M33 camera_matrix;
+struct EngineCoord object_origin;
+
+short mx;
+short my;
+short mz;
+unsigned char temp_cluedo_mode; // This is true(1) if the "short wall" have been enabled in the graphics options
+struct Thing *thing_being_displayed;
+
+TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
+TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];
+struct HeapMgrHeader *graphics_heap;
+TbFileHandle jty_file_handle;
+
+unsigned char player_bit;
+
+struct MapVolumeBox map_volume_box;
+long fade_max;
+long split_1;
+long split_2;
+long view_height_over_2;
+long view_width_over_2;
+
+struct MapVolumeBox map_volume_box;
+long view_height_over_2;
+long view_width_over_2;
+long split_1;
+long split_2;
+long fade_max;
+
+static const char splittypes[64] = {
+    0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 5, 5, 0, 1, 5, 5,
+    0, 2, 2, 2, 3, 4, 4, 4, 3, 4, 8, 8, 3, 4, 8, 8,
+    0, 2, 6, 6, 3, 4, 9, 9, 7, 10, 11, 11, 7, 10, 11, 11,
+    0, 2, 6, 6, 3, 4, 9, 9, 7, 10, 11, 11, 7, 10, 11, 11
+};
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -168,9 +520,11 @@ DLLIMPORT char _DK_splittypes[64];
 static void do_map_who(short tnglist_idx);
 static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos_y) = NULL;
 static int render_sprite_debug_level = 0;
+static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, unsigned char field48, unsigned char *a4);
+static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
 /******************************************************************************/
 
-void calculate_hud_scale(struct Camera *cam) {
+static void calculate_hud_scale(struct Camera *cam) {
     // hud_scale is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
     // HUD items: creature status flowers, room flags, popup gold numbers. They scale with the zoom.
     float range_input = cam->zoom;
@@ -245,34 +599,34 @@ long interpolate_angle(long variable_to_interpolate, long previous, long current
     return lerp_angle(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
-void interpolate_thing(struct Thing *thing, struct ThingAdd *thingadd)
+void interpolate_thing(struct Thing *thing)
 {
     // Note: if delta_time is off the interpolated position will also reflect that
 
-    if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thingadd->last_turn_drawn > 1 ) {
+    if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thing->last_turn_drawn > 1 ) {
         // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
-        thingadd->interp_mappos = thing->mappos;
-        thingadd->interp_floor_height = thing->floor_height;
+        thing->interp_mappos = thing->mappos;
+        thing->interp_floor_height = thing->floor_height;
         
-        if (thingadd->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
-            thingadd->interp_mappos.z.val = thingadd->interp_floor_height;
+        if (thing->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
+            thing->interp_mappos.z.val = thing->interp_floor_height;
         }
     } else {
         // Interpolate position every frame
-        thingadd->interp_mappos.x.val = interpolate(thingadd->interp_mappos.x.val, thingadd->previous_mappos.x.val, thing->mappos.x.val);
-        thingadd->interp_mappos.z.val = interpolate(thingadd->interp_mappos.z.val, thingadd->previous_mappos.z.val, thing->mappos.z.val);
-        thingadd->interp_mappos.y.val = interpolate(thingadd->interp_mappos.y.val, thingadd->previous_mappos.y.val, thing->mappos.y.val);
-        thingadd->interp_floor_height = interpolate(thingadd->interp_floor_height, thingadd->previous_floor_height, thing->floor_height);
+        thing->interp_mappos.x.val = interpolate(thing->interp_mappos.x.val, thing->previous_mappos.x.val, thing->mappos.x.val);
+        thing->interp_mappos.z.val = interpolate(thing->interp_mappos.z.val, thing->previous_mappos.z.val, thing->mappos.z.val);
+        thing->interp_mappos.y.val = interpolate(thing->interp_mappos.y.val, thing->previous_mappos.y.val, thing->mappos.y.val);
+        thing->interp_floor_height = interpolate(thing->interp_floor_height, thing->previous_floor_height, thing->floor_height);
         
         // Cancel interpolation if distance to interpolate is too far. This is a catch-all to solve any remaining interpolation bugs.
-        if ((abs(thingadd->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
-            (abs(thingadd->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
-            (abs(thingadd->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
+        if ((abs(thing->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
+            (abs(thing->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
+            (abs(thing->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
         {
             ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation."
-                ,thing_model_name(thing), (int)thing->index, (int)thing->owner, thingadd->interp_mappos.x.stl.num, thingadd->interp_mappos.y.stl.num, thingadd->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
-            thingadd->interp_mappos = thing->mappos;
-            thingadd->interp_floor_height = thing->floor_height;
+                ,thing_model_name(thing), (int)thing->index, (int)thing->owner, thing->interp_mappos.x.stl.num, thing->interp_mappos.y.stl.num, thing->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
+            thing->interp_mappos = thing->mappos;
+            thing->interp_floor_height = thing->floor_height;
         }
     }
 }
@@ -448,7 +802,7 @@ static TbBool is_free_space_in_poly_pool(int nitems)
     return (getpoly+(nitems*sizeof(struct BucketKindSlabSelector)) <= poly_pool_end);
 }
 
-void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
+static void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
 {
     long factor_w;
     long factor_h;
@@ -460,11 +814,11 @@ void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
     inp_x = epos->x;
     inp_y = epos->y;
     inp_z = epos->z;
-    out_x = (inp_z * matx->r[0].v[2] + (inp_y + matx->r[0].v[0]) * (inp_x + matx->r[0].v[1]) - matx->r[0].v[3] - inp_x * inp_y) >> 14;
+    out_x = ((long long)(inp_z * matx->r[0].v[2]) + ((long long)(inp_y + matx->r[0].v[0]) * (long long)(inp_x + matx->r[0].v[1])) - (long long)matx->r[0].v[3] - (long long)(inp_x * inp_y)) >> 14;
     epos->x = out_x;
-    out_y = (inp_z * matx->r[1].v[2] + (inp_y + matx->r[1].v[0]) * (inp_x + matx->r[1].v[1]) - matx->r[1].v[3] - inp_x * inp_y) >> 14;
+    out_y = ((long long)(inp_z * matx->r[1].v[2]) + ((long long)(inp_y + matx->r[1].v[0]) * (long long)(inp_x + matx->r[1].v[1])) - (long long)matx->r[1].v[3] - (long long)(inp_x * inp_y)) >> 14;
     epos->y = out_y;
-    epos->z = (inp_z * matx->r[2].v[2] + (inp_y + matx->r[2].v[0]) * (inp_x + matx->r[2].v[1]) - matx->r[2].v[3] - inp_x * inp_y) >> 14;
+    epos->z = ((long long)(inp_z * matx->r[2].v[2]) + ((long long)(inp_y + matx->r[2].v[0]) * (long long)(inp_x + matx->r[2].v[1])) - (long long)matx->r[2].v[3] - (long long)(inp_x * inp_y)) >> 14;
     factor_w = (long)view_width_over_2 + (zoom * out_x >> 16);
     epos->view_width = factor_w;
     factor_h = (long)view_height_over_2 - (zoom * out_y >> 16);
@@ -519,10 +873,8 @@ static void matrix_transform(struct M31 *outvec, const struct M33 *matx, const s
     outvec->v[2] = matx->r[2].v[2] * vec2->v[2] + matx->r[2].v[1] * vec2->v[1] + matx->r[2].v[0] * vec2->v[0];
 }
 
-void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
+static void rotate_base_axis(struct M33 *matx, short angle, unsigned char axis)
 {
-    //_DK_rotate_base_axis(matx, a2, a3); return;
-
     unsigned char scor0;
     unsigned char scor1;
     unsigned char scor2;
@@ -636,9 +988,9 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
     return &blank_wibble_table[table_index];
 }
 
-void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
+static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
         return;
     }
     long mmin;
@@ -647,8 +999,8 @@ void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, st
     mmax = max(mm[0].max,mm[1].max);
     if (mmin + bstl_x < 1)
       mmin = 1 - bstl_x;
-    if (mmax + bstl_x > map_subtiles_y)
-      mmax = map_subtiles_y - bstl_x;
+    if (mmax + bstl_x > gameadd.map_subtiles_x)
+      mmax = gameadd.map_subtiles_x - bstl_x;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     stl_y = bstl_y;
@@ -720,11 +1072,11 @@ void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, st
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
-        hmin = _DK_floor_height[fulmask_and & 0xff];
+        hmin = floor_height_table[fulmask_and & 0xff];
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         long hpos;
@@ -775,9 +1127,9 @@ void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, st
     }
 }
 
-void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
+static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
         return;
     }
     long mmin;
@@ -787,8 +1139,8 @@ void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct 
     if (mmin + bstl_x < 1) {
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > map_subtiles_y) {
-        mmax = map_subtiles_y - bstl_x;
+    if (mmax + bstl_x > gameadd.map_subtiles_x) {
+        mmax = gameadd.map_subtiles_x - bstl_x;
     }
     if (mmax < mmin) {
         return;
@@ -918,12 +1270,12 @@ void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct 
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
 
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
-        hmin = _DK_floor_height[fulmask_and & 0xff];
+        hmin = floor_height_table[fulmask_and & 0xff];
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
@@ -980,9 +1332,9 @@ void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct 
     }
 }
 
-void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
+static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
         return;
     }
     long mmin;
@@ -997,9 +1349,9 @@ void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, stru
         clip_min = true;
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > map_subtiles_y) {
+    if (mmax + bstl_x > gameadd.map_subtiles_x) {
         clip_max = true;
-        mmax = map_subtiles_y - bstl_x;
+        mmax = gameadd.map_subtiles_x - bstl_x;
     }
     if (mmax < mmin) {
         return;
@@ -1011,7 +1363,7 @@ void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, stru
     TbBool lim_min;
     TbBool lim_max;
     lim_min = (stl_y <= 0);
-    lim_max = (stl_y >= map_subtiles_y-1);
+    lim_max = (stl_y >= gameadd.map_subtiles_y-1);
     TbBool clip;
     clip = clip_min | clip_max | lim_max | lim_min;
     apos += (mmin << 8);
@@ -1147,11 +1499,11 @@ void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, stru
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = game.lish.subtile_lightness[get_subtile_number(stl_x, stl_y+1)];
+            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
-        hmin = _DK_floor_height[fulmask_and & 0xff];
+        hmin = floor_height_table[fulmask_and & 0xff];
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         wib_x = stl_x & 3;
@@ -1253,7 +1605,6 @@ void frame_wibble_generate(void)
 
 void setup_rotate_stuff(long x, long y, long z, long rotate_fade_max, long rotate_fade_min, long zoom, long map_angle, long rotate_map_roll)
 {
-    //_DK_setup_rotate_stuff(x, y, z, fade_max, fade_min, zoom, map_angle, map_roll);
     view_width_over_2 = vec_window_width / 2;
     view_height_over_2 = vec_window_height / 2;
     map_x_pos = x;
@@ -1315,10 +1666,9 @@ static void do_perspective_rotation(long x, long y, long z)
     high_offset[2] = epos.z;
 }
 
-void find_gamut(void)
+static void find_gamut(void)
 {
     SYNCDBG(19,"Starting");
-    //_DK_find_gamut(); return;
     {
         long cell_cur;
         long cell_lim;
@@ -1473,7 +1823,6 @@ void find_gamut(void)
 
 static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, long a4)
 {
-    //_DK_fiddle_half_gamut(a1, a2, a3, a4);
     long end_stl_x;
     long stl_xc;
     long stl_xp;
@@ -1982,7 +2331,7 @@ static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_til
  * @param pos_x
  * @param pos_y
  */
-void fiddle_gamut(long pos_x, long pos_y)
+static void fiddle_gamut(long pos_x, long pos_y)
 {
     struct PlayerInfo *player = get_my_player();
     long ewwidth;
@@ -2490,7 +2839,7 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     map_volume_box.color = box_color;
 }
 
-void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_idx)
+static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumber plyr_idx)
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
@@ -3555,7 +3904,6 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_d
 
 static long find_closest_lights(const struct Coord3d* pos, struct NearestLights* nlgt)
 {
-    //return _DK_find_closest_lights(pos, nlgt);
     long count;
     long nlgt_dist[SHADOW_SOURCES_MAX_COUNT];
     long i;
@@ -3577,7 +3925,6 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
 
 static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
 {
-    //_DK_create_shadows(thing, ecor, pos); return;
     short mv_angle;
     short sh_angle;
     short angle;
@@ -3747,9 +4094,9 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
 // Creature status flower above head in isometric view
 static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
-    //_DK_create_status_box(thing, ecor); return;
     struct EngineCoord coord = *ecor;
-    coord.y += (uint16_t)thing->clipbox_size_yz + shield_offset[thing->model];
+    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    coord.y += thing->clipbox_size_yz + crstat->status_offset; 
     rotpers(&coord, &camera_matrix);
     if (getpoly >= poly_pool_end)
         return;
@@ -3778,10 +4125,10 @@ unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned shor
 {
     long slb_x = subtile_slab(stl_x);
     long slb_y = subtile_slab(stl_y);
-    return tex_id + (gameadd.slab_ext_data[85 * slb_y + slb_x] & 0xF) * TEXTURE_BLOCKS_COUNT;
+    return tex_id + (gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] & 0xF) * TEXTURE_BLOCKS_COUNT;
 }
 
-void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
+static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
 {
     struct Column *blank_colmn;
     struct Column *colmn;
@@ -3790,7 +4137,7 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     struct Column *sib_colmn;
     unsigned short textr_idx;
     unsigned short height_bit;
-    unsigned long center_block_idx;
+    SubtlCodedCoords center_block_idx;
     long fepos;
     long bepos;
     long ecpos;
@@ -3800,20 +4147,20 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
     unsigned short *cubenum_ptr;
     long i;
     long n;
-    if ((stl_y <= 0) || (stl_y >= 255))
+    if ((stl_y <= 0) || (stl_y >= gameadd.map_subtiles_y))
         return;
     clip_start = plane_start;
     if (stl_x + plane_start < 1)
         clip_start = 1 - stl_x;
     clip_end = plane_end;
-    if (stl_x + plane_end > 255)
-        clip_end = 255 - stl_x;
+    if (stl_x + plane_end > gameadd.map_subtiles_x)
+        clip_end = gameadd.map_subtiles_x - stl_x;
     struct EngineCol *bec;
     struct EngineCol *fec;
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
     fec = &front_ec[clip_start + MINMAX_ALMOST_HALF];
     blank_colmn = get_column(game.unrevealed_column_idx);
-    center_block_idx = clip_start + stl_x + (stl_y << 8);
+    center_block_idx = clip_start + stl_x + (stl_y * (gameadd.map_subtiles_x+1));
     for (i = clip_end-clip_start; i > 0; i--)
     {
         mapblk = get_map_block_at_pos(center_block_idx);
@@ -3836,12 +4183,12 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         solidmsk_right = blank_colmn->solidmask;
         solidmsk_bottom = blank_colmn->solidmask;
         solidmsk_left = blank_colmn->solidmask;
-        sib_mapblk = get_map_block_at_pos(center_block_idx-256);
+        sib_mapblk = get_map_block_at_pos(center_block_idx-gameadd.map_subtiles_x-1);
         if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_top = sib_colmn->solidmask;
         }
-        sib_mapblk = get_map_block_at_pos(center_block_idx+256);
+        sib_mapblk = get_map_block_at_pos(center_block_idx+gameadd.map_subtiles_x+1);
         if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_bottom = sib_colmn->solidmask;
@@ -3867,25 +4214,26 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
             {
               if ((solidmsk_top & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_0]);
+                  
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_0]);
                   do_a_trig_gourad_tr(&bec[1].cors[bepos+1], &bec[0].cors[bepos+1], &bec[0].cors[bepos],   textr_idx, normal_shade_back);
                   do_a_trig_gourad_bl(&bec[0].cors[bepos],   &bec[1].cors[bepos],   &bec[1].cors[bepos+1], textr_idx, normal_shade_back);
               }
               if ((solidmsk_bottom & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_2]);
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_2]);
                   do_a_trig_gourad_tr(&fec[0].cors[fepos+1], &fec[1].cors[fepos+1], &fec[1].cors[fepos],   textr_idx, normal_shade_front);
                   do_a_trig_gourad_bl(&fec[1].cors[fepos],   &fec[0].cors[fepos],   &fec[0].cors[fepos+1], textr_idx, normal_shade_front);
               }
               if ((solidmsk_left & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_3]);
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_3]);
                   do_a_trig_gourad_tr(&bec[0].cors[bepos+1], &fec[0].cors[fepos+1], &fec[0].cors[fepos],   textr_idx, normal_shade_left);
                   do_a_trig_gourad_bl(&fec[0].cors[fepos],   &bec[0].cors[bepos],   &bec[0].cors[bepos+1], textr_idx, normal_shade_left);
               }
               if ((solidmsk_right & height_bit) == 0)
               {
-                  textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[sideoris[0].field_1]);
+                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_1]);
                   do_a_trig_gourad_tr(&fec[1].cors[fepos+1], &bec[1].cors[bepos+1], &bec[1].cors[bepos],   textr_idx, normal_shade_right);
                   do_a_trig_gourad_bl(&bec[1].cors[bepos],   &fec[1].cors[fepos],   &fec[1].cors[fepos+1], textr_idx, normal_shade_right);
               }
@@ -3895,18 +4243,18 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
             height_bit = height_bit << 1;
         }
 
-        ecpos = _DK_floor_height[solidmsk_center];
+        ecpos = floor_height_table[solidmsk_center];
         if (ecpos > 0)
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
             texturing = &gameadd.cubes_data[*cubenum_ptr];
-            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[4]);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         } else
         {
             ecpos = 0;
-            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), colmn->baseblock);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), colmn->baseblock);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         }
@@ -3916,19 +4264,19 @@ void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
             texturing = &gameadd.cubes_data[*cubenum_ptr];
-            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[4]);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
 
             ecpos =  lintel_bottom_height[solidmsk_center];
-            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), texturing->texture_id[5]);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[5]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         }
         // Draw the universal ceiling on top of the columns
         ecpos = 8;
         {
-            textr_idx = engine_remap_texture_blocks((center_block_idx%(map_subtiles_x+1)), (center_block_idx/(map_subtiles_x+1)), floor_to_ceiling_map[colmn->baseblock]);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), floor_to_ceiling_map[colmn->baseblock]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         }
@@ -4164,9 +4512,9 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
     }
 }
 
-void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_start, long plane_end)
+static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > 254)) {
+    if ((stl_y < 1) || (stl_y > (gameadd.map_subtiles_y - 1))) {
         return;
     }
     long xaval;
@@ -4176,8 +4524,8 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > 255) {
-        xbval = 255 - stl_x;
+    if (stl_x + plane_end > gameadd.map_subtiles_x) {
+        xbval = gameadd.map_subtiles_x - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4312,11 +4660,11 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
             }
         }
 
-        ncor = _DK_floor_height[solidmsk_cur];
+        ncor = floor_height_table[solidmsk_cur];
         if ((ncor > 0) && (ncor <= COLUMN_STACK_HEIGHT))
         {
             int ncor_raw;
-            ncor_raw = _DK_floor_height[solidmsk_cur_raw];
+            ncor_raw = floor_height_table[solidmsk_cur_raw];
             if ( (cur_mapblk->flags & SlbAtFlg_Unexplored) != 0 )
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
@@ -4365,9 +4713,9 @@ void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_star
     }
 }
 
-void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_start, long plane_end)
+static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > 254)) {
+    if ((stl_y < 1) || (stl_y > gameadd.map_subtiles_y - 1)) {
         return;
     }
 
@@ -4383,9 +4731,9 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > map_subtiles_x) {
+    if (stl_x + plane_end > gameadd.map_subtiles_x) {
         xbclip = 1;
-        xbval = map_subtiles_x - stl_x;
+        xbval = gameadd.map_subtiles_x - stl_x;
     }
     int xidx;
     int xdelta;
@@ -4444,7 +4792,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
         }
-        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= 254))
+        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= gameadd.map_subtiles_y - 1))
         {
             if (xaclip && (xidx == 0)) {
                 solidmsk_left = 0;
@@ -4455,7 +4803,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             if (stl_y <= 1) {
                 solidmsk_back = 0;
             }
-            if (stl_y >= 254) {
+            if (stl_y >= gameadd.map_subtiles_y - 1) {
                 solidmsk_front = 0;
             }
         }
@@ -4501,7 +4849,7 @@ void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_s
             }
         }
 
-        ncor = _DK_floor_height[solidmsk_cur];
+        ncor = floor_height_table[solidmsk_cur];
         if (ncor > 0)
         {
             if (cur_mapblk->flags & SlbAtFlg_Unexplored)
@@ -4569,7 +4917,6 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     unsigned char alpha_mem;
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = jspr->thing;
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
     short angle;
     flg_mem = lbDisplay.DrawFlags;
     alpha_mem = EngineSpriteDrawUsingAlpha;
@@ -4594,7 +4941,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             break;
     }
     unsigned short v6 = 0x2000;
-    if ( !(thing->rendering_flags & TRF_Unknown02) )
+    if ( !(thing->rendering_flags & TRF_Unshaded) )
         v6 = get_thing_shade(thing);
     v6 >>= 8;
 
@@ -4644,10 +4991,10 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
-                thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
-                if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
+                thing->time_spent_displaying_hurt_colour += gameadd.delta_time;
+                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
                 {
-                    thingadd->time_spent_displaying_hurt_colour = 0;
+                    thing->time_spent_displaying_hurt_colour = 0;
                     thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
                 }
             }
@@ -4670,7 +5017,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         EngineSpriteDrawUsingAlpha = alpha_mem;
         return;
     }
-    TbBool special_drawing = false;
+    TbBool flame_on_sprite = false;
     int n;
     long dx;
     long dy;
@@ -4679,7 +5026,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     {
         //TODO CONFIG object model dependency, move to config
 
-        if (thing->model == 2)
+        if (thing->model == ObjMdl_Torch)
         {
             n = 113;
             if (player->view_type == PVT_DungeonTop)
@@ -4693,9 +5040,9 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 dy = a6_2 * LbCosL(angle) >> 20;
             }
             v16 = 2 * a6_2 / 3;
-            special_drawing = true;
+            flame_on_sprite = true;
         }
-        else if (thing->model == 4)
+        else if (thing->model == ObjMdl_StatueLit)
         {
             n = 113;
             if (player->view_type == PVT_DungeonTop)
@@ -4709,9 +5056,9 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 dy = (-(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16) / 3;
             }
             v16 = a6_2 / 3;
-            special_drawing = true;
+            flame_on_sprite = true;
         }
-        else if (thing->model == 28) //torchflames
+        else if (thing->model == ObjMdl_Candlestick)
         {
             n = 112;
             if (player->view_type == PVT_DungeonTop)
@@ -4725,10 +5072,10 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 dy = -(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16;
             }
             v16 = a6_2 / 2;
-            special_drawing = true;
+            flame_on_sprite = true;
         }
     }
-    if (special_drawing)
+    if (flame_on_sprite)
     {
         EngineSpriteDrawUsingAlpha = 0;
         unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
@@ -4758,7 +5105,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     EngineSpriteDrawUsingAlpha = alpha_mem;
 }
 
-void draw_engine_number(struct BucketKindFloatingGoldText *num)
+static void draw_engine_number(struct BucketKindFloatingGoldText *num)
 {
     struct PlayerInfo *player;
     unsigned short flg_mem;
@@ -4803,7 +5150,7 @@ void draw_engine_number(struct BucketKindFloatingGoldText *num)
     lbDisplay.DrawFlags = flg_mem;
 }
 
-void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
+static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
 {
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
 
@@ -4853,7 +5200,7 @@ void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
  * Selects index of a sprite used to show creature health flower.
  * @param thing
  */
-unsigned short choose_health_sprite(struct Thing* thing)
+static unsigned short choose_health_sprite(struct Thing* thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -4901,7 +5248,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
         {
             struct StateInfo *stati;
             stati = get_creature_state_with_task_completion(thing);
-            if (!stati->field_23)
+            if (!stati->blocks_all_state_changes)
             {
                 if ((cctrl->spell_flags & CSAfF_MadKilling) != 0)
                 {
@@ -4939,7 +5286,7 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
                 {
                     stati = get_creature_state_with_task_completion(thing);
                 }
-                if ((*(short *)&stati->field_26 == 1) || (thing_pointed_at == thing))
+                if ((*(short *)&stati->display_thought_bubble == 1) || (thing_pointed_at == thing))
                 {
                     (*state_spridx) = stati->sprite_idx;
                 }
@@ -6174,7 +6521,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
     }
 
 }
-void display_drawlist(void) // Draws isometric and 1st person view. Not frontview.
+static void display_drawlist(void) // Draws isometric and 1st person view. Not frontview.
 {
     struct PlayerInfo *player;
     const struct Camera *cam;
@@ -6474,7 +6821,7 @@ static void draw_view_map_plane(struct Camera *cam, long aposc, long bposc, long
     for (i = 2*cells_away-1; i > 0; i--)
     {
         ycell++;
-        bposc -= (map_subtiles_y+1);
+        bposc -= 256;
         mm++;
         draw_plane_of_engine_columns(cam, aposc, bposc, xcell, ycell, mm);
     }
@@ -7224,89 +7571,16 @@ static unsigned short get_thing_shade(struct Thing* thing)
     return shval;
 }
 
-static void lock_keepersprite(unsigned short kspr_idx)
-{
-    int frame_num;
-    int frame_count;
-    struct KeeperSprite *kspr_arr;
-    kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->Rotable) {
-        frame_count = 5 * kspr_arr->FramesCount;
-    } else {
-        frame_count = kspr_arr->FramesCount;
-    }
-    for (frame_num=0; frame_num < frame_count; frame_num++)
-    {
-        struct HeapMgrHandle *hmhndl;
-        hmhndl = heap_handle[kspr_idx+frame_num];
-        if (hmhndl != NULL) {
-            hmhndl->flags |= 0x02;
-        }
-    }
-}
-
-static void unlock_keepersprite(unsigned short kspr_idx)
-{
-    int frame_num;
-    int frame_count;
-    struct KeeperSprite *kspr_arr;
-    kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->Rotable) {
-        frame_count = 5 * kspr_arr->FramesCount;
-    } else {
-        frame_count = kspr_arr->FramesCount;
-    }
-    for (frame_num=0; frame_num < frame_count; frame_num++)
-    {
-        struct HeapMgrHandle *hmhndl;
-        hmhndl = heap_handle[kspr_idx+frame_num];
-        if (hmhndl != NULL) {
-            hmhndl->flags &= ~0x02;
-        }
-    }
-}
-
-static long load_single_frame(unsigned short kspr_idx)
+static long load_single_frame(TbSpriteData *data_ptr, unsigned short kspr_idx)
 {
     long nlength;
-    struct HeapMgrHandle *nitem;
-    int i;
     nlength = creature_table[kspr_idx+1].DataOffset - creature_table[kspr_idx].DataOffset;
-    for (i=0; i < 100; i++)
-    {
-        nitem = heapmgr_add_item(graphics_heap, nlength);
-        if (nitem != NULL) {
-            break;
-        }
-        long idfreed;
-        idfreed = heapmgr_free_oldest(graphics_heap);
-        if (idfreed < 0)
-        {
-            // If can't free anything more, try to defrag existing items
-            heapmgr_complete_defrag(graphics_heap);
-            nitem = heapmgr_add_item(graphics_heap, nlength);
-            if (nitem != NULL) {
-                break;
-            }
-            // Cannot free and cannot defrag - we can't do anything more
-            ERRORLOG("Unable to find freeable item");
-            return 0;
-        }
-        heap_handle[idfreed] = NULL;
-        keepsprite[idfreed] = NULL;
-    }
-    if (nitem == NULL) {
-        ERRORLOG("Unable to make room for new item on heap");
-        return 0;
-    }
-    if (!read_heap_item(nitem, creature_table[kspr_idx].DataOffset, nlength))
-    {
-        ERRORLOG("Load Fail On KeepSprite %d",(int)kspr_idx);
-        return 0;
-    }
-    keepsprite[kspr_idx] = (unsigned char **)&nitem->buf;
-    heap_handle[kspr_idx] = nitem;
-    nitem->idx = kspr_idx;
+    *data_ptr = he_alloc(nlength);
+
+    LbFileSeek(jty_file_handle, creature_table[kspr_idx].DataOffset, 0);
+    LbFileRead(jty_file_handle, *data_ptr, nlength);
+
+    keepsprite[kspr_idx] = data_ptr;
     return 1;
 }
 
@@ -7323,18 +7597,13 @@ static long load_keepersprite_if_needed(unsigned short kspr_idx)
     }
     for (frame_num=0; frame_num < frame_count; frame_num++)
     {
-        struct HeapMgrHandle **hmhndl;
-        hmhndl = &heap_handle[kspr_idx+frame_num];
-        if ((*hmhndl) != NULL)
+        TbSpriteData *sprite_data_ptr = &sprite_heap_handle[kspr_idx+frame_num];
+        if ((*sprite_data_ptr) == NULL)
         {
-            heapmgr_make_newest(graphics_heap, *hmhndl);
-        } else
-        {
-            if (!load_single_frame(kspr_idx+frame_num))
+            if (!load_single_frame(sprite_data_ptr, kspr_idx+frame_num))
             {
                 return 0;
             }
-            (*hmhndl)->flags |= 0x02;
         }
     }
     return 1;
@@ -7345,9 +7614,7 @@ static long heap_manage_keepersprite(unsigned short kspr_idx)
     long result;
     if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET)
         return 1;
-    lock_keepersprite(kspr_idx);
     result = load_keepersprite_if_needed(kspr_idx);
-    unlock_keepersprite(kspr_idx);
     return result;
 }
 
@@ -7556,8 +7823,6 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
     SYNCDBG(18,"Finished");
 }
 
-// this function is called by draw_fastview_mapwho
-HOOK_DK_FUNC(process_keeper_sprite)
 void process_keeper_sprite(short x, short y, unsigned short kspr_base, short kspr_angle, unsigned char sprgroup, long scale)
 {
     struct KeeperSprite *creature_sprites;
@@ -7602,18 +7867,18 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         water_y_offset = 0;
         water_source_cutoff = 0;
     } else
-    if ( (thing_being_displayed->movement_flags & (TMvF_IsOnWater|TMvF_IsOnLava|TMvF_Unknown04)) == 0)
+    if ( ((thing_being_displayed->movement_flags & (TMvF_IsOnWater|TMvF_IsOnLava|TMvF_BeingSacrificed)) == 0) || (object_is_buoyant(thing_being_displayed)))
     {
         water_y_offset = 0;
         water_source_cutoff = 0;
     } else
     {
         cutoff = 6;
-        if ( (thing_being_displayed->movement_flags & TMvF_Unknown04) != 0 )
+        if ( (thing_being_displayed->movement_flags & TMvF_BeingSacrificed) != 0 )
         {
             get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
-            lltemp = dim_oh * (48 - (long)cctrl->word_9A);
+            lltemp = dim_oh * (48 - (long)cctrl->sacrifice.word_9A);
             cutoff = ((((lltemp >> 24) & 0x1F) + (long)lltemp) >> 5) / 2;
         }
         if (player->view_mode == PVM_CreatureView)
@@ -7661,7 +7926,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     }
 }
 
-static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, long angle, long scale)
+static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, long angle, long scale)
 {
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -7674,7 +7939,7 @@ static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, lo
     player = get_my_player();
     switch (thing->model)
     {
-    case 28:
+    case ObjMdl_Candlestick:
         graph_id2 = 112;
         if (player->view_type == PVT_DungeonTop)
         {
@@ -7687,7 +7952,7 @@ static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, lo
         }
         transp2 = scale / 2;
         break;
-    case 2:
+    case ObjMdl_Torch:
         graph_id2 = 113;
         if (player->view_type == PVT_DungeonTop)
         {
@@ -7732,7 +7997,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (lens_mode == 0)
     {
         fade = 65536;
-        if ((thing->rendering_flags & TRF_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unshaded) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -7741,7 +8006,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (jspr->field_14 <= lfade_min)
     {
         fade = jspr->field_14;
-        if ((thing->rendering_flags & TRF_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unshaded) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -7750,7 +8015,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     if (jspr->field_14 < lfade_max)
     {
         fade = jspr->field_14;
-        if ((thing->rendering_flags & TRF_Unknown02) == 0)
+        if ((thing->rendering_flags & TRF_Unshaded) == 0)
             i = get_thing_shade(thing);
         else
             i = MINIMUM_LIGHTNESS;
@@ -7778,7 +8043,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     }
 }
 
-void draw_mapwho_ariadne_path(struct Thing *thing)
+static void draw_mapwho_ariadne_path(struct Thing *thing)
 {
     // Don't draw debug pathfinding lines in Possession to avoid crash
     struct PlayerInfo *player;
@@ -7814,13 +8079,12 @@ void draw_mapwho_ariadne_path(struct Thing *thing)
     }
 }
 
-void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
+static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
     unsigned char alpha_mem;
     struct PlayerInfo *player = get_my_player();
     struct Thing *thing = jspr->thing;
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
     long angle;
     long scale;
     flg_mem = lbDisplay.DrawFlags;
@@ -7828,7 +8092,7 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     if (keepersprite_rotable(thing->anim_sprite))
     {
       angle = thing->move_angle_xy - spr_map_angle;
-      angle += 256 * (long)((thingadd->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
+      angle += 256 * (long)((thing->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
     }
     else
       angle = thing->move_angle_xy;
@@ -7889,10 +8153,10 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
                 lbSpriteReMapPtr = red_pal;
-                thingadd->time_spent_displaying_hurt_colour += gameadd.delta_time;
-                if (thingadd->time_spent_displaying_hurt_colour >= 1.0)
+                thing->time_spent_displaying_hurt_colour += gameadd.delta_time;
+                if (thing->time_spent_displaying_hurt_colour >= 1.0 || game.frame_skip > 0)
                 {
-                    thingadd->time_spent_displaying_hurt_colour = 0;
+                    thing->time_spent_displaying_hurt_colour = 0;
                     thing->rendering_flags &= ~TRF_BeingHit; // Turns off red damage colour tint
                 }
             }
@@ -7922,9 +8186,9 @@ void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         {
         case TCls_Object:
             //TODO CONFIG object model dependency, move to config
-            if ((thing->model == 2) || (thing->model == 4) || (thing->model == 28)) //torchflames
+            if ((thing->model == ObjMdl_Torch) || (thing->model == ObjMdl_StatueLit) || (thing->model == ObjMdl_Candlestick)) //torchflames
             {
-                process_keeper_speedup_sprite(jspr, angle, scale);
+                process_keeper_flame_on_sprite(jspr, angle, scale);
                 break;
             }
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
@@ -8078,7 +8342,7 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
     }
 }
 
-void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char field48, unsigned char *outbuf)
+static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char field48, unsigned char *outbuf)
 {
     struct KeeperSprite *kspr_arr;
     unsigned long kspr_idx;
@@ -8206,8 +8470,8 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     struct Map *mapblk;
     long pos_x;
     long pos_y;
-    long slb_x;
-    long slb_y;
+    long stl_x;
+    long stl_y;
     long point_a;
     long point_b;
     long delta;
@@ -8221,22 +8485,22 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     {
         pos_x = (point_a / laaa) * x_step2[qdrant] + (point_b / laaa) * x_step1[qdrant] + (w << 8);
         pos_y = (point_a / laaa) * y_step2[qdrant] + (point_b / laaa) * y_step1[qdrant] + (h << 8);
-        slb_x = (pos_x >> 8) + x_offs[qdrant];
-        slb_y = (pos_y >> 8) + y_offs[qdrant];
+        stl_x = (pos_x >> 8) + x_offs[qdrant];
+        stl_y = (pos_y >> 8) + y_offs[qdrant];
         
-        if (slb_x < 0 || slb_x > 254 || slb_y < -2 || slb_y > 255) {
+        if (stl_x < 0 || stl_x > gameadd.map_subtiles_x - 1 || stl_y < -2 || stl_y > gameadd.map_subtiles_y) {
             out_of_bounds = true;
         }
 
-        mapblk = get_map_block_at(slb_x, slb_y);
+        mapblk = get_map_block_at(stl_x, stl_y);
         if (!map_block_invalid(mapblk))
         {
           if (i == 0)
           {
-            floor_pointed_at_x = slb_x;
-            floor_pointed_at_y = slb_y;
-            block_pointed_at_x = slb_x;
-            block_pointed_at_y = slb_y;
+            floor_pointed_at_x = stl_x;
+            floor_pointed_at_y = stl_y;
+            block_pointed_at_x = stl_x;
+            block_pointed_at_y = stl_y;
             pointed_at_frac_x = pos_x & 0xFF;
             pointed_at_frac_y = pos_y & 0xFF;
             me_pointed_at = mapblk;
@@ -8248,8 +8512,8 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
             {
               pointed_at_frac_x = pos_x & 0xFF;
               pointed_at_frac_y = pos_y & 0xFF;
-              block_pointed_at_x = slb_x;
-              block_pointed_at_y = slb_y;
+              block_pointed_at_x = stl_x;
+              block_pointed_at_y = stl_y;
               me_pointed_at = mapblk;
             }
             if (((temp_cluedo_mode)  && (i == 2))
@@ -8257,8 +8521,8 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
             {
               top_pointed_at_frac_x = pos_x & 0xFF;
               top_pointed_at_frac_y = pos_y & 0xFF;
-              top_pointed_at_x = slb_x;
-              top_pointed_at_y = slb_y;
+              top_pointed_at_x = stl_x;
+              top_pointed_at_y = stl_y;
             }
           }
         }
@@ -8509,7 +8773,7 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     }
 }
 
-void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, PlayerNumber plyr_idx)
+static void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, PlayerNumber plyr_idx)
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
@@ -8545,17 +8809,16 @@ void process_frontview_map_volume_box(struct Camera *cam, unsigned char stl_widt
 }
 static void do_map_who_for_thing(struct Thing *thing)
 {
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
     int bckt_idx;
     struct EngineCoord ecor;
     struct NearestLights nearlgt;
 
-    interpolate_thing(thing, thingadd);
+    interpolate_thing(thing);
     int render_pos_x, render_floorpos, render_pos_y, render_pos_z;
-    render_pos_x = thingadd->interp_mappos.x.val;
-    render_pos_y = thingadd->interp_mappos.z.val;
-    render_pos_z = thingadd->interp_mappos.y.val;
-    render_floorpos = thingadd->interp_floor_height;
+    render_pos_x = thing->interp_mappos.x.val;
+    render_pos_y = thing->interp_mappos.z.val;
+    render_pos_z = thing->interp_mappos.y.val;
+    render_floorpos = thing->interp_floor_height;
 
     switch (thing->field_50 >> 2) // draw_class
     {
@@ -8566,7 +8829,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.y = (render_floorpos - map_z_pos); // For shadows
 
         // Shadows
-        if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_Unknown04) == 0))
+        if (thing_is_creature(thing) && ((thing->movement_flags & TMvF_BeingSacrificed) == 0))
         {
             int count;
             int i;
@@ -8662,12 +8925,11 @@ static void do_map_who_for_thing(struct Thing *thing)
     default:
         break;
     }
-    thingadd->last_turn_drawn = game.play_gameturn;
+    thing->last_turn_drawn = game.play_gameturn;
 }
 
 static void do_map_who(short tnglist_idx)
 {
-    //_DK_do_map_who(a1); return;
     long i;
     unsigned long k;
     k = 0;
@@ -8701,8 +8963,7 @@ static void do_map_who(short tnglist_idx)
 static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map, struct Camera *cam)
 {
     // The draw_frontview_thing_on_element() function is the FrontView equivalent of do_map_who_for_thing()
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    interpolate_thing(thing, thingadd);
+    interpolate_thing(thing);
 
     long cx;
     long cy;
@@ -8712,7 +8973,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     switch (thing->field_50 >> 2)
     {
     case 2: // Things
-        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
@@ -8723,7 +8984,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
         break;
     case 4: // Floating gold text when buying and selling
-        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_number_to_polypool(cx, cy, thing->creature.gold_carried, 1);
@@ -8734,7 +8995,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         if (hud_scale == 0) {
             break;
         }
-        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
@@ -8759,7 +9020,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
         break;
     case 6:
-        convert_world_coord_to_front_view_screen_coord(&thingadd->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_unkn18_to_polypool(thing, cx, cy, cy, cz-3);
@@ -8768,7 +9029,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     default:
         break;
     }
-    thingadd->last_turn_drawn = game.play_gameturn;
+    thing->last_turn_drawn = game.play_gameturn;
 }
 
 static void draw_frontview_things_on_element(struct Map *mapblk, struct Camera *cam)
@@ -8929,7 +9190,7 @@ void draw_frontview_engine(struct Camera *cam)
             {
                 if (get_mapblk_column_index(mapblk) > 0)
                 {
-                    draw_element(mapblk, game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)], stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
+                    draw_element(mapblk, get_subtile_lightness(&game.lish,stl_x,stl_y), stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
                 }
                 if ( subtile_revealed(stl_x, stl_y, player->id_number) )
                 {

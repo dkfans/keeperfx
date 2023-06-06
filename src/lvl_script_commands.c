@@ -150,7 +150,9 @@ const struct NamedCommand hero_objective_desc[] = {
   {"STEAL_SPELLS",         CHeroTsk_StealSpells},
   {"ATTACK_ENEMIES",       CHeroTsk_AttackEnemies},
   {"ATTACK_DUNGEON_HEART", CHeroTsk_AttackDnHeart},
+  {"SNIPE_DUNGEON_HEART",  CHeroTsk_SnipeDnHeart},
   {"ATTACK_ROOMS",         CHeroTsk_AttackRooms},
+  {"SABOTAGE_ROOMS",       CHeroTsk_SabotageRooms},
   {"DEFEND_PARTY",         CHeroTsk_DefendParty},
   {"DEFEND_LOCATION",      CHeroTsk_DefendSpawn},
   {"DEFEND_HEART",         CHeroTsk_DefendHeart},
@@ -210,6 +212,20 @@ const struct NamedCommand trap_config_desc[] = {
   {"TriggerAlarm",        19},
   {"Slappable",           20},
   {"Unanimated",          21},
+  {"Health",              22},
+  {"Unshaded",            23},
+  {"RandomStartFrame",    24},
+  {"ThingSize",           25},
+  {"HitType",             26},
+  {"LightRadius",         27},
+  {"LightIntensity",      28},
+  {"LightFlags",          29},
+  {"TransparencyFlags",   30},
+  {"ShotVector",          31},
+  {"Destructible",        32},
+  {"Unstable",            33},
+  {"Unsellable",          34},
+  {"PlaceOnBridge",       35},
   {NULL,                   0},
 };
 
@@ -358,6 +374,26 @@ const struct NamedCommand set_door_desc[] = {
   {NULL, 0}
 };
 
+const struct NamedCommand texture_pack_desc[] = {
+  {"NONE",         0},
+  {"STANDARD",     1},
+  {"ANCIENT",      2},
+  {"WINTER",       3},
+  {"SNAKE_KEY",    4},
+  {"STONE_FACE",   5},
+  {"VOLUPTUOUS",   6},
+  {"BIG_BREASTS",  6},
+  {"ROUGH_ANCIENT",7},
+  {"SKULL_RELIEF", 8},
+  {"DESERT_TOMB",  9},
+  {"GYPSUM",       10},
+  {"LILAC_STONE",  11},
+  {"SWAMP_SERPENT",12},
+  {"LAVA_CAVERN",  13},
+  {"LATERITE_CAVERN",14},
+  {NULL,           0},
+};
+
 
 static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
 {
@@ -393,7 +429,12 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
+    TbBool is_spec_digger;
     int i = dungeon->creatr_list_start;
+    if ((crmodel == get_players_special_digger_model(plyr_idx)) || (crmodel == CREATURE_DIGGER))
+    {
+        i = dungeon->digger_list_start;
+    }
     while (i != 0)
     {
         struct Thing* thing = thing_get(i);
@@ -404,9 +445,11 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
+        is_spec_digger = (thing->model > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, thing->model);
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if (thing->model == crmodel || crmodel == 0)
+       
+        if (thing->model == crmodel || crmodel == 0 || (!is_spec_digger && (crmodel == CREATURE_ANY)) || (is_spec_digger && (crmodel == CREATURE_DIGGER)))
         {
             i = cctrl->players_next_creature_idx;
             if (operation == SOpr_SET)
@@ -753,7 +796,8 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
             dungeonadd = get_dungeonadd(plyr_idx);
             dungeonadd->creatures_transferred++;
             remove_thing_from_power_hand_list(thing, plyr_idx);
-            create_special_used_effect(&thing->mappos, plyr_idx);
+            struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
+            create_used_effect_or_element(&thing->mappos, specst->effect_id, plyr_idx);
             kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects | CrDed_NotReallyDying);
         }
     }
@@ -863,6 +907,9 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = trap_id;
     value->shorts[1] = trapvar;
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = scline->np[4];
     if (trapvar == 3) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
@@ -1045,8 +1092,8 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
         SCRPTERRLOG("Unknown creature, '%s'", scline->tp[2]);
         return;
     }
-    long ap_num = scline->np[0];
-    long flag_player_id = scline->np[3];
+    short ap_num = scline->np[0];
+    char flag_player_id = scline->np[3];
     const char *flag_name = scline->tp[4];
 
     long flag_id, flag_type;
@@ -1057,10 +1104,10 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     }
 
     value->shorts[0] = ap_num;
-    value->bytes[2] = crmodel;
+    value->bytes[2] = crmodel % CREATURE_TYPES_MAX;
     value->chars[3] = flag_player_id;
-    value->chars[4] = flag_id;
-    value->chars[5] = flag_type;
+    value->shorts[2] = flag_id;
+    value->chars[6] = flag_type;
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1085,7 +1132,7 @@ void refresh_trap_anim(long trap_id)
             traptng->anim_sprite = gameadd.trap_stats[trap_id].sprite_anim_idx;
             struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
             char start_frame;
-            if (trapstat->field_13) {
+            if (trapstat->random_start_frame) {
                 start_frame = -1;
             }
             else {
@@ -1110,6 +1157,8 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     struct ManfctrConfig *mconf = &gameadd.traps_config[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
     short value = context->value->shorts[2];
+    short value2 = context->value->shorts[3];
+    short value3 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
@@ -1201,11 +1250,57 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             gameadd.trap_stats[trap_type].unanimated = value;
             refresh_trap_anim(trap_type);
             break;
+        case 22: // Health
+            gameadd.trap_stats[trap_type].health = value;
+            break;
+        case 23: // Unshaded
+            gameadd.trap_stats[trap_type].unshaded = value;
+            break;
+        case 24: // RandomStartFrame
+            gameadd.trap_stats[trap_type].random_start_frame = value;
+            break;
+        case 25: // ThingSize
+            gameadd.trap_stats[trap_type].size_xy = value; // First
+            gameadd.trap_stats[trap_type].size_yz = value2; // Second
+            break;
+        case 26: // HitType
+            gameadd.trap_stats[trap_type].hit_type = value;
+            break;
+        case 27: // LightRadius
+            gameadd.trap_stats[trap_type].light_radius = value;
+            break;
+        case 28: // LightIntensity
+            gameadd.trap_stats[trap_type].light_intensity = value;
+            break;
+        case 29: // LightFlags
+            gameadd.trap_stats[trap_type].light_flag = value;
+            break;
+        case 30: // TransparencyFlags
+            gameadd.trap_stats[trap_type].transparency_flag = value;
+            break;
+        case 31: // ShotVector
+            gameadd.trap_stats[trap_type].shotvector.x = value;
+            gameadd.trap_stats[trap_type].shotvector.y = value2;
+            gameadd.trap_stats[trap_type].shotvector.z = value3;
+            break;
+        case 32: // Destructible
+            trapst->destructible = value;
+            break;
+        case 33: // Unstable
+            trapst->unstable = value;
+            break;
+        case 34: // Unsellable
+            trapst->unsellable = value;
+            break;
+        case 35: // PlaceOnBridge
+            trapst->placeonbridge = value;
+            break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;
     }
 }
+
 
 static void set_hand_rule_process(struct ScriptContext* context)
 {
@@ -1286,8 +1381,8 @@ static void count_creatures_at_action_point_process(struct ScriptContext* contex
     long ap_num = context->value->shorts[0];
     long crmodel = context->value->bytes[2];
     long flag_player_id = context->value->chars[3];
-    long flag_id = context->value->chars[4];
-    long flag_type = context->value->chars[5];
+    long flag_id = context->value->shorts[2];
+    long flag_type = context->value->chars[6];
 
     long sum = 0;
     for (int i = context->plr_start; i < context->plr_end; i++) {
@@ -1501,15 +1596,7 @@ static void create_effect_process(struct ScriptContext *context)
     {
         pos.z.val += 128;
     }
-    struct Thing* efftng;
-    if (context->value->chars[0] >= 0)
-    {
-        efftng = create_effect(&pos, context->value->bytes[0], game.neutral_player_num);
-    }
-    else
-    {
-        efftng = create_effect_element(&pos, ~(context->value->bytes[0]) + 1, game.neutral_player_num);
-    }
+    struct Thing* efftng = create_used_effect_or_element(&pos, context->value->chars[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
     {
         if (thing_in_wall_at(efftng, &efftng->mappos))
@@ -1562,14 +1649,14 @@ static void add_heart_health_process(struct ScriptContext *context)
     struct Thing* heartng = get_player_soul_container(context->value->arg0);
     if (!thing_is_invalid(heartng))
     {
-        short old_health = heartng->health;
-        long new_health = heartng->health + context->value->arg1;
+        long old_health = heartng->health;
+        long long new_health = heartng->health + context->value->arg1;
         if (new_health > (signed long)game.dungeon_heart_health)
         {
             SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, game.dungeon_heart_health);
             new_health = game.dungeon_heart_health;
         }
-        heartng->health = (short)new_health;
+        heartng->health = new_health;
         TbBool warn_on_damage = (context->value->arg2);
         if (warn_on_damage)
         {
@@ -1691,8 +1778,23 @@ static void create_effects_line_check(const struct ScriptLine *scline)
     value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
-    // TODO: use effect elements when below zero?
-    value->chars[11] = scline->np[5]; // effect
+
+    const char* effect_name = scline->tp[5];
+    long effct_id = get_rid(effect_desc, effect_name);
+    if (effct_id == -1)
+    {
+        if (parameter_is_number(effect_name))
+        {
+            effct_id = atoi(effect_name);
+        }
+        else
+        {
+            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+            return;
+        }
+    }
+
+    value->chars[11] = effct_id; // effect
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1825,10 +1927,22 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             value->arg2 = number_value;
             break;
         }
+        case 20: // UPDATEFUNCTION
+        {
+            number_value = get_id(object_update_functions_desc,new_value);
+            if (number_value < 0)
+            {
+                SCRPTERRLOG("Invalid object update function id");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->arg2 = number_value;
+            break;
+        }
         default:
             value->arg2 = atoi(new_value);
     }
-
+    
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
     value->arg0 = objct_id;
     value->arg1 = objectvar;
@@ -1843,24 +1957,75 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     short creatvar = get_id(creatmodel_attributes_commands, scline->tp[1]);
     if (creatvar == -1)
     {
-        SCRPTERRLOG("Unknown creature attribute");
-        DEALLOCATE_SCRIPT_VALUE
+        creatvar = get_id(creatmodel_jobs_commands, scline->tp[1]);
+        if (creatvar == -1)
+        {
+            SCRPTERRLOG("Unknown creature attribute");
+            DEALLOCATE_SCRIPT_VALUE
             return;
+        }
+        creatvar = (creatvar << 8);
     }
 
+    short attribute_value;
+    short attribute2_value = 0;
     if (creatvar == 20) // ATTACKPREFERENCE
     {
-        value->shorts[2] = get_id(attackpref_desc, scline->tp[2]);
+        attribute_value = get_id(attackpref_desc, scline->tp[2]);
+    }
+    else if (creatvar == 34) // LAIROBJECT
+    {
+        attribute_value = get_id(object_desc, scline->tp[2]);
+    }
+    else if (((creatvar>>8) > 0 ) && ((creatvar >> 8) <= 4)) // Jobs
+    {
+        long job_value = get_id(creaturejob_desc, scline->tp[2]);
+        if (job_value > SHRT_MAX)
+        {
+            SCRPTERRLOG("JOB %s not supported",creature_job_code_name(job_value));
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        attribute_value = job_value;
+
+        if (scline->tp[3][0] != '\0')
+        {
+            long job2_value = get_id(creaturejob_desc, scline->tp[3]);
+            if (job2_value > SHRT_MAX)
+            {
+                SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            attribute2_value = job2_value;
+        }
     }
     else
     {
-        value->shorts[2] = atoi(scline->tp[2]);
+            attribute_value = atoi(scline->tp[2]);
+            if (scline->tp[3][0] != '\0')
+            {
+                attribute2_value = atoi(scline->tp[3]);
+            }
+    }
+    if (attribute_value == -1)
+    {
+        SCRPTERRLOG("Unknown creature attribute value %s", scline->tp[2]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if (attribute2_value == -1)
+    {
+        SCRPTERRLOG("Unknown second creature attribute value %s", scline->tp[3]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
     }
 
-    SCRIPTDBG(7, "Setting creature %s attribute %d to %d (%d)", creature_code_name(scline->np[0]), scline->np[1], scline->np[2], scline->np[3]);
     value->shorts[0] = scline->np[0];
     value->shorts[1] = creatvar;
-    value->shorts[3] = scline->np[3];
+    value->shorts[2] = attribute_value;
+    value->shorts[3] = attribute2_value;
+    SCRIPTDBG(7,"Setting creature %s attribute %d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[1], value->shorts[2], value->shorts[3]);
 
     PROCESS_SCRIPT_VALUE(scline->command);
 }
@@ -1875,115 +2040,167 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     short value = context->value->shorts[2];
     short value2 = context->value->shorts[3];
 
-    switch (attribute)
+    if (attribute <= CHAR_MAX)
     {
-    case 1: // NAME
-        CONFWRNLOG("Attribute (%d) not supported", attribute);
-        break;
-    case 2: // HEALTH
-        crstat->health = value;
-        break;
-    case 3: // HEALREQUIREMENT
-        crstat->heal_requirement = value;
-        break;
-    case 4: // HEALTHRESHOLD
-        crstat->heal_threshold = value;
-        break;
-    case 5: // STRENGTH
-        crstat->strength = value;
-        break;
-    case 6: // ARMOUR
-        crstat->armour = value;
-        break;
-    case 7: // DEXTERITY
-        crstat->dexterity = value;
-        break;
-    case 8: // FEARWOUNDED
-        crstat->fear_wounded = value;
-        break;
-    case 9: // FEARSTRONGER
-        crstat->fear_stronger = value;
-        break;
-    case 10: // DEFENCE
-        crstat->defense = value;
-        break;
-    case 11: // LUCK
-        crstat->luck = value;
-        break;
-    case 12: // RECOVERY
-        crstat->sleep_recovery = value;
-        break;
-    case 13: // HUNGERRATE
-        crstat->hunger_rate = value;
-        break;
-    case 14: // HUNGERFILL
-        crstat->hunger_fill = value;
-        break;
-    case 15: // LAIRSIZE
-        crstat->lair_size = value;
-        break;
-    case 16: // HURTBYLAVA
-        crstat->hurt_by_lava = value;
-        break;
-    case 17: // BASESPEED
-        crstat->base_speed = value;
-        break;
-    case 18: // GOLDHOLD
-        crstat->gold_hold = value;
-        break;
-    case 19: // SIZE
-        crstat->size_xy = value;
-        crstat->size_yz = value2;
-        break;
-    case 20: // ATTACKPREFERENCE
-        //todo
-        crstat->attack_preference = value;
-        break;
-    case 21: // PAY
-        crstat->pay = value;
-        break;
-    case 22: // HEROVSKEEPERCOST
-        crstat->hero_vs_keeper_cost = value;
-        break;
-    case 23: // SLAPSTOKILL
-        crstat->slaps_to_kill = value;
-        break;
-    case 24: // CREATURELOYALTY
-    case 25: // LOYALTYLEVEL
-    case 28: // PROPERTIES
-        CONFWRNLOG("Attribute (%d) not supported", attribute);
-        break;
-    case 26: // DAMAGETOBOULDER
-        crstat->damage_to_boulder = value;
-        break;
-    case 27: // THINGSIZE
-        crstat->thing_size_xy = value;
-        crstat->thing_size_yz = value2;
-        break;
-    case 29: // NAMETEXTID
-        crconf->namestr_idx = value;
-        break;
-    case 30: // FEARSOMEFACTOR
-        crstat->fearsome_factor = value;
-        break;
-    case 31: // TOKINGRECOVERY
-        crstat->toking_recovery = value;
-        break;
-    case 32: // CORPSEVANISHEFFECT
-        crstat->corpse_vanish_effect = value;
-        break;
-    case 33: // FOOTSTEPPITCH
-        crstat->footstep_pitch = value;
-    case 0: // comment
-        break;
-    case -1: // end of buffer
-        break;
-    default:
-        CONFWRNLOG("Unrecognized command (%d)",attribute);
-        break;
+        switch (attribute)
+        {
+        case 1: // NAME
+            CONFWRNLOG("Attribute (%d) not supported", attribute);
+            break;
+        case 2: // HEALTH
+            crstat->health = value;
+            break;
+        case 3: // HEALREQUIREMENT
+            crstat->heal_requirement = value;
+            break;
+        case 4: // HEALTHRESHOLD
+            crstat->heal_threshold = value;
+            break;
+        case 5: // STRENGTH
+            crstat->strength = value;
+            break;
+        case 6: // ARMOUR
+            crstat->armour = value;
+            break;
+        case 7: // DEXTERITY
+            crstat->dexterity = value;
+            break;
+        case 8: // FEARWOUNDED
+            crstat->fear_wounded = value;
+            break;
+        case 9: // FEARSTRONGER
+            crstat->fear_stronger = value;
+            break;
+        case 10: // DEFENCE
+            crstat->defense = value;
+            break;
+        case 11: // LUCK
+            crstat->luck = value;
+            break;
+        case 12: // RECOVERY
+            crstat->sleep_recovery = value;
+            break;
+        case 13: // HUNGERRATE
+            crstat->hunger_rate = value;
+            break;
+        case 14: // HUNGERFILL
+            crstat->hunger_fill = value;
+            break;
+        case 15: // LAIRSIZE
+            crstat->lair_size = value;
+            break;
+        case 16: // HURTBYLAVA
+            crstat->hurt_by_lava = value;
+            break;
+        case 17: // BASESPEED
+            crstat->base_speed = value;
+            break;
+        case 18: // GOLDHOLD
+            crstat->gold_hold = value;
+            break;
+        case 19: // SIZE
+            crstat->size_xy = value;
+            crstat->size_yz = value2;
+            break;
+        case 20: // ATTACKPREFERENCE
+            crstat->attack_preference = value;
+            break;
+        case 21: // PAY
+            crstat->pay = value;
+            break;
+        case 22: // HEROVSKEEPERCOST
+            crstat->hero_vs_keeper_cost = value;
+            break;
+        case 23: // SLAPSTOKILL
+            crstat->slaps_to_kill = value;
+            break;
+        case 24: // CREATURELOYALTY
+        case 25: // LOYALTYLEVEL
+        case 28: // PROPERTIES
+            CONFWRNLOG("Attribute (%d) not supported", attribute);
+            break;
+        case 26: // DAMAGETOBOULDER
+            crstat->damage_to_boulder = value;
+            break;
+        case 27: // THINGSIZE
+            crstat->thing_size_xy = value;
+            crstat->thing_size_yz = value2;
+            break;
+        case 29: // NAMETEXTID
+            crconf->namestr_idx = value;
+            break;
+        case 30: // FEARSOMEFACTOR
+            crstat->fearsome_factor = value;
+            break;
+        case 31: // TOKINGRECOVERY
+            crstat->toking_recovery = value;
+            break;
+        case 32: // CORPSEVANISHEFFECT
+            crstat->corpse_vanish_effect = value;
+            break;
+        case 33: // FOOTSTEPPITCH
+            crstat->footstep_pitch = value;
+            break;
+        case 34: // LAIROBJECT
+            crstat->lair_object = value;
+            break;
+        case 0: // comment
+            break;
+        case -1: // end of buffer
+            break;
+        default:
+            CONFWRNLOG("Unrecognized command (%d)", attribute);
+            break;
+        }
+    }
+    else
+    {
+        attribute = (attribute >> 8); // creatmodel_jobs_commands
+        switch (attribute)
+        {
+        case 1: // PRIMARYJOBS
+            crstat->job_primary = value;
+            crstat->job_primary |= value2;
+            break;
+        case 2: // SECONDARYJOBS
+            crstat->job_secondary = value;
+            crstat->job_secondary |= value2;
+            break;
+        case 3: // NOTDOJOBS
+            crstat->jobs_not_do = value;
+            crstat->jobs_not_do |= value2;
+            break;
+        case 4: // STRESSFULJOBS
+            crstat->job_stress = value;
+            crstat->job_stress |= value2;
+            break;
+        case 5: // TRAININGVALUE
+            crstat->training_value = value;
+            break;
+        case 6: // TRAININGCOST
+            crstat->training_cost = value;
+            break;
+        case 7: // SCAVENGEVALUE
+            crstat->scavenge_value = value;
+            break;
+        case 8: // SCAVENGERCOST
+            crstat->scavenger_cost = value;
+            break;
+        case 9: // RESEARCHVALUE
+            crstat->research_value = value;
+            break;
+        case 10: // MANUFACTUREVALUE
+            crstat->manufacture_value = value;
+            break;
+        case 11: // PARTNERTRAINING
+            crstat->partner_training = value;
+            break;
+        default:
+            CONFWRNLOG("Unrecognized Job command (%d)", attribute);
+            break;
+        }
     }
     check_and_auto_fix_stats();
-    creature_stats_updated(creatid);
 }
 
 static void set_object_configuration_process(struct ScriptContext *context)
@@ -2046,6 +2263,9 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
         case 19: // AMBIENCESOUND
             objdat->fp_smpl_idx = context->value->arg2;
+            break;
+        case 20: // UPDATEFUNCTION
+            objdat->updatefn_idx = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -2124,7 +2344,7 @@ static void display_variable_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->bytes[0] = scline->np[0];
     value->bytes[1] = scline->np[3];
-    gameadd.script_value_type = varib_type;
+    value->bytes[2] = varib_type;
     value->arg1 = varib_id;
     value->arg2 = scline->np[2];
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -2133,6 +2353,7 @@ static void display_variable_check(const struct ScriptLine *scline)
 static void display_variable_process(struct ScriptContext *context)
 {
    gameadd.script_player = context->value->bytes[0];
+   gameadd.script_value_type = context->value->bytes[2];
    gameadd.script_value_id = context->value->arg1;
    gameadd.script_variable_target = context->value->arg2;
    gameadd.script_variable_target_type = context->value->bytes[1];
@@ -2405,14 +2626,14 @@ static void set_box_tooltip_id(const struct ScriptLine *scline)
 static void change_slab_owner_check(const struct ScriptLine *scline)
 {
 
-    if (scline->np[0] < 0 || scline->np[0] > 85) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
         return;
     }
-    if (scline->np[1] < 0 || scline->np[1] > 85) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[1]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[1],gameadd.map_tiles_y);
         return;
     }
     long filltype = get_id(fill_desc, scline->tp[3]);
@@ -2445,9 +2666,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    if (scline->np[0] < 0 || scline->np[0] > 85) //x coord
+    if (scline->np[0] < 0 || scline->np[0] > gameadd.map_tiles_x) //x coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_x);
         return;
     }
     else
@@ -2455,9 +2676,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
         value->shorts[0] = scline->np[0];
     }
 
-    if (scline->np[1] < 0 || scline->np[1] > 85) //y coord
+    if (scline->np[1] < 0 || scline->np[1] > gameadd.map_tiles_y) //y coord
     {
-        SCRPTERRLOG("Value '%d' out of range. Range 0-85 allowed.", scline->np[0]);
+        SCRPTERRLOG("Value '%d' out of range. Range 0-%d allowed.", scline->np[0],gameadd.map_tiles_y);
         return;
     }
     else
@@ -2556,6 +2777,63 @@ static void player_zoom_to_process(struct ScriptContext *context)
     find_location_pos(target, context->player_idx, &pos, __func__);
     set_player_zoom_to_position(get_player(context->player_idx),&pos);
 }
+  
+static void use_spell_on_creature_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    long crtr_id = parse_creature_name(scline->tp[1]);
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        return;
+    }
+    const char *mag_name = scline->tp[2];
+    short mag_id = get_rid(spell_desc, mag_name);
+    short splevel = scline->np[3];
+
+    if (mag_id == -1)
+    {
+        SCRPTERRLOG("Invalid spell: %s", mag_name);
+        return;
+    }
+
+    if (splevel < 1)
+    {
+        if ((mag_id == SplK_Heal) || (mag_id == SplK_Armour) || (mag_id == SplK_Speed) || (mag_id == SplK_Disease) || (mag_id == SplK_Invisibility) || (mag_id == SplK_Chicken))
+        {
+            SCRPTWRNLOG("Spell %s level too low: %d, setting to 1.", mag_name, splevel);
+        }
+        splevel = 1;
+    }
+    if (splevel > (MAGIC_OVERCHARGE_LEVELS + 1)) //Creatures cast spells from level 1 to 10, but 10=9.
+    {
+        SCRPTWRNLOG("Spell %s level too high: %d, setting to %d.", mag_name, splevel, (MAGIC_OVERCHARGE_LEVELS + 1));
+        splevel = MAGIC_OVERCHARGE_LEVELS;
+    }
+    splevel--;
+    if (mag_id == -1)
+    {
+        SCRPTERRLOG("Unknown magic, '%s'", mag_name);
+        return;
+    }
+    value->shorts[1] = crtr_id;
+    value->shorts[2] = mag_id;
+    value->shorts[3] = splevel;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void use_spell_on_creature_process(struct ScriptContext* context)
+{
+    long crmodel = context->value->shorts[1];
+    long spl_idx = context->value->shorts[2];
+    long overchrg = context->value->shorts[3];
+
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        apply_spell_effect_to_players_creatures(i, crmodel, spl_idx, overchrg);
+    }
+}
+
 static void set_creature_instance_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -2602,6 +2880,43 @@ static void set_creature_instance_process(struct ScriptContext *context)
                 }
             }
         }
+    }
+}
+
+
+static void hide_hero_gate_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    short n = scline->np[0];
+    if (scline->np[0] < 0)
+    {
+        n = -scline->np[0];
+    }
+    struct Thing* thing = find_hero_gate_of_number(n);
+    if (thing_is_invalid(thing))
+    {
+        SCRPTERRLOG("Invalid hero gate: %d", scline->np[0]);
+        return;
+    }
+    value->bytes[0] = n;
+    value->bytes[1] = scline->np[1];
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void hide_hero_gate_process(struct ScriptContext* context)
+{
+    struct Thing* thing = find_hero_gate_of_number(context->value->bytes[0]);
+
+    if (context->value->bytes[1])
+    {
+        create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
+        place_thing_in_creature_controlled_limbo(thing);
+    }
+    else
+    {
+        create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
+        remove_thing_from_creature_controlled_limbo(thing);
     }
 }
 
@@ -2925,6 +3240,59 @@ static void if_allied_check(const struct ScriptLine *scline)
     command_add_condition(pA, op, SVar_ALLIED_PLAYER, pB, val);
 }
 
+static void set_texture_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    long texture_id = get_rid(texture_pack_desc, scline->tp[1]);
+    if (texture_id == -1)
+    {
+        if (parameter_is_number(scline->tp[1]))
+        {
+            texture_id = atoi(scline->tp[1]) + 1;
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid texture pack: '%s'", scline->tp[1]);
+            return;
+        }
+    }
+    value->shorts[0] = texture_id;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_texture_process(struct ScriptContext *context)
+{
+    long texture_id = context->value->shorts[0];
+    struct Dungeon* dungeon;
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        dungeon = get_dungeon(i);
+        dungeon->texture_pack = texture_id;
+
+
+
+        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        {
+            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+            {
+                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                if (slabmap_owner(slb) == i)
+                {
+                    if (texture_id == 0)
+                    {
+                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+                    }
+                    else
+                    {
+                        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = texture_id;
+                    }
+                }
+            }
+        }
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -3021,22 +3389,23 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
-  {"SET_TRAP_CONFIGURATION",            "AAAn!   ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
+  {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
-  {"SET_CREATURE_CONFIGURATION",        "CAAn    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
+  {"SET_CREATURE_CONFIGURATION",        "CAAa    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"SET_BOX_TOOLTIP",                   "NA      ", Cmd_SET_BOX_TOOLTIP, &set_box_tooltip, &null_process},
   {"SET_BOX_TOOLTIP_ID",                "NN      ", Cmd_SET_BOX_TOOLTIP_ID, &set_box_tooltip_id, &null_process},
   {"CHANGE_SLAB_OWNER",                 "NNPa    ", Cmd_CHANGE_SLAB_OWNER, &change_slab_owner_check, &change_slab_owner_process},
   {"CHANGE_SLAB_TYPE",                  "NNSa    ", Cmd_CHANGE_SLAB_TYPE, &change_slab_type_check, &change_slab_type_process},
-  {"CREATE_EFFECTS_LINE",               "LLNNNN  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
+  {"CREATE_EFFECTS_LINE",               "LLNNNA  ", Cmd_CREATE_EFFECTS_LINE, &create_effects_line_check, &create_effects_line_process},
   {"IF_SLAB_OWNER",                     "NNP     ", Cmd_IF_SLAB_OWNER, NULL, NULL},
   {"IF_SLAB_TYPE",                      "NNS     ", Cmd_IF_SLAB_TYPE, NULL, NULL},
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
-  {"USE_SPELL_ON_CREATURE",             "PC!AAN  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
+  {"USE_SPELL_ON_CREATURE",             "PC!AAn  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
+  {"USE_SPELL_ON_PLAYERS_CREATURES",    "PC!An   ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_spell_on_creature_check, &use_spell_on_creature_process },
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
   {"ADD_HEART_HEALTH",                  "PNn     ", Cmd_ADD_HEART_HEALTH, &add_heart_health_check, &add_heart_health_process},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
@@ -3060,6 +3429,8 @@ const struct CommandDesc command_desc[] = {
   {"MOVE_CREATURE",                     "PC!ANLa ", Cmd_MOVE_CREATURE, &move_creature_check, &move_creature_process},
   {"COUNT_CREATURES_AT_ACTION_POINT",   "NPC!PA  ", Cmd_COUNT_CREATURES_AT_ACTION_POINT, &count_creatures_at_action_point_check, &count_creatures_at_action_point_process},
   {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
+  {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
+  {"HIDE_HERO_GATE",                    "Nn      ", Cmd_HIDE_HERO_GATE, &hide_hero_gate_check, &hide_hero_gate_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

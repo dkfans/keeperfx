@@ -75,7 +75,27 @@ struct Around const large_around[] = {
 { 3, 3},{ 2, 3},{ 1, 3},{ 0, 3},{-1, 3},{-2, 3},
 };
 
-/******************************************************************************/
+struct Around const my_around_eight[] = {
+  { 0,-1}, { 1,-1},
+  { 1, 0}, { 1, 1},
+  { 0, 1}, {-1, 1},
+  {-1, 0}, {-1,-1},
+};
+
+struct Around const my_around_nine[] = {
+  {-1,-1}, { 0,-1}, { 1,-1},
+  {-1, 0}, { 0, 0}, { 1, 0},
+  {-1, 1}, { 0, 1}, { 1, 1},
+};
+
+struct Around const start_at_around[] = {
+    { 0,  0}, {-1, -1}, {-1,  0},
+    {-1,  1}, { 0, -1}, { 0,  1},
+    { 1, -1}, { 1,  0}, { 1,  1},
+};
+
+struct MapOffset spiral_step[SPIRAL_STEPS_COUNT];
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -88,7 +108,7 @@ void init_spiral_steps(void)
     struct MapOffset* sstep = &spiral_step[0];
     sstep->h = y;
     sstep->v = x;
-    sstep->both = (short)y + ((short)x << 8);
+    sstep->both = (short)y + ((short)x * gameadd.map_subtiles_y);
     y = -1;
     x = -1;
     for (long i = 1; i < SPIRAL_STEPS_COUNT; i++)
@@ -96,7 +116,7 @@ void init_spiral_steps(void)
       sstep = &spiral_step[i];
       sstep->h = y;
       sstep->v = x;
-      sstep->both = (short)y + ((short)x << 8);
+      sstep->both = (short)y + ((short)x * gameadd.map_subtiles_y);
       if ((y < 0) && (x-y == 1))
       {
           y--;
@@ -174,8 +194,8 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
 
 void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param)
 {
-    long max_slb_dim_x = (map_subtiles_x / STL_PER_SLB);
-    long max_slb_dim_y = (map_subtiles_y / STL_PER_SLB);
+    long max_slb_dim_x = (gameadd.map_subtiles_x / STL_PER_SLB);
+    long max_slb_dim_y = (gameadd.map_subtiles_y / STL_PER_SLB);
     MapSlabCoord* stack_x = malloc(max_slb_dim_x * max_slb_dim_y);
     MapSlabCoord* stack_y = malloc(max_slb_dim_x * max_slb_dim_y);
     char* visited = malloc(max_slb_dim_x * max_slb_dim_y);
@@ -336,12 +356,12 @@ long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbki
     for (long dy = -rad; dy <= rad; dy++)
     {
         long y = ty + dy;
-        if ((y < 0) || (y >= map_tiles_y))
+        if ((y < 0) || (y >= gameadd.map_tiles_y))
             continue;
         for (long dx = -rad; dx <= rad; dx++)
         {
             long x = tx + dx;
-            if ((x < 0) || (x >= map_tiles_x))
+            if ((x < 0) || (x >= gameadd.map_tiles_x))
                 continue;
             struct SlabMap* slb = get_slabmap_block(x, y);
             if (slb->kind == slbkind)

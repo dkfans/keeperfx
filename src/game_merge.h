@@ -48,11 +48,14 @@ extern "C" {
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
 #define TRANSFER_CREATURE_STORAGE_COUNT     255
 
+#define AROUND_MAP_LENGTH 9
+#define AROUND_SLAB_LENGTH 9
+#define AROUND_SLAB_EIGHT_LENGTH 8
+#define SMALL_AROUND_SLAB_LENGTH 4
+
 // UNSYNC_RANDOM is not synced at all. For synced choices the more specific random is better.
 // So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
 
-// Deprecated. Used only once. Maybe it is sound-specific UNSYNC_RANDOM
-#define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
 // Used only once. Maybe it is light-specific UNSYNC_RANDOM
 #define LIGHT_RANDOM(range) LbRandomSeries(range, &game.lish.light_rand_seed, __func__, __LINE__, "light")
 // This RNG should not be used to affect anything related affecting game state
@@ -203,9 +206,6 @@ struct GameAdd {
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 
-    struct ThingAdd things[THINGS_COUNT];
-    struct LightAdd lights[LIGHTS_COUNT];
-
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
     struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
@@ -224,7 +224,8 @@ struct GameAdd {
     TbBool heart_lost_quick_message;
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
-    unsigned char slab_ext_data[85 * 85];
+    unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
+    unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
     struct PlayerInfoAdd players[PLAYERS_COUNT];
     float delta_time;
     long double process_turn_time;
@@ -232,6 +233,17 @@ struct GameAdd {
     TbBool allies_share_vision;
     TbBool allies_share_drop;
     TbBool allies_share_cta;
+    MapSubtlCoord map_subtiles_x;
+    MapSubtlCoord map_subtiles_y;
+    MapSlabCoord map_tiles_x;
+    MapSlabCoord map_tiles_y;
+    long navigation_map_size_x;
+    long navigation_map_size_y;
+    short around_map[AROUND_MAP_LENGTH];
+    short around_slab[AROUND_SLAB_LENGTH];
+    short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
+    short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
+    unsigned char max_things_in_hand;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
@@ -256,9 +268,6 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 /******************************************************************************/
-
-struct ThingAdd *get_thingadd(Thingid thing_idx);
-struct LightAdd *get_lightadd(unsigned short light_idx);
 
 #ifdef __cplusplus
 }

@@ -41,59 +41,27 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/******************************************************************************/
-DLLIMPORT struct _GUID _DK_net_guid;
-#define net_guid _DK_net_guid
-DLLIMPORT int _DK_noOfEnumeratedDPlayServices;
-#define noOfEnumeratedDPlayServices _DK_noOfEnumeratedDPlayServices
-DLLIMPORT struct _GUID _DK_clientGuidTable[];
-#define clientGuidTable _DK_clientGuidTable
-/******************************************************************************/
-long number_of_comports;
-long number_of_speeds;
-long net_comport_scroll_offset;
-long net_speed_scroll_offset;
-char tmp_net_irq[8];
 char net_current_message[64];
 long net_current_message_index;
+
+struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
+struct TbNetworkSessionNameEntry *net_session[32];
+long net_number_of_sessions;
+long net_session_index_active;
+struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
+struct ConfigInfo net_config_info;
+char net_service[16][NET_SERVICE_LEN];
+char net_player_name[20];
 /******************************************************************************/
 short setup_network_service(int srvidx)
 {
-  struct ServiceInitData *init_data;
-  long maxplayrs;
-
-  switch (srvidx)
-  {
-  case 0:
-      maxplayrs = 2;
-      init_data = &net_serial_data;
-      set_flag_byte(&game.flags_font,FFlg_unk10,true);
-      SYNCMSG("Initializing %d-players serial network",maxplayrs);
-      break;
-  case 1:
-      maxplayrs = 2;
-      init_data = &net_modem_data;
-      set_flag_byte(&game.flags_font,FFlg_unk10,true);
-      SYNCMSG("Initializing %d-players modem network",maxplayrs);
-      break;
-  case 2:
-      maxplayrs = 4;
-      init_data = NULL;
-      set_flag_byte(&game.flags_font,FFlg_unk10,false);
-      SYNCMSG("Initializing %d-players IPX network",maxplayrs);
-      break;
-  default:
-      maxplayrs = 4;
-      init_data = NULL;
-      set_flag_byte(&game.flags_font,FFlg_unk10,false);
-      SYNCMSG("Initializing %d-players type %d network",maxplayrs,srvidx);
-      break;
-  }
+  struct ServiceInitData *init_data = NULL;
+  set_flag_byte(&game.flags_font,FFlg_unk10,false);
+  SYNCMSG("Initializing 4-players type %d network",srvidx);
   LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
-  if ( LbNetwork_Init(srvidx, maxplayrs, &net_screen_packet,
-      sizeof(struct ScreenPacket), &net_player_info[0], init_data) )
+  if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )
   {
-    if (srvidx != 0)
+    if (srvidx > NS_ENET_UDP)
       process_network_error(-800);
     return 0;
   }
@@ -116,7 +84,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
   struct PlayerInfo* player = get_my_player();
   struct Packet* pckt = get_packet_direct(my_player_number);
   set_packet_action(pckt, PckA_InitPlayerNum, player->is_active, settings.video_rotate_mode, 0, 0);
-  if (LbNetwork_Exchange(pckt))
+  if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
       ERRORLOG("Network Exchange failed");
   int k = 0;
   for (int i = 0; i < NET_PLAYERS_COUNT; i++)
@@ -135,7 +103,7 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
           }
           player->is_active = pckt->actn_par1;
           init_player(player, 0);
-          snprintf(player->field_15, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
+          snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
           k++;
       }
   }
@@ -187,8 +155,6 @@ void setup_count_players(void)
 void init_players_network_game(CoroutineLoop *context)
 {
   SYNCDBG(4,"Starting");
-  if (LbNetwork_ChangeExchangeBuffer(game.packets, sizeof(struct Packet)))
-      ERRORLOG("Unable to reinitialize ExchangeBuffer");
   setup_select_player_number();
   coroutine_add(context, &setup_exchange_player_number);
   coroutine_add(context, &perform_checksum_verification);
@@ -225,32 +191,20 @@ void set_network_player_name(int plyr_idx, const char *name)
 
 long network_session_join(void)
 {
-    unsigned long plyr_num;
-    void *conn_options;
-    switch (net_service_index_selected)
+    long plyr_num;
+    display_attempting_to_join_message();
+    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
     {
-    case 1:
-      modem_dev.field_0 = 0;
-      modem_dev.field_4 = 0;
-      strcpy(modem_dev.field_58, net_config_info.str_join);
-      modem_dev.field_AC = modem_initialise_callback;
-      modem_dev.field_B0 = modem_connect_callback;
-      conn_options = &modem_dev;
-      break;
-    default:
-      display_attempting_to_join_message();
-      conn_options = NULL;
-      break;
-    }
-    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, conn_options) )
-    {
-      if (net_service_index_selected == 1)
-        process_network_error(modem_dev.field_A8);
-      else
-        process_network_error(-802);
+      process_network_error(-802);
       return -1;
     }
     return plyr_num;
+}
+
+void init_network_seed()
+{
+   if (!LbNetwork_Resync(&game.action_rand_seed, 4))
+      ERRORLOG("Action seed initialisation failed"); 
 }
 /******************************************************************************/
 #ifdef __cplusplus

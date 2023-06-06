@@ -110,7 +110,7 @@ TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass
     struct Room* room = find_random_room_of_role_for_thing_with_spare_room_item_capacity(cratetng, plyr_idx, RoRoF_CratesStorage, 0);
     if (room_is_invalid(room))
     {
-        ERRORLOG("No %s room found which would accept %s crate",room_code_name(RoK_WORKSHOP),thing_class_code_name(tngclass));
+        ERRORLOG("No %s room found which would accept %s crate",room_role_code_name(RoRoF_CratesStorage),thing_class_code_name(tngclass));
         destroy_object(cratetng);
         return false;
     }
@@ -269,7 +269,7 @@ TbBool add_workshop_item_to_amounts_f(PlayerNumber plyr_idx, ThingClass tngclass
         }
         break;
     default:
-        ERRORLOG("%s: Can't add item; illegal item class %d",func_name,(int)tngclass);
+        ERRORLOG("%s: Can't add item; illegal item class %d (%s)",func_name,(int)tngclass, thing_class_code_name(tngclass));
         return false;
     }
     return true;
@@ -319,7 +319,7 @@ TbBool readd_workshop_item_to_amount_placeable_f(PlayerNumber plyr_idx, ThingCla
         }
         break;
     default:
-        ERRORLOG("%s: Can't add item; illegal item class %d",func_name,(int)tngclass);
+        ERRORLOG("%s: Can't add item; illegal item class %d (%s)",func_name,(int)tngclass, thing_class_code_name(tngclass));
         return false;
     }
     return true;
@@ -384,7 +384,7 @@ int remove_workshop_item_from_amount_stored_f(PlayerNumber plyr_idx, ThingClass 
         ERRORLOG("%s: Door %s not available",func_name,door_code_name(tngmodel));
         break;
     default:
-        ERRORLOG("%s: Can't remove item; illegal item class %d",func_name,(int)tngclass);
+        ERRORLOG("%s: Can't remove item; illegal item class %d (%s)",func_name,(int)tngclass, thing_class_code_name(tngclass));
         break;
     }
     return WrkCrtS_None;
@@ -432,7 +432,7 @@ TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, Thing
         dungeon->lvstats.doors_used++;
         return true;
     default:
-        ERRORLOG("%s: Can't remove item; illegal item class %d",func_name,(int)tngclass);
+        ERRORLOG("%s: Can't remove item; illegal item class %d (%s)",func_name,(int)tngclass, thing_class_code_name(tngclass));
         break;
     }
     return false;
@@ -576,7 +576,7 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
     if (chosen_amount >= MANUFACTURED_ITEMS_LIMIT)
     {
         if (chosen_amount == LONG_MAX) {
-            WARNDBG(7,"Player %d has %s but no doable manufacture",(int)dungeon->owner,room_code_name(RoK_WORKSHOP));
+            WARNDBG(7,"Player %d has %s but no doable manufacture",(int)dungeon->owner,room_role_code_name(RoRoF_CratesStorage));
         } else {
             WARNDBG(6,"Player %d reached manufacture limit for all items",(int)dungeon->owner);
         }
@@ -584,7 +584,7 @@ TbBool get_next_manufacture(struct Dungeon *dungeon)
     }
     if (chosen_class != TCls_Empty)
     {
-        SYNCDBG(8,"Player %d manufacturing class %d kind %d",(int)dungeon->owner,(int)chosen_class,(int)chosen_kind);
+        SYNCDBG(8,"Player %d manufacturing class %d kind %d (%s)",(int)dungeon->owner,(int)chosen_class,(int)chosen_kind, thing_class_and_model_name(chosen_class, chosen_kind));
         dungeon->manufacture_class = chosen_class;
         dungeon->manufacture_kind = chosen_kind;
         return true;
@@ -640,13 +640,13 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
     }
     if (check_workshop_item_limit_reached(plyr_idx, dungeon->manufacture_class, dungeon->manufacture_kind))
     {
-        ERRORLOG("Bad choice for manufacturing - limit reached for %s kind %d",thing_class_code_name(dungeon->manufacture_class),(int)dungeon->manufacture_kind);
+        ERRORLOG("Bad choice for manufacturing - limit reached for %s",thing_class_and_model_name(dungeon->manufacture_class, dungeon->manufacture_kind));
         get_next_manufacture(dungeon);
         return false;
     }
     if (create_workshop_object_in_workshop_room(plyr_idx, dungeon->manufacture_class, dungeon->manufacture_kind) == 0)
     {
-        ERRORLOG("Could not create manufactured %s kind %d",thing_class_code_name(dungeon->manufacture_class),(int)dungeon->manufacture_kind);
+        ERRORLOG("Could not create manufactured %s",thing_class_and_model_name(dungeon->manufacture_class, dungeon->manufacture_kind));
         return false;
     }
     add_workshop_item_to_amounts(plyr_idx, dungeon->manufacture_class, dungeon->manufacture_kind);
@@ -666,12 +666,12 @@ short process_player_manufacturing(PlayerNumber plyr_idx)
             output_message(SMsg_ManufacturedDoor, 0, true);
         break;
     default:
-        ERRORLOG("Invalid type of new manufacture, %d",(int)dungeon->manufacture_class);
+        ERRORLOG("Invalid type of new manufacture: %d (%s)",(int)dungeon->manufacture_class, thing_class_code_name(dungeon->manufacture_class));
         return false;
     }
 
     dungeon->manufacture_progress -= (k << 8);
-    dungeon->field_118B = game.play_gameturn;
+    dungeon->turn_last_manufacture = game.play_gameturn;
     dungeon->lvstats.manufactured_items++;
     if (get_next_manufacture(dungeon))
     {
@@ -728,7 +728,7 @@ EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thi
             }
     } else
     {
-        WARNLOG("Strange pickup (model %d) - no event",(int)picktng->model);
+        WARNLOG("Strange pickup (%s) - no event",thing_class_and_model_name(picktng->class_id, picktng->model));
         evidx = 0;
     }
     return evidx;

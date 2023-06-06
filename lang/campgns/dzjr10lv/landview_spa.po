@@ -1,0 +1,122 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file dzjr10lv/landview_spa.po
+#      KeeperFX Land View Strings translation file
+#  @par Purpose:
+#      Contains translation of the national land descriptions in the game.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 08 Apr 2023
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+"Project-Id-Version: DzjeeAr's 10-level campaign for KeeperFX\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "DzjeeAr's 10-level campaign"
+msgstr "DzjeeAr 10-Nivel campaña"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Nevergrin. Poor, empty land. Peopled with damned knights since a long time the constant with the fallow land on our front. The time has come to finish this idyll in this disgusting, green valley."
+msgstr "Nunca sonriente. Tierra pobre y vacía, poblada de malditos caballeros desde hace mucho tiempo, estas tierras baldías es constante que estén en frente nuestro. Ha llegado el momento de terminar este idilio en este repugnante valle verde."
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Blood River. The green glade turned into the waste soaked through with blood. Human body soil their hands here and there making pleasant the scenery. Goods work, my lord."
+msgstr "Río Sangriento. El claro verde se convirtió en este desierto empapado de sangre. Gracias a tus manos, los cuerpos de los humanos yacen aquí y allá, haciendo agradable el paisaje. Buen trabajo, mi señor."
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Cozyness. In this country town spread raising of hogs. These dirty animals managed efficiently to frighten away no matter which aggressors. The time to carve out swineherds and to make provisions on in neighbouring pigsties!"
+msgstr "Comodidad. En este pueblo rural se difundió la crianza de cerdos. Estos sucios animales lograron ahuyentar eficientemente a cualquier agresor. ¡Es tiempo de hacer nuevos porqueros y aprovisionar las pocilgas vecinas!"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Big granary. From numerous pigsties become only smoky ashes, and the smell of hogs was exchanged on splendid breaths of sulphur. Themselves animals were quartered and salted out to all recces of Your kingdom. At last we have provisions on next three years!"
+msgstr "Gran granero. De las numerosas pocilgas solo quedan cenizas humeantes, y el olor de los cerdos se volvió en espléndidos alientos de azufre. Los animales fueron descuartizados y especiados por todos los rincones de tu reino. ¡Por fin tenemos provisiones para los próximos tres años!"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Molten dream. The land of the eternal joy, where on every wry face inhabitants gather, raising cheers of the liking. This land should not exist and will stand this already soon!"
+msgstr "Sueños fundidos. La tierra de la alegría eterna, donde se reúnen los habitantes con un rostro irónico, alzando vítores. ¡Esta tierra no debería existir y lo comprobará pronto!"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Vampire land. On ashes of the country town became the established huge cemetery, and inhabitants wait only, till we will sharpen me our own arguments&#8230;"
+msgstr "Tierra de vampiros. Sobre las cenizas de la ciudad y el campo se corrompen hacia un enorme cementerio, y los habitantes esperan solamente, hasta que agudice mis propios&#8230;"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Blossom. The fertile land , but attacked by other Keeper. Inhabitants do not possess many treasures, but the country town is well in armour. Cheka You the passage by hosts of enemies, waiting at gate."
+msgstr "Florecido. La tierra es fértil, pero atacada por otro Guardián. Los habitantes no poseen muchos tesoros, pero la ciudad es rural y está bien armada. Compruébalo en el paso, verás la cantidad de enemigos que hay esperando en la puerta."
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Of ashes. From the city and neighbouring fields will became only small heaps of ashes which vampires sedulously assemble for their stupid badinage. The population which fugitive into the mountains is pursued by our dragons and black we will give. We start on further!"
+msgstr "Urna. La ciudad y los campos vecinos han sido destruidos en pequeños montones de cenizas que los vampiros acumulan cuidadosamente para sus estúpidas maldiciones. La población fugitiva que se dirige hacia las montañas es perseguida por nuestros dragones y negros quedaran. ¡Vamos más lejos!"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Ninja Fortress. On the horizon it is visible already the lock castle George Thunderous, and the city, lying in his shadow is afraid no threats. When at last you will reach to their estate, they will feel on themselves what this means fear!"
+msgstr "Fortaleza Ninja. En el horizonte se divisa el castillo y el bloqueo de Jorge Tronador, y la ciudad, que yace a su sombra, no teme amenazas. ¡Cuando por fin llegue a tu propiedad, ellos sabrán que significa el miedo!"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "And Pereful Fear. Bad powers embraced this the land. We sent downtown of our horned rippers, so that make there the order. From sounds non-resident from the city it seems , with our deputies they achieved the uncontested success!"
+msgstr "Miedo demente. El poder del mal abrazo esta tierra. Enviamos a nuestros destripadores astados, para que allí sean ellos mismos. ¡Ya no quedan sonidos residentes de la ciudad, parece que nuestros embajadores lograron un éxito indiscutible!"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Hugglepuff. The called lord George to Thunderous, ruler in this land administers with the most of fortresses on continents. You must him quickly neutralize, sir, because the way to other lands will become then opening."
+msgstr "Soplo abrazador. El llamado Señor Jorge Tronador, gobernante de esta tierra, administra la mayor parte de las fortalezas de los adversarios. Debes neutralizarlo rápidamente, señor, para que el camino a las otras tierras se abran."
+
+#: landview:61
+msgctxt "Level summary"
+msgid "The Fell. The head Gregor became crowded on the pale and I am tooking now on the market in town. The most of inhabitants agreeed to arrive at us, but we do not want to have such weak soldiers in the army. They will be killed as the result of &#8222;unhappy&#8221; events."
+msgstr "La Caída. El palio que adornaba bajo la cabeza de Jorge la estoy vendiendo en el mercado de la ciudad. La mayoría de los habitantes aceptaron nuestra llegada, pero no queremos tener soldados tan débiles en el ejército. Serán asesinados como resultado de &#8222;infelices&#8221; eventos."
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Divine. The rich land, supported by himself lord, is now standing not prepared before Your army. You must rush through war-movements , because settlers quickly prepare themselves."
+msgstr "Divino. La tierra es rica, sostenida por un mismo Señor, no está preparada para tu ejército. Debes apresurarte a través de movimientos de guerra, porque los colonos se están preparando rápidamente."
+
+#: landview:71
+msgctxt "Level summary"
+msgid "The Fell Rowlands. In the chance to his identical city, Fell- Rowlands did not want to submit to Your rule. In cheers of the protest were driven to the dark cave in which will finish their own misery life, buried under powerful stones. The rest of the city we burnt, quickly to move to the next land!"
+msgstr "Tierrafila caída. En una oportunidad para la ciudad, Tierrafila caída no quiso someterse a tus reglas. En vítores de sus protestas, fueron conducidos a una oscura cueva en la que terminarán sus miseras vidas, enterrados bajo poderosas piedras. ¡Quemamos el resto de la ciudad, apresurándonos a pasar a la siguiente tierra!"
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Twisted. The village, standing off the beaten track, to nobody obstructive. Into the brow to semblance is found there one of greatest of the gold mine on all continents. This would be for us jumbo pump priming, thanks to which we would be able to storm further lands. Mind other Keeper who decided to interest himself with this land."
+msgstr "Retorcido. Este pueblo, fuera de los caminos trillados, no es para nadie un obstáculo. Frente a él, se encuentra una de las minas de oro más grandes de todos los continentes. Esto es para nosotros la guinda del pastel, pues con ella podremos asaltar más tierras. Cuidado hay un Guardián que se ha interesado por esta tierra."
+
+#: landview:81
+msgctxt "Level summary"
+msgid "The crop failure. When we got downtown, inhabitants guilefully filled up the mine, destroying her irrevocably. They were killed together with stones which they pushed to excavations. The Keeper seeing, made by You destructions escaped, leaving the land."
+msgstr "Cosecha arruinada. En cuando llegamos al centro, los habitantes cerraron astutamente la mina, destruyéndola irrevocablemente. Fueron asesinados junto con las piedras que empujaron hacia las excavaciones. El Guardián, viendo las destrucciones hechas por ti, escapó, dejando la tierra."
+
+#: landview:90
+msgctxt "Level introduction"
+msgid "Solarpaint Rock. The land raked many times by inefficient keeper cries wolf even at the slender threat. You must work silently, so that how most longer its imposible in the hide!"
+msgstr "Roca de pintura solar. La tierra fue rastrillada muchas veces por un cuidador ineficaz, gritaba el lobo ante la leve amenaza. ¡Debes trabajar en silencio, para que seas la mayor parte del tiempo una sombra silenciosa!"
+
+#: landview:91
+msgctxt "Level summary"
+msgid "Carina land. Even early noticing You by through inhabitants did not have time to prevent to the defeat of defenders. All ungrateful boys we beat on the pale and we threw to hounds to be devoured. The rest of inhabitants also so will finish, but now will be to us necessary to storming of the fortress."
+msgstr "Tierra Carina. Temprano se notó a través de los habitantes que no tuvieron tiempo de evitar la derrota de los defensores. A todos esos muchachos desagradecidos los golpeamos y los tiramos a los sabuesos para que los devoraran. El descanso de los habitantes acabará así, pero ahora nos será necesario el asalto de la fortaleza."
+
+#: landview:100
+msgctxt "Level introduction"
+msgid "Evergrin. The land swimming with the affluence and the joy. There is here no of unhappy, nor tortured man. The idyll rare on this disgusting world of heroes. Cut out them sir into the trunk, so that they do not spoil still air with their own supernatural joy. Other Keeper, trying to attack the country town were talked round by them. To them also you will have to face. Successes!"
+msgstr "Siempre desonrisa. La tierra nadó con la riqueza y la alegría. No hay aquí un hombre infeliz, ni torturado. El idilio raro de este repugnante mundo de héroes. Córtelos Señor por la mitad, para que no se estropee el aire quieto con su propia alegría sobrenatural. Otros Guardianes, que intentaron atacar la ciudad rural, fueron repelidos por ellos. A ellos también tendrán que enfrentarse. ¡Que tenga éxito!"
+
+#: landview:101
+msgctxt "Level summary"
+msgid "The disintegration. From the welfare stayed only sad remembrances, and from inhabitants bones, while from enemy guards prisoners, tortured by ours most severe Dark Mistres. We achieved the great, splendid victory! With what will we see about now?"
+msgstr "Desintegración. Del bienestar solo quedaron recuerdos tristes, y de los habitantes sus huesos, por otro lado, los guardianes enemigos están prisioneros y torturados por nuestras más severas Damas Oscuras. ¡Logramos una gran y espléndida victoria! ¿Qué nos toca ahora?"

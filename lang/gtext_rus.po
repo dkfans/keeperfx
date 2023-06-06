@@ -1083,7 +1083,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "Вы изготовили ловушку-валун. Поместите ее в узком коридоре и безумно вопите, "
@@ -6750,7 +6750,7 @@ msgstr ""
 #: guitext:984
 msgctxt "Trap names"
 msgid "Sentry Trap"
-msgstr ""
+msgstr "Ловушка-Страж"
 
 #: guitext:985
 msgctxt "Trap names"
@@ -6879,7 +6879,6 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr ""
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
@@ -6999,3 +6998,45 @@ msgstr ""
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
 msgstr ""
+
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr "Подрывной заряд"
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid ""
+"Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "Подрывной заряд: Заряд невероятной разрушительной силы."
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid ""
+"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "Ловушка-Страж: Отстреливает врагов"
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr "Дух"
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr "Друид"
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr "Маг времени"

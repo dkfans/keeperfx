@@ -63,9 +63,9 @@ TbScreenMode switching_vidmodes[] = {
   Lb_SCREEN_MODE_INVALID,
   };
 
-TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_320_200_8;
-TbScreenMode movies_vidmode   = Lb_SCREEN_MODE_640_480_8;
-TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
+static TbScreenMode failsafe_vidmode = Lb_SCREEN_MODE_320_200_8;
+static TbScreenMode movies_vidmode   = Lb_SCREEN_MODE_640_480_8;
+static TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 
 //struct IPOINT_2D units_per_pixel;
 unsigned short units_per_pixel_min;
@@ -79,7 +79,7 @@ unsigned long first_person_horizontal_fov;
 unsigned long first_person_vertical_fov;
 long base_mouse_sensitivity = 256;
 
-short force_video_mode_reset = true;
+static short force_video_mode_reset = true;
 
 struct TbSprite *pointer_sprites;
 struct TbSprite *end_pointer_sprites;
@@ -92,6 +92,13 @@ TbSpriteData end_map_font_data;
 TbSpriteData map_hand_data;
 TbSpriteData end_map_hand_data;
 struct MapLevelInfo map_info;
+
+int MinimalResolutionSetup;
+
+struct TbColorTables pixmap;
+struct TbAlphaTables alpha_sprite_table;
+unsigned char white_pal[256];
+unsigned char red_pal[256];
 /******************************************************************************/
 
 extern struct TbSetupSprite setup_sprites_minimal[];
@@ -431,6 +438,23 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_PlaceDoor03:
   case MousePG_PlaceDoor04:
   case MousePG_Mystery:
+      // 166..181 are place trap pointers with spell icons
+  case 166:
+  case 167:
+  case 168:
+  case 169:
+  case 170:
+  case 171:
+  case 172:
+  case 173:
+  case 174:
+  case 175:
+  case 176:
+  case 177:
+  case 178:
+  case 179:
+  case 180:
+  case 181:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
@@ -460,6 +484,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case  MousePG_PlaceRoom12:
   case  MousePG_PlaceRoom13:
   case  MousePG_PlaceRoom14:
+  case  MousePG_PlaceRoom15:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
@@ -920,7 +945,6 @@ TbScreenMode reenter_video_mode(void)
     if (setup_screen_mode(scrmode))
     {
         settings.video_scrnmode = scrmode;
-        copy_settings_to_dk_settings();
   } else
   {
       SYNCLOG("Can't enter %s (mode %d), falling to failsafe mode",
@@ -963,8 +987,23 @@ TbScreenMode switch_to_next_video_mode(void)
     SYNCLOG("Switched video to %s (mode %d)", get_vidmode_name(scrmode),(int)scrmode);
     save_settings();
     TbBool reload_video = (menu_is_active(GMnu_VIDEO));
+    if (menu_is_active(GMnu_CREATURE_QUERY1))
+    {
+        vid_change_query_menu = GMnu_CREATURE_QUERY1;
+    }
+    else if (menu_is_active(GMnu_CREATURE_QUERY2))
+    {
+        vid_change_query_menu = GMnu_CREATURE_QUERY2;
+    }
+    else if (menu_is_active(GMnu_CREATURE_QUERY3))
+    {
+        vid_change_query_menu = GMnu_CREATURE_QUERY3;
+    }
+    else if (menu_is_active(GMnu_CREATURE_QUERY4))
+    {
+        vid_change_query_menu = GMnu_CREATURE_QUERY4;
+    }
     reinit_all_menus();
-    init_custom_sprites(SPRITE_LAST_LEVEL);
     if (reload_video)
     {
         turn_on_menu(GMnu_VIDEO);

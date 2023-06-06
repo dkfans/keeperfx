@@ -25,6 +25,7 @@
 #include "game_legacy.h"
 #include "game_saves.h"
 #include "gui_topmsg.h"
+#include "config_settings.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -33,13 +34,14 @@ extern "C" {
 /******************************************************************************/
 #define PACKET_TURN_SIZE (NET_PLAYERS_COUNT*sizeof(struct PacketEx) + sizeof(TbBigChecksum))
 struct Packet bad_packet;
+unsigned long start_seed;
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
 
 void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
-        unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4)
+        unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4)
 {
     struct Packet* pckt = get_packet_direct(player->packet_num);
     pckt->actn_par1 = par1;
@@ -274,6 +276,10 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.players_exist = 0;
     game.packet_save_head.players_comp = 0;
     game.packet_save_head.chksum_available = game.packet_checksum_verify;
+    game.packet_save_head.isometric_view_zoom_level = settings.isometric_view_zoom_level;
+    game.packet_save_head.frontview_zoom_level = settings.frontview_zoom_level;
+    game.packet_save_head.video_rotate_mode = settings.video_rotate_mode;
+    game.packet_save_head.action_seed = start_seed;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);

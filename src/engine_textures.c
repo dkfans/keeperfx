@@ -37,10 +37,12 @@ extern "C" {
 /******************************************************************************/
 unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
 unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];
-unsigned char slab_ext_data[85 * 85];
+unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
 
 long block_dimension = 32;
 long block_count_per_row = 8;
+
+static long anim_counter;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -73,7 +75,6 @@ void setup_texture_block_mem(void)
 short init_animating_texture_maps(void)
 {
     SYNCDBG(8,"Starting");
-    //_DK_init_animating_texture_maps(); return;
     anim_counter = TEXTURE_BLOCKS_ANIM_FRAMES-1;
     return update_animating_texture_maps();
 }
@@ -107,7 +108,6 @@ short update_animating_texture_maps(void)
 long load_texture_anim_file(void)
 {
     SYNCDBG(8,"Starting");
-    //return _DK_load_anim_file();
     char* fname = prepare_file_path(FGrp_StdData, "tmapanim.dat");
     SYNCDBG(0,"Reading animated tmap file \"%s\".",fname);
     if (LbFileLoadAt(fname, game.texture_animation) != sizeof(game.texture_animation))

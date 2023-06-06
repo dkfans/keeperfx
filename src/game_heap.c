@@ -25,7 +25,6 @@
 #include "bflib_sound.h"
 #include "bflib_sndlib.h"
 #include "bflib_fileio.h"
-#include "bflib_heapmgr.h"
 #include "config.h"
 #include "front_simple.h"
 #include "engine_render.h"
@@ -40,8 +39,12 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
-const char *sound_fname = "sound.dat";
-const char *speech_fname = "speech.dat";
+static const char *sound_fname = "sound.dat";
+static const char *speech_fname = "speech.dat";
+static unsigned char *sound_heap_memory;
+static unsigned char *heap;
+static long heap_size;
+static long sound_heap_size;
 /******************************************************************************/
 long get_smaller_memory_amount(long amount)
 {
@@ -68,30 +71,22 @@ TbBool setup_heap_manager(void)
         ERRORLOG("Graphics Heap not allocated");
         return false;
     }
-    long i = heap_size / 512;
-    if (i >= KEEPSPRITE_LENGTH)
-      i = KEEPSPRITE_LENGTH-1;
-    graphics_heap = heapmgr_init(heap, heap_size, i);
-    if (graphics_heap == NULL)
-    {
-        ERRORLOG("Not enough memory to initialize heap.");
-        return false;
-    }
+    long i;
     wait_for_cd_to_be_available();
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_StdData,"thingspr-%d.jty",32);
 #else
     const char* fname = prepare_file_path(FGrp_StdData, "creature.jty");
 #endif
-    file_handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-    if (file_handle == -1) {
+    jty_file_handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    if (jty_file_handle == -1) {
         ERRORLOG("Can not open JTY file, \"%s\"",fname);
         return false;
     }
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
         keepsprite[i] = NULL;
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
-        heap_handle[i] = NULL;
+        sprite_heap_handle[i] = NULL;
     return true;
 }
 
@@ -137,15 +132,15 @@ void reset_heap_manager(void)
 {
     long i;
     SYNCDBG(8,"Starting");
-    if (file_handle != -1)
+    if (jty_file_handle != -1)
     {
-        LbFileClose(file_handle);
-        file_handle = -1;
+        LbFileClose(jty_file_handle);
+        jty_file_handle = -1;
     }
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
         keepsprite[i] = NULL;
     for (i=0; i < KEEPSPRITE_LENGTH; i++)
-        heap_handle[i] = NULL;
+        sprite_heap_handle[i] = NULL;
 }
 
 void reset_heap_memory(void)
@@ -292,14 +287,15 @@ TbBool setup_heaps(void)
     return true;
 }
 
-TbBool read_heap_item(struct HeapMgrHandle *hmhandle, long offs, long len)
+void *he_alloc(size_t size)
 {
-    if (file_handle == -1) {
-        return false;
-    }
-    // TODO make error handling
-    LbFileSeek(file_handle, offs, 0);
-    LbFileRead(file_handle, hmhandle->buf, len);
-    return true;
+    // We could need some wrapper
+    return malloc(size);
+}
+
+void he_free(void *data)
+{
+    if (data)
+        free(data);
 }
 /******************************************************************************/

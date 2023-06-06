@@ -34,7 +34,6 @@
     <ClCompile Include="src\bflib_filelst.c" />
     <ClCompile Include="src\bflib_fmvids.c" />
     <ClCompile Include="src\bflib_guibtns.c" />
-    <ClCompile Include="src\bflib_heapmgr.c" />
     <ClCompile Include="src\bflib_inputctrl.cpp" />
     <ClCompile Include="src\bflib_keybrd.c" />
     <ClCompile Include="src\bflib_main.cpp" />
@@ -172,7 +171,6 @@
     <ClCompile Include="src\gui_soundmsgs.c" />
     <ClCompile Include="src\gui_tooltips.c" />
     <ClCompile Include="src\gui_topmsg.c" />
-    <ClCompile Include="src\hookfn.cpp" />
     <ClCompile Include="src\KeeperSpeechImp.c" />
     <ClCompile Include="src\kjm_input.c" />
     <ClCompile Include="src\lens_api.c" />
@@ -277,7 +275,6 @@
     <ClInclude Include="src\bflib_filelst.h" />
     <ClInclude Include="src\bflib_fmvids.h" />
     <ClInclude Include="src\bflib_guibtns.h" />
-    <ClInclude Include="src\bflib_heapmgr.h" />
     <ClInclude Include="src\bflib_inputctrl.h" />
     <ClInclude Include="src\bflib_keybrd.h" />
     <ClInclude Include="src\bflib_main.h" />

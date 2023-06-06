@@ -40,7 +40,6 @@ extern "C" {
 /******************************************************************************/
 TbBool remove_food_from_food_room_if_possible(struct Thing *thing)
 {
-    // return _DK_remove_food_from_food_room_if_possible(thing);
     struct Room *room;
     if ( thing->owner == game.neutral_player_num )
     {
@@ -51,7 +50,7 @@ TbBool remove_food_from_food_room_if_possible(struct Thing *thing)
         return false;
     }
     room = get_room_thing_is_on(thing);
-    if ( room_is_invalid(room) || room->kind != RoK_GARDEN || room->owner != thing->owner )
+    if ( room_is_invalid(room) || !room_role_matches(room->kind,RoRoF_FoodStorage) || room->owner != thing->owner )
     {
         return false;
     }

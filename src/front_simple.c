@@ -94,6 +94,8 @@ struct RawBitmap bitmaps_320[] = {
 #endif
 struct ActiveBitmap astd_bmp;
 struct ActiveBitmap nocd_bmp;
+unsigned char *engine_palette;
+unsigned char *scratch;
 /******************************************************************************/
 unsigned char palette_buf[PALETTE_SIZE];
 /******************************************************************************/

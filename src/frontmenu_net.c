@@ -43,46 +43,6 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-const char *get_net_speed_text(int id)
-{
-    static const char *net_speed[] = {
-       "9600",
-      "14400",
-      "19200",
-      "28800",
-      "38400",
-      "57600",
-     "115200",
-       "ISDN",
-    };
-    const int limit = sizeof(net_speed)/sizeof(*net_speed) - 1;
-    if (id < 0)
-      id = 0;
-    if (id > limit)
-      id = limit;
-    return net_speed[id];
-}
-
-const char *get_net_comport_text(int id)
-{
-    static const char *net_comport[] = {
-        "COM1",
-        "COM2",
-        "COM3",
-        "COM4",
-        "COM5",
-        "COM6",
-        "COM7",
-        "COM8",
-    };
-    const int limit = sizeof(net_comport)/sizeof(*net_comport) - 1;
-    if (id < 0)
-      id = 0;
-    if (id > limit)
-      id = limit;
-    return net_comport[id];
-}
-
 long frontnet_number_of_players_in_session(void)
 {
     long i;
@@ -123,17 +83,7 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
 {
-    if (net_service_index_selected == 1)
-    {
-      if ( net_session_index_active != -1 && net_config_info.str_join[0] )
-        gbtn->flags |= LbBtnF_Enabled;
-      else
-        gbtn->flags &= ~LbBtnF_Enabled;
-    }
-    else
-    {
-      gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_session_index_active != -1)) & LbBtnF_Enabled;
-    }
+    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled) & LbBtnF_Enabled;
 }
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
@@ -161,62 +111,6 @@ void frontnet_messages_down_maintain(struct GuiButton *gbtn)
 void frontnet_start_game_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_enum_players > 1)) & LbBtnF_Enabled;
-}
-
-void frontnet_comport_up_maintain(struct GuiButton *gbtn)
-{
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_comport_scroll_offset != 0)) & LbBtnF_Enabled;
-}
-
-void frontnet_comport_down_maintain(struct GuiButton *gbtn)
-{
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (number_of_comports - 1 > net_comport_scroll_offset)) & LbBtnF_Enabled;
-}
-
-void frontnet_comport_select_maintain(struct GuiButton *gbtn)
-{
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_comport_scroll_offset + (long)gbtn->content - 45 < number_of_comports)) & LbBtnF_Enabled;
-}
-
-void frontnet_speed_up_maintain(struct GuiButton *gbtn)
-{
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_speed_scroll_offset != 0)) & LbBtnF_Enabled;
-}
-
-void frontnet_speed_down_maintain(struct GuiButton *gbtn)
-{
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (number_of_speeds - 1 > net_speed_scroll_offset)) & LbBtnF_Enabled;
-}
-
-void frontnet_speed_select_maintain(struct GuiButton *gbtn)
-{
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_speed_scroll_offset + (long)gbtn->content - 47 < number_of_speeds)) & LbBtnF_Enabled;
-}
-
-void frontnet_net_modem_start_maintain(struct GuiButton *gbtn)
-{
-    if ((net_comport_index_active == -1) || (net_speed_index_active == -1))
-      gbtn->flags &= ~LbBtnF_Enabled;
-    else
-      gbtn->flags |= LbBtnF_Enabled;
-}
-
-void frontnet_net_serial_start_maintain(struct GuiButton *gbtn)
-{
-  if ((net_comport_index_active == -1) || (net_speed_index_active == -1))
-    gbtn->flags &= ~LbBtnF_Enabled;
-  else
-    gbtn->flags |= LbBtnF_Enabled;
-}
-
-void frontnet_serial_reset(void)
-{
-    net_write_config_file();
-}
-
-void frontnet_modem_reset(void)
-{
-    net_write_config_file();
 }
 
 TbBool frontnet_start_input(void)
@@ -255,7 +149,7 @@ void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn)
 void frontnet_session_set_player_name(struct GuiButton *gbtn)
 {
     strcpy(net_player_name, tmp_net_player_name);
-    strcpy(net_config_info.str_u2, tmp_net_player_name);
+    strcpy(net_config_info.net_player_name, tmp_net_player_name);
     net_write_config_file();
 }
 
@@ -893,114 +787,6 @@ void frontnet_draw_small_scroll_box(struct GuiButton *gbtn)
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
 }
 
-void frontnet_comport_up(struct GuiButton *gbtn)
-{
-    if (net_comport_scroll_offset > 0)
-      net_comport_scroll_offset--;
-}
-
-void frontnet_comport_down(struct GuiButton *gbtn)
-{
-    if (net_comport_scroll_offset < number_of_comports - 1)
-      net_comport_scroll_offset++;
-}
-
-void frontnet_draw_comport_scroll_tab(struct GuiButton *gbtn)
-{
-    frontend_draw_scroll_tab(gbtn, net_comport_scroll_offset, 0, number_of_comports);
-}
-
-void frontnet_draw_comport_selected(struct GuiButton *gbtn)
-{
-    if (net_comport_index_active == -1)
-        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_caption_font(gbtn, 0), 0);
-    else
-        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_caption_font(gbtn, 0), get_net_comport_text(net_comport_index_active));
-}
-
-void frontnet_comport_select(struct GuiButton *gbtn)
-{
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_comport_scroll_offset + (long)gbtn->content - 45 < number_of_comports)) & LbBtnF_Enabled;
-}
-
-void frontnet_draw_comport_button(struct GuiButton *gbtn)
-{
-    int i;
-    int febtn_idx;
-    febtn_idx = (long)gbtn->content;
-    i = net_comport_scroll_offset + febtn_idx - 45;
-    if (i < number_of_comports)
-    {
-        int font_idx;
-        font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
-        LbTextSetFont(frontend_font[font_idx]);
-        lbDisplay.DrawFlags = 0;
-        const char *text;
-        text = get_net_comport_text(i);
-        int tx_units_per_px;
-        tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
-        int height;
-        height = LbTextLineHeight() * tx_units_per_px / 16;
-        LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, text);
-    }
-}
-
-void frontnet_speed_up(struct GuiButton *gbtn)
-{
-    if (net_speed_scroll_offset > 0)
-      net_speed_scroll_offset--;
-}
-
-void frontnet_speed_down(struct GuiButton *gbtn)
-{
-    if (net_speed_scroll_offset < number_of_speeds - 1)
-      net_speed_scroll_offset++;
-}
-
-void frontnet_draw_speed_scroll_tab(struct GuiButton *gbtn)
-{
-    frontend_draw_scroll_tab(gbtn, net_speed_scroll_offset, 0, number_of_speeds);
-}
-
-void frontnet_draw_speed_selected(struct GuiButton *gbtn)
-{
-    // Select font to draw
-    if (net_speed_index_active == -1)
-        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_caption_font(gbtn, 0), 0);
-    else
-        frontnet_draw_small_scroll_selection_box(gbtn, frontend_button_caption_font(gbtn, 0), get_net_speed_text(net_speed_index_active));
-}
-
-void frontnet_speed_select(struct GuiButton *gbtn)
-{
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_speed_scroll_offset + (long)gbtn->content - 47 < number_of_speeds)) & LbBtnF_Enabled;
-}
-
-void frontnet_draw_speed_button(struct GuiButton *gbtn)
-{
-    int i;
-    int febtn_idx;
-    febtn_idx = (long)gbtn->content;
-    i = net_speed_scroll_offset + febtn_idx - 47;
-    if (i < number_of_speeds)
-    {
-        // Select font to draw
-        int font_idx;
-        font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
-        LbTextSetFont(frontend_font[font_idx]);
-        lbDisplay.DrawFlags = 0;
-        const char *text;
-        text = get_net_speed_text(i);
-        int tx_units_per_px;
-        tx_units_per_px = (gbtn->height*13/14) * 16 / LbTextLineHeight();
-        int height;
-        height = LbTextLineHeight() * tx_units_per_px / 16;
-        LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, text);
-    }
-}
-
 void frontnet_draw_text_cont_bar(struct GuiButton *gbtn)
 {
     int units_per_px;
@@ -1028,59 +814,6 @@ void frontnet_draw_text_cont_bar(struct GuiButton *gbtn)
 
     spr = &frontend_sprite[GFS_largearea_nx2_cor_r];
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-}
-
-void frontnet_net_set_modem_init(struct GuiButton *gbtn)
-{
-    strcpy(net_config_info.str_atz, tmp_net_modem_init);
-}
-
-void frontnet_net_set_modem_hangup(struct GuiButton *gbtn)
-{
-    strcpy(net_config_info.str_ath, tmp_net_modem_hangup);
-}
-
-void frontnet_net_set_modem_dial(struct GuiButton *gbtn)
-{
-    strcpy(net_config_info.str_atdt, tmp_net_modem_dial);
-}
-
-void frontnet_net_set_phone_number(struct GuiButton *gbtn)
-{
-    strcpy(net_config_info.str_join, tmp_net_phone_number);
-}
-
-void frontnet_net_modem_start(struct GuiButton *gbtn)
-{
-    if ((net_comport_index_active == -1) || (net_speed_index_active == -1))
-        gbtn->flags &= ~LbBtnF_Enabled;
-    else
-        gbtn->flags |= LbBtnF_Enabled;
-}
-
-void frontnet_net_set_modem_answer(struct GuiButton *gbtn)
-{
-    strcpy(net_config_info.str_ats, tmp_net_modem_answer);
-}
-
-void frontnet_net_serial_start(struct GuiButton *gbtn)
-{
-    const char *net_speed_text;
-    net_serial_data.field_0 = net_config_info.numfield_0;
-    net_speed_text = get_net_speed_text(net_config_info.numfield_9);
-    if (strcmp(net_speed_text, "ISDN") != 0)
-    {
-        net_serial_data.numfield_4 = atoi(net_speed_text);
-    } else
-    {
-        ERRORLOG("ISDN not supported by Serial");
-    }
-  net_serial_data.field_8 = net_config_info.numfield_1[(unsigned char)net_config_info.numfield_0];
-  net_serial_data.str_dial = NULL;
-  net_serial_data.str_phone = NULL;
-  net_serial_data.str_hang = NULL;
-  net_serial_data.str_answr = NULL;
-  setup_network_service(0);
 }
 
 void frontnet_service_up_maintain(struct GuiButton *gbtn)
@@ -1152,9 +885,9 @@ void frontnet_service_select(struct GuiButton *gbtn)
       fe_network_active = 0;
       frontend_set_state(FeSt_NETLAND_VIEW);
   } else
-  if (srvidx <= 0)
+  if (srvidx < 0)
   {
-      frontend_set_state(FeSt_NET_SERIAL);
+      frontend_set_state(FeSt_NET_SERVICE);
   } else
   {
       setup_network_service(srvidx);

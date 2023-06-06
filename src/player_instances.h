@@ -81,8 +81,6 @@ struct PlayerInstanceInfo { // sizeof = 44
 #define PLAYER_INSTANCES_COUNT_OLD 17
 
 /******************************************************************************/
-DLLIMPORT struct PlayerInstanceInfo _DK_player_instance_info[PLAYER_INSTANCES_COUNT_OLD];
-//#define player_instance_info _DK_player_instance_info
 
 #pragma pack()
 /******************************************************************************/

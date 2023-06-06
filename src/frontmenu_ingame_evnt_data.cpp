@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "frontmenu_ingame_evnt.h"
+#include "frontmenu_ingame_tabs.h"
 #include "globals.h"
 #include "bflib_basics.h"
 
@@ -50,12 +51,12 @@ void gui_setup_enemy_over(struct GuiButton *gbtn);
 void gui_area_enemy_battlers(struct GuiButton *gbtn);
 /******************************************************************************/
 struct GuiButtonInit text_info_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,   4, 999,   4,400, 78, gui_area_scroll_window,            0, GUIStr_Empty,        0,{(long)&game.evntbox_scroll_window},0,NULL },
-  { 1, 63, 0, 0, gui_go_to_event,    NULL,        NULL,               0,   4,   4,   4,   4, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_show_act, GUIStr_ZoomToArea,   0,       {0},            0, maintain_zoom_to_event },
-  { 0, 64, 0, 1, gui_close_objective,gui_close_objective,NULL,        0,   4,  56,   4,  56, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_accept_act, GUIStr_CloseWindow,  0,       {0},            0, NULL },
-  { 1, 66, 0, 0, gui_scroll_text_up, NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_up_act, GUIStr_CtrlUp,       0,{(long)&game.evntbox_scroll_window},0,maintain_scroll_up },
-  { 1, 65, 0, 0, gui_scroll_text_down,NULL,       NULL,               0, 446,  56, 446,  56, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_down_act, GUIStr_CtrlDown,     0,{(long)&game.evntbox_scroll_window},0,maintain_scroll_down },
-  {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},            0, NULL },
+  { 0, 0,                   0, 0, NULL,               NULL,        NULL,               0, 999,   4, 999,   4,400, 78, gui_area_scroll_window,            0, GUIStr_Empty,        0,{(long)&game.evntbox_scroll_window},0,NULL },
+  { 1, BID_EVENT_ZOOM,      0, 0, gui_go_to_event,    NULL,        NULL,               0,   4,   4,   4,   4, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_show_act, GUIStr_ZoomToArea,   0,       {0},            0, maintain_zoom_to_event },
+  { 0, BID_OBJ_CLOSE,       0, 1, gui_close_objective,gui_close_objective,NULL,        0,   4,  56,   4,  56, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_accept_act, GUIStr_CloseWindow,  0,       {0},            0, NULL },
+  { 1, BID_OBJ_SCRL_UP,     0, 0, gui_scroll_text_up, NULL,        NULL,               0, 446,   4, 446,   4, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_up_act, GUIStr_CtrlUp,       0,{(long)&game.evntbox_scroll_window},0,maintain_scroll_up },
+  { 1, BID_OBJ_SCRL_DWN,    0, 0, gui_scroll_text_down,NULL,       NULL,               0, 446,  56, 446,  56, 30, 24, gui_area_new_normal_button, GPS_message_message_btn_down_act, GUIStr_CtrlDown,     0,{(long)&game.evntbox_scroll_window},0,maintain_scroll_down },
+  {-1, 0,                   0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,                 0,       {0},            0, NULL },
 };
 
 struct GuiButtonInit battle_buttons[] = {

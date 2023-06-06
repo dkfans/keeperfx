@@ -119,11 +119,11 @@ enum PlayerAdditionalFlags {
 #pragma pack(1)
 
 struct SubtileXY {
-    unsigned char stl_x;
-    unsigned char stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
 };
 
-struct Wander // sizeof = 424
+struct Wander
 {
   unsigned long points_count;
   /** Index at which the search function inserts (or replaces) points. */
@@ -142,7 +142,6 @@ struct Wander // sizeof = 424
   struct SubtileXY points[WANDER_POINTS_COUNT];
 };
 
-#define SIZEOF_PlayerInfo 0x4EF
 struct PlayerInfo {
     unsigned char allocflags;
     unsigned char field_1;
@@ -154,15 +153,14 @@ struct PlayerInfo {
     unsigned char *lens_palette;
     /** Index of packet slot associated with this player. */
     unsigned char packet_num;
-    long field_C;
+    long hand_animationId;
     unsigned int hand_busy_until_turn;
 unsigned char field_14;
-    char field_15[20]; //size may be shorter
+    char player_name[20];
     unsigned char victory_state;
     unsigned char allied_players; // bit 0-4 (allies), bit 5-7 (locked allies)
     unsigned char id_number;
     unsigned char is_active;
-    unsigned char field_2D[2];
     short controlled_thing_idx;
     long controlled_thing_creatrn;
     short thing_under_hand;
@@ -170,9 +168,8 @@ unsigned char field_14;
     /** Pointer to the currently active camera. */
     struct Camera *acamera;
     struct Camera cameras[4];
-    unsigned short zoom_to_pos_x;
-    unsigned short zoom_to_pos_y;
-char field_E8[2];
+    MapCoord zoom_to_pos_x;
+    MapCoord zoom_to_pos_y;
     struct Wander wandr_within;
     struct Wander wandr_outside;
     short hand_thing_idx;
@@ -191,18 +188,15 @@ char field_E8[2];
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
     unsigned char continue_work_state;
-char field_457[8];
 char field_45F;
 short cursor_light_idx;
-char field_462;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
     char chosen_trap_kind;
     char chosen_door_kind;
-    char field_4A7[4];
-    short cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
-    short cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
+    MapSubtlCoord cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
+    MapSubtlCoord cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
     unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
@@ -210,7 +204,6 @@ char field_462;
     /** If view mode is temporarily covered by another, the original mode which is to be restored later will be saved here.*/
     char view_mode_restore;
     long dungeon_camera_zoom;
-    char field_4BA[3];
     long field_4BD;
     long palette_fade_step_pain;
     long palette_fade_step_possession;
@@ -221,11 +214,13 @@ char field_462;
     long cast_expand_level;
     long field_4D6;
     char video_cluedo_mode;
-    long field_4DB;
-    long field_4DF;
-    long field_4E3;
-    long field_4E7;
-    long field_4EB;
+    MapCoordDelta zoom_to_movement_x;
+    MapCoordDelta zoom_to_movement_y;
+    GameTurn power_of_cooldown_turn;
+    long game_version;
+    GameTurn display_objective_turn;
+    unsigned long isometric_view_zoom_level;
+    unsigned long frontview_zoom_level;
     };
 
 struct CheatSelection
@@ -258,19 +253,19 @@ struct PlayerInfoAdd {
     char swap_to_untag_mode; // 0 = no, 1 = maybe, 2= yes, -1 = disable
     unsigned char roomspace_highlight_mode;
     TbBool roomspace_no_default;
-    short cursor_subtile_x;
-    short cursor_subtile_y;
-    short previous_cursor_subtile_x;
-    short previous_cursor_subtile_y;
+    MapSubtlCoord cursor_subtile_x;
+    MapSubtlCoord cursor_subtile_y;
+    MapSubtlCoord previous_cursor_subtile_x;
+    MapSubtlCoord previous_cursor_subtile_y;
     TbBool mouse_is_offmap;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
+    TbBool pickup_all_gold;
 };
 
 /******************************************************************************/
-DLLIMPORT extern unsigned char _DK_my_player_number;
-#define my_player_number _DK_my_player_number
+extern unsigned char my_player_number;
 
 #pragma pack()
 /******************************************************************************/
@@ -312,6 +307,7 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 void clear_players(void);
 
 PlayerNumber player_bit_to_player_number(unsigned char plyr_bit);
+unsigned char rotate_mode_to_view_mode(unsigned char mode);
 /******************************************************************************/
 #ifdef __cplusplus
 }

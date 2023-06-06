@@ -121,9 +121,9 @@ struct TrigLocalPrep {
     long var_28;
     long var_2C;
     long var_30;
-    long var_34;
+    long trig_height_top; // counter to loop over first part of polyscans array
     long var_38;
-    long var_3C;
+    long trig_height_bottom; // counter to loop over second part of polyscans array
     long var_40;
     long var_4C;
     long var_50;
@@ -134,7 +134,7 @@ struct TrigLocalPrep {
     long var_6C;
     long var_78;
     unsigned char var_8A;
-    unsigned char var_8B;
+    TbBool hide_bottom_part; // ?Should we show low part of a triangle
     unsigned char var_8C;
 };
 
@@ -291,13 +291,13 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_6C = -tlp->var_78;
         if (tlp->var_6C - tlp->var_38 >= 0)
         {
-            tlp->var_3C -= tlp->var_6C - tlp->var_38;
+            tlp->trig_height_bottom -= tlp->var_6C - tlp->var_38;
             tlp->var_6C -= tlp->var_38;
             pX += tlp->var_28 * tlp->var_6C + tlp->var_38 * tlp->var_28;
             pYb = tlp->var_30 * tlp->var_6C + tlp->var_40;
             if (tlp->var_8C)
             {
-                tlp->var_3C = vec_window_height;
+                tlp->trig_height_bottom = vec_window_height;
                 tlr->var_44 = vec_window_height;
             }
             tlp->var_38 = 0;
@@ -310,11 +310,11 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->var_8B) {
+                if (tlp->hide_bottom_part) {
                     tlp->var_38 = vec_window_height;
                 } else {
-                    tlp->var_8B = vec_window_height <= tlp->var_38;
-                    tlp->var_3C = vec_window_height - tlp->var_38;
+                    tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
+                    tlp->trig_height_bottom = vec_window_height - tlp->var_38;
                 }
             }
             pYb = tlp->var_40;
@@ -329,14 +329,14 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->var_8B) {
+            if (tlp->hide_bottom_part) {
                 tlp->var_38 = dH;
             } else {
                 // whether the subtraction (dH - tlp->var_38) would overflow
                 eH_overflow = __OFSUBL__(dH, tlp->var_38);
                 eH = dH - tlp->var_38;
-                tlp->var_8B = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->var_3C = eH;
+                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
+                tlp->trig_height_bottom = eH;
             }
         }
         pYb = tlp->var_40;
@@ -350,9 +350,9 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pYa += tlp->var_2C;
         ++pp;
     }
-    if (!tlp->var_8B)
+    if (!tlp->hide_bottom_part)
     {
-        for (; tlp->var_3C; tlp->var_3C--)
+        for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
             pp->X = pX;
             pX += tlp->var_28;
@@ -372,7 +372,7 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     long pS;
     long ratio_var_34;
 
-    ratio_var_34 = (tlp->var_38 << 16) / tlp->var_34;
+    ratio_var_34 = (tlp->var_38 << 16) / tlp->trig_height_top;
     {
         long dX, wX;
         long eX;
@@ -395,7 +395,7 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             tlr->var_60 = (opt_b->S + wS - opt_a->S) / (eX + 1);
         }
     }
-    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->var_34;
+    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->trig_height_top;
     pX = opt_a->X << 16;
     pYa = opt_a->X << 16;
     pS = opt_a->S;
@@ -414,14 +414,14 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_6C = -tlp->var_78;
         if (tlp->var_6C - tlp->var_38 >= 0)
         {
-            tlp->var_3C -= tlp->var_6C - tlp->var_38;
+            tlp->trig_height_bottom -= tlp->var_6C - tlp->var_38;
             tlp->var_6C -= tlp->var_38;
             pX += tlp->var_28 * tlp->var_6C + tlp->var_38 * tlp->var_28;
             pYb = tlp->var_30 * tlp->var_6C + tlp->var_40;
             pS += tlp->var_6C * tlp->var_64 + tlp->var_38 * tlp->var_64;
             if (tlp->var_8C)
             {
-              tlp->var_3C = vec_window_height;
+              tlp->trig_height_bottom = vec_window_height;
               tlr->var_44 = vec_window_height;
             }
             tlp->var_38 = 0;
@@ -435,11 +435,11 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->var_8B) {
+                if (tlp->hide_bottom_part) {
                     tlp->var_38 = vec_window_height;
                 } else {
-                    tlp->var_8B = vec_window_height <= tlp->var_38;
-                    tlp->var_3C = vec_window_height - tlp->var_38;
+                    tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
+                    tlp->trig_height_bottom = vec_window_height - tlp->var_38;
                 }
             }
             pYb = tlp->var_40;
@@ -454,13 +454,13 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->var_8B) {
+            if (tlp->hide_bottom_part) {
                 tlp->var_38 = dH;
             } else {
                 eH_overflow = __OFSUBL__(dH, tlp->var_38);
                 eH = dH - tlp->var_38;
-                tlp->var_8B = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->var_3C = eH;
+                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
+                tlp->trig_height_bottom = eH;
             }
         }
         pYb = tlp->var_40;
@@ -476,9 +476,9 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pS += tlp->var_64;
         ++pp;
     }
-    if (!tlp->var_8B)
+    if (!tlp->hide_bottom_part)
     {
-      for (; tlp->var_3C; tlp->var_3C--)
+      for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
       {
           pp->X = pX;
           pX += tlp->var_28;
@@ -500,7 +500,7 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     struct PolyPoint *pp;
     long ratio_var_34;
 
-    ratio_var_34 = (tlp->var_38 << 16) / tlp->var_34;
+    ratio_var_34 = (tlp->var_38 << 16) / tlp->trig_height_top;
     {
         long dX, wX;
         long eX;
@@ -525,8 +525,8 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             tlr->var_54 = (opt_b->V + wS - opt_a->V) / (eX + 1);
         }
     }
-    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->var_34;
-    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->var_34;
+    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->trig_height_top;
+    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->trig_height_top;
     pX = opt_a->X << 16;
     pYa = opt_a->X << 16;
     pU = opt_a->U;
@@ -546,7 +546,7 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_6C = -tlp->var_78;
         if (tlp->var_6C - tlp->var_38 >= 0 )
         {
-            tlp->var_3C -= tlp->var_6C - tlp->var_38;
+            tlp->trig_height_bottom -= tlp->var_6C - tlp->var_38;
             tlp->var_6C -= tlp->var_38;
             pX += tlp->var_28 * tlp->var_6C + tlp->var_38 * tlp->var_28;
             pYb = tlp->var_30 * tlp->var_6C + tlp->var_40;
@@ -554,7 +554,7 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pV += tlp->var_6C * tlp->var_58 + tlp->var_38 * tlp->var_58;
             if ( tlp->var_8C )
             {
-                tlp->var_3C = vec_window_height;
+                tlp->trig_height_bottom = vec_window_height;
                 tlr->var_44 = vec_window_height;
             }
             tlp->var_38 = 0;
@@ -569,11 +569,11 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             if ( tlp->var_8C )
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->var_8B) {
+                if (tlp->hide_bottom_part) {
                   tlp->var_38 = vec_window_height;
                 } else {
-                  tlp->var_8B = vec_window_height <= tlp->var_38;
-                  tlp->var_3C = vec_window_height - tlp->var_38;
+                  tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
+                  tlp->trig_height_bottom = vec_window_height - tlp->var_38;
                 }
             }
             pYb = tlp->var_40;
@@ -588,13 +588,13 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->var_8B) {
+            if (tlp->hide_bottom_part) {
                 tlp->var_38 = dH;
             } else {
                 eH_overflow = __OFSUBL__(dH, tlp->var_38);
                 eH = dH - tlp->var_38;
-                tlp->var_8B = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->var_3C = eH;
+                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
+                tlp->trig_height_bottom = eH;
             }
         }
         pYb = tlp->var_40;
@@ -612,9 +612,9 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pV += tlp->var_58;
         ++pp;
     }
-    if (!tlp->var_8B)
+    if (!tlp->hide_bottom_part)
     {
-        for (; tlp->var_3C; tlp->var_3C--)
+        for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
             pp->X = pX;
             pX += tlp->var_28;
@@ -638,7 +638,7 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     struct PolyPoint *pp;
     long ratio_var_34;
 
-    ratio_var_34 = (tlp->var_38 << 16) / tlp->var_34;
+    ratio_var_34 = (tlp->var_38 << 16) / tlp->trig_height_top;
     {
         long dX, wX;
         long eX;
@@ -667,9 +667,9 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             tlr->var_60 = (opt_b->S + wS - opt_a->S) / (eX + 1);
         }
     }
-    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->var_34;
-    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->var_34;
-    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->var_34;
+    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->trig_height_top;
+    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->trig_height_top;
+    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->trig_height_top;
 
     pX = opt_a->X << 16;
     pYa = opt_a->X << 16;
@@ -691,7 +691,7 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_6C = -tlp->var_78;
         if (tlp->var_6C - tlp->var_38 >= 0)
         {
-            tlp->var_3C -= tlp->var_6C - tlp->var_38;
+            tlp->trig_height_bottom -= tlp->var_6C - tlp->var_38;
             tlp->var_6C -= tlp->var_38;
             pX += tlp->var_28 * tlp->var_6C + tlp->var_38 * tlp->var_28;
             pYb = tlp->var_30 * tlp->var_6C + tlp->var_40;
@@ -699,7 +699,7 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pV += tlp->var_6C * tlp->var_58 + tlp->var_38 * tlp->var_58;
             pS += tlp->var_6C * tlp->var_64 + tlp->var_38 * tlp->var_64;
             if (tlp->var_8C) {
-              tlp->var_3C = vec_window_height;
+              tlp->trig_height_bottom = vec_window_height;
               tlr->var_44 = vec_window_height;
             }
             tlp->var_38 = 0;
@@ -715,11 +715,11 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->var_8B) {
+                if (tlp->hide_bottom_part) {
                     tlp->var_38 = vec_window_height;
                 } else {
-                    tlp->var_8B = vec_window_height <= tlp->var_38;
-                    tlp->var_3C = vec_window_height - tlp->var_38;
+                    tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
+                    tlp->trig_height_bottom = vec_window_height - tlp->var_38;
                 }
             }
             pYb = tlp->var_40;
@@ -734,13 +734,13 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = vec_window_height - tlp->var_78;
-            if (tlp->var_8B) {
+            if (tlp->hide_bottom_part) {
                 tlp->var_38 = vec_window_height - tlp->var_78;
             } else {
                 eH_overflow = __OFSUBL__(dH, tlp->var_38);
                 eH = dH - tlp->var_38;
-                tlp->var_8B = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->var_3C = eH;
+                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
+                tlp->trig_height_bottom = eH;
             }
         }
         pYb = tlp->var_40;
@@ -760,9 +760,9 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pS += tlp->var_64;
         ++pp;
     }
-    if ( !tlp->var_8B )
+    if ( !tlp->hide_bottom_part )
     {
-        for (; tlp->var_3C; tlp->var_3C--)
+        for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
           pp->X = pX;
           pX += tlp->var_28;
@@ -800,14 +800,14 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
 
     tlp->var_8C = opt_c->Y > vec_window_height;
     dY = opt_c->Y - opt_a->Y;
-    tlp->var_34 = dY;
+    tlp->trig_height_top = dY;
     tlr->var_44 = dY;
 
-    tlp->var_8B = opt_b->Y > vec_window_height;
+    tlp->hide_bottom_part = opt_b->Y > vec_window_height;
     dY = opt_b->Y - opt_a->Y;
     tlp->var_38 = dY;
     dX = opt_c->X - opt_a->X;
-    tlp->var_28 = (dX << 16) / tlp->var_34;
+    tlp->var_28 = (dX << 16) / tlp->trig_height_top;
     dX = opt_b->X - opt_a->X;
     if ((dX << 16) / dY <= tlp->var_28) {
         NOLOG("value (%ld << 16) / %ld below min %ld", (long)dX, (long)dY, (long)tlp->var_28);
@@ -818,7 +818,7 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
     dY = opt_c->Y - opt_b->Y;
     dX = opt_c->X - opt_b->X;
     tlp->var_30 = (dX << 16) / dY;
-    tlp->var_3C = dY;
+    tlp->trig_height_bottom = dY;
     tlp->var_40 = opt_b->X << 16;
 
     ret = 0;
@@ -888,31 +888,31 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         }
         tlr->var_44 = eH;
         tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->var_34 >= 0)
+        if (tlp->var_6C - tlp->trig_height_top >= 0)
         {
-            tlp->var_6C -= tlp->var_34;
-            tlp->var_3C -= tlp->var_6C;
+            tlp->var_6C -= tlp->trig_height_top;
+            tlp->trig_height_bottom -= tlp->var_6C;
             pXb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pY += tlp->var_6C * tlp->var_2C + tlp->var_34 * tlp->var_2C;
+            pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
             if (tlp->var_8C) {
-              tlp->var_3C = vec_window_height;
+              tlp->trig_height_bottom = vec_window_height;
               tlr->var_44 = vec_window_height;
             }
-            tlp->var_34 = 0;
+            tlp->trig_height_top = 0;
         }
         else
         {
-            tlp->var_34 -= tlp->var_6C;
+            tlp->trig_height_top -= tlp->var_6C;
             pXa += tlp->var_28 * tlp->var_6C;
             pY += tlp->var_6C * tlp->var_2C;
             if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->var_8B) {
-                    tlp->var_34 = vec_window_height;
+                if (tlp->hide_bottom_part) {
+                    tlp->trig_height_top = vec_window_height;
                 } else {
-                    tlp->var_8B = vec_window_height <= tlp->var_34;
-                    tlp->var_3C = vec_window_height - tlp->var_34;
+                    tlp->hide_bottom_part = vec_window_height <= tlp->trig_height_top;
+                    tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
             }
             pXb = tlp->var_40;
@@ -927,19 +927,19 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->var_8B) {
-                tlp->var_34 = dH;
+            if (tlp->hide_bottom_part) {
+                tlp->trig_height_top = dH;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->var_34);
-                eH = dH - tlp->var_34;
-                tlp->var_8B = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->var_3C = eH;
+                eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
+                eH = dH - tlp->trig_height_top;
+                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
+                tlp->trig_height_bottom = eH;
             }
         }
         pXb = tlp->var_40;
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pXa;
         pXa += tlp->var_28;
@@ -947,9 +947,9 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pY += tlp->var_2C;
         ++pp;
     }
-    if (!tlp->var_8B)
+    if (!tlp->hide_bottom_part)
     {
-        for (; tlp->var_3C; tlp->var_3C--)
+        for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
             pp->X = pXb;
             pXb += tlp->var_30;
@@ -969,7 +969,7 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     struct PolyPoint *pp;
     long ratio_var_34;
 
-    ratio_var_34 = (tlp->var_34 << 16) / tlp->var_38;
+    ratio_var_34 = (tlp->trig_height_top << 16) / tlp->var_38;
     {
         long dXa, wXb;
         long eX;
@@ -990,8 +990,8 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             tlr->var_60 = (opt_a->S + wS - opt_c->S) / (eX + 1);
         }
     }
-    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->var_34;
-    tlp->var_68 = (opt_b->S - opt_c->S) / tlp->var_3C;
+    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->trig_height_top;
+    tlp->var_68 = (opt_b->S - opt_c->S) / tlp->trig_height_bottom;
     pXa = opt_a->X << 16;
     pY = opt_a->X << 16;
     pS = opt_a->S;
@@ -1008,36 +1008,36 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         }
         tlr->var_44 = eH;
         tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->var_34 >= 0)
+        if (tlp->var_6C - tlp->trig_height_top >= 0)
         {
-            tlp->var_6C -= tlp->var_34;
-            tlp->var_3C -= tlp->var_6C;
+            tlp->var_6C -= tlp->trig_height_top;
+            tlp->trig_height_bottom -= tlp->var_6C;
             pXb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pY += tlp->var_6C * tlp->var_2C + tlp->var_34 * tlp->var_2C;
-            pS += tlp->var_6C * tlp->var_68 + tlp->var_34 * tlp->var_64;
+            pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
+            pS += tlp->var_6C * tlp->var_68 + tlp->trig_height_top * tlp->var_64;
             if (tlp->var_8C) {
-                tlp->var_3C = vec_window_height;
+                tlp->trig_height_bottom = vec_window_height;
                 tlr->var_44 = vec_window_height;
             }
-            tlp->var_34 = 0;
+            tlp->trig_height_top = 0;
         }
         else
         {
-            tlp->var_34 -= tlp->var_6C;
+            tlp->trig_height_top -= tlp->var_6C;
             pXa += tlp->var_28 * tlp->var_6C;
             pY += tlp->var_6C * tlp->var_2C;
             pS += tlp->var_6C * tlp->var_64;
             if ( tlp->var_8C )
             {
                 tlr->var_44 = vec_window_height;
-                if ( tlp->var_8B )
+                if ( tlp->hide_bottom_part )
                 {
-                  tlp->var_34 = vec_window_height;
+                  tlp->trig_height_top = vec_window_height;
                 }
                 else
                 {
-                  tlp->var_8B = vec_window_height <= tlp->var_34;
-                  tlp->var_3C = vec_window_height - tlp->var_34;
+                  tlp->hide_bottom_part = vec_window_height <= tlp->trig_height_top;
+                  tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
             }
             pXb = tlp->var_40;
@@ -1052,19 +1052,19 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = vec_window_height - tlp->var_78;
-            if (tlp->var_8B) {
-                tlp->var_34 = vec_window_height - tlp->var_78;
+            if (tlp->hide_bottom_part) {
+                tlp->trig_height_top = vec_window_height - tlp->var_78;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->var_34);
-                eH = dH - tlp->var_34;
-                tlp->var_8B = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->var_3C = eH;
+                eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
+                eH = dH - tlp->trig_height_top;
+                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
+                tlp->trig_height_bottom = eH;
             }
         }
         pXb = tlp->var_40;
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pXa;
         pXa += tlp->var_28;
@@ -1074,9 +1074,9 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pS += tlp->var_64;
         ++pp;
     }
-    if (!tlp->var_8B)
+    if (!tlp->hide_bottom_part)
     {
-        for (; tlp->var_3C; tlp->var_3C--)
+        for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
             pp->X = pXb;
             pXb += tlp->var_30;
@@ -1098,7 +1098,7 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     struct PolyPoint *pp;
     long ratio_var_34;
 
-    ratio_var_34 = (tlp->var_34 << 16) / tlp->var_38;
+    ratio_var_34 = (tlp->trig_height_top << 16) / tlp->var_38; // Fixed point math
     {
         long dXa, wXb;
         long eX;
@@ -1123,10 +1123,10 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             tlr->var_54 = (opt_a->V + wS - opt_c->V) / (eX + 1);
         }
     }
-    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->var_34;
-    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->var_34;
-    tlp->var_50 = (opt_b->U - opt_c->U) / tlp->var_3C;
-    tlp->var_5C = (opt_b->V - opt_c->V) / tlp->var_3C;
+    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->trig_height_top;
+    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->trig_height_top;
+    tlp->var_50 = (opt_b->U - opt_c->U) / tlp->trig_height_bottom;
+    tlp->var_5C = (opt_b->V - opt_c->V) / tlp->trig_height_bottom;
     pXa = opt_a->X << 16;
     pY = opt_a->X << 16;
     pU = opt_a->U;
@@ -1144,23 +1144,23 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         }
         tlr->var_44 = eH;
         tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->var_34 >= 0)
+        if (tlp->var_6C - tlp->trig_height_top >= 0)
         {
-            tlp->var_6C -= tlp->var_34;
-            tlp->var_3C -= tlp->var_6C;
+            tlp->var_6C -= tlp->trig_height_top;
+            tlp->trig_height_bottom -= tlp->var_6C;
             pXb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pY += tlp->var_6C * tlp->var_2C + tlp->var_34 * tlp->var_2C;
-            pU += tlp->var_6C * tlp->var_50 + tlp->var_34 * tlp->var_4C;
-            pV += tlp->var_6C * tlp->var_5C + tlp->var_34 * tlp->var_58;
+            pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
+            pU += tlp->var_6C * tlp->var_50 + tlp->trig_height_top * tlp->var_4C;
+            pV += tlp->var_6C * tlp->var_5C + tlp->trig_height_top * tlp->var_58;
             if (tlp->var_8C) {
-                tlp->var_3C = vec_window_height;
+                tlp->trig_height_bottom = vec_window_height;
                 tlr->var_44 = vec_window_height;
             }
-            tlp->var_34 = 0;
+            tlp->trig_height_top = 0;
         }
         else
         {
-            tlp->var_34 -= tlp->var_6C;
+            tlp->trig_height_top -= tlp->var_6C;
             pXa += tlp->var_28 * tlp->var_6C;
             pY += tlp->var_6C * tlp->var_2C;
             pU += tlp->var_6C * tlp->var_4C;
@@ -1168,11 +1168,11 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             if ( tlp->var_8C )
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->var_8B) {
-                    tlp->var_34 = vec_window_height;
+                if (tlp->hide_bottom_part) {
+                    tlp->trig_height_top = vec_window_height;
                 } else {
-                    tlp->var_8B = vec_window_height <= tlp->var_34;
-                    tlp->var_3C = vec_window_height - tlp->var_34;
+                    tlp->hide_bottom_part = vec_window_height <= tlp->trig_height_top;
+                    tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
             }
             pXb = tlp->var_40;
@@ -1187,19 +1187,20 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->var_8B) {
-                tlp->var_34 = dH;
+            if (tlp->hide_bottom_part) {
+                tlp->trig_height_top = dH;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->var_34);
-                eH = dH - tlp->var_34;
-                tlp->var_8B = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->var_3C = eH;
+                eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
+                eH = dH - tlp->trig_height_top;
+                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
+                tlp->trig_height_bottom = eH;
             }
         }
         pXb = tlp->var_40;
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pXa;
         pXa += tlp->var_28;
@@ -1211,9 +1212,9 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pV += tlp->var_58;
         ++pp;
     }
-    if (!tlp->var_8B)
+    if (!tlp->hide_bottom_part)
     {
-        for (; tlp->var_3C; tlp->var_3C--)
+        for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
             pp->X = pXb;
             pXb += tlp->var_30;
@@ -1237,7 +1238,7 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     struct PolyPoint *pp;
     long ratio_var_34;
 
-    ratio_var_34 = (tlp->var_34 << 16) / tlp->var_38;
+    ratio_var_34 = (tlp->trig_height_top << 16) / tlp->var_38;
     {
         long dXa, wXb;
         long eX;
@@ -1266,12 +1267,12 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             tlr->var_60 = (opt_a->S + wS - opt_c->S) / (eX + 1);
         }
     }
-    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->var_34;
-    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->var_34;
-    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->var_34;
-    tlp->var_50 = (opt_b->U - opt_c->U) / tlp->var_3C;
-    tlp->var_5C = (opt_b->V - opt_c->V) / tlp->var_3C;
-    tlp->var_68 = (opt_b->S - opt_c->S) / tlp->var_3C;
+    tlp->var_4C = (opt_c->U - opt_a->U) / tlp->trig_height_top;
+    tlp->var_58 = (opt_c->V - opt_a->V) / tlp->trig_height_top;
+    tlp->var_64 = (opt_c->S - opt_a->S) / tlp->trig_height_top;
+    tlp->var_50 = (opt_b->U - opt_c->U) / tlp->trig_height_bottom;
+    tlp->var_5C = (opt_b->V - opt_c->V) / tlp->trig_height_bottom;
+    tlp->var_68 = (opt_b->S - opt_c->S) / tlp->trig_height_bottom;
     pXa = opt_a->X << 16;
     pY = opt_a->X << 16;
     pU = opt_a->U;
@@ -1290,24 +1291,24 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         }
         tlr->var_44 = eH;
         tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->var_34 >= 0)
+        if (tlp->var_6C - tlp->trig_height_top >= 0)
         {
-            tlp->var_6C -= tlp->var_34;
-            tlp->var_3C -= tlp->var_6C;
+            tlp->var_6C -= tlp->trig_height_top;
+            tlp->trig_height_bottom -= tlp->var_6C;
             pXb = tlp->var_30 * tlp->var_6C + tlp->var_40;
-            pY += tlp->var_6C * tlp->var_2C + tlp->var_34 * tlp->var_2C;
-            pU += tlp->var_6C * tlp->var_50 + tlp->var_34 * tlp->var_4C;
-            pV += tlp->var_6C * tlp->var_5C + tlp->var_34 * tlp->var_58;
-            pS += tlp->var_6C * tlp->var_68 + tlp->var_34 * tlp->var_64;
+            pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
+            pU += tlp->var_6C * tlp->var_50 + tlp->trig_height_top * tlp->var_4C;
+            pV += tlp->var_6C * tlp->var_5C + tlp->trig_height_top * tlp->var_58;
+            pS += tlp->var_6C * tlp->var_68 + tlp->trig_height_top * tlp->var_64;
             if (tlp->var_8C) {
-                tlp->var_3C = vec_window_height;
+                tlp->trig_height_bottom = vec_window_height;
                 tlr->var_44 = vec_window_height;
             }
-            tlp->var_34 = 0;
+            tlp->trig_height_top = 0;
         }
         else
         {
-            tlp->var_34 -= tlp->var_6C;
+            tlp->trig_height_top -= tlp->var_6C;
             pXa += tlp->var_28 * tlp->var_6C;
             pY += tlp->var_6C * tlp->var_2C;
             pU += tlp->var_6C * tlp->var_4C;
@@ -1315,11 +1316,11 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pS += tlp->var_6C * tlp->var_64;
             if (tlp->var_8C) {
                 tlr->var_44 = vec_window_height;
-                if (tlp->var_8B) {
-                    tlp->var_34 = vec_window_height;
+                if (tlp->hide_bottom_part) {
+                    tlp->trig_height_top = vec_window_height;
                 } else {
-                    tlp->var_8B = vec_window_height <= tlp->var_34;
-                    tlp->var_3C = vec_window_height - tlp->var_34;
+                    tlp->hide_bottom_part = vec_window_height <= tlp->trig_height_top;
+                    tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
             }
             pXb = tlp->var_40;
@@ -1334,19 +1335,19 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->var_8B) {
-                tlp->var_34 = dH;
+            if (tlp->hide_bottom_part) {
+                tlp->trig_height_top = dH;
             } else {
-                eH_overflow = __OFSUBL__(dH, tlp->var_34);
-                eH = dH - tlp->var_34;
-                tlp->var_8B = ((eH < 0) ^ eH_overflow) | (eH == 0);
-                tlp->var_3C = eH;
+                eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
+                eH = dH - tlp->trig_height_top;
+                tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
+                tlp->trig_height_bottom = eH;
             }
         }
         pXb = tlp->var_40;
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pXa;
         pXa += tlp->var_28;
@@ -1360,9 +1361,9 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pS += tlp->var_64;
         ++pp;
     }
-    if (!tlp->var_8B)
+    if (!tlp->hide_bottom_part)
     {
-        for (; tlp->var_3C; tlp->var_3C--)
+        for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
           pp->X = pXb;
           pXb += tlp->var_30;
@@ -1398,16 +1399,16 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
         return 0;
     }
 
-    tlp->var_8B = opt_c->Y > vec_window_height;
+    tlp->hide_bottom_part = opt_c->Y > vec_window_height;
     dY = opt_c->Y - opt_a->Y;
-    tlp->var_34 = dY;
+    tlp->trig_height_top = dY;
 
     tlp->var_8C = opt_b->Y > vec_window_height;
     dY = opt_b->Y - opt_a->Y;
     tlp->var_38 = dY;
     tlr->var_44 = dY;
     dX = opt_c->X - opt_a->X;
-    tlp->var_28 = (dX << 16) / tlp->var_34;
+    tlp->var_28 = (dX << 16) / tlp->trig_height_top;
     dX = opt_b->X - opt_a->X;
     if ((dX << 16) / dY <= tlp->var_28) {
         NOLOG("value (%ld << 16) / %ld below min %ld", (long)dX, (long)dY, (long)tlp->var_28);
@@ -1418,7 +1419,7 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
     dY = opt_b->Y - opt_c->Y;
     dX = opt_b->X - opt_c->X;
     tlp->var_30 = (dX << 16) / dY;
-    tlp->var_3C = dY;
+    tlp->trig_height_bottom = dY;
     tlp->var_40 = opt_c->X << 16;
 
     ret = 0;
@@ -1477,7 +1478,7 @@ static inline int trig_fb_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         long eH;
         TbBool eH_overflow;
 
-        tlp->var_34 += tlp->var_78;
+        tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
@@ -1488,20 +1489,20 @@ static inline int trig_fb_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_6C = -tlp->var_78;
         pX += tlp->var_28 * (-tlp->var_78);
         pY += (-tlp->var_78) * tlp->var_2C;
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height;
-            tlp->var_34 = vec_window_height;
+            tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->var_34 = vec_window_height - tlp->var_78;
+            tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pX;
         pX += tlp->var_28;
@@ -1533,7 +1534,7 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         long eH;
         TbBool eH_overflow;
 
-        tlp->var_34 += tlp->var_78;
+        tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
@@ -1545,20 +1546,20 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pX += tlp->var_28 * (-tlp->var_78);
         pY += (-tlp->var_78) * tlp->var_2C;
         pS += (-tlp->var_78) * tlp->var_64;
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height;
-            tlp->var_34 = vec_window_height;
+            tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->var_34 = vec_window_height - tlp->var_78;
+            tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pX;
         pX += tlp->var_28;
@@ -1595,7 +1596,7 @@ static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         long eH;
         TbBool eH_overflow;
 
-        tlp->var_34 += tlp->var_78;
+        tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
@@ -1608,20 +1609,20 @@ static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pY += (-tlp->var_78) * tlp->var_2C;
         pU += (-tlp->var_78) * tlp->var_4C;
         pV += (-tlp->var_78) * tlp->var_58;
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height;
-            tlp->var_34 = vec_window_height;
+            tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->var_34 = vec_window_height - tlp->var_78;
+            tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pX;
         pX += tlp->var_28;
@@ -1663,7 +1664,7 @@ static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         long eH;
         TbBool eH_overflow;
 
-        tlp->var_34 += tlp->var_78;
+        tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
@@ -1677,20 +1678,20 @@ static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pU += (-tlp->var_78) * tlp->var_4C;
         pV += (-tlp->var_78) * tlp->var_58;
         pS += (-tlp->var_78) * tlp->var_64;
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height;
-            tlp->var_34 = vec_window_height;
+            tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->var_34 = vec_window_height - tlp->var_78;
+            tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pX;
         pX += tlp->var_28;
@@ -1724,9 +1725,9 @@ int trig_fb_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
         NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
-    tlp->var_8B = opt_c->Y > vec_window_height;
+    tlp->hide_bottom_part = opt_c->Y > vec_window_height;
     dY = opt_c->Y - opt_a->Y;
-    tlp->var_34 = dY;
+    tlp->trig_height_top = dY;
     tlr->var_44 = dY;
     dX = opt_c->X - opt_a->X;
     tlp->var_28 = (dX << 16) / dY;
@@ -1789,7 +1790,7 @@ static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         long eH;
         TbBool eH_overflow;
 
-        tlp->var_34 += tlp->var_78;
+        tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
@@ -1800,20 +1801,20 @@ static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_6C = -tlp->var_78;
         pX += tlp->var_28 * (-tlp->var_78);
         pY += (-tlp->var_78) * tlp->var_2C;
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height;
-            tlp->var_34 = vec_window_height;
+            tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->var_34 = vec_window_height - tlp->var_78;
+            tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pX;
         pX += tlp->var_28;
@@ -1845,7 +1846,7 @@ static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         long eH;
         TbBool eH_overflow;
 
-        tlp->var_34 += tlp->var_78;
+        tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
@@ -1857,20 +1858,20 @@ static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pX += tlp->var_28 * (-tlp->var_78);
         pY += (-tlp->var_78) * tlp->var_2C;
         pS += (-tlp->var_78) * tlp->var_64;
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height;
-            tlp->var_34 = vec_window_height;
+            tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->var_34 = vec_window_height - tlp->var_78;
+            tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pX;
         pX += tlp->var_28;
@@ -1906,7 +1907,7 @@ static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         long eH;
         TbBool eH_overflow;
 
-        tlp->var_34 += tlp->var_78;
+        tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
@@ -1919,20 +1920,20 @@ static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pY += (-tlp->var_78) * tlp->var_2C;
         pU += (-tlp->var_78) * tlp->var_4C;
         pV += (-tlp->var_78) * tlp->var_58;
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height;
-            tlp->var_34 = vec_window_height;
+            tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->var_34 = vec_window_height - tlp->var_78;
+            tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pX;
         pX += tlp->var_28;
@@ -1974,7 +1975,7 @@ static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         long eH;
         TbBool eH_overflow;
 
-        tlp->var_34 += tlp->var_78;
+        tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
         if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
@@ -1988,20 +1989,20 @@ static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pU += (-tlp->var_78) * tlp->var_4C;
         pV += (-tlp->var_78) * tlp->var_58;
         pS += (-tlp->var_78) * tlp->var_64;
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height;
-            tlp->var_34 = vec_window_height;
+            tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->var_8B) {
+        if (tlp->hide_bottom_part) {
             tlr->var_44 = vec_window_height - tlp->var_78;
-            tlp->var_34 = vec_window_height - tlp->var_78;
+            tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
     }
     pp = polyscans;
-    for (; tlp->var_34; tlp->var_34--)
+    for (; tlp->trig_height_top; tlp->trig_height_top--)
     {
         pp->X = pX;
         pX += tlp->var_28;
@@ -2035,9 +2036,9 @@ int trig_ft_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
         NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
-    tlp->var_8B = opt_c->Y > vec_window_height;
+    tlp->hide_bottom_part = opt_c->Y > vec_window_height;
     dY = opt_c->Y - opt_a->Y;
-    tlp->var_34 = dY;
+    tlp->trig_height_top = dY;
     tlr->var_44 = dY;
     dX = opt_c->X - opt_a->X;
     tlp->var_28 = (dX << 16) / dY;
@@ -2144,7 +2145,7 @@ void trig_render_md00(struct TrigLocalRend *tlr)
 
     for (; tlr->var_44; tlr->var_44--, pp++)
     {
-        short pX, pY;
+        long pX, pY;
         unsigned char *o;
 
         pX = pp->X >> 16;
@@ -2163,7 +2164,7 @@ void trig_render_md00(struct TrigLocalRend *tlr)
             TbBool pY_overflow;
             if (pY > vec_window_width)
                 pY = vec_window_width;
-            pY_overflow = __OFSUBS__(pY, pX);
+            pY_overflow = __OFSUBL__(pY, pX);
             pY = pY - pX;
             if (((pY < 0) ^ pY_overflow) | (pY == 0))
                 continue;

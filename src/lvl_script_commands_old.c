@@ -73,6 +73,8 @@ const struct NamedCommand game_rule_desc[] = {
   {"AlliesShareVision",             29},
   {"AlliesShareDrop",               30},
   {"AlliesShareCta",                31},
+  {"BarrackMaxPartySize",           32},
+  {"MaxThingsInHand",               33},
   {NULL,                             0},
 };
 
@@ -684,7 +686,7 @@ static void command_set_creature_max_level(long plr_range_id, const char *crtr_n
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
   }
-  if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+  if ((crtr_level < 0) || (crtr_level > CREATURE_MAX_LEVEL))
   {
     SCRPTERRLOG("Invalid '%s' experience level, %d", crtr_name, crtr_level);
   }

@@ -61,6 +61,8 @@ const char *saved_game_filename="fx1g%04d.sav";
 const char *packet_filename="fx1rp%04d.pck";
 
 struct CatalogueEntry save_game_catalogue[TOTAL_SAVE_SLOTS_COUNT];
+
+int number_of_saved_games;
 /******************************************************************************/
 TbBool is_primitive_save_version(long filesize)
 {
@@ -406,6 +408,10 @@ TbBool load_game(long slot_num)
     if (load_game_chunks(fh,centry) != GLoad_SavedGame)
     {
         LbFileClose(fh);
+        if (game.loaded_level_number == 0)
+        {
+            game.loaded_level_number = centry->level_num;
+        }
         WARNMSG("Couldn't correctly load saved game in slot %d.",(int)slot_num);
         init_lookups();
         return false;
@@ -415,7 +421,7 @@ TbBool load_game(long slot_num)
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     reinit_level_after_load();
     output_message(SMsg_GameLoaded, 0, true);
-    pannel_map_update(0, 0, map_subtiles_x+1, map_subtiles_y+1);
+    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();
@@ -670,7 +676,7 @@ TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long exp
     }
 
     short i = dungeonadd->creatures_transferred; //makes sure it fits 255 units
-    
+
     intralvl.transferred_creatures[plyr_idx][i].model = model;
     intralvl.transferred_creatures[plyr_idx][i].explevel = explevel;
     return true;

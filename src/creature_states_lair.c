@@ -167,14 +167,14 @@ long process_lair_enemy(struct Thing *thing, struct Room *room)
     return 1;
 }
 
-long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
+CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
 {
     if (!room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP))
-        return 0;
+        return CrStRet_ResetFail;
     // Make sure we don't already have a lair on that position
     struct Thing* lairtng = find_creature_lair_totem_at_subtile(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, 0);
     if (!thing_is_invalid(lairtng))
-        return 0;
+        return CrStRet_Unchanged;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     room->content_per_model[creatng->model]++;
     room->used_capacity += get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
@@ -189,14 +189,14 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     pos.x.val = creatng->mappos.x.val;
     pos.y.val = creatng->mappos.y.val;
     pos.z.val = creatng->mappos.z.val;
-    struct CreatureData* crdata = creature_data_get_from_thing(creatng);
-    lairtng = create_object(&pos, crdata->lair_tngmodel, creatng->owner, -1);
+    struct CreatureStats* crstat = creature_stats_get(creatng->model);
+    lairtng = create_object(&pos, crstat->lair_object, creatng->owner, -1);
     if (thing_is_invalid(lairtng))
     {
         ERRORLOG("Could not create lair totem");
         remove_thing_from_mapwho(creatng);
         place_thing_in_mapwho(creatng);
-        return 1; // Return that so we won't try to redo the action over and over
+        return CrStRet_Modified; // Return that so we won't try to redo the action over and over
     }
     lairtng->mappos.z.val = get_thing_height_at(lairtng, &lairtng->mappos);
     // Associate creature with the lair
@@ -214,7 +214,7 @@ long creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     anger_set_creature_anger(creatng, 0, AngR_NoLair);
     remove_thing_from_mapwho(creatng);
     place_thing_in_mapwho(creatng);
-    return 1;
+    return CrStRet_ResetOk;
 }
 
 CrStateRet creature_at_changed_lair(struct Thing *creatng)
@@ -232,9 +232,13 @@ CrStateRet creature_at_changed_lair(struct Thing *creatng)
         set_start_state(creatng);
         return CrStRet_ResetFail;
     }
-    if (!creature_add_lair_to_room(creatng, room)) {
-        internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
-        return CrStRet_Modified;
+
+    CrStateRet laircreated = creature_add_lair_to_room(creatng, room);
+    if (laircreated != CrStRet_ResetOk)
+    {
+        if (laircreated != CrStRet_Modified)
+            internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
+        return laircreated;
     }
     // All done - finish the state
     set_start_state(creatng);
@@ -251,11 +255,15 @@ CrStateRet creature_at_new_lair(struct Thing *creatng)
         set_start_state(creatng);
         return CrStRet_ResetFail;
     }
-    if (!creature_add_lair_to_room(creatng, room))
+
+    CrStateRet laircreated = creature_add_lair_to_room(creatng, room);
+    if (laircreated != CrStRet_ResetOk)
     {
-        internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
-        return CrStRet_Modified;
+        if (laircreated != CrStRet_Modified)
+            internal_set_thing_state(creatng, CrSt_CreatureChooseRoomForLairSite);
+        return laircreated;
     }
+    // All done - finish the state
     set_start_state(creatng);
     return CrStRet_ResetOk;
 }
@@ -310,7 +318,6 @@ TbBool setup_head_for_random_unused_lair_subtile(struct Thing *creatng, struct R
 short creature_change_lair(struct Thing *thing)
 {
     TRACE_THING(thing);
-    //return _DK_creature_change_lair(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
     struct Room* room = get_room_thing_is_on(thing);
@@ -360,6 +367,7 @@ short creature_choose_room_for_lair_site(struct Thing *thing)
 short at_lair_to_sleep(struct Thing *thing)
 {
     TRACE_THING(thing);
+    reset_interpolation_of_thing(thing); // Fixes rendering bug 'Creatures behind their lair in straight view'
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
     TRACE_THING(lairtng);
@@ -404,7 +412,6 @@ short cleanup_sleep(struct Thing *creatng)
 
 short creature_going_home_to_sleep(struct Thing *thing)
 {
-    //return _DK_creature_going_home_to_sleep(thing);
     if (creature_move_to_home_lair(thing))
     {
         thing->continue_state = CrSt_AtLairToSleep;
@@ -423,7 +430,7 @@ long room_has_slab_adjacent(const struct Room *room, long slbkind)
         // Per room tile code
         for (long n = 0; n < AROUND_SLAB_LENGTH; n++)
         {
-            long slab_num = i + around_slab[n];
+            long slab_num = i + gameadd.around_slab[n];
             struct SlabMap* slb = get_slabmap_direct(slab_num);
             if (!slabmap_block_invalid(slb))
             {

@@ -76,7 +76,7 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
         }
         i = get_next_slab_number_in_room(i);
         k++;
-        if (k > map_tiles_x * map_tiles_y)
+        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -87,7 +87,6 @@ TbBool jailbreak_possible(struct Room *room, PlayerNumber creature_owner)
 
 short cleanup_prison(struct Thing *thing)
 {
-  // return _DK_cleanup_prison(thing);
   struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
   cctrl->flgfield_1 &= (CCFlg_Exists | CCFlg_PreventDamage | CCFlg_Unknown08 | CCFlg_Unknown10 | CCFlg_IsInRoomList | CCFlg_Unknown40 | CCFlg_Unknown80);
   state_cleanup_in_room(thing);
@@ -248,7 +247,7 @@ short creature_freeze_prisoners(struct Thing *creatng)
     } else
     if ((dist <= 2048) && (creature_can_see_combat_path(creatng, victng, dist)))
     {
-        set_creature_instance(creatng, CrInst_FREEZE, 1, victng->index, 0);
+        set_creature_instance(creatng, CrInst_FREEZE, victng->index, 0);
     } else
     {
         creature_move_to(creatng, &victng->mappos, cctrl->max_speed, 0, 0);
@@ -266,7 +265,7 @@ CrStateRet process_prison_visuals(struct Thing *creatng, struct Room *room)
     {
         if (game.play_gameturn - cctrl->turns_at_job < 250)
         {
-            set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_MOAN, 0, 0);
             event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_PrisonerStarving, room->owner, creatng->index);
             if (game.play_gameturn - cctrl->imprison.last_mood_sound_turn > 32)
             {
@@ -361,7 +360,7 @@ void food_set_wait_to_be_eaten(struct Thing *thing)
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
-        cctrl->stateblock_flags |= 1u;
+        cctrl->stateblock_flags |= CCSpl_ChickenRel;
     }
     else
     {
@@ -414,7 +413,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
     thing_play_sample(creatng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if ( creatng->active_state != CrSt_CreatureInPrison )
         internal_set_thing_state(creatng, CrSt_CreatureInPrison);
-    set_creature_instance(creatng, CrInst_EAT, 1, 0, 0);
+    set_creature_instance(creatng, CrInst_EAT, 0, 0);
     delete_thing_structure(foodtng, 0);
     
     struct Dungeon* dungeon = get_players_num_dungeon(room->owner);

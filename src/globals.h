@@ -61,12 +61,6 @@
 #define BFDEBUG_LEVEL 0
 #endif
 
-#if defined(BUILD_DLL)
-# define DLLIMPORT __declspec (dllexport)
-#else // Not defined BUILD_DLL
-# define DLLIMPORT __declspec (dllimport)
-#endif
-
 #ifdef __cplusplus
 #include <algorithm>
 using std::min;
@@ -185,18 +179,10 @@ extern "C" {
   #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
 #endif
 
-void replaceFn(void* oldFn, void* newFn);
-#define CONCAT_(x, y) x##y
-#define CONCAT(x, y) CONCAT_(x, y)
-
-#ifdef _MSC_VER
-#define HOOK_DK_FUNC(name) \
-	DLLIMPORT void _DK_##name();
-#else
-#define HOOK_DK_FUNC(name) \
-	DLLIMPORT void _DK_##name(); \
-	__attribute__((constructor)) static void CONCAT(hookFn, __COUNTER__)(void) { replaceFn(&_DK_##name, &name); }
-#endif
+#define MAX_TILES_X 170
+#define MAX_TILES_Y 170
+#define MAX_SUBTILES_X 511
+#define MAX_SUBTILES_Y 511
 
 #pragma pack(1)
 
@@ -206,6 +192,8 @@ typedef int ScreenCoord;
 typedef int RealScreenCoord;
 /** Player identification number, or owner of in-game thing/room/slab. */
 typedef signed char PlayerNumber;
+/** bitflag where each bit represents a player */
+typedef unsigned char PlayerBitFlag;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
 /** Type which stores thing model. */
@@ -273,7 +261,7 @@ typedef short MapSlabCoord;
 /** Distance between map coordinates in slabs.  */
 typedef short MapSlabDelta;
 /** Map subtile 2D coordinates, coded into one number. */
-typedef unsigned long SubtlCodedCoords;
+typedef long SubtlCodedCoords;
 /** Map slab 2D coordinates, coded into one number. */
 typedef unsigned long SlabCodedCoords;
 /** Index in the columns array. */
@@ -297,7 +285,7 @@ typedef unsigned char DamageType;
 /** Type which stores hit filters for things as THit_* values. */
 typedef unsigned char ThingHitType;
 /** Type which stores hit filters for things as HitTF_* flags. */
-typedef unsigned long HitTargetFlags;
+typedef unsigned long long HitTargetFlags;
 /** Index within active_buttons[] array. */
 typedef char ActiveButtonID;
 /** Type which stores FeST_* values from FrontendMenuStates enumeration. */

@@ -172,7 +172,7 @@ struct GuiButton {
 struct GuiMenu {
       char ident;
       unsigned char visual_state;
-      short fade_time;
+      float fade_time;
       struct GuiButtonInit *buttons;
       short pos_x;
       short pos_y;
@@ -215,11 +215,8 @@ struct EventTypeInfo {
 
 /******************************************************************************/
 // Exported variables
-DLLIMPORT extern struct GuiButton *_DK_input_button;
-#define input_button _DK_input_button
-DLLIMPORT char _DK_backup_input_field[INPUT_FIELD_LEN];
-#define backup_input_field _DK_backup_input_field
-
+extern char backup_input_field[INPUT_FIELD_LEN];
+extern struct GuiButton *input_button;
 #pragma pack()
 /******************************************************************************/
 extern TbCharCount input_field_pos;

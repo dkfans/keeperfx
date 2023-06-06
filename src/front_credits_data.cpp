@@ -29,6 +29,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
+static unsigned char * frontstory_background;
+struct TbSprite *frontstory_end_font;
+unsigned char * frontstory_font_data;
+static unsigned char * frontstory_end_font_data;
+
 #ifdef SPRITE_FORMAT_V2
 struct TbLoadFiles frontstory_load_files_640[] = {
   {"ldata/front-64.raw", &frontstory_background,                 NULL,                                          0, 0, 0},

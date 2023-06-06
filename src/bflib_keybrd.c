@@ -32,17 +32,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/*
-unsigned char lbKeyOn[256];
-unsigned char lbShift;
-unsigned char lbIInkeyFlags;
-unsigned char lbInkey;
-unsigned char lbIInkey;
-unsigned char lbInkeyFlags;
-unsigned short flow_control_flags;
-unsigned long text_buf_pos;
-bool lbExtendedKeyPress=false;
-*/
+
 
 const char AsciiToInkey[] = {
    0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -85,6 +75,15 @@ char lbInkeyToAsciiShift[] = {
    0x0,0x2E, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 };
 
+
+static unsigned char lbInkeyFlags;
+static unsigned char lbIInkeyFlags;
+static unsigned char lbIInkey;
+static int lbKeyboardLang;
+static unsigned char lbExtendedKeyPress;
+unsigned char lbKeyOn[256];
+unsigned char lbInkey;
+
 /******************************************************************************/
 extern void init_inputcontrol(void);
 /******************************************************************************/
@@ -102,7 +101,7 @@ short LbIKeyboardOpen(void)
 
 void LbKeyboardSetLanguage(int lngnum)
 {
-  _DK_lbKeyboardLang = lngnum;
+  lbKeyboardLang = lngnum;
 }
 
 short LbKeyCodeValid(TbKeyCode key)
@@ -181,10 +180,9 @@ void keyboardControl(unsigned int action, TbKeyCode code, TbKeyMods modifiers, i
     }
 }
 
-long __stdcall KeyboardProc(int a1, unsigned int a2, long code)
+long KeyboardProc(int a1, unsigned int a2, long code)
 {
     unsigned char lbcode;
-    //return _DK_KeyboardProc(a1, a2, code);
     unsigned char klcode = (code >> 16);
     lbExtendedKeyPress = ((code & 0x1000000) != 0);
     if (lbExtendedKeyPress)

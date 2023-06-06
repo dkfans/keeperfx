@@ -20,6 +20,7 @@
 #define DK_TNGFACTORY_H
 
 #include "globals.h"
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -28,7 +29,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct InitThing { // sizeof=0x15
+struct InitThing {
     struct Coord3d mappos;
     unsigned char oclass;
     unsigned char model;
@@ -39,8 +40,11 @@ struct InitThing { // sizeof=0x15
 };
 
 #pragma pack()
+
+typedef struct VALUE VALUE;
 /******************************************************************************/
-short thing_create_thing(struct InitThing *itng);
+TbBool thing_create_thing(struct InitThing *itng);
+TbBool thing_create_thing_adv(VALUE *init_data);
 
 struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short model, unsigned short owner, long parent_idx);
 struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner);

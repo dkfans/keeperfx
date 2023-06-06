@@ -954,7 +954,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         }
     }
 
-#if BFDEBUG_LEVEL > 0
+#if BFDEBUG_LEVEL > 10
     struct StrBuf buf = {0, 0};
 
     json_dom_dump(node, &dump_callback, &buf, 2, 0);

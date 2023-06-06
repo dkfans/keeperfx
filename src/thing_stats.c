@@ -236,7 +236,7 @@ TbBool is_hero_thing(const struct Thing *thing)
  * @param decay_start Distance after which the magnitude starts decaying.
  * @param decay_length Length of the decaying region.
  * @param distance Distance at which we want to compute the value.
- * @return Value at specified distane from epicenter.
+ * @return Value at specified distance from epicenter.
  */
 long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance)
 {
@@ -247,6 +247,35 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
     return magnitude * (decay_length - (distance-decay_start)) / decay_length;
   else
     return magnitude;
+}
+
+
+/**
+ * Returns a value which is stronger around some epicenter but can't go beyond, like implosion damage.
+ *
+ * @param magnitude Magnitude in nearest whereabouts of the epicenter.
+ * @param decay_start Distance after which the magnitude starts decaying.
+ * @param decay_length Length of the decaying region.
+ * @param distance Distance at which we want to compute the value.
+ * @param friction is used to calculate the deacceleration and therefore the expected distance travelled.
+ * @return Value at how fast it's pulled to epicenter.
+ */
+long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long friction)
+{
+    if (distance >= decay_start + decay_length)
+        return 0; //Outside the max range, nothing is pulled inwards
+
+    if (distance >= decay_start) //too far away to pull with full power
+        magnitude = magnitude * (decay_length - (distance - decay_start)) / decay_length;
+        
+    long total_distance = abs((COORD_PER_STL / friction * magnitude + magnitude) / 2); // The intended distance to push the thing
+
+    if (total_distance > distance) // Never return a value that would go past the epicentre
+    {
+        short factor = COORD_PER_STL / friction * 3 / 4; // Creatures slide so move further then expected
+        return -(distance / factor);
+    }
+    return magnitude ;
 }
 
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
@@ -792,6 +821,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         cdamage = apply_damage_to_creature(thing, dmg);
         break;
     case TCls_Object:
+    case TCls_Trap:
         cdamage = apply_damage_to_object(thing, dmg);
         break;
     case TCls_Door:

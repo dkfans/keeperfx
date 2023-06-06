@@ -47,6 +47,7 @@
 #include "post_inc.h"
 
 unsigned long TimerTurns = 0;
+unsigned short battle_creature_over;
 
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
@@ -385,6 +386,10 @@ void draw_bonus_timer(void)
     {
         height *= 2;
         width *= 2;
+        if ((dbc_language) > 0 && (gameadd.timer_real))
+        {
+            width += (width / 8);
+        }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
@@ -396,8 +401,24 @@ void draw_bonus_timer(void)
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
-    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    int tx_units_per_px;
+    int y;
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
+    {        
+        tx_units_per_px = scale_ui_value(32);
+        y = 0;
+    }
+    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    {
+        tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
+        y = height / 4;
+    }
+    else
+    {
+        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        y = 0;
+    } 
+    LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
@@ -435,6 +456,17 @@ void draw_timer(void)
     {
         height *= 2;
         width *= 2;
+        if (dbc_language > 0)
+        {
+            if (TimerGame)
+            {
+                width += (width / 4);
+            }
+            else
+            {
+                width += (width / 8);
+            }
+        }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
@@ -445,8 +477,24 @@ void draw_timer(void)
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
-    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    int tx_units_per_px;
+    int y;
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
+    {        
+        tx_units_per_px = scale_ui_value(32);
+        y = 0;
+    }
+    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    {
+        tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
+        y = height / 4;
+    }
+    else
+    {
+        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        y = 0;
+    } 
+    LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
@@ -495,6 +543,10 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     {
         height *= 2;
         width *= 2;
+        if ((dbc_language > 0) && (real))
+        {
+            width += (width / 8);
+        }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
@@ -506,8 +558,24 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
-    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    int tx_units_per_px;
+    int y;
+    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
+    {        
+        tx_units_per_px = scale_ui_value(32);
+        y = 0;
+    }
+    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    {
+        tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
+        y = height / 4;
+    }
+    else
+    {
+        tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        y = 0;
+    } 
+    LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 
@@ -545,6 +613,10 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     {
         height *= 2;
         width *= 2;
+        if (dbc_language > 0)
+        {
+            width += (width / 3);
+        }
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
@@ -564,8 +636,19 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     }
     LbTextSetWindow(scr_x, scr_y, width, height);
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
-    int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
-    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    int tx_units_per_px;
+    int y;
+    if ( (dbc_language > 0) && (MyScreenWidth > 1280) )
+    {
+        tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
+        y = height / 4;
+    }
+    else
+    {
+        tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
+        y = 0;
+    }
+    LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
 

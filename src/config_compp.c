@@ -87,8 +87,6 @@ const struct NamedCommand compp_computer_commands[] = {
 const char keeper_compplayer_file[]="keepcompp.cfg";
 
 /******************************************************************************/
-DLLIMPORT struct ComputerProcessTypes _DK_ComputerProcessLists[1];
-/******************************************************************************/
 ComputerName computer_check_names[COMPUTER_CHECKS_TYPES_COUNT];
 struct ComputerCheck computer_checks[COMPUTER_CHECKS_TYPES_COUNT];
 struct ComputerCheckMnemonic computer_check_config_list[COMPUTER_CHECKS_TYPES_COUNT];
@@ -1117,8 +1115,6 @@ TbBool load_computer_player_config(unsigned short flags)
     }
     //Freeing and exiting
     LbMemoryFree(buf);
-    // Lets crash it if someone using it
-    memset(_DK_ComputerProcessLists, 1, sizeof(struct ComputerProcessTypes));
     return true;
 }
 

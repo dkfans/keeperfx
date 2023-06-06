@@ -48,6 +48,8 @@ long neutral_player_number = NEUTRAL_PLAYER;
 long hero_player_number = HERO_PLAYER;
 struct PlayerInfo bad_player;
 struct PlayerInfoAdd bad_playeradd;
+
+unsigned char my_player_number;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)
 {
@@ -297,8 +299,6 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   }
   player->continue_work_state = player->work_state;
   player->work_state = nwrk_state;
-  if (is_my_player(player))
-    game.field_14E92E = 0;
   if ((player->work_state != PSt_CreatrQuery) && (player->work_state != PSt_CreatrInfo)
      && (player->work_state != PSt_QueryAll) && (player->work_state != PSt_CreatrInfoAll)
      && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr)
@@ -324,7 +324,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
           pos.x.val = 0;
           pos.y.val = 0;
           pos.z.val = 0;
-          struct Thing* thing = create_object(&pos, 37, player->id_number, -1);
+          struct Thing* thing = create_object(&pos, ObjMdl_PowerHand, player->id_number, -1);
           if (thing_is_invalid(thing))
           {
               player->hand_thing_idx = 0;
@@ -477,5 +477,15 @@ PlayerNumber player_bit_to_player_number(unsigned char plyr_bit)
         plyr_bit >>= 1;
     }
     return (result - 1);
+}
+
+unsigned char rotate_mode_to_view_mode(unsigned char mode)
+{
+    switch (mode) {
+        case 0: return PVM_IsoWibbleView;
+        case 1: return PVM_IsoStraightView;
+        case 2: return PVM_FrontView;
+        default: ERRORLOG("Unrecognised video rotate mode: %u", mode); return PVM_IsoWibbleView;
+    }
 }
 /******************************************************************************/

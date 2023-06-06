@@ -126,9 +126,6 @@ void clear_dungeons(void)
   LbMemorySet(&bad_dungeon, 0, sizeof(struct Dungeon));
   LbMemorySet(&bad_dungeonadd, 0, sizeof(struct DungeonAdd));
   bad_dungeon.owner = PLAYERS_COUNT;
-  game.field_14E4A4 = 0;
-  game.field_14E4A0 = 0;
-  game.field_14E49E = 0;
 }
 
 void decrease_dungeon_area(PlayerNumber plyr_idx, long value)
@@ -252,7 +249,8 @@ struct Thing *get_player_soul_container(PlayerNumber plyr_idx)
 
 TbBool player_has_heart(PlayerNumber plyr_idx)
 {
-    return thing_exists(get_player_soul_container(plyr_idx));
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    return (thing_exists(get_player_soul_container(plyr_idx)) && dungeon->heart_destroy_turn <= 0);
 }
 
 /** Returns if given dungeon contains a room of given kind.
@@ -526,8 +524,8 @@ void init_dungeon_essential_position(struct Dungeon *dungeon)
         room = room_get(dungeonadd->room_kind[rkind]);
     }
     if (room_is_invalid(room)) {
-        dungeon->essential_pos.x.val = subtile_coord_center(map_subtiles_x/2);
-        dungeon->essential_pos.y.val = subtile_coord_center(map_subtiles_y/2);
+        dungeon->essential_pos.x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
+        dungeon->essential_pos.y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
         dungeon->essential_pos.z.val = subtile_coord(0,1);
         return;
     }
@@ -580,7 +578,7 @@ void init_dungeons(void)
           else
             dungeon->hates_player[k] = game.fight_max_hate;
         }
-        LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_COUNT);
+        LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }
 }
 

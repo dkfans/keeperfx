@@ -35,6 +35,7 @@
 #include "custom_sprites.h"
 #include "sprites.h"
 #include "post_inc.h"
+#include "frontmenu_ingame_tabs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,9 +43,14 @@ extern "C" {
 /******************************************************************************/
 char gui_textbuf[TEXT_BUFFER_LENGTH];
 
-/******************************************************************************/
-/******************************************************************************/
-
+unsigned char * gui_panel_sprite_data;
+unsigned char * end_gui_panel_sprite_data;
+unsigned char *gui_slab;
+unsigned char *frontend_background;
+struct TbSprite *frontend_sprite;
+struct TbSprite *frontend_end_sprite;
+unsigned char * frontend_sprite_data;
+unsigned char * frontend_end_sprite_data;
 /******************************************************************************/
 
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
@@ -517,6 +523,34 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         }
     }
     unsigned long h = (gbtn->height - text_string_height(tx_units_per_px, dtext)) / 2 - 3 * units_per_px / 16;
+    if (dbc_language > 0)
+    {
+        if (gbtn->id_num == BID_QUERY_INFO)
+        {
+            if (MyScreenWidth > 640)
+            {
+                h += (13 + (MyScreenWidth / 640));
+                w += 8;
+                tx_units_per_px = scale_value_by_horizontal_resolution(10);
+            }
+        }
+        else if (gbtn->id_num == BID_DUNGEON_INFO)
+        {
+            if (MyScreenWidth > 640)
+            {
+                h += (12 + (MyScreenWidth / 640));
+                w += 8;
+                tx_units_per_px = scale_value_by_horizontal_resolution(12);
+            }
+        }
+        else if (gbtn->tooltip_stridx == GUIStr_ExperienceDesc)
+        {
+            if (MyScreenWidth > 640)
+            {
+                h += (8 + (MyScreenWidth / 640));
+            }
+        }
+    }
     LbTextDrawResized(w, h, tx_units_per_px, dtext);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);

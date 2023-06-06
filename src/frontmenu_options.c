@@ -90,6 +90,14 @@ const long definable_key_string[] = {
     GUIStr_RoomSpaceDecrease,
     GUIStr_SellTrapOnSubtile,
 };
+
+long fe_mouse_sensitivity;
+long sound_level_slider;
+long music_level_slider;
+char video_cluedo_mode;
+char video_shadows;
+char video_textures;
+char video_view_distance_level;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -251,31 +259,25 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
 
 void gui_video_shadows(struct GuiButton *gbtn)
 {
-    settings.video_shadows = _DK_video_shadows;
-    copy_settings_to_dk_settings();
+    settings.video_shadows = video_shadows;
 }
 
 void gui_video_view_distance_level(struct GuiButton *gbtn)
 {
     settings.view_distance = video_view_distance_level;
-    copy_settings_to_dk_settings();
 }
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
     struct Packet* pckt = get_packet(my_player_number);
-    switch (settings.video_rotate_mode) {
-        case 0: set_packet_action(pckt, PckA_SwitchView, PVM_IsoWibbleView, 0, 0, 0); break;
-        case 1: set_packet_action(pckt, PckA_SwitchView, PVM_IsoStraightView, 0, 0, 0); break;
-        case 2: set_packet_action(pckt, PckA_SwitchView, PVM_FrontView, 0, 0, 0); break;
-    }
+    set_packet_action(pckt, PckA_SwitchView, rotate_mode_to_view_mode(settings.video_rotate_mode), 0, 0, 0);
     save_settings();
 }
 
 void gui_video_cluedo_mode(struct GuiButton *gbtn)
 {
     struct Packet* pckt = get_packet(my_player_number);
-    set_packet_action(pckt, PckA_SetCluedo, _DK_video_cluedo_mode, 0, 0, 0);
+    set_packet_action(pckt, PckA_SetCluedo, video_cluedo_mode, 0, 0, 0);
 }
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)
@@ -383,10 +385,10 @@ void frontend_draw_invert_mouse(struct GuiButton *gbtn)
  */
 void init_video_menu(struct GuiMenu *gmnu)
 {
-    _DK_video_shadows = settings.video_shadows;
+    video_shadows = settings.video_shadows;
     video_view_distance_level = settings.view_distance;
-    _DK_video_textures = settings.video_textures;
-    _DK_video_cluedo_mode = settings.video_cluedo_mode;
+    video_textures = settings.video_textures;
+    video_cluedo_mode = settings.video_cluedo_mode;
     video_gamma_correction = settings.gamma_correction;
 }
 

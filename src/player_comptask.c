@@ -295,8 +295,8 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     struct Room *room;
     SYNCDBG(9,"Starting action %d",(int)gaction);
     if (subtile_has_slab(stl_x, stl_y)) {
-        slb_x = subtile_slab_fast(stl_x);
-        slb_y = subtile_slab_fast(stl_y);
+        slb_x = subtile_slab(stl_x);
+        slb_y = subtile_slab(stl_y);
     } else {
         slb_x = -1;
         slb_y = -1;
@@ -583,8 +583,7 @@ void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
         external_set_thing_state(thing, CrSt_InPowerHand);
         remove_all_traces_of_combat(thing);
     }
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->holding_player = comp->dungeon->owner;
+    thing->holding_player = comp->dungeon->owner;
     place_thing_in_limbo(thing);
 }
 
@@ -950,7 +949,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         if (ctask->dig.subfield_38 > 0)
         {
-            if ((stl_x < map_subtiles_x) && (stl_y < map_subtiles_y))
+            if ((stl_x < gameadd.map_subtiles_x) && (stl_y < gameadd.map_subtiles_y))
             {
                 struct SlabMap *slb;
                 slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -1242,7 +1241,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
  * @param rkind Room kind.
  * @return Gives IAvail_Never if the room isn't available, IAvail_Now if it's available and IAvail_Later if it's researchable.
  */
-ItemAvailability computer_check_room_available(const struct Computer2 * comp, long rkind)
+ItemAvailability computer_check_room_available(const struct Computer2 * comp, RoomKind rkind)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
@@ -1259,6 +1258,29 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, lo
     if ((dungeonadd->room_buildable[rkind] & 1) == 0)
         return IAvail_NeedResearch;
     return IAvail_Now;
+}
+
+/**
+ * Checks if given room kind is available for building by computer player.
+ * @param comp Computer player.
+ * @param rkind Room kind.
+ * @return Gives IAvail_Never if the room isn't available, IAvail_Now if it's available and IAvail_Later if it's researchable.
+ */
+ItemAvailability computer_check_room_of_role_available(const struct Computer2 * comp, RoomRole rrole)
+{
+    ItemAvailability result = IAvail_Never;
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if(room_role_matches(rkind,rrole))
+        {
+            ItemAvailability current = computer_check_room_available(comp,rkind);
+            if (current == IAvail_Now)
+                return IAvail_Now;
+            if (current == IAvail_NeedResearch)
+                result = IAvail_NeedResearch;
+        }
+    }
+    return result;
 }
 
 long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
@@ -1352,7 +1374,6 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
 
 long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist)
 {
-    //return _DK_get_corridor(pos1, pos2, a3, a4, a5);
     struct Coord3d mvpos;
     mvpos.x.val = pos1->x.val;
     mvpos.y.val = pos1->y.val;
@@ -1586,7 +1607,10 @@ short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Compute
             if ((digflags & ToolDig_AllowLiquidWBridge) != 0) {
                 break;
             }
-            if (computer_check_room_available(comp, RoK_BRIDGE) != IAvail_Now) {
+            if ( slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) != IAvail_Now) {
+                break;
+            }
+            if ( slb->kind == SlbT_LAVA &&  computer_check_room_of_role_available(comp, RoRoF_PassLava) != IAvail_Now) {
                 break;
             }
         }
@@ -1605,7 +1629,7 @@ short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Compute
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
         (*nextstl_x) += STL_PER_SLB * small_around[around_index].delta_x;
         (*nextstl_y) += STL_PER_SLB * small_around[around_index].delta_y;
-        if (i > map_tiles_x+map_tiles_y)
+        if (i > gameadd.map_tiles_x+gameadd.map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
             return -2;
@@ -1677,7 +1701,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
         (*nextstl_x) += STL_PER_SLB * small_around[around_index].delta_x;
         (*nextstl_y) += STL_PER_SLB * small_around[around_index].delta_y;
-        if (i > map_tiles_x*map_tiles_y)
+        if (i > gameadd.map_tiles_x*gameadd.map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
             return -2;
@@ -1739,16 +1763,17 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             return counter1;
         }
         // Being here means we didn't reached the destination - we must do some kind of action
-        if (slab_is_liquid(subtile_slab(gldstl_x), subtile_slab(gldstl_y)))
+        struct SlabMap* action_slb = get_slabmap_block(subtile_slab(gldstl_x), subtile_slab(gldstl_y));
+        if ( (action_slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now)||
+             (action_slb->kind == SlbT_LAVA  &&  computer_check_room_of_role_available(comp, RoRoF_PassLava)  == IAvail_Now))
         {
-            if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now) {
-                cdig->pos_next.x.stl.num = gldstl_x;
-                cdig->pos_next.y.stl.num = gldstl_y;
-                SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid slab (%d,%d)",func_name,
-                    (int)dungeon->owner,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
-                return -5;
-            }
+            cdig->pos_next.x.stl.num = gldstl_x;
+            cdig->pos_next.y.stl.num = gldstl_y;
+            SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid slab (%d,%d)",func_name,
+                (int)dungeon->owner,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
+            return -5;
         }
+        
         counter1 = tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(comp, cdig, simulation, digflags, &gldstl_x, &gldstl_y, func_name);
         if (counter1 < 0) {
             return counter1;
@@ -1806,8 +1831,9 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         digstl_y = stl_num_decode_y(i);
         digslb_x = subtile_slab(digstl_x);
         digslb_y = subtile_slab(digstl_y);
-        slb = get_slabmap_block(digslb_x, digslb_y);
-        if (slab_kind_is_liquid(slb->kind) && (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now))
+        action_slb = get_slabmap_block(digslb_x, digslb_y);
+        if (((action_slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now)||
+             (action_slb->kind == SlbT_LAVA  &&  computer_check_room_of_role_available(comp, RoRoF_PassLava)  == IAvail_Now)))
         {
             cdig->pos_next.y.stl.num = digstl_y;
             cdig->pos_next.x.stl.num = digstl_x;
@@ -1981,7 +2007,7 @@ int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, lon
         {
             do
             {
-                if ( stl_x < map_subtiles_x && stl_y < map_subtiles_y )
+                if ( stl_x < gameadd.map_subtiles_x && stl_y < gameadd.map_subtiles_y )
                 {
                     int check_fn_result = cb(stl_x, stl_y, owner);
                     if ( check_fn_result )
@@ -2142,11 +2168,11 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     struct GoldLookup* gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
 
-    unsigned short gldstl_x = gold_lookup->x_stl_num;
-    unsigned short gldstl_y = gold_lookup->y_stl_num;
+    MapSubtlCoord gldstl_x = gold_lookup->stl_x;
+    MapSubtlCoord gldstl_y = gold_lookup->stl_y;
 
-    unsigned short ctgstl_x = ctask->dig.pos_begin.x.stl.num;
-    unsigned short ctgstl_y = ctask->dig.pos_begin.y.stl.num;
+    MapSubtlCoord ctgstl_x = ctask->dig.pos_begin.x.stl.num;
+    MapSubtlCoord ctgstl_y = ctask->dig.pos_begin.y.stl.num;
 
     // While destination isn't reached, continue finding slabs to mark
     if ((gldstl_x != ctgstl_x) || (gldstl_y != ctgstl_y))
@@ -2188,7 +2214,6 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
       remove_task(comp, ctask);
       return CTaskRet_Unk0;
     }
-    //return _DK_task_dig_to_attack(comp,ctask);
     if (ctask->dig.pos_next.x.val > 0)
     {
         struct SlabMap *slb;
@@ -2332,7 +2357,6 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    //return _DK_task_magic_call_to_arms(comp,ctask);
     switch (ctask->task_state)
     {
     case 0:
@@ -3224,7 +3248,8 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                if (dungeonadd->mnfct_info.trap_amount_placeable[model] > 0)
+                struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[model];
+                if ((dungeonadd->mnfct_info.trap_amount_placeable[model] > 0) && (trapst->unsellable == 0))
                 {
                     int crate_source;
                     crate_source = remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Trap, model, WrkCrtF_Default);

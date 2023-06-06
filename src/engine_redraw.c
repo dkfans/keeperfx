@@ -79,6 +79,12 @@ void redraw_frontview(void);
 /******************************************************************************/
 long xtab[640][2];
 long ytab[480][2];
+
+unsigned char smooth_on;
+static unsigned char * map_fade_ghost_table;
+static unsigned char * map_fade_dest;
+static unsigned char * map_fade_src;
+static long draw_spell_cost;
 /******************************************************************************/
 static void draw_creature_view_icons(struct Thing* creatng)
 {
@@ -97,8 +103,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
     {
         if (creature_affected_by_spell(creatng, Spell))
         {
-            struct SpellInfo* spinfo = get_magic_info(Spell);
-            long spridx = spinfo->medsym_sprite_idx;
+            struct SpellConfig* spconf = get_spell_config(Spell);
+            long spridx = spconf->medsym_sprite_idx;
             if ( (Spell == SplK_Invisibility) && (cctrl->force_visible & 2) )
             {
                 spridx++;
@@ -152,7 +158,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
         if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
         {
             x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[cctrl->active_instance_id % CREATURE_INSTANCES_COUNT].symbol_spridx);
+            struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % gameadd.crtr_conf.instances_count);
+            draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
         }
     }
 }
@@ -222,7 +229,6 @@ void load_engine_window(TbGraphicsWindow *ewnd)
 
 void map_fade(unsigned char *outbuf, unsigned char *srcbuf1, unsigned char *srcbuf2, unsigned char *fade_tbl, unsigned char *ghost_tbl, long a6, long const xmax, long const ymax, long a9)
 {
-    //_DK_map_fade(outbuf, srcbuf1, srcbuf2, fade_tbl, ghost_tbl, a6, xmax, ymax, a9); return;
     long ix;
     long iy;
     long x1base = 4 * a6;
@@ -655,17 +661,17 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
       {
         x = 0;
       } else
-      if (x > 65535)
+      if (x > (gameadd.map_subtiles_x + 1) * COORD_PER_STL -1)
       {
-        x = 65535;
+        x = (gameadd.map_subtiles_x + 1) * COORD_PER_STL -1;
       }
       if (y < 0)
       {
         y = 0;
       } else
-      if (y > 65535)
+      if (y > (gameadd.map_subtiles_y + 1) * COORD_PER_STL -1)
       {
-        y = 65535;
+        y = (gameadd.map_subtiles_y + 1) * COORD_PER_STL -1;
       }
       // setting deviated position
       player->acamera->mappos.x.val = x;
@@ -945,7 +951,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_FreeTurnChicken:
     case PSt_FreeCtrlPassngr:
     case PSt_FreeCtrlDirect:
-        draw_spell_cursor(player->work_state, 0, game.pos_14C006.x.stl.num, game.pos_14C006.y.stl.num);
+        draw_spell_cursor(player->work_state, 0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
         break;
     case PSt_CreatrQuery:
     case PSt_CreatrInfo:
