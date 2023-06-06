@@ -564,7 +564,7 @@ short save_continue_game(LevelNumber lvnum)
     char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
     long fsize = LbFileSaveAt(fname, &game, sizeof(struct Game) + sizeof(struct IntralevelData));
     // Appending IntralevelData
-    TbFileHandle fh = LbFileOpen(fname,Lb_FILE_MODE_NEW);
+    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_OLD);
     LbFileSeek(fh, sizeof(struct Game), Lb_FILE_SEEK_BEGINNING);
     LbFileWrite(fh, &intralvl, sizeof(struct IntralevelData));
     LbFileClose(fh);
