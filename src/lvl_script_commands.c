@@ -229,6 +229,25 @@ const struct NamedCommand trap_config_desc[] = {
   {NULL,                   0},
 };
 
+const struct NamedCommand room_config_desc[] = {
+  {"NameTextID",           1},
+  {"TooltipTextID",        2},
+  {"SymbolSprites",        3},
+  {"PointerSprites",       4},
+  {"PanelTabIndex",        5},
+  {"Cost",                 6},
+  {"Health",               7},
+  {"CreatureCreation",     8},
+  {"AmbientSndSample",     9},
+  {"SlabAssign",          10},
+  {"Messages",            11},
+  {"Properties",          12},
+  {"Roles",               13},
+  {"TotalCapacity",       14},
+  {"UsedCapacity",        15},
+  {NULL,                   0},
+};
+
 /**
  * Text names of groups of GUI Buttons.
  */
@@ -961,6 +980,223 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void set_room_configuration_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    const char *roomname = scline->tp[0];
+    const char *valuestring = scline->tp[2];
+    const char* valuestring2 = scline->tp[3];
+    long newvalue;
+    long newvalue2;
+    short room_id = get_id(room_desc, roomname);
+    if (room_id == -1)
+    {
+        SCRPTERRLOG("Unknown room, '%s'", roomname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    short roomvar = get_id(room_config_desc, scline->tp[1]);
+    if (roomvar == -1)
+    {
+        SCRPTERRLOG("Unknown room variable");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[0] = room_id;
+    value->shorts[1] = roomvar;
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = scline->np[4];
+    if (roomvar == 3) // SymbolSprites
+    {
+        char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
+        // Pass two vars along as one merged val like: first\nsecond\m
+        strcpy(tmp, scline->tp[2]);
+        strcat(tmp, "|");
+        strcat(tmp,scline->tp[3]);
+        value->str2 = script_strdup(tmp); // first\0second
+        value->str2[strlen(scline->tp[2])] = 0;
+        free(tmp);
+        if (value->str2 == NULL)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    else if (roomvar == 5) // PanelTabIndex
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+            if ((newvalue > 16) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[2] = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    else if (roomvar == 8) // CreatureCreation
+    {
+        newvalue = get_id(creature_desc, valuestring);
+        if (newvalue == -1)
+            {
+                SCRPTERRLOG("Unknown CreatureCreation variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+        value->shorts[2] = newvalue;
+    }
+    else if (roomvar == 10) // SlabAssign
+    {
+        newvalue = get_id(slab_desc, valuestring);
+        if (newvalue == -1)
+            {
+                SCRPTERRLOG("Unknown slab variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+        value->shorts[2] = newvalue;
+    }
+    else if (roomvar == 12) // Properties
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+            if ((newvalue > 7) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[2] = newvalue;
+        }
+        else 
+        {
+            newvalue = get_id(terrain_room_properties_commands, valuestring);
+            if (newvalue == -1)
+                {
+                    SCRPTERRLOG("Unknown Properties variable");
+                    DEALLOCATE_SCRIPT_VALUE
+                        return;
+                }
+            value->shorts[2] = newvalue;
+        }
+    }
+    else if (roomvar == 13) // Roles
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+            if ((newvalue > 33554431) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->uarg1 = newvalue;
+        }
+        else 
+        {
+            newvalue = get_id(room_roles_desc, valuestring);
+            if (newvalue == -1)
+                {
+                    SCRPTERRLOG("Unknown Roles variable");
+                    DEALLOCATE_SCRIPT_VALUE
+                        return;
+                }
+            value->uarg1 = newvalue;
+        }
+        if (parameter_is_number(valuestring2))
+        {
+            newvalue2 = atoi(valuestring2);
+            if ((newvalue2 > 33554431) || (newvalue2 < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue2);
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+            value->uarg2 = newvalue2;
+        }
+        else
+        {
+            newvalue2 = get_id(room_roles_desc, valuestring2);
+            if (newvalue2 == -1)
+            {
+                SCRPTERRLOG("Unknown Roles variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+            value->uarg2 = newvalue2;
+        }
+    }
+    else if (roomvar == 14) // TotalCapacity
+    {
+        newvalue = get_id(terrain_room_total_capacity_func_type, valuestring);
+        if (newvalue == -1)
+            {
+                SCRPTERRLOG("Unknown TotalCapacity variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+        value->shorts[2] = newvalue;
+    }
+    else if (roomvar == 15) // UsedCapacity
+    {
+        newvalue = get_id(terrain_room_used_capacity_func_type, valuestring);
+        if (newvalue == -1)
+            {
+                SCRPTERRLOG("Unknown UsedCapacity variable");
+                DEALLOCATE_SCRIPT_VALUE
+                    return;
+            }
+        value->shorts[2] = newvalue;
+    }
+    else if (roomvar != 4) // NameTextID, TooltipTextID, Cost, Health, AmbientSndSample, Messages
+    {
+        if (parameter_is_number(valuestring))
+        {
+            newvalue = atoi(valuestring);
+            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[2] = newvalue;
+        }
+        else 
+        {
+            SCRPTERRLOG("Room property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    else // PointerSprites
+    {
+        value->str2 = script_strdup(scline->tp[2]);
+        if (value->str2 == NULL)
+        {
+            SCRPTERRLOG("Run out script strings space");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    SCRIPTDBG(7, "Setting room %s property %s to %d", roomname, scline->tp[1], value->shorts[2]);
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
 static void set_hand_rule_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -1301,6 +1537,91 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     }
 }
 
+static void set_room_configuration_process(struct ScriptContext *context)
+{
+    long room_type = context->value->shorts[0];
+    struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
+    unsigned short value;
+    short value2;
+    short value3;
+    if (context->value->shorts[1] != 13) // Roles need larger values, so can fit fewer
+    {
+        value = context->value->shorts[2];
+        value2 = context->value->shorts[3];
+        value3 = context->value->shorts[4];
+    }
+    switch (context->value->shorts[1])
+    {
+        case 1: // NameTextID
+            roomst->name_stridx = value;
+            break;
+        case 2: // TooltipTextID
+            roomst->tooltip_stridx = value;
+            update_room_tab_to_config();
+            break;
+        case 3: // SymbolSprites
+        {
+            roomst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
+            roomst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
+            if (roomst->bigsym_sprite_idx < 0)
+                roomst->bigsym_sprite_idx = bad_icon_id;
+            if (roomst->medsym_sprite_idx < 0)
+                roomst->medsym_sprite_idx = bad_icon_id;
+            update_room_tab_to_config();
+        }
+            break;
+        case 4: // PointerSprites
+            roomst->pointer_sprite_idx = get_icon_id(context->value->str2);
+            if (roomst->pointer_sprite_idx < 0)
+                roomst->pointer_sprite_idx = bad_icon_id;
+            update_room_tab_to_config();
+            break;
+        case 5: // PanelTabIndex
+            roomst->panel_tab_idx = value;
+            update_room_tab_to_config();
+            break;
+        case 6: // Cost
+            roomst->cost = value;
+            break;
+        case 7: // Health
+            roomst->health = value;
+            break;
+        case 8: // CreatureCreation
+            roomst->creature_creation_model = value;
+            break;
+        case 9: // AmbientSndSample
+            roomst->ambient_snd_smp_id = value;
+            break;
+        case 10: // SlabAssign
+            roomst->assigned_slab = value;
+            break;
+        case 11: // Messages
+            roomst->msg_needed = value;
+            roomst->msg_too_small = value2;
+            roomst->msg_no_route = value3;
+            break;
+        case 12: // Properties
+            roomst->flags = value;
+            roomst->flags |= value2;
+            roomst->flags |= value3;
+            break;
+        case 13: // Roles
+            roomst->roles = context->value->uarg1;
+            if (context->value->uarg2 > 0)
+                roomst->roles |= context->value->uarg2;
+            break;
+        case 14: // TotalCapacity
+            roomst->update_total_capacity = terrain_room_total_capacity_func_list[value];
+            break;
+        case 15: // UsedCapacity
+            roomst->update_storage_in_room = terrain_room_used_capacity_func_list[value];
+            roomst->update_workers_in_room = terrain_room_used_capacity_func_list[value2];
+            break;
+        default:
+            WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
+            break;
+    }
+}
 
 static void set_hand_rule_process(struct ScriptContext* context)
 {
@@ -3367,6 +3688,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
+  {"SET_ROOM_CONFIGURATION",            "AAAa!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
   {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
