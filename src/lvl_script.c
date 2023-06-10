@@ -210,6 +210,7 @@ TbBool script_is_preloaded_command(long cmnd_index)
   {
   case Cmd_SWAP_CREATURE:
   case Cmd_LEVEL_VERSION:
+  case Cmd_INCREASE_TRAP_COUNT:
       return true;
   default:
       return false;

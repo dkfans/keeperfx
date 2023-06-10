@@ -169,6 +169,7 @@ enum TbScriptCommands {
     Cmd_HIDE_HERO_GATE                    = 156,
     Cmd_USE_SPELL_ON_PLAYERS_CREATURES    = 157,
     Cmd_SET_ROOM_CONFIGURATION            = 158,
+    Cmd_INCREASE_TRAP_COUNT               = 159,
 };
 
 struct ScriptLine {
