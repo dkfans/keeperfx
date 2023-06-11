@@ -1407,6 +1407,8 @@ static void increase_trap_count_check(const struct ScriptLine* scline)
     mconf->shots = 0;
     mconf->shots_delay = 0;
     mconf->selling_value = 0;
+
+    create_manufacture_array_from_trapdoor_data();
 }
 
 void refresh_trap_anim(long trap_id)
