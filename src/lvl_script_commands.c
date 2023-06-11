@@ -39,6 +39,7 @@
 #include "power_specials.h"
 #include "creature_states.h"
 #include "map_blocks.h"
+#include "bflib_memory.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1346,6 +1347,68 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     value->chars[6] = flag_type;
 
     PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void new_trap_type_check(const struct ScriptLine* scline)
+{
+    if (gameadd.trapdoor_conf.trap_types_count >= TRAPDOOR_TYPES_MAX)
+    {
+        SCRPTERRLOG("Cannot increase trap count for trap '%s', already at maximum %d traps.", scline->tp[0], TRAPDOOR_TYPES_MAX);
+        return;
+    }
+
+    SCRIPTDBG(7, "Adding trap %s and increasing 'TrapsCount to %d", scline->tp[0], gameadd.trapdoor_conf.trap_types_count + 1);
+    gameadd.trapdoor_conf.trap_types_count++;
+
+    short i = gameadd.trapdoor_conf.trap_types_count-1;
+
+    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[i];
+    LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
+    snprintf(trapst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
+    trapst->name_stridx = GUIStr_Empty;
+    trapst->tooltip_stridx = GUIStr_Empty;
+    trapst->bigsym_sprite_idx = 0;
+    trapst->medsym_sprite_idx = 0;
+    trapst->pointer_sprite_idx = 0;
+    trapst->panel_tab_idx = 0;
+    trapst->hidden = 0;
+    trapst->slappable = 0;
+    trapst->destructible = 0;
+    trapst->unstable = 0;
+    trapst->unsellable = 0;
+    trapst->notify = 0;
+    trapst->placeonbridge = 0;
+
+    gameadd.trap_stats[i].health = 0;
+    gameadd.trap_stats[i].sprite_anim_idx = 0;
+    gameadd.trap_stats[i].sprite_size_max = 0;
+    gameadd.trap_stats[i].unanimated = 0;
+    gameadd.trap_stats[i].anim_speed = 0;
+    gameadd.trap_stats[i].unshaded = 0;
+    gameadd.trap_stats[i].transparency_flag = 0;
+    gameadd.trap_stats[i].random_start_frame = 0;
+    gameadd.trap_stats[i].size_xy = 0;
+    gameadd.trap_stats[i].size_yz = 0;
+    gameadd.trap_stats[i].trigger_type = 0;
+    gameadd.trap_stats[i].activation_type = 0;
+    gameadd.trap_stats[i].created_itm_model = 0;
+    gameadd.trap_stats[i].hit_type = 0;
+    gameadd.trap_stats[i].light_radius = 0;
+    gameadd.trap_stats[i].light_intensity = 0;
+    gameadd.trap_stats[i].light_flag = 0;
+    gameadd.trap_stats[i].shotvector.x = 0;
+    gameadd.trap_stats[i].shotvector.y = 0;
+    gameadd.trap_stats[i].shotvector.z = 0;
+    trap_desc[i].name = trapst->code_name;
+    trap_desc[i].num = i;
+    struct ManfctrConfig* mconf = &gameadd.traps_config[i];
+    mconf->manufct_level = 0;
+    mconf->manufct_required = 0;
+    mconf->shots = 0;
+    mconf->shots_delay = 0;
+    mconf->selling_value = 0;
+
+    create_manufacture_array_from_trapdoor_data();
 }
 
 void refresh_trap_anim(long trap_id)
@@ -3730,6 +3793,7 @@ const struct CommandDesc command_desc[] = {
   {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
   {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
   {"HIDE_HERO_GATE",                    "Nn      ", Cmd_HIDE_HERO_GATE, &hide_hero_gate_check, &hide_hero_gate_process},
+  {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, null_process },
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
