@@ -1349,7 +1349,7 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void increase_trap_count_check(const struct ScriptLine* scline)
+static void new_trap_type_check(const struct ScriptLine* scline)
 {
     if (gameadd.trapdoor_conf.trap_types_count >= TRAPDOOR_TYPES_MAX)
     {
@@ -3793,7 +3793,7 @@ const struct CommandDesc command_desc[] = {
   {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
   {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
   {"HIDE_HERO_GATE",                    "Nn      ", Cmd_HIDE_HERO_GATE, &hide_hero_gate_check, &hide_hero_gate_process},
-  {"INCREASE_TRAP_COUNT",               "A       ", Cmd_INCREASE_TRAP_COUNT, &increase_trap_count_check, null_process },
+  {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, null_process },
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
