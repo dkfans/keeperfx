@@ -1349,15 +1349,43 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void new_object_type_check(const struct ScriptLine* scline)
+{
+    if (gameadd.object_conf.object_types_count >= OBJECT_TYPES_MAX)
+    {
+        SCRPTERRLOG("Cannot increase object count for object type '%s', already at maximum %d objects.", scline->tp[0], OBJECT_TYPES_MAX);
+        return;
+    }
+
+    SCRIPTDBG(7, "Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], gameadd.object_conf.object_types_count + 1);
+    gameadd.trapdoor_conf.trap_types_count++;
+
+    struct ObjectConfigStats* objst;
+    int tmodel = gameadd.object_conf.object_types_count -1;
+
+    objst = &gameadd.object_conf.object_cfgstats[tmodel];
+    LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
+    snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
+    objst->name_stridx = 201;
+    objst->map_icon = 0;
+    objst->genre = 0;
+    object_desc[tmodel].name = objst->code_name;
+    object_desc[tmodel].num = tmodel;
+    if (tmodel > OBJECT_TYPES_COUNT_ORIGINAL)
+    {
+        define_custom_object(tmodel, 0);
+    }
+}
+
 static void new_trap_type_check(const struct ScriptLine* scline)
 {
     if (gameadd.trapdoor_conf.trap_types_count >= TRAPDOOR_TYPES_MAX)
     {
-        SCRPTERRLOG("Cannot increase trap count for trap '%s', already at maximum %d traps.", scline->tp[0], TRAPDOOR_TYPES_MAX);
+        SCRPTERRLOG("Cannot increase trap count for trap type '%s', already at maximum %d traps.", scline->tp[0], TRAPDOOR_TYPES_MAX);
         return;
     }
 
-    SCRIPTDBG(7, "Adding trap %s and increasing 'TrapsCount to %d", scline->tp[0], gameadd.trapdoor_conf.trap_types_count + 1);
+    SCRIPTDBG(7, "Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], gameadd.trapdoor_conf.trap_types_count + 1);
     gameadd.trapdoor_conf.trap_types_count++;
 
     short i = gameadd.trapdoor_conf.trap_types_count-1;
@@ -3794,6 +3822,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
   {"HIDE_HERO_GATE",                    "Nn      ", Cmd_HIDE_HERO_GATE, &hide_hero_gate_check, &hide_hero_gate_process},
   {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, null_process },
+  {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, null_process },
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
