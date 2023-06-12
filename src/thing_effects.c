@@ -1475,7 +1475,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
  * @param max_damage Damage at epicenter of the effect.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
  * @param hit_targets Defines which things are affected.
- * @return Gives amount of things which were affected by the explosion.
+ * @return Gives number of things which were affected by the explosion.
  */
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
     HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type)
@@ -1487,27 +1487,21 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
         ERRORLOG("The %s tries to affect area up to distance %d with invalid hit type %d",thing_model_name(tngsrc),(int)max_dist,(int)hit_targets);
         return 0;
     }
-    MapSubtlCoord range_stl = coord_subtile(max_dist);
+    MapSubtlCoord range_stl = (max_dist + 5 * COORD_PER_STL / 6) / COORD_PER_STL;
+    if (pos->x.stl.num > range_stl)
       start_x = pos->x.stl.num - range_stl;
-    if (start_x < 0)
-    {
+    else
       start_x = 0;
-    }
+    if (pos->y.stl.num > range_stl)
       start_y = pos->y.stl.num - range_stl;
-    if (start_y < 0)
-    {
+    else
       start_y = 0;
-    }
     MapSubtlCoord end_x = range_stl + pos->x.stl.num;
-    if (end_x > gameadd.map_subtiles_x)
-    {
+    if (end_x >= gameadd.map_subtiles_x)
       end_x = gameadd.map_subtiles_x;
-    }
     MapSubtlCoord end_y = range_stl + pos->y.stl.num;
     if (end_y > gameadd.map_subtiles_y)
-    {
       end_y = gameadd.map_subtiles_y;
-    }
 #if (BFDEBUG_LEVEL > 0)
     if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
         create_price_effect(pos, my_player_number, max_damage);
