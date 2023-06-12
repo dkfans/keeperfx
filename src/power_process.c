@@ -730,13 +730,8 @@ void timebomb_explode(struct Thing *creatng)
         create_effect_around_thing(creatng, TngEff_Blood5);
     }
     create_effect_around_thing(creatng, TngEff_Explosion6);
-    struct ShotConfigStats* shotst = get_shot_model_stats(SplK_TimeBomb);
-    HitTargetFlags hit_targets = HitTF_EnemyCreatures|HitTF_AlliedCreatures|HitTF_OwnedCreatures|HitTF_ArmourAffctdCreatrs|
-        HitTF_EnemySoulContainer|HitTF_AlliedSoulContainer|HitTF_OwnedSoulContainer|
-        HitTF_AnyWorkshopBoxes|HitTF_AnySpellbooks|HitTF_AnyDnSpecialBoxes|
-        HitTF_EnemyDestructibleTraps|HitTF_AlliedDestructibleTraps|HitTF_OwnedDestructibleTraps|
-        HitTF_EnemyDeployedDoors|HitTF_AlliedDeployedDoors|HitTF_OwnedDeployedDoors|
-        HitTF_AnyFoodObjects|HitTF_AnyGoldPiles;
+    struct ShotConfigStats* shotst = get_shot_model_stats(ShM_TimeBomb);
+    HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
     struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->timebomb_death = true;
