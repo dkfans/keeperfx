@@ -641,11 +641,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Revenge of the Lord"
-msgstr "领主的复仇"
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Dwarfton"
@@ -700,3 +695,8 @@ msgstr "小偷之窝"
 msgctxt "Level name"
 msgid "Coldamned"
 msgstr "极寒之境"
+
+#: guitext:201
+msgctxt "Level name"
+msgid "Revenge of the Lord"
+msgstr "领主的复仇"
