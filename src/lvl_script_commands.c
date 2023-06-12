@@ -1358,7 +1358,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
     }
 
     SCRIPTDBG(7, "Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], gameadd.object_conf.object_types_count + 1);
-    gameadd.trapdoor_conf.trap_types_count++;
+    gameadd.object_conf.object_types_count++;
 
     struct ObjectConfigStats* objst;
     int tmodel = gameadd.object_conf.object_types_count -1;
