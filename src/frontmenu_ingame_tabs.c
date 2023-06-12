@@ -2321,6 +2321,12 @@ void update_room_tab_to_config(void)
         ibtn->ptover_event = gui_over_room_button;
         ibtn->draw_call = gui_area_room_button;
     }
+    // Update active menu
+    if (menu_is_active(GMnu_ROOM))
+    {
+        turn_off_menu(GMnu_ROOM);
+        turn_on_menu(GMnu_ROOM);
+    }
 }
 
 void update_trap_tab_to_config(void)

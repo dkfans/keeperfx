@@ -1047,7 +1047,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       switch (val2)
       {
       case 1: //BodiesForVampire
-          if (val3 >= 0)
+          if ((val3 >= 0) && (val3 <= UCHAR_MAX))
           {
               SCRIPTDBG(7,"Changing rule %d from %d to %d", val2, game.bodies_for_vampire, val3);
               game.bodies_for_vampire = val3;
@@ -1150,7 +1150,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           game.fight_hate_kill_value = val3;
           break;
       case 11: //PreserveClassicBugs
-          if (val3 >= 0 && val3 <= 4096)
+          if (val3 >= 0 && val3 < 8192)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.classic_bugs_flags, val3);
               gameadd.classic_bugs_flags = val3;
