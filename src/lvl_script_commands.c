@@ -1351,9 +1351,9 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
 
 static void new_object_type_check(const struct ScriptLine* scline)
 {
-    if (gameadd.object_conf.object_types_count >= OBJECT_TYPES_MAX)
+    if (gameadd.object_conf.object_types_count >= OBJECT_TYPES_MAX-1)
     {
-        SCRPTERRLOG("Cannot increase object count for object type '%s', already at maximum %d objects.", scline->tp[0], OBJECT_TYPES_MAX);
+        SCRPTERRLOG("Cannot increase object count for object type '%s', already at maximum %d objects.", scline->tp[0], OBJECT_TYPES_MAX-1);
         return;
     }
 
