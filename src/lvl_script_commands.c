@@ -1950,6 +1950,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
             break;
         case 8: // TooltipTextId
             doorst->tooltip_stridx = value;
+            update_trap_tab_to_config();
             break;
         case 9: // Crate
             gameadd.object_conf.object_to_door_or_trap[value] = door_type;
