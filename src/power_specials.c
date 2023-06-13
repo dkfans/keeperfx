@@ -399,6 +399,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   struct SpecialConfigStats* specst;
   short used = 0;
   TbBool no_speech = false;
+  struct Room* room = get_room_thing_is_on(cratetng);
   if (thing_exists(cratetng) && thing_is_special_box(cratetng))
   {
     switch (spkindidx)
@@ -469,6 +470,8 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
       }
       if ( used )
       {
+          if (!room_is_invalid(room))
+              update_room_contents(room);
           specst = get_special_model_stats(spkindidx);
           if (is_my_player(player) && !no_speech)
           {
@@ -499,6 +502,9 @@ void resurrect_creature(struct Thing *boxtng, PlayerNumber owner, ThingModel crm
     if ((gameadd.classic_bugs_flags & ClscBug_ResurrectForever) == 0) {
         remove_item_from_dead_creature_list(get_players_num_dungeon(owner), crmodel, crlevel);
     }
+    struct Room* room = get_room_thing_is_on(boxtng);
+    if (!room_is_invalid(room))
+        update_room_contents(room);
     delete_thing_structure(boxtng, 0);
 }
 
@@ -508,6 +514,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     TbBool from_script = false;
     struct DungeonAdd* dungeonadd;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    struct Room* room = get_room_thing_is_on(boxtng);
     if (dungeon->dnheart_idx == boxtng->index)
     {
         from_script = true;
@@ -540,6 +547,8 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
         create_used_effect_or_element(&boxtng->mappos, specst->effect_id, plyr_idx);
         remove_events_thing_is_attached_to(boxtng);
         force_any_creature_dragging_owned_thing_to_drop_it(boxtng);
+        if (!room_is_invalid(room))
+            update_room_contents(room);
         delete_thing_structure(boxtng, 0);
     }
     if (is_my_player_number(plyr_idx))
