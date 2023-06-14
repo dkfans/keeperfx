@@ -1353,7 +1353,7 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     }
 
     value->shorts[0] = ap_num;
-    value->bytes[2] = crmodel % CREATURE_TYPES_MAX;
+    value->bytes[2] = crmodel;
     value->chars[3] = flag_player_id;
     value->shorts[2] = flag_id;
     value->chars[6] = flag_type;
