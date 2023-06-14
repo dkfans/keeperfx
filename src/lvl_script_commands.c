@@ -1950,6 +1950,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
             break;
         case 8: // TooltipTextId
             doorst->tooltip_stridx = value;
+            manufctr->tooltip_stridx = doorst->tooltip_stridx;
             update_trap_tab_to_config();
             break;
         case 9: // Crate
