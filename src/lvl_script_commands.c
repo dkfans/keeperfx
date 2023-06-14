@@ -1361,6 +1361,41 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void new_room_type_check(const struct ScriptLine* scline)
+{
+    if (slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
+    {
+        SCRPTERRLOG("Cannot increase room count for room type '%s', already at maximum %d rooms.", scline->tp[0], TERRAIN_ITEMS_MAX - 1);
+        return;
+    }
+
+    SCRIPTDBG(7, "Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], slab_conf.room_types_count + 1);
+    slab_conf.room_types_count++;
+
+    struct RoomConfigStats* roomst;
+    int i = slab_conf.room_types_count - 1;
+
+    roomst = &slab_conf.room_cfgstats[i];
+    LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+    snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
+    roomst->name_stridx = GUIStr_Empty;
+    roomst->tooltip_stridx = GUIStr_Empty;
+    roomst->creature_creation_model = 0;
+    roomst->bigsym_sprite_idx = 0;
+    roomst->medsym_sprite_idx = 0;
+    roomst->pointer_sprite_idx = 0;
+    roomst->panel_tab_idx = 0;
+    roomst->ambient_snd_smp_id = 0;
+    roomst->msg_needed = 0;
+    roomst->msg_too_small = 0;
+    roomst->msg_no_route = 0;
+    roomst->roles = RoRoF_None;
+    roomst->cost = 0;
+    roomst->health = 0;
+    room_desc[i].name = roomst->code_name;
+    room_desc[i].num = i;
+}
+
 static void new_object_type_check(const struct ScriptLine* scline)
 {
     if (gameadd.object_conf.object_types_count >= OBJECT_TYPES_MAX-1)
@@ -3846,8 +3881,9 @@ const struct CommandDesc command_desc[] = {
   {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
   {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
   {"HIDE_HERO_GATE",                    "Nn      ", Cmd_HIDE_HERO_GATE, &hide_hero_gate_check, &hide_hero_gate_process},
-  {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process },
-  {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process },
+  {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
+  {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
+  {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
