@@ -632,11 +632,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Syndika"
-msgstr "Das Syndikat"
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Kzelbatu"
@@ -681,3 +676,8 @@ msgstr "Heldenhafte Invasion"
 msgctxt "Level name"
 msgid "Skybird's Other Side"
 msgstr "Vogelsangs andere Seite"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Syndika"
+msgstr "Das Syndikat"
