@@ -960,8 +960,20 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             }
             value->shorts[2] = newvalue;
         }
-        else 
+        else if (trapvar == 6)
         {
+            newvalue = get_id(object_desc, valuestring);
+            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Unknown crate object: %s", valuestring);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[2] = newvalue;
+        }
+        else
+        {
+
             SCRPTERRLOG("Trap property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
             return;
@@ -1837,7 +1849,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         value->shorts[3] = slab2_id;
     }
 
-    else if (doorvar == 8) // SymbolSprites
+    else if (doorvar == 10) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
         // Pass two vars along as one merged val like: first\nsecond\m
@@ -1854,7 +1866,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (doorvar != 9) // Not PointerSprites
+    else if (doorvar != 11) // Not PointerSprites
     {
         if (parameter_is_number(valuestring))
         {
@@ -1862,6 +1874,17 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[2] = newvalue;
+        }
+        else if (doorvar == 9) // Crate
+        {
+            newvalue = get_id(object_desc, valuestring);
+            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Unknown crate object: %s", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1927,6 +1950,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
             break;
         case 8: // TooltipTextId
             doorst->tooltip_stridx = value;
+            manufctr->tooltip_stridx = doorst->tooltip_stridx;
+            update_trap_tab_to_config();
             break;
         case 9: // Crate
             gameadd.object_conf.object_to_door_or_trap[value] = door_type;
