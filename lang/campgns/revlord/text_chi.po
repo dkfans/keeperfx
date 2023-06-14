@@ -696,7 +696,7 @@ msgctxt "Level name"
 msgid "Coldamned"
 msgstr "极寒之境"
 
-#: guitext:201
+#: guitext:213
 msgctxt "Level name"
 msgid "Revenge of the Lord"
 msgstr "领主的复仇"

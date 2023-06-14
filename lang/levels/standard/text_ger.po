@@ -955,7 +955,7 @@ msgctxt "Level name"
 msgid "The Death Clock"
 msgstr "Todesuhr"
 
-#: guitext:201
+#: guitext:214
 msgctxt "Level name"
 msgid "Tymnath Herez"
 msgstr "Tymnath Herez"
