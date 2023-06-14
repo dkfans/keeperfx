@@ -67,10 +67,13 @@ struct Thing *create_spell_in_library(struct Room *room, ThingModel tngmodel, Ma
     {
         return spelltng;
     }
-    if (!add_item_to_room_capacity(room, true))
+    if (thing_is_spellbook(spelltng))
     {
-        destroy_object(spelltng);
-        return INVALID_THING;
+        if (!add_item_to_room_capacity(room, true))
+        {
+            destroy_object(spelltng);
+            return INVALID_THING;
+        }
     }
     if (!add_power_to_player(book_thing_to_power_kind(spelltng), room->owner))
     {
@@ -355,7 +358,10 @@ void process_player_research(PlayerNumber plyr_idx)
             if (add_power_to_player(pwkind, plyr_idx))
             {
                 move_thing_in_map(spelltng, &pos);
-                add_item_to_room_capacity(room, true);
+                if (thing_is_spellbook(spelltng))
+                {
+                    add_item_to_room_capacity(room, true);
+                }
                 event_create_event(spelltng->mappos.x.val, spelltng->mappos.y.val, EvKind_NewSpellResrch, spelltng->owner, pwkind);
                 create_effect(&pos, TngEff_ResearchComplete, spelltng->owner);
             }
