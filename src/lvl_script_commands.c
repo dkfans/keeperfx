@@ -2704,6 +2704,9 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 20: // UPDATEFUNCTION
             objdat->updatefn_idx = context->value->arg2;
             break;
+        case 21: // TOOLTIPTEXTID
+            objst->name_stridx = context->value->arg2;
+            break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
             break;
