@@ -65,7 +65,6 @@ const struct NamedCommand objects_object_commands[] = {
   {"MAPICON",          18},
   {"AMBIENCESOUND",    19},
   {"UPDATEFUNCTION",   20},
-  {"TOOLTIPTEXTID",    21},
   {NULL,                0},
   };
 
@@ -570,18 +569,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     break;
                 }
                 objdat->updatefn_idx = n;
-                break;
-            case 21: // TOOLTIPTEXTID
-                {
-                    n = atoi(word_buf);
-                    objst->name_stridx = n;
-                    n++;
-                }
-                if (n <= 0)
-                {
-                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
-                }
                 break;
             case 0: // comment
                 break;
