@@ -3711,7 +3711,7 @@ static void set_texture_process(struct ScriptContext *context)
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
- * Lower case letters are optional arguments, Exclamation points sets 'extended' option, for example 'ANY_CREATURE for creatures.
+ * Lower case letters are optional arguments, Exclamation points sets 'extended' option, for example 'ANY_CREATURE' for creatures.
  */
 const struct CommandDesc command_desc[] = {
   {"CREATE_PARTY",                      "A       ", Cmd_CREATE_PARTY, NULL, NULL},
