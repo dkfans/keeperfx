@@ -1210,11 +1210,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
-      case 21: //PlaceTrapsOnSubtiles
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.place_traps_on_subtiles, val3);
-          gameadd.place_traps_on_subtiles = (TbBool)val3;
-          break;
-      case 22: //DiseaseHPTemplePercentage
+      case 21: //DiseaseHPTemplePercentage
           if (val3 >= 0 && val3 <= 100)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
@@ -1225,7 +1221,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
-      case 23:  //DungeonHeartHealth
+      case 22:  //DungeonHeartHealth
           if (val3 <= LONG_MAX)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_health, val3);
@@ -1238,43 +1234,43 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, SHRT_MAX);
           }
           break;
-      case 24: //HungerHealthLoss
+      case 23: //HungerHealthLoss
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.hunger_health_loss, val3);
           game.hunger_health_loss = val3;
           break;
-      case 25: //GameTurnsPerHungerHealthLoss
+      case 24: //GameTurnsPerHungerHealthLoss
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_hunger_health_loss, val3);
           game.turns_per_hunger_health_loss = val3;
           break;
-      case 26: //FoodHealthGain
+      case 25: //FoodHealthGain
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.food_health_gain, val3);
           game.food_health_gain = val3;
           break;
-      case 27: //TortureHealthLoss
+      case 26: //TortureHealthLoss
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.torture_health_loss, val3);
           game.torture_health_loss = val3;
           break;
-      case 28: //GameTurnsPerTortureHealthLoss
+      case 27: //GameTurnsPerTortureHealthLoss
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_torture_health_loss, val3);
           game.turns_per_torture_health_loss = val3;
           break;
-      case 29: //AlliesShareVision
+      case 28: //AlliesShareVision
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_vision, val3);
           gameadd.allies_share_vision = (TbBool)val3;
           break;
-      case 30: //AlliesShareDrop
+      case 29: //AlliesShareDrop
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_drop, val3);
           gameadd.allies_share_drop = (TbBool)val3;
           break;
-      case 31: //AlliesShareCta
+      case 30: //AlliesShareCta
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
           gameadd.allies_share_cta = (TbBool)val3;
           break; 
-      case 32: //BarrackMaxPartySize
+      case 31: //BarrackMaxPartySize
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
           game.barrack_max_party_size = (TbBool)val3;
           break;
-      case 33: //MaxThingsInHand
+      case 32: //MaxThingsInHand
           if (val3 <= MAX_THINGS_IN_HAND)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.max_things_in_hand, val3);
