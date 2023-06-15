@@ -22,6 +22,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "value.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -184,6 +185,7 @@ extern unsigned int vid_scale_flags;
 /******************************************************************************/
 extern struct InstallInfo install_info;
 extern char keeper_runtime_directory[152];
+extern VALUE config_dict;
 
 #pragma pack()
 /******************************************************************************/
@@ -211,7 +213,7 @@ TbBool unlock_cursor_when_game_paused(void);
 TbBool lock_cursor_in_possession(void);
 TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
-short load_configuration(void);
+TbBool load_configuration(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);
 TbBool load_high_score_table(void);

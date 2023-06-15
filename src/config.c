@@ -39,7 +39,7 @@
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
-#include "music_player.h"
+#include "toml.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -59,6 +59,7 @@ unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
 struct InstallInfo install_info;
 char keeper_runtime_directory[152];
+VALUE config_dict;
 
 /**
  * Language 3-char abbreviations.
@@ -684,12 +685,86 @@ TbBool prepare_diskpath(char *buf,long buflen)
   return true;
 }
 
-short load_configuration(void)
+void load_conf_value(VALUE *dst, const char *buf, size_t pos, size_t buflen)
+{
+    size_t key_start, key_end;
+    size_t val_start;
+    TbBool is_decimal = true;
+    int32_t decimal_value = 0;
+    VALUE *val;
+
+    if (pos >= buflen)
+        return;
+    // Skipping starting spaces
+    while ((buf[pos] == ' ') || (buf[pos] == '\t') || (buf[pos] == '\n') || (buf[pos] == '\r') || (buf[pos] == 26) || ((unsigned char)buf[pos] < 7))
+    {
+        pos++;
+        if ((pos) >= buflen)
+            return;
+    }
+    // Checking if this line is a comment
+    if (buf[pos] == ';')
+        return;
+
+    key_start = pos;
+    while(true)
+    {
+        if (buf[pos] == '=')
+        {
+            // Found `key`
+            break;
+        }
+        else if ((buf[pos] == '\r') || (buf[pos] == '\n') || (buf[pos] == ';') || (buf[pos] == 0))
+        {  // Invalid string
+            return;
+        }
+        pos++;
+    }
+    key_end = pos;
+    val = value_dict_add_(dst, buf + key_start, pos - key_start);
+    pos++;
+    val_start = pos;
+    while(true)
+    {
+        if ((buf[pos] >= '0') && (buf[pos] <= '9'))
+        {
+            decimal_value *= 10;
+            decimal_value += (buf[pos] - '0');
+        }
+        else if ((buf[pos] == '\r') || (buf[pos] == '\n') || (buf[pos] == ';'))
+        {  // End of line
+            break;
+        }
+        else if (buf[pos] == 0)
+        {
+            value_dict_remove_(dst, buf + key_start, key_end - key_start);
+            return;
+        }
+        else if (is_decimal)
+        {
+            is_decimal = false;
+        }
+        pos++;
+    }
+    if (is_decimal)
+    {
+        value_init_int32(val, decimal_value);
+    }
+    else
+    {
+        value_init_string_(val, buf + val_start, pos - val_start);
+    }
+}
+
+TbBool load_configuration(void)
 {
   static const char config_textname[] = "Config";
   // Variables to use when recognizing parameters
   SYNCDBG(4,"Starting");
-  // Preparing config file name and checking the file
+  value_fini(&config_dict);
+  value_init_dict(&config_dict);
+
+    // Preparing config file name and checking the file
   strcpy(install_info.inst_path,"");
   install_info.field_9A = 0;
   // Set default runtime directory and load the config file
@@ -721,6 +796,8 @@ short load_configuration(void)
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(conf_commands,cmd_num)
     while (pos<len)
     {
+      // Load any setting into toml config
+      load_conf_value(&config_dict, buf, pos, len);
       // Finding command number in this line
       int i = 0;
       int cmd_num = recognize_conf_command(buf, &pos, len, conf_commands);

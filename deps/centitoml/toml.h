@@ -34,6 +34,12 @@ void toml_set_memutil(void *(*xxmalloc)(size_t), void (*xxfree)(void *));
  * Return a table on success, or 0 otherwise.
  * Caller must value_fini(root) after use.
  */
-int toml_parse(char *conf, char *errbuf, int errbufsz, VALUE *root);
+int toml_parse(char *conf, char *errbuf, size_t errbufsz, VALUE *root);
+
+/* Parse a string with len
+ * Return a table on success, or 0 otherwise.
+ * Caller must value_fini(root) after use.
+ */
+int toml_parse_len(char *conf, size_t len, char *errbuf, size_t errbufsz, VALUE *root);
 
 #endif //CENTITOML_TOML_H
