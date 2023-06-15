@@ -73,12 +73,11 @@ const struct NamedCommand rules_game_commands[] = {
   {"ROOMSELLGOLDBACKPERCENT",    29},
   {"DOORSELLVALUEPERCENT",       30},
   {"TRAPSELLVALUEPERCENT",       31},
-  {"PLACETRAPSONSUBTILES",       32},
-  {"BAGGOLDHOLD",                33},
-  {"ALLIESSHAREVISION",          34},
-  {"ALLIESSHAREDROP",            35},
-  {"ALLIESSHARECTA",             36},
-  {"MAXTHINGSINHAND",            37},
+  {"BAGGOLDHOLD",                32},
+  {"ALLIESSHAREVISION",          33},
+  {"ALLIESSHAREDROP",            34},
+  {"ALLIESSHARECTA",             35},
+  {"MAXTHINGSINHAND",            36},
   {NULL,                          0},
   };
 
