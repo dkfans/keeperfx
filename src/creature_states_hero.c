@@ -975,7 +975,12 @@ short good_doing_nothing(struct Thing *creatng)
             cctrl->hero.byte_8C = 1;
         }
         nturns = game.play_gameturn - cctrl->hero.look_for_enemy_dungeon_turn;
-        if (nturns > 64)
+        if ((nturns > 64) && (cctrl->unknown.byte_8B == 1))
+        {
+            cctrl->hero.look_for_enemy_dungeon_turn = game.play_gameturn;
+            cctrl->party.target_plyr_idx = good_find_best_enemy_dungeon(creatng);
+        }
+        else if (nturns > 900)
         {
             cctrl->hero.look_for_enemy_dungeon_turn = game.play_gameturn;
             cctrl->party.target_plyr_idx = good_find_best_enemy_dungeon(creatng);
@@ -1337,7 +1342,6 @@ short tunneller_doing_nothing(struct Thing *creatng)
         return 1;
     }
 
-    // int plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
     int plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
     if (CurrentTarget != -1)
     {
