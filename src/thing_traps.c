@@ -1005,7 +1005,7 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     {
         if (!trap_on_subtile(trpkind))
         {
-                HasTrap = slab_has_trap_on(slb_x, slb_y);
+                HasTrap = subtile_has_trap_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
                 HasDoor = slab_is_door(slb_x, slb_y);
         }
         else
