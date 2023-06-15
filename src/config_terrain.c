@@ -83,14 +83,14 @@ const struct NamedCommand terrain_room_commands[] = {
   {NULL,              0},
 };
 
-const struct NamedCommand  terrain_room_properties_commands[] = {
+const struct NamedCommand terrain_room_properties_commands[] = {
   {"HAS_NO_ENSIGN",     1},
   {"CANNOT_VANDALIZE",  2},
   {"BUILD_TO_BROKE",    3},
   {NULL,                0},
 };
 
-const struct NamedCommand  room_roles_desc[] = {
+const struct NamedCommand room_roles_desc[] = {
   {"ROOM_ROLE_KEEPER_STORAGE", RoRoF_KeeperStorage},
   {"ROOM_ROLE_LAIR_STORAGE",   RoRoF_LairStorage},
   {"ROOM_ROLE_GOLD_STORAGE",   RoRoF_GoldStorage},
@@ -116,6 +116,7 @@ const struct NamedCommand  room_roles_desc[] = {
   {"ROOM_ROLE_POOL_LEAVE",     RoRoF_CrPoolLeave},
   {"ROOM_ROLE_PASS_WATER",     RoRoF_PassWater},
   {"ROOM_ROLE_PASS_LAVA",      RoRoF_PassLava},
+  {"ROOM_ROLE_NONE",           RoRoF_None},
   {NULL,                       0},
 };
 
