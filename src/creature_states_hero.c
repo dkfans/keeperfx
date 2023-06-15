@@ -110,14 +110,14 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
     long best_backup_score = LONG_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
+        if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
+            continue;
+        }
         player = get_player(plyr_idx);
         if (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
         {
             if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
-                if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
-                    continue;
-                }
                 return plyr_idx;
             }
         }
