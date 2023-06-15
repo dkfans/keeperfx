@@ -684,20 +684,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 32: // PLACETRAPSONSUBTILES
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                gameadd.place_traps_on_subtiles = (TbBool)k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 33: // BAGGOLDHOLD
+        case 32: // BAGGOLDHOLD
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -710,7 +697,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 34: // ALLIESSHAREVISION
+        case 33: // ALLIESSHAREVISION
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -723,7 +710,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 35: // ALLIESSHAREDROP
+        case 34: // ALLIESSHAREDROP
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -736,7 +723,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 36: // ALLIESSHARECTA
+        case 35: // ALLIESSHARECTA
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -749,7 +736,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
-        case 37: // MAXTHINGSINHAND
+        case 36: // MAXTHINGSINHAND
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
