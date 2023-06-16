@@ -736,10 +736,10 @@ void timebomb_explode(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->timebomb_death = true;
     struct Coord3d pos = creatng->mappos;
-    MapCoord max_dist = subtile_coord(cctrl->timebomb_radius + 1, 0);
+    MapCoord max_dist = subtile_coord(cctrl->timebomb_radius + 1, 0) * COORD_PER_STL;
     HitPoints max_damage = compute_creature_weight(creatng) * pwrdynst->strength[cctrl->timebomb_radius];
     long blow_strength = shotst->area_blow * (cctrl->timebomb_radius + 1);
     kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
-    timebomb_explosion_affecting_area(creatng, &pos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
+    explosion_affecting_area(creatng, &pos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
 }
 /******************************************************************************/
