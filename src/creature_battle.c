@@ -221,7 +221,10 @@ TbBool setup_combat_flee_position(struct Thing *thing)
     }
     if (!get_flee_position(thing, &cctrl->flee_pos))
     {
-        ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
+        if (!is_hero_thing(thing))
+        {
+            ERRORLOG("Couldn't get a flee position for %s index %d", thing_model_name(thing), (int)thing->index);
+        }
         cctrl->flee_pos.x.stl.pos = thing->mappos.x.stl.pos;
         cctrl->flee_pos.y.stl.pos = thing->mappos.y.stl.pos;
         cctrl->flee_pos.z.stl.pos = thing->mappos.z.stl.pos;
