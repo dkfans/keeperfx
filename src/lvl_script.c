@@ -211,6 +211,8 @@ TbBool script_is_preloaded_command(long cmnd_index)
   case Cmd_SWAP_CREATURE:
   case Cmd_LEVEL_VERSION:
   case Cmd_NEW_TRAP_TYPE:
+  case Cmd_NEW_OBJECT_TYPE:
+  case Cmd_NEW_ROOM_TYPE:
       return true;
   default:
       return false;

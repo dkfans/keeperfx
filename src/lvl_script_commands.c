@@ -960,8 +960,20 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             }
             value->shorts[2] = newvalue;
         }
-        else 
+        else if (trapvar == 6)
         {
+            newvalue = get_id(object_desc, valuestring);
+            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Unknown crate object: %s", valuestring);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[2] = newvalue;
+        }
+        else
+        {
+
             SCRPTERRLOG("Trap property %s needs a number value, '%s' is invalid.", scline->tp[1], scline->tp[2]);
             DEALLOCATE_SCRIPT_VALUE
             return;
@@ -1341,7 +1353,7 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     }
 
     value->shorts[0] = ap_num;
-    value->bytes[2] = crmodel % CREATURE_TYPES_MAX;
+    value->bytes[2] = crmodel;
     value->chars[3] = flag_player_id;
     value->shorts[2] = flag_id;
     value->chars[6] = flag_type;
@@ -1349,15 +1361,78 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void new_room_type_check(const struct ScriptLine* scline)
+{
+    if (slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
+    {
+        SCRPTERRLOG("Cannot increase room count for room type '%s', already at maximum %d rooms.", scline->tp[0], TERRAIN_ITEMS_MAX - 1);
+        return;
+    }
+
+    SCRIPTDBG(7, "Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], slab_conf.room_types_count + 1);
+    slab_conf.room_types_count++;
+
+    struct RoomConfigStats* roomst;
+    int i = slab_conf.room_types_count - 1;
+
+    roomst = &slab_conf.room_cfgstats[i];
+    LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+    snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
+    roomst->name_stridx = GUIStr_Empty;
+    roomst->tooltip_stridx = GUIStr_Empty;
+    roomst->creature_creation_model = 0;
+    roomst->bigsym_sprite_idx = 0;
+    roomst->medsym_sprite_idx = 0;
+    roomst->pointer_sprite_idx = 0;
+    roomst->panel_tab_idx = 0;
+    roomst->ambient_snd_smp_id = 0;
+    roomst->msg_needed = 0;
+    roomst->msg_too_small = 0;
+    roomst->msg_no_route = 0;
+    roomst->roles = RoRoF_None;
+    roomst->cost = 0;
+    roomst->health = 0;
+    room_desc[i].name = roomst->code_name;
+    room_desc[i].num = i;
+}
+
+static void new_object_type_check(const struct ScriptLine* scline)
+{
+    if (gameadd.object_conf.object_types_count >= OBJECT_TYPES_MAX-1)
+    {
+        SCRPTERRLOG("Cannot increase object count for object type '%s', already at maximum %d objects.", scline->tp[0], OBJECT_TYPES_MAX-1);
+        return;
+    }
+
+    SCRIPTDBG(7, "Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], gameadd.object_conf.object_types_count + 1);
+    gameadd.object_conf.object_types_count++;
+
+    struct ObjectConfigStats* objst;
+    int tmodel = gameadd.object_conf.object_types_count -1;
+
+    objst = &gameadd.object_conf.object_cfgstats[tmodel];
+    LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
+    snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
+    objst->name_stridx = 201;
+    objst->map_icon = 0;
+    objst->genre = 0;
+    object_desc[tmodel].name = objst->code_name;
+    object_desc[tmodel].num = tmodel;
+    if (tmodel > OBJECT_TYPES_COUNT_ORIGINAL)
+    {
+        define_custom_object(tmodel, 0);
+    }
+}
+
 static void new_trap_type_check(const struct ScriptLine* scline)
 {
     if (gameadd.trapdoor_conf.trap_types_count >= TRAPDOOR_TYPES_MAX)
     {
-        SCRPTERRLOG("Cannot increase trap count for trap '%s', already at maximum %d traps.", scline->tp[0], TRAPDOOR_TYPES_MAX);
+        SCRPTERRLOG("Cannot increase trap count for trap type '%s', already at maximum %d traps.", scline->tp[0], TRAPDOOR_TYPES_MAX);
         return;
     }
 
-    SCRIPTDBG(7, "Adding trap %s and increasing 'TrapsCount to %d", scline->tp[0], gameadd.trapdoor_conf.trap_types_count + 1);
+    SCRIPTDBG(7, "Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], gameadd.trapdoor_conf.trap_types_count + 1);
     gameadd.trapdoor_conf.trap_types_count++;
 
     short i = gameadd.trapdoor_conf.trap_types_count-1;
@@ -1837,7 +1912,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         value->shorts[3] = slab2_id;
     }
 
-    else if (doorvar == 8) // SymbolSprites
+    else if (doorvar == 10) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
         // Pass two vars along as one merged val like: first\nsecond\m
@@ -1854,7 +1929,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if (doorvar != 9) // Not PointerSprites
+    else if (doorvar != 11) // Not PointerSprites
     {
         if (parameter_is_number(valuestring))
         {
@@ -1862,6 +1937,17 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->shorts[2] = newvalue;
+        }
+        else if (doorvar == 9) // Crate
+        {
+            newvalue = get_id(object_desc, valuestring);
+            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            {
+                SCRPTERRLOG("Unknown crate object: %s", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1927,6 +2013,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
             break;
         case 8: // TooltipTextId
             doorst->tooltip_stridx = value;
+            manufctr->tooltip_stridx = doorst->tooltip_stridx;
+            update_trap_tab_to_config();
             break;
         case 9: // Crate
             gameadd.object_conf.object_to_door_or_trap[value] = door_type;
@@ -3658,7 +3746,7 @@ static void set_texture_process(struct ScriptContext *context)
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
- * Lower case letters are optional arguments, Exclamation points sets 'extended' option, for example 'ANY_CREATURE for creatures.
+ * Lower case letters are optional arguments, Exclamation points sets 'extended' option, for example 'ANY_CREATURE' for creatures.
  */
 const struct CommandDesc command_desc[] = {
   {"CREATE_PARTY",                      "A       ", Cmd_CREATE_PARTY, NULL, NULL},
@@ -3793,7 +3881,9 @@ const struct CommandDesc command_desc[] = {
   {"IF_ALLIED",                         "PPON    ", Cmd_IF_ALLIED, &if_allied_check, NULL},
   {"SET_TEXTURE",                       "PA      ", Cmd_SET_TEXTURE, &set_texture_check, &set_texture_process},
   {"HIDE_HERO_GATE",                    "Nn      ", Cmd_HIDE_HERO_GATE, &hide_hero_gate_check, &hide_hero_gate_process},
-  {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, null_process },
+  {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
+  {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
+  {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
