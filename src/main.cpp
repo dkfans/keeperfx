@@ -120,6 +120,10 @@
 #include "game_loop.h"
 #include "music_player.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+#include <mmsystem.h>
+
 #ifdef AUTOTESTING
 #include "event_monitoring.h"
 #endif
@@ -3851,6 +3855,7 @@ void game_loop(void)
       LbScreenClear(0);
       LbScreenSwap();
       keeper_gameplay_loop();
+      PlaySound(NULL, NULL, 0);
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();

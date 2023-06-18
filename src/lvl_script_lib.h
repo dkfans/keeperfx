@@ -172,6 +172,8 @@ enum TbScriptCommands {
     Cmd_NEW_TRAP_TYPE                     = 159,
     Cmd_NEW_OBJECT_TYPE                   = 160,
     Cmd_NEW_ROOM_TYPE                     = 161,
+    Cmd_PLAY_EXTERNAL_SOUND               = 162,
+    Cmd_STOP_EXTERNAL_SOUND               = 163,
 };
 
 struct ScriptLine {

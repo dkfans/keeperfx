@@ -42,6 +42,10 @@
 #include "bflib_memory.h"
 #include "post_inc.h"
 
+#define WIN32_LEAN_AND_MEAN
+#include "windows.h"
+#include <mmsystem.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -3743,6 +3747,35 @@ static void set_texture_process(struct ScriptContext *context)
     }
 }
 
+static void play_external_sound_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    char *tmp = calloc(strlen(scline->tp[0]), 1);
+    strcpy(tmp, scline->tp[0]);
+    value->str2 = script_strdup(tmp);
+    value->bytes[0] = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void play_external_sound_process(struct ScriptContext *context)
+{
+   char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s.wav",context->value->str2);
+   unsigned long flags = SND_FILENAME|SND_ASYNC|SND_NODEFAULT;
+   if (context->value->bytes[0])
+   {
+       flags |= SND_LOOP;
+   }
+   if (!PlaySound(fname, NULL, flags))
+   {
+       ERRORLOG("Could not play sound %s", fname);
+   }
+}
+
+static void stop_external_sound_process(struct ScriptContext *context)
+{
+   PlaySound(NULL, NULL, 0);
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -3884,6 +3917,8 @@ const struct CommandDesc command_desc[] = {
   {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
+  {"PLAY_EXTERNAL_SOUND",               "An      ", Cmd_PLAY_EXTERNAL_SOUND, &play_external_sound_check, &play_external_sound_process},
+  {"STOP_EXTERNAL_SOUND",               "        ", Cmd_STOP_EXTERNAL_SOUND, &cmd_no_param_check, &stop_external_sound_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
