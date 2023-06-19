@@ -781,7 +781,7 @@ void close_sdl_mixer()
     sdl_active = false;
 }
 
-Mix_Chunk* play_external_sample(char* fname, int volume)
+TbBool play_external_sample(char* fname, int volume)
 {
     if (init_sdl_mixer())
     {
@@ -789,11 +789,24 @@ Mix_Chunk* play_external_sample(char* fname, int volume)
         if (sample != NULL)
         {
             Mix_VolumeChunk(sample, volume);
-            Mix_PlayChannel(-1, sample, 0);
+            if (Mix_PlayChannel(-1, sample, 0) == -1)
+            {
+                ERRORLOG("Could not play sound %s", fname);
+                return false;
+            }
         }
-        return sample;
+        else
+        {
+            ERRORLOG("Could not load sound %s", fname);
+            return false;
+        }
+        return true;
     }
-    return NULL;
+    else
+    {
+        ERRORLOG("Could not initialise SDL mixer.");
+    }
+    return false;
 }
 /******************************************************************************/
 #ifdef __cplusplus
