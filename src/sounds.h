@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include <SDL2/SDL_mixer.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -107,6 +109,10 @@ void mute_audio(TbBool mute);
 void pause_music(TbBool pause);
 
 void update_first_person_object_ambience(struct Thing *thing);
+
+TbBool init_sdl_mixer();
+void close_sdl_mixer();
+Mix_Chunk* play_external_sample(char* fname, int volume);
 /******************************************************************************/
 #ifdef __cplusplus
 }

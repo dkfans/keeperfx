@@ -3773,19 +3773,15 @@ static void play_external_sound_check(const struct ScriptLine *scline)
     char *tmp = calloc(strlen(scline->tp[0]), 1);
     strcpy(tmp, scline->tp[0]);
     value->str2 = script_strdup(tmp);
-    value->bytes[0] = scline->np[1];
+    value->arg0 = scline->np[1];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void play_external_sound_process(struct ScriptContext *context)
 {
    char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s.wav",context->value->str2);
-   unsigned long flags = SND_FILENAME|SND_ASYNC|SND_NODEFAULT;
-   if (context->value->bytes[0])
-   {
-       flags |= SND_LOOP;
-   }
-   if (!PlaySound(fname, NULL, flags))
+   Mix_Chunk* sample = play_external_sample(fname, context->value->arg0);
+   if (sample == NULL)
    {
        ERRORLOG("Could not play sound %s", fname);
    }

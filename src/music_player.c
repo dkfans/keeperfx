@@ -25,6 +25,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "config.h"
+#include "sounds.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -50,9 +51,9 @@ int InitializeMusicPlayer(void)
 
     current_track = -1;
     int initted = Mix_Init(MIX_INIT_OGG);
-    if((initted & MIX_INIT_OGG) == MIX_INIT_OGG)
+    if ((initted & MIX_INIT_OGG) == MIX_INIT_OGG)
     {
-        if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0)
+        if (init_sdl_mixer())
         {
             tracks[0] = NULL;
             tracks[1] = NULL;
@@ -99,7 +100,7 @@ void ShutdownMusicPlayer(void)
             Mix_FreeMusic(tracks[i]);
         }
     }
-    Mix_CloseAudio();
+    close_sdl_mixer();
 }
 
 void PlayMusicPlayer(int track)

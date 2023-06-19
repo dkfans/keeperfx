@@ -63,6 +63,7 @@ const char foot_down_sound_sample_variant[] = {
 char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
+TbBool sdl_active = false;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
 {
@@ -756,6 +757,43 @@ void update_first_person_object_ambience(struct Thing *thing)
         }
     }
     ambience_timer = (ambience_timer + 1) % 4;
+}
+
+TbBool init_sdl_mixer()
+{
+    if (sdl_active)
+    {
+        return true;
+    }
+    TbBool result = (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0);
+    sdl_active = result;
+    return result;
+}
+
+void close_sdl_mixer()
+{
+    int frequency, channels;
+    unsigned short format;
+    for (int i = Mix_QuerySpec(&frequency, &format, &channels); i > 0; i--)
+    {
+        Mix_CloseAudio();
+    }
+    sdl_active = false;
+}
+
+Mix_Chunk* play_external_sample(char* fname, int volume)
+{
+    if (init_sdl_mixer())
+    {
+        Mix_Chunk* sample = Mix_LoadWAV(fname);
+        if (sample != NULL)
+        {
+            Mix_VolumeChunk(sample, volume);
+            Mix_PlayChannel(-1, sample, 0);
+        }
+        return sample;
+    }
+    return NULL;
 }
 /******************************************************************************/
 #ifdef __cplusplus
