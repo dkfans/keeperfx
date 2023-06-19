@@ -32,6 +32,7 @@
 #include "bflib_sprfnt.h"
 
 #include "front_network.h"
+#include "front_masterserver.h"
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
 #include "frontend.h"
@@ -911,12 +912,6 @@ void frontnet_service_select(struct GuiButton *gbtn)
 }
 
 #define MAX_RECV_BUF 1024
-#define GET_RET(key) \
-    val = value_dict_get(ret, key); \
-    if (val == NULL) \
-    { \
-        goto unable; \
-    }
 
 void send_json_to_masterserver(char *buf, VALUE *out)
 {
@@ -966,19 +961,19 @@ void send_json_to_masterserver(char *buf, VALUE *out)
     {
         goto unable;
     }
-    GET_RET("keeperfx");
+    VALUE_GET_KEY("keeperfx");
     if (!value_bool(val))
     {
         ERRORLOG("Not a masterserver?");
         goto end;
     }
-    GET_RET("v")
+    VALUE_GET_KEY("v")
     if (value_int32(val) != 1)
     {
         ERRORLOG("Unsupported ver");
         goto end;
     }
-    GET_RET("success");
+    VALUE_GET_KEY("success");
     if (!value_bool(val))
     {
         ERRORLOG("Got an error from masterserver");
@@ -1020,19 +1015,19 @@ void frontend_toggle_public(struct GuiButton *gbtn)
     {
         sprintf(out_buf, "{\"method\":\"create_lobby\",\"player_name\":\"%s\"}\n", net_player_name);
         send_json_to_masterserver(out_buf, ret);
-        GET_RET("v");
+        VALUE_GET_KEY("v");
         if (value_int32(val) != 1)
         {
             ERRORLOG("Unsupported ver");
             goto end;
         }
-        GET_RET("token");
+        VALUE_GET_KEY("token");
         if (value_string_length(val) >= sizeof(fe_masterserver_token))
         {
             ERRORLOG("Token is too big");
             goto end;
         }
-        char *token = value_string(val);
+        const char *token = value_string(val);
         strcpy(fe_masterserver_token, token);
         goto end;
         unable:

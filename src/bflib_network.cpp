@@ -54,7 +54,7 @@ TbError CompleteTwoPlayerExchange(void *buf);
 TbError CompleteMultiPlayerExchange(void *buf);
 TbError HostDataCollection(void);
 TbError HostDataBroadcast(void);
-void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
+void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
 void *MultiPlayerCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4);
 void MultiPlayerReqExDataMsgCallback(unsigned long a1, unsigned long a2, void *a3);
 void AddMsgCallback(unsigned long, char *, void *);
@@ -605,6 +605,7 @@ static void AddSession(const char * str, size_t len)
 
         sessions[i].in_use = 1;
         sessions[i].joinable = 1; //actually we don't know, but keep for now
+        sessions[i].ip_port[0] = 0;
         net_copy_name_string(sessions[i].text, str, min((size_t)SESSION_NAME_MAX_LEN, len + 1));
 
         break;
@@ -801,7 +802,9 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
         return Lb_FAIL;
     }
 
-    if (netstate.sp->join(nsname->text, optns) == Lb_FAIL) {
+    const char *ip_port = (nsname->ip_port[0] != 0)? nsname->ip_port: nsname->text;
+
+    if (netstate.sp->join(ip_port, optns) == Lb_FAIL) {
         return Lb_FAIL;
     }
 
@@ -1380,7 +1383,7 @@ TbError GetCurrentPlayers(void)
   return Lb_OK;
 }
 
-void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2)
+void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
   AddAPlayer((struct TbNetworkPlayerNameEntry *)netcdat);
 }

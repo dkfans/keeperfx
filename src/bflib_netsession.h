@@ -48,7 +48,7 @@ struct TbNetworkSessionNameEntry {
     unsigned long id;
     unsigned long in_use;
     char text[SESSION_NAME_MAX_LEN];
-    unsigned char field_29[20]; //does not appear to be a string
+    char ip_port[20];
 };
 
 struct TbNetworkPlayerEntry {

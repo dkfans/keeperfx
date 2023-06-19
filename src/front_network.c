@@ -36,6 +36,7 @@
 #include "gui_draw.h"
 #include "front_simple.h"
 #include "front_landview.h"
+#include "front_masterserver.h"
 #include "frontend.h"
 #include "player_data.h"
 #include "net_game.h"
@@ -50,6 +51,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+#define MAX_SESSIONS 32
 const char *keeper_netconf_file = "fxconfig.net";
 
 const struct ConfigInfo default_net_config_info = {
@@ -186,7 +188,7 @@ void enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 
 void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
 {
-    if (net_number_of_sessions >= 32)
+    if (net_number_of_sessions >= MAX_SESSIONS)
     {
         ERRORLOG("Too many sessions in enumeration");
         return;
@@ -210,7 +212,7 @@ void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
 }
 
 // TODO: remove all this weird stuff
-static void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
     if (net_number_of_services >= NET_SERVICES_COUNT)
     {
@@ -247,6 +249,85 @@ static void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcd
     }
 }
 
+static int print_lst(const VALUE *key, VALUE *val, void *_ctx)
+{
+    fprintf(stderr, "key:%s\n", value_string(key));
+    return 0;
+}
+
+static struct TbNetworkSessionNameEntry masterserver_sessions[MAX_SESSIONS];
+
+static void process_masterserver_session()
+{
+    VALUE ret_obj;
+    VALUE *ret = &ret_obj, *val, *lst;
+    send_json_to_masterserver("{\"method\":\"list_lobbies\"}\n", ret);
+    VALUE_GET_KEY("v")
+    if (value_int32(val) != 1)
+    {
+        ERRORLOG("Unsupported ver");
+        goto end;
+    }
+    VALUE_GET_KEY("success");
+    if (!value_bool(val))
+    {
+        ERRORLOG("Got an error from masterserver");
+        goto end;
+    }
+    VALUE_GET_KEY("lobbies");
+    if (value_type(val) != VALUE_ARRAY)
+    {
+        goto unable;
+    }
+    lst = val;
+    int ses = 0;
+    for (size_t i = 0; i < value_array_size(lst); i++)
+    {
+        VALUE *row = value_array_get(lst, i);
+        VALUE *name, *ip, *port;
+        //value_dict_walk_sorted(ret, print_lst, NULL);
+        name = value_dict_get(row, "name");
+        if ((name == NULL) || (value_string(name) == NULL))
+        {
+            goto unable;
+        }
+        ip = value_dict_get(row,"ip");
+        if ((ip == NULL) || (value_string(ip) == NULL))
+        {
+            goto unable;
+        }
+        port = value_dict_get(row,"port");
+        if ((port == NULL) || (value_int32(port) == 0))
+        {
+            goto unable;
+        }
+        int len = value_string_length(name);
+        if (value_string_length(name) >= sizeof(masterserver_sessions[ses].text))
+        {
+            WARNLOG("Session name too long ses:%s %d", value_string(name), len);
+            continue;
+        }
+        if (value_string_length(ip) >= 14)
+        {
+            WARNLOG("Session ip too long ses:%s %d", value_string(name), value_string_length(ip));
+            continue;
+        }
+        strcpy(masterserver_sessions[ses].text, value_string(name) );
+        masterserver_sessions[ses].joinable = true;
+        sprintf(masterserver_sessions[ses].ip_port, "%s:%d", value_string(ip), value_int32(port));
+        enum_sessions_callback((struct TbNetworkCallbackData *)&masterserver_sessions[ses], NULL);
+        ses++;
+        if (ses >= MAX_SESSIONS)
+            break;
+       /* TODO: not used: has_password, players, status */
+    }
+    goto end;
+    unable:
+    WARNLOG("Unable to parse answer from masterserver");
+    end:
+    value_fini(ret);
+}
+
 void frontnet_session_update(void)
 {
     static long last_enum_players = 0;
@@ -257,14 +338,23 @@ void frontnet_session_update(void)
       net_number_of_sessions = 0;
       LbMemorySet(net_session, 0, sizeof(net_session));
       if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
-        ERRORLOG("LbNetwork_EnumerateSessions() failed");
-      last_enum_sessions = LbTimerClock();
+      {
+          ERRORLOG("LbNetwork_EnumerateSessions() failed");
+      }
+      //Check masterserver
+
+      if (value_dict_get(&config_dict, "MASTERSERVER_HOST") != NULL)
+      {
+          process_masterserver_session();
+      }
+
+      last_enum_sessions = LbTimerClock() + 500; // Session update time (poll masterserver each time)
 
       if (net_number_of_sessions == 0)
       {
         net_session_index_active = -1;
-      } else
-      if (net_session_index_active != -1)
+      }
+      else if (net_session_index_active != -1)
       {
           if ((net_session_index_active >= net_number_of_sessions)
             || (!net_session[net_session_index_active]->joinable))
@@ -285,8 +375,8 @@ void frontnet_session_update(void)
     if ((net_number_of_sessions == 0) || (net_session_scroll_offset < 0))
     {
       net_session_scroll_offset = 0;
-    } else
-    if (net_session_scroll_offset > net_number_of_sessions-1)
+    }
+    else if (net_session_scroll_offset > net_number_of_sessions-1)
     {
       net_session_scroll_offset = net_number_of_sessions-1;
     }
@@ -294,8 +384,8 @@ void frontnet_session_update(void)
     if (net_session_index_active == -1)
     {
       net_number_of_enum_players = 0;
-    } else
-    if (LbTimerClock() >= last_enum_players)
+    }
+    else if (LbTimerClock() >= last_enum_players)
     {
       net_number_of_enum_players = 0;
       LbMemorySet(net_player, 0, sizeof(net_player));
@@ -310,12 +400,12 @@ void frontnet_session_update(void)
     if (net_number_of_enum_players == 0)
     {
       net_player_scroll_offset = 0;
-    } else
-    if (net_player_scroll_offset < 0)
+    }
+    else if (net_player_scroll_offset < 0)
     {
       net_player_scroll_offset = 0;
-    } else
-    if (net_player_scroll_offset > net_number_of_enum_players-1)
+    }
+    else if (net_player_scroll_offset > net_number_of_enum_players-1)
     {
       net_player_scroll_offset = net_number_of_enum_players-1;
     }

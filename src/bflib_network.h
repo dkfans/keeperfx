@@ -166,6 +166,7 @@ char name[32];
 long active;
 };
 
+// This struct is casted to TbNetworkCallbackData
 struct TbNetworkCallbackData {
   char svc_name[12];
   char plyr_name[20];
