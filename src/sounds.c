@@ -801,6 +801,19 @@ TbBool play_external_sample(char* fname, int volume)
     }
     return false;
 }
+
+void free_chunks()
+{
+    Mix_HaltChannel(-1);
+    for (int channel = 0; channel <= MIX_CHANNELS; channel++)
+    {
+        Mix_Chunk* chunk = Mix_GetChunk(channel);
+        if (chunk != NULL)
+        {
+            Mix_FreeChunk(chunk);
+        }
+    }
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }
