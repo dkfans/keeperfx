@@ -3943,7 +3943,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
-  {"PLAY_EXTERNAL_SOUND",               "An      ", Cmd_PLAY_EXTERNAL_SOUND, &play_external_sound_check, &play_external_sound_process},
+  {"PLAY_EXTERNAL_SOUND",               "AAn     ", Cmd_PLAY_EXTERNAL_SOUND, &play_external_sound_check, &play_external_sound_process},
   {"STOP_EXTERNAL_SOUND",               "        ", Cmd_STOP_EXTERNAL_SOUND, &cmd_no_param_check, &stop_external_sound_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
