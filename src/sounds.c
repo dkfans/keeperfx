@@ -761,13 +761,21 @@ void update_first_person_object_ambience(struct Thing *thing)
 
 TbBool init_sdl_mixer()
 {
-    if (sdl_active)
+    if (!SoundDisabled)
     {
-        return true;
+        if (sdl_active)
+        {
+            return true;
+        }
+        TbBool result = (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0);
+        if (!result)
+        {
+            ERRORLOG("Could not initialise SDL mixer.");
+        }
+        sdl_active = result;
+        return result;
     }
-    TbBool result = (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0);
-    sdl_active = result;
-    return result;
+    return false;
 }
 
 void close_sdl_mixer()
@@ -801,10 +809,6 @@ TbBool play_external_sample(char* fname, int volume)
             return false;
         }
         return true;
-    }
-    else
-    {
-        ERRORLOG("Could not initialise SDL mixer.");
     }
     return false;
 }
