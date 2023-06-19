@@ -3759,7 +3759,7 @@ static void set_music_process(struct ScriptContext *context)
     }
     else
     {
-        SCRPTERRLOG("Invalid music track %d, track must be between %d and %d", context->value->chars[0],FIRST_TRACK,max_track);
+        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", context->value->chars[0],FIRST_TRACK,max_track);
     }
 }
 
