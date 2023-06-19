@@ -3772,26 +3772,29 @@ static void play_external_sound_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     char *tmp = calloc(strlen(scline->tp[0]), 1);
     strcpy(tmp, scline->tp[0]);
-    value->str2 = script_strdup(tmp);
-    if (scline->np[1] == 0)
+    value->str0 = script_strdup(tmp);
+    char *tmp2 = calloc(strlen(scline->tp[1]), 1);
+    strcpy(tmp2, scline->tp[1]);
+    value->str1 = script_strdup(tmp2);
+    if (scline->np[2] == 0)
     {
-        value->arg0 = MIX_MAX_VOLUME;
+        value->arg2 = MIX_MAX_VOLUME;
     }
     else
     {
-        if (scline->np[1] > MIX_MAX_VOLUME)
+        if (scline->np[2] > MIX_MAX_VOLUME)
         {
             SCRPTWRNLOG("Setting volume above %d has no effect.", MIX_MAX_VOLUME);
         }
-        value->arg0 = scline->np[1];
+        value->arg2 = scline->np[2];
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void play_external_sound_process(struct ScriptContext *context)
 {
-   char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s.wav",context->value->str2);
-   play_external_sample(fname, context->value->arg0);
+   char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s.%s",context->value->str0,context->value->str1);
+   play_external_sample(fname, context->value->arg2);
 }
 
 static void stop_external_sound_process(struct ScriptContext *context)
