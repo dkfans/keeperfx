@@ -436,9 +436,9 @@ long packet_left_button_double_clicked[6];
 long packet_left_button_click_space_count[6];
 char frontend_alliances;
 char busy_doing_gui;
-long gui_last_left_button_pressed_id;
-long gui_last_right_button_pressed_id;
+// TODO: pack into some struct
 int fe_computer_players;
+TbBool fe_public;
 long old_mouse_over_button;
 long frontend_mouse_over_button;
 
@@ -1540,6 +1540,21 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
         nspck->field_4 = (nspck->field_4 & 0x07) | 0x38;
         nspck->param1 = (fe_computer_players == 0);
     }
+}
+
+void frontend_draw_public_session(struct GuiButton *gbtn)
+{
+    int font_idx;
+    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
+    LbTextSetFont(frontend_font[font_idx]);
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    int ln_height;
+    ln_height = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, ln_height);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    LbTextDrawResized(0, 0, tx_units_per_px, fe_public? "public": "private");
+    lbDisplay.DrawFlags = 0;
 }
 
 void frontend_draw_computer_players(struct GuiButton *gbtn)

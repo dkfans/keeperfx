@@ -113,6 +113,8 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  1, 453, 186, 453, 186,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {77},    0, frontnet_maintain_alliance },
   { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  2, 475, 186, 475, 186,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {77},    0, frontnet_maintain_alliance },
   { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  3, 497, 186, 497, 186,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {77},    0, frontnet_maintain_alliance },
+  { 1,  0, 0, 0, NULL,                    NULL,   NULL,               0, 144, 217, 144, 217, 120, 26, frontnet_draw_bottom_scroll_box_tab,0,GUIStr_Empty, 0,  {28},    0, NULL },
+  { 0,  0, 0, 0, frontend_toggle_public  ,                    NULL,frontend_over_button,  0, 160, 214, 157,214,120,26, frontend_draw_public_session,    0, GUIStr_Empty, 0, {104},    0, NULL },
   { 1,  0, 0, 0, NULL,               NULL,   NULL,                    0, 284, 217, 284, 217, 240, 26, frontnet_draw_bottom_scroll_box_tab,0,GUIStr_Empty, 0,  {28},    0, NULL },
   { 0,  0, 0, 0, frontend_toggle_computer_players,NULL,frontend_over_button,0,297,214,297,214,220,26, frontend_draw_computer_players,    0, GUIStr_Empty, 0, {103},    0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 246,  82, 246, 220, 26, frontnet_draw_scroll_box_tab,      0, GUIStr_Empty, 0,  {28},    0, NULL },
@@ -251,6 +253,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
   }
   frontend_set_player_number(plyr_num);
   fe_computer_players = 0;
+  fe_public = false;
   frontend_set_state(FeSt_NET_START);
 }
 /******************************************************************************/

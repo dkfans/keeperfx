@@ -286,7 +286,6 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
            (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
           left_button_clicked = 0;
-          gui_last_left_button_pressed_id = gbtn->id_num;
           do_button_click_actions(gbtn, &gbtn->gbactn_1, callback);
         }
     } else
@@ -303,7 +302,6 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         if ((callback != NULL))
         {
           right_button_clicked = 0;
-          gui_last_right_button_pressed_id = gbtn->id_num;
           do_button_click_actions(gbtn, &gbtn->gbactn_2, callback);
         }
     }

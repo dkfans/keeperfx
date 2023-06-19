@@ -21,6 +21,9 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include <SDL_net.h>
+#include <json-dom.h>
+
 #include "bflib_datetm.h"
 #include "bflib_guibtns.h"
 #include "bflib_video.h"
@@ -41,6 +44,8 @@
 #include "sprites.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
+
+char fe_masterserver_token[32]; //Token
 
 /******************************************************************************/
 long frontnet_number_of_players_in_session(void)
@@ -483,8 +488,7 @@ void frontnet_messages_down(struct GuiButton *gbtn)
 
 void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
 {
-    int units_per_px;
-    units_per_px = (gbtn->width * 16 + 240/2) / 240;
+    int units_per_px = 20;
 
     long pos_x;
     long pos_y;
@@ -494,14 +498,16 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     lbDisplay.DrawFlags = Lb_SPRITE_FLIP_VERTIC;
     spr = &frontend_sprite[GFS_hugearea_thc_cor_tl];
     int fs_units_per_px;
+    int tail = gbtn->width - 15 - 9; //Left & Right borders;
     fs_units_per_px = spr->SHeight * units_per_px / 26;
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth*fs_units_per_px/16;
     spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth*fs_units_per_px/16;
-    LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-    pos_x += spr->SWidth*fs_units_per_px/16;
+    for (;tail > spr->SWidth; tail -= spr->SWidth)
+    {
+        LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
+        pos_x += spr->SWidth * fs_units_per_px / 16;
+    }
     spr = &frontend_sprite[GFS_hugearea_thc_cor_tr];
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     lbDisplay.DrawFlags = 0;
@@ -904,4 +910,135 @@ void frontnet_service_select(struct GuiButton *gbtn)
   }
 }
 
+#define MAX_RECV_BUF 1024
+#define GET_RET(key) \
+    val = value_dict_get(ret, key); \
+    if (val == NULL) \
+    { \
+        goto unable; \
+    }
+
+void send_json_to_masterserver(char *buf, VALUE *out)
+{
+    char recv_buf[MAX_RECV_BUF];
+    VALUE tmp_obj;
+    VALUE *ret = &tmp_obj, *val;
+    // Check for masterserver
+    VALUE *masterserver = value_dict_get(&config_dict, "MASTERSERVER_HOST");
+    if (masterserver == NULL)
+    {
+        // No Masterserver;
+        return;
+    }
+
+    // Find an address
+    strcpy(recv_buf, value_string(masterserver));
+    char *p = strchr(recv_buf, ':');
+    char *end;
+    Uint16 port;
+    if (p)
+    {
+        *p = 0;
+        p++;
+        port = strtol(p, &end, 10);
+        if (end == p)
+        {
+            port = 5566;
+        }
+    }
+    else
+    {
+        port = 5566;
+    }
+    IPaddress addr;
+    SDLNet_ResolveHost(&addr, recv_buf, port);
+
+    // Connect
+    TCPsocket sock = SDLNet_TCP_Open(&addr);
+    if (sock == NULL)
+    {
+        ERRORLOG("Unable to connect to Masterserver at '%s'", value_string(masterserver));
+        return;
+    }
+    // Parse greeting
+    int len = SDLNet_TCP_Recv(sock, recv_buf, MAX_RECV_BUF);
+    if ((len <= 0) || json_dom_parse(recv_buf, len, NULL, 0, ret, NULL))
+    {
+        goto unable;
+    }
+    GET_RET("keeperfx");
+    if (!value_bool(val))
+    {
+        ERRORLOG("Not a masterserver?");
+        goto end;
+    }
+    GET_RET("v")
+    if (value_int32(val) != 1)
+    {
+        ERRORLOG("Unsupported ver");
+        goto end;
+    }
+    GET_RET("success");
+    if (!value_bool(val))
+    {
+        ERRORLOG("Got an error from masterserver");
+        goto end;
+    }
+    value_fini(ret);
+    // Send a buf
+    len = (int)strlen(buf);
+    if (SDLNet_TCP_Send(sock, buf, len) >= len)
+    {
+        len = SDLNet_TCP_Recv(sock, recv_buf, MAX_RECV_BUF);
+        if ((len <= 0) || json_dom_parse(recv_buf, len, NULL, 0, out, NULL))
+        {
+            goto unable;
+        }
+    }
+    goto end;
+    unable:
+    WARNLOG("Unable to parse answer from masterserver");
+    end:
+    value_fini(ret);
+    SDLNet_TCP_Close(sock);
+}
+
+void frontend_toggle_public(struct GuiButton *gbtn)
+{
+    char out_buf[256];
+    VALUE ret_obj = {0};
+    VALUE *ret = &ret_obj, *val;
+    if (fe_public && *fe_masterserver_token)
+    {
+        sprintf(out_buf, "{\"method\":\"remove_lobby\",\"token\":\"%s\"}\n", fe_masterserver_token);
+        fe_masterserver_token[0] = 0;
+        send_json_to_masterserver(out_buf, ret);
+        value_fini(ret);
+    }
+    fe_public = !fe_public;
+    if (fe_public)
+    {
+        sprintf(out_buf, "{\"method\":\"create_lobby\",\"player_name\":\"%s\"}\n", net_player_name);
+        send_json_to_masterserver(out_buf, ret);
+        GET_RET("v");
+        if (value_int32(val) != 1)
+        {
+            ERRORLOG("Unsupported ver");
+            goto end;
+        }
+        GET_RET("token");
+        if (value_string_length(val) >= sizeof(fe_masterserver_token))
+        {
+            ERRORLOG("Token is too big");
+            goto end;
+        }
+        char *token = value_string(val);
+        strcpy(fe_masterserver_token, token);
+        goto end;
+        unable:
+        ERRORLOG("Unable to parse response from masterserver");
+        end:
+        value_fini(ret);
+    }
+}
 /******************************************************************************/

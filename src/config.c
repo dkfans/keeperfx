@@ -139,6 +139,7 @@ const struct NamedCommand conf_commands[] = {
   {"DELTA_TIME"                    , 25},
   {"CREATURE_STATUS_SIZE"          , 26},
   {"MAX_ZOOM_DISTANCE"             , 27},
+  {"MASTERSERVER_HOST"                    , 28},
   {NULL,                   0},
   };
 
