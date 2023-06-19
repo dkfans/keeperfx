@@ -1314,7 +1314,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
 {
     if (thing_is_invalid(heartng))
     {
-        ERRORLOG("Trying to beat non-existing hearth");
+        ERRORLOG("Trying to beat non-existing heart");
         return;
     }
     const long base_heart_beat_rate = 2304;
