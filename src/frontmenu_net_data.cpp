@@ -194,7 +194,6 @@ void frontnet_session_select(struct GuiButton *gbtn)
     if (net_number_of_sessions > i)
     {
         net_session_index_active = i;
-        net_session_index_active_id = net_session[i]->id;
     }
 }
 

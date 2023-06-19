@@ -173,7 +173,7 @@ void frontnet_service_update(void)
     }
 }
 
-void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+void enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
     if (net_number_of_enum_players >= 4)
     {
@@ -184,7 +184,7 @@ void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void
     net_number_of_enum_players++;
 }
 
-void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
+void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
 {
     if (net_number_of_sessions >= 32)
     {
@@ -263,7 +263,6 @@ void frontnet_session_update(void)
       if (net_number_of_sessions == 0)
       {
         net_session_index_active = -1;
-        net_session_index_active_id = -1;
       } else
       if (net_session_index_active != -1)
       {
@@ -280,8 +279,6 @@ void frontnet_session_update(void)
               }
             }
           }
-          if (net_session_index_active == -1)
-            net_session_index_active_id = -1;
       }
     }
 
@@ -305,7 +302,6 @@ void frontnet_session_update(void)
       if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
       {
         net_session_index_active = -1;
-        net_session_index_active_id = -1;
         return;
       }
       last_enum_players = LbTimerClock();
@@ -441,7 +437,6 @@ void frontnet_session_setup(void)
     net_session_index_active = -1;
     fe_computer_players = 2;
     lbInkey = 0;
-    net_session_index_active_id = -1;
 }
 
 void frontnet_start_setup(void)

@@ -96,7 +96,7 @@
 extern "C" {
 #endif
 
-extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
+extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -393,7 +393,6 @@ long net_level_hilighted;
 struct NetMessage net_message[NET_MESSAGES_COUNT];
 long net_number_of_messages;
 long net_message_scroll_offset;
-long net_session_index_active_id;
 long net_session_scroll_offset;
 long net_player_scroll_offset;
 struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];

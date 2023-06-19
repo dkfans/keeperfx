@@ -120,7 +120,6 @@ extern long net_level_hilighted;
 extern struct NetMessage net_message[NET_MESSAGES_COUNT];
 extern long net_number_of_messages;
 extern long net_message_scroll_offset;
-extern long net_session_index_active_id;
 extern long net_session_scroll_offset;
 extern long net_player_scroll_offset;
 extern struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
