@@ -3800,7 +3800,7 @@ static void play_external_sound_process(struct ScriptContext *context)
 
 static void stop_external_sound_process(struct ScriptContext *context)
 {
-   PlaySound(NULL, NULL, 0);
+   Mix_HaltChannel(-1);
 }
 
 /**
