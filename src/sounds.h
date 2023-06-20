@@ -112,7 +112,7 @@ void update_first_person_object_ambience(struct Thing *thing);
 
 TbBool init_sdl_mixer();
 void close_sdl_mixer();
-TbBool play_external_sample(char* fname, int volume);
+TbBool play_external_sample(char* fname, int volume, int loops);
 void free_chunks();
 /******************************************************************************/
 #ifdef __cplusplus

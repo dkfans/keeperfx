@@ -785,7 +785,7 @@ void close_sdl_mixer()
     }
 }
 
-TbBool play_external_sample(char* fname, int volume)
+TbBool play_external_sample(char* fname, int volume, int loops)
 {
     if (!SoundDisabled)
     {
@@ -793,7 +793,7 @@ TbBool play_external_sample(char* fname, int volume)
         if (sample != NULL)
         {
             Mix_VolumeChunk(sample, volume);
-            if (Mix_PlayChannel(-1, sample, 0) == -1)
+            if (Mix_PlayChannel(-1, sample, loops) == -1)
             {
                 ERRORLOG("Could not play sound %s: %s", fname, Mix_GetError());
                 return false;

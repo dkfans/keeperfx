@@ -3778,7 +3778,7 @@ static void play_external_sound_check(const struct ScriptLine *scline)
     value->str1 = script_strdup(tmp2);
     if (scline->np[2] == 0)
     {
-        value->arg2 = MIX_MAX_VOLUME;
+        value->bytes[8] = MIX_MAX_VOLUME;
     }
     else
     {
@@ -3786,15 +3786,16 @@ static void play_external_sound_check(const struct ScriptLine *scline)
         {
             SCRPTWRNLOG("Setting volume above %d has no effect.", MIX_MAX_VOLUME);
         }
-        value->arg2 = scline->np[2];
+        value->bytes[8] = scline->np[2];
     }
+    value->chars[9] = scline->np[3];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void play_external_sound_process(struct ScriptContext *context)
 {
    char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s.%s",context->value->str0,context->value->str1);
-   play_external_sample(fname, context->value->arg2);
+   play_external_sample(fname, context->value->bytes[8], context->value->chars[9]);
 }
 
 static void stop_external_sound_process(struct ScriptContext *context)
@@ -3943,7 +3944,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
-  {"PLAY_EXTERNAL_SOUND",               "AAn     ", Cmd_PLAY_EXTERNAL_SOUND, &play_external_sound_check, &play_external_sound_process},
+  {"PLAY_EXTERNAL_SOUND",               "AAnn    ", Cmd_PLAY_EXTERNAL_SOUND, &play_external_sound_check, &play_external_sound_process},
   {"STOP_EXTERNAL_SOUND",               "        ", Cmd_STOP_EXTERNAL_SOUND, &cmd_no_param_check, &stop_external_sound_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
