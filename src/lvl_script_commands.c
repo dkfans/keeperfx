@@ -43,10 +43,6 @@
 #include "post_inc.h"
 #include "music_player.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
-#include <mmsystem.h>
-
 #ifdef __cplusplus
 extern "C" {
 #endif

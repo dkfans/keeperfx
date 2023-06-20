@@ -120,10 +120,6 @@
 #include "game_loop.h"
 #include "music_player.h"
 
-#define WIN32_LEAN_AND_MEAN
-#include "windows.h"
-#include <mmsystem.h>
-
 #ifdef AUTOTESTING
 #include "event_monitoring.h"
 #endif
