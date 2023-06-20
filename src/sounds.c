@@ -763,7 +763,7 @@ TbBool init_sdl_mixer()
     TbBool result = (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0);
     if (!result)
     {
-        ERRORLOG("Could not initialise SDL mixer.");
+        ERRORLOG("Could not initialise SDL mixer: %s", Mix_GetError());
     }
     return result;
 }
@@ -772,9 +772,16 @@ void close_sdl_mixer()
 {
     int frequency, channels;
     unsigned short format;
-    for (int i = Mix_QuerySpec(&frequency, &format, &channels); i > 0; i--)
+    int i = Mix_QuerySpec(&frequency, &format, &channels);
+    if (i == 0)
+    {
+        ERRORLOG("Could not query SDL mixer: %s", Mix_GetError());
+        return;
+    }
+    while (i > 0)
     {
         Mix_CloseAudio();
+        i--;
     }
 }
 
@@ -788,13 +795,13 @@ TbBool play_external_sample(char* fname, int volume)
             Mix_VolumeChunk(sample, volume);
             if (Mix_PlayChannel(-1, sample, 0) == -1)
             {
-                ERRORLOG("Could not play sound %s", fname);
+                ERRORLOG("Could not play sound %s: %s", fname, Mix_GetError());
                 return false;
             }
         }
         else
         {
-            ERRORLOG("Could not load sound %s", fname);
+            ERRORLOG("Could not load sound %s: %s", fname, Mix_GetError());
             return false;
         }
         return true;
