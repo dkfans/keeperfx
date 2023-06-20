@@ -63,6 +63,7 @@ const char foot_down_sound_sample_variant[] = {
 char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
+int sdl_flags = 0;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
 {
@@ -486,6 +487,7 @@ TbBool init_sound(void)
     snd_settng->redbook_enable = IsRedbookMusicActive();
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
+    sdl_flags = InitialiseSDL();
     InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
@@ -758,17 +760,19 @@ void update_first_person_object_ambience(struct Thing *thing)
     ambience_timer = (ambience_timer + 1) % 4;
 }
 
-TbBool init_sdl_mixer()
+int InitialiseSDL()
 {
-    TbBool result = (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0);
-    if (!result)
+    int flags = Mix_Init(MIX_INIT_OGG);
+    TbBool success = (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0);
+    if (!success)
     {
         ERRORLOG("Could not initialise SDL mixer: %s", Mix_GetError());
+        return 0;
     }
-    return result;
+    return flags;
 }
 
-void close_sdl_mixer()
+void ShutdownSDL()
 {
     int frequency, channels;
     unsigned short format;
@@ -776,12 +780,15 @@ void close_sdl_mixer()
     if (i == 0)
     {
         ERRORLOG("Could not query SDL mixer: %s", Mix_GetError());
-        return;
     }
     while (i > 0)
     {
         Mix_CloseAudio();
         i--;
+    }
+    while (Mix_Init(0))
+    {
+        Mix_Quit();
     }
 }
 

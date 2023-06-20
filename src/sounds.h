@@ -85,6 +85,7 @@ enum SoundSettingsFlags {
 };
 
 extern int atmos_sound_frequency;
+extern int sdl_flags;
 
 #pragma pack()
 
@@ -110,8 +111,8 @@ void pause_music(TbBool pause);
 
 void update_first_person_object_ambience(struct Thing *thing);
 
-TbBool init_sdl_mixer();
-void close_sdl_mixer();
+int InitialiseSDL();
+void ShutdownSDL();
 TbBool play_external_sample(char* fname, int volume, int loops);
 void free_chunks();
 /******************************************************************************/
