@@ -3766,12 +3766,8 @@ static void set_music_process(struct ScriptContext *context)
 static void play_external_sound_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    char *tmp = calloc(strlen(scline->tp[0]), 1);
-    strcpy(tmp, scline->tp[0]);
-    value->str0 = script_strdup(tmp);
-    char *tmp2 = calloc(strlen(scline->tp[1]), 1);
-    strcpy(tmp2, scline->tp[1]);
-    value->str1 = script_strdup(tmp2);
+    value->str0 = script_strdup(scline->tp[0]);
+    value->str1 = script_strdup(scline->tp[1]);
     if (scline->np[2] == 0)
     {
         value->bytes[8] = MIX_MAX_VOLUME;
