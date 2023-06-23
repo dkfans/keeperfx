@@ -129,7 +129,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
                         best_plyr_idx = plyr_idx;
                     }
                 }
-                else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
+                else if (best_plyr_idx == -1 && (has_available_rooms_to_attack(creatng, plyr_idx)))
                 {
                     if (best_backup_score < score)
                     {
