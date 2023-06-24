@@ -227,8 +227,11 @@ unsigned char sound_flag;
   struct {
     char sbyte_89;
     unsigned char hero_gate_creation_turn;
-    long look_for_enemy_dungeon_turn;
-    long wait_time;
+    TbBool byte_8B_unused;
+    TbBool byte_8C_unused;
+    GameTurn look_for_enemy_dungeon_turn;
+    GameTurn wait_time;
+    RoomKind last_checked_room_kind;
   } hero;
   };
 

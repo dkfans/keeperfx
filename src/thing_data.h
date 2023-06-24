@@ -104,14 +104,13 @@ struct Thing {
     unsigned char owner;
     unsigned char active_state;
     unsigned char continue_state;
-    long creation_turn;
+    GameTurn creation_turn;
     struct Coord3d mappos;
     union {
 //TCls_Empty
 //TCls_Object
       struct {
-        long gold_stored;
-        short word_17v;
+        GoldAmount gold_stored;
       } valuable;
       struct {
         short life_remaining;
