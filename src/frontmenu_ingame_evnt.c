@@ -199,12 +199,16 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
     }
 }
 
-void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per_px)
+void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per_px, TbBool cannot)
 {
     if (thing_is_invalid(thing)) {
         return;
     }
     short spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
+    if (cannot)
+    {
+        spr_idx++;
+    }
     struct TbSprite* spr = &gui_panel_sprites[spr_idx];
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
@@ -261,7 +265,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
         struct Thing* thing = thing_get(i);
         if (thing_is_creature(thing))
         {
-            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
+            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px, (battlr_id >= MESSAGE_BATTLERS_COUNT-1));
             if (thing->index == battle_creature_over)
             {
               if (game.play_gameturn & 2)
@@ -324,7 +328,7 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
         struct Thing* thing = thing_get(i);
         if (thing_is_creature(thing))
         {
-            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
+            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px, (battlr_id >= MESSAGE_BATTLERS_COUNT-1));
             if (thing->index == battle_creature_over)
             {
               if (game.play_gameturn & 2)
