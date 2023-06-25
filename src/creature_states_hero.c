@@ -1100,11 +1100,11 @@ short good_wait_in_exit_door(struct Thing *thing)
             }
         }
         thing->creature.gold_carried = 0;
-        gatetng = thing_get(cctrl->dragtng_idx);
-        TRACE_THING(gatetng);
-        if (!thing_is_invalid(gatetng))
+        struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
+        TRACE_THING(dragtng);
+        if (!thing_is_invalid(dragtng))
         {
-            delete_thing_structure(gatetng, 0);
+            delete_thing_structure(dragtng, 0);
         }
         kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
     }
