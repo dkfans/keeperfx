@@ -25,6 +25,7 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_bufrw.h"
+#include "bflib_sound.h"
 
 #include "config.h"
 #include "config_campaigns.h"
@@ -228,7 +229,10 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             }
             if (LbFileRead(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd)) {
             //accept invalid saves -- if (LbFileRead(fhandle, &gameadd, hdr.len) == hdr.len) {
-                reload_external_sounds();
+                if (!SoundDisabled)
+                {
+                    reload_external_sounds();
+                }
                 chunks_done |= SGF_GameAdd;
             } else {
                 WARNLOG("Could not read GameAdd chunk");

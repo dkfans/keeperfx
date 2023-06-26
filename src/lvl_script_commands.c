@@ -3784,25 +3784,28 @@ static void play_external_sound_check(const struct ScriptLine *scline)
         return;
     }
     char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s", &gameadd.ext_samples[scline->np[0]].filename);
-    Ext_Sounds[scline->np[0]] = Mix_LoadWAV(fname);
-    if (Ext_Sounds[scline->np[0]] != NULL)
+    gameadd.ext_samples[scline->np[0]].volume = (scline->np[3] == 0) ? MIX_MAX_VOLUME : scline->np[3];
+    if (scline->np[3] > MIX_MAX_VOLUME)
     {
-        gameadd.ext_samples[scline->np[0]].volume = (scline->np[3] == 0) ? MIX_MAX_VOLUME : scline->np[3];
-        if (scline->np[3] > MIX_MAX_VOLUME)
+        SCRPTWRNLOG("Setting volume above %d has no effect.", MIX_MAX_VOLUME);
+    }
+    gameadd.ext_samples[scline->np[0]].loops = scline->np[4];
+    if (!SoundDisabled)
+    {
+        Ext_Sounds[scline->np[0]] = Mix_LoadWAV(fname);
+        if (Ext_Sounds[scline->np[0]] != NULL)
         {
-            SCRPTWRNLOG("Setting volume above %d has no effect.", MIX_MAX_VOLUME);
+            Mix_VolumeChunk(Ext_Sounds[scline->np[0]], gameadd.ext_samples[scline->np[0]].volume);
         }
-        Mix_VolumeChunk(Ext_Sounds[scline->np[0]], gameadd.ext_samples[scline->np[0]].volume);
-        gameadd.ext_samples[scline->np[0]].loops = scline->np[4];
+        else
+        {
+            SCRPTERRLOG("Could not load sound %s for slot %u: %s", fname, scline->np[0], Mix_GetError());
+            return;
+        }
+        value->bytes[0] = scline->np[0];
+        SCRPTLOG("Loaded sound file %s into slot %u. Volume %d. %ld loops.", fname, scline->np[0], gameadd.ext_samples[scline->np[0]].volume, gameadd.ext_samples[scline->np[0]].loops);
+        PROCESS_SCRIPT_VALUE(scline->command);
     }
-    else
-    {
-        SCRPTERRLOG("Could not load sound %s for slot %u: %s", fname, scline->np[0], Mix_GetError());
-        return;
-    }
-    value->bytes[0] = scline->np[0];
-    SCRPTLOG("Loaded sound file %s into slot %u. Volume %d. %ld loops.", fname, scline->np[0], gameadd.ext_samples[scline->np[0]].volume, gameadd.ext_samples[scline->np[0]].loops);
-    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void play_external_sound_process(struct ScriptContext *context)
