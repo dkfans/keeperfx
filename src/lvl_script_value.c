@@ -168,6 +168,20 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 
     switch (pwkind)
     {
+    case PwrK_HEALCRTR:
+    case PwrK_SPEEDCRTR:
+    case PwrK_PROTECT:
+    case PwrK_CONCEAL:
+    case PwrK_DISEASE:
+    case PwrK_CHICKEN:
+    case PwrK_SLAP:
+    case PwrK_LIGHTNING:
+        if (!can_cast_power_on_thing(caster,thing,pwkind))
+            return Lb_FAIL;
+    }
+
+    switch (pwkind)
+    {
       case PwrK_HEALCRTR:
         return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_SPEEDCRTR:
