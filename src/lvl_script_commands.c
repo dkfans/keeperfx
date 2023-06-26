@@ -3768,19 +3768,19 @@ static void set_music_process(struct ScriptContext *context)
 static void play_external_sound_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    if (scline->np[0] > EXTERNAL_SOUNDS_COUNT)
+    if ((unsigned long)scline->np[0] > EXTERNAL_SOUNDS_COUNT)
     {
-        SCRPTERRLOG("Invalid external sound slot: %d", scline->np[0]);
+        SCRPTERRLOG("Invalid external sound slot: %ld", scline->np[0]);
         return;
     }
     if (Ext_Sounds[scline->np[0]] != NULL)
     {
-        SCRPTWRNLOG("External sound slot %d is already used; overwriting.");
+        SCRPTWRNLOG("External sound slot %u is already used; overwriting.", scline->np[0]);
         Mix_FreeChunk(Ext_Sounds[scline->np[0]]);
     }
     if (sprintf(&gameadd.ext_samples[scline->np[0]].filename[0], "%s.%s", script_strdup(scline->tp[1]), script_strdup(scline->tp[2])) < 0)
     {
-        SCRPTERRLOG("Unable to store filename for external sound slot %d", scline->np[0]);
+        SCRPTERRLOG("Unable to store filename for external sound slot %u", scline->np[0]);
         return;
     }
     char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s", &gameadd.ext_samples[scline->np[0]].filename);
@@ -3797,10 +3797,11 @@ static void play_external_sound_check(const struct ScriptLine *scline)
     }
     else
     {
-        SCRPTERRLOG("Could not load sound %s for slot %d: %s", fname, scline->np[0], Mix_GetError());
+        SCRPTERRLOG("Could not load sound %s for slot %u: %s", fname, scline->np[0], Mix_GetError());
         return;
     }
     value->bytes[0] = scline->np[0];
+    SCRPTLOG("Loaded sound file %s into slot %u. Volume %d. %ld Loops.", fname, scline->np[0], gameadd.ext_samples[scline->np[0]].volume, gameadd.ext_samples[scline->np[0]].loops);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3810,10 +3811,11 @@ static void play_external_sound_process(struct ScriptContext *context)
     {
         if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[0]], gameadd.ext_samples[context->value->bytes[0]].loops) == -1)
         {
-            SCRPTERRLOG("Could not play sound %s for slot %d: %s", &gameadd.ext_samples[context->value->bytes[0]].filename, context->value->bytes[0], Mix_GetError());
+            SCRPTERRLOG("Could not play sound %s for slot %u: %s", &gameadd.ext_samples[context->value->bytes[0]].filename, context->value->bytes[0], Mix_GetError());
         }
     }
 }
+
 static void stop_external_sound_process(struct ScriptContext *context)
 {
    Mix_HaltChannel(-1);
