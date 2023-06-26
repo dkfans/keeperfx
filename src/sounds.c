@@ -797,7 +797,7 @@ void free_chunks()
 {
     Mix_HaltChannel(-1);
     int i;
-    for (i = 0; i <= MIX_CHANNELS; i++)
+    for (i = 0; i < MIX_CHANNELS; i++)
     {
         Mix_Chunk* chunk = Mix_GetChunk(i);
         if (chunk != NULL)
