@@ -45,6 +45,7 @@
 #include "creature_states.h"
 #include "thing_objects.h"
 #include "config.h"
+#include "lvl_script_commands.h"
 
 #include "keeperfx.hpp"
 #include "game_heap.h"
@@ -792,30 +793,6 @@ void ShutdownSDL()
     }
 }
 
-TbBool play_external_sample(char* fname, int volume, int loops)
-{
-    if (!SoundDisabled)
-    {
-        Mix_Chunk* sample = Mix_LoadWAV(fname);
-        if (sample != NULL)
-        {
-            Mix_VolumeChunk(sample, volume);
-            if (Mix_PlayChannel(-1, sample, loops) == -1)
-            {
-                ERRORLOG("Could not play sound %s: %s", fname, Mix_GetError());
-                return false;
-            }
-        }
-        else
-        {
-            ERRORLOG("Could not load sound %s: %s", fname, Mix_GetError());
-            return false;
-        }
-        return true;
-    }
-    return false;
-}
-
 void free_chunks()
 {
     Mix_HaltChannel(-1);
@@ -825,6 +802,14 @@ void free_chunks()
         if (chunk != NULL)
         {
             Mix_FreeChunk(chunk);
+        }
+    }
+    for (int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
+    {
+        if (Ext_Sounds[sample] != NULL)
+        {
+            Mix_FreeChunk(Ext_Sounds[sample]);
+            Ext_Sounds[sample] = NULL;
         }
     }
 }

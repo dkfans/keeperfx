@@ -36,6 +36,7 @@
 #include "thing_objects.h"
 #include "light_data.h"
 #include "lvl_script.h"
+#include "sounds.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -244,6 +245,7 @@ struct GameAdd {
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
     unsigned char max_things_in_hand;
+    struct SoundDesc ext_samples[EXTERNAL_SOUNDS_COUNT];
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

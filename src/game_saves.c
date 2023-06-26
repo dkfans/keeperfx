@@ -44,6 +44,8 @@
 #include "frontmenu_ingame_map.h"
 #include "gui_boxmenu.h"
 #include "keeperfx.hpp"
+#include "sounds.h"
+#include "lvl_script_commands.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -226,6 +228,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             }
             if (LbFileRead(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd)) {
             //accept invalid saves -- if (LbFileRead(fhandle, &gameadd, hdr.len) == hdr.len) {
+                reload_external_sounds();
                 chunks_done |= SGF_GameAdd;
             } else {
                 WARNLOG("Could not read GameAdd chunk");
@@ -731,6 +734,28 @@ LevelNumber move_campaign_to_prev_level(void)
         curr_lvnum = set_continue_level_number(SINGLEPLAYER_FINISHED);
         SYNCDBG(8,"Continue level moved to FINISHED.");
         return curr_lvnum;
+    }
+}
+
+void reload_external_sounds()
+{
+    for (int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
+    {
+        struct SoundDesc* sound = &gameadd.ext_samples[sample];
+        if (sound->filename[0] != '\0')
+        {
+            char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s", sound->filename);
+            Ext_Sounds[sample] = Mix_LoadWAV(fname);
+            if (Ext_Sounds[sample] != NULL)
+            {
+                int volume = (sound->volume == 0) ? MIX_MAX_VOLUME : sound->volume;
+                Mix_VolumeChunk(Ext_Sounds[sample], volume);
+            }
+            else
+            {
+                ERRORLOG("Could not reload sound %s: %s", fname, Mix_GetError());
+            }
+        }
     }
 }
 

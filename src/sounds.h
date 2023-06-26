@@ -78,6 +78,12 @@ struct SoundBankEntry { // sizeof = 16
   unsigned long field_C;
 };
 
+struct SoundDesc {
+    char filename[18];
+    int volume;
+    int loops;
+};
+
 enum SoundSettingsFlags {
     SndSetting_None    = 0x00,
     SndSetting_MIDI = 0x01,
@@ -113,7 +119,6 @@ void update_first_person_object_ambience(struct Thing *thing);
 
 int InitialiseSDL();
 void ShutdownSDL();
-TbBool play_external_sample(char* fname, int volume, int loops);
 void free_chunks();
 /******************************************************************************/
 #ifdef __cplusplus
