@@ -675,7 +675,6 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
 
 void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player)
 {
-    JUSTMSG("DEBUG: explore for player %d", player->id_number);
     struct Thing* heartng = get_player_soul_container(player->id_number);
     if (thing_exists(heartng)) {
         fill_in_explored_area(player->id_number, heartng->mappos.x.stl.num, heartng->mappos.y.stl.num);
@@ -685,10 +684,6 @@ void init_keeper_map_exploration_by_terrain(struct PlayerInfo *player)
         for (MapSlabCoord slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
             if (map_position_initially_explored_for_player(player->id_number, slb_x, slb_y)) {
-                if ((slb_x == 66) && (slb_y == 17))
-                {
-                    JUSTMSG("DEBUG: Slab %d,%d is explored for player %d", slb_x, slb_y, player->id_number);
-                }
                 set_slab_explored(player->id_number, slb_x, slb_y);
             }
         }

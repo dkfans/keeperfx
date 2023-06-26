@@ -178,7 +178,6 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         case PwrK_LIGHTNING:
             if (!can_cast_spell(caster, pwkind, stl_x, stl_y, thing, CastChk_Final | CastChk_SkipAvailiabilty))
             {
-                JUSTMSG("DEBUG: failed to cast power %s at stl %d,%d", power_code_name(pwkind),stl_x,stl_y);
                 return Lb_FAIL;
             }
     }
@@ -201,7 +200,6 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
       case PwrK_CALL2ARMS:
         return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_LIGHTNING:
-          JUSTMSG("DEBUG: Congratualations, we fixed it.");
         return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_CAVEIN:
         return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
@@ -908,7 +906,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_USE_POWER_ON_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
-          JUSTMSG("DEBUG: script_use_power_on_creature for player %d",i);
           script_use_power_on_creature(i, val2, val3, val4);
       }
       break;
