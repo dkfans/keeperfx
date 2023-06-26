@@ -3783,7 +3783,6 @@ static void play_external_sound_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unable to store filename for external sound slot %u", scline->np[0]);
         return;
     }
-    char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s", &gameadd.ext_samples[scline->np[0]].filename);
     gameadd.ext_samples[scline->np[0]].volume = (scline->np[3] == 0) ? MIX_MAX_VOLUME : scline->np[3];
     if (scline->np[3] > MIX_MAX_VOLUME)
     {
@@ -3792,6 +3791,7 @@ static void play_external_sound_check(const struct ScriptLine *scline)
     gameadd.ext_samples[scline->np[0]].loops = scline->np[4];
     if (!SoundDisabled)
     {
+        char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s", &gameadd.ext_samples[scline->np[0]].filename);
         Ext_Sounds[scline->np[0]] = Mix_LoadWAV(fname);
         if (Ext_Sounds[scline->np[0]] != NULL)
         {
