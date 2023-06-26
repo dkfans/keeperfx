@@ -3801,7 +3801,7 @@ static void play_external_sound_check(const struct ScriptLine *scline)
         return;
     }
     value->bytes[0] = scline->np[0];
-    SCRPTLOG("Loaded sound file %s into slot %u. Volume %d. %ld Loops.", fname, scline->np[0], gameadd.ext_samples[scline->np[0]].volume, gameadd.ext_samples[scline->np[0]].loops);
+    SCRPTLOG("Loaded sound file %s into slot %u. Volume %d. %ld loops.", fname, scline->np[0], gameadd.ext_samples[scline->np[0]].volume, gameadd.ext_samples[scline->np[0]].loops);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
