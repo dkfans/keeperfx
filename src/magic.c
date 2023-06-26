@@ -119,6 +119,10 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
         TbBool cast_at_xy;
         TbBool cast_on_tng;
         cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, 0);
+        if (cast_at_xy == 0 && pwkind == 10)
+        {
+            JUSTMSG("DEBUG: Variable cast_at_xy set to %d at stl %d,%d", cast_at_xy, stl_x, stl_y);
+        }
         const struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
         cast_on_tng = true;
@@ -562,6 +566,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         if (!map_block_revealed(mapblk, plyr_idx))
         {
+            JUSTMSG("DEBUG: map block at stl %d,%d (slab %d,%d)not revealed for player %d", stl_x, stl_y, subtile_slab(stl_x), subtile_slab(stl_y), plyr_idx);
             // If it's not revealed, we may still accept revealing by SOE spell
             if ((can_cast & PwCast_RevealedTemp) == 0) {
                 return false;
