@@ -3799,7 +3799,7 @@ static void play_external_sound_check(const struct ScriptLine *scline)
         }
         else
         {
-            SCRPTERRLOG("Could not load sound %s for slot %u: %s", fname, scline->np[0], Mix_GetError());
+            SCRPTERRLOG("Could not load sound %s into slot %u: %s", fname, scline->np[0], Mix_GetError());
             return;
         }
         value->bytes[0] = scline->np[0];
