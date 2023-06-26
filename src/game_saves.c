@@ -754,6 +754,7 @@ void reload_external_sounds()
             {
                 int volume = (sound->volume == 0) ? MIX_MAX_VOLUME : sound->volume;
                 Mix_VolumeChunk(Ext_Sounds[sample], volume);
+                SYNCLOG("Loaded sound file %s into slot %u. Volume %d. %ld loops.", fname, sample, volume, sound->loops);
             }
             else
             {
