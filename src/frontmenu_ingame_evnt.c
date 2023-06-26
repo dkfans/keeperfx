@@ -199,16 +199,12 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
     }
 }
 
-void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per_px, TbBool cannot)
+void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per_px)
 {
     if (thing_is_invalid(thing)) {
         return;
     }
     short spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
-    if (cannot)
-    {
-        spr_idx++;
-    }
     struct TbSprite* spr = &gui_panel_sprites[spr_idx];
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
@@ -259,13 +255,13 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
         gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT; battlr_id++)
+    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT-1; battlr_id++)
     {
         int i = friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
         struct Thing* thing = thing_get(i);
         if (thing_is_creature(thing))
         {
-            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px, (battlr_id >= MESSAGE_BATTLERS_COUNT-1));
+            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
               if (game.play_gameturn & 2)
@@ -322,13 +318,13 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
         gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT; battlr_id++)
+    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT-1; battlr_id++)
     {
         int i = enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
         struct Thing* thing = thing_get(i);
         if (thing_is_creature(thing))
         {
-            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px, (battlr_id >= MESSAGE_BATTLERS_COUNT-1));
+            draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
               if (game.play_gameturn & 2)
