@@ -796,20 +796,21 @@ void ShutdownSDL()
 void free_chunks()
 {
     Mix_HaltChannel(-1);
-    for (int channel = 0; channel <= MIX_CHANNELS; channel++)
+    int i;
+    for (i = 0; i <= MIX_CHANNELS; i++)
     {
-        Mix_Chunk* chunk = Mix_GetChunk(channel);
+        Mix_Chunk* chunk = Mix_GetChunk(i);
         if (chunk != NULL)
         {
             Mix_FreeChunk(chunk);
         }
     }
-    for (int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
+    for (i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
     {
-        if (Ext_Sounds[sample] != NULL)
+        if (Ext_Sounds[i] != NULL)
         {
-            Mix_FreeChunk(Ext_Sounds[sample]);
-            Ext_Sounds[sample] = NULL;
+            Mix_FreeChunk(Ext_Sounds[i]);
+            Ext_Sounds[i] = NULL;
         }
     }
 }
