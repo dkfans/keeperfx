@@ -746,8 +746,11 @@ TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
         return false;
-    if ((slb->kind == SlbT_ENTRANCE) || (slb->kind == SlbT_DUNGHEART))
+    struct RoomConfigStats* roomst = get_room_kind_stats(slab_corresponding_room(slb->kind));
+    if ((roomst->flags & RoCFlg_CannotBeSold) != 0)
+    {
         return false;
+    }
     return true;
 }
 

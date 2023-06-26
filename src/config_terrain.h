@@ -69,6 +69,7 @@ enum RoomCfgFlags {
     RoCFlg_NoEnsign      = 0x01,
     RoCFlg_CantVandalize = 0x02,
     RoCFlg_BuildToBroke  = 0x04,
+    RoCFlg_CannotBeSold  = 0x08,
 };
 
 /**

@@ -87,6 +87,7 @@ const struct NamedCommand terrain_room_properties_commands[] = {
   {"HAS_NO_ENSIGN",     1},
   {"CANNOT_VANDALIZE",  2},
   {"BUILD_TO_BROKE",    3},
+  {"CANNOT_BE_SOLD",    4},
   {NULL,                0},
 };
 
@@ -874,6 +875,10 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                     break;
                 case 3: // BUILD_TO_BROKE
                     roomst->flags |= RoCFlg_BuildToBroke;
+                    n++;
+                    break;
+                case 4: // CANNOT_BE_SOLD
+                    roomst->flags |= RoCFlg_CannotBeSold;
                     n++;
                     break;
                 default:
