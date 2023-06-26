@@ -3810,12 +3810,9 @@ static void play_external_sound_check(const struct ScriptLine *scline)
 
 static void play_external_sound_process(struct ScriptContext *context)
 {
-    if (!SoundDisabled)
+    if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[0]], gameadd.ext_samples[context->value->bytes[0]].loops) == -1)
     {
-        if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[0]], gameadd.ext_samples[context->value->bytes[0]].loops) == -1)
-        {
-            SCRPTERRLOG("Could not play sound %s for slot %u: %s", &gameadd.ext_samples[context->value->bytes[0]].filename, context->value->bytes[0], Mix_GetError());
-        }
+        SCRPTERRLOG("Could not play sound %s for slot %u: %s", &gameadd.ext_samples[context->value->bytes[0]].filename, context->value->bytes[0], Mix_GetError());
     }
 }
 
