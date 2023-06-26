@@ -743,7 +743,7 @@ LevelNumber move_campaign_to_prev_level(void)
 
 void reload_external_sounds()
 {
-    for (int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
+    for (unsigned int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
     {
         struct SoundDesc* sound = &gameadd.ext_samples[sample];
         if (sound->filename[0] != '\0')
