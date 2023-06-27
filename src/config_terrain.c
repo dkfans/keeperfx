@@ -865,19 +865,19 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                 k = get_id(terrain_room_properties_commands, word_buf);
                 switch (k)
                 {
-                case 1: // HAS_NO_ENSIGN
+                case RoCFlg_NoEnsign:
                     roomst->flags |= RoCFlg_NoEnsign;
                     n++;
                     break;
-                case 2: // CANNOT_VANDALIZE
+                case RoCFlg_CantVandalize:
                     roomst->flags |= RoCFlg_CantVandalize;
                     n++;
                     break;
-                case 3: // BUILD_TO_BROKE
+                case RoCFlg_BuildToBroke:
                     roomst->flags |= RoCFlg_BuildToBroke;
                     n++;
                     break;
-                case 4: // CANNOT_BE_SOLD
+                case RoCFlg_CannotBeSold:
                     roomst->flags |= RoCFlg_CannotBeSold;
                     n++;
                     break;
