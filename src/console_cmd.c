@@ -916,7 +916,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     short slbkind = get_rid(slab_desc, pr2str);
                     if (slbkind < 0)
                     {
-                        long rid = get_rid(room_desc, pr2str);
+                        long rid = get_rid(game.room_desc, pr2str);
                         if (rid > 0)
                         {
                             struct RoomConfigStats *roomst = get_room_kind_stats(rid);
@@ -986,7 +986,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             }
             else
             {
-                roomid = get_rid(room_desc, pr2str);
+                roomid = get_rid(game.room_desc, pr2str);
                 if (roomid <= 0)
                 {
                     if (strcasecmp(pr2str, "Hatchery") == 0)

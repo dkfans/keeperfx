@@ -589,7 +589,7 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
     //TODO: list of lambdas
     if (*varib_id == -1)
     {
-      *varib_id = get_id(room_desc, varib_name);
+      *varib_id = get_id(game.room_desc, varib_name);
       *varib_type = SVar_ROOM_SLABS;
     }
     if (*varib_id == -1)
@@ -1003,7 +1003,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
     const char* valuestring2 = scline->tp[3];
     long newvalue;
     long newvalue2;
-    short room_id = get_id(room_desc, roomname);
+    short room_id = get_id(game.room_desc, roomname);
     if (room_id == -1)
     {
         SCRPTERRLOG("Unknown room, '%s'", roomname);
@@ -1393,8 +1393,8 @@ static void new_room_type_check(const struct ScriptLine* scline)
     roomst->roles = RoRoF_None;
     roomst->cost = 0;
     roomst->health = 0;
-    room_desc[i].name = roomst->code_name;
-    room_desc[i].num = i;
+    game.room_desc[i].name = roomst->code_name;
+    game.room_desc[i].num = i;
 }
 
 static void new_object_type_check(const struct ScriptLine* scline)
@@ -3524,7 +3524,7 @@ static void if_available_check(const struct ScriptLine *scline)
     }
     if (varib_id == -1)
     {
-      varib_id = get_id(room_desc, varib_name);
+      varib_id = get_id(game.room_desc, varib_name);
       varib_type = SVar_AVAILABLE_ROOM;
     }
     if (varib_id == -1)

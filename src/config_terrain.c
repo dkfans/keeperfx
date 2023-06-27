@@ -196,7 +196,6 @@ const struct NamedCommand terrain_health_commands[] = {
 
 /******************************************************************************/
 struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
-struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 struct SlabAttr slab_attrs[TERRAIN_ITEMS_MAX];
 
 const struct NamedCommand terrain_flags[] = {
@@ -277,7 +276,7 @@ struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind)
  */
 const char *room_code_name(RoomKind rkind)
 {
-    const char* name = get_conf_parameter_text(room_desc, rkind);
+    const char* name = get_conf_parameter_text(game.room_desc, rkind);
     if (name[0] != '\0')
         return name;
     return "INVALID";
@@ -755,7 +754,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
     int arr_size = TERRAIN_ITEMS_MAX;
     for (i = 0; i < arr_size; i++)
     {
-        if (((flags & CnfLd_AcceptPartial) == 0) || ((room_desc[i].name) == NULL))
+        if (((flags & CnfLd_AcceptPartial) == 0) || ((game.room_desc[i].name) == NULL))
         {
             if (i < game.slab_conf.room_types_count)
             {
@@ -775,12 +774,12 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                 roomst->roles = RoRoF_None;
                 roomst->cost = 0;
                 roomst->health = 0;
-                room_desc[i].name = roomst->code_name;
-                room_desc[i].num = i;
+                game.room_desc[i].name = roomst->code_name;
+                game.room_desc[i].num = i;
             } else
             {
-                room_desc[i].name = NULL;
-                room_desc[i].num = 0;
+                game.room_desc[i].name = NULL;
+                game.room_desc[i].num = 0;
             }
         }
     }

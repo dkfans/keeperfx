@@ -324,7 +324,7 @@ char get_player_number_from_value(const char* txt)
                 }
                 else
                 {
-                    id = get_rid(room_desc, txt);
+                    id = get_rid(game.room_desc, txt);
                     if (id != -1)
                     {
                         id = -78 - id;

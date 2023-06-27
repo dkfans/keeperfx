@@ -359,7 +359,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         scline->np[idx] = crtr_id;
         };break;
     case 'R':{
-        long room_id = get_rid(room_desc, scline->tp[idx]);
+        long room_id = get_rid(game.room_desc, scline->tp[idx]);
         if (room_id == -1)
         {
             SCRPTERRLOG("Unknown room kind, \"%s\"", scline->tp[idx]);

@@ -319,7 +319,7 @@ static void command_set_start_money(long plr_range_id, long gold_val)
 
 static void command_room_available(long plr_range_id, const char *roomname, unsigned long can_resrch, unsigned long can_build)
 {
-    long room_id = get_rid(room_desc, roomname);
+    long room_id = get_rid(game.room_desc, roomname);
     if (room_id == -1)
     {
       SCRPTERRLOG("Unknown room name, '%s'", roomname);
