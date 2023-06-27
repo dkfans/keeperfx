@@ -495,7 +495,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             continue;
         } else 
         {
-            if (emergency_state && ((roomst->flags & RoCFlg_BuildToBroke) == 0)) {
+            if (emergency_state && ((roomst->flags & RoCFlg_BuildTillBroke) == 0)) {
                 continue;
             }
             SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
