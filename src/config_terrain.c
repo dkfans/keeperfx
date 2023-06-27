@@ -863,25 +863,12 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = get_id(terrain_room_properties_commands, word_buf);
-                switch (k)
+                if (k > 0)
                 {
-                case RoCFlg_NoEnsign:
-                    roomst->flags |= RoCFlg_NoEnsign;
+                    roomst->flags |= k;
                     n++;
-                    break;
-                case RoCFlg_CantVandalize:
-                    roomst->flags |= RoCFlg_CantVandalize;
-                    n++;
-                    break;
-                case RoCFlg_BuildTillBroke:
-                    roomst->flags |= RoCFlg_BuildTillBroke;
-                    n++;
-                    break;
-                case RoCFlg_CannotBeSold:
-                    roomst->flags |= RoCFlg_CannotBeSold;
-                    n++;
-                    break;
-                default:
+                }else
+                {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                     break;
