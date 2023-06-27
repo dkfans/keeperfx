@@ -176,7 +176,7 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         case PwrK_CHICKEN:
         case PwrK_SLAP:
         case PwrK_LIGHTNING:
-            if (!can_cast_spell(caster, pwkind, stl_x, stl_y, thing, CastChk_Final | CastChk_SkipAvailiabilty))
+            if (can_cast_power_on_thing(caster, thing, pwkind) == false)
             {
                 return Lb_FAIL;
             }
