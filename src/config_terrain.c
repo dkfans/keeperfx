@@ -84,10 +84,10 @@ const struct NamedCommand terrain_room_commands[] = {
 };
 
 const struct NamedCommand terrain_room_properties_commands[] = {
-  {"HAS_NO_ENSIGN",     1},
-  {"CANNOT_VANDALIZE",  2},
-  {"BUILD_TO_BROKE",    3},
-  {"CANNOT_BE_SOLD",    4},
+  {"HAS_NO_ENSIGN",     RoCFlg_NoEnsign},
+  {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
+  {"BUILD_TO_BROKE",    RoCFlg_BuildToBroke},
+  {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
   {NULL,                0},
 };
 
