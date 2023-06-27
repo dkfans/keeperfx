@@ -170,7 +170,7 @@ extern const struct NamedCommand terrain_room_total_capacity_func_type[];
 extern const struct NamedCommand terrain_room_used_capacity_func_type[];
 extern Room_Update_Func terrain_room_total_capacity_func_list[7];
 extern Room_Update_Func terrain_room_used_capacity_func_list[10];
-extern struct SlabsConfig slab_conf;
+
 /******************************************************************************/
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/

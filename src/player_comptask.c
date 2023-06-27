@@ -1085,7 +1085,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     // The room digging task is complete - change it to room placing task
     if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
         struct RoomConfigStats *roomst;
-        roomst = &slab_conf.room_cfgstats[ctask->rkind];
+        roomst = &game.slab_conf.room_cfgstats[ctask->rkind];
         message_add_fmt(comp->dungeon->owner, "Now I can place the %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_PlaceRoom;
@@ -1122,7 +1122,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     dungeon = comp->dungeon;
     rkind = ctask->create_room.long_80;
     struct RoomConfigStats *roomst;
-    roomst = &slab_conf.room_cfgstats[rkind];
+    roomst = &game.slab_conf.room_cfgstats[rkind];
     // If we don't have money for the room - don't even try
     if (roomst->cost + 1000 >= dungeon->total_money_owned)
     {
@@ -1246,7 +1246,7 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     const struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return IAvail_Never;
     }
     if (dungeon_invalid(dungeon)) {
@@ -1269,7 +1269,7 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
 ItemAvailability computer_check_room_of_role_available(const struct Computer2 * comp, RoomRole rrole)
 {
     ItemAvailability result = IAvail_Never;
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -1521,7 +1521,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     {
         if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
             struct RoomConfigStats *roomst;
-            roomst = &slab_conf.room_cfgstats[rkind];
+            roomst = &game.slab_conf.room_cfgstats[rkind];
             message_add_fmt(comp->dungeon->owner, "It is time to build %s.",get_string(roomst->name_stridx));
         }
         ctask->ttype = CTT_DigRoomPassage;
@@ -3497,7 +3497,7 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
         room = room_get(room_idx);
         if (room_exists(room)) {
             struct RoomConfigStats *roomst;
-            roomst = &slab_conf.room_cfgstats[room->kind];
+            roomst = &game.slab_conf.room_cfgstats[room->kind];
             message_add_fmt(comp->dungeon->owner, "Time to put some creatures into %s.",get_string(roomst->name_stridx));
         } else {
             if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0)
@@ -3735,7 +3735,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     }
     if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
         struct RoomConfigStats *roomst;
-        roomst = &slab_conf.room_cfgstats[RoK_ENTRANCE];
+        roomst = &game.slab_conf.room_cfgstats[RoK_ENTRANCE];
         message_add_fmt(comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_DigToEntrance;

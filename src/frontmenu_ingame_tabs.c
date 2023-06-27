@@ -1039,7 +1039,7 @@ void maintain_room(struct GuiButton *gbtn)
 {
     RoomKind rkind = (long)gbtn->content;
     struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return;
     }
     if (dungeonadd_invalid(dungeonadd)) {
@@ -1059,7 +1059,7 @@ void maintain_big_room(struct GuiButton *gbtn)
 {
     long rkind = game.chosen_room_kind;
     struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return;
     }
     if (dungeonadd_invalid(dungeonadd)) {
@@ -1378,7 +1378,7 @@ void gui_go_to_next_room(struct GuiButton *gbtn)
     unsigned long rkind = (long)gbtn->content;
     go_to_my_next_room_of_type_and_select(rkind);
     game.chosen_room_kind = rkind;
-    struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[rkind];
+    struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[rkind];
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = gbtn->tooltip_stridx;
 }
@@ -2307,9 +2307,9 @@ void update_room_tab_to_config(void)
         ibtn->ptover_event = NULL;
         ibtn->draw_call = gui_area_new_null_button;
     }
-    for (i=0; i < slab_conf.room_types_count; i++)
+    for (i=0; i < game.slab_conf.room_types_count; i++)
     {
-        struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[i];
+        struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[i];
         if (roomst->panel_tab_idx < 1)
             continue;
         struct GuiButtonInit* ibtn = &room_menu.buttons[roomst->panel_tab_idx - 1];

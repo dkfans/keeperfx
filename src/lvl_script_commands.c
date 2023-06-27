@@ -1364,19 +1364,19 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
 
 static void new_room_type_check(const struct ScriptLine* scline)
 {
-    if (slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
+    if (game.slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
     {
         SCRPTERRLOG("Cannot increase room count for room type '%s', already at maximum %d rooms.", scline->tp[0], TERRAIN_ITEMS_MAX - 1);
         return;
     }
 
-    SCRIPTDBG(7, "Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], slab_conf.room_types_count + 1);
-    slab_conf.room_types_count++;
+    SCRIPTDBG(7, "Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.slab_conf.room_types_count + 1);
+    game.slab_conf.room_types_count++;
 
     struct RoomConfigStats* roomst;
-    int i = slab_conf.room_types_count - 1;
+    int i = game.slab_conf.room_types_count - 1;
 
-    roomst = &slab_conf.room_cfgstats[i];
+    roomst = &game.slab_conf.room_cfgstats[i];
     LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     roomst->name_stridx = GUIStr_Empty;
@@ -1679,7 +1679,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
 static void set_room_configuration_process(struct ScriptContext *context)
 {
     long room_type = context->value->shorts[0];
-    struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
+    struct RoomConfigStats *roomst = &game.slab_conf.room_cfgstats[room_type];
     unsigned short value;
     short value2;
     short value3;
