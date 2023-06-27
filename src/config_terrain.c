@@ -84,9 +84,10 @@ const struct NamedCommand terrain_room_commands[] = {
 };
 
 const struct NamedCommand terrain_room_properties_commands[] = {
-  {"HAS_NO_ENSIGN",     1},
-  {"CANNOT_VANDALIZE",  2},
-  {"BUILD_TO_BROKE",    3},
+  {"HAS_NO_ENSIGN",     RoCFlg_NoEnsign},
+  {"CANNOT_VANDALIZE",  RoCFlg_CantVandalize},
+  {"BUILD_TILL_BROKE",  RoCFlg_BuildTillBroke},
+  {"CANNOT_BE_SOLD",    RoCFlg_CannotBeSold},
   {NULL,                0},
 };
 
@@ -862,21 +863,12 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = get_id(terrain_room_properties_commands, word_buf);
-                switch (k)
+                if (k > 0)
                 {
-                case 1: // HAS_NO_ENSIGN
-                    roomst->flags |= RoCFlg_NoEnsign;
+                    roomst->flags |= k;
                     n++;
-                    break;
-                case 2: // CANNOT_VANDALIZE
-                    roomst->flags |= RoCFlg_CantVandalize;
-                    n++;
-                    break;
-                case 3: // BUILD_TO_BROKE
-                    roomst->flags |= RoCFlg_BuildToBroke;
-                    n++;
-                    break;
-                default:
+                }else
+                {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                     break;

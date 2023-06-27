@@ -1127,7 +1127,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     if (roomst->cost + 1000 >= dungeon->total_money_owned)
     {
         // Prefer leaving some gold, unless a flag is forcing us to build
-        if (((roomst->flags & RoCFlg_BuildToBroke) == 0) || (roomst->cost >= dungeon->total_money_owned)) {
+        if (((roomst->flags & RoCFlg_BuildTillBroke) == 0) || (roomst->cost >= dungeon->total_money_owned)) {
             return 0;
         }
     }
