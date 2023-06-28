@@ -1332,8 +1332,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         return;
     }
     struct ShotConfigStats* shotst;
-    struct Thing *srctng = thing_get(efftng->parent_idx);
-    if (thing_is_deployed_trap(srctng))
+    if (thing_is_deployed_trap(owntng))
     {
         shotst = get_shot_model_stats(ShM_TrapWordOfPower);
     }
