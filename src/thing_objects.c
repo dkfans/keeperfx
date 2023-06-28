@@ -518,6 +518,31 @@ TbBool thing_is_special_box(const struct Thing *thing)
     return (objst->genre == OCtg_SpecialBox);
 }
 
+TbBool thing_is_hardcoded_special_box(const struct Thing* thing)
+{
+    if (thing->class_id != TCls_Object)
+        return false;
+    switch (thing->model)
+    {
+    case ObjMdl_SpecboxRevealMap:
+    case ObjMdl_SpecboxResurect:
+    case ObjMdl_SpecboxTransfer:
+    case ObjMdl_SpecboxStealHero:
+    case ObjMdl_SpecboxMultiply:
+    case ObjMdl_SpecboxIncreaseLevel:
+    case ObjMdl_SpecboxMakeSafe:
+    case ObjMdl_SpecboxHiddenWorld:
+        return true;
+    default:
+        return false;
+    }
+}
+
+TbBool thing_is_custom_special_box(const struct Thing* thing)
+{
+    return (thing_is_special_box(thing) && !thing_is_hardcoded_special_box(thing));
+}
+
 TbBool thing_is_workshop_crate(const struct Thing *thing)
 {
     if (!thing_is_object(thing))
@@ -1314,7 +1339,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
 {
     if (thing_is_invalid(heartng))
     {
-        ERRORLOG("Trying to beat non-existing hearth");
+        ERRORLOG("Trying to beat non-existing heart");
         return;
     }
     const long base_heart_beat_rate = 2304;

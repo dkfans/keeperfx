@@ -2424,13 +2424,15 @@ void creature_drop_dragged_object(struct Thing *creatng, struct Thing *dragtng)
 
 TbBool creature_is_dragging_something(const struct Thing *creatng)
 {
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->dragtng_idx == 0) {
         return false;
     }
     const struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    if (!thing_exists(dragtng)) {
-        ERRORLOG("The %s is dragging non-existing thing",thing_model_name(creatng));
+    if (!thing_exists(dragtng))
+    {
+        ERRORLOG("The %s is dragging non-existing thing with ID %d",thing_model_name(creatng), cctrl->dragtng_idx);
+        cctrl->dragtng_idx = 0;
         return false;
     }
     return true;

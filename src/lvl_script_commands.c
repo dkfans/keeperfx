@@ -41,6 +41,7 @@
 #include "map_blocks.h"
 #include "bflib_memory.h"
 #include "post_inc.h"
+#include "music_player.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -1087,7 +1088,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > 7) || (newvalue < 0))
+            if ((newvalue >= RoCFlg_ListEnd) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
@@ -3743,6 +3744,25 @@ static void set_texture_process(struct ScriptContext *context)
     }
 }
 
+static void set_music_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->chars[0] = scline->np[0];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_music_process(struct ScriptContext *context)
+{
+    if (context->value->chars[0] >= FIRST_TRACK && context->value->chars[0] <= max_track)
+    {
+        game.audiotrack = context->value->chars[0];
+    }
+    else
+    {
+        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", context->value->chars[0],FIRST_TRACK,max_track);
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -3785,7 +3805,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
   {"SET_CREATURE_MAX_LEVEL",            "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
-  {"SET_MUSIC",                         "N       ", Cmd_SET_MUSIC, NULL, NULL},
+  {"SET_MUSIC",                         "N       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
   {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
   {"SET_CREATURE_HEALTH",               "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},
