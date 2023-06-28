@@ -436,6 +436,7 @@ void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
     if (!thing_is_invalid(efftng)) 
     {
         efftng->shot_effect.hit_type = trapstat->hit_type;
+        efftng->parent_idx = traptng->index;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
     if(trapstat->created_itm_model == 14) //Word of Power trap

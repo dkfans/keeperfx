@@ -31,6 +31,7 @@
 #include "thing_physics.h"
 #include "thing_factory.h"
 #include "thing_navigate.h"
+#include "thing_shots.h"
 #include "creature_senses.h"
 #include "config_creature.h"
 #include "config_effects.h"
@@ -1331,13 +1332,14 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         return;
     }
     struct ShotConfigStats* shotst;
-    if (efftng->shot_effect.hit_type == THit_CrtrsOnlyNotOwn) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
+    struct Thing *srctng = thing_get(efftng->parent_idx);
+    if (thing_is_deployed_trap(srctng))
     {
-        shotst = get_shot_model_stats(31); //SHOT_TRAP_WORD_OF_POWER
+        shotst = get_shot_model_stats(ShM_TrapWordOfPower);
     }
     else
     {
-        shotst = get_shot_model_stats(30); //SHOT_WORD_OF_POWER
+        shotst = get_shot_model_stats(ShM_WordOfPower);
     }
     if ((shotst->area_range <= 0) || ((shotst->area_damage == 0) && (shotst->area_blow == 0))) {
         ERRORLOG("Word of power shot configuration does not include area influence.");
