@@ -195,6 +195,7 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
 int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
 {
     long chunks_done = 0;
+    free_chunks();
     while (!LbFileEof(fhandle))
     {
         struct FileChunkHeader hdr;
