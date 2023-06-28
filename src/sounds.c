@@ -793,7 +793,7 @@ void ShutdownSDL()
     }
 }
 
-void free_chunks()
+void free_sound_chunks()
 {
     Mix_HaltChannel(-1);
     int i;

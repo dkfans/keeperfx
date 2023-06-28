@@ -3851,7 +3851,7 @@ void game_loop(void)
       LbScreenClear(0);
       LbScreenSwap();
       keeper_gameplay_loop();
-      free_chunks();
+      free_sound_chunks();
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();

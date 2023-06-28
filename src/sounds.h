@@ -119,7 +119,7 @@ void update_first_person_object_ambience(struct Thing *thing);
 
 int InitialiseSDL();
 void ShutdownSDL();
-void free_chunks();
+void free_sound_chunks();
 /******************************************************************************/
 #ifdef __cplusplus
 }
