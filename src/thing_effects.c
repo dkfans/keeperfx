@@ -1165,7 +1165,7 @@ TbBool destroy_effect_thing(struct Thing *efftng)
  * @note If the function returns true, the effect might have caused death of the target.
  */
 TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner, TbBool no_stun)
 {
     TbBool affected = false;
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
@@ -1189,7 +1189,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 {
                     CrDeathFlags dieflags = CrDed_DiedInBattle;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if ((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint))
+                    if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (no_stun) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
@@ -1197,7 +1197,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     affected = true;
                 }
             }
-            if (thing_is_dungeon_heart(tngdst))
+            else if (thing_is_dungeon_heart(tngdst))
             {
                 HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
                 SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
@@ -1267,7 +1267,7 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
  * @param damage_type Type of the damage inflicted.
  */
 long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, TbBool no_stun)
 {
     PlayerNumber owner;
     if (!thing_is_invalid(tngsrc))
@@ -1297,7 +1297,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         } else
         if (effect_can_affect_thing(efftng, thing))
         {
-            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
+            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner, no_stun))
             {
                 num_affected++;
             }
@@ -1380,13 +1380,14 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
     if (stl_ymax > gameadd.map_subtiles_y) {
       stl_ymax = gameadd.map_subtiles_y;
     }
+    TbBool no_stun = ((shotst->model_flags & ShMF_NoStun) != 0);
     for (long stl_y = stl_ymin; stl_y <= stl_ymax; stl_y++)
     {
         for (long stl_x = stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             explosion_effect_affecting_map_block(efftng, owntng, mapblk, max_dist,
-                shotst->area_damage, shotst->area_blow, shotst->damage_type);
+                shotst->area_damage, shotst->area_blow, shotst->damage_type, no_stun);
         }
     }
 }
@@ -1448,7 +1449,7 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         // Per thing processing block
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner))
+            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner, false))
                 num_affected++;
         }
         // Per thing processing block ends
