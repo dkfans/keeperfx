@@ -1534,18 +1534,25 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     short value = context->value->shorts[2];
     short value2 = context->value->shorts[3];
     short value3 = context->value->shorts[4];
+    int old_value, old_value2;
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
             trapst->name_stridx = value;
             break;
         case 2: // TooltipTextID
+            old_value = trapst->tooltip_stridx;
             trapst->tooltip_stridx = value;
             manufctr->tooltip_stridx = trapst->tooltip_stridx;
-            update_trap_tab_to_config();
+            if (trapst->tooltip_stridx != old_value)
+            {
+                update_trap_tab_to_config();
+            }
             break;
         case 3: // SymbolSprites
         {
+            old_value = trapst->medsym_sprite_idx;
+            old_value2 = trapst->bigsym_sprite_idx;
             trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
             trapst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
             if (trapst->bigsym_sprite_idx < 0)
@@ -1554,19 +1561,30 @@ static void set_trap_configuration_process(struct ScriptContext *context)
                 trapst->medsym_sprite_idx = bad_icon_id;
             manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
             manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
-            update_trap_tab_to_config();
+            if ( (trapst->medsym_sprite_idx != old_value) || (trapst->bigsym_sprite_idx != old_value2) )
+            {
+                update_trap_tab_to_config();
+            }
         }
             break;
         case 4: // PointerSprites
+            old_value = trapst->pointer_sprite_idx;
             trapst->pointer_sprite_idx = get_icon_id(context->value->str2);
             if (trapst->pointer_sprite_idx < 0)
                 trapst->pointer_sprite_idx = bad_icon_id;
-            update_trap_tab_to_config();
+            if(trapst->pointer_sprite_idx != old_value)
+            {
+                update_trap_tab_to_config();
+            }
             break;
         case 5: // PanelTabIndex
+            old_value = trapst->panel_tab_idx;
             trapst->panel_tab_idx = value;
             manufctr->panel_tab_idx = value;
-            update_trap_tab_to_config();
+            if (trapst->panel_tab_idx != old_value)
+            {
+                update_trap_tab_to_config();
+            }
             break;
         case 6: // Crate
             gameadd.object_conf.object_to_door_or_trap[value] = trap_type;
@@ -1683,6 +1701,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
     unsigned short value;
     short value2;
     short value3;
+    int old_value, old_value2;
     if (context->value->shorts[1] != 13) // Roles need larger values, so can fit fewer
     {
         value = context->value->shorts[2];
@@ -1695,29 +1714,46 @@ static void set_room_configuration_process(struct ScriptContext *context)
             roomst->name_stridx = value;
             break;
         case 2: // TooltipTextID
+            old_value = roomst->tooltip_stridx;
             roomst->tooltip_stridx = value;
-            update_room_tab_to_config();
+            if (roomst->tooltip_stridx != old_value)
+            {
+                update_room_tab_to_config();
+            }
             break;
         case 3: // SymbolSprites
         {
+            old_value = roomst->medsym_sprite_idx;
+            old_value2 = roomst->bigsym_sprite_idx;
             roomst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
             roomst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
             if (roomst->bigsym_sprite_idx < 0)
                 roomst->bigsym_sprite_idx = bad_icon_id;
             if (roomst->medsym_sprite_idx < 0)
                 roomst->medsym_sprite_idx = bad_icon_id;
-            update_room_tab_to_config();
+            if ( (roomst->medsym_sprite_idx != old_value) || (roomst->bigsym_sprite_idx != old_value2) )
+            {
+                update_room_tab_to_config();
+            }
         }
             break;
         case 4: // PointerSprites
+            old_value = roomst->pointer_sprite_idx;
             roomst->pointer_sprite_idx = get_icon_id(context->value->str2);
             if (roomst->pointer_sprite_idx < 0)
                 roomst->pointer_sprite_idx = bad_icon_id;
-            update_room_tab_to_config();
+            if (roomst->pointer_sprite_idx != old_value)
+            {
+                update_room_tab_to_config();
+            }
             break;
         case 5: // PanelTabIndex
+            old_value = roomst->panel_tab_idx;
             roomst->panel_tab_idx = value;
-            update_room_tab_to_config();
+            if (roomst->panel_tab_idx != old_value)
+            {
+                update_room_tab_to_config();
+            }
             break;
         case 6: // Cost
             roomst->cost = value;
