@@ -5280,10 +5280,11 @@ long update_creature_levels(struct Thing *thing)
     {
         struct Dungeon* dungeon = get_dungeon(thing->owner);
         short i = get_thing_in_hand_id(thing, thing->owner);
-        if (i > 0)
+        if (i >= 0)
         {
             dungeon->things_in_hand[i] = newtng->index;
             remove_thing_from_limbo(thing);
+            place_thing_in_limbo(newtng);
         }
         else
         {
