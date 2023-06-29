@@ -1874,7 +1874,7 @@ long get_research_id(long item_type, const char *trg_name, const char *func_name
       }
       break;
   case 2:
-      item_id = get_id(game.room_desc, trg_name);
+      item_id = get_id(room_desc, trg_name);
       if (item_id == -1)
       {
         ERRORMSG("%s(line %lu): " "Unknown room, '%s'", func_name, text_line_number, trg_name);

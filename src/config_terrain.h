@@ -163,6 +163,7 @@ struct SlabsConfig {
 /******************************************************************************/
 extern const char keeper_terrain_file[];
 extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
+extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
 extern const struct NamedCommand terrain_room_properties_commands[];
 extern const struct NamedCommand room_roles_desc[];
 extern const struct NamedCommand terrain_room_total_capacity_func_type[];

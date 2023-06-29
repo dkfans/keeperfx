@@ -146,7 +146,6 @@ char numfield_1A;
     struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y]; // field offset 0xDC157
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
-    struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
     struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
     struct SlabsConfig slab_conf;
     struct Room rooms[ROOMS_COUNT];

@@ -235,7 +235,7 @@ TbBool get_map_location_code_name(TbMapLocation location, char *name)
         };return true;
     case MLoc_ROOMKIND:{
         i = get_map_location_plyrval(location);
-        const char* cnstname = get_conf_parameter_text(game.room_desc, i);
+        const char* cnstname = get_conf_parameter_text(room_desc, i);
         if (cnstname[0] == '\0') {
             break;
         }
@@ -366,7 +366,7 @@ TbBool get_map_location_id_f(const char *locname, TbMapLocation *location, const
         return true;
     }
     // Room name means location of such room belonging to player0
-    i = get_rid(game.room_desc, locname);
+    i = get_rid(room_desc, locname);
     if (i != -1)
     {
         *location = ((unsigned long)i << 12) | ((unsigned long)my_player_number << 4) | MLoc_ROOMKIND;
