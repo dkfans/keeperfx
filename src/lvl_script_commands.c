@@ -1572,7 +1572,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->pointer_sprite_idx = get_icon_id(context->value->str2);
             if (trapst->pointer_sprite_idx < 0)
                 trapst->pointer_sprite_idx = bad_icon_id;
-            if(trapst->pointer_sprite_idx != old_value)
+            if (trapst->pointer_sprite_idx != old_value)
             {
                 update_trap_tab_to_config();
             }
