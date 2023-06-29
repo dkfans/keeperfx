@@ -424,7 +424,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
     }
 }
 
-void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
+void activate_trap_effect_on_trap(struct Thing *traptng)
 {
     struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
@@ -436,12 +436,12 @@ void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
     if (!thing_is_invalid(efftng)) 
     {
         efftng->shot_effect.hit_type = trapstat->hit_type;
+        efftng->parent_idx = traptng->index;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
-    if(trapstat->created_itm_model == 14) //Word of Power trap
+    if (trapstat->created_itm_model == 14) //Word of Power trap
     { 
-        struct ShotConfigStats* shotst;
-        shotst = get_shot_model_stats(31); //SHOT_TRAP_WORD_OF_POWER
+        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_TrapWordOfPower);
         if (shotst->firing_sound > 0) 
         {
             thing_play_sample(traptng, shotst->firing_sound+UNSYNC_RANDOM(shotst->firing_sound_variants),
@@ -454,7 +454,7 @@ void activate_trap_effect_on_trap(struct Thing *traptng, struct Thing *creatng)
     }
 }
 
-void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
+void activate_trap_shot_on_trap(struct Thing *traptng)
 {
     struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
@@ -473,7 +473,7 @@ void activate_trap_shot_on_trap(struct Thing *traptng, struct Thing *creatng)
     }
 }
 
-void activate_trap_slab_change(struct Thing *traptng, struct Thing *creatng)
+void activate_trap_slab_change(struct Thing *traptng)
 {
     MapSubtlCoord stl_x = traptng->mappos.x.stl.num;
     MapSubtlCoord stl_y = traptng->mappos.y.stl.num;
@@ -558,13 +558,13 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         activate_trap_shot_head_for_target90(traptng, creatng);
         break;
     case TrpAcT_EffectonTrap:
-        activate_trap_effect_on_trap(traptng, creatng);
+        activate_trap_effect_on_trap(traptng);
         break;
     case TrpAcT_ShotonTrap:
-        activate_trap_shot_on_trap(traptng, creatng);
+        activate_trap_shot_on_trap(traptng);
         break;
     case TrpAcT_SlabChange:
-        activate_trap_slab_change(traptng, creatng);
+        activate_trap_slab_change(traptng);
         break;
     case TrpAcT_CreatureShot:
         creature_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
