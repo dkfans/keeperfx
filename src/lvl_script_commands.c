@@ -25,6 +25,7 @@
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "gui_soundmsgs.h"
+#include "config_settings.h"
 #include "config_effects.h"
 #include "config_trapdoor.h"
 #include "thing_effects.h"
@@ -3783,7 +3784,7 @@ static void play_external_sound_check(const struct ScriptLine *scline)
         SCRPTERRLOG("Unable to store filename for external sound slot %u", scline->np[0]);
         return;
     }
-    gameadd.ext_samples[scline->np[0]].volume = (scline->np[3] == 0) ? MIX_MAX_VOLUME : scline->np[3];
+    gameadd.ext_samples[scline->np[0]].volume = scline->np[3];
     if (scline->np[3] > MIX_MAX_VOLUME)
     {
         SCRPTWRNLOG("Setting volume above %d has no effect.", MIX_MAX_VOLUME);
@@ -3810,9 +3811,16 @@ static void play_external_sound_check(const struct ScriptLine *scline)
 
 static void play_external_sound_process(struct ScriptContext *context)
 {
-    if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[0]], gameadd.ext_samples[context->value->bytes[0]].loops) == -1)
+    if (!SoundDisabled)
     {
-        SCRPTERRLOG("Could not play sound %s for slot %u: %s", &gameadd.ext_samples[context->value->bytes[0]].filename, context->value->bytes[0], Mix_GetError());
+        if (gameadd.ext_samples[context->value->bytes[0]].volume == 0)
+        {
+            Mix_VolumeChunk(Ext_Sounds[context->value->bytes[0]], settings.sound_volume);
+        }
+        if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[0]], gameadd.ext_samples[context->value->bytes[0]].loops) == -1)
+        {
+            SCRPTERRLOG("Could not play sound %s for slot %u: %s", &gameadd.ext_samples[context->value->bytes[0]].filename, context->value->bytes[0], Mix_GetError());
+        }
     }
 }
 

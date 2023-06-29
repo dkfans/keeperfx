@@ -31,6 +31,7 @@
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "config_compp.h"
+#include "config_settings.h"
 #include "custom_sprites.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -753,7 +754,7 @@ void reload_external_sounds()
             Ext_Sounds[sample] = Mix_LoadWAV(fname);
             if (Ext_Sounds[sample] != NULL)
             {
-                int volume = (sound->volume == 0) ? MIX_MAX_VOLUME : sound->volume;
+                int volume = (sound->volume == 0) ? settings.sound_volume : sound->volume;
                 Mix_VolumeChunk(Ext_Sounds[sample], volume);
                 SYNCLOG("Loaded sound file %s into slot %u. Volume %d. %ld loops.", fname, sample, volume, sound->loops);
             }

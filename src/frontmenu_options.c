@@ -39,7 +39,12 @@
 #include "config_settings.h"
 #include "keeperfx.hpp"
 #include "gui_topmsg.h"
+#include "lvl_script_commands.h"
+#include "lvl_script.h"
+#include "sounds.h"
 #include "post_inc.h"
+
+#include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -311,6 +316,17 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
     save_settings();
     SetSoundMasterVolume(settings.sound_volume);
     SetMusicMasterVolume(settings.sound_volume);
+    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
+    {
+        if (Ext_Sounds[i] != NULL)
+        {
+            struct SoundDesc* sound = &gameadd.ext_samples[i];
+            if (sound->volume == 0)
+            {
+                Mix_VolumeChunk(Ext_Sounds[i], settings.sound_volume);
+            }
+        }
+    }
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)
