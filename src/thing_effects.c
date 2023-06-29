@@ -1317,11 +1317,11 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
 /**
  * Applies damage the Word Of Power spell makes to all things in the area surrounding given position.
  * @param efftng The thing which is WOP effect originator.
- * @param owntng The thing being affected by the spell.
+ * @param tngsrc The thing being source of the spell.
  * @param pos Position where the WOP effect center is.
  * @param max_dist Range of the WOP spell effect, in map coordinates.
  */
-void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, struct Coord3d *pos)
+void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, struct Coord3d *pos)
 {
     long stl_xmin;
     long stl_xmax;
@@ -1332,7 +1332,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         return;
     }
     struct ShotConfigStats* shotst;
-    if (thing_is_deployed_trap(owntng))
+    if (thing_is_deployed_trap(tngsrc))
     {
         shotst = get_shot_model_stats(ShM_TrapWordOfPower);
     }
@@ -1385,7 +1385,7 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         for (long stl_x = stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            explosion_effect_affecting_map_block(efftng, owntng, mapblk, max_dist,
+            explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist,
                 shotst->area_damage, shotst->area_blow, shotst->damage_type, no_stun);
         }
     }
