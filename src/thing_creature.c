@@ -1628,6 +1628,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         {
             struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
             efthing->shot_effect.hit_type = shotst->area_hit_type;
+            efthing->parent_idx = castng->index;
         }
     }
 }
