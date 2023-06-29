@@ -44,6 +44,7 @@
 #include "post_inc.h"
 #include "music_player.h"
 #include "bflib_sound.h"
+#include "sounds.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -3779,24 +3780,25 @@ static void play_external_sound_check(const struct ScriptLine *scline)
         SCRPTWRNLOG("External sound slot %u is already used; overwriting.", scline->np[0]);
         Mix_FreeChunk(Ext_Sounds[scline->np[0]]);
     }
-    if (sprintf(&gameadd.ext_samples[scline->np[0]].filename[0], "%s.%s", script_strdup(scline->tp[1]), script_strdup(scline->tp[2])) < 0)
+    struct SoundDesc* sound = &gameadd.ext_samples[scline->np[0]];
+    if (sprintf(&sound->filename[0], "%s.%s", script_strdup(scline->tp[1]), script_strdup(scline->tp[2])) < 0)
     {
         SCRPTERRLOG("Unable to store filename for external sound slot %u", scline->np[0]);
         return;
     }
-    gameadd.ext_samples[scline->np[0]].volume = scline->np[3];
+    sound->volume = scline->np[3];
     if (scline->np[3] > MIX_MAX_VOLUME)
     {
         SCRPTWRNLOG("Setting volume above %d has no effect.", MIX_MAX_VOLUME);
     }
-    gameadd.ext_samples[scline->np[0]].loops = scline->np[4];
+    sound->loops = scline->np[4];
     if (!SoundDisabled)
     {
-        char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s", &gameadd.ext_samples[scline->np[0]].filename);
+        char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s", &sound->filename);
         Ext_Sounds[scline->np[0]] = Mix_LoadWAV(fname);
         if (Ext_Sounds[scline->np[0]] != NULL)
         {
-            Mix_VolumeChunk(Ext_Sounds[scline->np[0]], gameadd.ext_samples[scline->np[0]].volume);
+            Mix_VolumeChunk(Ext_Sounds[scline->np[0]], (sound->volume == 0) ? settings.sound_volume : sound->volume);
         }
         else
         {
@@ -3804,7 +3806,7 @@ static void play_external_sound_check(const struct ScriptLine *scline)
             return;
         }
         value->bytes[0] = scline->np[0];
-        SCRPTLOG("Loaded sound file %s into slot %u. Volume %d. %ld loops.", fname, scline->np[0], gameadd.ext_samples[scline->np[0]].volume, gameadd.ext_samples[scline->np[0]].loops);
+        SCRPTLOG("Loaded sound file %s into slot %u. Volume %d. %ld loops.", fname, scline->np[0], sound->volume, sound->loops);
         PROCESS_SCRIPT_VALUE(scline->command);
     }
 }
@@ -3813,13 +3815,10 @@ static void play_external_sound_process(struct ScriptContext *context)
 {
     if (!SoundDisabled)
     {
-        if (gameadd.ext_samples[context->value->bytes[0]].volume == 0)
+        struct SoundDesc* sound = &gameadd.ext_samples[context->value->bytes[0]];
+        if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[0]], sound->loops) == -1)
         {
-            Mix_VolumeChunk(Ext_Sounds[context->value->bytes[0]], settings.sound_volume);
-        }
-        if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[0]], gameadd.ext_samples[context->value->bytes[0]].loops) == -1)
-        {
-            SCRPTERRLOG("Could not play sound %s for slot %u: %s", &gameadd.ext_samples[context->value->bytes[0]].filename, context->value->bytes[0], Mix_GetError());
+            SCRPTERRLOG("Could not play sound %s for slot %u: %s", &sound->filename, context->value->bytes[0], Mix_GetError());
         }
     }
 }
