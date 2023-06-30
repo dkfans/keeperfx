@@ -1020,9 +1020,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             if (!creature_affected_by_spell(thing, SplK_TimeBomb))
             {
                 cctrl->spell_flags |= CSAfF_Timebomb;
-                pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
-                cctrl->timebomb_countdown = pwrdynst->duration;
-                cctrl->timebomb_radius = spell_lev;
+                //pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
+                cctrl->timebomb_countdown = duration;
+                //cctrl->timebomb_radius = spell_lev;
             }
         }
     } else

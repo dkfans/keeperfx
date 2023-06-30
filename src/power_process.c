@@ -725,21 +725,56 @@ void process_timebomb(struct Thing *creatng)
 
 void timebomb_explode(struct Thing *creatng)
 {
+
+    struct ShotConfigStats* shotst = get_shot_model_stats(ShM_TimeBomb); // todo: change this to the shot that is linked to the timebomb spell
+    SYNCDBG(8, "Explode Timebomb")
+    //struct Thing* castng = creatng; //todo cleanup
+    long weight = compute_creature_weight(creatng);
+    long weight_multiplier = weight / 64;
+    
+    if (shotst->area_range != 0) {
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight_multiplier);
+        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight_multiplier);
+        HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+        explosion_affecting_area(creatng, &creatng->mappos, dist, damage, shotst->area_blow * weight_multiplier, hit_targets, shotst->damage_type);
+    }
+
+    create_used_effect_or_element(&creatng->mappos, shotst->explode.effect1_model, creatng->owner);
+    create_used_effect_or_element(&creatng->mappos, shotst->explode.effect2_model, creatng->owner);
+    if (shotst->explode.around_effect1_model != 0)
+    {
+        create_effect_around_thing(creatng, shotst->explode.around_effect1_model);
+    }
+    if (shotst->explode.around_effect2_model > 0)
+    {
+        create_effect_around_thing(creatng, shotst->explode.around_effect2_model);
+    }
+    kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
+    
+    /*
     if (creature_model_bleeds(creatng->model))
     {
         create_effect_around_thing(creatng, TngEff_Blood5);
     }
-    create_effect_around_thing(creatng, TngEff_Explosion6);
-    struct ShotConfigStats* shotst = get_shot_model_stats(ShM_TimeBomb);
-    HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-    struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
+    //create_effect_around_thing(creatng, TngEff_Explosion6);
+    //struct Thing* shotng = create_shot(&creatng->mappos, ShM_TimeBomb, creatng->owner);
+    //if (!thing_is_invalid(shotng))
+    
+    //struct ShotConfigStats* shotst = get_shot_model_stats(ShM_TimeBomb);
+    //HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+    //struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->timebomb_death = true;
-    struct Coord3d pos = creatng->mappos;
-    MapCoord max_dist = subtile_coord(cctrl->timebomb_radius + 1, 0) * COORD_PER_STL;
-    HitPoints max_damage = compute_creature_weight(creatng) * pwrdynst->strength[cctrl->timebomb_radius];
-    long blow_strength = shotst->area_blow * (cctrl->timebomb_radius + 1);
+    cctrl->timebomb_death = true; // Should be done through shot properties
+    //long weight = compute_creature_weight(creatng);
+    //long weight_multiplier = weight / 64;
+    //struct Coord3d pos = creatng->mappos;
+    //MapCoord max_dist = shotst->area_range * weight_multiplier;
+    //HitPoints max_damage = shotst->area_damage * weight_multiplier;
+    //long blow_strength = shotst->area_blow * weight_multiplier;
     kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
-    explosion_affecting_area(creatng, &pos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
+    //explosion_affecting_area(creatng, &pos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
+    */
 }
 /******************************************************************************/

@@ -137,7 +137,6 @@ enum ObjectCombatStates {
 struct CastedSpellData {
     unsigned char spkind;
     short duration;
-    unsigned char field_3;
 };
 
 struct CreatureControl {
@@ -409,7 +408,7 @@ unsigned short shot_shift_z;
     long following_leader_since;
     unsigned char follow_leader_fails;
     unsigned long timebomb_countdown;
-    unsigned char timebomb_radius;
+    unsigned char timebomb_radius; //todo cleanup
     ThingIndex timebomb_countdown_id;
     ThingIndex timebomb_target_id;
     TbBool timebomb_death;
