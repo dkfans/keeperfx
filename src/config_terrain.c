@@ -1035,6 +1035,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             k = recognize_conf_parameter(buf,&pos,len,terrain_room_total_capacity_func_type);
             if (k > 0)
             {
+                roomst->update_total_capacity_idx = k;
                 roomst->update_total_capacity = terrain_room_total_capacity_func_list[k];
                 n++;
             }
@@ -1048,12 +1049,14 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             k = recognize_conf_parameter(buf,&pos,len,terrain_room_used_capacity_func_type);
             if (k > 0)
             {
+                roomst->update_storage_in_room_idx = k;
                 roomst->update_storage_in_room = terrain_room_used_capacity_func_list[k];
                 n++;
             }
             k = recognize_conf_parameter(buf,&pos,len,terrain_room_used_capacity_func_type);
             if (k > 0)
             {
+                roomst->update_workers_in_room_idx = k;
                 roomst->update_workers_in_room = terrain_room_used_capacity_func_list[k];
                 n++;
             }
@@ -1168,6 +1171,42 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
     }
     //Freeing and exiting
     return result;
+}
+
+void restore_room_update_functions_after_load()
+{
+    struct RoomConfigStats* roomst;
+    int arr_size = game.slab_conf.room_types_count;
+    for (int i = 0; i < arr_size; i++)
+    {
+        roomst = &game.slab_conf.room_cfgstats[i];
+        if ((roomst->update_total_capacity_idx > 0) && (roomst->update_total_capacity_idx <= sizeof(terrain_room_total_capacity_func_list)))
+        {
+            roomst->update_total_capacity = terrain_room_total_capacity_func_list[roomst->update_total_capacity_idx];
+        }
+        else
+        {
+            roomst->update_total_capacity = NULL;
+        }
+
+        if ((roomst->update_storage_in_room_idx > 0) && (roomst->update_storage_in_room_idx <= sizeof(terrain_room_used_capacity_func_list)))
+        {
+            roomst->update_storage_in_room = terrain_room_used_capacity_func_list[roomst->update_storage_in_room_idx];
+        }
+        else
+        {
+            roomst->update_storage_in_room = NULL;
+        }
+
+        if ((roomst->update_workers_in_room_idx > 0) && (roomst->update_workers_in_room_idx <= sizeof(terrain_room_used_capacity_func_list)))
+        {
+            roomst->update_workers_in_room = terrain_room_used_capacity_func_list[roomst->update_workers_in_room_idx];
+        }
+        else
+        {
+            roomst->update_workers_in_room = NULL;
+        }
+    }
 }
 
 /**
