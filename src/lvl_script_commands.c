@@ -1750,11 +1750,14 @@ static void set_room_configuration_process(struct ScriptContext *context)
                 roomst->roles |= context->value->uarg2;
             break;
         case 14: // TotalCapacity
+            roomst->update_total_capacity_idx = value;
             roomst->update_total_capacity = terrain_room_total_capacity_func_list[value];
             reinitialise_rooms_of_kind(room_type);
             break;
         case 15: // UsedCapacity
+            roomst->update_storage_in_room_idx = value;
             roomst->update_storage_in_room = terrain_room_used_capacity_func_list[value];
+            roomst->update_workers_in_room_idx = value2;
             roomst->update_workers_in_room = terrain_room_used_capacity_func_list[value2];
             reinitialise_rooms_of_kind(room_type);
             break;
