@@ -643,6 +643,24 @@ long get_id(const struct NamedCommand *desc, const char *itmname)
 }
 
 /**
+ * Returns ID of given item using NamedCommands list.
+ * Similar to recognize_conf_parameter(), but for use only if the buffer stores
+ * one word, ended with "\0".
+ * If not found, returns -1.
+ */
+long long get_long_id(const struct LongNamedCommand* desc, const char* itmname)
+{
+    if ((desc == NULL) || (itmname == NULL))
+        return -1;
+    for (long i = 0; desc[i].name != NULL; i++)
+    {
+        if (strcasecmp(desc[i].name, itmname) == 0)
+            return desc[i].num;
+    }
+    return -1;
+}
+
+/**
  * Returns ID of given item using NamedCommands list, or any item if the string is 'RANDOM'.
  * Similar to recognize_conf_parameter(), but for use only if the buffer stores
  * one word, ended with "\0".

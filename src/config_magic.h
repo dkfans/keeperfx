@@ -138,68 +138,70 @@ enum ShotModelFlags {
 };
 
 enum PowerCanCastFlags {
-    PwCast_None          = 0x00000000,
+    PwCast_None          = 0x0000000000,
     /** Allow casting the spell on enemy creatures kept in custody. */
-    PwCast_CustodyCrtrs  = 0x00000001,
+    PwCast_CustodyCrtrs  = 0x0000000001,
     /** Allow casting the spell on owned creatures not captured by enemy. */
-    PwCast_OwnedCrtrs    = 0x00000002,
+    PwCast_OwnedCrtrs    = 0x0000000002,
     /** Allow casting the spell on creatures of allied players. */
-    PwCast_AlliedCrtrs   = 0x00000004,
+    PwCast_AlliedCrtrs   = 0x0000000004,
     /** Allow casting the spell on creatures of enemy players. */
-    PwCast_EnemyCrtrs    = 0x00000008,
+    PwCast_EnemyCrtrs    = 0x0000000008,
     /** Allow casting the spell on creatures which are unconscious or dying. */
-    PwCast_NConscCrtrs   = 0x00000010,
+    PwCast_NConscCrtrs   = 0x0000000010,
     /** Allow casting the spell on creatures which are bound by state (dragged, being sacrificed, teleported etc.). */
-    PwCast_BoundCrtrs    = 0x00000020,
+    PwCast_BoundCrtrs    = 0x0000000020,
 
     /** Allow casting the spell on neutral walkable tiles - path, water, lava. */
-    PwCast_UnclmdGround  = 0x00000080,
+    PwCast_UnclmdGround  = 0x0000000080,
     /** Allow casting the spell on neutral ground - rooms floor and neutral claimed ground. */
-    PwCast_NeutrlGround  = 0x00000100,
+    PwCast_NeutrlGround  = 0x0000000100,
     /** Allow casting the spell on owned ground - rooms floor and claimed ground. */
-    PwCast_OwnedGround   = 0x00000200,
+    PwCast_OwnedGround   = 0x0000000200,
     /** Allow casting the spell on allied players ground - rooms floor and claimed ground. */
-    PwCast_AlliedGround  = 0x00000400,
+    PwCast_AlliedGround  = 0x0000000400,
     /** Allow casting the spell on enemy players ground - rooms floor and claimed ground. */
-    PwCast_EnemyGround   = 0x00000800,
+    PwCast_EnemyGround   = 0x0000000800,
 
     /** Allow casting the spell on neutral tall slabs - earth, wall, gold. */
-    PwCast_NeutrlTall    = 0x00001000,
+    PwCast_NeutrlTall    = 0x0000001000,
     /** Allow casting the spell on owned tall slabs - own fortified wall. */
-    PwCast_OwnedTall     = 0x00002000,
+    PwCast_OwnedTall     = 0x0000002000,
     /** Allow casting the spell on tall slabs owned by allies - their fortified walls. */
-    PwCast_AlliedTall    = 0x00004000,
+    PwCast_AlliedTall    = 0x0000004000,
     /** Allow casting the spell on tall slabs owned by enemies - their fortified walls. */
-    PwCast_EnemyTall     = 0x00008000,
+    PwCast_EnemyTall     = 0x0000008000,
 
     /** Allow casting the spell on owned food things (chickens). */
-    PwCast_OwnedFood     = 0x00020000,
+    PwCast_OwnedFood     = 0x0000020000,
     /** Allow casting the spell on neutral food things. */
-    PwCast_NeutrlFood    = 0x00040000,
+    PwCast_NeutrlFood    = 0x0000040000,
     /** Allow casting the spell on enemy food things. */
-    PwCast_EnemyFood     = 0x00080000,
+    PwCast_EnemyFood     = 0x0000080000,
     /** Allow casting the spell on owned gold things (piles,pots etc.). */
-    PwCast_OwnedGold     = 0x00100000,
+    PwCast_OwnedGold     = 0x0000100000,
     /** Allow casting the spell on neutral gold things. */
-    PwCast_NeutrlGold    = 0x00200000,
+    PwCast_NeutrlGold    = 0x0000200000,
     /** Allow casting the spell on enemy gold things. */
-    PwCast_EnemyGold     = 0x00400000,
+    PwCast_EnemyGold     = 0x0000400000,
     /** Allow casting the spell on owned spell books. */
-    PwCast_OwnedSpell    = 0x00800000,
+    PwCast_OwnedSpell    = 0x0000800000,
     /** Allow casting the spell on owned deployed trap things. */
-    PwCast_OwnedBoulders = 0x01000000,
+    PwCast_OwnedBoulders = 0x0001000000,
     /** Allow casting the spell only after a small delay from previous cast. */
-    PwCast_NeedsDelay    = 0x04000000,
+    PwCast_NeedsDelay    = 0x0004000000,
     /** Allow casting the spell only on claimable/fortificable slabs (for ground - path or claimed, for tall - earth or fortified). */
-    PwCast_Claimable     = 0x08000000,
+    PwCast_Claimable     = 0x0008000000,
     /** Allow casting the spell on un-revealed tiles. */
-    PwCast_Unrevealed    = 0x10000000,
+    PwCast_Unrevealed    = 0x0010000000,
     /** Allow casting the spell on temporarily revealed tiles (with SOE spell). */
-    PwCast_RevealedTemp  = 0x20000000,
+    PwCast_RevealedTemp  = 0x0020000000,
     /** Allow casting if only one of map-related and thing-related conditions is met. */
-    PwCast_ThingOrMap    = 0x40000000,
+    PwCast_ThingOrMap    = 0x0040000000,
     /** There are no map-related conditions - allow casting the spell anywhere on revealed map. */
-    PwCast_Anywhere      = 0x80000000,
+    PwCast_Anywhere      = 0x0080000000,
+    PwCast_DiggersOnly   = 0x0100000000,
+    PwCast_DiggersNot    = 0x0200000000,
 };
 #define PwCast_AllCrtrs (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_NConscCrtrs|PwCast_BoundCrtrs)
 #define PwCast_AllFood (PwCast_OwnedFood|PwCast_NeutrlFood|PwCast_EnemyFood)
@@ -310,7 +312,7 @@ typedef unsigned char (*Expand_Check_Func)(void);
 struct PowerConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
-    unsigned long can_cast_flags;
+    unsigned long long can_cast_flags;
     unsigned long config_flags;
     Expand_Check_Func overcharge_check;
     long work_state;
