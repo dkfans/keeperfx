@@ -725,8 +725,8 @@ void process_timebomb(struct Thing *creatng)
 
 void timebomb_explode(struct Thing *creatng)
 {
-
-    struct ShotConfigStats* shotst = get_shot_model_stats(ShM_TimeBomb); // todo: change this to the shot that is linked to the timebomb spell
+    struct SpellConfig* spconf = get_spell_config(SplK_TimeBomb);
+    struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
     SYNCDBG(8, "Explode Timebomb")
     //struct Thing* castng = creatng; //todo cleanup
     long weight = compute_creature_weight(creatng);
