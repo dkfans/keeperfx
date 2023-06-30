@@ -204,6 +204,14 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     powerst = get_power_model_stats(pwkind);
     if (power_model_stats_invalid(powerst))
         return false;
+    if ((powerst->can_cast_flags & PwCast_NeedsDelay) != 0)
+    {
+        struct PlayerInfo* player;
+        player = get_player(plyr_idx);
+        if (game.play_gameturn <= player->power_of_cooldown_turn) {
+            return false;
+        }
+    }
     if (thing_is_object(thing))
     {
         if ((powerst->can_cast_flags & PwCast_OwnedFood) != 0)
