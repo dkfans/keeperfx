@@ -62,6 +62,7 @@ struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel
     struct Thing* cratetng = create_object(&pos, cratngmodel, room->owner, -1);
     if (thing_is_invalid(cratetng))
     {
+        ERRORLOG("Failed to create %s in %s index %d", thing_model_name(cratetng), room_code_name(room->kind), (int)room->index);
         return INVALID_THING;
     }
     // Neutral thing do not need any more processing
@@ -69,8 +70,7 @@ struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel
         return cratetng;
     }
     if (!add_workshop_object_to_workshop(room, cratetng)) {
-        ERRORLOG("Could not fit %s in %s index %d",
-            thing_model_name(cratetng),room_code_name(room->kind),(int)room->index);
+        ERRORLOG("Could not fit %s in %s index %d", thing_model_name(cratetng),room_code_name(room->kind),(int)room->index);
         //remove_item_from_room_capacity(room); -- no need, it was not added
         destroy_object(cratetng);
         return INVALID_THING;
