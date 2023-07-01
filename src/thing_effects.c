@@ -32,6 +32,7 @@
 #include "thing_factory.h"
 #include "thing_navigate.h"
 #include "thing_shots.h"
+#include "creature_battle.h"
 #include "creature_senses.h"
 #include "config_creature.h"
 #include "config_effects.h"
