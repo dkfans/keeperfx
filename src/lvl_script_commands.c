@@ -1160,7 +1160,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         newvalue = get_id(terrain_room_total_capacity_func_type, valuestring);
         if (newvalue == -1)
             {
-                SCRPTERRLOG("Unknown TotalCapacity variable");
+                SCRPTERRLOG("Unknown TotalCapacity variable '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
@@ -1171,11 +1171,20 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         newvalue = get_id(terrain_room_used_capacity_func_type, valuestring);
         if (newvalue == -1)
             {
-                SCRPTERRLOG("Unknown UsedCapacity variable");
+                SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
         value->shorts[2] = newvalue;
+
+        newvalue2 = get_id(terrain_room_used_capacity_func_type, valuestring2);
+        if (newvalue2 == -1)
+        {
+            SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring2);
+            DEALLOCATE_SCRIPT_VALUE
+                return;
+        }
+        value->shorts[3] = newvalue2;
     }
     else if (roomvar != 4) // NameTextID, TooltipTextID, Cost, Health, AmbientSndSample, Messages
     {
@@ -1364,19 +1373,19 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
 
 static void new_room_type_check(const struct ScriptLine* scline)
 {
-    if (slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
+    if (game.slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
     {
         SCRPTERRLOG("Cannot increase room count for room type '%s', already at maximum %d rooms.", scline->tp[0], TERRAIN_ITEMS_MAX - 1);
         return;
     }
 
-    SCRIPTDBG(7, "Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], slab_conf.room_types_count + 1);
-    slab_conf.room_types_count++;
+    SCRIPTDBG(7, "Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.slab_conf.room_types_count + 1);
+    game.slab_conf.room_types_count++;
 
     struct RoomConfigStats* roomst;
-    int i = slab_conf.room_types_count - 1;
+    int i = game.slab_conf.room_types_count - 1;
 
-    roomst = &slab_conf.room_cfgstats[i];
+    roomst = &game.slab_conf.room_cfgstats[i];
     LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     roomst->name_stridx = GUIStr_Empty;
@@ -1679,7 +1688,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
 static void set_room_configuration_process(struct ScriptContext *context)
 {
     long room_type = context->value->shorts[0];
-    struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
+    struct RoomConfigStats *roomst = &game.slab_conf.room_cfgstats[room_type];
     unsigned short value;
     short value2;
     short value3;
@@ -1750,11 +1759,16 @@ static void set_room_configuration_process(struct ScriptContext *context)
                 roomst->roles |= context->value->uarg2;
             break;
         case 14: // TotalCapacity
+            roomst->update_total_capacity_idx = value;
             roomst->update_total_capacity = terrain_room_total_capacity_func_list[value];
+            reinitialise_rooms_of_kind(room_type);
             break;
         case 15: // UsedCapacity
+            roomst->update_storage_in_room_idx = value;
             roomst->update_storage_in_room = terrain_room_used_capacity_func_list[value];
+            roomst->update_workers_in_room_idx = value2;
             roomst->update_workers_in_room = terrain_room_used_capacity_func_list[value2];
+            reinitialise_rooms_of_kind(room_type);
             break;
         default:
             WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);

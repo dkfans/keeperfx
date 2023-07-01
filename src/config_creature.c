@@ -2084,7 +2084,7 @@ CreatureJob get_jobs_enemies_may_do_in_room(RoomKind rkind)
 RoomKind get_first_room_kind_for_job(CreatureJob job_flags)
 {
     struct CreatureJobConfig* jobcfg = get_config_for_job(job_flags);
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, jobcfg->room_role))
             return rkind;

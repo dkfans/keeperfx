@@ -297,6 +297,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     {
         // Update interface items
         update_trap_tab_to_config();
+        update_room_tab_to_config();
         return GLoad_SavedGame;
     }
     return GLoad_Failed;
