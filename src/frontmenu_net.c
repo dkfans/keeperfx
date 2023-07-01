@@ -611,8 +611,23 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
     }
 }
 
+static void frontnet_remove_session()
+{
+    char out_buf[256];
+    VALUE ret_buf;
+    VALUE *ret = &ret_buf;
+    if (fe_public && *fe_masterserver_token)
+    {
+        sprintf(out_buf, "{\"method\":\"remove_lobby\",\"token\":\"%s\"}\n", fe_masterserver_token);
+        fe_masterserver_token[0] = 0;
+        send_json_to_masterserver(out_buf, ret);
+        value_fini(ret);
+    }
+}
+
 void frontnet_return_to_session_menu(struct GuiButton *gbtn)
 {
+    frontnet_remove_session();
     if (LbNetwork_Stop()) {
         ERRORLOG("LbNetwork_Stop() failed");
     }
@@ -993,13 +1008,7 @@ void frontend_toggle_public(struct GuiButton *gbtn)
     char out_buf[256];
     VALUE ret_obj = {0};
     VALUE *ret = &ret_obj, *val;
-    if (fe_public && *fe_masterserver_token)
-    {
-        sprintf(out_buf, "{\"method\":\"remove_lobby\",\"token\":\"%s\"}\n", fe_masterserver_token);
-        fe_masterserver_token[0] = 0;
-        send_json_to_masterserver(out_buf, ret);
-        value_fini(ret);
-    }
+    frontnet_remove_session();
     fe_public = !fe_public;
     if (fe_public)
     {
