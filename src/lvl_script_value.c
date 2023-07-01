@@ -192,8 +192,10 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
       case PwrK_SIGHT:
         return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_TIMEBOMB:
+        return magic_use_power_time_bomb(caster, thing, splevel, spell_flags);
       default:
-        SCRPTERRLOG("Power not supported for this command: %d", (int) pwkind);
+        SCRPTERRLOG("Power not supported for this command: %s", power_code_name(pwkind));
         return Lb_FAIL;
     }
 }
