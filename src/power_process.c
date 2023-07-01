@@ -707,10 +707,13 @@ void process_timebomb(struct Thing *creatng)
     struct Thing* trgtng = thing_get(cctrl->timebomb_target_id);
     if (!thing_is_invalid(trgtng))
     {
-        if ( (creatng->mappos.x.stl.num == trgtng->mappos.x.stl.num) && (creatng->mappos.y.stl.num == trgtng->mappos.y.stl.num) && (creatng->mappos.z.stl.num == trgtng->mappos.z.stl.num) )
+        if ( (creatng->mappos.x.stl.num == trgtng->mappos.x.stl.num) && (creatng->mappos.y.stl.num == trgtng->mappos.y.stl.num) )
         {
-            timebomb_explode(creatng);
-            return;
+            if (abs(creatng->mappos.z.val - trgtng->mappos.z.val) <= creatng->solid_size_yz)
+            {
+                timebomb_explode(creatng);
+                return;
+            }
         }
     }
     if (cctrl->timebomb_countdown != 0)
