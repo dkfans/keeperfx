@@ -1581,6 +1581,7 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
 
 void set_packet_start(struct GuiButton *gbtn)
 {
+    masterserver_session_started();
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
     if ((nspck->field_4 & 0xF8) == 0)
