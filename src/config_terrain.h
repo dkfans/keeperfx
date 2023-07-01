@@ -151,6 +151,9 @@ struct RoomConfigStats {
     long msg_no_route;
     short cost;
     unsigned short health;
+    int update_total_capacity_idx;
+    int update_storage_in_room_idx;
+    int update_workers_in_room_idx;
     Room_Update_Func update_total_capacity;
     Room_Update_Func update_storage_in_room;
     Room_Update_Func update_workers_in_room;
@@ -172,7 +175,7 @@ extern const struct NamedCommand terrain_room_total_capacity_func_type[];
 extern const struct NamedCommand terrain_room_used_capacity_func_type[];
 extern Room_Update_Func terrain_room_total_capacity_func_list[7];
 extern Room_Update_Func terrain_room_used_capacity_func_list[10];
-extern struct SlabsConfig slab_conf;
+
 /******************************************************************************/
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
@@ -212,6 +215,7 @@ TbBool room_can_have_ensign(RoomKind rkind);
 SlabKind room_corresponding_slab(RoomKind rkind);
 RoomKind slab_corresponding_room(SlabKind slbkind);
 RoomKind find_first_roomkind_with_role(RoomRole rrole);
+void restore_room_update_functions_after_load();
 /******************************************************************************/
 #ifdef __cplusplus
 }

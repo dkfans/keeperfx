@@ -5473,7 +5473,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
-    roomst = &slab_conf.room_cfgstats[room->kind];
+    roomst = &game.slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
     spr = &gui_panel_sprites[roomst->medsym_sprite_idx];

@@ -118,7 +118,7 @@ void recompute_rooms_count_in_dungeons(void)
     {
         struct Dungeon* dungeon = get_dungeon(i);
         dungeon->total_rooms = 0;
-        for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+        for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
         {
             if (!room_never_buildable(rkind))
             {

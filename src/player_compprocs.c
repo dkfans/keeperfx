@@ -456,7 +456,7 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
     long total_capacity = 0;
     
   
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
