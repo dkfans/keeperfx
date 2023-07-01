@@ -93,7 +93,8 @@ TbBool detonate_shot(struct Thing *shotng)
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
     struct Thing* castng = INVALID_THING;
     struct PlayerInfo* myplyr = get_my_player();
-    // Identify the creator if the shot
+    short spell_level;
+    // Identify the creator of the shot
     if (shotng->index != shotng->parent_idx) {
         castng = thing_get(shotng->parent_idx);
         TRACE_THING(castng);
@@ -110,6 +111,18 @@ TbBool detonate_shot(struct Thing *shotng)
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
+   
+    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
+    create_used_effect_or_element(&shotng->mappos, shotst->explode.effect2_model, shotng->owner);
+    if (shotst->explode.around_effect1_model != 0)
+    {
+        create_effect_around_thing(shotng, shotst->explode.around_effect1_model);
+    }
+    if (shotst->explode.around_effect2_model > 0)
+    {
+        create_effect_around_thing(shotng, shotst->explode.around_effect2_model);
+    }
+
     //TODO CONFIG shot model dependency, make config option instead
     switch (shotng->model)
     {
@@ -120,30 +133,13 @@ TbBool detonate_shot(struct Thing *shotng)
             PaletteSetPlayerPalette(myplyr, engine_palette);
         }
         break;
-    case ShM_Grenade:
-    case ShM_Lizard:
-        create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
-        create_effect(&shotng->mappos, TngEff_Blood4, shotng->owner);
-        break;
     case ShM_TrapTNT:
-        create_effect(&shotng->mappos, TngEff_Eruption, shotng->owner);
-        short spell_level = shotng->shot.damage;
+        spell_level = shotng->shot.damage;
         if (spell_level > SPELL_MAX_LEVEL)
         {
             spell_level = SPELL_MAX_LEVEL;
         }
         magic_use_power_destroy_walls(shotng->owner, shotng->mappos.x.stl.num, shotng->mappos.y.stl.num, spell_level, PwMod_CastForFree);
-        create_effect_around_thing(shotng, TngEff_Explosion7);
-        break;
-    case ShM_Firebomb:
-        create_effect(&shotng->mappos, TngEff_Explosion7, shotng->owner);
-        break;
-    case ShM_Missile:
-    case ShM_NaviMissile:
-        create_effect(&shotng->mappos, TngEff_ChickenBlood, shotng->owner);
-        break;
-    case ShM_Boulder:
-        create_effect_around_thing(shotng, TngEff_DirtRubble);
         break;
     default:
         break;
@@ -518,25 +514,25 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 destroy_shot = 1;
             }
         } else
+        {
+            eff_kind = shotst->hit_generic.effect_model;
+            smpl_idx = shotst->hit_generic.sndsample_idx;
+            range = shotst->hit_generic.sndsample_range;
+            if (digging)
             {
-                eff_kind = shotst->hit_generic.effect_model;
-                smpl_idx = shotst->hit_generic.sndsample_idx;
-                range = shotst->hit_generic.sndsample_range;
-                if (digging)
+                slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
+                if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
                 {
-                    slb = get_slabmap_for_subtile(stl_num_decode_x(hit_stl_num), stl_num_decode_y(hit_stl_num));
-                    if ((old_health > slb->health) || (slb->kind == SlbT_GEMS))
-                    {
-                        smpl_idx = shotst->dig.sndsample_idx;
-                        range = shotst->dig.sndsample_range;
-                        eff_kind = shotst->dig.effect_model;
-                    }
-                }
-                efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
-                if (!shotst->hit_generic.withstand) {
-                    destroy_shot = 1;
+                    smpl_idx = shotst->dig.sndsample_idx;
+                    range = shotst->dig.sndsample_range;
+                    eff_kind = shotst->dig.effect_model;
                 }
             }
+            efftng = create_shot_hit_effect(&shotng->mappos, shotng->owner, eff_kind, smpl_idx, range);
+            if (!shotst->hit_generic.withstand) {
+                destroy_shot = 1;
+            }
+        }
     }
 
     if ( !destroy_shot )
@@ -847,6 +843,10 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     if (target->health < 0) {
         shot_kill_object(shotng, target);
     }
+    if (!shotst->hit_door.withstand)
+    {
+        return detonate_shot(shotng);
+    }
     if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
         // If thing was deleted something was hit
@@ -902,24 +902,17 @@ long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const s
 void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct Thing *target)
 {
     struct Thing* efftng = INVALID_THING;
+    struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     if (target->class_id == TCls_Creature)
     {
+        thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
         switch (shotng->model)
         {
-        case ShM_Fireball:
-        case ShM_Firebomb:
-        case ShM_Lightning:
-            efftng = create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
-            break;
         case ShM_PoisonCloud:
-            efftng = create_effect(&shotng->mappos, TngEff_Gas3, shotng->owner);
             if ( !thing_is_invalid(efftng) ) {
                 efftng->shot_effect.hit_type = THit_CrtrsOnly;
             }
-            break;
-        case ShM_NaviMissile:
-        case ShM_Missile:
-            efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
             break;
         case ShM_Arrow:
         case ShM_SwingSword:
@@ -935,15 +928,13 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
     }
     if (target->class_id == TCls_Trap)
     {
+        //todo introduce trap/object hit
+        thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
         switch (shotng->model)
         {
-        case ShM_Fireball:
-        case ShM_Firebomb:
-        case ShM_Lightning:
-            efftng = create_effect(&shotng->mappos, TngEff_Explosion1, shotng->owner);
-            break;
+
         case ShM_PoisonCloud:
-            efftng = create_effect(&shotng->mappos, TngEff_Gas3, shotng->owner);
             if (!thing_is_invalid(efftng)) {
                 efftng->shot_effect.hit_type = THit_CrtrsOnly;
             }
@@ -1012,6 +1003,7 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     //throw_strength = shotng->fall_acceleration; //this seems to be always 0, this is why it didn't work;
     long throw_strength = shotst->push_on_hit;
+    long n;
     if (trgtng->health < 0)
         return 0;
     struct Thing* shooter = INVALID_THING;
@@ -1023,13 +1015,45 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
     {
       if (shotst->hit_creature.sndsample_idx > 0)
       {
-          thing_play_sample(trgtng, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
           play_creature_sound(trgtng, CrSnd_Hurt, 3, 0);
       }
+      create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
       if (!thing_is_invalid(shooter)) {
           apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, shooter->owner);
       } else {
           apply_damage_to_thing_and_display_health(trgtng, shotng->shot.damage, shotst->damage_type, -1);
+      }
+      if (shotst->model_flags & ShMF_LifeDrain)
+      {
+          give_shooter_drained_health(shooter, damage / 2);
+      }
+      if (shotst->cast_spell_kind != 0)
+      {
+          struct CreatureControl* scctrl = creature_control_get_from_thing(shooter);
+          if (!creature_control_invalid(scctrl)) {
+              n = scctrl->explevel;
+          }
+          else {
+              n = 0;
+          }
+          if (shotst->cast_spell_kind == SplK_Disease)
+          {
+              tgcctrl->disease_caster_plyridx = shotng->owner;
+          }
+          apply_spell_effect_to_thing(trgtng, shotst->cast_spell_kind, n);
+      }
+      if (shotst->model_flags & ShMF_GroupUp)
+      {
+          if (thing_is_creature(shooter))
+          {
+              if (get_no_creatures_in_group(shooter) < GROUP_MEMBERS_COUNT) {
+                  add_creature_to_group(trgtng, shooter);
+              }
+          }
+          else
+          {
+              WARNDBG(8, "The %s index %d owner %d cannot group; invalid parent", thing_model_name(shotng), (int)shotng->index, (int)shotng->owner);
+          }
       }
       if (shotst->target_hitstop_turns != 0) {
           tgcctrl->frozen_on_hit = shotst->target_hitstop_turns;
@@ -1044,7 +1068,6 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
           trgtng->veloc_push_add.y.val += (throw_strength * (long)shotng->velocity.y.val) / 16;
           trgtng->state_flags |= TF1_PushAdd;
       }
-      create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
       if (trgtng->health >= 0)
       {
           if (trgtng->owner != shotng->owner) {
@@ -1081,9 +1104,8 @@ void set_thing_acceleration_angles(struct Thing *thing, long angle_xy, long angl
 
 TbBool shot_model_makes_flesh_explosion(long shot_model)
 {
-    if ((shot_model == ShM_Firebomb) || (shot_model == ShM_GodLightBall))
-        return true;
-    return false;
+    struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
+    return ((shotst->model_flags & ShMF_Exploding) != 0);
 }
 
 long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
@@ -1537,17 +1559,35 @@ TngUpdateRet update_shot(struct Thing *thing)
         {
             affect_nearby_friends_with_alarm(thing);
         }
+        if (shotst->model_flags & ShMF_Boulder)
+        {
+            if (apply_wallhug_force_to_boulder(thing))
+                hit = true;
+        }
+        if (shotst->visual.effect_model != 0)
+        {
+            if ((shotst->visual.shot_health == 0) ||
+                ((shotst->visual.shot_health > 0) && ((shotst->health - thing->health) <= shotst->visual.shot_health)) ||
+                ((shotst->visual.shot_health < 0) && ((thing->health - shotst->health) <= shotst->visual.shot_health)))
+            {
+                for (i = shotst->visual.amount; i > 0; i--)
+                {
+                    pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
+                    pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
+                    pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(shotst->visual.random_range) + (shotst->visual.random_range / 2);
+                    if (shotst->visual.effect_model > 0)
+                    {
+                        create_effect(&pos1, shotst->visual.effect_model, thing->owner);
+                    }
+                    if (shotst->visual.effect_model < 0)
+                    {
+                        create_effect_element(&pos1, ~(shotst->visual.effect_model) + 1, thing->owner);
+                    }
+                }
+            }
+        }
         switch (thing->model)
         {
-        case ShM_Firebomb:
-            for (i = 2; i > 0; i--)
-            {
-              pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(127) + 63;
-              pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(127) + 63;
-              pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(127) + 63;
-              create_thing(&pos1, TCls_EffectElem, TngEffElm_Blast1, thing->owner, -1);
-            }
-            break;
         case ShM_Lightning:
         {
             struct PlayerInfo* player;
@@ -1566,22 +1606,10 @@ TngUpdateRet update_shot(struct Thing *thing)
             break;
         }
         case ShM_Wind:
-            for (i = 10; i > 0; i--)
-            {
-              pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(1023) + 511;
-              pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(1023) + 511;
-              pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(1023) + 511;
-              create_thing(&pos1, TCls_EffectElem, TngEffElm_Leaves1, thing->owner, -1);
-            }
             affect_nearby_enemy_creatures_with_wind(thing);
             break;
         case ShM_Grenade:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
-            break;
-        case ShM_Boulder:
-        case ShM_SolidBoulder:
-            if (apply_wallhug_force_to_boulder(thing))
-              hit = true;
             break;
         case ShM_GodLightning:
             draw_god_lightning(thing);
@@ -1617,18 +1645,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             update_god_lightning_ball(thing);
             break;
         case ShM_TrapTNT:
-            
             thing->mappos.z.val = 0;
-            if (thing->health < 6)
-            {
-                for (i = 5; i > 0; i--)
-                {
-                    pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(127) + 63;
-                    pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(127) + 63;
-                    pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(127) + 63;
-                    create_thing(&pos1, TCls_EffectElem, TngEffElm_Blast1, thing->owner, -1);
-                }
-            }
             break;
         case ShM_TrapLightning:
             if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
@@ -1642,15 +1659,6 @@ TngUpdateRet update_shot(struct Thing *thing)
                   draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
                   apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
               }
-            }
-            break;
-        case ShM_Disease:
-            for (i = 1; i > 0; i--)
-            {
-              pos1.x.val = thing->mappos.x.val - UNSYNC_RANDOM(511) + 255;
-              pos1.y.val = thing->mappos.y.val - UNSYNC_RANDOM(511) + 255;
-              pos1.z.val = thing->mappos.z.val - UNSYNC_RANDOM(511) + 255;
-              create_thing(&pos1, TCls_EffectElem, TngEffElm_DiseaseFly, thing->owner, -1);
             }
             break;
         default:
@@ -1673,14 +1681,14 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
 {
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
-        ERRORDBG(3,"Cannot create shot %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        ERRORDBG(3,"Cannot create shot %d (%s) for player %d. There are too many things allocated.",(int)model,shot_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     struct ShotConfigStats* shotst = get_shot_model_stats(model);
     struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
-        ERRORDBG(3,"Should be able to allocate shot %d for player %d, but failed.",(int)model,(int)owner);
+        ERRORDBG(3,"Should be able to allocate shot %d (%s) for player %d, but failed.",(int)model,shot_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }

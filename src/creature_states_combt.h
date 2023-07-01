@@ -37,14 +37,6 @@ struct Room;
 
 typedef void (*CombatState)(struct Thing *);
 
-struct CombatWeapon {
-    long inst_id;
-    long range_min;
-    long range_max;
-};
-
-extern struct CombatWeapon offensive_weapon[];
-
 #pragma pack()
 /******************************************************************************/
 extern const CombatState combat_state[];
@@ -62,13 +54,15 @@ void creature_in_ranged_combat(struct Thing *thing);
 void creature_in_melee_combat(struct Thing *thing);
 void combat_object_state_melee_combat(struct Thing *thing);
 void combat_object_state_ranged_combat(struct Thing *thing);
+void combat_object_state_melee_snipe(struct Thing* thing);
+void combat_object_state_ranged_snipe(struct Thing* thing);
 void combat_door_state_melee_combat(struct Thing *thing);
 void combat_door_state_ranged_combat(struct Thing *thing);
 
 short creature_attack_rooms(struct Thing *thing);
 short creature_damage_walls(struct Thing *thing);
 short creature_attempt_to_damage_walls(struct Thing *thing);
-CrAttackType creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long a2, long a4, long a5);
+CrAttackType creature_can_have_combat_with_creature(struct Thing *fighter1, struct Thing *fighter2, long dist, long move_on_ground, long set_if_seen);
 TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enemy);
 TbBool creature_is_being_attacked_by_enemy_player(struct Thing *fightng);
 TbBool creature_is_being_attacked_by_enemy_creature_not_digger(struct Thing *fightng);
@@ -84,6 +78,7 @@ CrInstance get_best_quick_range_instance_to_use(const struct Thing *thing);
 TbBool creature_will_do_combat(const struct Thing *thing);
 TbBool creature_look_for_combat(struct Thing *creatng);
 TbBool creature_look_for_enemy_heart_combat(struct Thing *thing);
+TbBool creature_look_for_enemy_heart_snipe(struct Thing* thing);
 TbBool creature_look_for_enemy_door_combat(struct Thing *thing);
 TbBool creature_look_for_enemy_object_combat(struct Thing* thing);
 

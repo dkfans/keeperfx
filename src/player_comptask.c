@@ -295,8 +295,8 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     struct Room *room;
     SYNCDBG(9,"Starting action %d",(int)gaction);
     if (subtile_has_slab(stl_x, stl_y)) {
-        slb_x = subtile_slab_fast(stl_x);
-        slb_y = subtile_slab_fast(stl_y);
+        slb_x = subtile_slab(stl_x);
+        slb_y = subtile_slab(stl_y);
     } else {
         slb_x = -1;
         slb_y = -1;
@@ -583,8 +583,7 @@ void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
         external_set_thing_state(thing, CrSt_InPowerHand);
         remove_all_traces_of_combat(thing);
     }
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->holding_player = comp->dungeon->owner;
+    thing->holding_player = comp->dungeon->owner;
     place_thing_in_limbo(thing);
 }
 
@@ -1128,7 +1127,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     if (roomst->cost + 1000 >= dungeon->total_money_owned)
     {
         // Prefer leaving some gold, unless a flag is forcing us to build
-        if (((roomst->flags & RoCFlg_BuildToBroke) == 0) || (roomst->cost >= dungeon->total_money_owned)) {
+        if (((roomst->flags & RoCFlg_BuildTillBroke) == 0) || (roomst->cost >= dungeon->total_money_owned)) {
             return 0;
         }
     }
@@ -2169,11 +2168,11 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     struct GoldLookup* gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
 
-    unsigned short gldstl_x = gold_lookup->x_stl_num;
-    unsigned short gldstl_y = gold_lookup->y_stl_num;
+    MapSubtlCoord gldstl_x = gold_lookup->stl_x;
+    MapSubtlCoord gldstl_y = gold_lookup->stl_y;
 
-    unsigned short ctgstl_x = ctask->dig.pos_begin.x.stl.num;
-    unsigned short ctgstl_y = ctask->dig.pos_begin.y.stl.num;
+    MapSubtlCoord ctgstl_x = ctask->dig.pos_begin.x.stl.num;
+    MapSubtlCoord ctgstl_y = ctask->dig.pos_begin.y.stl.num;
 
     // While destination isn't reached, continue finding slabs to mark
     if ((gldstl_x != ctgstl_x) || (gldstl_y != ctgstl_y))

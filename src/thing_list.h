@@ -266,10 +266,12 @@ struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, P
 struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool locked);
 struct Thing *find_gold_laying_in_dungeon(const struct Dungeon *dungeon);
 struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *creatng);
+struct Thing* get_nearest_enemy_creature_in_sight_and_range_of_trap(struct Thing* traptng);
 #define find_nearest_enemy_creature(creatng) get_nearest_enemy_creature_possible_to_attack_by(creatng);
-struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist);
+struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist, long move_on_ground);
 struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
 struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
+struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creatng);
 
 // Routines to select all players creatures of model matching the criteria
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);

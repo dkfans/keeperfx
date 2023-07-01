@@ -333,7 +333,7 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
             const struct SlabAttr* slbattr = get_slab_attrs(slb);
             if (((slbattr->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
             {
-                num_faces += block_count_diggable_sides(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+                num_faces += block_count_diggable_sides(subtile_slab(stl_x), subtile_slab(stl_y));
             }
         }
     }
@@ -881,8 +881,8 @@ static TbBool find_place_to_put_door_around_room(const struct Room *room, struct
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         // Get position containing room center
-        MapSlabCoord slb_x = subtile_slab_fast(room->central_stl_x);
-        MapSlabCoord slb_y = subtile_slab_fast(room->central_stl_y);
+        MapSlabCoord slb_x = subtile_slab(room->central_stl_x);
+        MapSlabCoord slb_y = subtile_slab(room->central_stl_y);
         // Move the position to edge of the room
         struct Room* sibroom = slab_room_get(slb_x, slb_y);
         while (!room_is_invalid(sibroom) && (sibroom->index == room->index))

@@ -586,8 +586,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 int r2 = r / 2;
                 pckt = get_packet_direct(player->packet_num);
-                MapSubtlCoord stl_x = coord_subtile(((unsigned short) pckt->pos_x));
-                MapSubtlCoord stl_y = coord_subtile(((unsigned short) pckt->pos_y));
+                MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
+                MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
                 clear_dig_for_map_rect(player->id_number,
                                        subtile_slab(stl_x - r2),
                                        subtile_slab(stl_x + r - r2),
@@ -615,8 +615,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 int r2 = r / 2;
                 pckt = get_packet_direct(player->packet_num);
-                MapSubtlCoord stl_x = coord_subtile(((unsigned short) pckt->pos_x));
-                MapSubtlCoord stl_y = coord_subtile(((unsigned short) pckt->pos_y));
+                MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
+                MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
                 conceal_map_area(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2, false);
             }
             else
@@ -731,8 +731,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     }
                     thing->valuable.gold_stored = atoi(pr2str);
                     add_gold_to_pile(thing, 0);
-                    MapSubtlCoord stl_x = coord_subtile(((unsigned short) pckt->pos_x));
-                    MapSubtlCoord stl_y = coord_subtile(((unsigned short) pckt->pos_y));
+                    MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
+                    MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
                     room = subtile_room_get(stl_x, stl_y);
                     if (room_exists(room))
                     {
@@ -751,8 +751,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 player = get_player(plyr_idx);
                 pckt = get_packet_direct(player->packet_num);
-                pos.x.stl.num = coord_subtile(((unsigned short) pckt->pos_x));
-                pos.y.stl.num = coord_subtile(((unsigned short) pckt->pos_y));
+                pos.x.stl.num = coord_subtile(pckt->pos_x);
+                pos.y.stl.num = coord_subtile(pckt->pos_y);
                 if (!subtile_coords_invalid(pos.x.stl.num, pos.y.stl.num))
                 {
                     long ObjModel = get_rid(object_desc, pr2str);
@@ -791,12 +791,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         crmodel = atoi(pr2str);
                     }
                 }
-                if ((crmodel > 0) && (crmodel <= 31))
+                if ((crmodel > 0) && (crmodel < gameadd.crtr_conf.model_count))
                 {
                     player = get_player(plyr_idx);
                     pckt = get_packet_direct(player->packet_num);
-                    MapSubtlCoord stl_x = coord_subtile(((unsigned short) pckt->pos_x));
-                    MapSubtlCoord stl_y = coord_subtile(((unsigned short) pckt->pos_y));
+                    MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
+                    MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
                     PlayerNumber id = get_player_number_for_command(pr5str);
                     if (!subtile_coords_invalid(stl_x, stl_y))
                     {
@@ -880,8 +880,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 {
                     player = get_player(plyr_idx);
                     pckt = get_packet_direct(player->packet_num);
-                    pos.x.stl.num = coord_subtile(((unsigned short) pckt->pos_x));
-                    pos.y.stl.num = coord_subtile(((unsigned short) pckt->pos_y));
+                    pos.x.stl.num = coord_subtile(pckt->pos_x);
+                    pos.y.stl.num = coord_subtile(pckt->pos_y);
                     if (!subtile_coords_invalid(pos.x.stl.num, pos.y.stl.num))
                     {
                         pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
@@ -905,8 +905,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 player = get_player(plyr_idx);
                 pckt = get_packet_direct(player->packet_num);
-                MapSubtlCoord stl_x = coord_subtile(((unsigned short) pckt->pos_x));
-                MapSubtlCoord stl_y = coord_subtile(((unsigned short) pckt->pos_y));
+                MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
+                MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
                 MapSlabCoord slb_x = subtile_slab(stl_x);
                 MapSlabCoord slb_y = subtile_slab(stl_y);
                 slb = get_slabmap_block(slb_x, slb_y);
@@ -1111,7 +1111,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 unsigned char inst = atoi(pr2str);
                 if (thing_is_creature(thing))
                 {
-                    set_creature_instance(thing, inst, 0, 0, 0);
+                    set_creature_instance(thing, inst, 0, 0);
                     return true;
                 }
             }
@@ -1159,8 +1159,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 player = get_player(plyr_idx);
                 pckt = get_packet_direct(player->packet_num);
-                pos.x.val = ((unsigned short) pckt->pos_x);
-                pos.y.val = ((unsigned short) pckt->pos_y);
+                pos.x.val = pckt->pos_x;
+                pos.y.val = pckt->pos_y;
             }
             else
             {
@@ -1241,8 +1241,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            pos.x.val = ((unsigned short) pckt->pos_x);
-            pos.y.val = ((unsigned short) pckt->pos_y);
+            pos.x.val = pckt->pos_x;
+            pos.y.val = pckt->pos_y;
             pos.z.val = get_floor_height_at(&pos);
             targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cursor at %d, %d, %d",
                                  (int) pos.x.stl.num, (int) pos.y.stl.num, (int) pos.z.stl.num);
@@ -1252,8 +1252,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile(((unsigned short) pckt->pos_x));
-            MapSubtlCoord stl_y = coord_subtile(((unsigned short) pckt->pos_y));
+            MapSubtlCoord stl_x = coord_subtile(pckt->pos_x);
+            MapSubtlCoord stl_y = coord_subtile(pckt->pos_y);
             thing = (pr2str != NULL) ? thing_get(atoi(pr2str)) : get_nearest_thing_at_position(stl_x, stl_y);
             if (!thing_is_invalid(thing))
             {
@@ -1314,8 +1314,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 else
                 {
                     pckt = get_packet_direct(player->packet_num);
-                    pos.x.val = ((unsigned short) pckt->pos_x);
-                    pos.y.val = ((unsigned short) pckt->pos_y);
+                    pos.x.val = pckt->pos_x;
+                    pos.y.val = pckt->pos_y;
                     pos.z.val = get_floor_height_at(&pos);
                 }
 
@@ -1340,8 +1340,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile(((unsigned short)pckt->pos_x));
-            MapSubtlCoord stl_y = coord_subtile(((unsigned short)pckt->pos_y));
+            MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
+            MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
             room = (pr2str != NULL) ? room_get(atoi(pr2str)) : subtile_room_get(stl_x, stl_y);
             if (room_exists(room))
             {
@@ -1372,8 +1372,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
-            MapSubtlCoord stl_x = coord_subtile(((unsigned short)pckt->pos_x));
-            MapSubtlCoord stl_y = coord_subtile(((unsigned short)pckt->pos_y));
+            MapSubtlCoord stl_x = coord_subtile((pckt->pos_x));
+            MapSubtlCoord stl_y = coord_subtile((pckt->pos_y));
             slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (!slabmap_block_invalid(slb))
             {

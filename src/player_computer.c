@@ -282,8 +282,8 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
     gold_pos.x.val = 0;
     gold_pos.y.val = 0;
     gold_pos.z.val = 0;
-    gold_pos.x.stl.num = gldlook->x_stl_num;
-    gold_pos.y.stl.num = gldlook->y_stl_num;
+    gold_pos.x.stl.num = gldlook->stl_x;
+    gold_pos.y.stl.num = gldlook->stl_y;
     long min_distance = LONG_MAX;
     long distance = LONG_MAX;
     for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
@@ -316,8 +316,8 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
     task_pos.x.val = 0;
     task_pos.y.val = 0;
     task_pos.z.val = 0;
-    task_pos.x.stl.num = gldlook->x_stl_num;
-    task_pos.y.stl.num = gldlook->y_stl_num;
+    task_pos.x.stl.num = gldlook->stl_x;
+    task_pos.y.stl.num = gldlook->stl_y;
     long min_distance = LONG_MAX;
     long i = comp->task_idx;
     unsigned long k = 0;
@@ -384,10 +384,10 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
         struct GoldLookup* gldlook = get_gold_lookup(i);
         if ((gldlook->flags & 0x01) == 0)
             continue;
-        SYNCDBG(18,"Valid vein at (%d,%d)",(int)gldlook->x_stl_num,(int)gldlook->y_stl_num);
+        SYNCDBG(18,"Valid vein at (%d,%d)",(int)gldlook->stl_x,(int)gldlook->stl_y);
         if ((gldlook->player_interested[dungeon->owner] & 0x03) != 0)
             continue;
-        SYNCDBG(8,"Searching for place to reach (%d,%d)",(int)gldlook->x_stl_num,(int)gldlook->y_stl_num);
+        SYNCDBG(8,"Searching for place to reach (%d,%d)",(int)gldlook->stl_x,(int)gldlook->stl_y);
         lookups_checked++;
         struct Room *room = INVALID_ROOM;
         long new_dist = computer_finds_nearest_room_to_gold_lookup(dungeon, gldlook, &room);
@@ -422,7 +422,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
             return 0;
         }
     }
-    SYNCDBG(8,"Best digging start to reach (%d,%d) is on subtile (%d,%d); distance is %d",(int)gldlooksel->x_stl_num,(int)gldlooksel->y_stl_num,(int)spos->x.stl.num,(int)spos->y.stl.num,(int)dig_distance);
+    SYNCDBG(8,"Best digging start to reach (%d,%d) is on subtile (%d,%d); distance is %d",(int)gldlooksel->stl_x,(int)gldlooksel->stl_y,(int)spos->x.stl.num,(int)spos->y.stl.num,(int)dig_distance);
     *gldlookref = gldlooksel;
     pos->x.val = spos->x.val;
     pos->y.val = spos->y.val;
@@ -688,7 +688,7 @@ long buildable_traps_amount(struct Dungeon *dungeon, ThingModel trmodel)
 long get_number_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long base_amount)
 {
     long kinds = 0;
-    for (long i = 1; i < TRAP_TYPES_COUNT; i++)
+    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
     {
         if (buildable_traps_amount(dungeon, i) >= base_amount)
         {
@@ -705,7 +705,7 @@ long get_number_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long
  */
 long get_nth_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long base_amount, long n)
 {
-    for (long i = 1; i < TRAP_TYPES_COUNT; i++)
+    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
     {
         if (buildable_traps_amount(dungeon, i) >= base_amount)
         {
@@ -809,7 +809,7 @@ TbBool computer_get_trap_place_location_and_update_locations(struct Computer2 *c
             location->y.val = 0;
             continue;
         }
-        if (can_place_trap_on(dungeon->owner, location->x.stl.num, location->y.stl.num))
+        if (can_place_trap_on(dungeon->owner, location->x.stl.num, location->y.stl.num, trapmodel))
         { // If it's our owned claimed ground, give it a try
             retloc->x.val = location->x.val;
             retloc->y.val = location->y.val;

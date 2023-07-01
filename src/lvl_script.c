@@ -210,6 +210,9 @@ TbBool script_is_preloaded_command(long cmnd_index)
   {
   case Cmd_SWAP_CREATURE:
   case Cmd_LEVEL_VERSION:
+  case Cmd_NEW_TRAP_TYPE:
+  case Cmd_NEW_OBJECT_TYPE:
+  case Cmd_NEW_ROOM_TYPE:
       return true;
   default:
       return false;
@@ -258,13 +261,10 @@ static void process_fx_line(struct ScriptFxLine *fx_line)
         fx_line->here.z.val = get_floor_height_at(&fx_line->here);
         if (fx_line->here.z.val < FILLED_COLUMN_HEIGHT)
         {
-          if (fx_line->effect > 0)
-          {
-            create_effect(&fx_line->here, fx_line->effect, 5); // Owner - neutral
-          } else if (fx_line->effect < 0)
-          {
-            create_effect_element(&fx_line->here, -fx_line->effect, 5); // Owner - neutral
-          }
+            if (fx_line->effect != 0)
+            {
+                create_used_effect_or_element(&fx_line->here, fx_line->effect, PLAYER_NEUTRAL);
+            }
         }
 
         fx_line->step++;
@@ -329,7 +329,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         }
         break;
     }
-    case 'P': 
+    case 'P':
     {
         long plr_range_id;
         if (!get_player_id(scline->tp[idx], &plr_range_id))
@@ -432,6 +432,9 @@ TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, in
         break;
     case 'L':
         get_map_location_code_name(scline->np[idx], scline->tp[idx]);
+        break;
+    case 'S':
+        strcpy(scline->tp[idx], slab_code_name(scline->np[idx]));
         break;
     case 'A':
         break;
@@ -589,7 +592,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                                 LbMemoryFree(funscline);
                                 return -1;
                             }
-                            if (funscline->tp[fi][0] != '\0')
+                            if (funscline->np[fi] == '\0')
                             {
                                 funscline->np[fi] = atol(funscline->tp[fi]);
                             }
@@ -629,7 +632,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     break;
                 }
                 // DRAWFROM support - select random index now
-                long range_index = rand() % range_total;
+                long range_index = GAME_RANDOM(range_total);
                 // Get value from ranges array
                 range_total = 0;
                 for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
@@ -640,7 +643,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                             if (is_if_statement)
                             {
                                 scline->np[dst] = ranges[fi].min + range_index - range_total;
-                                ltoa(scline->np[dst], scline->tp[dst], 10);
+                                snprintf(scline->tp[dst], sizeof(scline->tp[dst]), "%ld", scline->np[dst]);
                             }
                             else
                             {

@@ -61,14 +61,14 @@ struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coor
 void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos)
 {
     long k;
-    long i = room->field_43;
+    long i = room->flames_around_idx;
     MapSubtlCoord x = pos->x.stl.num + (MapSubtlCoord)small_around[i].delta_x;
     MapSubtlCoord y = pos->y.stl.num + (MapSubtlCoord)small_around[i].delta_y;
     struct Room* curoom = subtile_room_get(x, y);
     if (curoom->index != room->index)
     {
         k = (i + 1) % SMALL_AROUND_LENGTH;
-        room->field_43 = k;
+        room->flames_around_idx = k;
         return;
     }
     k = (i + 3) % SMALL_AROUND_LENGTH;
@@ -77,19 +77,19 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
     curoom = subtile_room_get(x,y);
     if (curoom->index != room->index)
     {
-        room->field_41 += gameadd.small_around_slab[i];
+        room->flame_slb += gameadd.small_around_slab[i];
         return;
     }
-    room->field_41 += gameadd.small_around_slab[i] + gameadd.small_around_slab[k];
-    room->field_43 = k;
+    room->flame_slb += gameadd.small_around_slab[i] + gameadd.small_around_slab[k];
+    room->flames_around_idx = k;
 }
 
 void process_room_surrounding_flames(struct Room *room)
 {
     SYNCDBG(19,"Starting");
-    MapSlabCoord x = slb_num_decode_x(room->field_41);
-    MapSlabCoord y = slb_num_decode_y(room->field_41);
-    long i = 3 * room->field_43 + room->flame_stl;
+    MapSlabCoord x = slb_num_decode_x(room->flame_slb);
+    MapSlabCoord y = slb_num_decode_y(room->flame_slb);
+    long i = 3 * room->flames_around_idx + room->flame_stl;
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(slab_subtile_center(x)) + room_spark_offset[i].delta_x;
     pos.y.val = subtile_coord_center(slab_subtile_center(y)) + room_spark_offset[i].delta_y;
@@ -292,6 +292,10 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     struct Room* room = slab_room_get(slb_x, slb_y);
     struct SlabMap* slb = get_slabmap_for_subtile(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
     short plyr_idx = slabmap_owner(slb);
+    if (slab_kind_has_no_ownership(slabkind))
+    {
+        plyr_idx = game.neutral_player_num;
+    }
     RoomKind rkind = slab_corresponding_room(slabkind);
     //When the slab to be replaced does not have a room yes, simply place the room/slab.
     if (room_is_invalid(room))
@@ -382,7 +386,7 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
         struct Room* room = room_get(slb->room_index);
         take_over_room(room, plyr_idx);
     } else
-    if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
+    if (slab_kind_has_no_ownership(slb->kind) == false)
     {
         short slbkind;
         if (slb->kind == SlbT_PATH)

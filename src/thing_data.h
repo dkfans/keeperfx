@@ -237,8 +237,8 @@ struct Thing {
     unsigned char class_id;
     unsigned char fall_acceleration;
     unsigned char bounce_angle;
-    unsigned char inertia_floor;
-    unsigned char inertia_air;
+    short inertia_floor;
+    short inertia_air;
     unsigned char movement_flags;
     struct CoordDelta3d veloc_push_once;
     struct CoordDelta3d veloc_base;
@@ -271,6 +271,19 @@ unsigned short floor_height;
     unsigned char snd_emitter_id;
     short next_of_class;
     short prev_of_class;
+    unsigned long flags; //ThingAddFlags
+    long last_turn_drawn;
+    float time_spent_displaying_hurt_colour; // Used for delta time interpolated render position
+    unsigned short previous_floor_height;
+    unsigned short interp_floor_height;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long interp_minimap_pos_x;
+    long interp_minimap_pos_y;
+    long previous_minimap_pos_x;
+    long previous_minimap_pos_y;
+    long interp_minimap_update_turn;
+    PlayerNumber holding_player;
 };
 
 #define INVALID_THING (game.things.lookup[0])
@@ -281,29 +294,10 @@ unsigned short floor_height;
  */
 #define TRACE_THING(thing)
 
-enum ThingAddFlags
+enum ThingAddFlags //named this way because they were part of the ThingAdd structure
 {
     TAF_ROTATED_SHIFT = 16,
     TAF_ROTATED_MASK = 0x070000,
-};
-
-struct ThingAdd // Additional thing data
-{
-    unsigned long flags; //ThingAddFlags
-    long last_turn_drawn;
-    float time_spent_displaying_hurt_colour;
-    // Used for delta time interpolated render position
-    unsigned short previous_floor_height;
-    unsigned short interp_floor_height;
-    struct Coord3d previous_mappos;
-    struct Coord3d interp_mappos;
-    
-    long interp_minimap_pos_x;
-    long interp_minimap_pos_y;
-    long previous_minimap_pos_x;
-    long previous_minimap_pos_y;
-    long interp_minimap_update_turn;
-    PlayerNumber holding_player;
 };
 
 #pragma pack()
@@ -322,6 +316,7 @@ TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
 
+TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 

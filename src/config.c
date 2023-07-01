@@ -2188,11 +2188,11 @@ LevelNumber next_multiplayer_level(LevelNumber mp_lvnum)
   if (mp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (mp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_multiplayer_level();
   if (mp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < MULTI_LEVELS_COUNT; i++)
   {
     if (campaign.multi_levels[i] == mp_lvnum)
     {
-      if (i+1 >= CAMPAIGN_LEVELS_COUNT)
+      if (i+1 >= MULTI_LEVELS_COUNT)
         return SINGLEPLAYER_FINISHED;
       if (campaign.multi_levels[i+1] <= 0)
         return SINGLEPLAYER_FINISHED;

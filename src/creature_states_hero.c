@@ -27,6 +27,7 @@
 #include "creature_control.h"
 #include "creature_instances.h"
 #include "creature_states_spdig.h"
+#include "creature_states_combt.h"
 #include "creature_jobs.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
@@ -109,14 +110,14 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
     long best_backup_score = LONG_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
+        if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
+            continue;
+        }
         player = get_player(plyr_idx);
         if (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
         {
             if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
-                if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
-                    continue;
-                }
                 return plyr_idx;
             }
         }
@@ -274,6 +275,30 @@ TbBool good_setup_attack_rooms(struct Thing *creatng, long dngn_id)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     creatng->continue_state = CrSt_GoodArrivedAtAttackRoom;
+    cctrl->target_room_id = room->index;
+    return true;
+}
+
+TbBool good_setup_sabotage_rooms(struct Thing* creatng, long dngn_id)
+{
+    struct Room* room = find_nearest_room_to_vandalise(creatng, dngn_id, NavRtF_NoOwner);
+    if (room_is_invalid(room))
+    {
+        return false;
+    }
+    struct Coord3d pos;
+    if (!find_random_valid_position_for_thing_in_room(creatng, room, &pos) || !creature_can_navigate_to_with_storage(creatng, &pos, NavRtF_NoOwner))
+    {
+        ERRORLOG("The %s index %d cannot destroy %s because it cannot reach position within it", thing_model_name(creatng), (int)creatng->index, room_code_name(room->kind));
+        return false;
+    }
+    if (!setup_random_head_for_room(creatng, room, NavRtF_NoOwner))
+    {
+        ERRORLOG("The %s index %d cannot destroy %s because it cannot head for it", thing_model_name(creatng), (int)creatng->index, room_code_name(room->kind));
+        return false;
+    }
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    creatng->continue_state = CrSt_GoodArrivedAtSabotageRoom;
     cctrl->target_room_id = room->index;
     return true;
 }
@@ -533,8 +558,8 @@ short good_attack_room(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    MapSlabCoord base_slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapSlabCoord base_slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapSlabCoord base_slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapSlabCoord base_slb_y = subtile_slab(thing->mappos.y.stl.num);
     struct Room* room = slab_room_get(base_slb_x, base_slb_y);
     // If the current tile can be destroyed
     if (room_exists(room) && !players_creatures_tolerate_each_other(thing->owner, room->owner) && !room_cannot_vandalise(room->kind))
@@ -542,7 +567,7 @@ short good_attack_room(struct Thing *thing)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->instance_id == CrInst_NULL)
         {
-            set_creature_instance(thing, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+            set_creature_instance(thing, CrInst_ATTACK_ROOM_SLAB, 0, 0);
             MapCoord ev_coord_x = subtile_coord_center(room->central_stl_x);
             MapCoord ev_coord_y = subtile_coord_center(room->central_stl_y);
             event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
@@ -655,6 +680,32 @@ TbBool good_setup_wander_to_dungeon_heart(struct Thing *creatng, PlayerNumber pl
     return true;
 }
 
+TbBool good_setup_rush_to_dungeon_heart(struct Thing* creatng, PlayerNumber plyr_idx)
+{
+    SYNCDBG(18, "Starting");
+    TRACE_THING(creatng);
+    if (creatng->owner == plyr_idx)
+    {
+        ERRORLOG("The %s index %d tried to wander to own (%d) heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
+        return false;
+    }
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if (!player_exists(player))
+    {
+        WARNLOG("The %s index %d tried to wander to inactive player (%d) heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
+        return false;
+    }
+    struct Thing* heartng = get_player_soul_container(plyr_idx);
+    TRACE_THING(heartng);
+    if (thing_is_invalid(heartng))
+    {
+        WARNLOG("The %s index %d tried to wander to player %d which has no heart", thing_model_name(creatng), (int)creatng->index, (int)plyr_idx);
+        return false;
+    }
+    set_creature_object_snipe(creatng, heartng);
+    return true;
+}
+
 TbBool good_setup_wander_to_own_heart(struct Thing* creatng)
 {
     SYNCDBG(7, "Starting");
@@ -689,12 +740,26 @@ TbBool good_creature_setup_task_in_dungeon(struct Thing *creatng, PlayerNumber t
         WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
         cctrl->party_objective = CHeroTsk_AttackDnHeart;
         return false;
+    case CHeroTsk_SabotageRooms:
+        if (good_setup_sabotage_rooms(creatng, target_plyr_idx)) {
+            return true;
+        }
+        WARNLOG("Can't attack player %d rooms, switching to attack heart", (int)target_plyr_idx);
+        cctrl->party_objective = CHeroTsk_AttackDnHeart;
+        return false;
     case CHeroTsk_AttackDnHeart:
         if (good_setup_wander_to_dungeon_heart(creatng, target_plyr_idx)) 
         {
             return true;
         }
         ERRORLOG("Cannot wander to player %d heart", (int)target_plyr_idx);
+        return false;
+    case CHeroTsk_SnipeDnHeart:
+        if (good_setup_rush_to_dungeon_heart(creatng, target_plyr_idx))
+        {
+            return true;
+        }
+        ERRORLOG("Cannot rush to player %d heart", (int)target_plyr_idx);
         return false;
     case CHeroTsk_StealGold:
     {
@@ -920,12 +985,12 @@ short good_doing_nothing(struct Thing *creatng)
         {
             SYNCDBG(4,"No enemy dungeon to perform %s index %d task",
                 thing_model_name(creatng),(int)creatng->index);
+            cctrl->wait_to_turn = game.play_gameturn + 16;
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
             {
                 creatng->continue_state = CrSt_GoodDoingNothing;
                 return 1;
             }
-            cctrl->wait_to_turn = game.play_gameturn + 16;
         }
         return 1;
     }
@@ -1344,7 +1409,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
             MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.first_colliding_block);
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
             if ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_EARTH || (slb->kind == SlbT_TORCHDIRT)) ) { // if this is false, that means the current tile must have changed to an undiggable wall
-                set_creature_instance(creatng, CrInst_TUNNEL, 0, 0, 0);
+                set_creature_instance(creatng, CrInst_TUNNEL, 0, 0);
             }
         else {
             return 1;

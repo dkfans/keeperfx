@@ -23,12 +23,17 @@
 #include "globals.h"
 
 #include "ariadne.h"
+#include "creature_graphics.h"
 #include "creature_groups.h"
 #include "thing_stats.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#define CREATURE_TYPES_MAX 64
+#define SWAP_CREATURE_TYPES_MAX 64
+#define CREATURE_STATES_MAX 256
 
 #define MAX_SIZEXY            768
 /** Max amount of spells casted at the creature at once. */
@@ -40,9 +45,9 @@ extern "C" {
 /** Number of possible range combat opponents. */
 #define COMBAT_RANGED_OPPONENTS_LIMIT      4
 /** Amount of instances. */
-#define CREATURE_INSTANCES_COUNT          48
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
+#define INSTANCE_TYPES_MAX 64
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -125,6 +130,8 @@ enum ObjectCombatStates {
     ObjCmbtSt_Unset = 0,
     ObjCmbtSt_Melee,
     ObjCmbtSt_Ranged,
+    ObjCmbtSt_MeleeSnipe,
+    ObjCmbtSt_RangedSnipe,
 };
 
 struct CastedSpellData {
@@ -200,12 +207,12 @@ unsigned char sound_flag;
     unsigned char player_broken_into_flags;
     long long_8B;
     unsigned char byte_8F;
-    unsigned short member_pos_stl[5];
+    SubtlCodedCoords member_pos_stl[5];
   } party;
   struct {
     long stack_update_turn;
-    unsigned short working_stl;
-    unsigned short task_stl;
+    SubtlCodedCoords working_stl;
+    SubtlCodedCoords task_stl;
     unsigned short task_idx;
     unsigned char consecutive_reinforcements;
     unsigned char last_did_job;
@@ -214,8 +221,8 @@ unsigned char sound_flag;
   } digger;
   struct {
     short countdown;
-    short stl_x;
-    short stl_y;
+    MapSubtlCoord stl_x;
+    MapSubtlCoord stl_y;
   } patrol;
   struct {
     char sbyte_89;
@@ -323,11 +330,11 @@ unsigned char sound_flag;
     unsigned char field_AE;
     short force_visible;
     unsigned char frozen_on_hit;
-    long field_B2;
+    long last_piss_turn;
     unsigned char disease_caster_plyridx;
-    unsigned char teleport_x;
-    unsigned char teleport_y;
-    unsigned short field_B9;
+    MapSubtlCoord teleport_x;
+    MapSubtlCoord teleport_y;
+    unsigned short corpse_to_piss_on;
     struct CoordDelta3d moveaccel;
     unsigned char bloody_footsteps_turns;
     short kills_num;
@@ -343,12 +350,12 @@ unsigned char sound_flag;
     unsigned short inst_action_turns;
     unsigned short inst_total_turns;
     unsigned short targtng_idx;
-    unsigned char targtstl_x;
-    unsigned char targtstl_y;
-    unsigned long instance_use_turn[CREATURE_INSTANCES_COUNT];
-    char instance_available[CREATURE_INSTANCES_COUNT];
+    MapSubtlCoord targtstl_x;
+    MapSubtlCoord targtstl_y;
+    unsigned long instance_use_turn[INSTANCE_TYPES_MAX];
+    char instance_available[INSTANCE_TYPES_MAX];
     unsigned short instance_anim_step_turns;
-    unsigned short collided_door_subtile;
+    SubtlCodedCoords collided_door_subtile;
     char fighting_player_idx;
     unsigned char shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
@@ -368,13 +375,14 @@ unsigned char cowers_from_slap_turns;
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
+    char creature_name[25];
     struct Coord3d flee_pos;
     long flee_start_turn;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
-    unsigned short prev_in_room;//field_2AC
-short field_2AE;
-    unsigned char field_2B0; // 7 == heal
+    unsigned short prev_in_room;
+    short spell_aura;
+    short spell_aura_duration;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
@@ -395,10 +403,10 @@ unsigned short shot_shift_z;
     short battle_prev_creatr;
     short battle_next_creatr;
     unsigned char battle_id;
-    unsigned char alarm_stl_x;
-    unsigned char alarm_stl_y;
+    MapSubtlCoord alarm_stl_x;
+    MapSubtlCoord alarm_stl_y;
     unsigned long alarm_over_turn;
-    unsigned long field_2FE;
+    unsigned long lava_escape_since;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
@@ -494,7 +502,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned char slaps_to_kill;
     short lair_enemy;
     short hero_vs_keeper_cost;
-    TbBool rebirth;
+    unsigned char rebirth;
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;
     TbBool bleeds;
@@ -514,6 +522,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     char corpse_vanish_effect;
     short footstep_pitch;
     short lair_object;
+    short status_offset;
+    struct CreaturePickedUpOffset creature_picked_up_offset;
 };
 
 struct Persons {

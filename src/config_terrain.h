@@ -65,10 +65,12 @@ enum SlabFillStyle {
 };
 
 enum RoomCfgFlags {
-    RoCFlg_None          = 0x00,
-    RoCFlg_NoEnsign      = 0x01,
-    RoCFlg_CantVandalize = 0x02,
-    RoCFlg_BuildToBroke  = 0x04,
+    RoCFlg_None           = 0x00,
+    RoCFlg_NoEnsign       = 0x01,
+    RoCFlg_CantVandalize  = 0x02,
+    RoCFlg_BuildTillBroke = 0x04,
+    RoCFlg_CannotBeSold   = 0x08,
+    RoCFlg_ListEnd        = 0x10,
 };
 
 /**
@@ -116,7 +118,7 @@ struct SlabAttr {
     unsigned char slb_id;
     unsigned char wibble;
     unsigned char is_safe_land;
-    unsigned char is_unknflg13;
+    unsigned char animated;
     unsigned char is_diggable;
     unsigned char wlb_type;
 };
@@ -164,7 +166,12 @@ struct SlabsConfig {
 extern const char keeper_terrain_file[];
 extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
-extern const struct NamedCommand  room_roles_desc[];
+extern const struct NamedCommand terrain_room_properties_commands[];
+extern const struct NamedCommand room_roles_desc[];
+extern const struct NamedCommand terrain_room_total_capacity_func_type[];
+extern const struct NamedCommand terrain_room_used_capacity_func_type[];
+extern Room_Update_Func terrain_room_total_capacity_func_list[7];
+extern Room_Update_Func terrain_room_used_capacity_func_list[10];
 extern struct SlabsConfig slab_conf;
 /******************************************************************************/
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);

@@ -193,12 +193,7 @@ void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
         ERRORLOG("Too many sessions in enumeration");
         return;
     }
-    if (net_service_index_selected == 0)
-    {
-        net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-        net_number_of_sessions++;
-    } else
-    if (net_service_index_selected != 1)
+    if (net_service_index_selected >= 0)
     {
         net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
         net_number_of_sessions++;
@@ -219,22 +214,7 @@ static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *
       ERRORLOG("Too many services in enumeration");
       return;
     }
-    if (strcasecmp("SERIAL", netcdat->svc_name) == 0)
-    {
-      LbStringCopy(net_service[net_number_of_services], get_string(GUIStr_NetSerial), NET_MESSAGE_LEN);
-      net_number_of_services++;
-    } else
-    if (strcasecmp("MODEM", netcdat->svc_name) == 0)
-    {
-        LbStringCopy(net_service[net_number_of_services], get_string(GUIStr_NetModem), NET_MESSAGE_LEN);
-        net_number_of_services++;
-    } else
-    if (strcasecmp("IPX", netcdat->svc_name) == 0)
-    {
-        LbStringCopy(net_service[net_number_of_services], get_string(GUIStr_NetIpx), NET_MESSAGE_LEN);
-        net_number_of_services++;
-    }
-    else if (strcasecmp("TCP", netcdat->svc_name) == 0)
+    if (strcasecmp("TCP", netcdat->svc_name) == 0)
     {
         LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
         net_number_of_services++;

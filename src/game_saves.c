@@ -676,7 +676,7 @@ TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long exp
     }
 
     short i = dungeonadd->creatures_transferred; //makes sure it fits 255 units
-    
+
     intralvl.transferred_creatures[plyr_idx][i].model = model;
     intralvl.transferred_creatures[plyr_idx][i].explevel = explevel;
     return true;

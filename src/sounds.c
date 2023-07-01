@@ -282,9 +282,12 @@ void update_player_sounds(void)
     int k = (game.bonus_time - game.play_gameturn) / 2;
     if (bonus_timer_enabled())
     {
-      if ((game.bonus_time == game.play_gameturn) ||
-         ((game.bonus_time > game.play_gameturn) && (((k <= 100) && ((k % 10) == 0)) ||
-          ((k<=300) && ((k % 50) == 0)) || ((k % 250) == 0))) )
+        if ((game.bonus_time == game.play_gameturn) ||
+            ((game.bonus_time > game.play_gameturn) &&
+            (   ((k <= 100)  && ((k % 10) == 0)) ||
+                ((k <= 300)  && ((k % 50) == 0)) ||
+                ((k <= 5000) && ((k % 250) == 0)) ||
+                                ((k % 5000) == 0)    )  ))
         play_non_3d_sample(89);
     }
     if (game.play_gameturn != 0)
@@ -358,6 +361,9 @@ void process_sound_heap(void)
     long i = 0;
     SYNCDBG(9,"Starting");
     struct SampleInfo* smpinfo_last = GetLastSampleInfoStructure();
+    if (smpinfo_last == NULL) {
+        return;
+    }
     for (struct SampleInfo* smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
     {
       if ( (smpinfo->field_0 != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
@@ -712,7 +718,7 @@ void update_first_person_object_ambience(struct Thing *thing)
              objtng = thing_get(objtng->next_of_class))
         {
             objdat = get_objects_data_for_thing(objtng);
-            if (objdat->fp_smpl_idx != 0)
+            if ((objdat->fp_smpl_idx != 0) && !thing_is_in_limbo(objtng))
             {
                 new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)

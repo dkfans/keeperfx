@@ -1,0 +1,296 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file dzjr25lv/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 30 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version: DzjeeAr's 25-level campaign for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Ninja\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "DzjeeAr's 25-level campaign"
+msgstr "DzjeeAr's 25-Nivel de campaña"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "And fine the start. This land wields the bad ruler. He hid in its own of castle in the south. Track down him and kill, my Lord!"
+msgstr "Bien comencemos. Esta tierra tiene un malisimo gobernante. Esta escondidó en su propio castillo al sur. ¡Persíguelo y mátalo, mi Señor!"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "Bog. When we conquered  this land we I turned into the gigantic swamp, is thanks to you my lud! The excellent work!"
+msgstr "Pantano. Conquistamos esta tierra y la convertimos en un gigantesco pantano, ¡gracias a ti y a su excelente trabajo, mi Señor!"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Party's help.  This land is very poor into natural resources. Thus mind raw materials. The local ruler also is not  rich but very smart."
+msgstr "Equipo de ayuda. Esta tierra es muy pobre en recursos naturales. Por lo tanto, lo que más importa son las materias primas. El gobernante local tampoco es rico, pero sí muy inteligente."
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Foully Land. In this land he stinks as from graves, whether it is not beautifully? The excellent work my Lord!"
+msgstr "Tierra Asquerosa. Esta tierra apesta a una sepultura, ¿no es hermoso? ¡Excelente trabajo mi Señor!"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Allyed.  Once ages ago, this land was under the rule of great dragons. Last from them hide in volcanic areas.  But is now wielding the here good ruler. We must overcome him to gain this ground!"
+msgstr "Aliado. Hace mucho tiempo, esta tierra estaba bajo el dominio de grandes dragones. Los últimos de ellos se esconden en áreas volcánicas. Pero ahora está empuñada por el bien. ¡Debemos vencerlo para ganar este terreno!"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "The dragoon Land. We rescued dragons on to the offering they helped to kill us the enemy Lord. Now Dragons will perform with this earth  as during old times! The perfect  work, my Lord!"
+msgstr "Tierra Dragón. Rescatamos a los dragones, como pago, ayudaron a matar al Señor de la tierra. ¡Ahora los dragones volverán a estar en esta tierra como en los viejos tiempos! ¡La obra perfecta, mi Señor!"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Gold! The rich land into natural deposits and in addition defend  their  four brothers Avatar's. We must them kill at any cost!"
+msgstr "¡Oro! Los ricos aterrizan en depósitos naturales, además defienden a sus cuatro hermanos Avatares. ¡Debemos matarlos a toda costa!"
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Abominably rich lands . With to extract of gold  from this land we built the most beautiful castle. Now we  can for a moment have a rest and be glad with the charm of this disgusting of the bad land! The excellent work , my Lord!"
+msgstr "Tierras abominablemente ricas. Con la extracción de oro de esta tierra, construimos el castillo más hermoso. ¡Ahora por un momento podemos descansar y alegrarnos con el encanto de esta asquerosa y mala tierra! ¡Excelente trabajo, mi Señor!"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Lava River.  This land is crossed by the river of the lava. In addition you have other the guard on the head, in the same way how  you I want to wield with this land. Kill him and later kill the ruler which hides in its own of castle!"
+msgstr "Río de Lava. Esta tierra es atravesada por un río de la lava. Además, tienes que tener en mente que hay otro Guardián, y se quiere apoderar de esta tierra. ¡Mátalo y luego mata al gobernante que se esconde en su castillo!"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Fire Land. The lava poured out flooding  this and neighbouring village, the perfect work  keeper!"
+msgstr "Tierra de Fuego. La lava se desbordó inundando este y el pueblo vecino, ¡un perfecto trabajo de un Guardián!"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "They enemas. Other guard wields this earth, kill him to gain this land!"
+msgstr "Enemas. ¡Otro guardián hace y deshace en esta tierra, mátalo para ganarte esta tierra!"
+
+#: landview:61
+msgctxt "Level summary"
+msgid "One enemy. The dead guard was thrown out from this world to the world of older gods. They will right to him as long as what let us be glad with the calm."
+msgstr "Un enemigo. El guardián ha muerto y fue arrojado al mundo de los dioses más antiguos. Ellos darán derechos siempre y cuando les alegremos con satisfacciones."
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Combiend forces. The bad guard wields this land. Other I try to take over her And you also try to take over  her. Try !"
+msgstr "Fuerzas combinadas. Una mala guardiana se quiere adueñar de esta tierra. Es otro intento de apoderarse de ella, pero tú también intentas apoderarte de ella. ¡Intentos!"
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Forces of the Demon. Our power is improbable. Nobody will become to us on rouad conquerable of the world, nobody! The perfect  my work  Master!"
+msgstr "Fuerzas Demoniacas. Nuestro poder es imparable. ¡Nadie podrá contra nosotros en la empresa por conquistar el mundo, nadie! ¡Un perfecto trabajo, mi Señor!"
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Gold enough. In this land you will have to produce evidence with the skill of the thrift. As if you have a lot raw materials and behind together very few Successes!"
+msgstr "Bastante oro. En esta tierra tendrás que dar pruebas con la habilidad del ahorro. ¡Como si tuvieras muchas materias primas y detrás junto muy pocos éxitos!"
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Stink Cauntry.  This land is abominably stinking. With the ruse to kill the lord of this land only thou art to this clever scoundrel!"
+msgstr "Tierra Apestada. La tierra apesta abominablemente. ¡Ahora que has matado al Señor de la tierra, solo quedas tú para controlarla desvergonzadamente!"
+
+#: landview:90
+msgctxt "Level introduction"
+msgid "Ice level.  The handcuffed land with ice , after her surface one  the guard administrates, gain this land you must kill  him! Successes my Lord!"
+msgstr "Nivel de hielo. La tierra es posada del hielo, en su superficie, la administra un guardián, ¡para ganar esta tierra, debes matarlo! ¡Que tenga éxito mi Señor!"
+
+#: landview:91
+msgctxt "Level summary"
+msgid "Ice cold. Thanks we wield to you this land, the perfect work my Lord!"
+msgstr "Frío como el hielo. ¡Gracias te damos en esta tierra, es la obra perfecta, mi Señor!"
+
+#: landview:100
+msgctxt "Level introduction"
+msgid "Cold again. The land also handcuffed with ice but has also quite a lot resources of the lava.  This land wield brothers of the melanemia. We must them kill!"
+msgstr "Frío, otra vez. Esta tierra también es posada del hielo, aunque también tiene bastante lava. Esta tierra está bajo el régimen de los hermanos sangre negra. ¡Debes matarlos!"
+
+#: landview:101
+msgctxt "Level summary"
+msgid "Land of the Vamire. It succeeded to convince to us vampires so that they go on our page. It succeeded to us but we had to them a little in this to help, the perfect work my Lord!"
+msgstr "Tierra de vampiros. Logró convencer a los vampiros para que sirvan como pajes. Tuvieron existo, aunque les tuvimos que ayudar un poco, ¡la obra es perfecta, mi Señor!"
+
+#: landview:110
+msgctxt "Level introduction"
+msgid "Big secret. Once took place happened the here gigantic battle among people. One  the lord won and further still I perform here the authority. But I judge that dead not yet forgot about him."
+msgstr "Gran secreto. Una vez tuvo en este lugar una gigantesca batalla entre la gente. Ganó un Señor y ejerció aquí con gran autoridad. Pero un muerto a quien juzgo aún no se ha olvidado de él."
+
+#: landview:111
+msgctxt "Level summary"
+msgid "Skeletorn land. Dead helped  to the kill the enemy ruler. Now they are performing here rule and are our good commanders of winter-lands."
+msgstr "Tierra esquelética. El muerto ayudó a matar al gobernante enemigo. Ahora está aquí sirviéndole y dirigiendo a nuestros buenos comandantes en estas tierras invernales."
+
+#: landview:120
+msgctxt "Level introduction"
+msgid "Locked. In this land rules the courageous and honest lord. We must kill him albs gain this land!"
+msgstr "Bloqueado. En esta tierra gobierna un Señor valeroso y honesto. ¡Debes matarlo para ganar esta tierra!"
+
+#: landview:121
+msgctxt "Level summary"
+msgid "Murderous Land. We convinced local inhabitants that its good to by bad. Now inhabitants are murdering each other mutually!  The perfect work my Lord!"
+msgstr "Tierra Asesina. Convencimos a los habitantes locales de que es, lo bueno y lo malo. ¡Ahora los habitantes se están matando mutuamente! ¡La obra perfecta, mi Señor!"
+
+#: landview:130
+msgctxt "Level introduction"
+msgid "Dungeon of fear. Once fell the here other guard. Filled up behind himself on the lam the portal and his monsters became  on dungeon's . I think that they will join to you if you will find them from filled up tunnels."
+msgstr "Mazmorra del miedo. Aquí cayó una vez un guardián. Sello detrás de sí el portal y sus servidores quedaron atrapados en algún lugar de esta mazmorra. Creo que se unirán a ti, los puedes localizar al final de los túneles sellados."
+
+#: landview:131
+msgctxt "Level summary"
+msgid "Dig In the Hero. Alive we buried heroes smilingly on the face. The perfect  work  my Lord!"
+msgstr "Cava un héroe. Enterramos vivos a los héroes con una gran sonrisa en su cara. ¡La obra perfecta, mi Señor!"
+
+#: landview:140
+msgctxt "Level introduction"
+msgid "Dragon's lair. The land wield powerful dragons. To nobody not yet succeeded to gain this earth. You must be first!"
+msgstr "La guarida del dragón. La tierra alberga unos poderosos dragones. Nadie aún ha conseguido ganar esta tierra. ¡Debes ser el primero!"
+
+#: landview:141
+msgctxt "Level summary"
+msgid "The dragoon lands . It succeeded to us to convince dragons to this so that they fight after our page. We have a now powerful army gaping with the fire! The perfect  work , my Lord!"
+msgstr "Tierras dragón. No logró convencer a los dragones para que se unan a nuestra causa. Pero… ¡Tenemos un ejército poderoso con lo que dejar boquiabierto al fuego! ¡La obra perfecta, mi Señor!"
+
+#: landview:150
+msgctxt "Level introduction"
+msgid "Strong Castel. Two brothers knights wield this land. There are very honest. The time to teach their gentility!"
+msgstr "Castillo Fuerte. Dos caballeros hermanos controlan esta tierra. Son muy honestos. ¡Es tiempo para enseñar tu gentileza!"
+
+#: landview:151
+msgctxt "Level summary"
+msgid "Keeper's Castle. These brothers into inches were not till so strong as said local people.  In every be  the time we gained the following settlement, let us hope so  further!"
+msgstr "Castillo del Guardián. Estos hermanos no eran lo suficientemente fuertes como decían los lugareños. En todo momento obtuvimos el siguiente asentamiento, ¡esperemos que siga así!"
+
+#: landview:160
+msgctxt "Level introduction"
+msgid "Golden River. Cheka us the following exercise. The enemy surrounded its own lock castle with the moat. If well we will use her this perhaps she to come on our advantage."
+msgstr "Río Dorado. Comprobamos la siguiente tarea y con ello sabemos que… El enemigo rodeó su castillo con un foso de agua. Seguramente lo podremos usar y conseguir así una ventaja."
+
+#: landview:161
+msgctxt "Level summary"
+msgid "Sunken's Land. We used rivers to the flood these earths. Resultant here gigantic of the swamp and in addition flung itself here all that what bad. The excellent work  my lud!"
+msgstr "Tierra sumergida. Usamos los ríos para inundar estas tierras. El resultado fue un gigantesco pantano y además se arrojó ahí todo el mal. ¡El excelente trabajo, mi Señor!"
+
+#: landview:170
+msgctxt "Level introduction"
+msgid "Crisis. In this land Magi  prevail. They are a main weapon in arms of the lord of this land.  Let us see about with them and afterwards we will attack his dungeon heart!"
+msgstr "Crisis. En esta tierra prevalecen los magos. Son el arma principal, en las armas del Señor de la Tierra. ¡Vemos a por ellos y luego atacaremos el Corazón de Mazmorra!"
+
+#: landview:171
+msgctxt "Level summary"
+msgid "Magic Land.  This land became  very misshapen by our armies. Local think  that it is the minor offence of wizards. But thick they make a mistake's"
+msgstr "Tierra mágica. Esta tierra quedó muy deformada por nuestros ejércitos. Los locales piensan que la ofensiva es menor que los magos. Pero están un gravísimo error."
+
+#: landview:180
+msgctxt "Level introduction"
+msgid "Keeper captured. For the land fights also other guard. We must show to him who is here  really bad! To the work!"
+msgstr "Guardián capturado. Por esta tierra lucha también otro guardián. ¡Debemos mostrarle quién es aquí el que es realmente malo! ¡Al trabajo!"
+
+#: landview:181
+msgctxt "Level summary"
+msgid "Smashing. People of local lands crab instead of to unite and to fight against on. Ehh this stupied people."
+msgstr "Imponente. La gente de las tierras locales va hacia atras, se nos unen y luchan contra el. Eh, esta gente es estúpida."
+
+#: landview:190
+msgctxt "Level introduction"
+msgid "How to do? The enemy hides somewhere in this land in powerful of castle. Track down him and kill!"
+msgstr "¿Cómo lo hacemos? El enemigo se esconde en algún lugar de esta tierra en un poderoso castillo. ¡Persíguelo y mátalo!"
+
+#: landview:191
+msgctxt "Level summary"
+msgid "Putrescent land. Lands rot literally. There became  to us another the step conquerable of the authority over the world. To the work!  The winning is in this range!"
+msgstr "Tierra putrefacta. Las tierras se pudren literalmente. Se convirtió para nosotros en otro paso conquistable de tu autoridad sobre el mundo. ¡Al trabajo! ¡El ganador está cerca!"
+
+#: landview:200
+msgctxt "Level introduction"
+msgid "Final match. It is the already last mission, our last if ourselves us thighs we will rule over with this world and nobody to us no longer will threaten! To the work the guard!"
+msgstr "Encuentro final. ¡Esta es la última misión, nuestra última! ¡Nosotros dominaremos este mundo y ya nadie nos amenazará! ¡A trabajar Guardian!"
+
+#: landview:201
+msgctxt "Level summary"
+msgid "Roads Lands. The excellent work , never myself this after I would not expect you that you will be in a position to gain the all the world. Congratulations my Lord!"
+msgstr "Caminos de tierra. Un trabajo excelente, nunca se me pararé de ti con estas raras condiciones de ganarte a todo el mundo. ¡Felicidades, mi Señor!"
+
+#: landview:500
+msgctxt "Level introduction"
+msgid "Journey secret. Here is found the hidden land in which are found deposits of jewellery."
+msgstr "Secretos viajeros. Aquí se encuentra una tierra escondida en la que se encuentran depósitos de joyas."
+
+#: landview:501
+msgctxt "Level summary"
+msgid "TODO501"
+msgstr "TODO501"
+
+#: landview:510
+msgctxt "Level introduction"
+msgid "Reach secret. In this land hide survivors of heroes."
+msgstr "Atrapa secretos. En esta tierra se esconden héroes supervivientes."
+
+#: landview:511
+msgctxt "Level summary"
+msgid "TODO511"
+msgstr "TODO511"
+
+#: landview:520
+msgctxt "Level introduction"
+msgid "Imps secret. In this land are recorded secrets imp's"
+msgstr "El secreto de los duendes. En esta tierra hay grabados secretos de los duendes."
+
+#: landview:521
+msgctxt "Level summary"
+msgid "TODO521"
+msgstr "TODO521"
+
+#: landview:530
+msgctxt "Level introduction"
+msgid "Hornies secret. In this land hide powerful Horned Raper."
+msgstr "El secreto de los segadores. En esta tierra se esconden los poderosos segadores astados."
+
+#: landview:531
+msgctxt "Level summary"
+msgid "TODO531"
+msgstr "TODO531"
+
+#: landview:540
+msgctxt "Level introduction"
+msgid "Just secret. In this land one hid reportedly powerful magic scrol, seek and perhaps you will find."
+msgstr "Secreto, justo eso. En esta tierra supuestamente se escondió un poderoso pergamino mágico, búscalo y tal vez lo encuentres."
+
+#: landview:541
+msgctxt "Level summary"
+msgid "TODO541"
+msgstr "TODO541"
+
+#: landview:550
+msgctxt "Level introduction"
+msgid "Moon secret. This land appears only into the full moon, dear knows what can there  lie in wait  himself."
+msgstr "Secreto lunar. Esta tierra aparece solo en la luna llena, solo dios sabe lo que puede estar al acecho."
+
+#: landview:551
+msgctxt "Level summary"
+msgid "TODO551"
+msgstr "TODO551"

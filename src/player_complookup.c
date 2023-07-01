@@ -163,13 +163,13 @@ void check_treasure_map(unsigned char *treasure_map, unsigned short *vein_list, 
         struct GoldLookup* gldlook = get_gold_lookup(gold_idx);
         LbMemorySet(gldlook, 0, sizeof(struct GoldLookup));
         gldlook->flags |= 0x01;
-        gldlook->x_stl_num = slab_subtile_center(gld_v1 / gld_v3);
-        gldlook->y_stl_num = slab_subtile_center(gld_v2 / gld_v3);
+        gldlook->stl_x = slab_subtile_center(gld_v1 / gld_v3);
+        gldlook->stl_y = slab_subtile_center(gld_v2 / gld_v3);
         gldlook->field_A = gold_slabs;
         gldlook->field_C = 0;
         gldlook->num_gold_slabs = gold_slabs;
         gldlook->num_gem_slabs = gem_slabs;
-        SYNCDBG(8,"Added vein %d at (%d,%d)",(int)gold_idx,(int)gldlook->x_stl_num,(int)gldlook->y_stl_num);
+        SYNCDBG(8,"Added vein %d at (%d,%d)",(int)gold_idx,(int)gldlook->stl_x,(int)gldlook->stl_y);
     }
 }
 

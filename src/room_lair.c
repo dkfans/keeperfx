@@ -221,8 +221,8 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
             {
                 if ( room_scores[room->index] == best_score )
                 {
-                    room_center_pos.x.stl.pos = room->central_stl_x;
-                    room_center_pos.y.stl.pos = room->central_stl_y;
+                    room_center_pos.x.stl.num = room->central_stl_x;
+                    room_center_pos.y.stl.num = room->central_stl_y;
                     room_center_pos.z.val = 256;
                     distance = get_2d_box_distance(&creatng->mappos, &room_center_pos);
 

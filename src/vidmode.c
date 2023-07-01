@@ -438,6 +438,23 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_PlaceDoor03:
   case MousePG_PlaceDoor04:
   case MousePG_Mystery:
+      // 166..181 are place trap pointers with spell icons
+  case 166:
+  case 167:
+  case 168:
+  case 169:
+  case 170:
+  case 171:
+  case 172:
+  case 173:
+  case 174:
+  case 175:
+  case 176:
+  case 177:
+  case 178:
+  case 179:
+  case 180:
+  case 181:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
@@ -987,7 +1004,6 @@ TbScreenMode switch_to_next_video_mode(void)
         vid_change_query_menu = GMnu_CREATURE_QUERY4;
     }
     reinit_all_menus();
-    init_custom_sprites(SPRITE_LAST_LEVEL);
     if (reload_video)
     {
         turn_on_menu(GMnu_VIDEO);

@@ -129,7 +129,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     SYNCDBG(18,"Starting");
     // Traps searching is restricted to one subtile - otherwise we could lose tooltips for other objects.
     struct Thing* thing = get_trap_at_subtile_of_model_and_owned_by(pos->x.stl.num, pos->y.stl.num, -1, -1);
-    //thing = get_trap_for_slab_position(subtile_slab_fast(pos->x.stl.num),subtile_slab_fast(pos->y.stl.num));
+    //thing = get_trap_for_slab_position(subtile_slab(pos->x.stl.num),subtile_slab(pos->y.stl.num));
     if (thing_is_invalid(thing)) return false;
     struct PlayerInfo* player = get_my_player();
     if ((thing->trap.revealed == 0) && (player->id_number != thing->owner))
@@ -159,7 +159,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (!thing_is_invalid(thing))
   {
       update_gui_tooltip_target(thing);
-      if (thing->model == ObjMdl_SpecboxCustom)
+      if (thing_is_custom_special_box(thing))
       {
           // TODO: get it from Map script
           if (gameadd.box_tooltip[thing->custom_box.box_kind][0] == 0)
@@ -325,8 +325,8 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
       else
           k = -1;
       struct PlayerInfo* player = get_player(k);
-      if (player->field_15[0] != '\0')
-          set_gui_tooltip_box_fmt(0, "%s: %s", text, player->field_15);
+      if (player->player_name[0] != '\0')
+          set_gui_tooltip_box_fmt(0, "%s: %s", text, player->player_name);
       else
           set_gui_tooltip_box_fmt(0, "%s", text);
   } else

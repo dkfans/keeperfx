@@ -65,6 +65,14 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
         ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, tngmodel),(int)location);
         return INVALID_THING;
     }
+    if (thing_is_dungeon_heart(thing))
+    {
+        struct DungeonAdd* dungeonadd = get_dungeonadd(tngowner);
+        if (dungeonadd->backup_heart_idx == 0)
+        {
+            dungeonadd->backup_heart_idx = thing->index;
+        }
+    }
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     // Try to move thing out of the solid wall if it's inside one
     if (thing_in_wall_at(thing, &thing->mappos))
@@ -75,11 +83,12 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
             return INVALID_THING;
         }
     }
+    if (thing_is_special_box(thing) && !thing_is_hardcoded_special_box(thing))
+    {
+        thing->custom_box.box_kind = (unsigned char)arg;
+    }
     switch (tngmodel)
     {
-        case ObjMdl_SpecboxCustom: // Custom box from SPECBOX_HIDNWRL
-            thing->custom_box.box_kind = (unsigned char)arg;
-            break;
         case ObjMdl_GoldChest:
         case ObjMdl_GoldPot:
         case ObjMdl_Goldl:

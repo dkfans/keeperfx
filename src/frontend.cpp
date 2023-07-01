@@ -626,8 +626,8 @@ TbBool validate_versions(void)
       if ((net_screen_packet[i].field_4 & 0x01) != 0)
       {
         if (ver == -1)
-          ver = player->field_4E7;
-        if (player->field_4E7 != ver)
+          ver = player->game_version;
+        if (player->game_version != ver)
           return false;
       }
     }
@@ -1110,7 +1110,7 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct PlayerInfo *player;
 
-    pwkind = pwkind % POWER_TYPES_COUNT;
+    pwkind = pwkind % magic_conf.power_types_count;
 
     if (is_special_power(pwkind)) {
         choose_special_spell(pwkind, tooltip_id);
@@ -1392,7 +1392,7 @@ void gui_area_text(struct GuiButton *gbtn)
                 lit_width += 32;
             }
             draw_lit_bar64k(gbtn->scr_pos_x - 6*units_per_pixel/16, gbtn->scr_pos_y - 6*units_per_pixel/16, bs_units_per_px, lit_width);
-        } 
+        }
         else
         {
             draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
@@ -2581,7 +2581,7 @@ char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
     result = tb_load_files;
     if ( tb_load_files->FName[0] != 42 )
     {
-        sprintf(path_string, "%s\\%s", install_info.inst_path, tb_load_files->FName);
+        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName);
         return path_string;
     }
     return result->FName;
@@ -2757,6 +2757,11 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_MAIN_MENU:
           continue_game_option_available = continue_game_available();
+          if (!continue_game_option_available)
+          {
+              char* fname = prepare_file_path(FGrp_Save, continue_game_filename);
+              LbFileDelete(fname);
+          }
           turn_on_menu(GMnu_FEMAIN);
           last_mouse_x = GetMouseX();
           last_mouse_y = GetMouseY();

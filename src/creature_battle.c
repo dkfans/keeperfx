@@ -199,7 +199,10 @@ long get_flee_position(struct Thing *creatng, struct Coord3d *pos)
         struct PlayerInfo* player = get_player(creatng->owner);
         if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->is_active == 1) && (player->victory_state != VicS_LostLevel) )
         {
-            ERRORLOG("The %s index %d has no dungeon heart or lair to flee to",thing_model_name(creatng),(int)creatng->index);
+            if (!is_hero_thing(creatng))
+            {
+                ERRORLOG("The %s index %d has no dungeon heart or lair to flee to", thing_model_name(creatng), (int)creatng->index);
+            }
             return 0;
         }
         pos->x.stl.pos = creatng->mappos.x.stl.pos;
@@ -218,7 +221,10 @@ TbBool setup_combat_flee_position(struct Thing *thing)
     }
     if (!get_flee_position(thing, &cctrl->flee_pos))
     {
-        ERRORLOG("Couldn't get a flee position for %s index %d",thing_model_name(thing),(int)thing->index);
+        if (!is_hero_thing(thing))
+        {
+            ERRORLOG("Couldn't get a flee position for %s index %d", thing_model_name(thing), (int)thing->index);
+        }
         cctrl->flee_pos.x.stl.pos = thing->mappos.x.stl.pos;
         cctrl->flee_pos.y.stl.pos = thing->mappos.y.stl.pos;
         cctrl->flee_pos.z.stl.pos = thing->mappos.z.stl.pos;

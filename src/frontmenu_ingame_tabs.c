@@ -637,7 +637,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_special_spell code to choose_special_spell
     //TODO: equivalent to gui_choose_spell now... try merge
-    choose_spell(((int) gbtn->content) % POWER_TYPES_COUNT, gbtn->tooltip_stridx);
+    choose_spell(((int) gbtn->content) % POWER_TYPES_MAX, gbtn->tooltip_stridx);
 }
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
@@ -1019,7 +1019,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 void maintain_big_spell(struct GuiButton *gbtn)
 {
     long spl_idx = game.chosen_spell_type;
-    if ((spl_idx < 0) || (spl_idx >= KEEPER_POWERS_COUNT)) {
+    if ((spl_idx < 0) || (spl_idx >= magic_conf.power_types_count)) {
         return;
     }
     gbtn->content = (unsigned long *)spl_idx;
@@ -1175,6 +1175,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
     int tx_units_per_px;
     int text_x;
+    int text_y = -6*dst_w/base_w;
     if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
     {
         tx_units_per_px = scale_ui_value(32);
@@ -1183,9 +1184,18 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     else
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        if ( (dbc_language > 0) && (MyScreenWidth > 640) )
+        {
+            tx_units_per_px = scale_value_by_horizontal_resolution(12 + (MyScreenWidth / 640));
+            text_y += 12;
+        }
+        else
+        {
+            tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        }
         text_x = 0;
     }
-    LbTextDrawResized(text_x, -6*dst_w/base_w, tx_units_per_px, text);
+    LbTextDrawResized(text_x, text_y, tx_units_per_px, text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
@@ -1680,8 +1690,9 @@ void maintain_instance(struct GuiButton *gbtn)
     }
     int curbtn_avail_pos = (long)gbtn->content;
     int curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
-    gbtn->sprite_idx = instance_button_init[curbtn_inst_id].symbol_spridx;
-    gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].tooltip_stridx;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(curbtn_inst_id);
+    gbtn->sprite_idx = inst_inf->symbol_spridx;
+    gbtn->tooltip_stridx = inst_inf->tooltip_stridx;
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
@@ -2309,6 +2320,12 @@ void update_room_tab_to_config(void)
         ibtn->rclick_event = gui_go_to_next_room;
         ibtn->ptover_event = gui_over_room_button;
         ibtn->draw_call = gui_area_room_button;
+    }
+    // Update active menu
+    if (menu_is_active(GMnu_ROOM))
+    {
+        turn_off_menu(GMnu_ROOM);
+        turn_on_menu(GMnu_ROOM);
     }
 }
 

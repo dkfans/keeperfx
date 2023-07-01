@@ -494,7 +494,6 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
 
 void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-
     
     int block_flags;
     int v13;
@@ -531,8 +530,8 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     };
 
     struct XY {
-        char x;
-        char y;
+        MapSlabCoord x;
+        MapSlabCoord y;
     };
 
     static const struct XY byte_522199[6] =
@@ -545,10 +544,10 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         { 0, 0}
     };
 
-    char *first_scratch = (char*) scratch;
+    char *first_scratch = (char*) big_scratch;
     
-    struct XY *second_scratch = (struct XY *)scratch + gameadd.map_tiles_x * gameadd.map_tiles_y;
-    memset((void *)scratch, 0, gameadd.map_tiles_x * gameadd.map_tiles_y);
+    struct XY *second_scratch = (struct XY *)big_scratch + gameadd.map_tiles_x * gameadd.map_tiles_y;
+    memset((void *)big_scratch, 0, gameadd.map_tiles_x * gameadd.map_tiles_y);
 
     for(MapSlabCoord slb_y_2 = 0;slb_y_2 < gameadd.map_tiles_y;slb_y_2++)
     {
@@ -732,6 +731,9 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
     player->main_palette = engine_palette;
+    player->minimap_zoom = settings.minimap_zoom;
+    player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
+    player->frontview_zoom_level = settings.frontview_zoom_level;
     if (is_my_player(player))
     {
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
@@ -752,6 +754,16 @@ void init_player(struct PlayerInfo *player, short no_explore)
         }
         break;
     case GKind_MultiGame:
+        //workaround until settings are synced through multiplayer
+        player->minimap_zoom = 256;
+        if (game.packet_save_head.isometric_view_zoom_level == 0)
+        {
+            player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
+        }
+        if (game.packet_save_head.frontview_zoom_level == 0)
+        {
+            player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
+        }
         if (player->is_active != 1)
         {
           ERRORLOG("Non Keeper in Keeper game");
@@ -1068,8 +1080,8 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 {
     struct Thing *thing;
     struct Coord3d pos;
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     long sell_value = 0;
     unsigned long traps_sold;
     struct PlayerInfo* player = get_player(plyr_idx);
@@ -1085,7 +1097,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     else
     {
-        thing = get_trap_for_slab_position(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+        thing = get_trap_for_slab_position(subtile_slab(stl_x), subtile_slab(stl_y));
         if (!thing_is_sellable_trap(thing))
         {
             return false;
@@ -1143,7 +1155,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
     struct Coord3d pos;
-    set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
+    set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     if (sell_value != 0)
     {
         create_price_effect(&pos, plyr_idx, sell_value);

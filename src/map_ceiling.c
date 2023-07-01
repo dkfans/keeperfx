@@ -30,7 +30,7 @@ extern "C"
 {
 #endif
 
-static char ceiling_cache[256*256];
+static char ceiling_cache[MAX_SUBTILES_X*MAX_SUBTILES_Y];
 
 static int find_column_height_including_lintels(struct Column *col)
 {
@@ -265,7 +265,7 @@ static long get_ceiling_filled_subtiles_from_cubes(const struct Column *col)
     return i + 1;
 }
 
-static int get_ceiling_or_floor_filled_subtiles(int stl_num)
+static int get_ceiling_or_floor_filled_subtiles(SubtlCodedCoords stl_num)
 {
     const struct Map *mapblk;
     mapblk = get_map_block_at_pos(stl_num);

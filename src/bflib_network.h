@@ -142,9 +142,6 @@ struct TbNetworkSessionNameEntry;
 typedef long (*Net_Callback_Func)(void);
 
 enum TbNetworkService {
-    NS_Serial_OLD,
-    NS_Modem_OLD,
-    NS_IPX,
     NS_TCP_IP,
     NS_ENET_UDP,
 };
