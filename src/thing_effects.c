@@ -1193,7 +1193,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     if (!creature_battle_invalid(battle))
                     {
-                        dieflags |= CrDed_DiedInBattle;
+                        dieflags = CrDed_DiedInBattle;
                     }
                     // Explosions kill rather than only stun friendly creatures when imprison is on
                     if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (no_stun) )
