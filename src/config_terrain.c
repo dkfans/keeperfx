@@ -1246,6 +1246,37 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
     return false;
 }
 
+
+/**
+ * Returns if a room that has role can be built by a player.
+ * Checks only if it's available and if the player is 'alive'.
+ * Doesn't check if the player has enough money or map position is on correct spot.
+ */
+RoomKind find_first_available_roomkind_with_role(PlayerNumber plyr_idx, RoomRole rrole)
+{
+    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    // Check if the player even have a dungeon
+    if (dungeonadd_invalid(dungeonadd)) {
+        return RoK_NONE;
+    }
+    // Player must have dungeon heart to build rooms
+    if (!player_has_heart(plyr_idx)) {
+        return RoK_NONE;
+    }
+
+    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    {
+        if (room_role_matches(rkind, rrole))
+        {
+            if (dungeonadd->room_buildable[rkind] & 1)
+            {
+                return rkind;
+            }
+        }
+    }
+    return RoK_NONE;
+}
+
 /**
  * Returns if a room that has role can be built by a player.
  * Checks only if it's available and if the player is 'alive'.
@@ -1253,25 +1284,9 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
  */
 TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    // Check if the player even have a dungeon
-    if (dungeonadd_invalid(dungeonadd)) {
-        return false;
-    }
-    // Player must have dungeon heart to build rooms
-    if (!player_has_heart(plyr_idx)) {
-        return false;
-    }
-
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    if (find_first_available_roomkind_with_role(plyr_idx, rrole) > RoK_NONE)
     {
-        if(room_role_matches(rkind,rrole))
-        {
-            if (dungeonadd->room_buildable[rkind] & 1)
-            {
-                return true;
-            }
-        }
+        return true;
     }
     return false;
 }
@@ -1476,7 +1491,7 @@ RoomKind slab_corresponding_room(SlabKind slbkind)
 }
 
 /**
- * Returns room kind which corresponds to given slab kind.
+ * Returns room kind which corresponds to given role.
  * @param rrole The slab kind to be checked.
  * @return The corresponding room kind index.
  */
