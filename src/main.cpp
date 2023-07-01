@@ -1605,6 +1605,7 @@ void reinit_level_after_load(void)
     erstats_clear();
     player = get_my_player();
     reinit_tagged_blocks_for_player(player->id_number);
+    restore_room_update_functions_after_load();
     restore_computer_player_after_load();
     sound_reinit_after_load();
 }

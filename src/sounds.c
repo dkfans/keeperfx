@@ -219,7 +219,7 @@ void find_nearest_rooms_for_ambient_sound(void)
             struct Room* room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[room->kind];
+            struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[room->kind];
             long k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
