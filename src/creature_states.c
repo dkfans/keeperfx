@@ -2421,13 +2421,15 @@ void creature_drop_dragged_object(struct Thing *creatng, struct Thing *dragtng)
 
 TbBool creature_is_dragging_something(const struct Thing *creatng)
 {
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->dragtng_idx == 0) {
         return false;
     }
     const struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    if (!thing_exists(dragtng)) {
-        ERRORLOG("The %s is dragging non-existing thing",thing_model_name(creatng));
+    if (!thing_exists(dragtng))
+    {
+        ERRORLOG("The %s is dragging non-existing thing with ID %d",thing_model_name(creatng), cctrl->dragtng_idx);
+        cctrl->dragtng_idx = 0;
         return false;
     }
     return true;
@@ -4803,6 +4805,7 @@ char creature_free_for_lunchtime(struct Thing *creatng)
 long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    RoomKind rkind;
     if ((crstat->hunger_rate == 0) || (cctrl->hunger_level <= (long)crstat->hunger_rate)) {
         return 0;
     }
@@ -4821,7 +4824,8 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
 
     if (!player_has_room_of_role(creatng->owner, RoRoF_FoodStorage))
     {
-        output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNeeded);
+        rkind = find_first_roomkind_with_role(RoRoF_FoodStorage);
+        output_message_room_related_from_computer_or_player_action(creatng->owner, rkind, OMsg_RoomNeeded);
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
@@ -4838,11 +4842,12 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
         if (room_is_invalid(nroom))
         {
             // There seem to be a correct room, but we can't reach it
-            output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNoRoute);
+            rkind = find_first_roomkind_with_role(RoRoF_FoodStorage);
+            output_message_room_related_from_computer_or_player_action(creatng->owner, rkind, OMsg_RoomNoRoute);
         } else
         {
             // The room is reachable, so it probably has just no food
-            output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomTooSmall);
+            output_message_room_related_from_computer_or_player_action(creatng->owner, nroom->kind, OMsg_RoomTooSmall);
         }
     }
     if (room_is_invalid(nroom)) {

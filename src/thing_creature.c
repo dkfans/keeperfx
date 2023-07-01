@@ -1628,6 +1628,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         {
             struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
             efthing->shot_effect.hit_type = shotst->area_hit_type;
+            efthing->parent_idx = castng->index;
         }
     }
 }
@@ -2092,7 +2093,7 @@ long move_creature(struct Thing *thing)
                 }
                 else
                 {
-                    nxpos.z.val = get_thing_height_at(thing, &nxpos);
+                    nxpos.z.val = tngpos->z.val;
                 }
             }
         }
@@ -2110,7 +2111,7 @@ long move_creature(struct Thing *thing)
                 }
                 else
                 {
-                    nxpos.z.val = get_thing_height_at(thing, &nxpos);
+                    nxpos.z.val = tngpos->z.val;
                 }
             }
         }
@@ -5276,6 +5277,21 @@ long update_creature_levels(struct Thing *thing)
         set_selected_creature(player, newtng);
     }
     remove_creature_score_from_owner(thing); // kill_creature() doesn't call this
+    if (thing_is_picked_up_by_player(thing,thing->owner))
+    {
+        struct Dungeon* dungeon = get_dungeon(thing->owner);
+        short i = get_thing_in_hand_id(thing, thing->owner);
+        if (i >= 0)
+        {
+            dungeon->things_in_hand[i] = newtng->index;
+            remove_thing_from_limbo(thing);
+            place_thing_in_limbo(newtng);
+        }
+        else
+        {
+            ERRORLOG("Picked up thing is not in player hand list");
+        }
+    }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NoUnconscious|CrDed_NotReallyDying);
     return -1;
 }
@@ -6062,7 +6078,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     else if (thing_is_special_box(picktng))
     {
         char msg_buf[255];
-        if (picktng->model == ObjMdl_SpecboxCustom)
+        if (thing_is_custom_special_box(picktng))
         {
             if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {
