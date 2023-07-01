@@ -1302,7 +1302,7 @@ RoomKind find_first_available_roomkind_with_role(PlayerNumber plyr_idx, RoomRole
         return RoK_NONE;
     }
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
         {
