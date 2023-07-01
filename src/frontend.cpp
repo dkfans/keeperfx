@@ -993,7 +993,7 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind, 0, 0);
     struct RoomConfigStats *roomst;
-    roomst = &slab_conf.room_cfgstats[rkind];
+    roomst = &game.slab_conf.room_cfgstats[rkind];
     game.chosen_room_kind = rkind;
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = tooltip_id;
