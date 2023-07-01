@@ -64,23 +64,24 @@ const struct NamedCommand terrain_slab_commands[] = {
 };
 
 const struct NamedCommand terrain_room_commands[] = {
-  {"NAME",            1},
-  {"COST",            2},
-  {"HEALTH",          3},
-  {"PROPERTIES",      4},
-  {"SLABASSIGN",      5},
-  {"CREATURECREATION",6},
-  {"MESSAGES",        7},
-  {"NAMETEXTID",      8},
-  {"TOOLTIPTEXTID",   9},
-  {"SYMBOLSPRITES",  10},
-  {"POINTERSPRITES", 11},
-  {"PANELTABINDEX",  12},
-  {"TOTALCAPACITY",  13},
-  {"USEDCAPACITY",   14},
-  {"AMBIENTSNDSAMPLE",15},
-  {"ROLES",          16},
-  {NULL,              0},
+  {"NAME",              1},
+  {"COST",              2},
+  {"HEALTH",            3},
+  {"PROPERTIES",        4},
+  {"SLABASSIGN",        5},
+  {"CREATURECREATION",  6},
+  {"MESSAGES",          7},
+  {"NAMETEXTID",        8},
+  {"TOOLTIPTEXTID",     9},
+  {"SYMBOLSPRITES",    10},
+  {"POINTERSPRITES",   11},
+  {"PANELTABINDEX",    12},
+  {"TOTALCAPACITY",    13},
+  {"USEDCAPACITY",     14},
+  {"AMBIENTSNDSAMPLE", 15},
+  {"ROLES",            16},
+  {"STORAGEHEIGHT",    17},
+  {NULL,                0},
 };
 
 const struct NamedCommand terrain_room_properties_commands[] = {
@@ -1086,6 +1087,14 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
                     CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
                 }
+            }
+            break;
+        case 17: // STORAGEHEIGHT
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                roomst->storage_height = k;
+                n++;
             }
             break;
         case 0: // comment
