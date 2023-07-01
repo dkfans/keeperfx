@@ -1160,7 +1160,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         newvalue = get_id(terrain_room_total_capacity_func_type, valuestring);
         if (newvalue == -1)
             {
-                SCRPTERRLOG("Unknown TotalCapacity variable");
+                SCRPTERRLOG("Unknown TotalCapacity variable '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
@@ -1171,11 +1171,20 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         newvalue = get_id(terrain_room_used_capacity_func_type, valuestring);
         if (newvalue == -1)
             {
-                SCRPTERRLOG("Unknown UsedCapacity variable");
+                SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
         value->shorts[2] = newvalue;
+
+        newvalue2 = get_id(terrain_room_used_capacity_func_type, valuestring2);
+        if (newvalue2 == -1)
+        {
+            SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring2);
+            DEALLOCATE_SCRIPT_VALUE
+                return;
+        }
+        value->shorts[3] = newvalue2;
     }
     else if (roomvar != 4) // NameTextID, TooltipTextID, Cost, Health, AmbientSndSample, Messages
     {
