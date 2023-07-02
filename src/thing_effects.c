@@ -32,6 +32,7 @@
 #include "thing_factory.h"
 #include "thing_navigate.h"
 #include "thing_shots.h"
+#include "creature_battle.h"
 #include "creature_senses.h"
 #include "config_creature.h"
 #include "config_effects.h"
@@ -1187,7 +1188,9 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 affected = true;
                 if (tngdst->health < 0)
                 {
-                    CrDeathFlags dieflags = CrDed_DiedInBattle;
+                    struct Thing *origtng = thing_get(tngsrc->parent_idx);
+                    struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
+                    CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
                     if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (no_stun) )
                     {
