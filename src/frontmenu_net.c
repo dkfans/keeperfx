@@ -631,7 +631,7 @@ void frontnet_draw_messages(struct GuiButton *gbtn)
     }
 }
 
-static void frontnet_remove_session()
+void masterserver_remove_session()
 {
     char out_buf[256];
     VALUE ret_buf;
@@ -647,7 +647,7 @@ static void frontnet_remove_session()
 
 void frontnet_return_to_session_menu(struct GuiButton *gbtn)
 {
-    frontnet_remove_session();
+    masterserver_remove_session();
     if (LbNetwork_Stop())
     {
         ERRORLOG("LbNetwork_Stop() failed");
@@ -1037,7 +1037,7 @@ void masterserver_toggle_public(struct GuiButton *gbtn)
     char out_buf[256];
     VALUE ret_obj = {0};
     VALUE *ret = &ret_obj, *val;
-    frontnet_remove_session();
+    masterserver_remove_session();
     fe_public = !fe_public;
     if (fe_public)
     {

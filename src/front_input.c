@@ -400,7 +400,10 @@ short get_packet_load_game_control_inputs(void)
   {
     clear_key_pressed(KC_X);
     if ((game.system_flags & GSF_NetworkActive) != 0)
-      LbNetwork_Stop();
+    {
+        LbNetwork_Stop();
+        masterserver_remove_session();
+    }
     quit_game = 1;
     exit_keeper = 1;
     return true;

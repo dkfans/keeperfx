@@ -238,6 +238,7 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn);
 void frontend_draw_computer_players(struct GuiButton *gbtn);
 void masterserver_toggle_public(struct GuiButton *gbtn);
 void masterserver_session_started();
+void masterserver_remove_session();
 void frontend_draw_public_session(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
