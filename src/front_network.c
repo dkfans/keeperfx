@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "bflib_inputctrl.h"
 #include "bflib_network.h"
 #include "bflib_netsession.h"
 #include "bflib_guibtns.h"
@@ -325,7 +326,10 @@ void frontnet_session_update(void)
 
       if (value_dict_get(&config_dict, "MASTERSERVER_HOST") != NULL)
       {
-          process_masterserver_session();
+          if (LbIsActive()) // Check if game has focus
+          {
+              process_masterserver_session();
+          }
       }
 
       last_enum_sessions = LbTimerClock() + 500; // Session update time (poll masterserver each time)
