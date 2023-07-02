@@ -1213,6 +1213,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 }
             } else // Explosions move creatures and other things
             {
+                // Explosions only move creatures back on its birth turn
+                if (tngsrc->creation_turn == game.play_gameturn)
                 {
                     long move_angle = get_angle_xy_to(pos, &tngdst->mappos);
                     long move_dist = 0;
