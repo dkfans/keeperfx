@@ -137,6 +137,7 @@ struct RoomConfigStats {
     TextStringId tooltip_stridx;
     long creature_creation_model;
     SlabKind assigned_slab;
+    char storage_height;
     unsigned long flags;
     RoomRole roles;
     long panel_tab_idx;
