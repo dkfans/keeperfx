@@ -733,7 +733,8 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
         return -2; // do nothing
-    if (get_map_floor_filled_subtiles(mapblk) != 1) {
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_floor_filled_subtiles_at(stl_x, stl_y) != roomst->storage_height)) {
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
