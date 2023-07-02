@@ -487,8 +487,6 @@ void frontnet_messages_down(struct GuiButton *gbtn)
 
 void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
 {
-    int units_per_px = 20;
-
     long pos_x;
     long pos_y;
     struct TbSprite *spr;
@@ -496,16 +494,28 @@ void frontnet_draw_bottom_scroll_box_tab(struct GuiButton *gbtn)
     pos_y = gbtn->scr_pos_y;
     lbDisplay.DrawFlags = Lb_SPRITE_FLIP_VERTIC;
     spr = &frontend_sprite[GFS_hugearea_thc_cor_tl];
-    int fs_units_per_px;
-    int tail = gbtn->width - 15 - 9; //Left & Right borders;
-    fs_units_per_px = spr->SHeight * units_per_px / 26;
+    int fs_units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugearea_thc_tx1_tc, 100);
+    int tail = gbtn->width - (15 + 9) * fs_units_per_px / 16; //Left & Right borders;
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
     spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
-    for (; tail > spr->SWidth; tail -= spr->SWidth)
+    for (; tail > 0; tail -= spr->SWidth * fs_units_per_px / 16)
     {
-        LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
-        pos_x += spr->SWidth * fs_units_per_px / 16;
+        //LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
+        long dwidth = (spr->SWidth * fs_units_per_px + 8) / 16;
+        LbSpriteSetScalingData(pos_x, pos_y, spr->SWidth, spr->SHeight,
+                               dwidth, (spr->SHeight * fs_units_per_px + 8) / 16);
+        if (tail < spr->SWidth)
+        {
+            LbSpriteSetScalingWidthClipped(pos_x, spr->SWidth, dwidth, pos_x + tail);
+            pos_x += tail;
+        }
+        else
+        {
+            pos_x += spr->SWidth * fs_units_per_px / 16;
+        }
+        LbSpriteDrawUsingScalingData(0, 0, spr);
+
     }
     spr = &frontend_sprite[GFS_hugearea_thc_cor_tr];
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);

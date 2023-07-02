@@ -202,6 +202,7 @@ TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
 void LbTiledSpriteDraw(long x, long y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite);
 int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite);
 
+void LbSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth);
 /******************************************************************************/
 #ifdef __cplusplus
 }
