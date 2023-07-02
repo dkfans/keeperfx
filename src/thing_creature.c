@@ -2625,7 +2625,10 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     }
     if (is_my_player_number(creatng->owner))
     {
-        output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
+        if ((flags & CrDed_DiedInBattle) != 0)
+        {
+            output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
+        }
     } else
     if (is_my_player_number(killertng->owner))
     {

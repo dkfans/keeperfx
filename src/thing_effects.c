@@ -32,6 +32,7 @@
 #include "thing_factory.h"
 #include "thing_navigate.h"
 #include "thing_shots.h"
+#include "creature_battle.h"
 #include "creature_senses.h"
 #include "config_creature.h"
 #include "config_effects.h"
@@ -1187,7 +1188,9 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 affected = true;
                 if (tngdst->health < 0)
                 {
-                    CrDeathFlags dieflags = CrDed_DiedInBattle;
+                    struct Thing *origtng = thing_get(tngsrc->parent_idx);
+                    struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
+                    CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
                     if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (no_stun) )
                     {
@@ -1197,7 +1200,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     affected = true;
                 }
             }
-            else if (thing_is_dungeon_heart(tngdst))
+            if (thing_is_dungeon_heart(tngdst))
             {
                 HitPoints damage = get_radially_decaying_value(max_damage, max_dist / 4, 3 * max_dist / 4, distance) + 1;
                 SYNCDBG(7,"Causing %d damage to %s at distance %d",(int)damage,thing_model_name(tngdst),(int)distance);
