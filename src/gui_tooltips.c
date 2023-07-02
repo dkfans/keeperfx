@@ -342,12 +342,20 @@ void setup_gui_tooltip(struct GuiButton *gbtn)
       else
           k = get_players_special_digger_model(my_player_number);
       struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[k];
-      set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crconf->namestr_idx), text);
   } else
   {
       set_gui_tooltip_box_fmt(0, "%s", text);
   }
   update_gui_tooltip_button(gbtn);
+        if (k != 0)
+        {
+            set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crconf->namestr_idx), text);
+        }
+        else
+        {
+            gbtn->btype_value |= LbBFeF_NoTooltip;
+            return;
+        }
 }
 
 TbBool gui_button_tooltip_update(int gbtn_idx)
