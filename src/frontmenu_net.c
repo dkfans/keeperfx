@@ -118,7 +118,7 @@ TbBool frontnet_start_input(void)
     if (lbInkey != KC_UNASSIGNED)
     {
         unsigned short asckey;
-        asckey = key_to_ascii(lbInkey, KMod_SHIFT);
+        asckey = key_to_ascii(lbInkey, KMod_NONE);
         if ((lbInkey == KC_BACK) || (lbInkey == KC_RETURN) || (frontend_font_char_width(1,asckey) > 0))
         {
             struct ScreenPacket *nspck;
