@@ -133,7 +133,7 @@ TbBool frontnet_start_input(void)
                   lbInkey = KC_UNASSIGNED;
                   return true;
               }
-              nspck->param2 = 1;
+              nspck->param2 = 16; //key_modifiers Shift
             }
         }
         lbInkey = KC_UNASSIGNED;
