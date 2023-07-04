@@ -52,7 +52,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define MAX_SESSIONS 32
 const char *keeper_netconf_file = "fxconfig.net";
 
 const struct ConfigInfo default_net_config_info = {
@@ -236,6 +235,7 @@ static int print_lst(const VALUE *key, VALUE *val, void *_ctx)
     return 0;
 }
 
+static int masterserver_sessions_num = 0;
 static struct TbNetworkSessionNameEntry masterserver_sessions[MAX_SESSIONS];
 
 static void process_masterserver_session()
@@ -261,7 +261,7 @@ static void process_masterserver_session()
         goto unable;
     }
     lst = val;
-    int ses = 0;
+    masterserver_sessions_num = 0;
     for (size_t i = 0; i < value_array_size(lst); i++)
     {
         VALUE *row = value_array_get(lst, i);
@@ -283,7 +283,7 @@ static void process_masterserver_session()
             goto unable;
         }
         int len = value_string_length(name);
-        if (value_string_length(name) >= sizeof(masterserver_sessions[ses].text))
+        if (value_string_length(name) >= sizeof(masterserver_sessions[masterserver_sessions_num].text))
         {
             WARNLOG("Session name too long ses:%s %d", value_string(name), len);
             continue;
@@ -293,12 +293,11 @@ static void process_masterserver_session()
             WARNLOG("Session ip too long ses:%s %d", value_string(name), value_string_length(ip));
             continue;
         }
-        strcpy(masterserver_sessions[ses].text, value_string(name) );
-        masterserver_sessions[ses].joinable = true;
-        sprintf(masterserver_sessions[ses].ip_port, "%s:%d", value_string(ip), value_int32(port));
-        enum_sessions_callback((struct TbNetworkCallbackData *)&masterserver_sessions[ses], NULL);
-        ses++;
-        if (ses >= MAX_SESSIONS)
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, value_string(name) );
+        masterserver_sessions[masterserver_sessions_num].joinable = true;
+        sprintf(masterserver_sessions[masterserver_sessions_num].ip_port, "%s:%d", value_string(ip), value_int32(port));
+        masterserver_sessions_num++;
+        if (masterserver_sessions_num >= MAX_SESSIONS)
             break;
        /* TODO: not used: has_password, players, status */
     }
@@ -313,6 +312,7 @@ void frontnet_session_update(void)
 {
     static long last_enum_players = 0;
     static long last_enum_sessions = 0;
+    static long last_masterserver_update = 0;
 
     if (LbTimerClock() >= last_enum_sessions)
     {
@@ -326,13 +326,21 @@ void frontnet_session_update(void)
 
       if (value_dict_get(&config_dict, "MASTERSERVER_HOST") != NULL)
       {
-          if (LbIsActive()) // Check if game has focus
+          if (last_masterserver_update < LbTimerClock())
           {
-              process_masterserver_session();
+              last_masterserver_update = LbTimerClock() + 3000; // How often to poll masterserver
+              if (LbIsActive()) // Check if game has focus
+              {
+                  process_masterserver_session();
+              }
+          }
+          for (int i = 0; i < masterserver_sessions_num; i++)
+          {
+              enum_sessions_callback((struct TbNetworkCallbackData *) &masterserver_sessions[i], NULL);
           }
       }
 
-      last_enum_sessions = LbTimerClock() + 500; // Session update time (poll masterserver each time)
+      last_enum_sessions = LbTimerClock() + 500; // Session update time
 
       if (net_number_of_sessions == 0)
       {
@@ -516,8 +524,6 @@ void frontnet_session_setup(void)
 void frontnet_start_setup(void)
 {
     frontend_alliances = -1;
-    net_current_message_index = 0;
-    net_current_message[0] = 0;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;
     net_message_scroll_offset = 0;
