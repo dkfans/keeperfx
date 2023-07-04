@@ -41,11 +41,11 @@ DKILLCONV_PACKAGE=$(notdir $(DKILLCONV_DOWNLOAD))
 
 # Tools and libraries to be used for the target system
 # Currently, the target is always windows-mingw32
-SDL_DOWNLOAD=http://www.libsdl.org/release/SDL2-devel-2.0.12-mingw.tar.gz
-#SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL2_net-devel-2.0.1-VC.zip
-SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL2_net-devel-2.0.1-mingw.tar.gz
-#SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip
-SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-mingw.tar.gz
+SDL_DOWNLOAD=http://www.libsdl.org/release/SDL2-devel-2.28.1-mingw.tar.gz
+#SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL2_net-devel-2.2.0-VC.zip
+SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL2_net-devel-2.2.0-mingw.tar.gz
+#SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.6.3-VC.zip
+SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.6.3-mingw.tar.gz
 SDL_PACKAGE=$(notdir $(SDL_DOWNLOAD))
 SDL_NET_PACKAGE=$(notdir $(SDL_NET_DOWNLOAD))
 SDL_MIXER_PACKAGE=$(notdir $(SDL_MIXER_DOWNLOAD))

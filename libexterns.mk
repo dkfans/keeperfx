@@ -43,7 +43,7 @@ sdl/lib/libSDL2main.a: sdl/$(SDL_PACKAGE)
 	-$(ECHO) 'Extracting package: $<'
 	# Grep is used to remove bogus error messages, return state of tar is also ignored
 	-cd "$(<D)"; \
-	tar --strip-components=2 -zxmUf "$(<F)" SDL2-2.0.12/i686-w64-mingw32/bin SDL2-2.0.12/i686-w64-mingw32/include SDL2-2.0.12/i686-w64-mingw32/lib SDL2-2.0.12/i686-w64-mingw32/share 2>&1 | \
+	tar --strip-components=2 -zxmUf "$(<F)" SDL2-2.28.1/i686-w64-mingw32/bin SDL2-2.28.1/i686-w64-mingw32/include SDL2-2.28.1/i686-w64-mingw32/lib SDL2-2.28.1/i686-w64-mingw32/share 2>&1 | \
 	grep -v '^.*: Archive value .* is out of .* range.*$$'
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
