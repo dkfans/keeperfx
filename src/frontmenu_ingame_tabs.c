@@ -1711,6 +1711,13 @@ void gui_activity_background(struct GuiMenu *gmnu)
     if (no_of_breeds_owned <= 6) {
         top_of_breed_list = 0;
     }
+    else
+    {
+        while ((top_of_breed_list + 6) > no_of_breeds_owned)
+        {
+            top_of_breed_list--;
+        }
+    }
     struct Dungeon* dungeon = get_my_dungeon();
     int visible_count = no_of_breeds_owned;
     if (no_of_breeds_owned <= 1)
