@@ -265,7 +265,7 @@ static void process_masterserver_session()
     for (size_t i = 0; i < value_array_size(lst); i++)
     {
         VALUE *row = value_array_get(lst, i);
-        VALUE *name, *ip, *port;
+        VALUE *name, *ip, *port, *status;
         //value_dict_walk_sorted(ret, print_lst, NULL);
         name = value_dict_get(row, "name");
         if ((name == NULL) || (value_string(name) == NULL))
@@ -281,6 +281,12 @@ static void process_masterserver_session()
         if ((port == NULL) || (value_int32(port) == 0))
         {
             goto unable;
+        }
+        status = value_dict_get(row,"status");
+        if ((status != NULL) && (value_string(status) != NULL) && \
+            (0 != strcmp(value_string(status), MASTERSERVER_STATUS_OPEN)))
+        {
+            continue;
         }
         int len = value_string_length(name);
         if (value_string_length(name) >= sizeof(masterserver_sessions[masterserver_sessions_num].text))

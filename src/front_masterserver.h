@@ -18,6 +18,9 @@
 
 void send_json_to_masterserver(char *buf, VALUE *out);
 
+#define MASTERSERVER_STATUS_OPEN "open"
+
+
 #define VALUE_GET_KEY(key) \
     val = value_dict_get(ret, key); \
     if (val == NULL) \

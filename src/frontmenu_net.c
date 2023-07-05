@@ -1092,7 +1092,7 @@ void masterserver_session_started()
                              cmpgn_human_player_options[i].name);
             }
         }
-        sprintf(out_buf, "{\"method\":\"lobby_started\",\"token\":\"%s\", \"players\":[%s]}\n",
+        sprintf(out_buf, "{\"method\":\"update_lobby\",\"token\":\"%s\",\"players\":[%s],\"status\":\"playing\"}\n",
                 fe_masterserver_token, players);
         fe_masterserver_token[0] = 0;
         send_json_to_masterserver(out_buf, ret);
