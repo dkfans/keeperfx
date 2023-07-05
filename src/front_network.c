@@ -457,6 +457,16 @@ void frontnet_start_update(void)
     frontnet_rewite_net_messages();
 }
 
+void display_message(const char *msg)
+{
+    if (LbScreenLock() == Lb_SUCCESS)
+    {
+        draw_text_box(msg);
+        LbScreenUnlock();
+    }
+    LbScreenSwap();
+}
+
 void display_attempting_to_join_message(void)
 {
   if (LbScreenLock() == Lb_SUCCESS)

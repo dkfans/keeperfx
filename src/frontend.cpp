@@ -3829,6 +3829,12 @@ void frontend_draw_product_version(struct GuiButton *gbtn)
     LbTextDrawResized(0, 0, units_per_px, text);
 }
 
+const char *TR(const char *msgid)
+{
+    // TODO: Read .po files as is
+    return msgid;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

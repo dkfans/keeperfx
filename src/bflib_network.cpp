@@ -781,6 +781,12 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
         return Lb_FAIL;
     }
 
+    if (!nsname)
+    {
+        ERRORLOG("No session selected");
+        return Lb_FAIL;
+    }
+
     const char *ip_port = (nsname->ip_port[0] != 0)? nsname->ip_port: nsname->text;
 
     if (netstate.sp->join(ip_port, optns) == Lb_FAIL) {
