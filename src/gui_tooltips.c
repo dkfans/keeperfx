@@ -315,7 +315,6 @@ void setup_gui_tooltip(struct GuiButton* gbtn)
     if (!settings.tooltips_on)
         return;
     struct Dungeon* dungeon = get_my_dungeon();
-    set_flag_byte(&tool_tip_box.flags, TTip_Visible, true);
     long i = gbtn->tooltip_stridx;
     const char* text = get_string(i);
     if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
@@ -344,14 +343,9 @@ void setup_gui_tooltip(struct GuiButton* gbtn)
         else
             k = get_players_special_digger_model(my_player_number);
         struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[k];
-        if (k != 0)
+        if (k > 0)
         {
             set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crconf->namestr_idx), text);
-        }
-        else
-        {
-            gbtn->btype_value |= LbBFeF_NoTooltip;
-            return;
         }
     }
     else
