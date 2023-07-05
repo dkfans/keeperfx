@@ -342,9 +342,9 @@ void setup_gui_tooltip(struct GuiButton* gbtn)
             k = breed_activities[top_of_breed_list + k];
         else
             k = get_players_special_digger_model(my_player_number);
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[k];
         if (k > 0)
         {
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[k];
             set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crconf->namestr_idx), text);
         }
     }
