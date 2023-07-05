@@ -30,6 +30,7 @@
 
 #include "config_strings.h"
 #include "front_network.h"
+#include "frontmenu_ingame_tabs.h"
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
 #include "frontend.h"
@@ -114,7 +115,7 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 2, 475, 186, 475, 186, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {77},  0, frontnet_maintain_alliance },
   { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 3, 497, 186, 497, 186, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {77},  0, frontnet_maintain_alliance },
   { 1,  0, 0, 0, NULL,                             NULL,   NULL,               0, 144, 217, 144, 217, 80, 26,  frontnet_draw_bottom_scroll_box_tab, 0, GUIStr_Empty, 0, {28},  0, NULL },
-  { 0,  0, 0, 0, masterserver_toggle_public  ,     NULL, frontend_over_button, 0, 160, 214, 157, 214, 80, 26,  frontend_draw_public_session,        0, GUIStr_Empty, 0, {104}, 0, NULL },
+  { 0,  BID_MASTERSERVER_PUBLIC, 0, 0, masterserver_toggle_public  ,     NULL, frontend_over_button, 0, 160, 214, 157, 214, 80, 26,  frontend_draw_public_session,        0, GUIStr_Empty, 0, {104}, 0, NULL },
   { 1,  0, 0, 0, NULL,                             NULL,   NULL,               0, 284, 217, 284, 217, 240, 26,  frontnet_draw_bottom_scroll_box_tab, 0, GUIStr_Empty, 0, {28},  0, NULL },
   { 0,  0, 0, 0, frontend_toggle_computer_players, NULL, frontend_over_button, 0, 297, 214, 297, 214, 220, 26,  frontend_draw_computer_players,      0, GUIStr_Empty, 0, {103}, 0, NULL },
   { 0,  0, 0, 0, NULL,                             NULL,   NULL,               0, 82,  246, 82,  246, 220, 26, frontnet_draw_scroll_box_tab,         0, GUIStr_Empty, 0, {28},  0, NULL },

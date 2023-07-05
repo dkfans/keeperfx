@@ -33,6 +33,7 @@
 
 #include "front_network.h"
 #include "front_masterserver.h"
+#include "frontmenu_ingame_tabs.h"
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
 #include "frontend.h"
@@ -941,6 +942,17 @@ void frontnet_service_select(struct GuiButton *gbtn)
     else
     {
         setup_network_service(srvidx);
+    }
+}
+
+void frontnet_init_session_start_menu()
+{
+    TbBool show = (net_service_index_selected == NS_ENET_UDP);
+    int idx = guibutton_get_idx_by_id(BID_MASTERSERVER_PUBLIC);
+    if (!show)
+    {
+        guibutton_get(idx)->flags &= ~LbBtnF_Visible;
+        guibutton_get(idx - 1)->flags &= ~LbBtnF_Visible;
     }
 }
 

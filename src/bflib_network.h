@@ -142,7 +142,7 @@ struct TbNetworkSessionNameEntry;
 typedef long (*Net_Callback_Func)(void);
 
 enum TbNetworkService {
-    NS_TCP_IP,
+    NS_TCP_IP = 0,
     NS_ENET_UDP,
 };
 

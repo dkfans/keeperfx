@@ -326,6 +326,28 @@ int guibutton_get_unused_slot(void)
     return -1;
 }
 
+int guibutton_get_idx_by_id(short gbtn_id)
+{
+    struct GuiButton *gbtn;
+    for (int i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
+    {
+        gbtn = &active_buttons[i];
+        if ((gbtn->flags & LbBtnF_Active) && (gbtn->id_num == gbtn_id) )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+struct GuiButton *guibutton_get(int gbtn_idx)
+{
+    static struct GuiButton null_button = { 0 };
+    if ((gbtn_idx >= ACTIVE_BUTTONS_COUNT) || (gbtn_idx < 0))
+        return &null_button;
+    return &active_buttons[gbtn_idx];
+}
+
 void init_slider_bars(struct GuiMenu *gmnu)
 {
     struct GuiButton *gbtn;

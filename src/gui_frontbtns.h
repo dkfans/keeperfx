@@ -33,7 +33,9 @@ extern "C" {
 #pragma pack()
 /******************************************************************************/
 int guibutton_get_unused_slot(void);
+int guibutton_get_idx_by_id(short gbtn_id);
 
+struct GuiButton *guibutton_get(int gmbtn_idx);
 void gui_clear_buttons_not_over_mouse(int gmbtn_idx);
 TbBool gui_button_release_inputs(int gmbtn_idx);
 TbBool gui_slider_button_inputs(int gbtn_idx);

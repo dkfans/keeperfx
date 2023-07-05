@@ -330,7 +330,7 @@ void frontnet_session_update(void)
       }
       //Check masterserver
 
-      if (value_dict_get(&config_dict, "MASTERSERVER_HOST") != NULL)
+      if ((net_service_index_selected == NS_ENET_UDP) && (value_dict_get(&config_dict, "MASTERSERVER_HOST") != NULL))
       {
           if (last_masterserver_update < LbTimerClock())
           {
