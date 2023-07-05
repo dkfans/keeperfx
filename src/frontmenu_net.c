@@ -125,15 +125,14 @@ TbBool frontnet_start_input(void)
             nspck = &net_screen_packet[my_player_number];
             if ((nspck->field_4 & 0xF8) == 0)
             {
-              nspck->field_4 = (nspck->field_4 & 7) | 0x40;
-              nspck->param1 = lbInkey;
-              if ((lbKeyOn[KC_LSHIFT] == 0) && (lbKeyOn[KC_RSHIFT] == 0))
-              {
-                  nspck->param2 = 0;
-                  lbInkey = KC_UNASSIGNED;
-                  return true;
-              }
-              nspck->param2 = 16; //key_modifiers Shift
+                nspck->field_4 = (nspck->field_4 & 7) | 0x40;
+                nspck->param1 = lbInkey;
+                nspck->param2 = key_modifiers;
+                if (key_modifiers)
+                {
+                    lbInkey = KC_UNASSIGNED;
+                    return true;
+                }
             }
         }
         lbInkey = KC_UNASSIGNED;
