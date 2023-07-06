@@ -17,9 +17,11 @@
 #define GIT_FRONT_MASTERSERVER_H
 
 void send_json_to_masterserver(char *buf, VALUE *out);
+void masterserver_send_update();
 
 #define MASTERSERVER_STATUS_OPEN "open"
 
+#define MASTERSERVER_KEEPALIVE_TIME 1000
 
 #define VALUE_GET_KEY(key) \
     val = value_dict_get(ret, key); \

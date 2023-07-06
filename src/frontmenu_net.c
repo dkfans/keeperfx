@@ -641,6 +641,8 @@ void masterserver_remove_session()
     char out_buf[256];
     VALUE ret_buf;
     VALUE *ret = &ret_buf;
+    if (my_player_number != SERVER_ID)
+        return;
     if (fe_public && *fe_masterserver_token)
     {
         sprintf(out_buf, "{\"method\":\"remove_lobby\",\"token\":\"%s\"}\n", fe_masterserver_token);
@@ -1109,6 +1111,36 @@ void masterserver_session_started()
             }
         }
         sprintf(out_buf, "{\"method\":\"update_lobby\",\"token\":\"%s\",\"players\":[%s],\"status\":\"playing\"}\n",
+                fe_masterserver_token, players);
+        fe_masterserver_token[0] = 0;
+        send_json_to_masterserver(out_buf, ret);
+        value_fini(ret);
+    }
+}
+
+void masterserver_send_update()
+{
+    char out_buf[512];
+    char players[256] = "", *P;
+    VALUE ret_buf;
+    VALUE *ret = &ret_buf;
+    if (fe_public && *fe_masterserver_token)
+    {
+        P = players;
+        for (int i = 0; i < net_number_of_enum_players; i++)
+        {
+            if (P != players)
+            {
+                *P = ',';
+                P++;
+            }
+            if (net_player_info[i].active)
+            {
+                P += sprintf(P, "{\"name\":\"%s\",\"color\":\"%s\"}", net_player[i].name,
+                             cmpgn_human_player_options[i].name);
+            }
+        }
+        sprintf(out_buf, "{\"method\":\"update_lobby\",\"token\":\"%s\",\"players\":[%s]}\n",
                 fe_masterserver_token, players);
         fe_masterserver_token[0] = 0;
         send_json_to_masterserver(out_buf, ret);

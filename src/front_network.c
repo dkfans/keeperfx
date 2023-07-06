@@ -433,8 +433,9 @@ void frontnet_rewite_net_messages(void)
 void frontnet_start_update(void)
 {
     static TbClockMSec player_last_time = 0;
+    static TbClockMSec masterserver_update_time = 0;
     SYNCDBG(18,"Starting");
-    if (LbTimerClock() >= player_last_time+200)
+    if (LbTimerClock() > player_last_time)
     {
       net_number_of_enum_players = 0;
       LbMemorySet(net_player, 0, sizeof(net_player));
@@ -443,7 +444,15 @@ void frontnet_start_update(void)
         ERRORLOG("LbNetwork_EnumeratePlayers() failed");
         return;
       }
-      player_last_time = LbTimerClock();
+      player_last_time = LbTimerClock() + 200;
+    }
+    if (LbTimerClock() > masterserver_update_time)
+    {
+        masterserver_update_time = LbTimerClock() + MASTERSERVER_KEEPALIVE_TIME;
+        if (my_player_number == SERVER_ID)
+        {
+            masterserver_send_update();
+        }
     }
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {
