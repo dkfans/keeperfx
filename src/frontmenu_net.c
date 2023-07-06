@@ -94,7 +94,10 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
 {
-    gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled) & LbBtnF_Enabled;
+    if (net_session_index_active != -1)
+        gbtn->flags |=  LbBtnF_Enabled;
+    else
+        gbtn->flags &=  ~LbBtnF_Enabled;
 }
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)

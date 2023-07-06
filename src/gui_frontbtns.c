@@ -93,7 +93,10 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
             (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
             left_button_released = 0;
-            do_button_release_actions(gbtn, &gbtn->gbactn_1, callback);
+            if (gbtn->flags & LbBtnF_Enabled)
+            {
+                do_button_release_actions(gbtn, &gbtn->gbactn_1, callback);
+            }
         }
         return true;
     }
@@ -102,8 +105,11 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
         callback = gbtn->rclick_event;
         if (callback != NULL)
         {
-          right_button_released = 0;
-          do_button_release_actions(gbtn, &gbtn->gbactn_2, callback);
+            right_button_released = 0;
+            if (gbtn->flags & LbBtnF_Enabled)
+            {
+                do_button_release_actions(gbtn, &gbtn->gbactn_2, callback);
+            }
         }
         return true;
     }
