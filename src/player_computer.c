@@ -286,7 +286,7 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
     gold_pos.y.stl.num = gldlook->stl_y;
     long min_distance = LONG_MAX;
     long distance = LONG_MAX;
-    for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         struct Room* room = find_room_nearest_to_position(dungeon->owner, rkind, &gold_pos, &distance);
         if (!room_is_invalid(room))
@@ -569,7 +569,7 @@ TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(comp->dungeon);
     *retroom = NULL;
 
-    for (RoomKind i = 0; i < slab_conf.room_types_count; i++)
+    for (RoomKind i = 0; i < game.slab_conf.room_types_count; i++)
     {
         struct Room* room = room_get(dungeonadd->room_kind[i]);
         
@@ -688,7 +688,7 @@ long buildable_traps_amount(struct Dungeon *dungeon, ThingModel trmodel)
 long get_number_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long base_amount)
 {
     long kinds = 0;
-    for (long i = 1; i < TRAP_TYPES_COUNT; i++)
+    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
     {
         if (buildable_traps_amount(dungeon, i) >= base_amount)
         {
@@ -705,7 +705,7 @@ long get_number_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long
  */
 long get_nth_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long base_amount, long n)
 {
-    for (long i = 1; i < TRAP_TYPES_COUNT; i++)
+    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
     {
         if (buildable_traps_amount(dungeon, i) >= base_amount)
         {
@@ -760,8 +760,8 @@ int computer_find_more_trap_place_locations(struct Computer2 *comp)
     struct Dungeon* dungeon = comp->dungeon;
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     int num_added = 0;
-    RoomKind rkind = AI_RANDOM(slab_conf.room_types_count);
-    for (int m = 0; m < slab_conf.room_types_count; m++, rkind = (rkind + 1) % slab_conf.room_types_count)
+    RoomKind rkind = AI_RANDOM(game.slab_conf.room_types_count);
+    for (int m = 0; m < game.slab_conf.room_types_count; m++, rkind = (rkind + 1) % game.slab_conf.room_types_count)
     {
         unsigned long k = 0;
         int i = dungeonadd->room_kind[rkind];
@@ -976,7 +976,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Try selling traps and doors - aggressive way
-    if ((money_left < check->param2) && dungeon_has_room(dungeon, RoK_WORKSHOP))
+    if ((money_left < check->param2) && is_room_of_role_available(dungeon->owner, RoRoF_CratesManufctr))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon) ||
             player_has_deployed_trap_of_model(dungeon->owner, -1) || player_has_deployed_door_of_model(dungeon->owner, -1, 0))
@@ -991,7 +991,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Try selling traps and doors - cautious way
-    if ((money_left < check->param1) && dungeon_has_room(dungeon, RoK_WORKSHOP))
+    if ((money_left < check->param1) && is_room_of_role_available(dungeon->owner, RoRoF_CratesManufctr))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon))
         {

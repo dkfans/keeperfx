@@ -292,6 +292,20 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     }
     if (thing_is_creature(thing))
     {
+        if (creature_is_for_dungeon_diggers_list(thing))
+        {
+            if (powerst->can_cast_flags & PwCast_DiggersNot)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (powerst->can_cast_flags & PwCast_DiggersOnly)
+            {
+                return false;
+            }
+        }
         // Don't allow casting on own creatures kept by enemy - they're out of our control
         if (thing->owner == plyr_idx)
         {
@@ -549,7 +563,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
 {
     struct Map *mapblk;
     struct SlabMap *slb;
-    unsigned long can_cast;
+    unsigned long long can_cast;
     mapblk = get_map_block_at(stl_x, stl_y);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     struct SlabAttr *slbattr;

@@ -756,11 +756,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Revenge of the Lord"
-msgstr ""
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Dwarfton"
@@ -814,4 +809,9 @@ msgstr ""
 #: guitext:212
 msgctxt "Level name"
 msgid "Coldamned"
+msgstr ""
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Revenge of the Lord"
 msgstr ""

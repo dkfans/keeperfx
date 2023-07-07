@@ -2058,6 +2058,12 @@ static char light_render_light(struct Light* lgt)
     if ( intensity < lgt->min_intensity << 8 )
       intensity = lgt->min_intensity << 8;
   }
+  if (render_radius == 0)
+  {
+      ERRORLOG("Light %d has no radius, deleting", lgt->index);
+      light_delete_light(lgt->index);
+      return 0;
+  }
   unsigned int lighting_tables_idx;
   if ( intensity >= game.lish.global_ambient_light << 8 )
   {

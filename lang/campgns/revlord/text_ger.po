@@ -838,11 +838,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Revenge of the Lord"
-msgstr "Die Rache des Ritters"
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Dwarfton"
@@ -897,3 +892,8 @@ msgstr "Diebeshalt"
 msgctxt "Level name"
 msgid "Coldamned"
 msgstr "Verkühlt und zugenäht"
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Revenge of the Lord"
+msgstr "Die Rache des Ritters"
