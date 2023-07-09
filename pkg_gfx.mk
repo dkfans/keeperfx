@@ -311,6 +311,9 @@ pkg/creatrs/%.jty pkg/data/%.jty:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
+pkg/fxdata/ui_icons.zip:
+	zip -j $@ res/ui_icons/*
+
 gfx/%:: | gfx/LICENSE ;
 
 gfx/LICENSE:

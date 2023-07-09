@@ -18,6 +18,7 @@
 
 void send_json_to_masterserver(char *buf, VALUE *out);
 void masterserver_send_update();
+void masterserver_fetch_sessions();
 
 #define MASTERSERVER_STATUS_OPEN "open"
 

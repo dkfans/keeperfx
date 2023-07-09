@@ -238,7 +238,7 @@ static int print_lst(const VALUE *key, VALUE *val, void *_ctx)
 static int masterserver_sessions_num = 0;
 static struct TbNetworkSessionNameEntry masterserver_sessions[MAX_SESSIONS];
 
-static void process_masterserver_session()
+void masterserver_fetch_sessions()
 {
     VALUE ret_obj;
     VALUE *ret = &ret_obj, *val, *lst;
@@ -318,7 +318,6 @@ void frontnet_session_update(void)
 {
     static long last_enum_players = 0;
     static long last_enum_sessions = 0;
-    static long last_masterserver_update = 0;
 
     if (LbTimerClock() >= last_enum_sessions)
     {
@@ -332,14 +331,6 @@ void frontnet_session_update(void)
 
       if ((net_service_index_selected == NS_ENET_UDP) && (value_dict_get(&config_dict, "MASTERSERVER_HOST") != NULL))
       {
-          if (last_masterserver_update < LbTimerClock())
-          {
-              last_masterserver_update = LbTimerClock() + 3000; // How often to poll masterserver
-              if (LbIsActive()) // Check if game has focus
-              {
-                  process_masterserver_session();
-              }
-          }
           for (int i = 0; i < masterserver_sessions_num; i++)
           {
               enum_sessions_callback((struct TbNetworkCallbackData *) &masterserver_sessions[i], NULL);

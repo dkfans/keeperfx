@@ -52,7 +52,8 @@ PKG_FILES = \
 	$(PKG_BIN_MAP) \
 	$(PKG_HVLOGBIN) \
 	$(PKG_HVLOGBIN_MAP) \
-	$(PKG_DOCS)
+	$(PKG_DOCS) \
+	pkg/fxdata/ui_icons.zip
 
 .PHONY: package
 

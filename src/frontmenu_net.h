@@ -79,6 +79,8 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn);
 void frontnet_draw_players_scroll_tab(struct GuiButton *gbtn);
 void frontnet_draw_net_session_players(struct GuiButton *gbtn);
 void frontnet_session_add(struct GuiButton *gbtn);
+void frontnet_masterserver_refresh(struct GuiButton *gbtn);
+void frontend_masterserver_draw_refresh(struct GuiButton *gbtn);
 void frontnet_session_join(struct GuiButton *gbtn);
 void frontnet_session_create(struct GuiButton *gbtn);
 void frontnet_return_to_main_menu(struct GuiButton *gbtn);

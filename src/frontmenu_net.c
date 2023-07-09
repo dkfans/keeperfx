@@ -31,6 +31,7 @@
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 
+#include "custom_sprites.h"
 #include "front_network.h"
 #include "front_masterserver.h"
 #include "frontmenu_ingame_tabs.h"
@@ -254,6 +255,32 @@ void frontnet_draw_net_session_players(struct GuiButton *gbtn)
         LbTextSetWindow(gbtn->scr_pos_x, shift_y + gbtn->scr_pos_y, gbtn->width - spr->SWidth * fs_units_per_px / 16,
                         height);
         LbTextDrawResized(spr->SWidth * fs_units_per_px / 16, 0, tx_units_per_px, text);
+    }
+}
+
+void frontnet_masterserver_refresh(struct GuiButton *gbtn)
+{
+    masterserver_fetch_sessions();
+}
+
+void frontend_masterserver_draw_refresh(struct GuiButton *gbtn)
+{
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+
+    // TODO: cache it somewhere
+    const struct TbSprite *spr;
+    if ((long)gbtn->content == frontend_mouse_over_button)
+    {
+        spr = get_frontend_sprite(get_icon_id("icon_refresh_yellow"));
+    }
+    else
+    {
+        spr = get_frontend_sprite(get_icon_id("icon_refresh_red"));
+    }
+    if (spr)
+    {
+        LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, tx_units_per_px, spr);
     }
 }
 

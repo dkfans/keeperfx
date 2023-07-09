@@ -795,6 +795,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     struct TbSprite *spr;
     // Detect scaling factor
     int units_per_px;
+    int delta;
     units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
     x = gbtn->scr_pos_x;
     y = gbtn->scr_pos_y;
@@ -821,7 +822,9 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     default:
         spr = &frontend_sprite[spridx];
         LbSpriteDrawResized(x, y, units_per_px, spr);
-        x += spr->SWidth * units_per_px / 16;
+        //x += spr->SWidth * units_per_px / 16;
+        delta = gbtn->width - frontend_sprite[spridx+2].SWidth * units_per_px / 16;
+        x += delta - 1;
         break;
     }
     spr = &frontend_sprite[spridx+2];
