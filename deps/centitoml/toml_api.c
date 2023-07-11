@@ -892,7 +892,8 @@ static int parse_simple_token(context_t *ctx, table_t dst, token_t token)
             return valtype;
         case 'i':
         case 'd':
-            init_number(dst.tab, token.ptr, token.len);
+            if (init_number(dst.tab, token.ptr, token.len))
+                return e_syntax(ctx, ctx->tok.lineno, "Unexpected value");
             return valtype;
         case 'u':
             return e_syntax(ctx, ctx->tok.lineno, "Unexpected value");

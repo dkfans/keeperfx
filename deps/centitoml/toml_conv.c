@@ -6,15 +6,18 @@
 typedef const char *toml_raw_t;
 
 /* Scan p for n digits compositing entirely of [0-9] */
-static int scan_digits(const char *p, int n) {
+static int scan_digits(const char *p, int n)
+{
     int ret = 0;
-    for (; n > 0 && isdigit(*p); n--, p++) {
+    for (; n > 0 && isdigit(*p); n--, p++)
+    {
         ret = 10 * ret + (*p - '0');
     }
     return n ? -1 : ret;
 }
 
-static int scan_date(const char *p, uint16_t *YY, uint8_t *MM, uint8_t *DD) {
+static int scan_date(const char *p, uint16_t *YY, uint8_t *MM, uint8_t *DD)
+{
     int year, month, day;
     year = scan_digits(p, 4);
     month = (year >= 0 && p[4] == '-') ? scan_digits(p + 5, 2) : -1;
@@ -28,7 +31,8 @@ static int scan_date(const char *p, uint16_t *YY, uint8_t *MM, uint8_t *DD) {
     return (year >= 0 && month >= 0 && day >= 0) ? 0 : -1;
 }
 
-static int scan_time(const char *p, uint8_t *hh, uint8_t *mm, uint8_t *ss) {
+static int scan_time(const char *p, uint8_t *hh, uint8_t *mm, uint8_t *ss)
+{
     int hour, minute, second;
     hour = scan_digits(p, 2);
     minute = (hour >= 0 && p[2] == ':') ? scan_digits(p + 3, 2) : -1;
@@ -64,7 +68,8 @@ static int toml_rtob(token_t src, VALUE *value)
 }
 
 /* Raw to integer */
-static int toml_is_i(token_t src, char *buf, size_t buflen) {
+static int toml_is_i(token_t src, char *buf, size_t buflen)
+{
     if (src.tok != STRING)
         return -1;
 
@@ -83,10 +88,12 @@ static int toml_is_i(token_t src, char *buf, size_t buflen) {
         return -1;
 
     /* if 0* ... */
-    if ('0' == s[0]) {
+    if ('0' == s[0])
+    {
         if (src.len == 1)
             return 0;
-        switch (s[1]) {
+        switch (s[1])
+        {
             case 'x':
                 base = 16;
                 s += 2;
@@ -109,9 +116,11 @@ static int toml_is_i(token_t src, char *buf, size_t buflen) {
     }
 
     /* just strip underscores and pass to strtoll */
-    while (s < e && p < q) {
+    while (s < e && p < q)
+    {
         int ch = *s++;
-        if (ch == '_') {
+        if (ch == '_')
+        {
             // disallow '__'
             if (s[0] == '_')
                 return -1;
@@ -137,7 +146,8 @@ static int toml_is_i(token_t src, char *buf, size_t buflen) {
     return (errno || *endp) ? -1 : 0;
 }
 
-static int toml_is_d(token_t src, char *buf, int buflen) {
+static int toml_is_d(token_t src, char *buf, int buflen)
+{
     if (src.tok != STRING)
         return -1;
 
@@ -170,9 +180,11 @@ static int toml_is_d(token_t src, char *buf, int buflen) {
         return -1;
 
     /* just strip underscores and pass to strtod */
-    while (s < e && p < q) {
+    while (s < e && p < q)
+    {
         int ch = *s++;
-        if (ch == '_') {
+        if (ch == '_')
+        {
             // disallow '__'
             if (s[0] == '_')
                 return -1;
@@ -212,30 +224,95 @@ static char ptoml_valtype(token_t token, VALUE *value)
 }
 
 static int
-init_number(VALUE* v, const char* data, size_t data_size)
+init_number(VALUE *v, const char *data, size_t data_size)
 {
     int is_int32_compatible;
     int is_uint32_compatible;
     int is_int64_compatible;
     int is_uint64_compatible;
 
-    json_analyze_number(data, data_size,
-                        &is_int32_compatible, &is_uint32_compatible,
-                        &is_int64_compatible, &is_uint64_compatible);
+    if ((data_size > 1) && (data[0] == '0') && (data[1] == 'x'))
+    {
+        char *end;
+        if (data_size < 3)
+        {
+            int32_t val;
+            val = strtol(data + 2, &end, 16);
+            if (end != data + data_size)
+                return -1;
+            return value_init_int32(v, val);
+        }
+        else
+        {
+            if ((data_size < 10) ||
+                ((data_size == 10) && (data[2] > '0' && data[2] < '8')))
+            {
+                int32_t val;
+                val = strtol(data + 2, &end, 16);
+                if (end != data + data_size)
+                    return -1;
+                return value_init_int32(v, val);
+            }
+            else if (data_size <= 10)
+            {
+                uint32_t val;
+                val = strtoul(data + 2, &end, 16);
+                if (end != data + data_size)
+                    return -1;
+                return value_init_uint32(v, val);
+            }
+            else if ((data_size < 18) ||
+                     ((data_size == 10) && (data[2] > '0' && data[2] < '8')))
+            {
+                int64_t val;
+                val = strtoll(data + 2, &end, 16);
+                if (end != data + data_size)
+                    return -1;
+                return value_init_int64(v, val);
+            }
+            else if (data_size <= 18)
+            {
+                uint64_t val;
+                val = strtoull(data + 2, &end, 16);
+                if (end != data + data_size)
+                    return -1;
+                return value_init_uint64(v, val);
+            }
+            else
+            {
+                return -1;
+            }
+        }
+    }
+    else
+    {
+        json_analyze_number(data, data_size,
+                            &is_int32_compatible, &is_uint32_compatible,
+                            &is_int64_compatible, &is_uint64_compatible);
+    }
 
-    if(is_int32_compatible) {
+    if (is_int32_compatible)
+    {
         return value_init_int32(v, json_number_to_int32(data, data_size));
-    } else if(is_uint32_compatible) {
+    }
+    else if (is_uint32_compatible)
+    {
         return value_init_uint32(v, json_number_to_uint32(data, data_size));
-    } else if(is_int64_compatible) {
+    }
+    else if (is_int64_compatible)
+    {
         return value_init_int64(v, json_number_to_int64(data, data_size));
-    } else if(is_uint64_compatible) {
+    }
+    else if (is_uint64_compatible)
+    {
         return value_init_uint64(v, json_number_to_uint64(data, data_size));
-    } else {
+    }
+    else
+    {
         double d;
         int err;
         err = json_number_to_double(data, data_size, &d);
-        if(err != 0)
+        if (err != 0)
             return err;
         return value_init_double(v, d);
     }
