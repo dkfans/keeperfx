@@ -104,7 +104,8 @@ unsigned char *big_scratch = big_scratch_data;
 static void init_pal_conversion();
 
 static void
-compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h, int src_w, int src_h);
+compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h, int src_w, int src_h,
+             const struct PaletteRecord *fixed_pal, size_t pal_size);
 
 static TbBool add_custom_sprite(const char *path);
 
@@ -139,6 +140,72 @@ static const unsigned char bad_icon_data[] = // 16x16
         };
 
 short bad_icon_id = GUI_PANEL_SPRITES_COUNT;
+
+/*
+ * Parse html color
+ */
+uint32_t parse_hex_color(const char *src)
+{
+    if (src == NULL)
+        goto err;
+    uint8_t r, g, b;
+    uint8_t v;
+    TbBool need_dquote = false;
+    if (*src == '"')
+    {
+        src++;
+        need_dquote = true;
+    }
+    if (*src == '#')
+        src++;
+#define PARSE_HEX_NIBBLE \
+        if ((*src >= '0') && (*src <='9')) \
+        { \
+            v += *src - '0'; \
+        } \
+        else if ((*src >= 'A') && (*src <='F')) \
+        { \
+            v += *src - 'A' + 10; \
+        } \
+        else if ((*src >= 'a') && (*src <='f')) \
+        { \
+            v += *src - 'a' + 10; \
+        } \
+        else \
+        { \
+            goto err; \
+        } \
+        src++;
+
+    v = 0;
+    PARSE_HEX_NIBBLE;
+    v <<= 4;
+    PARSE_HEX_NIBBLE;
+    r = v;
+    v = 0;
+    PARSE_HEX_NIBBLE;
+    v <<= 4;
+    PARSE_HEX_NIBBLE;
+    g = v;
+    v = 0;
+    PARSE_HEX_NIBBLE;
+    v <<= 4;
+    PARSE_HEX_NIBBLE;
+    b = v;
+    if (need_dquote)
+    {
+        if (*src != '"')
+            goto err;
+        src++;
+    }
+    if (*src != 0)
+        goto err;
+
+    uint32_t ret = (b << 16) | (g << 8) | (r);
+    return ret;
+    err:
+    return 0;
+}
 
 static int pal_compare_fn(const void *a, const void *b)
 {
@@ -604,7 +671,29 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
     return 0;
 }
 
-static int read_png_icon(unzFile zip, const char *path, const char *subpath, struct AtlasItem *atlas, int *icon_ptr)
+static int read_colormap(const VALUE *key, VALUE *val, void *ctx)
+{
+    struct PaletteRecord **dst = ctx;
+    const char *str_key = value_string(key);
+    int32_t val_int = value_int32(val);
+    if (str_key == NULL)
+    {
+        ERRORLOG("Invalid key in colormap. Should be in hex form `RRGGBB`");
+        return 0;
+    }
+    if ((val_int > 255) || (val_int < 0))
+    {
+        ERRORLOG("Invalid color index value in colormap.");
+        return 0;
+    }
+    (*dst)->color = parse_hex_color(str_key);
+    (*dst)->color_idx = val_int;
+    (*dst)++;
+    return 0;
+}
+
+static int read_png_icon(unzFile zip, const char *path, const char *subpath, struct AtlasItem *atlas, int *icon_ptr,
+                         VALUE *colormap)
 {
     struct TbHugeSprite sprite = {0};
     size_t out_size;
@@ -673,11 +762,23 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, str
         return 0;
     }
 
+    struct PaletteRecord *fixed_pal = NULL;
+    if (value_type(colormap) == VALUE_DICT)
+    {
+        fixed_pal = malloc(sizeof(struct PaletteRecord) * value_dict_size(colormap));
+        struct PaletteRecord *dst = fixed_pal;
+        value_dict_walk_sorted(colormap, &read_colormap, &dst);
+    }
+
     size_t sz = (sprite.SWidth + 2) * (sprite.SHeight + 3);
     sprite.Data = malloc(sz);
 
-    compress_raw(&sprite, dst_buf, atlas->x, atlas->y, sprite.SWidth, sprite.SHeight, ihdr.width, ihdr.height);
-
+    compress_raw(&sprite, dst_buf, atlas->x, atlas->y, sprite.SWidth, sprite.SHeight, ihdr.width, ihdr.height,
+                 fixed_pal, value_dict_size(colormap));
+    if (fixed_pal)
+    {
+        free(fixed_pal);
+    }
     spng_ctx_free(ctx);
 
     if (next_free_icon >= GUI_PANEL_SPRITES_NEW)
@@ -779,7 +880,8 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     size_t sz = (dst_w + 2) * (dst_h + 3);
     keepersprite_add[sprite_idx] = malloc(sz);
     context->sprite.Data = keepersprite_add[sprite_idx];
-    compress_raw(&context->sprite, dst_buf, context->x, context->y, dst_w, dst_h, sprite->SWidth, sprite->SHeight);
+    compress_raw(&context->sprite, dst_buf, context->x, context->y, dst_w, dst_h, sprite->SWidth, sprite->SHeight,
+                 NULL, 0);
     struct KeeperSprite *ksprite = &creature_table_add[sprite_idx];
 
     if (context->ksp_first == NULL)
@@ -832,7 +934,8 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
 
 #pragma clang diagnostic pop
 
-static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
+static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len,
+                        const struct PaletteRecord *fixed_pal, size_t pal_size)
 {
 #define SCALE 4
     for (int i = 0; i < len; i++, src_buf++, dst_buf++)
@@ -843,15 +946,30 @@ static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
         uint8_t max_val = 255;
         uint32_t max_dst = 3 * 64 * 64;
 
-        for (struct PaletteRecord *rec = node->rec; rec != node->rec + node->size; rec++)
+        // First use fixed_pal
+        TbBool found = 0;
+        for (const struct PaletteRecord *rec = fixed_pal; rec != fixed_pal + pal_size; rec++)
         {
-            int8_t dr = (rec->color & 0x00000FF) - (data & 0x0000FF) / SCALE;
-            int8_t dg = ((rec->color & 0xFF00) >> 8) - ((data & 0xFF00) >> 8) / SCALE;
-            int8_t db = ((rec->color & 0xFF0000) >> 16) - ((data & 0xFF0000) >> 16) / SCALE;
-            if (dr * dr + dg * dg + db * db < max_dst)
+            if (rec->color == (data & 0xFFFFFF))
             {
-                max_dst = dr * dr + dg * dg + db * db;
                 max_val = rec->color_idx;
+                found = 1;
+                break;
+            }
+        }
+        // Then search for best matching color
+        if (!found)
+        {
+            for (struct PaletteRecord *rec = node->rec; rec != node->rec + node->size; rec++)
+            {
+                int8_t dr = (rec->color & 0x00000FF) - (data & 0x0000FF) / SCALE;
+                int8_t dg = ((rec->color & 0xFF00) >> 8) - ((data & 0xFF00) >> 8) / SCALE;
+                int8_t db = ((rec->color & 0xFF0000) >> 16) - ((data & 0xFF0000) >> 16) / SCALE;
+                if (dr * dr + dg * dg + db * db < max_dst)
+                {
+                    max_dst = dr * dr + dg * dg + db * db;
+                    max_val = rec->color_idx;
+                }
             }
         }
         *dst_buf = max_val;
@@ -860,7 +978,8 @@ static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
 }
 
 static void
-compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, int w, int h, int src_w, int src_h)
+compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, int w, int h, int src_w, int src_h,
+             const struct PaletteRecord *fixed_pal, size_t pal_size)
 {
 #define TEST_TRANSP(x) ((x & 0xFF000000u) < 0x40000000u)
 
@@ -899,7 +1018,7 @@ compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, 
                     {
                         *buf = len;
                         buf++;
-                        convert_row(buf, src_buf - len, len);
+                        convert_row(buf, src_buf - len, len, fixed_pal, pal_size);
                         buf += len;
                     }
 
@@ -916,7 +1035,7 @@ compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, 
         {
             *buf = len;
             buf++;
-            convert_row(buf, src_buf - len, len);
+            convert_row(buf, src_buf - len, len, fixed_pal, pal_size);
             buf += len;
         }
         *buf = 0;
@@ -1371,7 +1490,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
         }
 
         int icon;
-        if (!read_png_icon(zip, path, file, &atlas, &icon))
+        if (!read_png_icon(zip, path, file, &atlas, &icon, value_dict_get(root, "colormap")))
         {
             unzCloseCurrentFile(zip);
             return 0;
