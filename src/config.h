@@ -22,7 +22,7 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
-#include "value.h"
+#include <value.h>
 
 #ifdef __cplusplus
 extern "C" {
