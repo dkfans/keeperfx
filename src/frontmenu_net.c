@@ -1010,6 +1010,11 @@ void send_json_to_masterserver(char *buf, VALUE *out)
 
     // Find an address
     strcpy(recv_buf, value_string(masterserver));
+    if (*recv_buf == 0)
+    {
+        // Empty Masterserver;
+        return;
+    }
     char *p = strchr(recv_buf, ':');
     char *end;
     Uint16 port;
