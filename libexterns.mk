@@ -167,8 +167,8 @@ clean-libsdl:
 	-$(RM) -R sdl/bin sdl/include sdl/lib sdl/share
 
 deep-clean-libsdl:
-	-$(RM) sdl/$(SDL_PACKAGE)
-	-$(RM) sdl/$(SDL_NET_PACKAGE)
-	-$(RM) sdl/$(SDL_MIXER_PACKAGE)
+	-$(RM) -rf sdl
+	-$(MKDIR) sdl
+
 
 #******************************************************************************

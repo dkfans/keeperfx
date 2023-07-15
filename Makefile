@@ -440,7 +440,8 @@ docs: docsdox
 docsdox: docs/doxygen.conf
 	VERSION=$(VER_STRING) $(DOXYTOOL) docs/doxygen.conf
 
-deep-clean: deep-clean-tools deep-clean-libexterns deep-clean-package
+deep-clean: deep-clean-tools deep-clean-package
+	$(MAKE) -f libexterns.mk deep-clean-libexterns
 
 clean: submodule clean-build clean-tools clean-libexterns clean-package
 
