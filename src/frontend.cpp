@@ -316,6 +316,7 @@ struct FrontEndButtonData frontend_button_info[] = {
     {GUIStr_MnuAddComputer, 1}, // [110]
     {GUIStr_MnuReturnToFreePlay, 1},
     {GUIStr_MnuMapPacks, 2},
+    {GUIStr_NetSessionMenu, 0},
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
