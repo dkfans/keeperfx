@@ -1675,7 +1675,9 @@ const struct TbSprite *get_button_sprite(short sprite_idx)
 
 const struct TbSprite *get_frontend_sprite(short sprite_idx)
 {
-    if (sprite_idx < GUI_PANEL_SPRITES_COUNT)
+    if (sprite_idx < 0)
+        return NULL;
+    else if (sprite_idx < GUI_PANEL_SPRITES_COUNT)
         return &frontend_sprite[sprite_idx];
     else if (sprite_idx < num_icons_total)
         return &gui_panel_sprites[sprite_idx];
