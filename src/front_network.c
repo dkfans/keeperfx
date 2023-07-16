@@ -201,7 +201,7 @@ void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
     if (net_number_of_sessions == 0)
     {
         net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-        strcpy(&netcdat->svc_name[8],get_string(GUIStr_NetModem));
+        strcpy(&netcdat->svc_name[8],get_string(GUIStr_Public));
         net_number_of_sessions++;
     }
 }
