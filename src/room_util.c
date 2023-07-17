@@ -397,10 +397,10 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
         {
             slbkind = slb->kind;
         }
-        MapSubtlCoord stl_x = slab_subtile_center(slb_x);
-        MapSubtlCoord stl_y = slab_subtile_center(slb_y);
         if (slab_kind_is_door(slbkind))
         {
+            MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+            MapSubtlCoord stl_y = slab_subtile_center(slb_y);
             struct Thing* doortng = get_door_for_position(stl_x, stl_y);
             if (!thing_is_invalid(doortng))
             {
@@ -418,11 +418,11 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
         }
         else if (slab_kind_is_animated(slbkind))
         {
-            place_animating_slab_type_on_map(slbkind, 0, stl_x-1, stl_y-1, plyr_idx);
+            place_animating_slab_type_on_map(slbkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
         }
         else
         {
-            place_slab_type_on_map(slbkind, stl_x-1, stl_y-1, plyr_idx, 0);
+            place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
         }
         do_slab_efficiency_alteration(slb_x, slb_y);
     }
