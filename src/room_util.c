@@ -397,18 +397,19 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
                 struct Thing* doortng = get_door_for_position(stl_x, stl_y);
                 if (!thing_is_invalid(doortng))
                 {
-                    struct Coord3d pos = doortng->mappos;
-                    ThingModel tngmodel = doortng->model;
-                    unsigned char orient = doortng->door.orientation;
-                    TbBool locked = doortng->door.is_locked;
                     if ( game.neutral_player_num != doortng->owner )
                     {
                         game.dungeon[doortng->owner].total_doors--;
                     }
-                    remove_key_on_door(doortng);
-                    delete_thing_structure(doortng, 0);
-                    create_door(&pos, tngmodel, orient, plyr_idx, locked);
+                    set_slab_owner(slb_x, slb_y, plyr_idx);
                     place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, plyr_idx);
+                    update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
+                    pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
+                    doortng->owner = plyr_idx;
+                    if ( game.neutral_player_num != doortng->owner )
+                    {
+                        game.dungeon[doortng->owner].total_doors++;
+                    }
                 }
             }
             else if (slab_kind_is_animated(slbkind))
