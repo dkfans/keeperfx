@@ -41,6 +41,7 @@
 #include "keeperfx.hpp"
 #include "frontend.h"
 #include "math.h"
+#include "frontmenu_ingame_map.h"
 #include "post_inc.h"
 
 /******************************************************************************/
