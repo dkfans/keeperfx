@@ -413,7 +413,7 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
                 }
                 delete_thing_structure(doortng, 0);
                 create_door(&pos, tngmodel, orient, plyr_idx, 0);
-                place_animating_slab_type_on_map(slbkind, doortng->door.closing_counter / 256, stl_x, stl_y, plyr_idx);
+                place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, plyr_idx);
             }
         }
         else if (slab_kind_is_animated(slbkind))
