@@ -386,47 +386,41 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
         struct Room* room = room_get(slb->room_index);
         take_over_room(room, plyr_idx);
     } else
-    if (slab_kind_has_no_ownership(slb->kind) == false)
     {
-        SlabKind slbkind;
-        if (slb->kind == SlbT_PATH)
+        SlabKind slbkind = (slb->kind == SlbT_PATH) ? SlbT_CLAIMED : slb->kind;
+        if (slab_kind_has_no_ownership(slbkind) == false)
         {
-            slbkind = SlbT_CLAIMED;
-        }
-        else
-        {
-            slbkind = slb->kind;
-        }
-        if (slab_kind_is_door(slbkind))
-        {
-            MapSubtlCoord stl_x = slab_subtile_center(slb_x);
-            MapSubtlCoord stl_y = slab_subtile_center(slb_y);
-            struct Thing* doortng = get_door_for_position(stl_x, stl_y);
-            if (!thing_is_invalid(doortng))
+            if (slab_kind_is_door(slbkind))
             {
-                struct Coord3d pos = doortng->mappos;
-                ThingModel tngmodel = doortng->model;
-                unsigned char orient = doortng->door.orientation;
-                TbBool locked = doortng->door.is_locked;
-                if ( game.neutral_player_num != doortng->owner )
+                MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+                MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+                struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+                if (!thing_is_invalid(doortng))
                 {
-                    game.dungeon[doortng->owner].total_doors--;
+                    struct Coord3d pos = doortng->mappos;
+                    ThingModel tngmodel = doortng->model;
+                    unsigned char orient = doortng->door.orientation;
+                    TbBool locked = doortng->door.is_locked;
+                    if ( game.neutral_player_num != doortng->owner )
+                    {
+                        game.dungeon[doortng->owner].total_doors--;
+                    }
+                    remove_key_on_door(doortng);
+                    delete_thing_structure(doortng, 0);
+                    create_door(&pos, tngmodel, orient, plyr_idx, locked);
+                    place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, plyr_idx);
                 }
-                remove_key_on_door(doortng);
-                delete_thing_structure(doortng, 0);
-                create_door(&pos, tngmodel, orient, plyr_idx, locked);
-                place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, plyr_idx);
             }
+            else if (slab_kind_is_animated(slbkind))
+            {
+                place_animating_slab_type_on_map(slbkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+            }
+            else
+            {
+                place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+            }
+            do_slab_efficiency_alteration(slb_x, slb_y);
         }
-        else if (slab_kind_is_animated(slbkind))
-        {
-            place_animating_slab_type_on_map(slbkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
-        }
-        else
-        {
-            place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
-        }
-        do_slab_efficiency_alteration(slb_x, slb_y);
     }
 }
 
