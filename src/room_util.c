@@ -397,7 +397,22 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
         {
             slbkind = slb->kind;
         }
-        place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+        if (slab_kind_is_door(slbkind))
+        {
+            struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+            if (!thing_is_invalid(doortng))
+            {
+                doortng->owner = plyr_idx;
+            }
+        }
+        if (slab_kind_is_animated(slbkind))
+        {
+            place_animating_slab_type_on_map(slbkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+        }
+        else
+        {
+            place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+        }
     }
 }
 
