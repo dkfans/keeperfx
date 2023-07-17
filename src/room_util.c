@@ -388,7 +388,7 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
     } else
     if (slab_kind_has_no_ownership(slb->kind) == false)
     {
-        short slbkind;
+        SlabKind slbkind;
         if (slb->kind == SlbT_PATH)
         {
             slbkind = SlbT_CLAIMED;
