@@ -397,22 +397,34 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
         {
             slbkind = slb->kind;
         }
+        MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+        MapSubtlCoord stl_y = slab_subtile_center(slb_y);
         if (slab_kind_is_door(slbkind))
         {
-            struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+            struct Thing* doortng = get_door_for_position(stl_x, stl_y);
             if (!thing_is_invalid(doortng))
             {
-                doortng->owner = plyr_idx;
+                struct Coord3d pos = doortng->mappos;
+                ThingModel tngmodel = doortng->model;
+                unsigned char orient = doortng->door.orientation;
+                if ( game.neutral_player_num != doortng->owner )
+                {
+                    game.dungeon[doortng->owner].total_doors--;
+                }
+                delete_thing_structure(doortng, 0);
+                create_door(&pos, tngmodel, orient, plyr_idx, 0);
+                place_animating_slab_type_on_map(slbkind, doortng->door.closing_counter / 256, stl_x, stl_y, plyr_idx);
             }
         }
-        if (slab_kind_is_animated(slbkind))
+        else if (slab_kind_is_animated(slbkind))
         {
-            place_animating_slab_type_on_map(slbkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+            place_animating_slab_type_on_map(slbkind, 0, stl_x-1, stl_y-1, plyr_idx);
         }
         else
         {
-            place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+            place_slab_type_on_map(slbkind, stl_x-1, stl_y-1, plyr_idx, 0);
         }
+        do_slab_efficiency_alteration(slb_x, slb_y);
     }
 }
 
