@@ -398,7 +398,7 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
                 struct Thing* doortng = get_door_for_position(stl_x, stl_y);
                 if (!thing_is_invalid(doortng))
                 {
-                    if ( game.neutral_player_num != doortng->owner )
+                    if (!is_neutral_thing(doortng))
                     {
                         game.dungeon[doortng->owner].total_doors--;
                     }
@@ -407,7 +407,7 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
                     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
                     pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
                     doortng->owner = plyr_idx;
-                    if ( game.neutral_player_num != doortng->owner )
+                    if (!is_neutral_thing(doortng))
                     {
                         game.dungeon[doortng->owner].total_doors++;
                     }
