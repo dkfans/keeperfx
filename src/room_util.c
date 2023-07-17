@@ -407,12 +407,14 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
                 struct Coord3d pos = doortng->mappos;
                 ThingModel tngmodel = doortng->model;
                 unsigned char orient = doortng->door.orientation;
+                TbBool locked = doortng->door.is_locked;
                 if ( game.neutral_player_num != doortng->owner )
                 {
                     game.dungeon[doortng->owner].total_doors--;
                 }
+                remove_key_on_door(doortng);
                 delete_thing_structure(doortng, 0);
-                create_door(&pos, tngmodel, orient, plyr_idx, 0);
+                create_door(&pos, tngmodel, orient, plyr_idx, locked);
                 place_animating_slab_type_on_map(slbkind, 0, stl_x, stl_y, plyr_idx);
             }
         }
