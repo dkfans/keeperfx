@@ -534,7 +534,8 @@ unsigned long count_active_battles(PlayerNumber plyr_idx)
     unsigned long result = 0;
     for (int i = 1; i < BATTLES_COUNT; i++)
     {
-        if (creature_battle_exists(i))
+        struct CreatureBattle* battle = creature_battle_get(i);
+        if (battle->fighters_num > 0)
         {
             if ( (plyr_idx == ALL_PLAYERS) || (battle_with_creature_of_player(plyr_idx, i)) )
             {
