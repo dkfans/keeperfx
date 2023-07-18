@@ -27,6 +27,7 @@
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
+#include "thing_doors.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_effects.h"
@@ -41,7 +42,6 @@
 #include "keeperfx.hpp"
 #include "frontend.h"
 #include "math.h"
-#include "frontmenu_ingame_map.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -402,15 +402,19 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
                     {
                         game.dungeon[doortng->owner].total_doors--;
                     }
+                    remove_key_on_door(doortng);
                     set_slab_owner(slb_x, slb_y, plyr_idx);
                     place_animating_slab_type_on_map(slbkind, doortng->door.closing_counter / 256, stl_x, stl_y, plyr_idx);
-                    update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
-                    pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
                     doortng->owner = plyr_idx;
                     if (!is_neutral_thing(doortng))
                     {
                         game.dungeon[doortng->owner].total_doors++;
                     }
+                    if (doortng->door.is_locked)
+                    {
+                        add_key_on_door(doortng);
+                    }
+                    update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
                 }
             }
             else if (slab_kind_is_animated(slbkind))
