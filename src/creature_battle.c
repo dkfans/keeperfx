@@ -528,4 +528,20 @@ void maintain_my_battle_list(void)
         }
     }
 }
+
+unsigned long count_active_battles(PlayerNumber plyr_idx)
+{
+    unsigned long result = 0;
+    for (int i = 1; i < BATTLES_COUNT; i++)
+    {
+        if (creature_battle_exists(i))
+        {
+            if ( (plyr_idx == ALL_PLAYERS) || (battle_with_creature_of_player(plyr_idx, i)) )
+            {
+                result++;
+            }
+        }
+    }
+    return result;
+}
 /******************************************************************************/
