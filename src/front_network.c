@@ -229,13 +229,8 @@ static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *
     }
 }
 
-static int print_lst(const VALUE *key, VALUE *val, void *_ctx)
-{
-    fprintf(stderr, "key:%s\n", value_string(key));
-    return 0;
-}
-
 static int masterserver_sessions_num = 0;
+static int masterserver_ping_session = 0;
 static struct TbNetworkSessionNameEntry masterserver_sessions[MAX_SESSIONS];
 
 void masterserver_fetch_sessions()
@@ -262,6 +257,7 @@ void masterserver_fetch_sessions()
     }
     lst = val;
     masterserver_sessions_num = 0;
+    masterserver_ping_session = 0;
     for (size_t i = 0; i < value_array_size(lst); i++)
     {
         VALUE *row = value_array_get(lst, i);
@@ -314,11 +310,19 @@ void masterserver_fetch_sessions()
     value_fini(ret);
 }
 
+TbBool ping_host_sometimes(struct TbNetworkSessionNameEntry *p_entry)
+{
+    if (LbNetwork_PingSession(p_entry) == Lb_OK)
+        return false;
+    return true;
+}
+
 void frontnet_session_update(void)
 {
     static long last_enum_players = 0;
-    static long last_enum_sessions = 0;
+    static TbClockMSec last_enum_sessions = 0;
 
+    LbNetwork_EnumerateUpdate();
     if (LbTimerClock() >= last_enum_sessions)
     {
       net_number_of_sessions = 0;
@@ -331,9 +335,20 @@ void frontnet_session_update(void)
 
       if ((net_service_index_selected == NS_ENET_UDP) && (value_dict_get(&config_dict, "MASTERSERVER_HOST") != NULL))
       {
-          for (int i = 0; i < masterserver_sessions_num; i++)
+          if (masterserver_sessions_num > 0)
           {
-              enum_sessions_callback((struct TbNetworkCallbackData *) &masterserver_sessions[i], NULL);
+              if (ping_host_sometimes(&masterserver_sessions[masterserver_ping_session]))
+              {
+                  masterserver_ping_session++;
+                  if (masterserver_ping_session >= masterserver_sessions_num)
+                      masterserver_ping_session = 0;
+              }
+
+              for (int i = 0; i < masterserver_sessions_num; i++)
+              {
+                  net_session[net_number_of_sessions] = &masterserver_sessions[i];
+                  net_number_of_sessions++;
+              }
           }
       }
 

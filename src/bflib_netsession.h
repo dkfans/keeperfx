@@ -19,7 +19,7 @@
 /******************************************************************************/
 #ifndef BFLIB_NETSESSION_H
 #define BFLIB_NETSESSION_H
-
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -49,6 +49,8 @@ struct TbNetworkSessionNameEntry {
     unsigned long in_use;
     char text[SESSION_NAME_MAX_LEN];
     char ip_port[20];
+    TbClockMSec roundTripTime;
+    TbClockMSec lastPingTime;
 };
 
 struct TbNetworkPlayerEntry {

@@ -22,7 +22,7 @@ void masterserver_fetch_sessions();
 
 #define MASTERSERVER_STATUS_OPEN "open"
 
-#define MASTERSERVER_KEEPALIVE_TIME 1000
+#define MASTERSERVER_KEEPALIVE_TIME 5000
 
 #define VALUE_GET_KEY(key) \
     val = value_dict_get(ret, key); \

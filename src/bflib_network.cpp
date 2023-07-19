@@ -1278,6 +1278,27 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
     return Lb_OK;
 }
 
+TbError LbNetwork_EnumerateUpdate()
+{
+    if (netstate.sp)
+    {
+        netstate.sp->update(OnNewUser);
+    }
+    return Lb_OK;
+}
+
+TbError LbNetwork_PingSession(struct TbNetworkSessionNameEntry *ses)
+{
+    if (netstate.sp)
+    {
+        if (netstate.sp->ping)
+        {
+            return netstate.sp->ping(ses->ip_port, &ses->roundTripTime);
+        }
+    }
+    return Lb_OK;
+}
+
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
 {
     unsigned i;

@@ -13,6 +13,7 @@
 /******************************************************************************/
 
 #include "pre_inc.h"
+#include "bflib_datetm.h"
 #include "bflib_enet.h"
 #include "bflib_network.h"
 
@@ -25,6 +26,7 @@
 
 #define NUM_CHANNELS 2
 #define CONNECT_TIMEOUT 3000
+#define PING_TIMEOUT 300
 #define DEFAULT_PORT 5556
 
 namespace
@@ -32,6 +34,9 @@ namespace
     NetDropCallback g_drop_callback = nullptr;
     ENetHost *host = nullptr;
     ENetPeer *client_peer = nullptr;
+
+    TbBool ping_is_active = false;
+    TbClockMSec ping_start_time = 0;
 
     // List
     ENetPacket *oldest_packet = nullptr;
@@ -70,6 +75,7 @@ namespace
             enet_host_destroy(host);
             host = nullptr;
         }
+        ping_is_active = false;
     }
 
     void bf_enet_exit()
@@ -92,6 +98,10 @@ namespace
                             .port = DEFAULT_PORT };
         if (!*session)
             return Lb_FAIL;
+        if (ping_is_active)
+        {
+            host_destroy();
+        }
         host = enet_host_create(&addr, 4, NUM_CHANNELS, 0, 0);
         return Lb_OK;
     }
@@ -127,6 +137,10 @@ namespace
         const char *P;
         char *E;
         ENetAddress address = {ENET_HOST_ANY, ENET_PORT_ANY};
+        if (ping_is_active)
+        {
+            host_destroy();
+        }
         host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
         if (!host)
         {
@@ -156,6 +170,7 @@ namespace
         client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
         if (!client_peer)
         {
+            host_destroy();
             return Lb_FAIL;
         }
         if (wait_for_connect(CONNECT_TIMEOUT))
@@ -164,6 +179,72 @@ namespace
             return Lb_FAIL;
         }
         return Lb_OK;
+    }
+
+    TbError bf_enet_ping(const char *session, TbClockMSec *latency)
+    {
+        char buf[64] = {0};
+        const char *P;
+        char *E;
+        ENetAddress address = {ENET_HOST_ANY, ENET_PORT_ANY};
+        if (!ping_is_active)
+        {
+            host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
+            if (!host || !latency)
+            {
+                return Lb_FAIL;
+            }
+            *latency = -2;
+            P = strchr(session, ':');
+            if (P)
+            {
+                strncpy(buf, session, P - session);
+                address.port = strtoul(P + 1, &E, 10);
+                if (address.port == 0)
+                {
+                    host_destroy();
+                    return Lb_FAIL;
+                }
+            }
+            else
+            {
+                strncpy(buf, session, sizeof(buf) - 1);
+                address.port = DEFAULT_PORT;
+            }
+            if (enet_address_set_host(&address, buf) < 0)
+            {
+                host_destroy();
+                return Lb_FAIL;
+            }
+            client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
+            if (!client_peer)
+            {
+                host_destroy();
+                return Lb_FAIL;
+            }
+            ping_is_active = true;
+            ping_start_time = LbTimerClock();
+            return Lb_OK;
+        }
+        if (wait_for_connect(0))
+        {
+            if (LbTimerClock() > ping_start_time + PING_TIMEOUT)
+            {
+                ping_is_active = false;
+                *latency = -1;
+                host_destroy();
+                return Lb_SUCCESS;
+            }
+            else
+            {
+                return Lb_OK;
+            }
+        }
+        // Connected
+        *latency = client_peer->roundTripTime;
+        ping_is_active = false;
+        host_destroy();
+        return Lb_SUCCESS;
     }
 
     /*
@@ -230,7 +311,7 @@ namespace
      */
     void bf_enet_update(NetNewUserCallback new_user)
     {
-        while (bf_enet_read_event(new_user, 0))
+        while (bf_enet_read_event(new_user, 0) > 0)
         {
             // Loop
         }
@@ -348,6 +429,7 @@ struct NetSP *InitEnetSP()
             .host = &bf_enet_host,
             .join = &bf_enet_join,
             .update = &bf_enet_update,
+            .ping = &bf_enet_ping,
             .sendmsg_single = &bf_enet_sendmsg_single,
             .sendmsg_all = &bf_enet_sendmsg_all,
             .msgready = &bf_enet_msgready,

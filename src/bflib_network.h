@@ -88,6 +88,11 @@ struct NetSP // new version
     void    (*update)(NetNewUserCallback new_user);
 
     /**
+     * Ping a session
+     */
+    TbError    (*ping)(const char *session, TbClockMSec *latency);
+
+    /**
      * Sends a message buffer to a certain user.
      * @param destination Destination user.
      * @param buffer
@@ -163,11 +168,12 @@ char name[32];
 long active;
 };
 
-// This struct is casted to TbNetworkCallbackData
+// This struct is casted to TbNetworkSessionNameEntry
 struct TbNetworkCallbackData {
   char svc_name[12];
   char plyr_name[20];
   char field_20[32];
+  uint32_t roundTripTime;
 };
 
 struct TbNetworkPlayerName {
@@ -234,6 +240,8 @@ TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
+TbError LbNetwork_EnumerateUpdate();
+TbError LbNetwork_PingSession(struct TbNetworkSessionNameEntry *ses);
 TbError LbNetwork_Stop(void);
 /******************************************************************************/
 #ifdef __cplusplus

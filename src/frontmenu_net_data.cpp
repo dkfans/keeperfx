@@ -204,6 +204,7 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     long sessionIndex;
     long febtn_idx;
     long height;
+    char ping_buf[64];
 
     febtn_idx = (long)gbtn->content;
     sessionIndex = net_session_scroll_offset + febtn_idx - 45;
@@ -218,6 +219,11 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     height = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
     LbTextDrawResized(0, 0, tx_units_per_px, net_session[sessionIndex]->text);
+
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    sprintf(ping_buf, "%ld", net_session[sessionIndex]->roundTripTime);
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+    LbTextDrawResized(0, 0, tx_units_per_px, ping_buf);
 }
 
 void frontnet_session_create(struct GuiButton *gbtn)
