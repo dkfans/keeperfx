@@ -5111,12 +5111,12 @@ msgstr ""
 
 #: guitext:874
 msgctxt "Menu interface, Network service item"
-msgid "Serial"
+msgid "Private"
 msgstr ""
 
 #: guitext:875
 msgctxt "Menu interface, Network service item"
-msgid "Modem"
+msgid "Public"
 msgstr ""
 
 #: guitext:876

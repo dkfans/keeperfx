@@ -316,6 +316,7 @@ struct FrontEndButtonData frontend_button_info[] = {
     {GUIStr_MnuAddComputer, 1}, // [110]
     {GUIStr_MnuReturnToFreePlay, 1},
     {GUIStr_MnuMapPacks, 2},
+    {GUIStr_NetSessionMenu, 0},
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
@@ -1552,7 +1553,14 @@ void frontend_draw_public_session(struct GuiButton *gbtn)
     ln_height = LbTextLineHeight() * tx_units_per_px / 16;
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, ln_height);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
-    LbTextDrawResized(0, 0, tx_units_per_px, fe_public? "public": "private");
+    const char* text;
+    if (fe_public) {
+        text = get_string(GUIStr_Public);
+    }
+    else {
+        text = get_string(GUIStr_Private);
+    }
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
     lbDisplay.DrawFlags = 0;
 }
 
