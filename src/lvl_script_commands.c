@@ -347,6 +347,7 @@ const struct NamedCommand variable_desc[] = {
     {"TOTAL_SCORE",                 SVar_TOTAL_SCORE},
     {"BONUS_TIME",                  SVar_BONUS_TIME},
     {"CREATURES_TRANSFERRED",       SVar_CREATURES_TRANSFERRED},
+    {"ACTIVE_BATTLES",              SVar_ACTIVE_BATTLES},
     {NULL,                           0},
 };
 
