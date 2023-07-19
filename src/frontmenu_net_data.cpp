@@ -220,10 +220,13 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
     LbTextDrawResized(0, 0, tx_units_per_px, net_session[sessionIndex]->text);
 
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-    sprintf(ping_buf, "%ld", net_session[sessionIndex]->roundTripTime);
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
-    LbTextDrawResized(0, 0, tx_units_per_px, ping_buf);
+    if (net_session[sessionIndex]->valid_ping)
+    {
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+        sprintf(ping_buf, "%ld", net_session[sessionIndex]->latency_time);
+        LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+        LbTextDrawResized(0, 0, tx_units_per_px, ping_buf);
+    }
 }
 
 void frontnet_session_create(struct GuiButton *gbtn)

@@ -68,6 +68,7 @@ namespace
         }
         if (client_peer)
         {
+            enet_peer_disconnect_now(client_peer, 0);
             client_peer = nullptr;
         }
         if (host)
@@ -106,6 +107,7 @@ namespace
         return Lb_OK;
     }
 
+    // This is blocking!
     int wait_for_connect(int timeout)
     {
         ENetEvent ev;
@@ -189,6 +191,11 @@ namespace
         ENetAddress address = {ENET_HOST_ANY, ENET_PORT_ANY};
         if (!ping_is_active)
         {
+            if (host)
+            {
+                ERRORLOG("Trying to ping while there is a host already");
+                return Lb_FAIL;
+            }
             host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
             if (!host || !latency)
             {
@@ -226,7 +233,7 @@ namespace
             ping_start_time = LbTimerClock();
             return Lb_OK;
         }
-        if (wait_for_connect(0))
+        if (client_peer->state != ENET_PEER_STATE_CONNECTED)
         {
             if (LbTimerClock() > ping_start_time + PING_TIMEOUT)
             {
@@ -235,10 +242,7 @@ namespace
                 host_destroy();
                 return Lb_SUCCESS;
             }
-            else
-            {
-                return Lb_OK;
-            }
+            return Lb_OK;
         }
         // Connected
         *latency = client_peer->roundTripTime;

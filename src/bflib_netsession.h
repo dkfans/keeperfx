@@ -46,11 +46,12 @@ enum NetMsgType
 struct TbNetworkSessionNameEntry {
     unsigned char joinable; //possibly active or selected is better name
     unsigned long id;
-    unsigned long in_use;
+    unsigned char in_use;
+    unsigned char valid_ping;
+    unsigned char placeholder[2];
     char text[SESSION_NAME_MAX_LEN];
     char ip_port[20];
-    TbClockMSec roundTripTime;
-    TbClockMSec lastPingTime;
+    TbClockMSec latency_time;
 };
 
 struct TbNetworkPlayerEntry {

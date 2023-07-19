@@ -1293,7 +1293,22 @@ TbError LbNetwork_PingSession(struct TbNetworkSessionNameEntry *ses)
     {
         if (netstate.sp->ping)
         {
-            return netstate.sp->ping(ses->ip_port, &ses->roundTripTime);
+            TbClockMSec latency_time;
+            TbError ret = netstate.sp->ping(ses->ip_port, &latency_time);
+            if (ret == Lb_SUCCESS)
+            {
+                if (latency_time == -1)
+                {
+                    ses->latency_time = 999;
+                    ses->valid_ping = true;
+                }
+                else
+                {
+                    ses->valid_ping = (latency_time > 0);
+                    ses->latency_time = latency_time;
+                }
+            }
+            return ret;
         }
     }
     return Lb_OK;
