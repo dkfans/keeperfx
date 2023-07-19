@@ -297,6 +297,7 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
     {
         // Update interface items
         update_trap_tab_to_config();
+        update_room_tab_to_config();
         return GLoad_SavedGame;
     }
     return GLoad_Failed;
@@ -676,7 +677,7 @@ TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long exp
     }
 
     short i = dungeonadd->creatures_transferred; //makes sure it fits 255 units
-    
+
     intralvl.transferred_creatures[plyr_idx][i].model = model;
     intralvl.transferred_creatures[plyr_idx][i].explevel = explevel;
     return true;

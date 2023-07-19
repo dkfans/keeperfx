@@ -95,7 +95,7 @@ long get_best_sound_heap_size(long sh_mem_size)
       return 0x0800000; // 8MB
     if (sh_mem_size <= 48)
         return 0x0c00000; // 12MB
-    
+
     return 0x3000000; // 50MB
 }
 
@@ -999,7 +999,7 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
     }
     SpeechEmitter = sp_emiter;
     long vol = lerp(0, 256, (float)settings.mentor_volume/127.0); // [0-127] rescaled to [0-256]
-    
+
     if (sp_emiter != 0)
     {
       if (S3DEmitterHasFinishedPlaying(sp_emiter))

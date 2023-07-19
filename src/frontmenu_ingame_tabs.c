@@ -637,7 +637,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_special_spell code to choose_special_spell
     //TODO: equivalent to gui_choose_spell now... try merge
-    choose_spell(((int) gbtn->content) % POWER_TYPES_COUNT, gbtn->tooltip_stridx);
+    choose_spell(((int) gbtn->content) % POWER_TYPES_MAX, gbtn->tooltip_stridx);
 }
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
@@ -1019,7 +1019,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 void maintain_big_spell(struct GuiButton *gbtn)
 {
     long spl_idx = game.chosen_spell_type;
-    if ((spl_idx < 0) || (spl_idx >= KEEPER_POWERS_COUNT)) {
+    if ((spl_idx < 0) || (spl_idx >= magic_conf.power_types_count)) {
         return;
     }
     gbtn->content = (unsigned long *)spl_idx;
@@ -1039,7 +1039,7 @@ void maintain_room(struct GuiButton *gbtn)
 {
     RoomKind rkind = (long)gbtn->content;
     struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return;
     }
     if (dungeonadd_invalid(dungeonadd)) {
@@ -1059,7 +1059,7 @@ void maintain_big_room(struct GuiButton *gbtn)
 {
     long rkind = game.chosen_room_kind;
     struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return;
     }
     if (dungeonadd_invalid(dungeonadd)) {
@@ -1378,7 +1378,7 @@ void gui_go_to_next_room(struct GuiButton *gbtn)
     unsigned long rkind = (long)gbtn->content;
     go_to_my_next_room_of_type_and_select(rkind);
     game.chosen_room_kind = rkind;
-    struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[rkind];
+    struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[rkind];
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = gbtn->tooltip_stridx;
 }
@@ -2307,9 +2307,9 @@ void update_room_tab_to_config(void)
         ibtn->ptover_event = NULL;
         ibtn->draw_call = gui_area_new_null_button;
     }
-    for (i=0; i < slab_conf.room_types_count; i++)
+    for (i=0; i < game.slab_conf.room_types_count; i++)
     {
-        struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[i];
+        struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[i];
         if (roomst->panel_tab_idx < 1)
             continue;
         struct GuiButtonInit* ibtn = &room_menu.buttons[roomst->panel_tab_idx - 1];
@@ -2320,6 +2320,12 @@ void update_room_tab_to_config(void)
         ibtn->rclick_event = gui_go_to_next_room;
         ibtn->ptover_event = gui_over_room_button;
         ibtn->draw_call = gui_area_room_button;
+    }
+    // Update active menu
+    if (menu_is_active(GMnu_ROOM))
+    {
+        turn_off_menu(GMnu_ROOM);
+        turn_on_menu(GMnu_ROOM);
     }
 }
 

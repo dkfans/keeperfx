@@ -54,7 +54,7 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     long i;
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
@@ -162,7 +162,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     memset(scratch, 0, ROOMS_COUNT);
 
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
@@ -212,7 +212,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     MapCoordDelta min_distance = INT_MAX;
     struct Coord3d room_center_pos;
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {

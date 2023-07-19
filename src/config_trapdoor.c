@@ -27,6 +27,7 @@
 
 #include "config.h"
 #include "config_strings.h"
+#include "console_cmd.h"
 #include "thing_doors.h"
 #include "player_instances.h"
 #include "player_states.h"
@@ -99,6 +100,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"DESTRUCTIBLE",         33},
   {"UNSTABLE",             34},
   {"UNSELLABLE",           35},
+  {"PLACEONBRIDGE",        36},
   {NULL,                    0},
 };
 /******************************************************************************/
@@ -262,6 +264,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->unstable = 0;
           trapst->unsellable = 0;
           trapst->notify = 0;
+          trapst->placeonbridge = 0;
 
           gameadd.trap_stats[i].health = 0;
           gameadd.trap_stats[i].sprite_anim_idx = 0;
@@ -877,13 +880,9 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              if (k >= 0)
-              {
-                  trapst->destructible = k;
-                  n++;
-              }
+              trapst->destructible = k;
           }
-          if (n < 1)
+          if (!parameter_is_number(word_buf))
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -912,6 +911,22 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               if (k >= 0)
               {
                   trapst->unsellable = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 36: // PLACEONBRIDGE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  trapst->placeonbridge = k;
                   n++;
               }
           }

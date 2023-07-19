@@ -135,6 +135,8 @@ int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance r
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
 
+TbBool instance_draws_possession_swipe(CrInstance inum);
+
 void delay_teleport(struct Thing *creatng);
 void delay_heal_sleep(struct Thing *creatng);
 /******************************************************************************/

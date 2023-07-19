@@ -53,7 +53,7 @@ msgid ""
 "being held in reserve. Your preparations will be thoroughly tested Master!"
 msgstr ""
 
-#. Level Swedish spirit outside hero heart"
+#. Level Swedish spirit outside hero heart
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
@@ -241,7 +241,7 @@ msgid ""
 "the implications of your incompetence."
 msgstr ""
 
-#. Level Tub vulnerabilities opening message
+#. Level Okehazama opening message
 #: guitext:27
 msgctxt "In-game message"
 msgid ""
@@ -249,7 +249,7 @@ msgid ""
 "Here there are three other keepers, and guess what? None of them like you!"
 msgstr ""
 
-#. Level Tub Vulnerabilities victory message
+#. Level Okehazama victory message
 #: guitext:28
 msgctxt "In-game message"
 msgid ""
@@ -258,7 +258,7 @@ msgid ""
 "yourself for the final trial!"
 msgstr ""
 
-#. Level Tub Vulnerabilities Hero Knight death message
+#. Level Okehazama Hero Knight death message
 #: guitext:29
 msgctxt "In-game message"
 msgid ""
@@ -267,13 +267,13 @@ msgid ""
 "their bravery the only way you know how!"
 msgstr ""
 
-#. Level Tub Vulnerabilities hero onslaught message
+#. Level Okehazama hero onslaught message
 #: guitext:30
 msgctxt "In-game message"
 msgid ""
 "You have unleashed waves of hero raiding parties Master, as these heroes "
-"make their last stand in this realm. Your defences need to be extensive and "
-"well placed if you are to triumph here."
+"make their last stand in this realm. Your defenses need to be extensive and "
+"well-placed if you are to triumph here."
 msgstr ""
 
 #. Level Embattled Formation opening message
@@ -308,7 +308,7 @@ msgstr ""
 #: guitext:34
 msgctxt "In-game message"
 msgid ""
-"A good start kepper, but beware. The remaining keepers grow stronger by "
+"A good start keeper, but beware. The remaining keepers grow stronger by "
 "pilfering the remnants of this dead kingdom, and therefore attract more "
 "creatures anxious to share the spoils!"
 msgstr ""
@@ -367,7 +367,7 @@ msgstr ""
 
 #: guitext:206
 msgctxt "Level name"
-msgid "Tub vulnerabilities"
+msgid "Okehazama"
 msgstr ""
 
 #: guitext:207

@@ -1768,7 +1768,7 @@ SlabKind alter_rock_style(SlabKind slbkind, MapSlabCoord tgslb_x, MapSlabCoord t
     return retkind;
 }
 
-void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char a5,const char *func_name)
+void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner, unsigned char keep_blocks_around,const char *func_name)
 {
     SlabKind previous_slab_types_around[8];
     struct SlabMap *slb;
@@ -1882,7 +1882,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
         }
     }
 
-    if (!a5)
+    if (!keep_blocks_around)
       update_blocks_around_slab(slb_x,slb_y);
     switch (nslab)
     {
@@ -1958,12 +1958,13 @@ void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     long z;
     stl_x = STL_PER_SLB * slb_x;
     stl_y = STL_PER_SLB * slb_y;
-    z = get_floor_filled_subtiles_at(stl_x, stl_y);
     for (y = stl_y; y < stl_y+STL_PER_SLB; y++)
     {
         for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
         {
-            if (z > 0) {
+            z = get_floor_filled_subtiles_at(x, y);
+            if (z > 0) 
+            {
                 create_gold_rubble_for_dug_block(x, y, z, game.neutral_player_num);
             }
         }

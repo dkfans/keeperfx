@@ -144,6 +144,7 @@ enum InstancePropertiesFlags {
     InstPF_Destructive        = 0x0040,
     InstPF_Quick              = 0x0080,
     InstPF_Disarming          = 0x0100,
+    InstPF_UsesSwipe          = 0x0200,
 };
 
 enum CreatureDeathKind {
@@ -273,6 +274,7 @@ extern struct NamedCommand creaturejob_desc[];
 extern struct NamedCommand attackpref_desc[];
 extern struct NamedCommand instance_desc[];
 extern const struct NamedCommand creatmodel_attributes_commands[];
+extern const struct NamedCommand creatmodel_jobs_commands[];
 
 extern const struct NamedCommand creature_graphics_desc[];
 /******************************************************************************/

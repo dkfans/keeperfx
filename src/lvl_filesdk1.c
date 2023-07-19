@@ -403,7 +403,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                 n++;
               }
             }
-            if (n < 1)
+            if ((n < 1) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" number in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -428,7 +428,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                   n++;
                 }
             }
-            if (n < 2)
+            if ((n < 2) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" coordinates in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -453,7 +453,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                   n++;
                 }
             }
-            if (n < 2)
+            if ((n < 2) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" coordinates in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -469,7 +469,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                 n++;
               }
             }
-            if (n < 1)
+            if ((n < 1) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" number in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -496,7 +496,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
             {
               n++;
             }
-            if (n < 2)
+            if ((n < 2) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" file names in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -511,7 +511,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
             {
               n++;
             }
-            if (n < 2)
+            if ((n < 2) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" file names in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -578,6 +578,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
         case 10: // AUTHOR
         case 11: // DESCRIPTION
         case 12: // DATE
+        case 14: // MAP_FORMAT_VERSION
             // As for now, ignore these
             break;
         case 13: // MAPSIZE
@@ -599,7 +600,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                   n++;
                 }
             }
-            if (n < 2)
+            if ((n < 2) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" mapsize in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -1401,7 +1402,7 @@ static TbBool load_static_light_file(unsigned long lv_num)
         ilght.mappos.x.val = legilght.mappos.x.val;
         ilght.mappos.y.val = legilght.mappos.y.val;
         ilght.mappos.z.val = legilght.mappos.z.val;
-        
+
         if (light_create_light(&ilght) == 0)
         {
             WARNLOG("Couldn't allocate static light %d",(int)k);
