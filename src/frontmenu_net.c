@@ -1177,7 +1177,6 @@ void masterserver_send_update()
         }
         sprintf(out_buf, "{\"method\":\"update_lobby\",\"token\":\"%s\",\"players\":[%s]}\n",
                 fe_masterserver_token, players);
-        fe_masterserver_token[0] = 0;
         send_json_to_masterserver(out_buf, ret);
         value_fini(ret);
     }
