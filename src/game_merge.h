@@ -110,6 +110,7 @@ enum ClassicBugFlags {
     ClscBug_FriendlyFaint                 = 0x0800,
     ClscBug_PassiveNeutrals               = 0x1000,
     ClscBug_NeutralTortureConverts        = 0x2000,
+    ClscBug_ListEnd                       = 0x4000,
 };
 
 enum GameFlags2 {
