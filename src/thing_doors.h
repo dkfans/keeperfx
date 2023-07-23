@@ -59,6 +59,7 @@ void unlock_door(struct Thing *thing);
 long destroy_door(struct Thing *thing);
 TngUpdateRet process_door(struct Thing *thing);
 TbBool remove_key_on_door(struct Thing *thing);
+TbBool add_key_on_door(struct Thing *thing);
 
 char find_door_angle(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 char get_door_orientation(MapSlabCoord slb_x, MapSlabCoord slb_y);
