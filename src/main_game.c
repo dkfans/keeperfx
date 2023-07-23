@@ -326,6 +326,12 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     {
         game.game_kind = GKind_MultiGame;
         init_players_network_game(context);
+
+        // Fix desyncs when two players have a different zoom distance cfg setting
+        // This temporary solution just disregards their cfg value and sets it here
+        int max_zoom_in_multiplayer = 60;
+        zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
+        frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
     }
     setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};

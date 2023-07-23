@@ -264,6 +264,7 @@ enum ScriptVariables {
   SVar_BONUS_TIME                      = 76,
   SVar_CREATURES_TRANSFERRED           = 77,
   SVar_ALLIED_PLAYER                   = 78,
+  SVar_ACTIVE_BATTLES                  = 79,
  };
 
 
