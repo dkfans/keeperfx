@@ -733,7 +733,8 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
         return -2; // do nothing
-    if (get_map_floor_filled_subtiles(mapblk) != 1) {
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_floor_filled_subtiles_at(stl_x, stl_y) != roomst->storage_height)) {
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
@@ -995,7 +996,8 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
         return -2; // do nothing
-    if (get_map_floor_filled_subtiles(mapblk) != 1) {
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height)) {
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
@@ -1237,7 +1239,8 @@ int check_bodies_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
         return -2; // do nothing
-    if (get_map_floor_filled_subtiles(mapblk) != 1) {
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height)) {
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
@@ -1426,7 +1429,8 @@ int check_food_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoor
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
         return -2; // do nothing
-    if (get_map_floor_filled_subtiles(mapblk) != 0) { // Floor level for hatchery is 0
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height)) {
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
@@ -2254,6 +2258,7 @@ short room_grow_food(struct Room *room)
     {
         return 0;
     }
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     unsigned long k;
     long n = PLAYER_RANDOM(room->owner, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
@@ -2284,7 +2289,7 @@ short room_grow_food(struct Room *room)
             }
             if (thing_is_invalid(thing))
             {
-                if (get_floor_filled_subtiles_at(stl_x, stl_y) == 0)
+                if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(stl_x, stl_y) == roomst->storage_height))
                 {
                     return room_create_new_food_at(room, stl_x, stl_y);
                 }
@@ -3895,6 +3900,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
         ERRORLOG("Invalid room or number of slabs is zero");
         return false;
     }
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     long selected = CREATURE_RANDOM(thing, room->slabs_count);  
     unsigned long n = 0;
     long i = room->slabs_list;
@@ -3944,7 +3950,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
             {
                 MapSubtlCoord x = start_stl % 3 + stl_x;
                 MapSubtlCoord y = start_stl / 3 + stl_y;
-                if (get_floor_filled_subtiles_at(x, y) == 1)
+                if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(x, y) == roomst->storage_height))
                 {
                     struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
                     if (thing_is_invalid(objtng))
@@ -3998,7 +4004,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
                 {
                     MapSubtlCoord astl_x = stl_x + around[nround].delta_x;
                     MapSubtlCoord astl_y = stl_y + around[nround].delta_y;
-                    if (get_floor_filled_subtiles_at(astl_x, astl_y) == 1)
+                    if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(astl_x, astl_y) == roomst->storage_height))
                     {
                         struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, astl_x, astl_y);
                         if (thing_is_invalid(objtng))
@@ -4137,6 +4143,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
 {
     struct Thing *thing;
     struct Dungeon* dungeon;
+    struct RoomConfigStats* roomst;
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
@@ -4174,7 +4181,8 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
 
     if(room_role_matches(room->kind, RoRoF_GoldStorage))
     {
-        if (get_map_floor_filled_subtiles(mapblk) == 1)
+        roomst = get_room_kind_stats(room->kind);
+        if ((roomst->storage_height < 0) || (get_map_floor_filled_subtiles(mapblk) == roomst->storage_height))
         {
             struct Thing *gldtng;
             gldtng = find_gold_hoard_at(stl_x, stl_y);

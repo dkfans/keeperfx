@@ -247,6 +247,7 @@ const struct NamedCommand room_config_desc[] = {
   {"Roles",               13},
   {"TotalCapacity",       14},
   {"UsedCapacity",        15},
+  {"StorageHeight",       16},
   {NULL,                   0},
 };
 
@@ -346,6 +347,7 @@ const struct NamedCommand variable_desc[] = {
     {"TOTAL_SCORE",                 SVar_TOTAL_SCORE},
     {"BONUS_TIME",                  SVar_BONUS_TIME},
     {"CREATURES_TRANSFERRED",       SVar_CREATURES_TRANSFERRED},
+    {"ACTIVE_BATTLES",              SVar_ACTIVE_BATTLES},
     {NULL,                           0},
 };
 
@@ -1186,7 +1188,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         }
         value->shorts[3] = newvalue2;
     }
-    else if (roomvar != 4) // NameTextID, TooltipTextID, Cost, Health, AmbientSndSample, Messages
+    else if (roomvar != 4) // NameTextID, TooltipTextID, Cost, Health, AmbientSndSample, Messages, StorageHeight
     {
         if (parameter_is_number(valuestring))
         {
@@ -1769,6 +1771,9 @@ static void set_room_configuration_process(struct ScriptContext *context)
             roomst->update_workers_in_room_idx = value2;
             roomst->update_workers_in_room = terrain_room_used_capacity_func_list[value2];
             reinitialise_rooms_of_kind(room_type);
+            break;
+        case 16: // StorageHeight
+            roomst->storage_height = value;
             break;
         default:
             WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);

@@ -1028,7 +1028,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     } else
     if (i != -1)
     {
-        fill_spell_slot(thing, i, spell_idx, spconf->duration);
+        fill_spell_slot(thing, i, spell_idx, duration);
         cctrl->spell_flags |= spconf->spell_flags;
         switch (spell_idx)
         {
