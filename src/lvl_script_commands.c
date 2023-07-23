@@ -3782,6 +3782,37 @@ static void set_music_process(struct ScriptContext *context)
     }
 }
 
+static void play_message_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long msgtype_id = get_id(msgtype_desc, scline->tp[1]);
+    if (msgtype_id == -1)
+    {
+        SCRPTERRLOG("Unrecognized message type, '%s'", scline->tp[1]);
+        return;
+    }
+    value->chars[0] = scline->np[0];
+    value->chars[1] = msgtype_id;
+    value->arg1 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void play_message_process(struct ScriptContext *context)
+{
+    if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
+    {
+        switch (context->value->chars[1])
+        {
+            case 1:
+                output_message(context->value->arg1, 0, true);
+                break;
+            case 2:
+                play_non_3d_sample(context->value->arg1);
+                break;
+        }
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -3849,7 +3880,7 @@ const struct CommandDesc command_desc[] = {
   {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
-  {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE, NULL, NULL},
+  {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER, NULL, NULL},
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
