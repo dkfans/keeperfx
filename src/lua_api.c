@@ -152,11 +152,11 @@ static MapSubtlCoord luaL_checkstl_y(lua_State *L, int index)
 static ActionPointId luaL_checkActionPoint(lua_State *L, int index)
 {
     int apt_num = luaL_checkint(L,index);
-    long apt_idx = action_point_number_to_index(apt_num);
+    ActionPointId apt_idx = action_point_number_to_index(apt_num);
     if (!action_point_exists_idx(apt_idx))
     {
         luaL_error(L,"Non-existing Action Point, no %d", apt_num);
-        return;
+        return 0;
     }
     return apt_idx;
 }
@@ -692,29 +692,71 @@ static int lua_SET_MUSIC(lua_State *L)
     {
         game.audiotrack = track_number;
     }
+    return 0;
     
 }
 
 static int lua_TUTORIAL_FLASH_BUTTON(lua_State *L)
 {
-
     long          button    = luaL_checkinteger(L, 1);
     GameTurnDelta gameturns = luaL_checkinteger(L, 2);
 
     gui_set_button_flashing(button,gameturns);
+    return 0;
 }
 /*
 static int lua_SET_CREATURE_STRENGTH(lua_State *L)
+{
+    struct CreatureStats *crstat = creature_stats_get(val2);
+    if (creature_stats_invalid(crstat))
+        break;
+    crstat->strength = saturate_set_unsigned(val3, 8);
+    return 0;
+}
 static int lua_SET_CREATURE_HEALTH(lua_State *L)
+{
+      change_max_health_of_creature_kind(val2, val3);
 static int lua_SET_CREATURE_ARMOUR(lua_State *L)
+      struct CreatureStats *crstat = creature_stats_get(val2);
+      if (creature_stats_invalid(crstat))
+          break;
+      crstat->armour = saturate_set_unsigned(val3, 8);
+    return 0;
+}
 static int lua_SET_CREATURE_FEAR_WOUNDED(lua_State *L)
+{
+      struct CreatureStats *crstat = creature_stats_get(val2);
+      if (creature_stats_invalid(crstat))
+          break;
+      crstat->fear_wounded = saturate_set_unsigned(val3, 8);
+    return 0;
+}
 static int lua_SET_CREATURE_FEAR_STRONGER(lua_State *L)
+{
+      struct CreatureStats *crstat = creature_stats_get(val2);
+      if (creature_stats_invalid(crstat))
+          break;
+      crstat->fear_stronger = saturate_set_unsigned(val3, 16);
+    return 0;
+}
 static int lua_SET_CREATURE_FEARSOME_FACTOR(lua_State *L)
+{
+      struct CreatureStats *crstat = creature_stats_get(val2);
+      if (creature_stats_invalid(crstat))
+          break;
+      crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
+    return 0;
+}
 static int lua_SET_CREATURE_PROPERTY(lua_State *L)
+{
+
+}
 static int lua_SET_COMPUTER_GLOBALS(lua_State *L)
 static int lua_SET_COMPUTER_CHECKS(lua_State *L)
 static int lua_SET_COMPUTER_EVENT(lua_State *L)
 static int lua_SET_COMPUTER_PROCESS(lua_State *L)
+
+/*
 static int lua_ALLY_PLAYERS(lua_State *L)
 static int lua_DEAD_CREATURES_RETURN_TO_POOL(lua_State *L)
 static int lua_BONUS_LEVEL_TIME(lua_State *L)
