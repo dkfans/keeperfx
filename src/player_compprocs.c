@@ -1326,7 +1326,7 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     {
         if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 5, 2) && check_call_to_arms(comp))
         {
-            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, par1, creatrs_num)) {
+            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, creatrs_num)) {
                 return CProcRet_Wait;
             }
             return CProcRet_Continue;

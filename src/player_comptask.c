@@ -1071,7 +1071,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     long wrong_slabs;
     waiting_slabs = 0; wrong_slabs = 0;
     count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->new_room_pos.x.stl.num, ctask->new_room_pos.y.stl.num,
-        ctask->create_room.long_80, ctask->create_room.area, &waiting_slabs, &wrong_slabs);
+        ctask->create_room.rkind, ctask->create_room.area, &waiting_slabs, &wrong_slabs);
     if (wrong_slabs > 0) {
         WARNLOG("Task %s couldn't be completed as %d wrong slabs are in destination area, reset",computer_task_code_name(ctask->ttype),(int)wrong_slabs);
         restart_task_process(comp, ctask);
@@ -1120,7 +1120,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     int i;
     SYNCDBG(9,"Starting");
     dungeon = comp->dungeon;
-    rkind = ctask->create_room.long_80;
+    rkind = ctask->create_room.rkind;
     struct RoomConfigStats *roomst;
     roomst = &game.slab_conf.room_cfgstats[rkind];
     // If we don't have money for the room - don't even try
@@ -1538,7 +1538,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         ctask->create_room.width = width_slabs;
         ctask->create_room.height = height_slabs;
         ctask->create_room.area = area_buildable;
-        ctask->create_room.long_80 = rkind;
+        ctask->create_room.rkind = rkind;
         ctask->flags |= ComTsk_Unkn0002;
         ctask->flags |= ComTsk_AddTrapLocation;
         ctask->flags |= ComTsk_Urgent;
@@ -3456,7 +3456,6 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
     ctask->move_to_pos.pos_86.y.val = pos.y.val;
     ctask->move_to_pos.pos_86.z.val = pos.z.val;
     ctask->move_to_pos.target_thing_idx = thing->index;
-    ctask->move_to_pos.word_80 = 0;
     ctask->created_turn = game.play_gameturn;
     return true;
 }
@@ -3558,7 +3557,7 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
     return true;
 }
 
-TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long cta_duration, long par3, long repeat_num)
+TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coord3d *pos, long cta_duration, long repeat_num)
 {
     struct ComputerTask *ctask;
     SYNCDBG(7,"Starting");
@@ -3580,7 +3579,6 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
     ctask->magic_cta.target_pos.z.val = pos->z.val;
     ctask->magic_cta.repeat_num = repeat_num;
     ctask->field_8E = cta_duration;
-    ctask->magic_cta.word_86 = par3;
     return true;
 }
 
@@ -3685,7 +3683,6 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
         message_add_fmt(comp->dungeon->owner, "Localized neutral place, hopefully with loot.");
     }
     ctask->ttype = CTT_DigToNeutral;
-    ctask->dig_somewhere.byte_80 = 0;
     ctask->dig_somewhere.startpos.x.val = startpos.x.val;
     ctask->dig_somewhere.startpos.y.val = startpos.y.val;
     ctask->dig_somewhere.startpos.z.val = startpos.z.val;

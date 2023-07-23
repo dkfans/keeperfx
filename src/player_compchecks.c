@@ -688,7 +688,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     if (count_creatures_availiable_for_fight(comp, &pos) <= check->param3) {
         return CTaskRet_Unk4;
     }
-    if (!create_task_magic_support_call_to_arms(comp, &pos, check->param2, 0, creatrs_num)) {
+    if (!create_task_magic_support_call_to_arms(comp, &pos, check->param2, creatrs_num)) {
         return CTaskRet_Unk4;
     }
     SYNCLOG("Player %d decided to attack %s owned by player %d",(int)dungeon->owner,room_code_name(room->kind),(int)room->owner);
