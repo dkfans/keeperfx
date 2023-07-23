@@ -3788,7 +3788,7 @@ static void play_message_check(const struct ScriptLine *scline)
     long msgtype_id = get_id(msgtype_desc, scline->tp[1]);
     if (msgtype_id == -1)
     {
-        SCRPTERRLOG("Unrecognized message type, '%s'", scline->tp[1]);
+        SCRPTERRLOG("Unrecognized message type: '%s'", scline->tp[1]);
         return;
     }
     value->chars[0] = scline->np[0];
