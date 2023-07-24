@@ -27,6 +27,7 @@
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
+#include "bflib_vidsurface.h"
 #include "globals.h"
 
 #include "gui_topmsg.h"
@@ -34,6 +35,7 @@
 #include "frontend.h"
 
 #include <string.h>
+#include <SDL2/SDL.h>
 #include "post_inc.h"
 /******************************************************************************/
 
@@ -41,12 +43,10 @@ short screenshot_format=1;
 unsigned char cap_palette[768];
 
 /******************************************************************************/
-long prepare_hsi_screenshot(unsigned char *buf,unsigned char *palette)
+long prepare_hsi_screenshot(unsigned char *buf, unsigned char *palette, int w, int h)
 {
     long i;
     long pos = 0;
-    int w = MyScreenWidth / pixel_size;
-    int h = MyScreenHeight / pixel_size;
 
     write_int8_buf(buf + pos, 'm');
     pos++;
@@ -108,91 +108,52 @@ long prepare_hsi_screenshot(unsigned char *buf,unsigned char *palette)
   return pos;
 }
 
-long prepare_bmp_screenshot(unsigned char *buf,unsigned char *palette)
+TbBool take_hsi_screenshot(char* fname)
 {
-    long i;
-    long j;
-    long pos = 0;
-    int width = MyScreenWidth / pixel_size;
-    int height = MyScreenHeight / pixel_size;
-    write_int8_buf(buf + pos, 'B');
-    pos++;
-    write_int8_buf(buf + pos, 'M');
-    pos++;
-    int padding_size = 4 - (width & 3);
-    long data_len = (width + padding_size) * height;
-    long pal_len = 256 * 4;
-    write_int32_le_buf(buf + pos, data_len + pal_len + 0x36);
-    pos += 4;
-    write_int32_le_buf(buf + pos, 0);
-    pos += 4;
-    write_int32_le_buf(buf + pos, pal_len + 0x36);
-    pos += 4;
-    write_int32_le_buf(buf + pos, 40);
-    pos += 4;
-    write_int32_le_buf(buf + pos, width);
-    pos += 4;
-    write_int32_le_buf(buf + pos, height);
-    pos += 4;
-    write_int16_le_buf(buf + pos, 1);
-    pos += 2;
-    write_int16_le_buf(buf + pos, 8);
-    pos += 2;
-    write_int32_le_buf(buf + pos, 0);
-    pos += 4;
-    write_int32_le_buf(buf + pos, 0);
-    pos += 4;
-    write_int32_le_buf(buf + pos, 0);
-    pos += 4;
-    write_int32_le_buf(buf + pos, 0);
-    pos += 4;
-    write_int32_le_buf(buf + pos, 0);
-    pos += 4;
-    write_int32_le_buf(buf + pos, 0);
-    pos += 4;
-    for (i = 0; i < 768; i += 3)
+    int w = MyScreenWidth / pixel_size;
+    int h = MyScreenHeight / pixel_size;
+    unsigned char* buf = LbMemoryAlloc((w + 3) * h + 2048);
+    if (buf == NULL)
     {
-        unsigned int cval = 4 * (unsigned int)palette[i + 2];
-        if (cval > 255)
-            cval = 255;
-        write_int8_buf(buf + pos, cval);
-        pos++;
-        cval = 4 * (unsigned int)palette[i + 1];
-        if (cval > 255)
-            cval = 255;
-        write_int8_buf(buf + pos, cval);
-        pos++;
-        cval = 4 * (unsigned int)palette[i + 0];
-        if (cval > 255)
-            cval = 255;
-        write_int8_buf(buf + pos, cval);
-        pos++;
-        write_int8_buf(buf + pos, 0);
-        pos++;
-  }
-  short lock_mem = LbScreenIsLocked();
-  if (!lock_mem)
-  {
-    if (LbScreenLock() != Lb_SUCCESS)
-    {
-      ERRORLOG("Can't lock canvas");
-      LbMemoryFree(buf);
-      return 0;
+        ERRORLOG("Can't allocate buffer");
+        return false;
     }
-  }
-  for (i=0; i<height; i++)
-  {
-    memcpy(buf+pos, lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*(height-i-1), width);
-    pos += width;
-    if ((padding_size&3) > 0)
-      for (j=0; j < padding_size; j++)
-      {
-        write_int8_buf(buf+pos,0);pos++;
-      }
-  }
-  if (!lock_mem)
-    LbScreenUnlock();
-  return pos;
+    LbPaletteGet(cap_palette);
+    long ssize = prepare_hsi_screenshot(buf, cap_palette, w, h);
+    if (ssize>0)
+    {
+        ssize = LbFileSaveAt(fname, buf, ssize);
+    }
+    LbMemoryFree(buf);
+    return (ssize > 0);
+}
+
+TbBool take_bmp_screenshot(char *fname)
+{
+    TbBool lock_mem = LbScreenIsLocked();
+    if (!lock_mem)
+    {
+        if (LbScreenLock() != Lb_SUCCESS)
+        {
+            ERRORLOG("Can't lock canvas");
+            return false;
+        }
+        else
+        {
+            SDL_LockSurface(lbDrawSurface);
+        }
+    }
+    TbBool success = (SDL_SaveBMP(lbDrawSurface, fname) == 0);
+    if (!success)
+    {
+        ERRORLOG("Unable to save to file %s: %s", fname, SDL_GetError());
+    }
+    if (!lock_mem)
+    {
+        SDL_UnlockSurface(lbDrawSurface);
+        LbScreenUnlock();
+    }
+    return success;
 }
 
 TbBool cumulative_screen_shot(void)
@@ -213,7 +174,6 @@ TbBool cumulative_screen_shot(void)
     return false;
   }
   long i;
-  long ssize;
   for (i=frame_number; i<10000; i++)
   {
     sprintf(fname, "scrshots/scr%05ld.%s", i, fext);
@@ -226,38 +186,31 @@ TbBool cumulative_screen_shot(void)
     return false;
   }
   sprintf(fname, "scrshots/scr%05ld.%s", frame_number, fext);
-
-  int w = MyScreenWidth / pixel_size;
-  int h = MyScreenHeight / pixel_size;
-
-  unsigned char* buf = LbMemoryAlloc((w + 3) * h + 2048);
-  if (buf == NULL)
-  {
-    ERRORLOG("Can't allocate buffer");
-    return false;
-  }
-  LbPaletteGet(cap_palette);
+  TbBool ret;
   switch (screenshot_format)
   {
-  case 1:
-    ssize=prepare_hsi_screenshot(buf,cap_palette);
-    break;
-  case 2:
-    ssize=prepare_bmp_screenshot(buf,cap_palette);
-    break;
-  default:
-    ssize=0;
-    break;
+      case 1:
+      {
+          ret = take_hsi_screenshot(fname);
+          break;
+      }
+      case 2:
+      {
+          ret = take_bmp_screenshot(fname);
+          break;
+      }
+      default:
+      {
+          ret = false;
+          break;
+      }
   }
-  if (ssize>0)
-    ssize = LbFileSaveAt(fname, buf, ssize);
-  LbMemoryFree(buf);
-  if (ssize>0)
+  if (ret)
     show_onscreen_msg(game.num_fps, "File \"%s\" saved.", fname);
   else
     show_onscreen_msg(game.num_fps, "Cannot save \"%s\".", fname);
   frame_number++;
-  return (ssize>0);
+  return ret;
 }
 
 TbBool movie_record_start(void)
