@@ -42,6 +42,7 @@
 #include "bflib_memory.h"
 #include "post_inc.h"
 #include "music_player.h"
+#include "bflib_sound.h"
 
 #ifdef __cplusplus
 extern "C" {
