@@ -33,102 +33,19 @@
 #include "gui_topmsg.h"
 #include "game_legacy.h"
 #include "frontend.h"
+#include "config.h"
 
 #include <string.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <ctype.h>
 #include "post_inc.h"
 /******************************************************************************/
 
-short screenshot_format=3;
+unsigned char screenshot_format = 0;
 unsigned char cap_palette[768];
 
 /******************************************************************************/
-long prepare_hsi_screenshot(unsigned char *buf, unsigned char *palette, int w, int h)
-{
-    long i;
-    long pos = 0;
-
-    write_int8_buf(buf + pos, 'm');
-    pos++;
-    write_int8_buf(buf + pos, 'h');
-    pos++;
-    write_int8_buf(buf + pos, 'w');
-    pos++;
-    write_int8_buf(buf + pos, 'a');
-    pos++;
-    write_int8_buf(buf + pos, 'n');
-    pos++;
-    write_int8_buf(buf + pos, 'h');
-    pos++;
-    // pos=6
-    write_int16_be_buf(buf + pos, 4);
-    pos += 2;
-    write_int16_be_buf(buf + pos, w);
-    pos += 2;
-    write_int16_be_buf(buf + pos, h);
-    pos += 2;
-    write_int16_be_buf(buf + pos, 256);
-    pos += 2;
-    // pos=14
-    write_int16_be_buf(buf + pos, 256);
-    pos += 2;
-    write_int16_be_buf(buf + pos, 256);
-    pos += 2;
-    write_int16_be_buf(buf + pos, 256);
-    pos += 2;
-    // pos=20
-    for (i = 0; i < 6; i++)
-    {
-        write_int16_be_buf(buf + pos, 0);
-        pos += 2;
-  }
-  for (i=0; i<768; i+=3)
-  {
-    write_int8_buf(buf+pos,4*palette[i+0]);pos++;
-    write_int8_buf(buf+pos,4*palette[i+1]);pos++;
-    write_int8_buf(buf+pos,4*palette[i+2]);pos++;
-  }
-  short lock_mem = LbScreenIsLocked();
-  if (!lock_mem)
-  {
-    if (LbScreenLock() != Lb_SUCCESS)
-    {
-      ERRORLOG("Can't lock canvas");
-      LbMemoryFree(buf);
-      return 0;
-    }
-  }
-  for (i=0; i<h; i++)
-  {
-    memcpy(buf+pos, lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*i, w);
-    pos += w;
-  }
-  if (!lock_mem)
-    LbScreenUnlock();
-  return pos;
-}
-
-TbBool take_hsi_screenshot(char* fname)
-{
-    int w = MyScreenWidth / pixel_size;
-    int h = MyScreenHeight / pixel_size;
-    unsigned char* buf = LbMemoryAlloc((w + 3) * h + 2048);
-    if (buf == NULL)
-    {
-        ERRORLOG("Can't allocate buffer");
-        return false;
-    }
-    LbPaletteGet(cap_palette);
-    long ssize = prepare_hsi_screenshot(buf, cap_palette, w, h);
-    if (ssize>0)
-    {
-        ssize = LbFileSaveAt(fname, buf, ssize);
-    }
-    LbMemoryFree(buf);
-    return (ssize > 0);
-}
-
 TbBool take_screenshot(char *fname)
 {
     TbBool lock_mem = LbScreenIsLocked();
@@ -143,19 +60,14 @@ TbBool take_screenshot(char *fname)
     TbBool success;
     switch (screenshot_format)
     {
-        case 2:
-        {
-            success = (SDL_SaveBMP(lbDrawSurface, fname) == 0);
-            break;
-        }
-        case 3:
+        case 0:
         {
             success = (IMG_SavePNG(lbDrawSurface, fname) == 0);
             break;
         }
-        case 4:
+        case 1:
         {
-            success = (IMG_SaveJPG(lbDrawSurface, fname, 34) == 0);
+            success = (SDL_SaveBMP(lbDrawSurface, fname) == 0);
             break;
         }
         default:
@@ -177,67 +89,45 @@ TbBool take_screenshot(char *fname)
 
 TbBool cumulative_screen_shot(void)
 {
-  static long frame_number=0;
-  char fname[255];
-  const char *fext;
-  switch (screenshot_format)
-  {
-  case 1:
-    fext="raw";
-    break;
-  case 2:
-    fext="bmp";
-    break;
-  case 3:
-    fext="png";
-    break;
-  case 4:
-    fext="jpg";
-    break;
-  default:
-    ERRORLOG("Screenshot format incorrectly set.");
-    return false;
-  }
-  long i;
-  for (i=frame_number; i<10000; i++)
-  {
-    sprintf(fname, "scrshots/scr%05ld.%s", i, fext);
-    if (!LbFileExists(fname)) break;
-  }
-  frame_number = i;
-  if (frame_number >= 10000)
-  {
-    show_onscreen_msg(game.num_fps, "No free filename for screenshot.");
-    return false;
-  }
-  sprintf(fname, "scrshots/scr%05ld.%s", frame_number, fext);
-  TbBool ret;
-  switch (screenshot_format)
-  {
-      case 1:
-      {
-          ret = take_hsi_screenshot(fname);
-          break;
-      }
-      case 2:
-      case 3:
-      case 4:
-      {
-          ret = take_screenshot(fname);
-          break;
-      }
-      default:
-      {
-          ret = false;
-          break;
-      }
-  }
-  if (ret)
-    show_onscreen_msg(game.num_fps, "File \"%s\" saved.", fname);
-  else
-    show_onscreen_msg(game.num_fps, "Cannot save \"%s\".", fname);
-  frame_number++;
-  return ret;
+    if (screenshot_format > 1)
+    {
+        ERRORLOG("Screenshot format incorrectly set.");
+        return false;
+    }
+    static long frame_number = 0;
+    char fname[255];
+    size_t len = strlen(scrshot_type[screenshot_format].name);
+    char *fext = malloc(len);
+    long i;
+    for (i = 0; i < len; i++) 
+    {
+        fext[i] = tolower(scrshot_type[screenshot_format].name[i]);
+    }
+    for (i = frame_number; i < 10000; i++)
+    {
+        sprintf(fname, "scrshots/scr%05ld.%s", i, fext);
+        if (!LbFileExists(fname)) break;
+    }
+    frame_number = i;
+    if (frame_number >= 10000)
+    {
+        show_onscreen_msg(game.num_fps, "No free filename for screenshot.");
+        free(fext);
+        return false;
+    }
+    sprintf(fname, "scrshots/scr%05ld.%s", frame_number, fext);
+    free(fext);
+    TbBool ret = take_screenshot(fname);
+    if (ret)
+    {
+        show_onscreen_msg(game.num_fps, "File \"%s\" saved.", fname);
+    }
+    else
+    {
+        show_onscreen_msg(game.num_fps, "Cannot save \"%s\".", fname);
+    }
+    frame_number++;
+    return ret;
 }
 
 TbBool movie_record_start(void)
