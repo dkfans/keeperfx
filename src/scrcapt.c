@@ -105,7 +105,7 @@ TbBool cumulative_screen_shot(void)
     fext[len] = 0;
     for (i = 0; i < 10000; i++)
     {
-        sprintf(fname, "scrshots/scr%05ld.%s", i, fext);
+        sprintf(fname, "scrshots/scr%05lu.%s", i, fext);
         if (!LbFileExists(fname)) break;
     }
     free(fext);
