@@ -139,10 +139,6 @@ TbBool take_screenshot(char *fname)
             ERRORLOG("Can't lock canvas");
             return false;
         }
-        else
-        {
-            SDL_LockSurface(lbDrawSurface);
-        }
     }
     TbBool success;
     switch (screenshot_format)
@@ -174,7 +170,6 @@ TbBool take_screenshot(char *fname)
     }
     if (!lock_mem)
     {
-        SDL_UnlockSurface(lbDrawSurface);
         LbScreenUnlock();
     }
     return success;
