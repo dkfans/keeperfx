@@ -94,29 +94,25 @@ TbBool cumulative_screen_shot(void)
         ERRORLOG("Screenshot format incorrectly set.");
         return false;
     }
-    static long frame_number = 0;
     char fname[255];
     size_t len = strlen(scrshot_type[screenshot_format].name);
-    char *fext = malloc(len);
+    char *fext = calloc(len + 1, 1);
     long i;
     for (i = 0; i < len; i++) 
     {
         fext[i] = tolower(scrshot_type[screenshot_format].name[i]);
     }
-    for (i = frame_number; i < 10000; i++)
+    for (i = 0; i < 10000; i++)
     {
         sprintf(fname, "scrshots/scr%05ld.%s", i, fext);
         if (!LbFileExists(fname)) break;
     }
-    frame_number = i;
-    if (frame_number >= 10000)
+    free(fext);
+    if (i >= 10000)
     {
         show_onscreen_msg(game.num_fps, "No free filename for screenshot.");
-        free(fext);
         return false;
     }
-    sprintf(fname, "scrshots/scr%05ld.%s", frame_number, fext);
-    free(fext);
     TbBool ret = take_screenshot(fname);
     if (ret)
     {
