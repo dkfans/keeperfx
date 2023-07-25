@@ -126,7 +126,6 @@ TbBool cumulative_screen_shot(void)
     {
         show_onscreen_msg(game.num_fps, "Cannot save \"%s\".", fname);
     }
-    frame_number++;
     return ret;
 }
 
