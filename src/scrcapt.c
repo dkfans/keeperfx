@@ -96,12 +96,13 @@ TbBool cumulative_screen_shot(void)
     }
     char fname[255];
     size_t len = strlen(scrshot_type[screenshot_format].name);
-    char *fext = calloc(len + 1, 1);
+    char *fext = malloc(len + 1);
     long i;
     for (i = 0; i < len; i++) 
     {
         fext[i] = tolower(scrshot_type[screenshot_format].name[i]);
     }
+    fext[len] = 0;
     for (i = 0; i < 10000; i++)
     {
         sprintf(fname, "scrshots/scr%05ld.%s", i, fext);
