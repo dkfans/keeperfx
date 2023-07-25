@@ -155,7 +155,7 @@ TbBool take_screenshot(char *fname)
         }
         case 4:
         {
-            success = (IMG_SaveJPG(lbDrawSurface, fname, 100) == 0);
+            success = (IMG_SaveJPG(lbDrawSurface, fname, 34) == 0);
             break;
         }
         default:
