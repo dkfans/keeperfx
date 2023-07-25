@@ -97,7 +97,7 @@ TbBool cumulative_screen_shot(void)
     char fname[255];
     size_t len = strlen(scrshot_type[screenshot_format].name);
     char *fext = malloc(len + 1);
-    long i;
+    unsigned long i;
     for (i = 0; i < len; i++) 
     {
         fext[i] = tolower(scrshot_type[screenshot_format].name[i]);
