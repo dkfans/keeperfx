@@ -36,10 +36,11 @@
 
 #include <string.h>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include "post_inc.h"
 /******************************************************************************/
 
-short screenshot_format=1;
+short screenshot_format=3;
 unsigned char cap_palette[768];
 
 /******************************************************************************/
@@ -128,7 +129,7 @@ TbBool take_hsi_screenshot(char* fname)
     return (ssize > 0);
 }
 
-TbBool take_bmp_screenshot(char *fname)
+TbBool take_screenshot(char *fname)
 {
     TbBool lock_mem = LbScreenIsLocked();
     if (!lock_mem)
@@ -143,7 +144,30 @@ TbBool take_bmp_screenshot(char *fname)
             SDL_LockSurface(lbDrawSurface);
         }
     }
-    TbBool success = (SDL_SaveBMP(lbDrawSurface, fname) == 0);
+    TbBool success;
+    switch (screenshot_format)
+    {
+        case 2:
+        {
+            success = (SDL_SaveBMP(lbDrawSurface, fname) == 0);
+            break;
+        }
+        case 3:
+        {
+            success = (IMG_SavePNG(lbDrawSurface, fname) == 0);
+            break;
+        }
+        case 4:
+        {
+            success = (IMG_SaveJPG(lbDrawSurface, fname, 100) == 0);
+            break;
+        }
+        default:
+        {
+            success = false;
+            break;
+        }
+    }
     if (!success)
     {
         ERRORLOG("Unable to save to file %s: %s", fname, SDL_GetError());
@@ -168,6 +192,12 @@ TbBool cumulative_screen_shot(void)
     break;
   case 2:
     fext="bmp";
+    break;
+  case 3:
+    fext="png";
+    break;
+  case 4:
+    fext="jpg";
     break;
   default:
     ERRORLOG("Screenshot format incorrectly set.");
@@ -195,8 +225,10 @@ TbBool cumulative_screen_shot(void)
           break;
       }
       case 2:
+      case 3:
+      case 4:
       {
-          ret = take_bmp_screenshot(fname);
+          ret = take_screenshot(fname);
           break;
       }
       default:

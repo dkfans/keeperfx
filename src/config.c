@@ -94,6 +94,8 @@ const struct NamedCommand lang_type[] = {
 const struct NamedCommand scrshot_type[] = {
   {"HSI", 1},
   {"BMP", 2},
+  {"PNG", 3},
+  {"JPG", 4},
   {NULL,  0},
   };
 
