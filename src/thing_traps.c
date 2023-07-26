@@ -169,6 +169,8 @@ short thing_is_destructible_trap(const struct Thing *thing)
         return -2;
     if (thing->class_id != TCls_Trap)
         return -2;
+    if (thing->trap.num_shots <= 0)
+        return -2;
     struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
     return trapst->destructible;
 }
