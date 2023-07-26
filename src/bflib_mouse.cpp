@@ -125,16 +125,15 @@ TbResult LbMouseSetPosition(long x, long y)
       {
         return Lb_FAIL;
       }
-      // SDL_WarpMouseInWindow(SDL_GetKeyboardFocus(), x, y);
     }
   }
   else
   {
-      window = lbWindow;
       if (!pointerHandler.SetMousePosition(x, y))
       {
         return Lb_FAIL;
       }
+      window = lbWindow;
   }
   SDL_WarpMouseInWindow(window, x, y);
   return Lb_SUCCESS;
