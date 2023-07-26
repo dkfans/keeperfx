@@ -441,7 +441,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
 
     // SDL video mode flags
     unsigned long sdlFlags = 0;
-    sdlFlags |= SDL_SWSURFACE;
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
         sdlFlags |= SDL_WINDOW_FULLSCREEN;
     }
