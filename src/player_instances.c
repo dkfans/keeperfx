@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
 #include "bflib_math.h"
+#include "bflib_mouse.h"
 #include "bflib_sound.h"
 #include "bflib_planar.h"
 
@@ -636,6 +637,10 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
      timerstarttime = LbTimerClock();
   }
   TimerFreeze = false;
+  if (lbMouseGrabbed)
+  {
+      LbMouseSetPosition(MyScreenWidth / 2, MyScreenHeight / 2);
+  }
   return 0;
 }
 
