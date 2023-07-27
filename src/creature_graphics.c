@@ -232,14 +232,14 @@ unsigned long keepersprite_index(unsigned short n)
     return creature_list[n];
 }
 
-long get_lifespan_of_animation(long ani, long frameskip)
+long get_lifespan_of_animation(long ani, long speed)
 {
-    if (frameskip == 0)
+    if (speed == 0)
     {
         WARNLOG("Animation %d has no frameskip value", ani);
         return keepersprite_frames(ani);
     }
-    return (keepersprite_frames(ani) << 8) / frameskip;
+    return (keepersprite_frames(ani) << 8) / speed;
 }
 
 static struct KeeperSprite* sprite_by_frame(long kspr_frame)
