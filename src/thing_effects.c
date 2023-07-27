@@ -138,7 +138,7 @@ struct InitEffect effect_info[] = {
 
 
 struct EffectElementStats effect_element_stats[] = {
- //draw_class,	field_1,	field_2,	numfield_3,	numfield_5,	sprite_idx,	sprite_size_min,	sprite_size_max,	field_D,	sprite_speed_min,	sprite_speed_max,	field_12,	unshaded,	transparant,	
+ //draw_class,	field_1,	field_2,	lifespan,	lifespan_random,	sprite_idx,	sprite_size_min,	sprite_size_max,	field_D,	sprite_speed_min,	sprite_speed_max,	field_12,	unshaded,	transparant,	
     // field_15,	field_16,	field_17,	fall_acceleration,	field_19,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	field_22,	effmodel_23,	solidgnd_snd_smpid,	solidgnd_loudness,
         // solidgnd_destroy_on_impact,	water_effmodel,	water_snd_smpid,	water_loudness,	water_destroy_on_impact,	
             // lava_effmodel,	lava_snd_smpid,	lava_loudness,	lava_destroy_on_impact,	transform_model,	field_3A,	field_3C,	field_3D,	affected_by_wind
@@ -320,13 +320,20 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     set_flag_byte(&thing->movement_flags,TMvF_Unknown10,eestat->field_16);
     thing->creation_turn = game.play_gameturn;
 
-    if (eestat->numfield_3 > 0)
+    if (eestat->lifespan > 0)
     {
-        i = EFFECT_RANDOM(thing, eestat->numfield_5 - (long)eestat->numfield_3 + 1);
-        thing->health = eestat->numfield_3 + i;
+        i = EFFECT_RANDOM(thing, eestat->lifespan_random - (long)eestat->lifespan + 1);
+        thing->health = eestat->lifespan + i;
     } else
     {
-        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
+        if (thing->anim_speed > 0)
+        {
+            thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
+        }
+        else
+        {
+            thing->health = keepersprite_frames(thing->anim_sprite);
+        }
     }
 
     if (eestat->field_17 != 0)
@@ -609,10 +616,10 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     thing->fall_acceleration = eestat->fall_acceleration;
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
-    if (eestat->numfield_3 <= 0) {
+    if (eestat->lifespan <= 0) {
         thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     } else {
-        thing->health = EFFECT_RANDOM(thing, eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
+        thing->health = EFFECT_RANDOM(thing, eestat->lifespan_random - eestat->lifespan + 1) + eestat->lifespan;
     }
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
 }

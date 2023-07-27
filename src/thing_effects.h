@@ -254,8 +254,8 @@ struct EffectElementStats { // sizeof = 79
   unsigned char draw_class;
   unsigned char field_1;
   unsigned char field_2;
-  short numfield_3;
-  short numfield_5;
+  short lifespan;
+  short lifespan_random;
   short sprite_idx;
   short sprite_size_min;
   short sprite_size_max;

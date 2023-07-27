@@ -234,6 +234,11 @@ unsigned long keepersprite_index(unsigned short n)
 
 long get_lifespan_of_animation(long ani, long frameskip)
 {
+    if (frameskip == 0)
+    {
+        WARNLOG("Animation %d has no frameskip value", ani);
+        return keepersprite_frames(ani);
+    }
     return (keepersprite_frames(ani) << 8) / frameskip;
 }
 
