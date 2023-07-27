@@ -236,7 +236,7 @@ long get_lifespan_of_animation(long ani, long speed)
 {
     if (speed == 0)
     {
-        WARNLOG("Animation %d has no frameskip value", ani);
+        WARNLOG("Animation %d has no speed value", ani);
         return keepersprite_frames(ani);
     }
     return (keepersprite_frames(ani) << 8) / speed;

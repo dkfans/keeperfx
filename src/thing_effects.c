@@ -139,7 +139,7 @@ struct InitEffect effect_info[] = {
 
 struct EffectElementStats effect_element_stats[] = {
  //draw_class,	move_type,	unanimated,	lifespan,	lifespan_random,	sprite_idx,	sprite_size_min,	sprite_size_max,	rendering_flag,	sprite_speed_min,	sprite_speed_max,	animate_on_floor,	unshaded,	transparant,	
-    // field_15,	movement_flags,	size_change,	fall_acceleration,	field_19,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	field_22,	effmodel_23,	solidgnd_snd_smpid,	solidgnd_loudness,
+    // field_15,	movement_flags,	size_change,	fall_acceleration,	field_19_unused,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	field_22,	effmodel_23,	solidgnd_snd_smpid,	solidgnd_loudness,
         // solidgnd_destroy_on_impact,	water_effmodel,	water_snd_smpid,	water_loudness,	water_destroy_on_impact,	
             // lava_effmodel,	lava_snd_smpid,	lava_loudness,	lava_destroy_on_impact,	transform_model,	field_3A,	field_3C,	field_3D,	affected_by_wind
  {2,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	256,	0,	0,	0,	256,	0,	0,	0,	256,	0,	0,	0,	0,	0,	0},
