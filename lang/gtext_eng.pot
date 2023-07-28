@@ -5478,7 +5478,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "A devious Wizard has cheated you of your magical powers. Use your only "
-"Spider and explore the realm. Find the Wizard, kill him and make an example "
+"Spider and explore the realm. Find the Wizard, kill him, and make an example "
 "of his foolishness."
 msgstr ""
 
