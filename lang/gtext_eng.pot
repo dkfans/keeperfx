@@ -5687,13 +5687,13 @@ msgstr ""
 #: guitext:965
 msgctxt "In-game interface description"
 msgid ""
-"Health: How much health points the creature has left to lose."
+"Health: How many health points the creature has left to lose."
 msgstr ""
 
 #: guitext:966
 msgctxt "In-game interface description"
 msgid ""
-"Health: The maximum amount of health points for this creature."
+"Health: The maximum number of health points for this creature."
 msgstr ""
 
 #: guitext:967
