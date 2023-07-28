@@ -1689,7 +1689,7 @@ msgstr ""
 #: guitext:228
 msgctxt "Creature spell"
 msgid ""
-"Armour: This lowers the amount of damage a creature takes each time it is "
+"Armour: This lowers the quantity of damage a creature takes each time it is "
 "hit, and provides complete immunity to electric shocks."
 msgstr ""
 
@@ -2074,7 +2074,7 @@ msgstr ""
 #: guitext:293
 msgctxt "In-game interface description"
 msgid ""
-"Strength: The amount of damage the creature inflicts upon its enemies with "
+"Strength: The quantity of damage the creature inflicts upon its enemies with "
 "each hit."
 msgstr ""
 
