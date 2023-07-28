@@ -4798,7 +4798,7 @@ msgstr ""
 
 #: guitext:815
 msgctxt "Easter egg"
-msgid "Trespassers will meet their doom, in your dungeon's Torture Room."
+msgid "Trespassers will meet their doom. In your dungeon's Torture Room."
 msgstr ""
 
 #: guitext:816
