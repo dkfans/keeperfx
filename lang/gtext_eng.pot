@@ -856,7 +856,7 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "The other two Keepers in this region have put aside their differences for "
-"the moment and joined forces in an effort to destroy you. That's almost a "
+"the moment and joined forces, in an effort to destroy you. That's almost a "
 "compliment. Kill the creeps."
 msgstr ""
 
@@ -4763,7 +4763,7 @@ msgstr ""
 
 #: guitext:808
 msgctxt "Easter egg"
-msgid "Evil, malice, death, decay, I think you'll find they're here to stay."
+msgid "Evil, malice, death, decay. I think you'll find they're here to stay."
 msgstr ""
 
 #: guitext:809
@@ -4773,12 +4773,12 @@ msgstr ""
 
 #: guitext:810
 msgctxt "Easter egg"
-msgid "Evil, malice, death, decay, there really is no better way."
+msgid "Evil, malice, death, decay. There really is no better way."
 msgstr ""
 
 #: guitext:811
 msgctxt "Easter egg"
-msgid "Giant, Dwarf, Thief and Fairy, none of you are very scary."
+msgid "Giant, Dwarf, Thief and Fairy. None of you are very scary."
 msgstr ""
 
 #: guitext:812
