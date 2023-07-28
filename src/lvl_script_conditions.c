@@ -287,6 +287,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         struct PlayerInfo* player = get_player(plyr_idx);
         return player_allied_with(player, validx);
     }
+    case SVar_ACTIVE_BATTLES:
+        return count_active_battles(plyr_idx);
     default:
         break;
     };
