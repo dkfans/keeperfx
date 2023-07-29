@@ -1208,7 +1208,7 @@ short get_creature_passenger_action_inputs(void)
         update_wheel_scrolled();
       }
     }
-    if (menu_is_active(GMnu_CREATURE_QUERY4))
+    else if (menu_is_active(GMnu_CREATURE_QUERY4))
     {
       if (wheel_scrolled_down)
       {
