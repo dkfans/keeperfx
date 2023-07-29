@@ -995,9 +995,10 @@ void frontnet_init_session_start_menu()
 
 #define MAX_RECV_BUF 1024
 
-void send_json_to_masterserver(char *buf, VALUE *out)
+TbBool send_json_to_masterserver(char *buf, VALUE *out)
 {
     char recv_buf[MAX_RECV_BUF];
+    TbBool bool_ret = false;
     VALUE tmp_obj;
     VALUE *ret = &tmp_obj, *val;
     // Check for masterserver
@@ -1005,7 +1006,7 @@ void send_json_to_masterserver(char *buf, VALUE *out)
     if (masterserver == NULL)
     {
         // No Masterserver;
-        return;
+        return true;
     }
 
     // Find an address
@@ -1013,7 +1014,7 @@ void send_json_to_masterserver(char *buf, VALUE *out)
     if (*recv_buf == 0)
     {
         // Empty Masterserver;
-        return;
+        return true;
     }
     char *p = strchr(recv_buf, ':');
     char *end;
@@ -1040,7 +1041,7 @@ void send_json_to_masterserver(char *buf, VALUE *out)
     if (sock == NULL)
     {
         ERRORLOG("Unable to connect to Masterserver at '%s'", value_string(masterserver));
-        return;
+        return false;
     }
     // Parse greeting
     int len = SDLNet_TCP_Recv(sock, recv_buf, MAX_RECV_BUF);
@@ -1077,12 +1078,15 @@ void send_json_to_masterserver(char *buf, VALUE *out)
             goto unable;
         }
     }
+    bool_ret = true;
     goto end;
     unable:
     WARNLOG("Unable to parse answer from masterserver");
+    bool_ret = false;
     end:
     value_fini(ret);
     SDLNet_TCP_Close(sock);
+    return bool_ret;
 }
 
 void masterserver_toggle_public(struct GuiButton *gbtn)

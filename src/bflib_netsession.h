@@ -48,7 +48,8 @@ struct TbNetworkSessionNameEntry {
     unsigned long id;
     unsigned char in_use;
     unsigned char valid_ping;
-    unsigned char placeholder[2];
+    unsigned char is_message;
+    unsigned char placeholder[1];
     char text[SESSION_NAME_MAX_LEN];
     char ip_port[20];
     TbClockMSec latency_time;

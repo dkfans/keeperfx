@@ -174,7 +174,7 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
         const char *text;
         text = net_session[net_session_index_active]->text;
         i = frontend_button_caption_font(gbtn, 0);
-        if (text != NULL)
+        if (text != NULL && !net_session[net_session_index_active]->is_message)
         {
             lbDisplay.DrawFlags = 0;
             LbTextSetFont(frontend_font[i]);
@@ -212,13 +212,24 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
         return;
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
-    LbTextSetFont(frontend_font[font_idx]);
-    lbDisplay.DrawFlags = 0;
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     height = LbTextLineHeight() * tx_units_per_px / 16;
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
-    LbTextDrawResized(0, 0, tx_units_per_px, net_session[sessionIndex]->text);
+
+    if (net_session[sessionIndex]->is_message)
+    {
+        LbTextSetFont(frontend_font[3]);
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+        LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+        LbTextDrawResized(0, 0, tx_units_per_px, net_session[sessionIndex]->text);
+    }
+    else
+    {
+        LbTextSetFont(frontend_font[font_idx]);
+        lbDisplay.DrawFlags = 0;
+        LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+        LbTextDrawResized(0, 0, tx_units_per_px, net_session[sessionIndex]->text);
+    }
 
     if (net_session[sessionIndex]->valid_ping)
     {

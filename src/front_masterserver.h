@@ -16,7 +16,7 @@
 #ifndef GIT_FRONT_MASTERSERVER_H
 #define GIT_FRONT_MASTERSERVER_H
 
-void send_json_to_masterserver(char *buf, VALUE *out);
+TbBool send_json_to_masterserver(char *buf, VALUE *out);
 void masterserver_send_update();
 void masterserver_fetch_sessions();
 

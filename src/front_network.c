@@ -237,11 +237,24 @@ void masterserver_fetch_sessions()
 {
     VALUE ret_obj;
     VALUE *ret = &ret_obj, *val, *lst;
-    send_json_to_masterserver("{\"method\":\"list_lobbies\"}\n", ret);
+    masterserver_sessions_num = 0;
+    masterserver_ping_session = 0;
+    if (!send_json_to_masterserver("{\"method\":\"list_lobbies\"}\n", ret))
+    {
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Unable to connect to masterserver" );
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+        return;
+    }
     VALUE_GET_KEY("v")
     if (value_int32(val) != 1)
     {
         ERRORLOG("Unsupported ver");
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Unsupported masterserver" );
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
         goto end;
     }
     VALUE_GET_KEY("success");
@@ -256,8 +269,14 @@ void masterserver_fetch_sessions()
         goto unable;
     }
     lst = val;
-    masterserver_sessions_num = 0;
-    masterserver_ping_session = 0;
+    if (value_array_size(lst) == 0)
+    {
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "No lobbies found" );
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+        goto end;
+    }
     for (size_t i = 0; i < value_array_size(lst); i++)
     {
         VALUE *row = value_array_get(lst, i);
@@ -297,6 +316,7 @@ void masterserver_fetch_sessions()
         }
         strcpy(masterserver_sessions[masterserver_sessions_num].text, value_string(name) );
         masterserver_sessions[masterserver_sessions_num].joinable = true;
+        masterserver_sessions[masterserver_sessions_num].is_message = false;
         sprintf(masterserver_sessions[masterserver_sessions_num].ip_port, "%s:%d", value_string(ip), value_int32(port));
         masterserver_sessions_num++;
         if (masterserver_sessions_num >= MAX_SESSIONS)
@@ -307,11 +327,20 @@ void masterserver_fetch_sessions()
     unable:
     WARNLOG("Unable to parse answer from masterserver");
     end:
+    if (masterserver_sessions_num == 0)
+    {
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Unable");
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+    }
     value_fini(ret);
 }
 
 TbBool ping_host_sometimes(struct TbNetworkSessionNameEntry *p_entry)
 {
+    if (p_entry->is_message)
+        return true;
     if (LbNetwork_PingSession(p_entry) == Lb_OK)
         return false;
     return true;
