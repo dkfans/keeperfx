@@ -241,7 +241,7 @@ void masterserver_fetch_sessions()
     masterserver_ping_session = 0;
     if (!send_json_to_masterserver("{\"method\":\"list_lobbies\"}\n", ret))
     {
-        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Unable to connect to masterserver" );
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Failed to get a response from the masterserver" );
         masterserver_sessions[masterserver_sessions_num].joinable = false;
         masterserver_sessions[masterserver_sessions_num].is_message = true;
         masterserver_sessions_num++;
