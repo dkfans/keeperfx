@@ -315,7 +315,6 @@ long pinstfs_passenger_control_creature(struct PlayerInfo *player, long *n)
     turn_off_all_window_menus();
     turn_off_menu(GMnu_CREATURE_QUERY1);
     turn_off_menu(GMnu_CREATURE_QUERY2);
-    game.flags_font |= FFlg_unk04;
   }
   struct Camera* cam = player->acamera;
   player->allocflags |= PlaF_KeyboardInputDisabled;
@@ -455,6 +454,8 @@ long pinstfe_passenger_control_creature(struct PlayerInfo *player, long *n)
         control_creature_as_passenger(player, thing);
     }
     set_player_instance(player, PI_CrCtrlFade, false);
+    if (is_my_player(player))
+      turn_on_menu(GMnu_CREATURE_QUERY1);
     return 0;
 }
 
