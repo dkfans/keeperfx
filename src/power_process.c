@@ -765,7 +765,7 @@ void timebomb_explode(struct Thing *creatng)
     HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
     // struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->timebomb_death = true; // Should be done through shot properties
+    cctrl->timebomb_death = cctrl->timebomb_death = ((shotst->model_flags & ShMF_Exploding) != 0);
     struct Coord3d pos = creatng->mappos;
     MapCoord max_dist = shotst->area_range * weight_multiplier;
     HitPoints max_damage = shotst->area_damage * weight_multiplier;
