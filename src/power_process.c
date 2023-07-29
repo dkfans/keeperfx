@@ -756,28 +756,23 @@ void timebomb_explode(struct Thing *creatng)
     }
     kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
     
-    /*
     if (creature_model_bleeds(creatng->model))
     {
         create_effect_around_thing(creatng, TngEff_Blood5);
     }
-    //create_effect_around_thing(creatng, TngEff_Explosion6);
-    //struct Thing* shotng = create_shot(&creatng->mappos, ShM_TimeBomb, creatng->owner);
-    //if (!thing_is_invalid(shotng))
+    create_effect_around_thing(creatng, TngEff_Explosion6);
+    // struct Thing* shotng = create_shot(&creatng->mappos, ShM_TimeBomb, creatng->owner);
+    // if (!thing_is_invalid(shotng))
     
-    //struct ShotConfigStats* shotst = get_shot_model_stats(ShM_TimeBomb);
-    //HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-    //struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
+    HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+    // struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->timebomb_death = true; // Should be done through shot properties
-    //long weight = compute_creature_weight(creatng);
-    //long weight_multiplier = weight / 64;
-    //struct Coord3d pos = creatng->mappos;
-    //MapCoord max_dist = shotst->area_range * weight_multiplier;
-    //HitPoints max_damage = shotst->area_damage * weight_multiplier;
-    //long blow_strength = shotst->area_blow * weight_multiplier;
+    struct Coord3d pos = creatng->mappos;
+    MapCoord max_dist = shotst->area_range * weight_multiplier;
+    HitPoints max_damage = shotst->area_damage * weight_multiplier;
+    long blow_strength = shotst->area_blow * weight_multiplier;
     kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
-    //explosion_affecting_area(creatng, &pos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
-    */
+    explosion_affecting_area(creatng, &pos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
 }
 /******************************************************************************/
