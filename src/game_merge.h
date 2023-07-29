@@ -95,20 +95,22 @@ enum GameGUIFlags {
 };
 
 enum ClassicBugFlags {
-    ClscBug_None                   = 0x0000,
-    ClscBug_ResurrectForever       = 0x0001,
-    ClscBug_Overflow8bitVal        = 0x0002,
-    ClscBug_ClaimRoomAllThings     = 0x0004,
-    ClscBug_ResurrectRemoved       = 0x0008,
-    ClscBug_NoHandPurgeOnDefeat    = 0x0010,
-    ClscBug_MustObeyKeepsNotDoJobs = 0x0020,
-    ClscBug_BreakNeutralWalls      = 0x0040,
-    ClscBug_AlwaysTunnelToRed      = 0x0080,
-    ClscBug_FullyHappyWithGold     = 0x0100,
-    ClscBug_FaintedImmuneToBoulder = 0x0200,
-    ClscBug_RebirthKeepsSpells     = 0x0400,
-    ClscBug_FriendlyFaint          = 0x0800,
-    ClscBug_PassiveNeutrals        = 0x1000,
+    ClscBug_None                          = 0x0000,
+    ClscBug_ResurrectForever              = 0x0001,
+    ClscBug_Overflow8bitVal               = 0x0002,
+    ClscBug_ClaimRoomAllThings            = 0x0004,
+    ClscBug_ResurrectRemoved              = 0x0008,
+    ClscBug_NoHandPurgeOnDefeat           = 0x0010,
+    ClscBug_MustObeyKeepsNotDoJobs        = 0x0020,
+    ClscBug_BreakNeutralWalls             = 0x0040,
+    ClscBug_AlwaysTunnelToRed             = 0x0080,
+    ClscBug_FullyHappyWithGold            = 0x0100,
+    ClscBug_FaintedImmuneToBoulder        = 0x0200,
+    ClscBug_RebirthKeepsSpells            = 0x0400,
+    ClscBug_FriendlyFaint                 = 0x0800,
+    ClscBug_PassiveNeutrals               = 0x1000,
+    ClscBug_NeutralTortureConverts        = 0x2000,
+    ClscBug_ListEnd                       = 0x4000,
 };
 
 enum GameFlags2 {
@@ -243,6 +245,7 @@ struct GameAdd {
     short around_slab[AROUND_SLAB_LENGTH];
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
+    unsigned char max_things_in_hand;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level

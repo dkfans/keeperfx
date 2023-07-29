@@ -130,7 +130,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       pos->y.val = y_thing;
       break;
     case SlbBloF_WalledZ:
-      pos->z.val = get_slide_z_coord(thing, pos);
+      pos->z.val = push_thingz_against_wall_at(thing, pos);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledX:
       x_thing = thing->mappos.x.val;
@@ -144,7 +144,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
           x_thing = (((sizexy + x_pos) & 0xFFFFFF00) - sizexy - 1);
       }
       pos->x.val = x_thing;
-      pos->z.val = get_slide_z_coord(thing, pos);
+      pos->z.val = push_thingz_against_wall_at(thing, pos);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
       y_thing = thing->mappos.y.val;
@@ -158,7 +158,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
           y_thing = (((y_pos + sizexy) & 0xFFFFFF00) - sizexy - 1);
       }
       pos->y.val = y_thing;
-      pos->z.val = get_slide_z_coord(thing, pos);
+      pos->z.val = push_thingz_against_wall_at(thing, pos);
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
       x_thing = thing->mappos.x.val;
@@ -182,7 +182,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       }
       pos->x.val = x_thing;
       pos->y.val = y_thing;
-      pos->z.val = get_slide_z_coord(thing, pos);
+      pos->z.val = push_thingz_against_wall_at(thing, pos);
       break;
     default:
       return;
@@ -857,8 +857,7 @@ TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing)
     return false;
 }
 
-unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d *pos)
-// function at 451700. Original name unknown.
+unsigned short push_thingz_against_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
   unsigned short clipbox_size = thing->clipbox_size_yz;
   long height = get_ceiling_height_above_thing_at(thing, pos);

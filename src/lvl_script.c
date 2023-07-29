@@ -210,6 +210,9 @@ TbBool script_is_preloaded_command(long cmnd_index)
   {
   case Cmd_SWAP_CREATURE:
   case Cmd_LEVEL_VERSION:
+  case Cmd_NEW_TRAP_TYPE:
+  case Cmd_NEW_OBJECT_TYPE:
+  case Cmd_NEW_ROOM_TYPE:
       return true;
   default:
       return false;
@@ -398,7 +401,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
     return true;
 }
 
-static TbBool is_condition_met(unsigned char cond_idx)
+static TbBool is_condition_met(unsigned short cond_idx)
 {
     if (cond_idx >= CONDITIONS_COUNT)
     {

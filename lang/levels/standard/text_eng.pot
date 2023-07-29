@@ -779,11 +779,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Tymnath Herez"
-msgstr ""
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Yami"
@@ -842,4 +837,9 @@ msgstr ""
 #: guitext:213
 msgctxt "Level name"
 msgid "The Death Clock"
+msgstr ""
+
+#: guitext:214
+msgctxt "Level name"
+msgid "Tymnath Herez"
 msgstr ""

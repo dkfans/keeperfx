@@ -1605,6 +1605,7 @@ void reinit_level_after_load(void)
     erstats_clear();
     player = get_my_player();
     reinit_tagged_blocks_for_player(player->id_number);
+    restore_room_update_functions_after_load();
     restore_computer_player_after_load();
     sound_reinit_after_load();
 }
@@ -3517,9 +3518,9 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, unsigned char a5)
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed)
 {
-    if (!a5) {
+    if (!allowed) {
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(119);
         return 0;
@@ -3527,7 +3528,10 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
     if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
         return 0;
     }
-    remove_dead_creatures_from_slab(subtile_slab(stl_x), subtile_slab(stl_y));
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+    remove_dead_creatures_from_slab(slb_x, slb_y);
     return 1;
 }
 

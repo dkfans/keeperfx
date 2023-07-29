@@ -347,7 +347,7 @@ TbBool power_hand_is_full(const struct PlayerInfo *player)
 {
     const struct Dungeon *dungeon;
   dungeon = get_dungeon(player->id_number);
-  return (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND);
+  return (dungeon->num_things_in_hand >= gameadd.max_things_in_hand);
 }
 
 struct Thing *get_first_thing_in_power_hand(struct PlayerInfo *player)
@@ -370,8 +370,8 @@ TbBool remove_first_thing_from_power_hand_list(PlayerNumber plyr_idx)
   long num_in_hand;
   dungeon = get_dungeon(plyr_idx);
   num_in_hand = dungeon->num_things_in_hand;
-  if (num_in_hand > MAX_THINGS_IN_HAND)
-      num_in_hand = MAX_THINGS_IN_HAND;
+  if (num_in_hand > gameadd.max_things_in_hand)
+      num_in_hand = gameadd.max_things_in_hand;
   if (num_in_hand > 0)
   {
       for (i = 0; i < num_in_hand-1; i++)
@@ -399,8 +399,8 @@ TbBool remove_thing_from_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     long num_in_hand;
     dungeon = get_dungeon(plyr_idx);
     num_in_hand = dungeon->num_things_in_hand;
-    if (num_in_hand > MAX_THINGS_IN_HAND)
-        num_in_hand = MAX_THINGS_IN_HAND;
+    if (num_in_hand > gameadd.max_things_in_hand)
+        num_in_hand = gameadd.max_things_in_hand;
     for (i = 0; i < num_in_hand; i++)
     {
         if (dungeon->things_in_hand[i] == thing->index)
@@ -430,10 +430,10 @@ TbBool insert_thing_into_power_hand_list(struct Thing *thing, PlayerNumber plyr_
     long i;
     struct PowerConfigStats *powerst;
     dungeon = get_dungeon(plyr_idx);
-    if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND)
+    if (dungeon->num_things_in_hand >= gameadd.max_things_in_hand)
       return false;
     // Move all things in list up, to free position 0
-    for (i = MAX_THINGS_IN_HAND-1; i > 0; i--)
+    for (i = gameadd.max_things_in_hand-1; i > 0; i--)
     {
       dungeon->things_in_hand[i] = dungeon->things_in_hand[i-1];
     }
@@ -475,6 +475,21 @@ TbBool thing_is_in_power_hand_list(const struct Thing *thing, PlayerNumber plyr_
         }
     }
     return false;
+}
+
+long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx)
+{
+    struct Dungeon* dungeon;
+    long i;
+    dungeon = get_dungeon(plyr_idx);
+    for (i = 0; i < dungeon->num_things_in_hand; i++)
+    {
+        if (dungeon->things_in_hand[i] == thing->index)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 void place_thing_in_limbo(struct Thing *thing)
@@ -1004,7 +1019,7 @@ void clear_things_in_hand(struct PlayerInfo *player)
   struct Dungeon *dungeon;
   long i;
   dungeon = get_dungeon(player->id_number);
-  for (i=0; i < MAX_THINGS_IN_HAND; i++)
+  for (i=0; i < gameadd.max_things_in_hand; i++)
     dungeon->things_in_hand[i] = 0;
 }
 
@@ -1036,6 +1051,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
     crstat = creature_stats_get_from_thing(thing);
     anger_apply_anger_to_creature(thing, crstat->annoy_in_hand, AngR_Other, 1);
     process_thing_spell_effects_while_blocked(thing);
+    update_creature_levels(thing);
     return true;
 }
 
@@ -1070,36 +1086,33 @@ void process_things_in_dungeon_hand(void)
 void draw_mini_things_in_hand(long x, long y)
 {
     SYNCDBG(7,"Starting");
-    struct Dungeon *dungeon;
-    dungeon = get_my_dungeon();
+    struct Dungeon *dungeon = get_my_dungeon();
     int i;
     int expshift_x;
     // Scale factor
     int ps_units_per_px;
     {
-        struct TbSprite *spr;
-        spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        struct TbSprite *spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
-    unsigned long spr_idx;
-    spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
+    unsigned long spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
     if ((spr_idx > 0) && (spr_idx < GUI_PANEL_SPRITES_COUNT))
         i = gui_panel_sprites[spr_idx].SWidth - button_sprite[GBS_creature_flower_level_01].SWidth;
     else
         i = 0;
-    long scrbase_x;
-    long scrbase_y;
-    scrbase_x = x;
-    scrbase_y = y - scale_ui_value(58);
+    long scrbase_x = x;
+    long scrbase_y = y - scale_ui_value(58);
     expshift_x = scale_ui_value(abs(i)) / 2;
     for (i = dungeon->num_things_in_hand-1; i >= 0; i--)
     {
-        int icol;
-        int irow;
-        icol = i % 4;
-        irow = (i / 4);
-        struct Thing *thing;
-        thing = thing_get(dungeon->things_in_hand[i]);
+        unsigned char ratio = (gameadd.max_things_in_hand / 2);
+        if (gameadd.max_things_in_hand % 2)
+        {
+            ratio ++;
+        }
+        int icol = i % ratio;
+        int irow = i / ratio;
+        struct Thing *thing = thing_get(dungeon->things_in_hand[i]);
         if (!thing_exists(thing)) {
             continue;
         }
@@ -1111,8 +1124,7 @@ void draw_mini_things_in_hand(long x, long y)
             spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
             if (spr_idx > 0)
             {
-                struct CreatureControl *cctrl;
-                cctrl = creature_control_get_from_thing(thing);
+                struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
                 int expspr_idx = GBS_creature_flower_level_01 + cctrl->explevel;
                 if (irow > 0)
                     shift_y = 40;
@@ -1218,7 +1230,7 @@ long prepare_thing_for_power_hand(unsigned short tng_idx, PlayerNumber plyr_idx)
     if (player->hand_thing_idx == 0) {
         create_power_hand(plyr_idx);
     }
-    if (dungeon->num_things_in_hand >= MAX_THINGS_IN_HAND) {
+    if (dungeon->num_things_in_hand >= gameadd.max_things_in_hand) {
       return 0;
     }
     struct Thing *thing;
