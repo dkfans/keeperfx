@@ -754,13 +754,11 @@ void timebomb_explode(struct Thing *creatng)
     {
         create_effect_around_thing(creatng, shotst->explode.around_effect2_model);
     }
-    kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
-    
     if (creature_model_bleeds(creatng->model))
     {
         create_effect_around_thing(creatng, TngEff_Blood5);
     }
-    create_effect_around_thing(creatng, TngEff_Explosion6);
+    // create_effect_around_thing(creatng, TngEff_Explosion6);
     // struct Thing* shotng = create_shot(&creatng->mappos, ShM_TimeBomb, creatng->owner);
     // if (!thing_is_invalid(shotng))
     
