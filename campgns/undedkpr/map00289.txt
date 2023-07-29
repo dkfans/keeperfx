@@ -21,7 +21,7 @@ START_MONEY(PLAYER3,100000)
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
-SET_GENERATE_SPEED(650)
+SET_GENERATE_SPEED(750)
 ADD_CREATURE_TO_POOL(TROLL,20)
 ADD_CREATURE_TO_POOL(DARK_MISTRESS,25)
 ADD_CREATURE_TO_POOL(SKELETON,50)
@@ -39,9 +39,9 @@ ADD_CREATURE_TO_POOL(GHOST,15)
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
 MAX_CREATURES(PLAYER0,4)
-MAX_CREATURES(PLAYER1,38)
-MAX_CREATURES(PLAYER2,32)
-MAX_CREATURES(PLAYER3,30)
+MAX_CREATURES(PLAYER1,35)
+MAX_CREATURES(PLAYER2,29)
+MAX_CREATURES(PLAYER3,27)
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 

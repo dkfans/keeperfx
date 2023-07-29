@@ -584,6 +584,7 @@ deps/zlib/contrib/minizip/unzip.c deps/zlib/contrib/minizip/ioapi.c: build-befor
 
 deps/zlib/configure.log:
 	git submodule sync && git submodule update --init
+	touch deps/zlib/configure.log
 	cd deps/zlib && ./configure --static
 
 deps/zlib/libz.a: deps/zlib/configure.log
