@@ -92,8 +92,8 @@ const struct NamedCommand lang_type[] = {
   };
 
 const struct NamedCommand scrshot_type[] = {
-  {"PNG", 0},
-  {"BMP", 1},
+  {"PNG", 1},
+  {"BMP", 2},
   {NULL,  0},
   };
 
