@@ -2253,7 +2253,7 @@ void throw_out_gold(struct Thing *thing)
     }
 }
 
-void thing_death_normal(struct Thing *thing)
+struct Thing* thing_death_normal(struct Thing *thing)
 {
     long memp1 = thing->move_angle_xy;
     struct Coord3d memaccl;
@@ -2264,7 +2264,7 @@ void thing_death_normal(struct Thing *thing)
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
-        return;
+        return INVALID_THING;
     }
     struct Coord3d pos;
     TbBool move_allowed = get_thing_next_position(&pos, deadtng);
@@ -2278,13 +2278,14 @@ void thing_death_normal(struct Thing *thing)
             deadtng->veloc_base.z.val = memaccl.z.val;
         }
     }
+    return deadtng;
 }
 
 /**
  * Creates an effect of death with bloody flesh explosion, killing the creature.
  * @param thing
  */
-void thing_death_flesh_explosion(struct Thing *thing)
+struct Thing* thing_death_flesh_explosion(struct Thing *thing)
 {
     long memp1 = thing->move_angle_xy;
     struct Coord3d memaccl;
@@ -2303,16 +2304,17 @@ void thing_death_flesh_explosion(struct Thing *thing)
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
-        return;
+        return INVALID_THING;
     }
     deadtng->move_angle_xy = memp1;
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
     thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    return deadtng;
 }
 
-void thing_death_gas_and_flesh_explosion(struct Thing *thing)
+struct Thing* thing_death_gas_and_flesh_explosion(struct Thing *thing)
 {
     struct Coord3d pos;
     long i;
@@ -2337,16 +2339,17 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
-        return;
+        return INVALID_THING;
     }
     deadtng->move_angle_xy = memp1;
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
     thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    return deadtng;
 }
 
-void thing_death_smoke_explosion(struct Thing *thing)
+struct Thing* thing_death_smoke_explosion(struct Thing *thing)
 {
     long memp1 = thing->move_angle_xy;
     struct Coord3d memaccl;
@@ -2363,13 +2366,14 @@ void thing_death_smoke_explosion(struct Thing *thing)
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
-        return;
+        return INVALID_THING;
     }
     deadtng->move_angle_xy = memp1;
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
     thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    return deadtng;
 }
 
 /**
@@ -2377,7 +2381,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
  * The ice explosion effect uses same corpse as flesh explosion.
  * @param thing
  */
-void thing_death_ice_explosion(struct Thing *thing)
+struct Thing* thing_death_ice_explosion(struct Thing *thing)
 {
     long memp1 = thing->move_angle_xy;
     struct Coord3d memaccl;
@@ -2396,38 +2400,34 @@ void thing_death_ice_explosion(struct Thing *thing)
     if (thing_is_invalid(deadtng))
     {
         ERRORLOG("Cannot create dead thing");
-        return;
+        return INVALID_THING;
     }
     deadtng->move_angle_xy = memp1;
     deadtng->veloc_base.x.val = memaccl.x.val;
     deadtng->veloc_base.y.val = memaccl.y.val;
     deadtng->veloc_base.z.val = memaccl.z.val;
     thing_play_sample(deadtng, 47, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    return deadtng;
 }
 
-void creature_death_as_nature_intended(struct Thing *thing)
+struct Thing* creature_death_as_nature_intended(struct Thing *thing)
 {
     long i = creatures[thing->model % gameadd.crtr_conf.model_count].natural_death_kind;
     switch (i)
     {
     case Death_Normal:
-        thing_death_normal(thing);
-        break;
+        return thing_death_normal(thing);
     case Death_FleshExplode:
-        thing_death_flesh_explosion(thing);
-        break;
+        return thing_death_flesh_explosion(thing);
     case Death_GasFleshExplode:
-        thing_death_gas_and_flesh_explosion(thing);
-        break;
+        return thing_death_gas_and_flesh_explosion(thing);
     case Death_SmokeExplode:
-        thing_death_smoke_explosion(thing);
-        break;
+        return thing_death_smoke_explosion(thing);
     case Death_IceExplode:
-        thing_death_ice_explosion(thing);
-        break;
+        return thing_death_ice_explosion(thing);
     default:
         WARNLOG("Unexpected %s death cause %d",thing_model_name(thing),(int)i);
-        break;
+        return INVALID_THING;
     }
 }
 
@@ -2467,7 +2467,7 @@ unsigned long remove_parent_thing_from_things_in_list(struct StructureList *list
     return n;
 }
 
-void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
+struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
@@ -2483,7 +2483,7 @@ void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
      && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel))
     {
         creature_rebirth_at_lair(thing);
-        return;
+        return INVALID_THING;
     }
     // Beyond this point, the creature thing is bound to be deleted
     if (((flags & CrDed_NotReallyDying) == 0) || ((gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
@@ -2502,25 +2502,26 @@ void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         // Non-bleeding creatures have no flesh explosion effects
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
-        creature_death_as_nature_intended(thing);
+        return creature_death_as_nature_intended(thing);
     } else
     if (creature_affected_by_spell(thing, SplK_Freeze))
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
-        thing_death_ice_explosion(thing);
+        return thing_death_ice_explosion(thing);
     } else
     if ( (shot_model_makes_flesh_explosion(cctrl->shot_model)) || (cctrl->timebomb_death) )
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
-        thing_death_flesh_explosion(thing);
+        return thing_death_flesh_explosion(thing);
     } else
     {
         if ((game.flags_cd & MFlg_DeadBackToPool) != 0)
             add_creature_to_pool(crmodel, 1, 1);
-        creature_death_as_nature_intended(thing);
+        return creature_death_as_nature_intended(thing);
     }
+    return INVALID_THING;
 }
 
 void prepare_to_controlled_creature_death(struct Thing *thing)
@@ -2580,11 +2581,12 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     }
 }
 
-TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
+struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
+    struct Thing* deadtng = NULL;
     if ((flags & CrDed_NotReallyDying) == 0)
     {
         EVM_CREATURE_EVENT("died", creatng->owner, creatng);
@@ -2602,7 +2604,7 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     }
     if (!thing_exists(creatng)) {
         ERRORLOG("Tried to kill non-existing thing!");
-        return false;
+        return INVALID_THING;
     }
     // Dying creatures must be visible
     if (creature_affected_by_spell(creatng, SplK_Invisibility)) {
@@ -2624,8 +2626,8 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         if ((flags & CrDed_NoEffects) && ((creatng->alloc_flags & TAlF_IsControlled) != 0)) {
             prepare_to_controlled_creature_death(creatng);
         }
-        cause_creature_death(creatng, flags);
-        return true;
+        deadtng = cause_creature_death(creatng, flags);
+        return deadtng;
     }
     // Now we are sure that killertng and dungeon pointers are correct
     if (creatng->owner == killertng->owner)
@@ -2673,8 +2675,8 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         (get_creature_model_flags(creatng) & CMF_NoImprisonment) )
     {
         if ((flags & CrDed_NoEffects) == 0) {
-            cause_creature_death(creatng, flags);
-            return true;
+            deadtng = cause_creature_death(creatng, flags);
+            return deadtng;
         }
     }
     if ((flags & CrDed_NoEffects) != 0)
@@ -2682,12 +2684,12 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         if ((creatng->alloc_flags & TAlF_IsControlled) != 0) {
             prepare_to_controlled_creature_death(creatng);
         }
-        cause_creature_death(creatng, flags);
-        return true;
+        deadtng = cause_creature_death(creatng, flags);
+        return deadtng;
     }
     make_creature_unconscious(creatng);
     creatng->health = 1;
-    return false;
+    return deadtng;
 }
 
 void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord3d *pos)
