@@ -972,7 +972,6 @@ long check_hit_when_attacking_door(struct Thing *thing)
  * Kills a creature with given shot.
  * @param shotng The shot which is killing the victim creature.
  * @param creatng The victim creature thing.
- * @return True if the creature is being killed, false if something have failed.
  * @note sometimes named shot_kills_creature().
  */
 void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
