@@ -2693,18 +2693,18 @@ msgid "Serial Menu"
 msgstr ""
 
 #: guitext:411
-msgctxt "Menu interface item"
-msgid "Init"
+msgctxt "Network game message"
+msgid "No public lobbies available on this server."
 msgstr ""
 
 #: guitext:412
-msgctxt "Menu interface item"
-msgid "Hangup"
+msgctxt "Network game message"
+msgid "Game version is incompatible with server version."
 msgstr ""
 
 #: guitext:413
-msgctxt "Menu interface item"
-msgid "Clear"
+msgctxt "Network game message"
+msgid "Failed to get a response from the masterserver."
 msgstr ""
 
 #: guitext:414
