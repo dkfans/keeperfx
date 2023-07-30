@@ -195,7 +195,14 @@ void frontnet_session_select(struct GuiButton *gbtn)
     i = (long)gbtn->content + net_session_scroll_offset - 45;
     if (net_number_of_sessions > i)
     {
-        net_session_index_active = i;
+        if (net_session[net_session_index_active]->is_message)
+        {
+            net_session_index_active = -1;
+        }
+        else
+        {
+            net_session_index_active = i;
+        }
     }
 }
 
