@@ -244,7 +244,6 @@ void frontnet_session_create(struct GuiButton *gbtn)
 {
   struct TbNetworkSessionNameEntry *nsname;
   unsigned long plyr_num;
-  void *conn_options;
   char *text;
   char *txpos;
   long i;
@@ -266,8 +265,7 @@ void frontnet_session_create(struct GuiButton *gbtn)
     text = buf_sprintf("%s (%d)", net_player_name, idx+1);
   else
     text = buf_sprintf("%s", net_player_name);
-  conn_options = NULL;
-  if (LbNetwork_Create(text, net_player_name, &plyr_num, conn_options))
+  if (LbNetwork_Create(text, net_player_name, &plyr_num))
   {
       process_network_error(-801);
     return;

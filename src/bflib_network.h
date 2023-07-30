@@ -90,7 +90,7 @@ struct NetSP // new version
     /**
      * Ping a session
      */
-    TbError    (*ping)(const char *session, TbClockMSec *latency);
+    TbError    (*ping)(const char *session, TbClockMSec *latency, void *options);
 
     /**
      * Sends a message buffer to a certain user.
@@ -229,8 +229,8 @@ long field_0;
 /******************************************************************************/
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num);
+TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num);
 TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
 TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
 TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
@@ -243,6 +243,7 @@ TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
 TbError LbNetwork_EnumerateUpdate();
 TbError LbNetwork_PingSession(struct TbNetworkSessionNameEntry *ses);
 TbError LbNetwork_Stop(void);
+void    LbNetwork_Option(const char *name, const char *value);
 /******************************************************************************/
 #ifdef __cplusplus
 }

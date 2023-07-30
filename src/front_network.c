@@ -239,6 +239,15 @@ void masterserver_fetch_sessions()
     VALUE *ret = &ret_obj, *val, *lst;
     masterserver_sessions_num = 0;
     masterserver_ping_session = 0;
+    if (value_string(value_dict_get(&config_dict, "MASTERSERVER_HOST")) == NULL)
+    {
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Masterserver is not configured" );
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+
+        return;
+    }
     if (!send_json_to_masterserver("{\"method\":\"list_lobbies\"}\n", ret))
     {
         strcpy(masterserver_sessions[masterserver_sessions_num].text, "Failed to get a response from the masterserver" );
@@ -576,6 +585,12 @@ void frontnet_session_setup(void)
         snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.net_player_name);
         strcpy(tmp_net_player_name, net_config_info.net_player_name);
     }
+    if ()
+    {
+
+    }
+    masterserver_sessions_num = 0;
+    masterserver_ping_session = 0;
     net_session_index_active = -1;
     fe_computer_players = 2;
     lbInkey = 0;

@@ -1010,7 +1010,13 @@ TbBool send_json_to_masterserver(char *buf, VALUE *out)
     }
 
     // Find an address
-    strcpy(recv_buf, value_string(masterserver));
+    const char *str_src = value_string(masterserver);
+    if (str_src == NULL)
+    {
+        // Invalid masterserver url
+        return true;
+    }
+    strcpy(recv_buf, str_src);
     if (*recv_buf == 0)
     {
         // Empty Masterserver;

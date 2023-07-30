@@ -114,6 +114,9 @@ struct UnidirectionalDataMessage dataMessage;
 //struct UnidirectionalHeader endMessage;
 //struct UnidirectionalHeader abortMessage;
 struct UnidirectionalRTSMessage rtsMessage;
+
+VALUE bf_network_options_store;
+VALUE *bf_network_options = &bf_network_options_store;
 /******************************************************************************/
 
 // New network code declarations start here ===================================
@@ -633,6 +636,21 @@ void LbNetwork_InitSessionsFromCmdLine(const char * str)
     }
 }
 
+void    LbNetwork_Option(const char *name, const char *value)
+{
+    if (value_type(bf_network_options) == VALUE_NULL)
+    {
+        value_init_dict(bf_network_options);
+    }
+    VALUE *new_obj = value_dict_add(bf_network_options, name);
+    if (new_obj == NULL)
+    {
+        ERRORLOG("Unable to add option");
+        return;
+    }
+    value_init_string(new_obj, value);
+}
+
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data)
 {
   TbError res;
@@ -716,7 +734,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   return res;
 }
 
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, long *plyr_num, void *optns)
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, long *plyr_num)
 {
   /*TbError ret;
   TbClockMSec tmStart;
@@ -789,7 +807,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
 
     const char *ip_port = (nsname->ip_port[0] != 0)? nsname->ip_port: nsname->text;
 
-    if (netstate.sp->join(ip_port, optns) == Lb_FAIL) {
+    if (netstate.sp->join(ip_port, bf_network_options) == Lb_FAIL) {
         return Lb_FAIL;
     }
 
@@ -813,7 +831,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     return Lb_OK;
 }
 
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
+TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num)
 {
   /*if (spPtr == NULL)
   {
@@ -854,7 +872,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
         return Lb_FAIL;
     }
 
-    if (netstate.sp->host(":5555", optns) == Lb_FAIL) {
+    if (netstate.sp->host(":5555", bf_network_options) == Lb_FAIL) {
         return Lb_FAIL;
     }
 
@@ -1294,7 +1312,7 @@ TbError LbNetwork_PingSession(struct TbNetworkSessionNameEntry *ses)
         if (netstate.sp->ping)
         {
             TbClockMSec latency_time;
-            TbError ret = netstate.sp->ping(ses->ip_port, &latency_time);
+            TbError ret = netstate.sp->ping(ses->ip_port, &latency_time, bf_network_options);
             if (ret == Lb_SUCCESS)
             {
                 if (latency_time == -1)

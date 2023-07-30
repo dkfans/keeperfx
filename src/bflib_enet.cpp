@@ -86,6 +86,37 @@ namespace
         enet_deinitialize();
     }
 
+#define PARSE_ADDRESS(src_str, dst_addr) \
+    {                   \
+        P = strchr(src_str,':'); \
+        if (P) \
+        { \
+            strncpy(buf, src_str, P - src_str); \
+            dst_addr.port = strtoul(P + 1, &E, 10); \
+            if (dst_addr.port == 0) \
+            { \
+                goto fail;      \
+            } \
+            else \
+            { \
+                strncpy(buf, src_str, sizeof(buf) - 1); \
+                dst_addr.port = DEFAULT_PORT; \
+            } \
+            if (enet_address_set_host(&dst_addr, buf) < 0) \
+            { \
+            goto fail;  \
+            }           \
+        }               \
+    }
+
+#define USE_BIND(dst_addr) \
+    VALUE *net_opts = (VALUE*)options; \
+    const char *bind_addr = value_string(value_dict_get(net_opts, "bind")); \
+    if (bind_addr) \
+    { \
+        PARSE_ADDRESS(bind_addr, dst_addr); \
+    }
+
     /**
      * Sets this service provider up as a host for a new network game.
      * @param session String representing the network game to be hosted.
@@ -95,16 +126,21 @@ namespace
      */
     TbError bf_enet_host(const char *session, void *options)
     {
-        ENetAddress addr = {.host = 0,
-                            .port = DEFAULT_PORT };
+        char buf[64] = {0};
+        const char *P;
+        char *E;
+        ENetAddress addr = {ENET_HOST_ANY, ENET_PORT_ANY};
         if (!*session)
             return Lb_FAIL;
         if (ping_is_active)
         {
             host_destroy();
         }
+        USE_BIND(addr);
         host = enet_host_create(&addr, 4, NUM_CHANNELS, 0, 0);
         return Lb_OK;
+        fail:
+        return Lb_FAIL;
     }
 
     // This is blocking!
@@ -143,47 +179,29 @@ namespace
         {
             host_destroy();
         }
+        USE_BIND(address);
         host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
         if (!host)
         {
             return Lb_FAIL;
         }
-        P = strchr(session,':');
-        if (P)
-        {
-            strncpy(buf, session, P-session);
-            address.port = strtoul(P+1, &E, 10);
-            if (address.port == 0)
-            {
-                host_destroy();
-                return Lb_FAIL;
-            }
-        }
-        else
-        {
-            strncpy(buf, session, sizeof(buf) - 1);
-            address.port = DEFAULT_PORT;
-        }
-        if (enet_address_set_host(&address, buf) < 0)
-        {
-            host_destroy();
-            return Lb_FAIL;
-        }
+        PARSE_ADDRESS(session, address);
         client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
         if (!client_peer)
         {
-            host_destroy();
-            return Lb_FAIL;
+            goto fail;
         }
         if (wait_for_connect(CONNECT_TIMEOUT))
         {
-            host_destroy();
-            return Lb_FAIL;
+            goto fail;
         }
         return Lb_OK;
+        fail:
+        host_destroy();
+        return Lb_FAIL;
     }
 
-    TbError bf_enet_ping(const char *session, TbClockMSec *latency)
+    TbError bf_enet_ping(const char *session, TbClockMSec *latency, void *options)
     {
         char buf[64] = {0};
         const char *P;
@@ -196,10 +214,11 @@ namespace
                 ERRORLOG("Trying to ping while there is a host already");
                 return Lb_FAIL;
             }
+            USE_BIND(address);
             host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
             if (!host || !latency)
             {
-                return Lb_FAIL;
+                goto fail;
             }
             *latency = -2;
             P = strchr(session, ':');
@@ -209,8 +228,7 @@ namespace
                 address.port = strtoul(P + 1, &E, 10);
                 if (address.port == 0)
                 {
-                    host_destroy();
-                    return Lb_FAIL;
+                    goto fail;
                 }
             }
             else
@@ -220,14 +238,12 @@ namespace
             }
             if (enet_address_set_host(&address, buf) < 0)
             {
-                host_destroy();
-                return Lb_FAIL;
+                goto fail;
             }
             client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
             if (!client_peer)
             {
-                host_destroy();
-                return Lb_FAIL;
+                goto fail;
             }
             ping_is_active = true;
             ping_start_time = LbTimerClock();
@@ -249,6 +265,9 @@ namespace
         ping_is_active = false;
         host_destroy();
         return Lb_SUCCESS;
+        fail:
+        host_destroy();
+        return Lb_FAIL;
     }
 
     /*

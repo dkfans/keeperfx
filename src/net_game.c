@@ -190,7 +190,7 @@ long network_session_join(void)
 {
     long plyr_num;
     display_attempting_to_join_message();
-    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
+    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num) )
     {
       process_network_error(-802);
       return -1;
