@@ -86,7 +86,6 @@ void frontnet_session_create(struct GuiButton *gbtn);
 void frontnet_return_to_main_menu(struct GuiButton *gbtn);
 void frontnet_add_session_done(struct GuiButton *gbtn);
 void frontnet_add_session_back(struct GuiButton *gbtn);
-void frontnet_join_game_maintain(struct GuiButton *gbtn);
 void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn);
 void frontnet_draw_net_start_players(struct GuiButton *gbtn);
 void frontnet_select_alliance(struct GuiButton *gbtn);

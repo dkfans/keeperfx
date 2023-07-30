@@ -20,6 +20,7 @@
 #include "frontmenu_net.h"
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_netsession.h"
 
 #include <SDL_net.h>
 #include <json-dom.h>
@@ -95,8 +96,9 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn)
 
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
 {
-    if (net_session_index_active != -1)
-        gbtn->flags |=  LbBtnF_Enabled;
+    if ((net_session_index_active != -1) && (net_session[net_session_index_active] != NULL) &&
+        (net_session[net_session_index_active]->joinable))
+        gbtn->flags |= LbBtnF_Enabled;
     else
         gbtn->flags &=  ~LbBtnF_Enabled;
 }

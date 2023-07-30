@@ -239,7 +239,16 @@ void masterserver_fetch_sessions()
     VALUE *ret = &ret_obj, *val, *lst;
     masterserver_sessions_num = 0;
     masterserver_ping_session = 0;
-    if (value_string(value_dict_get(&config_dict, "MASTERSERVER_HOST")) == NULL)
+    if (net_service_index_selected != NS_ENET_UDP)
+    {
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Masterserver is for ENET only" );
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+        return;
+    }
+    const char *masterserver_host = value_string(value_dict_get(&config_dict, "MASTERSERVER_HOST"));
+    if (masterserver_host == NULL || *masterserver_host == 0)
     {
         strcpy(masterserver_sessions[masterserver_sessions_num].text, "Masterserver is not configured" );
         masterserver_sessions[masterserver_sessions_num].joinable = false;
@@ -371,22 +380,19 @@ void frontnet_session_update(void)
       }
       //Check masterserver
 
-      if ((net_service_index_selected == NS_ENET_UDP) && (value_dict_get(&config_dict, "MASTERSERVER_HOST") != NULL))
+      if (masterserver_sessions_num > 0)
       {
-          if (masterserver_sessions_num > 0)
+          if (ping_host_sometimes(&masterserver_sessions[masterserver_ping_session]))
           {
-              if (ping_host_sometimes(&masterserver_sessions[masterserver_ping_session]))
-              {
-                  masterserver_ping_session++;
-                  if (masterserver_ping_session >= masterserver_sessions_num)
-                      masterserver_ping_session = 0;
-              }
+              masterserver_ping_session++;
+              if (masterserver_ping_session >= masterserver_sessions_num)
+                  masterserver_ping_session = 0;
+          }
 
-              for (int i = 0; i < masterserver_sessions_num; i++)
-              {
-                  net_session[net_number_of_sessions] = &masterserver_sessions[i];
-                  net_number_of_sessions++;
-              }
+          for (int i = 0; i < masterserver_sessions_num; i++)
+          {
+              net_session[net_number_of_sessions] = &masterserver_sessions[i];
+              net_number_of_sessions++;
           }
       }
 
@@ -584,10 +590,6 @@ void frontnet_session_setup(void)
     {
         snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.net_player_name);
         strcpy(tmp_net_player_name, net_config_info.net_player_name);
-    }
-    if ()
-    {
-
     }
     masterserver_sessions_num = 0;
     masterserver_ping_session = 0;
