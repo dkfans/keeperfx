@@ -1317,7 +1317,7 @@ TbError LbNetwork_PingSession(struct TbNetworkSessionNameEntry *ses)
             {
                 if (latency_time == -1)
                 {
-                    ses->latency_time = 999;
+                    ses->latency_time = -1;
                     ses->valid_ping = true;
                 }
                 else

@@ -195,7 +195,7 @@ void frontnet_session_select(struct GuiButton *gbtn)
     i = (long)gbtn->content + net_session_scroll_offset - 45;
     if (net_number_of_sessions > i)
     {
-        if (net_session[net_session_index_active]->is_message)
+        if (net_session[net_session_index_active] && net_session[net_session_index_active]->is_message)
         {
             net_session_index_active = -1;
         }
@@ -241,7 +241,14 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     if (net_session[sessionIndex]->valid_ping)
     {
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
-        sprintf(ping_buf, "%ld", net_session[sessionIndex]->latency_time);
+        if (net_session[sessionIndex]->latency_time >= 0)
+        {
+            sprintf(ping_buf, "%ld", net_session[sessionIndex]->latency_time);
+        }
+        else
+        {
+            strcpy(ping_buf, "---");
+        }
         LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
         LbTextDrawResized(0, 0, tx_units_per_px, ping_buf);
     }
