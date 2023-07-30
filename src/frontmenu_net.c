@@ -31,6 +31,7 @@
 #include "bflib_vidraw.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
+#include "value_util.h"
 
 #include "custom_sprites.h"
 #include "front_network.h"
@@ -1097,9 +1098,35 @@ TbBool send_json_to_masterserver(char *buf, VALUE *out)
     return bool_ret;
 }
 
-void masterserver_toggle_public(struct GuiButton *gbtn)
+int masterserver_create_lobby(VALUE *ret)
 {
     char out_buf[256];
+    VALUE *val;
+
+    sprintf(out_buf, "{\"method\":\"create_lobby\",\"player_name\":\"%s\"}\n", net_player_name);
+    send_json_to_masterserver(out_buf, ret);
+    VALUE_GET_KEY("v");
+    if (value_int32(val) != 1)
+    {
+        ERRORLOG("Unsupported ver");
+        goto end;
+    }
+    VALUE_GET_KEY("token");
+    if (value_string_length(val) >= sizeof(fe_masterserver_token))
+    {
+        ERRORLOG("Token is too big");
+        goto end;
+    }
+    const char *token = value_string(val);
+    strcpy(fe_masterserver_token, token);
+end:
+    return 1;
+unable:
+    return 0;
+}
+
+void masterserver_toggle_public(struct GuiButton *gbtn)
+{
     VALUE ret_obj = {0};
     VALUE *ret = &ret_obj, *val;
     if (my_player_number != SERVER_ID)
@@ -1111,23 +1138,10 @@ void masterserver_toggle_public(struct GuiButton *gbtn)
     fe_public = !fe_public;
     if (fe_public)
     {
-        sprintf(out_buf, "{\"method\":\"create_lobby\",\"player_name\":\"%s\"}\n", net_player_name);
-        send_json_to_masterserver(out_buf, ret);
-        VALUE_GET_KEY("v");
-        if (value_int32(val) != 1)
+        if (masterserver_create_lobby(ret))
         {
-            ERRORLOG("Unsupported ver");
             goto end;
         }
-        VALUE_GET_KEY("token");
-        if (value_string_length(val) >= sizeof(fe_masterserver_token))
-        {
-            ERRORLOG("Token is too big");
-            goto end;
-        }
-        const char *token = value_string(val);
-        strcpy(fe_masterserver_token, token);
-        goto end;
         unable:
         ERRORLOG("Unable to parse response from masterserver");
         end:
@@ -1167,6 +1181,8 @@ void masterserver_session_started()
 
 void masterserver_send_update()
 {
+    char tmp_buf[1024];
+
     char out_buf[512];
     char players[256] = "", *P;
     VALUE ret_buf;
@@ -1190,6 +1206,21 @@ void masterserver_send_update()
         sprintf(out_buf, "{\"method\":\"update_lobby\",\"token\":\"%s\",\"players\":[%s]}\n",
                 fe_masterserver_token, players);
         send_json_to_masterserver(out_buf, ret);
+        VALUE *err = value_dict_get(ret, "error");
+        if (err && (0 == strcmp(value_string(err), "LOBBY_NOT_FOUND")))
+        {
+            // reconnect
+            value_fini(ret);
+            WARNLOG("LOBBY_NOT_FOUND");
+            if (!masterserver_create_lobby(ret))
+            {
+                ERRORLOG("Unable to recreate lobby");
+            }
+        }
+        else if (err)
+        {
+            ERRORLOG("Error from masterserver: %s", value_string(err));
+        }
         value_fini(ret);
     }
 }
