@@ -1240,7 +1240,7 @@ short get_creature_passenger_action_inputs(void)
   if (is_key_pressed(KC_TAB,KMod_NONE))
   {
     clear_key_pressed(KC_TAB);
-    toggle_gui_overlay_map();
+    toggle_gui();
   }
   return false;
 }
