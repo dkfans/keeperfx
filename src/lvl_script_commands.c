@@ -2472,7 +2472,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     }
     else
     {
-        // Try expirience
+        // Try experience
         creatvar = get_id(creatmodel_experience_commands, scline->tp[var_ofs + 1]);
     }
     if (creatvar != -1)
@@ -2533,7 +2533,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         {
             attribute_value = atoi(scline->tp[var_ofs + 2]);
         }
-        else if (creatvar == 8) // GROWUP_LEVEL
+        else if (creatvar == 8) // GROWUPLEVEL
         {
             attribute_value = atoi(scline->tp[var_ofs + 2]);
         }
