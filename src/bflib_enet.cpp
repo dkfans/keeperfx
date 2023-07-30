@@ -96,17 +96,16 @@ namespace
             if (dst_addr.port == 0) \
             { \
                 goto fail;      \
-            } \
-            else \
-            { \
-                strncpy(buf, src_str, sizeof(buf) - 1); \
-                dst_addr.port = DEFAULT_PORT; \
-            } \
-            if (enet_address_set_host(&dst_addr, buf) < 0) \
-            { \
-            goto fail;  \
-            }           \
-        }               \
+            }                            \
+        }                            \
+        else \
+        { \
+            strncpy(buf, src_str, sizeof(buf) - 1); \
+        }                            \
+        if (enet_address_set_host(&dst_addr, buf) < 0) \
+        { \
+        goto fail;  \
+        }           \
     }
 
 #define USE_BIND(dst_addr) \
@@ -129,7 +128,7 @@ namespace
         char buf[64] = {0};
         const char *P;
         char *E;
-        ENetAddress addr = {ENET_HOST_ANY, ENET_PORT_ANY};
+        ENetAddress addr = {ENET_HOST_ANY, DEFAULT_PORT};
         if (!*session)
             return Lb_FAIL;
         if (ping_is_active)
@@ -185,6 +184,7 @@ namespace
         {
             return Lb_FAIL;
         }
+        address.port = DEFAULT_PORT;
         PARSE_ADDRESS(session, address);
         client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
         if (!client_peer)
@@ -221,25 +221,8 @@ namespace
                 goto fail;
             }
             *latency = -2;
-            P = strchr(session, ':');
-            if (P)
-            {
-                strncpy(buf, session, P - session);
-                address.port = strtoul(P + 1, &E, 10);
-                if (address.port == 0)
-                {
-                    goto fail;
-                }
-            }
-            else
-            {
-                strncpy(buf, session, sizeof(buf) - 1);
-                address.port = DEFAULT_PORT;
-            }
-            if (enet_address_set_host(&address, buf) < 0)
-            {
-                goto fail;
-            }
+            address.port = DEFAULT_PORT;
+            PARSE_ADDRESS(session, address);
             client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
             if (!client_peer)
             {

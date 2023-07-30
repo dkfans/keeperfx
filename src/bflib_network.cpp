@@ -125,6 +125,7 @@ VALUE *bf_network_options = &bf_network_options_store;
  * Max wait for a client before we declare client messed up.
  */
 #define WAIT_FOR_CLIENT_TIMEOUT_IN_MS   10000
+#define WAIT_FOR_LOGIN_TIMEOUT_IN_MS 100
 #define WAIT_FOR_SERVER_TIMEOUT_IN_MS   WAIT_FOR_CLIENT_TIMEOUT_IN_MS
 
 /**
@@ -964,7 +965,7 @@ static TbBool OnNewUser(NetUserId * assigned_id)
             *assigned_id = i;
             netstate.users[i].progress = USER_CONNECTED;
             netstate.users[i].ack = -1;
-            NETLOG("Assigning new user to ID %u", i);
+            NETDBG(1, "Assigning new user to ID %u", i);
             return 1;
         }
     }
@@ -985,10 +986,19 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     }
 
     //return;
-    if (reason == NETDROP_ERROR) {
-        NETMSG("Connection error with user %i %s", id, netstate.users[id].name);
+    if (reason == NETDROP_ERROR)
+    {
+        if ((netstate.my_id != SERVER_ID) || (netstate.users[id].progress != USER_CONNECTED))
+        {
+            NETMSG("Connection error with user %i %s", id, netstate.users[id].name);
+        }
+        else
+        {
+            NETDBG(1, "Connection error with user %i %s", id, netstate.users[id].name);
+        }
     }
-    else if (reason == NETDROP_MANUAL) {
+    else if (reason == NETDROP_MANUAL)
+    {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     }
 
@@ -1095,20 +1105,19 @@ TbError LbNetwork_ExchangeServer(void *server_buf, size_t client_frame_size)
         if (netstate.users[id].progress == USER_UNUSED) {
             continue;
         }
-
-        if (netstate.users[id].progress == USER_LOGGEDIN)
+        else if (netstate.users[id].progress == USER_CONNECTED)
         {
-            //if (netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
-                //TODO NET take time to detect a lagger which can then be announced
-                ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
-            //}
-
+            ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_LOGIN_TIMEOUT_IN_MS);
             netstate.seq_nbr += 1;
             SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
         }
         else
         {
+            //if (netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
+            //TODO NET take time to detect a lagger which can then be announced
             ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
+            //}
+
             netstate.seq_nbr += 1;
             SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
         }
