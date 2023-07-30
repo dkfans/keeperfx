@@ -3234,20 +3234,28 @@ void spangle_button(struct GuiButton *gbtn)
 
 void draw_menu_spangle(struct GuiMenu *gmnu)
 {
-    struct GuiButton *gbtn;
-    int i;
     if (gmnu->is_turned_on == 0)
       return;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    for (int i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
-        gbtn = &active_buttons[i];
+        struct GuiButton *gbtn = &active_buttons[i];
         if ((gbtn->draw_call == NULL) || ((gbtn->flags & LbBtnF_Visible) == 0) || ((gbtn->flags & LbBtnF_Active) == 0) || (game.flash_button_index == 0))
           continue;
         if ((gbtn->id_num > BID_DEFAULT) && (gbtn->id_num == button_designation_to_tab_designation(game.flash_button_index)))
         {
             // Button is a tab header; spangle if the tab is not active
-            if (!menu_is_active(gbtn->btype_value&LbBFeF_IntValueMask))
+            MenuNumber idx = gbtn->btype_value & LbBFeF_IntValueMask;
+            if (idx == GMnu_SPELL)
+            {
+                if ( (game.flash_button_index >= BID_POWER_TD17) && (game.flash_button_index <= BID_POWER_TD32) )
+                {
+                    idx = GMnu_SPELL2;
+                }
+            }
+            if (!menu_is_active(idx))
+            {
                 spangle_button(gbtn);
+            }
         } else
         if ((gbtn->id_num > BID_DEFAULT) && (gbtn->id_num == game.flash_button_index))
         {
