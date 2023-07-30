@@ -2411,6 +2411,7 @@ short get_inputs(void)
         inp_handled = get_global_inputs();
     if (game_is_busy_doing_gui_string_input())
       return false;
+    get_screen_capture_inputs();
     SYNCDBG(7,"Getting inputs for view %d",(int)player->view_type);
     switch (player->view_type)
     {

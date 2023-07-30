@@ -250,7 +250,7 @@ void masterserver_fetch_sessions()
     }
     if (!send_json_to_masterserver("{\"method\":\"list_lobbies\"}\n", ret))
     {
-        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Failed to get a response from the masterserver" );
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, get_string(GUIStr_NetClear)); //No masterserver response
         masterserver_sessions[masterserver_sessions_num].joinable = false;
         masterserver_sessions[masterserver_sessions_num].is_message = true;
         masterserver_sessions_num++;
@@ -260,7 +260,7 @@ void masterserver_fetch_sessions()
     if (value_int32(val) != 1)
     {
         ERRORLOG("Unsupported ver");
-        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Unsupported masterserver" );
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, get_string(GUIStr_NetHangup)); // version mismatch
         masterserver_sessions[masterserver_sessions_num].joinable = false;
         masterserver_sessions[masterserver_sessions_num].is_message = true;
         masterserver_sessions_num++;
@@ -280,7 +280,7 @@ void masterserver_fetch_sessions()
     lst = val;
     if (value_array_size(lst) == 0)
     {
-        strcpy(masterserver_sessions[masterserver_sessions_num].text, "No lobbies found" );
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, get_string(GUIStr_NetInit)); //No lobbies
         masterserver_sessions[masterserver_sessions_num].joinable = false;
         masterserver_sessions[masterserver_sessions_num].is_message = true;
         masterserver_sessions_num++;
@@ -338,7 +338,7 @@ void masterserver_fetch_sessions()
     end:
     if (masterserver_sessions_num == 0)
     {
-        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Unable");
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Unable to parse answer from masterserver");
         masterserver_sessions[masterserver_sessions_num].joinable = false;
         masterserver_sessions[masterserver_sessions_num].is_message = true;
         masterserver_sessions_num++;
