@@ -2447,35 +2447,53 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    short creatvar = get_id(creatmodel_attributes_commands, scline->tp[1]);
-    if (creatvar == -1)
+    long creatvar = get_id(creatmodel_attributes_commands, scline->tp[1]);
+    long group;
+    if (creatvar != -1)
     {
+        group = 0;
+    }
+    else
+    {
+        // Try jobs
         creatvar = get_id(creatmodel_jobs_commands, scline->tp[1]);
-        if (creatvar == -1)
-        {
-            SCRPTERRLOG("Unknown creature attribute");
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        creatvar = (creatvar << 8);
+    }
+    if (creatvar != -1)
+    {
+        group = 1;
+    }
+    else
+    {
+        // Try expirience
+        creatvar = get_id(creatmodel_experience_commands, scline->tp[1]);
+    }
+    if (creatvar != -1)
+    {
+        group = 2;
+    }
+    else
+    {
+        SCRPTERRLOG("Unknown creature attribute");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
     }
 
-    short attribute_value;
+    short attribute_value = 0;
     short attribute2_value = 0;
-    if (creatvar == 20) // ATTACKPREFERENCE
+    if ((group == 0) && (creatvar == 20)) // ATTACKPREFERENCE
     {
         attribute_value = get_id(attackpref_desc, scline->tp[2]);
     }
-    else if (creatvar == 34) // LAIROBJECT
+    else if ((group == 0) && (creatvar == 34)) // LAIROBJECT
     {
         attribute_value = get_id(object_desc, scline->tp[2]);
     }
-    else if (((creatvar>>8) > 0 ) && ((creatvar >> 8) <= 4)) // Jobs
+    else if ((group == 0) && (creatvar <= 4)) // Jobs
     {
         long job_value = get_id(creaturejob_desc, scline->tp[2]);
         if (job_value > SHRT_MAX)
         {
-            SCRPTERRLOG("JOB %s not supported",creature_job_code_name(job_value));
+            SCRPTERRLOG("JOB %s not supported", creature_job_code_name(job_value));
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
@@ -2491,6 +2509,31 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
                 return;
             }
             attribute2_value = job2_value;
+        }
+    }
+    else if (group == 2) // creatmodel_experience_commands
+    {
+        if (creatvar == 4) // GROWUP
+        {
+            attribute_value = parse_creature_name(scline->tp[2]);
+        }
+        else if (creatvar == 6) // EXPERIENCEFORHITTING
+        {
+            attribute_value = atoi(scline->tp[2]);
+        }
+        else if (creatvar == 7) // REBIRTH
+        {
+            attribute_value = atoi(scline->tp[2]);
+        }
+        else if (creatvar == 8) // GROWUP_LEVEL
+        {
+            attribute_value = atoi(scline->tp[2]);
+        }
+        else
+        {
+            SCRPTERRLOG("Not supported attributes");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
         }
     }
     else
@@ -2515,7 +2558,8 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     }
 
     value->shorts[0] = scline->np[0];
-    value->shorts[1] = creatvar;
+    value->bytes[2] = creatvar;
+    value->bytes[3] = group;
     value->shorts[2] = attribute_value;
     value->shorts[3] = attribute2_value;
     SCRIPTDBG(7,"Setting creature %s attribute %d to %d (%d)", creature_code_name(value->shorts[0]), value->shorts[1], value->shorts[2], value->shorts[3]);
@@ -2529,11 +2573,12 @@ static void set_creature_configuration_process(struct ScriptContext* context)
     struct CreatureStats* crstat = creature_stats_get(creatid);
     struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatid];
 
-    short attribute = context->value->shorts[1];
+    uint8_t attribute = context->value->bytes[2];
+    uint8_t group = context->value->bytes[3];
     short value = context->value->shorts[2];
     short value2 = context->value->shorts[3];
 
-    if (attribute <= CHAR_MAX)
+    if (group == 0)
     {
         switch (attribute)
         {
@@ -2639,16 +2684,13 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 0: // comment
             break;
-        case -1: // end of buffer
-            break;
         default:
             CONFWRNLOG("Unrecognized command (%d)", attribute);
             break;
         }
     }
-    else
+    else if (group == 1) // creatmodel_jobs_commands
     {
-        attribute = (attribute >> 8); // creatmodel_jobs_commands
         switch (attribute)
         {
         case 1: // PRIMARYJOBS
@@ -2691,6 +2733,27 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         default:
             CONFWRNLOG("Unrecognized Job command (%d)", attribute);
             break;
+        }
+    }
+    else if (group == 2) // creatmodel_experience_commands
+    {
+        switch (attribute)
+        {
+            case 4: // Growup
+                crstat->grow_up = value;
+                break;
+            case 6: // EXPERIENCEFORHITTING
+                crstat->exp_for_hitting = value;
+                break;
+            case 7: // REBIRTH
+                crstat->rebirth = value;
+                break;
+            case 8: // GROWUP_LEVEL
+                crstat->grow_up_level = value;
+                break;
+            default:
+                CONFWRNLOG("Unrecognized experience attribute command (%d)", attribute);
+                break;
         }
     }
     check_and_auto_fix_stats();
@@ -3814,6 +3877,23 @@ static void play_message_process(struct ScriptContext *context)
     }
 }
 
+static void set_creature_growup_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    value->arg0 = scline->np[1];
+    value->bytes[4] = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_creature_growup_process(struct ScriptContext *context)
+{
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        struct Dungeon* dungeon = get_dungeon(i);
+        dungeon->creature_growup_level[context->value->arg0] = context->value->bytes[4];
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -3955,6 +4035,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
+  {"SET_CREATURE_GROWUP_LEVEL",         "PCN     ", Cmd_SET_CREATURE_GROWUP_LEVEL, &set_creature_growup_check, &set_creature_growup_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

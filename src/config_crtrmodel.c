@@ -193,6 +193,7 @@ const struct NamedCommand creatmodel_experience_commands[] = {
   {"SLEEPEXPERIENCE",      5},
   {"EXPERIENCEFORHITTING", 6},
   {"REBIRTH",              7},
+  {"GROWUP_LEVEL",         8},
   {NULL,                   0},
   };
 

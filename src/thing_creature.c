@@ -5238,8 +5238,10 @@ long update_creature_levels(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_ExpLevelUp) == 0)
         return 0;
     cctrl->spell_flags &= ~CSAfF_ExpLevelUp;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+
     // If a creature is not on highest level, just update the level
-    if (cctrl->explevel+1 < CREATURE_MAX_LEVEL)
+    if ((dungeon->creature_growup_level[thing->model] != cctrl->explevel + 1) && (cctrl->explevel+1 < CREATURE_MAX_LEVEL))
     {
         remove_creature_score_from_owner(thing); // the opposite is in set_creature_level()
         set_creature_level(thing, cctrl->explevel+1);
@@ -5282,7 +5284,6 @@ long update_creature_levels(struct Thing *thing)
     remove_creature_score_from_owner(thing); // kill_creature() doesn't call this
     if (thing_is_picked_up_by_player(thing,thing->owner))
     {
-        struct Dungeon* dungeon = get_dungeon(thing->owner);
         short i = get_thing_in_hand_id(thing, thing->owner);
         if (i >= 0)
         {
