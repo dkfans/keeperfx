@@ -37,6 +37,7 @@
 #include "front_landview.h"
 #include "net_game.h"
 #include "sprites.h"
+#include "custom_sprites.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -211,7 +212,6 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     long sessionIndex;
     long febtn_idx;
     long height;
-    char ping_buf[64];
 
     febtn_idx = (long)gbtn->content;
     sessionIndex = net_session_scroll_offset + febtn_idx - 45;
@@ -235,22 +235,28 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
         LbTextSetFont(frontend_font[font_idx]);
         lbDisplay.DrawFlags = 0;
         LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, net_session[sessionIndex]->text);
+        LbTextDrawResized(40, 0, tx_units_per_px, net_session[sessionIndex]->text);
     }
 
     if (net_session[sessionIndex]->valid_ping)
     {
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+        short latencystatus;
         if (net_session[sessionIndex]->latency_time >= 0)
         {
-            sprintf(ping_buf, "%ld", net_session[sessionIndex]->latency_time);
+            if (net_session[sessionIndex]->latency_time < 120)
+            {
+                latencystatus = GFS_status_green;
+            }
+            else if (net_session[sessionIndex]->latency_time < 250)
+            {
+                latencystatus = GFS_status_orange;
+            }
+            else
+            {
+                latencystatus = GFS_status_red;
+            }
+        LbSpriteDrawResized(gbtn->scr_pos_x - 8, gbtn->scr_pos_y + (gbtn->height / 5), tx_units_per_px, get_frontend_sprite(latencystatus));
         }
-        else
-        {
-            strcpy(ping_buf, "---");
-        }
-        LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, ping_buf);
     }
 }
 
