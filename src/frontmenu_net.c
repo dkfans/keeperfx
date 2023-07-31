@@ -274,11 +274,11 @@ void frontend_masterserver_draw_refresh(struct GuiButton *gbtn)
     const struct TbSprite *spr;
     if ((long)gbtn->content == frontend_mouse_over_button)
     {
-        spr = get_frontend_sprite(refresh_ylw);
+        spr = get_frontend_sprite(GFS_refresh_ylw);
     }
     else
     {
-        spr = get_frontend_sprite(refresh_red);
+        spr = get_frontend_sprite(GFS_refresh_red);
     }
     if (spr)
     {
