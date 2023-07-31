@@ -68,12 +68,24 @@ long frontnet_number_of_players_in_session(void)
 void frontnet_session_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_session_scroll_offset != 0)) & LbBtnF_Enabled;
+
+    if (wheel_scrolled_up || (is_key_pressed(KC_UP, KMod_NONE)))
+    {
+        if (net_session_scroll_offset > 0)
+            net_session_scroll_offset--;
+    }
 }
 
 void frontnet_session_down_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^=
             (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_sessions - 1 > net_session_scroll_offset)) & LbBtnF_Enabled;
+
+    if (wheel_scrolled_down || (is_key_pressed(KC_DOWN, KMod_NONE)))
+    {
+        if (net_session_scroll_offset < net_number_of_sessions - 1)
+            net_session_scroll_offset++;
+    }
 }
 
 void frontnet_session_maintain(struct GuiButton *gbtn)
