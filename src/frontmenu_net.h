@@ -47,6 +47,7 @@ void frontnet_session_maintain(struct GuiButton *gbtn);
 void frontnet_players_up_maintain(struct GuiButton *gbtn);
 void frontnet_players_down_maintain(struct GuiButton *gbtn);
 void frontnet_join_game_maintain(struct GuiButton *gbtn);
+void frontnet_refresh_maintain(struct GuiButton* gbtn);
 void frontnet_maintain_alliance(struct GuiButton *gbtn);
 void frontnet_messages_up_maintain(struct GuiButton *gbtn);
 void frontnet_messages_down_maintain(struct GuiButton *gbtn);

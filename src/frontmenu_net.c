@@ -94,6 +94,14 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn)
                    LbBtnF_Enabled;
 }
 
+void frontnet_refresh_maintain(struct GuiButton* gbtn)
+{
+    if (is_key_pressed(KC_F5, KMod_NONE))
+    {
+        frontend_mouse_over_button = (long)gbtn->content;
+        masterserver_fetch_sessions();
+    }
+}
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
 {
     if ((net_session_index_active != -1) && (net_session[net_session_index_active] != NULL) &&
