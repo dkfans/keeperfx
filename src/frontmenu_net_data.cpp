@@ -87,7 +87,7 @@ struct GuiButtonInit frontend_net_session_buttons[] = {
   { 0,  0, 0, 0, frontnet_session_join,NULL,     frontend_over_button,0,  72, 360,  72, 360,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,      {13},            0, frontnet_join_game_maintain },
   { 0,  0, 0, 0, frontnet_session_create,NULL,   frontend_over_button,0, 321, 360, 321, 360,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,      {14},            0, NULL },
   { 0,  0, 0, 0, frontnet_return_to_main_menu,NULL,frontend_over_button,0,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,       {6},            0, NULL },
-  { 0,  0, 0, 0, frontnet_masterserver_refresh,NULL,      frontend_over_button,0, 221,  113, 221,  113,32, 26, frontend_masterserver_draw_refresh,   0, GUIStr_Empty, 0,     {111},            0, NULL },
+  { 0,  0, 0, 0, frontnet_masterserver_refresh,NULL,      frontend_over_button,0, 87,  110, 87,  110,230, 29, frontend_masterserver_draw_refresh,   0, GUIStr_Empty, 0,     {111},            0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,           0,  0,       {0},            0, NULL },
 };
 

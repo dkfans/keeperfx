@@ -278,11 +278,11 @@ void frontend_masterserver_draw_refresh(struct GuiButton *gbtn)
     }
     else
     {
-        spr = get_frontend_sprite(refresh_dkr);
+        spr = get_frontend_sprite(refresh_red);
     }
     if (spr)
     {
-        LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, tx_units_per_px, spr);
+        LbSpriteDrawResized(gbtn->scr_pos_x + (gbtn->width * 3 / 4), gbtn->scr_pos_y + (gbtn->height / 3) , tx_units_per_px, spr);
     }
 }
 
