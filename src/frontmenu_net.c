@@ -984,6 +984,15 @@ void frontnet_service_select(struct GuiButton *gbtn)
     }
 }
 
+void frontnet_init_session_menu()
+{
+    int idx = guibutton_get_idx_by_id(BID_MASTERSERVER_REFRESH);
+    if (net_service_index_selected != NS_ENET_UDP)
+    {
+        guibutton_get(idx)->flags &= ~LbBtnF_Visible;
+    }
+}
+
 void frontnet_init_session_start_menu()
 {
     TbBool show = (net_service_index_selected == NS_ENET_UDP);

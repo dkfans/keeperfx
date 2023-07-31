@@ -116,6 +116,7 @@ enum IngameButtonDesignationIDs {
     BID_OBJ_SCRL_UP, //80
     BID_OBJ_SCRL_DWN,
     BID_MASTERSERVER_PUBLIC,
+    BID_MASTERSERVER_REFRESH,
 };
 
 enum IngameButtonGroupIDs {

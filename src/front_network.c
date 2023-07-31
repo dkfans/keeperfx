@@ -596,7 +596,8 @@ void frontnet_session_setup(void)
     net_session_index_active = -1;
     fe_computer_players = 2;
     lbInkey = 0;
-    masterserver_fetch_sessions();
+    if (net_service_index_selected == NS_ENET_UDP)
+        masterserver_fetch_sessions();
 }
 
 void frontnet_start_setup(void)

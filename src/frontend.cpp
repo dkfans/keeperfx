@@ -2797,6 +2797,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_NET_SESSION:
           turn_on_menu(GMnu_FENET_SESSION);
+          frontnet_init_session_menu();
           frontnet_session_setup();
           set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
           set_pointer_graphic_menu();

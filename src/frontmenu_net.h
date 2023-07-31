@@ -113,6 +113,7 @@ void frontnet_service_down(struct GuiButton *gbtn);
 void frontnet_service_maintain(struct GuiButton *gbtn);
 void frontnet_draw_service_button(struct GuiButton *gbtn);
 void frontnet_init_session_start_menu();
+void frontnet_init_session_menu();
 
 #define frontnet_draw_scroll_box_tab frontend_draw_scroll_box_tab
 #define frontnet_draw_scroll_box frontend_draw_scroll_box
