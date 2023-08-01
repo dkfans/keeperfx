@@ -42,7 +42,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define MESSAGE_TEXT_LEN           1024
-#define QUICK_MESSAGES_COUNT        255
+#define QUICK_MESSAGES_COUNT        256
 #define BONUS_LEVEL_STORAGE_COUNT     6
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
