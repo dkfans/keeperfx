@@ -1700,7 +1700,12 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
 {
     int result; // eax
     objtng->health = 2;
-
+    if (is_neutral_thing(objtng))
+    {
+        ERRORLOG("Neutral %s index %d cannot be power sight.", thing_model_name(objtng), (int)objtng->index);
+        delete_thing_structure(objtng, 0);
+        return 0;
+    }
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
 

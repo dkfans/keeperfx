@@ -138,8 +138,8 @@ struct InitEffect effect_info[] = {
 
 
 struct EffectElementStats effect_element_stats[] = {
- //draw_class,	field_1,	field_2,	numfield_3,	numfield_5,	sprite_idx,	sprite_size_min,	sprite_size_max,	field_D,	sprite_speed_min,	sprite_speed_max,	field_12,	unshaded,	transparant,	
-    // field_15,	field_16,	field_17,	fall_acceleration,	field_19,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	field_22,	effmodel_23,	solidgnd_snd_smpid,	solidgnd_loudness,
+ //draw_class,	move_type,	unanimated,	lifespan,	lifespan_random,	sprite_idx,	sprite_size_min,	sprite_size_max,	rendering_flag,	sprite_speed_min,	sprite_speed_max,	animate_on_floor,	unshaded,	transparant,	
+    // field_15,	movement_flags,	size_change,	fall_acceleration,	field_19_unused,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	field_22,	effmodel_23,	solidgnd_snd_smpid,	solidgnd_loudness,
         // solidgnd_destroy_on_impact,	water_effmodel,	water_snd_smpid,	water_loudness,	water_destroy_on_impact,	
             // lava_effmodel,	lava_snd_smpid,	lava_loudness,	lava_destroy_on_impact,	transform_model,	field_3A,	field_3C,	field_3D,	affected_by_wind
  {2,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	256,	0,	0,	0,	256,	0,	0,	0,	256,	0,	0,	0,	0,	0,	0},
@@ -307,7 +307,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
         set_flag_byte(&thing->rendering_flags,TRF_Unshaded,eestat->unshaded);
         thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparant)) & (TRF_Transpar_Flags);
-        set_flag_byte(&thing->rendering_flags,TRF_AnimateOnce,eestat->field_D);
+        set_flag_byte(&thing->rendering_flags,TRF_AnimateOnce,eestat->rendering_flag);
     } else
     {
         set_flag_byte(&thing->rendering_flags,TRF_Unknown01,true);
@@ -317,23 +317,30 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
     thing->movement_flags |= TMvF_Unknown08;
-    set_flag_byte(&thing->movement_flags,TMvF_Unknown10,eestat->field_16);
+    set_flag_byte(&thing->movement_flags,TMvF_Unknown10,eestat->movement_flags);
     thing->creation_turn = game.play_gameturn;
 
-    if (eestat->numfield_3 > 0)
+    if (eestat->lifespan > 0)
     {
-        i = EFFECT_RANDOM(thing, eestat->numfield_5 - (long)eestat->numfield_3 + 1);
-        thing->health = eestat->numfield_3 + i;
+        i = EFFECT_RANDOM(thing, eestat->lifespan_random - (long)eestat->lifespan + 1);
+        thing->health = eestat->lifespan + i;
     } else
     {
-        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
+        if (thing->anim_speed > 0)
+        {
+            thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
+        }
+        else
+        {
+            thing->health = keepersprite_frames(thing->anim_sprite);
+        }
     }
 
-    if (eestat->field_17 != 0)
+    if (eestat->size_change != 0)
     {
         thing->sprite_size_min = eestat->sprite_size_min;
         thing->sprite_size_max = eestat->sprite_size_max;
-        if (eestat->field_17 == 2)
+        if (eestat->size_change == 2)
         {
             thing->transformation_speed = 2 * (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
             thing->field_50 |= 0x02;
@@ -603,16 +610,16 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     int speed = eestat->sprite_speed_min + EFFECT_RANDOM(thing, eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
-    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
+    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->rendering_flag, 0, 2);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparant) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->fall_acceleration;
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
-    if (eestat->numfield_3 <= 0) {
+    if (eestat->lifespan <= 0) {
         thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     } else {
-        thing->health = EFFECT_RANDOM(thing, eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
+        thing->health = EFFECT_RANDOM(thing, eestat->lifespan_random - eestat->lifespan + 1) + eestat->lifespan;
     }
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
 }
@@ -638,7 +645,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     }
     elemtng->health = health-1;
     // Set dynamic properties of the effect
-    if (!eestats->field_12)
+    if (!eestats->animate_on_floor)
     {
         if (elemtng->floor_height >= (int)elemtng->mappos.z.val)
           elemtng->anim_speed = 0;
@@ -665,7 +672,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
           create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
       }
     }
-    switch (eestats->field_1)
+    switch (eestats->move_type)
     {
     case 1:
         move_effect_element(elemtng);
@@ -715,12 +722,12 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     case 5:
         break;
     default:
-        ERRORLOG("Invalid effect element move type %d!",(int)eestats->field_1);
+        ERRORLOG("Invalid effect element move type %d!",(int)eestats->move_type);
         move_effect_element(elemtng);
         break;
     }
 
-    if (eestats->field_2 != 1)
+    if (eestats->unanimated != 1)
       return TUFRet_Modified;
     i = get_angle_yz_to_vec(&elemtng->veloc_base);
     if (i > LbFPMath_PI)
