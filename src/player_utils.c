@@ -314,7 +314,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->offmap_money_owned = 0;
     }
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {

@@ -195,7 +195,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
               + dungeonadd->mnfct_info.door_amount_offmap[validx%gameadd.trapdoor_conf.door_types_count];
     case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
         dungeonadd = get_dungeonadd(plyr_idx);
-        return (dungeonadd->room_buildable[validx%slab_conf.room_types_count] & 1);
+        return (dungeonadd->room_buildable[validx%game.slab_conf.room_types_count] & 1);
     case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
         dungeon = get_dungeon(plyr_idx);
         if (creature_will_generate_for_dungeon(dungeon, validx)) {
@@ -287,6 +287,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         struct PlayerInfo* player = get_player(plyr_idx);
         return player_allied_with(player, validx);
     }
+    case SVar_ACTIVE_BATTLES:
+        return count_active_battles(plyr_idx);
     default:
         break;
     };

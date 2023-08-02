@@ -518,6 +518,31 @@ TbBool thing_is_special_box(const struct Thing *thing)
     return (objst->genre == OCtg_SpecialBox);
 }
 
+TbBool thing_is_hardcoded_special_box(const struct Thing* thing)
+{
+    if (thing->class_id != TCls_Object)
+        return false;
+    switch (thing->model)
+    {
+    case ObjMdl_SpecboxRevealMap:
+    case ObjMdl_SpecboxResurect:
+    case ObjMdl_SpecboxTransfer:
+    case ObjMdl_SpecboxStealHero:
+    case ObjMdl_SpecboxMultiply:
+    case ObjMdl_SpecboxIncreaseLevel:
+    case ObjMdl_SpecboxMakeSafe:
+    case ObjMdl_SpecboxHiddenWorld:
+        return true;
+    default:
+        return false;
+    }
+}
+
+TbBool thing_is_custom_special_box(const struct Thing* thing)
+{
+    return (thing_is_special_box(thing) && !thing_is_hardcoded_special_box(thing));
+}
+
 TbBool thing_is_workshop_crate(const struct Thing *thing)
 {
     if (!thing_is_object(thing))
@@ -1312,6 +1337,11 @@ static long object_being_dropped(struct Thing *thing)
 
 void update_dungeon_heart_beat(struct Thing *heartng)
 {
+    if (thing_is_invalid(heartng))
+    {
+        ERRORLOG("Trying to beat non-existing heart");
+        return;
+    }
     const long base_heart_beat_rate = 2304;
     static long bounce = 0;
     if (heartng->active_state != ObSt_BeingDestroyed)
@@ -1319,31 +1349,42 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         long i = (char)heartng->heart.beat_direction;
         heartng->anim_speed = 0;
         struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
-        long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
-        k = base_heart_beat_rate / (k + 128);
-        int intensity = light_get_light_intensity(heartng->light_id) + (i*36/k);
-        // intensity capped to 63 to fix the first beat flickering black which is visible when SKIP_HEART_ZOOM is on
-        light_set_light_intensity(heartng->light_id, min(intensity, 63));
-        heartng->anim_time += (i*base_heart_beat_rate/k);
-        if (heartng->anim_time < 0)
+        long long k = 1;
+        if (objconf->health != 0)
         {
-            heartng->anim_time = 0;
-            light_set_light_intensity(heartng->light_id, 20);
-            heartng->heart.beat_direction = 1;
+            k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         }
-        if (heartng->anim_time > base_heart_beat_rate-1)
+        if ((k + 128) > 0)
         {
-            heartng->anim_time = base_heart_beat_rate-1;
-            light_set_light_intensity(heartng->light_id, 56);
-            heartng->heart.beat_direction = (unsigned char)-1;
-            if ( bounce )
+            k = base_heart_beat_rate / (k + 128);
+        }
+        if (k > 0)
+        {
+            int intensity = light_get_light_intensity(heartng->light_id) + (i * 36 / k);
+            // intensity capped to 63 to fix the first beat flickering black which is visible when SKIP_HEART_ZOOM is on
+            light_set_light_intensity(heartng->light_id, min(intensity, 63));
+            heartng->anim_time += (i * base_heart_beat_rate / k);
+            if (heartng->anim_time < 0)
             {
-                thing_play_sample(heartng, 151, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
-            } else
-            {
-                thing_play_sample(heartng, 150, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                heartng->anim_time = 0;
+                light_set_light_intensity(heartng->light_id, 20);
+                heartng->heart.beat_direction = 1;
             }
-            bounce = !bounce;
+            if (heartng->anim_time > base_heart_beat_rate - 1)
+            {
+                heartng->anim_time = base_heart_beat_rate - 1;
+                light_set_light_intensity(heartng->light_id, 56);
+                heartng->heart.beat_direction = (unsigned char)-1;
+                if (bounce)
+                {
+                    thing_play_sample(heartng, 151, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                }
+                else
+                {
+                    thing_play_sample(heartng, 150, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                }
+                bounce = !bounce;
+            }
         }
         k = (((unsigned long long)heartng->anim_time >> 32) & 0xFF) + heartng->anim_time;
         heartng->current_frame = (k >> 8) & 0xFF;
@@ -1659,7 +1700,12 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
 {
     int result; // eax
     objtng->health = 2;
-
+    if (is_neutral_thing(objtng))
+    {
+        ERRORLOG("Neutral %s index %d cannot be power sight.", thing_model_name(objtng), (int)objtng->index);
+        delete_thing_structure(objtng, 0);
+        return 0;
+    }
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
 

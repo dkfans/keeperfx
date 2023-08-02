@@ -5017,7 +5017,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         EngineSpriteDrawUsingAlpha = alpha_mem;
         return;
     }
-    TbBool special_drawing = false;
+    TbBool flame_on_sprite = false;
     int n;
     long dx;
     long dy;
@@ -5040,7 +5040,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 dy = a6_2 * LbCosL(angle) >> 20;
             }
             v16 = 2 * a6_2 / 3;
-            special_drawing = true;
+            flame_on_sprite = true;
         }
         else if (thing->model == ObjMdl_StatueLit)
         {
@@ -5056,9 +5056,9 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 dy = (-(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16) / 3;
             }
             v16 = a6_2 / 3;
-            special_drawing = true;
+            flame_on_sprite = true;
         }
-        else if (thing->model == ObjMdl_Candlestick) //torchflames
+        else if (thing->model == ObjMdl_Candlestick)
         {
             n = 112;
             if (player->view_type == PVT_DungeonTop)
@@ -5072,10 +5072,10 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
                 dy = -(LbCosL(angle) * ((3 * a6_2) / 2)) >> 16;
             }
             v16 = a6_2 / 2;
-            special_drawing = true;
+            flame_on_sprite = true;
         }
     }
-    if (special_drawing)
+    if (flame_on_sprite)
     {
         EngineSpriteDrawUsingAlpha = 0;
         unsigned long v21 = (game.play_gameturn + thing->index) % keepersprite_frames(n);
@@ -5473,7 +5473,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
-    roomst = &slab_conf.room_cfgstats[room->kind];
+    roomst = &game.slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
     spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
@@ -7926,7 +7926,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     }
 }
 
-static void process_keeper_speedup_sprite(struct BucketKindJontySprite *jspr, long angle, long scale)
+static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, long angle, long scale)
 {
     struct PlayerInfo *player;
     struct Thing *thing;
@@ -8188,7 +8188,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             //TODO CONFIG object model dependency, move to config
             if ((thing->model == ObjMdl_Torch) || (thing->model == ObjMdl_StatueLit) || (thing->model == ObjMdl_Candlestick)) //torchflames
             {
-                process_keeper_speedup_sprite(jspr, angle, scale);
+                process_keeper_flame_on_sprite(jspr, angle, scale);
                 break;
             }
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
