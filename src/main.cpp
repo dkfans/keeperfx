@@ -3835,10 +3835,6 @@ void game_loop(void)
       } else {
           toggle_status_menu(1); // Required when skipping PI_HeartZoom
       }
-      if (lbMouseGrabbed)
-      {
-          LbMouseSetPosition(MyScreenWidth / 2, MyScreenHeight / 2);
-      }
 
       unsigned long starttime;
       unsigned long endtime;

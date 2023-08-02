@@ -632,10 +632,6 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->zoom = 24000;
   }
   cam->orient_a = 0;
-  if (lbMouseGrabbed)
-  {
-      LbMouseSetPosition(MyScreenWidth / 2, MyScreenHeight / 2);
-  }
   if (!TimerNoReset)
   {
      timerstarttime = LbTimerClock();
