@@ -530,8 +530,10 @@ void LbGrabMouseCheck(long grab_event)
                     grab_cursor = false;
                 }
                 break;
-            case MG_OnFocusGained:
             case MG_InitMouse:
+                grab_cursor = true;
+                break;
+            case MG_OnFocusGained:
                 grab_cursor = lbMouseGrab;
                 if (paused && unlock_cursor_when_game_paused())
                 {
