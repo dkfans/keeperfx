@@ -1135,21 +1135,23 @@ void draw_mini_things_in_hand(long x, long y)
                 scrpos_y = scrbase_y + scale_ui_value(18) * irow;
                 // Draw creature symbol
                 draw_gui_panel_sprite_left(scrpos_x, scrpos_y, ps_units_per_px, spr_idx);
+                char ownshift_y;
                 if (MyScreenHeight < 400)
                 {
-                    char expshift_y = (irow > 0) ? 32 : -6;                   
+                    char expshift_y = (irow > 0) ? 32 : -6;
                     draw_button_sprite_left(scrpos_x, scrpos_y + scale_ui_value(expshift_y), ps_units_per_px, expspr_idx);
                     if (thing->owner != my_player_number)
                     {
-                        char ownshift_y = (irow == 0) ? 1 : 56;
+                        ownshift_y = (irow == 0) ? 1 : 56;
                         LbDrawCircle(scrpos_x + scale_ui_value(16), scrpos_y + scale_ui_value(ownshift_y), ps_units_per_px / 16, player_path_colours[thing->owner]);
                     }
                 }
                 else
                 {
+                    ownshift_y = (irow > 0) ? 44 : 10;
                     if (thing->owner != my_player_number)
                     {
-                        ScreenCoord coord_y = scrpos_y + scale_ui_value(shift_y + ((shift_y / 3) + (shift_y / 3)));
+                        ScreenCoord coord_y = scrpos_y + scale_ui_value(ownshift_y);
                         for (int p = 0; p < 36; p++)
                         {
                             ScreenCoord draw_y = coord_y + draw_square[p].delta_y;
