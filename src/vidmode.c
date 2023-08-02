@@ -773,7 +773,6 @@ TbBool setup_screen_mode(unsigned short nmode)
     setup_heap_manager();
     game.operation_flags &= ~GOF_Unkn04;
     force_video_mode_reset = false;
-    LbMouseSetPosition(new_mdinfo->Width / 2, new_mdinfo->Height / 2);
     SYNCDBG(8,"Finished");
     return true;
 }

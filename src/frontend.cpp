@@ -3685,10 +3685,6 @@ FrontendMenuState get_startup_menu_state(void)
   }
   else if ((game.flags_cd & MFlg_unk40) != 0)
   { // If starting up the game after intro
-    if (lbMouseGrabbed)
-    {
-        LbMouseSetPosition(MyScreenWidth / 2, MyScreenHeight / 2);
-    }
     if (is_full_moon)
     {
         SYNCLOG("Full moon state selected");
