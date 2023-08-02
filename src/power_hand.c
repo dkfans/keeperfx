@@ -1152,7 +1152,15 @@ void draw_mini_things_in_hand(long x, long y)
                     if (thing->owner != my_player_number)
                     {
                         ScreenCoord coord_y = scrpos_y + scale_ui_value(ownshift_y);
-                        for (int p = 0; p < 36; p++)
+                        for (int p = 0; p < 16; p++)
+                        {
+                            ScreenCoord draw_y = coord_y + draw_square[p].delta_y;
+                            if (draw_y >= 0)
+                            {
+                                LbDrawPixel(scrpos_x + ((expshift_x * 3)) + draw_square[p].delta_x, draw_y, player_flash_colours[thing->owner]);
+                            }
+                        }
+                        for (int p = 16; p < 36; p++)
                         {
                             ScreenCoord draw_y = coord_y + draw_square[p].delta_y;
                             if (draw_y >= 0)
