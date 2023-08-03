@@ -35,9 +35,9 @@ PKG_MAPPACK_FILES = \
 	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)_cfgs/*.cfg)))
 PKG_MAPPACK_DIRS = $(sort $(dir $(PKG_MAPPACK_FILES)))
 PKG_BIN = pkg/$(notdir $(BIN))
-PKG_BIN_MAP = $(PKG_BIN:%.exe=%.map)
+PKG_BIN_PDB = $(PKG_BIN:%.exe=%.pdb)
 PKG_HVLOGBIN = pkg/$(notdir $(HVLOGBIN))
-PKG_HVLOGBIN_MAP = $(PKG_HVLOGBIN:%.exe=%.map)
+PKG_HVLOGBIN_PDB = $(PKG_HVLOGBIN:%.exe=%.pdb)
 PKG_DOCS = pkg/keeperfx_readme.txt
 PKG_FILES = \
 	$(PKG_CAMPAIGN_FILES) \
@@ -49,9 +49,9 @@ PKG_FILES = \
 	$(MPTEXTDATS) \
 	pkg/keeperfx.cfg \
 	$(PKG_BIN) \
-	$(PKG_BIN_MAP) \
+	$(PKG_BIN_PDB) \
 	$(PKG_HVLOGBIN) \
-	$(PKG_HVLOGBIN_MAP) \
+	$(PKG_HVLOGBIN_PDB) \
 	$(PKG_DOCS)
 
 .PHONY: package
@@ -68,11 +68,11 @@ $(PKG_BIN): $(BIN) | pkg
 $(PKG_HVLOGBIN): $(HVLOGBIN) | pkg
 	$(CP) $^ $@
 
-$(PKG_BIN_MAP): $(BIN) | pkg
-	$(CP) $(BIN:%.exe=%.map) $@
+$(PKG_BIN_PDB): $(BIN) | pkg
+	$(CP) $(BIN:%.exe=%.pdb) $@
 
-$(PKG_HVLOGBIN_MAP): $(HVLOGBIN) | pkg
-	$(CP) $(HVLOGBIN:%.exe=%.map) $@
+$(PKG_HVLOGBIN_PDB): $(HVLOGBIN) | pkg
+	$(CP) $(HVLOGBIN:%.exe=%.pdb) $@
 
 pkg/%.txt: docs/%.txt | pkg
 	$(CP) $^ $@
