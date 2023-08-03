@@ -395,6 +395,12 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
             ERRORLOG("Could not allocate number for hero gate");
         }
         break;
+      case ObjMdl_SpinningKey:
+        if (thing->mappos.z.stl.num == 4)
+        {
+            thing->mappos.z.stl.num = 5;
+        }
+        break;
       default:
         break;
     }
