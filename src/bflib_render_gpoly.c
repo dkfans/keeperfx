@@ -744,6 +744,9 @@ static void unk_update_gpoly1_tri16b(long * vout0, long * vout1, long * vout2, l
     *vout0 = tmp1;
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub1a()
 {
 #if __GNUC__
@@ -837,6 +840,9 @@ gpo_loc_05C8:         # 3C6\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub1b()
 {
 #if __GNUC__
@@ -1044,6 +1050,9 @@ void draw_gpoly_sub1c()
     }
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub2a()
 {
 #if __GNUC__
@@ -1157,6 +1166,9 @@ gpo_loc_0A7D:         # 87\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub2b()
 {
 #if __GNUC__
@@ -1400,6 +1412,9 @@ void draw_gpoly_sub2c()
 
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub3a()
 {
 #if __GNUC__
@@ -1473,6 +1488,9 @@ gpo_loc_100B:         # E10\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub3b()
 {
 #if __GNUC__
@@ -1576,6 +1594,9 @@ gpo_loc_10D9:         # EA7\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub4()
 {
 #if __GNUC__
@@ -1898,6 +1919,9 @@ gpo_loc_1484:         # 120A\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub5()
 {
 #if __GNUC__
@@ -2200,6 +2224,9 @@ gpo_loc_17A3:         # 155\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub6()
 {
 #if __GNUC__
@@ -2638,6 +2665,9 @@ gpo_loc_1CAA:\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub7()
 {
 #if __GNUC__
@@ -3073,6 +3103,9 @@ gpo_case69_break:\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub11()
 {
 #if __GNUC__
@@ -3547,6 +3580,9 @@ locret5a:\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub12()
 {
 #if __GNUC__
@@ -3975,6 +4011,9 @@ locret5b:\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub13()
 {
 #if __GNUC__
@@ -4521,6 +4560,9 @@ locret69a:\n \
 #endif
 }
 
+#if __clang__
+__attribute__((noinline))
+#endif
 void draw_gpoly_sub14()
 {
 #if __GNUC__

@@ -31,7 +31,7 @@ ifneq (,$(findstring Windows,$(OS)))
 else
   CROSS_EXEEXT =
   CROSS_COMPILE = i686-w64-mingw32-
-  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import
+  LINKFLAGS = -static-libgcc -static-libstdc++ -Wl,--enable-auto-import,--pdb=
 endif
 # Executable files extension on target environment
 EXEEXT = .exe
@@ -357,11 +357,11 @@ INCFLAGS =
 CV2PDB := $(shell PATH=`pwd`:$$PATH command -v cv2pdb.exe 2> /dev/null)
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
-  OPTFLAGS = -march=i686 -Og -fno-omit-frame-pointer
-  DBGFLAGS = -g -DDEBUG
+  OPTFLAGS = -march=x86-64-v2 -Og -fno-omit-frame-pointer
+  DBGFLAGS = -g -gcodeview -DDEBUG
 else
   # frame pointer is required for ASM code to work
-  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O3
+  OPTFLAGS = -march=x86-64-v2 -O3 -fno-omit-frame-pointer
   # if we can create a separate debug info file then do it
   ifdef CV2PDB
     DBGFLAGS = -g

@@ -20,6 +20,8 @@ jobs:
         set -eux
         sudo apt update
         sudo apt install -y build-essential g++-mingw-w64-i686 libpng16-16
+        cd /tmp && wget --no-verbose https://github.com/mstorsjo/llvm-mingw/releases/download/20230730/llvm-mingw-20230730-ucrt-ubuntu-20.04-x86_64.tar.xz
+        cd /usr/local/ && sudo tar xf /tmp/llvm-mingw-*.tar.xz --strip-components=1 && rm /tmp/llvm-mingw-*.tar.xz
 
     - name: build gfx
       run: |
