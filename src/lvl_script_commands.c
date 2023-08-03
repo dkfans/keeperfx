@@ -2760,6 +2760,12 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 20: // UPDATEFUNCTION
             objdat->updatefn_idx = context->value->arg2;
             break;
+        case 21: // DRAWCLASS
+            objdat->draw_class = context->value->arg2;
+            break;
+        case 22: // OWNERSHIPCATEGORY
+            objdat->own_category = context->value->arg2;
+            break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
             break;

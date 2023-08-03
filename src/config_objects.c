@@ -45,27 +45,29 @@ const struct NamedCommand objects_common_commands[] = {
   };
 
 const struct NamedCommand objects_object_commands[] = {
-  {"NAME",              1},
-  {"GENRE",             2},
-  {"RELATEDCREATURE",   3},
-  {"PROPERTIES",        4},
-  {"ANIMATIONID",       5},
-  {"ANIMATIONSPEED",    6},
-  {"SIZE_XY",           7},
-  {"SIZE_YZ",           8},
-  {"MAXIMUMSIZE",       9},
-  {"DESTROYONLIQUID",  10},
-  {"DESTROYONLAVA",    11},
-  {"HEALTH",           12},
-  {"FALLACCELERATION", 13},
-  {"LIGHTUNAFFECTED",  14},
-  {"LIGHTINTENSITY",   15},
-  {"LIGHTRADIUS",      16},
-  {"LIGHTISDYNAMIC",   17},
-  {"MAPICON",          18},
-  {"AMBIENCESOUND",    19},
-  {"UPDATEFUNCTION",   20},
-  {NULL,                0},
+  {"NAME",               1},
+  {"GENRE",              2},
+  {"RELATEDCREATURE",    3},
+  {"PROPERTIES",         4},
+  {"ANIMATIONID",        5},
+  {"ANIMATIONSPEED",     6},
+  {"SIZE_XY",            7},
+  {"SIZE_YZ",            8},
+  {"MAXIMUMSIZE",        9},
+  {"DESTROYONLIQUID",   10},
+  {"DESTROYONLAVA",     11},
+  {"HEALTH",            12},
+  {"FALLACCELERATION",  13},
+  {"LIGHTUNAFFECTED",   14},
+  {"LIGHTINTENSITY",    15},
+  {"LIGHTRADIUS",       16},
+  {"LIGHTISDYNAMIC",    17},
+  {"MAPICON",           18},
+  {"AMBIENCESOUND",     19},
+  {"UPDATEFUNCTION",    20},
+  {"DRAWCLASS",         21},
+  {"OWNERSHIPCATEGORY", 22},
+  {NULL,                 0},
   };
 
 const struct NamedCommand objects_properties_commands[] = {
@@ -569,6 +571,32 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     break;
                 }
                 objdat->updatefn_idx = n;
+                break;
+            case 21: // DRAWCLASS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objdat->draw_class = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 22: // OWNERSHIPCATEGORY
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objdat->own_category = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
                 break;
             case 0: // comment
                 break;
