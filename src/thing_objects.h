@@ -42,10 +42,10 @@ enum ObjectStates {
 };
 
 enum ObjectOwningCategory {
-    ObOC_Unknown0 = 0,
-    ObOC_Unknown1,
-    ObOC_Unknown2,
-    ObOC_Unknown3,
+    ObOC_Unset = 0,
+    ObOC_Move,
+    ObOC_Keep,
+    ObOC_Remove,
 };
 
 enum CallToArmsObjectLife {
