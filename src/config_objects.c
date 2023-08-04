@@ -66,7 +66,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"AMBIENCESOUND",     19},
   {"UPDATEFUNCTION",    20},
   {"DRAWCLASS",         21},
-  {"OWNERSHIPCATEGORY", 22},
+  {"PERSISTENCE",       22},
   {NULL,                 0},
   };
 
@@ -585,11 +585,11 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 22: // OWNERSHIPCATEGORY
+            case 22: // PERSISTENCE
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objdat->own_category = n;
+                    objdat->persistence = n;
                     n++;
                 }
                 if (n <= 0)
