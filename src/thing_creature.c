@@ -3875,7 +3875,6 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
         {
             set_creature_level(thing, cctrl->explevel + count);
         }
-        thing->health = cctrl->max_health;
         return true;
     }
 }
