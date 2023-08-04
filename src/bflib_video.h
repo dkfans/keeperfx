@@ -24,6 +24,8 @@
 
 #include "globals.h"
 
+#include <SDL2/SDL.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -264,6 +266,7 @@ extern unsigned short pixels_per_block;
 extern unsigned short units_per_pixel;
 
 extern TbDisplayStruct lbDisplay;
+extern SDL_Window *lbWindow;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);
