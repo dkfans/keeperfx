@@ -1237,7 +1237,7 @@ short get_creature_passenger_action_inputs(void)
     set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
     return true;
   }
-  if (is_key_pressed(KC_TAB,KMod_NONE))
+  if (is_key_pressed(KC_TAB, KMod_CONTROL))
   {
     clear_key_pressed(KC_TAB);
     toggle_gui();
