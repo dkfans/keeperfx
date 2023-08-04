@@ -477,6 +477,21 @@ TbBool thing_is_in_power_hand_list(const struct Thing *thing, PlayerNumber plyr_
     return false;
 }
 
+long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx)
+{
+    struct Dungeon* dungeon;
+    long i;
+    dungeon = get_dungeon(plyr_idx);
+    for (i = 0; i < dungeon->num_things_in_hand; i++)
+    {
+        if (dungeon->things_in_hand[i] == thing->index)
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void place_thing_in_limbo(struct Thing *thing)
 {
     remove_thing_from_mapwho(thing);
@@ -1036,6 +1051,7 @@ TbBool process_creature_in_dungeon_hand(struct Dungeon *dungeon, struct Thing *t
     crstat = creature_stats_get_from_thing(thing);
     anger_apply_anger_to_creature(thing, crstat->annoy_in_hand, AngR_Other, 1);
     process_thing_spell_effects_while_blocked(thing);
+    update_creature_levels(thing);
     return true;
 }
 

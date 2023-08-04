@@ -1082,17 +1082,6 @@ static void command_quick_information(int idx, const char *msgtext, const char *
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
 }
 
-static void command_play_message(long plr_range_id, const char *msgtype, int msg_num)
-{
-    long msgtype_id = get_id(msgtype_desc, msgtype);
-    if (msgtype_id == -1)
-    {
-        SCRPTERRLOG("Unrecognized message type, '%s'", msgtype);
-        return;
-  }
-  command_add_value(Cmd_PLAY_MESSAGE, plr_range_id, msgtype_id, msg_num, 0);
-}
-
 static void command_add_gold_to_player(long plr_range_id, long amount)
 {
     command_add_value(Cmd_ADD_GOLD_TO_PLAYER, plr_range_id, amount, 0, 0);
@@ -1859,9 +1848,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
-        break;
-    case Cmd_PLAY_MESSAGE:
-        command_play_message(scline->np[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_ADD_GOLD_TO_PLAYER:
         command_add_gold_to_player(scline->np[0], scline->np[1]);

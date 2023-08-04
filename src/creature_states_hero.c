@@ -316,7 +316,7 @@ TbBool good_setup_defend_rooms(struct Thing* creatng)
         return false;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    creatng->continue_state = CHeroTsk_DefendRooms;
+    creatng->continue_state = CrSt_PatrolHere;
     cctrl->target_room_id = room->index;
     return true;
 }

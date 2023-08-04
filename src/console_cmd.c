@@ -949,7 +949,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                             }
                         }
                     }
-                    if ((slbkind >= 0) && (slbkind <= slab_conf.slab_types_count))
+                    if ((slbkind >= 0) && (slbkind <= game.slab_conf.slab_types_count))
                     {
                         if (subtile_is_room(stl_x, stl_y))
                         {

@@ -42,6 +42,7 @@
 #include "bflib_memory.h"
 #include "post_inc.h"
 #include "music_player.h"
+#include "bflib_sound.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -247,6 +248,7 @@ const struct NamedCommand room_config_desc[] = {
   {"Roles",               13},
   {"TotalCapacity",       14},
   {"UsedCapacity",        15},
+  {"StorageHeight",       16},
   {NULL,                   0},
 };
 
@@ -346,6 +348,7 @@ const struct NamedCommand variable_desc[] = {
     {"TOTAL_SCORE",                 SVar_TOTAL_SCORE},
     {"BONUS_TIME",                  SVar_BONUS_TIME},
     {"CREATURES_TRANSFERRED",       SVar_CREATURES_TRANSFERRED},
+    {"ACTIVE_BATTLES",              SVar_ACTIVE_BATTLES},
     {NULL,                           0},
 };
 
@@ -928,9 +931,9 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = trap_id;
     value->shorts[1] = trapvar;
-    value->shorts[2] = scline->np[2];
-    value->shorts[3] = scline->np[3];
-    value->shorts[4] = scline->np[4];
+    value->uarg1 = scline->np[2];
+    value->shorts[4] = scline->np[3];
+    value->shorts[5] = scline->np[4];
     if (trapvar == 3) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
@@ -953,7 +956,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            if ((newvalue > LONG_MAX) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
@@ -970,7 +973,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
         }
         else
         {
@@ -1088,7 +1091,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > 7) || (newvalue < 0))
+            if ((newvalue >= RoCFlg_ListEnd) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
@@ -1160,7 +1163,7 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         newvalue = get_id(terrain_room_total_capacity_func_type, valuestring);
         if (newvalue == -1)
             {
-                SCRPTERRLOG("Unknown TotalCapacity variable");
+                SCRPTERRLOG("Unknown TotalCapacity variable '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
@@ -1171,13 +1174,22 @@ static void set_room_configuration_check(const struct ScriptLine* scline)
         newvalue = get_id(terrain_room_used_capacity_func_type, valuestring);
         if (newvalue == -1)
             {
-                SCRPTERRLOG("Unknown UsedCapacity variable");
+                SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
         value->shorts[2] = newvalue;
+
+        newvalue2 = get_id(terrain_room_used_capacity_func_type, valuestring2);
+        if (newvalue2 == -1)
+        {
+            SCRPTERRLOG("Unknown UsedCapacity variable '%s'", valuestring2);
+            DEALLOCATE_SCRIPT_VALUE
+                return;
+        }
+        value->shorts[3] = newvalue2;
     }
-    else if (roomvar != 4) // NameTextID, TooltipTextID, Cost, Health, AmbientSndSample, Messages
+    else if (roomvar != 4) // NameTextID, TooltipTextID, Cost, Health, AmbientSndSample, Messages, StorageHeight
     {
         if (parameter_is_number(valuestring))
         {
@@ -1364,19 +1376,19 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
 
 static void new_room_type_check(const struct ScriptLine* scline)
 {
-    if (slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
+    if (game.slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
     {
         SCRPTERRLOG("Cannot increase room count for room type '%s', already at maximum %d rooms.", scline->tp[0], TERRAIN_ITEMS_MAX - 1);
         return;
     }
 
-    SCRIPTDBG(7, "Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], slab_conf.room_types_count + 1);
-    slab_conf.room_types_count++;
+    SCRIPTDBG(7, "Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.slab_conf.room_types_count + 1);
+    game.slab_conf.room_types_count++;
 
     struct RoomConfigStats* roomst;
-    int i = slab_conf.room_types_count - 1;
+    int i = game.slab_conf.room_types_count - 1;
 
-    roomst = &slab_conf.room_cfgstats[i];
+    roomst = &game.slab_conf.room_cfgstats[i];
     LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     roomst->name_stridx = GUIStr_Empty;
@@ -1531,9 +1543,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[trap_type];
     struct ManfctrConfig *mconf = &gameadd.traps_config[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
-    short value = context->value->shorts[2];
-    short value2 = context->value->shorts[3];
-    short value3 = context->value->shorts[4];
+    long value = context->value->uarg1;
+    short value2 = context->value->shorts[4];
+    short value3 = context->value->shorts[5];
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
@@ -1679,7 +1691,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
 static void set_room_configuration_process(struct ScriptContext *context)
 {
     long room_type = context->value->shorts[0];
-    struct RoomConfigStats *roomst = &slab_conf.room_cfgstats[room_type];
+    struct RoomConfigStats *roomst = &game.slab_conf.room_cfgstats[room_type];
     unsigned short value;
     short value2;
     short value3;
@@ -1750,11 +1762,19 @@ static void set_room_configuration_process(struct ScriptContext *context)
                 roomst->roles |= context->value->uarg2;
             break;
         case 14: // TotalCapacity
+            roomst->update_total_capacity_idx = value;
             roomst->update_total_capacity = terrain_room_total_capacity_func_list[value];
+            reinitialise_rooms_of_kind(room_type);
             break;
         case 15: // UsedCapacity
+            roomst->update_storage_in_room_idx = value;
             roomst->update_storage_in_room = terrain_room_used_capacity_func_list[value];
+            roomst->update_workers_in_room_idx = value2;
             roomst->update_workers_in_room = terrain_room_used_capacity_func_list[value2];
+            reinitialise_rooms_of_kind(room_type);
+            break;
+        case 16: // StorageHeight
+            roomst->storage_height = value;
             break;
         default:
             WARNMSG("Unsupported Room configuration, variable %d.", context->value->shorts[1]);
@@ -1909,8 +1929,8 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                     return;
             }
         }
-        value->shorts[2] = slab_id;
-        value->shorts[3] = slab2_id;
+        value->uarg1 = slab_id;
+        value->shorts[4] = slab2_id;
     }
 
     else if (doorvar == 10) // SymbolSprites
@@ -1935,13 +1955,13 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            if ((newvalue > LONG_MAX) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
         }
         else if (doorvar == 9) // Crate
         {
@@ -1952,7 +1972,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
         }
         else
         {
@@ -1971,7 +1991,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    SCRIPTDBG(7, "Setting door %s property %s to %d", doorname, scline->tp[1], value->shorts[2]);
+    SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->uarg1);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -1981,8 +2001,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
     struct DoorConfigStats *doorst = get_door_model_stats(door_type);
     struct ManfctrConfig *mconf = &gameadd.doors_config[door_type];
     struct ManufactureData *manufctr = get_manufacture_data(gameadd.trapdoor_conf.trap_types_count - 1 + door_type);
-    short value = context->value->shorts[2];
-    short value2 = context->value->shorts[3];
+    short value = context->value->arg1;
+    short value2 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
         case 2: // ManufactureLevel
@@ -2739,6 +2759,12 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
         case 20: // UPDATEFUNCTION
             objdat->updatefn_idx = context->value->arg2;
+            break;
+        case 21: // DRAWCLASS
+            objdat->draw_class = context->value->arg2;
+            break;
+        case 22: // PERSISTENCE
+            objdat->persistence = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -3763,6 +3789,37 @@ static void set_music_process(struct ScriptContext *context)
     }
 }
 
+static void play_message_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long msgtype_id = get_id(msgtype_desc, scline->tp[1]);
+    if (msgtype_id == -1)
+    {
+        SCRPTERRLOG("Unrecognized message type: '%s'", scline->tp[1]);
+        return;
+    }
+    value->chars[0] = scline->np[0];
+    value->chars[1] = msgtype_id;
+    value->arg1 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void play_message_process(struct ScriptContext *context)
+{
+    if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
+    {
+        switch (context->value->chars[1])
+        {
+            case 1:
+                output_message(context->value->arg1, 0, true);
+                break;
+            case 2:
+                play_non_3d_sample(context->value->arg1);
+                break;
+        }
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -3830,7 +3887,7 @@ const struct CommandDesc command_desc[] = {
   {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
-  {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE, NULL, NULL},
+  {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER, NULL, NULL},
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
