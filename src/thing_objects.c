@@ -395,6 +395,12 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
             ERRORLOG("Could not allocate number for hero gate");
         }
         break;
+      case ObjMdl_SpinningKey:
+        if ((thing->mappos.z.stl.num == 4) && (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num)))
+        {
+            thing->mappos.z.stl.num = 5; // Move keys from old maps from inside to on top of the doors.
+        }
+        break;
       default:
         break;
     }
@@ -1700,7 +1706,12 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
 {
     int result; // eax
     objtng->health = 2;
-
+    if (is_neutral_thing(objtng))
+    {
+        ERRORLOG("Neutral %s index %d cannot be power sight.", thing_model_name(objtng), (int)objtng->index);
+        delete_thing_structure(objtng, 0);
+        return 0;
+    }
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
 
