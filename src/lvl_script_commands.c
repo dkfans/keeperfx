@@ -3850,7 +3850,7 @@ static void play_external_sound_check(const struct ScriptLine *scline)
     sound->loops = scline->np[4];
     if (!SoundDisabled)
     {
-        char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s", &sound->filename);
+        char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &sound->filename);
         Ext_Sounds[scline->np[0]] = Mix_LoadWAV(fname);
         if (Ext_Sounds[scline->np[0]] != NULL)
         {
