@@ -117,7 +117,7 @@ msgctxt "In-game message"
 msgid ""
 "Welcome noble one. I have terrible news for you. Snow white and the 7 dwarves have been captured along with Jack, the beanstalk AND the giant!! The wizards "
 "have realised how important this is and joined you!"
-msgstr "Bienvenue votre bonté. J'ai de terribles nouvelles à vous annoncer. Blanche-Neige et les 7 nains ont été capturés avec Jack, le haricot ET le géant!
+msgstr "Bienvenue votre bonté. J'ai de terribles nouvelles à vous annoncer. Blanche-Neige et les 7 nains ont été capturés avec Jack, le haricot ET le géant! "
 "Les sorciers ont réalisé à quel point Votre Grandeur est si grande Votre Altesse"
 
 #: guitext:21
@@ -155,7 +155,7 @@ msgctxt "In-game message"
 msgid ""
 "All you have is one thief. You must use brains, courage and skill to pass the initial test, and then you must vanquish the evil Warlocks that keep you "
 "enslaved, and destroy the evil keeper once and for all!"
-msgstr "Tout ce que vous avez, c'est un voleur. Souvenez-vous de vos antécédents. Vous avez les compétences nécessaires pour vaincre les démonistes qui vous gardent.
+msgstr "Tout ce que vous avez, c'est un voleur. Souvenez-vous de vos antécédents. Vous avez les compétences nécessaires pour vaincre les démonistes qui vous gardent."
 "Il faut rétablir la lumière dans ce tunnel sombre"
 
 #: guitext:31
@@ -183,8 +183,8 @@ msgctxt "In-game message"
 msgid ""
 "We have stumbled across a land with no accessible portals. You also have the torture chamber and prison available, you know what to do! Persuade some people to "
 "join you, and torture the rest!"
-msgstr "Nous sommes tombés sur une terre sans portails accessibles. Vous avez la chambre de torture et la prison à votre disposition, vous savez quoi faire mon seigneur!
-Persuader les ennemies avec des bons arguments de rejoindre la lumière! "
+msgstr "Nous sommes tombés sur une terre sans portails accessibles. Vous avez la chambre de torture et la prison à votre disposition, vous savez quoi faire mon seigneur! "
+"Persuader les ennemies avec des bons arguments de rejoindre la lumière! "
 
 #: guitext:41
 msgctxt "In-game message"
@@ -201,7 +201,7 @@ msgctxt "In-game message"
 msgid ""
 "Oh noble one, you have stumbled across 2 rival keepers battling it out. You must destroy both. The good news is that they are very preoccupied. If I were you, "
 "I would concentrate on blue first, and rumour has it there is a weakness at the back of blue's fortress."
-msgstr "Votre Grandeur, vous êtes tombé sur 2 gardiens rivaux qui s'entre tue. Vous devez les mettre d’accord. La bonne nouvelle, c'est qu'ils sont très occupé. 
+msgstr "Votre Grandeur, vous êtes tombé sur 2 gardiens rivaux qui s'entre tue. Vous devez les mettre d’accord. La bonne nouvelle, c'est qu'ils sont très occupé. "
 "Si j'étais vous. J'éclairerais le bleu en premier, la rumeur veut qu'il y ait une faiblesse à l'arrière de sa forteresse"
 
 #: guitext:51
@@ -212,8 +212,8 @@ msgstr "Des cimetières et des temples sont disponibles, les moines raffolent de
 #: guitext:52
 msgctxt "In-game message"
 msgid "A holy monk has come! They are very good at healing and preventing damage, making them a very good tank."
-msgstr "Un saint moine est venu! Ils sont très bon guérisseur, et ils encaissent bien les coups, 
-"mais ils ne convertissent pas les ennemies, "faut pas déconner on n'est pas dans aoe."
+msgstr "Un saint moine est venu! Ils sont très bon guérisseur, et ils encaissent bien les coups, "
+"mais ils ne convertissent pas les ennemies, faut pas déconner on n'est pas dans aoe."
 
 #: guitext:53 guitext:54 guitext:55 guitext:56 guitext:57 guitext:58 guitext:59
 msgctxt "In-game message"
@@ -240,7 +240,7 @@ msgstr "Vous avez une sorcière! Elles regorgent des sorts hallucinent votre bon
 #: guitext:63
 msgctxt "In-game message"
 msgid "The scavenger room has been discovered. When combined with the torture chamber, you can first convert 1 enemy, and then take them all!"
-msgstr "La salle d'enrôlement a été découverte mon seigneur. 
+msgstr "La salle d'enrôlement a été découverte mon seigneur. "
 "Montrez vos arguments à une ennemie pour qu'il rejoint notre cause, ensuite mettez-le au travail pour qu'il enrôle ses confreres. "
 
 #: guitext:64 guitext:65 guitext:66 guitext:67 guitext:68 guitext:69
@@ -254,7 +254,7 @@ msgid ""
 "This time there are 3 keepers after your blood, noble one. Starvation wont work this time, as they all have gem veins. Take one early to get a foothold, and "
 "the others will soon fall."
 msgstr ""
-"Cette fois, il y a 3 sangs impurs après votre sang noble. La famine ne sera pas une option cette fois-ci, les gemmes coulent dans leurs veines.
+"Cette fois, il y a 3 sangs impurs après votre sang noble. La famine ne sera pas une option cette fois-ci, les gemmes coulent dans leurs veines."
 "Prenez-en un tôt les autres tomberont aussi." 
 
 #: guitext:71 guitext:72 guitext:73 guitext:74 guitext:75 guitext:76 guitext:77 guitext:78 guitext:79

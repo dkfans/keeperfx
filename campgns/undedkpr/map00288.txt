@@ -37,17 +37,22 @@ ADD_CREATURE_TO_POOL(ORC,30)
 ADD_CREATURE_TO_POOL(DRAGON,7)
 ADD_CREATURE_TO_POOL(SPIDER,10)
 ADD_CREATURE_TO_POOL(TENTACLE,20)
-ADD_CREATURE_TO_POOL(VAMPIRE,3)
+ADD_CREATURE_TO_POOL(VAMPIRE,5)
 ADD_CREATURE_TO_POOL(GHOST,15)
 
 SET_CREATURE_HEALTH(DRAGON,950)
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
-MAX_CREATURES(PLAYER0,25)
+MAX_CREATURES(PLAYER0,27)
 MAX_CREATURES(PLAYER1,17)
-MAX_CREATURES(PLAYER2,24)
-MAX_CREATURES(PLAYER3,34)
+MAX_CREATURES(PLAYER2,20)
+MAX_CREATURES(PLAYER3,26)
+
+IF(PLAYER0,TOTAL_CREATURES >= 24)
+	MAX_CREATURES(PLAYER2,24)
+	MAX_CREATURES(PLAYER3,34)
+ENDIF
 
 REM -------------------------------------------------------------------------------------------------------------------------------------------
 
