@@ -3790,7 +3790,7 @@ static void set_music_check(const struct ScriptLine *scline)
             SCRPTERRLOG("File extension not specified.");
             return;
         }
-        const char* fname = prepare_file_fmtpath(FGrp_CmpgLvls, "%s.%s", scline->tp[1], scline->tp[2]);
+        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s.%s", scline->tp[1], scline->tp[2]);
         tracks[scline->np[0]] = Mix_LoadMUS(fname);
         if (tracks[scline->np[0]] == NULL)
         {
