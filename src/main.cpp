@@ -3856,6 +3856,7 @@ void game_loop(void)
       LbScreenClear(0);
       LbScreenSwap();
       StopMusicPlayer();
+      free_custom_music();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();

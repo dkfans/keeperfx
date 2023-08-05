@@ -32,7 +32,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 // the 50 is a static value, idealy would be equal to max_track. May not be smaller.
-Mix_Music* tracks[50];
+Mix_Music* tracks[MUSIC_TRACKS_COUNT];
 int current_track;
 /******************************************************************************/
 
@@ -184,6 +184,19 @@ void SetMusicPlayerVolume(int volume)
         if (normalized_volume != old_volume)
         {
             SYNCLOG("Music volume set: %d", normalized_volume);
+        }
+    }
+}
+
+void free_custom_music()
+{
+    for (int i = (max_track + 1); i < MUSIC_TRACKS_COUNT; i++)
+    {
+        Mix_Music *music = tracks[i];
+        if (music != NULL)
+        {
+            Mix_FreeMusic(music);
+            tracks[i] = NULL;
         }
     }
 }
