@@ -132,7 +132,7 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
                 else if (best_plyr_idx == -1)
                 {
                     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-                    cctrl->hero.last_checked_room_kind = (cctrl->hero.last_checked_room_kind + 1) % slab_conf.room_types_count;
+                    cctrl->hero.last_checked_room_kind = (cctrl->hero.last_checked_room_kind + 1) % game.slab_conf.room_types_count;
                     struct Room* room = find_room_of_kind_creature_can_navigate_to(creatng, plyr_idx, cctrl->hero.last_checked_room_kind, NavRtF_NoOwner);
                     if (!room_is_invalid(room))
                         return true;
