@@ -122,7 +122,7 @@ struct Game {
     unsigned char flags_cd;
     unsigned char eastegg02_cntr;
     char audiotrack;
-char numfield_14;
+    char last_audiotrack;
 char numfield_15;
     LevelNumber selected_level_number;
 char numfield_1A;

@@ -3773,71 +3773,84 @@ static void set_texture_process(struct ScriptContext *context)
 static void set_music_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    if (scline->tp[1][0] != '\0')
+    if (parameter_is_number(scline->tp[0]))
+    {
+        value->chars[0] = atoi(scline->tp[0]);
+    }
+    else
     {
         if (IsRedbookMusicActive())
         {
             SCRPTWRNLOG("Level script wants to play custom track from disk, but game is playing music from CD.");
             return;
         }
-        if (scline->np[0] <= max_track)
+        //todo: Check new file name against an array of all music track names
+        if (game.last_audiotrack < MUSIC_TRACKS_COUNT)
         {
-            SCRPTERRLOG("Attempt to overwrite non-custom music track %ld", scline->np[0]);
+            game.last_audiotrack++;
+        }
+        short track = game.last_audiotrack;
+            
+        if (game.last_audiotrack <= max_track) //todo: check if this can be removed
+        {
+            SCRPTERRLOG("Attempt to overwrite non-custom music track %ld", track);
             return;
         }
-        if (tracks[scline->np[0]] != NULL)
+        if (tracks[track] != NULL)
         {
-            SCRPTWRNLOG("Overwriting music track %ld.", scline->np[0]);
-            Mix_FreeMusic(tracks[scline->np[0]]);
+            SCRPTWRNLOG("Overwriting music track %d.", track);
+            Mix_FreeMusic(tracks[track]);
         }
-        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[1]);
-        tracks[scline->np[0]] = Mix_LoadMUS(fname);
-        if (tracks[scline->np[0]] == NULL)
+        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
+        tracks[track] = Mix_LoadMUS(fname);
+        if (tracks[track] == NULL)
         {
-            SCRPTERRLOG("Can't load track %ld (%s): %s", scline->np[0], fname, Mix_GetError());
+            SCRPTERRLOG("Can't load track %ld (%s): %s", track, fname, Mix_GetError());
             return;
         }
         else
         {
-            SCRPTLOG("Loaded file %s into music track %ld.", fname, scline->np[0]);
+            SCRPTLOG("Loaded file %s into music track %ld.", fname, track);
         }
+        value->chars[0] = track;
     }
-    value->chars[0] = scline->np[0];
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_music_process(struct ScriptContext *context)
 {
-    if (context->value->chars[0] >= FIRST_TRACK && context->value->chars[0] <= MUSIC_TRACKS_COUNT)
+    
+    short track_number = context->value->chars[0];
+    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT)
     {
-        if (context->value->chars[0] != game.audiotrack)
+        if (track_number != game.audiotrack)
         {
             if (IsRedbookMusicActive())
             {
-                SCRPTLOG("Setting music track to %d.", context->value->chars[0]);
+                SCRPTLOG("Setting music track to %d.", track_number);
             }
             else
             {
                 char info[255];
-                sprintf(info, "%s", Mix_GetMusicTitle(tracks[context->value->bytes[0]]));
-                const char* artist = Mix_GetMusicArtistTag(tracks[context->value->bytes[0]]);
+                sprintf(info, "%s", Mix_GetMusicTitle(tracks[track_number]));
+                const char* artist = Mix_GetMusicArtistTag(tracks[track_number]);
                 if (artist[0] != '\0')
                 {
                     sprintf(info, "%s by %s", info, artist);
                 }
-                const char* copyright = Mix_GetMusicCopyrightTag(tracks[context->value->bytes[0]]);
+                const char* copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
                 if (copyright[0] != '\0')
                 {
                     sprintf(info, "%s (%s)", info, copyright);
                 }
-                SCRPTLOG("Setting music track to %d: %s", context->value->chars[0], info);
+                SCRPTLOG("Setting music track to %d: %s", track_number, info);
             }
-            game.audiotrack = context->value->chars[0];
+            game.audiotrack = track_number;
         }
     }
     else
     {
-        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", context->value->chars[0],FIRST_TRACK,MUSIC_TRACKS_COUNT);
+        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
     }
 }
 
@@ -3914,7 +3927,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
   {"SET_CREATURE_MAX_LEVEL",            "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
-  {"SET_MUSIC",                         "Na      ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
+  {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
   {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
   {"SET_CREATURE_HEALTH",               "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},
