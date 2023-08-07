@@ -199,6 +199,7 @@ void free_custom_music()
             tracks[i] = NULL;
         }
     }
+    game.last_audiotrack = max_track;
 }
 
 /******************************************************************************/
