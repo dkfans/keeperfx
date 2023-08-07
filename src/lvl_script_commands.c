@@ -3837,17 +3837,17 @@ static void play_external_sound_check(const struct ScriptLine *scline)
         Mix_FreeChunk(Ext_Sounds[scline->np[0]]);
     }
     struct SoundDesc* sound = &gameadd.ext_samples[scline->np[0]];
-    if (sprintf(&sound->filename[0], "%s.%s", script_strdup(scline->tp[1]), script_strdup(scline->tp[2])) < 0)
+    if (sprintf(&sound->filename[0], "%s", script_strdup(scline->tp[1])) < 0)
     {
         SCRPTERRLOG("Unable to store filename for external sound slot %u", scline->np[0]);
         return;
     }
-    sound->volume = scline->np[3];
-    if (scline->np[3] > MIX_MAX_VOLUME)
+    sound->volume = scline->np[2];
+    if (scline->np[2] > MIX_MAX_VOLUME)
     {
         SCRPTWRNLOG("Setting volume above %d has no effect.", MIX_MAX_VOLUME);
     }
-    sound->loops = scline->np[4];
+    sound->loops = scline->np[3];
     if (!SoundDisabled)
     {
         char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &sound->filename);
@@ -4025,7 +4025,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
-  {"PLAY_EXTERNAL_SOUND",               "NAAnn   ", Cmd_PLAY_EXTERNAL_SOUND, &play_external_sound_check, &play_external_sound_process},
+  {"PLAY_EXTERNAL_SOUND",               "NAnn    ", Cmd_PLAY_EXTERNAL_SOUND, &play_external_sound_check, &play_external_sound_process},
   {"STOP_EXTERNAL_SOUND",               "        ", Cmd_STOP_EXTERNAL_SOUND, &cmd_no_param_check, &stop_external_sound_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
