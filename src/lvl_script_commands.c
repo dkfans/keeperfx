@@ -3785,17 +3785,12 @@ static void set_music_check(const struct ScriptLine *scline)
             SCRPTERRLOG("Attempt to overwrite non-custom music track %ld", scline->np[0]);
             return;
         }
-        if (scline->tp[2][0] == '\0')
-        {
-            SCRPTERRLOG("File extension not specified.");
-            return;
-        }
         if (tracks[scline->np[0]] != NULL)
         {
             SCRPTWRNLOG("Overwriting music track %ld.", scline->np[0]);
             Mix_FreeMusic(tracks[scline->np[0]]);
         }
-        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s.%s", scline->tp[1], scline->tp[2]);
+        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[1]);
         tracks[scline->np[0]] = Mix_LoadMUS(fname);
         if (tracks[scline->np[0]] == NULL)
         {
@@ -3919,7 +3914,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
   {"SET_CREATURE_MAX_LEVEL",            "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
-  {"SET_MUSIC",                         "Naa     ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
+  {"SET_MUSIC",                         "Na      ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
   {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
   {"SET_CREATURE_HEALTH",               "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},
