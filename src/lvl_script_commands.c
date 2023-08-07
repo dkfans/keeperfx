@@ -3777,7 +3777,7 @@ static void set_music_check(const struct ScriptLine *scline)
     {
         if (IsRedbookMusicActive())
         {
-            SCRPTERRLOG("Custom tracks are not supported when playing music from the CD.");
+            SCRPTWRNLOG("Level script wants to play custom track from disk, but game is playing music from CD.");
             return;
         }
         if (scline->np[0] <= max_track)
