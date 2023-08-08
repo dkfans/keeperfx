@@ -190,9 +190,13 @@ void SetMusicPlayerVolume(int volume)
 
 void music_reinit_after_load()
 {
-    for (int i = (max_track + 1); i <= MUSIC_TRACKS_COUNT; i++)
+    for (int i = (max_track + 1); i <= game.last_audiotrack; i++)
     {
         tracks[i] = Mix_LoadMUS(game.loaded_track[i]);
+        if (tracks[i] == NULL)
+        {
+            WARNLOG("Can't load track %d: %s", i, Mix_GetError());
+        }
     }  
 }
 
