@@ -3784,7 +3784,6 @@ static void set_music_check(const struct ScriptLine *scline)
             SCRPTWRNLOG("Level script wants to play custom track from disk, but game is playing music from CD.");
             return;
         }
-
         // See if a file with this name is already loaded, if so, reuse the same track
         char* compare_fname;
         for (int i = max_track + 1; i <= MUSIC_TRACKS_COUNT; i++)
@@ -3797,24 +3796,22 @@ static void set_music_check(const struct ScriptLine *scline)
                 return;
             }
         }
-
+        if ( (game.last_audiotrack < max_track) || (game.last_audiotrack > MUSIC_TRACKS_COUNT) )
+        {
+            WARNLOG("Music track %d is out-of-range - resetting.", game.last_audiotrack);
+            game.last_audiotrack = max_track;
+        }
         if (game.last_audiotrack < MUSIC_TRACKS_COUNT)
         {
             game.last_audiotrack++;
         }
         short tracknumber = game.last_audiotrack;
             
-        if (game.last_audiotrack <= max_track) //todo: check if this can be removed
-        {
-            SCRPTERRLOG("Attempt to overwrite non-custom music track %ld", tracknumber);
-            return;
-        }
         if (tracks[tracknumber] != NULL)
         {
-            SCRPTWRNLOG("Overwriting music track %d.", tracknumber);
+            WARNLOG("Overwriting music track %d.", tracknumber);
             Mix_FreeMusic(tracks[tracknumber]);
-        }   
-
+        }
         const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
         LbStringCopy(game.loaded_track[tracknumber], fname, DISKPATH_SIZE);
         tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
