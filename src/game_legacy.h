@@ -43,6 +43,7 @@
 #include "config_cubes.h"
 #include "map_columns.h"
 #include "map_events.h"
+#include "music_player.h"
 #include "lvl_script.h"
 #include "gui_msgs.h"
 #include "player_computer.h"
@@ -303,6 +304,7 @@ unsigned int packet_file_pos;
     int manufactr_spridx;
     int manufactr_tooltip;
     short barrack_max_party_size;
+    struct Tracks loaded_track[MUSIC_TRACKS_COUNT];
 };
 
 #pragma pack()

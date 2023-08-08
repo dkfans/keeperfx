@@ -1608,6 +1608,7 @@ void reinit_level_after_load(void)
     restore_room_update_functions_after_load();
     restore_computer_player_after_load();
     sound_reinit_after_load();
+    music_reinit_after_load();
 }
 
 /**

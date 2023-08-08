@@ -3784,35 +3784,50 @@ static void set_music_check(const struct ScriptLine *scline)
             SCRPTWRNLOG("Level script wants to play custom track from disk, but game is playing music from CD.");
             return;
         }
-        //todo: Check new file name against an array of all music track names
+
+        // See if a file with this name is already loaded, if so, reuse the same track
+        char* compare_fname;
+        for (int i = max_track; i < MUSIC_TRACKS_COUNT; i++)
+        {
+            compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
+            if (strcmp(compare_fname, game.loaded_track[i].fname) == 0)
+            {
+                value->chars[0] = i;
+                PROCESS_SCRIPT_VALUE(scline->command);
+                return;
+            }
+        }
+
         if (game.last_audiotrack < MUSIC_TRACKS_COUNT)
         {
             game.last_audiotrack++;
         }
-        short track = game.last_audiotrack;
+        short tracknumber = game.last_audiotrack;
             
         if (game.last_audiotrack <= max_track) //todo: check if this can be removed
         {
-            SCRPTERRLOG("Attempt to overwrite non-custom music track %ld", track);
+            SCRPTERRLOG("Attempt to overwrite non-custom music track %ld", tracknumber);
             return;
         }
-        if (tracks[track] != NULL)
+        if (tracks[tracknumber] != NULL)
         {
-            SCRPTWRNLOG("Overwriting music track %d.", track);
-            Mix_FreeMusic(tracks[track]);
-        }
+            SCRPTWRNLOG("Overwriting music track %d.", tracknumber);
+            Mix_FreeMusic(tracks[tracknumber]);
+        }   
+        struct Tracks *track = &game.loaded_track[tracknumber];
         const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
-        tracks[track] = Mix_LoadMUS(fname);
-        if (tracks[track] == NULL)
+        LbStringCopy(track->fname, fname, DISKPATH_SIZE);
+        tracks[tracknumber] = Mix_LoadMUS(track->fname);
+        if (tracks[tracknumber] == NULL)
         {
-            SCRPTERRLOG("Can't load track %ld (%s): %s", track, fname, Mix_GetError());
+            SCRPTERRLOG("Can't load track %ld (%s): %s", tracknumber, track->fname, Mix_GetError());
             return;
         }
         else
         {
-            SCRPTLOG("Loaded file %s into music track %ld.", fname, track);
+            SCRPTLOG("Loaded file %s into music track %ld.", track->fname, tracknumber);
         }
-        value->chars[0] = track;
+        value->chars[0] = tracknumber;
     }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
