@@ -3798,7 +3798,7 @@ static void set_music_check(const struct ScriptLine *scline)
         }
         if ( (game.last_audiotrack < max_track) || (game.last_audiotrack > MUSIC_TRACKS_COUNT) )
         {
-            WARNLOG("Music track %d is out-of-range - resetting.", game.last_audiotrack);
+            WARNLOG("Music track %d is out of range - resetting.", game.last_audiotrack);
             game.last_audiotrack = max_track;
         }
         if (game.last_audiotrack < MUSIC_TRACKS_COUNT)
