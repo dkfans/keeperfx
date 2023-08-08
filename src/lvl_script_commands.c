@@ -3790,7 +3790,7 @@ static void set_music_check(const struct ScriptLine *scline)
         for (int i = max_track; i < MUSIC_TRACKS_COUNT; i++)
         {
             compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
-            if (strcmp(compare_fname, game.loaded_track[i].fname) == 0)
+            if (strcmp(compare_fname, game.loaded_track[i]) == 0)
             {
                 value->chars[0] = i;
                 PROCESS_SCRIPT_VALUE(scline->command);
@@ -3814,18 +3814,18 @@ static void set_music_check(const struct ScriptLine *scline)
             SCRPTWRNLOG("Overwriting music track %d.", tracknumber);
             Mix_FreeMusic(tracks[tracknumber]);
         }   
-        struct Tracks *track = &game.loaded_track[tracknumber];
+
         const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
-        LbStringCopy(track->fname, fname, DISKPATH_SIZE);
-        tracks[tracknumber] = Mix_LoadMUS(track->fname);
+        LbStringCopy(game.loaded_track[tracknumber], fname, DISKPATH_SIZE);
+        tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
         if (tracks[tracknumber] == NULL)
         {
-            SCRPTERRLOG("Can't load track %ld (%s): %s", tracknumber, track->fname, Mix_GetError());
+            SCRPTERRLOG("Can't load track %ld (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
             return;
         }
         else
         {
-            SCRPTLOG("Loaded file %s into music track %ld.", track->fname, tracknumber);
+            SCRPTLOG("Loaded file %s into music track %ld.", game.loaded_track[tracknumber], tracknumber);
         }
         value->chars[0] = tracknumber;
     }

@@ -190,12 +190,9 @@ void SetMusicPlayerVolume(int volume)
 
 void music_reinit_after_load()
 {
-    struct Tracks* track;
-    
     for (int i = (max_track + 1); i < MUSIC_TRACKS_COUNT; i++)
     {
-        track = &game.loaded_track[i];
-        tracks[i] = Mix_LoadMUS(track->fname);
+        tracks[i] = Mix_LoadMUS(game.loaded_track[i]);
     }  
 }
 

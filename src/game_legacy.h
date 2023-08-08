@@ -304,7 +304,7 @@ unsigned int packet_file_pos;
     int manufactr_spridx;
     int manufactr_tooltip;
     short barrack_max_party_size;
-    struct Tracks loaded_track[MUSIC_TRACKS_COUNT];
+    char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
 };
 
 #pragma pack()

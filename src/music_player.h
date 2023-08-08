@@ -43,10 +43,6 @@ void SetMusicPlayerVolume(int volume);
 void free_custom_music();
 void music_reinit_after_load();
 
-struct Tracks {
-	char fname[DISKPATH_SIZE];
-};
-
 #ifdef __cplusplus
 }
 #endif
