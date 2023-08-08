@@ -3787,7 +3787,7 @@ static void set_music_check(const struct ScriptLine *scline)
 
         // See if a file with this name is already loaded, if so, reuse the same track
         char* compare_fname;
-        for (int i = max_track; i < MUSIC_TRACKS_COUNT; i++)
+        for (int i = max_track + 1; i <= MUSIC_TRACKS_COUNT; i++)
         {
             compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
             if (strcmp(compare_fname, game.loaded_track[i]) == 0)
