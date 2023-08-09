@@ -751,7 +751,7 @@ void reload_external_sounds()
         struct SoundDesc* sound = &gameadd.ext_samples[sample];
         if (sound->filename[0] != '\0')
         {
-            char *fname = prepare_file_fmtpath(FGrp_CmpgLvls,"%s", &sound->filename);
+            char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &sound->filename);
             Ext_Sounds[sample] = Mix_LoadWAV(fname);
             if (Ext_Sounds[sample] != NULL)
             {
