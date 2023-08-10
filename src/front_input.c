@@ -1158,6 +1158,7 @@ short get_creature_passenger_action_inputs(void)
     if (player->controlled_thing_idx == 0)
         return false;
     struct Thing* thing = thing_get(player->controlled_thing_idx);
+    TRACE_THING(thing);
     if (thing_is_creature(thing))
     {
         if (menu_is_active(GMnu_CREATURE_QUERY1))
@@ -1234,7 +1235,6 @@ short get_creature_passenger_action_inputs(void)
         set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0, 0, 0);
         return true;
     }
-    TRACE_THING(thing);
     if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
     {
         set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
