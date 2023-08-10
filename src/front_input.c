@@ -1157,80 +1157,83 @@ short get_creature_passenger_action_inputs(void)
         get_gui_inputs(1);
     if (player->controlled_thing_idx == 0)
         return false;
-    if (menu_is_active(GMnu_CREATURE_QUERY1))
+    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    if (thing_is_creature(thing))
     {
-      if (wheel_scrolled_down)
-      {
-        turn_off_menu(GMnu_CREATURE_QUERY1);
-        turn_on_menu(GMnu_CREATURE_QUERY2);
-        fake_button_click(0);
-        update_wheel_scrolled();
-      }
-      else if (wheel_scrolled_up)
-      {
-        turn_off_menu(GMnu_CREATURE_QUERY1);
-        turn_on_menu(GMnu_CREATURE_QUERY4);
-        fake_button_click(0);
-        update_wheel_scrolled();
-      }
-    }
-    else if (menu_is_active(GMnu_CREATURE_QUERY2))
-    {
-      if (wheel_scrolled_down)
-      {
-        turn_off_menu(GMnu_CREATURE_QUERY2);
-        turn_on_menu(GMnu_CREATURE_QUERY3);
-        fake_button_click(0);
-        update_wheel_scrolled();
-      }
-      else if (wheel_scrolled_up)
-      {
-        turn_off_menu(GMnu_CREATURE_QUERY2);
-        turn_on_menu(GMnu_CREATURE_QUERY1);
-        fake_button_click(0);
-        update_wheel_scrolled();
-      }
-    }
-    else if (menu_is_active(GMnu_CREATURE_QUERY3))
-    {
-      if (wheel_scrolled_down)
-      {
-        turn_off_menu(GMnu_CREATURE_QUERY3);
-        turn_on_menu(GMnu_CREATURE_QUERY4);
-        fake_button_click(0);
-        update_wheel_scrolled();
-      }
-      else if (wheel_scrolled_up)
-      {
-        turn_off_menu(GMnu_CREATURE_QUERY3);
-        turn_on_menu(GMnu_CREATURE_QUERY2);
-        fake_button_click(0);
-        update_wheel_scrolled();
-      }
-    }
-    else if (menu_is_active(GMnu_CREATURE_QUERY4))
-    {
-      if (wheel_scrolled_down)
-      {
-        turn_off_menu(GMnu_CREATURE_QUERY4);
-        turn_on_menu(GMnu_CREATURE_QUERY1);
-        fake_button_click(0);
-        update_wheel_scrolled();
-      }
-      else if (wheel_scrolled_up)
-      {
-        turn_off_menu(GMnu_CREATURE_QUERY4);
-        turn_on_menu(GMnu_CREATURE_QUERY3);
-        fake_button_click(0);
-        update_wheel_scrolled();
-      }
+        if (menu_is_active(GMnu_CREATURE_QUERY1))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY1);
+            turn_on_menu(GMnu_CREATURE_QUERY2);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY1);
+            turn_on_menu(GMnu_CREATURE_QUERY4);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+        else if (menu_is_active(GMnu_CREATURE_QUERY2))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY2);
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY2);
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+        else if (menu_is_active(GMnu_CREATURE_QUERY3))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY3);
+            turn_on_menu(GMnu_CREATURE_QUERY4);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY3);
+            turn_on_menu(GMnu_CREATURE_QUERY2);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+        else if (menu_is_active(GMnu_CREATURE_QUERY4))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY4);
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY4);
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
     }
     if (right_button_released)
     {
         set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0, 0, 0);
         return true;
   }
-  struct Thing* thing = thing_get(player->controlled_thing_idx);
   TRACE_THING(thing);
   if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
   {
