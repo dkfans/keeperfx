@@ -33,7 +33,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 // the 50 is a static value, idealy would be equal to max_track. May not be smaller.
-Mix_Music* tracks[50];
+Mix_Music* tracks[MUSIC_TRACKS_COUNT];
 int current_track;
 /******************************************************************************/
 
@@ -173,6 +173,32 @@ void SetMusicPlayerVolume(int volume)
             SYNCLOG("Music volume set: %d", normalized_volume);
         }
     }
+}
+
+void music_reinit_after_load()
+{
+    for (int i = (max_track + 1); i <= game.last_audiotrack; i++)
+    {
+        tracks[i] = Mix_LoadMUS(game.loaded_track[i]);
+        if (tracks[i] == NULL)
+        {
+            WARNLOG("Can't load track %d: %s", i, Mix_GetError());
+        }
+    }  
+}
+
+void free_custom_music()
+{
+    for (int i = (max_track + 1); i <= MUSIC_TRACKS_COUNT; i++)
+    {
+        Mix_Music *music = tracks[i];
+        if (music != NULL)
+        {
+            Mix_FreeMusic(music);
+            tracks[i] = NULL;
+        }
+    }
+    game.last_audiotrack = max_track;
 }
 
 /******************************************************************************/
