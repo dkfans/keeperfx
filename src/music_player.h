@@ -28,6 +28,8 @@ extern "C" {
 #endif
 
 #define FIRST_TRACK 2
+#define MUSIC_TRACKS_COUNT 50
+extern Mix_Music* tracks[];
 extern int max_track;
 
 TbBool IsRedbookMusicActive(void);
@@ -38,6 +40,8 @@ void PauseMusicPlayer(void);
 void ResumeMusicPlayer(void);
 void StopMusicPlayer(void);
 void SetMusicPlayerVolume(int volume);
+void free_custom_music();
+void music_reinit_after_load();
 
 #ifdef __cplusplus
 }
