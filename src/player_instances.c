@@ -429,17 +429,21 @@ long pinstfe_direct_control_creature(struct PlayerInfo *player, long *n)
         return 0;
     }
     set_player_instance(player, PI_CrCtrlFade, false);
+    TbBool my_player = (is_my_player(player));
     if (thing->class_id == TCls_Creature)
     {
         load_swipe_graphic_for_creature(thing);
-        if (is_my_player(player))
+        if (my_player)
         {
             if (creature_affected_by_spell(thing, SplK_Freeze)) {
                 PaletteSetPlayerPalette(player, blue_palette);
             }
-            turn_on_menu(GMnu_CREATURE_QUERY1);
         }
         creature_choose_first_available_instance(thing);
+    }
+    if (my_player)
+    {
+        turn_on_menu(GMnu_CREATURE_QUERY1);
     }
     return 0;
 }
