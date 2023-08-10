@@ -1233,19 +1233,19 @@ short get_creature_passenger_action_inputs(void)
     {
         set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0, 0, 0);
         return true;
-  }
-  TRACE_THING(thing);
-  if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
-  {
-    set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
-    return true;
-  }
-  if (is_key_pressed(KC_TAB, KMod_CONTROL))
-  {
-    clear_key_pressed(KC_TAB);
-    toggle_gui();
-  }
-  return false;
+    }
+    TRACE_THING(thing);
+    if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
+    {
+        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+        return true;
+    }
+    if (is_key_pressed(KC_TAB, KMod_CONTROL))
+    {
+        clear_key_pressed(KC_TAB);
+        toggle_gui();
+    }
+    return false;
 }
 
 short get_creature_control_action_inputs(void)
