@@ -1604,14 +1604,19 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         cctrl->teleport_x = trg_x;
         cctrl->teleport_y = trg_y;
     }
+    struct ShotConfigStats* shotst;
     // Check if the spell can be fired as a shot
     if (spconf->shot_model > 0)
     {
-        if ((castng->alloc_flags & TAlF_IsControlled) != 0)
-          i = THit_CrtrsNObjcts;
-        else
-          i = THit_CrtrsOnlyNotOwn;
-        creature_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
+        shotst = get_shot_model_stats(spconf->shot_model);
+        if ((shotst->model_flags & ShMF_Intangible) == 0)
+        {
+            if ((castng->alloc_flags & TAlF_IsControlled) != 0)
+              i = THit_CrtrsNObjcts;
+            else
+              i = THit_CrtrsOnlyNotOwn;
+            creature_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
+        }
     }
     // Check if the spell can be self-casted
     if (spconf->caster_affected)
@@ -1626,7 +1631,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         struct Thing* efthing = create_used_effect_or_element(&castng->mappos, spconf->cast_effect_model, castng->owner);
         if (!thing_is_invalid(efthing))
         {
-            struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
+            shotst = get_shot_model_stats(spconf->shot_model);
             efthing->shot_effect.hit_type = shotst->area_hit_type;
             efthing->parent_idx = castng->index;
         }
