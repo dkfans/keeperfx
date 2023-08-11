@@ -1612,12 +1612,12 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         else
           i = THit_CrtrsOnlyNotOwn;
         creature_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
-    } else
+    }
     // Check if the spell can be self-casted
     if (spconf->caster_affected)
     {
         if (spconf->caster_affect_sound > 0)
-          thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+          thing_play_sample(castng, spconf->caster_affect_sound + UNSYNC_RANDOM(spconf->caster_sounds_count), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
     }
     // Check if the spell has an effect associated
