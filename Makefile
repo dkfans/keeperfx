@@ -412,6 +412,7 @@ include prebuilds.mk
 
 # 'make autoclean' calculates the current checksum of all .h and .hpp files, storing the checksum in a file. Then it decides whether to run 'make clean' or 'make standard' based on whether any .h and .hpp files have been altered
 HEADER_CHECKSUM_FILE=.header_checksum
+
 autoclean:
 	@current_checksum=$$(find . -type f \( -name "*.h" -o -name "*.hpp" \) -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $$1}'); \
 	if [ ! -f $(HEADER_CHECKSUM_FILE) ] || [ "$$(cat $(HEADER_CHECKSUM_FILE))" != "$$current_checksum" ]; then \
