@@ -3773,19 +3773,96 @@ static void set_texture_process(struct ScriptContext *context)
 static void set_music_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->chars[0] = scline->np[0];
+    if (parameter_is_number(scline->tp[0]))
+    {
+        value->chars[0] = atoi(scline->tp[0]);
+    }
+    else
+    {
+        if (IsRedbookMusicActive())
+        {
+            SCRPTWRNLOG("Level script wants to play custom track from disk, but game is playing music from CD.");
+            return;
+        }
+        // See if a file with this name is already loaded, if so, reuse the same track
+        char* compare_fname;
+        for (int i = max_track + 1; i <= MUSIC_TRACKS_COUNT; i++)
+        {
+            compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
+            if (strcmp(compare_fname, game.loaded_track[i]) == 0)
+            {
+                value->chars[0] = i;
+                PROCESS_SCRIPT_VALUE(scline->command);
+                return;
+            }
+        }
+        if ( (game.last_audiotrack < max_track) || (game.last_audiotrack > MUSIC_TRACKS_COUNT) )
+        {
+            WARNLOG("Music track %d is out of range - resetting.", game.last_audiotrack);
+            game.last_audiotrack = max_track;
+        }
+        if (game.last_audiotrack < MUSIC_TRACKS_COUNT)
+        {
+            game.last_audiotrack++;
+        }
+        short tracknumber = game.last_audiotrack;
+            
+        if (tracks[tracknumber] != NULL)
+        {
+            WARNLOG("Overwriting music track %d.", tracknumber);
+            Mix_FreeMusic(tracks[tracknumber]);
+        }
+        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
+        LbStringCopy(game.loaded_track[tracknumber], fname, DISKPATH_SIZE);
+        tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
+        if (tracks[tracknumber] == NULL)
+        {
+            SCRPTERRLOG("Can't load track %ld (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
+            return;
+        }
+        else
+        {
+            SCRPTLOG("Loaded file %s into music track %ld.", game.loaded_track[tracknumber], tracknumber);
+        }
+        value->chars[0] = tracknumber;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_music_process(struct ScriptContext *context)
 {
-    if (context->value->chars[0] >= FIRST_TRACK && context->value->chars[0] <= max_track)
+    
+    short track_number = context->value->chars[0];
+    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT)
     {
-        game.audiotrack = context->value->chars[0];
+        if (track_number != game.audiotrack)
+        {
+            if (IsRedbookMusicActive())
+            {
+                SCRPTLOG("Setting music track to %d.", track_number);
+            }
+            else
+            {
+                char info[255];
+                sprintf(info, "%s", Mix_GetMusicTitle(tracks[track_number]));
+                const char* artist = Mix_GetMusicArtistTag(tracks[track_number]);
+                if (artist[0] != '\0')
+                {
+                    sprintf(info, "%s by %s", info, artist);
+                }
+                const char* copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
+                if (copyright[0] != '\0')
+                {
+                    sprintf(info, "%s (%s)", info, copyright);
+                }
+                SCRPTLOG("Setting music track to %d: %s", track_number, info);
+            }
+            game.audiotrack = track_number;
+        }
     }
     else
     {
-        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", context->value->chars[0],FIRST_TRACK,max_track);
+        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
     }
 }
 
@@ -3862,7 +3939,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
   {"SET_CREATURE_MAX_LEVEL",            "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
-  {"SET_MUSIC",                         "N       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
+  {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
   {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
   {"SET_CREATURE_HEALTH",               "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},
