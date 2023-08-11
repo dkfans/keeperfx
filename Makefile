@@ -410,19 +410,15 @@ include prebuilds.mk
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
 -include $(filter %.d,$(HVLOGOBJS:%.o=%.d))
 
-# 'make autoclean' calculates the current checksum of all .h and .hpp files, storing the checksum in a file. Then it decides whether to run 'make clean' or 'make standard' based on whether any .h and .hpp files have been altered
+# 'make all' calculates the current checksum of all .h and .hpp files, storing the checksum in a file. Then it decides whether to run 'make clean' or 'make standard' based on whether any .h and .hpp files have been altered
 HEADER_CHECKSUM_FILE=.header_checksum
 
-autoclean:
+all:
 	@current_checksum=$$(find . -type f \( -name "*.h" -o -name "*.hpp" \) -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $$1}'); \
 	if [ ! -f $(HEADER_CHECKSUM_FILE) ] || [ "$$(cat $(HEADER_CHECKSUM_FILE))" != "$$current_checksum" ]; then \
 		$(MAKE) clean; \
 	fi; \
 	$(MAKE) standard && echo "$$current_checksum" > $(HEADER_CHECKSUM_FILE)
-
-all:
-	@$(MAKE) clean
-	@$(MAKE) standard
 
 standard: CXXFLAGS += $(STLOGFLAGS)
 standard: CFLAGS += $(STLOGFLAGS)
