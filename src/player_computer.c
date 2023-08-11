@@ -1636,7 +1636,7 @@ void setup_computer_players2(void)
         int minSkirmishAI = comp_player_conf.skirmish_first;
         int maxSkirmishAI = comp_player_conf.skirmish_last;
 
-        int skirmish_AI_type = rand() % (maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
+        int skirmish_AI_type = GAME_RANDOM(maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
         // Always set human player to computer7 (a computer assistant) by default
         if (i == game.local_plyr_idx)
         {
