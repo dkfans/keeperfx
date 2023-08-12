@@ -241,10 +241,28 @@ TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
         return false;
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
         return false;
-    if (state)
-        player->allied_players |= (1 << ally_idx);
+    if ((player->allied_players && (1 << ally_idx)) != 0)
+    {
+        if (!state)
+        {
+            player->allied_players &= ~(1 << ally_idx);
+        }
+        else
+        {
+            return false;
+        }
+    }
     else
-        player->allied_players &= ~(1 << ally_idx);
+    {
+        if (state)
+        {
+            player->allied_players |= (1 << ally_idx);
+        }
+        else
+        {
+            return false;
+        }
+    }      
     return true;
 }
 
