@@ -1,0 +1,32 @@
+{
+	// See https://go.microsoft.com/fwlink/?LinkId=733558
+	// for the documentation about the tasks.json format
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Compile",
+			"type": "shell",
+			"command": "make -j`nproc` all",
+			"problemMatcher": "$gcc",
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},
+		},
+		{
+			"label": "Clean",
+			"type": "shell",
+			"command": "make -j`nproc` clean",
+			"problemMatcher": "$gcc",
+			"group": "build",
+		},
+		{
+			"label": "Generate compile_commands.json",
+			"type": "shell",
+			"command": "make clean-build clean-tools && bear -- make -j2 standard",
+			"problemMatcher": "$gcc",
+			"group": "build",
+			"dependsOn": ["Compile"],
+		}
+	]
+}
