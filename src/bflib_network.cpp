@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_enet.h"
 #include "bflib_datetm.h"
+#include "bflib_inputctrl.h"
 #include "bflib_memory.h"
 #include "bflib_netsession.h"
 #include "bflib_netsp.hpp"
@@ -374,7 +375,14 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     //presume login successful from here
     NETMSG("User %s successfully logged in", netstate.users[source].name);
     netstate.users[source].progress = USER_LOGGEDIN;
-    play_non_3d_sample(76);
+    if (!LbIsActive())
+    {
+        play_non_3d_sample(958);
+    }
+    else
+    {
+        play_non_3d_sample(982 + (rand() % 3));
+    }
 
     //send reply
     ptr = netstate.msg_buffer;
