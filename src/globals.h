@@ -297,17 +297,17 @@ typedef unsigned char NaviRouteFlags;
 
 struct Coord2d {
     union {
-      unsigned short val;
+      unsigned long val;
       struct {
         unsigned char pos;
-        unsigned char num;
+        unsigned short num;
         } stl;
     } x;
     union {
-      unsigned short val;
+      unsigned long val;
       struct {
         unsigned char pos;
-        unsigned char num;
+        unsigned short num;
         } stl;
     } y;
 };
@@ -315,48 +315,48 @@ struct Coord2d {
 
 struct Coord3d {
     union {
-      unsigned short val;
+      long val;
       struct {
         unsigned char pos;
-        unsigned char num;
+        unsigned short num;
         } stl;
     } x;
     union {
-      unsigned short val;
+      long val;
       struct {
         unsigned char pos;
-        unsigned char num;
+        unsigned short num;
         } stl;
     } y;
     union {
-      unsigned short val;
+      long val;
       struct {
         unsigned char pos;
-        unsigned char num;
+        unsigned short num;
         } stl;
     } z;
 };
 
 struct CoordDelta3d {
     union {
-      short val;
+      long val;
       struct {
         unsigned char pos;
-        char num;
+        short num;
         } stl;
     } x;
     union {
-      short val;
+      long val;
       struct {
         unsigned char pos;
-        char num;
+        short num;
         } stl;
     } y;
     union {
-      short val;
+      long val;
       struct {
         unsigned char pos;
-        char num;
+        short num;
         } stl;
     } z;
 };
