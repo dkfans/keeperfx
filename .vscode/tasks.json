@@ -6,7 +6,7 @@
 		{
 			"label": "Compile",
 			"type": "shell",
-			"command": "make -j`nproc` standard",
+			"command": "make -j`nproc` all",
 			"problemMatcher": "$gcc",
 			"group": {
 				"kind": "build",
