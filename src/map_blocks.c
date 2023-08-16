@@ -1638,7 +1638,10 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
                 //TODO this condition does not look consistent
                 if ((thing->class_id != TCls_Creature) || (floor_height <= 4))
                 {
-                    if (thing->model != 2) {
+                    //Suspect this has to do with object 2, torch, that needs to stay 4 cubes heigh. TCls_Door added later for braced door(model 2) key bug.
+                    //TODO investigate if doors need height 1 or 5, below code drops them to the floor
+                    if ((thing->model != 2) || (thing->class_id == TCls_Door)) 
+                    {
                         thing->mappos.z.val = subtile_coord(floor_height,0);
                     }
                 }
