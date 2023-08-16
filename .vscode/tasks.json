@@ -4,8 +4,8 @@
         {
             "label": "Check For Game Directory",
             "type": "shell",
-			"command": "game_directory=${config:game.directory}; echo -e '\\033[0;97mSource Code directory: ${workspaceFolder}\\033[0m'; if [ ! -d \"$game_directory\" ]; then echo -e '\\033[0;91mGame directory missing in settings.json. Please update it.\\033[0m'; exit 1; else echo -e '\\033[0;97mGame directory: ' $game_directory '\\033[0m'; fi",
-            "runOptions": {
+			"command": "echo -e '\\033[0;97mSource Code directory: ${workspaceFolder}\\033[0m'; if [ ! -d \"${config:game.directory}\" ]; then echo -e '\\033[0;91mGame directory missing in settings.json. Please update it.\\033[0m'; exit 1; else echo -e '\\033[0;97mGame directory: ' ${config:game.directory} '\\033[0m'; fi",
+			"runOptions": {
                 "runOn": "folderOpen"
             },
             "group": "build",
@@ -32,8 +32,8 @@
         {
             "label": "Copy Files",
             "type": "shell",
-            "command": "game_directory=${config:game.directory} && cd \"$game_directory\" && cp \"${workspaceFolder}/bin/\"* .",
-            "dependsOn": "Compile",
+			"command": "cd \"${config:game.directory}\" && cp \"${workspaceFolder}/bin/\"* .",
+			"dependsOn": "Compile",
             "group": "build",
             "presentation": {
                 "echo": false,
@@ -74,8 +74,8 @@
         {
             "label": "Log",
             "type": "shell",
-            "command": "game_directory=${config:game.directory} && cd \"$game_directory\" && > keeperfx.log && less +F --mouse keeperfx.log",
-            "dependsOn": "Check For Game Directory",
+			"command": "cd \"${config:game.directory}\" && > keeperfx.log && less +F --mouse keeperfx.log",
+			"dependsOn": "Check For Game Directory",
             "group": "build"
         },
         {
