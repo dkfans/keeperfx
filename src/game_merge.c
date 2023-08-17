@@ -96,9 +96,9 @@ LevelNumber get_selected_level_number(void)
  */
 LevelNumber set_selected_level_number(LevelNumber lvnum)
 {
-  if (lvnum >= 0)
-    game.selected_level_number = lvnum;
-  return game.selected_level_number;
+    if (lvnum >= 0)
+        game.selected_level_number = lvnum;
+    return game.selected_level_number;
 }
 
 /**
