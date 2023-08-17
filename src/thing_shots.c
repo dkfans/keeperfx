@@ -1001,8 +1001,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    //throw_strength = shotng->fall_acceleration; //this seems to be always 0, this is why it didn't work;
-    long throw_strength = shotst->push_on_hit;
+    long throw_strength = shotng->fall_acceleration;
     long n;
     if (trgtng->health < 0)
         return 0;
@@ -1113,8 +1112,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     long i;
     long n;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    //amp = shotng->fall_acceleration;
-    long amp = shotst->push_on_hit;
+    long amp = shotng->fall_acceleration;
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);

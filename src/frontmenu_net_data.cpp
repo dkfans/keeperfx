@@ -37,6 +37,7 @@
 #include "front_landview.h"
 #include "net_game.h"
 #include "sprites.h"
+#include "custom_sprites.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -87,7 +88,7 @@ struct GuiButtonInit frontend_net_session_buttons[] = {
   { 0,  0, 0, 0, frontnet_session_join,NULL,     frontend_over_button,0,  72, 360,  72, 360,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,      {13},            0, frontnet_join_game_maintain },
   { 0,  0, 0, 0, frontnet_session_create,NULL,   frontend_over_button,0, 321, 360, 321, 360,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,      {14},            0, NULL },
   { 0,  0, 0, 0, frontnet_return_to_main_menu,NULL,frontend_over_button,0,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,       {6},            0, NULL },
-  { 0,  0, 0, 0, frontnet_masterserver_refresh,NULL,      frontend_over_button,0, 221,  113, 221,  113,32, 26, frontend_masterserver_draw_refresh,   0, GUIStr_Empty, 0,     {111},            0, NULL },
+  { 0,  BID_MASTERSERVER_REFRESH, 0, 0, frontnet_masterserver_refresh,NULL,      frontend_over_button,0, 87,  110, 87,  110,230, 29, frontend_masterserver_draw_refresh,   0, GUIStr_Empty, 0,     {111},            0, frontnet_refresh_maintain },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,           0,  0,       {0},            0, NULL },
 };
 
@@ -211,7 +212,6 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
     long sessionIndex;
     long febtn_idx;
     long height;
-    char ping_buf[64];
 
     febtn_idx = (long)gbtn->content;
     sessionIndex = net_session_scroll_offset + febtn_idx - 45;
@@ -235,22 +235,28 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
         LbTextSetFont(frontend_font[font_idx]);
         lbDisplay.DrawFlags = 0;
         LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, net_session[sessionIndex]->text);
+        LbTextDrawResized(40, 0, tx_units_per_px, net_session[sessionIndex]->text);
     }
 
     if (net_session[sessionIndex]->valid_ping)
     {
-        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+        short latencystatus;
         if (net_session[sessionIndex]->latency_time >= 0)
         {
-            sprintf(ping_buf, "%ld", net_session[sessionIndex]->latency_time);
+            if (net_session[sessionIndex]->latency_time < 120)
+            {
+                latencystatus = GFS_status_green;
+            }
+            else if (net_session[sessionIndex]->latency_time < 250)
+            {
+                latencystatus = GFS_status_orange;
+            }
+            else
+            {
+                latencystatus = GFS_status_red;
+            }
+        LbSpriteDrawResized(gbtn->scr_pos_x - 8, gbtn->scr_pos_y + (gbtn->height / 5), tx_units_per_px, get_frontend_sprite(latencystatus));
         }
-        else
-        {
-            strcpy(ping_buf, "---");
-        }
-        LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
-        LbTextDrawResized(0, 0, tx_units_per_px, ping_buf);
     }
 }
 

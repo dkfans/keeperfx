@@ -69,12 +69,24 @@ long frontnet_number_of_players_in_session(void)
 void frontnet_session_up_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^= (gbtn->flags ^ LbBtnF_Enabled * (net_session_scroll_offset != 0)) & LbBtnF_Enabled;
+
+    if (wheel_scrolled_up || (is_key_pressed(KC_UP, KMod_NONE)))
+    {
+        if (net_session_scroll_offset > 0)
+            net_session_scroll_offset--;
+    }
 }
 
 void frontnet_session_down_maintain(struct GuiButton *gbtn)
 {
     gbtn->flags ^=
             (gbtn->flags ^ LbBtnF_Enabled * (net_number_of_sessions - 1 > net_session_scroll_offset)) & LbBtnF_Enabled;
+
+    if (wheel_scrolled_down || (is_key_pressed(KC_DOWN, KMod_NONE)))
+    {
+        if (net_session_scroll_offset < net_number_of_sessions - 1)
+            net_session_scroll_offset++;
+    }
 }
 
 void frontnet_session_maintain(struct GuiButton *gbtn)
@@ -95,6 +107,14 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn)
                    LbBtnF_Enabled;
 }
 
+void frontnet_refresh_maintain(struct GuiButton* gbtn)
+{
+    if (is_key_pressed(KC_F5, KMod_NONE))
+    {
+        frontend_mouse_over_button = (long)gbtn->content;
+        masterserver_fetch_sessions();
+    }
+}
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
 {
     if ((net_session_index_active != -1) && (net_session[net_session_index_active] != NULL) &&
@@ -275,15 +295,15 @@ void frontend_masterserver_draw_refresh(struct GuiButton *gbtn)
     const struct TbSprite *spr;
     if ((long)gbtn->content == frontend_mouse_over_button)
     {
-        spr = get_frontend_sprite(get_icon_id("icon_refresh_yellow"));
+        spr = get_frontend_sprite(GFS_refresh_ylw);
     }
     else
     {
-        spr = get_frontend_sprite(get_icon_id("icon_refresh_red"));
+        spr = get_frontend_sprite(GFS_refresh_red);
     }
     if (spr)
     {
-        LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y, tx_units_per_px, spr);
+        LbSpriteDrawResized(gbtn->scr_pos_x + (gbtn->width * 3 / 4), gbtn->scr_pos_y + (gbtn->height / 3) , tx_units_per_px, spr);
     }
 }
 
@@ -982,6 +1002,15 @@ void frontnet_service_select(struct GuiButton *gbtn)
     else
     {
         setup_network_service(srvidx);
+    }
+}
+
+void frontnet_init_session_menu()
+{
+    int idx = guibutton_get_idx_by_id(BID_MASTERSERVER_REFRESH);
+    if (net_service_index_selected != NS_ENET_UDP)
+    {
+        guibutton_get(idx)->flags &= ~LbBtnF_Visible;
     }
 }
 
