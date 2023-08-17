@@ -2548,6 +2548,7 @@ void set_gui_visible(TbBool visible)
   switch (player->view_type)
   {
   case PVT_CreatureContrl:
+  case PVT_CreaturePasngr:
       toggle_first_person_menu(is_visbl);
       break;
   case PVT_MapScreen:
