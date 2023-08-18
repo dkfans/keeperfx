@@ -3951,12 +3951,9 @@ static void play_message_process(struct ScriptContext *context)
                 {
                     SCRPTERRLOG("Message type %s for exteral sounds not yet implemented.", get_conf_parameter_text(msgtype_desc, context->value->chars[1]));
                 }
-                if (!SoundDisabled)
+                if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[2]], 0) == -1)
                 {
-                    if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[2]], 0) == -1)
-                    {
-                        SCRPTERRLOG("Could not play sound %s: %s", &game.loaded_sound[context->value->bytes[2]][0], Mix_GetError());
-                    }
+                    SCRPTERRLOG("Could not play sound %s: %s", &game.loaded_sound[context->value->bytes[2]][0], Mix_GetError());
                 }
             }
         }
