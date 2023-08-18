@@ -1008,6 +1008,7 @@ void post_init_player(struct PlayerInfo *player)
 
 void post_init_players(void)
 {
+    SYNCDBG(8, "Starting");
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);

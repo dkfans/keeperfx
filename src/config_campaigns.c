@@ -30,6 +30,7 @@
 #include "config_strings.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
+#include "map_data.h"
 
 #include "game_merge.h"
 #include "post_inc.h"
@@ -150,8 +151,8 @@ void clear_level_info(struct LevelInformation *lvinfo)
   lvinfo->options = LvOp_None;
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
-  lvinfo->mapsize_x = 85;
-  lvinfo->mapsize_y = 85;
+  lvinfo->mapsize_x = DEFAULT_MAP_SIZE;
+  lvinfo->mapsize_y = DEFAULT_MAP_SIZE;
 }
 
 /**

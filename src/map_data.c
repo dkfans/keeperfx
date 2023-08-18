@@ -875,7 +875,10 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
 void init_map_size(LevelNumber lvnum)
 {
     struct LevelInformation* lvinfo = get_level_info(lvnum);
-    set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
+    if (lvinfo == NULL)
+        set_map_size(DEFAULT_MAP_SIZE, DEFAULT_MAP_SIZE);
+    else
+        set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
 }
 
 /******************************************************************************/
