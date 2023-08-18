@@ -3880,7 +3880,50 @@ static void play_message_check(const struct ScriptLine *scline)
     }
     value->chars[0] = scline->np[0];
     value->chars[1] = msgtype_id;
-    value->arg1 = scline->np[2];
+    if (parameter_is_number(scline->tp[2]))
+    {
+        value->shorts[1] = atoi(scline->tp[2]);
+        value->bytes[4] = 0;
+    }
+    else
+    {
+        value->bytes[4] = 1;
+        for (unsigned char i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
+        {
+            char* compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[2]);
+            if (strcmp(compare_fname, game.loaded_sound[i]) == 0)
+            {
+                value->bytes[2] = i;
+                PROCESS_SCRIPT_VALUE(scline->command);
+                return;
+            }
+        }
+        if (game.sounds_count >= EXTERNAL_SOUNDS_COUNT)
+        {
+            ERRORLOG("All external sounds slots are used.");
+            return;
+        }
+        unsigned char slot = game.sounds_count;
+        if (sprintf(&game.loaded_sound[slot][0], "%s", script_strdup(scline->tp[2])) < 0)
+        {
+            SCRPTERRLOG("Unable to store filename for external sound %s", scline->tp[1]);
+            return;
+        }
+        char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &game.loaded_sound[slot][0]);
+        Ext_Sounds[slot] = Mix_LoadWAV(fname);
+        if (Ext_Sounds[slot] != NULL)
+        {
+            Mix_VolumeChunk(Ext_Sounds[slot], settings.sound_volume);
+            game.sounds_count++;
+        }
+        else
+        {
+            SCRPTERRLOG("Could not load sound %s: %s", fname, Mix_GetError());
+            return;
+        }
+        SCRPTLOG("Loaded sound file %s into slot %u.", fname, slot);
+        value->bytes[2] = slot;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3888,77 +3931,36 @@ static void play_message_process(struct ScriptContext *context)
 {
     if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
     {
-        switch (context->value->chars[1])
+        if (!context->value->bytes[4])
         {
-            case 1:
-                output_message(context->value->arg1, 0, true);
-                break;
-            case 2:
-                play_non_3d_sample(context->value->arg1);
-                break;
-        }
-    }
-}
-
-static void play_external_sound_check(const struct ScriptLine *scline)
-{
-    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    if ((unsigned long)scline->np[0] > EXTERNAL_SOUNDS_COUNT)
-    {
-        SCRPTERRLOG("Invalid external sound slot: %ld", scline->np[0]);
-        return;
-    }
-    if (Ext_Sounds[scline->np[0]] != NULL)
-    {
-        SCRPTWRNLOG("External sound slot %u is already used; overwriting.", scline->np[0]);
-        Mix_FreeChunk(Ext_Sounds[scline->np[0]]);
-    }
-    struct SoundDesc* sound = &gameadd.ext_samples[scline->np[0]];
-    if (sprintf(&sound->filename[0], "%s", script_strdup(scline->tp[1])) < 0)
-    {
-        SCRPTERRLOG("Unable to store filename for external sound slot %u", scline->np[0]);
-        return;
-    }
-    sound->volume = scline->np[2];
-    if (scline->np[2] > MIX_MAX_VOLUME)
-    {
-        SCRPTWRNLOG("Setting volume above %d has no effect.", MIX_MAX_VOLUME);
-    }
-    sound->loops = scline->np[3];
-    if (!SoundDisabled)
-    {
-        char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &sound->filename);
-        Ext_Sounds[scline->np[0]] = Mix_LoadWAV(fname);
-        if (Ext_Sounds[scline->np[0]] != NULL)
-        {
-            Mix_VolumeChunk(Ext_Sounds[scline->np[0]], (sound->volume == 0) ? settings.sound_volume : sound->volume);
+            switch (context->value->chars[1])
+            {
+                case 1:
+                    output_message(context->value->shorts[1], 0, true);
+                    break;
+                case 2:
+                    play_non_3d_sample(context->value->shorts[1]);
+                    break;
+            }
         }
         else
         {
-            SCRPTERRLOG("Could not load sound %s into slot %u: %s", fname, scline->np[0], Mix_GetError());
-            return;
-        }
-        value->bytes[0] = scline->np[0];
-        SCRPTLOG("Loaded sound file %s into slot %u. Volume %d. %ld loops.", fname, scline->np[0], sound->volume, sound->loops);
-        PROCESS_SCRIPT_VALUE(scline->command);
-    }
-}
-
-static void play_external_sound_process(struct ScriptContext *context)
-{
-    if (!SoundDisabled)
-    {
-        struct SoundDesc* sound = &gameadd.ext_samples[context->value->bytes[0]];
-        if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[0]], sound->loops) == -1)
-        {
-            SCRPTERRLOG("Could not play sound %s for slot %u: %s", &sound->filename, context->value->bytes[0], Mix_GetError());
+            if (!SoundDisabled)
+            {
+                if (context->value->chars[1] == 1)
+                {
+                    SCRPTERRLOG("Message type %s for exteral sounds not yet implemented.", get_conf_parameter_text(msgtype_desc, context->value->chars[1]));
+                }
+                if (!SoundDisabled)
+                {
+                    if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[2]], 0) == -1)
+                    {
+                        SCRPTERRLOG("Could not play sound %s: %s", &game.loaded_sound[context->value->bytes[2]][0], Mix_GetError());
+                    }
+                }
+            }
         }
     }
-}
-
-static void stop_external_sound_process(struct ScriptContext *context)
-{
-   Mix_HaltChannel(-1);
 }
 
 /**
@@ -4028,7 +4030,7 @@ const struct CommandDesc command_desc[] = {
   {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
-  {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
+  {"PLAY_MESSAGE",                      "PAA     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER, NULL, NULL},
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
@@ -4102,8 +4104,6 @@ const struct CommandDesc command_desc[] = {
   {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
-  {"PLAY_EXTERNAL_SOUND",               "NAnn    ", Cmd_PLAY_EXTERNAL_SOUND, &play_external_sound_check, &play_external_sound_process},
-  {"STOP_EXTERNAL_SOUND",               "        ", Cmd_STOP_EXTERNAL_SOUND, &cmd_no_param_check, &stop_external_sound_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

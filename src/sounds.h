@@ -78,12 +78,6 @@ struct SoundBankEntry { // sizeof = 16
   unsigned long field_C;
 };
 
-struct SoundDesc {
-    char filename[18];
-    int volume;
-    int loops;
-};
-
 enum SoundSettingsFlags {
     SndSetting_None    = 0x00,
     SndSetting_MIDI = 0x01,

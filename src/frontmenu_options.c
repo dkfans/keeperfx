@@ -320,11 +320,7 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
     {
         if (Ext_Sounds[i] != NULL)
         {
-            struct SoundDesc* sound = &gameadd.ext_samples[i];
-            if (sound->volume == 0)
-            {
-                Mix_VolumeChunk(Ext_Sounds[i], settings.sound_volume);
-            }
+            Mix_VolumeChunk(Ext_Sounds[i], settings.sound_volume);
         }
     }
 }

@@ -196,7 +196,6 @@ TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
 int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
 {
     long chunks_done = 0;
-    free_sound_chunks();
     while (!LbFileEof(fhandle))
     {
         struct FileChunkHeader hdr;
@@ -231,10 +230,6 @@ int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry)
             }
             if (LbFileRead(fhandle, &gameadd, sizeof(struct GameAdd)) == sizeof(struct GameAdd)) {
             //accept invalid saves -- if (LbFileRead(fhandle, &gameadd, hdr.len) == hdr.len) {
-                if (!SoundDisabled)
-                {
-                    reload_external_sounds();
-                }
                 chunks_done |= SGF_GameAdd;
             } else {
                 WARNLOG("Could not read GameAdd chunk");
@@ -741,29 +736,6 @@ LevelNumber move_campaign_to_prev_level(void)
         curr_lvnum = set_continue_level_number(SINGLEPLAYER_FINISHED);
         SYNCDBG(8,"Continue level moved to FINISHED.");
         return curr_lvnum;
-    }
-}
-
-void reload_external_sounds()
-{
-    for (unsigned int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
-    {
-        struct SoundDesc* sound = &gameadd.ext_samples[sample];
-        if (sound->filename[0] != '\0')
-        {
-            char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &sound->filename);
-            Ext_Sounds[sample] = Mix_LoadWAV(fname);
-            if (Ext_Sounds[sample] != NULL)
-            {
-                int volume = (sound->volume == 0) ? settings.sound_volume : sound->volume;
-                Mix_VolumeChunk(Ext_Sounds[sample], volume);
-                SYNCLOG("Loaded sound file %s into slot %u. Volume %d. %ld loops.", fname, sample, volume, sound->loops);
-            }
-            else
-            {
-                ERRORLOG("Could not reload sound %s: %s", fname, Mix_GetError());
-            }
-        }
     }
 }
 

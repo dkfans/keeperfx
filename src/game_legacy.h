@@ -305,6 +305,8 @@ unsigned int packet_file_pos;
     int manufactr_tooltip;
     short barrack_max_party_size;
     char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
+    char loaded_sound[EXTERNAL_SOUNDS_COUNT][DISKPATH_SIZE];
+    unsigned char sounds_count;
 };
 
 #pragma pack()

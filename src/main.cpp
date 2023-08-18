@@ -3853,12 +3853,12 @@ void game_loop(void)
       LbScreenClear(0);
       LbScreenSwap();
       keeper_gameplay_loop();
-      free_sound_chunks();
       set_pointer_graphic_none();
       LbScreenClear(0);
       LbScreenSwap();
       StopMusicPlayer();
       free_custom_music();
+      free_sound_chunks();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
