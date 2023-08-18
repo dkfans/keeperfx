@@ -1138,19 +1138,18 @@ int masterserver_create_lobby(VALUE *ret)
     if (value_int32(val) != 1)
     {
         ERRORLOG("Unsupported ver");
-        goto end;
+        return 0;
     }
     VALUE_GET_KEY("token");
     if (value_string_length(val) >= sizeof(fe_masterserver_token))
     {
         ERRORLOG("Token is too big");
-        goto end;
+        return 0;
     }
     const char *token = value_string(val);
     strcpy(fe_masterserver_token, token);
-end:
     return 1;
-unable:
+unable: // Used by macro
     return 0;
 }
 
