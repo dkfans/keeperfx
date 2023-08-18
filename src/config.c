@@ -715,7 +715,7 @@ void load_conf_value(VALUE *dst, const char *buf, size_t pos, size_t buflen)
     if (pos >= buflen)
         return;
     // Skipping starting spaces
-    while ((buf[pos] == ' ') || (buf[pos] == '\t') || (buf[pos] == '\n') || (buf[pos] == '\r') || (buf[pos] == 26) || ((unsigned char)buf[pos] < 7))
+    while ((buf[pos] == ' ') || (buf[pos] == '\t')  || (buf[pos] == 26) || ((unsigned char)buf[pos] < 7))
     {
         pos++;
         if ((pos) >= buflen)
@@ -740,7 +740,15 @@ void load_conf_value(VALUE *dst, const char *buf, size_t pos, size_t buflen)
         pos++;
     }
     key_end = pos;
-    val = value_dict_add_(dst, buf + key_start, pos - key_start);
+    while ((buf[pos] == ' ') || (buf[pos] == '\t') || ((unsigned char)buf[pos] < 7))
+    {
+        pos++;
+        if ((pos) >= buflen)
+            return;
+    }
+    if (buf[pos] == ';')
+        return; // Bad case `KEY= ;`
+    val = value_dict_add_(dst, buf + key_start, key_end - key_start);
     pos++;
     val_start = pos;
     while(true)
@@ -755,9 +763,8 @@ void load_conf_value(VALUE *dst, const char *buf, size_t pos, size_t buflen)
             break;
         }
         else if (buf[pos] == 0)
-        {
-            value_dict_remove_(dst, buf + key_start, key_end - key_start);
-            return;
+        {  // End of file
+            break;
         }
         else if (is_decimal)
         {
