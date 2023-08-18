@@ -3890,8 +3890,7 @@ static void play_message_check(const struct ScriptLine *scline)
         value->bytes[4] = 1;
         for (unsigned char i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
         {
-            char* compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[2]);
-            if (strcmp(compare_fname, game.loaded_sound[i]) == 0)
+            if (strcmp(scline->tp[2], game.loaded_sound[i]) == 0)
             {
                 value->bytes[2] = i;
                 PROCESS_SCRIPT_VALUE(scline->command);
