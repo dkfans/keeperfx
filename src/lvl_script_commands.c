@@ -3935,29 +3935,38 @@ static void play_message_process(struct ScriptContext *context)
             switch (context->value->chars[1])
             {
                 case 1:
+                {
                     output_message(context->value->shorts[1], 0, true);
                     break;
+                }
                 case 2:
+                {
                     play_non_3d_sample(context->value->shorts[1]);
                     break;
+                }
             }
         }
         else
         {
             if (!SoundDisabled)
             {
-                if (context->value->chars[1] == 1)
+                switch (context->value->chars[1])
                 {
-                    if (!queue_external_sample(context->value->bytes[2]))
+                    case 1:
                     {
-                        SCRPTERRLOG("Could not add sample %s to audio queue.", &game.loaded_sound[context->value->bytes[2]][0]);
+                        if (!queue_external_sample(context->value->bytes[2]))
+                        {
+                            SCRPTERRLOG("Could not add sample %s to audio queue.", &game.loaded_sound[context->value->bytes[2]][0]);
+                        }
+                        break;
                     }
-                }
-                else
-                {
-                    if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[2]], 0) == -1)
+                    case 2:
                     {
-                        SCRPTERRLOG("Could not play sound %s: %s", &game.loaded_sound[context->value->bytes[2]][0], Mix_GetError());
+                        if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[2]], 0) == -1)
+                        {
+                            SCRPTERRLOG("Could not play sound %s: %s", &game.loaded_sound[context->value->bytes[2]][0], Mix_GetError());
+                        }
+                        break;
                     }
                 }
             }
