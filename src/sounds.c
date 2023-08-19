@@ -852,7 +852,7 @@ TbBool queue_external_sample(unsigned char slot)
     }
     else
     {
-        ERRORLOG("Could not queue sample %s to audio device: %s", game.loaded_sound[slot], SDL_GetError());
+        ERRORLOG("Could not add sample %s to audio queue: %s", game.loaded_sound[slot], SDL_GetError());
     }
     return success;
 }
