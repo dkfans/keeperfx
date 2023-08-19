@@ -36,7 +36,6 @@
 #include "thing_objects.h"
 #include "light_data.h"
 #include "lvl_script.h"
-#include "sounds.h"
 
 #ifdef __cplusplus
 extern "C" {

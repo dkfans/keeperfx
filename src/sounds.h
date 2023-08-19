@@ -111,7 +111,7 @@ void pause_music(TbBool pause);
 
 void update_first_person_object_ambience(struct Thing *thing);
 
-int InitialiseSDL();
+int Initialise_SDL_Audio(int frequency, unsigned short format, int channels, int chunksize);
 void ShutdownSDL();
 void free_sound_chunks();
 TbBool queue_external_sample(unsigned char slot);

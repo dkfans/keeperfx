@@ -25,13 +25,11 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_bufrw.h"
-#include "bflib_sound.h"
 
 #include "config.h"
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "config_compp.h"
-#include "config_settings.h"
 #include "custom_sprites.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -46,8 +44,6 @@
 #include "frontmenu_ingame_map.h"
 #include "gui_boxmenu.h"
 #include "keeperfx.hpp"
-#include "sounds.h"
-#include "lvl_script_commands.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
