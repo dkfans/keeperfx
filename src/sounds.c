@@ -65,6 +65,7 @@ char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
 int sdl_flags = 0;
+SDL_AudioDeviceID deviceId;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
 {
@@ -485,7 +486,7 @@ TbBool init_sound(void)
     snd_settng->redbook_enable = IsRedbookMusicActive();
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
-    sdl_flags = InitialiseSDL();
+    sdl_flags = Initialise_SDL_Audio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
     InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
@@ -778,10 +779,27 @@ void update_first_person_object_ambience(struct Thing *thing)
     ambience_timer = (ambience_timer + 1) % 4;
 }
 
-int InitialiseSDL()
+int Initialise_SDL_Audio(int frequency, unsigned short format, int channels, int chunksize)
 {
-    int flags = Mix_Init(MIX_INIT_OGG);
-    TbBool success = (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0);
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
+        return 0;
+    }
+    SDL_AudioSpec init_wave_spec;
+    init_wave_spec.freq = frequency;
+    init_wave_spec.format = format;
+    init_wave_spec.channels = channels;
+    init_wave_spec.samples = chunksize;
+    init_wave_spec.callback = NULL;
+    init_wave_spec.userdata = NULL;
+    deviceId = SDL_OpenAudioDevice(NULL, 0, &init_wave_spec, NULL, 0);
+    if (deviceId == 0)
+    {
+        ERRORLOG("Unable to open audio device: %s", SDL_GetError());
+        return 0;
+    }
+    int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3);
+    TbBool success = (Mix_OpenAudio(frequency, format, channels, chunksize) >= 0);
     if (!success)
     {
         ERRORLOG("Could not initialise SDL mixer: %s", Mix_GetError());
@@ -822,6 +840,20 @@ void free_sound_chunks()
         }
     }
     game.sounds_count = 0;
+}
+
+TbBool queue_external_sample(unsigned char slot)
+{
+    TbBool success = (SDL_QueueAudio(deviceId, Ext_Sounds[slot]->abuf, Ext_Sounds[slot]->alen) == 0);
+    if (success)
+    {
+        SDL_PauseAudioDevice(deviceId, 0);
+    }
+    else
+    {
+        ERRORLOG("Could not queue sample %s to audio device: %s", SDL_GetError());
+    }
+    return success;
 }
 /******************************************************************************/
 #ifdef __cplusplus

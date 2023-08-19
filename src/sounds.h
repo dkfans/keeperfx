@@ -114,6 +114,7 @@ void update_first_person_object_ambience(struct Thing *thing);
 int InitialiseSDL();
 void ShutdownSDL();
 void free_sound_chunks();
+TbBool queue_external_sample(unsigned char slot);
 /******************************************************************************/
 #ifdef __cplusplus
 }
