@@ -832,6 +832,7 @@ void ShutdownSDL()
 void free_sound_chunks()
 {
     SDL_PauseAudioDevice(deviceId, 1);
+    SDL_ClearQueuedAudio(deviceId);
     Mix_HaltChannel(-1);
     for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
     {
