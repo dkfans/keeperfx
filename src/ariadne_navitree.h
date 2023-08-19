@@ -26,9 +26,9 @@
 extern "C" {
 #endif
 
-#define TREEITEMS_COUNT 100000
-#define TREEVALS_COUNT 100001
-#define DELAUNAY_COUNT 1000
+#define TREEITEMS_COUNT 1000000
+#define TREEVALS_COUNT 1000001
+#define DELAUNAY_COUNT 10000
 
 /******************************************************************************/
 #pragma pack(1)

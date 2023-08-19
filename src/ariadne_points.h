@@ -22,7 +22,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define POINTS_COUNT 30000
+#define POINTS_COUNT 300000
 
 #ifdef __cplusplus
 extern "C" {

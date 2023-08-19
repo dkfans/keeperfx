@@ -611,6 +611,7 @@ long route_to_path(long ptfind_x, long ptfind_y, long ptstart_x, long ptstart_y,
         if (wp_num == ARID_PATH_WAYPOINTS_COUNT) {
             ERRORLOG("Exceeded max path length (i:%d,R:%d) (%d,%d)->(%d,%d)",
             wpi, wp_lim, ptfind_x, ptfind_y, ptstart_x, ptstart_y);
+            return ARID_PATH_WAYPOINTS_COUNT;
         }
         *total_len += LbSqrL((fov_AC.tipC.x - fov_AC.tipA.x) * (fov_AC.tipC.x - fov_AC.tipA.x)
             + (fov_AC.tipC.y - fov_AC.tipA.y) * (fov_AC.tipC.y - fov_AC.tipA.y));

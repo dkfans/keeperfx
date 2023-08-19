@@ -27,11 +27,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 // Originally was 3000, but we're not using bak_path from DLL which gives us 517 extra
-#define TREE_ROUTE_LEN 3517
-#define BORDER_LENGTH 100
-#define ROUTE_LENGTH 12000
-#define ARID_WAYPOINTS_COUNT 10
-#define ARID_PATH_WAYPOINTS_COUNT 256
+#define TREE_ROUTE_LEN 10000
+#define BORDER_LENGTH 1000
+#define ROUTE_LENGTH 120000
+#define ARID_WAYPOINTS_COUNT 100
+#define ARID_PATH_WAYPOINTS_COUNT 2560
 
 /******************************************************************************/
 #pragma pack(1)

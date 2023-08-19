@@ -22,8 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define REGIONS_COUNT        300
-#define REGION_QUEUE_LEN     200
+#define REGIONS_COUNT        3000
+#define REGION_QUEUE_LEN     2000
 
 #ifdef __cplusplus
 extern "C" {
