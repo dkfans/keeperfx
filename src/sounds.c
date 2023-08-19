@@ -810,6 +810,7 @@ int Initialise_SDL_Audio(int frequency, unsigned short format, int channels, int
 
 void ShutdownSDL()
 {
+    SDL_CloseAudioDevice(deviceId);
     int frequency, channels;
     unsigned short format;
     int i = Mix_QuerySpec(&frequency, &format, &channels);
