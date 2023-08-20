@@ -3902,7 +3902,7 @@ static void play_message_check(const struct ScriptLine *scline)
             ERRORLOG("All external sounds slots are used.");
             return;
         }
-        unsigned char slot = game.sounds_count;
+        unsigned char slot = game.sounds_count+1;
         if (sprintf(&game.loaded_sound[slot][0], "%s", script_strdup(scline->tp[2])) < 0)
         {
             SCRPTERRLOG("Unable to store filename for external sound %s", scline->tp[1]);
@@ -3954,10 +3954,11 @@ static void play_message_process(struct ScriptContext *context)
                 {
                     case 1:
                     {
-                        if (!queue_external_sample(context->value->bytes[2]))
+                        output_message(-context->value->bytes[2], 0, true);
+                        /*if (!queue_external_sample(context->value->bytes[2]))
                         {
                             SCRPTERRLOG("Could not add sample %s to audio queue.", &game.loaded_sound[context->value->bytes[2]][0]);
-                        }
+                        }*/
                         break;
                     }
                     case 2:
