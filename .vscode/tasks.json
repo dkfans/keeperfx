@@ -2,13 +2,27 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"label": "Check For Game Directory",
+			// After the project is first opened, mark settings.json as being untracked
+			"label": "Prevent settings.json from being tracked",
 			"type": "shell",
-			"command": "echo -e '\\033[0;97mSource Code directory: ${workspaceFolder}\\033[0m'; if [ ! -d \"${config:game.directory}\" ]; then echo -e '\\033[0;91mGame directory missing in settings.json. Please update it.\\033[0m'; exit 1; else echo -e '\\033[0;97mGame directory: ' ${config:game.directory} '\\033[0m'; fi",
+			"command": "git update-index --assume-unchanged .vscode/settings.json",
 			"problemMatcher": "$gcc",
 			"runOptions": {
 				"runOn": "folderOpen"
 			},
+			"group": "build",
+			"presentation": {
+				"echo": false,
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		},
+		{
+			"label": "Check For Game Directory",
+			"type": "shell",
+			"command": "echo -e '\\033[0;97mSource Code directory: ${workspaceFolder}\\033[0m'; if [ ! -d \"${config:game.directory}\" ]; then echo -e '\\033[0;91mGame directory missing in /.vscode/settings.json. Please update it.\\033[0m'; exit 1; else echo -e '\\033[0;97mGame directory: ' ${config:game.directory} '\\033[0m'; fi",
+			"problemMatcher": "$gcc",
 			"group": "build",
 			"presentation": {
 				"echo": false,
@@ -83,7 +97,7 @@
 			"command": "make clean-build clean-tools && bear -- make -j2 standard",
 			"problemMatcher": "$gcc",
 			"group": "build",
-			"dependsOn": ["Compile"]
+			"dependsOn": "Compile",
 		}
 	]
 }
