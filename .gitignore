@@ -17,6 +17,7 @@
 build*/
 *.cache
 .vscode
+.vscode/settings.json
 /libexterns
 docs/html
 docs/latex
