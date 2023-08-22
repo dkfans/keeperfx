@@ -5,7 +5,7 @@
 			// After the project is first opened, mark settings.json as being untracked
 			"label": "Prevent settings.json from being tracked",
 			"type": "shell",
-			"command": "git update-index --assume-unchanged .vscode/settings.json",
+			"command": "git update-index --skip-worktree .vscode/settings.json",
 			"problemMatcher": "$gcc",
 			"runOptions": {
 				"runOn": "folderOpen"
