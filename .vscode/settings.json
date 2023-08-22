@@ -1,12 +1,3 @@
 {
-	// Set your Dungeon Keeper game directory here, using Linux formatting.
-	// Linux users example: "/home/username/.wine/drive_c/dungeonkeeper/"
-	// Windows Users: Ensure you use forward slashes and begin with '/mnt/' followed by the drive letter in lowercase.
-	// For example: "D:/Games/DungeonKeeper/" is written as: "/mnt/d/Games/DungeonKeeper/"
-	"game.directory": "/path/goes/here/",
-
-	// Launch arguments, specify the map that is instantly loaded
-	"game.arguments": "-level 00001 -campaign keeporig -nointro -alex -altinput",
-
 	"C_Cpp.intelliSenseEngine": "disabled",
 }
