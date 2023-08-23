@@ -1,0 +1,4 @@
+{
+	"game_directory": "/path/goes/here/",
+	"game_arguments": "-level 00001 -campaign keeporig -nointro -alex -altinput"
+}

@@ -2,10 +2,10 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			// After the project is first opened, mark settings.json as being untracked
-			"label": "Prevent settings.json from being tracked",
+			// After the project is first opened, user.json will be created
+			"label": "Create user.json",
 			"type": "shell",
-			"command": "git update-index --skip-worktree .vscode/settings.json",
+			"command": "if [ ! -f \"${workspaceFolder}/.vscode/user.json\" ]; then cp \"${workspaceFolder}/.vscode/defaultuser\" \"${workspaceFolder}/.vscode/user.json\" && echo \"/.vscode/user.json was created, please edit it and fill in your game directory.\"; fi",
 			"problemMatcher": "$gcc",
 			"runOptions": {
 				"runOn": "folderOpen"
@@ -19,13 +19,29 @@
 			}
 		},
 		{
-			"label": "Check For Game Directory",
+			"label": "Check For jq Installation",
 			"type": "shell",
-			"command": "echo -e '\\033[0;97mSource Code directory: ${workspaceFolder}\\033[0m'; if [ ! -d \"${config:game.directory}\" ]; then echo -e '\\033[0;91mGame directory missing in /.vscode/settings.json. Please update it.\\033[0m'; exit 1; else echo -e '\\033[0;97mGame directory: ' ${config:game.directory} '\\033[0m'; fi",
+			"command": "jq --version > /dev/null 2>&1 || (echo -e '\\033[0;91mError: jq is not installed. Please install it using: sudo apt-get install jq\\033[0m' && exit 1)",
 			"problemMatcher": "$gcc",
 			"group": "build",
 			"presentation": {
 				"echo": false,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		},
+		{
+			"label": "Check For Game Directory",
+			"type": "shell",
+			"command": "echo -e '\\033[0;97mSource Code directory: ${workspaceFolder}\\033[0m'; game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); if [ ! -d \"$game_dir\" ]; then echo -e '\\033[0;91mGame directory missing in .vscode/user.json. Please edit the file and update it.\\033[0m'; exit 1; else echo -e '\\033[0;97mGame directory: ' $game_dir '\\033[0m'; fi",
+			"problemMatcher": "$gcc",
+			"dependsOn": "Check For jq Installation",
+			"group": "build",
+			"presentation": {
+				"echo": false,
+				"reveal": "always",
 				"focus": true,
 				"panel": "shared",
 				"showReuseMessage": false
@@ -40,6 +56,7 @@
 			"group": "build",
 			"presentation": {
 				"echo": false,
+				"reveal": "always",
 				"focus": true,
 				"panel": "shared",
 				"showReuseMessage": false,
@@ -48,12 +65,13 @@
 		{
 			"label": "Copy Files",
 			"type": "shell",
-			"command": "cd \"${config:game.directory}\" && cp \"${workspaceFolder}/bin/\"* .",
+			"command": "game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); cd \"$game_dir\" && cp \"${workspaceFolder}/bin/\"* .",
 			"problemMatcher": "$gcc",
 			"dependsOn": "Compile",
 			"group": "build",
 			"presentation": {
 				"echo": false,
+				"reveal": "always",
 				"focus": true,
 				"panel": "shared",
 				"showReuseMessage": false,
@@ -62,7 +80,7 @@
 		{
 			"label": "Compile, Copy Files, Run Game",
 			"type": "shell",
-			"command": "cd \"${config:game.directory}\" && if [ -n \"$WSL_DISTRO_NAME\" ]; then cmd.exe /C \"keeperfx.exe ${config:game.arguments}\"; else wine 'keeperfx.exe' ${config:game.arguments}; fi",
+			"command": "game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); game_args=$(jq -r '.game_arguments' ${workspaceFolder}/.vscode/user.json); cd \"$game_dir\" && if [ -n \"$WSL_DISTRO_NAME\" ]; then cmd.exe /C \"keeperfx.exe $game_args\"; else wine 'keeperfx.exe' $game_args; fi",
 			"problemMatcher": "$gcc",
 			"dependsOn": "Copy Files",
 			"group": {
@@ -71,6 +89,7 @@
 			},
 			"presentation": {
 				"echo": false,
+				"reveal": "always",
 				"focus": true,
 				"panel": "shared",
 				"showReuseMessage": false,
@@ -79,7 +98,7 @@
 		{
 			"label": "Log",
 			"type": "shell",
-			"command": "cd \"${config:game.directory}\" && > keeperfx.log && less +F --mouse keeperfx.log",
+			"command": "game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); cd \"$game_dir\" && > keeperfx.log && less +F --mouse keeperfx.log",
 			"problemMatcher": "$gcc",
 			"dependsOn": "Check For Game Directory",
 			"group": "build"
