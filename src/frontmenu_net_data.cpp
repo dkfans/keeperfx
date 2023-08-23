@@ -238,7 +238,12 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
         LbTextDrawResized(40, 0, tx_units_per_px, net_session[sessionIndex]->text);
     }
 
-    if (net_session[sessionIndex]->valid_ping)
+    if (net_session[sessionIndex]->is_invalid_version)
+    {
+        LbSpriteDrawResized(gbtn->scr_pos_x - 8, gbtn->scr_pos_y + (gbtn->height / 5), tx_units_per_px,
+                            get_frontend_sprite(GFS_scrollbar_indicator_std)); // TODO: need an icon for wrong version
+    }
+    else if (net_session[sessionIndex]->valid_ping)
     {
         short latencystatus;
         if (net_session[sessionIndex]->latency_time >= 0)

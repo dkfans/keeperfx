@@ -107,21 +107,22 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn)
                    LbBtnF_Enabled;
 }
 
-void frontnet_refresh_maintain(struct GuiButton* gbtn)
+void frontnet_refresh_maintain(struct GuiButton *gbtn)
 {
     if (is_key_pressed(KC_F5, KMod_NONE))
     {
-        frontend_mouse_over_button = (long)gbtn->content;
+        frontend_mouse_over_button = (long) gbtn->content;
         masterserver_fetch_sessions();
     }
 }
+
 void frontnet_join_game_maintain(struct GuiButton *gbtn)
 {
     if ((net_session_index_active != -1) && (net_session[net_session_index_active] != NULL) &&
         (net_session[net_session_index_active]->joinable))
         gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &=  ~LbBtnF_Enabled;
+        gbtn->flags &= ~LbBtnF_Enabled;
 }
 
 void frontnet_maintain_alliance(struct GuiButton *gbtn)
@@ -293,7 +294,7 @@ void frontend_masterserver_draw_refresh(struct GuiButton *gbtn)
 
     // TODO: cache it somewhere
     const struct TbSprite *spr;
-    if ((long)gbtn->content == frontend_mouse_over_button)
+    if ((long) gbtn->content == frontend_mouse_over_button)
     {
         spr = get_frontend_sprite(GFS_refresh_ylw);
     }
@@ -303,7 +304,8 @@ void frontend_masterserver_draw_refresh(struct GuiButton *gbtn)
     }
     if (spr)
     {
-        LbSpriteDrawResized(gbtn->scr_pos_x + (gbtn->width * 3 / 4), gbtn->scr_pos_y + (gbtn->height / 3) , tx_units_per_px, spr);
+        LbSpriteDrawResized(gbtn->scr_pos_x + (gbtn->width * 3 / 4), gbtn->scr_pos_y + (gbtn->height / 3),
+                            tx_units_per_px, spr);
     }
 }
 
@@ -1132,7 +1134,8 @@ int masterserver_create_lobby(VALUE *ret)
     char out_buf[256];
     VALUE *val;
 
-    sprintf(out_buf, "{\"method\":\"create_lobby\",\"player_name\":\"%s\"}\n", net_player_name);
+    sprintf(out_buf, "{\"method\":\"create_lobby\",\"player_name\":\"%s\",\"game_version\":\""PRODUCT_VERSION"\"}\n",
+            net_player_name);
     send_json_to_masterserver(out_buf, ret);
     VALUE_GET_KEY("v");
     if (value_int32(val) != 1)
@@ -1149,14 +1152,14 @@ int masterserver_create_lobby(VALUE *ret)
     const char *token = value_string(val);
     strcpy(fe_masterserver_token, token);
     return 1;
-unable: // Used by macro
+    unable: // Used by macro
     return 0;
 }
 
 void masterserver_toggle_public(struct GuiButton *gbtn)
 {
     VALUE ret_obj = {0};
-    VALUE *ret = &ret_obj, *val;
+    VALUE *ret = &ret_obj;
     if (my_player_number != SERVER_ID)
     {
         // TODO: update fe_public from server or masterserver
@@ -1170,7 +1173,6 @@ void masterserver_toggle_public(struct GuiButton *gbtn)
         {
             goto end;
         }
-        unable:
         ERRORLOG("Unable to parse response from masterserver");
         end:
         value_fini(ret);
@@ -1209,8 +1211,6 @@ void masterserver_session_started()
 
 void masterserver_send_update()
 {
-    char tmp_buf[1024];
-
     char out_buf[512];
     char players[256] = "", *P;
     VALUE ret_buf;

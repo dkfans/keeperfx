@@ -298,7 +298,7 @@ void masterserver_fetch_sessions()
     for (size_t i = 0; i < value_array_size(lst); i++)
     {
         VALUE *row = value_array_get(lst, i);
-        VALUE *name, *ip, *port, *status;
+        VALUE *name, *ip, *port, *status, *version;
         //value_dict_walk_sorted(ret, print_lst, NULL);
         name = value_dict_get(row, "name");
         if ((name == NULL) || (value_string(name) == NULL))
@@ -333,7 +333,17 @@ void masterserver_fetch_sessions()
             continue;
         }
         strcpy(masterserver_sessions[masterserver_sessions_num].text, value_string(name) );
-        masterserver_sessions[masterserver_sessions_num].joinable = true;
+        version = value_dict_get(row,"game_version");
+        if (value_string(version) && (0 == strcmp(PRODUCT_VERSION, value_string(version))))
+        {
+            masterserver_sessions[masterserver_sessions_num].is_invalid_version = false;
+            masterserver_sessions[masterserver_sessions_num].joinable = true;
+        }
+        else
+        {
+            masterserver_sessions[masterserver_sessions_num].is_invalid_version = true;
+            masterserver_sessions[masterserver_sessions_num].joinable = false;
+        }
         masterserver_sessions[masterserver_sessions_num].is_message = false;
         sprintf(masterserver_sessions[masterserver_sessions_num].ip_port, "%s:%d", value_string(ip), value_int32(port));
         masterserver_sessions_num++;
@@ -357,7 +367,7 @@ void masterserver_fetch_sessions()
 
 TbBool ping_host_sometimes(struct TbNetworkSessionNameEntry *p_entry)
 {
-    if (p_entry->is_message)
+    if (p_entry->is_message || !p_entry->joinable)
         return true;
     if (LbNetwork_PingSession(p_entry) == Lb_OK)
         return false;
