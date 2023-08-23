@@ -1327,9 +1327,9 @@ short load_map_slab_file(unsigned long lv_num)
       {
         slb = get_slabmap_block(x,y);
         n = lword(&buf[i]);
-        if (n > SLAB_TYPES_COUNT)
+        if (n > TERRAIN_ITEMS_MAX)
         {
-          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,SLAB_TYPES_COUNT);
+          WARNMSG("Slab Type %d exceeds limit of %d",(int)n, TERRAIN_ITEMS_MAX);
           n = SlbT_ROCK;
         }
         slb->kind = n;
