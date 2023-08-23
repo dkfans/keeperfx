@@ -157,11 +157,15 @@ static void draw_creature_view_icons(struct Thing* creatng)
     }
     else
     {
-        if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+        struct PlayerInfo* player = get_my_player();
+        if (player->view_type == PVT_CreatureContrl)
         {
-            x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-            struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % gameadd.crtr_conf.instances_count);
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
+            if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+            {
+                x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
+                struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % gameadd.crtr_conf.instances_count);
+                draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
+            }
         }
     }
 }
