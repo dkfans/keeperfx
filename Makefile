@@ -433,7 +433,8 @@ FOLDERS = bin obj/std obj/hvlog \
 obj/tests obj/cu \
 obj/std/json obj/hvlog/json \
 obj/std/centitoml obj/hvlog/centitoml \
-obj/enet
+obj/enet \
+sdl/for_final_package
 
 $(shell $(MKDIR) $(FOLDERS))
 
