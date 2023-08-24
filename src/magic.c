@@ -938,9 +938,11 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
     if (enemy_time_gap <= your_time_gap)
         enemy_time_gap = your_time_gap;
     game.armageddon_over_turn = game.armageddon.duration + enemy_time_gap;
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(PwrK_ARMAGEDDON);
-    play_non_3d_sample(powerst->select_sound_idx);
+    if (plyr_idx == my_player_number)
+    {
+        struct PowerConfigStats *powerst = get_power_model_stats(PwrK_ARMAGEDDON);
+        play_non_3d_sample(powerst->select_sound_idx);
+    }
     return Lb_SUCCESS;
 }
 
@@ -962,9 +964,11 @@ TbResult magic_use_power_obey(PlayerNumber plyr_idx, unsigned long mod_flags)
         dungeon->must_obey_turn = 0;
     } else {
         dungeon->must_obey_turn = game.play_gameturn;
-        struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(PwrK_OBEY);
-        play_non_3d_sample(powerst->select_sound_idx);
+        if (plyr_idx == my_player_number)
+        {
+            struct PowerConfigStats *powerst = get_power_model_stats(PwrK_OBEY);
+            play_non_3d_sample(powerst->select_sound_idx);
+        }
     }
     update_speed_of_player_creatures_of_model(plyr_idx, 0);
     return Lb_SUCCESS;
@@ -1058,9 +1062,11 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
             break;
         }
     }
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(PwrK_HOLDAUDNC);
-    play_non_3d_sample(powerst->select_sound_idx);
+    if (plyr_idx == my_player_number)
+    {
+        struct PowerConfigStats *powerst = get_power_model_stats(PwrK_HOLDAUDNC);
+        play_non_3d_sample(powerst->select_sound_idx);
+    }
     SYNCDBG(19,"Finished");
     return Lb_SUCCESS;
 }

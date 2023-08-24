@@ -204,13 +204,13 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return 0;
     case SVar_SLAB_OWNER: //IF_SLAB_OWNER
     {
-        long varib_id = get_slab_number(plyr_idx, validx);
+        long varib_id = get_slab_number((unsigned char)plyr_idx, validx);
         struct SlabMap* slb = get_slabmap_direct(varib_id);
         return slabmap_owner(slb);
     }
     case SVar_SLAB_TYPE: //IF_SLAB_TYPE
     {
-        long varib_id = get_slab_number(plyr_idx, validx);
+        long varib_id = get_slab_number((unsigned char)plyr_idx, validx);
         struct SlabMap* slb = get_slabmap_direct(varib_id);
         return slb->kind;
     }

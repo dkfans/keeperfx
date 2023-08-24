@@ -2293,6 +2293,7 @@ void gui_set_button_flashing(long btn_idx, long gameturns)
 
 void update_room_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, but skip "sell" button at end
     for (i=0; i < 4*4-1; i++)
@@ -2330,6 +2331,7 @@ void update_room_tab_to_config(void)
 
 void update_trap_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, but skip "sell" button at end
     for (i=0; i < 4*4-1; i++)
@@ -2383,6 +2385,7 @@ void update_trap_tab_to_config(void)
 
 void update_powers_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, no "sell" button at end
     for (i=0; i < 16; i++)
