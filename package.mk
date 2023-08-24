@@ -101,16 +101,16 @@ pkg/levels/%.cfg: levels/%.cfg | $(PKG_MAPPACK_DIRS)
 pkg/levels/%.txt: levels/%.txt | $(PKG_MAPPACK_DIRS)
 	$(CP) $^ $@
 
-pkg/SDL2_net.dll: sdl/SDL2_net-2.2.0/i686-w64-mingw32/bin/SDL2_net.dll | pkg
+pkg/SDL2_net.dll: sdl/for_final_package/SDL2_net.dll | pkg
 	$(CP) $^ $@
 
-pkg/SDL2_mixer.dll: sdl/SDL2_mixer-2.6.3/i686-w64-mingw32/bin/SDL2_mixer.dll | pkg
+pkg/SDL2_mixer.dll: sdl/for_final_package/SDL2_mixer.dll | pkg
 	$(CP) $^ $@
 
-pkg/SDL2_image.dll: sdl/SDL2_image-2.6.3/i686-w64-mingw32/bin/SDL2_image.dll | pkg
+pkg/SDL2_image.dll: sdl/for_final_package/SDL2_image.dll | pkg
 	$(CP) $^ $@
 
-pkg/SDL2.dll: sdl/bin/SDL2.dll | pkg
+pkg/SDL2.dll: sdl/for_final_package/SDL2.dll | pkg
 	$(CP) $^ $@
 
 $(PKG_NAME): $(PKG_FILES) | pkg
