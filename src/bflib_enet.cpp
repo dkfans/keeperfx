@@ -201,6 +201,28 @@ namespace
         return Lb_FAIL;
     }
 
+    TbError bf_enet_get_latency(NetUserId client_id, TbClockMSec *latency)
+    {
+        if (client_peer != nullptr)
+        {
+            return Lb_FAIL;
+        }
+        if (host == nullptr)
+        {
+            return Lb_FAIL;
+        }
+        for (int i = 0; i < host->peerCount; i++)
+        {
+            ENetPeer *peer = &host->peers[i];
+            if (NetUserId(reinterpret_cast<ptrdiff_t>(peer->data)) == client_id)
+            {
+                *latency = peer->roundTripTime;
+                return Lb_SUCCESS;
+            }
+        }
+        return Lb_OK;
+    }
+
     TbError bf_enet_ping(const char *session, TbClockMSec *latency, void *options)
     {
         char buf[64] = {0};
@@ -436,6 +458,7 @@ struct NetSP *InitEnetSP()
             .join = &bf_enet_join,
             .update = &bf_enet_update,
             .ping = &bf_enet_ping,
+            .get_latency = &bf_enet_get_latency,
             .sendmsg_single = &bf_enet_sendmsg_single,
             .sendmsg_all = &bf_enet_sendmsg_all,
             .msgready = &bf_enet_msgready,

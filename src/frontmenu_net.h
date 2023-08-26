@@ -8,7 +8,7 @@
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     05 Jan 2009 - 09 Oct 2010
+ * @date     05 Jan 2009 - Aug 2023
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -115,6 +115,8 @@ void frontnet_service_maintain(struct GuiButton *gbtn);
 void frontnet_draw_service_button(struct GuiButton *gbtn);
 void frontnet_init_session_start_menu();
 void frontnet_init_session_menu();
+
+short frontnet_map_latency_to_icon(int latency_time);
 
 #define frontnet_draw_scroll_box_tab frontend_draw_scroll_box_tab
 #define frontnet_draw_scroll_box frontend_draw_scroll_box

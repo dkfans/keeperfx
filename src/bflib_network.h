@@ -93,6 +93,10 @@ struct NetSP // new version
     TbError    (*ping)(const char *session, TbClockMSec *latency, void *options);
 
     /**
+     * Ping a session
+     */
+    TbError    (*get_latency) (NetUserId client_id, TbClockMSec *latency);
+    /**
      * Sends a message buffer to a certain user.
      * @param destination Destination user.
      * @param buffer
@@ -164,8 +168,9 @@ struct ConfigInfo {
 };
 
 struct TbNetworkPlayerInfo {
-char name[32];
-long active;
+    char name[32];
+    long active;
+    TbClockMSec latency;
 };
 
 // This struct is casted to TbNetworkSessionNameEntry
@@ -234,6 +239,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
 TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
 TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
 TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
+TbError LbNetwork_GetLatency(NetUserId player_id, TbClockMSec *latency);
 TbBool  LbNetwork_Resync(void * buf, size_t len);
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);

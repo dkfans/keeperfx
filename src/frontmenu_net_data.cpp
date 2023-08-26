@@ -248,19 +248,9 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
         short latencystatus;
         if (net_session[sessionIndex]->latency_time >= 0)
         {
-            if (net_session[sessionIndex]->latency_time < 120)
-            {
-                latencystatus = GFS_status_green;
-            }
-            else if (net_session[sessionIndex]->latency_time < 250)
-            {
-                latencystatus = GFS_status_orange;
-            }
-            else
-            {
-                latencystatus = GFS_status_red;
-            }
-        LbSpriteDrawResized(gbtn->scr_pos_x - 8, gbtn->scr_pos_y + (gbtn->height / 5), tx_units_per_px, get_frontend_sprite(latencystatus));
+            latencystatus = frontnet_map_latency_to_icon(net_session[sessionIndex]->latency_time);
+            LbSpriteDrawResized(gbtn->scr_pos_x - 8, gbtn->scr_pos_y + (gbtn->height / 5), tx_units_per_px,
+                                get_frontend_sprite(latencystatus));
         }
     }
 }

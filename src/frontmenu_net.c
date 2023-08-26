@@ -404,6 +404,22 @@ void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn)
     }
 }
 
+short frontnet_map_latency_to_icon(int latency_time)
+{
+    if (latency_time < 120)
+    {
+        return GFS_status_green;
+    }
+    else if (latency_time < 250)
+    {
+        return GFS_status_orange;
+    }
+    else
+    {
+        return  GFS_status_red;
+    }
+}
+
 void frontnet_draw_net_start_players(struct GuiButton *gbtn)
 {
     int i;
@@ -440,10 +456,19 @@ void frontnet_draw_net_start_players(struct GuiButton *gbtn)
                     break;
             }
         }
+        // Icon
         spr = &frontend_sprite[GFS_bullfrog_red_med + netplyr_idx];
         i = height - spr->SHeight * fs_units_per_px / 16;
         LbSpriteDrawResized(gbtn->scr_pos_x, gbtn->scr_pos_y + shift_y + abs(i) / 2, fs_units_per_px, spr);
-        LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + shift_y,
+        int pos_x = gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16;
+
+        // Latency
+        short latencystatus = frontnet_map_latency_to_icon(net_player_info[netplyr_idx].latency);
+        LbSpriteDrawResized(gbtn->scr_pos_x - 8, gbtn->scr_pos_y + (gbtn->height / 5), tx_units_per_px,
+                            get_frontend_sprite(latencystatus));
+
+        pos_x += spr ->SWidth * fs_units_per_px / 16;
+        LbTextSetWindow(pos_x, gbtn->scr_pos_y + shift_y,
                         gbtn->width - spr->SWidth * fs_units_per_px / 16, height);
         LbTextDrawResized(0, 0, tx_units_per_px, text);
     }

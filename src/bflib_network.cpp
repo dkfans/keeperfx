@@ -1343,6 +1343,11 @@ TbError LbNetwork_PingSession(struct TbNetworkSessionNameEntry *ses)
     return Lb_OK;
 }
 
+TbError LbNetwork_GetLatency(NetUserId connection_id, TbClockMSec *ret)
+{
+    return netstate.sp->get_latency(connection_id, ret);
+}
+
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)
 {
     unsigned i;

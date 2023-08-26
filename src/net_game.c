@@ -99,6 +99,11 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
               default: player->view_mode_restore = PVM_IsoWibbleView; break;
           }
           player->is_active = pckt->actn_par1;
+          TbClockMSec latency = 0;
+          if (LbNetwork_GetLatency(i , &latency) == Lb_SUCCESS)
+          {
+              net_player_info[i].latency = latency;
+          }
           init_player(player, 0);
           snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
           k++;
