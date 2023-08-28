@@ -2,13 +2,10 @@
 
 ![KeeperFX Logo](https://keeperfx.net/img/top-banner.png)
 
-![PRs welcome](https://img.shields.io/badge/PRs-welcome-green?style=flat-square)
+![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)
 ![Release](https://img.shields.io/github/v/release/dkfans/keeperfx?style=flat-square)
 ![Downloads](https://img.shields.io/github/downloads/dkfans/keeperfx/total?style=flat-square)
-![Contributors](https://img.shields.io/github/contributors/dkfans/keeperfx?style=flat-square)
-![Last Commit](https://img.shields.io/github/last-commit/dkfans/keeperfx?style=flat-square)
-![Stars](https://img.shields.io/github/stars/dkfans/keeperfx?style=flat-square)
-[![Discord](https://img.shields.io/discord/480505152806191114)](https://discord.gg/hE4p7vy2Hb)
+[![Discord](https://img.shields.io/discord/480505152806191114?style=flat-square)](https://discord.gg/hE4p7vy2Hb)
 
 [Visit our website](https://keeperfx.net) | [Join our Discord (Keeper Klan)](https://discord.gg/hE4p7vy2Hb)
 
