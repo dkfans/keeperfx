@@ -2,11 +2,13 @@
 
 ![KeeperFX Logo](https://keeperfx.net/img/top-banner.png)
 
+![PRs welcome](https://img.shields.io/badge/PRs-welcome-green?style=flat-square)
 ![Release](https://img.shields.io/github/v/release/dkfans/keeperfx?style=flat-square)
 ![Downloads](https://img.shields.io/github/downloads/dkfans/keeperfx/total?style=flat-square)
 ![Contributors](https://img.shields.io/github/contributors/dkfans/keeperfx?style=flat-square)
 ![Last Commit](https://img.shields.io/github/last-commit/dkfans/keeperfx?style=flat-square)
 ![Stars](https://img.shields.io/github/stars/dkfans/keeperfx?style=flat-square)
+[![Discord](https://img.shields.io/discord/480505152806191114)](https://discord.gg/hE4p7vy2Hb)
 
 [Visit our website](https://keeperfx.net) | [Join our Discord (Keeper Klan)](https://discord.gg/hE4p7vy2Hb)
 
@@ -16,8 +18,10 @@
 KeeperFX is an open-source project that aims to enhance and modernize the classic dungeon management game, [Dungeon Keeper](https://en.wikipedia.org/wiki/Dungeon_Keeper).
 This project is dedicated to providing an improved and customizable gaming experience while staying true to the spirit of the original game.
 
-KeeperFX is a standalone game but requires the original game files to install. You can use your old CDs or the digital Gold edition that can be bought from EA or GOG.
+KeeperFX is a standalone game but requires the original game files to install. You can use your old CDs, or a digital edition that can be bought from EA or GOG.
 
+Originally, KeeperFX started out as a decompilation project. The original Keeper.exe was converted to a DLL and KeeperFX used the original functions that weren't implemented yet.
+Currently the whole codebase of Dungeon Keeper is remade and the DLL is no longer required.
 
 ## Features
 
@@ -39,9 +43,11 @@ KeeperFX is a standalone game but requires the original game files to install. Y
 
 Our development roadmap includes the following key milestones:
 
-- Better multiplayer support 
-- Improve path-finding
+- Full native cross platform support
+- Better multiplayer support (lag compensation and stuff like that)
+- Path-finding improvements
 - More mapmaker customizability
+- More documentation (and comments)
 - ...
 
 
