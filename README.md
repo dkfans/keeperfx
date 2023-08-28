@@ -56,7 +56,7 @@ To get started with KeeperFX development, refer to the [Development Guide](https
 ## Contributing
 
 We welcome contributions from the community to improve and expand KeeperFX.
-- Report bugs by opening [issues](https://github.com/yourusername/KeeperFX/issues).
+- Report bugs by opening [issues](https://github.com/dkfans/keeperfx/issues).
 - Submit feature requests and discuss potential improvements.
 - Contribute code by creating pull requests.
 
