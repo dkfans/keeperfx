@@ -413,12 +413,17 @@ include prebuilds.mk
 
 # 'make all' calculates the current checksum of all .h and .hpp files, storing the checksum in a file. Then it decides whether to run 'make clean' or 'make standard' based on whether any .h and .hpp files have been altered
 HEADER_CHECKSUM_FILE=.header_checksum
+
 all:
-	@current_checksum=$$(find ./src/ -type f \( -name "*.h" -o -name "*.hpp" \) -print0 | sort -z | xargs -0 md5sum | md5sum | awk '{print $$1}'); \
+	@start_time=$$(date +%s.%N); \
+	current_checksum=$$(find ./src/ -type f \( -name "*.h" -o -name "*.hpp" \) -print0 | sort -z | xargs -0 cksum | cksum | awk '{print $$1}'); \
 	if [ ! -f $(HEADER_CHECKSUM_FILE) ] || [ "$$(cat $(HEADER_CHECKSUM_FILE))" != "$$current_checksum" ]; then \
 		$(MAKE) clean; \
 	fi; \
-	$(MAKE) standard && echo "$$current_checksum" > $(HEADER_CHECKSUM_FILE)
+	$(MAKE) standard && echo "$$current_checksum" > $(HEADER_CHECKSUM_FILE); \
+	end_time=$$(date +%s.%N); \
+	duration=$$(awk "BEGIN {print $$end_time - $$start_time}"); \
+	printf "\033[97mCompiled in: %0.2f seconds\033[0m\n" $$duration;
 
 standard: CXXFLAGS += $(STLOGFLAGS)
 standard: CFLAGS += $(STLOGFLAGS)
@@ -433,7 +438,8 @@ FOLDERS = bin obj/std obj/hvlog \
 obj/tests obj/cu \
 obj/std/json obj/hvlog/json \
 obj/std/centitoml obj/hvlog/centitoml \
-obj/enet
+obj/enet \
+sdl/for_final_package
 
 $(shell $(MKDIR) $(FOLDERS))
 
