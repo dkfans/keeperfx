@@ -492,13 +492,6 @@ TbFileHandle jty_file_handle;
 unsigned char player_bit;
 
 struct MapVolumeBox map_volume_box;
-long fade_max;
-long split_1;
-long split_2;
-long view_height_over_2;
-long view_width_over_2;
-
-struct MapVolumeBox map_volume_box;
 long view_height_over_2;
 long view_width_over_2;
 long split_1;
@@ -4902,10 +4895,10 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color)
 {
     map_volume_box.visible = 1;
-    map_volume_box.beg_x = cor1_x & 0xFFFF00;
-    map_volume_box.beg_y = cor1_y & 0xFF00;
-    map_volume_box.end_x = cor2_x & 0xFFFF00;
-    map_volume_box.end_y = cor2_y & 0xFFFF00;
+    map_volume_box.beg_x = cor1_x & 0xFFFFFF00;
+    map_volume_box.beg_y = cor1_y & 0xFFFF00;
+    map_volume_box.end_x = cor2_x & 0xFFFFFF00;
+    map_volume_box.end_y = cor2_y & 0xFFFFFF00;
     map_volume_box.floor_height_z = floor_height_z;
     map_volume_box.color = color;
 }

@@ -3785,13 +3785,13 @@ static void set_music_check(const struct ScriptLine *scline)
         if (IsRedbookMusicActive())
         {
             SCRPTWRNLOG("Level script wants to play custom track from disk, but game is playing music from CD.");
+            DEALLOCATE_SCRIPT_VALUE
             return;
         }
         // See if a file with this name is already loaded, if so, reuse the same track
-        char* compare_fname;
-        for (int i = max_track + 1; i <= MUSIC_TRACKS_COUNT; i++)
+        char* compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
+        for (int i = max_track + 1; i <= game.last_audiotrack; i++)
         {
-            compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
             if (strcmp(compare_fname, game.loaded_track[i]) == 0)
             {
                 value->chars[0] = i;
@@ -3821,6 +3821,7 @@ static void set_music_check(const struct ScriptLine *scline)
         if (tracks[tracknumber] == NULL)
         {
             SCRPTERRLOG("Can't load track %ld (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
+            DEALLOCATE_SCRIPT_VALUE
             return;
         }
         else
