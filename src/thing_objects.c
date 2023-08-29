@@ -399,6 +399,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         if ((thing->mappos.z.stl.num == 4) && (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num)))
         {
             thing->mappos.z.stl.num = 5; // Move keys from old maps from inside to on top of the doors.
+            thing->mappos.z.stl.pos = 0;
         }
         break;
       default:
