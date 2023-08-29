@@ -45,6 +45,7 @@ sdl/lib/libSDL2main.a: sdl/$(SDL_PACKAGE)
 	-cd "$(<D)"; \
 	tar --strip-components=2 -zxmUf "$(<F)" SDL2-2.28.1/i686-w64-mingw32/bin SDL2-2.28.1/i686-w64-mingw32/include SDL2-2.28.1/i686-w64-mingw32/lib SDL2-2.28.1/i686-w64-mingw32/share 2>&1 | \
 	grep -v '^.*: Archive value .* is out of .* range.*$$'
+	$(CP) sdl/bin/SDL2.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
@@ -76,6 +77,7 @@ sdl/lib/libSDL2_net.lib: sdl/$(SDL_NET_PACKAGE)
 	tar -xzf "$(<F)"
 	$(MV) sdl/SDL2_net-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
 	$(CP) -r sdl/SDL2_net-*/$(ARCH)/lib/* sdl/lib/
+	$(CP) sdl/SDL2_net-*/$(ARCH)/bin/SDL2_net.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
@@ -126,6 +128,7 @@ sdl/lib/libSDL2_mixer.lib: sdl/$(SDL_MIXER_PACKAGE)
 	tar -xzf "$(<F)"
 	$(MV) sdl/SDL2_mixer-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
 	$(CP) -r sdl/SDL2_mixer-*/$(ARCH)/lib/* sdl/lib/
+	$(CP) sdl/SDL2_mixer-*/$(ARCH)/bin/SDL2_mixer.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
@@ -176,6 +179,7 @@ sdl/lib/libSDL2_image.lib: sdl/$(SDL_IMAGE_PACKAGE)
 	tar -xzf "$(<F)"
 	$(MV) sdl/SDL2_image-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
 	$(CP) -r sdl/SDL2_image-*/$(ARCH)/lib/* sdl/lib/
+	$(CP) sdl/SDL2_image-*/$(ARCH)/bin/SDL2_image.dll sdl/for_final_package/
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
