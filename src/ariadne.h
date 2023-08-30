@@ -31,7 +31,7 @@ extern "C" {
 #define BORDER_LENGTH 100
 #define ROUTE_LENGTH 12000
 #define ARID_WAYPOINTS_COUNT 10
-#define ARID_PATH_WAYPOINTS_COUNT 256
+#define ARID_PATH_WAYPOINTS_COUNT 2560
 
 /******************************************************************************/
 #pragma pack(1)
@@ -85,25 +85,25 @@ struct Ariadne { // sizeof = 102
     struct Coord3d current_waypoint_pos;
   struct Coord3d pos_12;
   struct Coord3d pos_18;
-  unsigned char route_flags;
-  unsigned char field_1F;
-  unsigned char field_20;
-  unsigned char update_state;
-  unsigned char field_22;
-  unsigned char field_23;
+  unsigned int route_flags;
+  unsigned int field_1F;
+  unsigned int field_20;
+  unsigned int update_state;
+  unsigned int field_22;
+  unsigned int field_23;
   short field_24;
   unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
-    unsigned char current_waypoint;
+    unsigned int current_waypoint;
     /** List of nearest waypoints in the way towards destination, stored in an array. */
     struct Coord2d waypoints[ARID_WAYPOINTS_COUNT];
     /** Amount of nearest waypoints stored in the array. */
-    unsigned char stored_waypoints; // offs = 0x51
+    unsigned int stored_waypoints; // offs = 0x51
     /** Total amount of waypoints planned on the way towards endpos. */
-    unsigned char total_waypoints;
+    unsigned int total_waypoints;
   struct Coord3d pos_53;
   struct Coord3d pos_59;
-  unsigned char manoeuvre_state;
+  unsigned int manoeuvre_state;
   short wallhug_angle;
   long field_62;
 };

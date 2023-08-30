@@ -396,19 +396,39 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
 
 long navigation_rule_normal(long treeA, long treeB)
 {
-    if ((treeB & 0x0F) - (treeA & 0x0F) > 1)
+    JUSTLOG("A",0);
+    if ((treeB & 0x0F) - (treeA & 0x0F) > 1) {
       return 0;
-    if ((treeB & 0xF0) == 0)
+    }
+    
+    JUSTLOG("B",0);
+    
+    if ((treeB & 0xF0) == 0) {
+      JUSTLOG("BB",0);
       return 1;
+    }
+
+    JUSTLOG("C",0);
+
     if (owner_player_navigating != -1)
     {
-        if (get_navtree_owner(treeB) == owner_player_navigating)
+        JUSTLOG("CC",0);
+        if (get_navtree_owner(treeB) == owner_player_navigating) {
+          JUSTLOG("CCC",0);
           return 0;
+        }
     }
-    if ((treeB & 0x10) == 0)
+
+    JUSTLOG("D",0);
+
+    if ((treeB & 0x10) == 0) {
         return 1;
-    if ((treeA & 0x10) != 0)
+    }
+    JUSTLOG("E",0);
+    if ((treeA & 0x10) != 0) {
         return 1;
+    }
+    JUSTLOG("F",0);
     return nav_thing_can_travel_over_lava;
 }
 
@@ -417,7 +437,7 @@ long init_navigation(void)
     IanMap = (unsigned char *)&game.navigation_map;
     init_navigation_map();
     triangulate_map(IanMap);
-    nav_rulesA2B = navigation_rule_normal;
+    //nav_rulesA2B = Keeper_nav_rulesA2B;
     game.map_changed_for_nagivation = 1;
     return 1;
 }
@@ -1680,7 +1700,7 @@ TbBool triangle_check_and_add_navitree_fwd(long ttri)
                 {
                     long mvcost;
                     long navrule;
-                    navrule = nav_rulesA2B(k_alt, ttri_alt);
+                    navrule = navigation_rule_normal(k_alt, ttri_alt);
                     if (navrule)
                     {
                         mvcost = cost_to_start(k);
@@ -1728,7 +1748,9 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
             {
                 long mvcost;
                 long navrule;
-                navrule = nav_rulesA2B(ttri_alt, k_alt);
+                JUSTLOG("A",0);
+                navrule = navigation_rule_normal(ttri_alt, k_alt);
+                JUSTLOG("B",0);
                 if (navrule)
                 {
                     mvcost = cost_to_start(k);
@@ -2117,7 +2139,7 @@ long ariadne_get_wallhug_angle(struct Thing *thing, struct Ariadne *arid)
     return -1;
 }
 
-void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct Thing *thing, struct Ariadne *arid, long inangle, short *rangle, unsigned char *rflag)
+void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct Thing *thing, struct Ariadne *arid, long inangle, short *rangle, unsigned int *rflag)
 {
     struct Coord3d bkp_mappos;
     bkp_mappos = thing->mappos;
@@ -2242,7 +2264,7 @@ void ariadne_get_starting_angle_and_side_of_wallhug_for_desireable_move(struct T
     }
 }
 
-long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, short *rangle, unsigned char *rflag)
+long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct Ariadne *arid, struct Coord3d *pos, short *rangle, unsigned int *rflag)
 {
     TbBool nxdelta_x_neg;
     TbBool nxdelta_y_neg;
