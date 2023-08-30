@@ -49,6 +49,7 @@ KeeperFX could be further improved in these key areas:
 - Expand creative freedom for modders even further
 - Native cross-platform support
 - Improve code readability and maintainability
+- Lua support
 - ...
 
 
@@ -59,11 +60,13 @@ detailed instructions on setting up a development environment and building Keepe
 If you wish to discuss development, you can join the [Keeper Klan discord](https://discord.gg/hE4p7vy2Hb) and ask to 
 be added to the KeeperFX development channel.
 
+
 ## Contributing
 We welcome contributions from the community to improve and expand KeeperFX.
 - Report bugs by opening [issues](https://github.com/dkfans/keeperfx/issues).
 - Submit feature requests and discuss potential improvements.
 - Contribute code by creating pull requests. 
+
 
 ## License
 This project is licensed under the [GNU General Public License v2.0](LICENSE).
