@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "sounds.h"
 
 #include "globals.h"
@@ -26,7 +27,6 @@
 #include "bflib_memory.h"
 #include "bflib_math.h"
 #include "bflib_bufrw.h"
-#include "bflib_heapmgr.h"
 #include "engine_render.h"
 #include "map_utils.h"
 #include "engine_camera.h"
@@ -47,6 +47,8 @@
 #include "config.h"
 
 #include "keeperfx.hpp"
+#include "game_heap.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,7 +64,7 @@ char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
+void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
 {
     if (SoundDisabled)
         return;
@@ -79,11 +81,11 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, a7);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, a7);
+               smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
     }
@@ -123,7 +125,7 @@ void play_thing_walking(struct Thing *thing)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if ((cctrl->distance_to_destination) && get_foot_creature_has_down(thing))
         {
-            int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->field_67 & 0x1F)];
+            int smpl_variant = foot_down_sound_sample_variant[4 * ((cctrl->mood_flags & 0x1C) >> 2) + (cctrl->sound_flag & 0x1F)];
             long smpl_idx;
             if ((thing->movement_flags & TMvF_IsOnSnow) != 0) {
                 smpl_idx = 181 + smpl_variant;
@@ -131,12 +133,12 @@ void play_thing_walking(struct Thing *thing)
                 struct CreatureSound* crsound = get_creature_sound(thing, CrSnd_Foot);
                 smpl_idx = crsound->index + smpl_variant;
             }
-            cctrl->field_67 = (cctrl->field_67 ^ (cctrl->field_67 ^ (cctrl->field_67 + 1))) & 0x1F;
-            if ((cctrl->field_67 & 0x1F) >= 4)
+            cctrl->sound_flag = (cctrl->sound_flag ^ (cctrl->sound_flag ^ (cctrl->sound_flag + 1))) & 0x1F;
+            if ((cctrl->sound_flag & 0x1F) >= 4)
             {
                 cctrl->mood_flags &= ~0x1C;
                 cctrl->mood_flags |=  (UNSYNC_RANDOM(4) << 2);
-                cctrl->field_67 &= ~0x1F;
+                cctrl->sound_flag &= ~0x1F;
             }
             crstat = creature_stats_get(thing->model);
             thing_play_sample(thing, smpl_idx, crstat->footstep_pitch, 0, 3, 3, 1, loudness);
@@ -215,7 +217,7 @@ void find_nearest_rooms_for_ambient_sound(void)
             struct Room* room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[room->kind];
+            struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[room->kind];
             long k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
@@ -267,10 +269,7 @@ void update_player_sounds(void)
         process_messages();
         if (!SoundDisabled)
         {
-            if (game.audiotrack >= FIRST_TRACK && game.audiotrack <= max_track)
-            {
-                PlayMusicPlayer(game.audiotrack);
-            }
+            PlayMusicPlayer(game.audiotrack);
             update_3d_sound_receiver(player);
         }
         game.play_gameturn++;
@@ -280,9 +279,12 @@ void update_player_sounds(void)
     int k = (game.bonus_time - game.play_gameturn) / 2;
     if (bonus_timer_enabled())
     {
-      if ((game.bonus_time == game.play_gameturn) ||
-         ((game.bonus_time > game.play_gameturn) && (((k <= 100) && ((k % 10) == 0)) ||
-          ((k<=300) && ((k % 50) == 0)) || ((k % 250) == 0))) )
+        if ((game.bonus_time == game.play_gameturn) ||
+            ((game.bonus_time > game.play_gameturn) &&
+            (   ((k <= 100)  && ((k % 10) == 0)) ||
+                ((k <= 300)  && ((k % 50) == 0)) ||
+                ((k <= 5000) && ((k % 250) == 0)) ||
+                                ((k % 5000) == 0)    )  ))
         play_non_3d_sample(89);
     }
     if (game.play_gameturn != 0)
@@ -350,57 +352,22 @@ void process_3d_sounds(void)
     process_sound_emitters();
 }
 
+// This function marks not playing samples (to remove them from heap MB)
 void process_sound_heap(void)
 {
-    struct SampleTable *satab;
-    struct HeapMgrHandle *hmhndl;
-    long i;
+    long i = 0;
     SYNCDBG(9,"Starting");
-    for (i = 0; i < samples_in_bank; i++)
-    {
-        satab = &sample_table[i];
-        hmhndl = satab->hmhandle;
-        if (hmhndl != NULL) {
-            hmhndl->flags &= ~0x0004;
-            hmhndl->flags &= ~0x0002;
-        }
-    }
-    if (using_two_banks)
-    {
-        for (i = 0; i < samples_in_bank2; i++)
-        {
-            satab = &sample_table2[i];
-            hmhndl = satab->hmhandle;
-            if (hmhndl != NULL) {
-                hmhndl->flags &= ~0x0004;
-                hmhndl->flags &= ~0x0002;
-            }
-        }
-    }
     struct SampleInfo* smpinfo_last = GetLastSampleInfoStructure();
+    if (smpinfo_last == NULL) {
+        return;
+    }
     for (struct SampleInfo* smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
     {
       if ( (smpinfo->field_0 != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
       {
           if ( IsSamplePlaying(0, 0, smpinfo->field_0) )
           {
-            if ( (using_two_banks) && ((smpinfo->flags_17 & 0x04) != 0) )
-            {
-                satab = &sample_table2[smpinfo->field_12];
-                hmhndl = satab->hmhandle;
-                if (hmhndl != NULL) {
-                    hmhndl->flags |= 0x0004;
-                    hmhndl->flags |= 0x0002;
-                }
-            } else
-            {
-                satab = &sample_table[smpinfo->field_12];
-                hmhndl = satab->hmhandle;
-                if (hmhndl != NULL) {
-                    hmhndl->flags |= 0x0004;
-                    hmhndl->flags |= 0x0002;
-                }
-            }
+              i++;
           } else
           {
               smpinfo->flags_17 &= ~0x01;
@@ -408,6 +375,7 @@ void process_sound_heap(void)
           }
       }
     }
+    SYNCDBG(9,"Done (%l playing yet)", i);
 }
 
 long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, long buf_len, long a5)
@@ -481,7 +449,8 @@ long parse_sound_file(TbFileHandle fileh, unsigned char *buf, long *nsamples, lo
         smpl->file_pos = k + bsample.field_12;
         smpl->data_size = bsample.data_size;
         smpl->sfxid = bsample.sfxid;
-        smpl->hmhandle = NULL;
+        he_free(smpl->snd_buf);
+        smpl->snd_buf = NULL;
         smpl++;
     }
     //TODO SOUND Check why we're returning nsamples * 32 and not nsamples * 16
@@ -586,13 +555,6 @@ TbBool init_sound_heap_two_banks(unsigned char *heap_mem, long heap_size, char *
         return false;
     }
     SYNCLOG("Got sound buffer of %ld bytes, samples in banks: %d,%d",buf_len,(int)samples_in_bank,(int)samples_in_bank2);
-    sndheap = heapmgr_init(buf, buf_len, samples_in_bank2 + samples_in_bank);
-    if (sndheap == NULL)
-    {
-        ERRORLOG("Sound heap manager init error");
-        close_sound_heap();
-        return false;
-    }
     using_two_banks = 1;
     return true;
 }
@@ -753,7 +715,7 @@ void update_first_person_object_ambience(struct Thing *thing)
              objtng = thing_get(objtng->next_of_class))
         {
             objdat = get_objects_data_for_thing(objtng);
-            if (objdat->fp_smpl_idx != 0)
+            if ((objdat->fp_smpl_idx != 0) && !thing_is_in_limbo(objtng))
             {
                 new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)

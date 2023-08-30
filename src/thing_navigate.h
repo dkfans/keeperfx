@@ -61,10 +61,8 @@ struct Room;
 void reset_interpolation_of_thing(struct Thing *thing);
 
 /******************************************************************************/
-DLLIMPORT long _DK_owner_player_navigating;
-#define owner_player_navigating _DK_owner_player_navigating
-DLLIMPORT long _DK_nav_thing_can_travel_over_lava;
-#define nav_thing_can_travel_over_lava _DK_nav_thing_can_travel_over_lava
+extern long owner_player_navigating;
+extern long nav_thing_can_travel_over_lava;
 
 #pragma pack()
 /******************************************************************************/
@@ -83,7 +81,7 @@ TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *pos
 #define creature_can_navigate_to(thing,pos,flags) creature_can_navigate_to_f(thing,pos,flags,__func__)
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *crtng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
 #define creature_can_navigate_to_with_storage(crtng,pos,flags) creature_can_navigate_to_with_storage_f(crtng,pos,flags,__func__)
-TbBool creature_can_get_to_dungeon(struct Thing *thing, PlayerNumber plyr_idx);
+TbBool creature_can_get_to_dungeon_heart(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int flags);
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);
 TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Coord3d *pos);

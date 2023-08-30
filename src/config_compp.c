@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_compp.h"
 #include "globals.h"
 
@@ -27,6 +28,7 @@
 #include "config.h"
 #include "player_computer.h"
 #include "thing_data.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -84,8 +86,6 @@ const struct NamedCommand compp_computer_commands[] = {
 
 const char keeper_compplayer_file[]="keepcompp.cfg";
 
-/******************************************************************************/
-DLLIMPORT struct ComputerProcessTypes _DK_ComputerProcessLists[1];
 /******************************************************************************/
 ComputerName computer_check_names[COMPUTER_CHECKS_TYPES_COUNT];
 struct ComputerCheck computer_checks[COMPUTER_CHECKS_TYPES_COUNT];
@@ -1115,8 +1115,6 @@ TbBool load_computer_player_config(unsigned short flags)
     }
     //Freeing and exiting
     LbMemoryFree(buf);
-    // Lets crash it if someone using it
-    memset(_DK_ComputerProcessLists, 1, sizeof(struct ComputerProcessTypes));
     return true;
 }
 

@@ -64,6 +64,7 @@ TbBool thing_is_picked_up(const struct Thing *thing);
 TbBool thing_is_picked_up_by_owner(const struct Thing *thing);
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing);
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
+long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx);
 
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable(const struct Thing *thing, long plyr_idx);
@@ -113,8 +114,6 @@ struct HandRule {
 };
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick);
-typedef TbBool (*HandTestFn) (struct HandRule *rule, const struct Thing *thing);
-#define HAND_RULE(body) ( {TbBool anon(struct HandRule *hand_rule, const struct Thing *thing) body; &anon; })
 
 /******************************************************************************/
 #ifdef __cplusplus

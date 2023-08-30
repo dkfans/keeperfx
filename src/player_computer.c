@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_computer.h"
 
 #include <limits.h>
@@ -45,6 +46,7 @@
 #include "game_legacy.h"
 #include "game_merge.h"
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -225,7 +227,7 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
         max_slabs = width_slabs;
     long area_min = (max_slabs + 1) / 2 + 1;
     long area_max = area_min / 3 + 2 * area_min;
-    if (rkind == RoK_LAIR)
+    if (room_role_matches(rkind,RoRoF_LairStorage))
     {
         if (width_slabs*height_slabs < dungeon->max_creatures_attracted)
         {
@@ -280,11 +282,11 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
     gold_pos.x.val = 0;
     gold_pos.y.val = 0;
     gold_pos.z.val = 0;
-    gold_pos.x.stl.num = gldlook->x_stl_num;
-    gold_pos.y.stl.num = gldlook->y_stl_num;
+    gold_pos.x.stl.num = gldlook->stl_x;
+    gold_pos.y.stl.num = gldlook->stl_y;
     long min_distance = LONG_MAX;
     long distance = LONG_MAX;
-    for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         struct Room* room = find_room_nearest_to_position(dungeon->owner, rkind, &gold_pos, &distance);
         if (!room_is_invalid(room))
@@ -314,8 +316,8 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
     task_pos.x.val = 0;
     task_pos.y.val = 0;
     task_pos.z.val = 0;
-    task_pos.x.stl.num = gldlook->x_stl_num;
-    task_pos.y.stl.num = gldlook->y_stl_num;
+    task_pos.x.stl.num = gldlook->stl_x;
+    task_pos.y.stl.num = gldlook->stl_y;
     long min_distance = LONG_MAX;
     long i = comp->task_idx;
     unsigned long k = 0;
@@ -382,10 +384,10 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
         struct GoldLookup* gldlook = get_gold_lookup(i);
         if ((gldlook->flags & 0x01) == 0)
             continue;
-        SYNCDBG(18,"Valid vein at (%d,%d)",(int)gldlook->x_stl_num,(int)gldlook->y_stl_num);
+        SYNCDBG(18,"Valid vein at (%d,%d)",(int)gldlook->stl_x,(int)gldlook->stl_y);
         if ((gldlook->player_interested[dungeon->owner] & 0x03) != 0)
             continue;
-        SYNCDBG(8,"Searching for place to reach (%d,%d)",(int)gldlook->x_stl_num,(int)gldlook->y_stl_num);
+        SYNCDBG(8,"Searching for place to reach (%d,%d)",(int)gldlook->stl_x,(int)gldlook->stl_y);
         lookups_checked++;
         struct Room *room = INVALID_ROOM;
         long new_dist = computer_finds_nearest_room_to_gold_lookup(dungeon, gldlook, &room);
@@ -420,7 +422,7 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
             return 0;
         }
     }
-    SYNCDBG(8,"Best digging start to reach (%d,%d) is on subtile (%d,%d); distance is %d",(int)gldlooksel->x_stl_num,(int)gldlooksel->y_stl_num,(int)spos->x.stl.num,(int)spos->y.stl.num,(int)dig_distance);
+    SYNCDBG(8,"Best digging start to reach (%d,%d) is on subtile (%d,%d); distance is %d",(int)gldlooksel->stl_x,(int)gldlooksel->stl_y,(int)spos->x.stl.num,(int)spos->y.stl.num,(int)dig_distance);
     *gldlookref = gldlooksel;
     pos->x.val = spos->x.val;
     pos->y.val = spos->y.val;
@@ -434,7 +436,6 @@ long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d 
 
 long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d *pos)
 {
-    //return _DK_count_creatures_availiable_for_fight(comp, pos);
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
     unsigned long count = 0;
@@ -533,7 +534,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
     {
         struct THate* hate = &hates[i];
         struct OpponentRelation* oprel = &comp->opponent_relations[hate->plyr_idx];
-        int ptidx = oprel->field_4;
+        int ptidx = oprel->next_idx;
         if (ptidx > 0)
           ptidx--;
         for (long n = 0; n < COMPUTER_SPARK_POSITIONS_COUNT; n++)
@@ -568,7 +569,7 @@ TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(comp->dungeon);
     *retroom = NULL;
 
-    for (RoomKind i = 0; i < slab_conf.room_types_count; i++)
+    for (RoomKind i = 0; i < game.slab_conf.room_types_count; i++)
     {
         struct Room* room = room_get(dungeonadd->room_kind[i]);
         
@@ -687,7 +688,7 @@ long buildable_traps_amount(struct Dungeon *dungeon, ThingModel trmodel)
 long get_number_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long base_amount)
 {
     long kinds = 0;
-    for (long i = 1; i < TRAP_TYPES_COUNT; i++)
+    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
     {
         if (buildable_traps_amount(dungeon, i) >= base_amount)
         {
@@ -704,7 +705,7 @@ long get_number_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long
  */
 long get_nth_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long base_amount, long n)
 {
-    for (long i = 1; i < TRAP_TYPES_COUNT; i++)
+    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
     {
         if (buildable_traps_amount(dungeon, i) >= base_amount)
         {
@@ -759,8 +760,8 @@ int computer_find_more_trap_place_locations(struct Computer2 *comp)
     struct Dungeon* dungeon = comp->dungeon;
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     int num_added = 0;
-    RoomKind rkind = AI_RANDOM(slab_conf.room_types_count);
-    for (int m = 0; m < slab_conf.room_types_count; m++, rkind = (rkind + 1) % slab_conf.room_types_count)
+    RoomKind rkind = AI_RANDOM(game.slab_conf.room_types_count);
+    for (int m = 0; m < game.slab_conf.room_types_count; m++, rkind = (rkind + 1) % game.slab_conf.room_types_count)
     {
         unsigned long k = 0;
         int i = dungeonadd->room_kind[rkind];
@@ -808,7 +809,7 @@ TbBool computer_get_trap_place_location_and_update_locations(struct Computer2 *c
             location->y.val = 0;
             continue;
         }
-        if (can_place_trap_on(dungeon->owner, location->x.stl.num, location->y.stl.num))
+        if (can_place_trap_on(dungeon->owner, location->x.stl.num, location->y.stl.num, trapmodel))
         { // If it's our owned claimed ground, give it a try
             retloc->x.val = location->x.val;
             retloc->y.val = location->y.val;
@@ -975,7 +976,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Try selling traps and doors - aggressive way
-    if ((money_left < check->param2) && dungeon_has_room(dungeon, RoK_WORKSHOP))
+    if ((money_left < check->param2) && is_room_of_role_available(dungeon->owner, RoRoF_CratesManufctr))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon) ||
             player_has_deployed_trap_of_model(dungeon->owner, -1) || player_has_deployed_door_of_model(dungeon->owner, -1, 0))
@@ -990,7 +991,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Try selling traps and doors - cautious way
-    if ((money_left < check->param1) && dungeon_has_room(dungeon, RoK_WORKSHOP))
+    if ((money_left < check->param1) && is_room_of_role_available(dungeon->owner, RoRoF_CratesManufctr))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon))
         {
@@ -1120,7 +1121,6 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
  */
 TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos)
 {
-    //return _DK_computer_find_non_solid_block(comp, pos);
     for (unsigned long n = 0; n < MID_AROUND_LENGTH; n++)
     {
         MapSubtlCoord arstl_x = pos->x.stl.num + STL_PER_SLB * start_at_around[n].delta_x;
@@ -1148,7 +1148,6 @@ TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3
  */
 TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct Coord3d* pos)
 {
-    //return _DK_computer_find_non_solid_block(comp, pos);
     for (unsigned long n = 0; n < LARGE_AROUND_LIMITED; n++)
     {
         MapSubtlCoord arstl_x = pos->x.stl.num + STL_PER_SLB * large_around[n].delta_x;
@@ -1280,7 +1279,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     {
         struct OpponentRelation* oprel = &comp->opponent_relations[i];
         oprel->field_0 = 0;
-        oprel->field_4 = 0;
+        oprel->next_idx = 0;
         if (i == plyr_idx) {
             oprel->hate_amount = LONG_MIN;
         } else {
@@ -1637,7 +1636,7 @@ void setup_computer_players2(void)
         int minSkirmishAI = comp_player_conf.skirmish_first;
         int maxSkirmishAI = comp_player_conf.skirmish_last;
 
-        int skirmish_AI_type = rand() % (maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
+        int skirmish_AI_type = GAME_RANDOM(maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
         // Always set human player to computer7 (a computer assistant) by default
         if (i == game.local_plyr_idx)
         {

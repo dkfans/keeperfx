@@ -16,12 +16,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "game_merge.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -94,9 +96,9 @@ LevelNumber get_selected_level_number(void)
  */
 LevelNumber set_selected_level_number(LevelNumber lvnum)
 {
-  if (lvnum >= 0)
-    game.selected_level_number = lvnum;
-  return game.selected_level_number;
+    if (lvnum >= 0)
+        game.selected_level_number = lvnum;
+    return game.selected_level_number;
 }
 
 /**
@@ -212,14 +214,6 @@ void update_extra_levels_visibility(void)
 {
 }
 
-struct ThingAdd *get_thingadd(Thingid thing_idx)
-{
-    return &gameadd.things[thing_idx];
-}
-struct LightAdd *get_lightadd(unsigned short light_idx)
-{
-    return &gameadd.lights[light_idx];
-}
 /******************************************************************************/
 #ifdef __cplusplus
 }

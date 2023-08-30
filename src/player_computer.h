@@ -507,7 +507,7 @@ struct ComputerTask { // sizeof = 148
 
 struct OpponentRelation { // sizeof = 394
     unsigned long field_0;
-    short field_4;
+    short next_idx;
     long hate_amount;
     struct Coord3d pos_A[COMPUTER_SPARK_POSITIONS_COUNT];
 };
@@ -676,7 +676,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
 #define search_spiral(pos, owner, area_total, cb) search_spiral_f(pos, owner, area_total, cb, __func__)
 int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name);
 /******************************************************************************/
-ItemAvailability computer_check_room_available(const struct Computer2 * comp, long rkind);
+ItemAvailability computer_check_room_available(const struct Computer2 * comp, RoomKind rkind);
 TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos);
 TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct Coord3d* pos);
 

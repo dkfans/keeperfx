@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_campaigns.h"
 
 #include "globals.h"
@@ -29,8 +30,10 @@
 #include "config_strings.h"
 #include "lvl_filesdk1.h"
 #include "frontmenu_ingame_tabs.h"
+#include "map_data.h"
 
 #include "game_merge.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,19 +68,21 @@ const struct NamedCommand cmpgn_common_commands[] = {
   };
 
 const struct NamedCommand cmpgn_map_commands[] = {
-  {"NAME_TEXT",       1},
-  {"NAME_ID",         2},
-  {"ENSIGN_POS",      3},
-  {"ENSIGN_ZOOM",     4},
-  {"PLAYERS",         5},
-  {"OPTIONS",         6},
-  {"SPEECH",          7},
-  {"LAND_VIEW",       8},
-  {"KIND",            9}, // for LOF files only
-  {"AUTHOR",         10},
-  {"DESCRIPTION",    11},
-  {"DATE",           12},
-  {NULL,              0},
+  {"NAME_TEXT",           1},
+  {"NAME_ID",             2},
+  {"ENSIGN_POS",          3},
+  {"ENSIGN_ZOOM",         4},
+  {"PLAYERS",             5},
+  {"OPTIONS",             6},
+  {"SPEECH",              7},
+  {"LAND_VIEW",           8},
+  {"KIND",                9}, // for LOF files only
+  {"AUTHOR",             10},
+  {"DESCRIPTION",        11},
+  {"DATE",               12},
+  {"MAPSIZE",            13},
+  {"MAP_FORMAT_VERSION", 14},
+  {NULL,                  0},
   };
 
 const struct NamedCommand cmpgn_map_cmnds_options[] = {
@@ -146,6 +151,8 @@ void clear_level_info(struct LevelInformation *lvinfo)
   lvinfo->options = LvOp_None;
   lvinfo->state = LvSt_Hidden;
   lvinfo->location = LvLc_VarLevels;
+  lvinfo->mapsize_x = DEFAULT_MAP_SIZE;
+  lvinfo->mapsize_y = DEFAULT_MAP_SIZE;
 }
 
 /**
@@ -296,7 +303,9 @@ struct LevelInformation *get_campaign_level_info(struct GameCampaign *campgn, Le
   if (lvnum <= 0)
       return NULL;
   if (campgn->lvinfos == NULL)
-      return NULL;
+  {
+    init_level_info_entries(campgn,0);
+  }
   for (long i = 0; i < campgn->lvinfos_count; i++)
   {
       if (campgn->lvinfos[i].lvnum == lvnum)
@@ -410,8 +419,14 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
       case 1: // NAME
           i = get_conf_parameter_whole(buf,&pos,len,campgn->name,LINEMSG_SIZE);
           if (i <= 0)
+          {
               CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file.",
                 COMMAND_TEXT(cmd_num), campgn->name, config_textname);
+          }
+          else
+          {
+              LbStringCopy(campgn->display_name,campgn->name,LINEMSG_SIZE);
+          }
           break;
       case 2: // SINGLE_LEVELS
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -644,7 +659,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
                 if (k > 0) {
                     const char* newname = get_string(STRINGS_MAX+k);
                     if (strcasecmp(newname,"") != 0) {
-                        LbStringCopy(campgn->name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
+                        LbStringCopy(campgn->display_name,newname,LINEMSG_SIZE); // use the index provided in the config file to get a specific UI string
                     }
                     else {
                     CONFWRNLOG("Couldn't read \"%s\" command parameter in %s %s file. NAME_TEXT_ID is too high, NAME used instead.",
@@ -950,6 +965,31 @@ short parse_campaign_map_block(long lvnum, unsigned long lvoptions, char *buf, l
         case 12: // DATE
             // As for now, ignore these
             break;
+        case 13: // MAPSIZE
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->mapsize_x = k;
+                  n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k > 0)
+                {
+                  lvinfo->mapsize_y = k;
+                  n++;
+                }
+            }
+            if (n < 2)
+            {
+              CONFWRNLOG("Couldn't recognize \"%s\" mapsize in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            }
+            break;
         case 0: // comment
             break;
         case -1: // end of buffer
@@ -1095,8 +1135,8 @@ TbBool change_campaign(const char *cmpgn_fname)
     //load_stats_files();
     //check_and_auto_fix_stats();
     // Make sure all additional levels are loaded
-    //   Only the original campaign need to list the multiplayer levels 
-    //   (until there are multiplayer mappacks) as all multi maps go on 
+    //   Only the original campaign need to list the multiplayer levels
+    //   (until there are multiplayer mappacks) as all multi maps go on
     //   the same "campaign" screen (and need to be in the same list to do so)
     if (strcasecmp(campaign.fname,keeper_campaign_file) == 0)
     {
@@ -1104,6 +1144,7 @@ TbBool change_campaign(const char *cmpgn_fname)
     }
     if (fgroup == FGrp_VarLevels)
     {
+        find_and_load_lof_files();
         find_and_load_lif_files();
     }
     load_or_create_high_score_table();
@@ -1345,10 +1386,11 @@ TbBool check_lif_files_in_mappack(struct GameCampaign *campgn)
     LbMemoryCopy(&campbuf, &campaign, sizeof(struct GameCampaign));
     LbMemoryCopy(&campaign, campgn, sizeof(struct GameCampaign));
     find_and_load_lif_files();
+    find_and_load_lof_files();
     TbBool result  = (campaign.freeplay_levels_count != 0);
     if (!result) {
         // Could be either: no valid levels in LEVELS_LOCATION, no LEVELS_LOCATION specified, or LEVELS_LOCATION does not exist
-        WARNMSG("Couldn't load Map Pack \"%s\", no .LIF files could be found.", campgn->fname); 
+        WARNMSG("Couldn't load Map Pack \"%s\", no .LIF files could be found.", campgn->fname);
     }
     LbMemoryCopy(campgn, &campaign, sizeof(struct GameCampaign));
     LbMemoryCopy(&campaign, &campbuf, sizeof(struct GameCampaign));
@@ -1361,6 +1403,7 @@ TbBool is_map_pack(void)
         return false;
     return (campaign.single_levels_count == 0) && (campaign.multi_levels_count == 0) && (campaign.freeplay_levels_count > 0);
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

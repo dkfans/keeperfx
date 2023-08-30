@@ -18,6 +18,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_torture.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -47,29 +48,27 @@
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT extern long _DK_torture_left_button;
-#define torture_left_button _DK_torture_left_button
-DLLIMPORT extern long _DK_torture_sprite_direction;
-#define torture_sprite_direction _DK_torture_sprite_direction
-DLLIMPORT extern long _DK_torture_end_sprite;
-#define torture_end_sprite _DK_torture_end_sprite
-DLLIMPORT extern long _DK_torture_sprite_frame;
-#define torture_sprite_frame _DK_torture_sprite_frame
-DLLIMPORT extern long _DK_torture_door_selected;
-#define torture_door_selected _DK_torture_door_selected
-DLLIMPORT extern struct DoorSoundState _DK_door_sound_state[TORTURE_DOORS_COUNT];
-#define door_sound_state _DK_door_sound_state
-DLLIMPORT extern struct TortureState _DK_torture_state;
-#define torture_state _DK_torture_state
-DLLIMPORT extern unsigned char *_DK_torture_background;
-#define torture_background _DK_torture_background
-DLLIMPORT extern unsigned char *_DK_torture_palette;
-#define torture_palette _DK_torture_palette
+static long torture_left_button;
+static long torture_sprite_direction;
+static long torture_end_sprite;
+static long torture_sprite_frame;
+static long torture_door_selected;
+static struct DoorSoundState door_sound_state[TORTURE_DOORS_COUNT];
+static struct TortureState torture_state;
+static unsigned char *torture_background;
+static unsigned char *torture_palette;
+
+extern struct DoorDesc doors[TORTURE_DOORS_COUNT];
+extern struct TbSprite *fronttor_sprites;
+extern struct TbSprite *fronttor_end_sprites;
+extern unsigned char *fronttor_data;
+extern unsigned char * fronttor_end_data;
 /******************************************************************************/
 extern struct TbLoadFiles torture_load_files[];
 extern struct TbSetupSprite setup_torture_sprites[];
@@ -86,7 +85,7 @@ void torture_play_sound(long door_id, TbBool state)
     return;
   if (state)
   {
-    play_sample_using_heap(0, doors[door_id].field_28, 0, 64, 100, -1, 2, 0);
+    play_sample_using_heap(0, doors[door_id].smptbl_id, 0, 64, 100, -1, 2, 0);
     door_sound_state[door_id].field_0 = 0;
     door_sound_state[door_id].field_4 = 16;
   }
@@ -284,7 +283,7 @@ void fronttorture_input(void)
     // Exchange packet with other players
     if ((game.system_flags & GSF_NetworkActive) != 0)
     {
-        if (LbNetwork_Exchange(pckt))
+        if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
             ERRORLOG("LbNetwork_Exchange failed");
     }
     // Determine the controlling player and get his mouse coords
@@ -403,7 +402,7 @@ void fronttorture_update(void)
             {
                 volume = 0;
                 doorsnd->field_4 = 0;
-                StopSample(0, door->field_28);
+                StopSample(0, door->smptbl_id);
             } else
             if (volume >= 127)
             {
@@ -413,7 +412,7 @@ void fronttorture_update(void)
             doorsnd->field_0 = volume;
             if (volume > 0)
             {
-              SetSampleVolume(0, door->field_28, volume, 0);
+              SetSampleVolume(0, door->smptbl_id, volume, 0);
             }
         }
     }

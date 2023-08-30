@@ -46,10 +46,8 @@ struct CreatureBattle { // sizeof = 17
 /******************************************************************************/
 #define INVALID_CRTR_BATTLE (&game.battles[0])
 /******************************************************************************/
-DLLIMPORT extern unsigned short _DK_friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
-#define friendly_battler_list _DK_friendly_battler_list
-DLLIMPORT extern unsigned short _DK_enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
-#define enemy_battler_list _DK_enemy_battler_list
+extern unsigned short friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
+extern unsigned short enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
 /******************************************************************************/
 
 struct CreatureBattle *creature_battle_get(BattleIndex battle_id);
@@ -63,6 +61,7 @@ BattleIndex find_next_battle_of_mine(PlayerNumber plyr_idx, BattleIndex prev_idx
 BattleIndex find_previous_battle_of_mine(PlayerNumber plyr_idx, BattleIndex next_idx);
 BattleIndex find_next_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex prev_idx);
 BattleIndex find_previous_battle_of_mine_excluding_current_list(PlayerNumber plyr_idx, BattleIndex next_idx);
+unsigned long count_active_battles(PlayerNumber plyr_idx);
 
 TbBool has_melee_combat_attackers(struct Thing *victim);
 TbBool can_add_melee_combat_attacker(struct Thing *victim);

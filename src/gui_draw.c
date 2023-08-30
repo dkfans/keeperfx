@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "gui_draw.h"
 
 #include "globals.h"
@@ -27,11 +28,14 @@
 #include "bflib_vidraw.h"
 #include "bflib_sprfnt.h"
 #include "bflib_guibtns.h"
+#include "config_strings.h"
 
 #include "front_simple.h"
 #include "frontend.h"
 #include "custom_sprites.h"
 #include "sprites.h"
+#include "post_inc.h"
+#include "frontmenu_ingame_tabs.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,9 +43,14 @@ extern "C" {
 /******************************************************************************/
 char gui_textbuf[TEXT_BUFFER_LENGTH];
 
-/******************************************************************************/
-/******************************************************************************/
-
+unsigned char * gui_panel_sprite_data;
+unsigned char * end_gui_panel_sprite_data;
+unsigned char *gui_slab;
+unsigned char *frontend_background;
+struct TbSprite *frontend_sprite;
+struct TbSprite *frontend_end_sprite;
+unsigned char * frontend_sprite_data;
+unsigned char * frontend_end_sprite_data;
 /******************************************************************************/
 
 int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h)
@@ -462,8 +471,41 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         lbDisplay.DrawColour = LbTextGetFontFaceColor();
         lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
     }
-    LbTextSetJustifyWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width);
-    LbTextSetClipWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
+    TbBool low_res = ( (MyScreenHeight < 400) && (dbc_language > 0) );
+    int width = gbtn->width;
+    int x = gbtn->scr_pos_x;
+    if (low_res)
+    {
+        // TODO: Is there a better way of adjusting for East Asian text? This is ridiculous.
+        width += 32;
+        switch (gbtn->tooltip_stridx)
+        {
+            case GUIStr_PickCreatrIdleDesc:
+            case GUIStr_PickCreatrWorkingDesc:
+            case GUIStr_PickCreatrFightingDesc:
+            {
+                x -= gbtn->width;
+                break;
+            }
+            case GUIStr_MnuCancel:
+            {
+                x -= 12;
+                break;
+            }
+            case GUIStr_ExperienceDesc:
+            {
+                x -= 16;
+                break;
+            }
+            default:
+            {
+                x -= 8;
+                break;
+            }
+        }
+    }
+    LbTextSetJustifyWindow(x, gbtn->scr_pos_y, width);
+    LbTextSetClipWindow(x, gbtn->scr_pos_y, width, gbtn->height);
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;// | Lb_TEXT_UNDERLNSHADOW;
     if (cursor_pos >= 0) {
         // Mind the order, 'cause inserting makes positions shift
@@ -471,9 +513,44 @@ void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text
         LbLocTextStringInsert(dtext, "\x0B", cursor_pos, TEXT_BUFFER_LENGTH);
     }
     int units_per_px = (gbtn->width * 16 + base_width / 2) / base_width;
-    int tx_units_per_px = units_per_px * 22 / LbTextLineHeight();
+    int tx_units_per_px = (units_per_px * 22 / LbTextLineHeight());
     unsigned long w = 4 * units_per_px / 16;
+    if (low_res)
+    {
+        if ( (gbtn->tooltip_stridx != GUIStr_PickCreatrIdleDesc) && (gbtn->tooltip_stridx != GUIStr_PickCreatrWorkingDesc) && (gbtn->tooltip_stridx != GUIStr_PickCreatrFightingDesc) )
+        {
+            tx_units_per_px += (units_per_px / 2);
+        }
+    }
     unsigned long h = (gbtn->height - text_string_height(tx_units_per_px, dtext)) / 2 - 3 * units_per_px / 16;
+    if (dbc_language > 0)
+    {
+        if (gbtn->id_num == BID_QUERY_INFO)
+        {
+            if (MyScreenWidth > 640)
+            {
+                h += (13 + (MyScreenWidth / 640));
+                w += 8;
+                tx_units_per_px = scale_value_by_horizontal_resolution(10);
+            }
+        }
+        else if (gbtn->id_num == BID_DUNGEON_INFO)
+        {
+            if (MyScreenWidth > 640)
+            {
+                h += (12 + (MyScreenWidth / 640));
+                w += 8;
+                tx_units_per_px = scale_value_by_horizontal_resolution(12);
+            }
+        }
+        else if (gbtn->tooltip_stridx == GUIStr_ExperienceDesc)
+        {
+            if (MyScreenWidth > 640)
+            {
+                h += (8 + (MyScreenWidth / 640));
+            }
+        }
+    }
     LbTextDrawResized(w, h, tx_units_per_px, dtext);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);

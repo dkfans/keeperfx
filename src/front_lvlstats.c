@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_lvlstats.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -44,20 +45,17 @@
 #include "sprites.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-//DLLIMPORT extern struct StatsData _DK_scrolling_stats_data[];
-//#define scrolling_stats_data _DK_scrolling_stats_data
-DLLIMPORT extern struct LevelStats _DK_frontstats_data;
-#define frontstats_data _DK_frontstats_data
-DLLIMPORT extern TbClockMSec _DK_frontstats_timer;
-#define frontstats_timer _DK_frontstats_timer
-/******************************************************************************/
+extern struct LevelStats frontstats_data;
 extern struct StatsData main_stats_data[];
 extern struct StatsData scrolling_stats_data[];
+/******************************************************************************/
+static TbClockMSec frontstats_timer;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -72,7 +70,7 @@ long calculate_efficiency(PlayerNumber plyr_idx)
     long count = 0;
     long efficiency = 0;
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         long i = dungeonadd->room_kind[rkind];
         unsigned long k = 0;
@@ -107,7 +105,7 @@ long calculate_style(long plyr_idx)
     long area = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         long i = dungeonadd->room_kind[rkind];
         unsigned long k = 0;

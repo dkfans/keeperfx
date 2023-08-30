@@ -161,6 +161,11 @@ struct NamedCommand {
     int num;
 };
 
+struct LongNamedCommand {
+    const char* name;
+    long long num;
+};
+
 struct InstallInfo {
   char inst_path[150];
   int lang_id;
@@ -182,16 +187,8 @@ extern TbBool AssignCpuKeepers;
 
 extern unsigned int vid_scale_flags;
 /******************************************************************************/
-DLLIMPORT extern float _DK_phase_of_moon;
-#define phase_of_moon _DK_phase_of_moon
-DLLIMPORT extern long _DK_net_number_of_levels;
-#define net_number_of_levels _DK_net_number_of_levels
-DLLIMPORT extern struct NetLevelDesc _DK_net_level_desc[100];
-#define net_level_desc _DK_net_level_desc
-DLLIMPORT extern struct InstallInfo _DK_install_info;
-#define install_info _DK_install_info
-DLLIMPORT extern char _DK_keeper_runtime_directory[152];
-#define keeper_runtime_directory _DK_keeper_runtime_directory
+extern struct InstallInfo install_info;
+extern char keeper_runtime_directory[152];
 
 #pragma pack()
 /******************************************************************************/
@@ -203,6 +200,7 @@ extern short is_near_new_moon;
 extern unsigned long text_line_number;
 extern const struct NamedCommand lang_type[];
 extern const struct NamedCommand logicval_type[];
+extern const struct NamedCommand scrshot_type[];
 /******************************************************************************/
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
 char *prepare_file_path(short fgroup,const char *fname);
@@ -285,6 +283,7 @@ int get_conf_list_int(const char *buf, const char **state, int *dst);
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_id(const struct NamedCommand *desc, const char *itmname);
+long long get_long_id(const struct LongNamedCommand* desc, const char* itmname);
 long get_rid(const struct NamedCommand *desc, const char *itmname);
 /******************************************************************************/
 #ifdef __cplusplus

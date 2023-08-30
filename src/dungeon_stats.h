@@ -30,7 +30,7 @@ extern "C" {
 
 struct LevelStats { // sizeof = 392
   unsigned long things_researched;
-  unsigned long field_4;
+  unsigned long creatures_attracted;
   unsigned long field_8;
   unsigned long field_C;
   unsigned long field_10;

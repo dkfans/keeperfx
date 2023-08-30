@@ -77,11 +77,11 @@ enum ModeFlags {
 enum FFlags {
     FFlg_unk01              =  0x01,
     FFlg_unk02              =  0x02,
-    FFlg_unk04              =  0x04,
+    FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
     FFlg_unk08              =  0x08,
     FFlg_unk10              =  0x10,
     FFlg_AlexCheat          =  0x20,
-    FFlg_UsrSndFont         =  0x40,
+    FFlg_UsrSndFont         =  0x40, // now unused
     FFlg_unk80              =  0x80,
 };
 
@@ -136,103 +136,50 @@ struct StartupParameters {
 
 // Global variables migration between DLL and the program
 
-DLLIMPORT extern unsigned char *_DK_blue_palette;
-#define blue_palette _DK_blue_palette
-DLLIMPORT extern unsigned char *_DK_red_palette;
-#define red_palette _DK_red_palette
-DLLIMPORT extern unsigned char *_DK_dog_palette;
-#define dog_palette _DK_dog_palette
-DLLIMPORT extern unsigned char *_DK_vampire_palette;
-#define vampire_palette _DK_vampire_palette
-DLLIMPORT extern unsigned char _DK_exit_keeper;
-#define exit_keeper _DK_exit_keeper
-DLLIMPORT extern unsigned char _DK_quit_game;
-#define quit_game _DK_quit_game
-DLLIMPORT extern int _DK_continue_game_option_available;
-#define continue_game_option_available _DK_continue_game_option_available
-DLLIMPORT extern long _DK_last_mouse_x;
-#define last_mouse_x _DK_last_mouse_x
-DLLIMPORT extern long _DK_last_mouse_y;
-#define last_mouse_y _DK_last_mouse_y
-DLLIMPORT extern int _DK_FatalError;
-#define FatalError _DK_FatalError
-DLLIMPORT extern long _DK_define_key_scroll_offset;
-#define define_key_scroll_offset _DK_define_key_scroll_offset
-DLLIMPORT extern unsigned long _DK_time_last_played_demo;
-#define time_last_played_demo _DK_time_last_played_demo
-DLLIMPORT extern short _DK_drag_menu_x;
-#define drag_menu_x _DK_drag_menu_x
-DLLIMPORT extern short _DK_drag_menu_y;
-#define drag_menu_y _DK_drag_menu_y
-DLLIMPORT extern unsigned short _DK_tool_tip_time;
-#define tool_tip_time _DK_tool_tip_time
-DLLIMPORT extern unsigned short _DK_help_tip_time;
-#define help_tip_time _DK_help_tip_time
-DLLIMPORT extern long _DK_pointer_x;
-#define pointer_x _DK_pointer_x
-DLLIMPORT extern long _DK_pointer_y;
-#define pointer_y _DK_pointer_y
-DLLIMPORT extern long _DK_block_pointed_at_x;
-#define block_pointed_at_x _DK_block_pointed_at_x
-DLLIMPORT extern long _DK_block_pointed_at_y;
-#define block_pointed_at_y _DK_block_pointed_at_y
-DLLIMPORT extern long _DK_pointed_at_frac_x;
-#define pointed_at_frac_x _DK_pointed_at_frac_x
-DLLIMPORT extern long _DK_pointed_at_frac_y;
-#define pointed_at_frac_y _DK_pointed_at_frac_y
-DLLIMPORT extern long _DK_top_pointed_at_x;
-#define top_pointed_at_x _DK_top_pointed_at_x
-DLLIMPORT extern long _DK_top_pointed_at_y;
-#define top_pointed_at_y _DK_top_pointed_at_y
-DLLIMPORT extern long _DK_top_pointed_at_frac_x;
-#define top_pointed_at_frac_x _DK_top_pointed_at_frac_x
-DLLIMPORT extern long _DK_top_pointed_at_frac_y;
-#define top_pointed_at_frac_y _DK_top_pointed_at_frac_y
-DLLIMPORT long _DK_frame_number;
-#define frame_number _DK_frame_number
-DLLIMPORT long _DK_draw_spell_cost;
-#define draw_spell_cost _DK_draw_spell_cost
-DLLIMPORT char _DK_level_name[88];
-#define level_name _DK_level_name
-DLLIMPORT char _DK_top_of_breed_list;
-#define top_of_breed_list _DK_top_of_breed_list
+extern unsigned char *blue_palette;
+extern unsigned char *red_palette;
+extern unsigned char *dog_palette;
+extern unsigned char *vampire_palette;
+extern unsigned char exit_keeper;
+extern unsigned char quit_game;
+extern int continue_game_option_available;
+extern long last_mouse_x;
+extern long last_mouse_y;
+extern int FatalError;
+extern long define_key_scroll_offset;
+extern unsigned long time_last_played_demo;
+extern short drag_menu_x;
+extern short drag_menu_y;
+extern unsigned short tool_tip_time;
+extern unsigned short help_tip_time;
+extern long pointer_x;
+extern long pointer_y;
+extern long block_pointed_at_x;
+extern long block_pointed_at_y;
+extern long pointed_at_frac_x;
+extern long pointed_at_frac_y;
+extern long top_pointed_at_x;
+extern long top_pointed_at_y;
+extern long top_pointed_at_frac_x;
+extern long top_pointed_at_frac_y;
+extern char level_name[88];
+extern char top_of_breed_list;
 /** Amount of different creature kinds the local player has. Used for creatures tab in panel menu. */
-DLLIMPORT char _DK_no_of_breeds_owned;
-#define no_of_breeds_owned _DK_no_of_breeds_owned
-DLLIMPORT long _DK_optimised_lights;
-#define optimised_lights _DK_optimised_lights
-DLLIMPORT long _DK_total_lights;
-#define total_lights _DK_total_lights
-DLLIMPORT unsigned char _DK_do_lights;
-#define do_lights _DK_do_lights
-DLLIMPORT struct Thing *_DK_thing_pointed_at;
-#define thing_pointed_at _DK_thing_pointed_at
-DLLIMPORT struct Map *_DK_me_pointed_at;
-#define me_pointed_at _DK_me_pointed_at
-DLLIMPORT long _DK_my_mouse_x;
-#define my_mouse_x _DK_my_mouse_x
-DLLIMPORT long _DK_my_mouse_y;
-#define my_mouse_y _DK_my_mouse_y
-DLLIMPORT char *_DK_level_names_data;
-#define level_names_data _DK_level_names_data
-DLLIMPORT char *_DK_end_level_names_data;
-#define end_level_names_data _DK_end_level_names_data
-DLLIMPORT unsigned char *_DK_frontend_backup_palette;
-#define frontend_backup_palette _DK_frontend_backup_palette
-DLLIMPORT long _DK_dummy_x;
-#define dummy_x _DK_dummy_x
-DLLIMPORT long _DK_dummy_y;
-#define dummy_y _DK_dummy_y
-DLLIMPORT long _DK_dummy;
-#define dummy _DK_dummy
-DLLIMPORT unsigned char _DK_zoom_to_heart_palette[768];
-#define zoom_to_heart_palette _DK_zoom_to_heart_palette
-DLLIMPORT unsigned char _DK_EngineSpriteDrawUsingAlpha;
-#define EngineSpriteDrawUsingAlpha _DK_EngineSpriteDrawUsingAlpha
-DLLIMPORT unsigned char _DK_temp_pal[768];
-#define temp_pal _DK_temp_pal
-DLLIMPORT unsigned char *_DK_lightning_palette;
-#define lightning_palette _DK_lightning_palette
+extern char no_of_breeds_owned;
+extern long optimised_lights;
+extern long total_lights;
+extern unsigned char do_lights;
+extern struct Thing *thing_pointed_at;
+extern struct Map *me_pointed_at;
+extern long my_mouse_x;
+extern long my_mouse_y;
+extern char *level_names_data;
+extern char *end_level_names_data;
+extern unsigned char *frontend_backup_palette;
+extern unsigned char zoom_to_heart_palette[768];
+extern unsigned char EngineSpriteDrawUsingAlpha;
+extern unsigned char temp_pal[768];
+extern unsigned char *lightning_palette;
 
 #pragma pack()
 /******************************************************************************/
@@ -253,7 +200,7 @@ void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, TbBool allowed);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
@@ -281,7 +228,6 @@ short zoom_to_next_annoyed_creature(void);
 
 TbBool LbIsFrozenOrPaused(void); // from bflib_inputctrl.cpp
 
-short ceiling_set_info(long height_max, long height_min, long step);
 void set_mouse_light(struct PlayerInfo *player);
 void delete_all_structures(void);
 void clear_map(void);
@@ -308,7 +254,6 @@ unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coo
 unsigned long seed_check_random(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place);
 void init_lookups(void);
 void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
-void shuffle_unattached_things_on_slab(long stl_x, long stl_y);
 void turn_off_query(PlayerNumber plyr_idx);
 TbBool set_gamma(char corrlvl, TbBool do_set);
 void level_lost_go_first_person(PlayerNumber plyr_idx);
@@ -337,10 +282,10 @@ void initialise_map_collides(void);
 void initialise_map_health(void);
 void setup_3d(void);
 void setup_stuff(void);
-long ceiling_init(unsigned long a1, unsigned long a2);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
-void process_keeper_spell_effect(struct Thing *thing);
+void process_keeper_spell_aura(struct Thing *thing);
+void init_seeds();
 
 TbPixel get_player_path_colour(unsigned short owner);
 
@@ -365,7 +310,7 @@ struct GameTime {
     unsigned char Hours;
 };
 
-__attribute__((regparm(3))) struct GameTime get_game_time(unsigned long turns, unsigned long fps);
+struct GameTime get_game_time(unsigned long turns, unsigned long fps);
 
 #ifdef __cplusplus
 }

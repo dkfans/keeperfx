@@ -58,7 +58,7 @@ enum ThingFlags2 {
 
 enum ThingRenderingFlags {
     TRF_Unknown01     = 0x01, /** Not Drawn **/
-    TRF_Unknown02     = 0x02, // Not shaded
+    TRF_Unshaded     = 0x02, // Not shaded
 
     TRF_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
     TRF_Unknown08     = 0x08, // Tint2 (not used?)
@@ -69,7 +69,7 @@ enum ThingRenderingFlags {
     TRF_Transpar_Alpha = 0x30,
     TRF_Transpar_Flags = 0x30,
 
-    TRF_Unmoving       = 0x40,
+    TRF_AnimateOnce    = 0x40,
     TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
 };
 
@@ -83,11 +83,11 @@ enum ThingMovementFlags {
     TMvF_Default            = 0x00,
     TMvF_IsOnWater          = 0x01,
     TMvF_IsOnLava           = 0x02,
-    TMvF_Unknown04          = 0x04, //Touching ground? Also don't cast shadows when this is set
-    TMvF_Unknown08          = 0x08,
+    TMvF_BeingSacrificed    = 0x04,
+    TMvF_Unknown08          = 0x08, // thing->veloc_base.z.val = 0
     TMvF_Unknown10          = 0x10, //Stopped by walls?
     TMvF_Flying             = 0x20,
-    TMvF_Unknown40          = 0x40,
+    TMvF_Immobile           = 0x40,
     TMvF_IsOnSnow           = 0x80,
 };
 
@@ -236,10 +236,9 @@ struct Thing {
     short parent_idx;
     unsigned char class_id;
     unsigned char fall_acceleration;
-unsigned char field_21;
     unsigned char bounce_angle;
-    unsigned char field_23;
-    unsigned char field_24;
+    short inertia_floor;
+    short inertia_air;
     unsigned char movement_flags;
     struct CoordDelta3d veloc_push_once;
     struct CoordDelta3d veloc_base;
@@ -265,13 +264,26 @@ unsigned char tint_colour;
     unsigned short clipbox_size_yz;
     unsigned short solid_size_xy;
     unsigned short solid_size_yz;
-    short health; //signed
+    long health;
 unsigned short floor_height;
     unsigned short light_id;
     short ccontrol_idx;
     unsigned char snd_emitter_id;
     short next_of_class;
     short prev_of_class;
+    unsigned long flags; //ThingAddFlags
+    long last_turn_drawn;
+    float time_spent_displaying_hurt_colour; // Used for delta time interpolated render position
+    unsigned short previous_floor_height;
+    unsigned short interp_floor_height;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long interp_minimap_pos_x;
+    long interp_minimap_pos_y;
+    long previous_minimap_pos_x;
+    long previous_minimap_pos_y;
+    long interp_minimap_update_turn;
+    PlayerNumber holding_player;
 };
 
 #define INVALID_THING (game.things.lookup[0])
@@ -282,28 +294,10 @@ unsigned short floor_height;
  */
 #define TRACE_THING(thing)
 
-enum ThingAddFlags
+enum ThingAddFlags //named this way because they were part of the ThingAdd structure
 {
     TAF_ROTATED_SHIFT = 16,
     TAF_ROTATED_MASK = 0x070000,
-};
-
-struct ThingAdd // Additional thing data
-{
-    unsigned long flags; //ThingAddFlags
-    long last_turn_drawn;
-    float time_spent_displaying_hurt_colour;
-    // Used for delta time interpolated render position
-    unsigned short previous_floor_height;
-    unsigned short interp_floor_height;
-    struct Coord3d previous_mappos;
-    struct Coord3d interp_mappos;
-    
-    long interp_minimap_pos_x;
-    long interp_minimap_pos_y;
-    long previous_minimap_pos_x;
-    long previous_minimap_pos_y;
-    long interp_minimap_update_turn;
 };
 
 #pragma pack()
@@ -322,6 +316,7 @@ TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
 
+TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 

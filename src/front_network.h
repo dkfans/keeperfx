@@ -31,27 +31,12 @@ extern "C" {
 #pragma pack(1)
 
 /******************************************************************************/
-DLLIMPORT int _DK_fe_network_active;
-#define fe_network_active _DK_fe_network_active
-DLLIMPORT extern int _DK_net_service_index_selected;
-#define net_service_index_selected _DK_net_service_index_selected
-DLLIMPORT char _DK_tmp_net_player_name[24];
-#define tmp_net_player_name _DK_tmp_net_player_name
-DLLIMPORT char _DK_tmp_net_phone_number[24];
-#define tmp_net_phone_number _DK_tmp_net_phone_number
-DLLIMPORT char _DK_tmp_net_modem_init[20];
-#define tmp_net_modem_init _DK_tmp_net_modem_init
-DLLIMPORT char _DK_tmp_net_modem_dial[20];
-#define tmp_net_modem_dial _DK_tmp_net_modem_dial
-DLLIMPORT char _DK_tmp_net_modem_hangup[20];
-#define tmp_net_modem_hangup _DK_tmp_net_modem_hangup
-DLLIMPORT char _DK_tmp_net_modem_answer[20];
-#define tmp_net_modem_answer _DK_tmp_net_modem_answer
+extern int fe_network_active;
+extern int net_service_index_selected;
+extern char tmp_net_player_name[24];
 
 #pragma pack()
 /******************************************************************************/
-long modem_initialise_callback(void);
-long modem_connect_callback(void);
 void process_network_error(long errcode);
 void draw_out_of_sync_box(long a1, long a2, long box_width);
 void display_attempting_to_join_message(void);
@@ -59,10 +44,6 @@ CoroutineLoopState setup_alliances(CoroutineLoop *con);
 void frontnet_service_setup(void);
 void frontnet_session_setup(void);
 void frontnet_start_setup(void);
-void frontnet_modem_setup(void);
-void frontnet_serial_setup(void);
-void frontnet_modem_update(void);
-void frontnet_serial_update(void);
 void frontnet_service_update(void);
 void frontnet_session_update(void);
 void frontnet_start_update(void);

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_library.h"
 
 #include "globals.h"
@@ -35,6 +36,7 @@
 #include "magic.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -65,10 +67,13 @@ struct Thing *create_spell_in_library(struct Room *room, ThingModel tngmodel, Ma
     {
         return spelltng;
     }
-    if (!add_item_to_room_capacity(room, true))
+    if (thing_is_spellbook(spelltng))
     {
-        destroy_object(spelltng);
-        return INVALID_THING;
+        if (!add_item_to_room_capacity(room, true))
+        {
+            destroy_object(spelltng);
+            return INVALID_THING;
+        }
     }
     if (!add_power_to_player(book_thing_to_power_kind(spelltng), room->owner))
     {
@@ -149,7 +154,7 @@ EventIndex update_library_object_pickup_event(struct Thing *creatng, struct Thin
         }
     } else
     {
-        WARNLOG("Strange pickup (model %d) - no event",(int)picktng->model);
+        WARNLOG("Strange pickup (%s) - no event",thing_class_and_model_name(picktng->class_id, picktng->model));
         evidx = 0;
     }
     return evidx;
@@ -283,7 +288,6 @@ TbBool update_or_add_players_research_amount(PlayerNumber plyr_idx, long rtyp, l
 
 void process_player_research(PlayerNumber plyr_idx)
 {
-    //_DK_process_player_research(plyr_idx); return;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (!player_has_room_of_role(plyr_idx, RoRoF_Research)) {
@@ -325,7 +329,7 @@ void process_player_research(PlayerNumber plyr_idx)
                 break;
             }
             if (room_is_invalid(room)) {
-                WARNLOG("Player %d has no %s with capacity for %s artifact, delaying creation",(int)plyr_idx,room_code_name(RoK_LIBRARY),power_code_name(pwkind));
+                WARNLOG("Player %d has no %s with capacity for %s artifact, delaying creation",(int)plyr_idx,room_role_code_name(RoRoF_PowersStorage),power_code_name(pwkind));
                 return;
             }
             pos.x.val = 0;
@@ -340,7 +344,7 @@ void process_player_research(PlayerNumber plyr_idx)
             room = find_random_room_of_role_for_thing_with_spare_room_item_capacity(spelltng, plyr_idx, RoRoF_PowersStorage, 0);
             if (room_is_invalid(room))
             {
-                ERRORLOG("There should be %s for %s artifact, but not found",room_code_name(RoK_LIBRARY),power_code_name(pwkind));
+                ERRORLOG("There should be %s for %s artifact, but not found",room_role_code_name(RoRoF_PowersStorage),power_code_name(pwkind));
                 delete_thing_structure(spelltng, 0);
                 return;
             }
@@ -354,7 +358,10 @@ void process_player_research(PlayerNumber plyr_idx)
             if (add_power_to_player(pwkind, plyr_idx))
             {
                 move_thing_in_map(spelltng, &pos);
-                add_item_to_room_capacity(room, true);
+                if (thing_is_spellbook(spelltng))
+                {
+                    add_item_to_room_capacity(room, true);
+                }
                 event_create_event(spelltng->mappos.x.val, spelltng->mappos.y.val, EvKind_NewSpellResrch, spelltng->owner, pwkind);
                 create_effect(&pos, TngEff_ResearchComplete, spelltng->owner);
             }
@@ -391,9 +398,19 @@ void process_player_research(PlayerNumber plyr_idx)
     case RsCat_Creature:
         if (dungeon->creature_allowed[rsrchval->rkind])
         {
-            ThingModel crkind;
-            crkind = rsrchval->rkind;
-            dungeon->creature_force_enabled[crkind]++;
+            dungeon->creature_force_enabled[rsrchval->rkind]++;
+        }
+        else 
+        {          
+            room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
+            if (!room_is_invalid(room))
+            {
+                pos.x.val = subtile_coord_center(room->central_stl_x);
+                pos.y.val = subtile_coord_center(room->central_stl_y);
+                pos.z.val = get_floor_height_at(&pos);
+                create_effect(&pos, TngEff_ResearchComplete, room->owner);
+            }
+            dungeon->creature_allowed[rsrchval->rkind]++;
         }
         break;
     default:

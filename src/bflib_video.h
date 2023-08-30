@@ -24,6 +24,8 @@
 
 #include "globals.h"
 
+#include <SDL2/SDL.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -228,46 +230,9 @@ typedef struct SSurface TSurface;
 
 /******************************************************************************/
 
-DLLIMPORT extern TbDisplayStruct _DK_lbDisplay;
-#define lbDisplay _DK_lbDisplay
-DLLIMPORT extern unsigned short _DK_MyScreenWidth;
-#define MyScreenWidth _DK_MyScreenWidth
-DLLIMPORT extern unsigned short _DK_MyScreenHeight;
-#define MyScreenHeight _DK_MyScreenHeight
-DLLIMPORT extern unsigned short _DK_pixel_size;
-#define pixel_size _DK_pixel_size
-DLLIMPORT unsigned short _DK_pixels_per_block;
-#define pixels_per_block _DK_pixels_per_block
-DLLIMPORT unsigned short _DK_units_per_pixel;
-#define units_per_pixel _DK_units_per_pixel
-DLLIMPORT extern int _DK_lbUseSdk;
-//#define lbUseSdk _DK_lbUseSdk
-
-DLLIMPORT unsigned char _DK_fade_started;
-#define fade_started _DK_fade_started
-DLLIMPORT unsigned char _DK_from_pal[PALETTE_SIZE];
-#define from_pal _DK_from_pal
-DLLIMPORT unsigned char _DK_to_pal[PALETTE_SIZE];
-#define to_pal _DK_to_pal
-DLLIMPORT long _DK_fade_count;
-#define fade_count _DK_fade_count
-DLLIMPORT TbGraphicsWindow _DK_lbTextJustifyWindow;
-#define lbTextJustifyWindow _DK_lbTextJustifyWindow
-DLLIMPORT TbGraphicsWindow _DK_lbTextClipWindow;
-#define lbTextClipWindow _DK_lbTextClipWindow
 
 #pragma pack()
 /******************************************************************************/
-/*
-extern unsigned char *palette;
-extern struct TbDisplayStruct lbDisplay;
-extern unsigned char *lbVesaData;
-extern bool screen_initialised;
-extern void *back_buffer;
-extern char redraw_screen_flag;
-extern bool lbScreenDirectAccessActive;
-extern unsigned short lbVesaPage;
-*/
 extern volatile TbBool lbScreenInitialised;
 extern volatile TbBool lbUseSdk;
 extern volatile TbBool lbInteruptMouse;
@@ -293,6 +258,15 @@ extern unsigned long aspect_ratio_factor_HOR_PLUS;
 extern unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
 extern unsigned long first_person_horizontal_fov;
 extern unsigned long first_person_vertical_fov;
+
+extern unsigned short MyScreenWidth;
+extern unsigned short MyScreenHeight;
+extern unsigned short pixel_size;
+extern unsigned short pixels_per_block;
+extern unsigned short units_per_pixel;
+
+extern TbDisplayStruct lbDisplay;
+extern SDL_Window *lbWindow;
 /******************************************************************************/
 TbResult LbScreenInitialize(void);
 TbResult LbScreenSetDoubleBuffering(TbBool state);

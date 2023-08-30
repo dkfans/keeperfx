@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_control.h"
 #include "globals.h"
 
@@ -33,6 +34,7 @@
 #include "light_data.h"
 #include "sounds.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -136,7 +138,7 @@ void delete_all_control_structures(void)
 
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long crmodel, struct Coord3d *pos)
 {
-    SYNCDBG(6,"Request for model %ld at (%d,%d,%d)",crmodel,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
+    SYNCDBG(6,"Request for model %ld (%s) at (%d,%d,%d)",crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     struct Thing* thing = create_creature(pos, crmodel, player->id_number);
     if (thing_is_invalid(thing))
       return INVALID_THING;
@@ -224,7 +226,7 @@ TbBool disband_creatures_group(struct Thing *thing)
 struct CreatureSound *get_creature_sound(struct Thing *thing, long snd_idx)
 {
     unsigned int cmodel = thing->model;
-    if ((cmodel < 1) || (cmodel >= CREATURE_TYPES_COUNT))
+    if ((cmodel < 1) || (cmodel >= gameadd.crtr_conf.model_count))
     {
         ERRORLOG("Trying to get sound for undefined creature type %d",(int)cmodel);
         // Return dummy element

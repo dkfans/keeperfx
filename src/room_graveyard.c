@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_graveyard.h"
 
 #include "globals.h"
@@ -30,6 +31,7 @@
 #include "game_legacy.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -52,7 +54,7 @@ TbBool add_body_to_graveyard(struct Thing *deadtng, struct Room *room)
     }
     if (corpse_laid_to_rest(deadtng))
     {
-        ERRORLOG("The %s is already decomposing in %s",thing_model_name(deadtng),room_code_name(RoK_GRAVEYARD));
+        ERRORLOG("The %s is already decomposing in %s",thing_model_name(deadtng),room_role_code_name(RoRoF_DeadStorage));
         return false;
     }
     room->used_capacity++;

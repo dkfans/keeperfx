@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_sprfnt.h"
 
 #include <stdarg.h>
@@ -31,6 +32,7 @@
 //TODO: this breaks my convention - non-bflib call from bflib (used for asian fonts)
 #include "frontend.h"
 #include "front_credits.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -68,6 +70,11 @@ long dbc_colour1 = 0;
 short dbc_language = 0;
 TbBool dbc_initialized = false;
 TbBool dbc_enabled = true;
+const struct TbSprite *lbFontPtr;
+
+static TbGraphicsWindow lbTextJustifyWindow;
+static TbGraphicsWindow lbTextClipWindow;
+static unsigned char lbSpacesPerTab;
 /******************************************************************************/
 
 /** Returns if the given char starts a wide charcode.
@@ -1329,7 +1336,7 @@ int LbTextCharWidthM(const long chr, long units_per_px)
         return dbc_char_widthM(chr, units_per_px);
     }
     else
-    {        
+    {
         return LbSprFontCharWidth(lbFontPtr, (unsigned char)chr) * units_per_px / 16;
     }
 }

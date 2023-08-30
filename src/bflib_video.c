@@ -18,15 +18,18 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_video.h"
 
 #include "bflib_mouse.h"
-#include "bflib_vidsurface.h"
+#include "bflib_render.h"
 #include "bflib_sprfnt.h"
-#include "bflib_inputctrl.h"
+#include "bflib_vidsurface.h"
+
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_syswm.h>
 #include <math.h>
+#include "post_inc.h"
 
 #define SCREEN_MODES_COUNT 40
 
@@ -62,6 +65,21 @@ char lbDrawAreaTitle[128] = "Bullfrog Shell";
 volatile TbBool lbInteruptMouse;
 volatile unsigned long lbIconIndex = 0;
 SDL_Window *lbWindow = NULL;
+
+TbDisplayStruct lbDisplay;
+
+
+unsigned short MyScreenWidth;
+unsigned short MyScreenHeight;
+unsigned short pixel_size;
+unsigned short pixels_per_block;
+unsigned short units_per_pixel;
+
+static unsigned char fade_started;
+static unsigned char from_pal[PALETTE_SIZE];
+static unsigned char to_pal[PALETTE_SIZE];
+static long fade_count;
+
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
 {
@@ -387,19 +405,6 @@ TbResult LbScreenInitialize(void)
     return Lb_SUCCESS;
 }
 
-// this function is unused
-LPCTSTR MsResourceMapping(int index)
-{
-  switch (index)
-  {
-  case 1:
-      return "A";
-      //return MAKEINTRESOURCE(110); -- may work for other resource compilers
-  default:
-      return NULL;
-  }
-}
-
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
@@ -436,7 +441,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
 
     // SDL video mode flags
     unsigned long sdlFlags = 0;
-    sdlFlags |= SDL_SWSURFACE;
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
         sdlFlags |= SDL_WINDOW_FULLSCREEN;
     }
@@ -462,7 +466,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         {
             SDL_DestroyWindow(lbWindow); // destroy window on transition from fullscreen to window, as it is quicker than using SDL_SetWindowFullscreen
             lbWindow = NULL;
-        } 
+        }
         else
         {
             if (!sameResolution)
@@ -489,7 +493,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
         return Lb_FAIL;
     }
-
     lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
     if (lbScreenSurface == NULL) {
         ERRORLOG("Failed to initialize mode %d: %s",(int)mode,SDL_GetError());
@@ -533,8 +536,16 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     {
         LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
         if (msspr != NULL)
+        {
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
+        }
+        if (!IsMouseInsideWindow())
+        {
+            SDL_WarpMouseInWindow(lbWindow, mdinfo->Width / 2, mdinfo->Height / 2);
+        }
     }
+
+    setup_bflib_render(lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);
     SYNCDBG(8,"Finished");
     return Lb_SUCCESS;
 }
@@ -669,6 +680,7 @@ TbResult LbScreenReset(void)
         SDL_FreeSurface(lbDrawSurface);
     }
     //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
+    finish_bflib_render();
     lbHasSecondSurface = false;
     lbDrawSurface = NULL;
     lbScreenSurface = NULL;
@@ -720,7 +732,7 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
     long i;
     long x2 = x + width;
     long y2 = y + height;
-    if (x2 < x)
+    if (x2 < x)  //Alarm! Voodoo magic detected!
     {
         i = (x ^ x2);
         x = x ^ i;

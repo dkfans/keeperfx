@@ -52,8 +52,6 @@ enum GUI_Menus {
   GMnu_FENET_SERVICE      = 20,
   GMnu_FENET_SESSION      = 21,
   GMnu_FENET_START        = 22,
-  GMnu_FENET_MODEM        = 23,
-  GMnu_FENET_SERIAL       = 24,
   GMnu_FESTATISTICS       = 25,
   GMnu_FEHIGH_SCORE_TABLE = 26,
   GMnu_DUNGEON_SPECIAL    = 27,
@@ -95,52 +93,10 @@ typedef long MenuID;
 typedef long MenuNumber;
 
 /******************************************************************************/
-DLLIMPORT struct GuiMenu _DK_main_menu;
-DLLIMPORT struct GuiMenu _DK_room_menu;
-DLLIMPORT struct GuiMenu _DK_spell_menu;
-DLLIMPORT struct GuiMenu _DK_spell_lost_menu;
-DLLIMPORT struct GuiMenu _DK_trap_menu;
-DLLIMPORT struct GuiMenu _DK_creature_menu;
-DLLIMPORT struct GuiMenu _DK_event_menu;
-DLLIMPORT struct GuiMenu _DK_options_menu;
-DLLIMPORT struct GuiMenu _DK_instance_menu;
-DLLIMPORT struct GuiMenu _DK_query_menu;
-DLLIMPORT struct GuiMenu _DK_quit_menu;
-DLLIMPORT struct GuiMenu _DK_load_menu;
-DLLIMPORT struct GuiMenu _DK_save_menu;
-DLLIMPORT struct GuiMenu _DK_video_menu;
-DLLIMPORT struct GuiMenu _DK_sound_menu;
-DLLIMPORT struct GuiMenu _DK_error_box;
-DLLIMPORT struct GuiMenu _DK_text_info_menu;
-DLLIMPORT struct GuiMenu _DK_hold_audience_menu;
-DLLIMPORT struct GuiMenu _DK_dungeon_special_menu;
-DLLIMPORT struct GuiMenu _DK_resurrect_creature_menu;
-DLLIMPORT struct GuiMenu _DK_transfer_creature_menu;
-DLLIMPORT struct GuiMenu _DK_armageddon_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_main_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_load_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_service_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_session_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_start_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_modem_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_net_serial_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_statistics_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_high_score_table_menu;
-DLLIMPORT struct GuiMenu _DK_creature_query_menu1;
-DLLIMPORT struct GuiMenu _DK_creature_query_menu2;
-DLLIMPORT struct GuiMenu _DK_creature_query_menu3;
-DLLIMPORT struct GuiMenu _DK_battle_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_define_keys_menu;
-DLLIMPORT struct GuiMenu _DK_autopilot_menu;
-DLLIMPORT struct GuiMenu _DK_frontend_option_menu;
-DLLIMPORT struct GuiMenu *_DK_menu_list[40];
 
-DLLIMPORT char _DK_no_of_active_menus;
-#define no_of_active_menus _DK_no_of_active_menus
-DLLIMPORT unsigned char _DK_menu_stack[ACTIVE_MENUS_COUNT];
-#define menu_stack _DK_menu_stack
-DLLIMPORT extern struct GuiMenu _DK_active_menus[ACTIVE_MENUS_COUNT];
-#define active_menus _DK_active_menus
+extern char no_of_active_menus;
+extern unsigned char menu_stack[ACTIVE_MENUS_COUNT];
+extern struct GuiMenu active_menus[ACTIVE_MENUS_COUNT];
 
 #pragma pack()
 /******************************************************************************/

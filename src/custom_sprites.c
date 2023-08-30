@@ -16,8 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
-
+#include "pre_inc.h"
 #include "custom_sprites.h"
 #include "creature_graphics.h"
 #include "front_simple.h"
@@ -32,6 +31,7 @@
 #include <spng.h>
 #include <json.h>
 #include <json-dom.h>
+#include "post_inc.h"
 
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
@@ -954,7 +954,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         }
     }
 
-#if BFDEBUG_LEVEL > 0
+#if BFDEBUG_LEVEL > 10
     struct StrBuf buf = {0, 0};
 
     json_dom_dump(node, &dump_callback, &buf, 2, 0);

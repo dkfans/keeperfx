@@ -20,6 +20,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "game_legacy.h"
 #include "kjm_input.h"
 #include "front_input.h"
@@ -30,6 +31,7 @@
 #include "slab_data.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -601,13 +603,14 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct RoomSpace current_roomspace;
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     current_roomspace.plyr_idx = plyr_idx;
     MapSlabCoord drag_start_x = slb_x;
     MapSlabCoord drag_start_y = slb_y;
     struct Packet* pckt = get_packet_direct(player->packet_num);
     playeradd->one_click_lock_cursor = false;
+    playeradd->one_click_mode_exclusive = false;
     if (playeradd->ignore_next_PCtr_LBtnRelease)
     {
         // because player cancelled with RMB, we need to default back to vanilla 1x1 box
@@ -620,6 +623,7 @@ void get_dungeon_sell_user_roomspace(struct RoomSpace *roomspace, PlayerNumber p
         current_roomspace = check_roomspace_for_diggable_slabs(current_roomspace, plyr_idx);
         player->boxsize = current_roomspace.slab_count;
         *roomspace = current_roomspace;
+        playeradd->ignore_next_PCtr_LBtnRelease = false;
         return;
     }
     if (!playeradd->render_roomspace.drag_mode) // reset drag start slab
@@ -704,8 +708,8 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
 {
     struct PlayerInfo* player = get_player(plyr_idx);
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     struct RoomSpace best_roomspace;
     best_roomspace.is_roomspace_a_box = true;
     best_roomspace.render_roomspace_as_box = true;
@@ -729,6 +733,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         best_roomspace = check_roomspace_for_diggable_slabs(best_roomspace, plyr_idx);
         player->boxsize = best_roomspace.slab_count;
         *roomspace = best_roomspace;
+        playeradd->ignore_next_PCtr_LBtnRelease = false;
         return;
     }
     if (!playeradd->render_roomspace.drag_mode) // reset drag start slab
@@ -768,9 +773,12 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             drag_start_y = slb_y;
         }
         TbBool can_drag; 
-        if (rkind == RoK_BRIDGE)
+        if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
         {
-            can_drag = ( (can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) || (players_land_by_liquid(plyr_idx, drag_start_x, drag_start_y)) );
+            can_drag = ((can_build_room_at_slab(plyr_idx, rkind, drag_start_x, drag_start_y)) || 
+                        (room_role_matches(rkind,RoRoF_PassWater) && (players_land_by_slab_kind(plyr_idx, drag_start_x, drag_start_y,SlbT_WATER))) ||
+                        (room_role_matches(rkind,RoRoF_PassLava)  && (players_land_by_slab_kind(plyr_idx, drag_start_x, drag_start_y,SlbT_LAVA))) );
+            playeradd->one_click_mode_exclusive = false;
         }
         else
         {
@@ -788,7 +796,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
         {
             detect_roomspace_direction(&temp_best_room);
         }
-        if (rkind == RoK_BRIDGE)
+        if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
         {
             detect_bridge_shape(plyr_idx);
         }
@@ -811,7 +819,7 @@ void get_dungeon_build_user_roomspace(struct RoomSpace *roomspace, PlayerNumber 
             best_roomspace.height = playeradd->roomspace_height;
             best_roomspace.render_roomspace_as_box = true;
     }
-    if ((playeradd->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!best_roomspace.drag_mode))
+    if ((playeradd->one_click_lock_cursor) && ((pckt->control_flags & PCtr_LBtnHeld) != 0) && (!best_roomspace.drag_mode) && (mode != roomspace_detection_mode))
     {
         best_roomspace.is_roomspace_a_box = true;
     }
@@ -824,20 +832,14 @@ static void sell_at_point(struct RoomSpace *roomspace)
     struct SlabMap *slb = get_slabmap_block(roomspace->buildx, roomspace->buildy);
     if (slabmap_owner(slb) == roomspace->plyr_idx)
     {
+        if (player_sell_trap_at_subtile(roomspace->plyr_idx, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy)) ||
+            player_sell_door_at_subtile(roomspace->plyr_idx, slab_subtile(roomspace->buildx, 0), slab_subtile(roomspace->buildy, 0)) ) // Trying to sell trap
+        {
+            // Nothing to do here - trap already sold
+        } else
         if (subtile_is_sellable_room(roomspace->plyr_idx,slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0)))// Trying to sell room
         {
             player_sell_room_at_subtile(roomspace->plyr_idx,slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0));
-        }
-        else
-        {
-            if (player_sell_door_at_subtile(roomspace->plyr_idx, slab_subtile(roomspace->buildx,0), slab_subtile(roomspace->buildy,0))) // Trying to sell door
-            {
-                // Nothing to do here - door already sold
-            }
-            if (player_sell_trap_at_subtile(roomspace->plyr_idx, slab_subtile_center(roomspace->buildx), slab_subtile_center(roomspace->buildy))) // Trying to sell trap
-            {
-                // Nothing to do here - trap already sold
-            }
         }
     }
 }
@@ -1207,7 +1209,7 @@ void process_build_roomspace_inputs(PlayerNumber plyr_idx)
     struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     long keycode = 0;
     struct Packet* pckt = get_packet(plyr_idx);
-    if (player->chosen_room_kind == RoK_BRIDGE)
+    if (room_role_matches(player->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater))
     {
         TbBool drag_check = ( ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) || (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) ) && (left_button_held));
         if (drag_check) // Enable "paint mode" if Ctrl or Shift are held
@@ -1349,12 +1351,12 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
     {
         par2 = 0;
     }
-    if (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) // Use "modern" click and drag method
+    if ( (is_game_key_pressed(Gkey_BestRoomSpace, &keycode, true)) ) // Use "modern" click and drag method
     {
         par1 = 1;
         par2 = 0;
     }
-    else if (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true)) // Use "modern" click and drag method
+    else if ( (is_game_key_pressed(Gkey_SquareRoomSpace, &keycode, true))  ) // Use "modern" click and drag method
     {
         par1 = 2;
         playeradd = get_playeradd(plyr_idx);
@@ -1374,7 +1376,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx)
             }
         }
     }
-    else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true))
+    else if (is_game_key_pressed(Gkey_SellTrapOnSubtile, &keycode, true) )
     {
         if (player->primary_cursor_state == CSt_PowerHand)
         {
@@ -1408,18 +1410,19 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                 current_y = roomspace->top + y;
                 for (x = 0; x < roomspace->width; x++)
                 {
+                    TbBool * row = roomspace->slab_grid[x];
                     current_x = roomspace->left + x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[x][y] == true) // only check slabs in the roomspace
                     {
                         can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
-                            roomspace->slab_grid[x][y] = true;
+                            row[y] = true;
                             roomspace->slab_count++;
                         }
                         else
                         {
-                            roomspace->slab_grid[x][y] = false;
+                            row[y] = false;
                             roomspace->invalid_slabs_count++;
                         }
                     }
@@ -1434,18 +1437,19 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                 current_y = roomspace->bottom - y;
                 for (x = 0; x < roomspace->width; x++)
                 {
+                    TbBool * row = roomspace->slab_grid[(roomspace->width - 1) - x];
                     current_x = roomspace->right - x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[(roomspace->width - 1) - x][(roomspace->height - 1) - y] == true) // only check slabs in the roomspace
                     {
                         can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
-                            roomspace->slab_grid[(roomspace->width - 1) - x][(roomspace->height - 1) - y] = true;
+                            row[(roomspace->height - 1) - y] = true;
                             roomspace->slab_count++;
                         }
                         else
                         {
-                            roomspace->slab_grid[(roomspace->width - 1) - x][(roomspace->height - 1) - y] = false;
+                            row[(roomspace->height - 1) - y] = false;
                             roomspace->invalid_slabs_count++;
                         }
                     }
@@ -1460,18 +1464,19 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                 current_y = roomspace->top + y;
                 for (x = 0; x < roomspace->width; x++)
                 {
+                    TbBool * row = roomspace->slab_grid[(roomspace->width - 1) - x];
                     current_x = roomspace->right - x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[(roomspace->width - 1) - x][y] == true) // only check slabs in the roomspace
                     {
                         can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
-                            roomspace->slab_grid[(roomspace->width - 1) - x][y] = true;
+                            row[y] = true;
                             roomspace->slab_count++;
                         }
                         else
                         {
-                            roomspace->slab_grid[(roomspace->width - 1) - x][y] = false;
+                            row[y] = false;
                             roomspace->invalid_slabs_count++;
                         }
                     }
@@ -1486,18 +1491,19 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
                 current_y = roomspace->bottom - y;
                 for (x = 0; x < roomspace->width; x++)
                 {
+                    TbBool * row = roomspace->slab_grid[x];
                     current_x = roomspace->left + x;
                     if (roomspace->is_roomspace_a_box || roomspace->slab_grid[x][(roomspace->height - 1) - y] == true) // only check slabs in the roomspace
                     {
                         can = (sell) ? ((subtile_is_sellable_room(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0))) || (subtile_is_sellable_door_or_trap(roomspace->plyr_idx, slab_subtile(current_x,0), slab_subtile(current_y,0)))) : (roomspace_can_build_room_at_slab(roomspace->plyr_idx, roomspace->rkind, current_x, current_y));
                         if (can)
                         {
-                            roomspace->slab_grid[x][(roomspace->height - 1) - y] = true;
+                            row[(roomspace->height - 1) - y] = true;
                             roomspace->slab_count++;
                         }
                         else
                         {
-                            roomspace->slab_grid[x][(roomspace->height - 1) - y] = false;
+                            row[(roomspace->height - 1) - y] = false;
                             roomspace->invalid_slabs_count++;
                         }
                     }
@@ -1511,13 +1517,22 @@ void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool se
 TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    if (player->chosen_room_kind == RoK_BRIDGE)
+    if (room_role_matches(player->chosen_room_kind,RoRoF_PassLava|RoRoF_PassWater))
     {
         if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx))
         {
             return false;
         }
         if (!slab_is_liquid(slb_x, slb_y))
+        {
+            return false;
+        }
+        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+        if(slb->kind == SlbT_WATER && !room_role_matches( rkind,RoRoF_PassWater))
+        {
+            return false;
+        }
+        if(slb->kind == SlbT_LAVA && !room_role_matches( rkind,RoRoF_PassLava))
         {
             return false;
         }

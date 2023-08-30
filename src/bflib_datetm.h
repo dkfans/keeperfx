@@ -34,8 +34,8 @@ extern struct TbDate global_date;
 extern TbClockMSec (* LbTimerClock)(void);
 /******************************************************************************/
 void LbDoMultitasking(void);
-TbBool __fastcall LbSleepFor(TbClockMSec delay);
-TbBool __fastcall LbSleepUntil(TbClockMSec endtime);
+TbBool LbSleepFor(TbClockMSec delay);
+TbBool LbSleepUntil(TbClockMSec endtime);
 TbResult LbTime(struct TbTime *curr_time);
 TbTimeSec LbTimeSec(void);
 TbResult LbDate(struct TbDate *curr_date);

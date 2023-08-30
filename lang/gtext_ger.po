@@ -995,7 +995,7 @@ msgid ""
 "everything under control, because their feeble magical power impresses the "
 "locals. But you're not from these parts..."
 msgstr ""
-"Dieses Reich wird von vier arroganten Zauberern regiert, die glauben, alles "
+"Dieses Reich wird von vier arroganten Magiern regiert, die glauben, alles "
 "unter Kontrolle zu haben, weil ihre kläglichen magischen Fähigkeiten die "
 "Einheimischen beeindrucken. Ihr seid aber nicht einheimisch ..."
 
@@ -1097,7 +1097,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "Ihr habt die INDY-FALLE hergestellt. Plaziert sie im Flur und freut Euch des "
@@ -1901,7 +1901,7 @@ msgid ""
 msgstr ""
 "Verzichtet auf eine wiederliche Gruppe von Zwergen, die hier durch die "
 "Gegend wandert, und rekrutiert lieber so viele Teufler, wie es nur geht. "
-"Wenn Ihr den Zauberer befreit, der in diesem Reich eingesperrt ist, wird er "
+"Wenn Ihr den Magier befreit, der in diesem Reich eingesperrt ist, wird er "
 "Euch einige Zeit zur Verfügung stehen."
 
 #: guitext:165
@@ -2531,7 +2531,7 @@ msgstr "Ritter"
 #: guitext:277
 msgctxt "Creature name"
 msgid "Wizard"
-msgstr "Zauberer"
+msgstr "Magier"
 
 #: guitext:278
 msgctxt "Creature name"
@@ -5739,7 +5739,7 @@ msgstr ""
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
 msgstr ""
-"Ein Zaubrer in Eures Dungeons Rachen? 'ne Falle kurzen Prozeß wird machen."
+"Ein Magier in Eures Dungeons Rachen? 'ne Falle kurzen Prozeß wird machen."
 
 #: guitext:824
 msgctxt "Easter egg"
@@ -6493,7 +6493,7 @@ msgid ""
 "Spider and explore the realm. Find the Wizard, kill him and make an example "
 "of his foolishness."
 msgstr ""
-"Ein teuflischer Zauberer hat Euch um Eure magischen Kräfte betrogen. Setzt "
+"Ein teuflischer Magier hat Euch um Eure magischen Kräfte betrogen. Setzt "
 "Spinnen ein, um das Reich zu erkunden. Sucht den Verräter und statuiert ein "
 "Exempel, wie Ihr mit Verrat umzugehen pflegt."
 
@@ -6549,7 +6549,7 @@ msgid ""
 "Before you lies the Wizard's domain. Defeat him and you will regain your "
 "powers."
 msgstr ""
-"Vor Euch liegt das Reich des Zauberers. Ringt ihn nieder, und Ihr erhaltet "
+"Vor Euch liegt das Reich des Magiers. Ringt ihn nieder, und Ihr erhaltet "
 "Eure magischen Fähigkeiten zurück."
 
 #. DD Level Dixaroc objective after wizard is dead
@@ -6956,7 +6956,6 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "Atmosphäre"
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
@@ -7076,3 +7075,43 @@ msgstr ""
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
 msgstr ""
+
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr "Moo5"
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr "Zerstörungsfalle"
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid "Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "Zerstörungsfalle: Ein Sprengstoff mit unübertroffener Zerstörungskraft."
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "Wächterfalle: Steht Wache und schießt auf Feinde in Sichtweite"
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr "Moo6"
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr "Geist"
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr "Druide"
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr "Zeitmagier" 

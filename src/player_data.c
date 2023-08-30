@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "player_data.h"
 
 #include "globals.h"
@@ -30,6 +31,7 @@
 #include "frontend.h"
 #include "thing_objects.h"
 #include "power_hand.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /******************************************************************************/
@@ -46,6 +48,8 @@ long neutral_player_number = NEUTRAL_PLAYER;
 long hero_player_number = HERO_PLAYER;
 struct PlayerInfo bad_player;
 struct PlayerInfoAdd bad_playeradd;
+
+unsigned char my_player_number;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)
 {
@@ -244,6 +248,34 @@ TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
     return true;
 }
 
+TbBool is_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx)
+{
+    struct PlayerInfo* player = get_player(plyridx);
+    if (player_invalid(player))
+        return false;
+
+    if (ally_idx < PLAYER1 || ally_idx > PLAYER3)
+        return false;
+
+    return player->allied_players & (0x20 << (ally_idx - PLAYER1));
+}
+
+void set_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool value)
+{
+    struct PlayerInfo* player = get_player(plyridx);
+    if (player_invalid(player))
+        return;
+
+    if (ally_idx < PLAYER1 || ally_idx > PLAYER3)
+        return;
+
+    unsigned char mask = 0x20 << (ally_idx - PLAYER1);
+    if (value)
+        player->allied_players |= mask;
+    else
+        player->allied_players &= ~mask;
+}
+
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
 {
   struct PlayerInfoAdd* playeradd;
@@ -267,8 +299,6 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
   }
   player->continue_work_state = player->work_state;
   player->work_state = nwrk_state;
-  if (is_my_player(player))
-    game.field_14E92E = 0;
   if ((player->work_state != PSt_CreatrQuery) && (player->work_state != PSt_CreatrInfo)
      && (player->work_state != PSt_QueryAll) && (player->work_state != PSt_CreatrInfoAll)
      && (player->work_state != PSt_CtrlDirect) && (player->work_state != PSt_CtrlPassngr)
@@ -294,7 +324,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
           pos.x.val = 0;
           pos.y.val = 0;
           pos.z.val = 0;
-          struct Thing* thing = create_object(&pos, 37, player->id_number, -1);
+          struct Thing* thing = create_object(&pos, ObjMdl_PowerHand, player->id_number, -1);
           if (thing_is_invalid(thing))
           {
               player->hand_thing_idx = 0;
@@ -436,5 +466,26 @@ struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name)
         ERRORMSG("%s: Tried to get non-existing player %d!",func_name,(int)plyr_idx);
     }
     return INVALID_PLAYER_ADD;
+}
+
+PlayerNumber player_bit_to_player_number(unsigned char plyr_bit)
+{
+    PlayerNumber result = 0;
+    while (plyr_bit != 0)
+    {
+        result++;
+        plyr_bit >>= 1;
+    }
+    return (result - 1);
+}
+
+unsigned char rotate_mode_to_view_mode(unsigned char mode)
+{
+    switch (mode) {
+        case 0: return PVM_IsoWibbleView;
+        case 1: return PVM_IsoStraightView;
+        case 2: return PVM_FrontView;
+        default: ERRORLOG("Unrecognised video rotate mode: %u", mode); return PVM_IsoWibbleView;
+    }
 }
 /******************************************************************************/

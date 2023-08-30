@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config.h"
 
 #include <stdarg.h>
@@ -39,17 +40,25 @@
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "music_player.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_config_file[]="keeperfx.cfg";
+
+static float phase_of_moon;
+static long net_number_of_levels;
+static struct NetLevelDesc net_level_desc[100];
+static const char keeper_config_file[]="keeperfx.cfg";
+
 int max_track = 7;
 unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
+struct InstallInfo install_info;
+char keeper_runtime_directory[152];
 
 /**
  * Language 3-char abbreviations.
@@ -83,7 +92,7 @@ const struct NamedCommand lang_type[] = {
   };
 
 const struct NamedCommand scrshot_type[] = {
-  {"HSI", 1},
+  {"PNG", 1},
   {"BMP", 2},
   {NULL,  0},
   };
@@ -631,6 +640,24 @@ long get_id(const struct NamedCommand *desc, const char *itmname)
       return desc[i].num;
   }
   return -1;
+}
+
+/**
+ * Returns ID of given item using NamedCommands list.
+ * Similar to recognize_conf_parameter(), but for use only if the buffer stores
+ * one word, ended with "\0".
+ * If not found, returns -1.
+ */
+long long get_long_id(const struct LongNamedCommand* desc, const char* itmname)
+{
+    if ((desc == NULL) || (itmname == NULL))
+        return -1;
+    for (long i = 0; desc[i].name != NULL; i++)
+    {
+        if (strcasecmp(desc[i].name, itmname) == 0)
+            return desc[i].num;
+    }
+    return -1;
 }
 
 /**
@@ -1545,10 +1572,12 @@ unsigned long get_level_highest_score(LevelNumber lvnum)
 {
     for (int idx = 0; idx < campaign.hiscore_count; idx++)
     {
-        if (campaign.hiscore_table[idx].lvnum == lvnum)
+        if ((campaign.hiscore_table[idx].lvnum == lvnum) && (strcmp(campaign.hiscore_table[idx].name, "Bullfrog") != 0))
+        {
             return campaign.hiscore_table[idx].score;
-  }
-  return 0;
+        }
+    }
+    return 0;
 }
 
 struct LevelInformation *get_level_info(LevelNumber lvnum)
@@ -2101,11 +2130,11 @@ LevelNumber next_multiplayer_level(LevelNumber mp_lvnum)
   if (mp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (mp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_multiplayer_level();
   if (mp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < MULTI_LEVELS_COUNT; i++)
   {
     if (campaign.multi_levels[i] == mp_lvnum)
     {
-      if (i+1 >= CAMPAIGN_LEVELS_COUNT)
+      if (i+1 >= MULTI_LEVELS_COUNT)
         return SINGLEPLAYER_FINISHED;
       if (campaign.multi_levels[i+1] <= 0)
         return SINGLEPLAYER_FINISHED;

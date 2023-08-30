@@ -16,12 +16,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "map_locations.h"
 #include "globals.h"
 #include "game_merge.h"
 #include "game_legacy.h"
 #include "bflib_math.h"
 #include "player_instances.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

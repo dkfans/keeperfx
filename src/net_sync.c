@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "net_sync.h"
 
 #include "globals.h"
@@ -33,6 +34,7 @@
 #include "keeperfx.hpp"
 #include "frontend.h"
 #include "thing_effects.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -181,7 +183,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     struct Packet* pckt = get_packet(my_player_number);
     set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
     pckt->chksum = checksum_mem + game.action_rand_seed;
-    if (LbNetwork_Exchange(pckt))
+    if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
     {
         ERRORLOG("Network exchange failed on level checksum verification");
         result = false;

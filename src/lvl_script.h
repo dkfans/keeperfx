@@ -33,19 +33,12 @@ extern "C" {
 /******************************************************************************/
 #define PARTY_TRIGGERS_COUNT     256
 #define CREATURE_PARTYS_COUNT    256
-#define CONDITIONS_COUNT         255
+#define CONDITIONS_COUNT         512
 #define TUNNELLER_TRIGGERS_COUNT 256
-#define SCRIPT_VALUES_COUNT      256
+#define SCRIPT_VALUES_COUNT      2048
 #define WIN_CONDITIONS_COUNT      4
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
-
-#define PARTY_TRIGGERS_COUNT_OLD     48
-#define CREATURE_PARTYS_COUNT_OLD    16
-#define CONDITIONS_COUNT_OLD         48
-#define TUNNELLER_TRIGGERS_COUNT_OLD 16
-#define SCRIPT_VALUES_COUNT_OLD      64
-#define WIN_CONDITIONS_COUNT_OLD      4
 
 #define SENSIBLE_GOLD 99999999
 
@@ -154,18 +147,6 @@ struct ScriptValue { // sizeof = 16
   };
 };
 
-static_assert(sizeof(struct ScriptValue) == 16, "");
-
-struct ConditionOld { // sizeof = 12
-  short condit_idx;
-  unsigned char status;
-  unsigned char plyr_range;
-  unsigned char variabl_type;
-  unsigned short variabl_idx;
-  unsigned char operation;
-  unsigned long rvalue;
-};
-
 struct Condition {
   short condit_idx;
   unsigned char status;
@@ -200,23 +181,6 @@ struct ScriptFxLine
     int step;
 };
 
-struct LevelScriptOld { // sizeof = 5884
-    struct TunnellerTrigger tunneller_triggers[TUNNELLER_TRIGGERS_COUNT_OLD];
-    unsigned long tunneller_triggers_num;
-    struct PartyTrigger party_triggers[PARTY_TRIGGERS_COUNT_OLD];
-    unsigned long party_triggers_num;
-    struct ScriptValue values[SCRIPT_VALUES_COUNT_OLD];
-    unsigned long values_num;
-    struct ConditionOld conditions[CONDITIONS_COUNT_OLD];
-    unsigned long conditions_num;
-    struct Party creature_partys[CREATURE_PARTYS_COUNT_OLD];
-    unsigned long creature_partys_num;
-    unsigned short win_conditions[WIN_CONDITIONS_COUNT_OLD];
-    unsigned long win_conditions_num;
-    unsigned short lose_conditions[WIN_CONDITIONS_COUNT_OLD];
-    unsigned long lose_conditions_num;
-};
-
 struct LevelScript {
     struct TunnellerTrigger tunneller_triggers[TUNNELLER_TRIGGERS_COUNT];
     unsigned long tunneller_triggers_num;
@@ -239,8 +203,7 @@ struct LevelScript {
 };
 
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_next_command_reusable;
-#define next_command_reusable _DK_next_command_reusable
+extern unsigned char next_command_reusable;
 
 
 #pragma pack()
@@ -250,7 +213,7 @@ extern const struct NamedCommand player_desc[];
 /******************************************************************************/
 short clear_script(void);
 short load_script(long lvl_num);
-short preload_script(long lvnum);
+TbBool preload_script(long lvnum);
 /******************************************************************************/
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char a3);

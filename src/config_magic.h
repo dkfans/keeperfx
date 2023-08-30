@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "creature_instances.h"
 
 #include "config.h"
 
@@ -33,7 +34,7 @@ extern "C" {
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
 #define MAGIC_TYPES_COUNT      30
-#define POWER_TYPES_COUNT      20
+#define POWER_TYPES_MAX      64
 
 enum SpellKinds {
     SplK_None = 0,
@@ -65,6 +66,7 @@ enum SpellKinds {
     SplK_Disease,
     SplK_Chicken,
     SplK_TimeBomb,//[28]
+    SplK_Lizard,
 };
 
 enum CreatureSpellAffectedFlags {
@@ -130,71 +132,75 @@ enum ShotModelFlags {
     ShMF_StrengthBased  = 0x0200,
     ShMF_AlarmsUnits    = 0x0400,
     ShMF_CanCollide     = 0x0800,
+    ShMF_Disarming      = 0x1000,
+    ShMF_Exploding      = 0x2000,
 };
 
 enum PowerCanCastFlags {
-    PwCast_None          = 0x00000000,
+    PwCast_None          = 0x0000000000,
     /** Allow casting the spell on enemy creatures kept in custody. */
-    PwCast_CustodyCrtrs  = 0x00000001,
+    PwCast_CustodyCrtrs  = 0x0000000001,
     /** Allow casting the spell on owned creatures not captured by enemy. */
-    PwCast_OwnedCrtrs    = 0x00000002,
+    PwCast_OwnedCrtrs    = 0x0000000002,
     /** Allow casting the spell on creatures of allied players. */
-    PwCast_AlliedCrtrs   = 0x00000004,
+    PwCast_AlliedCrtrs   = 0x0000000004,
     /** Allow casting the spell on creatures of enemy players. */
-    PwCast_EnemyCrtrs    = 0x00000008,
+    PwCast_EnemyCrtrs    = 0x0000000008,
     /** Allow casting the spell on creatures which are unconscious or dying. */
-    PwCast_NConscCrtrs   = 0x00000010,
+    PwCast_NConscCrtrs   = 0x0000000010,
     /** Allow casting the spell on creatures which are bound by state (dragged, being sacrificed, teleported etc.). */
-    PwCast_BoundCrtrs    = 0x00000020,
+    PwCast_BoundCrtrs    = 0x0000000020,
 
     /** Allow casting the spell on neutral walkable tiles - path, water, lava. */
-    PwCast_UnclmdGround  = 0x00000080,
+    PwCast_UnclmdGround  = 0x0000000080,
     /** Allow casting the spell on neutral ground - rooms floor and neutral claimed ground. */
-    PwCast_NeutrlGround  = 0x00000100,
+    PwCast_NeutrlGround  = 0x0000000100,
     /** Allow casting the spell on owned ground - rooms floor and claimed ground. */
-    PwCast_OwnedGround   = 0x00000200,
+    PwCast_OwnedGround   = 0x0000000200,
     /** Allow casting the spell on allied players ground - rooms floor and claimed ground. */
-    PwCast_AlliedGround  = 0x00000400,
+    PwCast_AlliedGround  = 0x0000000400,
     /** Allow casting the spell on enemy players ground - rooms floor and claimed ground. */
-    PwCast_EnemyGround   = 0x00000800,
+    PwCast_EnemyGround   = 0x0000000800,
 
     /** Allow casting the spell on neutral tall slabs - earth, wall, gold. */
-    PwCast_NeutrlTall    = 0x00001000,
+    PwCast_NeutrlTall    = 0x0000001000,
     /** Allow casting the spell on owned tall slabs - own fortified wall. */
-    PwCast_OwnedTall     = 0x00002000,
+    PwCast_OwnedTall     = 0x0000002000,
     /** Allow casting the spell on tall slabs owned by allies - their fortified walls. */
-    PwCast_AlliedTall    = 0x00004000,
+    PwCast_AlliedTall    = 0x0000004000,
     /** Allow casting the spell on tall slabs owned by enemies - their fortified walls. */
-    PwCast_EnemyTall     = 0x00008000,
+    PwCast_EnemyTall     = 0x0000008000,
 
     /** Allow casting the spell on owned food things (chickens). */
-    PwCast_OwnedFood     = 0x00020000,
+    PwCast_OwnedFood     = 0x0000020000,
     /** Allow casting the spell on neutral food things. */
-    PwCast_NeutrlFood    = 0x00040000,
+    PwCast_NeutrlFood    = 0x0000040000,
     /** Allow casting the spell on enemy food things. */
-    PwCast_EnemyFood     = 0x00080000,
+    PwCast_EnemyFood     = 0x0000080000,
     /** Allow casting the spell on owned gold things (piles,pots etc.). */
-    PwCast_OwnedGold     = 0x00100000,
+    PwCast_OwnedGold     = 0x0000100000,
     /** Allow casting the spell on neutral gold things. */
-    PwCast_NeutrlGold    = 0x00200000,
+    PwCast_NeutrlGold    = 0x0000200000,
     /** Allow casting the spell on enemy gold things. */
-    PwCast_EnemyGold     = 0x00400000,
+    PwCast_EnemyGold     = 0x0000400000,
     /** Allow casting the spell on owned spell books. */
-    PwCast_OwnedSpell    = 0x00800000,
+    PwCast_OwnedSpell    = 0x0000800000,
     /** Allow casting the spell on owned deployed trap things. */
-    PwCast_OwnedBoulders = 0x01000000,
+    PwCast_OwnedBoulders = 0x0001000000,
     /** Allow casting the spell only after a small delay from previous cast. */
-    PwCast_NeedsDelay    = 0x04000000,
+    PwCast_NeedsDelay    = 0x0004000000,
     /** Allow casting the spell only on claimable/fortificable slabs (for ground - path or claimed, for tall - earth or fortified). */
-    PwCast_Claimable     = 0x08000000,
+    PwCast_Claimable     = 0x0008000000,
     /** Allow casting the spell on un-revealed tiles. */
-    PwCast_Unrevealed    = 0x10000000,
+    PwCast_Unrevealed    = 0x0010000000,
     /** Allow casting the spell on temporarily revealed tiles (with SOE spell). */
-    PwCast_RevealedTemp  = 0x20000000,
+    PwCast_RevealedTemp  = 0x0020000000,
     /** Allow casting if only one of map-related and thing-related conditions is met. */
-    PwCast_ThingOrMap    = 0x40000000,
+    PwCast_ThingOrMap    = 0x0040000000,
     /** There are no map-related conditions - allow casting the spell anywhere on revealed map. */
-    PwCast_Anywhere      = 0x80000000,
+    PwCast_Anywhere      = 0x0080000000,
+    PwCast_DiggersOnly   = 0x0100000000,
+    PwCast_DiggersNot    = 0x0200000000,
 };
 #define PwCast_AllCrtrs (PwCast_CustodyCrtrs|PwCast_OwnedCrtrs|PwCast_AlliedCrtrs|PwCast_EnemyCrtrs|PwCast_NConscCrtrs|PwCast_BoundCrtrs)
 #define PwCast_AllFood (PwCast_OwnedFood|PwCast_NeutrlFood|PwCast_EnemyFood)
@@ -225,6 +231,20 @@ struct ShotHitConfig {
     unsigned char withstand; /**< Whether the shot can withstand a hit without getting destroyed; could be converted to flags. */
 };
 
+struct ShotDetonateConfig {
+    short effect1_model;
+    short effect2_model; 
+    short around_effect1_model;
+    short around_effect2_model;
+};
+
+struct ShotVisualConfig {
+    short effect_model;
+    unsigned char amount;
+    short random_range;
+    short shot_health;
+};
+
 /**
  * Configuration parameters for shots.
  */
@@ -245,15 +265,17 @@ struct ShotConfigStats {
     short damage;
     short speed;
     DamageType damage_type;
-    struct ShotStats *old;
     struct ShotHitConfig hit_generic;
     struct ShotHitConfig hit_door;
     struct ShotHitConfig hit_water;
     struct ShotHitConfig hit_lava;
     struct ShotHitConfig hit_creature;
     struct ShotHitConfig dig;
+    struct ShotDetonateConfig explode;
+    struct ShotVisualConfig visual;
     short firing_sound;
     short shot_sound;
+    short sound_priority;
     unsigned char firing_sound_variants;
     short max_range;
     unsigned short sprite_anim_idx;
@@ -264,11 +286,21 @@ struct ShotConfigStats {
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;
     unsigned char hidden_projectile;
+    unsigned char destroy_on_first_hit;
+    short experience_given_to_shooter;
+    short inertia_floor;
+    short inertia_air;
     short bounce_angle;
     short wind_immune;
     short no_air_damage;
+    unsigned char target_hitstop_turns;
     short animation_transparency;
     short fixed_damage;
+    short light_radius;
+    unsigned char light_intensity;
+    unsigned char lightf_53;
+    unsigned char unshaded;
+    unsigned char soft_landing;
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -279,7 +311,7 @@ typedef unsigned char (*Expand_Check_Func)(void);
 struct PowerConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
-    unsigned long can_cast_flags;
+    unsigned long long can_cast_flags;
     unsigned long config_flags;
     Expand_Check_Func overcharge_check;
     long work_state;
@@ -294,6 +326,7 @@ struct PowerConfigStats {
     short pointer_sprite_idx;
     long panel_tab_idx;
     unsigned short select_sound_idx;
+    short cast_cooldown;
 };
 
 /**
@@ -303,10 +336,40 @@ struct SpecialConfigStats {
     char code_name[COMMAND_WORD_LEN];
     ThingModel artifact_model;
     TextStringId tooltip_stridx;
+    short speech;
+    short effect_id;
+};
+
+ /**
+ * Spell information structure.
+ * Stores configuration of spells; to be replaced with SpellConfigStats when all fields are in CFG.
+ * It no longer matches the similar struct from DK - fields were added at end.
+ */
+struct SpellConfig {
+    /** Informs if the spell can be targeted on a thing. */
+    unsigned char cast_at_thing;
+    /** Shot model to be fired while casting. */
+    unsigned char shot_model;
+    /** Informs if caster is affected by the spell. */
+    unsigned char caster_affected;
+    /** Effect model created while casting. */
+    short cast_effect_model;
+    /** If caster is affected by the spell, indicates sound sample to be played. */
+    unsigned short caster_affect_sound;
+    /** Sprite index of big symbol icon representing the spell. */
+    short bigsym_sprite_idx;
+    /** Sprite index of medium symbol icon representing the spell. */
+    short medsym_sprite_idx;
+    short cast_sound;
+    short linked_power;
+    short duration;
+    short aura_effect;
+    unsigned short spell_flags;
 };
 
 struct MagicConfig {
     long spell_types_count;
+    struct SpellConfig spell_config[MAGIC_ITEMS_MAX];
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
     long shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
@@ -314,101 +377,15 @@ struct MagicConfig {
     struct PowerConfigStats power_cfgstats[MAGIC_ITEMS_MAX];
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
+    struct InstanceInfo instance_info[MAGIC_ITEMS_MAX]; //count in crtr_conf
 };
 
 #pragma pack(1)
 
-struct SpellConfig { // sizeof=4
-  int duration;
-};
-
-struct ShotStats // sizeof = 101
-{
-  short sprite_anim_idx_UNUSED;
-  short sprite_size_max_UNUSED;
-  unsigned char field_4[2];
-  unsigned char field_6;
-  unsigned char hidden_projectile_UNUSED;
-  unsigned char animation_transparency_UNUSED; // transparency mode
-  short size_xy_UNUSED;
-  short size_yz_UNUSED;
-  short bounce_angle_UNUSED;
-  unsigned char fall_acceleration_UNUSED;
-  unsigned char field_10;
-  unsigned char field_11;
-  unsigned char field_12;
-  unsigned char field_13;
-  short health_UNUSED;
-  short damage_UNUSED;
-  unsigned char destroy_on_first_hit;
-  short speed_UNUSED;
-  short firing_sound_UNUSED;
-  unsigned char firing_sound_variants_UNUSED;
-  short shot_sound_UNUSED;
-  short field_20;
-  short hit_sound_UNUSED;
-  unsigned char field_24;
-  short cast_spell_kind_UNUSED;
-  unsigned char health_drain_UNUSED;
-  unsigned char cannot_hit_thing_UNUSED;
-  unsigned char rebound_immune_UNUSED;
-  unsigned char push_on_hit_UNUSED;
-  struct ShotHitConfig hit_generic_UNUSED;
-  struct ShotHitConfig hit_door_UNUSED;
-  short hit_water_effect_model_UNUSED;
-  short hit_water_sndsample_idx_UNUSED;
-  unsigned char hit_water_destroyed_UNUSED;
-  short hit_lava_effect_model_UNUSED;
-  short hit_lava_sndsample_idx_UNUSED;
-  unsigned char hit_lava_destroyed_UNUSED;
-  short area_range_UNUSED;
-  short area_damage_UNUSED;
-  short is_boulder_UNUSED;
-  unsigned char takes_air_damage_UNUSED;
-  unsigned char is_melee_UNUSED;
-  unsigned char is_digging_UNUSED;
-  unsigned char area_hit_type_UNUSED;
-  unsigned char group_with_shooter_UNUSED;
-  unsigned char deals_magic_damage_UNUSED;
-  unsigned char cannot_make_target_unconscious_UNUSED;
-  short experience_given_to_shooter;
-  short lightf_50;
-  unsigned char lightf_52;
-  unsigned char lightf_53;
-  unsigned char field_54[4];
-  unsigned char field_58[8];
-  unsigned char field_60[4];
-  unsigned char affected_by_wind_UNUSED;
-};
-
 struct MagicStats {  // sizeof=0x4C
   long cost[MAGIC_OVERCHARGE_LEVELS];
-  long time;
+  long duration;
   long strength[MAGIC_OVERCHARGE_LEVELS];
-};
-
-/**
- * Spell information structure.
- * Stores configuration of spells; to be replaced with SpellConfigStats when all fields are in CFG.
- * It no longer matches the similar struct from DK - fields were added at end.
- */
-struct SpellInfo {
-  /** Informs if the spell can be targeted on a thing. */
-  unsigned char cast_at_thing;
-  /** Shot model to be fired while casting. */
-  unsigned char shot_model;
-  /** Informs if caster is affected by the spell. */
-  unsigned char caster_affected;
-  /** Effect model created while casting. */
-  unsigned char cast_effect_model;
-  /** Unknown. Maybe priority? Values range 0-43. */
-  unsigned short cast_field_4;
-  /** If caster is affected by the spell, indicates sound sample to be played. */
-  unsigned short caster_affect_sound;
-  /** Sprite index of big symbol icon representing the spell. */
-  short bigsym_sprite_idx;
-  /** Sprite index of medium symbol icon representing the spell. */
-  short medsym_sprite_idx;
 };
 
 /**
@@ -431,19 +408,16 @@ struct SpellData {
 
 #pragma pack()
 /******************************************************************************/
-DLLIMPORT struct ShotStats _DK_shot_stats[30];
-#define shot_stats _DK_shot_stats
-/******************************************************************************/
 extern struct MagicConfig magic_conf;
 extern const char keeper_magic_file[];
 extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
 extern struct SpellData spell_data[];
-extern struct SpellInfo spell_info[];
+extern struct SpellConfig spell_config[];
 /******************************************************************************/
-struct SpellInfo *get_magic_info(int mgc_idx);
-TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo);
+struct SpellConfig *get_spell_config(int mgc_idx);
+TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo);
 struct SpellData *get_power_data(int pwkind);
 TextStringId get_power_description_strindex(PowerKind pwkind);
 TextStringId get_power_name_strindex(PowerKind pwkind);
