@@ -2894,12 +2894,6 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
     return AridRet_OK;
 }
 
-static AriadneReturn ariadne_initialise_creature_route_dk(struct Thing *thing, const struct Coord3d *pos, long speed, AriadneRouteFlags flags)
-{
-    return ariadne_initialise_creature_route_f(thing, pos, speed, flags, "dk dll");
-}
-HOOK_DK_FUNC2(ariadne_initialise_creature_route, ariadne_initialise_creature_route_dk)
-
 AriadneReturn ariadne_creature_get_next_waypoint(struct Thing *thing, struct Ariadne *arid)
 {
     struct Coord3d pos;

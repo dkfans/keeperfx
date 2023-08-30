@@ -184,10 +184,6 @@ extern "C" {
 #define MAX_SUBTILES_X 511
 #define MAX_SUBTILES_Y 511
 
-#define HOOK_DK_FUNC2(old, new_fn) \
-	DLLIMPORT void _DK_##old(); \
-	__attribute__((constructor)) static void CONCAT(hookFn, __COUNTER__)(void) { replaceFn(&_DK_##old, &new_fn); }
-
 #pragma pack(1)
 
 /** Screen coordinate in scale of the game (resolution independent). */
