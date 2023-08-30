@@ -237,8 +237,6 @@ long navigation_rule_normal(long treeA, long treeB);
 long navigation_rule_fireproof(long treeA, long treeB);
 long navigation_rule_flying(long treeA, long treeB);
 
-extern long nav_rulesA2B;
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
