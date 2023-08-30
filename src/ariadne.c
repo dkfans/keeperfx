@@ -396,39 +396,24 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
 
 long navigation_rule_normal(long treeA, long treeB)
 {
-    JUSTLOG("A",0);
     if ((treeB & 0x0F) - (treeA & 0x0F) > 1) {
       return 0;
     }
-    
-    JUSTLOG("B",0);
-    
     if ((treeB & 0xF0) == 0) {
-      JUSTLOG("BB",0);
       return 1;
     }
-
-    JUSTLOG("C",0);
-
     if (owner_player_navigating != -1)
     {
-        JUSTLOG("CC",0);
         if (get_navtree_owner(treeB) == owner_player_navigating) {
-          JUSTLOG("CCC",0);
           return 0;
         }
     }
-
-    JUSTLOG("D",0);
-
     if ((treeB & 0x10) == 0) {
         return 1;
     }
-    JUSTLOG("E",0);
     if ((treeA & 0x10) != 0) {
         return 1;
     }
-    JUSTLOG("F",0);
     return nav_thing_can_travel_over_lava;
 }
 
@@ -437,7 +422,6 @@ long init_navigation(void)
     IanMap = (unsigned char *)&game.navigation_map;
     init_navigation_map();
     triangulate_map(IanMap);
-    nav_rulesA2B = Keeper_nav_rulesA2B;
     game.map_changed_for_nagivation = 1;
     return 1;
 }
@@ -677,7 +661,7 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
     {
         int ntri;
         ntri = Triangles[tri2_id].tags[cor2_id];
-        if (!nav_rulesA2B(get_triangle_tree_alt(tri2_id), get_triangle_tree_alt(ntri)))
+        if (!navigation_rule_normal(get_triangle_tree_alt(tri2_id), get_triangle_tree_alt(ntri))) {
             break;
         cor2_id = link_find(ntri, tri2_id);
         if (cor2_id < 0)
@@ -704,7 +688,7 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
     {
         int ntri;
         ntri = Triangles[tri3_id].tags[cor3_id];
-        if (!nav_rulesA2B(get_triangle_tree_alt(tri3_id), get_triangle_tree_alt(ntri)))
+        if (!navigation_rule_normal(get_triangle_tree_alt(tri3_id), get_triangle_tree_alt(ntri)))
             break;
         cor3_id = link_find(ntri, tri3_id);
         if (cor3_id < 0)
@@ -724,7 +708,6 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
             break;
         }
     }
-
     int diff_x;
     int diff_y;
     if ((cor2_id >= 0) && (cor3_id >= 0))
@@ -1417,7 +1400,7 @@ long dest_node(long tri_id, long cor_id)
     n = Triangles[tri_id].tags[cor_id];
     if (n < 0)
         return -1;
-    if (!nav_rulesA2B(get_triangle_tree_alt(tri_id), get_triangle_tree_alt(n)))
+    if (!navigation_rule_normal(get_triangle_tree_alt(tri_id), get_triangle_tree_alt(n)))
         return -1;
     return n;
 }
