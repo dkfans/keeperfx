@@ -437,7 +437,7 @@ long init_navigation(void)
     IanMap = (unsigned char *)&game.navigation_map;
     init_navigation_map();
     triangulate_map(IanMap);
-    //nav_rulesA2B = Keeper_nav_rulesA2B;
+    nav_rulesA2B = Keeper_nav_rulesA2B;
     game.map_changed_for_nagivation = 1;
     return 1;
 }
@@ -1581,7 +1581,7 @@ void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, l
     set_nearpoint(seltri_id, selcor_id, dstx, dsty, px, py);
 }
 
-long cost_to_start(long tri_idx)
+long long cost_to_start(long tri_idx)
 {
     long long len_x;
     long long len_y;
@@ -1698,7 +1698,7 @@ TbBool triangle_check_and_add_navitree_fwd(long ttri)
                 k_alt = get_triangle_tree_alt(k);
                 if ((ttri_alt != -1) && (k_alt != -1))
                 {
-                    long mvcost;
+                    long long mvcost;
                     long navrule;
                     navrule = navigation_rule_normal(k_alt, ttri_alt);
                     if (navrule)
