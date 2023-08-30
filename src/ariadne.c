@@ -396,24 +396,19 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
 
 long navigation_rule_normal(long treeA, long treeB)
 {
-    if ((treeB & 0x0F) - (treeA & 0x0F) > 1) {
+    if ((treeB & 0x0F) - (treeA & 0x0F) > 1)
       return 0;
-    }
-    if ((treeB & 0xF0) == 0) {
+    if ((treeB & 0xF0) == 0)
       return 1;
-    }
     if (owner_player_navigating != -1)
     {
-        if (get_navtree_owner(treeB) == owner_player_navigating) {
+        if (get_navtree_owner(treeB) == owner_player_navigating)
           return 0;
-        }
     }
-    if ((treeB & 0x10) == 0) {
+    if ((treeB & 0x10) == 0)
         return 1;
-    }
-    if ((treeA & 0x10) != 0) {
+    if ((treeA & 0x10) != 0)
         return 1;
-    }
     return nav_thing_can_travel_over_lava;
 }
 
@@ -1731,9 +1726,7 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
             {
                 long mvcost;
                 long navrule;
-                JUSTLOG("A",0);
                 navrule = navigation_rule_normal(ttri_alt, k_alt);
-                JUSTLOG("B",0);
                 if (navrule)
                 {
                     mvcost = cost_to_start(k);
