@@ -334,7 +334,6 @@ void reset_creature_eye_lens(struct Thing *thing)
 
 TbBool creature_can_gain_experience(const struct Thing *thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     // Creatures which reached players max level can't be trained

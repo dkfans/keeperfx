@@ -2456,30 +2456,20 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, plyr);
 
     long creatvar = get_id(creatmodel_attributes_commands, scline->tp[var_ofs + 1]);
-    long group;
-    if (creatvar != -1)
-    {
-        group = 0;
-    }
-    else
+    long group = 0;
+    if (creatvar == -1)
     {
         // Try jobs
         creatvar = get_id(creatmodel_jobs_commands, scline->tp[var_ofs + 1]);
-    }
-    if (creatvar != -1)
-    {
         group = 1;
     }
-    else
+    if (creatvar == -1)
     {
         // Try experience
         creatvar = get_id(creatmodel_experience_commands, scline->tp[var_ofs + 1]);
-    }
-    if (creatvar != -1)
-    {
         group = 2;
     }
-    else
+    if (creatvar == -1)
     {
         SCRPTERRLOG("Unknown creature attribute");
         DEALLOCATE_SCRIPT_VALUE
@@ -2507,7 +2497,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
         }
         attribute_value = job_value;
 
-        if (scline->tp[3][0] != '\0')
+        if (scline->tp[var_ofs + 3][0] != '\0')
         {
             long job2_value = get_id(creaturejob_desc, scline->tp[var_ofs + 3]);
             if (job2_value > SHRT_MAX)
@@ -2547,7 +2537,7 @@ static void set_creature_configuration_check(const struct ScriptLine* scline)
     else
     {
             attribute_value = atoi(scline->tp[var_ofs + 2]);
-            if (scline->tp[3][0] != '\0')
+            if (scline->tp[var_ofs + 3][0] != '\0')
             {
                 attribute2_value = atoi(scline->tp[var_ofs + 3]);
             }
