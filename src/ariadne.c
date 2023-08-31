@@ -59,7 +59,6 @@ extern "C" {
 static long tri_initialised;
 static unsigned long edgelen_initialised;
 static unsigned long RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
-static NavRules nav_rulesA2B;
 static struct WayPoints wayPoints;
 static unsigned long *EdgeFit;
 static struct Pathway ap_GPathway;
@@ -394,7 +393,7 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
     return 2;
 }
 
-long navigation_rule_normal(long treeA, long treeB)
+static long navigation_rule_normal(long treeA, long treeB)
 {
     if ((treeB & 0x0F) - (treeA & 0x0F) > 1)
       return 0;
@@ -656,7 +655,7 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
     {
         int ntri;
         ntri = Triangles[tri2_id].tags[cor2_id];
-        if (!navigation_rule_normal(get_triangle_tree_alt(tri2_id), get_triangle_tree_alt(ntri))) {
+        if (!navigation_rule_normal(get_triangle_tree_alt(tri2_id), get_triangle_tree_alt(ntri)))
             break;
         cor2_id = link_find(ntri, tri2_id);
         if (cor2_id < 0)
