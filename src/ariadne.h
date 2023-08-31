@@ -85,25 +85,25 @@ struct Ariadne { // sizeof = 102
     struct Coord3d current_waypoint_pos;
   struct Coord3d pos_12;
   struct Coord3d pos_18;
-  unsigned int route_flags;
-  unsigned int field_1F;
-  unsigned int field_20;
-  unsigned int update_state;
-  unsigned int field_22;
-  unsigned int field_23;
+  unsigned char route_flags;
+  unsigned char field_1F;
+  unsigned char field_20;
+  unsigned char update_state;
+  unsigned char field_22;
+  unsigned char field_23;
   short field_24;
   unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
-    unsigned int current_waypoint;
+    unsigned char current_waypoint;
     /** List of nearest waypoints in the way towards destination, stored in an array. */
     struct Coord2d waypoints[ARID_WAYPOINTS_COUNT];
     /** Amount of nearest waypoints stored in the array. */
-    unsigned int stored_waypoints; // offs = 0x51
+    unsigned char stored_waypoints; // offs = 0x51
     /** Total amount of waypoints planned on the way towards endpos. */
     unsigned int total_waypoints;
   struct Coord3d pos_53;
   struct Coord3d pos_59;
-  unsigned int manoeuvre_state;
+  unsigned char manoeuvre_state;
   short wallhug_angle;
   long field_62;
 };
