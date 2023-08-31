@@ -140,7 +140,7 @@ struct Pathway { // sizeof = 7192
   long field_1C14;
 };
 
-struct WayPoints { // sizeof = 1040
+struct WayPoints {
   long wpfield_0;
   long wpfield_4;
   long wpfield_8;
