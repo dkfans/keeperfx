@@ -1558,7 +1558,7 @@ void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, l
     set_nearpoint(seltri_id, selcor_id, dstx, dsty, px, py);
 }
 
-long long cost_to_start(long tri_idx)
+long cost_to_start(long tri_idx)
 {
     long long len_x;
     long long len_y;
@@ -1675,7 +1675,7 @@ TbBool triangle_check_and_add_navitree_fwd(long ttri)
                 k_alt = get_triangle_tree_alt(k);
                 if ((ttri_alt != -1) && (k_alt != -1))
                 {
-                    long long mvcost;
+                    long mvcost;
                     long navrule;
                     navrule = navigation_rule_normal(k_alt, ttri_alt);
                     if (navrule)
