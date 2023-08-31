@@ -59,6 +59,7 @@ extern "C" {
 static long tri_initialised;
 static unsigned long edgelen_initialised;
 static unsigned long RadiusEdgeFit[EDGEOR_COUNT][EDGEFIT_LEN];
+static NavRules nav_rulesA2B;
 static struct WayPoints wayPoints;
 static unsigned long *EdgeFit;
 static struct Pathway ap_GPathway;
@@ -393,7 +394,7 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
     return 2;
 }
 
-static long navigation_rule_normal(long treeA, long treeB)
+long navigation_rule_normal(long treeA, long treeB)
 {
     if ((treeB & 0x0F) - (treeA & 0x0F) > 1)
       return 0;
@@ -416,6 +417,7 @@ long init_navigation(void)
     IanMap = (unsigned char *)&game.navigation_map;
     init_navigation_map();
     triangulate_map(IanMap);
+    nav_rulesA2B = Keeper_nav_rulesA2B;
     game.map_changed_for_nagivation = 1;
     return 1;
 }
@@ -655,7 +657,7 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
     {
         int ntri;
         ntri = Triangles[tri2_id].tags[cor2_id];
-        if (!navigation_rule_normal(get_triangle_tree_alt(tri2_id), get_triangle_tree_alt(ntri)))
+        if (!nav_rulesA2B(get_triangle_tree_alt(tri2_id), get_triangle_tree_alt(ntri)))
             break;
         cor2_id = link_find(ntri, tri2_id);
         if (cor2_id < 0)
@@ -682,7 +684,7 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
     {
         int ntri;
         ntri = Triangles[tri3_id].tags[cor3_id];
-        if (!navigation_rule_normal(get_triangle_tree_alt(tri3_id), get_triangle_tree_alt(ntri)))
+        if (!nav_rulesA2B(get_triangle_tree_alt(tri3_id), get_triangle_tree_alt(ntri)))
             break;
         cor3_id = link_find(ntri, tri3_id);
         if (cor3_id < 0)
@@ -1394,7 +1396,7 @@ long dest_node(long tri_id, long cor_id)
     n = Triangles[tri_id].tags[cor_id];
     if (n < 0)
         return -1;
-    if (!navigation_rule_normal(get_triangle_tree_alt(tri_id), get_triangle_tree_alt(n)))
+    if (!nav_rulesA2B(get_triangle_tree_alt(tri_id), get_triangle_tree_alt(n)))
         return -1;
     return n;
 }
@@ -1677,7 +1679,7 @@ TbBool triangle_check_and_add_navitree_fwd(long ttri)
                 {
                     long mvcost;
                     long navrule;
-                    navrule = navigation_rule_normal(k_alt, ttri_alt);
+                    navrule = nav_rulesA2B(k_alt, ttri_alt);
                     if (navrule)
                     {
                         mvcost = cost_to_start(k);
@@ -1725,7 +1727,7 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
             {
                 long mvcost;
                 long navrule;
-                navrule = navigation_rule_normal(ttri_alt, k_alt);
+                navrule = nav_rulesA2B(ttri_alt, k_alt);
                 if (navrule)
                 {
                     mvcost = cost_to_start(k);

@@ -27,11 +27,11 @@ extern "C" {
 #endif
 /******************************************************************************/
 // Originally was 3000, but we're not using bak_path from DLL which gives us 517 extra
-#define TREE_ROUTE_LEN 3517
-#define BORDER_LENGTH 100
-#define ROUTE_LENGTH 12000
-#define ARID_WAYPOINTS_COUNT 10
-#define ARID_PATH_WAYPOINTS_COUNT 1024
+#define TREE_ROUTE_LEN 3517*4
+#define BORDER_LENGTH 100*4
+#define ROUTE_LENGTH 12000*4
+#define ARID_WAYPOINTS_COUNT 10*4
+#define ARID_PATH_WAYPOINTS_COUNT 256*32
 
 /******************************************************************************/
 #pragma pack(1)
@@ -145,7 +145,7 @@ struct WayPoints { // sizeof = 1040
   long wpfield_4;
   long wpfield_8;
   long wpfield_C;
-  long wpfield_10[256];
+  long wpfield_10[ARID_PATH_WAYPOINTS_COUNT];
 };
 
 struct Navigation { // sizeof = 0x27
