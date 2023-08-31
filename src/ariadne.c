@@ -417,7 +417,7 @@ long init_navigation(void)
     IanMap = (unsigned char *)&game.navigation_map;
     init_navigation_map();
     triangulate_map(IanMap);
-    nav_rulesA2B = Keeper_nav_rulesA2B;
+    nav_rulesA2B = navigation_rule_normal;
     game.map_changed_for_nagivation = 1;
     return 1;
 }
