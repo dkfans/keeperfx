@@ -217,7 +217,7 @@ static void post_init_level(void)
         open_new_packet_file_for_save();
     calculate_dungeon_area_scores();
     init_animating_texture_maps();
-    reset_creature_max_levels();
+    reset_creature_conf();
     clear_creature_pool();
     setup_computer_players2();
     load_script(get_loaded_level_number());

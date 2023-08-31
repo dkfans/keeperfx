@@ -1815,17 +1815,15 @@ void clear_game_for_save(void)
     clear_dungeons();
 }
 
-void reset_creature_max_levels(void)
+void reset_creature_conf(void)
 {
-    int i;
-    int k;
-    for (i=0; i < DUNGEONS_COUNT; i++)
+    for (auto i = 0; i < DUNGEONS_COUNT; i++)
     {
         struct Dungeon *dungeon;
         dungeon = get_dungeon(i);
-        for (k=1; k < gameadd.crtr_conf.model_count; k++)
+        for (auto k = 1; k < gameadd.crtr_conf.model_count; k++)
         {
-            dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
+            dungeon->creature_stats_in_use[k] = false;
         }
     }
 }

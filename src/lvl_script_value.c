@@ -552,7 +552,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               continue;
           if (val3 == -1)
               val3 = CREATURE_MAX_LEVEL + 1;
-          dungeon->creature_max_level[val2%gameadd.crtr_conf.model_count] = val3;
+          val2 %= gameadd.crtr_conf.model_count;
+          struct CreatureStats *conf;
+          if (dungeon->creature_stats_in_use[val2])
+              conf = &dungeon->creature_stats[val2];
+          else
+              conf = creature_stats_get(val2);
+          conf->max_level = val3;
       }
       break;
   case Cmd_SET_CREATURE_HEALTH:

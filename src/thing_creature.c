@@ -992,7 +992,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     } else
     if (spell_idx == SplK_Light)
     {
-        crstat = creature_stats_get(thing->model);
+        crstat = creature_stats_get_from_thing(thing);
         if (!crstat->illuminated)
         {
             if (i != -1)
@@ -1226,7 +1226,7 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         cctrl->countdown_282 = 10;
         break;
     case SplK_Light:
-    crstat = creature_stats_get(thing->model);
+    crstat = creature_stats_get_from_thing(thing);
     if (!crstat->illuminated)
     {
         if (thing->light_id != 0)
@@ -3729,7 +3729,7 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
 
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
-    struct CreatureStats* crstat = creature_stats_get(model);
+    struct CreatureStats* crstat = creature_stats_dungeon_get(owner, model);
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create %s for player %d. There are too many things allocated.",creature_code_name(model),(int)owner);
@@ -3797,6 +3797,11 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     if (crstat->flying) {
         crtng->movement_flags |= TMvF_Flying;
     }
+    struct Dungeon *dungeon = get_dungeon(owner);
+    if (!dungeon_invalid(dungeon) && dungeon->creature_stats_in_use[model])
+    {
+        cctrl->creature_stats = creature_stats_dungeon_get(owner, model);
+    }
     set_creature_level(crtng, 0);
     crtng->health = cctrl->max_health;
     add_thing_to_its_class_list(crtng);
@@ -3820,8 +3825,8 @@ TbBool creature_increase_level(struct Thing *thing)
       ERRORLOG("Invalid creature control; no action");
       return false;
   }
-  struct Dungeon* dungeon = get_dungeon(thing->owner);
-  if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+  struct CreatureStats *stat = creature_stats_get_from_thing(thing);
+  if (stat->max_level > cctrl->explevel)
   {
       struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
       if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
@@ -3841,13 +3846,12 @@ TbBool creature_increase_multiple_levels(struct Thing *thing, int count)
         ERRORLOG("Invalid creature control; no action");
         return false;
   }
-  struct Dungeon* dungeon = get_dungeon(thing->owner);
   int k = 0;
   for (int i = 0; i < count; i++)
   {
-    if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    if (crstat->max_level > cctrl->explevel)
     {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
         if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
         {
             cctrl->spell_flags |= CSAfF_ExpLevelUp;
@@ -5238,17 +5242,16 @@ long update_creature_levels(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_ExpLevelUp) == 0)
         return 0;
     cctrl->spell_flags &= ~CSAfF_ExpLevelUp;
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    // If it is highest level, maybe we should transform the creature?
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
 
     // If a creature is not on highest level, just update the level
-    if ((dungeon->creature_growup_level[thing->model] != cctrl->explevel + 1) && (cctrl->explevel+1 < CREATURE_MAX_LEVEL))
+    if ((crstat->grow_up_from_level != cctrl->explevel + 1) && (cctrl->explevel+1 < CREATURE_MAX_LEVEL))
     {
         remove_creature_score_from_owner(thing); // the opposite is in set_creature_level()
         set_creature_level(thing, cctrl->explevel+1);
         return 1;
     }
-    // If it is highest level, maybe we should transform the creature?
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (crstat->grow_up == 0) {
         return 0;
     }
@@ -5287,6 +5290,7 @@ long update_creature_levels(struct Thing *thing)
         short i = get_thing_in_hand_id(thing, thing->owner);
         if (i >= 0)
         {
+            struct Dungeon* dungeon = get_dungeon(thing->owner);
             dungeon->things_in_hand[i] = newtng->index;
             remove_thing_from_limbo(thing);
             place_thing_in_limbo(newtng);

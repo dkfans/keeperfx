@@ -149,8 +149,6 @@ struct Dungeon {
     short creatures_scavenge_lost;
     long scavenge_turn_points[CREATURE_TYPES_MAX];
     short scavenge_targets[CREATURE_TYPES_MAX];
-    uint8_t creature_max_level[CREATURE_TYPES_MAX];
-    uint8_t creature_growup_level[CREATURE_TYPES_MAX];
     unsigned short creatures_annoyed;
     unsigned short battles_lost;
     unsigned short battles_won;
@@ -229,14 +227,17 @@ struct Dungeon {
     unsigned char devastation_centr_y;
     unsigned long devastation_turn;
     long creatures_total_pay;
-unsigned short gold_hoard_for_pickup;
-unsigned long gold_pickup_amount;
+    unsigned short gold_hoard_for_pickup;
+    unsigned long gold_pickup_amount;
     /** Index of last creature picked up of given model. */
     unsigned short selected_creatures_of_model[CREATURE_TYPES_MAX];
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     unsigned char texture_pack;
-    };
+
+    TbBool creature_stats_in_use[CREATURE_TYPES_MAX];
+    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+};
 
 #pragma pack()
 

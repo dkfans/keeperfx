@@ -172,7 +172,7 @@ enum TbScriptCommands {
     Cmd_NEW_TRAP_TYPE                     = 159,
     Cmd_NEW_OBJECT_TYPE                   = 160,
     Cmd_NEW_ROOM_TYPE                     = 161,
-    Cmd_SET_CREATURE_GROWUP_LEVEL         = 162,
+    Cmd_SET_CREATURE_CONFIGURATION_PLAYER = 162,
 };
 
 struct ScriptLine {

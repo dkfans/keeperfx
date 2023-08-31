@@ -158,7 +158,7 @@ struct CreatureControl {
     unsigned short players_next_creature_idx;
     unsigned short slap_turns;
     unsigned char explevel;
-    long exp_points;
+    unsigned long exp_points;
     long prev_exp_points;
     struct Coord3d moveto_pos;
     long hunger_level;
@@ -410,6 +410,7 @@ unsigned short shot_shift_z;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
+    struct CreatureStats *creature_stats;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -447,8 +448,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool entrance_force;
     short max_angle_change;
     short base_eye_height;
-  short field_57[14];
-  short field_73;
     unsigned short size_xy;
     unsigned short size_yz;
     unsigned short walking_anim_speed;
@@ -524,6 +523,8 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short lair_object;
     short status_offset;
     struct CreaturePickedUpOffset creature_picked_up_offset;
+    uint8_t grow_up_from_level;
+    uint8_t max_level;
 };
 
 struct Persons {

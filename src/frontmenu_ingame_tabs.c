@@ -1594,9 +1594,9 @@ void gui_area_experience_button(struct GuiButton *gbtn)
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
         struct CreatureStats* crstat = creature_stats_get_from_thing(ctrltng);
         struct CreatureControl* cctrl = creature_control_get_from_thing(ctrltng);
-        long points_progress = cctrl->exp_points;
-        long points_required = (crstat->to_level[cctrl->explevel] << 8);
-        gui_area_progress_bar_med2(gbtn, units_per_px, points_progress, points_required);
+        unsigned long points_progress = cctrl->exp_points;
+        unsigned long points_required = (crstat->to_level[cctrl->explevel] << 8);
+        gui_area_progress_bar_med2(gbtn, units_per_px, (int)points_progress, (int)points_required);
         char* text = buf_sprintf("%d", (int)(cctrl->explevel + 1));
         draw_button_string(gbtn, 56, text);
     } else

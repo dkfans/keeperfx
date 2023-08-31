@@ -1474,7 +1474,7 @@ short creature_being_dropped(struct Thing *creatng)
                 {
                     SYNCDBG(3, "The %s index %d owner %d found digger job at (%d,%d)",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
                     cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
-                    crstat = creature_stats_get(creatng->model);
+                    crstat = creature_stats_get_from_thing(creatng);
                     if (crstat->heal_requirement == 0)
                     {
                         delay_heal_sleep(creatng);
@@ -4430,14 +4430,13 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val)
 
 TbBool check_experience_upgrade(struct Thing *thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long i = crstat->to_level[cctrl->explevel] << 8;
+    unsigned long i = crstat->to_level[cctrl->explevel] << 8;
     if (cctrl->exp_points < i)
         return false;
     cctrl->exp_points -= i;
-    if (cctrl->explevel < dungeon->creature_max_level[thing->model])
+    if (cctrl->explevel < crstat->max_level)
     {
       if ((cctrl->explevel < CREATURE_MAX_LEVEL-1) || (crstat->grow_up != 0))
         cctrl->spell_flags |= CSAfF_ExpLevelUp;

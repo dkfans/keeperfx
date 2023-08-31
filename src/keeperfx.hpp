@@ -218,7 +218,7 @@ void set_player_cameras_position(struct PlayerInfo *player, long pos_x, long pos
 void init_good_player_as(PlayerNumber plr_idx);
 void init_keepers_map_exploration(void);
 void clear_creature_pool(void);
-void reset_creature_max_levels(void);
+void reset_creature_conf(void);
 void reset_script_timers_and_flags(void);
 void reset_hand_rules(void);
 void add_creature_to_pool(long kind, long amount, unsigned long a3);

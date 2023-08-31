@@ -897,7 +897,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
             play_creature_sound(droptng, 6, 3, 0);
         }
         dungeon->last_creature_dropped_gameturn = game.play_gameturn;
-        crstat = creature_stats_get(droptng->model);
+        crstat = creature_stats_get_from_thing(droptng);
         if ( (crstat->illuminated) || (creature_affected_by_spell(droptng, SplK_Light)) )
         {
             illuminate_creature(droptng);

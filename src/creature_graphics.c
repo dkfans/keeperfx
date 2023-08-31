@@ -161,7 +161,7 @@ struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing
     int crmodel = thing->model;
     if ((crmodel < 1) || (crmodel >= gameadd.crtr_conf.model_count))
         crmodel = 0;
-    struct CreatureStats* crstat = creature_stats_get(crmodel);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     return &crstat->creature_picked_up_offset;
 }
 

@@ -2453,7 +2453,10 @@ TbBool load_creaturemodel_config_file(long crtr_model,const char *textname,const
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         struct CreatureStats* crstat = creature_stats_get(crtr_model);
+        // Init creature stat
         LbMemorySet(crstat, '\0', sizeof(struct CreatureStats));
+        crstat->grow_up_from_level = CREATURE_MAX_LEVEL;
+        crstat->max_level = CREATURE_MAX_LEVEL;
     }
     // Parse blocks of the config file
     if (result)

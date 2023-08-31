@@ -373,7 +373,7 @@ TbBool process_prison_food(struct Thing *creatng, struct Room *room)
 {
     struct Thing *foodtng;
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get(creatng->model);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
 
     if ( crstat->hunger_rate == 0 )
         return false;

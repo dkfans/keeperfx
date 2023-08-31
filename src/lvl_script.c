@@ -888,7 +888,6 @@ short load_script(long lvnum)
     game.bonus_time = 0;
     game.flags_gui &= ~GGUI_CountdownTimer;
     game.flags_cd |= MFlg_DeadBackToPool;
-    reset_creature_max_levels();
     reset_script_timers_and_flags();
     reset_hand_rules();
     if ((game.operation_flags & GOF_ColumnConvert) != 0)
