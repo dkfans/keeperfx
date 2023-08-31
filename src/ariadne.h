@@ -31,7 +31,7 @@ extern "C" {
 #define BORDER_LENGTH 100
 #define ROUTE_LENGTH 12000
 #define ARID_WAYPOINTS_COUNT 10
-#define ARID_PATH_WAYPOINTS_COUNT 2560
+#define ARID_PATH_WAYPOINTS_COUNT 1024
 
 /******************************************************************************/
 #pragma pack(1)
