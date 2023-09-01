@@ -3694,7 +3694,7 @@ TbBool remove_creature_lair(struct Thing *thing)
 
 void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
 {
-    struct Dungeon *dungeon;
+    struct Dungeon *dungeon = get_dungeon(creatng->owner);
     SYNCDBG(6,"Starting for %s, owner %d to %d",thing_model_name(creatng),(int)creatng->owner,(int)nowner);
     // Remove the creature from old owner
     if (creatng->light_id != 0) {
@@ -3708,7 +3708,6 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     }
     if (!is_neutral_thing(creatng))
     {
-        dungeon = get_dungeon(creatng->owner);
         dungeon->score -= get_creature_thing_score(creatng);
         if (anger_is_creature_angry(creatng))
             dungeon->creatures_annoyed--;
@@ -3718,12 +3717,20 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
     creatng->owner = nowner;
     set_first_creature(creatng);
     set_start_state(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (!is_neutral_thing(creatng))
     {
-        dungeon = get_dungeon(creatng->owner);
         dungeon->score += get_creature_thing_score(creatng);
         if ( anger_is_creature_angry(creatng) )
             dungeon->creatures_annoyed++;
+    }
+    if (!dungeon_invalid(dungeon) && dungeon->creature_stats_in_use[creatng->model])
+    {
+        cctrl->creature_stats = creature_stats_dungeon_get(nowner, creatng->model);
+    }
+    else
+    {
+        cctrl->creature_stats = NULL;
     }
 }
 
@@ -3803,6 +3810,10 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     if (!dungeon_invalid(dungeon) && dungeon->creature_stats_in_use[model])
     {
         cctrl->creature_stats = creature_stats_dungeon_get(owner, model);
+    }
+    else
+    {
+        cctrl->creature_stats = NULL;
     }
     set_creature_level(crtng, 0);
     crtng->health = cctrl->max_health;
