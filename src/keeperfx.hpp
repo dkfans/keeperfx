@@ -77,11 +77,11 @@ enum ModeFlags {
 enum FFlags {
     FFlg_unk01              =  0x01,
     FFlg_unk02              =  0x02,
-    FFlg_unk04              =  0x04,
+    FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
     FFlg_unk08              =  0x08,
     FFlg_unk10              =  0x10,
     FFlg_AlexCheat          =  0x20,
-    FFlg_UsrSndFont         =  0x40,
+    FFlg_UsrSndFont         =  0x40, // now unused
     FFlg_unk80              =  0x80,
 };
 

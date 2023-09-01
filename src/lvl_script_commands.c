@@ -931,9 +931,9 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = trap_id;
     value->shorts[1] = trapvar;
-    value->shorts[2] = scline->np[2];
-    value->shorts[3] = scline->np[3];
-    value->shorts[4] = scline->np[4];
+    value->uarg1 = scline->np[2];
+    value->shorts[4] = scline->np[3];
+    value->shorts[5] = scline->np[4];
     if (trapvar == 3) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
@@ -956,7 +956,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            if ((newvalue > LONG_MAX) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
@@ -973,7 +973,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
         }
         else
         {
@@ -1543,9 +1543,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[trap_type];
     struct ManfctrConfig *mconf = &gameadd.traps_config[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
-    short value = context->value->shorts[2];
-    short value2 = context->value->shorts[3];
-    short value3 = context->value->shorts[4];
+    long value = context->value->uarg1;
+    short value2 = context->value->shorts[4];
+    short value3 = context->value->shorts[5];
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
@@ -1929,8 +1929,8 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                     return;
             }
         }
-        value->shorts[2] = slab_id;
-        value->shorts[3] = slab2_id;
+        value->uarg1 = slab_id;
+        value->shorts[4] = slab2_id;
     }
 
     else if (doorvar == 10) // SymbolSprites
@@ -1955,13 +1955,13 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            if ((newvalue > LONG_MAX) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
         }
         else if (doorvar == 9) // Crate
         {
@@ -1972,7 +1972,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
         }
         else
         {
@@ -1991,7 +1991,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    SCRIPTDBG(7, "Setting door %s property %s to %d", doorname, scline->tp[1], value->shorts[2]);
+    SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->uarg1);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2001,8 +2001,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
     struct DoorConfigStats *doorst = get_door_model_stats(door_type);
     struct ManfctrConfig *mconf = &gameadd.doors_config[door_type];
     struct ManufactureData *manufctr = get_manufacture_data(gameadd.trapdoor_conf.trap_types_count - 1 + door_type);
-    short value = context->value->shorts[2];
-    short value2 = context->value->shorts[3];
+    short value = context->value->arg1;
+    short value2 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
         case 2: // ManufactureLevel
@@ -2846,6 +2846,12 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
         case 20: // UPDATEFUNCTION
             objdat->updatefn_idx = context->value->arg2;
+            break;
+        case 21: // DRAWCLASS
+            objdat->draw_class = context->value->arg2;
+            break;
+        case 22: // PERSISTENCE
+            objdat->persistence = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -3854,19 +3860,97 @@ static void set_texture_process(struct ScriptContext *context)
 static void set_music_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->chars[0] = scline->np[0];
+    if (parameter_is_number(scline->tp[0]))
+    {
+        value->chars[0] = atoi(scline->tp[0]);
+    }
+    else
+    {
+        if (IsRedbookMusicActive())
+        {
+            SCRPTWRNLOG("Level script wants to play custom track from disk, but game is playing music from CD.");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        // See if a file with this name is already loaded, if so, reuse the same track
+        char* compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
+        for (int i = max_track + 1; i <= game.last_audiotrack; i++)
+        {
+            if (strcmp(compare_fname, game.loaded_track[i]) == 0)
+            {
+                value->chars[0] = i;
+                PROCESS_SCRIPT_VALUE(scline->command);
+                return;
+            }
+        }
+        if ( (game.last_audiotrack < max_track) || (game.last_audiotrack > MUSIC_TRACKS_COUNT) )
+        {
+            WARNLOG("Music track %d is out of range - resetting.", game.last_audiotrack);
+            game.last_audiotrack = max_track;
+        }
+        if (game.last_audiotrack < MUSIC_TRACKS_COUNT)
+        {
+            game.last_audiotrack++;
+        }
+        short tracknumber = game.last_audiotrack;
+            
+        if (tracks[tracknumber] != NULL)
+        {
+            WARNLOG("Overwriting music track %d.", tracknumber);
+            Mix_FreeMusic(tracks[tracknumber]);
+        }
+        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
+        LbStringCopy(game.loaded_track[tracknumber], fname, DISKPATH_SIZE);
+        tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
+        if (tracks[tracknumber] == NULL)
+        {
+            SCRPTERRLOG("Can't load track %ld (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        else
+        {
+            SCRPTLOG("Loaded file %s into music track %ld.", game.loaded_track[tracknumber], tracknumber);
+        }
+        value->chars[0] = tracknumber;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_music_process(struct ScriptContext *context)
 {
-    if (context->value->chars[0] >= FIRST_TRACK && context->value->chars[0] <= max_track)
+    
+    short track_number = context->value->chars[0];
+    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT)
     {
-        game.audiotrack = context->value->chars[0];
+        if (track_number != game.audiotrack)
+        {
+            if (IsRedbookMusicActive())
+            {
+                SCRPTLOG("Setting music track to %d.", track_number);
+            }
+            else
+            {
+                char info[255];
+                sprintf(info, "%s", Mix_GetMusicTitle(tracks[track_number]));
+                const char* artist = Mix_GetMusicArtistTag(tracks[track_number]);
+                if (artist[0] != '\0')
+                {
+                    sprintf(info, "%s by %s", info, artist);
+                }
+                const char* copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
+                if (copyright[0] != '\0')
+                {
+                    sprintf(info, "%s (%s)", info, copyright);
+                }
+                SCRPTLOG("Setting music track to %d: %s", track_number, info);
+            }
+            game.audiotrack = track_number;
+        }
     }
     else
     {
-        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", context->value->chars[0],FIRST_TRACK,max_track);
+        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
     }
 }
 
@@ -3943,7 +4027,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
   {"SET_CREATURE_MAX_LEVEL",            "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
-  {"SET_MUSIC",                         "N       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
+  {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
   {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
   {"SET_CREATURE_HEALTH",               "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},

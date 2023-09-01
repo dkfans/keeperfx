@@ -49,6 +49,7 @@ struct Map {
 #define STL_PER_SLB 3
 #define COORD_PER_STL 256
 #define FILLED_COLUMN_HEIGHT 1280
+#define DEFAULT_MAP_SIZE 85
 
 #pragma pack()
 /******************************************************************************/

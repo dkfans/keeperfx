@@ -4266,8 +4266,8 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
     for (int i = 0; i < path.waypoints_num; ++i)
     {
         struct Coord3d pos2;
-        pos2.x.val = (uint16_t)path.waypoints[i].x;
-        pos2.y.val = (uint16_t)path.waypoints[i].y;
+        pos2.x.val = path.waypoints[i].x;
+        pos2.y.val = path.waypoints[i].y;
         distance += get_2d_distance(&pos1, (struct Coord3d*)&pos2);
         pos1 = pos2;
     }

@@ -269,10 +269,7 @@ void update_player_sounds(void)
         process_messages();
         if (!SoundDisabled)
         {
-            if (game.audiotrack >= FIRST_TRACK && game.audiotrack <= max_track)
-            {
-                PlayMusicPlayer(game.audiotrack);
-            }
+            PlayMusicPlayer(game.audiotrack);
             update_3d_sound_receiver(player);
         }
         game.play_gameturn++;

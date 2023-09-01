@@ -302,7 +302,7 @@ struct CreatureStats *creature_stats_dungeon_get(PlayerNumber player, ThingModel
 struct CreatureStats *creature_stats_get_from_thing(const struct Thing *thing)
 {
     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->creature_stats)
+    if (cctrl->creature_stats != NULL)
         return cctrl->creature_stats;
     if ((thing->model < 1) || (thing->model >= gameadd.crtr_conf.model_count))
     {
