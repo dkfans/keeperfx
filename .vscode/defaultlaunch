@@ -1,0 +1,38 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "program": "${config:game_directory}keeperfx.exe",
+            "cwd": "${config:game_directory}",
+            "args": [
+                "-level", "00033",
+                "-campaign", "personal",
+                "-nointro","-alex", "-nocd"
+            ],
+            "name": "Launch keeperfx.exe",
+            "preLaunchTask": "Compile, Copy Files",
+            "type": "cppdbg",
+            "request": "launch",
+            "externalConsole": true,
+            "stopAtEntry": false,
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb",
+            "internalConsoleOptions": "openOnSessionStart",
+            "logging": {
+                "moduleLoad": false
+            },
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                },
+                {
+                    "description": "Set Disassembly Flavor to Intel",
+                    "text": "-gdb-set disassembly-flavor intel",
+                    "ignoreFailures": true
+                }
+            ]
+        }
+    ]
+}
