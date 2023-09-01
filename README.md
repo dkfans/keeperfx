@@ -35,10 +35,22 @@ Currently the whole codebase of Dungeon Keeper is remade and all code has been r
 - ...
 
 
-# How to play
-You will need the original Dungeon Keeper files, either from an old CD or from the digital edition available on EA or GOG.
+## How to play
 
 Installation instructions and a FAQ can be found on the [Github Wiki](https://github.com/dkfans/keeperfx/wiki).
+
+You will need the original Dungeon Keeper files, either from an old CD or from the digital edition available on EA or GOG.
+
+
+## Components
+| Component | Language | Info |
+|---|---|---|
+| [KeeperFX](https://github.com/dkfans/keeperfx) | C, C++ | - |
+| [Launcher](https://github.com/dkfans/keeperfx-launcherwx) | C++ | Official Launcher to edit settings and start the game with run options. |
+| [FXGraphics](https://github.com/dkfans/FXGraphics) | - | Sources of KeeperFX graphics files. |
+| [FXSounds](https://github.com/dkfans/FXsounds) | - | Sources of KeeperFX audio files. |
+| [Masterserver](https://github.com/dkfans/keeperfx-masterserver) | PHP | Multiplayer masterserver. Allows players to easily find public lobbies of others. |
+| [Website](https://github.com/dkfans/keeperfx-website) | PHP | https://keeperfx.net |
 
 
 ## Further Improvements
