@@ -3729,7 +3729,10 @@ void change_creature_owner(struct Thing *creatng, PlayerNumber nowner)
 
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner)
 {
-    struct CreatureStats* crstat = creature_stats_dungeon_get(owner, model);
+    struct CreatureStats* crstat = creature_stats_get(model);
+    struct Dungeon *dungeon = get_dungeon(owner);
+    if (!dungeon_invalid(dungeon) && dungeon->creature_stats_in_use[model])
+            crstat = creature_stats_dungeon_get(owner, model);
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
         ERRORDBG(3,"Cannot create %s for player %d. There are too many things allocated.",creature_code_name(model),(int)owner);
@@ -3797,7 +3800,6 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     if (crstat->flying) {
         crtng->movement_flags |= TMvF_Flying;
     }
-    struct Dungeon *dungeon = get_dungeon(owner);
     if (!dungeon_invalid(dungeon) && dungeon->creature_stats_in_use[model])
     {
         cctrl->creature_stats = creature_stats_dungeon_get(owner, model);
@@ -3846,7 +3848,6 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
         ERRORLOG("Invalid creature control; no action");
         return false;
     }
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     int k = 0;
     if (count > 0)
@@ -3855,7 +3856,6 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
         {
             if (crstat->max_level > cctrl->explevel)
             {
-                struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
                 if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
                 {
                     cctrl->spell_flags |= CSAfF_ExpLevelUp;

@@ -2771,16 +2771,36 @@ static void set_creature_configuration_process(struct ScriptContext* context)
         for (int i = context->plr_start; i != context->plr_end; i++)
         {
             struct Dungeon *dungeon = get_dungeon(i);
+            if (dungeon_invalid(dungeon))
+                continue;
             struct CreatureStats *crstat = creature_stats_dungeon_get(i, creatid);
             // Initial copy
             if (!dungeon->creature_stats_in_use[creatid])
             {
                 dungeon->creature_stats_in_use[creatid] = true;
                 *crstat = *creature_stats_get(creatid);
+                // Apply for each creature on a map belonging to a player
+                int cr = dungeon->creatr_list_start;
+                if (creature_kind_is_for_dungeon_diggers_list(i, creatid))
+                    cr = dungeon->digger_list_start;
+                while (cr != 0)
+                {
+                    struct Thing *thing = thing_get(cr);
+                    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+                    if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+                    {
+                        ERRORLOG("Jump to invalid creature detected");
+                        break;
+                    }
+                    cr = cctrl->players_next_creature_idx;
+                    if (thing->model == creatid)
+                    {
+                        cctrl->creature_stats = crstat;
+                    }
+                }
             }
             set_creature_configuration_process_impl(context, crstat, creatid);
         }
-        // Should we apply for each creature on a map?
     }
 }
 static void set_object_configuration_process(struct ScriptContext *context)

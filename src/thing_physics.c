@@ -801,7 +801,8 @@ TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos,
         return false;
     }
     dist_collide = (sectng->solid_size_yz + firstng->solid_size_yz) / 2;
-    MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->solid_size_yz >> 1) + (firstng->solid_size_yz >> 1);
+    MapCoordDelta dist_z = pos->z.val + (firstng->solid_size_yz / 2)
+                    - (MapCoordDelta)sectng->mappos.z.val - (sectng->solid_size_yz >> 1) ;
     if (abs(dist_z) >= dist_collide) {
         return false;
     }
