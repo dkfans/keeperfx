@@ -389,7 +389,12 @@ TbResult LbScreenInitialize(void)
     lbDrawSurface = NULL;
     lbHasSecondSurface = false;
     lbDoubleBufferingRequested = false;
-    lbAppActive = true;
+    if (lbMouseGrab)
+        lbAppActive = true;
+    else
+    {
+        lbAppActive = IsMouseInsideWindow();
+    }
     LbMouseChangeMoveRatio(256, 256);
     // Register default video modes
     if (lbScreenModeInfoNum == 0) {
