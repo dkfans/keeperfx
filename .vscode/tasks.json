@@ -38,14 +38,14 @@
 					"if [ ! -f \"${workspaceFolder}/.vscode/user.json\" ]; then cp \"${workspaceFolder}/.vscode/defaultuser\" \"${workspaceFolder}/.vscode/user.json\" && echo \"/.vscode/user.json was created, please edit it and fill in your game directory.\"; fi;",
 					"jq --version > /dev/null 2>&1 || { echo -e '\\033[0;91mError: jq is not installed. Please install it using: sudo apt-get install jq\\033[0m'; exit 1; };",
 					"echo -e '\\033[0;97mSource Code directory: ${workspaceFolder}\\033[0m'; game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); if [ ! -d \"$game_dir\" ]; then echo -e '\\033[0;91mGame directory missing in .vscode/user.json. Please edit the file and update it.\\033[0m'; exit 1; else echo -e '\\033[0;97mGame directory: ' $game_dir '\\033[0m'; fi;",
-					"make -j`nproc` all",
+					"make -j`nproc` all;",
 					"if [ $? -eq 0 ]; then",
 					"    echo -e '\\033[0;32mCompilation successful!\\033[0m';",
 					"    game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); cd \"$game_dir\" && cp \"${workspaceFolder}/bin/\"* .;",
 					"    game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); game_args=$(jq -r '.game_arguments' ${workspaceFolder}/.vscode/user.json); cd \"$game_dir\" && if [ -n \"$WSL_DISTRO_NAME\" ]; then cmd.exe /C \"keeperfx.exe $game_args\"; else wine 'keeperfx.exe' $game_args; fi;",
 					"else",
 					"    echo -e '\\033[0;91mCompilation failed!\\033[0m';",
-					"    exit 1;",
+					"    exit 0;",
 					"fi"
 				]
 			},
