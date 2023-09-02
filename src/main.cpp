@@ -3382,9 +3382,6 @@ TbBool keeper_wait_for_screen_focus(void)
 
 void gameplay_loop_logic()
 {
-    int* p = nullptr;
-    *p = 10;  // This will crash the program
-
     if (is_feature_on(Ft_DeltaTime) == true) {
         if (gameadd.process_turn_time < 1.0) {
             return;
