@@ -16,7 +16,7 @@
             "externalConsole": true,
             "stopAtEntry": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "gdb",
+            "miDebuggerPath": "${workspaceFolder}/.vscode/gdb.exe",
             "internalConsoleOptions": "openOnSessionStart",
             "logging": {
                 "moduleLoad": false
