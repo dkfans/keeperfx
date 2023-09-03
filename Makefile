@@ -420,7 +420,8 @@ all:
 	if [ ! -f $(HEADER_CHECKSUM_FILE) ] || [ "$$(cat $(HEADER_CHECKSUM_FILE))" != "$$current_checksum" ]; then \
 		$(MAKE) clean; \
 	fi; \
-	$(MAKE) standard && echo "$$current_checksum" > $(HEADER_CHECKSUM_FILE); \
+	$(MAKE) standard || exit 1; \
+	echo "$$current_checksum" > $(HEADER_CHECKSUM_FILE); \
 	end_time=$$(date +%s.%N); \
 	duration=$$(awk "BEGIN {print $$end_time - $$start_time}"); \
 	printf "\033[97mCompiled in: %0.2f seconds\033[0m\n" $$duration;
