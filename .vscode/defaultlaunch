@@ -5,11 +5,11 @@
             "program": "${config:game_directory}keeperfx.exe",
             "cwd": "${config:game_directory}",
             "args": [
-                "-level", "00033",
-                "-campaign", "personal",
+                "-level", "00001",
+                "-campaign", "keeporig",
                 "-nointro","-alex", "-nocd"
             ],
-            "name": "Launch keeperfx.exe",
+            "name": "Compile, Copy Files, Launch keeperfx.exe",
             "preLaunchTask": "Compile, Copy Files",
             "type": "cppdbg",
             "request": "launch",
@@ -22,17 +22,18 @@
                 "moduleLoad": false
             },
             "setupCommands": [
-                {
-                    "description": "Enable pretty-printing for gdb",
-                    "text": "-enable-pretty-printing",
-                    "ignoreFailures": true
-                },
-                {
-                    "description": "Set Disassembly Flavor to Intel",
-                    "text": "-gdb-set disassembly-flavor intel",
-                    "ignoreFailures": true
-                }
+                {"description": "Enable pretty-printing for gdb", "text": "-enable-pretty-printing", "ignoreFailures": true},
+                {"description": "Set Disassembly Flavor to Intel", "text": "-gdb-set disassembly-flavor intel", "ignoreFailures": true}
             ]
+        }
+    ],
+    "inputs": [
+        {
+            "id": "compileOptions",
+            "type": "pickString",
+            "description": "Choose compile options:",
+            "options": ["make all -j8 DEBUG=1", "make all -j8"],
+            "default": "make all -j8 DEBUG=1"
         }
     ]
 }

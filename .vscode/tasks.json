@@ -15,7 +15,11 @@
 					"    exit 1;",
 					"}",
 					"Write-Host ('Game directory: ' + $gameDir) -ForegroundColor White;",
-					"wsl make -j`nproc` DEBUG=1 all;",
+					"if ('${input:debugOption}' -eq 'Fast compile with DEBUG=1') {",
+					"    wsl make all -j`nproc` DEBUG=1;",
+					"} else {",
+					"    wsl make all -j`nproc`;",
+					"}",
 					"if ($?) {",
 					"    Write-Host 'Compilation successful!' -ForegroundColor Green;",
 					"} else {",
@@ -25,22 +29,6 @@
 					"copy \"${workspaceFolder}\\bin\\*\" \"$gameDir\";",
 				],
 			},
-			"linux": {
-				"command": [
-					"if [ ! -f \"${workspaceFolder}/.vscode/settings.json\" ]; then cp \"${workspaceFolder}/.vscode/defaultsettings\" \"${workspaceFolder}/.vscode/settings.json\" && echo \"/.vscode/settings.json was created, please edit it and fill in your game directory.\"; fi;",
-					"echo -e '\\033[0;97mSource Code directory: ${workspaceFolder}\\033[0m';",
-					"if [ ! -d \"$game_directory\" ]; then echo -e '\\033[0;91mGame directory missing in .vscode/settings.json. Please edit the file and update it.\\033[0m'; exit 1; else echo -e '\\033[0;97mGame directory: ' $game_directory '\\033[0m'; fi;",
-					"make -j`nproc` all;",
-					"if [ $? -eq 0 ]; then",
-					"    echo -e '\\033[0;32mCompilation successful!\\033[0m';",
-					"    cd \"$game_directory\" && cp \"${workspaceFolder}/bin/\"* .;",
-					"    if [ -n \"$WSL_DISTRO_NAME\" ]; then cmd.exe /C \"keeperfx.exe $game_arguments\"; else wine 'keeperfx.exe' $game_arguments; fi;",
-					"else",
-					"    echo -e '\\033[0;91mCompilation failed!\\033[0m';",
-					"    exit 1;",
-					"fi"
-				]
-			},
 			"options": {
 				"env": {
 					"game_directory": "${config:game_directory}",
@@ -48,10 +36,7 @@
 				}
 			},
 			"problemMatcher": "$gcc",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
+			"group": {"kind": "build","isDefault": true},
 			"presentation": {
 				"clear": true,
 				"echo": false,
@@ -60,6 +45,7 @@
 				"panel": "shared",
 				"showReuseMessage": false
 			}
+			
 		},
 		{
 			// After the project is first opened, settings.json and launch.json will be created
@@ -84,13 +70,8 @@
 					"}"
 				]
 			},
-			"linux": {
-				"command": "if [ ! -f \"${workspaceFolder}/.vscode/user.json\" ]; then cp \"${workspaceFolder}/.vscode/defaultuser\" \"${workspaceFolder}/.vscode/user.json\" && echo \"/.vscode/user.json was created, please edit it and fill in your game directory.\"; fi; if [ ! -f \"${workspaceFolder}/.vscode/launch.json\" ]; then cp \"${workspaceFolder}/.vscode/defaultlaunch\" \"${workspaceFolder}/.vscode/launch.json\" && echo \"/.vscode/launch.json was created.\"; fi"
-			},
 			"problemMatcher": "$gcc",
-			"runOptions": {
-				"runOn": "folderOpen"
-			},
+			"runOptions": {"runOn": "folderOpen"},
 			"group": "build",
 			"presentation": {
 				"echo": false,
@@ -110,9 +91,6 @@
 					"Get-Content keeperfx.log -Wait"
 				]
 			},
-			"linux": {
-				"command": "game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); cd \"$game_dir\" && > keeperfx.log && less +F --mouse keeperfx.log"
-			},
 			"problemMatcher": "$gcc",
 			"dependsOn": "Check For Game Directory",
 			"group": "build"
@@ -121,10 +99,7 @@
 			"label": "Clean",
 			"type": "shell",
 			"windows": {
-				"command": "wsl make -j`nproc` clean"
-			},
-			"linux": {
-				"command": "make -j`nproc` clean"
+				"command": "wsl make clean -j`nproc`"
 			},
 			"problemMatcher": "$gcc",
 			"group": "build"
@@ -138,12 +113,18 @@
 					"wsl bear -- make -j2 standard"
 				]
 			},
-			"linux": {
-				"command": "make clean-build clean-tools && bear -- make -j2 standard"
-			},
 			"problemMatcher": "$gcc",
 			"group": "build",
 			"dependsOn": "Compile",
 		}
-	]
+	],
+	"inputs": [
+        {
+            "id": "debugOption",
+            "type": "pickString",
+            "description": "Choose compile options:",
+            "options": ["Fast compile with DEBUG=1", "Compile"],
+            "default": "Fast compile with DEBUG=1"
+        }
+    ]
 }
