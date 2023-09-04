@@ -1338,7 +1338,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       game.bodies_for_vampire = 6;
       game.graveyard_convert_time = 300;
       game.barrack_max_party_size = 10;
-      game.training_room_max_level = 10;
+      game.training_room_max_level = 0;
       gameadd.scavenge_good_allowed = 1;
       gameadd.scavenge_neutral_allowed = 1;
       gameadd.time_between_prison_break = 64;
