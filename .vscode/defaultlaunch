@@ -11,22 +11,27 @@
                 "-campaign", "keeporig",
                 "-nointro","-alex", "-nocd"
             ],
+            "windows": {
+                "miDebuggerPath": "${workspaceFolder}/.vscode/gdb.exe"
+            },
+            "linux": {
+                "miDebuggerPath": "winegdb"
+            },
+            "setupCommands": [
+                {"description": "Enable pretty-printing for gdb", "text": "-enable-pretty-printing", "ignoreFailures": true},
+                {"description": "Set Disassembly Flavor to Intel", "text": "-gdb-set disassembly-flavor intel", "ignoreFailures": true}
+            ],
+            "MIMode": "gdb",
             "name": "Compile, Copy Files, Launch keeperfx.exe",
             "preLaunchTask": "Compile, Copy Files",
             "type": "cppdbg",
             "request": "launch",
             "externalConsole": true,
             "stopAtEntry": false,
-            "MIMode": "gdb",
-            "miDebuggerPath": "${workspaceFolder}/.vscode/gdb.exe",
             "internalConsoleOptions": "openOnSessionStart",
             "logging": {
                 "moduleLoad": false
-            },
-            "setupCommands": [
-                {"description": "Enable pretty-printing for gdb", "text": "-enable-pretty-printing", "ignoreFailures": true},
-                {"description": "Set Disassembly Flavor to Intel", "text": "-gdb-set disassembly-flavor intel", "ignoreFailures": true}
-            ]
+            }
         }
     ],
     "inputs": [
