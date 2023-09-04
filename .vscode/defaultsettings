@@ -3,5 +3,9 @@
 	"files.associations": {
 		"defaultlaunch": "jsonc",
 		"defaultsettings": "jsonc"
-	}
+	},
+	"files.exclude": {
+        "**/.vscode/defaultlaunch": true,
+		"**/.vscode/defaultsettings": true
+    }
 }
