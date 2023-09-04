@@ -288,7 +288,7 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   if (i >= 120)
     i = 120;
   long step = 120 - i;
-  fprintf(stderr, "%s player:%p pal:%p i=%d\n", __func__, player, player->main_palette, i);
+  JUSTLOG("player:%p pal:%p i=%d\n", player, player->main_palette, i);
   // Create the new palette
   for (i=0; i < PALETTE_COLORS; i++)
   {

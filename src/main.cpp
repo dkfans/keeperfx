@@ -1863,7 +1863,7 @@ void PaletteSetPlayerPalette(struct PlayerInfo *player, unsigned char *pal)
     if ( (player->lens_palette == nullptr) || ((pal != player->main_palette) && (pal == player->lens_palette)) )
     {
         player->main_palette = pal;
-        fprintf(stderr, "%s player:%p pal:%p \n", __func__, player, player->main_palette);
+        JUSTLOG("player:%p pal:%p \n", player, player->main_palette);
         player->palette_fade_step_pain = 0;
         player->palette_fade_step_possession = 0;
         if (is_my_player(player))
