@@ -171,6 +171,7 @@ const struct NamedCommand rules_rooms_commands[] = {
   {"PRISONBREAKCHANCE",                   22},
   {"TORTUREDEATHCHANCE",                  23},
   {"BARRACKMAXPARTYSIZE",                 24},
+  {"TRAININGROOMMAXLEVEL",                25},
   {NULL,                                   0},
   };
 
@@ -1337,6 +1338,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       game.bodies_for_vampire = 6;
       game.graveyard_convert_time = 300;
       game.barrack_max_party_size = 10;
+      game.training_room_max_level = 10;
       gameadd.scavenge_good_allowed = 1;
       gameadd.scavenge_neutral_allowed = 1;
       gameadd.time_between_prison_break = 64;
@@ -1607,6 +1609,19 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           {
               k = atoi(word_buf);
               game.barrack_max_party_size = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 25: // TRAININGROOMMAXLEVEL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              game.training_room_max_level = k;
               n++;
           }
           if (n < 1)

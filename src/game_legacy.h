@@ -304,6 +304,7 @@ unsigned int packet_file_pos;
     int manufactr_spridx;
     int manufactr_tooltip;
     short barrack_max_party_size;
+    unsigned short training_room_max_level;
     char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
 };
 
