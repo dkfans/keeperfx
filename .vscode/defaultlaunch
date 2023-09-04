@@ -1,9 +1,11 @@
+// Please edit the "program" and "cwd" fields with your game directory.
+// Edit "args" to set the level and campaign you want to load.
 {
     "version": "0.2.0",
     "configurations": [
         {
-            "program": "${config:game_directory}keeperfx.exe",
-            "cwd": "${config:game_directory}",
+            "program": "D:/DungeonKeeper/keeperfx.exe",
+            "cwd": "D:/DungeonKeeper/",
             "args": [
                 "-level", "00001",
                 "-campaign", "keeporig",

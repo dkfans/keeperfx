@@ -6,11 +6,10 @@
 			"type": "shell",
 			"windows": {
 				"command": [
-					"git rm --cached .vscode/settings.json;",
 					"Write-Host ('Source Code directory: ' + '${workspaceFolder}'.Replace('\\', '/')) -ForegroundColor White;",
-					"$gameDir = $env:game_directory.TrimEnd('\\');",
+					"$gameDir = (Get-Content '${workspaceFolder}\\.vscode\\launch.json' | ConvertFrom-Json).configurations[0].cwd.TrimEnd('\\');",
 					"if (-not (Test-Path $gameDir)) {",
-					"    Write-Host 'The game directory is incorrect in /.vscode/settings.json, please edit the file and update it.' -ForegroundColor Red;",
+					"    Write-Host 'The directories are incorrect in /.vscode/launch.json, please edit the file and update it.' -ForegroundColor Red;",
 					"    Write-Host 'Example: D:/Games/DungeonKeeper/ (be sure to use forward slashes)' -ForegroundColor Red;",
 					"    exit 1;",
 					"}",
@@ -29,12 +28,6 @@
 					"copy \"${workspaceFolder}\\bin\\*\" \"$gameDir\";",
 				],
 			},
-			"options": {
-				"env": {
-					"game_directory": "${config:game_directory}",
-					"game_arguments": "${config:game_arguments}",
-				}
-			},
 			"problemMatcher": "$gcc",
 			"group": {"kind": "build","isDefault": true},
 			"presentation": {
@@ -45,7 +38,6 @@
 				"panel": "shared",
 				"showReuseMessage": false
 			}
-			
 		},
 		{
 			// After the project is first opened, settings.json and launch.json will be created
@@ -53,20 +45,14 @@
 			"type": "shell",
 			"windows": {
 				"command": [
-					"git rm --cached .vscode/settings.json;",
 					"$settingsPath = '${workspaceFolder}\\.vscode\\settings.json';",
 					"if (-not (Test-Path $settingsPath)) {",
 					"    Copy-Item '${workspaceFolder}\\.vscode\\defaultsettings' $settingsPath;",
-					"    Write-Host '/.vscode/settings.json was created, please edit it and fill in your game directory.';",
-					"}",
-					"$settingsContent = Get-Content $settingsPath | ConvertFrom-Json;",
-					"if ($null -eq $settingsContent.game_directory) {",
-					"    Copy-Item '${workspaceFolder}\\.vscode\\defaultsettings' $settingsPath -Force;",
-					"    Write-Host 'The outdated /.vscode/settings.json was missing the game_directory field. It has been replaced with the default settings. Please edit it and fill in your game directory.';",
+					"    Write-Host '/.vscode/settings.json was created.';",
 					"}",
 					"if (-not (Test-Path '${workspaceFolder}\\.vscode\\launch.json')) {",
 					"    Copy-Item '${workspaceFolder}\\.vscode\\defaultlaunch' '${workspaceFolder}\\.vscode\\launch.json';",
-					"    Write-Host '/.vscode/launch.json was created.';",
+					"    Write-Host '/.vscode/launch.json was created, please edit it and fill in your game directories.';",
 					"}"
 				]
 			},
@@ -85,7 +71,7 @@
 			"type": "shell",
 			"windows": {
 				"command": [
-					"$gameDir = (Get-Content '${workspaceFolder}\\.vscode\\user.json' | ConvertFrom-Json).game_directory;",
+					"$gameDir = (Get-Content '${workspaceFolder}\\.vscode\\launch.json' | ConvertFrom-Json).configurations[0].cwd.TrimEnd('\\');",
 					"cd $gameDir;",
 					"Clear-Content keeperfx.log;",
 					"Get-Content keeperfx.log -Wait"
