@@ -167,6 +167,7 @@ static void set_lens_palette(unsigned char *palette)
     struct PlayerInfo* player = get_my_player();
     player->main_palette = palette;
     player->lens_palette = palette;
+    fprintf(stderr, "%s player:%p pal:%p \n", __func__, player, player->main_palette);
 }
 
 void reset_eye_lenses(void)

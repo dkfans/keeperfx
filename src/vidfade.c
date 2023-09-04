@@ -276,11 +276,11 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   } else
   if (player->palette_fade_step_possession != 0)
   {
-    i = 2 * (5 * (player->palette_fade_step_possession-1));
+    i = 10 * (player->palette_fade_step_possession-1);
   } else
   if (player->palette_fade_step_pain != 0)
   {
-    i = 4 * (3 * (player->palette_fade_step_pain-1));
+    i = 12 * (player->palette_fade_step_pain-1);
   } else
   { // both are == 0 - no fade
     return 0;
@@ -288,12 +288,13 @@ long PaletteFadePlayer(struct PlayerInfo *player)
   if (i >= 120)
     i = 120;
   long step = 120 - i;
+  fprintf(stderr, "%s player:%p pal:%p i=%d\n", __func__, player, player->main_palette, i);
   // Create the new palette
   for (i=0; i < PALETTE_COLORS; i++)
   {
-      unsigned char* src = &player->main_palette[3 * i];
+      uint8_t * src = &player->main_palette[3 * i];
       unsigned char* dst = &palette[3 * i];
-      unsigned long pix = ((step * (((long)src[0]) - 63)) / 120) + 63;
+      long pix = ((step * (((long)src[0]) - 63)) / 120) + 63;
       if (pix > 63)
           pix = 63;
       dst[0] = pix;
