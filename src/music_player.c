@@ -202,6 +202,7 @@ void music_reinit_after_load()
 
 void free_custom_music()
 {
+    if (exit_keeper == true) {return;}
     for (int i = (max_track + 1); i <= MUSIC_TRACKS_COUNT; i++)
     {
         Mix_Music *music = tracks[i];
