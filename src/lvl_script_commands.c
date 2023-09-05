@@ -2089,6 +2089,10 @@ static void create_effect_process(struct ScriptContext *context)
     {
         pos.z.val += 128;
     }
+    else
+    {
+        pos.z.val += context->value->arg1;
+    }
     struct Thing* efftng = create_used_effect_or_element(&pos, context->value->chars[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
     {
