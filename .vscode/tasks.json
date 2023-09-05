@@ -2,6 +2,33 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
+			// For Linux users
+			"label": "Default task",
+			"type": "shell",
+			"windows": {
+				"command": [
+					"Write-Host 'Windows users should press F5 to compile and run the game.' -ForegroundColor White;"
+				],
+			},
+			"linux": {
+				"command": [
+					"chmod +x '${workspaceFolder}/.vscode/linuxscript.sh';",
+					"'${workspaceFolder}/.vscode/linuxscript.sh'"
+				]
+			},
+			"problemMatcher": "$gcc",
+			"group": {"kind": "build","isDefault": true},
+			"presentation": {
+				"clear": true,
+				"echo": false,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		},
+		{
+			// Called by launch.json
 			"label": "Compile, Copy Files",
 			"type": "shell",
 			"windows": {
@@ -29,8 +56,9 @@
 					"copy \"${workspaceFolder}\\bin\\*\" \"$gameDir\";",
 				],
 			},
+			"linux": {"command": []},
 			"problemMatcher": "$gcc",
-			"group": {"kind": "build","isDefault": true},
+			"group": "build",
 			"presentation": {
 				"clear": true,
 				"echo": false,
@@ -66,7 +94,11 @@
 					"fi;",
 					"if [ ! -f '${workspaceFolder}/.vscode/launch.json' ]; then",
 					"    cp '${workspaceFolder}/.vscode/defaultlaunch' '${workspaceFolder}/.vscode/launch.json';",
-					"    echo '/.vscode/launch.json was created, please edit it and fill in your game directories.';",
+					"    echo '/.vscode/launch.json was created, but it won't work on linux. Use Ctrl+Shift+B instead.';",
+					"fi;",
+					"if [ ! -f '${workspaceFolder}/.vscode/linuxscript.sh' ]; then",
+					"    cp '${workspaceFolder}/.vscode/defaultlinuxscript' '${workspaceFolder}/.vscode/linuxscript.json';",
+					"    echo '/.vscode/linuxscript.json was created, please edit it and fill in your game directories.';",
 					"fi"
 				]
 			},
@@ -92,6 +124,7 @@
 					"Get-Content keeperfx.log -Wait"
 				]
 			},
+			"linux": {},
 			"problemMatcher": "$gcc",
 			"dependsOn": "Check For Game Directory",
 			"group": "build"
@@ -101,6 +134,9 @@
 			"type": "shell",
 			"windows": {
 				"command": "wsl make clean -j`nproc`"
+			},
+			"linux": {
+				"command": "make clean -j`nproc`"
 			},
 			"problemMatcher": "$gcc",
 			"group": "build"
@@ -113,6 +149,9 @@
 					"wsl make clean-build clean-tools;",
 					"wsl bear -- make -j2 standard"
 				]
+			},
+			"linux": {
+				"command": "make clean-build clean-tools && bear -- make -j2 standard"
 			},
 			"problemMatcher": "$gcc",
 			"group": "build",

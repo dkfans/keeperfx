@@ -2,10 +2,12 @@
 	"C_Cpp.intelliSenseEngine": "disabled",
 	"files.associations": {
 		"defaultlaunch": "jsonc",
-		"defaultsettings": "jsonc"
+		"defaultsettings": "jsonc",
+		"defaultlinuxscript": "jsonc"
 	},
 	"files.exclude": {
         "**/.vscode/defaultlaunch": true,
-		"**/.vscode/defaultsettings": true
+		"**/.vscode/defaultsettings": true,
+		"**/.vscode/defaultlinuxscript": true
     }
 }
