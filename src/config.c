@@ -17,6 +17,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config.h"
 
 #include <stdarg.h>
@@ -32,23 +33,32 @@
 #include "bflib_mouse.h"
 #include "bflib_sound.h"
 #include "sounds.h"
+#include "engine_render.h"
 
 #include "config_campaigns.h"
 #include "front_simple.h"
 #include "scrcapt.h"
 #include "vidmode.h"
 #include "music_player.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_config_file[]="keeperfx.cfg";
+
+static float phase_of_moon;
+static long net_number_of_levels;
+static struct NetLevelDesc net_level_desc[100];
+static const char keeper_config_file[]="keeperfx.cfg";
+
 int max_track = 7;
 unsigned short AtmosRepeat = 1013;
 unsigned short AtmosStart = 1014;
 unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
+struct InstallInfo install_info;
+char keeper_runtime_directory[152];
 
 /**
  * Language 3-char abbreviations.
@@ -82,7 +92,7 @@ const struct NamedCommand lang_type[] = {
   };
 
 const struct NamedCommand scrshot_type[] = {
-  {"HSI", 1},
+  {"PNG", 1},
   {"BMP", 2},
   {NULL,  0},
   };
@@ -117,7 +127,6 @@ const struct NamedCommand conf_commands[] = {
   {"ATMOS_SAMPLES",       13},
   {"RESIZE_MOVIES",       14},
   {"MUSIC_TRACKS",        15},
-  {"WIBBLE",              16},
   {"FREEZE_GAME_ON_FOCUS_LOST"     , 17},
   {"UNLOCK_CURSOR_WHEN_GAME_PAUSED", 18},
   {"LOCK_CURSOR_IN_POSSESSION"     , 19},
@@ -126,6 +135,9 @@ const struct NamedCommand conf_commands[] = {
   {"DISABLE_SPLASH_SCREENS"        , 22},
   {"SKIP_HEART_ZOOM"               , 23},
   {"CURSOR_EDGE_CAMERA_PANNING"    , 24},
+  {"DELTA_TIME"                    , 25},
+  {"CREATURE_STATUS_SIZE"          , 26},
+  {"MAX_ZOOM_DISTANCE"             , 27},
   {NULL,                   0},
   };
 
@@ -141,13 +153,6 @@ const struct NamedCommand logicval_type[] = {
   {"1",        1},
   {"0",        2},
   {NULL,       0},
-  };
-
-  const struct NamedCommand wibble_type[] = {
-  {"ON",             1},
-  {"OFF",            2},
-  {"LIQUIDONLY",     3},
-  {NULL,             0},
   };
 
   const struct NamedCommand vidscale_type[] = {
@@ -234,14 +239,6 @@ TbBool resize_movies_enabled(void)
   return ((features_enabled & Ft_Resizemovies) != 0);
 }
 
-/**
- * Returns if the wibble effect is on.
- */
-TbBool wibble_enabled(void)
-{
-  return ((features_enabled & Ft_Wibble) != 0);
-}
-
 #include "game_legacy.h" // it would be nice to not have to include this
 /**
  * Returns if we should freeze the game, if the game window loses focus.
@@ -285,14 +282,6 @@ TbBool pause_music_when_game_paused(void)
 TbBool mute_audio_on_focus_lost(void)
 {
   return ((features_enabled & Ft_MuteAudioOnLoseFocus) != 0);
-}
-  
-/**
- * Returns if the liquid wibble effect is on.
- */
-TbBool liquid_wibble_enabled(void)
-{
-  return ((features_enabled & Ft_LiquidWibble) != 0);
 }
 
 TbBool is_feature_on(unsigned long feature)
@@ -630,9 +619,8 @@ const char *get_language_lwrstr(int lang_id)
       WARNLOG("Bad text code for language index %d",(int)lang_id);
 #endif
   static char lang_str[4];
-  strncpy(lang_str, src, 4);
-  lang_str[3] = '\0';
-  strlwr(lang_str);
+  snprintf(lang_str, 4, "%s", src);
+  make_lowercase(lang_str);
   return lang_str;
 }
 
@@ -652,6 +640,24 @@ long get_id(const struct NamedCommand *desc, const char *itmname)
       return desc[i].num;
   }
   return -1;
+}
+
+/**
+ * Returns ID of given item using NamedCommands list.
+ * Similar to recognize_conf_parameter(), but for use only if the buffer stores
+ * one word, ended with "\0".
+ * If not found, returns -1.
+ */
+long long get_long_id(const struct LongNamedCommand* desc, const char* itmname)
+{
+    if ((desc == NULL) || (itmname == NULL))
+        return -1;
+    for (long i = 0; desc[i].name != NULL; i++)
+    {
+        if (strcasecmp(desc[i].name, itmname) == 0)
+            return desc[i].num;
+    }
+    return -1;
 }
 
 /**
@@ -871,7 +877,7 @@ short load_configuration(void)
             CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
             break;
           }
-          else 
+          else
           {
             atmos_sound_volume = i;
             break;
@@ -940,30 +946,6 @@ short load_configuration(void)
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
                 COMMAND_TEXT(cmd_num),config_textname);
-          }
-          break;
-      case 16: // WIBBLE
-          i = recognize_conf_parameter(buf,&pos,len,wibble_type);
-          if (i <= 0)
-          {
-              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
-                COMMAND_TEXT(cmd_num),config_textname);
-            break;
-          }
-          if (i == 1) // WIBBLE ON
-          {
-              features_enabled |= Ft_Wibble;
-              features_enabled |= Ft_LiquidWibble;
-          }
-          else if (i == 3) // LIQUID ONLY
-          {
-              features_enabled &= ~Ft_Wibble;
-              features_enabled |= Ft_LiquidWibble;
-          }
-          else // WIBBLE OFF
-          {
-              features_enabled &= ~Ft_Wibble;
-              features_enabled &= ~Ft_LiquidWibble;
           }
           break;
       case 17: // FREEZE_GAME_ON_FOCUS_LOST
@@ -1069,6 +1051,43 @@ short load_configuration(void)
               features_enabled &= ~Ft_DisableCursorCameraPanning;
           else
               features_enabled |= Ft_DisableCursorCameraPanning;
+          break;
+        case 25: //DELTA_TIME
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_DeltaTime;
+          else
+              features_enabled &= ~Ft_DeltaTime;
+          break;
+      case 26: // CREATURE_STATUS_SIZE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              creature_status_size = i;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 27: // MAX_ZOOM_DISTANCE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              if (i > 100) {i = 100;}
+              zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
+              frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
           break;
       case 0: // comment
           break;
@@ -1540,7 +1559,7 @@ int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *nam
         }
     }
     // Preparing the new entry
-    strncpy(campaign.hiscore_table[dest_idx].name, name, HISCORE_NAME_LENGTH);
+    snprintf(campaign.hiscore_table[dest_idx].name, HISCORE_NAME_LENGTH, "%s", name);
     campaign.hiscore_table[dest_idx].score = score;
     campaign.hiscore_table[dest_idx].lvnum = lvnum;
     return dest_idx;
@@ -1553,10 +1572,12 @@ unsigned long get_level_highest_score(LevelNumber lvnum)
 {
     for (int idx = 0; idx < campaign.hiscore_count; idx++)
     {
-        if (campaign.hiscore_table[idx].lvnum == lvnum)
+        if ((campaign.hiscore_table[idx].lvnum == lvnum) && (strcmp(campaign.hiscore_table[idx].name, "Bullfrog") != 0))
+        {
             return campaign.hiscore_table[idx].score;
-  }
-  return 0;
+        }
+    }
+    return 0;
 }
 
 struct LevelInformation *get_level_info(LevelNumber lvnum)
@@ -1662,8 +1683,7 @@ short set_level_info_text_name(LevelNumber lvnum, char *name, unsigned long lvop
     struct LevelInformation* lvinfo = get_or_create_level_info(lvnum, lvoptions);
     if (lvinfo == NULL)
         return false;
-    strncpy(lvinfo->name, name, LINEMSG_SIZE - 1);
-    lvinfo->name[LINEMSG_SIZE - 1] = '\0';
+    snprintf(lvinfo->name, LINEMSG_SIZE, "%s", name);
     if ((lvoptions & LvOp_IsFree) != 0)
     {
         lvinfo->ensign_x += ((LANDVIEW_MAP_WIDTH >> 4) * (LbSinL(lvnum * LbFPMath_PI / 16) >> 6)) >> 10;
@@ -2110,11 +2130,11 @@ LevelNumber next_multiplayer_level(LevelNumber mp_lvnum)
   if (mp_lvnum == SINGLEPLAYER_FINISHED) return SINGLEPLAYER_FINISHED;
   if (mp_lvnum == SINGLEPLAYER_NOTSTARTED) return first_multiplayer_level();
   if (mp_lvnum < 1) return LEVELNUMBER_ERROR;
-  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  for (int i = 0; i < MULTI_LEVELS_COUNT; i++)
   {
     if (campaign.multi_levels[i] == mp_lvnum)
     {
-      if (i+1 >= CAMPAIGN_LEVELS_COUNT)
+      if (i+1 >= MULTI_LEVELS_COUNT)
         return SINGLEPLAYER_FINISHED;
       if (campaign.multi_levels[i+1] <= 0)
         return SINGLEPLAYER_FINISHED;

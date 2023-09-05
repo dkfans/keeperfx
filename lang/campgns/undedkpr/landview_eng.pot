@@ -1,0 +1,103 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file undedkpr/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+
+"Project-Id-Version: Post Undead Keeper Level Pack for KeeperFX\n"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Ludim. A sickeningly cheerful town where even the most trivial of events is celebrated with great fanfare. The people here "
+"are so happy and carefree that it's almost nauseating. They sing and dance and frolic in the streets, completely unaware of "
+"the dangers that lurk just beyond their borders."
+msgstr ""
+
+#: landview:11
+msgctxt "Level summary"
+msgid "The once-cheerful town has been reduced to a smoldering ruin. The streets are littered with the bodies of the dead, and the "
+"survivors huddle in fear in whatever shelter they can find. The sound of weeping and wailing fills the air, "
+"and the stench of death is overpowering."
+msgstr ""
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Havoth Dir. A serene and idyllic land where the sun always shines and the people are always smiling. The inhabitants of "
+"Havoth Dir are content and generous, sharing their wealth and resources with each other without complaint. The air is filled with "
+"the sweet scent of blooming flowers and the sound of laughter."
+msgstr ""
+
+#: landview:21
+msgctxt "Level summary"
+msgid "The once-beautiful Havoth Dir has been plunged into darkness and despair. The sun has been blocked out by thick clouds of "
+"ash and smoke, and the people now cower in fear of the Vampires that roam the land. The once-lush gardens and fields have been "
+"reduced to barren wastelands, and the screams of the tortured fill the air."
+msgstr ""
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Ebenazer. A perfect little town, where the people are friendly and helpful. The streets are clean and tidy, and the houses "
+"are brightly painted and well-maintained. The town square is filled with colorful flowers, and the children play games in the park."
+msgstr ""
+
+#: landview:31
+msgctxt "Level summary"
+msgid "The once-pleasant town has become a nightmare. The streets are filled with twisted and corrupted creatures, the buildings "
+"are coated in black mold, and the park is now home to a massive mausoleum. The children and the rest of the townsfolk have been "
+"transformed into the walking dead. The air is thick with the stench of decay and the screams of the damned."
+msgstr ""
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Chaerith. An ancient castle, built centuries ago by a powerful Samurai. The castle is filled with treasures and secrets, "
+"and the surrounding lands are fertile and prosperous. The people are proud and loyal, serving their lord with honor and bravery. "
+"The castle is a symbol of strength and power, standing tall and proud against the passage of time."
+msgstr ""
+
+#: landview:41
+msgctxt "Level summary"
+msgid "The once-mighty castle has been reduced to a pile of rubble and ruins. The treasures and secrets have been looted and "
+"destroyed, and the surrounding lands have been ravaged by war and chaos. The people have been scattered and enslaved, their "
+"loyalty replaced with fear and despair. The castle is now a symbol of ruin and defeat, a haunting reminder of what was lost."
+msgstr ""
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Nazirite. A whimsical and fantastical realm, where the skies are filled with rainbows and the forests are home to unicorns "
+"and fairies. The people here are dreamers, with wild imaginations and a love of magic and mystery. The realm is a playground, "
+"and every day is an adventure."
+msgstr ""
+
+#: landview:51
+msgctxt "Level summary"
+msgid "The once-enchanted realm has become a living nightmare. The skies are now filled with dark clouds and lightning, and the "
+"forests are twisted and corrupted. The unicorns and fairies have been replaced by skeletal creatures, and the dreamers have been "
+"turned into horrific abominations. This place is now a nightmare realm, where every moment is filled with terror and despair."
+msgstr ""
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Elysium. A beautiful winter wonderland, where the snow-covered hills and trees sparkle in the sunlight. The residents are "
+"hearty and resilient, thriving in the cold weather. They enjoy ice skating, skiing, and sipping hot cocoa by the fireplace. The "
+"realm is peaceful and quiet, with only the sound of snowflakes falling from the sky."
+msgstr ""
+
+#: landview:61
+msgctxt "Level summary"
+msgid "The winter wonderland has been turned into a frozen wasteland. The snow is now hard as ice and the trees are twisted and "
+"gnarled. The residents have been transformed into ice zombies, their bodies frozen in place and their souls trapped in eternal "
+"torment. The world is now a frozen hell, where life is a struggle and death is a release."
+msgstr ""

@@ -26,14 +26,14 @@ clean-tools: clean-po2ngdat
 
 deep-clean-tools: deep-clean-po2ngdat
 
-ifneq (,$(wildcard tools/po2ngdat/src/po2ngdat.cpp)) 
+ifneq (,$(wildcard tools/po2ngdat/src/po2ngdat.cpp))
 
 # If we have source code of this tool, compile it
 $(POTONGDAT): tools/po2ngdat/src/po2ngdat.cpp
-	make -C tools/po2ngdat
+	$(MAKE) -C tools/po2ngdat
 
 clean-po2ngdat:
-	make -C tools/po2ngdat clean
+	$(MAKE) -C tools/po2ngdat clean
 
 else ifneq (,$(findstring .tar.gz,$(POTONGDAT_PACKAGE)))
 
@@ -46,13 +46,11 @@ $(POTONGDAT): tools/po2ngdat/pkg/$(POTONGDAT_PACKAGE)
 	-$(ECHO) 'Finished extracting: $<'
 	-$(ECHO) ' '
 
-tools/po2ngdat/res/%.txt: tools/po2ngdat/pkg/$(POTONGDAT_PACKAGE)
-	-$(ECHO) 'Extracting encoding table: $@'
-	$(MKDIR) "$(@D)"
-	cd "$(@D)"; \
-	tar -zxmUf "../../../$<" --wildcards "*char_encoding_*.txt"
-	-$(ECHO) 'Finished extracting: $@'
-	-$(ECHO) ' '
+tools/po2ngdat/res:
+	$(MKDIR) $@
+
+tools/po2ngdat/res/char_encoding_tbl_%.txt: tools/po2ngdat/pkg/$(POTONGDAT_PACKAGE) | tools/po2ngdat/res
+	tar xzmf $< -C $(@D) ./$(@F)
 
 tools/po2ngdat/pkg/$(POTONGDAT_PACKAGE):
 	-$(ECHO) 'Downloading package: $@'

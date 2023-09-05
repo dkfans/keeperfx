@@ -83,8 +83,6 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
 long move_creature(struct Thing *thing);
 TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);
-TbBool kill_creature_compat(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx,
-      TbBool no_effects, TbBool died_in_battle, TbBool disallow_unconscious);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
 
@@ -93,7 +91,7 @@ TbBool create_random_hero_creature(MapCoord x, MapCoord y, PlayerNumber owner, C
 struct Thing *create_owned_special_digger(MapCoord x, MapCoord y, PlayerNumber owner);
 
 TbBool creature_increase_level(struct Thing *thing);
-TbBool creature_increase_multiple_levels(struct Thing *thing, int count);
+TbBool creature_change_multiple_levels(struct Thing *thing, int count);
 void set_creature_level(struct Thing *thing, long nlvl);
 void init_creature_level(struct Thing *thing, long nlev);
 long get_creature_speed(const struct Thing *thing);
@@ -101,7 +99,7 @@ long get_creature_speed(const struct Thing *thing);
 TbBool control_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
 TbBool control_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-long get_human_controlled_creature_target(struct Thing *thing, long a2);
+ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target);
 struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord x, MapCoord y);
 
 TbBool load_swipe_graphic_for_creature(const struct Thing *thing);
@@ -110,6 +108,7 @@ void draw_swipe_graphic(void);
 
 long creature_available_for_combat_this_turn(struct Thing *thing);
 TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
+TbBool set_creature_object_snipe(struct Thing* crthing, struct Thing* obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
 void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
@@ -125,7 +124,7 @@ void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotiv
 HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber inflicting_plyr_idx);
 void process_creature_standing_on_corpses_at(struct Thing *thing, struct Coord3d *pos);
 long creature_instance_has_reset(const struct Thing *thing, long a2);
-void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long a2, long targtng_idx, const struct Coord3d *pos);
+void set_creature_instance(struct Thing *thing, CrInstance inst_idx, long targtng_idx, const struct Coord3d *pos);
 unsigned short find_next_annoyed_creature(PlayerNumber plyr_idx, unsigned short current_annoyed_creature_idx);
 void draw_creature_view(struct Thing *thing);
 
@@ -187,6 +186,8 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng);
 TbBool thing_is_pickable_by_digger(struct Thing *picktng, struct Thing *creatng);
 struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng);
 void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y);
+
+short get_creature_eye_height(const struct Thing *creatng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

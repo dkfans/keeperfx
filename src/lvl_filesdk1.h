@@ -42,11 +42,6 @@ unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext
 TbBool find_and_load_lif_files(void);
 TbBool find_and_load_lof_files(void);
 long convert_old_column_file(LevelNumber lv_num);
-TbBool load_column_file(LevelNumber lv_num);
-TbBool load_slab_file(void);
-TbBool load_map_data_file(LevelNumber lv_num);
-TbBool load_thing_file(LevelNumber lv_num);
-TbBool load_action_point_file(LevelNumber lv_num);
 
 TbBool load_map_file(LevelNumber lvnum);
 /******************************************************************************/

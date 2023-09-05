@@ -56,21 +56,21 @@ enum ThingFlags2 {
     TF2_Spectator      = 0x02,
 };
 
-enum ThingFlags4F {
-    TF4F_Unknown01     = 0x01, /** Not Drawn **/
-    TF4F_Unknown02     = 0x02, // Not shaded
+enum ThingRenderingFlags {
+    TRF_Unknown01     = 0x01, /** Not Drawn **/
+    TRF_Unshaded     = 0x02, // Not shaded
 
-    TF4F_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
-    TF4F_Unknown08     = 0x08, // Tint2 (not used?)
-    TF4F_Tint_Flags    = 0x0C, // Tint flags
+    TRF_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
+    TRF_Unknown08     = 0x08, // Tint2 (not used?)
+    TRF_Tint_Flags    = 0x0C, // Tint flags
 
-    TF4F_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
-    TF4F_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
-    TF4F_Transpar_Alpha = 0x30,
-    TF4F_Transpar_Flags = 0x30,
+    TRF_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken
+    TRF_Transpar_4     = 0x20, // Used for Invisible creatures and traps -- more transparent
+    TRF_Transpar_Alpha = 0x30,
+    TRF_Transpar_Flags = 0x30,
 
-    TF4F_Unknown40     = 0x40,    // Unconscious
-    TF4F_Unknown80     = 0x80,    // Being hit (draw red sometimes)
+    TRF_AnimateOnce    = 0x40,
+    TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
 };
 
 enum FreeThingAllocFlags {
@@ -83,11 +83,11 @@ enum ThingMovementFlags {
     TMvF_Default            = 0x00,
     TMvF_IsOnWater          = 0x01,
     TMvF_IsOnLava           = 0x02,
-    TMvF_Unknown04          = 0x04, //Touching ground? Also don't cast shadows when this is set
-    TMvF_Unknown08          = 0x08,
+    TMvF_BeingSacrificed    = 0x04,
+    TMvF_Unknown08          = 0x08, // thing->veloc_base.z.val = 0
     TMvF_Unknown10          = 0x10, //Stopped by walls?
     TMvF_Flying             = 0x20,
-    TMvF_Unknown40          = 0x40,
+    TMvF_Immobile           = 0x40,
     TMvF_IsOnSnow           = 0x80,
 };
 
@@ -159,9 +159,9 @@ struct Thing {
       } roomflag;
       struct {
       short unused3;
-      long turntime;
-      unsigned char byte_19;
-      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and turntime 
+      long last_turn_drawn;
+      unsigned char display_timer;
+      }roomflag2; // both roomflag and roomflag2 are used in same function on same object but have 2 bytes overlapping between room_idx and last_turn_drawn 
 //TCls_Shot
       struct {
         unsigned char dexterity;
@@ -236,10 +236,9 @@ struct Thing {
     short parent_idx;
     unsigned char class_id;
     unsigned char fall_acceleration;
-unsigned char field_21;
     unsigned char bounce_angle;
-    unsigned char field_23;
-    unsigned char field_24;
+    short inertia_floor;
+    short inertia_air;
     unsigned char movement_flags;
     struct CoordDelta3d veloc_push_once;
     struct CoordDelta3d veloc_base;
@@ -247,31 +246,44 @@ unsigned char field_21;
     struct CoordDelta3d velocity;
     // Push when moving; needs to be signed
     short anim_speed;
-    long field_40; // animation time (measured in 1/256 of a frame)
+    long anim_time; // animation time (measured in 1/256 of a frame)
 unsigned short anim_sprite;
     unsigned short sprite_size;
 
-unsigned char field_48;     // current frame
-unsigned char field_49;     // max frames
-    char field_4A;          // thing growth speed (when it is growing/shrinking)
-unsigned short field_4B;    // min_sprite_size
-unsigned short field_4D;    // max_sprite_size
-    unsigned char field_4F;
+unsigned char current_frame;
+unsigned char max_frames;
+    char transformation_speed;
+unsigned short sprite_size_min;
+unsigned short sprite_size_max;
+    unsigned char rendering_flags;
     unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
-unsigned char field_51;   // Tint color (from colours)
+unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;
     unsigned short clipbox_size_yz;
     unsigned short solid_size_xy;
     unsigned short solid_size_yz;
-    short health; //signed
-unsigned short field_60;
+    long health;
+unsigned short floor_height;
     unsigned short light_id;
     short ccontrol_idx;
     unsigned char snd_emitter_id;
     short next_of_class;
     short prev_of_class;
+    unsigned long flags; //ThingAddFlags
+    long last_turn_drawn;
+    float time_spent_displaying_hurt_colour; // Used for delta time interpolated render position
+    unsigned short previous_floor_height;
+    unsigned short interp_floor_height;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long interp_minimap_pos_x;
+    long interp_minimap_pos_y;
+    long previous_minimap_pos_x;
+    long previous_minimap_pos_y;
+    long interp_minimap_update_turn;
+    PlayerNumber holding_player;
 };
 
 #define INVALID_THING (game.things.lookup[0])
@@ -282,15 +294,10 @@ unsigned short field_60;
  */
 #define TRACE_THING(thing)
 
-enum ThingAddFlags
+enum ThingAddFlags //named this way because they were part of the ThingAdd structure
 {
     TAF_ROTATED_SHIFT = 16,
     TAF_ROTATED_MASK = 0x070000,
-};
-
-struct ThingAdd // Additional thing data
-{
-    unsigned long flags; //ThingAddFlags
 };
 
 #pragma pack()
@@ -309,6 +316,7 @@ TbBool thing_exists(const struct Thing *thing);
 short thing_is_invalid(const struct Thing *thing);
 long thing_get_index(const struct Thing *thing);
 
+TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 

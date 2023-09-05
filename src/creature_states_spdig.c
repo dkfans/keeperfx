@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_spdig.h"
 #include "globals.h"
 
@@ -50,6 +51,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "player_instances.h"
+#include "post_inc.h"
 
 const unsigned char reinforce_edges[] = { 3, 0, 0, 3, 0, 1, 2, 2, 1, };
 
@@ -61,6 +63,40 @@ extern "C" {
 }
 #endif
 /******************************************************************************/
+
+TbBool creature_is_doing_digger_activity(const struct Thing* thing)
+{
+    CrtrStateId i = get_creature_state_besides_interruptions(thing);
+    switch (i)
+    {
+        // case CrSt_ImpDoingNothing:
+        case CrSt_ImpArrivesAtDigDirt:
+        case CrSt_ImpArrivesAtMineGold:
+        case CrSt_ImpDigsDirt:
+        case CrSt_ImpMinesGold:
+        case CrSt_ImpDropsGold:
+        case CrSt_ImpLastDidJob:
+        case CrSt_ImpArrivesAtImproveDungeon:
+        case CrSt_ImpImprovesDungeon:
+        case CrSt_ImpToking:
+        case CrSt_ImpPicksUpGoldPile:
+        case CrSt_MoveBackwardsToPosition:
+        case CrSt_CreatureDropBodyInPrison:
+        case CrSt_ImpArrivesAtConvertDungeon:
+        case CrSt_ImpConvertsDungeon:
+        case CrSt_ImpArrivesAtReinforce:
+        case CrSt_ImpReinforces:
+        case CrSt_CreaturePicksUpSpellObject:
+        case CrSt_CreatureDropsSpellObjectInLibrary:
+        case CrSt_CreaturePicksUpCorpse:
+        case CrSt_CreatureDropsCorpseInGraveyard:
+        case CrSt_CreatureGoingToSafetyForToking:
+            return true;
+        default:
+            return false;
+    }
+}
+
 struct Thing *check_for_empty_trap_for_imp(struct Thing *spdigtng, long tngmodel)
 {
     TRACE_THING(spdigtng);
@@ -372,9 +408,8 @@ long check_out_place_for_convert_behind_door(struct Thing *thing, MapSlabCoord s
 
 long check_out_unconverted_drop_place(struct Thing *thing)
 {
-    //return _DK_check_out_unconverted_drop_place(thing);
-    MapSlabCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapSlabCoord slb_y = subtile_slab_fast(thing->mappos.x.stl.num);
+    MapSlabCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapSlabCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
     if (check_place_to_convert_excluding(thing, slb_x, slb_y))
     {
         if (imp_will_soon_be_working_at_excluding(thing, slab_subtile_center(slb_x), slab_subtile_center(slb_y)))
@@ -400,8 +435,8 @@ static TbBool check_out_undug_drop_place(struct Thing *spdigtng)
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
 
-    MapCoord slb_x = subtile_slab_fast(spdigtng->mappos.x.stl.num);
-    MapCoord slb_y = subtile_slab_fast(spdigtng->mappos.y.stl.num);
+    MapCoord slb_x = subtile_slab(spdigtng->mappos.x.stl.num);
+    MapCoord slb_y = subtile_slab(spdigtng->mappos.y.stl.num);
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
     MapSubtlCoord dig_place_stl_x = 0;
@@ -513,8 +548,8 @@ static TbBool check_out_place_for_pretty_behind_door(struct Thing *spdigting, Ma
 
 TbBool check_out_unprettied_drop_place(struct Thing *thing)
 {
-    MapCoord slb_x = subtile_slab_fast(thing->mappos.x.stl.num);
-    MapCoord slb_y = subtile_slab_fast(thing->mappos.y.stl.num);
+    MapCoord slb_x = subtile_slab(thing->mappos.x.stl.num);
+    MapCoord slb_y = subtile_slab(thing->mappos.y.stl.num);
     MapSubtlCoord stl_x = slab_subtile_center(slb_x);
     MapSubtlCoord stl_y = slab_subtile_center(slb_y);
 
@@ -636,8 +671,8 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
     n = reinforce_edges[STL_PER_SLB * (stl_y % STL_PER_SLB) + (stl_x % STL_PER_SLB)];
     for (i=0; i < SMALL_AROUND_LENGTH; i++)
     {
-        slb_x = subtile_slab_fast(stl_x) + (long)small_around[n].delta_x;
-        slb_y = subtile_slab_fast(stl_y) + (long)small_around[n].delta_y;
+        slb_x = subtile_slab(stl_x) + (long)small_around[n].delta_x;
+        slb_y = subtile_slab(stl_y) + (long)small_around[n].delta_y;
         if ( check_place_to_reinforce(thing, slb_x, slb_y) > 0 )
         {
             stl_num = get_subtile_number_at_slab_center(slb_x, slb_y);
@@ -648,7 +683,7 @@ long check_out_unreinforced_drop_place(struct Thing *thing)
 
                     thing->continue_state = CrSt_ImpArrivesAtReinforce;
                     cctrl->digger.working_stl = stl_num;
-                    cctrl->digger.byte_93 = 0;
+                    cctrl->digger.consecutive_reinforcements = 0;
                     SYNCDBG(8,"Assigned reinforce at (%d,%d) to %s index %d",(int)pos_x,(int)pos_y,thing_model_name(thing),(int)thing->index);
                     return 1;
                 }
@@ -794,8 +829,8 @@ short imp_arrives_at_convert_dungeon(struct Thing *thing)
 {
     TRACE_THING(thing);
     if (check_place_to_convert_excluding(thing,
-        subtile_slab_fast(thing->mappos.x.stl.num),
-        subtile_slab_fast(thing->mappos.y.stl.num)) )
+        subtile_slab(thing->mappos.x.stl.num),
+        subtile_slab(thing->mappos.y.stl.num)) )
     {
       internal_set_thing_state(thing, CrSt_ImpConvertsDungeon);
     } else
@@ -845,8 +880,8 @@ short imp_arrives_at_improve_dungeon(struct Thing *spdigtng)
 {
     TRACE_THING(spdigtng);
     if ( check_place_to_pretty_excluding(spdigtng,
-        subtile_slab_fast(spdigtng->mappos.x.stl.num),
-        subtile_slab_fast(spdigtng->mappos.y.stl.num)) )
+        subtile_slab(spdigtng->mappos.x.stl.num),
+        subtile_slab(spdigtng->mappos.y.stl.num)) )
     {
         internal_set_thing_state(spdigtng, CrSt_ImpImprovesDungeon);
     } else
@@ -913,8 +948,8 @@ short imp_converts_dungeon(struct Thing *spdigtng)
     MapSubtlCoord stl_x = spdigtng->mappos.x.stl.num;
     MapSubtlCoord stl_y = spdigtng->mappos.y.stl.num;
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     if ( (stl_x - (MapSubtlDelta)cctrl->moveto_pos.x.stl.num >= 1) || (stl_y - (MapSubtlDelta)cctrl->moveto_pos.y.stl.num >= 1) )
     {
         clear_creature_instance(spdigtng);
@@ -927,7 +962,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
       {
           struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
           struct SlabAttr* slbattr = get_slab_attrs(slb);
-          set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0, 0);
+          set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0);
           // If the area we're converting is an enemy room, issue event to that player
           if (slbattr->category == SlbAtCtg_RoomInterior)
           {
@@ -959,7 +994,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
         return 0;
     }
     if (cctrl->instance_id != CrInst_PRETTY_PATH) {
-        set_creature_instance(spdigtng, CrInst_PRETTY_PATH, 0, 0, 0);
+        set_creature_instance(spdigtng, CrInst_PRETTY_PATH, 0, 0);
     }
     return 1;
 }
@@ -1020,7 +1055,7 @@ short imp_digs_mines(struct Thing *spdigtng)
 
     if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(spdigtng, CrInst_DIG, 0, 0, 0);
+        set_creature_instance(spdigtng, CrInst_DIG, 0, 0);
     }
 
     if (mtask->kind == SDDigTask_MineGold)
@@ -1093,8 +1128,8 @@ short imp_drops_gold(struct Thing *spdigtng)
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 1;
     }
-    MapSubtlCoord center_stl_x = slab_subtile_center(subtile_slab_fast(spdigtng->mappos.x.stl.num));
-    MapSubtlCoord center_stl_y = slab_subtile_center(subtile_slab_fast(spdigtng->mappos.y.stl.num));
+    MapSubtlCoord center_stl_x = slab_subtile_center(subtile_slab(spdigtng->mappos.x.stl.num));
+    MapSubtlCoord center_stl_y = slab_subtile_center(subtile_slab(spdigtng->mappos.y.stl.num));
     struct Room* curoom = subtile_room_get(spdigtng->mappos.x.stl.num, spdigtng->mappos.y.stl.num);
     if (!room_exists(curoom) || (curoom->index != room->index))
     {
@@ -1174,8 +1209,8 @@ short imp_improves_dungeon(struct Thing *spdigtng)
         internal_set_thing_state(spdigtng, CrSt_ImpLastDidJob);
         return 0;
     }
-    long slb_x = subtile_slab_fast(spdigtng->mappos.x.stl.num);
-    long slb_y = subtile_slab_fast(spdigtng->mappos.y.stl.num);
+    long slb_x = subtile_slab(spdigtng->mappos.x.stl.num);
+    long slb_y = subtile_slab(spdigtng->mappos.y.stl.num);
     if (!check_place_to_pretty_excluding(spdigtng, slb_x, slb_y))
     {
         clear_creature_instance(spdigtng);
@@ -1183,7 +1218,7 @@ short imp_improves_dungeon(struct Thing *spdigtng)
         return 0;
     }
     if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(spdigtng, CrInst_PRETTY_PATH, 0, 0, 0);
+        set_creature_instance(spdigtng, CrInst_PRETTY_PATH, 0, 0);
     }
     return 1;
 }
@@ -1277,7 +1312,6 @@ short imp_picks_up_gold_pile(struct Thing *spdigtng)
 short imp_reinforces(struct Thing *thing)
 {
     TRACE_THING(thing);
-    //return _DK_imp_reinforces(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->digger.working_stl);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->digger.working_stl);
@@ -1315,7 +1349,7 @@ short imp_reinforces(struct Thing *thing)
         return 1;
     }
     if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(thing, CrInst_REINFORCE, 0, 0, 0);
+        set_creature_instance(thing, CrInst_REINFORCE, 0, 0);
     }
     return 1;
 }
@@ -1357,9 +1391,9 @@ short imp_toking(struct Thing *creatng)
         if (cctrl->instance_id == CrInst_NULL)
         {
             if ( CREATURE_RANDOM(creatng, 8) )
-                set_creature_instance(creatng, CrInst_RELAXING, 0, 0, 0);
+                set_creature_instance(creatng, CrInst_RELAXING, 0, 0);
             else
-                set_creature_instance(creatng, CrInst_TOKING, 0, 0, 0);
+                set_creature_instance(creatng, CrInst_TOKING, 0, 0);
         }
     }
     if ((cctrl->instance_id == CrInst_TOKING) && (cctrl->inst_turn == cctrl->inst_action_turns))
@@ -1453,7 +1487,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     // Check if the player has means to do such kind of action
      if (!player_has_room_of_role(thing->owner, RoRoF_Prison) || !player_creature_tends_to(thing->owner, CrTend_Imprison))
      {
-         SYNCDBG(19,"Player %d has no %s or has imprison tendency off",(int)thing->owner,room_code_name(RoK_PRISON));
+         SYNCDBG(19,"Player %d has no %s or has imprison tendency off",(int)thing->owner,room_role_code_name(RoRoF_Prison));
          set_start_state(thing);
          return 0;
      }
@@ -1476,7 +1510,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
     }
     if (!find_random_valid_position_for_thing_in_room(thing, dstroom, &pos))
     {
-        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)thing->owner,thing_model_name(picktng),room_code_name(RoK_PRISON));
+        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)thing->owner,thing_model_name(picktng),room_role_code_name(RoRoF_Prison));
         set_start_state(thing);
         return 0;
     }
@@ -1516,7 +1550,7 @@ short creature_picks_up_corpse(struct Thing *creatng)
     }
     if (!find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
-        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)creatng->owner,thing_model_name(picktng),room_code_name(RoK_GRAVEYARD));
+        WARNLOG("Player %d can't pick %s - no position within %s to store it",(int)creatng->owner,thing_model_name(picktng),room_role_code_name(RoRoF_DeadStorage));
         set_start_state(creatng);
         return 0;
     }
@@ -1593,7 +1627,7 @@ short creature_picks_up_crate_for_workshop(struct Thing *creatng)
     struct Room* dstroom = find_nearest_room_of_role_for_thing_with_spare_item_capacity(creatng, creatng->owner, RoRoF_CratesStorage, NavRtF_Default);
     if ( room_is_invalid(dstroom) || !find_random_valid_position_for_thing_in_room_avoiding_object(creatng, dstroom, &pos) )
     {
-        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(cratetng),room_code_name(RoK_WORKSHOP));
+        WARNLOG("Player %d can't pick %s - doesn't have proper %s to store it",(int)creatng->owner,thing_model_name(cratetng),room_role_code_name(RoRoF_CratesStorage));
         set_start_state(creatng);
         return 0;
     }
@@ -1655,12 +1689,14 @@ short creature_picks_up_trap_object(struct Thing *thing)
     SYNCDBG(18,"Moving %s index %d",thing_model_name(thing),(int)thing->index);
     if (room_exists(room))
     {
-        remove_workshop_object_from_workshop(room,cratetng);
-        if (!is_hero_thing(cratetng) && !is_neutral_thing(cratetng))
+        if (remove_workshop_object_from_workshop(room, cratetng))
         {
-            remove_workshop_item_from_amount_stored(cratetng->owner,
-                crate_thing_to_workshop_item_class(cratetng),
-                crate_thing_to_workshop_item_model(cratetng), WrkCrtF_NoOffmap);
+            if (!is_hero_thing(cratetng) && !is_neutral_thing(cratetng))
+            {
+                remove_workshop_item_from_amount_stored(cratetng->owner,
+                    crate_thing_to_workshop_item_class(cratetng),
+                    crate_thing_to_workshop_item_model(cratetng), WrkCrtF_NoOffmap);
+            }
         }
     }
     creature_drag_object(thing, cratetng);
@@ -1685,7 +1721,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     if ( room_is_invalid(room) )
     {
-        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
+        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(deadtng),(int)deadtng->index,room_role_code_name(RoRoF_DeadStorage));
         if (creature_drop_thing_to_another_room(creatng, room, RoRoF_DeadStorage)) {
             creatng->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
@@ -1697,7 +1733,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     if (!room_role_matches(room->kind, RoRoF_DeadStorage) || (room->owner != creatng->owner)
         || (room->used_capacity >= room->total_capacity) )
     {
-        WARNLOG("Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(deadtng),(int)deadtng->index,room_code_name(RoK_GRAVEYARD));
+        WARNLOG("Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(deadtng),(int)deadtng->index,room_role_code_name(RoRoF_DeadStorage));
         if (creature_drop_thing_to_another_room(creatng, room, RoRoF_DeadStorage)) {
             creatng->continue_state = CrSt_CreatureDropsCorpseInGraveyard;
             return 1;
@@ -1736,7 +1772,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     struct Room* room = get_room_thing_is_on(thing);
     if ( room_is_invalid(room) )
     {
-        SYNCDBG(7,"Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
+        SYNCDBG(7,"Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(cratetng),(int)cratetng->index,room_role_code_name(RoRoF_CratesStorage));
         if (creature_drop_thing_to_another_room(thing, room, RoRoF_CratesStorage)) {
             thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
             return 1;
@@ -1747,7 +1783,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     if (!room_role_matches(room->kind, RoRoF_CratesStorage) || (room->owner != thing->owner)
         || (room->used_capacity >= room->total_capacity))
     {
-        SYNCDBG(7,"Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
+        SYNCDBG(7,"Tried to drop %s index %d in %s, but room won't accept it",thing_model_name(cratetng),(int)cratetng->index,room_role_code_name(RoRoF_CratesStorage));
         if (creature_drop_thing_to_another_room(thing, room, RoRoF_CratesStorage)) {
             thing->continue_state = CrSt_CreatureDropsCrateInWorkshop;
             return 1;
@@ -1761,7 +1797,7 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     {
         if (!add_workshop_object_to_workshop(room, cratetng))
         {
-            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(cratetng),(int)cratetng->index,room_code_name(RoK_WORKSHOP));
+            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(cratetng),(int)cratetng->index,room_role_code_name(RoRoF_CratesStorage));
             set_start_state(thing);
             return 1;
         }
@@ -1801,7 +1837,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     struct Room* room = get_room_thing_is_on(creatng);
     if ( room_is_invalid(room) )
     {
-        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
+        WARNLOG("Tried to drop %s index %d in %s, but room no longer exists",thing_model_name(spelltng),(int)spelltng->index,room_role_code_name(RoRoF_PowersStorage));
         if (creature_drop_thing_to_another_room(creatng, room, RoRoF_PowersStorage)) {
             creatng->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;
@@ -1812,7 +1848,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     if (!room_role_matches(room->kind, RoRoF_PowersStorage) || (room->owner != creatng->owner)
         || (room->used_capacity >= room->total_capacity))
     {
-        WARNLOG("Tried to drop %s index %d in %s room, but room won't accept it",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
+        WARNLOG("Tried to drop %s index %d in %s room, but room won't accept it",thing_model_name(spelltng),(int)spelltng->index,room_role_code_name(RoRoF_PowersStorage));
         if (creature_drop_thing_to_another_room(creatng, room, RoRoF_PowersStorage)) {
             creatng->continue_state = CrSt_CreatureDropsSpellObjectInLibrary;
             return 1;
@@ -1826,7 +1862,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     if (thing_is_spellbook(spelltng))
     {
         if (!add_item_to_room_capacity(room, true)) {
-            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(spelltng),(int)spelltng->index,room_code_name(RoK_LIBRARY));
+            WARNLOG("Adding %s index %d to %s room capacity failed",thing_model_name(spelltng),(int)spelltng->index,room_role_code_name(RoRoF_PowersStorage));
             set_start_state(creatng);
             return 1;
         }
@@ -1879,6 +1915,10 @@ short creature_arms_trap(struct Thing *thing)
         return 0;
     }
     rearm_trap(traptng);
+    if (imp_will_soon_be_arming_trap(traptng)) //Another crate is still earmarked for this trap, refund it.
+    {
+        readd_workshop_item_to_amount_placeable(traptng->owner, traptng->class_id, traptng->model);
+    }
     dungeon = get_dungeon(thing->owner);
     dungeon->lvstats.traps_armed++;
     creature_drop_dragged_object(thing, cratetng);

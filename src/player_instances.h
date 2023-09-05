@@ -77,13 +77,14 @@ struct PlayerInstanceInfo { // sizeof = 44
   long field_28;
 };
 
+#define PLAYER_INSTANCES_COUNT 19
+#define PLAYER_INSTANCES_COUNT_OLD 17
+
 /******************************************************************************/
-DLLIMPORT struct PlayerInstanceInfo _DK_player_instance_info[];
-//#define player_instance_info _DK_player_instance_info
 
 #pragma pack()
 /******************************************************************************/
-extern struct PlayerInstanceInfo player_instance_info[];
+extern struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT];
 /******************************************************************************/
 void set_player_instance(struct PlayerInfo *player, long ninum, TbBool force);
 void process_player_instance(struct PlayerInfo *player);

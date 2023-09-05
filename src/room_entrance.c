@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "room_entrance.h"
 
 #include "globals.h"
@@ -33,6 +34,7 @@
 #include "config_terrain.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,7 +48,6 @@ extern "C" {
 /******************************************************************************/
 struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
 {
-    //return _DK_create_creature_at_entrance(room, crtr_kind);
     struct Coord3d pos;
     pos.x.val = room->central_stl_x;
     pos.y.val = room->central_stl_y;
@@ -74,7 +75,7 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     if (room->owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(room->owner);
-        dungeon->lvstats.field_4++;
+        dungeon->lvstats.creatures_attracted++;
         dungeon->lvstats.field_8++;
         dungeon->lvstats.field_88 = crkind;
     }
@@ -121,7 +122,9 @@ TbBool generation_due_for_dungeon(struct Dungeon * dungeon)
 TbBool generation_available_to_dungeon(const struct Dungeon * dungeon)
 {
     SYNCDBG(9,"Starting");
-    if (!dungeon_has_room(dungeon, RoK_ENTRANCE))
+    if (!dungeon_has_room_of_role(dungeon, RoRoF_CrPoolSpawn))
+        return false;
+    if ((game.armageddon.count_down + game.armageddon_cast_turn > game.play_gameturn) && (game.armageddon_cast_turn > 0)) //No new creatures during armageddon
         return false;
     return ((long)dungeon->num_active_creatrs < (long)dungeon->max_creatures_attracted);
 }
@@ -245,9 +248,9 @@ static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dun
 
     long cum_freq = 0;
     long gen_count = 0;
-    long crtr_freq[CREATURE_TYPES_COUNT];
+    long crtr_freq[CREATURE_TYPES_MAX];
     crtr_freq[0] = 0;
-    for (crmodel = 1; crmodel < CREATURE_TYPES_COUNT; crmodel++)
+    for (crmodel = 1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
     {
         if (creature_will_generate_for_dungeon(dungeon, crmodel))
         {
@@ -280,7 +283,7 @@ static int calculate_creature_to_generate_for_dungeon(const struct Dungeon * dun
             while (rnd >= crtr_freq[crmodel])
             {
                 crmodel++;
-                if (crmodel >= CREATURE_TYPES_COUNT) {
+                if (crmodel >= gameadd.crtr_conf.model_count) {
                     ERRORLOG("Internal problem; got outside of cummulative range.");
                     return 0;
                 }
@@ -340,15 +343,18 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
         {
             SYNCDBG(8,"The %s will come to player %d even though lair is full",creature_code_name(crmodel),(int)dungeon->owner);
             generate_creature_at_random_entrance(dungeon, crmodel);
-
-            if (dungeon_has_room(dungeon, RoK_LAIR))
+            RoomKind rkind = find_first_available_roomkind_with_role(dungeon->owner,RoRoF_LairStorage);
+            if (rkind == RoK_NONE)
             {
-                event_create_event_or_update_nearby_existing_event(0, 0,
-                    EvKind_NoMoreLivingSet, dungeon->owner, 0);
-                output_message_room_related_from_computer_or_player_action(dungeon->owner, RoK_LAIR, OMsg_RoomTooSmall);
+                rkind = find_first_roomkind_with_role(RoRoF_LairStorage);
+            }
+            if (dungeon_has_room_of_role(dungeon, RoRoF_LairStorage))
+            {
+                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NoMoreLivingSet, dungeon->owner, 0);
+                output_message_room_related_from_computer_or_player_action(dungeon->owner, rkind, OMsg_RoomTooSmall);
             } else
             {
-                output_message_room_related_from_computer_or_player_action(dungeon->owner, RoK_LAIR, OMsg_RoomNeeded);
+                output_message_room_related_from_computer_or_player_action(dungeon->owner, rkind, OMsg_RoomNeeded);
             }
         } else
         {
@@ -363,7 +369,6 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
 void process_entrance_generation(void)
 {
     SYNCDBG(8,"Starting");
-    //_DK_process_entrance_generation();
 
     if (generation_due_in_game())
     {
@@ -399,7 +404,7 @@ TbBool update_creature_pool_state(void)
 {
     int i;
     game.pool.is_empty = true;
-    for (i=1; i < CREATURE_TYPES_COUNT; i++)
+    for (i=1; i < gameadd.crtr_conf.model_count; i++)
     {
         if (game.pool.crtr_kind[i] > 0)
         { game.pool.is_empty = false; break; }
@@ -410,7 +415,7 @@ TbBool update_creature_pool_state(void)
 void add_creature_to_pool(long kind, long amount, unsigned long a3)
 {
     long prev_amount;
-    kind %= CREATURE_TYPES_COUNT;
+    kind %= gameadd.crtr_conf.model_count;
     prev_amount = game.pool.crtr_kind[kind];
     if ((a3 == 0) || (prev_amount != -1))
     {

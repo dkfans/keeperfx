@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include "actionpt.h"
 #include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
@@ -41,17 +42,20 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define MESSAGE_TEXT_LEN           1024
-#define QUICK_MESSAGES_COUNT         50
+#define QUICK_MESSAGES_COUNT        256
 #define BONUS_LEVEL_STORAGE_COUNT     6
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
 #define TRANSFER_CREATURE_STORAGE_COUNT     255
 
+#define AROUND_MAP_LENGTH 9
+#define AROUND_SLAB_LENGTH 9
+#define AROUND_SLAB_EIGHT_LENGTH 8
+#define SMALL_AROUND_SLAB_LENGTH 4
+
 // UNSYNC_RANDOM is not synced at all. For synced choices the more specific random is better.
 // So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
 
-// Deprecated. Used only once. Maybe it is sound-specific UNSYNC_RANDOM
-#define SOUND_RANDOM(range) LbRandomSeries(range, &sound_seed, __func__, __LINE__, "sound")
 // Used only once. Maybe it is light-specific UNSYNC_RANDOM
 #define LIGHT_RANDOM(range) LbRandomSeries(range, &game.lish.light_rand_seed, __func__, __LINE__, "light")
 // This RNG should not be used to affect anything related affecting game state
@@ -91,20 +95,22 @@ enum GameGUIFlags {
 };
 
 enum ClassicBugFlags {
-    ClscBug_None                   = 0x0000,
-    ClscBug_ResurrectForever       = 0x0001,
-    ClscBug_Overflow8bitVal        = 0x0002,
-    ClscBug_ClaimRoomAllThings     = 0x0004,
-    ClscBug_ResurrectRemoved       = 0x0008,
-    ClscBug_NoHandPurgeOnDefeat    = 0x0010,
-    ClscBug_MustObeyKeepsNotDoJobs = 0x0020,
-    ClscBug_BreakNeutralWalls      = 0x0040,
-    ClscBug_AlwaysTunnelToRed      = 0x0080,
-    ClscBug_FullyHappyWithGold     = 0x0100,
-    ClscBug_FaintedImmuneToBoulder = 0x0200,
-    ClscBug_RebirthKeepsSpells     = 0x0400,
-    ClscBug_FriendlyFaint          = 0x0800,
-    ClscBug_PassiveNeutrals        = 0x1000,
+    ClscBug_None                          = 0x0000,
+    ClscBug_ResurrectForever              = 0x0001,
+    ClscBug_Overflow8bitVal               = 0x0002,
+    ClscBug_ClaimRoomAllThings            = 0x0004,
+    ClscBug_ResurrectRemoved              = 0x0008,
+    ClscBug_NoHandPurgeOnDefeat           = 0x0010,
+    ClscBug_MustObeyKeepsNotDoJobs        = 0x0020,
+    ClscBug_BreakNeutralWalls             = 0x0040,
+    ClscBug_AlwaysTunnelToRed             = 0x0080,
+    ClscBug_FullyHappyWithGold            = 0x0100,
+    ClscBug_FaintedImmuneToBoulder        = 0x0200,
+    ClscBug_RebirthKeepsSpells            = 0x0400,
+    ClscBug_FriendlyFaint                 = 0x0800,
+    ClscBug_PassiveNeutrals               = 0x1000,
+    ClscBug_NeutralTortureConverts        = 0x2000,
+    ClscBug_ListEnd                       = 0x4000,
 };
 
 enum GameFlags2 {
@@ -185,8 +191,6 @@ struct GameAdd {
     unsigned long gold_per_hoard;
     struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
-#define TRAPDOOR_TYPES_MAX 128
-
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
@@ -201,9 +205,8 @@ struct GameAdd {
     struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
     int                   active_fx_lines;
 
+    struct ActionPoint action_points[ACTN_POINTS_COUNT];
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
-
-    struct ThingAdd things[THINGS_COUNT];
 
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
@@ -223,8 +226,26 @@ struct GameAdd {
     TbBool heart_lost_quick_message;
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
-    unsigned char slab_ext_data[85 * 85];
+    unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
+    unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
     struct PlayerInfoAdd players[PLAYERS_COUNT];
+    float delta_time;
+    long double process_turn_time;
+    float flash_button_time;
+    TbBool allies_share_vision;
+    TbBool allies_share_drop;
+    TbBool allies_share_cta;
+    MapSubtlCoord map_subtiles_x;
+    MapSubtlCoord map_subtiles_y;
+    MapSlabCoord map_tiles_x;
+    MapSlabCoord map_tiles_y;
+    long navigation_map_size_x;
+    long navigation_map_size_y;
+    short around_map[AROUND_MAP_LENGTH];
+    short around_slab[AROUND_SLAB_LENGTH];
+    short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
+    short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
+    unsigned char max_things_in_hand;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
@@ -249,8 +270,6 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 /******************************************************************************/
-
-struct ThingAdd *get_thingadd(Thingid thing_idx);
 
 #ifdef __cplusplus
 }

@@ -11,6 +11,8 @@
 /tools/po2ngdat
 /tools/rnctools
 /tools/sndbanker
+/config/fxdata/*.dat
+/config/fxdata/*.fon
 .vs/
 build*/
 *.cache
@@ -19,6 +21,7 @@ build*/
 docs/html
 docs/latex
 *.o
-*.Po
 *.d
 *.Tpo
+res/keeperfx_icon.ico
+.header_checksum

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_pray.h"
 #include "globals.h"
 
@@ -41,6 +42,7 @@
 #include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -74,7 +76,7 @@ CrStateRet process_temple_visuals(struct Thing *creatng, struct Room *room)
     if (turns_in_temple < 120 + 50)
     {
         // Then celebrate for 50 turns
-        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
     } else
     {
         // Then start from the beginning
@@ -194,9 +196,9 @@ TbBool summon_creature(long model, struct Coord3d *pos, long owner, long expleve
     }
     init_creature_level(thing, explevel);
     internal_set_thing_state(thing, CrSt_CreatureBeingSummoned);
-    thing->movement_flags |= TMvF_Unknown04;
+    thing->movement_flags |= TMvF_BeingSacrificed;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->word_9C = 48;
+    cctrl->sacrifice.word_9C = 48;
     return true;
 }
 
@@ -257,16 +259,27 @@ long force_complete_current_manufacturing(long plyr_idx)
     return 0;
 }
 
-void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long spl_idx, long overchrg)
+void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long crmodel, long spl_idx, long overchrg)
 {
-    //_DK_apply_spell_effect_to_players_creatures(plyr_idx, spl_idx, overchrg);
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
-    int i = dungeon->creatr_list_start;
+
+    TbBool need_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
+    struct Thing* thing = INVALID_THING;
+    int i;
+    if ((!need_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
+    {
+        i = dungeon->creatr_list_start;
+    }
+    else
+    {
+        i = dungeon->digger_list_start;
+    }
+
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        thing = thing_get(i);
         TRACE_THING(thing);
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
@@ -276,7 +289,10 @@ void apply_spell_effect_to_players_creatures(PlayerNumber plyr_idx, long spl_idx
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        apply_spell_effect_to_thing(thing, spl_idx, overchrg);
+        if (creature_matches_model(thing,crmodel))
+        {      
+            apply_spell_effect_to_thing(thing, spl_idx, overchrg);
+        }
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -301,7 +317,6 @@ TbBool kill_creature_if_under_chicken_spell(struct Thing *thing)
 
 void kill_all_players_chickens(PlayerNumber plyr_idx)
 {
-    //_DK_kill_all_players_chickens(plyr_idx);
     SYNCDBG(18,"Starting");
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
     unsigned long k = 0;
@@ -344,19 +359,19 @@ short creature_being_summoned(struct Thing *thing)
     if (creature_control_invalid(cctrl)) {
         return 0;
     }
-    if (cctrl->word_9A <= 0)
+    if (cctrl->sacrifice.word_9A <= 0)
     {
-        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->field_48, &orig_w, &orig_h, &unsc_w, &unsc_h);
+        get_keepsprite_unscaled_dimensions(thing->anim_sprite, thing->move_angle_xy, thing->current_frame, &orig_w, &orig_h, &unsc_w, &unsc_h);
         create_effect(&thing->mappos, TngEff_Explosion4, thing->owner);
-        thing->movement_flags |= TMvF_Unknown04;
-        cctrl->word_9A = 1;
-        cctrl->word_9C = 48;//orig_h;
+        thing->movement_flags |= TMvF_BeingSacrificed;
+        cctrl->sacrifice.word_9A = 1;
+        cctrl->sacrifice.word_9C = 48;//orig_h;
         return 0;
     }
-    cctrl->word_9A++;
-    if (cctrl->word_9A > cctrl->word_9C)
+    cctrl->sacrifice.word_9A++;
+    if (cctrl->sacrifice.word_9A > cctrl->sacrifice.word_9C)
     {
-        thing->movement_flags &= ~TMvF_Unknown04;
+        thing->movement_flags &= ~TMvF_BeingSacrificed;
         set_start_state(thing);
         return 0;
     }
@@ -369,7 +384,7 @@ short cleanup_sacrifice(struct Thing *creatng)
 {
     // If the creature has flight ability, return it to flying state
     restore_creature_flight_flag(creatng);
-    creatng->movement_flags &= ~TMvF_Unknown04;
+    creatng->movement_flags &= ~TMvF_BeingSacrificed;
     return 1;
 }
 
@@ -460,13 +475,14 @@ long sacrifice_victim_model_count(struct SacrificeRecipe *sac, long model)
 TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct SacrificeRecipe *sac)
 {
     // Some models may be checked more than once; dut we don't really care...
+    // Some models may be checked more than once; but we don't really care...
     for (long i = 0; i < MAX_SACRIFICE_VICTIMS; i++)
     {
         long model = sac->victims[i];
         if (model < 1)
             continue;
         long required = sacrifice_victim_model_count(sac, model);
-        SYNCDBG(6, "Model %d exists %d times", (int)model, (int)required);
+        SYNCDBG(6, "Model %d (%s) exists %d times", (int)model, creature_code_name(model), (int)required);
         if (dungeon->creature_sacrifice[model] < required)
             return false;
   }
@@ -528,12 +544,12 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
             break;
         case SacA_NegSpellAll:
             if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
-            apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
+            apply_spell_effect_to_players_creatures(plyr_idx, CREATURE_NOT_A_DIGGER, sac->param, explevel);
             ret = SacR_Punished;
             break;
         case SacA_PosSpellAll:
             if (explevel > SPELL_MAX_LEVEL) explevel = SPELL_MAX_LEVEL;
-            apply_spell_effect_to_players_creatures(plyr_idx, sac->param, explevel);
+            apply_spell_effect_to_players_creatures(plyr_idx, CREATURE_NOT_A_DIGGER, sac->param, explevel);
             ret = SacR_Awarded;
             break;
         case SacA_NegUniqFunc:
@@ -613,8 +629,8 @@ short creature_being_sacrificed(struct Thing *thing)
     SYNCDBG(6,"Starting");
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->word_9A--;
-    if (cctrl->word_9A > 0)
+    cctrl->sacrifice.word_9A--;
+    if (cctrl->sacrifice.word_9A > 0)
     {
         // No flying while being sacrificed
         creature_turn_to_face_angle(thing, thing->move_angle_xy + LbFPMath_PI/4);
@@ -640,7 +656,6 @@ short creature_being_sacrificed(struct Thing *thing)
 // This is state-process function of a creature
 short creature_sacrifice(struct Thing *thing)
 {
-    //return _DK_creature_sacrifice(thing);
     if ((thing->movement_flags & TMvF_Flying) != 0) {
         thing->movement_flags &= ~TMvF_Flying;
     }
@@ -661,9 +676,9 @@ short creature_sacrifice(struct Thing *thing)
     }
     if (thing_touching_floor(thing))
     {
-        cctrl->word_9A = 48;
-        cctrl->word_9C = 48;
-        thing->movement_flags |= TMvF_Unknown04;
+        cctrl->sacrifice.word_9A = 48;
+        cctrl->sacrifice.word_9C = 48;
+        thing->movement_flags |= TMvF_BeingSacrificed;
         internal_set_thing_state(thing, CrSt_CreatureBeingSacrificed);
         thing->creature.gold_carried = 0;
         struct SlabMap* slb = get_slabmap_thing_is_on(thing);
@@ -718,31 +733,38 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
     long max_value = 0;
     struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
 
-    int k = 0, i = dungeonadd->room_kind[RoK_TEMPLE];
-    while (i != 0)
+
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = room_get(i);
-        if (room_is_invalid(room))
+        if(room_role_matches(rkind,RoRoF_CrPoolSpawn))
         {
-            ERRORLOG("Jump to invalid room detected");
-            break;
-        }
-        i = room->next_of_owner;
-        // Per-room code
-        if (find_random_sacrifice_center(pos, room))
-        {
-            if (max_value < room->total_capacity)
+            int k = 0, i = dungeonadd->room_kind[rkind];
+            while (i != 0)
             {
-                max_value = room->total_capacity;
-                best_room = room;
+                struct Room* room = room_get(i);
+                if (room_is_invalid(room))
+                {
+                    ERRORLOG("Jump to invalid room detected");
+                    break;
+                }
+                i = room->next_of_owner;
+                // Per-room code
+                if (find_random_sacrifice_center(pos, room))
+                {
+                    if (max_value < room->total_capacity)
+                    {
+                        max_value = room->total_capacity;
+                        best_room = room;
+                    }
+                }
+                // Per-room code ends
+                k++;
+                if (k > ROOMS_COUNT)
+                {
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
+                }
             }
-        }
-        // Per-room code ends
-        k++;
-        if (k > ROOMS_COUNT)
-        {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
         }
     }
 

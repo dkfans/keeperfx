@@ -1,3 +1,17 @@
+/******************************************************************************/
+// Free implementation of Bullfrog's Dungeon Keeper strategy game.
+/******************************************************************************/
+/** @file main_game.c
+ * @author KeeperFX Team
+ * @date 24 Sep 2021
+ * @par  Copying and copyrights:
+ *     This program is free software; you can redistribute it and/or modify
+ *     it under the terms of the GNU General Public License as published by
+ *     the Free Software Foundation; either version 2 of the License, or
+ *     (at your option) any later version.
+ */
+/******************************************************************************/
+#include "pre_inc.h"
 #include "keeperfx.hpp"
 
 #include "bflib_coroutine.h"
@@ -7,6 +21,7 @@
 #include "bflib_sound.h"
 
 #include "config_compp.h"
+#include "config_settings.h"
 #include "dungeon_data.h"
 #include "engine_lenses.h"
 #include "engine_redraw.h"
@@ -24,11 +39,13 @@
 #include "room_library.h"
 #include "room_list.h"
 #include "power_specials.h"
+#include "player_data.h"
 #include "player_utils.h"
 #include "vidfade.h"
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
+#include "post_inc.h"
 
 extern TbBool force_player_num;
 
@@ -109,12 +126,10 @@ static void init_level(void)
 {
     SYNCDBG(6,"Starting");
     struct IntralevelData transfer_mem;
-    //_DK_init_level(); return;
     //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
     set_flag_byte(&game.system_flags, GSF_RunAfterVictory, false);
-    game.action_rand_seed = 1;
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
@@ -144,31 +159,28 @@ static void init_level(void)
 
     erstats_clear();
     init_dungeons();
-    // Load the actual level files
-    preload_script(get_selected_level_number());
-    load_map_file(get_selected_level_number());
-
-    init_navigation();
+    init_map_size(get_selected_level_number());
     clear_messages();
-    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
-#ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
+    init_seeds();
+    // Load the actual level files
+    TbBool script_preloaded = preload_script(get_selected_level_number());
+    if (!load_map_file(get_selected_level_number()))
     {
-      game.action_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
+        // TODO: whine about missing file to screen
+        JUSTMSG("Unable to load level %d from %s", get_selected_level_number(), campaign.name);
+        return;
     }
     else
-#else
-    // Initialize unsynchronized random seed (the value may be different
-    // on computers in MP, as it shouldn't affect game actions)
-    game.unsync_rand_seed = (unsigned long)LbTimeSec();
-#endif
-    if (!SoundDisabled)
     {
-        game.field_14BB54 = (UNSYNC_RANDOM(67) % 3 + 1);
-        game.field_14BB55 = 0;
+        if (script_preloaded == false)
+        {
+            show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), get_selected_level_number());
+            JUSTMSG("Unable to load script level %d from %s", get_selected_level_number(), campaign.name);
+        }
     }
+
+    init_navigation();
+    LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     light_set_lights_on(1);
     {
         struct PlayerInfo *player;
@@ -183,7 +195,7 @@ static void init_level(void)
     ambient_sound_prepare();
     zero_messages();
     game.armageddon_cast_turn = 0;
-    game.armageddon_field_15035A = 0;
+    game.armageddon_over_turn = 0;
     init_messages();
     game.creatures_tend_imprison = 0;
     game.creatures_tend_flee = 0;
@@ -262,6 +274,8 @@ void startup_saved_packet_game(void)
         my_player_number = 0;
     else
         my_player_number = game.local_plyr_idx;
+    settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
+    settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
@@ -272,11 +286,8 @@ void startup_saved_packet_game(void)
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
-    if (is_key_pressed(KC_LALT, KMod_NONE))
-    {
-        struct PlayerInfo* player = get_my_player();
-        set_engine_view(player, PVM_FrontView);
-    }
+    struct PlayerInfo* player = get_my_player();
+    set_engine_view(player, rotate_mode_to_view_mode(game.packet_save_head.video_rotate_mode));
 }
 
 static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
@@ -284,7 +295,6 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
-    //_DK_startup_network_game(); return;
     unsigned int flgmem;
     struct PlayerInfo *player;
     setup_count_players();
@@ -312,6 +322,12 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     {
         game.game_kind = GKind_MultiGame;
         init_players_network_game(context);
+
+        // Fix desyncs when two players have a different zoom distance cfg setting
+        // This temporary solution just disregards their cfg value and sets it here
+        int max_zoom_in_multiplayer = 60;
+        zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
+        frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
     }
     setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};
@@ -390,7 +406,6 @@ void clear_complete_game(void)
     game.turns_packetoff = -1;
     game.local_plyr_idx = default_loc_player;
     game.packet_checksum_verify = start_params.packet_checksum_verify;
-    game.numfield_1503A2 = -1;
     game.flags_font = start_params.flags_font;
     game.numfield_149F47 = 0;
     // Set levels to 0, as we may not have the campaign loaded yet
@@ -405,8 +420,32 @@ void clear_complete_game(void)
     set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
     gameadd.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
-    strncpy(game.packet_fname,start_params.packet_fname,150);
+    snprintf(game.packet_fname,150, "%s", start_params.packet_fname);
     game.packet_save_enable = start_params.packet_save_enable;
     game.packet_load_enable = start_params.packet_load_enable;
     my_player_number = default_loc_player;
+}
+
+void init_seeds()
+{
+    #ifdef AUTOTESTING
+    if (start_params.autotest_flags & ATF_FixedSeed)
+    {
+      game.action_rand_seed = 1;
+      game.unsync_rand_seed = 1;
+      srand(1);
+    }
+    else
+#endif
+    {
+        // Initialize random seeds (the value may be different
+        // on computers in MP, as it shouldn't affect game actions)
+        game.unsync_rand_seed = (unsigned long)LbTimeSec();
+        game.action_rand_seed = (game.packet_save_head.action_seed != 0) ? game.packet_save_head.action_seed : game.unsync_rand_seed;
+        if ((game.system_flags & GSF_NetworkActive) != 0)
+        {
+            init_network_seed();
+        }
+        start_seed = game.action_rand_seed;
+    }
 }

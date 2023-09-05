@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne_naviheap.h"
 
 #include "globals.h"
@@ -23,15 +24,14 @@
 #include "ariadne_tringls.h"
 #include "ariadne_navitree.h"
 #include "gui_topmsg.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_heap_end;
-#define heap_end _DK_heap_end
-DLLIMPORT long _DK_Heap[PATH_HEAP_LEN];
-#define Heap _DK_Heap
+static long heap_end;
+static long Heap[PATH_HEAP_LEN];
 /******************************************************************************/
 /** Initializes navigation heap for new use.
  */

@@ -30,8 +30,6 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-#define POLY_SCANS_COUNT 576
-
 enum VecModes {
     VM_Unknown0 = 0,
     VM_Unknown1,
@@ -64,12 +62,13 @@ enum VecModes {
 };
 
 
-struct PolyPoint { // sizeof = 20
-  long field_0; // "view_width"?
-  long field_4; // "view_height"?
-  long field_8; // frustum culling?
-  long field_C; // distance?
-  long field_10; // lighting?
+// These are used "per screen row"
+struct PolyPoint {
+    long X; // Horizontal coordinate within screen buffer
+    long Y; // Vertical coordinate within screen buffer
+    long U; // Texture UV mapping, U coordinate
+    long V; // Texture UV mapping, V coordinate
+    long S; // Shininess / brightness of the point
 };
 
 struct GtBlock { // sizeof = 48
@@ -88,10 +87,6 @@ struct GtBlock { // sizeof = 48
 };
 
 /******************************************************************************/
-DLLIMPORT unsigned char _DK_vec_mode;
-//#define vec_mode _DK_vec_mode
-DLLIMPORT unsigned char _DK_vec_colour;
-//#define vec_colour _DK_vec_colour
 
 #pragma pack()
 /******************************************************************************/
@@ -100,7 +95,7 @@ extern unsigned char vec_mode;
 extern unsigned char *render_fade_tables;
 extern unsigned char *render_ghost;
 extern unsigned char *render_alpha;
-extern struct PolyPoint polyscans[2*POLY_SCANS_COUNT];
+extern struct PolyPoint *polyscans;
 // Rename pending for these entries
 extern unsigned char *LOC_poly_screen;
 extern unsigned char *LOC_vec_map;
@@ -120,6 +115,9 @@ void gtblock_draw(struct GtBlock *gtb);
 /******************************************************************************/
 void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c);
 /******************************************************************************/
+void setup_bflib_render(long width, long height);
+void finish_bflib_render();
+
 #ifdef __cplusplus
 }
 #endif

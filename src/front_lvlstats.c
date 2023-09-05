@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_lvlstats.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -41,22 +42,20 @@
 #include "room_list.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "sprites.h"
 
 #include "keeperfx.hpp"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-//DLLIMPORT extern struct StatsData _DK_scrolling_stats_data[];
-//#define scrolling_stats_data _DK_scrolling_stats_data
-DLLIMPORT extern struct LevelStats _DK_frontstats_data;
-#define frontstats_data _DK_frontstats_data
-DLLIMPORT extern TbClockMSec _DK_frontstats_timer;
-#define frontstats_timer _DK_frontstats_timer
-/******************************************************************************/
+extern struct LevelStats frontstats_data;
 extern struct StatsData main_stats_data[];
 extern struct StatsData scrolling_stats_data[];
+/******************************************************************************/
+static TbClockMSec frontstats_timer;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -71,7 +70,7 @@ long calculate_efficiency(PlayerNumber plyr_idx)
     long count = 0;
     long efficiency = 0;
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         long i = dungeonadd->room_kind[rkind];
         unsigned long k = 0;
@@ -106,7 +105,7 @@ long calculate_style(long plyr_idx)
     long area = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         long i = dungeonadd->room_kind[rkind];
         unsigned long k = 0;
@@ -232,7 +231,7 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
     {
         int border;
         {
-            struct TbSprite* spr = &frontend_sprite[25];
+            struct TbSprite* spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
             border = spr->SWidth * fs_units_per_px / 16;
         }
         LbTextSetWindow(pos_x + border, pos_y, gbtn->width - 2 * border, ln_height);
@@ -250,10 +249,10 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
         }
         if ( (timer_enabled()) && (stat->name_stridx == 1746) && (!TimerGame) )
         {
-            LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld:%03ld", Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);       
+            LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld:%03ld", Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         else
-        {    
+        {
             LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%d", stat_val);
         }
         pos_y += ln_height + 1 * units_per_pixel / 16;
@@ -266,7 +265,7 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
     draw_scroll_box(gbtn, fs_units_per_px, 5);
     LbTextSetFont(frontend_font[1]);
     {
-        struct TbSprite* spr = &frontend_sprite[25];
+        struct TbSprite* spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
         LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + (spr->SHeight-7) * fs_units_per_px / 16,
           gbtn->width - 2 * (spr->SWidth * fs_units_per_px / 16), gbtn->height + 2 * (8 - spr->SHeight) * fs_units_per_px / 16);
     }

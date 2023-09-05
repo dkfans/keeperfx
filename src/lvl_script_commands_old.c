@@ -13,9 +13,8 @@
  * @author   KeeperFX Team
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "lvl_script_commands_old.h"
-
-#include <strings.h>
 
 #include "bflib_math.h"
 #include "config_strings.h"
@@ -33,6 +32,7 @@
 #include "lvl_script_lib.h"
 #include "lvl_script_conditions.h"
 #include "lvl_script_commands.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,6 +70,12 @@ const struct NamedCommand game_rule_desc[] = {
   {"FoodHealthGain",                26},
   {"TortureHealthLoss",             27},
   {"GameTurnsPerTortureHealthLoss", 28},
+  {"AlliesShareVision",             29},
+  {"AlliesShareDrop",               30},
+  {"AlliesShareCta",                31},
+  {"BarrackMaxPartySize",           32},
+  {"MaxThingsInHand",               33},
+  {"TrainingRoomMaxLevel",          34},
   {NULL,                             0},
 };
 
@@ -681,7 +687,7 @@ static void command_set_creature_max_level(long plr_range_id, const char *crtr_n
         SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
         return;
   }
-  if ((crtr_level < 1) || (crtr_level > CREATURE_MAX_LEVEL))
+  if ((crtr_level < 0) || (crtr_level > CREATURE_MAX_LEVEL))
   {
     SCRPTERRLOG("Invalid '%s' experience level, %d", crtr_name, crtr_level);
   }
@@ -1049,8 +1055,7 @@ static void command_quick_objective(int idx, const char *msgtext, const char *wh
   {
       SCRPTWRNLOG("Quick Objective no %d overwritten by different text", idx);
   }
-  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
+  snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
   if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_OBJECTIVE, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
@@ -1072,22 +1077,10 @@ static void command_quick_information(int idx, const char *msgtext, const char *
   {
       SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
   }
-  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
+  snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
   if (!get_map_location_id(where, &location))
     return;
   command_add_value(Cmd_QUICK_INFORMATION, ALL_PLAYERS, idx, location, get_subtile_number(x,y));
-}
-
-static void command_play_message(long plr_range_id, const char *msgtype, int msg_num)
-{
-    long msgtype_id = get_id(msgtype_desc, msgtype);
-    if (msgtype_id == -1)
-    {
-        SCRPTERRLOG("Unrecognized message type, '%s'", msgtype);
-        return;
-  }
-  command_add_value(Cmd_PLAY_MESSAGE, plr_range_id, msgtype_id, msg_num, 0);
 }
 
 static void command_add_gold_to_player(long plr_range_id, long amount)
@@ -1148,8 +1141,7 @@ static void command_quick_message(int idx, const char *msgtext, const char *rang
   {
       SCRPTWRNLOG("Quick Message no %d overwritten by different text", idx);
   }
-  strncpy(gameadd.quick_messages[idx], msgtext, MESSAGE_TEXT_LEN-1);
-  gameadd.quick_messages[idx][MESSAGE_TEXT_LEN-1] = '\0';
+  snprintf(gameadd.quick_messages[idx], MESSAGE_TEXT_LEN, "%s", msgtext);
   char id = get_player_number_from_value(range_id);
   command_add_value(Cmd_QUICK_MESSAGE, 0, id, idx, 0);
 }
@@ -1214,32 +1206,24 @@ static void command_kill_creature(long plr_range_id, const char *crtr_name, cons
 static void command_level_up_creature(long plr_range_id, const char *crtr_name, const char *criteria, int count)
 {
     SCRIPTDBG(11, "Starting");
-    if (count <= 0)
+    if (count == 0)
     {
         SCRPTERRLOG("Bad count, %d", count);
         return;
-  }
-  long crtr_id = parse_creature_name(crtr_name);
-  if (crtr_id == CREATURE_NONE)
-  {
-    SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-    return;
-  }
-  long select_id = parse_criteria(criteria);
-  if (select_id == -1) {
-    SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
-    return;
-  }
-  if (count < 1)
-  {
-    SCRPTERRLOG("Parameter has no positive value; discarding command");
-    return;
-  }
-  if (count > 9)
-  {
-      count = 9;
-  }
-  command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
+    }
+    long crtr_id = parse_creature_name(crtr_name);
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
+        return;
+    }
+    long select_id = parse_criteria(criteria);
+    if (select_id == -1) 
+    {
+        SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
+        return;
+    }
+    command_add_value(Cmd_LEVEL_UP_CREATURE, plr_range_id, crtr_id, select_id, count);
 }
 
 static void command_use_power_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, long caster_plyr_idx, const char *magname, int splevel, char free)
@@ -1857,9 +1841,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_MESSAGE:
         command_message(scline->tp[0],68);
-        break;
-    case Cmd_PLAY_MESSAGE:
-        command_play_message(scline->np[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_ADD_GOLD_TO_PLAYER:
         command_add_gold_to_player(scline->np[0], scline->np[1]);

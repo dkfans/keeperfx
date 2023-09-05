@@ -18,18 +18,26 @@
  */
 /******************************************************************************/
 #define INTERNAL
+#include "pre_inc.h"
 #include "bflib_dernc.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <io.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <sys/stat.h>
+#ifdef _WIN32
+#include <winsock.h>
+#else
+#include <arpa/inet.h>
+#endif
 
 #include "bflib_basics.h"
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "globals.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,6 +56,17 @@ typedef struct {
     int value;
     } table[32];
 } huf_table;
+
+#pragma pack(1)
+typedef struct {
+    uint32_t signature;
+    uint32_t unpacked_size;
+    uint32_t packed_size;
+    uint16_t unpacked_crc32;
+    uint16_t packed_crc32;
+    uint16_t unknown;
+} rnc_header;
+#pragma pack()
 
 static void read_huftable (huf_table *h, bit_stream *bs,
                    unsigned char **p, unsigned char *pend);
@@ -94,35 +113,47 @@ const char *rnc_error (long errcode) {
 // If COMPRESSOR is defined, it also returns the leeway number
 // (which gets stored at offset 16 into the compressed-file header)
 // in `*leeway', if `leeway' isn't NULL.
-long rnc_unpack (void *packed, void *unpacked, unsigned int flags
+long rnc_unpack (const void *packed, void *unpacked, unsigned int flags
 #ifdef COMPRESSOR
          , long *leeway
 #endif
          )
 {
-    unsigned char *input = (unsigned char *)packed;
+    rnc_header header;
+    unsigned char *input = ((unsigned char *)packed) + RNC_HEADER_LEN;
     unsigned char *output = (unsigned char *)unpacked;
 #ifdef COMPRESSOR
     long lee = 0;
 #endif
-    if (blong(input) != RNC_SIGNATURE)
-        if (!(flags&RNC_IGNORE_HEADER_VAL_ERROR)) return RNC_HEADER_VAL_ERROR;
-    unsigned long ret_len = blong(input + 4);
-    unsigned long inp_len = blong(input + 8);
-    if ((ret_len>(1<<30))||(inp_len>(1<<30)))
+
+    memcpy(&header, packed, sizeof(header));
+
+    if (header.signature != RNC_SIGNATURE) {
+        if (!(flags & RNC_IGNORE_HEADER_VAL_ERROR)) {
+            return RNC_HEADER_VAL_ERROR;
+        }
+    }
+
+    // flip big-endian values
+    header.packed_size = ntohl(header.packed_size);
+    header.packed_crc32 = ntohs(header.packed_crc32);
+    header.unpacked_size = ntohl(header.unpacked_size);
+    header.unpacked_crc32 = ntohs(header.unpacked_crc32);
+
+    if ((header.unpacked_size>(1<<30))||(header.packed_size>(1<<30))) {
         return RNC_HEADER_VAL_ERROR;
-
-    unsigned char* outputend = output + ret_len;
-    unsigned char* inputend = input + 18 + inp_len;
-
-    input += 18;               // skip header
+    }
+    unsigned char* outputend = output + header.unpacked_size;
+    unsigned char* inputend = input + header.packed_size;
 
     // Check the packed-data CRC. Also save the unpacked-data CRC
     // for later.
 
-    if (rnc_crc(input, inputend-input) != (long)bword(input-4))
-        if (!(flags&RNC_IGNORE_PACKED_CRC_ERROR)) return RNC_PACKED_CRC_ERROR;
-    long out_crc = bword(input - 6);
+    if (rnc_crc(input, header.packed_size) != header.packed_crc32) {
+        if (!(flags & RNC_IGNORE_PACKED_CRC_ERROR)) {
+            return RNC_PACKED_CRC_ERROR;
+        }
+    }
 
     bit_stream bs;
     bitread_init(&bs, &input, inputend);
@@ -237,13 +268,13 @@ long rnc_unpack (void *packed, void *unpacked, unsigned int flags
 
     // Check the unpacked-data CRC.
 
-    if (rnc_crc(outputend-ret_len, ret_len) != out_crc)
+    if (rnc_crc(unpacked, header.unpacked_size) != header.unpacked_crc32)
     {
         if (!(flags&RNC_IGNORE_UNPACKED_CRC_ERROR))
             return RNC_UNPACKED_CRC_ERROR;
     }
 
-    return ret_len;
+    return header.unpacked_size;
 }
 
 // Read a Huffman table out of the bit stream and data stream given.
@@ -419,54 +450,62 @@ long rnc_crc(void *data, unsigned long len)
 
 long LbFileLengthRnc(const char *fname)
 {
-  TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
-  if ( handle == -1 )
-      return -1;
+    long flength;
+    TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
+    if ( handle == -1 )
+        return -1;
 #if (BFDEBUG_LEVEL > 19)
     LbSyncLog("%s: file opened\n", fname);
 #endif
-  unsigned char buffer[RNC_HEADER_LEN+1];
-  if ( LbFileRead(handle,buffer,RNC_HEADER_LEN) == -1 )
-  {
-  #if (BFDEBUG_LEVEL > 19)
-      LbSyncLog("%s: cannot read even %d bytes\n", fname, RNC_HEADER_LEN);
-  #endif
-      LbFileClose(handle);
-      return -1;
-  }
-  long flength;
-  if (blong(buffer+0)==RNC_SIGNATURE)
-  {
-      flength = blong(buffer+4);
-  #if (BFDEBUG_LEVEL > 19)
-      LbSyncLog("%s: file size from RNC header: %ld bytes\n", fname, RNC_HEADER_LEN, flength);
-  #endif
-  } else
-  {
-      flength = LbFileLengthHandle(handle);
-  #if (BFDEBUG_LEVEL > 19)
-      LbSyncLog("%s: file is not RNC, size: %ld bytes\n", fname, RNC_HEADER_LEN, flength);
-  #endif
-  }
-  LbFileClose(handle);
-  return flength;
+    rnc_header header;
+    if (LbFileRead(handle, &header, sizeof(header)) == -1)
+    {
+#if (BFDEBUG_LEVEL > 19)
+        LbSyncLog("%s: cannot read even %d bytes\n", fname, sizeof(header));
+#endif
+        LbFileClose(handle);
+        return -1;
+    }
+    if (header.signature == RNC_SIGNATURE)
+    {
+#if (BFDEBUG_LEVEL > 19)
+        LbSyncLog("%s: file size from RNC header: %ld bytes\n", fname, header.packed_size);
+#endif
+        flength = ntohl(header.unpacked_size);
+    } else {
+#if (BFDEBUG_LEVEL > 19)
+        LbSyncLog("%s: file is not RNC\n", fname);
+#endif
+        flength = LbFileLengthHandle(handle);
+    }
+    LbFileClose(handle);
+    return flength;
 }
 
-long UnpackM1(unsigned char *buffer, ulong bufsize)
+long UnpackM1(void * buffer, ulong bufsize)
 {
-  //If file isn't compressed - return with zero
-  if (blong(buffer+0)!=RNC_SIGNATURE)
-      return 0;
-  //Originally this function was able do decompress data without additional buffer.
-  // If you know how to decompress the data this way, please correct this.
-  ulong packedsize=blong(buffer+4);
-  if (packedsize>bufsize) packedsize=bufsize;
-  void *packed=LbMemoryAlloc(packedsize);
-  LbMemoryCopy(packed,buffer,packedsize);
-  if (packed==NULL) return -1;
-  int retcode=rnc_unpack(packed,buffer,0);
-  LbMemoryFree(packed);
-  return retcode;
+    long retcode;
+    rnc_header header;
+    memcpy(&header, buffer, sizeof(header));
+    //If file isn't compressed - return with zero
+    if (header.signature != RNC_SIGNATURE)
+        return 0;
+
+    // flip big-endian values
+    header.packed_size = ntohl(header.packed_size);
+    header.packed_crc32 = ntohs(header.packed_crc32);
+    header.unpacked_size = ntohl(header.unpacked_size);
+    header.unpacked_crc32 = ntohs(header.unpacked_crc32);
+    void * unpacked = LbMemoryAlloc(header.unpacked_size);
+    if (unpacked==NULL) return -1;
+    retcode = rnc_unpack(buffer, unpacked, 0);
+    if (header.unpacked_size > bufsize) {
+        LbMemoryCopy(buffer, unpacked, bufsize);
+    } else {
+        LbMemoryCopy(buffer, unpacked, header.unpacked_size);
+    }
+    LbMemoryFree(unpacked);
+    return retcode;
 }
 
 long LbFileLoadAt(const char *fname, void *buffer)
@@ -488,7 +527,7 @@ long LbFileLoadAt(const char *fname, void *buffer)
       ERRORLOG("Couldn't read \"%s\", expected size %ld, errno %d",fname,filelength, (int)errno);
       return -1;
   }
-  long unp_length = UnpackM1((unsigned char *)buffer, filelength);
+  long unp_length = UnpackM1(buffer, filelength);
   long result;
   if ( unp_length >= 0 )
   {

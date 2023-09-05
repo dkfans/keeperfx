@@ -18,9 +18,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_bufrw.h"
 
 #include "bflib_basics.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

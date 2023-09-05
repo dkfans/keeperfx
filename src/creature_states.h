@@ -112,7 +112,7 @@ enum CreatureStates {
     CrSt_CreatureTakeSalary,
     CrSt_TunnellerDoingNothing,
     CrSt_CreatureObjectCombat,
-    CrSt_Null79,
+    CrSt_CreatureObjectSnipe,
     CrSt_CreatureChangeLair,//[80]
     CrSt_ImpBirth,
     CrSt_AtTemple,
@@ -165,7 +165,7 @@ enum CreatureStates {
     CrSt_GoodWaitInExitDoor,
     CrSt_GoodAttackRoom1,//[130]
     CrSt_CreatureSearchForGoldToStealInRoom2,
-    CrSt_GoodAttackRoom2,
+    CrSt_GoodArrivedAtSabotageRoom,
     CrSt_CreaturePretendChickenSetupMove,
     CrSt_CreaturePretendChickenMove,
     CrSt_CreatureAttackRooms,
@@ -250,8 +250,8 @@ struct StateInfo { // sizeof = 41
     unsigned char override_sleep;
     unsigned char override_fight_crtr;
     unsigned char override_gets_salary;
-    unsigned char override_prev_fld1F;
-    unsigned char override_prev_fld20;
+    unsigned char override_captive;
+    unsigned char override_transition;
     unsigned char override_escape;
     unsigned char override_unconscious;
     unsigned char override_anger_job;
@@ -260,24 +260,18 @@ struct StateInfo { // sizeof = 41
     unsigned char override_call2arms;
     unsigned char override_follow;
     unsigned char state_type;
-  unsigned char field_1F;
-  unsigned char field_20;
-  unsigned short field_21;
-  unsigned char field_23;
+  unsigned char captive;
+  unsigned char transition;
+  unsigned short follow_behavior;
+  unsigned char blocks_all_state_changes;
     unsigned short sprite_idx;
-  unsigned char field_26;
-  unsigned char field_27;
+  unsigned char display_thought_bubble;
+  unsigned char sneaky;
   unsigned char react_to_cta;
 };
 
 /******************************************************************************/
-DLLIMPORT struct StateInfo _DK_states[];
-//#define states _DK_states
-extern struct StateInfo states[];
-DLLIMPORT long _DK_r_stackpos;
-#define r_stackpos _DK_r_stackpos
-DLLIMPORT struct DiggerStack _DK_reinforce_stack[DIGGER_TASK_MAX_COUNT];
-#define reinforce_stack _DK_reinforce_stack
+extern struct StateInfo states[CREATURE_STATES_COUNT];
 
 #pragma pack()
 /******************************************************************************/
@@ -342,7 +336,6 @@ long process_work_speed_on_work_value(const struct Thing *thing, long base_val);
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing *thing, const struct Room *room, struct Coord3d *pos);
 SubtlCodedCoords find_position_around_in_room(const struct Coord3d *pos, PlayerNumber owner, RoomKind rkind, struct Thing *thing);
 void remove_health_from_thing_and_display_health(struct Thing *thing, long delta);
-TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y);
 
 TbBool process_creature_hunger(struct Thing *thing);
 void process_person_moods_and_needs(struct Thing *thing);

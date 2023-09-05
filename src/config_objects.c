@@ -16,12 +16,14 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_objects.h"
 #include "globals.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_dernc.h"
+#include "bflib_sound.h"
 
 #include "config.h"
 #include "config_creature.h"
@@ -29,6 +31,7 @@
 #include "custom_sprites.h"
 #include "thing_objects.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -42,25 +45,29 @@ const struct NamedCommand objects_common_commands[] = {
   };
 
 const struct NamedCommand objects_object_commands[] = {
-  {"NAME",              1},
-  {"GENRE",             2},
-  {"RELATEDCREATURE",   3},
-  {"PROPERTIES",        4},
-  {"ANIMATIONID",       5},
-  {"ANIMATIONSPEED",    6},
-  {"SIZE_XY",           7},
-  {"SIZE_YZ",           8},
-  {"MAXIMUMSIZE",       9},
-  {"DESTROYONLIQUID",  10},
-  {"DESTROYONLAVA",    11},
-  {"HEALTH",           12},
-  {"FALLACCELERATION", 13},
-  {"LIGHTUNAFFECTED",  14},
-  {"LIGHTINTENSITY",   15},
-  {"LIGHTRADIUS",      16},
-  {"LIGHTISDYNAMIC",   17},
-  {"MAPICON",          18},
-  {NULL,                0},
+  {"NAME",               1},
+  {"GENRE",              2},
+  {"RELATEDCREATURE",    3},
+  {"PROPERTIES",         4},
+  {"ANIMATIONID",        5},
+  {"ANIMATIONSPEED",     6},
+  {"SIZE_XY",            7},
+  {"SIZE_YZ",            8},
+  {"MAXIMUMSIZE",        9},
+  {"DESTROYONLIQUID",   10},
+  {"DESTROYONLAVA",     11},
+  {"HEALTH",            12},
+  {"FALLACCELERATION",  13},
+  {"LIGHTUNAFFECTED",   14},
+  {"LIGHTINTENSITY",    15},
+  {"LIGHTRADIUS",       16},
+  {"LIGHTISDYNAMIC",    17},
+  {"MAPICON",           18},
+  {"AMBIENCESOUND",     19},
+  {"UPDATEFUNCTION",    20},
+  {"DRAWCLASS",         21},
+  {"PERSISTENCE",       22},
+  {NULL,                 0},
   };
 
 const struct NamedCommand objects_properties_commands[] = {
@@ -68,6 +75,7 @@ const struct NamedCommand objects_properties_commands[] = {
   {"DESTROYED_ON_ROOM_CLAIM", 2},
   {"CHOWNED_ON_ROOM_CLAIM",   3},
   {"DESTROYED_ON_ROOM_PLACE", 4},
+  {"BUOYANT",                 5},
   {NULL,                      0},
   };
 
@@ -339,6 +347,10 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                       objst->model_flags |= OMF_DestroyedOnRoomPlace;
                       n++;
                       break;
+                  case 5: // BOUYANT
+                      objst->model_flags |= OMF_Buoyant;
+                      n++;
+                      break;
                   default:
                       CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                           COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -531,6 +543,61 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
+                break;
+            case 19: // AMBIENCESOUND
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    {
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                    }
+                    else
+                    {
+                        objdat->fp_smpl_idx = n;
+                    }
+                }
+                break;
+            case 20: // UPDATEFUNCTION
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    n = get_id(object_update_functions_desc, word_buf);
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    break;
+                }
+                objdat->updatefn_idx = n;
+                break;
+            case 21: // DRAWCLASS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objdat->draw_class = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 22: // PERSISTENCE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objdat->persistence = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
             case 0: // comment
                 break;
             case -1: // end of buffer
@@ -600,8 +667,8 @@ void update_all_object_stats()
         struct Objects* objdat = get_objects_data_for_thing(thing);
         set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
         // TODO: Should we rotate this on per-object basis?
-        get_thingadd(thing->index)->flags = 0;
-        get_thingadd(thing->index)->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+        thing->flags = 0;
+        thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
 
         struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
         if (thing->light_id != 0)

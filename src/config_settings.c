@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_settings.h"
 #include "globals.h"
 
@@ -30,12 +31,13 @@
 #include "config.h"
 #include "game_merge.h"
 #include "vidmode.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-unsigned char i_can_see_levels[] = {15, 20, 25, 30,};
+unsigned char i_can_see_levels[] = {30, 45, 60, 254,};
 struct GameSettings settings;
 /******************************************************************************/
 #ifdef __cplusplus
@@ -105,6 +107,7 @@ void setup_default_settings(void)
      256,                       // minimap_zoom
      8192,                      // isometric_view_zoom_level
      65536,                     // frontview_zoom_level
+     127,                       // mentor_volume
     };
     LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
     struct CPU_INFO cpu_info;
@@ -117,28 +120,6 @@ void setup_default_settings(void)
     }
 }
 
-void copy_settings_to_dk_settings(void)
-{
-    _DK_settings.field_0 = settings.field_0;
-    _DK_settings.video_shadows = settings.video_shadows;
-    _DK_settings.view_distance = settings.view_distance;
-    _DK_settings.video_rotate_mode = settings.video_rotate_mode;
-    _DK_settings.video_textures = settings.video_textures;
-    _DK_settings.video_cluedo_mode = settings.video_cluedo_mode;
-    _DK_settings.sound_volume = settings.sound_volume;
-    _DK_settings.redbook_volume = settings.redbook_volume;
-    _DK_settings.roomflags_on = settings.roomflags_on;
-    _DK_settings.gamma_correction = settings.gamma_correction;
-    _DK_settings.video_scrnmode = settings.video_scrnmode;
-    for (int i = 0; i < DK_GAME_KEYS_COUNT; i++)
-    {
-        _DK_settings.kbkeys[i] = settings.kbkeys[i];
-    }
-    _DK_settings.tooltips_on = settings.tooltips_on;
-    _DK_settings.first_person_move_invert = settings.first_person_move_invert;
-    _DK_settings.first_person_move_sensitivity = settings.first_person_move_sensitivity;
-}
-
 TbBool load_settings(void)
 {
     SYNCDBG(6,"Starting");
@@ -147,8 +128,7 @@ TbBool load_settings(void)
     if (len == sizeof(struct GameSettings))
     {
       if (LbFileLoadAt(fname, &settings) == sizeof(struct GameSettings))
-      { 
-          copy_settings_to_dk_settings();
+      {
           return true;
       }
     }
@@ -159,13 +139,12 @@ TbBool load_settings(void)
 
 short save_settings(void)
 {
-    copy_settings_to_dk_settings();
     char* fname = prepare_file_path(FGrp_Save, "settings.dat");
     LbFileSaveAt(fname, &settings, sizeof(struct GameSettings));
     return true;
 }
 
-int get_creature_can_see_subtiles(void)
+int get_max_i_can_see_from_settings(void)
 {
     return i_can_see_levels[settings.view_distance % 4];
 }

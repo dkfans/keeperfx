@@ -33,10 +33,7 @@ struct GuiMenu;
 struct GuiButton;
 
 /******************************************************************************/
-DLLIMPORT struct GuiButtonInit _DK_text_info_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_battle_buttons[];
-DLLIMPORT extern unsigned short _DK_battle_creature_over;
-#define battle_creature_over _DK_battle_creature_over
+extern unsigned short battle_creature_over;
 
 #pragma pack()
 /******************************************************************************/
@@ -55,7 +52,9 @@ short zoom_to_fight(PlayerNumber plyr_idx);
 void draw_bonus_timer(void);
 TbBool bonus_timer_enabled(void);
 void draw_timer(void);
+void draw_frametime(void);
 TbBool timer_enabled(void);
+TbBool frametime_enabled(void);
 TbBool script_timer_enabled(void);
 void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real);
 TbBool display_variable_enabled(void);

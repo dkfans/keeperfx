@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_states_train.h"
 #include "globals.h"
 
@@ -42,6 +43,7 @@
 #include "ariadne_wallhug.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 /** Returns if the creature meets conditions to be trained.
@@ -52,8 +54,11 @@
 TbBool creature_can_be_trained(const struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // Creatures without training value can't be trained
     if (crstat->training_value <= 0)
+        return false;
+    if ((cctrl->explevel >= game.training_room_max_level-1) &! (game.training_room_max_level == 0))
         return false;
     // If its model can train, check if this one can gain more experience
     return creature_can_gain_experience(thing);
@@ -186,7 +191,7 @@ void setup_move_to_new_training_position(struct Thing *thing, struct Room *room,
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
+        set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 0, 0);
     }
 }
 
@@ -335,8 +340,8 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             long stl_x;
             long stl_y;
             struct SlabMap *slb;
-            slb_x = subtile_slab_fast(thing->mappos.x.stl.num) + (long)small_around[i].delta_x;
-            slb_y = subtile_slab_fast(thing->mappos.y.stl.num) + (long)small_around[i].delta_y;
+            slb_x = subtile_slab(thing->mappos.x.stl.num) + (long)small_around[i].delta_x;
+            slb_y = subtile_slab(thing->mappos.y.stl.num) + (long)small_around[i].delta_y;
             slb = get_slabmap_block(slb_x,slb_y);
             if ((slb->kind != SlbT_TRAINING) || (slabmap_owner(slb) != thing->owner))
                 continue;
@@ -351,8 +356,8 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             }
             if (!thing_is_invalid(traintng))
             {
-                cctrl->training.pole_stl_x = slab_subtile_center(subtile_slab_fast(thing->mappos.x.stl.num));
-                cctrl->training.pole_stl_y = slab_subtile_center(subtile_slab_fast(thing->mappos.y.stl.num));
+                cctrl->training.pole_stl_x = slab_subtile_center(subtile_slab(thing->mappos.x.stl.num));
+                cctrl->training.pole_stl_y = slab_subtile_center(subtile_slab(thing->mappos.y.stl.num));
                 cctrl->moveto_pos.x.stl.num = stl_x;
                 cctrl->moveto_pos.y.stl.num = stl_y;
                 cctrl->moveto_pos.x.stl.pos = 128;
@@ -450,7 +455,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
               {
                 if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->training.train_timeout % 8) == 0))
                 {
-                    set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
+                    set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 0, 0);
                 }
               } else
               {
@@ -477,7 +482,7 @@ void process_creature_in_training_room(struct Thing *thing, struct Room *room)
             cctrl->training.train_timeout--;
             if ((cctrl->instance_id == CrInst_NULL) && ((cctrl->training.train_timeout % 8) == 0))
             {
-                set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 1, 0, 0);
+                set_creature_instance(thing, CrInst_SWING_WEAPON_SWORD, 0, 0);
             }
         } else
         {

@@ -43,14 +43,14 @@ typedef int NetUserId;
 
 enum NetDropReason
 {
-    NETDROP_MANUAL, //via drop_user()
-    NETDROP_ERROR //connection error
+    NETDROP_MANUAL, // via drop_user()
+    NETDROP_ERROR // connection error
 };
 
 typedef TbBool  (*NetNewUserCallback)(NetUserId * assigned_id);
 typedef void    (*NetDropCallback)(NetUserId id, enum NetDropReason reason);
 
-struct NetSP //new version
+struct NetSP // new version
 {
     /**
      * Inits this service provider.
@@ -61,7 +61,7 @@ struct NetSP //new version
     /**
      * Closes down all activities and cleans up this service provider.
      */
-    void    (*exit)(void);
+    void    (*exit)();
 
     /**
      * Sets this service provider up as a host for a new network game.
@@ -142,10 +142,8 @@ struct TbNetworkSessionNameEntry;
 typedef long (*Net_Callback_Func)(void);
 
 enum TbNetworkService {
-    NS_Serial,
-    NS_Modem,
-    NS_IPX,
     NS_TCP_IP,
+    NS_ENET_UDP,
 };
 
 struct ClientDataEntry {
@@ -155,37 +153,9 @@ struct ClientDataEntry {
   char name[32];
 };
 
-struct ConfigInfo { // sizeof = 130
-  char numfield_0;
-  unsigned char numfield_1[8];
-  char numfield_9;
-  char str_atz[20];
-  char str_atdt[20];
-  char str_ath[20];
-  char str_ats[20];
-  char str_join[20];
-  char str_u2[20];
-};
-
-struct TbModemDev { // sizeof = 180
-  unsigned long field_0;
-  unsigned long field_4;
-  char field_8[80];
-  char field_58[80];
-  unsigned long field_A8;
-  Net_Callback_Func field_AC;
-  Net_Callback_Func field_B0;
-};
-
-struct ModemResponse {
-  unsigned char field_0[8];
-  unsigned char field_8[8];
-  unsigned char field_10[8];
-  unsigned char field_18[8];
-  unsigned char field_20[8];
-  unsigned char field_28[8];
-  unsigned char field_30[8];
-  unsigned char field_38[8];
+struct ConfigInfo {
+    char str_join[20];
+    char net_player_name[20];
 };
 
 struct TbNetworkPlayerInfo {
@@ -243,28 +213,22 @@ struct ServiceInitData {
 long field_0;
     long numfield_4;
     long field_8;
-long field_C;
-    char *str_phone;
-    char *str_dial;
-    char *str_hang;
-    char *str_answr;
+    long field_C;
 };
 
 /******************************************************************************/
-DLLIMPORT extern int _DK_network_initialized;
-#define network_initialized _DK_network_initialized
 
 #pragma pack()
 /******************************************************************************/
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
-TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, void *exchng_buf, unsigned long exchng_size, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, unsigned long *playr_num, void *optns);
+TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
-TbError LbNetwork_Exchange(void *buf);
+TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
+TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
+TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
 TbBool  LbNetwork_Resync(void * buf, size_t len);
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
-TbError LbNetwork_ChangeExchangeBuffer(void *buf, unsigned long a2);
-void    LbNetwork_EnableLag(TbBool lag); //new addition to enable/disable scheduled lag mode
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);

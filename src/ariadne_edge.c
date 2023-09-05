@@ -16,17 +16,20 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne_edge.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct EdgePoint _DK_EdgePoints[EDGE_POINTS_COUNT];
-#define EdgePoints _DK_EdgePoints
+static struct EdgePoint EdgePoints[EDGE_POINTS_COUNT];
+
+long ix_EdgePoints;
 
 /******************************************************************************/
 void edge_points_clean(void)

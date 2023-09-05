@@ -18,81 +18,105 @@
 #******************************************************************************
 empty =
 space = $(empty) $(empty)
+PKG_NAME = pkg/keeperfx-$(subst $(space),_,$(subst .,_,$(VER_STRING)))-patch.7z
+PKG_CAMPAIGN_FILES = \
+	$(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS)) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)/*.txt))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_crtr/*.cfg))) \
+	$(patsubst %,pkg/%,$(foreach campaign,$(CAMPAIGNS),$(wildcard campgns/$(campaign)_lnd/*.txt)))
+PKG_CAMPAIGN_DIRS = $(sort $(dir $(PKG_CAMPAIGN_FILES)))
+PKG_CREATURE_FILES = $(patsubst config/creatrs/%,pkg/creatrs/%,$(wildcard config/creatrs/*.cfg))
+PKG_FXDATA_FILES = $(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.cfg))
+PKG_MAPPACK_FILES = \
+	$(patsubst %,pkg/levels/%.cfg,$(MAPPACKS)) \
+	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)/*.cfg))) \
+	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(filter-out %/readme.txt,$(wildcard levels/$(mappack)/*.txt)))) \
+	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)_crtr/*.cfg))) \
+	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)_cfgs/*.cfg)))
+PKG_MAPPACK_DIRS = $(sort $(dir $(PKG_MAPPACK_FILES)))
+PKG_BIN = pkg/$(notdir $(BIN))
+PKG_BIN_MAP = $(PKG_BIN:%.exe=%.map)
+PKG_HVLOGBIN = pkg/$(notdir $(HVLOGBIN))
+PKG_HVLOGBIN_MAP = $(PKG_HVLOGBIN:%.exe=%.map)
+PKG_DOCS = pkg/keeperfx_readme.txt
+PKG_DLL = \
+	pkg/SDL2_net.dll \
+	pkg/SDL2_mixer.dll \
+	pkg/SDL2_image.dll \
+	pkg/SDL2.dll
+PKG_FILES = \
+	$(PKG_CAMPAIGN_FILES) \
+	$(PKG_CREATURE_FILES) \
+	$(PKG_FXDATA_FILES) \
+	$(PKG_MAPPACK_FILES) \
+	$(NGTEXTDATS) \
+	$(NCTEXTDATS) \
+	$(MPTEXTDATS) \
+	pkg/keeperfx.cfg \
+	$(PKG_BIN) \
+	$(PKG_BIN_MAP) \
+	$(PKG_HVLOGBIN) \
+	$(PKG_HVLOGBIN_MAP) \
+	$(PKG_DOCS) \
+	$(PKG_DLL)
 
-CAMPAIGN_CFGS = $(patsubst %,pkg/campgns/%.cfg,$(CAMPAIGNS))
-MAPPACK_CFGS = $(patsubst %,pkg/levels/%.cfg,$(MAPPACKS))
+.PHONY: package
 
-.PHONY: pkg-before pkg-copydat pkg-campaigns pkg-mappacks pkg-languages
+pkg pkg/creatrs pkg/fxdata pkg/campgns $(PKG_MAPPACK_DIRS) $(PKG_CAMPAIGN_DIRS):
+	$(MKDIR) $@
 
-package: pkg/keeperfx-$(subst $(space),_,$(subst .,_,$(VER_STRING)))-patch.7z
+pkg/keeperfx.cfg: config/keeperfx.cfg | pkg
+	$(CP) $^ $@
+
+$(PKG_BIN): $(BIN) | pkg
+	$(CP) $^ $@
+
+$(PKG_HVLOGBIN): $(HVLOGBIN) | pkg
+	$(CP) $^ $@
+
+$(PKG_BIN_MAP): $(BIN) | pkg
+	$(CP) $(BIN:%.exe=%.map) $@
+
+$(PKG_HVLOGBIN_MAP): $(HVLOGBIN) | pkg
+	$(CP) $(HVLOGBIN:%.exe=%.map) $@
+
+pkg/%.txt: docs/%.txt | pkg
+	$(CP) $^ $@
+
+pkg/campgns/%.cfg: campgns/%.cfg | pkg/campgns
+	$(CP) $^ $@
+
+pkg/campgns/%.txt: campgns/%.txt | $(PKG_CAMPAIGN_DIRS)
+	$(CP) $^ $@
+
+pkg/creatrs/%.cfg: config/creatrs/%.cfg | pkg/creatrs
+	$(CP) $^ $@
+
+pkg/fxdata/%.cfg: config/fxdata/%.cfg | pkg/fxdata
+	$(CP) $^ $@
+
+pkg/levels/%.cfg: levels/%.cfg | $(PKG_MAPPACK_DIRS)
+	$(CP) $^ $@
+
+pkg/levels/%.txt: levels/%.txt | $(PKG_MAPPACK_DIRS)
+	$(CP) $^ $@
+
+pkg/SDL2_net.dll: sdl/for_final_package/SDL2_net.dll | pkg
+	$(CP) $^ $@
+
+pkg/SDL2_mixer.dll: sdl/for_final_package/SDL2_mixer.dll | pkg
+	$(CP) $^ $@
+
+pkg/SDL2_image.dll: sdl/for_final_package/SDL2_image.dll | pkg
+	$(CP) $^ $@
+
+pkg/SDL2.dll: sdl/for_final_package/SDL2.dll | pkg
+	$(CP) $^ $@
+
+$(PKG_NAME): $(PKG_FILES) | pkg
+	$(RM) $@ && cd $(dir $(PKG_NAME)) && 7z a $(notdir $(PKG_NAME)) $(patsubst pkg/%,%,$^) >/dev/null
+
+package: $(PKG_NAME)
 
 clean-package:
-	-$(RM) -R pkg/campgns
-	-$(RM) -R pkg/creatrs
-	-$(RM) -R pkg/fxdata
-	-$(RM) -R pkg/ldata
-	-$(RM) -R pkg/data
-	-$(RM) -R pkg/sound
-	-$(RM) -R pkg/levels
-	-$(RM) pkg/keeperfx*
-
-deep-clean-package:
-
-pkg/%.7z: pkg-before pkg-copybin pkg-copydat pkg-campaigns pkg-mappacks pkg-languages
-	$(ECHO) 'Creating package: $@'
-	cd $(@D); \
-	7z a "$(@F)" "*" -x!*/.svn -x!.svn -x!.git -x!*.7z
-	$(ECHO) 'Finished creating: $@'
-	$(ECHO) ' '
-
-pkg-before:
-	-$(RM) "pkg/keeperfx-$(subst $(space),_,$(subst .,_,$(VER_STRING)))-patch.7z"
-	$(MKDIR) pkg/creatrs
-	$(MKDIR) pkg/data
-	$(MKDIR) pkg/ldata
-	$(MKDIR) pkg/levels
-	$(MKDIR) pkg/fxdata
-	$(MKDIR) pkg/campgns
-
-pkg-copybin: pkg-before
-	$(CP) bin/* pkg/
-	$(CP) docs/keeperfx_readme.txt pkg/
-
-pkg-copydat: pkg-before
-	$(CP) config/keeperfx.cfg pkg/
-	$(CP) config/creatrs/*.cfg pkg/creatrs/
-	$(CP) config/fxdata/*.cfg pkg/fxdata/
-
-pkg-campaigns: pkg-before $(CAMPAIGN_CFGS)
-
-pkg-mappacks: pkg-before $(MAPPACK_CFGS)
-
-pkg/campgns/%.cfg: campgns/%.cfg
-	@$(MKDIR) $(@D)
-#	 Copy folder with campaign name (w/o extension), if it exists
-	$(if $(wildcard $(<:%.cfg=%)),$(MKDIR) $(@:%.cfg=%))
-	$(if $(wildcard $(<:%.cfg=%)),-$(CP) $(<:%.cfg=%)/map*.* $(@:%.cfg=%)/)
-#	 Copy folder with campaign name and _crtr ending, if it exists
-	$(if $(wildcard $(<:%.cfg=%_crtr)),$(MKDIR) $(@:%.cfg=%_crtr))
-	$(if $(wildcard $(<:%.cfg=%_crtr)),-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/)
-#	 Copy folder with campaign name and _lnd ending, if it exists
-	$(if $(wildcard $(<:%.cfg=%_lnd)),$(MKDIR) $(@:%.cfg=%_lnd))
-	$(if $(wildcard $(<:%.cfg=%_lnd)),-$(CP) $(<:%.cfg=%_lnd)/*.txt $(@:%.cfg=%_lnd)/)
-#	 Copy the actual campaign file
-	$(CP) $< $@
-
-pkg/levels/%.cfg: levels/%.cfg
-	@$(MKDIR) $(@D)
-#	 Copy folder with map pack name (w/o extension), if it exists
-	 $(if $(wildcard $(<:%.cfg=%)),$(MKDIR) $(@:%.cfg=%))
-	 $(if $(wildcard $(<:%.cfg=%)),-$(CP) $(<:%.cfg=%)/map*.* $(@:%.cfg=%)/)
-#	 Copy folder with map pack name and _crtr ending, if it exists
-	 $(if $(wildcard $(<:%.cfg=%_crtr)),$(MKDIR) $(@:%.cfg=%_crtr))
-	 $(if $(wildcard $(<:%.cfg=%_crtr)),-$(CP) $(<:%.cfg=%_crtr)/*.cfg $(@:%.cfg=%_crtr)/)
-#	 Copy folder with map pack and _lnd ending, if it exists
-	 $(if $(wildcard $(<:%.cfg=%_lnd)),$(MKDIR) $(@:%.cfg=%_lnd))
-	 $(if $(wildcard $(<:%.cfg=%_lnd)),-$(CP) $(<:%.cfg=%_lnd)/*.txt $(@:%.cfg=%_lnd)/)
-#	 Copy the actual map pack file
-	 $(CP) $< $@
-
-#******************************************************************************
+	$(RM) -r pkg
