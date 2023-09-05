@@ -7,8 +7,8 @@
 			"windows": {
 				"command": [
 					"Write-Host ('Source Code directory: ' + '${workspaceFolder}'.Replace('\\', '/')) -ForegroundColor White;",
-					"$cleanedJson = Get-Content '${workspaceFolder}\\.vscode\\launch.json' | Where-Object { $_ -notmatch '^\\s*//' };",
-				    "$gameDir = ($cleanedJson | Out-String | ConvertFrom-Json).configurations[0].cwd.TrimEnd('\\');",
+    				"$cleanedJson = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | ForEach-Object {$_ -replace ',\\s*}', '}' -replace '(?m)^\\s*//.*$', ''} | ConvertFrom-Json | ConvertTo-Json -Depth 100);",
+					"$gameDir = ($cleanedJson | ConvertFrom-Json).configurations[0].cwd.TrimEnd('\\');",
 					"if (-not (Test-Path $gameDir)) {",
 					"    Write-Host 'The directories are incorrect in /.vscode/launch.json, please edit the file and update it.' -ForegroundColor Red;",
 					"    Write-Host 'Example: D:/Games/DungeonKeeper/ (be sure to use forward slashes)' -ForegroundColor Red;",
@@ -57,6 +57,19 @@
 					"}"
 				]
 			},
+			"linux": {
+				"command": [
+					"settingsPath='${workspaceFolder}/.vscode/settings.json';",
+					"if [ ! -f $settingsPath ]; then",
+					"    cp '${workspaceFolder}/.vscode/defaultsettings' $settingsPath;",
+					"    echo '/.vscode/settings.json was created.';",
+					"fi;",
+					"if [ ! -f '${workspaceFolder}/.vscode/launch.json' ]; then",
+					"    cp '${workspaceFolder}/.vscode/defaultlaunch' '${workspaceFolder}/.vscode/launch.json';",
+					"    echo '/.vscode/launch.json was created, please edit it and fill in your game directories.';",
+					"fi"
+				]
+			},
 			"problemMatcher": "$gcc",
 			"runOptions": {"runOn": "folderOpen"},
 			"group": "build",
@@ -72,8 +85,8 @@
 			"type": "shell",
 			"windows": {
 				"command": [
-					"$cleanedJson = Get-Content '${workspaceFolder}\\.vscode\\launch.json' | Where-Object { $_ -notmatch '^\\s*//' };",
-				    "$gameDir = ($cleanedJson | Out-String | ConvertFrom-Json).configurations[0].cwd.TrimEnd('\\');",
+					"$cleanedJson = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | ForEach-Object {$_ -replace ',\\s*}', '}' -replace '(?m)^\\s*//.*$', ''} | ConvertFrom-Json | ConvertTo-Json -Depth 100);",
+					"$gameDir = ($cleanedJson | ConvertFrom-Json).configurations[0].cwd.TrimEnd('\\');",
 					"cd $gameDir;",
 					"Clear-Content keeperfx.log;",
 					"Get-Content keeperfx.log -Wait"
