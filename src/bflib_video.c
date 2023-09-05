@@ -405,19 +405,6 @@ TbResult LbScreenInitialize(void)
     return Lb_SUCCESS;
 }
 
-// this function is unused
-LPCTSTR MsResourceMapping(int index)
-{
-  switch (index)
-  {
-  case 1:
-      return "A";
-      //return MAKEINTRESOURCE(110); -- may work for other resource compilers
-  default:
-      return NULL;
-  }
-}
-
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
@@ -454,7 +441,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
 
     // SDL video mode flags
     unsigned long sdlFlags = 0;
-    sdlFlags |= SDL_SWSURFACE;
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
         sdlFlags |= SDL_WINDOW_FULLSCREEN;
     }
@@ -480,7 +466,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         {
             SDL_DestroyWindow(lbWindow); // destroy window on transition from fullscreen to window, as it is quicker than using SDL_SetWindowFullscreen
             lbWindow = NULL;
-        } 
+        }
         else
         {
             if (!sameResolution)
@@ -507,7 +493,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
         return Lb_FAIL;
     }
-
     lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
     if (lbScreenSurface == NULL) {
         ERRORLOG("Failed to initialize mode %d: %s",(int)mode,SDL_GetError());
@@ -551,7 +536,13 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     {
         LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
         if (msspr != NULL)
+        {
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
+        }
+        if (!IsMouseInsideWindow())
+        {
+            SDL_WarpMouseInWindow(lbWindow, mdinfo->Width / 2, mdinfo->Height / 2);
+        }
     }
 
     setup_bflib_render(lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);

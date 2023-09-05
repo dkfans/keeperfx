@@ -1001,8 +1001,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    //throw_strength = shotng->fall_acceleration; //this seems to be always 0, this is why it didn't work;
-    long throw_strength = shotst->push_on_hit;
+    long throw_strength = shotng->fall_acceleration;
     long n;
     if (trgtng->health < 0)
         return 0;
@@ -1105,7 +1104,7 @@ void set_thing_acceleration_angles(struct Thing *thing, long angle_xy, long angl
 TbBool shot_model_makes_flesh_explosion(long shot_model)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
-    return (shotst->model_flags & ShMF_Exploding);
+    return ((shotst->model_flags & ShMF_Exploding) != 0);
 }
 
 long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
@@ -1113,8 +1112,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     long i;
     long n;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    //amp = shotng->fall_acceleration;
-    long amp = shotst->push_on_hit;
+    long amp = shotng->fall_acceleration;
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
@@ -1681,14 +1679,14 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
 {
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
-        ERRORDBG(3,"Cannot create shot %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        ERRORDBG(3,"Cannot create shot %d (%s) for player %d. There are too many things allocated.",(int)model,shot_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     struct ShotConfigStats* shotst = get_shot_model_stats(model);
     struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
-        ERRORDBG(3,"Should be able to allocate shot %d for player %d, but failed.",(int)model,(int)owner);
+        ERRORDBG(3,"Should be able to allocate shot %d (%s) for player %d, but failed.",(int)model,shot_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }

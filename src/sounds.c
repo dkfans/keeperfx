@@ -217,7 +217,7 @@ void find_nearest_rooms_for_ambient_sound(void)
             struct Room* room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[room->kind];
+            struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[room->kind];
             long k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
@@ -269,10 +269,7 @@ void update_player_sounds(void)
         process_messages();
         if (!SoundDisabled)
         {
-            if (game.audiotrack >= FIRST_TRACK && game.audiotrack <= max_track)
-            {
-                PlayMusicPlayer(game.audiotrack);
-            }
+            PlayMusicPlayer(game.audiotrack);
             update_3d_sound_receiver(player);
         }
         game.play_gameturn++;
@@ -283,9 +280,9 @@ void update_player_sounds(void)
     if (bonus_timer_enabled())
     {
         if ((game.bonus_time == game.play_gameturn) ||
-            ((game.bonus_time > game.play_gameturn) && 
+            ((game.bonus_time > game.play_gameturn) &&
             (   ((k <= 100)  && ((k % 10) == 0)) ||
-                ((k <= 300)  && ((k % 50) == 0)) || 
+                ((k <= 300)  && ((k % 50) == 0)) ||
                 ((k <= 5000) && ((k % 250) == 0)) ||
                                 ((k % 5000) == 0)    )  ))
         play_non_3d_sample(89);
@@ -361,6 +358,9 @@ void process_sound_heap(void)
     long i = 0;
     SYNCDBG(9,"Starting");
     struct SampleInfo* smpinfo_last = GetLastSampleInfoStructure();
+    if (smpinfo_last == NULL) {
+        return;
+    }
     for (struct SampleInfo* smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
     {
       if ( (smpinfo->field_0 != 0) && ((smpinfo->flags_17 & 0x01) != 0) )

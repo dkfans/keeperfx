@@ -173,7 +173,7 @@ void frontnet_service_update(void)
     }
 }
 
-void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+void enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
     if (net_number_of_enum_players >= 4)
     {
@@ -184,7 +184,7 @@ void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void
     net_number_of_enum_players++;
 }
 
-void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
+void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
 {
     if (net_number_of_sessions >= 32)
     {
@@ -205,7 +205,7 @@ void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, voi
 }
 
 // TODO: remove all this weird stuff
-static void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
     if (net_number_of_services >= NET_SERVICES_COUNT)
     {

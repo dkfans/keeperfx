@@ -244,15 +244,18 @@ TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    if ( (slb->kind <= SlbT_WALLPAIRSHR) || (slb->kind == SlbT_GEMS) )
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
-        return true;
+        MapSubtlCoord astl_x = stl_x + small_around[i].delta_x;
+        MapSubtlCoord astl_y = stl_y + small_around[i].delta_y;
+        if (!subtile_is_wall(astl_x, astl_y))
+        {
+            return false;
+        }
     }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 TbBool is_slab_type_walkable(SlabKind slbkind)
@@ -263,12 +266,8 @@ TbBool is_slab_type_walkable(SlabKind slbkind)
 
 TbBool slab_kind_is_animated(SlabKind slbkind)
 {
-    if (slab_kind_is_door(slbkind))
-        return true;
-    // if ((slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
-        if (slbkind >= SlbT_SLAB50)
-        return true;
-    return false;
+    struct SlabAttr* slbattr = get_slab_kind_attrs(slbkind);
+    return slbattr->animated;
 }
 
 TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
@@ -472,8 +471,14 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
                     eff_score++;
                     break;
                   case SlbT_WALLDRAPE:
-                    if (slabmap_owner(round_slb) == slabmap_owner(slb))
-                        eff_score += 2;
+                      if (slabmap_owner(round_slb) == slabmap_owner(slb))
+                      {
+                          eff_score += 2;
+                      }
+                      else
+                      {
+                          eff_score++;
+                      }
                     break;
                   case SlbT_DOORWOOD1:
                     if (slabmap_owner(round_slb) == slabmap_owner(slb))

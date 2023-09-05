@@ -746,8 +746,12 @@ TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
         return false;
-    if ((slb->kind == SlbT_ENTRANCE) || (slb->kind == SlbT_DUNGHEART))
+    struct Room* room = subtile_room_get(stl_x, stl_y);
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    if ((roomst->flags & RoCFlg_CannotBeSold) != 0)
+    {
         return false;
+    }
     return true;
 }
 
@@ -842,7 +846,7 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
     gameadd.around_slab[2] = -gameadd.map_tiles_x  + 1;
     gameadd.around_slab[3] = -1;
     gameadd.around_slab[4] = 0;
-    gameadd.around_slab[4] = 1;
+    gameadd.around_slab[5] = 1;
     gameadd.around_slab[6] = gameadd.map_tiles_x - 1;
     gameadd.around_slab[7] = gameadd.map_tiles_x;
     gameadd.around_slab[8] = gameadd.map_tiles_x + 1;
@@ -871,7 +875,10 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
 void init_map_size(LevelNumber lvnum)
 {
     struct LevelInformation* lvinfo = get_level_info(lvnum);
-    set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
+    if (lvinfo == NULL)
+        set_map_size(DEFAULT_MAP_SIZE, DEFAULT_MAP_SIZE);
+    else
+        set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
 }
 
 /******************************************************************************/

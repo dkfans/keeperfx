@@ -29,6 +29,7 @@
 
 static HINSTANCE ks_lib;
 #endif
+#include <string.h>
 #include "post_inc.h"
 
 static struct

@@ -1026,7 +1026,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "丸石の罠を製造した。 この罠を通路に設置すれば、 不注意な侵入者を恐怖の巨石が"
@@ -5470,80 +5470,70 @@ msgstr "インプはお前のダンジョンの命の源なり。それは血の
 "い。"
 
 #: guitext:830
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Feeling mean? Set your minions to imprison and when your cells are full, "
 "spend some time torturing..."
-msgstr ""
+msgstr "気分が悪い？ 手下どもを投獄するがよい。牢が満員の時は、しばらく拷問して過ごせ。"
 
 #: guitext:831
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "If your creatures get unhappy, slap some sense into them. They'll soon "
 "realise how lucky they are."
-msgstr ""
+msgstr "手下クリーチャーが不幸を感じていたら、活を入れてやれ。じきに連中は自分たちの幸運に気づくであろう。"
 
 #: guitext:832
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "The underworld is your domain and the adventurers come to steal it. Never "
 "show pity, even when the intruders are defenceless and pathetic."
-msgstr ""
+msgstr "お前の領地たる地底世界を、冒険者どもは奪いにやってくる。決して同情するな、たとえ侵入者どもが身を守る力もなく哀れを誘おうとも。"
 
 #: guitext:833
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Compassion is the hallmark of the good Keeper. But good Keepers never win. "
 "Only evil ones."
-msgstr ""
+msgstr "哀れみは良きキーパーの証明なり。しかし良きキーパーが勝利することはない。勝利するには邪悪であらねば。"
 
 #: guitext:834
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "There's never a moment to waste. Already the bravest of the brave are "
 "queuing up to enter your dungeon. So stop reading this and get going."
-msgstr ""
+msgstr "一瞬たりとも無駄にはできぬ。すでに勇者の中の勇者がお前のダンジョンへ入ろうと列をなしている。こんなものを読んでいないで、早く行け。"
 
 #: guitext:835
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Build fast. You'll want the biggest possible welcoming committee ready for "
 "the intruders."
-msgstr ""
+msgstr "建築を急げ。できるだけ大きな歓迎委員会を組織して、侵入者どもを迎えたいであろう？"
 
 #: guitext:836
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Keep your Imps digging. There are always surprises to be found deep in the "
 "earth."
-msgstr ""
+msgstr "インプに掘り続けさせろ。地中の奥深くでは、えてして驚くようなものが見つかる。"
 
 #: guitext:837
-#, fuzzy
 msgctxt "In-game hint message"
 msgid "He who controls the most gold controls the entire Underworld."
-msgstr ""
+msgstr "最も多くの財宝を支配する者が、地底世界全体を支配する。"
 
 #: guitext:838
-#, fuzzy
 msgctxt "In-game hint message"
 msgid "Fear and lack of mercy are your greatest weapons. Use them wisely."
-msgstr ""
+msgstr "恐怖と無慈悲が、お前の最大の武器だ。賢く使え。"
 
 #: guitext:839
-#, fuzzy
 msgctxt "In-game hint message"
 msgid ""
 "Foolish is the Keeper who sells all his rooms and refuses to pay his "
 "creatures."
-msgstr ""
+msgstr "部屋を売り払い手下クリーチャーに給料を払わないキーパーは愚かだ。"
 ""
 
 #: guitext:840
