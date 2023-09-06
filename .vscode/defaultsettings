@@ -3,12 +3,12 @@
 	"files.associations": {
 		"defaultlaunch": "jsonc",
 		"defaultsettings": "jsonc",
-		"defaultlinuxscript": "jsonc"
+		"defaultlinuxscript": "bash"
 	},
 	"files.exclude": {
         "**/.vscode/defaultlaunch": true,
 		"**/.vscode/defaultsettings": true,
-		"**/.vscode/defaultlinuxscript": true
+		"**/.vscode/defaultlinuxscript": false
     },
 	"search.exclude": {
 		"**/.git": true,
