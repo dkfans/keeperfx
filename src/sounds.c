@@ -805,6 +805,7 @@ int Initialise_SDL_Audio(int frequency, unsigned short format, int channels, int
         ERRORLOG("Could not initialise SDL mixer: %s", Mix_GetError());
         return 0;
     }
+    Mix_ReserveChannels(1); // reserve for external speech samples
     return flags;
 }
 
@@ -845,35 +846,11 @@ void free_sound_chunks()
     game.sounds_count = 0;
 }
 
-int find_channel()
-{
-    for (int channel = 0; channel < MIX_CHANNELS; channel++) 
-    {
-        if (channel == MESSAGE_CHANNEL)
-        {
-            continue;
-        }
-        if (!Mix_Playing(channel))
-        {
-            return channel;
-        }
-    }
-    return -1;
-}
-
 void play_external_sound_sample(unsigned char smpl_id)
 {
-    int channel = find_channel();
-    if (channel != -1)
+    if (Mix_PlayChannel(-1, Ext_Sounds[smpl_id], 0) == -1)
     {
-        if (Mix_PlayChannel(channel, Ext_Sounds[smpl_id], 0) == -1)
-        {
-            ERRORLOG("Could not play sound %s: %s", &game.loaded_sound[smpl_id][0], Mix_GetError());
-        }
-    }
-    else
-    {
-        ERRORLOG("No channel to play external sample %u", smpl_id);
+        ERRORLOG("Could not play sound %s: %s", &game.loaded_sound[smpl_id][0], Mix_GetError());
     }
 }
 /******************************************************************************/
