@@ -2,7 +2,6 @@
 game_directory="/home/bot/.wine/drive_c/dk/"
 game_arguments="-level 00001 -campaign keeporig -nointro -alex -altinput"
 workspaceFolder="$1"
-debugOption="$2"
 
 echo "Source Code directory: $workspaceFolder"
 
@@ -13,11 +12,7 @@ fi
 
 echo "Game directory: $game_directory"
 
-if [ "$debugOption" == "Fast compile with DEBUG=1" ]; then
-    make all -j$(nproc) DEBUG=1
-else
-    make all -j$(nproc)
-fi
+make all -j$(nproc) DEBUG=1
 
 if [ $? -eq 0 ]; then
     echo 'Compilation successful!'

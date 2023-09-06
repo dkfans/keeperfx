@@ -2,7 +2,6 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			// For Linux users
 			"label": "Default task",
 			"type": "shell",
 			"windows": {
@@ -13,7 +12,7 @@
 			"linux": {
 				"command": [
 					"chmod +x '${workspaceFolder}/.vscode/linuxscript.sh';",
-					"'${workspaceFolder}/.vscode/linuxscript.sh' '${workspaceFolder}' '${input:debugOption}'"
+					"'${workspaceFolder}/.vscode/linuxscript.sh' '${workspaceFolder}'"
 				]
 			},
 			"problemMatcher": "$gcc",
@@ -42,11 +41,7 @@
 					"    exit 1;",
 					"}",
 					"Write-Host ('Game directory: ' + $gameDir) -ForegroundColor White;",
-					"if ('${input:debugOption}' -eq 'Fast compile with DEBUG=1') {",
-					"    wsl make all -j`nproc` DEBUG=1;",
-					"} else {",
-					"    wsl make all -j`nproc`;",
-					"}",
+					"wsl make all -j`nproc` DEBUG=1;",
 					"if ($?) {",
 					"    Write-Host 'Compilation successful!' -ForegroundColor Green;",
 					"} else {",
@@ -157,13 +152,4 @@
 			"dependsOn": "Compile",
 		}
 	],
-	"inputs": [
-        {
-            "id": "debugOption",
-            "type": "pickString",
-            "description": "Choose compile options:",
-            "options": ["Fast compile with DEBUG=1", "Compile"],
-            "default": "Fast compile with DEBUG=1"
-        }
-    ]
 }
