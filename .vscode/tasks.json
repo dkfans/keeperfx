@@ -13,7 +13,7 @@
 			"linux": {
 				"command": [
 					"chmod +x '${workspaceFolder}/.vscode/linuxscript.sh';",
-					"'${workspaceFolder}/.vscode/linuxscript.sh'"
+					"'${workspaceFolder}/.vscode/linuxscript.sh' '${workspaceFolder}' '${input:debugOption}'"
 				]
 			},
 			"problemMatcher": "$gcc",
@@ -87,18 +87,17 @@
 			},
 			"linux": {
 				"command": [
-					"settingsPath='${workspaceFolder}/.vscode/settings.json';",
-					"if [ ! -f $settingsPath ]; then",
-					"    cp '${workspaceFolder}/.vscode/defaultsettings' $settingsPath;",
-					"    echo '/.vscode/settings.json was created.';",
+					"if [ ! -f \"${workspaceFolder}/.vscode/settings.json\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultsettings\" \"${workspaceFolder}/.vscode/settings.json\";",
+					"    echo \"/.vscode/settings.json was created.\";",
 					"fi;",
-					"if [ ! -f '${workspaceFolder}/.vscode/launch.json' ]; then",
-					"    cp '${workspaceFolder}/.vscode/defaultlaunch' '${workspaceFolder}/.vscode/launch.json';",
-					"    echo '/.vscode/launch.json was created, but it won't work on linux. Use Ctrl+Shift+B instead.';",
+					"if [ ! -f \"${workspaceFolder}/.vscode/launch.json\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultlaunch\" \"${workspaceFolder}/.vscode/launch.json\";",
+					"    echo \"/.vscode/launch.json was created, but it won't work on linux. Use Ctrl+Shift+B instead.\";",
 					"fi;",
-					"if [ ! -f '${workspaceFolder}/.vscode/linuxscript.sh' ]; then",
-					"    cp '${workspaceFolder}/.vscode/defaultlinuxscript' '${workspaceFolder}/.vscode/linuxscript.json';",
-					"    echo '/.vscode/linuxscript.json was created, please edit it and fill in your game directories.';",
+					"if [ ! -f \"${workspaceFolder}/.vscode/linuxscript.sh\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultlinuxscript\" \"${workspaceFolder}/.vscode/linuxscript.sh\";",
+					"    echo \"/.vscode/linuxscript.sh was created, please edit it and fill in your game directories.\";",
 					"fi"
 				]
 			},

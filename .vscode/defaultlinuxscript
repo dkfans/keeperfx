@@ -1,3 +1,32 @@
 #!/bin/bash
+game_directory="/home/bot/.wine/drive_c/dk/"
 
-test
+workspaceFolder="$1"
+debugOption="$2"
+
+echo "Source Code directory: $workspaceFolder"
+
+if [ ! -d "$game_directory" ]; then
+    echo 'The game_directory is incorrect, please edit it to match your game installation.'
+    exit 1
+fi
+
+echo "Game directory: $game_directory"
+
+if [ "$debugOption" == "Fast compile with DEBUG=1" ]; then
+    make all -j$(nproc) DEBUG=1
+else
+    make all -j$(nproc)
+fi
+
+if [ $? -eq 0 ]; then
+    echo 'Compilation successful!'
+else
+    echo 'Compilation failed!'
+    exit 1
+fi
+
+cp $workspaceFolder/bin/* "$game_directory"
+
+cd $game_directory
+wine winedbg --gdb keeperfx.exe
