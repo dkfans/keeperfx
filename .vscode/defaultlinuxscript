@@ -1,6 +1,6 @@
 #!/bin/bash
 game_directory="/home/bot/.wine/drive_c/dk/"
-
+game_arguments="-level 00001 -campaign keeporig -nointro -alex -altinput"
 workspaceFolder="$1"
 debugOption="$2"
 
@@ -29,4 +29,9 @@ fi
 cp $workspaceFolder/bin/* "$game_directory"
 
 cd $game_directory
-wine winedbg --gdb keeperfx.exe
+
+# Use winedbg instead of wine if you want to see the line number that causes the crash. However, normal wine will launch the game faster.
+# When launching with winedbg, press 'C' then 'Enter' when prompted.
+
+#wine keeperfx.exe $game_arguments
+winedbg --gdb keeperfx.exe $game_arguments
