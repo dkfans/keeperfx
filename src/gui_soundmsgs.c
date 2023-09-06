@@ -326,7 +326,7 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
     {
         if (!speech_sample_playing())
         {
-            if (Mix_PlayChannel(-1, Ext_Sounds[-msg_idx], 0) == -1)
+            if (Mix_PlayChannel(MESSAGE_CHANNEL, Ext_Sounds[-msg_idx], 0) == -1)
             {
                 SCRPTERRLOG("Could not play sound %s: %s", &game.loaded_sound[-msg_idx][0], Mix_GetError());
             }

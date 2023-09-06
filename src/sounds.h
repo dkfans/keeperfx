@@ -114,7 +114,8 @@ void update_first_person_object_ambience(struct Thing *thing);
 int Initialise_SDL_Audio(int frequency, unsigned short format, int channels, int chunksize);
 void ShutdownSDL();
 void free_sound_chunks();
-TbBool queue_external_sample(unsigned char slot);
+int find_channel();
+void play_external_sound_sample(unsigned char smpl_id);
 /******************************************************************************/
 #ifdef __cplusplus
 }

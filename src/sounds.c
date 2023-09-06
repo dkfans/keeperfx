@@ -845,18 +845,36 @@ void free_sound_chunks()
     game.sounds_count = 0;
 }
 
-TbBool queue_external_sample(unsigned char slot)
+int find_channel()
 {
-    TbBool success = (SDL_QueueAudio(deviceId, Ext_Sounds[slot]->abuf, Ext_Sounds[slot]->alen) == 0);
-    if (success)
+    for (int channel = 0; channel < MIX_CHANNELS; channel++) 
     {
-        SDL_PauseAudioDevice(deviceId, 0);
+        if (channel == MESSAGE_CHANNEL)
+        {
+            continue;
+        }
+        if (!Mix_Playing(channel))
+        {
+            return channel;
+        }
+    }
+    return -1;
+}
+
+void play_external_sound_sample(unsigned char smpl_id)
+{
+    int channel = find_channel();
+    if (channel != -1)
+    {
+        if (Mix_PlayChannel(channel, Ext_Sounds[smpl_id], 0) == -1)
+        {
+            ERRORLOG("Could not play sound %s: %s", &game.loaded_sound[smpl_id][0], Mix_GetError());
+        }
     }
     else
     {
-        ERRORLOG("Could not add sample %s to audio queue: %s", game.loaded_sound[slot], SDL_GetError());
+        ERRORLOG("No channel to play external sample %u", smpl_id);
     }
-    return success;
 }
 /******************************************************************************/
 #ifdef __cplusplus

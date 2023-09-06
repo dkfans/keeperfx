@@ -3960,18 +3960,11 @@ static void play_message_process(struct ScriptContext *context)
                     case 1:
                     {
                         output_message(-context->value->bytes[2], 0, true);
-                        /*if (!queue_external_sample(context->value->bytes[2]))
-                        {
-                            SCRPTERRLOG("Could not add sample %s to audio queue.", &game.loaded_sound[context->value->bytes[2]][0]);
-                        }*/
                         break;
                     }
                     case 2:
                     {
-                        if (Mix_PlayChannel(-1, Ext_Sounds[context->value->bytes[2]], 0) == -1)
-                        {
-                            SCRPTERRLOG("Could not play sound %s: %s", &game.loaded_sound[context->value->bytes[2]][0], Mix_GetError());
-                        }
+                        play_external_sound_sample(context->value->bytes[2]);
                         break;
                     }
                 }
