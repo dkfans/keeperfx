@@ -1271,6 +1271,17 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
           }
           break;
+      case 34: //TrainingRoomMaxLevel
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.training_room_max_level, val3);
+              game.training_room_max_level = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
           break;
