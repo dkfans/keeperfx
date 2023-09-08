@@ -42,6 +42,14 @@ Installation instructions and a FAQ can be found on the [Github Wiki](https://gi
 You will need the original Dungeon Keeper files, either from an old CD or from the digital edition available on EA or GOG.
 
 
+## Development
+To get started with KeeperFX development, refer to the [Development Guide](https://github.com/dkfans/keeperfx/wiki/Building-KeeperFX) for 
+detailed instructions on setting up a development environment and building KeeperFX from source.
+
+If you wish to discuss development, you can join the [Keeper Klan discord](https://discord.gg/hE4p7vy2Hb) and ask to 
+be added to the KeeperFX development channel.
+
+
 ## Components
 | Component | Language | Info |
 |---|---|---|
@@ -75,14 +83,6 @@ KeeperFX could be further improved in these key areas:
 - Improve code readability and maintainability
 - Lua support
 - ...
-
-
-## Development
-To get started with KeeperFX development, refer to the [Development Guide](https://github.com/dkfans/keeperfx/wiki/Building-KeeperFX) for 
-detailed instructions on setting up a development environment and building KeeperFX from source.
-
-If you wish to discuss development, you can join the [Keeper Klan discord](https://discord.gg/hE4p7vy2Hb) and ask to 
-be added to the KeeperFX development channel.
 
 
 ## Contributing
