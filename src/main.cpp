@@ -3880,7 +3880,7 @@ void game_loop(void)
     if ((game.system_flags & GSF_CaptureMovie) != 0) {
         movie_record_stop();
     }
-    ShutdownSDL();
+    ShutDownSDLAudio();
     SYNCDBG(7,"Done");
 }
 

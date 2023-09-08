@@ -65,7 +65,6 @@ char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
 int sdl_flags = 0;
-SDL_AudioDeviceID deviceId;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
 {
@@ -486,7 +485,7 @@ TbBool init_sound(void)
     snd_settng->redbook_enable = IsRedbookMusicActive();
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
-    sdl_flags = Initialise_SDL_Audio(44100, MIX_DEFAULT_FORMAT, 2, 4096);
+    sdl_flags = InitialiseSDLAudio();
     InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
@@ -779,39 +778,25 @@ void update_first_person_object_ambience(struct Thing *thing)
     ambience_timer = (ambience_timer + 1) % 4;
 }
 
-int Initialise_SDL_Audio(int frequency, unsigned short format, int channels, int chunksize)
+int InitialiseSDLAudio()
 {
     if (SDL_Init(SDL_INIT_AUDIO) < 0) {
         ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
         return 0;
     }
-    SDL_AudioSpec init_wave_spec;
-    init_wave_spec.freq = frequency;
-    init_wave_spec.format = format;
-    init_wave_spec.channels = channels;
-    init_wave_spec.samples = chunksize;
-    init_wave_spec.callback = NULL;
-    init_wave_spec.userdata = NULL;
-    deviceId = SDL_OpenAudioDevice(NULL, 0, &init_wave_spec, NULL, 0);
-    if (deviceId == 0)
-    {
-        ERRORLOG("Unable to open audio device: %s", SDL_GetError());
-        return 0;
-    }
     int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3);
-    TbBool success = (Mix_OpenAudio(frequency, format, channels, chunksize) >= 0);
-    if (!success)
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
     {
-        ERRORLOG("Could not initialise SDL mixer: %s", Mix_GetError());
+        ERRORLOG("Could not open audio device for SDL mixer: %s", Mix_GetError());
+        Mix_Quit();
         return 0;
     }
     Mix_ReserveChannels(1); // reserve for external speech samples
     return flags;
 }
 
-void ShutdownSDL()
+void ShutDownSDLAudio()
 {
-    SDL_CloseAudioDevice(deviceId);
     int frequency, channels;
     unsigned short format;
     int i = Mix_QuerySpec(&frequency, &format, &channels);
@@ -832,8 +817,6 @@ void ShutdownSDL()
 
 void free_sound_chunks()
 {
-    SDL_PauseAudioDevice(deviceId, 1);
-    SDL_ClearQueuedAudio(deviceId);
     Mix_HaltChannel(-1);
     for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
     {
