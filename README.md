@@ -53,6 +53,18 @@ You will need the original Dungeon Keeper files, either from an old CD or from t
 | [Website](https://github.com/dkfans/keeperfx-website) | PHP | https://keeperfx.net |
 
 
+## Tools
+| Tool | Usage |
+|---|---|
+| sndbanker | Makes usable ingame sounds from SFX archives. |
+| po2ngdat | Converts `.po` files (language) to `.dat`. |
+| png2bestpal | Decides the best in-game color palette for an image and creates a `.pal` file. |
+| png2ico | Converts `.png` files to `.ico`. |
+| pngpal2raw | Creates a `.raw` image file that can be used by the game from a `.png` and a `.pal` (palette) file. The palette file can be created with _png2bestpal_. |
+| dkillconv | - |
+| rnctools | - |
+
+
 ## Further Improvements
 KeeperFX could be further improved in these key areas:
 - Multiplayer performance and features
