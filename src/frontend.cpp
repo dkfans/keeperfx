@@ -3653,7 +3653,7 @@ FrontendMenuState get_startup_menu_state(void)
       game_flags2 &= ~GF2_Server;
       SYNCLOG("Setup server");
 
-      if (setup_network_service(NS_TCP_IP))
+      if (setup_network_service(NS_ENET_UDP))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3665,7 +3665,7 @@ FrontendMenuState get_startup_menu_state(void)
   {
       game_flags2 &= ~GF2_Connect;
       SYNCLOG("Setup client");
-      if (setup_network_service(NS_TCP_IP))
+      if (setup_network_service(NS_ENET_UDP))
       {
           frontnet_service_setup();
           frontnet_session_setup();
