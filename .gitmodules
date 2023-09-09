@@ -8,3 +8,6 @@
 [submodule "deps/centijson"]
 	path = deps/centijson
 	url = https://github.com/mity/centijson.git
+[submodule "deps/enet"]
+	path = deps/enet
+	url = https://github.com/zpl-c/enet.git
