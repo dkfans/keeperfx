@@ -1052,6 +1052,7 @@ short setup_game(void)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
   }
+  SYNCMSG("Build image base: %p", GetModuleHandle(NULL));
   v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
   if (GetVersionEx(&v))
   {
