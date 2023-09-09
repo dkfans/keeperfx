@@ -45,6 +45,7 @@
 #include "creature_states.h"
 #include "thing_objects.h"
 #include "config.h"
+#include "lvl_script_commands.h"
 
 #include "keeperfx.hpp"
 #include "game_heap.h"
@@ -63,6 +64,7 @@ const char foot_down_sound_sample_variant[] = {
 char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
+int sdl_flags = 0;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
 {
@@ -483,6 +485,7 @@ TbBool init_sound(void)
     snd_settng->redbook_enable = IsRedbookMusicActive();
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
+    sdl_flags = InitialiseSDLAudio();
     InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
@@ -628,6 +631,26 @@ void sound_reinit_after_load(void)
     }
     ambient_sound_stop();
     init_messages();
+    free_sound_chunks();
+    for (unsigned int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
+    {
+        char *sound = &game.loaded_sound[sample][0];
+        if (sound[0] != '\0')
+        {
+            char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", sound);
+            Ext_Sounds[sample] = Mix_LoadWAV(fname);
+            if (Ext_Sounds[sample] != NULL)
+            {
+                Mix_VolumeChunk(Ext_Sounds[sample], settings.sound_volume);
+                SYNCLOG("Loaded sound file %s into slot %u.", fname, sample);
+                game.sounds_count++;
+            }
+            else
+            {
+                ERRORLOG("Could not reload sound %s (slot %u): %s", fname, sample, Mix_GetError());
+            }
+        }
+    }
 }
 
 void stop_thing_playing_sample(struct Thing *thing, short smpl_idx)
@@ -753,6 +776,65 @@ void update_first_person_object_ambience(struct Thing *thing)
         }
     }
     ambience_timer = (ambience_timer + 1) % 4;
+}
+
+int InitialiseSDLAudio()
+{
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
+        return 0;
+    }
+    int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3);
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
+    {
+        ERRORLOG("Could not open audio device for SDL mixer: %s", Mix_GetError());
+        Mix_Quit();
+        return 0;
+    }
+    Mix_ReserveChannels(1); // reserve for external speech samples
+    return flags;
+}
+
+void ShutDownSDLAudio()
+{
+    int frequency, channels;
+    unsigned short format;
+    int i = Mix_QuerySpec(&frequency, &format, &channels);
+    if (i == 0)
+    {
+        ERRORLOG("Could not query SDL mixer: %s", Mix_GetError());
+    }
+    while (i > 0)
+    {
+        Mix_CloseAudio();
+        i--;
+    }
+    while (Mix_Init(0))
+    {
+        Mix_Quit();
+    }
+}
+
+void free_sound_chunks()
+{
+    Mix_HaltChannel(-1);
+    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
+    {
+        if (Ext_Sounds[i] != NULL)
+        {
+            Mix_FreeChunk(Ext_Sounds[i]);
+            Ext_Sounds[i] = NULL;
+        }
+    }
+    game.sounds_count = 0;
+}
+
+void play_external_sound_sample(unsigned char smpl_id)
+{
+    if (Mix_PlayChannel(-1, Ext_Sounds[smpl_id], 0) == -1)
+    {
+        ERRORLOG("Could not play sound %s: %s", &game.loaded_sound[smpl_id][0], Mix_GetError());
+    }
 }
 /******************************************************************************/
 #ifdef __cplusplus

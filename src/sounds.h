@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include <SDL2/SDL_mixer.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -83,6 +85,7 @@ enum SoundSettingsFlags {
 };
 
 extern int atmos_sound_frequency;
+extern int sdl_flags;
 
 #pragma pack()
 
@@ -107,6 +110,11 @@ void mute_audio(TbBool mute);
 void pause_music(TbBool pause);
 
 void update_first_person_object_ambience(struct Thing *thing);
+
+int InitialiseSDLAudio();
+void ShutDownSDLAudio();
+void free_sound_chunks();
+void play_external_sound_sample(unsigned char smpl_id);
 /******************************************************************************/
 #ifdef __cplusplus
 }
