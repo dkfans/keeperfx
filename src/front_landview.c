@@ -698,8 +698,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
     }
     playing_speech_lvnum = lvnum;
     SYNCMSG("Playing %s", fname);
-    play_streamed_sample(fname, 127, 0);
-    return true;
+    return play_streamed_sample(fname, 127, 0);
 }
 
 TbBool set_pointer_graphic_spland(long frame)
