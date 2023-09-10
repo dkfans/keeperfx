@@ -674,7 +674,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       stop_description_speech();
       char fn[255];
       sprintf(fn, "%s", lvinfo->speech_before);
-      if (!strrchr(fn, '.'))
+      if (strchr(fn, '.') == NULL)
       {
           strcat(fn, ".wav");
       }
@@ -687,7 +687,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       stop_description_speech();
       char fn[255];
       sprintf(fn, "%s", lvinfo->speech_after);
-      if (!strrchr(fn, '.'))
+      if (strchr(fn, '.') == NULL)
       {
           strcat(fn, ".wav");
       }
