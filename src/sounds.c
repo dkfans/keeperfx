@@ -65,6 +65,7 @@ char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
 int sdl_flags = 0;
+Mix_Chunk* streamed_sample;
 /******************************************************************************/
 void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
 {
@@ -834,6 +835,45 @@ void play_external_sound_sample(unsigned char smpl_id)
     if (Mix_PlayChannel(-1, Ext_Sounds[smpl_id], 0) == -1)
     {
         ERRORLOG("Could not play sound %s: %s", &game.loaded_sound[smpl_id][0], Mix_GetError());
+    }
+}
+
+TbBool play_streamed_sample(char* fname, int volume, int loops)
+{
+    if (!SoundDisabled)
+    {
+        if (streamed_sample != NULL)
+        {
+            WARNLOG("Overwriting loaded sample.");
+            stop_streamed_sample();
+        }
+        streamed_sample = Mix_LoadWAV(fname);
+        if (streamed_sample != NULL)
+        {
+            Mix_VolumeChunk(streamed_sample, volume);
+            if (Mix_PlayChannel(DESCRIPTION_CHANNEL, streamed_sample, loops) == -1)
+            {
+                ERRORLOG("Could not play sound %s: %s", fname, Mix_GetError());
+                return false;
+            }
+        }
+        else
+        {
+            ERRORLOG("Could not load sound %s: %s", fname, Mix_GetError());
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+void stop_streamed_sample()
+{
+    Mix_HaltChannel(DESCRIPTION_CHANNEL);
+    if (streamed_sample != NULL)
+    {
+        Mix_FreeChunk(streamed_sample);
+        streamed_sample = NULL;
     }
 }
 /******************************************************************************/
