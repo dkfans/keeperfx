@@ -178,6 +178,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"FIXED_DAMAGE",        16},
   {"HIDDEN_PROJECTILE",   17},
   {"DISARMING",           18},
+  {"BLOCKS_REBIRTH",      19},
   {NULL,                   0},
   };
 
@@ -1059,6 +1060,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 break;
             case 18: // DISARMING
                 shotst->model_flags |= ShMF_Disarming;
+                n++;
+                break;
+            case 19: // BlocksRebirth
+                shotst->model_flags |= ShMF_BlocksRebirth;
                 n++;
                 break;
             default:
