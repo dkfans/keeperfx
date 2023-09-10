@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 #define FIRST_TRACK 2
-#define MUSIC_TRACKS_COUNT 50
+#define MUSIC_TRACKS_COUNT 51
 extern Mix_Music* tracks[];
 extern int max_track;
 
