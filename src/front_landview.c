@@ -672,7 +672,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       if (lvinfo->speech_before[0] == '\0')
         return false;
       stop_description_speech();
-      char fn[255];
+      char *fn = calloc(strlen(lvinfo->speech_before), 1);
       sprintf(fn, "%s", lvinfo->speech_before);
       if (strchr(fn, '.') == NULL)
       {
@@ -686,7 +686,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       if (lvinfo->speech_after[0] == '\0')
         return false;
       stop_description_speech();
-      char fn[255];
+      char *fn = calloc(strlen(lvinfo->speech_after), 1);
       sprintf(fn, "%s", lvinfo->speech_after);
       if (strchr(fn, '.') == NULL)
       {
