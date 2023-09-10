@@ -674,8 +674,9 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       stop_description_speech();
       char fn[255];
       sprintf(fn, "%s", lvinfo->speech_before);
-      if (!strrchr(fn, '.'))
+      if (strchr(fn, '.') == NULL)
       {
+          WARNLOG("No extension specified for good speech file; defaulting to '.wav'.");
           strcat(fn, ".wav");
       }
       fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",fn);
@@ -687,8 +688,9 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       stop_description_speech();
       char fn[255];
       sprintf(fn, "%s", lvinfo->speech_after);
-      if (!strrchr(fn, '.'))
+      if (strchr(fn, '.') == NULL)
       {
+          WARNLOG("No extension specified for evil speech file; defaulting to '.wav'.");
           strcat(fn, ".wav");
       }
       fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",fn);
@@ -696,8 +698,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
     }
     playing_speech_lvnum = lvnum;
     SYNCMSG("Playing %s", fname);
-    play_streamed_sample(fname, 127, 0);
-    return true;
+    return play_streamed_sample(fname, 127, 0);
 }
 
 TbBool set_pointer_graphic_spland(long frame)
