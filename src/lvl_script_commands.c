@@ -25,6 +25,7 @@
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "gui_soundmsgs.h"
+#include "config_settings.h"
 #include "config_effects.h"
 #include "config_trapdoor.h"
 #include "thing_effects.h"
@@ -43,6 +44,7 @@
 #include "post_inc.h"
 #include "music_player.h"
 #include "bflib_sound.h"
+#include "sounds.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -418,6 +420,7 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
+Mix_Chunk* Ext_Sounds[];
 
 static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
 {
@@ -931,9 +934,9 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
 
     value->shorts[0] = trap_id;
     value->shorts[1] = trapvar;
-    value->shorts[2] = scline->np[2];
-    value->shorts[3] = scline->np[3];
-    value->shorts[4] = scline->np[4];
+    value->uarg1 = scline->np[2];
+    value->shorts[4] = scline->np[3];
+    value->shorts[5] = scline->np[4];
     if (trapvar == 3) // SymbolSprites
     {
         char *tmp = malloc(strlen(scline->tp[2]) + strlen(scline->tp[3]) + 3);
@@ -956,7 +959,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            if ((newvalue > LONG_MAX) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
@@ -973,7 +976,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
         }
         else
         {
@@ -1543,9 +1546,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[trap_type];
     struct ManfctrConfig *mconf = &gameadd.traps_config[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
-    short value = context->value->shorts[2];
-    short value2 = context->value->shorts[3];
-    short value3 = context->value->shorts[4];
+    long value = context->value->uarg1;
+    short value2 = context->value->shorts[4];
+    short value3 = context->value->shorts[5];
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
@@ -1929,8 +1932,8 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                     return;
             }
         }
-        value->shorts[2] = slab_id;
-        value->shorts[3] = slab2_id;
+        value->uarg1 = slab_id;
+        value->shorts[4] = slab2_id;
     }
 
     else if (doorvar == 10) // SymbolSprites
@@ -1955,13 +1958,13 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
         if (parameter_is_number(valuestring))
         {
             newvalue = atoi(valuestring);
-            if ((newvalue > SHRT_MAX) || (newvalue < 0))
+            if ((newvalue > LONG_MAX) || (newvalue < 0))
             {
                 SCRPTERRLOG("Value out of range: %d", newvalue);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
         }
         else if (doorvar == 9) // Crate
         {
@@ -1972,7 +1975,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->shorts[2] = newvalue;
+            value->uarg1 = newvalue;
         }
         else
         {
@@ -1991,7 +1994,7 @@ static void set_door_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    SCRIPTDBG(7, "Setting door %s property %s to %d", doorname, scline->tp[1], value->shorts[2]);
+    SCRIPTDBG(7, "Setting door %s property %s to %lu", doorname, scline->tp[1], value->uarg1);
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2001,8 +2004,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
     struct DoorConfigStats *doorst = get_door_model_stats(door_type);
     struct ManfctrConfig *mconf = &gameadd.doors_config[door_type];
     struct ManufactureData *manufctr = get_manufacture_data(gameadd.trapdoor_conf.trap_types_count - 1 + door_type);
-    short value = context->value->shorts[2];
-    short value2 = context->value->shorts[3];
+    short value = context->value->arg1;
+    short value2 = context->value->shorts[4];
     switch (context->value->shorts[1])
     {
         case 2: // ManufactureLevel
@@ -2088,6 +2091,10 @@ static void create_effect_process(struct ScriptContext *context)
     if (Price)
     {
         pos.z.val += 128;
+    }
+    else
+    {
+        pos.z.val += context->value->arg1;
     }
     struct Thing* efftng = create_used_effect_or_element(&pos, context->value->chars[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
@@ -2759,6 +2766,12 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
         case 20: // UPDATEFUNCTION
             objdat->updatefn_idx = context->value->arg2;
+            break;
+        case 21: // DRAWCLASS
+            objdat->draw_class = context->value->arg2;
+            break;
+        case 22: // PERSISTENCE
+            objdat->persistence = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -3767,19 +3780,97 @@ static void set_texture_process(struct ScriptContext *context)
 static void set_music_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    value->chars[0] = scline->np[0];
+    if (parameter_is_number(scline->tp[0]))
+    {
+        value->chars[0] = atoi(scline->tp[0]);
+    }
+    else
+    {
+        if (IsRedbookMusicActive())
+        {
+            SCRPTWRNLOG("Level script wants to play custom track from disk, but game is playing music from CD.");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        // See if a file with this name is already loaded, if so, reuse the same track
+        char* compare_fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
+        for (int i = max_track + 1; i <= game.last_audiotrack; i++)
+        {
+            if (strcmp(compare_fname, game.loaded_track[i]) == 0)
+            {
+                value->chars[0] = i;
+                PROCESS_SCRIPT_VALUE(scline->command);
+                return;
+            }
+        }
+        if ( (game.last_audiotrack < max_track) || (game.last_audiotrack >= MUSIC_TRACKS_COUNT) )
+        {
+            WARNLOG("Music track %d is out of range - resetting.", game.last_audiotrack);
+            game.last_audiotrack = max_track;
+        }
+        if (game.last_audiotrack < MUSIC_TRACKS_COUNT-1)
+        {
+            game.last_audiotrack++;
+        }
+        short tracknumber = game.last_audiotrack;
+            
+        if (tracks[tracknumber] != NULL)
+        {
+            WARNLOG("Overwriting music track %d.", tracknumber);
+            Mix_FreeMusic(tracks[tracknumber]);
+        }
+        const char* fname = prepare_file_fmtpath(FGrp_CmpgMedia, "%s", scline->tp[0]);
+        LbStringCopy(game.loaded_track[tracknumber], fname, DISKPATH_SIZE);
+        tracks[tracknumber] = Mix_LoadMUS(game.loaded_track[tracknumber]);
+        if (tracks[tracknumber] == NULL)
+        {
+            SCRPTERRLOG("Can't load track %ld (%s): %s", tracknumber, game.loaded_track[tracknumber], Mix_GetError());
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        else
+        {
+            SCRPTLOG("Loaded file %s into music track %ld.", game.loaded_track[tracknumber], tracknumber);
+        }
+        value->chars[0] = tracknumber;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_music_process(struct ScriptContext *context)
 {
-    if (context->value->chars[0] >= FIRST_TRACK && context->value->chars[0] <= max_track)
+    
+    short track_number = context->value->chars[0];
+    if (track_number >= FIRST_TRACK && track_number <= MUSIC_TRACKS_COUNT)
     {
-        game.audiotrack = context->value->chars[0];
+        if (track_number != game.audiotrack)
+        {
+            if (IsRedbookMusicActive())
+            {
+                SCRPTLOG("Setting music track to %d.", track_number);
+            }
+            else
+            {
+                char info[255];
+                sprintf(info, "%s", Mix_GetMusicTitle(tracks[track_number]));
+                const char* artist = Mix_GetMusicArtistTag(tracks[track_number]);
+                if (artist[0] != '\0')
+                {
+                    sprintf(info, "%s by %s", info, artist);
+                }
+                const char* copyright = Mix_GetMusicCopyrightTag(tracks[track_number]);
+                if (copyright[0] != '\0')
+                {
+                    sprintf(info, "%s (%s)", info, copyright);
+                }
+                SCRPTLOG("Setting music track to %d: %s", track_number, info);
+            }
+            game.audiotrack = track_number;
+        }
     }
     else
     {
-        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", context->value->chars[0],FIRST_TRACK,max_track);
+        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
     }
 }
 
@@ -3794,7 +3885,49 @@ static void play_message_check(const struct ScriptLine *scline)
     }
     value->chars[0] = scline->np[0];
     value->chars[1] = msgtype_id;
-    value->arg1 = scline->np[2];
+    if (parameter_is_number(scline->tp[2]))
+    {
+        value->shorts[1] = atoi(scline->tp[2]);
+        value->bytes[4] = 0;
+    }
+    else
+    {
+        value->bytes[4] = 1;
+        for (unsigned char i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
+        {
+            if (strcmp(scline->tp[2], game.loaded_sound[i]) == 0)
+            {
+                value->bytes[2] = i;
+                PROCESS_SCRIPT_VALUE(scline->command);
+                return;
+            }
+        }
+        if (game.sounds_count >= EXTERNAL_SOUNDS_COUNT)
+        {
+            ERRORLOG("All external sounds slots are used.");
+            return;
+        }
+        unsigned char slot = game.sounds_count+1;
+        if (sprintf(&game.loaded_sound[slot][0], "%s", script_strdup(scline->tp[2])) < 0)
+        {
+            SCRPTERRLOG("Unable to store filename for external sound %s", scline->tp[1]);
+            return;
+        }
+        char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &game.loaded_sound[slot][0]);
+        Ext_Sounds[slot] = Mix_LoadWAV(fname);
+        if (Ext_Sounds[slot] != NULL)
+        {
+            Mix_VolumeChunk(Ext_Sounds[slot], settings.sound_volume);
+            game.sounds_count++;
+        }
+        else
+        {
+            SCRPTERRLOG("Could not load sound %s: %s", fname, Mix_GetError());
+            return;
+        }
+        SCRPTLOG("Loaded sound file %s into slot %u.", fname, slot);
+        value->bytes[2] = slot;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3802,14 +3935,40 @@ static void play_message_process(struct ScriptContext *context)
 {
     if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
     {
-        switch (context->value->chars[1])
+        if (!context->value->bytes[4])
         {
-            case 1:
-                output_message(context->value->arg1, 0, true);
-                break;
-            case 2:
-                play_non_3d_sample(context->value->arg1);
-                break;
+            switch (context->value->chars[1])
+            {
+                case 1:
+                {
+                    output_message(context->value->shorts[1], 0, true);
+                    break;
+                }
+                case 2:
+                {
+                    play_non_3d_sample(context->value->shorts[1]);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            if (!SoundDisabled)
+            {
+                switch (context->value->chars[1])
+                {
+                    case 1:
+                    {
+                        output_message(-context->value->bytes[2], 0, true);
+                        break;
+                    }
+                    case 2:
+                    {
+                        play_external_sound_sample(context->value->bytes[2]);
+                        break;
+                    }
+                }
+            }
         }
     }
 }
@@ -3856,7 +4015,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
   {"SET_CREATURE_MAX_LEVEL",            "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
-  {"SET_MUSIC",                         "N       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
+  {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
   {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
   {"SET_CREATURE_HEALTH",               "CN      ", Cmd_SET_CREATURE_HEALTH, NULL, NULL},
@@ -3881,7 +4040,7 @@ const struct CommandDesc command_desc[] = {
   {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
-  {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
+  {"PLAY_MESSAGE",                      "PAA     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER, NULL, NULL},
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},

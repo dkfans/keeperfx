@@ -259,6 +259,7 @@ void LbI_PointerHandler::Release(void)
 {
     LbSemaLock semlock(&sema_rel,0);
     semlock.Lock(true);
+    void* surfbuf;
     if ( this->field_1050 )
     {
         if ( lbInteruptMouse )
@@ -268,8 +269,16 @@ void LbI_PointerHandler::Release(void)
         position = NULL;
         sprite = NULL;
         spr_offset = NULL;
-        LbScreenSurfaceRelease(&surf1);
-        LbScreenSurfaceRelease(&surf2);
+        surfbuf = LbScreenSurfaceLock(&surf1);
+        if (surfbuf == NULL)
+        {
+            LbScreenSurfaceRelease(&surf1);
+        }
+        surfbuf = LbScreenSurfaceLock(&surf2);
+        if (surfbuf == NULL)
+        {
+            LbScreenSurfaceRelease(&surf2);
+        }
     }
 }
 

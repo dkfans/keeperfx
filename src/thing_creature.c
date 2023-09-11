@@ -1456,6 +1456,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         }
         pos.z.val += subtile_coord(2,0);
         move_thing_in_map(thing, &pos);
+        remove_all_traces_of_combat(thing);
         reset_interpolation_of_thing(thing);
         ariadne_invalidate_creature_route(thing);
         check_map_explored(thing, pos.x.stl.num, pos.y.stl.num);
@@ -3833,34 +3834,50 @@ TbBool creature_increase_level(struct Thing *thing)
   return false;
 }
 
-TbBool creature_increase_multiple_levels(struct Thing *thing, int count)
+TbBool creature_change_multiple_levels(struct Thing *thing, int count)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control; no action");
         return false;
-  }
-  struct Dungeon* dungeon = get_dungeon(thing->owner);
-  int k = 0;
-  for (int i = 0; i < count; i++)
-  {
-    if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
-    {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-        if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
-        {
-            cctrl->spell_flags |= CSAfF_ExpLevelUp;
-            update_creature_levels(thing);
-            k++;
-      }
     }
-  }
-  if (k > 0)
-  {
-      return true;
-  }
-  return false;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    int k = 0;
+    if (count > 0)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+            {
+                struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+                if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
+                {
+                    cctrl->spell_flags |= CSAfF_ExpLevelUp;
+                    update_creature_levels(thing);
+                    k++;
+                }
+            }
+        }
+        if (k != 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    else
+    {
+        remove_creature_score_from_owner(thing);
+        if (cctrl->explevel < abs(count))
+        {
+            set_creature_level(thing, 0);
+        }
+        else
+        {
+            set_creature_level(thing, cctrl->explevel + count);
+        }
+        return true;
+    }
 }
 
 /**
@@ -5176,6 +5193,7 @@ TbBool remove_creature_score_from_owner(struct Thing *thing)
 
 void init_creature_scores(void)
 {
+    SYNCDBG(8, "Starting");
     long i;
     long score;
     // compute maximum score

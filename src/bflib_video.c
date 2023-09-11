@@ -396,7 +396,7 @@ TbResult LbScreenInitialize(void)
         LbRegisterStandardVideoModes();
     }
     // Initialize SDL library
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE|SDL_INIT_AUDIO) < 0) {
+    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0) {
         ERRORLOG("SDL init: %s",SDL_GetError());
         return Lb_FAIL;
     }
@@ -441,7 +441,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
 
     // SDL video mode flags
     unsigned long sdlFlags = 0;
-    sdlFlags |= SDL_SWSURFACE;
     if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
         sdlFlags |= SDL_WINDOW_FULLSCREEN;
     }
@@ -494,7 +493,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
         return Lb_FAIL;
     }
-
     lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
     if (lbScreenSurface == NULL) {
         ERRORLOG("Failed to initialize mode %d: %s",(int)mode,SDL_GetError());
@@ -538,7 +536,13 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     {
         LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
         if (msspr != NULL)
+        {
           LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
+        }
+        if (!IsMouseInsideWindow())
+        {
+            SDL_WarpMouseInWindow(lbWindow, mdinfo->Width / 2, mdinfo->Height / 2);
+        }
     }
 
     setup_bflib_render(lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);

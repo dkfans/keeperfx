@@ -122,7 +122,7 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
         SYNCDBG(5,"No matching player %d creature of model %d (%s) found to level up",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
-    creature_increase_multiple_levels(thing,count);
+    creature_change_multiple_levels(thing,count);
     return true;
 }
 
@@ -1269,6 +1269,17 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           else
           {
               SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
+          }
+          break;
+      case 34: //TrainingRoomMaxLevel
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.training_room_max_level, val3);
+              game.training_room_max_level = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
       default:
