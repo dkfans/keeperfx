@@ -209,7 +209,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {person_sulk_at_lair, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 55, 1, 0, 1},
   {creature_going_home_to_sleep, NULL, NULL, NULL,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
   {creature_sleep, cleanup_sleep, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 2, 0, 54, 1, 0, 1},
   {NULL, NULL, NULL, NULL,
