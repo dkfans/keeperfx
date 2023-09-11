@@ -82,6 +82,12 @@ static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseB
     return MActn_NONE;
 }
 
+void get_mouse_coords(int *x, int *y)
+{
+    *x = prevMouseX;
+    *y = prevMouseY;
+}
+
 void init_inputcontrol(void)
 {
     SDL_GetMouseState(&prevMouseX, &prevMouseY);
@@ -293,9 +299,9 @@ static void process_event(const SDL_Event *ev)
         break;
 
     case SDL_MOUSEMOTION:
+        SDL_GetMouseState(&prevMouseX, &prevMouseY);
         if (!isMouseActive)
         {
-          SDL_GetMouseState(&prevMouseX, &prevMouseY);
           return;
         }
         if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
