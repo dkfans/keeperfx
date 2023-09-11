@@ -26,12 +26,13 @@
 extern "C" {
 #endif
 /******************************************************************************/
-// Originally was 3000, but we're not using bak_path from DLL which gives us 517 extra
-#define TREE_ROUTE_LEN 3517*4
-#define BORDER_LENGTH 100*4
-#define ROUTE_LENGTH 12000*4
-#define ARID_WAYPOINTS_COUNT 10*4
-#define ARID_PATH_WAYPOINTS_COUNT 256*32
+// TREE_ROUTE_LEN <= 5000 results in crash on big maze map
+// ARID_PATH_WAYPOINTS_COUNT <= 1300 results in crash on big maze map
+#define TREE_ROUTE_LEN 6000
+#define BORDER_LENGTH 100
+#define ROUTE_LENGTH 12000
+#define ARID_WAYPOINTS_COUNT 10
+#define ARID_PATH_WAYPOINTS_COUNT 1400
 
 /******************************************************************************/
 #pragma pack(1)
