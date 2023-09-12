@@ -385,7 +385,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
         return;
     }
-    struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner, traptng->index);
     if (!thing_is_invalid(shotng))
     {
         {
@@ -464,7 +464,7 @@ void activate_trap_shot_on_trap(struct Thing *traptng)
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
         return;
     }
-    struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner, traptng->index);
     if (!thing_is_invalid(shotng)) {
         shotng->shot.hit_type = trapstat->hit_type;
         shotng->parent_idx = 0;
@@ -946,7 +946,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
         }
         return;
     }
-    struct Thing* shotng = create_shot(&thing->mappos, trapstat->created_itm_model, thing->owner);
+    struct Thing* shotng = create_shot(&thing->mappos, trapstat->created_itm_model, thing->owner, thing->index);
     if (thing_is_invalid(shotng)) {
         return;
     }

@@ -2863,7 +2863,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         {
             project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 20);
         }
-        shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
+        shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, firing->index);
         if (thing_is_invalid(shotng))
           return;
         if (shot_model == ShM_Drain)
@@ -2877,7 +2877,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     case ShM_FlameBreathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
           project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 4);
-        shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
+        shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, firing->index);
         if (thing_is_invalid(shotng))
           return;
         draw_flame_breath(&pos1, &pos2, 96, 2);
@@ -2895,7 +2895,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         }
         for (i = 0; i < 32; i++)
         {
-            tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
+            tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, firing->index);
             if (thing_is_invalid(tmptng))
               break;
             shotng = tmptng;
@@ -2919,7 +2919,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
             pos1.x.val = firing->mappos.x.val;
             pos1.y.val = firing->mappos.y.val;
         }
-        shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
+        shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, firing->index);
         if (thing_is_invalid(shotng))
             return;
         shotng->move_angle_xy = angle_xy;

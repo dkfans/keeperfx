@@ -109,7 +109,7 @@ TbBool detonate_shot(struct Thing *shotng)
         long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel);
         long damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, shotng);
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
+        explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
    
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
@@ -1675,7 +1675,7 @@ TngUpdateRet update_shot(struct Thing *thing)
     return move_shot(thing);
 }
 
-struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner)
+struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
@@ -1694,7 +1694,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->class_id = TCls_Shot;
     thing->model = model;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
-    thing->parent_idx = thing->index;
+    thing->parent_idx = parent_idx;
     thing->owner = owner;
     thing->bounce_angle = shotst->bounce_angle;
     thing->fall_acceleration = shotst->fall_acceleration;

@@ -1207,7 +1207,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     {
                         dieflags |= CrDed_NoRebirth;
                     }
-                    kill_creature(tngdst, tngsrc, -1, dieflags);
+                    kill_creature(tngdst, origtng, -1, dieflags);
                     affected = true;
                 }
             }
@@ -1246,6 +1246,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     }
     return affected;
 }
+
 TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
     MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner)
 {
@@ -1461,7 +1462,8 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         // Per thing processing block
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner, false))
+            struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
+            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner, shotst->model_flags))
                 num_affected++;
         }
         // Per thing processing block ends

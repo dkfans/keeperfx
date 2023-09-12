@@ -1396,7 +1396,13 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         }
     }
     // And cast it
-    shtng = create_shot(&pos, ShM_GodLightning, plyr_idx);
+    obtng = create_object(&pos, ObjMdl_PowerLightning, plyr_idx, -1);
+    if (!thing_is_invalid(obtng))
+    {
+        obtng->lightning.spell_level = splevel;
+        obtng->rendering_flags |= TRF_Unknown01;
+    }
+    shtng = create_shot(&pos, ShM_GodLightning, plyr_idx, obtng->index);
     if (!thing_is_invalid(shtng))
     {
         shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
@@ -1411,12 +1417,6 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
         max_damage /= 4;
-    obtng = create_object(&pos, ObjMdl_PowerLightning, plyr_idx, -1);
-    if (!thing_is_invalid(obtng))
-    {
-        obtng->lightning.spell_level = splevel;
-        obtng->rendering_flags |= TRF_Unknown01;
-    }
     i = electricity_affecting_area(&pos, plyr_idx, range, max_damage);
     SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
     if (!thing_is_invalid(shtng))
