@@ -2671,7 +2671,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         StopMusicPlayer();
         break;
     case FeSt_LEVEL_STATS:
-        StopStreamedSample();
+        stop_streamed_sample();
         turn_off_menu(GMnu_FESTATISTICS);
         break;
     case FeSt_HIGH_SCORES:

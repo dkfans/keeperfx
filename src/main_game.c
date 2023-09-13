@@ -45,6 +45,7 @@
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
+#include "sounds.h"
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -295,6 +296,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
+    stop_streamed_sample();
     unsigned int flgmem;
     struct PlayerInfo *player;
     setup_count_players();
