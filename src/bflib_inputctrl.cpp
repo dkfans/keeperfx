@@ -475,11 +475,25 @@ void LbSetMouseGrab(TbBool grab_mouse)
     if (lbMouseGrabbed)
     {
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
-        SDL_SetRelativeMouseMode(SDL_TRUE);
+        if (SDL_getenv("NO_RELATIVE_MOUSE"))
+        {
+            JUSTLOG("NO_RELATIVE_MOUSE is set");
+        }
+        else
+        {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+        }
     }
     else
     {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
+        if (SDL_getenv("NO_RELATIVE_MOUSE"))
+        {
+            JUSTLOG("NO_RELATIVE_MOUSE is set");
+        }
+        else
+        {
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+        }
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
     SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
