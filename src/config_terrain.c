@@ -1240,6 +1240,21 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
     return true;
 }
 
+TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind)
+{
+    for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
+    {
+        struct ComputerProcess* cproc = &comp->processes[i];
+        if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == rkind))
+        {
+            cproc->flags &= ~ComProc_Unkn0004;
+            cproc->last_run_turn = 0;
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * Sets room availability state.
  */
@@ -1248,6 +1263,7 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Computer2* comp = INVALID_COMPUTER_PLAYER;
     if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
@@ -1263,6 +1279,16 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
         dungeonadd->room_buildable[rkind] |= (avail? 1 : 0 );
     else
         dungeonadd->room_buildable[rkind] &= ~1;
+
+    if (dungeonadd->room_buildable[rkind] & 1)
+    {
+        comp = get_computer_player(plyr_idx);
+        if (comp != INVALID_COMPUTER_PLAYER)
+        {
+            reactivate_build_process(comp, rkind);
+        }
+    }
+
     return true;
 }
 
