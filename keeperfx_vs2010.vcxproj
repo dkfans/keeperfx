@@ -30,6 +30,7 @@
     <ClCompile Include="src\bflib_crash.c" />
     <ClCompile Include="src\bflib_datetm.c" />
     <ClCompile Include="src\bflib_dernc.c" />
+    <ClCompile Include="src\bflib_enet.cpp" />
     <ClCompile Include="src\bflib_fileio.c" />
     <ClCompile Include="src\bflib_filelst.c" />
     <ClCompile Include="src\bflib_fmvids.c" />
@@ -271,6 +272,7 @@
     <ClInclude Include="src\bflib_crash.h" />
     <ClInclude Include="src\bflib_datetm.h" />
     <ClInclude Include="src\bflib_dernc.h" />
+    <ClInclude Include="src\bflib_enet.h" />
     <ClInclude Include="src\bflib_fileio.h" />
     <ClInclude Include="src\bflib_filelst.h" />
     <ClInclude Include="src\bflib_fmvids.h" />
