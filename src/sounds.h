@@ -86,6 +86,7 @@ enum SoundSettingsFlags {
 
 extern int atmos_sound_frequency;
 extern int sdl_flags;
+extern Mix_Chunk* streamed_sample;
 
 #pragma pack()
 
@@ -115,6 +116,8 @@ int InitialiseSDLAudio();
 void ShutDownSDLAudio();
 void free_sound_chunks();
 void play_external_sound_sample(unsigned char smpl_id);
+TbBool play_streamed_sample(char* fname, int volume, int loops);
+void stop_streamed_sample();
 /******************************************************************************/
 #ifdef __cplusplus
 }
