@@ -704,7 +704,6 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
             break;
         }
     }
-
     int diff_x;
     int diff_y;
     if ((cor2_id >= 0) && (cor3_id >= 0))

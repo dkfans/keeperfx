@@ -306,6 +306,8 @@ unsigned int packet_file_pos;
     short barrack_max_party_size;
     unsigned short training_room_max_level;
     char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
+    char loaded_sound[EXTERNAL_SOUNDS_COUNT][DISKPATH_SIZE];
+    unsigned char sounds_count;
 };
 
 #pragma pack()
