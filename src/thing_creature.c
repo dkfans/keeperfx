@@ -2466,7 +2466,8 @@ void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         flags |= CrDed_NoEffects;
     }
     if (((flags & CrDed_NoEffects) == 0) && (crstat->rebirth != 0)
-     && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel))
+     && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel)
+        && ((flags & CrDed_NoRebirth) == 0))
     {
         creature_rebirth_at_lair(thing);
         return;
