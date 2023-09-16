@@ -1391,7 +1391,7 @@ static void replace_with_ai(int old_active_players)
             if (!network_player_active(player->packet_num))
             {
                 message_add(player->id_number, "I am the computer now!");
-                JUSTLOG("(t:%lu) I am the computer now!", get_gameturn());
+                JUSTLOG("p:%d I am the computer now!", player->id_number);
 
                 player->allocflags |= PlaF_CompCtrl;
                 toggle_computer_player(i);
