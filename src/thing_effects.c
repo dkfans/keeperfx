@@ -1195,7 +1195,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 affected = true;
                 if (tngdst->health < 0)
                 {
-                    struct Thing *origtng = thing_get(tngsrc->parent_idx);
+                    struct Thing *origtng = thing_get(tngsrc->parent_idx); //parent of the tngsrc(shot) is the shooting creature.
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
