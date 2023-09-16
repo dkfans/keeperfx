@@ -267,7 +267,6 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
 
 long PaletteFadePlayer(struct PlayerInfo *player)
 {
-    return 0;
     long i;
     unsigned char palette[PALETTE_SIZE];
     // Find the fade step
