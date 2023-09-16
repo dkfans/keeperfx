@@ -94,7 +94,7 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigne
         thing = create_object(pos, tngmodel, owner, parent_idx);
         break;
     case TCls_Shot:
-        thing = create_shot(pos, tngmodel, owner, parent_idx);
+        thing = create_shot(pos, tngmodel, owner);
         break;
     case TCls_EffectElem:
         thing = create_effect_element(pos, tngmodel, owner);

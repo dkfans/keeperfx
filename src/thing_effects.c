@@ -1246,7 +1246,6 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     }
     return affected;
 }
-
 TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
     MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner)
 {

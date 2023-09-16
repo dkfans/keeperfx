@@ -1675,7 +1675,7 @@ TngUpdateRet update_shot(struct Thing *thing)
     return move_shot(thing);
 }
 
-struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
+struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned short owner)
 {
     if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
     {
@@ -1694,7 +1694,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->class_id = TCls_Shot;
     thing->model = model;
     memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
-    thing->parent_idx = parent_idx;
+    thing->parent_idx = thing->index;
     thing->owner = owner;
     thing->bounce_angle = shotst->bounce_angle;
     thing->fall_acceleration = shotst->fall_acceleration;
