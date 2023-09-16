@@ -26,6 +26,7 @@
 #include "bflib_sound.h"
 #include "bflib_math.h"
 
+#include "lvl_script_commands.h"
 #include "config_terrain.h"
 #include "game_merge.h"
 #include "game_legacy.h"
@@ -321,6 +322,27 @@ struct SMessage messages[] = {
  */
 TbBool output_message(long msg_idx, long delay, TbBool queue)
 {
+    if (msg_idx < 0)
+    {
+        if (!speech_sample_playing())
+        {
+            if (Mix_PlayChannel(MESSAGE_CHANNEL, Ext_Sounds[-msg_idx], 0) == -1)
+            {
+                SCRPTERRLOG("Could not play sound %s: %s", &game.loaded_sound[-msg_idx][0], Mix_GetError());
+            }
+        }
+        else
+        {
+            if (queue)
+            {
+                if (add_message_to_queue(msg_idx, delay))
+                {
+                    SYNCDBG(8, "Playing queued");
+                    return true;
+                }
+            }
+        }
+    }
     SYNCDBG(5,"Message %ld, delay %ld, queue %s",msg_idx, delay, queue?"on":"off");
     struct SMessage* smsg = &messages[msg_idx];
     if (!message_can_be_played(msg_idx))
