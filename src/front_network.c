@@ -427,8 +427,6 @@ void frontnet_session_setup(void)
 void frontnet_start_setup(void)
 {
     frontend_alliances = -1;
-    net_current_message_index = 0;
-    net_current_message[0] = 0;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;
     net_message_scroll_offset = 0;
