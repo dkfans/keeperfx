@@ -116,7 +116,7 @@ extern "C" {
 #define NOMSG(format, ...)
 
 // Debug function-like macros - for code logging (with function name)
-#define ERRORLOG(format, ...) LbErrorLog("%s: " format "\n", __func__ , ##__VA_ARGS__)
+#define ERRORLOG(format, ...) LbErrorLog("%s(t=%d): " format "\n", __func__ , get_gameturn(), ##__VA_ARGS__)
 #define WARNLOG(format, ...) LbWarnLog("%s: " format "\n", __func__ , ##__VA_ARGS__)
 #define SYNCLOG(format, ...) LbSyncLog("%s: " format "\n", __func__ , ##__VA_ARGS__)
 #define JUSTLOG(format, ...) LbJustLog("%s: " format "\n", __func__ , ##__VA_ARGS__)
@@ -407,6 +407,7 @@ struct IRECT_2D {
     int b;
 };
 
+extern GameTurn get_gameturn();
 #ifdef __cplusplus
 }
 #endif
