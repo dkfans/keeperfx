@@ -1389,7 +1389,7 @@ static void new_creature_type_check(const struct ScriptLine* scline)
     int i = gameadd.crtr_conf.model_count;
     gameadd.crtr_conf.model_count++;
     LbStringCopy(gameadd.crtr_conf.model[i].name, scline->tp[0], COMMAND_WORD_LEN);
-    creature_desc[i-1].name = scline->tp[0];
+    creature_desc[i-1].name = gameadd.crtr_conf.model[i].name;
     creature_desc[i-1].num = i;
 
     load_creaturemodel_config(i, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
