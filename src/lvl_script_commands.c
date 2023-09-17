@@ -1379,22 +1379,26 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
 
 static void new_creature_type_check(const struct ScriptLine* scline)
 {
-    if (gameadd.crtr_conf.model_count >= CREATURE_TYPES_MAX - 1)
+    if (gameadd.crtr_conf.model_count >= CREATURE_TYPES_MAX)
     {
-        SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", scline->tp[0], CREATURE_TYPES_MAX - 1);
+        SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", scline->tp[0], CREATURE_TYPES_MAX);
         return;
     }
 
-    //struct RoomConfigStats* roomst;
     int i = gameadd.crtr_conf.model_count;
     gameadd.crtr_conf.model_count++;
     LbStringCopy(gameadd.crtr_conf.model[i].name, scline->tp[0], COMMAND_WORD_LEN);
     creature_desc[i-1].name = gameadd.crtr_conf.model[i].name;
     creature_desc[i-1].num = i;
 
-    load_creaturemodel_config(i, (CnfLd_AcceptPartial | CnfLd_IgnoreErrors));
-
-    SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i) , gameadd.crtr_conf.model_count-1);
+    if (load_creaturemodel_config(i, 0))
+    {
+        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), gameadd.crtr_conf.model_count - 1);
+    }
+    else
+    {
+        SCRPTERRLOG("Failed to load config for creature '%s'(%).", gameadd.crtr_conf.model[i].name,i);
+    }
 }
 
 static void new_room_type_check(const struct ScriptLine* scline)
