@@ -36,7 +36,7 @@ extern "C" {
 
 static int script_current_condition = 0;
 static unsigned short condition_stack_pos;
-static unsigned short condition_stack[48];
+static unsigned short condition_stack[CONDITIONS_COUNT];
 
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
