@@ -1377,6 +1377,30 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void new_creature_type_check(const struct ScriptLine* scline)
+{
+    if (gameadd.crtr_conf.model_count >= CREATURE_TYPES_MAX)
+    {
+        SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", scline->tp[0], CREATURE_TYPES_MAX);
+        return;
+    }
+
+    int i = gameadd.crtr_conf.model_count;
+    gameadd.crtr_conf.model_count++;
+    LbStringCopy(gameadd.crtr_conf.model[i].name, scline->tp[0], COMMAND_WORD_LEN);
+    creature_desc[i-1].name = gameadd.crtr_conf.model[i].name;
+    creature_desc[i-1].num = i;
+
+    if (load_creaturemodel_config(i, 0))
+    {
+        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), gameadd.crtr_conf.model_count - 1);
+    }
+    else
+    {
+        SCRPTERRLOG("Failed to load config for creature '%s'(%).", gameadd.crtr_conf.model[i].name,i);
+    }
+}
+
 static void new_room_type_check(const struct ScriptLine* scline)
 {
     if (game.slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
@@ -1385,7 +1409,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRIPTDBG(7, "Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.slab_conf.room_types_count + 1);
+    SCRPTLOG("Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.slab_conf.room_types_count + 1);
     game.slab_conf.room_types_count++;
 
     struct RoomConfigStats* roomst;
@@ -1420,7 +1444,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRIPTDBG(7, "Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], gameadd.object_conf.object_types_count + 1);
+    SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], gameadd.object_conf.object_types_count + 1);
     gameadd.object_conf.object_types_count++;
 
     struct ObjectConfigStats* objst;
@@ -1448,7 +1472,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRIPTDBG(7, "Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], gameadd.trapdoor_conf.trap_types_count + 1);
+    SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], gameadd.trapdoor_conf.trap_types_count + 1);
     gameadd.trapdoor_conf.trap_types_count++;
 
     short i = gameadd.trapdoor_conf.trap_types_count-1;
@@ -4114,6 +4138,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
+  {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process },
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
