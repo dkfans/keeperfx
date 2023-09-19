@@ -1397,7 +1397,7 @@ static void new_creature_type_check(const struct ScriptLine* scline)
     }
     else
     {
-        SCRPTERRLOG("Failed to load config for creature '%s'(%).", gameadd.crtr_conf.model[i].name,i);
+        SCRPTERRLOG("Failed to load config for creature '%s'(%d).", gameadd.crtr_conf.model[i].name,i);
     }
 }
 
