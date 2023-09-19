@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "creature_control.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,6 +37,7 @@ struct Dungeon;
 #pragma pack()
 /******************************************************************************/
 long calculate_free_lair_space(struct Dungeon * dungeon);
+TbBool creature_model_is_lair_enemy(short lair_enemy[LAIR_ENEMY_MAX], short crmodel);
 struct Room *get_best_new_lair_for_creature(struct Thing *thing);
 
 /******************************************************************************/
