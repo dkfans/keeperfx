@@ -1224,9 +1224,8 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        for (short j = 0; j < 5; j++)
+        for (short j = 0; j < LAIR_ENEMY_MAX; j++)
         {
-            JUSTMSG("testlog: %s tries fighting with creature model %d", thing_model_name(fightng), crmodel[j]);
             if (crmodel[j] == 0)
                 break;
             if (thing_is_creature(thing) && (thing->model == crmodel[j]) && (cctrl->combat_flags == 0))
