@@ -150,7 +150,7 @@ static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_u
     }
 }
 
-TbBool creature_model_is_lair_enemy(short lair_enemy[], short crmodel)
+TbBool creature_model_is_lair_enemy(const short lair_enemy[], short crmodel)
 {
     for (int i = 0; i < LAIR_ENEMY_MAX; i++)
     {
