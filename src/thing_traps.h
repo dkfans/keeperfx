@@ -21,12 +21,12 @@
 
 #include "bflib_basics.h"
 #include "globals.h"
+#include "engine_camera.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-#define TRAP_TYPES_COUNT        7
 /******************************************************************************/
 #pragma pack(1)
 
@@ -47,8 +47,9 @@ enum ThingTrapModels {
 enum TrapTriggerTypes {
     TrpTrg_None = 0,
     TrpTrg_LineOfSight90,
-    TrpTrg_Pressure,
+    TrpTrg_Pressure_Slab,
     TrpTrg_LineOfSight,
+    TrpTrg_Pressure_Subtile,
 };
 enum TrapActivationTypes {
     TrpAcT_None = 0,
@@ -63,51 +64,50 @@ enum TrapActivationTypes {
 
 struct Thing;
 
-struct TrapStats {  // sizeof=54
-unsigned long field_0;
+struct TrapStats {
+  unsigned long health;
   unsigned long sprite_anim_idx;
   unsigned long sprite_size_max;
-unsigned char unanimated;
+  unsigned char unanimated;
   unsigned long anim_speed;
-unsigned char field_11;
-  unsigned char field_12; // transparency in lower 2 bits
-unsigned char field_13;
+  unsigned char unshaded;
+  unsigned char transparency_flag; // transparency in lower 2 bits
+  unsigned char random_start_frame;
   short size_xy;
-short field_16;
+  short size_yz;
   unsigned char trigger_type;
   unsigned char activation_type;
   unsigned char created_itm_model; // Shot model, effect model, slab kind
   unsigned char hit_type;
-short light_1C; // creates light if not null
-unsigned char light_1E;
-unsigned char light_1F;
-unsigned char field_20[8];
-unsigned char field_28[8];
-short field_30;
-short field_32;
-short field_34;
+  short light_radius; // creates light if not null
+  unsigned char light_intensity;
+  unsigned char light_flag;
+  struct ComponentVector shotvector;
 };
 
 /******************************************************************************/
-//DLLIMPORT extern unsigned char _DK_trap_to_object[8];
-//DLLIMPORT struct TrapStats _DK_trap_stats[7];
-//#define trap_stats _DK_trap_stats
 
 #pragma pack()
 /******************************************************************************/
 TbBool slab_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
+TbBool slab_has_sellable_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
+TbBool subtile_has_sellable_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_has_trap_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool slab_middle_row_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_middle_column_has_trap_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
-TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, ThingModel trpkind);
 
 TbBool destroy_trap(struct Thing *thing);
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx);
+struct Thing* activate_trap_spawn_creature(struct Thing* traptng, unsigned char model);
 struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool trap_is_active(const struct Thing *thing);
 TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool thing_is_deployed_trap(const struct Thing *thing);
+short thing_is_destructible_trap(const struct Thing* thing);
+TbBool thing_is_sellable_trap(const struct Thing* thing);
+TbBool trap_on_bridge(ThingModel trpkind);
 TbBool rearm_trap(struct Thing *traptng);
 TngUpdateRet update_trap(struct Thing *thing);
 void init_traps(void);
@@ -119,7 +119,6 @@ unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand);
 
-extern struct TrapStats old_trap_stats[7];
 /******************************************************************************/
 #ifdef __cplusplus
 }

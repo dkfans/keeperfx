@@ -16,7 +16,9 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "gui_soundmsgs.h"
+#include "bflib_sndlib.h"
 
 #include "globals.h"
 #include "bflib_basics.h"
@@ -24,19 +26,18 @@
 #include "bflib_sound.h"
 #include "bflib_math.h"
 
+#include "lvl_script_commands.h"
 #include "config_terrain.h"
 #include "game_merge.h"
 #include "game_legacy.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT struct MessageQueueEntry _DK_message_queue[MESSAGE_QUEUE_COUNT];
-#define message_queue _DK_message_queue
-DLLIMPORT unsigned long _DK_message_playing;
-#define message_playing _DK_message_playing
-DLLIMPORT struct SMessage _DK_messages[126];
+static struct MessageQueueEntry message_queue[MESSAGE_QUEUE_COUNT];
+static unsigned long message_playing;
 /******************************************************************************/
 enum SpeechPhraseIndex {
     SpchIdx_Invalid = 0,
@@ -321,6 +322,27 @@ struct SMessage messages[] = {
  */
 TbBool output_message(long msg_idx, long delay, TbBool queue)
 {
+    if (msg_idx < 0)
+    {
+        if (!speech_sample_playing())
+        {
+            if (Mix_PlayChannel(MESSAGE_CHANNEL, Ext_Sounds[-msg_idx], 0) == -1)
+            {
+                SCRPTERRLOG("Could not play sound %s: %s", &game.loaded_sound[-msg_idx][0], Mix_GetError());
+            }
+        }
+        else
+        {
+            if (queue)
+            {
+                if (add_message_to_queue(msg_idx, delay))
+                {
+                    SYNCDBG(8, "Playing queued");
+                    return true;
+                }
+            }
+        }
+    }
     SYNCDBG(5,"Message %ld, delay %ld, queue %s",msg_idx, delay, queue?"on":"off");
     struct SMessage* smsg = &messages[msg_idx];
     if (!message_can_be_played(msg_idx))
@@ -358,6 +380,63 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
       }
     }
     WARNDBG(8,"Playing message %ld failed",msg_idx);
+    return false;
+}
+
+#define MinSoundDistance = 1800;
+TbBool output_message_far_from_thing(struct Thing* thing, long msg_idx, long delay, TbBool queue)
+{
+    if (SoundDisabled)
+        return 0;
+    if (GetCurrentSoundMasterVolume() <= 0)
+        return 0;
+    if (thing_is_invalid(thing))
+        return 0;
+    struct Coord3d rcpos;
+    rcpos.x.val = Receiver.pos.val_x;
+    rcpos.y.val = Receiver.pos.val_y;
+    rcpos.z.val = Receiver.pos.val_z;
+    if (get_3d_box_distance(&rcpos, &thing->mappos) > MaxSoundDistance)
+    {
+        SYNCDBG(5, "Message %ld, delay %ld, queue %s", msg_idx, delay, queue ? "on" : "off");
+        struct SMessage* smsg = &messages[msg_idx];
+        if (!message_can_be_played(msg_idx))
+        {
+            SYNCDBG(8, "Delay to turn %ld didn't passed, skipping", (long)smsg->end_time);
+            return false;
+        }
+        if (!speech_sample_playing())
+        {
+            long i = get_phrase_sample(get_phrase_for_message(msg_idx));
+            if (i == 0)
+            {
+                SYNCDBG(8, "No phrase %d sample, skipping", (int)msg_idx);
+                return false;
+            }
+            if (play_speech_sample(i))
+            {
+                message_playing = msg_idx;
+                smsg->end_time = (long)game.play_gameturn + delay;
+                SYNCDBG(8, "Playing prepared");
+                return true;
+            }
+        }
+        if ((msg_idx == message_playing) || (message_already_in_queue(msg_idx)))
+        {
+            SYNCDBG(8, "Message %ld is already in queue", msg_idx);
+            return false;
+        }
+        if (queue)
+        {
+            if (add_message_to_queue(msg_idx, delay))
+            {
+                SYNCDBG(8, "Playing queued");
+                return true;
+            }
+        }
+        WARNDBG(8, "Playing message %ld failed", msg_idx);
+        return false;
+    }
     return false;
 }
 
@@ -483,11 +562,6 @@ void clear_messages(void)
     for (i=0; i < sizeof(messages)/sizeof(messages[0]); i++)
     {
         messages[i].end_time = 0;
-    }
-    // Remove when won't be needed anymore
-    for (i=0; i < sizeof(_DK_messages)/sizeof(_DK_messages[0]); i++)
-    {
-        _DK_messages[i].end_time = 0;
     }
 }
 

@@ -68,8 +68,7 @@ struct CompoundCoordFilterParam {
 };
 
 /******************************************************************************/
-DLLIMPORT struct MapOffset _DK_spiral_step[SPIRAL_STEPS_COUNT];
-#define spiral_step _DK_spiral_step
+extern struct MapOffset spiral_step[SPIRAL_STEPS_COUNT];
 /******************************************************************************/
 #define AROUND_TILES_COUNT      9
 extern struct Around const around[];
@@ -83,6 +82,13 @@ extern struct Around const start_at_around[MID_AROUND_LENGTH];
 extern struct Around const small_around[];
 #define SMALL_AROUND_MID_LENGTH 5
 extern struct Around const small_around_mid[];
+
+#define AROUND_EIGHT_LENGTH 8
+extern struct Around const my_around_eight[];
+#define AROUND_NINE_LENGTH 9
+extern struct Around const my_around_nine[];
+
+
 /******************************************************************************/
 void init_spiral_steps(void);
 
@@ -103,6 +109,7 @@ long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilt
 
 TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, MapCoord x, MapCoord y,
     long spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
+TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoord x, MapCoord y, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
 
 long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbkind);
 

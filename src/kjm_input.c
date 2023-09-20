@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "kjm_input.h"
 
 #include "globals.h"
@@ -32,6 +33,7 @@
 #include "frontend.h"
 #include "front_input.h"
 #include "frontmenu_ingame_map.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,6 +41,39 @@ extern "C" {
 /******************************************************************************/
 TbBool wheel_scrolled_up;
 TbBool wheel_scrolled_down;
+
+unsigned long key_modifiers;
+int defining_a_key;
+long defining_a_key_id;
+
+long left_button_held_x;
+long left_button_held_y;
+long left_button_double_clicked_y;
+long left_button_double_clicked_x;
+long right_button_double_clicked_y;
+long right_button_double_clicked_x;
+char right_button_clicked;
+char left_button_clicked;
+long right_button_released_x;
+long right_button_released_y;
+char right_button_double_clicked;
+long left_button_released_y;
+long left_button_released_x;
+char left_button_double_clicked;
+char right_button_released;
+char right_button_held;
+long right_button_click_space_count;
+long right_button_held_y;
+long left_button_clicked_y;
+long left_button_clicked_x;
+long left_button_click_space_count;
+long right_button_held_x;
+char left_button_released;
+long right_button_clicked_y;
+long right_button_clicked_x;
+char left_button_held;
+
+long key_to_string[256];
 
 /** Initialization array, used to create array which stores index of text name of keyboard keys. */
 struct KeyToStringInit key_to_string_init[] = {

@@ -19,8 +19,10 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_fileio.h"
 
+#include <errno.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -38,6 +40,7 @@
 #include <dos.h>
 #include <direct.h>
 #endif
+#include "post_inc.h"
 
 #if defined(_WIN32)
 #ifdef __cplusplus
@@ -76,120 +79,6 @@ WINBASEAPI DWORD WINAPI GetLastError(void);
 void convert_find_info(struct TbFileFind *ffind);
 /******************************************************************************/
 
-int LbDriveCurrent(unsigned int *drive)
-{
-#if defined(_WIN32)||defined(DOS)||defined(GO32)
-  *drive=_getdrive();
-#else
-  //Let's assume we're on 'C' drive on Unix ;)
-  *drive=3;
-#endif
-  return 1;
-}
-
-//  Changes the current disk drive into given one
-int LbDriveChange(const unsigned int drive)
-{
-  int result;
-#if defined(_WIN32)||defined(DOS)||defined(GO32)
-  int reterror = _chdrive(drive);
-  if ( reterror )
-  {
-    result = -1;
-  } else
-  {
-    result = 1;
-  }
-#else
-  //Let's assume we can only be on 'C' drive on Unix
-  if ( drive!=3 )
-  {
-    result = -1;
-  } else
-  {
-    result = 1;
-  }
-#endif
-  return result;
-}
-
-/** Returns if a given drive exists.
- *
- * @param drive
- * @return
- */
-int LbDriveExists(const unsigned int drive)
-{
-  int result;
-#if defined(_WIN32)||defined(DOS)||defined(GO32)
-  unsigned int lastdrive=_getdrive();
-  if ( _chdrive(drive) )
-  {
-    result = -1;
-  } else
-  {
-    result = 1;
-    _chdrive(lastdrive);
-  }
-#else
-  //Let's assume we have only 'C' drive on Unix
-  if ( drive!=3 )
-  {
-    result = -1;
-  } else
-  {
-    result = 1;
-  }
-#endif
-  return result;
-}
-
-/** Changes the current directory on the specified drive to the specified path.
- *  If no drive is specified in path then the current drive is assumed.
- *  The path can be either relative to the current directory
- *  on the specified drive or it can be an absolute path name.
- *
- * @param path
- * @return
- */
-int LbDirectoryChange(const char *path)
-{
-  int result;
-  if ( chdir(path) )
-    result = -1;
-  else
-    result = 1;
-  return result;
-}
-
-int LbDriveFreeSpace(const unsigned int drive, struct TbDriveInfo *drvinfo)
-{
-  int result;
-#if defined(_WIN32)||defined(DOS)||defined(GO32)
-  struct _diskfree_t diskspace;
-  int reterror = _getdiskfree(drive, &diskspace);
-  if ( reterror )
-  {
-    result = -1;
-  } else
-  {
-    drvinfo->TotalClusters = diskspace.total_clusters;
-    drvinfo->FreeClusters = diskspace.avail_clusters;
-    drvinfo->SectorsPerCluster = diskspace.sectors_per_cluster;
-    drvinfo->BytesPerSector = diskspace.bytes_per_sector;
-    result = 1;
-  }
-#else
-    //On non-win32 systems - return anything big enough
-    drvinfo->TotalClusters = 65535;
-    drvinfo->FreeClusters = 65535;
-    drvinfo->SectorsPerCluster = 512;
-    drvinfo->BytesPerSector = 512;
-    result = 1;
-#endif
-  return result;
-}
-
 short LbFileExists(const char *fname)
 {
   return access(fname,F_OK) == 0;
@@ -199,6 +88,27 @@ int LbFilePosition(TbFileHandle handle)
 {
   int result = tell(handle);
   return result;
+}
+
+int create_directory_for_file(const char * fname)
+{
+  const int size = strlen(fname) + 1;
+  char * tmp = (char *) malloc(size);
+  char * separator = strchr(fname, '/');
+
+  while (separator != NULL) {
+    memcpy(tmp, fname, separator - fname);
+    tmp[separator - fname] = 0;
+    if (_mkdir(tmp) != 0) {
+      if (errno != EEXIST) {
+        free(tmp);
+        return 0;
+      }
+    }
+    separator = strchr(++separator, '/');
+  }
+  free(tmp);
+  return 1;
 }
 
 TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
@@ -234,7 +144,9 @@ TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 #ifdef __DEBUG
       LbSyncLog("LbFileOpen: LBO_CREAT mode\n");
 #endif
-        rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY, SH_DENYNO, S_IREAD|S_IWRITE);
+        if (create_directory_for_file(fname)) {
+          rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY, SH_DENYNO, S_IREAD|S_IWRITE);
+        }
     };break;
   case Lb_FILE_MODE_OLD:
     {
@@ -383,8 +295,7 @@ long LbFileLength(const char *fname)
 void convert_find_info(struct TbFileFind *ffind)
 {
   struct _finddata_t *fdata=&(ffind->Reserved);
-  strncpy(ffind->Filename,fdata->name,144);
-  ffind->Filename[143]='\0';
+  snprintf(ffind->Filename,144, "%s", fdata->name);
 #if defined(_WIN32)
   GetShortPathName(fdata->name,ffind->AlternateFilename,14);
 #else
@@ -447,17 +358,6 @@ int LbFileFindEnd(struct TbFileFind *ffind)
     return 1;
 }
 
-//Renames a disk file
-int LbFileRename(const char *fname_old, const char *fname_new)
-{
-  int result;
-  if ( rename(fname_old,fname_new) )
-    result = -1;
-  else
-    result = 1;
-  return result;
-}
-
 //Removes a disk file
 int LbFileDelete(const char *filename)
 {
@@ -467,11 +367,6 @@ int LbFileDelete(const char *filename)
   else
     result = 1;
   return result;
-}
-
-char *LbGetCurrWorkDir(char *dest, const unsigned long maxlen)
-{
-  return getcwd(dest,maxlen);
 }
 
 int LbDirectoryCurrent(char *buf, unsigned long buflen)

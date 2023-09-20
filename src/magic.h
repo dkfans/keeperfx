@@ -33,6 +33,8 @@ extern "C" {
 struct PlayerInfo;
 struct Thing;
 
+extern const long power_sight_close_instance_time[];
+
 enum CastCheckFlags {
     CastChk_Default = 0, /*< Default all flags. */
     CastChk_Final = 0x0001, /*< Final check - should be only a formality, as there were checks before. */

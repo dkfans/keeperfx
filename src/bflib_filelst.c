@@ -17,21 +17,22 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_filelst.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT extern ModifyDataLoadFnameFunc *_DK_modify_data_load_filename_function;
 /******************************************************************************/
 
-ModifyDataLoadFnameFunc *modify_data_load_filename_function=&defaultModifyDataLoadFilename;
+static ModifyDataLoadFnameFunc *modify_data_load_filename_function=&defaultModifyDataLoadFilename;
 
 /******************************************************************************/
 
@@ -159,7 +160,6 @@ short LbDataLoadAll(struct TbLoadFiles load_files[])
 ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFnameFunc *newfunc)
 {
   modify_data_load_filename_function = newfunc;
-  _DK_modify_data_load_filename_function = newfunc;
   return newfunc;
 }
 

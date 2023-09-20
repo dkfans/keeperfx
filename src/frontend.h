@@ -65,8 +65,8 @@ enum FrontendMenuStates {
   FeSt_STORY_POEM,
   FeSt_CREDITS,
   FeSt_DEMO,
-  FeSt_NET_MODEM,
-  FeSt_NET_SERIAL,
+  FeSt_UNUSED1,
+  FeSt_UNUSED2,
   FeSt_LEVEL_STATS,
   FeSt_HIGH_SCORES,
   FeSt_TORTURE,
@@ -104,171 +104,71 @@ struct NetMessage { // sizeof = 0x41
 };
 
 /******************************************************************************/
-DLLIMPORT struct GuiButtonInit _DK_event_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_options_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_instance_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_quit_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_load_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_save_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_video_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_sound_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_error_box_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_pause_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_hold_audience_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_armageddon_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_dungeon_special_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_resurrect_creature_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_transfer_creature_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_main_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_load_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_service_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_session_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_start_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_modem_buttons[37];
-DLLIMPORT struct GuiButtonInit _DK_frontend_net_serial_buttons[22];
-DLLIMPORT struct GuiButtonInit _DK_frontend_statistics_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_autopilot_menu_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_define_keys_buttons[];
-DLLIMPORT struct GuiButtonInit _DK_frontend_option_buttons[];
-
-DLLIMPORT char _DK_info_tag;
-#define info_tag _DK_info_tag
-DLLIMPORT char _DK_room_tag;
-#define room_tag _DK_room_tag
-DLLIMPORT char _DK_spell_tag;
-#define spell_tag _DK_spell_tag
-DLLIMPORT char _DK_trap_tag;
-#define trap_tag _DK_trap_tag
-DLLIMPORT char _DK_creature_tag;
-#define creature_tag _DK_creature_tag
-DLLIMPORT char _DK_input_string[8][16];
-#define input_string _DK_input_string
-DLLIMPORT char _DK_gui_error_text[256];
-#define gui_error_text _DK_gui_error_text
-DLLIMPORT long _DK_net_service_scroll_offset;
-#define net_service_scroll_offset _DK_net_service_scroll_offset
-DLLIMPORT long _DK_net_number_of_services;
-#define net_number_of_services _DK_net_number_of_services
-DLLIMPORT long _DK_net_comport_index_active;
-#define net_comport_index_active _DK_net_comport_index_active
-DLLIMPORT long _DK_net_speed_index_active;
-#define net_speed_index_active _DK_net_speed_index_active
-DLLIMPORT long _DK_net_number_of_players;
-#define net_number_of_players _DK_net_number_of_players
-DLLIMPORT long _DK_net_number_of_enum_players;
-#define net_number_of_enum_players _DK_net_number_of_enum_players
-DLLIMPORT long _DK_net_map_slap_frame;
-#define net_map_slap_frame _DK_net_map_slap_frame
-DLLIMPORT long _DK_net_level_hilighted;
-#define net_level_hilighted _DK_net_level_hilighted
-DLLIMPORT struct NetMessage _DK_net_message[NET_MESSAGES_COUNT];
-#define net_message _DK_net_message
-DLLIMPORT long _DK_net_number_of_messages;
-#define net_number_of_messages _DK_net_number_of_messages
-DLLIMPORT long _DK_net_message_scroll_offset;
-#define net_message_scroll_offset _DK_net_message_scroll_offset
-DLLIMPORT long _DK_net_session_index_active_id;
-#define net_session_index_active_id _DK_net_session_index_active_id
-DLLIMPORT long _DK_net_session_scroll_offset;
-#define net_session_scroll_offset _DK_net_session_scroll_offset
-DLLIMPORT long _DK_net_player_scroll_offset;
-#define net_player_scroll_offset _DK_net_player_scroll_offset
-DLLIMPORT extern struct GuiButton _DK_active_buttons[ACTIVE_BUTTONS_COUNT];
-#define active_buttons _DK_active_buttons
-DLLIMPORT long _DK_frontend_mouse_over_button_start_time;
-#define frontend_mouse_over_button_start_time _DK_frontend_mouse_over_button_start_time
-DLLIMPORT short _DK_old_menu_mouse_x;
-#define old_menu_mouse_x _DK_old_menu_mouse_x
-DLLIMPORT short _DK_old_menu_mouse_y;
-#define old_menu_mouse_y _DK_old_menu_mouse_y
-DLLIMPORT unsigned char _DK_menu_ids[3];
-#define menu_ids _DK_menu_ids
-DLLIMPORT unsigned char _DK_new_objective;
-#define new_objective _DK_new_objective
-DLLIMPORT extern int _DK_frontend_menu_state;
-#define frontend_menu_state _DK_frontend_menu_state
-DLLIMPORT extern int _DK_load_game_scroll_offset;
-#define load_game_scroll_offset _DK_load_game_scroll_offset
-DLLIMPORT unsigned char _DK_video_gamma_correction;
-#define video_gamma_correction _DK_video_gamma_correction
+extern char info_tag;
+extern char room_tag;
+extern char spell_tag;
+extern char trap_tag;
+extern char creature_tag;
+extern char input_string[8][16];
+extern char gui_error_text[256];
+extern long net_service_scroll_offset;
+extern long net_number_of_services;
+extern long net_number_of_players;
+extern long net_number_of_enum_players;
+extern long net_map_slap_frame;
+extern long net_level_hilighted;
+extern struct NetMessage net_message[NET_MESSAGES_COUNT];
+extern long net_number_of_messages;
+extern long net_message_scroll_offset;
+extern long net_session_index_active_id;
+extern long net_session_scroll_offset;
+extern long net_player_scroll_offset;
+extern struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
+extern long frontend_mouse_over_button_start_time;
+extern short old_menu_mouse_x;
+extern short old_menu_mouse_y;
+extern unsigned char menu_ids[3];
+extern unsigned char new_objective;
+extern int frontend_menu_state;
+extern int load_game_scroll_offset;
+extern unsigned char video_gamma_correction;
+extern MenuID vid_change_query_menu;
 
 // *** SPRITES ***
-DLLIMPORT struct TbSprite *_DK_font_sprites;
-#define font_sprites _DK_font_sprites
-DLLIMPORT struct TbSprite *_DK_end_font_sprites;
-#define end_font_sprites _DK_end_font_sprites
-DLLIMPORT unsigned char * _DK_font_data;
-#define font_data _DK_font_data
-
-DLLIMPORT extern struct TbSprite *_DK_frontend_font[FRONTEND_FONTS_COUNT];
-#define frontend_font _DK_frontend_font
-DLLIMPORT extern struct TbSprite *_DK_frontend_end_font[FRONTEND_FONTS_COUNT];
-#define frontend_end_font _DK_frontend_end_font
-DLLIMPORT extern unsigned char * _DK_frontend_font_data[FRONTEND_FONTS_COUNT];
-#define frontend_font_data _DK_frontend_font_data
-DLLIMPORT extern unsigned char * _DK_frontend_end_font_data[FRONTEND_FONTS_COUNT];
-#define frontend_end_font_data _DK_frontend_end_font_data
-
-DLLIMPORT extern struct TbSprite *_DK_button_sprite;
-#define button_sprite _DK_button_sprite
-DLLIMPORT extern struct TbSprite *_DK_end_button_sprites;
-#define end_button_sprites _DK_end_button_sprites
-DLLIMPORT extern unsigned char * _DK_button_sprite_data;
-#define button_sprite_data _DK_button_sprite_data
-DLLIMPORT extern unsigned long _DK_end_button_sprite_data;
-#define end_button_sprite_data _DK_end_button_sprite_data
-
-DLLIMPORT extern struct TbSprite *_DK_winfont;
-#define winfont _DK_winfont
-DLLIMPORT extern struct TbSprite *_DK_end_winfonts;
-#define end_winfonts _DK_end_winfonts
-DLLIMPORT unsigned char * _DK_winfont_data;
-#define winfont_data _DK_winfont_data
-DLLIMPORT unsigned char * _DK_end_winfont_data;
-#define end_winfont_data _DK_end_winfont_data
-
-DLLIMPORT struct TbSprite *_DK_edit_icon_sprites;
-#define edit_icon_sprites _DK_edit_icon_sprites
-DLLIMPORT struct TbSprite *_DK_end_edit_icon_sprites;
-#define end_edit_icon_sprites _DK_end_edit_icon_sprites
-DLLIMPORT unsigned char * _DK_edit_icon_data;
-#define edit_icon_data _DK_edit_icon_data
-
-DLLIMPORT extern struct TbSprite *_DK_port_sprite;
-#define port_sprite _DK_port_sprite
-DLLIMPORT extern struct TbSprite *_DK_end_port_sprites;
-#define end_port_sprites _DK_end_port_sprites
-DLLIMPORT extern unsigned char * _DK_port_sprite_data;
-#define port_sprite_data _DK_port_sprite_data
-
-DLLIMPORT extern unsigned long _DK_playing_bad_descriptive_speech;
-#define playing_bad_descriptive_speech _DK_playing_bad_descriptive_speech
-DLLIMPORT extern unsigned long _DK_playing_good_descriptive_speech;
-#define playing_good_descriptive_speech _DK_playing_good_descriptive_speech
-DLLIMPORT extern long _DK_scrolling_index;
-#define scrolling_index _DK_scrolling_index
-DLLIMPORT extern long _DK_scrolling_offset;
-#define scrolling_offset _DK_scrolling_offset
-DLLIMPORT extern long _DK_packet_left_button_double_clicked[6];
-#define packet_left_button_double_clicked _DK_packet_left_button_double_clicked
-DLLIMPORT extern long _DK_packet_left_button_click_space_count[6];
-#define packet_left_button_click_space_count _DK_packet_left_button_click_space_count
-
-DLLIMPORT extern char _DK_frontend_alliances;
-#define frontend_alliances _DK_frontend_alliances
-
-DLLIMPORT extern char _DK_busy_doing_gui;
-#define busy_doing_gui _DK_busy_doing_gui
-DLLIMPORT extern long _DK_gui_last_left_button_pressed_id;
-#define gui_last_left_button_pressed_id _DK_gui_last_left_button_pressed_id
-DLLIMPORT extern long _DK_gui_last_right_button_pressed_id;
-#define gui_last_right_button_pressed_id _DK_gui_last_right_button_pressed_id
-DLLIMPORT int _DK_fe_computer_players;
-#define fe_computer_players _DK_fe_computer_players
-DLLIMPORT extern long _DK_old_mouse_over_button;
-#define old_mouse_over_button _DK_old_mouse_over_button
-DLLIMPORT extern long _DK_frontend_mouse_over_button;
-#define frontend_mouse_over_button _DK_frontend_mouse_over_button
+extern struct TbSprite *font_sprites;
+extern struct TbSprite *end_font_sprites;
+extern unsigned char * font_data;
+extern struct TbSprite *frontend_font[FRONTEND_FONTS_COUNT];
+extern struct TbSprite *frontend_end_font[FRONTEND_FONTS_COUNT];
+extern unsigned char * frontend_font_data[FRONTEND_FONTS_COUNT];
+extern unsigned char * frontend_end_font_data[FRONTEND_FONTS_COUNT];
+extern struct TbSprite *button_sprite;
+extern struct TbSprite *end_button_sprites;
+extern unsigned char * button_sprite_data;
+extern unsigned long end_button_sprite_data;
+extern struct TbSprite *winfont;
+extern struct TbSprite *end_winfonts;
+extern unsigned char * winfont_data;
+extern unsigned char * end_winfont_data;
+extern struct TbSprite *edit_icon_sprites;
+extern struct TbSprite *end_edit_icon_sprites;
+extern unsigned char * edit_icon_data;
+extern struct TbSprite *port_sprite;
+extern struct TbSprite *end_port_sprites;
+extern unsigned char * port_sprite_data;
+extern unsigned long playing_bad_descriptive_speech;
+extern unsigned long playing_good_descriptive_speech;
+extern long scrolling_index;
+extern long scrolling_offset;
+extern long packet_left_button_double_clicked[6];
+extern long packet_left_button_click_space_count[6];
+extern char frontend_alliances;
+extern char busy_doing_gui;
+extern long gui_last_left_button_pressed_id;
+extern long gui_last_right_button_pressed_id;
+extern int fe_computer_players;
+extern long old_mouse_over_button;
+extern long frontend_mouse_over_button;
 
 #pragma pack()
 /******************************************************************************/
@@ -292,8 +192,7 @@ extern unsigned char * testfont_data[TESTFONTS_COUNT];
 extern unsigned char *testfont_palette[3];
 #endif
 /******************************************************************************/
-DLLIMPORT char *_DK_mdlf_for_cd(struct TbLoadFiles *);
-DLLIMPORT char *_DK_mdlf_default(struct TbLoadFiles *);
+extern char *mdlf_default(struct TbLoadFiles *);
 /******************************************************************************/
 int frontend_font_char_width(int fnt_idx,char c);
 int frontend_font_string_width(int fnt_idx, const char *str);
@@ -418,6 +317,7 @@ void turn_off_roaming_menus(void);
 
 void frontend_set_player_number(long plr_num);
 TbBool frontend_start_new_campaign(const char *cmpgn_fname);
+void frontend_draw_product_version(struct GuiButton *gbtn);
 /******************************************************************************/
 #ifdef __cplusplus
 }

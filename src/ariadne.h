@@ -26,12 +26,13 @@
 extern "C" {
 #endif
 /******************************************************************************/
-// Originally was 3000, but we're not using bak_path from DLL which gives us 517 extra
-#define TREE_ROUTE_LEN 3517
+// TREE_ROUTE_LEN <= 5000 results in crash on big maze map
+// ARID_PATH_WAYPOINTS_COUNT <= 1300 results in crash on big maze map
+#define TREE_ROUTE_LEN 6000
 #define BORDER_LENGTH 100
 #define ROUTE_LENGTH 12000
 #define ARID_WAYPOINTS_COUNT 10
-#define ARID_PATH_WAYPOINTS_COUNT 256
+#define ARID_PATH_WAYPOINTS_COUNT 1400
 
 /******************************************************************************/
 #pragma pack(1)
@@ -100,7 +101,7 @@ struct Ariadne { // sizeof = 102
     /** Amount of nearest waypoints stored in the array. */
     unsigned char stored_waypoints; // offs = 0x51
     /** Total amount of waypoints planned on the way towards endpos. */
-    unsigned char total_waypoints;
+    unsigned int total_waypoints;
   struct Coord3d pos_53;
   struct Coord3d pos_59;
   unsigned char manoeuvre_state;
@@ -140,24 +141,26 @@ struct Pathway { // sizeof = 7192
   long field_1C14;
 };
 
-struct WayPoints { // sizeof = 1040
+struct WayPoints {
   long wpfield_0;
   long wpfield_4;
   long wpfield_8;
   long wpfield_C;
-  long wpfield_10[256];
+  long wpfield_10[ARID_PATH_WAYPOINTS_COUNT];
 };
 
 struct Navigation { // sizeof = 0x27
   unsigned char navstate;
-  unsigned char field_1[3];
+  unsigned char side;
+  unsigned char field_2;
+  unsigned char field_3;
   unsigned char field_4;
-  long field_5;
-  long field_9;
-  long field_D;
+  long dist_to_final_pos;
+  long distance_to_next_pos;
+  long angle;
   unsigned char field_11[4];
-  unsigned short field_15;
-  unsigned short field_17;
+  SubtlCodedCoords first_colliding_block;
+  SubtlCodedCoords field_17;
   unsigned char field_19[2];
   struct Coord3d pos_next;
   struct Coord3d pos_final;
@@ -169,65 +172,21 @@ struct FOV { // sizeof=0x18
     struct PathWayPoint tipC;
 };
 
+struct HugStart {
+    short angle;
+    unsigned char flag;
+};
+
 /******************************************************************************/
-DLLIMPORT unsigned long *_DK_EdgeFit;
-#define EdgeFit _DK_EdgeFit
-DLLIMPORT struct Pathway _DK_ap_GPathway;
-#define ap_GPathway _DK_ap_GPathway
-DLLIMPORT long _DK_tree_routelen;
-#define tree_routelen _DK_tree_routelen
-DLLIMPORT long _DK_tree_route[TREE_ROUTE_LEN];
-#define tree_route _DK_tree_route
-DLLIMPORT long _DK_tree_routecost;
-#define tree_routecost _DK_tree_routecost
-DLLIMPORT long _DK_tree_triA;
-#define tree_triA _DK_tree_triA
-DLLIMPORT long _DK_tree_triB;
-#define tree_triB _DK_tree_triB
-DLLIMPORT long _DK_tree_altA;
-#define tree_altA _DK_tree_altA
-DLLIMPORT long _DK_tree_altB;
-#define tree_altB _DK_tree_altB
-DLLIMPORT long _DK_tree_Ax8;
-#define tree_Ax8 _DK_tree_Ax8
-DLLIMPORT long _DK_tree_Ay8;
-#define tree_Ay8 _DK_tree_Ay8
-DLLIMPORT long _DK_tree_Bx8;
-#define tree_Bx8 _DK_tree_Bx8
-DLLIMPORT long _DK_tree_By8;
-#define tree_By8 _DK_tree_By8
-DLLIMPORT unsigned char *_DK_LastTriangulatedMap;
-#define LastTriangulatedMap _DK_LastTriangulatedMap
-DLLIMPORT unsigned char *_DK_fringe_map;
-#define fringe_map _DK_fringe_map
-DLLIMPORT long _DK_fringe_y1;
-#define fringe_y1 _DK_fringe_y1
-DLLIMPORT long _DK_fringe_y2;
-#define fringe_y2 _DK_fringe_y2
-DLLIMPORT long _DK_fringe_x1;
-#define fringe_x1 _DK_fringe_x1
-DLLIMPORT long _DK_fringe_x2;
-#define fringe_x2 _DK_fringe_x2
-DLLIMPORT long _DK_fringe_y[256];
-#define fringe_y _DK_fringe_y
-DLLIMPORT long _DK_ix_Border;
-#define ix_Border _DK_ix_Border
-DLLIMPORT long _DK_Border[BORDER_LENGTH];
-#define Border _DK_Border
-DLLIMPORT long _DK_route_fwd[ROUTE_LENGTH];
-#define route_fwd _DK_route_fwd
-DLLIMPORT long _DK_route_bak[ROUTE_LENGTH];
-#define route_bak _DK_route_bak
-DLLIMPORT struct Path _DK_fwd_path;
-//#define fwd_path _DK_fwd_path
-DLLIMPORT struct Path _DK_bak_path;
-//#define bak_path _DK_bak_path
+
+extern const struct HugStart blocked_x_hug_start[][2];
+extern const struct HugStart blocked_y_hug_start[][2];
+extern const struct HugStart blocked_xy_hug_start[][2][2];
+
+/******************************************************************************/
+
 
 #pragma pack()
-/******************************************************************************/
-extern unsigned char const actual_sizexy_to_nav_block_sizexy_table[];
-extern struct Path fwd_path;
-extern struct Path bak_path;
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);

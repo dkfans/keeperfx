@@ -17,21 +17,20 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "bflib_basics.h"
 #include "globals.h"
 
 #include <string.h>
 #include <stdarg.h>
 #include <stdio.h>
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <wingdi.h>
-#include <winuser.h>
+#include <ctype.h>
+#include <SDL2/SDL.h>
 
 #include "bflib_datetm.h"
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -219,7 +218,7 @@ void error(const char *codefile,const int ecode,const char *message)
 short error_dialog(const char *codefile,const int ecode,const char *message)
 {
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
-  MessageBox(NULL, message, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, message, NULL);
   return 0;
 }
 
@@ -228,8 +227,7 @@ short error_dialog_fatal(const char *codefile,const int ecode,const char *messag
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
   static char msg_text[2048];
   sprintf(msg_text, "%s This error in '%s' makes the program unable to continue. See '%s' for details.", message, codefile, log_file_name);
-  HWND whandle = GetDesktopWindow();
-  MessageBox(whandle, msg_text, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, msg_text, NULL);
   return 0;
 }
 
@@ -491,7 +489,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
             curr_time.Hour,curr_time.Minute,curr_time.Second);
     }
     if (log->prefix[0] != '\0')
-      fprintf(file, log->prefix);
+      fputs(log->prefix, file);
   vfprintf(file, fmt_str, arg);
   log->position = ftell(file);
   // fclose is slow and automatically happens on normal program exit.
@@ -563,8 +561,44 @@ int LbLogClose(struct TbLog *log)
   return 1;
 }
 
+struct DebugMessage * debug_messages_head = NULL;
+struct DebugMessage ** debug_messages_tail = &debug_messages_head;
+
+void LbPrint(const char * format, ...) {
+  va_list args;
+  va_start(args, format);
+  const int message_length = vsnprintf(NULL, 0, format, args);
+  va_end(args);
+  if (message_length <= 0) {
+    return;
+  }
+  const int message_size = message_length + 1;
+  const int block_size = sizeof(struct DebugMessage) + message_size;
+  struct DebugMessage * message = malloc(block_size);
+  if (message == NULL) {
+    return;
+  }
+  va_start(args, format);
+  vsnprintf(message->text, message_size, format, args);
+  va_end(args);
+  message->next = NULL;
+  *debug_messages_tail = message;
+  debug_messages_tail = &message->next;
+}
+
+void make_lowercase(char * string) {
+  for (char * ptr = string; *ptr != 0; ++ptr) {
+    *ptr = tolower(*ptr);
+  }
+}
+
+void make_uppercase(char * string) {
+  for (char * ptr = string; *ptr != 0; ++ptr) {
+    *ptr = toupper(*ptr);
+  }
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
-

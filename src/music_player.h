@@ -20,6 +20,7 @@
 #define DK_MUSICPLAYER_H
 
 #include "globals.h"
+#include "bflib_basics.h"
 #include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
@@ -27,9 +28,11 @@ extern "C" {
 #endif
 
 #define FIRST_TRACK 2
+#define MUSIC_TRACKS_COUNT 51
+extern Mix_Music* tracks[];
 extern int max_track;
 
-int IsRedbookMusicActive(void);
+TbBool IsRedbookMusicActive(void);
 int InitializeMusicPlayer(void);
 void ShutdownMusicPlayer(void);
 void PlayMusicPlayer(int track);
@@ -37,6 +40,8 @@ void PauseMusicPlayer(void);
 void ResumeMusicPlayer(void);
 void StopMusicPlayer(void);
 void SetMusicPlayerVolume(int volume);
+void free_custom_music();
+void music_reinit_after_load();
 
 #ifdef __cplusplus
 }

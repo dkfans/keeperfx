@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_landview.h"
 
 #include "globals.h"
@@ -53,10 +54,12 @@
 #include "vidmode.h"
 #include "vidfade.h"
 #include "game_legacy.h"
+#include "front_input.h"
 
 #include "keeperfx.hpp"
 
 #include "music_player.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -82,6 +85,22 @@ LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
 struct TbHugeSprite map_window;
 long map_window_len = 0;
+
+TbClockMSec play_desc_speech_time;
+unsigned long played_bad_descriptive_speech;
+unsigned long played_good_descriptive_speech;
+TbSpriteData map_flag_data;
+unsigned long end_map_flag_data;
+struct TbSprite *map_flag;
+struct TbSprite *end_map_flag;
+struct TbSprite *map_font;
+struct TbSprite *map_hand;
+long map_sound_fade;
+unsigned char *map_screen;
+long fe_net_level_selected;
+long net_map_limp_time;
+struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
+long players_currently_in_session;
 /******************************************************************************/
 extern struct TbSetupSprite map_flag_setup_sprites[];
 extern struct TbSetupSprite netmap_flag_setup_sprites[];
@@ -263,7 +282,7 @@ void update_frontmap_ambient_sound(void)
     {
       SetSampleVolume(0, campaign.ambient_good, 127*map_sound_fade/256, 0);
     }
-    SetStreamedSampleVolume(127*map_sound_fade/256);
+    Mix_VolumeChunk(streamed_sample, 127*map_sound_fade/256);
     SetMusicPlayerVolume(map_sound_fade*(long)settings.redbook_volume/256);
   } else
   {
@@ -273,7 +292,7 @@ void update_frontmap_ambient_sound(void)
       SetSampleVolume(0, campaign.ambient_bad, 0, 0);
     }
     SetMusicPlayerVolume(0);
-    SetStreamedSampleVolume(0);
+    Mix_VolumeChunk(streamed_sample, 0);
   }
 }
 
@@ -626,7 +645,7 @@ TbBool stop_description_speech(void)
         playing_good_descriptive_speech = 0;
         playing_bad_descriptive_speech = 0;
         playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
-        StopStreamedSample();
+        stop_streamed_sample();
         return true;
     }
     return false;
@@ -653,20 +672,43 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       if (lvinfo->speech_before[0] == '\0')
         return false;
       stop_description_speech();
-      fname = prepare_file_fmtpath(FGrp_AtlSound,"%s.wav",lvinfo->speech_before);
+      if (strchr(lvinfo->speech_before, '.') == NULL)
+      {
+          WARNLOG("No extension specified for good speech file; defaulting to '.wav'.");
+          char *fn = calloc(strlen(lvinfo->speech_before), 1);
+          sprintf(fn, "%s", lvinfo->speech_before);
+          strcat(fn, ".wav");
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",fn);
+          free(fn);
+      }
+      else
+      {
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_before);
+      }
       playing_good_descriptive_speech = 1;
     } else
     {
       if (lvinfo->speech_after[0] == '\0')
         return false;
       stop_description_speech();
-      fname = prepare_file_fmtpath(FGrp_AtlSound,"%s.wav",lvinfo->speech_after);
+      if (strchr(lvinfo->speech_after, '.') == NULL)
+      {
+          WARNLOG("No extension specified for evil speech file; defaulting to '.wav'.");
+          char *fn = calloc(strlen(lvinfo->speech_after), 1);
+          sprintf(fn, "%s", lvinfo->speech_after);
+          strcat(fn, ".wav");
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",fn);
+          free(fn);
+      }
+      else
+      {
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_after);
+      }
       playing_bad_descriptive_speech = 1;
     }
     playing_speech_lvnum = lvnum;
-    SetStreamedSampleVolume(127);
-    PlayStreamedSample(fname, 1622, 0, 1);
-    return true;
+    SYNCMSG("Playing %s", fname);
+    return play_streamed_sample(fname, 127, 0);
 }
 
 TbBool set_pointer_graphic_spland(long frame)
@@ -950,8 +992,6 @@ TbBool frontnetmap_load(void)
     net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
-    LbTextSetFont(map_font);
-    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     map_sound_fade = 256;
     lbDisplay.DrawFlags = 0;
     SetMusicPlayerVolume(settings.redbook_volume);
@@ -1181,6 +1221,8 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
 void frontmap_draw(void)
 {
     SYNCDBG(8,"Starting");
+    LbTextSetFont(map_font);
+    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
@@ -1197,7 +1239,7 @@ void frontmap_draw(void)
 void check_mouse_scroll(void)
 {
     long mx = GetMouseX();
-    if (mx < 8)
+    if ( (mx < 8) || ( (is_game_key_pressed(Gkey_MoveLeft, NULL, false)) || (is_key_pressed(KC_LEFT,KMod_DONTCARE)) ) )
     {
         map_info.velocity_x -= 8;
         if (map_info.velocity_x < -48)
@@ -1205,7 +1247,7 @@ void check_mouse_scroll(void)
         if (map_info.velocity_x > 48)
             map_info.velocity_x = 48;
   } else
-  if (mx >= lbDisplay.PhysicalScreenWidth-8)
+  if ( (mx >= lbDisplay.PhysicalScreenWidth-8) || ( (is_game_key_pressed(Gkey_MoveRight, NULL, false)) || (is_key_pressed(KC_RIGHT,KMod_DONTCARE)) ) )
   {
     map_info.velocity_x += 8;
     if (map_info.velocity_x < -48)
@@ -1214,7 +1256,7 @@ void check_mouse_scroll(void)
       map_info.velocity_x = 48;
   }
   long my = GetMouseY();
-  if (my < 8)
+  if ( (my < 8) || ( (is_game_key_pressed(Gkey_MoveUp, NULL, false)) || (is_key_pressed(KC_UP,KMod_DONTCARE)) ) )
   {
     map_info.velocity_y -= 8;
     if (map_info.velocity_y < -48)
@@ -1222,7 +1264,7 @@ void check_mouse_scroll(void)
     if (map_info.velocity_y > 48)
       map_info.velocity_y = 48;
   } else
-  if (my >= lbDisplay.PhysicalScreenHeight-8)
+  if ( (my >= lbDisplay.PhysicalScreenHeight-8) || ( (is_game_key_pressed(Gkey_MoveDown, NULL, false)) || (is_key_pressed(KC_DOWN,KMod_DONTCARE)) ) )
   {
     map_info.velocity_y += 8;
     if (map_info.velocity_y < -48)
@@ -1367,6 +1409,8 @@ void draw_map_level_descriptions(void)
 void frontnetmap_draw(void)
 {
     SYNCDBG(8,"Starting");
+    LbTextSetFont(map_font);
+    LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
@@ -1555,7 +1599,7 @@ long frontmap_update(void)
   }
   if (playing_good_descriptive_speech)
   {
-    if (StreamedSampleFinished())
+    if (!Mix_Playing(DESCRIPTION_CHANNEL))
     {
       playing_good_descriptive_speech = 0;
 //      playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
@@ -1616,7 +1660,7 @@ TbBool frontmap_exchange_screen_packet(void)
     }
     if (fe_network_active)
     {
-      if ( LbNetwork_Exchange(nspck) )
+      if ( LbNetwork_Exchange(nspck, &net_screen_packet, sizeof(struct ScreenPacket)) )
       {
           ERRORLOG("LbNetwork_Exchange failed");
           return false;

@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "front_highscore.h"
 #include "globals.h"
 #include "bflib_basics.h"
@@ -34,8 +35,17 @@
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "game_merge.h"
+#include "sprites.h"
+#include "post_inc.h"
 
 /******************************************************************************/
+static long high_score_entry_index;
+
+char high_score_entry[64];
+int fe_high_score_table_from_main_menu;
+long high_score_entry_input_active = -1;
+/******************************************************************************/
+
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
 {
     if ((idx >= campaign.hiscore_count) || (campaign.hiscore_table == NULL))
@@ -76,7 +86,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     int fs_units_per_px;
     {
         int orig_size = 0;
-        spr = &frontend_sprite[33];
+        spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
         for (i=0; i < 6; i++)
         {
             orig_size += spr->SWidth;
@@ -87,7 +97,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     // Draw the high scores area - top
     long pos_x = gbtn->scr_pos_x;
     long pos_y = gbtn->scr_pos_y;
-    spr = &frontend_sprite[25];
+    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
     struct TbSprite* swpspr = spr;
     for (i=6; i > 0; i--)
     {
@@ -101,9 +111,9 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     while (k > 0)
     {
         if (k < 3)
-          i = 33;
+          i = GFS_hugearea_thn_cor_ml;
         else
-          i = 40;
+          i = GFS_hugearea_thc_cor_ml;
         spr = &frontend_sprite[i];
         pos_x = gbtn->scr_pos_x;
         swpspr = spr;
@@ -121,7 +131,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     }
     // Draw the high scores area - bottom
     pos_x = gbtn->scr_pos_x;
-    spr = &frontend_sprite[47];
+    spr = &frontend_sprite[GFS_hugearea_thn_cor_bl];
     swpspr = spr;
     for (i=6; i > 0; i--)
     {
@@ -131,9 +141,9 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     }
     LbTextSetFont(frontend_font[1]);
     lbDisplay.DrawFlags = 0;
-    spr = &frontend_sprite[33];
+    spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
     pos_x = gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16;
-    spr = &frontend_sprite[25];
+    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
     pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
     // The GUI item height should be 11 lines of text
     int tx_units_per_px = gbtn->height * 16 / (11 * (LbTextLineHeight()));
@@ -233,9 +243,9 @@ TbBool frontend_high_score_table_input(void)
     {
         struct HighScore* hscore = &campaign.hiscore_table[high_score_entry_input_active];
         if (lbInkey == KC_ESCAPE) {
-            strncpy(hscore->name, get_string(GUIStr_TeamLeader), HISCORE_NAME_LENGTH);
+            snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", get_string(GUIStr_TeamLeader));
         } else {
-            strncpy(hscore->name, high_score_entry, HISCORE_NAME_LENGTH);
+            snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", high_score_entry);
         }
         high_score_entry_input_active = -1;
         save_high_score_table();

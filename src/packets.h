@@ -26,17 +26,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
+
 enum TbPacketAction {
         PckA_None = 0,
-        PckA_Unknown001,
+        PckA_Unknown001, // Quit
         PckA_Unknown002,
         PckA_Unknown003,
         PckA_Unknown004,
-        PckA_FinishGame,// 5
-        PckA_Unknown006,
-        PckA_Unknown007,
-        PckA_Unknown008,
-        PckA_Unknown009,
+        PckA_FinishGame, // 5
+        PckA_Login,      // From `enum NetMessageType`
+        PckA_UserUpdate,
+        PckA_Frame,
+        PckA_Resync,
         PckA_InitPlayerNum,//10
         PckA_Unknown011,
         PckA_LevelExactCheck,
@@ -178,6 +179,7 @@ enum TbPacketAction {
         PckA_SetRoomspaceSubtile,
         PckA_SetRoomspaceHighlight,
         PckA_SetNearestTeleport,
+        PckA_SetRoomspaceDragPaint,
 };
 
 /** Packet flags for non-action player operation. */
@@ -197,7 +199,7 @@ enum TbPacketControl {
         PCtr_RBtnHeld       = 0x0800,
         PCtr_LBtnRelease    = 0x1000,
         PCtr_RBtnRelease    = 0x2000,
-        PCtr_Unknown4000    = 0x4000,
+        PCtr_Gui            = 0x4000,
         PCtr_MapCoordsValid = 0x8000,
 };
 
@@ -207,10 +209,10 @@ enum TbPacketControl {
 enum TbPacketAddValues {
     PCAdV_None              = 0x00, //!< Dummy flag
     PCAdV_SpeedupPressed    = 0x01, //!< The keyboard modified used for speeding up camera movement is pressed.
-    PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-byte integer; stores context of map coordinates. The context is used to set the Cursor State.
+    PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-bit integer; stores context of map coordinates. The context is used to set the Cursor State.
     PCAdV_CrtrContrlPressed = 0x20, //!< The keyboard modified used for creature control is pressed.
     PCAdV_CrtrQueryPressed  = 0x40, //!< The keyboard modified used for querying creatures is pressed.
-    PCAdV_Unknown80         = 0x80, //!< Seem unused
+    PCAdV_RotatePressed     = 0x80,
 };
 
 enum ChecksumKind {
@@ -240,22 +242,24 @@ enum ChecksumKind {
 struct PlayerInfo;
 struct CatalogueEntry;
 
+extern unsigned long start_seed;
+
 /**
  * Stores data exchanged between players each turn and used to re-create their input.
  */
-struct Packet { // sizeof = 0x11 (17)
+struct Packet {
     int field_0;
     TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
     unsigned char action; //! Action kind performed by the player which owns this packet
-    unsigned short actn_par1; //! Players action parameter #1
-    unsigned short actn_par2; //! Players action parameter #2
-    short pos_x; //! Mouse Cursor Position X
-    short pos_y; //! Mouse Cursor Position Y
+    long actn_par1; //! Players action parameter #1
+    long actn_par2; //! Players action parameter #2
+    long pos_x; //! Mouse Cursor Position X
+    long pos_y; //! Mouse Cursor Position Y
     unsigned short control_flags;
     unsigned char additional_packet_values; // uses the flags and values from TbPacketAddValues
 };
 
-struct PacketSaveHead { // sizeof=0xF (15)
+struct PacketSaveHead {
     unsigned short game_ver_major;
     unsigned short game_ver_minor;
     unsigned short game_ver_release;
@@ -263,7 +267,11 @@ struct PacketSaveHead { // sizeof=0xF (15)
     unsigned long level_num;
     unsigned char players_exist;
     unsigned char players_comp;
+    unsigned long isometric_view_zoom_level;
+    unsigned long frontview_zoom_level;
+    unsigned char video_rotate_mode;
     TbBool chksum_available; // if needed, this can be replaced with flags
+    unsigned long action_seed;
 };
 
 struct PacketEx
@@ -277,8 +285,8 @@ struct PacketEx
 /******************************************************************************/
 struct Packet *get_packet_direct(long pckt_idx);
 struct Packet *get_packet(long plyr_idx);
-void set_packet_action(struct Packet *pckt, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
-void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned short par1, unsigned short par2, unsigned short par3, unsigned short par4);
+void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, long par2, unsigned short par3, unsigned short par4);
+void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype, unsigned long par1, unsigned long par2, unsigned short par3, unsigned short par4);
 void set_packet_control(struct Packet *pckt, unsigned long flag);
 void set_players_packet_control(struct PlayerInfo *player, unsigned long flag);
 unsigned char get_players_packet_action(struct PlayerInfo *player);

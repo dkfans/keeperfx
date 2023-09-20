@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "creature_jobs.h"
 #include "globals.h"
 
@@ -49,6 +50,7 @@
 #include "creature_states_wrshp.h"
 #include "creature_states_lair.h"
 #include "creature_states_pray.h"
+#include "post_inc.h"
 
 /******************************************************************************/
 TbBool creature_can_do_job_always_for_player(const struct Thing *creatng, PlayerNumber plyr_idx, CreatureJob new_job);
@@ -323,7 +325,7 @@ TbBool attempt_anger_job_mad_psycho(struct Thing *creatng)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->spell_flags |= CSAfF_MadKilling;
-    cctrl->job_stage = 0;
+    cctrl->mad_psycho.byte_9A = 0;
     return true;
 }
 
@@ -345,7 +347,7 @@ TbBool attempt_anger_job_persuade(struct Thing *creatng)
     if (!external_set_thing_state(creatng, CrSt_CreaturePersuade)) {
         return false;
     }
-    cctrl->job_stage = persuade_count;
+    cctrl->persuade.persuade_count = persuade_count;
     return true;
 }
 
@@ -1091,7 +1093,7 @@ TbBool attempt_job_in_state_internal_for_player(struct Thing *creatng, PlayerNum
     internal_set_thing_state(creatng, crstate);
     // Some states need additional initialization
     if (crstate == CrSt_SeekTheEnemy) {
-        cctrl->word_9A = 0;
+        cctrl->seek_enemy.enemy_idx = 0;
     }
     return true;
 }

@@ -16,10 +16,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "frontmenu_options.h"
 #include "globals.h"
 #include "bflib_basics.h"
-
+#include "bflib_math.h"
 #include "bflib_guibtns.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
@@ -38,11 +39,20 @@
 #include "config_settings.h"
 #include "keeperfx.hpp"
 #include "gui_topmsg.h"
+#include "lvl_script_commands.h"
+#include "lvl_script.h"
+#include "sounds.h"
+#include "post_inc.h"
+
+#include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
+
+long mentor_level_slider;
+
 const long definable_key_string[] = {
     GUIStr_CtrlUp,
     GUIStr_CtrlDown,
@@ -85,6 +95,14 @@ const long definable_key_string[] = {
     GUIStr_RoomSpaceDecrease,
     GUIStr_SellTrapOnSubtile,
 };
+
+long fe_mouse_sensitivity;
+long sound_level_slider;
+long music_level_slider;
+char video_cluedo_mode;
+char video_shadows;
+char video_textures;
+char video_view_distance_level;
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -218,7 +236,7 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
         const char* mouse_gui_string = get_string(key_to_string[(long)code]);
         int mouse_button_number = (KC_MOUSE1 + 1 - code);
         char mouse_button_number_string[8];
-        itoa(mouse_button_number, mouse_button_number_string, 10);
+        snprintf(mouse_button_number_string, sizeof(mouse_button_number_string), "%d", mouse_button_number);
         strcat(mouse_button_label, mouse_gui_string);
         strcat(mouse_button_label, " ");
         strcat(mouse_button_label, mouse_button_number_string);
@@ -246,31 +264,25 @@ void frontend_draw_define_key(struct GuiButton *gbtn)
 
 void gui_video_shadows(struct GuiButton *gbtn)
 {
-    settings.video_shadows = _DK_video_shadows;
-    copy_settings_to_dk_settings();
+    settings.video_shadows = video_shadows;
 }
 
 void gui_video_view_distance_level(struct GuiButton *gbtn)
 {
     settings.view_distance = video_view_distance_level;
-    copy_settings_to_dk_settings();
 }
 
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
     struct Packet* pckt = get_packet(my_player_number);
-    if (settings.video_rotate_mode) {
-        set_packet_action(pckt, PckA_SwitchView, 5, 0, 0, 0);
-    } else {
-        set_packet_action(pckt, PckA_SwitchView, 2, 0, 0, 0);
-    }
+    set_packet_action(pckt, PckA_SwitchView, rotate_mode_to_view_mode(settings.video_rotate_mode), 0, 0, 0);
     save_settings();
 }
 
 void gui_video_cluedo_mode(struct GuiButton *gbtn)
 {
     struct Packet* pckt = get_packet(my_player_number);
-    set_packet_action(pckt, PckA_SetCluedo, _DK_video_cluedo_mode, 0, 0, 0);
+    set_packet_action(pckt, PckA_SetCluedo, video_cluedo_mode, 0, 0, 0);
 }
 
 void gui_video_gamma_correction(struct GuiButton *gbtn)
@@ -280,24 +292,50 @@ void gui_video_gamma_correction(struct GuiButton *gbtn)
     set_players_packet_action(player, PckA_SetGammaLevel, video_gamma_correction, 0, 0, 0);
 }
 
+int make_audio_slider_linear(int a)
+{
+    float scaled = fastPow(a / 127.0, 0.5);
+    float clamped = max(min(scaled, 1.0), 0.0);
+    return CEILING(lerp(0, 127, clamped));
+}
+int make_audio_slider_nonlinear(int a)
+{
+    float scaled = fastPow(a / 127.0, 2.00);
+    float clamped = max(min(scaled, 1.0), 0.0);
+    return CEILING(lerp(0, 127, clamped));
+}
+
 void gui_set_sound_volume(struct GuiButton *gbtn)
 {
     if (gbtn->id_num == BID_SOUND_VOL)
     {
-      if (settings.sound_volume != sound_level)
+      if (settings.sound_volume != sound_level_slider)
           do_sound_menu_click();
     }
-    settings.sound_volume = sound_level;
+    settings.sound_volume = make_audio_slider_nonlinear(sound_level_slider);
     save_settings();
     SetSoundMasterVolume(settings.sound_volume);
     SetMusicMasterVolume(settings.sound_volume);
+    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
+    {
+        if (Ext_Sounds[i] != NULL)
+        {
+            Mix_VolumeChunk(Ext_Sounds[i], settings.sound_volume);
+        }
+    }
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)
 {
-    settings.redbook_volume = music_level;
+    settings.redbook_volume = make_audio_slider_nonlinear(music_level_slider);
     save_settings();
     SetMusicPlayerVolume(settings.redbook_volume);
+}
+
+void gui_set_mentor_volume(struct GuiButton *gbtn)
+{
+    settings.mentor_volume = make_audio_slider_nonlinear(mentor_level_slider);
+    save_settings();
 }
 
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
@@ -359,10 +397,10 @@ void frontend_draw_invert_mouse(struct GuiButton *gbtn)
  */
 void init_video_menu(struct GuiMenu *gmnu)
 {
-    _DK_video_shadows = settings.video_shadows;
+    video_shadows = settings.video_shadows;
     video_view_distance_level = settings.view_distance;
-    _DK_video_textures = settings.video_textures;
-    _DK_video_cluedo_mode = settings.video_cluedo_mode;
+    video_textures = settings.video_textures;
+    video_cluedo_mode = settings.video_cluedo_mode;
     video_gamma_correction = settings.gamma_correction;
 }
 
@@ -372,7 +410,8 @@ void init_video_menu(struct GuiMenu *gmnu)
  */
 void init_audio_menu(struct GuiMenu *gmnu)
 {
-    music_level = settings.redbook_volume;
-    sound_level = settings.sound_volume;
+    music_level_slider = make_audio_slider_linear(settings.redbook_volume);
+    sound_level_slider = make_audio_slider_linear(settings.sound_volume);
+    mentor_level_slider = make_audio_slider_linear(settings.mentor_volume);
 }
 /******************************************************************************/

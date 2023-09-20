@@ -38,8 +38,10 @@ enum MapCoordClipFlags {
 };
 
 struct Map {
-      unsigned char flags;
-      unsigned long data;
+      unsigned char flags; // flags in enum SlabAttrFlags
+      unsigned long data; // 4b unused 4b filled_subtiles 2b wibble_value 11b unused 11b column
+      ThingIndex mapwho;
+      PlayerBitFlag revealed;
 };
 
 #define INVALID_MAP_BLOCK (&bad_map_block)
@@ -47,25 +49,17 @@ struct Map {
 #define STL_PER_SLB 3
 #define COORD_PER_STL 256
 #define FILLED_COLUMN_HEIGHT 1280
+#define DEFAULT_MAP_SIZE 85
 
 #pragma pack()
 /******************************************************************************/
 extern struct Map bad_map_block;
-extern const long map_to_slab[];
-extern MapSubtlCoord map_subtiles_x;
-extern MapSubtlCoord map_subtiles_y;
 extern MapSubtlCoord map_subtiles_z;
-extern MapSlabCoord map_tiles_x;
-extern MapSlabCoord map_tiles_y;
-extern long navigation_map_size_x;
-extern long navigation_map_size_y;
 extern unsigned char *IanMap;
 extern long nav_map_initialised;
 /******************************************************************************/
 /** Convert subtile to slab. */
 #define subtile_slab(stl) ((stl)/STL_PER_SLB)
-/** Convert subtile to slab, assuming the subtile is in correct range. */
-#define subtile_slab_fast(stl) ((int)map_to_slab[stl])
 /** Converts slab to a subtile. Second parameter selects a specific subtile. */
 #define slab_subtile(slb,subnum) ((MapSubtlCoord)(slb)*STL_PER_SLB+(MapSubtlCoord)(subnum))
 /** Converts slab to its central subtile. */
@@ -75,7 +69,7 @@ extern long nav_map_initialised;
 #define coord_slab(coord) ((coord)/(COORD_PER_STL*STL_PER_SLB))
 #define subtile_coord(stl,spos) ((stl)*COORD_PER_STL+(spos))
 #define subtile_coord_center(stl) ((stl)*COORD_PER_STL+COORD_PER_STL/2)
-#define navmap_tile_number(stl_x,stl_y) ((stl_y)*navigation_map_size_x+(stl_x))
+#define navmap_tile_number(stl_x,stl_y) ((stl_y)*gameadd.navigation_map_size_x+(stl_x))
 /******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Map *get_map_block_at_pos(long stl_num);
@@ -93,8 +87,8 @@ TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit);
 
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y);
 long get_ceiling_height(const struct Coord3d *pos);
-long get_mapwho_thing_index(const struct Map *mapblk);
-void set_mapwho_thing_index(struct Map *map, long thing_idx);
+ThingIndex get_mapwho_thing_index(const struct Map *mapblk);
+void set_mapwho_thing_index(struct Map *map, ThingIndex thing_idx);
 long get_mapblk_column_index(const struct Map *map);
 void set_mapblk_column_index(struct Map *map, long column_idx);
 long get_mapblk_filled_subtiles(const struct Map *mapblk);
@@ -142,6 +136,9 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all);
 void clear_mapwho(void);
 void clear_mapmap(void);
+
+void set_map_size(MapSlabCoord x,MapSlabCoord y);
+void init_map_size(LevelNumber lvnum);
 /******************************************************************************/
 #ifdef __cplusplus
 }

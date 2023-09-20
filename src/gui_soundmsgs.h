@@ -42,6 +42,7 @@ extern "C" {
 #define MESSAGE_DELAY_LORD          100
 #define MESSAGE_DELAY_CRTR_JOINED   500
 #define MESSAGE_DELAY_STARVING      500
+#define MESSAGE_CHANNEL             0
 
 enum TbSpeechMessages {
         SMsg_None = 0,
@@ -197,9 +198,12 @@ struct MessageQueueEntry { // sizeof = 9
      long delay;
 };
 
+struct Thing;
+
 #pragma pack()
 /******************************************************************************/
 TbBool output_message(long msg_idx, long delay, TbBool queue);
+TbBool output_message_far_from_thing(struct Thing* thing, long msg_idx, long delay, TbBool queue);
 TbBool message_already_in_queue(long msg_idx);
 TbBool add_message_to_queue(long msg_idx, long delay);
 TbBool message_queue_empty(void);

@@ -36,11 +36,11 @@ extern "C" {
 #pragma pack(1)
 
 struct LightingTable { // sizeof = 8
-  unsigned char field_0;
-  unsigned char field_1;
-  unsigned char delta_x;
-  unsigned char delta_y;
-  unsigned long field_4;
+  unsigned char is_populated;
+  unsigned char distance; // 2 - 15
+  char delta_x; // signed
+  char delta_y; // signed
+  unsigned long field_4; // strength? decay?
 };
 
 struct ShadowCache { // sizeof = 129
@@ -51,18 +51,18 @@ struct ShadowCache { // sizeof = 129
 /**
  * Structure which stores data of lights and shadows system.
  */
-struct LightsShadows { // sizeof = 164886
-    struct LightingTable lighting_tables[1024];
+struct LightsShadows {
+    struct LightingTable lighting_tables[1024]; // only the first 700 elements are populated
     unsigned char shadow_limits[SHADOW_LIMITS_COUNT];
     struct Light lights[LIGHTS_COUNT];
     struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
-    unsigned short stat_light_map[256*256];
-    long field_46149;
-    char light_enabled;
-    char lighting_tables_initialised;
+    unsigned short stat_light_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+    long global_ambient_light;
+    TbBool light_enabled;
+    TbBool lighting_tables_initialised;
     unsigned long light_rand_seed;
-    int lighting_tables_idx;
-    unsigned short subtile_lightness[256*256];
+    int lighting_tables_count; // number of entries in lighting_tables
+    unsigned short subtile_lightness[MAX_SUBTILES_X*MAX_SUBTILES_Y];
 };
 
 #pragma pack()

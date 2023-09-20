@@ -18,7 +18,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-
+#include "pre_inc.h"
 #include "KeeperSpeech.h"
 
 #ifdef _WIN32
@@ -29,6 +29,8 @@
 
 static HINSTANCE ks_lib;
 #endif
+#include <string.h>
+#include "post_inc.h"
 
 static struct
 {

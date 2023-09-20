@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne_findcache.h"
 
 #include "globals.h"
@@ -24,13 +25,13 @@
 #include "ariadne_tringls.h"
 #include "ariadne_points.h"
 #include "ariadne.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-DLLIMPORT long _DK_find_cache[4][4];
-#define find_cache _DK_find_cache
+static long find_cache[4][4];
 
 /******************************************************************************/
 long triangle_brute_find8_near(long pos_x, long pos_y)

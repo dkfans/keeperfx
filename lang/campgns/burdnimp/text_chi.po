@@ -1,0 +1,672 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file burdnimp/text_chi.pot
+#      KeeperFX Campaign Strings translation file
+#  @par Purpose:
+#      Contains translation of the national strings in the game.
+#  @par Comment:
+       Use this file to improve the translation for specific language.
+#  @author   KeeperFX Team
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+"Project-Id-Version: Burdened Imp campaign for KeeperFX\n"
+"Language-Team: KeeperFX Team \n"
+"MIME-Version: 1.0\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: chi\n"
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid ""
+msgstr ""
+
+#: guitext:1 guitext:2 guitext:3 guitext:4 guitext:5 guitext:6 guitext:7
+#: guitext:8 guitext:9
+msgctxt "In-game message"
+msgid "Moo3"
+msgstr ""
+
+#: guitext:10
+msgctxt "In-game message"
+msgid ""
+"Moonshadow Keep. Home to many knights and wizards of moral excellence. They "
+"truly are a stain on this world and deserving of certain death. Speed is of "
+"the essence, Keeper, restore this old dungeon as fast as you can. I can "
+"already hear heroes readying themselves to meet you."
+msgstr "这里是月影守护。是德高望重的骑士和巫师们的家园。这些家伙真是这个世界上的"
+"败类，理所应当被杀掉。行动速度是取胜的关键，守护者，尽快重建这座古老的地下城吧。"
+"我已经感觉到英雄们准备要来见一见你了。"
+
+#: guitext:11
+msgctxt "In-game message"
+msgid ""
+"A final and desperate attempt to reclaim this land, Keeper. They should have "
+"fled when they had the chance. Make them regret their choice."
+msgstr "这是英雄们为了夺回这片土地做出的最后一次绝望的挣扎，守护者。这些家伙本该"
+"趁机逃跑的。让他们为做出反抗的决定后悔吧。"
+
+#: guitext:12
+msgctxt "In-game message"
+msgid ""
+"All knights and wizards have been defeated. Without their leadership and "
+"wisdom this land has no choice but to bow down before your will. Expertly "
+"done, Keeper."
+msgstr "所有的骑士和巫师都被击败了。失去了他们的领导与智慧，这片土地的居民"
+"现在只得俯首听命于你了。干得漂亮，守护者。"
+
+#: guitext:13
+msgctxt "In-game message"
+msgid ""
+"Be warned, Keeper! A band of heroes has left the keep and are heading for "
+"your domain!"
+msgstr "注意，守护者！一群英雄已经离开了他们的基地并正在向你的地下城进发！"
+
+#: guitext:14
+msgctxt "In-game message"
+msgid ""
+"Be advised, Keeper, more heroes have left the safety of their home to "
+"destroy your dungeon."
+msgstr "提高警惕，守护者！更多的英雄离开了他们安逸的家园并前来摧毁你的地下城。"
+
+#: guitext:15
+msgctxt "In-game message"
+msgid ""
+"Beware! Another group of heroes left the keep! See that they receive an "
+"unexpected, fitting and gruesome end."
+msgstr "小心！又一群英雄前来进攻！给他们的性命一个难以想象，毛骨悚然，"
+"又罪有应得的结局吧。"
+
+#: guitext:16
+msgctxt "In-game message"
+msgid ""
+"Keeper, here comes Yet another attempt to destroy your dungeon heart. How "
+"pathetic."
+msgstr "守护者，敌人再一次发动了进攻，试图摧毁你的地下城心脏。多么可悲啊。"
+
+#: guitext:17
+msgctxt "In-game message"
+msgid ""
+"A large group of heroes have left the keep once more to make a final, "
+"desperate attempt to destroy you. I thought you'd like to know."
+msgstr "又一大波英雄离开了基地，为了打败你而发起最后一次绝望的挣扎。我觉得"
+"你已经做好准备了吧。"
+
+#: guitext:18
+msgctxt "In-game message"
+msgid ""
+"The heroes have given up their pointless attacks on your dungeon and are "
+"cowering inside their fortress. The time has come to hunt them down. Put "
+"every so called noble knight and wizard out of his misery. Any other hero "
+"slain is more meat for your creatures to feast upon."
+msgstr "英雄们终于放弃了对你的地下城毫无意义的进攻，而是龟缩在他们的堡垒里。"
+"是时候猎杀他们了。让每一个所谓高尚的骑士和巫师解脱吧，顺便杀戮其他的英雄，"
+"把他们当作点心喂养你的怪物。"
+
+#: guitext:19
+msgctxt "In-game message"
+msgid "Moo4"
+msgstr ""
+
+#: guitext:20
+msgctxt "In-game message"
+msgid ""
+"An epic battle raged here, resulting in the defeat of a keeper. The heroes "
+"are healing their wounds and have not yet destroyed the keeper's dungeon. "
+"This is the perfect time to take his place and display the power of a real "
+"Keeper. Find your way into the dungeon and find the last remaining portal. "
+"But be wary, Keeper! You lack resources and minions. The death of a single "
+"creature could mean instant failure!"
+msgstr "这个王国刚刚发生过一场大规模的战争，以前任守护者的失败而告终。英雄们"
+"正在重整旗鼓，还没来得及彻底摧毁守护者的地下城。这是一个接替他来展示一名真正"
+"守护者的力量的绝佳时机！找到一条正确的路，并占领这里仅存的一个入口。但要注意，"
+"守护者，这里的资源和怪物都十分稀少。哪怕失去一只怪物都可能意味着失败！"
+
+#: guitext:21
+msgctxt "In-game message"
+msgid ""
+"Without servants or gold it will be impossible to go on, Keeper. You have "
+"failed miserably."
+msgstr "你失去了唯一的仆从和仅有的金子，已经无法继续发展了，守护者。你已经悲惨"
+"地失败了。"
+
+#: guitext:22 guitext:24 guitext:26
+msgctxt "In-game message"
+msgid "This creature was vital to your success, Keeper! You have failed."
+msgstr "这只怪物是不可或缺的，守护者！你已经失败了。"
+
+#: guitext:23
+msgctxt "In-game message"
+msgid ""
+"A skeleton. Use his abilities wisely, Keeper. He might prove to be quite "
+"useful."
+msgstr "你发现了一只骷髅。聪明地运用它独特的能力吧，守护者。它会对你很有帮助的。"
+
+#: guitext:25
+msgctxt "In-game message"
+msgid ""
+"Speed and wings will prove to be useful. Be sure that it does not perish "
+"before it carries out its task."
+msgstr "苍蝇敏捷的速度和飞行的能力能帮你解决问题。在它完成使命之前可别让它死掉了。"
+
+#: guitext:27
+msgctxt "In-game message"
+msgid ""
+"Several cowardly imps have managed to hide during the slaughter and pledge "
+"their allegiance to you. Furthermore, they have restored your ability to "
+"summon them. It is time to dig out the portal and build up your forces. Be "
+"sure to be well prepared when you start your attack on the heroes' fortress."
+msgstr "几只胆小的小鬼为了逃避屠杀而躲在了这里，并愿意为你效忠。不仅如此，它们为"
+"你带来了制造小鬼的魔法。是时候挖向入口，开始建设你的军队了。确保你做足了充分的"
+"准备再去进攻英雄堡垒。"
+
+#: guitext:28
+msgctxt "In-game message"
+msgid ""
+"The lord of the land lies defeated in his stinking pool of corrupted undead "
+"minions and his dungeon heart is shattered like the bones of the skeletons "
+"that protected it. Excellent work, Keeper."
+msgstr "国王倒在了这片充斥着亡灵的尸体而腐臭的水池中，他的地下城心脏也像他"
+"身上的骨头一样粉碎了。干得好，守护者。"
+
+#: guitext:29
+msgctxt "In-game message"
+msgid ""
+"There doesn't seem to be a library available. There is another Keeper who "
+"can provide what you seek. Find him in the south-west and steal his magic. "
+"This Keeper is old and weak and lost his portal during a fight. He should "
+"not be a threat to you."
+msgstr "这里附近好像没有发现图书馆，不过可以去另一个守护者那里占领。去西南方"
+"找到他，并窃取他的魔法。这个年迈而衰弱的守护者在之前的战争中失去了他的入口。"
+"我相信这个家伙无法对你构成威胁的。"
+
+#: guitext:30
+msgctxt "In-game message"
+msgid ""
+"This hallway reeks of death and decay. While the smell is very soothing it "
+"does not belong here. These so-called heroes might have had outside help to "
+"overthrow their enemies. Proceed with caution, Keeper."
+msgstr "走廊里充斥着死尸和腐败的气味。尽管这气味令人舒畅，但并不应该属于这里。"
+"这些所谓的英雄似乎已经请了援兵来对付你。小心谨慎地行动，守护者。"
+
+#: guitext:31
+msgctxt "In-game message"
+msgid ""
+"In case you were taking a nap, a band of fully rested heroes are on their "
+"way to meet you, Keeper."
+msgstr "为了防止你打瞌睡，一群整装待发的英雄正在前来会见你，守护者。"
+
+#: guitext:32
+msgctxt "In-game message"
+msgid "More heroes are on their way. Be ready."
+msgstr "更多的英雄已经上路了。做好准备吧。"
+
+#: guitext:33
+msgctxt "In-game message"
+msgid ""
+"Another feeble attempt has been launched to remove you from this land. Just "
+"that you know."
+msgstr "敌人又一次拙劣地尝试着将你驱逐出这片土地。只是跟你打声招呼。"
+
+#: guitext:34
+msgctxt "In-game message"
+msgid ""
+"Heroes are becoming scarce. A final desperate attack has been launched to "
+"reclaim this dungeon. I see undead among them. What treachery is this?"
+msgstr "英雄的数量减少了。我感觉他们正为了夺回这个地下城，准备发起最后一次绝望"
+"的总攻。我看见敌军里还有亡灵生物。这些叛徒是怎么回事？"
+
+#: guitext:35 guitext:36 guitext:37
+msgctxt "In-game message"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:38
+msgctxt "In-game message"
+msgid ""
+"A portal is absent on this island. Without minions you have no hope of "
+"defeating the enemy Keeper here. However, visiting the nearby hero fortress "
+"might open some recruitment options. Starving heroes make fine skeletons and "
+"you might even be able to attract a vampire or two. Or, if you feel "
+"particularly evil today, why not convert them all to your cause and create a "
+"legion of heroes?"
+msgstr "你必须想办法获得怪物才有希望击败敌方守护者，然而这座岛屿上没有入口。不过，"
+"你可以去附近的英雄堡垒光顾一下，看看能不能找到什么获得军队的办法。饿死的英雄可以"
+"成为优秀的骷髅士兵，你甚至还能弄到一两只吸血鬼。或者，如果你足够邪恶的话，"
+"为什么不招降所有的英雄组建一个人类军团呢？"
+
+#: guitext:39
+msgctxt "In-game message"
+msgid ""
+"A fine display of wickedness. Congratulations, Keeper. Now, what to do with "
+"your remaining heroes..."
+msgstr "你精彩地演绎了什么叫做邪恶。恭喜你，守护者。现在，是时候处理剩下的英雄了…"
+
+#: guitext:40
+msgctxt "In-game message"
+msgid "You cannot hope to win without minions, Keeper. You have failed."
+msgstr "你失去了所有的怪物，已经没有希望获得胜利了，守护者。你已经失败了。"
+
+#: guitext:41
+msgctxt "In-game message"
+msgid ""
+"You are well on your way, Keeper. Thirty or more minions might do to "
+"overthrow your adversary. But it will be wise to gather more. Remember, you "
+"cannot replace fallen minions easily without a portal."
+msgstr "你的计划正在顺利进行，守护者。招揽至少30只怪物来推翻你的对手吧。不过，"
+"最好多搞一点。记住，由于没有入口，你无法轻易地弥补损失的怪物。"
+
+#: guitext:42
+msgctxt "In-game message"
+msgid ""
+"An assortment of heroes have arrived. They will undoubtly attack your "
+"dungeon after seeing the grief you have caused to their friends. Potential "
+"future servants?"
+msgstr "一支英雄杂牌军到来了。目睹了你让他们的朋友遭受的悲痛，他们毫无疑问要来进攻"
+"你的地下城。也许这些家伙可以成为你未来的奴仆？"
+
+#: guitext:43
+msgctxt "In-game message"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:44
+msgctxt "In-game message"
+msgid ""
+"The lord of this land has come to revenge his comrades. What he doesn't know "
+"is that he'll soon be fighting them. One has got to love the irony in that."
+msgstr "国王已经前来为他的战友复仇了。他想不到的是，他马上就要和他已经投敌的战友"
+"交战了。真是耐人寻味的讽刺。"
+
+#: guitext:45
+msgctxt "In-game message"
+msgid ""
+"Magnificent thinking, Keeper. The contamination of these holy wells by your "
+"minions' dirty feet has led to an interesting gift from the Gods. A Horned "
+"Reaper has come to aid you."
+msgstr "不错的想法，守护者。这些圣井已经被你的爪牙的脚印所玷污，黑暗之神决定"
+"赐予你一个奖励。一只冥界使者前来帮助你。"
+
+#: guitext:46
+msgctxt "In-game message"
+msgid ""
+"Most unpleasantly done, Keeper. This knight will make an excellent addition "
+"to your force."
+msgstr "你龌龊的计划成功了，守护者。这名投降的骑士为你的军队增添了一员大将。"
+
+#: guitext:47
+msgctxt "In-game message"
+msgid ""
+"A dragon has joined your cause. There may be others around. Be advised, "
+"Keeper, if you seek to imprisonate and torture your enemy, a dragon's flames "
+"can burn any victim beyond unconsciousness. It would be best to find other "
+"minions to subdue your enemy."
+msgstr "一条龙投靠了你。或许这附近还有它的同类。不过要注意，守护者，如果你想抓"
+"俘虏，你不能用龙来打晕敌军，因为它的火焰会直接把他们烧死。最好找一找其他的怪物，"
+"让他们来帮助你制服敌军吧。"
+
+#: guitext:48 guitext:49 guitext:50
+msgctxt "In-game message"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:51
+msgctxt "In-game message"
+msgid ""
+"Four distinct mages are currently researching ways of becoming a Keeper such "
+"as yourself. If they would succeed there would be four more keepers "
+"threatening your land. Flush them out while they are still simple mortals. "
+"They are holed up in a cave called the Raven's Claw, past an ancient "
+"monastery."
+msgstr "四名杰出的法师正在研究使他们成为像你一样的守护者的方法。如果他们的计划成功，"
+"这片土地将多出四股新的势力，动摇你的地位。趁他们成功之前干掉他们吧。这些家伙躲在一座"
+"古寺后面，叫做乌鸦之爪的洞窟里。"
+
+#: guitext:52
+msgctxt "In-game message"
+msgid ""
+"All mages have been most efficiently removed. This will save you some time "
+"in the future for more important things. Like torturing your prisoners. Or "
+"slapping your imps. Or see a skeleton play with a group of hellhounds. Or "
+"play with your gold. Or flirt with a mistress. Well done."
+msgstr "所有的法师都被利落地解决了。现在你可以省下时间做些更重要的事了：折磨囚犯，"
+"抽打小鬼，玩弄金子，看骷髅逗地狱犬，和黑暗女王调情。干得漂亮。"
+
+#: guitext:53
+msgctxt "In-game message"
+msgid ""
+"Von Lichstein. His bloodsucking days are quite over. A masterful victory."
+msgstr "冯·利希斯坦，这个老吸血鬼的吸血时光终于结束了。一次了不起的胜利。"
+
+#: guitext:54
+msgctxt "In-game message"
+msgid ""
+"Shakara, voodoo witch extraordinaire. She also majored in the summoning of "
+"various types of demons. It is almost a shame to see such a talent wasted... "
+"Almost."
+msgstr "莎卡拉，精通巫毒的老巫婆。她还学习过召唤多种恶魔的魔法。这样的天赋就这么"
+"被浪费了，简直令人遗憾…大概吧。"
+
+#: guitext:55
+msgctxt "In-game message"
+msgid ""
+"Tovus the Dread, a powerful wizard. Now known as Tovus the Dead. He bled "
+"before he could have fled. Well done."
+msgstr "术师托维斯，一名强大的巫师。现在可以改名叫死尸托维斯了。他没能逃命，"
+"却丢了性命。做得好。"
+
+#: guitext:56
+msgctxt "In-game message"
+msgid ""
+"Xaan, once a warlock of great stature. Now he lies on the floor in his own "
+"pool of blood. And his 'stature' died with him. That old fool."
+msgstr "泽安，曾经大名鼎鼎的魔术师。现在他倒在自己的血泊之中，他的名誉也一起毁于"
+"一旦。这个老蠢蛋。"
+
+#: guitext:57
+msgctxt "In-game message"
+msgid "Quite the haunted place, Keeper. Such fun your minions must have!"
+msgstr "这里真是个见鬼的地方，守护者。你的爪牙们一定感觉很有趣！"
+
+#: guitext:58 guitext:59
+msgctxt "In-game message"
+msgid "Moo8"
+msgstr ""
+
+#: guitext:60
+msgctxt "In-game message"
+msgid ""
+"The village of Silversong has been deserted. Rumors are that the people have "
+"fled underground, hiding from their enemies above. Little do they know that "
+"there is more below the ground than they are led to believe. Pay them a "
+"little visit and make them understand that this is your domain. In other "
+"words, destroy their heart and eradicate every hero alive."
+msgstr "银歌国的村庄已经废弃了。据说这里的居民为了躲避陆地上的敌人，而逃进了地底下。"
+"他们对地下世界的恐怖一无所知。去见一下他们，并且让他们明白这里是你的地盘。换句话说，"
+"摧毁他们的地下城心脏，不留一个活口。"
+
+#: guitext:61
+msgctxt "In-game message"
+msgid ""
+"Heroes have come to take their revenge. There's quite a bunch of them. Good "
+"luck, Keeper. You might need it."
+msgstr "英雄们已经前来复仇了。还真来了不少人。祝你好运，守护者。你会需要它的。"
+
+#: guitext:62
+msgctxt "In-game message"
+msgid ""
+"Well done, Keeper. Another piece of land added to your ever growing domain."
+msgstr "干得漂亮，守护者。又一片土地被添加进了你不断扩张的地盘之中。"
+
+#: guitext:63
+msgctxt "In-game message"
+msgid ""
+"Just that you know, someone has undoubtly heard the destruction of this "
+"door. The heroes might be aware of your presence."
+msgstr "只是提醒你一下，敌人肯定已经听到了大门破碎的声音。英雄们应该已经注意"
+"到你的存在了。"
+
+#: guitext:64
+msgctxt "In-game message"
+msgid "Beware, a party of heroes is on its way to find your dungeon heart."
+msgstr "注意，一群英雄正在前来探查你地下城心脏的位置。"
+
+#: guitext:65
+msgctxt "In-game message"
+msgid ""
+"Another try has been initiated to invade and destroy your dungeon. Just that "
+"you know."
+msgstr "又一波英雄正被派来入侵和摧毁你的地下城。只是和你打声招呼。"
+
+#: guitext:66
+msgctxt "In-game message"
+msgid "Heads up, Keeper. More incoming heroes."
+msgstr "打起精神，守护者。更多的英雄来了。"
+
+#: guitext:67
+msgctxt "In-game message"
+msgid ""
+"A few wizards did not agree on you taking their tome of wall shattering. "
+"They are after revenge, Keeper."
+msgstr "几个巫师并不同意你抢走他们伟大的破坏墙壁魔法著作。他们打算向你报仇，"
+"守护者。"
+
+#: guitext:68 guitext:69
+msgctxt "In-game message"
+msgid "Moo9"
+msgstr ""
+
+#: guitext:70
+msgctxt "In-game message"
+msgid ""
+"Well done, Keeper. All knights have been dealt with. The river seems to have "
+"calmed down a bit too. You can now build a bridge to the other side. But "
+"beware, I sense something is coming for you."
+msgstr "干得漂亮，守护者。所有的骑士都被解决掉了。这条河流也变得清静一点了。"
+"你现在可以造桥通向对面了。但是要保持警惕，我有不好的预感。"
+
+#: guitext:71
+msgctxt "In-game message"
+msgid ""
+"Well done. Let's hope the Avatar will not be resurrected this time, although "
+"I fear that it will be the case. But for today You are done here."
+msgstr "干得漂亮。希望这一次圣者再也不会被复活了，虽然我感觉不一定。但至少你"
+"今天的任务已经完成了。"
+
+#: guitext:72
+msgctxt "In-game message"
+msgid ""
+"Well done. Let's hope the Avatar will not escape from your grasp this time, "
+"although I fear that it will be the case. But for today you are done here."
+msgstr "干得漂亮。希望这一次圣者不会从你的地下城中逃走了，虽然我感觉不一定。"
+"但至少你今天的任务已经完成了。"
+
+#: guitext:73
+msgctxt "In-game message"
+msgid ""
+"The Avatar himself has come to defeat the corrupted knights. Ofcourse, he "
+"will not find them, but WILL find you instead. Be ready."
+msgstr "圣者亲自前来处理这些贪腐的骑士们了。当然，圣者已经找不到他们了，只会"
+"找到你。做好准备。"
+
+#: guitext:74
+msgctxt "In-game message"
+msgid ""
+"The shallow river running through this area has a strong current at the "
+"moment. Building bridges would result in failure. You will have to do "
+"without for now."
+msgstr "这条贯穿这片土地的河水流非常湍急，使得你暂时没有办法造桥。你必须先"
+"做些别的事情。"
+
+#: guitext:75
+msgctxt "In-game message"
+msgid ""
+"Six knights occupy this realm, but they are no ordinary knights. These "
+"knights have abandoned their virtues. Lord Angelus the Unjust, Lord Donahan "
+"the Greedy, Lord Espardio the Cowardly, Lord Vladavir the Betrayer, Lord "
+"Demunus the Vile and Lord Gustavo the Unliving all hide here from their "
+"brethren's vengeance. Spineless cowards. Flush them out."
+msgstr "六名骑士统治着这个王国，但是和大多数的骑士不一样，他们早已抛弃了高尚的"
+"品德。偏私的安格鲁斯，贪婪的杜拉汉，懦夫艾斯帕迪奥，叛徒弗拉达威尔，贱人德缪努斯"
+"和罪人古斯塔夫，这些家伙为了逃避其他人类的报复而躲在这里。真是些没骨气的废物。"
+"把他们弄出来。"
+
+#: guitext:76
+msgctxt "In-game message"
+msgid ""
+"How nice. A welcoming party is coming your way. Be sure to accept their "
+"invitation. And be sure to expect more of them."
+msgstr "真不错。一支敌军正在赶往你的地下城迎接你的到来。接受他们的盛情邀请吧。"
+"估计后面还有更多。"
+
+#: guitext:77
+msgctxt "In-game message"
+msgid "More incoming heroes. Do they annoy you yet, Keeper?"
+msgstr "更多的英雄到来了。他们已经让你不耐烦了吗，守护者？"
+
+#: guitext:78
+msgctxt "In-game message"
+msgid ""
+"More heroes have come to invade your home. This looks like their last try to "
+"destroy your dungeon. It is about time they gave up."
+msgstr "又一群英雄前来入侵你的家园。这似乎已经是他们的最后一波进攻了。他们差不多"
+"该放弃了。"
+
+#: guitext:79
+msgctxt "In-game message"
+msgid ""
+"A prison is now available to you, in case you feel like giving some heroes a "
+"new home."
+msgstr "你现在获得了监狱，正好可以安排给英雄们作为他们的新家。"
+
+#: guitext:80
+msgctxt "In-game message"
+msgid "Moo10"
+msgstr ""
+
+#: guitext:81
+msgctxt "In-game message"
+msgid ""
+"Well, there goes your last hope of success. You cannot hope to defeat "
+"anything emptyhanded, can you?"
+msgstr "哦，你失去了最后的希望。你不可能两手空空就能击败敌人，不是吗？"
+
+#: guitext:82
+msgctxt "In-game message"
+msgid ""
+"Although small and annoying, imps are the backbone of your existence. "
+"Without them you are nothing, and since you lost all your servants you are "
+"indeed... nothing."
+msgstr "虽然小鬼身材矮小又惹人烦，但也是你地下城的顶梁柱。没有它们你什么也"
+"做不了，而现在你失去了所有的小鬼，你自己也变得…一无是处了。"
+
+#: guitext:83
+msgctxt "In-game message"
+msgid ""
+"Masterfully done. A victory like this makes my flaming heart burn with "
+"conflagration. Congratulations, Keeper."
+msgstr "出色的表现。这样的一场胜利不禁让我也心潮澎湃。恭喜你，守护者。"
+
+#: guitext:84
+msgctxt "In-game message"
+msgid ""
+"Here you are, with nothing but three little servants and an enemy keeper to "
+"kill. His magic has stripped away your spells and resources, but things are "
+"not so bad... yet. Unless, ofcourse, you pick the wrong door. Choose wisely, "
+"Keeper. Your life depends on it."
+msgstr "你来到了这里，除了3只小鬼以外一无所有，还有一个敌方守护者需要击败。他已经"
+"夺走了你的魔法和资源，不过情况还不算太糟…除非你选择了错误的道路。所以，做出明智的"
+"选择吧，守护者。这关乎着你的命运。"
+
+#: guitext:85
+msgctxt "In-game message"
+msgid ""
+"This old portal is a start, but you will have to find more ways to enlarge "
+"your power. Search around. There are many secrets to be found in this place."
+msgstr "这个老旧的入口可以让你开始发展，不过你还需要想其他办法来壮大你的实力。"
+"探索一下附近吧，这片区域藏着很多秘密。"
+
+#: guitext:86
+msgctxt "In-game message"
+msgid ""
+"You are about ready to start making your enemy's life miserable. Destroy his "
+"dungeon with extreme prejudice."
+msgstr "你可以准备为你的对手带来悲惨的命运了。不顾一切地摧毁他的地下城吧。"
+
+#: guitext:87 guitext:88 guitext:89
+msgctxt "In-game message"
+msgid "Moo11"
+msgstr ""
+
+#: guitext:90
+msgctxt "In-game message"
+msgid ""
+"Four wizards have cast a spell of fear over your servants, Keeper. Twelve "
+"imps fled into the northern part of these caves. Find at least eight of them "
+"and make sure they live. Oh, your servants took your spellbooks as well. "
+"Time to do a thorough search."
+msgstr "这个王国的四名巫师施展了魔法，让你的仆从们感到恐惧，守护者。12只小鬼逃窜"
+"到了北边的洞窟里。至少找到8只小鬼，并确保它们存活。哦对了，你的魔法书也被偷走了。"
+"是时候仔细找一找了。"
+
+#: guitext:91
+msgctxt "In-game message"
+msgid ""
+"An imp was carrying your Create Imp spell in its backpack. You are back in "
+"business. Pay the wizards a little visit, one that they will not survice, "
+"and level their dungeon for good measure."
+msgstr "一只小鬼的背包里带来了制造小鬼魔法书。你现在又有活干了。别忘了见那些巫师"
+"一面，让他们没有生存的余地，并把他们的地下城夷为平地。"
+
+#: guitext:92
+msgctxt "In-game message"
+msgid "Revenge is ever so sweet, don't you agree, Keeper? A marvelous victory."
+msgstr "复仇的滋味总是如此甜蜜，不是吗，守护者？一次伟大的胜利！"
+
+#: guitext:93 guitext:94 guitext:95 guitext:96 guitext:97 guitext:98
+#: guitext:99 guitext:100 guitext:101 guitext:102 guitext:103 guitext:104
+#: guitext:105 guitext:106 guitext:107 guitext:108 guitext:109 guitext:110
+#: guitext:111 guitext:112 guitext:113 guitext:114 guitext:115 guitext:116
+#: guitext:117 guitext:118 guitext:119 guitext:120 guitext:121 guitext:122
+#: guitext:123 guitext:124 guitext:125 guitext:126 guitext:127 guitext:128
+#: guitext:129 guitext:130 guitext:131 guitext:132 guitext:133 guitext:134
+#: guitext:135 guitext:136 guitext:137 guitext:138 guitext:139 guitext:140
+#: guitext:141 guitext:142 guitext:143 guitext:144 guitext:145 guitext:146
+#: guitext:147 guitext:148 guitext:149 guitext:150 guitext:151 guitext:152
+#: guitext:153 guitext:154 guitext:155 guitext:156 guitext:157 guitext:158
+#: guitext:159 guitext:160 guitext:161 guitext:162 guitext:163 guitext:164
+#: guitext:165 guitext:166 guitext:167 guitext:168 guitext:169 guitext:170
+#: guitext:171 guitext:172 guitext:173 guitext:174 guitext:175 guitext:176
+#: guitext:177 guitext:178 guitext:179 guitext:180 guitext:181 guitext:182
+#: guitext:183 guitext:184 guitext:185 guitext:186 guitext:187 guitext:188
+#: guitext:189 guitext:190 guitext:191 guitext:192 guitext:193 guitext:194
+#: guitext:195 guitext:196 guitext:197 guitext:198 guitext:199 guitext:200
+msgctxt "In-game message"
+msgid "Moo"
+msgstr ""
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Moonshadow Keep"
+msgstr "月影守护"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Winterfrost Run"
+msgstr "冬霜之行"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Blistering Furnace"
+msgstr "沸腾之炉"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Raven's Claw"
+msgstr "乌鸦之爪"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Silversong Fall"
+msgstr "银歌之落"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Waterspring River"
+msgstr "清泉之河"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Amberstone Hills"
+msgstr "琥珀石山"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Dreamweave Caverns"
+msgstr "织梦洞窟"

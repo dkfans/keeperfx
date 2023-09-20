@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "ariadne_tringls.h"
 
 #include "globals.h"
@@ -25,6 +26,7 @@
 #include "ariadne_edge.h"
 #include "ariadne.h"
 #include "gui_topmsg.h"
+#include "post_inc.h"
 
 #define EDGELEN_BITS 6
 
@@ -208,11 +210,9 @@ long point_loop(long pt_tri, long pt_cor)
     return k;
 }
 
-HOOK_DK_FUNC(edgelen_set)
 void edgelen_set(long tri_id)
 {
     NAVIDBG(19,"Starting");
-    //_DK_edgelen_set(tri_id); return;
     static const unsigned long EdgeLenBits[][4] = {
         {1, 1, 2, 3},
         {1, 1, 2, 3},
@@ -247,7 +247,6 @@ void edgelen_set(long tri_id)
     set_triangle_edgelen(tri_id, edge_len);
 }
 
-HOOK_DK_FUNC(edge_rotateAC)
 long edge_rotateAC(long tri1_id, long cor1_id)
 {
     long tri2_id = Triangles[tri1_id].tags[cor1_id];

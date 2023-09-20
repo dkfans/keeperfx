@@ -18,6 +18,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include <map>
 #include "bflib_inputctrl.h"
 #include "bflib_basics.h"
@@ -30,6 +31,7 @@
 #include "sounds.h"
 #include "game_legacy.h" // needed for paused and possession_mode below - maybe there is a neater way than this...
 #include <SDL2/SDL.h>
+#include "post_inc.h"
 
 using namespace std;
 
@@ -473,11 +475,25 @@ void LbSetMouseGrab(TbBool grab_mouse)
     if (lbMouseGrabbed)
     {
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
-        SDL_SetRelativeMouseMode(SDL_TRUE);
+        if (SDL_getenv("NO_RELATIVE_MOUSE"))
+        {
+            JUSTLOG("NO_RELATIVE_MOUSE is set");
+        }
+        else
+        {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+        }
     }
     else
     {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
+        if (SDL_getenv("NO_RELATIVE_MOUSE"))
+        {
+            JUSTLOG("NO_RELATIVE_MOUSE is set");
+        }
+        else
+        {
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+        }
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
     SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
@@ -528,8 +544,10 @@ void LbGrabMouseCheck(long grab_event)
                     grab_cursor = false;
                 }
                 break;
-            case MG_OnFocusGained:
             case MG_InitMouse:
+                grab_cursor = true;
+                break;
+            case MG_OnFocusGained:
                 grab_cursor = lbMouseGrab;
                 if (paused && unlock_cursor_when_game_paused())
                 {

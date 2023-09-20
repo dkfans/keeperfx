@@ -112,6 +112,7 @@ long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, 
 HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng);
 
 long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance);
+long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long acceleration);
 
 TbBool update_creature_health_to_max(struct Thing *thing);
 TbBool apply_health_to_thing(struct Thing *thing, long amount);

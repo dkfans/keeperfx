@@ -16,6 +16,7 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#include "pre_inc.h"
 #include "config_strings.h"
 #include "globals.h"
 
@@ -28,13 +29,11 @@
 #include "config.h"
 #include "config_campaigns.h"
 #include "game_merge.h"
+#include "post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-/******************************************************************************/
-DLLIMPORT extern char *_DK_strings_data;
-DLLIMPORT extern char *_DK_strings[DK_STRINGS_MAX+1];
 /******************************************************************************/
 char *gui_strings_data;
 char *gui_strings[GUI_STRINGS_COUNT];
@@ -109,8 +108,6 @@ TbBool setup_gui_strings_data(void)
   reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
   // Analyzing strings data and filling correct values
   short result = create_strings_list(gui_strings, gui_strings_data, strings_data_end, GUI_STRINGS_COUNT-1);
-  // Updating strings inside the DLL
-  LbMemoryCopy(_DK_strings, gui_strings, DK_STRINGS_MAX*sizeof(char *));
   SYNCDBG(19,"Finished");
   return result;
 }
@@ -173,8 +170,14 @@ const char * gui_string(unsigned int index)
 const char * cmpgn_string(unsigned int index)
 {
     if ((campaign.strings == NULL) || (index >= STRINGS_MAX))
-        return lbEmptyString;
-    return campaign.strings[index];
+    {
+        return gui_string(index - STRINGS_MAX);
+    }
+    if (*campaign.strings[index] != '\0')
+    {
+        return campaign.strings[index];
+    }
+    return gui_string(index);
 }
 
 const char * get_string(TextStringId stridx)
