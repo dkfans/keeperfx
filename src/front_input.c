@@ -2989,17 +2989,19 @@ void process_cheat_mode_selection_inputs()
 
 TbBool process_cheat_heart_health_inputs(short *value)
 {
+   return false; //todo 
+
    short new_health = *value;
    if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
    {
-        if (new_health < game.dungeon_heart_health)
+        /*if (new_health < game.dungeon_heart_health) 
         {
             new_health++;
             *value = new_health;
             clear_key_pressed(KC_ADD);
             clear_key_pressed(KC_EQUALS);
             return true;
-        }
+        }*/
     }
     else if ( (is_key_pressed(KC_PERIOD, KMod_SHIFT)) || (is_key_pressed(KC_PERIOD, KMod_NONE)) )
     {
