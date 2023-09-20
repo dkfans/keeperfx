@@ -5199,8 +5199,11 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
     if (room_is_invalid(room) || (!room_role_matches(room->kind,RoRoF_KeeperStorage)))
     {
         WARNLOG("The heart thing is not in heart room");
-        long i = dungeonadd->room_kind[RoK_DUNGHEART];
-        room = room_get(i);
+        if (dungeonadd->backup_heart_idx == 0)
+        {
+            long i = dungeonadd->room_kind[RoK_DUNGHEART];
+            room = room_get(i);
+        }
     }
     if (room_is_invalid(room))
     {
