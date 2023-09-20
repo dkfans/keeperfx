@@ -606,7 +606,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     if (n >= -1)
                     {
                         objst->is_heart = n;
-                        gameadd.dungeon_heart_model = tmodel;
                     }
                 }
             case 0: // comment
@@ -614,8 +613,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case -1: // end of buffer
                 break;
             default:
-                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                    cmd_num,block_buf,config_textname);
+                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.", cmd_num,block_buf,config_textname);
                 break;
             }
             skip_conf_to_next_line(buf,&pos,len);

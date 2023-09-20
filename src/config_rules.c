@@ -301,7 +301,6 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         game.boulder_reduce_health_room = 10;
         game.pay_day_gap = 5000;
         game.chest_gold_hold = 1000;
-        game.dungeon_heart_health = 100;
         gameadd.object_conf.base_config[5].health = 100;
         game.objects_config[5].health = 100;
         game.dungeon_heart_heal_time = 10;
@@ -509,22 +508,8 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             }
             break;
         case 20: // SLABCOLLAPSETIME
-            //Unused
-            break;
         case 21: // DUNGEONHEARTHEALTH
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              game.dungeon_heart_health = k;
-              game.objects_config[gameadd.dungeon_heart_model].health = k;
-              gameadd.object_conf.base_config[gameadd.dungeon_heart_model].health = k;
-              n++;
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
+            //Unused
             break;
         case 22: // DUNGEONHEARTHEALTIME
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)

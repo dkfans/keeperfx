@@ -535,9 +535,10 @@ TbBool packets_process_cheats(
         case PSt_HeartHealth:
         clear_messages_from_player(playeradd->cheatselection.chosen_player);
         thing = get_player_soul_container(playeradd->cheatselection.chosen_player);
+        struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
         if (!thing_is_invalid(thing))
         {
-            targeted_message_add(thing->owner, plyr_idx, 1, "%d/%d", thing->health, game.dungeon_heart_health);
+            targeted_message_add(thing->owner, plyr_idx, 1, "%d/%d", thing->health, objconf->health);
         }
         else
         {

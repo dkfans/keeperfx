@@ -311,22 +311,21 @@ void query_thing(struct Thing *thing)
         {
             if (querytng->class_id == TCls_Object)
             {
+                struct ObjectConfig* objconf = get_object_model_stats2(querytng->model);
                 if (object_is_gold(querytng))
                 {
                     sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
+                sprintf(output, "%s/%ld", health, objconf->health);
             }  
-            sprintf((char*)health, "Health: %ld", querytng->health);
+            else 
             if (querytng->class_id == TCls_Door)
             {
                 sprintf(output, "%s/%ln", health, &gameadd.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
-            else if (querytng->class_id == TCls_Object)
+            else
             {
-                if (querytng->model == ObjMdl_SoulCountainer)  //todo make model independent
-                {
-                    sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
-                }
+                sprintf((char*)health, "Health: %ld", querytng->health);
             }
         }
         create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&position, (const char*)&amount);
