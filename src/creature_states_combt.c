@@ -1210,7 +1210,7 @@ TbBool set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *
     return true;
 }
 
-CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct Room *room,long crmodel, struct Thing **enemytng)
+CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct Room *room,short crmodel[], struct Thing **enemytng)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(fightng->owner);
@@ -1228,19 +1228,24 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (thing_is_creature(thing) && (thing->model == crmodel) && (cctrl->combat_flags == 0))
+        for (short j = 0; j < LAIR_ENEMY_MAX; j++)
         {
-            if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
-             && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+            if (crmodel[j] == 0)
+                break;
+            if (thing_is_creature(thing) && (thing->model == crmodel[j]) && (cctrl->combat_flags == 0))
             {
-                if ((thing->index != fightng->index) && (get_room_thing_is_on(thing)->index == room->index))
+                if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
+                    && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
                 {
-                    long dist = get_combat_distance(fightng, thing);
-                    CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, dist, 0, 0);
-                    if (attack_type > AttckT_Unset)
+                    if ((thing->index != fightng->index) && (get_room_thing_is_on(thing)->index == room->index))
                     {
-                        *enemytng = thing;
-                        return attack_type;
+                        long dist = get_combat_distance(fightng, thing);
+                        CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, dist, 0, 0);
+                        if (attack_type > AttckT_Unset)
+                        {
+                            *enemytng = thing;
+                            return attack_type;
+                        }
                     }
                 }
             }

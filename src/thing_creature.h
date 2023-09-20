@@ -62,6 +62,7 @@ enum CreatureDeathFlags {
     CrDed_DiedInBattle   = 0x02, /**< Set if the creature died during a battle. */
     CrDed_NoUnconscious  = 0x04, /**< Set if the creature isn't allowed to become unconscious. */
     CrDed_NotReallyDying = 0x08, /**< Set if it's not really death, it either transforms or leaves. */
+    CrDed_NoRebirth      = 0x10, /**< Set if the death blocks it from resurrecting */
 };
 
 struct CreatureStorage {

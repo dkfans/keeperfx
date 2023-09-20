@@ -40,6 +40,7 @@
 #include "room_jobs.h"
 #include "room_scavenge.h"
 #include "room_entrance.h"
+#include "room_lair.h"
 #include "power_hand.h"
 #include "gui_soundmsgs.h"
 #include "game_legacy.h"
@@ -118,7 +119,8 @@ struct Thing *get_random_fellow_not_hated_creature(struct Thing *creatng)
         if ((n <= 0) && (thing->index != creatng->index))
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-            if (crstat->lair_enemy != creatng->model) {
+            if (creature_model_is_lair_enemy(crstat->lair_enemy, creatng->model))
+            {
                 return thing;
             }
         }

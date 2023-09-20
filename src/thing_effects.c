@@ -1173,7 +1173,7 @@ TbBool destroy_effect_thing(struct Thing *efftng)
  * @note If the function returns true, the effect might have caused death of the target.
  */
 TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner, TbBool no_stun)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner, unsigned long shot_model_flags)
 {
     if (thing_is_deployed_door(tngdst))
     {
@@ -1199,15 +1199,19 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 affected = true;
                 if (tngdst->health < 0)
                 {
-                    struct Thing *origtng = thing_get(tngsrc->parent_idx);
+                    struct Thing *origtng = thing_get(tngsrc->parent_idx); //parent of the tngsrc(shot) is the shooting creature.
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (no_stun) )
+                    if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
-                    kill_creature(tngdst, tngsrc, -1, dieflags);
+                    if ((shot_model_flags & ShMF_BlocksRebirth))
+                    {
+                        dieflags |= CrDed_NoRebirth;
+                    }
+                    kill_creature(tngdst, origtng, -1, dieflags);
                     affected = true;
                 }
             }
@@ -1282,7 +1286,7 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
  * @param damage_type Type of the damage inflicted.
  */
 long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, TbBool no_stun)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, unsigned long shot_model_flags)
 {
     PlayerNumber owner;
     if (!thing_is_invalid(tngsrc))
@@ -1312,7 +1316,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         } else
         if (effect_can_affect_thing(efftng, thing))
         {
-            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner, no_stun))
+            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner, shot_model_flags))
             {
                 num_affected++;
             }
@@ -1394,14 +1398,13 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     if (stl_ymax > gameadd.map_subtiles_y) {
       stl_ymax = gameadd.map_subtiles_y;
     }
-    TbBool no_stun = ((shotst->model_flags & ShMF_NoStun) != 0);
     for (long stl_y = stl_ymin; stl_y <= stl_ymax; stl_y++)
     {
         for (long stl_x = stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist,
-                shotst->area_damage, shotst->area_blow, shotst->damage_type, no_stun);
+                shotst->area_damage, shotst->area_blow, shotst->damage_type, shotst->model_flags);
         }
     }
 }
@@ -1463,7 +1466,8 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         // Per thing processing block
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner, false))
+            struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
+            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner, shotst->model_flags))
                 num_affected++;
         }
         // Per thing processing block ends

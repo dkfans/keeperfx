@@ -714,7 +714,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
       player->cameras[CamIV_FrontView].orient_a = pckt->actn_par1;
       player->cameras[CamIV_Isometric].orient_a = pckt->actn_par1;
-      
+
       if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
         // Fixes interpolated Things lagging for 1 turn when pressing middle mouse button to flip the camera in FrontView
           reset_interpolation_of_camera(player);
@@ -1393,6 +1393,9 @@ static void replace_with_ai(int old_active_players)
             struct PlayerInfo *player = get_player(i);
             if (!network_player_active(player->packet_num))
             {
+                message_add(player->id_number, "I am the computer now!");
+                JUSTLOG("p:%d I am the computer now!", player->id_number);
+
                 player->allocflags |= PlaF_CompCtrl;
                 toggle_computer_player(i);
             }
