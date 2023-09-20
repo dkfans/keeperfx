@@ -2799,9 +2799,9 @@ static void set_object_configuration_process(struct ScriptContext *context)
             break;
         case 22: // PERSISTENCE
             objdat->persistence = context->value->arg2;
-        case 23: // ISHEARTH
+        case 23: // ISHEART
             objst->is_heart = context->value->arg2;
-            //todo reset heart
+            //todo update what is and what is not a dungeon heart already on the map based on this change
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
