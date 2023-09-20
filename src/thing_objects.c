@@ -1428,7 +1428,6 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-//      struct ObjectConfig* objconf = get_object_model_stats2(gameadd.dungeon_heart_model);
         struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
         if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
         {
