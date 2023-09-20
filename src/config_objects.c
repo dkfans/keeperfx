@@ -608,6 +608,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         objst->is_heart = n;
                         gameadd.dungeon_heart_model = tmodel;
                     }
+                }
             case 0: // comment
                 break;
             case -1: // end of buffer
