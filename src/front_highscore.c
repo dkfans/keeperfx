@@ -330,7 +330,7 @@ void highscore_scroll_down(struct GuiButton *gbtn)
 
 void highscore_scroll(struct GuiButton *gbtn)
 {
-    highscore_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), VISIBLE_HIGH_SCORES_COUNT-2, campaign.hiscore_count);
+    highscore_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), visible_entries-2, campaign.hiscore_count);
 }
 
 void frontend_highscore_scroll_up_maintain(struct GuiButton *gbtn)
