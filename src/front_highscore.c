@@ -66,7 +66,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
         str[sizeof(str)-1] = '\0';
         LbTextStringDraw(i, pos_y, units_per_px, str, Fnt_LeftJustify);
         str[high_score_entry_index] = '\0';
-        i += LbTextStringWidth(str) * units_per_px / 16;
+        i += LbTextStringWidthM(str, units_per_px);
         // Blinking cursor
         if ((LbTimerClock() & 0x0100) != 0)
         {
@@ -146,15 +146,37 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
     pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
     // The GUI item height should be 11 lines of text
-    int tx_units_per_px = gbtn->height * 16 / (11 * (LbTextLineHeight()));
-    long col1_width = LbTextStringWidth("99") * tx_units_per_px / 16;
-    long col2_width = LbTextStringWidth(" 99999") * tx_units_per_px / 16;
-    long col3_width = LbTextStringWidth(" 9999") * tx_units_per_px / 16;
-    long col4_width = LbTextCharWidth('-') * tx_units_per_px / 16;
+    int tx_units_per_px;
+    if (dbc_language > 0)
+    {
+        if ((MyScreenWidth % 800) == 0)
+        {
+            tx_units_per_px = scale_ui_value(24);
+        }
+        else
+        {
+            tx_units_per_px = scale_ui_value(16);
+        }
+    }
+    else
+    {
+        tx_units_per_px = gbtn->height * 16 / (11 * (LbTextLineHeight()));
+    }    
+    long col1_width = LbTextStringWidthM("99", tx_units_per_px);
+    long col2_width = LbTextStringWidthM(" 99999", tx_units_per_px);
+    long col3_width = LbTextStringWidthM(" 9999", tx_units_per_px);
+    long col4_width = LbTextCharWidthM('-', tx_units_per_px);
     for (k=0; k < VISIBLE_HIGH_SCORES_COUNT-1; k++)
     {
         draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
-        pos_y += LbTextLineHeight() * tx_units_per_px / 16;
+        if (dbc_language > 0)
+        {
+            pos_y += 26 * (MyScreenHeight / 400);
+        }
+        else
+        {
+            pos_y += LbTextLineHeight() * tx_units_per_px / 16;
+        }
     }
     if (high_score_entry_input_active > k)
       draw_high_score_entry(high_score_entry_input_active, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
