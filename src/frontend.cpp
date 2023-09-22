@@ -128,9 +128,9 @@ struct GuiButtonInit frontend_statistics_buttons[] = {
 struct GuiButtonInit frontend_high_score_score_buttons[] = {
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,                 0, 999,  97, 999,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, NULL },
-{ 1,  0, 0, 0, NULL,NULL,frontend_over_button,  0, 545, 97, 545, 97, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, NULL},
-  { 1,  0, 0, 0, NULL,NULL,frontend_over_button,0, 545, 371, 545, 371, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, NULL},
-  { 1,  0, 0, 0, NULL,NULL,NULL,              0, 549, 167, 549, 167, 20,154, frontend_draw_levels_scroll_tab,   0, GUIStr_Empty,  0,      {40},            0, NULL},
+{ 1,  0, 0, 0, highscore_scroll_up,NULL,frontend_over_button,  0, 545, 97, 545, 97, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, frontend_highscore_scroll_up_maintain},
+  { 1,  0, 0, 0, highscore_scroll_down,NULL,frontend_over_button,0, 545, 371, 545, 371, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, frontend_highscore_scroll_down_maintain},
+  { 1,  0, 0, 0, highscore_scroll,NULL,NULL,              0, 549, 112, 549, 112, 20,260, frontend_draw_highscores_scroll_tab,   0, GUIStr_Empty,  0,      {40},            0, NULL},
   { 0,  0, 0, 0, frontend_quit_high_score_table,NULL,frontend_over_button,3,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,      {83},            0, frontend_maintain_high_score_ok_button },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,                 0,   0,   0,   0,   0,  0,  0, NULL,                              0, GUIStr_Empty,  0,       {0},            0, NULL },
 };
@@ -3564,6 +3564,9 @@ void frontend_update(short *finish_menu)
         break;
     case FeSt_MAPPACK_SELECT:
         frontend_mappack_select_update();
+        break;
+    case FeSt_HIGH_SCORES:
+        frontend_high_scores_update();
         break;
     default:
         break;

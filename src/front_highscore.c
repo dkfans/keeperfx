@@ -45,6 +45,7 @@ static long high_score_entry_index;
 char high_score_entry[64];
 int fe_high_score_table_from_main_menu;
 long high_score_entry_input_active = -1;
+int highscore_scroll_offset = 0;
 /******************************************************************************/
 
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
@@ -122,7 +123,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     long col3_width = LbTextStringWidthM(" 9999", tx_units_per_px);
     long col4_width = LbTextCharWidthM('-', tx_units_per_px);
     int k;
-    for (k=0; k < VISIBLE_HIGH_SCORES_COUNT-1; k++)
+    for (k=highscore_scroll_offset; k < (highscore_scroll_offset+VISIBLE_HIGH_SCORES_COUNT)-1; k++)
     {
         if (dbc_language > 0)
         {
@@ -308,6 +309,78 @@ void frontstats_save_high_score(void)
         add_score_to_high_score_table();
     }
     lbInkey = 0;
+}
+
+void highscore_scroll_up(struct GuiButton *gbtn)
+{
+    if (highscore_scroll_offset > 0)
+      highscore_scroll_offset--;
+}
+
+void highscore_scroll_down(struct GuiButton *gbtn)
+{
+  if (highscore_scroll_offset < campaign.hiscore_count)
+    highscore_scroll_offset++;
+}
+
+void highscore_scroll(struct GuiButton *gbtn)
+{
+    highscore_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), VISIBLE_HIGH_SCORES_COUNT-2, campaign.hiscore_count);
+}
+
+void frontend_highscore_scroll_up_maintain(struct GuiButton *gbtn)
+{
+    if (gbtn == NULL)
+        return;
+    if (highscore_scroll_offset != 0)
+        gbtn->flags |= LbBtnF_Enabled;
+    else
+        gbtn->flags &=  ~LbBtnF_Enabled;
+}
+
+void frontend_highscore_scroll_down_maintain(struct GuiButton *gbtn)
+{
+    if (gbtn == NULL)
+        return;
+    if (highscore_scroll_offset < campaign.hiscore_count-VISIBLE_HIGH_SCORES_COUNT+1)
+        gbtn->flags |= LbBtnF_Enabled;
+    else
+        gbtn->flags &=  ~LbBtnF_Enabled;
+}
+
+void frontend_draw_highscores_scroll_tab(struct GuiButton *gbtn)
+{
+    frontend_draw_scroll_tab(gbtn, highscore_scroll_offset, VISIBLE_HIGH_SCORES_COUNT-2, campaign.hiscore_count);
+}
+
+void frontend_high_scores_update()
+{
+  if (campaign.hiscore_count <= 0)
+  {
+    highscore_scroll_offset = 0;
+  } else
+  if (highscore_scroll_offset < 0)
+  {
+    highscore_scroll_offset = 0;
+  } else
+  if (highscore_scroll_offset > campaign.hiscore_count-VISIBLE_HIGH_SCORES_COUNT+1)
+  {
+    highscore_scroll_offset = campaign.hiscore_count-VISIBLE_HIGH_SCORES_COUNT+1;
+  }
+  if (wheel_scrolled_down || (is_key_pressed(KC_DOWN,KMod_NONE)))
+  {
+    if (highscore_scroll_offset < campaign.hiscore_count-VISIBLE_HIGH_SCORES_COUNT+1)
+    {
+        highscore_scroll_offset++;
+    }
+  }
+  if (wheel_scrolled_up || (is_key_pressed(KC_UP,KMod_NONE)))
+  {
+    if (highscore_scroll_offset > 0)
+    {
+        highscore_scroll_offset--;
+    }
+  }
 }
 
 /******************************************************************************/
