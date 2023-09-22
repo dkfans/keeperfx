@@ -3032,7 +3032,7 @@ void frontend_input(void)
     case FeSt_HIGH_SCORES:
         get_gui_inputs(0);
         if (high_score_entry_input_active < 0) {
-            input_consumed = frontscreen_end_input(front_continue_pressed(false));
+            input_consumed = frontscreen_end_input(false);
         }
         if (input_consumed) {
             break;
