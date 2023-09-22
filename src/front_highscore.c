@@ -168,20 +168,35 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     long col4_width = LbTextCharWidthM('-', tx_units_per_px);
     for (k=0; k < VISIBLE_HIGH_SCORES_COUNT-1; k++)
     {
-        draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
         if (dbc_language > 0)
         {
-            pos_y += 26 * (MyScreenHeight / 400);
+            int new_pos_y = pos_y + 26 * (MyScreenHeight / 400);
+            if (new_pos_y < (gbtn->scr_pos_y + gbtn->height))
+            {
+                draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
+                pos_y = new_pos_y;
+            }
+            else
+            {
+                pos_y = new_pos_y;
+                break;
+            }
         }
         else
         {
+            draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
             pos_y += LbTextLineHeight() * tx_units_per_px / 16;
         }
     }
     if (high_score_entry_input_active > k)
       draw_high_score_entry(high_score_entry_input_active, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
     else
-      draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
+    {
+        if (pos_y < (gbtn->scr_pos_y + gbtn->height))
+        {
+            draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
+        }
+    }
 }
 
 void frontend_quit_high_score_table(struct GuiButton *gbtn)
