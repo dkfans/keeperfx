@@ -853,125 +853,44 @@ void frontend_draw_scroll_box_tab(struct GuiButton *gbtn)
 
 void frontend_draw_scroll_box(struct GuiButton *gbtn)
 {
-    struct TbSprite *spr;
-    long pos_x;
-    long pos_y;
-    long height_lines;
-    long draw_scrollbar;
-    long spr_idx;
-    long secspr_idx;
-    long i;
-    long delta;
-    pos_y = gbtn->scr_pos_y;
+    int height_lines;
+    TbBool draw_scrollbar;
     switch ( (long)gbtn->content )
     {
       case 24:
         height_lines = 2;
-        draw_scrollbar = 1;
+        draw_scrollbar = true;
         break;
       case 25:
         height_lines = 3;
-        draw_scrollbar = 1;
+        draw_scrollbar = true;
         break;
       case 26:
         height_lines = 7;
-        draw_scrollbar = 1;
+        draw_scrollbar = true;
         break;
       case 89:
         height_lines = 3;
-        draw_scrollbar = 0;
+        draw_scrollbar = false;
         break;
       case 90:
         height_lines = 4;
-        draw_scrollbar = 0;
+        draw_scrollbar = false;
         break;
       case 91:
         height_lines = 4;
-        draw_scrollbar = 1;
+        draw_scrollbar = true;
         break;
       case 94:
         height_lines = 10;
-        draw_scrollbar = 1;
+        draw_scrollbar = true;
         break;
       default:
         height_lines = 0;
-        draw_scrollbar = 0;
+        draw_scrollbar = false;
         break;
     }
-    // Detect scaling factor is quite complicated for this item
-    int units_per_px;
-    {
-        int orig_size;
-        orig_size = 0;
-        spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
-        for (i=0; i < 6; i++)
-        {
-            orig_size += spr->SWidth;
-            spr++;
-        }
-        units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
-    }
-    // Draw top border
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
-    pos_x = gbtn->scr_pos_x;
-    for (i=0; i < 6; i++)
-    {
-        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
-        pos_x += spr->SWidth * units_per_px / 16;
-        spr++;
-    }
-    if ( draw_scrollbar )
-    {
-        pos_x = gbtn->scr_pos_x + gbtn->width;
-        draw_frontend_sprite_left(pos_x, pos_y - units_per_px/16, units_per_px, GFS_scrollbar_toparrow_std);
-    }
-    // Draw inside
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
-    pos_y += spr->SHeight * units_per_px / 16;
-    for (; height_lines > 0; height_lines -= delta )
-    {
-      if (height_lines < 3)
-          spr_idx = GFS_hugearea_thn_cor_ml;
-      else
-          spr_idx = GFS_hugearea_thc_cor_ml;
-      spr = &frontend_sprite[spr_idx];
-      pos_x = gbtn->scr_pos_x;
-      for (i=0; i < 6; i++)
-      {
-          LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
-          pos_x += spr->SWidth * units_per_px / 16;
-          spr++;
-      }
-      if ( draw_scrollbar )
-      {
-        if ( height_lines < 3 )
-            secspr_idx = GFS_scrollbar_vert_ct_short;
-        else
-            secspr_idx = GFS_scrollbar_vert_ct_long;
-        pos_x = gbtn->scr_pos_x + gbtn->width;
-        draw_frontend_sprite_left(pos_x, pos_y, units_per_px, secspr_idx);
-      }
-      spr = &frontend_sprite[spr_idx];
-      pos_y += spr->SHeight * units_per_px / 16;
-      if (height_lines < 3)
-          delta = 1;
-      else
-          delta = 3;
-    }
-    // Draw bottom border
-    spr = &frontend_sprite[GFS_hugearea_thn_cor_bl];
-    pos_x = gbtn->scr_pos_x;
-    for (i=0; i < 6; i++)
-    {
-        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
-        pos_x += spr->SWidth * units_per_px / 16;
-        spr++;
-    }
-    if ( draw_scrollbar )
-    {
-        pos_x = gbtn->scr_pos_x + gbtn->width;
-        draw_frontend_sprite_left(pos_x, pos_y, units_per_px, GFS_scrollbar_btmarrow_std);
-    }
+    gui_draw_scroll_box(gbtn, height_lines, draw_scrollbar);
 }
 
 void frontend_draw_slider_button(struct GuiButton *gbtn)
@@ -1065,6 +984,90 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
     }
     SYNCDBG(12,"Finished");
+}
+
+void gui_draw_scroll_box(struct GuiButton *gbtn, int height_lines, TbBool draw_scrollbar)
+{
+    struct TbSprite *spr;
+    long pos_x;
+    long pos_y = gbtn->scr_pos_y;
+    long spr_idx;
+    long secspr_idx;
+    long i;
+    long delta;
+    // Detect scaling factor is quite complicated for this item
+    int units_per_px;
+    {
+        int orig_size = 0;
+        spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
+        for (i=0; i < 6; i++)
+        {
+            orig_size += spr->SWidth;
+            spr++;
+        }
+        units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
+    }
+    // Draw top border
+    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+    pos_x = gbtn->scr_pos_x;
+    for (i=0; i < 6; i++)
+    {
+        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+        pos_x += spr->SWidth * units_per_px / 16;
+        spr++;
+    }
+    if ( draw_scrollbar )
+    {
+        pos_x = gbtn->scr_pos_x + gbtn->width;
+        draw_frontend_sprite_left(pos_x, pos_y - units_per_px/16, units_per_px, GFS_scrollbar_toparrow_std);
+    }
+    // Draw inside
+    spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+    pos_y += spr->SHeight * units_per_px / 16;
+    for (; height_lines > 0; height_lines -= delta )
+    {
+      if (height_lines < 3)
+          spr_idx = GFS_hugearea_thn_cor_ml;
+      else
+          spr_idx = GFS_hugearea_thc_cor_ml;
+      spr = &frontend_sprite[spr_idx];
+      pos_x = gbtn->scr_pos_x;
+      for (i=0; i < 6; i++)
+      {
+          LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+          pos_x += spr->SWidth * units_per_px / 16;
+          spr++;
+      }
+      if ( draw_scrollbar )
+      {
+        if ( height_lines < 3 )
+            secspr_idx = GFS_scrollbar_vert_ct_short;
+        else
+            secspr_idx = GFS_scrollbar_vert_ct_long;
+        pos_x = gbtn->scr_pos_x + gbtn->width;
+        draw_frontend_sprite_left(pos_x, pos_y, units_per_px, secspr_idx);
+      }
+      spr = &frontend_sprite[spr_idx];
+      pos_y += spr->SHeight * units_per_px / 16;
+      if (height_lines < 3)
+          delta = 1;
+      else
+          delta = 3;
+    }
+    // Draw bottom border
+    spr = &frontend_sprite[GFS_hugearea_thn_cor_bl];
+    pos_x = gbtn->scr_pos_x;
+    for (i=0; i < 6; i++)
+    {
+        LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+        pos_x += spr->SWidth * units_per_px / 16;
+        spr++;
+    }
+    if ( draw_scrollbar )
+    {
+        pos_x = gbtn->scr_pos_x + gbtn->width;
+        draw_frontend_sprite_left(pos_x, pos_y, units_per_px, GFS_scrollbar_btmarrow_std);
+    }
 }
 
 /******************************************************************************/
