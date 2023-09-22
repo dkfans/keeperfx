@@ -347,7 +347,7 @@ void frontend_highscore_scroll_down_maintain(struct GuiButton *gbtn)
 {
     if (gbtn == NULL)
         return;
-    if (highscore_scroll_offset < campaign.hiscore_count-visible_entries+1)
+    if (highscore_scroll_offset < campaign.hiscore_count-visible_entries)
         gbtn->flags |= LbBtnF_Enabled;
     else
         gbtn->flags &=  ~LbBtnF_Enabled;
@@ -374,12 +374,12 @@ void frontend_high_scores_update()
   }
   if (wheel_scrolled_down || (is_key_pressed(KC_DOWN,KMod_NONE)))
   {
-    if (highscore_scroll_offset < campaign.hiscore_count-visible_entries+1)
+    if (highscore_scroll_offset < campaign.hiscore_count-visible_entries)
     {
         highscore_scroll_offset++;
     }
   }
-  if (wheel_scrolled_up || (is_key_pressed(KC_UP,KMod_NONE)))
+  else if (wheel_scrolled_up || (is_key_pressed(KC_UP,KMod_NONE)))
   {
     if (highscore_scroll_offset > 0)
     {
