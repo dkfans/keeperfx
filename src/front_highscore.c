@@ -58,26 +58,26 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     int i = pos_x + col1_width;
     LbTextNumberDraw(i, pos_y, units_per_px, idx+1, Fnt_CenterPos);
     i += col2_width;
-    LbTextNumberDraw(i, pos_y, units_per_px, hscore->score, Fnt_RightJustify);
+    LbTextNumberDraw(i, pos_y, units_per_px, hscore->score, Fnt_CenterPos);
     i += col3_width;
-    LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_RightJustify);
+    LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_CenterPos);
     i += col4_width;
     if (idx == high_score_entry_input_active)
     {
         char str[64];
         memcpy(str, high_score_entry, sizeof(str));
         str[sizeof(str)-1] = '\0';
-        LbTextStringDraw(i, pos_y, units_per_px, str, Fnt_LeftJustify);
+        LbTextStringDraw(i, pos_y, units_per_px, str, Fnt_CenterPos);
         str[high_score_entry_index] = '\0';
         i += LbTextStringWidthM(str, units_per_px);
         // Blinking cursor
         if ((LbTimerClock() & 0x0100) != 0)
         {
-            LbTextStringDraw(i, pos_y, units_per_px, "_", Fnt_LeftJustify);
+            LbTextStringDraw(i, pos_y, units_per_px, "_", Fnt_CenterPos);
         }
     } else
     {
-        LbTextStringDraw(i, pos_y, units_per_px, hscore->name, Fnt_LeftJustify);
+        LbTextStringDraw(i, pos_y, units_per_px, hscore->name, Fnt_CenterPos);
     }
 }
 
@@ -121,8 +121,8 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     }    
     long col1_width = LbTextStringWidthM("99", tx_units_per_px);
     long col2_width = LbTextStringWidthM(" 99999", tx_units_per_px);
-    long col3_width = LbTextStringWidthM(" 9999", tx_units_per_px);
-    long col4_width = LbTextCharWidthM('-', tx_units_per_px);
+    long col3_width = col2_width + (col2_width / 4);
+    long col4_width = col3_width + (col3_width / 4);
     int k;
     visible_entries = 0;
     for (k=highscore_scroll_offset; k < (highscore_scroll_offset+VISIBLE_HIGH_SCORES_COUNT)-1; k++)
