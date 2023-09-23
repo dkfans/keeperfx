@@ -68,13 +68,13 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
         memcpy(str, high_score_entry, sizeof(str));
         str[sizeof(str)-1] = '\0';
         i -= (col4_width / 4);
-        LbTextStringDraw(i, pos_y, units_per_px, str, Fnt_RightJustify);
+        LbTextStringDraw(i, pos_y, units_per_px, str, Fnt_LeftJustify);
         str[high_score_entry_index] = '\0';
         i += LbTextStringWidthM(str, units_per_px);
         // Blinking cursor
         if ((LbTimerClock() & 0x0100) != 0)
         {
-            LbTextStringDraw(i, pos_y, units_per_px, "_", Fnt_RightJustify);
+            LbTextStringDraw(i, pos_y, units_per_px, "_", Fnt_LeftJustify);
         }
     } else
     {
