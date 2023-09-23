@@ -64,6 +64,14 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     i += col4_width;
     if (idx == high_score_entry_input_active)
     {
+        if (idx <= visible_entries)
+        {
+            highscore_scroll_offset = 0;
+        }
+        else
+        {
+            highscore_scroll_offset = idx;
+        }
         char str[64];
         memcpy(str, high_score_entry, sizeof(str));
         str[sizeof(str)-1] = '\0';
@@ -341,7 +349,7 @@ void frontend_highscore_scroll_up_maintain(struct GuiButton *gbtn)
     if (highscore_scroll_offset != 0)
         gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &=  ~LbBtnF_Enabled;
+        gbtn->flags &= ~LbBtnF_Enabled;
 }
 
 void frontend_highscore_scroll_down_maintain(struct GuiButton *gbtn)
@@ -351,7 +359,7 @@ void frontend_highscore_scroll_down_maintain(struct GuiButton *gbtn)
     if (highscore_scroll_offset < campaign.hiscore_count-visible_entries)
         gbtn->flags |= LbBtnF_Enabled;
     else
-        gbtn->flags &=  ~LbBtnF_Enabled;
+        gbtn->flags &= ~LbBtnF_Enabled;
 }
 
 void frontend_draw_highscores_scroll_tab(struct GuiButton *gbtn)
