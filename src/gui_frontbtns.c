@@ -809,6 +809,20 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         x = gbtn->scr_pos_x + ((40*units_per_px/16) >> 1);
         y = gbtn->scr_pos_y + ((spr->SHeight*units_per_px/16 - h) >> 1);
         LbTextSetWindow(x, y, gbtn->width-40*units_per_px/16, h);
+        if (dbc_language > 0)
+        {
+            if (gbtn->id_num == BID_MENU_TITLE)
+            {
+                units_per_px = scale_ui_value(24);
+            }
+            else
+            {
+                if (MyScreenHeight > 480)
+                {
+                    units_per_px = scale_ui_value(20);
+                }
+            }
+        }
         LbTextDrawResized(0, 0, units_per_px, text);
     }
 }
