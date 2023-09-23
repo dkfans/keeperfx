@@ -811,7 +811,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         LbTextSetWindow(x, y, gbtn->width-40*units_per_px/16, h);
         if (dbc_language > 0)
         {
-            if (gbtn->id_num == BID_MENU_TITLE)
+            if ( (gbtn->id_num == BID_MENU_TITLE) && (dbc_language == 1) )
             {
                 units_per_px = scale_ui_value(24);
             }
