@@ -329,10 +329,10 @@ struct Coord3d {
         } stl;
     } y;
     union {
-      long val;
+      unsigned short val;
       struct {
         unsigned char pos;
-        unsigned short num;
+        unsigned char num;
         } stl;
     } z;
 };
@@ -353,10 +353,10 @@ struct CoordDelta3d {
         } stl;
     } y;
     union {
-      long val;
+      short val;
       struct {
         unsigned char pos;
-        short num;
+        char num;
         } stl;
     } z;
 };
