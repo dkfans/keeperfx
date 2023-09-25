@@ -5270,7 +5270,35 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     // Transforming
-    struct Thing* newtng = create_creature(&thing->mappos, crstat->grow_up, thing->owner);
+    struct CreatureModelConfig* oriconf = &gameadd.crtr_conf.model[thing->model];
+    ThingModel model = crstat->grow_up;
+    if (model == CREATURE_ANY)
+    {
+        while (1) {
+            model = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
+
+            if (model >= gameadd.crtr_conf.model_count) {
+                continue;
+            }
+
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[model];
+            if ((crconf->model_flags & CMF_IsSpectator) != 0) {
+                continue;
+            }
+
+            //evil growup evil, good growup good
+            if (((crconf->model_flags & CMF_IsEvil) == 0) && ((oriconf->model_flags & CMF_IsEvil) == 0))
+            {
+                break;
+            }
+            if ((crconf->model_flags & CMF_IsEvil) && (oriconf->model_flags & CMF_IsEvil))
+            {
+                break;
+            }
+        }
+    }
+
+    struct Thing* newtng = create_creature(&thing->mappos, model, thing->owner);
     if (thing_is_invalid(newtng))
     {
         ERRORLOG("Could not create creature to transform %s to",thing_model_name(thing));
