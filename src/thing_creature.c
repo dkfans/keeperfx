@@ -5281,8 +5281,15 @@ long update_creature_levels(struct Thing *thing)
                 continue;
             }
 
+            // Exclude growing up into same creature, spectators and diggers
+            if (model == thing->model) {
+                continue;
+            }
             struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[model];
             if ((crconf->model_flags & CMF_IsSpectator) != 0) {
+                continue;
+            }
+            if ((crconf->model_flags & CMF_IsSpecDigger) != 0) {
                 continue;
             }
 
