@@ -2137,6 +2137,32 @@ void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_i
     }
 }
 
+
+void set_explored_around(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    struct SlabMap* slb;
+    slb = get_slabmap_block(slb_x + 1, slb_y);
+    if (!slabmap_block_invalid(slb))
+    {
+        set_slab_explored(plyr_idx, slb_x + 1, slb_y);
+    }
+    slb = get_slabmap_block(slb_x - 1, slb_y);
+    if (!slabmap_block_invalid(slb))
+    {
+        set_slab_explored(plyr_idx, slb_x - 1, slb_y);
+    }
+    slb = get_slabmap_block(slb_x, slb_y + 1);
+    if (!slabmap_block_invalid(slb))
+    {
+        set_slab_explored(plyr_idx, slb_x, slb_y + 1);
+    }
+    slb = get_slabmap_block(slb_x, slb_y - 1);
+    if (!slabmap_block_invalid(slb))
+    {
+        set_slab_explored(plyr_idx, slb_x, slb_y - 1);
+    }
+}
+
 void clear_dig_and_set_explored_around(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
 {
     struct SlabMap *slb;
