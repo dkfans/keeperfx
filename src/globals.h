@@ -116,7 +116,7 @@ extern "C" {
 #define NOMSG(format, ...)
 
 // Debug function-like macros - for code logging (with function name)
-#define ERRORLOG(format, ...) LbErrorLog("[%d] %s): " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define ERRORLOG(format, ...) LbErrorLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define WARNLOG(format, ...) LbWarnLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define SYNCLOG(format, ...) LbSyncLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define JUSTLOG(format, ...) LbJustLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)

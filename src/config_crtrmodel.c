@@ -41,6 +41,7 @@
 #include "creature_states.h"
 #include "player_data.h"
 #include "custom_sprites.h"
+#include "lvl_script_lib.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -1809,7 +1810,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = get_id(creature_desc, word_buf);
+              k = parse_creature_name(word_buf);
               if (k >= 0)
               {
                 crstat->grow_up = k;
