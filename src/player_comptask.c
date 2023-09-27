@@ -442,7 +442,10 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
             n = ctask->ttype;
             // If it's a sub-task, compare the main task behind it
             if (n == CTT_WaitForBridge)
+            {
+                JUSTMSG("TESTLOG: get_task_in_progress: current task is CTT_WaitForBridge");
                 n = ctask->ottype;
+            }
             if (n == ttype) {
                 return ctask;
             }
@@ -486,7 +489,10 @@ struct ComputerTask *get_task_in_progress_in_list(const struct Computer2 *comp, 
             n = ctask->ttype;
             // If it's a sub-task, compare the main task behind it
             if (n == CTT_WaitForBridge)
+            {
+                JUSTMSG("TESTLOG: get_task_in_progress_in_list: current task is CTT_WaitForBridge");
                 n = ctask->ottype;
+            }
             const ComputerTaskType *ttype;
             for (ttype = ttypes; *ttype > CTT_None; ttype++)
             {
@@ -891,9 +897,10 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     struct Coord3d pos;
-    switch (tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly))
+    switch (tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowLiquidWBridge))
     {
     case -5:
+        JUSTMSG("TESTLOG: task_dig_to_room_passage: queue up CTT_WaitForBridge at %d,%d", subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.x.stl.num)), subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.y.stl.num)) );
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
         return CTaskRet_Unk4;
@@ -1203,7 +1210,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     struct ComputerTask *curtask;
     if (dig_ret == 0)
     {
-        dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
+        dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowValuable);
         if ((ctask->flags & ComTsk_AddTrapLocation) != 0) {
             ctask->flags &= ~ComTsk_AddTrapLocation;
             add_to_trap_location(comp, &ctask->dig.pos_next);
@@ -1212,6 +1219,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     switch ( dig_ret )
     {
     case -5:
+        JUSTMSG("TESTLOG: task_dig_to_entrance: queue up CTT_WaitForBridge at %d,%d", subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.x.stl.num)), subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.y.stl.num)) );
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
         return 4;
@@ -1547,15 +1555,16 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     return ctask;
 }
 
-short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short direction, PlayerNumber plyr_idx)
+short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short direction, PlayerNumber plyr_idx, unsigned short digflags)
 {
+    JUSTMSG("TESTLOG: get_hug_side - slab1 at (%d,%d)", subtile_slab(stl1_x), subtile_slab(stl1_y));
     SYNCDBG(4,"Starting");
     MapSubtlCoord stl_b_x;
     MapSubtlCoord stl_b_y;
     MapSubtlCoord stl_a_x;
     MapSubtlCoord stl_a_y;
     int i;
-    i = get_hug_side_options(stl1_x, stl1_y, stl2_x, stl2_y, direction, plyr_idx, &stl_a_x, &stl_a_y, &stl_b_x, &stl_b_y);
+    i = get_hug_side_options(stl1_x, stl1_y, stl2_x, stl2_y, direction, plyr_idx, &stl_a_x, &stl_a_y, &stl_b_x, &stl_b_y, digflags);
     if ((i == 0) || (i == 1)) {
         return i;
     }
@@ -1714,6 +1723,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         cdig->pos_next.x.stl.num = *nextstl_x;
         cdig->pos_next.y.stl.num = *nextstl_y;
         SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)nextslb_x,(int)nextslb_y);
+        JUSTMSG("testlog: we reached destination (%d,%d)",(int)nextslb_x, (int)nextslb_y);
         return -1;
     }
     return i;
@@ -1742,6 +1752,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     MapSlabCoord digslb_y;
     long counter1;
     long i;
+    JUSTMSG("TESTLOG: tool_dig_to_pos2_f - Simulation = %d", simulation);
     SYNCDBG(14,"%s: Starting",func_name);
     dungeon = comp->dungeon;
     // Limit amount of calls
@@ -1757,6 +1768,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     SYNCDBG(4,"%s: Dig slabs from (%d,%d) to (%d,%d)",func_name,subtile_slab(gldstl_x),subtile_slab(gldstl_y),subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
     if (get_2d_distance(&cdig->pos_begin, &cdig->pos_dest) <= cdig->distance)
     {
+        JUSTMSG("TESTLOG: tool_dig_to_pos2_f - SHORT distance dig  from (%d,%d) to (%d,%d)", subtile_slab(gldstl_x),subtile_slab(gldstl_y),subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
         SYNCDBG(4,"%s: Player %d does small distance digging",func_name,(int)dungeon->owner);
         counter1 = tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(comp, cdig, digflags, &gldstl_x, &gldstl_y, func_name);
         if (counter1 < 0) {
@@ -1791,6 +1803,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                 cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner);
             cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
             SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
+            JUSTMSG("TESTLOG: tool_dig_to_pos2_f - we're trying at slab %d,%d now.", subtile_slab(gldstl_x), subtile_slab(gldstl_y));
             return 0;
         }
         if (cdig->subfield_2C == comp->field_C)
@@ -1819,11 +1832,13 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         cdig->sub4C_stl_y = gldstl_y;
         cdig->distance = get_2d_distance(&cdig->pos_next, &cdig->pos_dest);
         cdig->hug_side = get_hug_side(cdig, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
-                           cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner);
+                           cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner, digflags);
+        JUSTMSG("TESTLOG: tool_dig_to_pos2_f - Position 2 - at slab %d,%d now", subtile_slab(gldstl_x), subtile_slab(gldstl_y));
         cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
         i = dig_to_position(dungeon->owner, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
-            cdig->direction_around, cdig->hug_side);
+            cdig->direction_around, cdig->hug_side, digflags);
         if (i == -1) {
+            JUSTMSG("TESTLOG: tool_dig_to_pos2_f - did not get a return slab from dig to position, failed at %d,%d", subtile_slab(digstl_x), subtile_slab(digstl_y));
             SYNCDBG(5,"%s: Player %d short digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)cdig->pos_next.x.stl.num,(int)cdig->pos_next.y.stl.num);
             return -2;
         }
@@ -1834,7 +1849,23 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         action_slb = get_slabmap_block(digslb_x, digslb_y);
         if (((action_slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now)||
              (action_slb->kind == SlbT_LAVA  &&  computer_check_room_of_role_available(comp, RoRoF_PassLava)  == IAvail_Now)))
+        slb = get_slabmap_block(digslb_x, digslb_y);
+        if (slb->kind == 13)
         {
+            struct SlabMap* slb = get_slabmap_for_subtile(digstl_x, digstl_y); // TODO, remove. Added for TESTLOG
+            struct SlabMap* slb2 = get_slabmap_for_subtile(cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num); // TODO, remove. Added for TESTLOG
+            JUSTMSG("TESTLOG: At -5, are we all right?(123) Slab kind is %d, alternative is %d", slb->kind, slb2->kind);
+            if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now) 
+            {
+                cdig->pos_next.x.stl.num = digstl_x;
+                cdig->pos_next.y.stl.num = digstl_y;
+                return -5;
+            }
+        }
+
+        if (slab_kind_is_liquid(slb->kind) && (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now))
+        {
+            JUSTMSG("TESTLOG: LOOK (v2) AT %d,%d for slab %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
             cdig->pos_next.y.stl.num = digstl_y;
             cdig->pos_next.x.stl.num = digstl_x;
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid subtile (%d,%d)",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
@@ -1842,8 +1873,9 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         }
     } else
     {
+        JUSTMSG("TESTLOG: tool_dig_to_pos2_f - LONG distance dig from (%d,%d) to (%d,%d)", subtile_slab(gldstl_x),subtile_slab(gldstl_y),subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
         SYNCDBG(4,"%s: Player %d does long distance digging",func_name,(int)dungeon->owner);
-        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->hug_side);
+        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->hug_side, digflags);
         if (i == -1) {
             SYNCDBG(5,"%s: Player %d long digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
             return -2;
@@ -1854,6 +1886,32 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         digslb_y = subtile_slab(digstl_y);
     }
     slb = get_slabmap_block(digslb_x, digslb_y);
+    /*if (i == -5)
+    {
+        struct SlabMap* slb = get_slabmap_for_subtile(gldstl_x, gldstl_y); // TODO, remove. Added for TESTLOG
+        struct SlabMap* slb2 = get_slabmap_for_subtile(digstl_x, digstl_y); // TODO, remove. Added for TESTLOG
+        JUSTMSG("TESTLOG: At -5, are we all right? Slab kind is %d, alternative is %d", slb->kind, slb2->kind);
+        if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now)
+        {
+            cdig->pos_next.x.stl.num = gldstl_x;
+            cdig->pos_next.y.stl.num = gldstl_y;
+            SYNCDBG(5, "%s: Player %d has bridge, so is going through liquid slab (%d,%d)", func_name,
+                (int)dungeon->owner, (int)subtile_slab(gldstl_x), (int)subtile_slab(gldstl_y));
+            return -5;
+        }
+    }*/
+    if (slb->kind == 13)
+    {
+        struct SlabMap* slb = get_slabmap_for_subtile(digstl_x, digstl_y); // TODO, remove. Added for TESTLOG
+        struct SlabMap* slb2 = get_slabmap_for_subtile(cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num); // TODO, remove. Added for TESTLOG
+        JUSTMSG("TESTLOG: At -5, are we all right?(456) Slab kind is %d, alternative is %d", slb->kind, slb2->kind);
+        if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now) 
+        {
+            cdig->pos_next.x.stl.num = digstl_x;
+            cdig->pos_next.y.stl.num = digstl_y;
+            return -5;
+        }
+    }
     struct SlabAttr *slbattr;
     slbattr = get_slab_attrs(slb);
     if ((slbattr->is_diggable) && (slb->kind != SlbT_GEMS))
@@ -1872,6 +1930,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                     if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                     {
                         magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y-3, PwCast_Unrevealed);
+                        JUSTMSG("TESTLOG: destroy wall1 at %d,%d for slab kind %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
                         return -5;
                     }
                     else
@@ -1881,6 +1940,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                         if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                         {
                             magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y+3, PwCast_Unrevealed);
+                            JUSTMSG("TESTLOG: destroy wall2 at %d,%d for slab kind %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
                             return -5;
                         }
                         else
@@ -1890,6 +1950,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                             if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                             {
                                 magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x-3, digstl_y, PwCast_Unrevealed);
+                                JUSTMSG("TESTLOG: destroy wall3 at %d,%d for slab kind %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
                                 return -5;
                             }
                             else
@@ -1899,6 +1960,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                                 if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                                 {
                                     magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x+3, digstl_y, PwCast_Unrevealed);
+                                    JUSTMSG("TESTLOG: destroy wall4 at %d,%d for slab kind %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
                                     return -5;
                                 }
                             }
@@ -1908,6 +1970,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                 if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) 
                 {
                     ERRORLOG("%s: Couldn't do game action - cannot dig",func_name);
+                    JUSTMSG("TESTLOG: can't dig at %d,%d for slab kind %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
                     return -2;
                 }
             }
@@ -1919,11 +1982,13 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     if ((subtile_slab(cdig->pos_dest.x.stl.num) == digslb_x) && (subtile_slab(cdig->pos_dest.y.stl.num) == digslb_y))
     {
         SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)digslb_x,(int)digslb_y);
+        JUSTMSG("TESTLOG: Reached destination at %d,%d for slab kind %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
         return -1;
     }
     cdig->pos_begin.x.stl.num = digstl_x;
     cdig->pos_begin.y.stl.num = digstl_y;
     SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)digslb_x,(int)digslb_y);
+    JUSTMSG("TESTLOG: going through slab at %d,%d for slab kind %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
     return 0;
 }
 
@@ -2054,7 +2119,7 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     long retval;
     do
     {
-        retval = tool_dig_to_pos2(comp, &cdig, 1, ToolDig_BasicOnly);
+        retval = tool_dig_to_pos2(comp, &cdig, 1, ToolDig_AllowLiquidWBridge);
         SYNCDBG(5,"retval=%d, dig.distance=%d, dig.subfield_54=%d",
             retval, cdig.distance, cdig.calls_count);
     } while (retval == 0);
@@ -2132,7 +2197,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
 
-    long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowValuable);
+    long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowLiquidWBridge);
 
     if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
     {
@@ -2147,6 +2212,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     if (retval == -5)
     {
+        JUSTMSG("TESTLOG: task_dig_to_gold: queue up CTT_WaitForBridge at %d,%d", subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.x.stl.num)), subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.y.stl.num)) );
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
 
@@ -2230,11 +2296,12 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
     long dig_ret;
-    dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
+    dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowLiquidWBridge);
     int i;
     switch (dig_ret)
     {
     case -5:
+        JUSTMSG("TESTLOG: task_dig_to_attack: queue up CTT_WaitForBridge at %d,%d", subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.x.stl.num)), subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.y.stl.num)) );
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
         dig_ret = CTaskRet_Unk4;
@@ -3045,15 +3112,17 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     short digret;
-    digret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
+    digret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowLiquidWBridge);
     if (digret == -5)
     {
+        JUSTMSG("TESTLOG: task_dig_to_neutral: queue up CTT_WaitForBridge at %d,%d", subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.x.stl.num)), subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.y.stl.num)) );
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
         return CTaskRet_Unk4;
     }
     if ((digret >= -3) && (digret <= -1))
     {
+        JUSTMSG("TESTLOG: task_dig_to_neutral: suspend current task");
         suspend_task_process(comp,ctask);
         return digret;
     }
@@ -3118,6 +3187,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
         ctask->ttype = ctask->ottype;
         comp->task_state = CTaskSt_Select;
         restart_task_process(comp, ctask);
+        JUSTMSG("TESTLOG: task_wait_for_bridge at %d,%d, cancelled task for player %d (active too long)", subtile_slab(basestl_x), subtile_slab(basestl_y), plyr_idx);
         return CTaskRet_Unk0;
     }
     if (game.play_gameturn - ctask->created_turn > COMPUTER_URGENT_BRIDGE_TIMEOUT)
@@ -3128,7 +3198,8 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
             ctask->ttype = ctask->ottype;
             comp->task_state = CTaskSt_Select;
             restart_task_process(comp, ctask);
-            return CTaskRet_Unk4;
+            JUSTMSG("TESTLOG: task_wait_for_bridge at %d,%d, cancelled task for player %d (active too long during urgent task, or player has bridge)", subtile_slab(basestl_x), subtile_slab(basestl_y), plyr_idx);
+            return CTaskRet_Unk0;
         }
     }
 
@@ -3138,10 +3209,18 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
     basestl_y = ctask->dig.pos_next.y.stl.num;
     if (!is_room_available(plyr_idx, RoK_BRIDGE))
     {
+        JUSTMSG("TESTLOG: task_wait_for_bridge at %d,%d, no bridge available", subtile_slab(basestl_x), subtile_slab(basestl_y));
         return CTaskRet_Unk4;
     }
     if (!can_build_room_at_slab(plyr_idx, RoK_BRIDGE, subtile_slab(basestl_x), subtile_slab(basestl_y)))
     {
+        struct SlabMap* slb = get_slabmap_block(subtile_slab(basestl_x), subtile_slab(basestl_y));
+        if (slabmap_owner(slb) == plyr_idx && slb->kind == SlbT_BRIDGE)
+        {
+            JUSTMSG("TESTLOG: task_wait_for_bridge at %d,%d, bridge already exists here...", subtile_slab(basestl_x), subtile_slab(basestl_y));
+            //return CTaskRet_Unk1;
+        }
+        JUSTMSG("TESTLOG: task_wait_for_bridge at %d,%d, can't build bridge here", subtile_slab(basestl_x), subtile_slab(basestl_y));
         return CTaskRet_Unk4;
     }
     if (try_game_action(comp, plyr_idx, GA_PlaceRoom, 0, basestl_x, basestl_y, 1, RoK_BRIDGE) > Lb_OK)
@@ -3152,8 +3231,10 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
         if (i == 0) {
             ERRORLOG("Bad set Task State");
         }
+        JUSTMSG("TESTLOG: task_wait_for_bridge at %d,%d, bridge built", subtile_slab(basestl_x), subtile_slab(basestl_y));
         return CTaskRet_Unk1;
     }
+    JUSTMSG("TESTLOG: task_wait_for_bridge  at %d,%d, reached end of function", subtile_slab(basestl_x), subtile_slab(basestl_y));
     return CTaskRet_Unk4;
 }
 
