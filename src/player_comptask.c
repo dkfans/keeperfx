@@ -1800,7 +1800,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             cdig->distance = get_2d_distance(&cdig->pos_next, &cdig->pos_dest);
             // In case we're finishing the easy road, prepare vars for long distance digging
             cdig->hug_side = get_hug_side(cdig, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
-                cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner);
+                cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner, digflags);
             cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
             SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
             JUSTMSG("TESTLOG: tool_dig_to_pos2_f - we're trying at slab %d,%d now.", subtile_slab(gldstl_x), subtile_slab(gldstl_y));
@@ -1852,9 +1852,9 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         slb = get_slabmap_block(digslb_x, digslb_y);
         if (slb->kind == 13)
         {
-            struct SlabMap* slb = get_slabmap_for_subtile(digstl_x, digstl_y); // TODO, remove. Added for TESTLOG
+            struct SlabMap* slb1 = get_slabmap_for_subtile(digstl_x, digstl_y); // TODO, remove. Added for TESTLOG
             struct SlabMap* slb2 = get_slabmap_for_subtile(cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num); // TODO, remove. Added for TESTLOG
-            JUSTMSG("TESTLOG: At -5, are we all right?(123) Slab kind is %d, alternative is %d", slb->kind, slb2->kind);
+            JUSTMSG("TESTLOG: At -5, are we all right?(123) Slab kind is %d, alternative is %d", slb1->kind, slb2->kind);
             if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now) 
             {
                 cdig->pos_next.x.stl.num = digstl_x;
@@ -1902,9 +1902,9 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     }*/
     if (slb->kind == 13)
     {
-        struct SlabMap* slb = get_slabmap_for_subtile(digstl_x, digstl_y); // TODO, remove. Added for TESTLOG
+        struct SlabMap* slb1 = get_slabmap_for_subtile(digstl_x, digstl_y); // TODO, remove. Added for TESTLOG
         struct SlabMap* slb2 = get_slabmap_for_subtile(cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num); // TODO, remove. Added for TESTLOG
-        JUSTMSG("TESTLOG: At -5, are we all right?(456) Slab kind is %d, alternative is %d", slb->kind, slb2->kind);
+        JUSTMSG("TESTLOG: At -5, are we all right?(456) Slab kind is %d, alternative is %d", slb1->kind, slb2->kind);
         if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now) 
         {
             cdig->pos_next.x.stl.num = digstl_x;
@@ -3179,6 +3179,12 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9, "Starting");
+
+    MapSubtlCoord basestl_x; // moved for log messages
+    MapSubtlCoord basestl_y;
+    basestl_x = ctask->dig.pos_next.x.stl.num;
+    basestl_y = ctask->dig.pos_next.y.stl.num;
+
     PlayerNumber plyr_idx;
     plyr_idx = comp->dungeon->owner;
     if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT)
@@ -3203,8 +3209,6 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
 
-    MapSubtlCoord basestl_x;
-    MapSubtlCoord basestl_y;
     basestl_x = ctask->dig.pos_next.x.stl.num;
     basestl_y = ctask->dig.pos_next.y.stl.num;
     if (!is_room_available(plyr_idx, RoK_BRIDGE))
