@@ -2091,15 +2091,21 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
 
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
+    struct Thing* thing = INVALID_THING;
     GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
         ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
-        return INVALID_THING;
+        return thing;
     }
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     if (value > max_hoard_size_in_room)
         value = max_hoard_size_in_room;
-    struct Thing* thing = create_gold_hoard_object(pos, room->owner, value);
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    const struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+    if ((roomst->storage_height < 0) || (get_map_floor_filled_subtiles(mapblk) == roomst->storage_height))
+    {
+        thing = create_gold_hoard_object(pos, room->owner, value);
+    }
     if (!thing_is_invalid(thing))
     {
         room->capacity_used_for_storage += thing->valuable.gold_stored;
