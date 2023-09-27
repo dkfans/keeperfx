@@ -312,7 +312,6 @@ struct Coord2d {
     } y;
 };
 
-
 struct Coord3d {
     union {
       long val;
