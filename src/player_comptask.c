@@ -1797,6 +1797,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         {
             cdig->pos_begin.x.stl.num = gldstl_x;
             cdig->pos_begin.y.stl.num = gldstl_y;
+            JUSTMSG("TESTLOG: A dig start position set to %d,%d ", subtile_slab(gldstl_x), subtile_slab(gldstl_y));
             cdig->distance = get_2d_distance(&cdig->pos_next, &cdig->pos_dest);
             // In case we're finishing the easy road, prepare vars for long distance digging
             cdig->hug_side = get_hug_side(cdig, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
@@ -1810,6 +1811,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         {
             gldstl_x -= STL_PER_SLB * small_around[around_index].delta_x;
             gldstl_y -= STL_PER_SLB * small_around[around_index].delta_y;
+            JUSTMSG("TESTLOG: B dig start position set to %d,%d ", subtile_slab(gldstl_x), subtile_slab(gldstl_y));
             cdig->pos_begin.x.val = subtile_coord(gldstl_x,0);
             cdig->pos_begin.y.val = subtile_coord(gldstl_y,0);
             cdig->pos_begin.z.val = 0;
@@ -1987,6 +1989,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     }
     cdig->pos_begin.x.stl.num = digstl_x;
     cdig->pos_begin.y.stl.num = digstl_y;
+    JUSTMSG("TESTLOG: C dig start position set to %d,%d ", subtile_slab(digstl_x), subtile_slab(digstl_y));
     SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)digslb_x,(int)digslb_y);
     JUSTMSG("TESTLOG: going through slab at %d,%d for slab kind %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
     return 0;
@@ -3236,6 +3239,8 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
             ERRORLOG("Bad set Task State");
         }
         JUSTMSG("TESTLOG: task_wait_for_bridge at %d,%d, bridge built", subtile_slab(basestl_x), subtile_slab(basestl_y));
+        ctask->dig.pos_begin.x.val  = subtile_coord(basestl_x, 0);
+        ctask->dig.pos_begin.y.val = subtile_coord(basestl_y, 0);
         return CTaskRet_Unk1;
     }
     JUSTMSG("TESTLOG: task_wait_for_bridge  at %d,%d, reached end of function", subtile_slab(basestl_x), subtile_slab(basestl_y));
@@ -3471,6 +3476,7 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
     cdig->pos_begin.x.val = startpos.x.val;
     cdig->pos_begin.y.val = startpos.y.val;
     cdig->pos_begin.z.val = startpos.z.val;
+    JUSTMSG("TESTLOG: D dig start position set to %d,%d ", subtile_slab(startpos.x.stl.num), subtile_slab(startpos.y.stl.num));
     cdig->pos_E.x.val = startpos.x.val;
     cdig->pos_E.y.val = startpos.y.val;
     cdig->pos_E.z.val = startpos.z.val;

@@ -2071,7 +2071,7 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
             return false;
         }
     }
-    /*if ((digflags & ToolDig_AllowLiquidWBridge) == ToolDig_AllowLiquidWBridge)
+    if ((digflags & ToolDig_AllowLiquidWBridge) == ToolDig_AllowLiquidWBridge)
     {
         if (!slab_good_for_computer_claim_path(slb))
         {
@@ -2084,21 +2084,21 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
             JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d is accepted as hug slab (needs bridge...)", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
             return true;
         }
-    } else*/
+    } else
     if (!slab_good_for_computer_dig_path(slb)) {
         if ((digflags & ToolDig_AllowLiquidWBridge) == ToolDig_AllowLiquidWBridge) {
             
-            /*if (slab_good_for_computer_claim_path(slb))
+            if (slab_good_for_computer_claim_path(slb))
             {
                 JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d is accepted as hug slab (needs bridge...)", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
                 return false;
-            }*/
-            //else
-            //{
-            //    SYNCDBG(17, "Subtile (%d,%d) rejected as not good for wet dig", (int)stl_x, (int)stl_y);
-            //    JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d  rejected as not good for wet wallhug", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
-            //    return false;
-            //}
+            }
+            else
+            {
+                SYNCDBG(17, "Subtile (%d,%d) rejected as not good for wet dig", (int)stl_x, (int)stl_y);
+                JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d  rejected as not good for wet wallhug", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
+                return false;
+            }
         }
         SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
         JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d rejected as not good for wallhug", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
@@ -2124,7 +2124,7 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
         MapSubtlCoord stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
         struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y); // TODO, remove. Added for TESTLOG
         SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
-        if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx, digflags))
+        if (is_valid_hug_subtile(stl_x, stl_y, plyr_idx, digflags))
         {
             //if (slb->kind != 51)
             //{
@@ -2169,13 +2169,16 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     } else
     { // Here we need to use wallhug to slide until we will be able to move towards destination again
         // Try directions starting at the one towards the wall, in case wall has ended
+        JUSTMSG("TESTLOG:We're at %d,%d, now try slabs around", subtile_slab(curr_stl_x), subtile_slab(curr_stl_y));
         round_idx = (*round + SMALL_AROUND_LENGTH + dirctn) % SMALL_AROUND_LENGTH;
         int n;
         for (n = 0; n < SMALL_AROUND_LENGTH; n++)
         {
+            //MapSlabCoord x = slb_x + small_around[n].delta_x;
+            //MapSlabCoord y = slb_y + small_around[n].delta_y;
             dx = small_around[round_idx].delta_x;
             dy = small_around[round_idx].delta_y;
-            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
+            if (is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
             {
                 JUSTMSG("TESTLOG: get_hug_side_next_step - slide along wall to slab at %d,%d", subtile_slab(curr_stl_x + STL_PER_SLB * dx), subtile_slab(curr_stl_y + STL_PER_SLB * dy));
                 break;
@@ -2229,7 +2232,7 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
         if (state_a != WaHSS_Val2)
         {
             get_hug_side_next_step(dst_stl_x, dst_stl_y, -1, plyr_idx, &state_a, &stl_a_x, &stl_a_y, &round_a, &maxdist_a, digflags);
-            /*if (slab_is_liquid(subtile_slab(stl_a_x), subtile_slab(stl_a_y)))
+            if (slab_is_liquid(subtile_slab(stl_a_x), subtile_slab(stl_a_y)))
             {
                 // exit path early if water found, so that a bridge will be built here
                 JUSTMSG("TESTLOG: get_hug_side_options (A)- liquid slab at (%d,%d), stop side-step here", subtile_slab(stl_a_x), subtile_slab(stl_a_y));
@@ -2238,7 +2241,7 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
                 *ostlb_x = stl_b_x;
                 *ostlb_y = stl_b_y;
                 return 1;
-            }*/
+            }
             if ((stl_a_x == dst_stl_x) && (stl_a_y == dst_stl_y)) {
                 *ostla_x = stl_a_x;
                 *ostla_y = stl_a_y;
@@ -2250,7 +2253,7 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
         if (state_b != WaHSS_Val2)
         {
             get_hug_side_next_step(dst_stl_x, dst_stl_y, 1, plyr_idx, &state_b, &stl_b_x, &stl_b_y, &round_b, &maxdist_b, digflags);
-            /*if (slab_is_liquid(subtile_slab(stl_b_x), subtile_slab(stl_b_y)))
+            if (slab_is_liquid(subtile_slab(stl_b_x), subtile_slab(stl_b_y)))
             {
                 // exit path early if water found, so that a bridge will be built here
                 JUSTMSG("TESTLOG: get_hug_side_options (B)- liquid slab at (%d,%d), stop side-step here", subtile_slab(stl_b_x), subtile_slab(stl_b_y));
@@ -2259,7 +2262,7 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
                 *ostlb_x = stl_b_x;
                 *ostlb_y = stl_b_y;
                 return 0;
-            }*/
+            }
             if ((stl_b_x == dst_stl_x) && (stl_b_y == dst_stl_y)) {
                 *ostla_x = stl_a_x;
                 *ostla_y = stl_a_y;
