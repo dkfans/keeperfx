@@ -2084,22 +2084,7 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         }
     } else
     if (!slab_good_for_computer_dig_path(slb)) {
-        if ((digflags & ToolDig_AllowLiquidWBridge) == ToolDig_AllowLiquidWBridge) {
-            
-            if (slab_good_for_computer_claim_path(slb))
-            {
-                JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d is accepted as hug slab (needs bridge...)", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
-                return false;
-            }
-            else
-            {
-                SYNCDBG(17, "Subtile (%d,%d) rejected as not good for wet dig", (int)stl_x, (int)stl_y);
-                JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d  rejected as not good for wet wallhug", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
-                return false;
-            }
-        }
         SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
-        JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d rejected as not good for wallhug", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
         return false;
     }
     JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d is a valid wallhug slab", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
@@ -2133,10 +2118,7 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
         }
         JUSTMSG("TESTLOG: dig_to_position - valid wallhug subtile of type %d at %d,%d", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
         round_idx = (round_idx + round_change) % SMALL_AROUND_LENGTH;
-        /*if (slb->kind == 13)
-        {
-            return stl_num;
-        }*/
+
     }
     return -1;
 }

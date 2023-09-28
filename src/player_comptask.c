@@ -897,10 +897,9 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     struct Coord3d pos;
-    switch (tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowLiquidWBridge))
+    switch (tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly))
     {
     case -5:
-        JUSTMSG("TESTLOG: task_dig_to_room_passage: queue up CTT_WaitForBridge at %d,%d", subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.x.stl.num)), subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.y.stl.num)) );
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
         return CTaskRet_Unk4;
@@ -1210,7 +1209,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     struct ComputerTask *curtask;
     if (dig_ret == 0)
     {
-        dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowValuable);
+        dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
         if ((ctask->flags & ComTsk_AddTrapLocation) != 0) {
             ctask->flags &= ~ComTsk_AddTrapLocation;
             add_to_trap_location(comp, &ctask->dig.pos_next);
@@ -1219,7 +1218,6 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     switch ( dig_ret )
     {
     case -5:
-        JUSTMSG("TESTLOG: task_dig_to_entrance: queue up CTT_WaitForBridge at %d,%d", subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.x.stl.num)), subtile_slab(stl_slab_center_subtile(ctask->dig.pos_next.y.stl.num)) );
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
         return 4;
@@ -1723,7 +1721,6 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         cdig->pos_next.x.stl.num = *nextstl_x;
         cdig->pos_next.y.stl.num = *nextstl_y;
         SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)nextslb_x,(int)nextslb_y);
-        JUSTMSG("testlog: we reached destination (%d,%d)",(int)nextslb_x, (int)nextslb_y);
         return -1;
     }
     return i;
