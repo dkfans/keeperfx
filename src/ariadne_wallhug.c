@@ -39,7 +39,6 @@
 #include "config_creature.h"
 #include "game_legacy.h"
 #include "post_inc.h"
-#include "player_computer.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -2093,6 +2092,7 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
 
 long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside, unsigned short digflags)
 {
+    SubtlCodedCoords stl_num;
     long round_change;
     SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
     if (revside) {
@@ -2105,20 +2105,13 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     {
         MapSubtlCoord stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
         MapSubtlCoord stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
-        struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y); // TODO, remove. Added for TESTLOG
-        SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
         if (is_valid_hug_subtile(stl_x, stl_y, plyr_idx, digflags))
         {
-            //if (slb->kind != 51)
-            //{
-                JUSTMSG("TESTLOG: dig_to_position - wallhugging - new direction - moving to slab of type %d at %d,%d", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
-                SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
-                return stl_num;
-            //}
+            stl_num = get_subtile_number(stl_x, stl_y);
+            SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
+            return stl_num;
         }
-        JUSTMSG("TESTLOG: dig_to_position - valid wallhug subtile of type %d at %d,%d", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
         round_idx = (round_idx + round_change) % SMALL_AROUND_LENGTH;
-
     }
     return -1;
 }
