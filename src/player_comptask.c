@@ -3208,7 +3208,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
             comp->task_state = CTaskSt_Select;
             restart_task_process(comp, ctask);
             JUSTMSG("TESTLOG: task_wait_for_bridge at %d,%d, cancelled task for player %d (active too long during urgent task, or player has bridge)", subtile_slab(basestl_x), subtile_slab(basestl_y), plyr_idx);
-            return CTaskRet_Unk0;
+            return CTaskRet_Unk4;
         }
     }
 
