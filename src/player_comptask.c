@@ -1849,22 +1849,8 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         if (((action_slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now)||
              (action_slb->kind == SlbT_LAVA  &&  computer_check_room_of_role_available(comp, RoRoF_PassLava)  == IAvail_Now)))
         slb = get_slabmap_block(digslb_x, digslb_y);
-        if (slb->kind == 13)
-        {
-            struct SlabMap* slb1 = get_slabmap_for_subtile(digstl_x, digstl_y); // TODO, remove. Added for TESTLOG
-            struct SlabMap* slb2 = get_slabmap_for_subtile(cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num); // TODO, remove. Added for TESTLOG
-            JUSTMSG("TESTLOG: At -5, are we all right?(123) Slab kind is %d, alternative is %d", slb1->kind, slb2->kind);
-            if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now) 
-            {
-                cdig->pos_next.x.stl.num = digstl_x;
-                cdig->pos_next.y.stl.num = digstl_y;
-                return -5;
-            }
-        }
-
         if (slab_kind_is_liquid(slb->kind) && (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now))
         {
-            JUSTMSG("TESTLOG: LOOK (v2) AT %d,%d for slab %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
             cdig->pos_next.y.stl.num = digstl_y;
             cdig->pos_next.x.stl.num = digstl_x;
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid subtile (%d,%d)",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
@@ -1872,7 +1858,6 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         }
     } else
     {
-        JUSTMSG("TESTLOG: tool_dig_to_pos2_f - LONG distance dig from (%d,%d) to (%d,%d)", subtile_slab(gldstl_x),subtile_slab(gldstl_y),subtile_slab(cdig->pos_dest.x.stl.num),subtile_slab(cdig->pos_dest.y.stl.num));
         SYNCDBG(4,"%s: Player %d does long distance digging",func_name,(int)dungeon->owner);
         i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->hug_side, digflags);
         if (i == -1) {
@@ -1885,32 +1870,6 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         digslb_y = subtile_slab(digstl_y);
     }
     slb = get_slabmap_block(digslb_x, digslb_y);
-    /*if (i == -5)
-    {
-        struct SlabMap* slb = get_slabmap_for_subtile(gldstl_x, gldstl_y); // TODO, remove. Added for TESTLOG
-        struct SlabMap* slb2 = get_slabmap_for_subtile(digstl_x, digstl_y); // TODO, remove. Added for TESTLOG
-        JUSTMSG("TESTLOG: At -5, are we all right? Slab kind is %d, alternative is %d", slb->kind, slb2->kind);
-        if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now)
-        {
-            cdig->pos_next.x.stl.num = gldstl_x;
-            cdig->pos_next.y.stl.num = gldstl_y;
-            SYNCDBG(5, "%s: Player %d has bridge, so is going through liquid slab (%d,%d)", func_name,
-                (int)dungeon->owner, (int)subtile_slab(gldstl_x), (int)subtile_slab(gldstl_y));
-            return -5;
-        }
-    }*/
-    if (slb->kind == 13)
-    {
-        struct SlabMap* slb1 = get_slabmap_for_subtile(digstl_x, digstl_y); // TODO, remove. Added for TESTLOG
-        struct SlabMap* slb2 = get_slabmap_for_subtile(cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num); // TODO, remove. Added for TESTLOG
-        JUSTMSG("TESTLOG: At -5, are we all right?(456) Slab kind is %d, alternative is %d", slb1->kind, slb2->kind);
-        if (computer_check_room_available(comp, RoK_BRIDGE) == IAvail_Now) 
-        {
-            cdig->pos_next.x.stl.num = digstl_x;
-            cdig->pos_next.y.stl.num = digstl_y;
-            return -5;
-        }
-    }
     struct SlabAttr *slbattr;
     slbattr = get_slab_attrs(slb);
     if ((slbattr->is_diggable) && (slb->kind != SlbT_GEMS))
