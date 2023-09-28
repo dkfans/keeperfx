@@ -2068,16 +2068,11 @@ static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pla
     }
     if ((digflags & ToolDig_AllowLiquidWBridge) == ToolDig_AllowLiquidWBridge)
     {
-        if (!slab_good_for_computer_claim_path(slb))
+        if (slab_good_for_computer_claim_path(slb))
         {
-            SYNCDBG(17, "Subtile (%d,%d) rejected as not good for wet dig", (int)stl_x, (int)stl_y);
             return false;
         }
-        else
-        {
-            return true;
-        }
-    } else
+    }
     if (!slab_good_for_computer_dig_path(slb)) {
         SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
         return false;
@@ -2100,7 +2095,7 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     {
         MapSubtlCoord stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
         MapSubtlCoord stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
-        if (is_valid_hug_subtile(stl_x, stl_y, plyr_idx, digflags))
+        if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx, digflags))
         {
             stl_num = get_subtile_number(stl_x, stl_y);
             SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
