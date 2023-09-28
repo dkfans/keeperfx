@@ -2043,7 +2043,6 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
 TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 {
     const struct SlabAttr* slbattr = get_slab_attrs(slb);
-    //if ( (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) && (slb->kind != SlbT_ROCK)) || (slb->kind == SlbT_LAVA) )
     if ( ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
         return true;
     return false;
@@ -2052,7 +2051,6 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 TbBool slab_good_for_computer_claim_path(const struct SlabMap* slb)
 {
     const struct SlabAttr* slbattr = get_slab_attrs(slb);
-    //if (((slbattr->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
     if ((slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
         return true;
     return false;
@@ -2174,11 +2172,9 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         int n;
         for (n = 0; n < SMALL_AROUND_LENGTH; n++)
         {
-            //MapSlabCoord x = slb_x + small_around[n].delta_x;
-            //MapSlabCoord y = slb_y + small_around[n].delta_y;
             dx = small_around[round_idx].delta_x;
             dy = small_around[round_idx].delta_y;
-            if (is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
+            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
             {
                 JUSTMSG("TESTLOG: get_hug_side_next_step - slide along wall to slab at %d,%d", subtile_slab(curr_stl_x + STL_PER_SLB * dx), subtile_slab(curr_stl_y + STL_PER_SLB * dy));
                 break;
