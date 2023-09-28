@@ -2049,13 +2049,12 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 
 TbBool slab_good_for_computer_claim_path(const struct SlabMap* slb)
 {
-    const struct SlabAttr* slbattr = get_slab_attrs(slb);
     if ((slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
         return true;
     return false;
 }
 
-TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned short digflags)
+static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned short digflags)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     const struct SlabAttr* slbattr = get_slab_attrs(slb);
@@ -2106,7 +2105,7 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
             stl_num = get_subtile_number(stl_x, stl_y);
             SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
             return stl_num;
-        } // todo figure out why it crashes on the 'else'
+        }
         round_idx = (round_idx + round_change) % SMALL_AROUND_LENGTH;
     }
     return -1;
@@ -2142,9 +2141,10 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         {
             dx = small_around[round_idx].delta_x;
             dy = small_around[round_idx].delta_y;
-            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
+            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB * dx, curr_stl_y + STL_PER_SLB * dy, plyr_idx, digflags))
+            {
                 break;
-
+            }
             // If direction not for wallhug, try next
             round_idx = (round_idx + SMALL_AROUND_LENGTH - dirctn) % SMALL_AROUND_LENGTH;
         }

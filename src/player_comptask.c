@@ -442,9 +442,7 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
             n = ctask->ttype;
             // If it's a sub-task, compare the main task behind it
             if (n == CTT_WaitForBridge)
-            {
                 n = ctask->ottype;
-            }
             if (n == ttype) {
                 return ctask;
             }
@@ -488,9 +486,7 @@ struct ComputerTask *get_task_in_progress_in_list(const struct Computer2 *comp, 
             n = ctask->ttype;
             // If it's a sub-task, compare the main task behind it
             if (n == CTT_WaitForBridge)
-            {
                 n = ctask->ottype;
-            }
             const ComputerTaskType *ttype;
             for (ttype = ttypes; *ttype > CTT_None; ttype++)
             {
@@ -3114,12 +3110,6 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9, "Starting");
-
-    MapSubtlCoord basestl_x; // moved for log messages
-    MapSubtlCoord basestl_y;
-    basestl_x = ctask->dig.pos_next.x.stl.num;
-    basestl_y = ctask->dig.pos_next.y.stl.num;
-
     PlayerNumber plyr_idx;
     plyr_idx = comp->dungeon->owner;
     if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT)
@@ -3142,6 +3132,8 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
 
+    MapSubtlCoord basestl_x;
+    MapSubtlCoord basestl_y;
     basestl_x = ctask->dig.pos_next.x.stl.num;
     basestl_y = ctask->dig.pos_next.y.stl.num;
     if (!is_room_available(plyr_idx, RoK_BRIDGE))
@@ -3153,7 +3145,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
         struct SlabMap* slb = get_slabmap_block(subtile_slab(basestl_x), subtile_slab(basestl_y));
         if (slabmap_owner(slb) == plyr_idx && slb->kind == SlbT_BRIDGE)
         {
-            //return CTaskRet_Unk1;
+            return CTaskRet_Unk1;
         }
         return CTaskRet_Unk4;
     }
@@ -3165,7 +3157,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
         if (i == 0) {
             ERRORLOG("Bad set Task State");
         }
-        ctask->dig.pos_begin.x.val  = subtile_coord(basestl_x, 0);
+        ctask->dig.pos_begin.x.val = subtile_coord(basestl_x, 0);
         ctask->dig.pos_begin.y.val = subtile_coord(basestl_y, 0);
         return CTaskRet_Unk1;
     }
