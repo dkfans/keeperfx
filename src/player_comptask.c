@@ -1747,6 +1747,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     MapSubtlCoord digstl_y;
     MapSlabCoord digslb_x;
     MapSlabCoord digslb_y;
+    struct SlabMap* action_slb;
     long counter1;
     long i;
     JUSTMSG("TESTLOG: tool_dig_to_pos2_f - Simulation = %d", simulation);
@@ -1772,7 +1773,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             return counter1;
         }
         // Being here means we didn't reached the destination - we must do some kind of action
-        struct SlabMap* action_slb = get_slabmap_block(subtile_slab(gldstl_x), subtile_slab(gldstl_y));
+        action_slb = get_slabmap_block(subtile_slab(gldstl_x), subtile_slab(gldstl_y));
         if ( (action_slb->kind == SlbT_WATER &&  computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now)||
              (action_slb->kind == SlbT_LAVA  &&  computer_check_room_of_role_available(comp, RoRoF_PassLava)  == IAvail_Now))
         {
@@ -1940,6 +1941,15 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)digslb_x,(int)digslb_y);
         JUSTMSG("TESTLOG: Reached destination at %d,%d for slab kind %d", subtile_slab(digstl_x),subtile_slab(digstl_y), slb->kind);
         return -1;
+    }
+    action_slb = get_slabmap_block(digslb_x, digslb_y);
+    if (((action_slb->kind == SlbT_WATER && computer_check_room_of_role_available(comp, RoRoF_PassWater) == IAvail_Now) ||
+        (action_slb->kind == SlbT_LAVA && computer_check_room_of_role_available(comp, RoRoF_PassLava) == IAvail_Now)))
+    {
+        cdig->pos_next.y.stl.num = digstl_y;
+        cdig->pos_next.x.stl.num = digstl_x;
+        SYNCDBG(5, "%s: Player %d has bridge, so is going through liquid subtile (%d,%d)", func_name, (int)dungeon->owner, (int)gldstl_x, (int)gldstl_y);
+        return -5;
     }
     cdig->pos_begin.x.stl.num = digstl_x;
     cdig->pos_begin.y.stl.num = digstl_y;
