@@ -2063,7 +2063,6 @@ static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pla
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
         if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == plyr_idx)) {
             SYNCDBG(17,"Subtile (%d,%d) rejected based on attrs",(int)stl_x,(int)stl_y);
-            JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d is rejected based on attributes", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
             return false;
         }
     }
@@ -2071,16 +2070,13 @@ static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pla
     {
         if (slab_good_for_computer_claim_path(slb))
         {
-            JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d rejected as claim path", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
             return false;
         }
     }
-        JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d rejected as claim path", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
     if (!slab_good_for_computer_dig_path(slb)) {
         SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
         return false;
     }
-    JUSTMSG("TESTLOG: is_valid_hug_subtile, slab kind %d at %d,%d is a valid wallhug slab", slb->kind, subtile_slab(stl_x), subtile_slab(stl_y));
     return true;
 }
 
@@ -2124,7 +2120,6 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     {
         curr_stl_x += STL_PER_SLB*dx;
         curr_stl_y += STL_PER_SLB*dy;
-        JUSTMSG("TESTLOG: get_hug_side_next_step - go straight towards destination - new slab is %d,%d (WaHSS_Val1)", subtile_slab(curr_stl_x), subtile_slab(curr_stl_y));
         *state = WaHSS_Val1;
         *maxdist = max(abs(curr_stl_x - dst_stl_x), abs(curr_stl_y - dst_stl_y));
     } else
@@ -2132,25 +2127,18 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     if (*state == WaHSS_Val1)
     {
         *state = WaHSS_Val2;
-        JUSTMSG("TESTLOG: get_hug_side_next_step - met second wall at %d,%d (WaHSS_Val2)", subtile_slab(curr_stl_x), subtile_slab(curr_stl_y));
     } else
     { // Here we need to use wallhug to slide until we will be able to move towards destination again
         // Try directions starting at the one towards the wall, in case wall has ended
-        JUSTMSG("TESTLOG:We're at %d,%d, now try slabs around", subtile_slab(curr_stl_x), subtile_slab(curr_stl_y));
         round_idx = (*round + SMALL_AROUND_LENGTH + dirctn) % SMALL_AROUND_LENGTH;
         int n;
         for (n = 0; n < SMALL_AROUND_LENGTH; n++)
         {
             dx = small_around[round_idx].delta_x;
             dy = small_around[round_idx].delta_y;
-            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
+            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB * dx, curr_stl_y + STL_PER_SLB * dy, plyr_idx, digflags))
             {
-                JUSTMSG("TESTLOG: get_hug_side_next_step - slide along wall to slab at %d,%d", subtile_slab(curr_stl_x + STL_PER_SLB * dx), subtile_slab(curr_stl_y + STL_PER_SLB * dy));
                 break;
-            }
-            else
-            {
-                JUSTMSG("TESTLOG: get_hug_side_next_step - slab at %d,%d is a valid wallhug slab, trying next direction...", subtile_slab(curr_stl_x + STL_PER_SLB * dx), subtile_slab(curr_stl_y + STL_PER_SLB * dy));
             }
             // If direction not for wallhug, try next
             round_idx = (round_idx + SMALL_AROUND_LENGTH - dirctn) % SMALL_AROUND_LENGTH;
@@ -2164,7 +2152,6 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         }
     }
 
-    JUSTMSG("TESTLOG: get_hug_side_next_step - end of function, ostl_ set to %d,%d", subtile_slab(curr_stl_x), subtile_slab(curr_stl_y));
     *ostl_x = curr_stl_x;
     *ostl_y = curr_stl_y;
 }
@@ -2173,8 +2160,6 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
     unsigned short direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y, unsigned short digflags)
 {
     SYNCDBG(4,"Starting");
-
-    JUSTMSG("TESTLOG: get_hug_side_options - source slab at (%d,%d)", subtile_slab(src_stl_x), subtile_slab(src_stl_y));
     int dist = max(abs(src_stl_x - dst_stl_x), abs(src_stl_y - dst_stl_y));
 
     char state_a = WaHSS_Val0;
@@ -2200,7 +2185,6 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
             if (slab_is_liquid(subtile_slab(stl_a_x), subtile_slab(stl_a_y)))
             {
                 // exit path early if water found, so that a bridge will be built here
-                JUSTMSG("TESTLOG: get_hug_side_options (A)- liquid slab at (%d,%d), stop side-step here", subtile_slab(stl_a_x), subtile_slab(stl_a_y));
                 *ostla_x = stl_a_x;
                 *ostla_y = stl_a_y;
                 *ostlb_x = stl_b_x;
@@ -2221,7 +2205,6 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
             if (slab_is_liquid(subtile_slab(stl_b_x), subtile_slab(stl_b_y)))
             {
                 // exit path early if water found, so that a bridge will be built here
-                JUSTMSG("TESTLOG: get_hug_side_options (B)- liquid slab at (%d,%d), stop side-step here", subtile_slab(stl_b_x), subtile_slab(stl_b_y));
                 *ostla_x = stl_a_x;
                 *ostla_y = stl_a_y;
                 *ostlb_x = stl_b_x;
