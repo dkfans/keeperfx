@@ -48,7 +48,7 @@
 					"    Write-Host 'Compilation failed!' -ForegroundColor Red;",
 					"    exit 1;",
 					"}",
-					"Copy-Item -LiteralPath '${workspaceFolder}\\bin\\*' -Destination '$gameDir' -Force;",
+					"Copy-Item -Path '${workspaceFolder}\\bin\\*' -Destination $gameDir -Force;",
 				],
 			},
 			"linux": {"command": []},
