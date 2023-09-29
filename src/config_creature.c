@@ -329,7 +329,7 @@ void check_and_auto_fix_stats(void)
             ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->sleep_exp_slab = 0;
         }
-        if (crstat->grow_up >= gameadd.crtr_conf.model_count)
+        if ((crstat->grow_up >= gameadd.crtr_conf.model_count) && !(crstat->grow_up == CREATURE_ANY))
         {
             ERRORLOG("Creature model %d (%s) Invalid GrowUp model - Fixing", (int)model, creature_code_name(model));
             crstat->grow_up = 0;

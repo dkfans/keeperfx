@@ -3115,6 +3115,8 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
     if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT)
     {
         //If the task has been active too long, restart the process to try a different approach.
+        ctask->ttype = ctask->ottype;
+        comp->task_state = CTaskSt_Select;
         restart_task_process(comp, ctask);
         return CTaskRet_Unk0;
     }
@@ -3123,8 +3125,10 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
         if ((is_room_available(plyr_idx, RoK_BRIDGE)) || (ctask->flags & ComTsk_Urgent))
         {
             //When the player already has the bridge available, or is doing an urgent task, don't keep the task active as long.
+            ctask->ttype = ctask->ottype;
+            comp->task_state = CTaskSt_Select;
             restart_task_process(comp, ctask);
-            return CTaskRet_Unk0;
+            return CTaskRet_Unk4;
         }
     }
 
