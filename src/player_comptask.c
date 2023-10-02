@@ -3460,7 +3460,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
     ctask->move_to_pos.pos_86.y.val = pos.y.val;
     ctask->move_to_pos.pos_86.z.val = pos.z.val;
     ctask->move_to_pos.target_thing_idx = thing->index;
-    ctask->move_to_pos.target_state = CrSt_CreatureSacrifice;
+    ctask->move_to_pos.target_state = dst_state;
     ctask->created_turn = game.play_gameturn;
     return true;
 }
