@@ -607,12 +607,12 @@ TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNum
  * @param pos
  * @note originally named fake_dump_held_creatures_on_map()
  */
-short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *droptng, struct Coord3d *pos)
+short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *droptng, struct Coord3d *pos, CrtrStateId target_state)
 {
     if (thing_is_creature(droptng) && (droptng->active_state == CrSt_CreatureUnconscious)) {
         WARNLOG("The %s Held By computer is unconscious", creature_code_name(droptng->model));
     }
-    if (thing_is_creature(droptng))
+    if (thing_is_creature(droptng) && (target_state != CrSt_CreatureSacrifice))
     {
         if (!computer_find_safe_non_solid_block(comp, pos))
         {
@@ -2640,7 +2640,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (computer_dump_held_things_on_map(comp, thing, &ctask->pickup_for_attack.target_pos)) {
+        if (computer_dump_held_things_on_map(comp, thing, &ctask->pickup_for_attack.target_pos, ctask->pickup_for_attack.word_80)) {
             return CTaskRet_Unk2;
         }
         computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
@@ -2691,7 +2691,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
             jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
             if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref, thing))
             {
-                if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
+                if (computer_dump_held_things_on_map(comp, thing, &pos, CrSt_Unused) > 0) {
                     return CTaskRet_Unk2;
                 }
             }
@@ -2749,7 +2749,7 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
         {
             if (thing_is_creature(thing))
             {
-                if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_pos.pos_86)) {
+                if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_pos.pos_86, ctask->move_to_pos.target_state)) {
                     remove_task(comp, ctask);
                     return CTaskRet_Unk2;
                 }
@@ -2869,7 +2869,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
             {
                 return CTaskRet_Unk4;
             }
-            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos)) {
+            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos, ctask->move_to_defend.word_80)) {
                 return CTaskRet_Unk2;
             }
             ERRORLOG("Could not dump player %d %s into (%d,%d)",(int)dungeon->owner,
@@ -2927,7 +2927,7 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
         {
             if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
             {
-                if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
+                if (computer_dump_held_things_on_map(comp, thing, &pos,0) > 0) {
                     return CTaskRet_Unk2;
                 }
             }
@@ -3460,7 +3460,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
     ctask->move_to_pos.pos_86.y.val = pos.y.val;
     ctask->move_to_pos.pos_86.z.val = pos.z.val;
     ctask->move_to_pos.target_thing_idx = thing->index;
-    ctask->move_to_pos.word_80 = 0;
+    ctask->move_to_pos.target_state = CrSt_CreatureSacrifice;
     ctask->created_turn = game.play_gameturn;
     return true;
 }
@@ -3533,6 +3533,7 @@ TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos
     ctask->pickup_for_attack.target_pos.z.val = pos->z.val;
     ctask->pickup_for_attack.repeat_num = repeat_num;
     ctask->created_turn = game.play_gameturn;
+    ctask->pickup_for_attack.word_80 = 0;
     ctask->pickup_for_attack.long_86 = par3; // Originally only a word was set here
     return true;
 }
