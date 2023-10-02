@@ -41,9 +41,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-char net_current_message[64];
-long net_current_message_index;
-
 struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
 struct TbNetworkSessionNameEntry *net_session[32];
 long net_number_of_sessions;

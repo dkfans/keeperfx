@@ -2525,6 +2525,7 @@ void set_gui_visible(TbBool visible)
   switch (player->view_type)
   {
   case PVT_CreatureContrl:
+  case PVT_CreaturePasngr:
       toggle_first_person_menu(is_visbl);
       break;
   case PVT_MapScreen:
@@ -2670,7 +2671,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         StopMusicPlayer();
         break;
     case FeSt_LEVEL_STATS:
-        StopStreamedSample();
+        stop_streamed_sample();
         turn_off_menu(GMnu_FESTATISTICS);
         break;
     case FeSt_HIGH_SCORES:
@@ -3652,7 +3653,7 @@ FrontendMenuState get_startup_menu_state(void)
       game_flags2 &= ~GF2_Server;
       SYNCLOG("Setup server");
 
-      if (setup_network_service(NS_TCP_IP))
+      if (setup_network_service(NS_ENET_UDP))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3664,7 +3665,7 @@ FrontendMenuState get_startup_menu_state(void)
   {
       game_flags2 &= ~GF2_Connect;
       SYNCLOG("Setup client");
-      if (setup_network_service(NS_TCP_IP))
+      if (setup_network_service(NS_ENET_UDP))
       {
           frontnet_service_setup();
           frontnet_session_setup();

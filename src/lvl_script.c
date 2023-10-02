@@ -213,6 +213,7 @@ TbBool script_is_preloaded_command(long cmnd_index)
   case Cmd_NEW_TRAP_TYPE:
   case Cmd_NEW_OBJECT_TYPE:
   case Cmd_NEW_ROOM_TYPE:
+  case Cmd_NEW_CREATURE_TYPE:
       return true;
   default:
       return false;
@@ -1071,8 +1072,6 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
     long i;
     long k;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ((game.system_flags & GSF_NetworkActive) != 0)
-      return;
     for (i=0; i < gameadd.script.win_conditions_num; i++)
     {
       k = gameadd.script.win_conditions[i];

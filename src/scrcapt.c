@@ -42,7 +42,7 @@
 #include "post_inc.h"
 /******************************************************************************/
 
-unsigned char screenshot_format = 0;
+unsigned char screenshot_format = 1;
 unsigned char cap_palette[768];
 
 /******************************************************************************/
@@ -60,12 +60,12 @@ TbBool take_screenshot(char *fname)
     TbBool success;
     switch (screenshot_format)
     {
-        case 0:
+        case 1:
         {
             success = (IMG_SavePNG(lbDrawSurface, fname) == 0);
             break;
         }
-        case 1:
+        case 2:
         {
             success = (SDL_SaveBMP(lbDrawSurface, fname) == 0);
             break;
@@ -89,26 +89,26 @@ TbBool take_screenshot(char *fname)
 
 TbBool cumulative_screen_shot(void)
 {
-    if (screenshot_format > 1)
+    char fname[255];
+    const char *fext;
+    switch (screenshot_format)
     {
+        case 1:
+        fext = "png";
+        break;
+      case 2:
+        fext = "bmp";
+        break;
+      default:
         ERRORLOG("Screenshot format incorrectly set.");
         return false;
     }
-    char fname[255];
-    size_t len = strlen(scrshot_type[screenshot_format].name);
-    char *fext = malloc(len + 1);
     unsigned long i;
-    for (i = 0; i < len; i++) 
-    {
-        fext[i] = tolower(scrshot_type[screenshot_format].name[i]);
-    }
-    fext[len] = 0;
     for (i = 0; i < 10000; i++)
     {
         sprintf(fname, "scrshots/scr%05lu.%s", i, fext);
         if (!LbFileExists(fname)) break;
     }
-    free(fext);
     if (i >= 10000)
     {
         show_onscreen_msg(game.num_fps, "No free filename for screenshot.");

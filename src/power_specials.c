@@ -140,7 +140,7 @@ void increase_level(struct PlayerInfo *player, int count)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (count > 1) creature_increase_multiple_levels(thing, count);
+        if (count != 1) creature_change_multiple_levels(thing, count);
         else creature_increase_level(thing);
         // Thing list loop body ends
         k++;
@@ -164,7 +164,7 @@ void increase_level(struct PlayerInfo *player, int count)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (count > 1) creature_increase_multiple_levels(thing, count);
+        if (count > 1) creature_change_multiple_levels(thing, count);
         else creature_increase_level(thing);
         // Thing list loop body ends
         k++;
@@ -254,7 +254,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 
 void make_safe(struct PlayerInfo *player)
 {
-    unsigned char* areamap = (unsigned char*)scratch;
+    unsigned char* areamap = (unsigned char*)big_scratch;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     // Prepare the array to remember which slabs were already taken care of
@@ -280,7 +280,7 @@ void make_safe(struct PlayerInfo *player)
     }
 
     PlayerNumber plyr_idx = player->id_number;
-    SlabCodedCoords* slblist = (SlabCodedCoords*)(scratch + gameadd.map_tiles_x * gameadd.map_tiles_y);
+    SlabCodedCoords* slblist = (SlabCodedCoords*)(big_scratch + gameadd.map_tiles_x * gameadd.map_tiles_y);
     unsigned int list_len = 0;
     unsigned int list_cur = 0;
     while (list_cur <= list_len)

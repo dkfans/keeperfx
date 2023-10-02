@@ -156,7 +156,7 @@ TbBool add_key_on_door(struct Thing *thing)
       return false;
     keytng->mappos.x.stl.pos = COORD_PER_STL/2;
     keytng->mappos.y.stl.pos = COORD_PER_STL/2;
-    keytng->mappos.z.stl.num = 4;
+    keytng->mappos.z.stl.num = 5;
     return true;
 }
 
