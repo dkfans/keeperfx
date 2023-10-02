@@ -130,7 +130,14 @@ static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_u
         }
         else
         {
-            return 6;
+            if ( room_has_lair_enemy )
+            {
+                return 0;
+            }
+            else
+            {
+                return 6;
+            }
         }
     }
     else if ( room_has_units_of_different_kind )
@@ -148,6 +155,16 @@ static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_u
     {
         return 4;
     }
+}
+
+TbBool creature_model_is_lair_enemy(const short lair_enemy[], short crmodel)
+{
+    for (int i = 0; i < LAIR_ENEMY_MAX; i++)
+    {
+        if (lair_enemy[i] == crmodel)
+            return true;
+    }
+    return false;
 }
 
 struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
@@ -187,7 +204,9 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                             else
                             {
                                 room_has_units_of_different_kind = true;
-                                if ( crstat->lair_enemy == model )
+                            }
+                            if (creature_model_is_lair_enemy(crstat->lair_enemy, model))
+                            {
                                 room_has_lair_enemy = true;
                             }
                         }
