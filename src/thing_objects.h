@@ -41,11 +41,11 @@ enum ObjectStates {
     ObSt_State5,
 };
 
-enum ObjectOwningCategory {
-    ObOC_Unknown0 = 0,
-    ObOC_Unknown1,
-    ObOC_Unknown2,
-    ObOC_Unknown3,
+enum ObjectPersistence {
+    ObPer_Unset = 0,
+    ObPer_Move,
+    ObPer_Persist,
+    ObPer_Vanish,
 };
 
 enum CallToArmsObjectLife {
@@ -134,7 +134,7 @@ struct Objects {
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     unsigned char related_creatr_model;
-    unsigned char own_category;
+    unsigned char persistence;
     unsigned char destroy_on_liquid;
     unsigned char rotation_flag;
     unsigned char updatefn_idx;
@@ -192,6 +192,8 @@ TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 TbBool object_can_be_damaged(const struct Thing* thing);
 TbBool object_is_buoyant(const struct Thing* thing);
+TbBool thing_is_hardcoded_special_box(const struct Thing* thing);
+TbBool thing_is_custom_special_box(const struct Thing* thing);
 
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room);
 TbBool delete_lair_totem(struct Thing *lairtng);

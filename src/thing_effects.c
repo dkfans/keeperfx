@@ -31,6 +31,8 @@
 #include "thing_physics.h"
 #include "thing_factory.h"
 #include "thing_navigate.h"
+#include "thing_shots.h"
+#include "creature_battle.h"
 #include "creature_senses.h"
 #include "config_creature.h"
 #include "config_effects.h"
@@ -136,8 +138,8 @@ struct InitEffect effect_info[] = {
 
 
 struct EffectElementStats effect_element_stats[] = {
- //draw_class,	field_1,	field_2,	numfield_3,	numfield_5,	sprite_idx,	sprite_size_min,	sprite_size_max,	field_D,	sprite_speed_min,	sprite_speed_max,	field_12,	unshaded,	transparant,	
-    // field_15,	field_16,	field_17,	fall_acceleration,	field_19,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	field_22,	effmodel_23,	solidgnd_snd_smpid,	solidgnd_loudness,
+ //draw_class,	move_type,	unanimated,	lifespan,	lifespan_random,	sprite_idx,	sprite_size_min,	sprite_size_max,	rendering_flag,	sprite_speed_min,	sprite_speed_max,	animate_on_floor,	unshaded,	transparant,	
+    // field_15,	movement_flags,	size_change,	fall_acceleration,	field_19_unused,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	field_22,	effmodel_23,	solidgnd_snd_smpid,	solidgnd_loudness,
         // solidgnd_destroy_on_impact,	water_effmodel,	water_snd_smpid,	water_loudness,	water_destroy_on_impact,	
             // lava_effmodel,	lava_snd_smpid,	lava_loudness,	lava_destroy_on_impact,	transform_model,	field_3A,	field_3C,	field_3D,	affected_by_wind
  {2,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	256,	0,	0,	0,	256,	0,	0,	0,	256,	0,	0,	0,	0,	0,	0},
@@ -305,7 +307,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
         set_flag_byte(&thing->rendering_flags,TRF_Unshaded,eestat->unshaded);
         thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparant)) & (TRF_Transpar_Flags);
-        set_flag_byte(&thing->rendering_flags,TRF_AnimateOnce,eestat->field_D);
+        set_flag_byte(&thing->rendering_flags,TRF_AnimateOnce,eestat->rendering_flag);
     } else
     {
         set_flag_byte(&thing->rendering_flags,TRF_Unknown01,true);
@@ -315,23 +317,30 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
     thing->movement_flags |= TMvF_Unknown08;
-    set_flag_byte(&thing->movement_flags,TMvF_Unknown10,eestat->field_16);
+    set_flag_byte(&thing->movement_flags,TMvF_Unknown10,eestat->movement_flags);
     thing->creation_turn = game.play_gameturn;
 
-    if (eestat->numfield_3 > 0)
+    if (eestat->lifespan > 0)
     {
-        i = EFFECT_RANDOM(thing, eestat->numfield_5 - (long)eestat->numfield_3 + 1);
-        thing->health = eestat->numfield_3 + i;
+        i = EFFECT_RANDOM(thing, eestat->lifespan_random - (long)eestat->lifespan + 1);
+        thing->health = eestat->lifespan + i;
     } else
     {
-        thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
+        if (thing->anim_speed > 0)
+        {
+            thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
+        }
+        else
+        {
+            thing->health = keepersprite_frames(thing->anim_sprite);
+        }
     }
 
-    if (eestat->field_17 != 0)
+    if (eestat->size_change != 0)
     {
         thing->sprite_size_min = eestat->sprite_size_min;
         thing->sprite_size_max = eestat->sprite_size_max;
-        if (eestat->field_17 == 2)
+        if (eestat->size_change == 2)
         {
             thing->transformation_speed = 2 * (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
             thing->field_50 |= 0x02;
@@ -601,16 +610,16 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     int speed = eestat->sprite_speed_min + EFFECT_RANDOM(thing, eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
-    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->field_D, 0, 2);
+    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->rendering_flag, 0, 2);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparant) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->fall_acceleration;
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
-    if (eestat->numfield_3 <= 0) {
+    if (eestat->lifespan <= 0) {
         thing->health = get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
     } else {
-        thing->health = EFFECT_RANDOM(thing, eestat->numfield_5 - eestat->numfield_3 + 1) + eestat->numfield_3;
+        thing->health = EFFECT_RANDOM(thing, eestat->lifespan_random - eestat->lifespan + 1) + eestat->lifespan;
     }
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
 }
@@ -636,7 +645,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     }
     elemtng->health = health-1;
     // Set dynamic properties of the effect
-    if (!eestats->field_12)
+    if (!eestats->animate_on_floor)
     {
         if (elemtng->floor_height >= (int)elemtng->mappos.z.val)
           elemtng->anim_speed = 0;
@@ -663,7 +672,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
           create_effect_element(&elemtng->mappos, eestats->subeffect_model, elemtng->owner);
       }
     }
-    switch (eestats->field_1)
+    switch (eestats->move_type)
     {
     case 1:
         move_effect_element(elemtng);
@@ -713,12 +722,12 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
     case 5:
         break;
     default:
-        ERRORLOG("Invalid effect element move type %d!",(int)eestats->field_1);
+        ERRORLOG("Invalid effect element move type %d!",(int)eestats->move_type);
         move_effect_element(elemtng);
         break;
     }
 
-    if (eestats->field_2 != 1)
+    if (eestats->unanimated != 1)
       return TUFRet_Modified;
     i = get_angle_yz_to_vec(&elemtng->veloc_base);
     if (i > LbFPMath_PI)
@@ -1164,7 +1173,7 @@ TbBool destroy_effect_thing(struct Thing *efftng)
  * @note If the function returns true, the effect might have caused death of the target.
  */
 TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner, unsigned long shot_model_flags)
 {
     TbBool affected = false;
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
@@ -1186,13 +1195,19 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 affected = true;
                 if (tngdst->health < 0)
                 {
-                    CrDeathFlags dieflags = CrDed_DiedInBattle;
+                    struct Thing *origtng = thing_get(tngsrc->parent_idx); //parent of the tngsrc(shot) is the shooting creature.
+                    struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
+                    CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if ((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint))
+                    if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
-                    kill_creature(tngdst, tngsrc, -1, dieflags);
+                    if ((shot_model_flags & ShMF_BlocksRebirth))
+                    {
+                        dieflags |= CrDed_NoRebirth;
+                    }
+                    kill_creature(tngdst, origtng, -1, dieflags);
                     affected = true;
                 }
             }
@@ -1266,7 +1281,7 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
  * @param damage_type Type of the damage inflicted.
  */
 long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, unsigned long shot_model_flags)
 {
     PlayerNumber owner;
     if (!thing_is_invalid(tngsrc))
@@ -1296,7 +1311,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         } else
         if (effect_can_affect_thing(efftng, thing))
         {
-            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner))
+            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner, shot_model_flags))
             {
                 num_affected++;
             }
@@ -1316,11 +1331,11 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
 /**
  * Applies damage the Word Of Power spell makes to all things in the area surrounding given position.
  * @param efftng The thing which is WOP effect originator.
- * @param owntng The thing being affected by the spell.
+ * @param tngsrc The thing being source of the spell.
  * @param pos Position where the WOP effect center is.
  * @param max_dist Range of the WOP spell effect, in map coordinates.
  */
-void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, struct Coord3d *pos)
+void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, struct Coord3d *pos)
 {
     long stl_xmin;
     long stl_xmax;
@@ -1331,13 +1346,13 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         return;
     }
     struct ShotConfigStats* shotst;
-    if (efftng->shot_effect.hit_type == THit_CrtrsOnlyNotOwn) // TODO: hit type seems hard coded. Find a better way to tell apart WoP traps from spells.
+    if (thing_is_deployed_trap(tngsrc))
     {
-        shotst = get_shot_model_stats(31); //SHOT_TRAP_WORD_OF_POWER
+        shotst = get_shot_model_stats(ShM_TrapWordOfPower);
     }
     else
     {
-        shotst = get_shot_model_stats(30); //SHOT_WORD_OF_POWER
+        shotst = get_shot_model_stats(ShM_WordOfPower);
     }
     if ((shotst->area_range <= 0) || ((shotst->area_damage == 0) && (shotst->area_blow == 0))) {
         ERRORLOG("Word of power shot configuration does not include area influence.");
@@ -1383,8 +1398,8 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *owntng, st
         for (long stl_x = stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            explosion_effect_affecting_map_block(efftng, owntng, mapblk, max_dist,
-                shotst->area_damage, shotst->area_blow, shotst->damage_type);
+            explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist,
+                shotst->area_damage, shotst->area_blow, shotst->damage_type, shotst->model_flags);
         }
     }
 }
@@ -1446,7 +1461,8 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         // Per thing processing block
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner))
+            struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
+            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner, shotst->model_flags))
                 num_affected++;
         }
         // Per thing processing block ends
@@ -1698,7 +1714,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
     case AAffT_GasSlow:
     case AAffT_GasSlowDamage:
     case AAffT_GasDisease:
-        poison_cloud_affecting_area(subtng, &efftng->mappos, 5*COORD_PER_STL, 120, effnfo->area_affect_type);
+        poison_cloud_affecting_area(efftng, &efftng->mappos, 5*COORD_PER_STL, 120, effnfo->area_affect_type);
         break;
     case AAffT_WOPDamage:
         word_of_power_affecting_area(efftng, subtng, &efftng->mappos);

@@ -1519,7 +1519,7 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
 static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing *next_thing;
-    int own_category;
+    int persistence;
     unsigned long k = 0;
 
     MapSubtlCoord start_stl_x = slab_subtile(slb_x, 0);
@@ -1541,15 +1541,15 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
                     {
                         struct Objects *objdat = get_objects_data_for_thing(thing);
 
-                        own_category = objdat->own_category;
-                        if (own_category == ObOC_Unknown1)
+                        persistence = objdat->persistence;
+                        if (persistence == ObPer_Move)
                         {
                             if ((get_map_floor_filled_subtiles(mapblk) <= 4) || move_object_to_nearest_free_position(thing))
                             {
                                 delete_thing = false;
                             }
                         }
-                        else if (own_category != ObOC_Unknown2)
+                        else if (persistence != ObPer_Persist)
                         {
                             delete_thing = false;
                         }
@@ -1638,7 +1638,10 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
                 //TODO this condition does not look consistent
                 if ((thing->class_id != TCls_Creature) || (floor_height <= 4))
                 {
-                    if (thing->model != 2) {
+                    //Suspect this has to do with object 2, torch, that needs to stay 4 cubes heigh. TCls_Door added later for braced door(model 2) key bug.
+                    //TODO investigate if doors need height 1 or 5, below code drops them to the floor
+                    if ((thing->model != 2) || (thing->class_id == TCls_Door)) 
+                    {
                         thing->mappos.z.val = subtile_coord(floor_height,0);
                     }
                 }
@@ -1958,12 +1961,13 @@ void create_gold_rubble_for_dug_slab(MapSlabCoord slb_x, MapSlabCoord slb_y)
     long z;
     stl_x = STL_PER_SLB * slb_x;
     stl_y = STL_PER_SLB * slb_y;
-    z = get_floor_filled_subtiles_at(stl_x, stl_y);
     for (y = stl_y; y < stl_y+STL_PER_SLB; y++)
     {
         for (x = stl_x; x < stl_x+STL_PER_SLB; x++)
         {
-            if (z > 0) {
+            z = get_floor_filled_subtiles_at(x, y);
+            if (z > 0) 
+            {
                 create_gold_rubble_for_dug_block(x, y, z, game.neutral_player_num);
             }
         }
@@ -2130,6 +2134,32 @@ void dig_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_i
         if (!dungeon_invalid(dungeon)) {
             dungeon->lvstats.rock_dug_out++;
         }
+    }
+}
+
+
+void set_explored_around(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    struct SlabMap* slb;
+    slb = get_slabmap_block(slb_x + 1, slb_y);
+    if (!slabmap_block_invalid(slb))
+    {
+        set_slab_explored(plyr_idx, slb_x + 1, slb_y);
+    }
+    slb = get_slabmap_block(slb_x - 1, slb_y);
+    if (!slabmap_block_invalid(slb))
+    {
+        set_slab_explored(plyr_idx, slb_x - 1, slb_y);
+    }
+    slb = get_slabmap_block(slb_x, slb_y + 1);
+    if (!slabmap_block_invalid(slb))
+    {
+        set_slab_explored(plyr_idx, slb_x, slb_y + 1);
+    }
+    slb = get_slabmap_block(slb_x, slb_y - 1);
+    if (!slabmap_block_invalid(slb))
+    {
+        set_slab_explored(plyr_idx, slb_x, slb_y - 1);
     }
 }
 

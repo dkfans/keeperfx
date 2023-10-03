@@ -255,7 +255,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
         gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT; battlr_id++)
+    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT-1; battlr_id++)
     {
         int i = friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
         struct Thing* thing = thing_get(i);
@@ -318,7 +318,7 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
         gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT; battlr_id++)
+    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT-1; battlr_id++)
     {
         int i = enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
         struct Thing* thing = thing_get(i);

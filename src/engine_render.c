@@ -492,13 +492,6 @@ TbFileHandle jty_file_handle;
 unsigned char player_bit;
 
 struct MapVolumeBox map_volume_box;
-long fade_max;
-long split_1;
-long split_2;
-long view_height_over_2;
-long view_width_over_2;
-
-struct MapVolumeBox map_volume_box;
 long view_height_over_2;
 long view_width_over_2;
 long split_1;
@@ -4902,10 +4895,10 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
 void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, long floor_height_z, unsigned char color)
 {
     map_volume_box.visible = 1;
-    map_volume_box.beg_x = cor1_x & 0xFFFF00;
-    map_volume_box.beg_y = cor1_y & 0xFF00;
-    map_volume_box.end_x = cor2_x & 0xFFFF00;
-    map_volume_box.end_y = cor2_y & 0xFFFF00;
+    map_volume_box.beg_x = cor1_x & 0xFFFFFF00;
+    map_volume_box.beg_y = cor1_y & 0xFFFF00;
+    map_volume_box.end_x = cor2_x & 0xFFFFFF00;
+    map_volume_box.end_y = cor2_y & 0xFFFFFF00;
     map_volume_box.floor_height_z = floor_height_z;
     map_volume_box.color = color;
 }
@@ -5473,7 +5466,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
-    roomst = &slab_conf.room_cfgstats[room->kind];
+    roomst = &game.slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
     spr = &gui_panel_sprites[roomst->medsym_sprite_idx];

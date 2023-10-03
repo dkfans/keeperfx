@@ -704,7 +704,6 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
             break;
         }
     }
-
     int diff_x;
     int diff_y;
     if ((cor2_id >= 0) && (cor3_id >= 0))
@@ -2996,9 +2995,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
         if ((int)((pos->y.val - nav_radius) & 0xFFFFFF00) < (int)((thing->mappos.y.val - nav_radius) & 0xFFFFFF00))
         {
             nav_boundry_pos.x.val = pos->x.val;
-            nav_boundry_pos.y.stl.num = (thing->mappos.y.val - nav_radius) >> 8;
-            nav_boundry_pos.y.stl.pos = 0;
-            nav_boundry_pos.y.val += nav_radius;
+            nav_boundry_pos.y.val = subtile_coord((thing->mappos.y.val - nav_radius) >> 8, 0) + nav_radius;
             isOk = true;
         }
         break;
@@ -3006,9 +3003,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
         if ((int)((nav_radius + pos->y.val) & 0xFFFFFF00) > (int)((nav_radius + thing->mappos.y.val) & 0xFFFFFF00))
         {
             nav_boundry_pos.x.val = pos->x.val;
-            nav_boundry_pos.y.stl.num = (nav_radius + thing->mappos.y.val) >> 8;
-            nav_boundry_pos.y.stl.pos = COORD_PER_STL - 1;
-            nav_boundry_pos.y.val -= nav_radius;
+            nav_boundry_pos.y.val = subtile_coord((nav_radius + thing->mappos.y.val) >> 8, COORD_PER_STL - 1) - nav_radius;
             isOk = true;
         }
         break;
@@ -3016,9 +3011,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
         if ((int)((pos->x.val - nav_radius) & 0xFFFFFF00) < (int)((thing->mappos.x.val - nav_radius) & 0xFFFFFF00))
         {
             nav_boundry_pos.y.val = pos->y.val;
-            nav_boundry_pos.x.stl.num = (thing->mappos.x.val - nav_radius) >> 8;
-            nav_boundry_pos.x.stl.pos = 0;
-            nav_boundry_pos.x.val += nav_radius;
+            nav_boundry_pos.x.val = subtile_coord((thing->mappos.x.val - nav_radius) >> 8, 0) + nav_radius;
             isOk = true;
         }
         break;
@@ -3026,9 +3019,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
         if ((int)((nav_radius + pos->x.val) & 0xFFFFFF00) > (int)((nav_radius + thing->mappos.x.val) & 0xFFFFFF00))
         {
             nav_boundry_pos.y.val = pos->y.val;
-            nav_boundry_pos.x.stl.num = (nav_radius + thing->mappos.x.val) >> 8;
-            nav_boundry_pos.x.stl.pos = COORD_PER_STL - 1;
-            nav_boundry_pos.x.val -= nav_radius;
+            nav_boundry_pos.x.val = subtile_coord((nav_radius + thing->mappos.x.val) >> 8, COORD_PER_STL - 1) - nav_radius;
             isOk = true;
         }
         break;

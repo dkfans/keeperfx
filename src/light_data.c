@@ -1526,6 +1526,7 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
 
 void light_set_lights_on(char state)
 {
+    SYNCDBG(8, "Starting");
     if (state)
     {
         game.lish.global_ambient_light = 10;
@@ -2057,6 +2058,12 @@ static char light_render_light(struct Light* lgt)
       render_radius = lgt->min_radius << 8;
     if ( intensity < lgt->min_intensity << 8 )
       intensity = lgt->min_intensity << 8;
+  }
+  if (render_radius == 0)
+  {
+      ERRORLOG("Light %d has no radius, deleting", lgt->index);
+      light_delete_light(lgt->index);
+      return 0;
   }
   unsigned int lighting_tables_idx;
   if ( intensity >= game.lish.global_ambient_light << 8 )

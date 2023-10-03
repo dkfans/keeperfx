@@ -244,15 +244,18 @@ TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    if ( (slb->kind <= SlbT_WALLPAIRSHR) || (slb->kind == SlbT_GEMS) )
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
-        return true;
+        MapSubtlCoord astl_x = stl_x + small_around[i].delta_x;
+        MapSubtlCoord astl_y = stl_y + small_around[i].delta_y;
+        if (!subtile_is_wall(astl_x, astl_y))
+        {
+            return false;
+        }
     }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 TbBool is_slab_type_walkable(SlabKind slbkind)

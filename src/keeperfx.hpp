@@ -77,11 +77,11 @@ enum ModeFlags {
 enum FFlags {
     FFlg_unk01              =  0x01,
     FFlg_unk02              =  0x02,
-    FFlg_unk04              =  0x04,
+    FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
     FFlg_unk08              =  0x08,
     FFlg_unk10              =  0x10,
     FFlg_AlexCheat          =  0x20,
-    FFlg_UsrSndFont         =  0x40,
+    FFlg_UsrSndFont         =  0x40, // now unused
     FFlg_unk80              =  0x80,
 };
 
@@ -200,7 +200,7 @@ void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, TbBool allowed);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);

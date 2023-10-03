@@ -187,24 +187,6 @@ int SetupAudioOptionDefaults(void *i)
     return ((FARPROCP)proc)(i);
 }
 
-int PlayStreamedSample(char *fname, int sample_type, int a3, int a4)
-{
-    /*
-    Possible sample types:
-    811 - 8-bit 11khz
-    822 - 8-bit 22khz
-    844 - 8-bit 44khz
-    1611 - 16-bit 11khz
-    1622 - 16-bit 22khz
-    1644 - 16-bit 44khz
-    */
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_PlayStreamedSample@16");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of PlayStreamedSample function; skipped."); return 0; }
-    return ((FARPROCSIII)proc)(fname, sample_type, a3, a4);
-}
-
 int IsSamplePlaying(int a1, int a2, int a3)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
@@ -212,33 +194,6 @@ int IsSamplePlaying(int a1, int a2, int a3)
     if (proc==NULL)
     { ERRORLOG("Can't get address of IsSamplePlaying function; skipped."); return 0; }
     return (unsigned char)((FARPROCIII)proc)(a1, a2, a3);
-}
-
-int StopStreamedSample(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_StopStreamedSample@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of StopStreamedSample function; skipped."); return 0; }
-    return proc();
-}
-
-int StreamedSampleFinished(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_StreamedSampleFinished@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of StreamedSampleFinished function; skipped."); return 0; }
-    return proc();
-}
-
-int SetStreamedSampleVolume(int volume)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_SetStreamedSampleVolume@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SetStreamedSampleVolume function; skipped."); return 0; }
-    return ((FARPROCI)proc)(volume);
 }
 
 struct SampleInfo * GetLastSampleInfoStructure(void)

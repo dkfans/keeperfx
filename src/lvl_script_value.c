@@ -122,7 +122,7 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
         SYNCDBG(5,"No matching player %d creature of model %d (%s) found to level up",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
-    creature_increase_multiple_levels(thing,count);
+    creature_change_multiple_levels(thing,count);
     return true;
 }
 
@@ -833,20 +833,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
           set_quick_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       break;
-  case Cmd_PLAY_MESSAGE:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-      {
-          switch (val2)
-          {
-          case 1:
-              output_message(val3, 0, true);
-              break;
-          case 2:
-              play_non_3d_sample(val3);
-              break;
-          }
-      }
-      break;
   case Cmd_ADD_GOLD_TO_PLAYER:
       for (i=plr_start; i < plr_end; i++)
       {
@@ -1047,7 +1033,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       switch (val2)
       {
       case 1: //BodiesForVampire
-          if (val3 >= 0)
+          if ((val3 >= 0) && (val3 <= UCHAR_MAX))
           {
               SCRIPTDBG(7,"Changing rule %d from %d to %d", val2, game.bodies_for_vampire, val3);
               game.bodies_for_vampire = val3;
@@ -1150,7 +1136,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           game.fight_hate_kill_value = val3;
           break;
       case 11: //PreserveClassicBugs
-          if (val3 >= 0 && val3 <= 4096)
+          if (val3 >= 0 && val3 < ClscBug_ListEnd)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.classic_bugs_flags, val3);
               gameadd.classic_bugs_flags = val3;
@@ -1283,6 +1269,17 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           else
           {
               SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
+          }
+          break;
+      case 34: //TrainingRoomMaxLevel
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.training_room_max_level, val3);
+              game.training_room_max_level = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
       default:

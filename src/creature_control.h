@@ -48,6 +48,7 @@ extern "C" {
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
 #define INSTANCE_TYPES_MAX 64
+#define LAIR_ENEMY_MAX 5
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -502,7 +503,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short jobs_anger;
     short annoy_others_leaving;
     unsigned char slaps_to_kill;
-    short lair_enemy;
+    short lair_enemy[LAIR_ENEMY_MAX];
     short hero_vs_keeper_cost;
     unsigned char rebirth;
     TbBool can_see_invisible;

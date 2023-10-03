@@ -1013,7 +1013,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     } else
     if (i != -1)
     {
-        fill_spell_slot(thing, i, spell_idx, spconf->duration);
+        fill_spell_slot(thing, i, spell_idx, duration);
         cctrl->spell_flags |= spconf->spell_flags;
         switch (spell_idx)
         {
@@ -1456,6 +1456,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         }
         pos.z.val += subtile_coord(2,0);
         move_thing_in_map(thing, &pos);
+        remove_all_traces_of_combat(thing);
         reset_interpolation_of_thing(thing);
         ariadne_invalidate_creature_route(thing);
         check_map_explored(thing, pos.x.stl.num, pos.y.stl.num);
@@ -1664,6 +1665,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         {
             struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
             efthing->shot_effect.hit_type = shotst->area_hit_type;
+            efthing->parent_idx = castng->index;
         }
     }
 }
@@ -2128,7 +2130,7 @@ long move_creature(struct Thing *thing)
                 }
                 else
                 {
-                    nxpos.z.val = get_thing_height_at(thing, &nxpos);
+                    nxpos.z.val = tngpos->z.val;
                 }
             }
         }
@@ -2146,7 +2148,7 @@ long move_creature(struct Thing *thing)
                 }
                 else
                 {
-                    nxpos.z.val = get_thing_height_at(thing, &nxpos);
+                    nxpos.z.val = tngpos->z.val;
                 }
             }
         }
@@ -2500,7 +2502,8 @@ void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         flags |= CrDed_NoEffects;
     }
     if (((flags & CrDed_NoEffects) == 0) && (crstat->rebirth != 0)
-     && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel))
+     && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel)
+        && ((flags & CrDed_NoRebirth) == 0))
     {
         creature_rebirth_at_lair(thing);
         return;
@@ -2660,7 +2663,10 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
     }
     if (is_my_player_number(creatng->owner))
     {
-        output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
+        if ((flags & CrDed_DiedInBattle) != 0)
+        {
+            output_message_far_from_thing(creatng, SMsg_BattleDeath, MESSAGE_DELAY_BATTLE, true);
+        }
     } else
     if (is_my_player_number(killertng->owner))
     {
@@ -3865,34 +3871,50 @@ TbBool creature_increase_level(struct Thing *thing)
   return false;
 }
 
-TbBool creature_increase_multiple_levels(struct Thing *thing, int count)
+TbBool creature_change_multiple_levels(struct Thing *thing, int count)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
     {
         ERRORLOG("Invalid creature control; no action");
         return false;
-  }
-  struct Dungeon* dungeon = get_dungeon(thing->owner);
-  int k = 0;
-  for (int i = 0; i < count; i++)
-  {
-    if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
-    {
-        struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-        if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
-        {
-            cctrl->spell_flags |= CSAfF_ExpLevelUp;
-            update_creature_levels(thing);
-            k++;
-      }
     }
-  }
-  if (k > 0)
-  {
-      return true;
-  }
-  return false;
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    int k = 0;
+    if (count > 0)
+    {
+        for (int i = 0; i < count; i++)
+        {
+            if (dungeon->creature_max_level[thing->model] > cctrl->explevel)
+            {
+                struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+                if ((cctrl->explevel < CREATURE_MAX_LEVEL - 1) || (crstat->grow_up != 0))
+                {
+                    cctrl->spell_flags |= CSAfF_ExpLevelUp;
+                    update_creature_levels(thing);
+                    k++;
+                }
+            }
+        }
+        if (k != 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    else
+    {
+        remove_creature_score_from_owner(thing);
+        if (cctrl->explevel < abs(count))
+        {
+            set_creature_level(thing, 0);
+        }
+        else
+        {
+            set_creature_level(thing, cctrl->explevel + count);
+        }
+        return true;
+    }
 }
 
 /**
@@ -5208,6 +5230,7 @@ TbBool remove_creature_score_from_owner(struct Thing *thing)
 
 void init_creature_scores(void)
 {
+    SYNCDBG(8, "Starting");
     long i;
     long score;
     // compute maximum score
@@ -5283,7 +5306,42 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     // Transforming
-    struct Thing* newtng = create_creature(&thing->mappos, crstat->grow_up, thing->owner);
+    struct CreatureModelConfig* oriconf = &gameadd.crtr_conf.model[thing->model];
+    ThingModel model = crstat->grow_up;
+    if (model == CREATURE_ANY)
+    {
+        while (1) {
+            model = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
+
+            if (model >= gameadd.crtr_conf.model_count) {
+                continue;
+            }
+
+            // Exclude growing up into same creature, spectators and diggers
+            if (model == thing->model) {
+                continue;
+            }
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[model];
+            if ((crconf->model_flags & CMF_IsSpectator) != 0) {
+                continue;
+            }
+            if ((crconf->model_flags & CMF_IsSpecDigger) != 0) {
+                continue;
+            }
+
+            //evil growup evil, good growup good
+            if (((crconf->model_flags & CMF_IsEvil) == 0) && ((oriconf->model_flags & CMF_IsEvil) == 0))
+            {
+                break;
+            }
+            if ((crconf->model_flags & CMF_IsEvil) && (oriconf->model_flags & CMF_IsEvil))
+            {
+                break;
+            }
+        }
+    }
+
+    struct Thing* newtng = create_creature(&thing->mappos, model, thing->owner);
     if (thing_is_invalid(newtng))
     {
         ERRORLOG("Could not create creature to transform %s to",thing_model_name(thing));
@@ -5312,6 +5370,21 @@ long update_creature_levels(struct Thing *thing)
         set_selected_creature(player, newtng);
     }
     remove_creature_score_from_owner(thing); // kill_creature() doesn't call this
+    if (thing_is_picked_up_by_player(thing,thing->owner))
+    {
+        struct Dungeon* dungeon = get_dungeon(thing->owner);
+        short i = get_thing_in_hand_id(thing, thing->owner);
+        if (i >= 0)
+        {
+            dungeon->things_in_hand[i] = newtng->index;
+            remove_thing_from_limbo(thing);
+            place_thing_in_limbo(newtng);
+        }
+        else
+        {
+            ERRORLOG("Picked up thing is not in player hand list");
+        }
+    }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_NoUnconscious|CrDed_NotReallyDying);
     return -1;
 }
@@ -6104,7 +6177,7 @@ void display_controlled_pick_up_thing_name(struct Thing *picktng, unsigned long 
     else if (thing_is_special_box(picktng))
     {
         char msg_buf[255];
-        if (picktng->model == ObjMdl_SpecboxCustom)
+        if (thing_is_custom_special_box(picktng))
         {
             if (gameadd.box_tooltip[picktng->custom_box.box_kind][0] == 0)
             {

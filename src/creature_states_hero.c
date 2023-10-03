@@ -110,14 +110,14 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
     long best_backup_score = LONG_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
+        if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
+            continue;
+        }
         player = get_player(plyr_idx);
         if (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
         {
             if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
-                if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
-                    continue;
-                }
                 return plyr_idx;
             }
         }
@@ -322,7 +322,7 @@ TbBool good_setup_defend_rooms(struct Thing* creatng)
         return false;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    creatng->continue_state = CHeroTsk_DefendRooms;
+    creatng->continue_state = CrSt_PatrolHere;
     cctrl->target_room_id = room->index;
     return true;
 }
@@ -985,12 +985,12 @@ short good_doing_nothing(struct Thing *creatng)
         {
             SYNCDBG(4,"No enemy dungeon to perform %s index %d task",
                 thing_model_name(creatng),(int)creatng->index);
+            cctrl->wait_to_turn = game.play_gameturn + 16;
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
             {
                 creatng->continue_state = CrSt_GoodDoingNothing;
                 return 1;
             }
-            cctrl->wait_to_turn = game.play_gameturn + 16;
         }
         return 1;
     }

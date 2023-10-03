@@ -43,6 +43,7 @@
 #include "config_cubes.h"
 #include "map_columns.h"
 #include "map_events.h"
+#include "music_player.h"
 #include "lvl_script.h"
 #include "gui_msgs.h"
 #include "player_computer.h"
@@ -122,7 +123,7 @@ struct Game {
     unsigned char flags_cd;
     unsigned char eastegg02_cntr;
     char audiotrack;
-char numfield_14;
+    char last_audiotrack;
 char numfield_15;
     LevelNumber selected_level_number;
 char numfield_1A;
@@ -147,6 +148,7 @@ char numfield_1A;
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
     struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
+    struct SlabsConfig slab_conf;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
@@ -302,6 +304,10 @@ unsigned int packet_file_pos;
     int manufactr_spridx;
     int manufactr_tooltip;
     short barrack_max_party_size;
+    unsigned short training_room_max_level;
+    char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
+    char loaded_sound[EXTERNAL_SOUNDS_COUNT][DISKPATH_SIZE];
+    unsigned char sounds_count;
 };
 
 #pragma pack()

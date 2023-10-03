@@ -77,6 +77,7 @@ pkg/campgns/questfth/text_fre.dat \
 pkg/campgns/questfth/text_pol.dat \
 pkg/campgns/revlord/text_eng.dat \
 pkg/campgns/revlord/text_chi.dat \
+pkg/campgns/revlord/text_ger.dat \
 pkg/campgns/revlord/text_spa.dat \
 pkg/campgns/twinkprs/text_eng.dat \
 pkg/campgns/twinkprs/text_chi.dat \

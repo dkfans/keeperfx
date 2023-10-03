@@ -83,19 +83,20 @@ const struct NamedCommand rules_game_commands[] = {
   };
 
 const struct NamedCommand rules_game_classicbugs_commands[] = {
-  {"RESURRECT_FOREVER",           1},
-  {"OVERFLOW_8BIT",               2},
-  {"CLAIM_ROOM_ALL_THINGS",       3},
-  {"RESURRECT_REMOVED",           4},
-  {"NO_HAND_PURGE_ON_DEFEAT",     5},
-  {"MUST_OBEY_KEEPS_NOT_DO_JOBS", 6},
-  {"BREAK_NEUTRAL_WALLS",         7},
-  {"ALWAYS_TUNNEL_TO_RED",        8},
-  {"FULLY_HAPPY_WITH_GOLD",       9},
-  {"FAINTED_IMMUNE_TO_BOULDER",  10},
-  {"REBIRTH_KEEPS_SPELLS",       11},
-  {"STUN_FRIENDLY_UNITS",        12},
-  {"PASSIVE_NEUTRALS",           13},
+  {"RESURRECT_FOREVER",             1},
+  {"OVERFLOW_8BIT",                 2},
+  {"CLAIM_ROOM_ALL_THINGS",         3},
+  {"RESURRECT_REMOVED",             4},
+  {"NO_HAND_PURGE_ON_DEFEAT",       5},
+  {"MUST_OBEY_KEEPS_NOT_DO_JOBS",   6},
+  {"BREAK_NEUTRAL_WALLS",           7},
+  {"ALWAYS_TUNNEL_TO_RED",          8},
+  {"FULLY_HAPPY_WITH_GOLD",         9},
+  {"FAINTED_IMMUNE_TO_BOULDER",     10},
+  {"REBIRTH_KEEPS_SPELLS",          11},
+  {"STUN_FRIENDLY_UNITS",           12},
+  {"PASSIVE_NEUTRALS",              13},
+  {"NEUTRAL_TORTURE_CONVERTS",      14},
   {NULL,                          0},
   };
 
@@ -170,6 +171,7 @@ const struct NamedCommand rules_rooms_commands[] = {
   {"PRISONBREAKCHANCE",                   22},
   {"TORTUREDEATHCHANCE",                  23},
   {"BARRACKMAXPARTYSIZE",                 24},
+  {"TRAININGROOMMAXLEVEL",                25},
   {NULL,                                   0},
   };
 
@@ -620,6 +622,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   break;
               case 13: // PASSIVE_NEUTRALS
                   gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
+                  n++;
+                  break;
+              case 14: // NEUTRAL_TORTURE_CONVERTS
+                  gameadd.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
                   n++;
                   break;
               default:
@@ -1332,6 +1338,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       game.bodies_for_vampire = 6;
       game.graveyard_convert_time = 300;
       game.barrack_max_party_size = 10;
+      game.training_room_max_level = 0;
       gameadd.scavenge_good_allowed = 1;
       gameadd.scavenge_neutral_allowed = 1;
       gameadd.time_between_prison_break = 64;
@@ -1602,6 +1609,19 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           {
               k = atoi(word_buf);
               game.barrack_max_party_size = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 25: // TRAININGROOMMAXLEVEL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              game.training_room_max_level = k;
               n++;
           }
           if (n < 1)
