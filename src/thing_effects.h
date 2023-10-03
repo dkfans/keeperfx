@@ -252,28 +252,26 @@ struct EffectGeneratorStats { // sizeof = 57
 
 struct EffectElementStats { // sizeof = 79
   unsigned char draw_class;
-  unsigned char field_1;
-  unsigned char field_2;
-  short numfield_3;
-  short numfield_5;
+  unsigned char move_type;
+  unsigned char unanimated;
+  short lifespan;
+  short lifespan_random;
   short sprite_idx;
   short sprite_size_min;
   short sprite_size_max;
-  unsigned char field_D;
+  unsigned char rendering_flag;
   unsigned short sprite_speed_min;
   unsigned short sprite_speed_max;
-  unsigned char field_12;
+  TbBool animate_on_floor;
   unsigned char unshaded;
   unsigned char transparant;  // transparency flags in bits 4-5
   unsigned char field_15;
-  unsigned char field_16;
-  unsigned char field_17;
+  unsigned char movement_flags;
+  unsigned char size_change;
   unsigned char fall_acceleration;
-  unsigned char field_19;
-  unsigned char inertia_floor;
-  unsigned char field_1B;
-  unsigned char inertia_air;
-  unsigned char field_1D;
+  unsigned char field_19_unused;
+  short inertia_floor;
+  short inertia_air;
   unsigned short subeffect_model;
   unsigned short subeffect_delay;
   unsigned char field_22;
@@ -290,13 +288,9 @@ struct EffectElementStats { // sizeof = 79
   unsigned short lava_loudness;
   unsigned char lava_destroy_on_impact;
   unsigned short transform_model;
-  unsigned short field_3A;
-  unsigned char field_3C;
-  long field_3D;
-  long field_41;
-  long field_45;
-  long field_49;
-  unsigned char field_4D;
+  unsigned short light_radius;
+  unsigned char light_intensity;
+  long light_field_3D;
   unsigned char affected_by_wind;
 };
 
@@ -329,13 +323,13 @@ struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel);
 TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx);
-struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, unsigned short owner);
+struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner);
+struct Thing* create_used_effect_or_element(const struct Coord3d* pos, short effect_id, long plyr_idx);
 TngUpdateRet update_effect_element(struct Thing *thing);
 TngUpdateRet update_effect(struct Thing *thing);
 TngUpdateRet process_effect_generator(struct Thing *thing);
 void process_spells_affected_by_effect_elements(struct Thing *thing);
 TbBool destroy_effect_thing(struct Thing *thing);
-struct Thing *create_special_used_effect(const struct Coord3d *pos, long plyr_idx, short effect_id);
 struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long price);
 
 TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hit_targets, PlayerNumber shot_owner);

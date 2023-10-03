@@ -282,7 +282,7 @@ void update_frontmap_ambient_sound(void)
     {
       SetSampleVolume(0, campaign.ambient_good, 127*map_sound_fade/256, 0);
     }
-    SetStreamedSampleVolume(127*map_sound_fade/256);
+    Mix_VolumeChunk(streamed_sample, 127*map_sound_fade/256);
     SetMusicPlayerVolume(map_sound_fade*(long)settings.redbook_volume/256);
   } else
   {
@@ -292,7 +292,7 @@ void update_frontmap_ambient_sound(void)
       SetSampleVolume(0, campaign.ambient_bad, 0, 0);
     }
     SetMusicPlayerVolume(0);
-    SetStreamedSampleVolume(0);
+    Mix_VolumeChunk(streamed_sample, 0);
   }
 }
 
@@ -645,7 +645,7 @@ TbBool stop_description_speech(void)
         playing_good_descriptive_speech = 0;
         playing_bad_descriptive_speech = 0;
         playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;
-        StopStreamedSample();
+        stop_streamed_sample();
         return true;
     }
     return false;
@@ -672,20 +672,43 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
       if (lvinfo->speech_before[0] == '\0')
         return false;
       stop_description_speech();
-      fname = prepare_file_fmtpath(FGrp_AtlSound,"%s.wav",lvinfo->speech_before);
+      if (strchr(lvinfo->speech_before, '.') == NULL)
+      {
+          WARNLOG("No extension specified for good speech file; defaulting to '.wav'.");
+          char *fn = calloc(strlen(lvinfo->speech_before), 1);
+          sprintf(fn, "%s", lvinfo->speech_before);
+          strcat(fn, ".wav");
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",fn);
+          free(fn);
+      }
+      else
+      {
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_before);
+      }
       playing_good_descriptive_speech = 1;
     } else
     {
       if (lvinfo->speech_after[0] == '\0')
         return false;
       stop_description_speech();
-      fname = prepare_file_fmtpath(FGrp_AtlSound,"%s.wav",lvinfo->speech_after);
+      if (strchr(lvinfo->speech_after, '.') == NULL)
+      {
+          WARNLOG("No extension specified for evil speech file; defaulting to '.wav'.");
+          char *fn = calloc(strlen(lvinfo->speech_after), 1);
+          sprintf(fn, "%s", lvinfo->speech_after);
+          strcat(fn, ".wav");
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",fn);
+          free(fn);
+      }
+      else
+      {
+          fname = prepare_file_fmtpath(FGrp_AtlSound,"%s",lvinfo->speech_after);
+      }
       playing_bad_descriptive_speech = 1;
     }
     playing_speech_lvnum = lvnum;
-    SetStreamedSampleVolume(127);
-    PlayStreamedSample(fname, 1622, 0, 1);
-    return true;
+    SYNCMSG("Playing %s", fname);
+    return play_streamed_sample(fname, 127, 0);
 }
 
 TbBool set_pointer_graphic_spland(long frame)
@@ -1576,7 +1599,7 @@ long frontmap_update(void)
   }
   if (playing_good_descriptive_speech)
   {
-    if (StreamedSampleFinished())
+    if (!Mix_Playing(DESCRIPTION_CHANNEL))
     {
       playing_good_descriptive_speech = 0;
 //      playing_speech_lvnum = SINGLEPLAYER_NOTSTARTED;

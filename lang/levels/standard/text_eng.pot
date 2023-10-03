@@ -584,7 +584,7 @@ msgstr ""
 #. Ghost in the Machine (lv458)
 #: guitext:93
 msgctxt "In-game message"
-msgid "Barbarians have started to attack. They will only increase in number. Kill them and you can use their ghosts in this ream. "
+msgid "Barbarians have started to attack. They will only increase in number. Kill them and you can use their ghosts in this realm. "
 msgstr ""
 
 #. Ghost in the Machine (lv458)
@@ -638,7 +638,7 @@ msgstr ""
 #. Ghost in the Machine (lv458)
 #: guitext:102
 msgctxt "In-game message"
-msgid ""Your message could be posted here. Victory!"
+msgid "Your message could be posted here. Victory!"
 msgstr ""
 
 #. Grail Run (lv444)
@@ -779,11 +779,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Tymnath Herez"
-msgstr ""
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Yami"
@@ -842,4 +837,9 @@ msgstr ""
 #: guitext:213
 msgctxt "Level name"
 msgid "The Death Clock"
+msgstr ""
+
+#: guitext:214
+msgctxt "Level name"
+msgid "Tymnath Herez"
 msgstr ""

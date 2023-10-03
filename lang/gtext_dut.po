@@ -1060,7 +1060,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "Er is een ROLSTEENVAL gemaakt. Plaats de val in een gang en begin waanzinnig "
@@ -2776,6 +2776,7 @@ msgid ""
 "Impenetrable Rock: Your Imps cannot dig through this, the only solution is "
 "to go round. It is visible even if far from your territory."
 msgstr ""
+"Harde rots: Je Dondersteentjes kunnen hier niet doorheen graven."
 
 #: guitext:325
 #, fuzzy

@@ -143,7 +143,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_LEFTPAREN, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_RIGHTPAREN, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_ASTERISK, KC_UNASSIGNED));
-    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PLUS, KC_UNASSIGNED));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PLUS, KC_ADD));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_COMMA, KC_COMMA));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_MINUS, KC_MINUS));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_PERIOD, KC_PERIOD));
@@ -475,11 +475,25 @@ void LbSetMouseGrab(TbBool grab_mouse)
     if (lbMouseGrabbed)
     {
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
-        SDL_SetRelativeMouseMode(SDL_TRUE);
+        if (SDL_getenv("NO_RELATIVE_MOUSE"))
+        {
+            JUSTLOG("NO_RELATIVE_MOUSE is set");
+        }
+        else
+        {
+            SDL_SetRelativeMouseMode(SDL_TRUE);
+        }
     }
     else
     {
-        SDL_SetRelativeMouseMode(SDL_FALSE);
+        if (SDL_getenv("NO_RELATIVE_MOUSE"))
+        {
+            JUSTLOG("NO_RELATIVE_MOUSE is set");
+        }
+        else
+        {
+            SDL_SetRelativeMouseMode(SDL_FALSE);
+        }
         LbMouseCheckPosition((previousGrabState != lbMouseGrabbed));
     }
     SDL_ShowCursor((lbAppActive ? SDL_DISABLE : SDL_ENABLE)); // show host OS cursor when window has lost focus
@@ -530,8 +544,10 @@ void LbGrabMouseCheck(long grab_event)
                     grab_cursor = false;
                 }
                 break;
-            case MG_OnFocusGained:
             case MG_InitMouse:
+                grab_cursor = true;
+                break;
+            case MG_OnFocusGained:
                 grab_cursor = lbMouseGrab;
                 if (paused && unlock_cursor_when_game_paused())
                 {

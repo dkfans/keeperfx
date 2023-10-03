@@ -474,18 +474,18 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > 0) {
             continue;
         }
-        struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[bldroom->rkind];
+        struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[bldroom->rkind];
         int tiles = get_room_slabs_count(comp->dungeon->owner,bldroom->rkind);
         if ((tiles >= cevent->param3) && !(cevent->param3 == 0)) // Room has reached the preconfigured maximum size
         {
             SYNCDBG(8,"Player %d reached maximum size %d for %s",(int)comp->dungeon->owner,tiles,room_code_name(bldroom->rkind));
-            if (bldroom->rkind == RoK_WORKSHOP)
+            if (room_role_matches(bldroom->rkind, RoRoF_CratesManufctr))
             {
                 struct Dungeon* dungeon = comp->dungeon;
                 long used_capacity;
                 long total_capacity;
                 long storaged_capacity;
-                get_room_kind_total_used_and_storage_capacity(dungeon, RoK_WORKSHOP, &total_capacity, &used_capacity, &storaged_capacity);
+                get_room_kind_total_used_and_storage_capacity(dungeon, bldroom->rkind, &total_capacity, &used_capacity, &storaged_capacity);
                 if (storaged_capacity > (used_capacity / 2))
                 {
                 create_task_sell_traps_and_doors(comp, storaged_capacity/3*2 ,100000,false);
@@ -495,7 +495,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             continue;
         } else 
         {
-            if (emergency_state && ((roomst->flags & RoCFlg_BuildToBroke) == 0)) {
+            if (emergency_state && ((roomst->flags & RoCFlg_BuildTillBroke) == 0)) {
                 continue;
             }
             SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));

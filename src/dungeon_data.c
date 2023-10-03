@@ -205,7 +205,7 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
     if (plyr_idx == game.neutral_player_num)
         return false;
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
         {
@@ -228,7 +228,7 @@ long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole
         return 0;
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     int count = 0;
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
         {
@@ -249,7 +249,8 @@ struct Thing *get_player_soul_container(PlayerNumber plyr_idx)
 
 TbBool player_has_heart(PlayerNumber plyr_idx)
 {
-    return thing_exists(get_player_soul_container(plyr_idx));
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    return (thing_exists(get_player_soul_container(plyr_idx)) && dungeon->heart_destroy_turn <= 0);
 }
 
 /** Returns if given dungeon contains a room of given kind.
@@ -264,7 +265,7 @@ TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
         return false;
     }
     struct DungeonAdd* dungeonadd =  get_dungeonadd_by_dungeon(dungeon);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return false;
     }
     return (dungeonadd->room_kind[rkind] > 0);
@@ -283,11 +284,11 @@ TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole)
     }
     struct DungeonAdd* dungeonadd =  get_dungeonadd_by_dungeon(dungeon);
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
-            if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+            if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
                 return false;
             }
             if (dungeonadd->room_kind[rkind] > 0)
@@ -516,7 +517,7 @@ void init_dungeon_essential_position(struct Dungeon *dungeon)
     
     struct DungeonAdd* dungeonadd =  get_dungeonadd_by_dungeon(dungeon);
     struct Room* room = room_get(dungeonadd->room_kind[RoK_DUNGHEART]);
-    for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if (!room_is_invalid(room))
             break;

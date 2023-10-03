@@ -438,6 +438,23 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_PlaceDoor03:
   case MousePG_PlaceDoor04:
   case MousePG_Mystery:
+      // 166..181 are place trap pointers with spell icons
+  case 166:
+  case 167:
+  case 168:
+  case 169:
+  case 170:
+  case 171:
+  case 172:
+  case 173:
+  case 174:
+  case 175:
+  case 176:
+  case 177:
+  case 178:
+  case 179:
+  case 180:
+  case 181:
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
@@ -948,6 +965,8 @@ TbScreenMode reenter_video_mode(void)
 
 TbScreenMode switch_to_next_video_mode(void)
 {
+    char percent_x = ((float)lbDisplay.MMouseX / (float)(lbDisplay.MouseWindowX + lbDisplay.MouseWindowWidth)) * 100;
+    char percent_y = ((float)lbDisplay.MMouseY / (float)(lbDisplay.MouseWindowY + lbDisplay.MouseWindowHeight)) * 100;
     TbScreenMode scrmode = get_next_vidmode(lbDisplay.ScreenMode);
     if ( setup_screen_mode(scrmode) )
     {
@@ -991,6 +1010,7 @@ TbScreenMode switch_to_next_video_mode(void)
     {
         turn_on_menu(GMnu_VIDEO);
     }
+    LbMouseSetPosition(((lbDisplay.MouseWindowX + lbDisplay.MouseWindowWidth) / 100) * percent_x, ((lbDisplay.MouseWindowY + lbDisplay.MouseWindowHeight) / 100) * percent_y);
     return scrmode;
 }
 

@@ -103,146 +103,146 @@ static Thing_Class_Func object_update_functions[] = {
  */
 
 /*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_yz;sprite_size_max;field_F;fp_smpl_idx;
-draw_class;destroy_on_lava;related_creatr_model;own_category;destroy_on_liquid;rotation_flag;*/
+draw_class;destroy_on_lava;related_creatr_model;persistence;destroy_on_liquid;rotation_flag;*/
 struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
-  {0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown0, 0, 0, 0}, //0
-  {0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown3, 1, 0, 0}, //1 BARREL
-  {0, 1, 0, 962, 0x0100,    0,    0, 300, 0, 78, 2, 0,  0, ObOC_Unknown2, 1, 0, 0}, //2 TORCH
-  {0, 0, 0, 934, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1, 0, 0}, //3 GOLD_CHEST
-  {0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 78, 2, 0,  0, ObOC_Unknown3, 1, 0, 0}, //4 STATUE_LIT
-  {0, 0, 0, 948, 0x0100,0x200,0x200, 525, 0, 0, 2, 0,  0, ObOC_Unknown0, 0, 0, 0}, //5 SOUL_CONTAINER
-  {0, 0, 0, 934, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1, 0, 0}, //6 GOLD_POT
-  {0, 0, 0, 962, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1, 0, 0}, //7 TORCH_UNLIT
-  {0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1, 0, 0}, //8 STATUE_UNLIT
-  {2, 0, 0, 893, 0x0008, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0, 0}, //9 CHICKEN_GRW
-  {1, 0, 0, 819, 0x0100, 0x80, 0x80, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1, 0, 0}, //10 CHICKEN_MAT
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //11 SPELLBOOK_HOE
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //12 SPELLBOOK_IMP
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //13 SPELLBOOK_OBEY
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //14 SPELLBOOK_SLAP
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //15 SPELLBOOK_SOE
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //16 SPELLBOOK_CTA
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //17 SPELLBOOK_CAVI
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //18 SPELLBOOK_HEAL
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //19 SPELLBOOK_HLDAUD
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //20 SPELLBOOK_LIGHTN
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //21 SPELLBOOK_SPDC
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //22 SPELLBOOK_PROT
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //23 SPELLBOOK_CONCL
-  {0, 0, 0,   0, 0x0100,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0}, //24 CTA_ENSIGN
-  {0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObOC_Unknown0, 0, 0, 0}, //25 ROOM_FLAG
-  {0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0, 0}, //26 ANVIL
-  {0, 0, 0, 796, 0x0100,    0,    0, 200, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0, 0}, //27 PRISON_BAR
-  {0, 1, 0, 791, 0x0100,    0,    0, 300, 0, 78, 2, 0,  0, ObOC_Unknown3, 1, 0, 0}, //28 CANDLESTICK
-  {0, 0, 0, 793, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0, 0}, //29 GRAVE_STONE
-  {0, 0, 0, 905, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1, 0, 0}, //30 STATUE_SKELETON
-  {0, 1, 0, 795, 0x0100,    0,    0, 375, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0, 0}, //31 TRAINING_POST
-  {0, 1, 0, 892, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0, 0}, //32 TORTURE_SPIKE
-  {0, 0, 0, 797, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1, 0, 0}, //33 TEMPLE_SPANGLE
-  {0, 0, 0, 804, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1, 0, 0}, //34 POTION_PURPLE
-  {0, 0, 0, 806, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1, 0, 0}, //35 POTION_BLUE
-  {0, 0, 0, 808, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 1, 0, 0}, //36 POTION_GREEN
-  {0, 0, 0, 782, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //37 POWER_HAND
-  {0, 0, 0, 783, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //38 POWER_HAND_GRAB
-  {0, 0, 0, 785, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //39 POWER_HAND_WHIP
-  {2, 0, 0, 894, 0x0100, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0, 0}, //40 CHICKEN_STB
-  {2, 0, 0, 895, 0x00C0, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0, 0}, //41 CHICKEN_WOB
-  {2, 0, 0, 896, 0x00C0, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObOC_Unknown2, 1, 0, 0}, //42 CHICKEN_CRK
-  {0, 0, 0, 936, 0x0055, 0x80, 0x40, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1, 0, 0}, //43 GOLDL
-  {0, 0, 0, 810, 0x0100,    0,    0, 300, 0, 0, 6, 0,  0, ObOC_Unknown2, 0, 0, 0}, //44 SPINNING_KEY
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //45 SPELLBOOK_DISEASE
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //46 SPELLBOOK_CHKN
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //47 SPELLBOOK_DWAL
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //48 SPELLBOOK_TBMB
-  {0, 0, 0, 776, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0}, //49 HERO_GATE
-  {0, 0, 0, 818, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown0, 0, 0, 0}, //50 SPINNING_KEY
-  {0, 1, 0, 850, 0x0100,    0,    0, 144, 3, 0, 2, 0,  0, ObOC_Unknown0, 0, 0, 0}, //51 LIGHT_BALL
-  {0, 0, 0, 936, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1, 0, 0}, //52 GOLD_PILE
-  {0, 0, 0, 937, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1, 0, 0}, //53 GOLD_HORDE1
-  {0, 0, 0, 938, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1, 0, 0}, //54 GOLD_HORDE2
-  {0, 0, 0, 939, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1, 0, 0}, //55 GOLD_HORDE3
-  {0, 0, 0, 940, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObOC_Unknown1, 1, 0, 0}, //56 GOLD_HORDE4
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  1, ObOC_Unknown2, 0, 0, 0}, //57 LAIR_WIZRD
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  2, ObOC_Unknown2, 0, 0, 0}, //58 LAIR_BARBR
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  3, ObOC_Unknown2, 0, 0, 0}, //59 LAIR_ARCHR
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  4, ObOC_Unknown2, 0, 0, 0}, //60 LAIR_MONK
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  5, ObOC_Unknown2, 0, 0, 0}, //61 LAIR_DWRFA
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  6, ObOC_Unknown2, 0, 0, 0}, //62 LAIR_KNGHT
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  7, ObOC_Unknown2, 0, 0, 0}, //63 LAIR_AVATR
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  8, ObOC_Unknown2, 0, 0, 0}, //64 LAIR_TUNLR
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  9, ObOC_Unknown2, 0, 0, 0}, //65 LAIR_WITCH
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 10, ObOC_Unknown2, 0, 0, 0}, //66 LAIR_GIANT
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 11, ObOC_Unknown2, 0, 0, 0}, //67 LAIR_FAIRY
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 12, ObOC_Unknown2, 0, 0, 0}, //68 LAIR_THIEF
-  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 13, ObOC_Unknown2, 0, 0, 0}, //69 LAIR_SAMUR
-  {0, 0, 0, 158, 0x0100,    0,    0, 300, 0, 0, 2, 0, 14, ObOC_Unknown2, 0, 0, 0}, //70 LAIR_REAPER
-  {0, 0, 0, 156, 0x0100,    0,    0, 300, 0, 0, 2, 0, 15, ObOC_Unknown2, 0, 0, 0}, //71 LAIR_SKELT
-  {0, 0, 0, 154, 0x0100,    0,    0, 300, 0, 0, 2, 0, 16, ObOC_Unknown2, 0, 0, 0}, //72 LAIR_GOBLN
-  {0, 0, 0, 152, 0x0100,    0,    0, 300, 0, 0, 2, 0, 17, ObOC_Unknown2, 0, 0, 0}, //73 LAIR_DRAGN
-  {0, 0, 0, 150, 0x0100,    0,    0, 300, 0, 0, 2, 0, 18, ObOC_Unknown2, 0, 0, 0}, //74 LAIR_DEMSP
-  {0, 0, 0, 148, 0x0100,    0,    0, 300, 0, 0, 2, 0, 19, ObOC_Unknown2, 0, 0, 0}, //75 LAIR_FLY
-  {0, 0, 0, 146, 0x0100,    0,    0, 300, 0, 0, 2, 0, 20, ObOC_Unknown2, 0, 0, 0}, //76 LAIR_DKMIS
-  {0, 0, 0, 144, 0x0100,    0,    0, 300, 0, 0, 2, 0, 21, ObOC_Unknown2, 0, 0, 0}, //77 LAIR_SORCR
-  {0, 0, 0, 142, 0x0100,    0,    0, 300, 0, 0, 2, 0, 22, ObOC_Unknown2, 0, 0, 0}, //78 LAIR_BILDM
-  {0, 0, 0, 152, 0x0100,    0,    0, 300, 0, 0, 2, 0, 23, ObOC_Unknown2, 0, 0, 0}, //79 LAIR_IMP
-  {0, 0, 0, 140, 0x0100,    0,    0, 300, 0, 0, 2, 0, 24, ObOC_Unknown2, 0, 0, 0}, //80 LAIR_BUG
-  {0, 0, 0, 138, 0x0100,    0,    0, 300, 0, 0, 2, 0, 25, ObOC_Unknown2, 0, 0, 0}, //81 LAIR_VAMP
-  {0, 0, 0, 136, 0x0100,    0,    0, 300, 0, 0, 2, 0, 26, ObOC_Unknown2, 0, 0, 0}, //82 LAIR_SPIDR
-  {0, 0, 0, 134, 0x0100,    0,    0, 300, 0, 0, 2, 0, 27, ObOC_Unknown2, 0, 0, 0}, //83 LAIR_HLHND
-  {0, 0, 0, 132, 0x0100,    0,    0, 300, 0, 0, 2, 0, 28, ObOC_Unknown2, 0, 0, 0}, //84 LAIR_GHOST
-  {0, 0, 0, 128, 0x0100,    0,    0, 300, 0, 0, 2, 0, 29, ObOC_Unknown2, 0, 0, 0}, //85 LAIR_TENTC
-  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0}, //86 SPECBOX_REVMAP
-  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0}, //87 SPECBOX_RESURCT
-  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //94 CRATE
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //100
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0}, //106
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0},
-  {0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0}, //110 ANVIL
-  {0, 1, 0, 798, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //111 HEARTFLAME_RED
-  {0, 1, 0, 851, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown0, 0, 0, 0}, //112 DISEASE
-  {0, 1, 0, 130, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //113 SCAVENGE_EYE
-  {0, 1, 0,  98, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //114 WORKSHOP_MACHINE
-  {0, 1, 0, 102, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //115 GUARDFLAG_RED
-  {0, 1, 0, 104, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //116
-  {0, 1, 0, 106, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //117
-  {0, 1, 0, 108, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //118
-  {0, 1, 0, 100, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //119 GUARDFLAG_POLE
-  {0, 1, 0, 799, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //120 HEARTFLAME_BLUE
-  {0, 1, 0, 800, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //121 HEARTFLAME_GREEN
-  {0, 1, 0, 801, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //122 HEARTFLAME_YELLOW
-  {0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0, 0, 0}, //123 POWER_SIGHT
-  {0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0, 0, 0}, //124 POWER_LIGHTNG
-  {0, 0, 0,  46, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown2, 0, 0, 0}, //125 TORTURER
-  {0, 0, 0, 126, 0x0100,    0,    0, 300, 0, 0, 2, 0, 30, ObOC_Unknown2, 0, 0, 0}, //126 LAIR_ORC
-  {0, 0, 0, 781, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown0, 0, 0, 0}, //127 HAND_WITH_GOLD
-  {4, 1, 0, 780, 0x0100,    0,    0, 500, 0, 0, 2, 1,  0, ObOC_Unknown0, 0, 0, 0}, //128 COIN
-  {0, 0, 0, 952, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1, 0, 0}, //129 STATUE_UNLIT
-  {0, 0, 0, 954, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1, 0, 0}, //130 STATUE_PLACEHOLDER3
-  {0, 0, 0, 956, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1, 0, 0}, //131 STATUE_PLACEHOLDER4
-  {0, 0, 0, 958, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown3, 1, 0, 0}, //132 STATUE_PLACEHOLDER5
-  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObOC_Unknown1, 0, 0, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //134 SPELLBOOK
-  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 0, 0, 0}, //135
-  {0, 0, 0, 933, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObOC_Unknown1, 1, 0, 0}, //136 GOLD_BAG
-  {0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObOC_Unknown0, 0, 0, 0},
+  {0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Unset, 0, 0, 0}, //0
+  {0, 0, 0, 930, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Vanish, 1, 0, 0}, //1 BARREL
+  {0, 1, 0, 962, 0x0100,    0,    0, 300, 0, 78, 2, 0,  0, ObPer_Persist, 1, 0, 0}, //2 TORCH
+  {0, 0, 0, 934, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 1, 0, 0}, //3 GOLD_CHEST
+  {0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 78, 2, 0,  0, ObPer_Vanish, 1, 0, 0}, //4 STATUE_LIT
+  {0, 0, 0, 948, 0x0100,0x200,0x200, 525, 0, 0, 2, 0,  0, ObPer_Unset, 0, 0, 0}, //5 SOUL_CONTAINER
+  {0, 0, 0, 934, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 1, 0, 0}, //6 GOLD_POT
+  {0, 0, 0, 962, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 1, 0, 0}, //7 TORCH_UNLIT
+  {0, 0, 0, 950, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Vanish, 1, 0, 0}, //8 STATUE_UNLIT
+  {2, 0, 0, 893, 0x0008, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObPer_Persist, 1, 0, 0}, //9 CHICKEN_GRW
+  {1, 0, 0, 819, 0x0100, 0x80, 0x80, 300, 0, 0, 2, 0,  0, ObPer_Persist, 1, 0, 0}, //10 CHICKEN_MAT
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //11 SPELLBOOK_HOE
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //12 SPELLBOOK_IMP
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //13 SPELLBOOK_OBEY
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //14 SPELLBOOK_SLAP
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //15 SPELLBOOK_SOE
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //16 SPELLBOOK_CTA
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //17 SPELLBOOK_CAVI
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //18 SPELLBOOK_HEAL
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //19 SPELLBOOK_HLDAUD
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //20 SPELLBOOK_LIGHTN
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //21 SPELLBOOK_SPDC
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //22 SPELLBOOK_PROT
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //23 SPELLBOOK_CONCL
+  {0, 0, 0,   0, 0x0100,    0,    0, 375, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0}, //24 CTA_ENSIGN
+  {0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 5, 0,  0, ObPer_Unset, 0, 0, 0}, //25 ROOM_FLAG
+  {0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Persist, 1, 0, 0}, //26 ANVIL
+  {0, 0, 0, 796, 0x0100,    0,    0, 200, 0, 0, 2, 1,  0, ObPer_Persist, 1, 0, 0}, //27 PRISON_BAR
+  {0, 1, 0, 791, 0x0100,    0,    0, 300, 0, 78, 2, 0,  0, ObPer_Vanish, 1, 0, 0}, //28 CANDLESTICK
+  {0, 0, 0, 793, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Persist, 1, 0, 0}, //29 GRAVE_STONE
+  {0, 0, 0, 905, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Vanish, 1, 0, 0}, //30 STATUE_SKELETON
+  {0, 1, 0, 795, 0x0100,    0,    0, 375, 0, 0, 2, 1,  0, ObPer_Persist, 1, 0, 0}, //31 TRAINING_POST
+  {0, 1, 0, 892, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Persist, 1, 0, 0}, //32 TORTURE_SPIKE
+  {0, 0, 0, 797, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 1, 0, 0}, //33 TEMPLE_SPANGLE
+  {0, 0, 0, 804, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 1, 0, 0}, //34 POTION_PURPLE
+  {0, 0, 0, 806, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 1, 0, 0}, //35 POTION_BLUE
+  {0, 0, 0, 808, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 1, 0, 0}, //36 POTION_GREEN
+  {0, 0, 0, 782, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //37 POWER_HAND
+  {0, 0, 0, 783, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //38 POWER_HAND_GRAB
+  {0, 0, 0, 785, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //39 POWER_HAND_WHIP
+  {2, 0, 0, 894, 0x0100, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObPer_Persist, 1, 0, 0}, //40 CHICKEN_STB
+  {2, 0, 0, 895, 0x00C0, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObPer_Persist, 1, 0, 0}, //41 CHICKEN_WOB
+  {2, 0, 0, 896, 0x00C0, 0x80, 0x80, 300, 0, 0, 2, 1,  0, ObPer_Persist, 1, 0, 0}, //42 CHICKEN_CRK
+  {0, 0, 0, 936, 0x0055, 0x80, 0x40, 300, 0, 0, 2, 1,  0, ObPer_Move, 1, 0, 0}, //43 GOLDL
+  {0, 0, 0, 810, 0x0100,    0,    0, 300, 0, 0, 6, 0,  0, ObPer_Persist, 0, 0, 0}, //44 SPINNING_KEY
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //45 SPELLBOOK_DISEASE
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //46 SPELLBOOK_CHKN
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //47 SPELLBOOK_DWAL
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //48 SPELLBOOK_TBMB
+  {0, 0, 0, 776, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObPer_Move, 0, 0, 0}, //49 HERO_GATE
+  {0, 0, 0, 818, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Unset, 0, 0, 0}, //50 SPINNING_KEY
+  {0, 1, 0, 850, 0x0100,    0,    0, 144, 3, 0, 2, 0,  0, ObPer_Unset, 0, 0, 0}, //51 LIGHT_BALL
+  {0, 0, 0, 936, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObPer_Move, 1, 0, 0}, //52 GOLD_PILE
+  {0, 0, 0, 937, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObPer_Move, 1, 0, 0}, //53 GOLD_HORDE1
+  {0, 0, 0, 938, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObPer_Move, 1, 0, 0}, //54 GOLD_HORDE2
+  {0, 0, 0, 939, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObPer_Move, 1, 0, 0}, //55 GOLD_HORDE3
+  {0, 0, 0, 940, 0x0080,    0,    0, 375, 0, 0, 2, 0,  0, ObPer_Move, 1, 0, 0}, //56 GOLD_HORDE4
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  1, ObPer_Persist, 0, 0, 0}, //57 LAIR_WIZRD
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  2, ObPer_Persist, 0, 0, 0}, //58 LAIR_BARBR
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  3, ObPer_Persist, 0, 0, 0}, //59 LAIR_ARCHR
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  4, ObPer_Persist, 0, 0, 0}, //60 LAIR_MONK
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  5, ObPer_Persist, 0, 0, 0}, //61 LAIR_DWRFA
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  6, ObPer_Persist, 0, 0, 0}, //62 LAIR_KNGHT
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  7, ObPer_Persist, 0, 0, 0}, //63 LAIR_AVATR
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  8, ObPer_Persist, 0, 0, 0}, //64 LAIR_TUNLR
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0,  9, ObPer_Persist, 0, 0, 0}, //65 LAIR_WITCH
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 10, ObPer_Persist, 0, 0, 0}, //66 LAIR_GIANT
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 11, ObPer_Persist, 0, 0, 0}, //67 LAIR_FAIRY
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 12, ObPer_Persist, 0, 0, 0}, //68 LAIR_THIEF
+  {0, 0, 0, 124, 0x0100,    0,    0, 300, 0, 0, 2, 0, 13, ObPer_Persist, 0, 0, 0}, //69 LAIR_SAMUR
+  {0, 0, 0, 158, 0x0100,    0,    0, 300, 0, 0, 2, 0, 14, ObPer_Persist, 0, 0, 0}, //70 LAIR_REAPER
+  {0, 0, 0, 156, 0x0100,    0,    0, 300, 0, 0, 2, 0, 15, ObPer_Persist, 0, 0, 0}, //71 LAIR_SKELT
+  {0, 0, 0, 154, 0x0100,    0,    0, 300, 0, 0, 2, 0, 16, ObPer_Persist, 0, 0, 0}, //72 LAIR_GOBLN
+  {0, 0, 0, 152, 0x0100,    0,    0, 300, 0, 0, 2, 0, 17, ObPer_Persist, 0, 0, 0}, //73 LAIR_DRAGN
+  {0, 0, 0, 150, 0x0100,    0,    0, 300, 0, 0, 2, 0, 18, ObPer_Persist, 0, 0, 0}, //74 LAIR_DEMSP
+  {0, 0, 0, 148, 0x0100,    0,    0, 300, 0, 0, 2, 0, 19, ObPer_Persist, 0, 0, 0}, //75 LAIR_FLY
+  {0, 0, 0, 146, 0x0100,    0,    0, 300, 0, 0, 2, 0, 20, ObPer_Persist, 0, 0, 0}, //76 LAIR_DKMIS
+  {0, 0, 0, 144, 0x0100,    0,    0, 300, 0, 0, 2, 0, 21, ObPer_Persist, 0, 0, 0}, //77 LAIR_SORCR
+  {0, 0, 0, 142, 0x0100,    0,    0, 300, 0, 0, 2, 0, 22, ObPer_Persist, 0, 0, 0}, //78 LAIR_BILDM
+  {0, 0, 0, 152, 0x0100,    0,    0, 300, 0, 0, 2, 0, 23, ObPer_Persist, 0, 0, 0}, //79 LAIR_IMP
+  {0, 0, 0, 140, 0x0100,    0,    0, 300, 0, 0, 2, 0, 24, ObPer_Persist, 0, 0, 0}, //80 LAIR_BUG
+  {0, 0, 0, 138, 0x0100,    0,    0, 300, 0, 0, 2, 0, 25, ObPer_Persist, 0, 0, 0}, //81 LAIR_VAMP
+  {0, 0, 0, 136, 0x0100,    0,    0, 300, 0, 0, 2, 0, 26, ObPer_Persist, 0, 0, 0}, //82 LAIR_SPIDR
+  {0, 0, 0, 134, 0x0100,    0,    0, 300, 0, 0, 2, 0, 27, ObPer_Persist, 0, 0, 0}, //83 LAIR_HLHND
+  {0, 0, 0, 132, 0x0100,    0,    0, 300, 0, 0, 2, 0, 28, ObPer_Persist, 0, 0, 0}, //84 LAIR_GHOST
+  {0, 0, 0, 128, 0x0100,    0,    0, 300, 0, 0, 2, 0, 29, ObPer_Persist, 0, 0, 0}, //85 LAIR_TENTC
+  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0}, //86 SPECBOX_REVMAP
+  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0}, //87 SPECBOX_RESURCT
+  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //94 CRATE
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //100
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0}, //106
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0},
+  {0, 1, 0, 114, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0},
+  {0, 0, 0, 789, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0}, //110 ANVIL
+  {0, 1, 0, 798, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //111 HEARTFLAME_RED
+  {0, 1, 0, 851, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObPer_Unset, 0, 0, 0}, //112 DISEASE
+  {0, 1, 0, 130, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //113 SCAVENGE_EYE
+  {0, 1, 0,  98, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //114 WORKSHOP_MACHINE
+  {0, 1, 0, 102, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //115 GUARDFLAG_RED
+  {0, 1, 0, 104, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //116
+  {0, 1, 0, 106, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //117
+  {0, 1, 0, 108, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //118
+  {0, 1, 0, 100, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //119 GUARDFLAG_POLE
+  {0, 1, 0, 799, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //120 HEARTFLAME_BLUE
+  {0, 1, 0, 800, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //121 HEARTFLAME_GREEN
+  {0, 1, 0, 801, 0x0100,    0,    0, 300, 3, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //122 HEARTFLAME_YELLOW
+  {0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObPer_Unset, 0, 0, 0}, //123 POWER_SIGHT
+  {0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObPer_Unset, 0, 0, 0}, //124 POWER_LIGHTNG
+  {0, 0, 0,  46, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Persist, 0, 0, 0}, //125 TORTURER
+  {0, 0, 0, 126, 0x0100,    0,    0, 300, 0, 0, 2, 0, 30, ObPer_Persist, 0, 0, 0}, //126 LAIR_ORC
+  {0, 0, 0, 781, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Unset, 0, 0, 0}, //127 HAND_WITH_GOLD
+  {4, 1, 0, 780, 0x0100,    0,    0, 500, 0, 0, 2, 1,  0, ObPer_Unset, 0, 0, 0}, //128 COIN
+  {0, 0, 0, 952, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Vanish, 1, 0, 0}, //129 STATUE_UNLIT
+  {0, 0, 0, 954, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Vanish, 1, 0, 0}, //130 STATUE_PLACEHOLDER3
+  {0, 0, 0, 956, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Vanish, 1, 0, 0}, //131 STATUE_PLACEHOLDER4
+  {0, 0, 0, 958, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Vanish, 1, 0, 0}, //132 STATUE_PLACEHOLDER5
+  {0, 1, 0, 901, 0x0080,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Move, 0, 0, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //134 SPELLBOOK
+  {0, 0, 0, 777, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 0, 0, 0}, //135
+  {0, 0, 0, 933, 0x0100,    0,    0, 300, 0, 0, 2, 1,  0, ObPer_Move, 1, 0, 0}, //136 GOLD_BAG
+  {0, 0, 0,   0, 0x0000,    0,    0,   0, 0, 0, 0, 0,  0, ObPer_Unset, 0, 0, 0},
 };
 
 ThingModel object_to_special[OBJECT_TYPES_MAX] = {
@@ -299,13 +299,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
 
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
-        ERRORDBG(3,"Cannot create object model %d for player %d. There are too many things allocated.",(int)model,(int)owner);
+        ERRORDBG(3,"Cannot create object model %d (%s) for player %d. There are too many things allocated.",(int)model,object_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
     if (thing->index == 0) {
-        ERRORDBG(3,"Should be able to allocate object %d for player %d, but failed.",(int)model,(int)owner);
+        ERRORDBG(3,"Should be able to allocate object %d (%s) for player %d, but failed.",(int)model,object_code_name(model),(int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
@@ -395,14 +395,21 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
             ERRORLOG("Could not allocate number for hero gate");
         }
         break;
+      case ObjMdl_SpinningKey:
+        if ((thing->mappos.z.stl.num == 4) && (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num)))
+        {
+            thing->mappos.z.stl.num = 5; // Move keys from old maps from inside to on top of the doors.
+            thing->mappos.z.stl.pos = 0;
+        }
+        break;
       default:
         break;
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
 
-    get_thingadd(thing->index)->flags = 0;
-    get_thingadd(thing->index)->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+    thing->flags = 0;
+    thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
 
     return thing;
 }
@@ -518,6 +525,31 @@ TbBool thing_is_special_box(const struct Thing *thing)
     return (objst->genre == OCtg_SpecialBox);
 }
 
+TbBool thing_is_hardcoded_special_box(const struct Thing* thing)
+{
+    if (thing->class_id != TCls_Object)
+        return false;
+    switch (thing->model)
+    {
+    case ObjMdl_SpecboxRevealMap:
+    case ObjMdl_SpecboxResurect:
+    case ObjMdl_SpecboxTransfer:
+    case ObjMdl_SpecboxStealHero:
+    case ObjMdl_SpecboxMultiply:
+    case ObjMdl_SpecboxIncreaseLevel:
+    case ObjMdl_SpecboxMakeSafe:
+    case ObjMdl_SpecboxHiddenWorld:
+        return true;
+    default:
+        return false;
+    }
+}
+
+TbBool thing_is_custom_special_box(const struct Thing* thing)
+{
+    return (thing_is_special_box(thing) && !thing_is_hardcoded_special_box(thing));
+}
+
 TbBool thing_is_workshop_crate(const struct Thing *thing)
 {
     if (!thing_is_object(thing))
@@ -538,9 +570,7 @@ TbBool thing_is_door_crate(const struct Thing *thing)
 
 TbBool thing_is_dungeon_heart(const struct Thing *thing)
 {
-    if (thing_is_invalid(thing))
-        return false;
-    if (thing->class_id != TCls_Object)
+    if (!thing_is_object(thing))
         return false;
     struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
     return (objconf->is_heart) != 0;
@@ -551,6 +581,14 @@ TbBool thing_is_mature_food(const struct Thing *thing)
     if (thing_is_invalid(thing))
         return false;
     return (thing->class_id == TCls_Object) && (thing->model == ObjMdl_ChickenMature);
+}
+
+TbBool object_is_buoyant(const struct Thing* thing)
+{
+    if (!thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->model_flags & OMF_Buoyant);
 }
 
 TbBool thing_is_spellbook(const struct Thing *thing)
@@ -1306,38 +1344,54 @@ static long object_being_dropped(struct Thing *thing)
 
 void update_dungeon_heart_beat(struct Thing *heartng)
 {
+    if (thing_is_invalid(heartng))
+    {
+        ERRORLOG("Trying to beat non-existing heart");
+        return;
+    }
     const long base_heart_beat_rate = 2304;
     static long bounce = 0;
     if (heartng->active_state != ObSt_BeingDestroyed)
     {
         long i = (char)heartng->heart.beat_direction;
         heartng->anim_speed = 0;
-        struct ObjectConfig* objconf = get_object_model_stats2(ObjMdl_SoulCountainer);
-        long long k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
-        k = base_heart_beat_rate / (k + 128);
-        int intensity = light_get_light_intensity(heartng->light_id) + (i*36/k);
-        // intensity capped to 63 to fix the first beat flickering black which is visible when SKIP_HEART_ZOOM is on
-        light_set_light_intensity(heartng->light_id, min(intensity, 63));
-        heartng->anim_time += (i*base_heart_beat_rate/k);
-        if (heartng->anim_time < 0)
+        struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
+        long long k = 1;
+        if (objconf->health != 0)
         {
-            heartng->anim_time = 0;
-            light_set_light_intensity(heartng->light_id, 20);
-            heartng->heart.beat_direction = 1;
+            k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
         }
-        if (heartng->anim_time > base_heart_beat_rate-1)
+        if ((k + 128) > 0)
         {
-            heartng->anim_time = base_heart_beat_rate-1;
-            light_set_light_intensity(heartng->light_id, 56);
-            heartng->heart.beat_direction = (unsigned char)-1;
-            if ( bounce )
+            k = base_heart_beat_rate / (k + 128);
+        }
+        if (k > 0)
+        {
+            int intensity = light_get_light_intensity(heartng->light_id) + (i * 36 / k);
+            // intensity capped to 63 to fix the first beat flickering black which is visible when SKIP_HEART_ZOOM is on
+            light_set_light_intensity(heartng->light_id, min(intensity, 63));
+            heartng->anim_time += (i * base_heart_beat_rate / k);
+            if (heartng->anim_time < 0)
             {
-                thing_play_sample(heartng, 151, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
-            } else
-            {
-                thing_play_sample(heartng, 150, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                heartng->anim_time = 0;
+                light_set_light_intensity(heartng->light_id, 20);
+                heartng->heart.beat_direction = 1;
             }
-            bounce = !bounce;
+            if (heartng->anim_time > base_heart_beat_rate - 1)
+            {
+                heartng->anim_time = base_heart_beat_rate - 1;
+                light_set_light_intensity(heartng->light_id, 56);
+                heartng->heart.beat_direction = (unsigned char)-1;
+                if (bounce)
+                {
+                    thing_play_sample(heartng, 151, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                }
+                else
+                {
+                    thing_play_sample(heartng, 150, NORMAL_PITCH, 0, 3, 1, 6, FULL_LOUDNESS);
+                }
+                bounce = !bounce;
+            }
         }
         k = (((unsigned long long)heartng->anim_time >> 32) & 0xFF) + heartng->anim_time;
         heartng->current_frame = (k >> 8) & 0xFF;
@@ -1355,9 +1409,15 @@ void update_dungeon_heart_beat(struct Thing *heartng)
 static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 {
     SYNCDBG(18,"Starting");
+    struct Dungeon* dungeon = INVALID_DUNGEON;
+    if (heartng->owner != game.neutral_player_num)
+    {
+        dungeon = get_players_num_dungeon(heartng->owner);
+    }
+
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-        struct ObjectConfig* objconf = get_object_model_stats2(ObjMdl_SoulCountainer);
+        struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
         if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
         {
             heartng->health += game.dungeon_heart_heal_health;
@@ -1376,9 +1436,8 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
         heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
     }
-    else if (heartng->owner != game.neutral_player_num)
+    else if ((dungeon != INVALID_DUNGEON) && (heartng->index == dungeon->dnheart_idx))
     {
-        struct Dungeon* dungeon = get_players_num_dungeon(heartng->owner);
         if (dungeon->heart_destroy_state == 0)
         {
             dungeon->heart_destroy_turn = 0;
@@ -1388,7 +1447,31 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             dungeon->essential_pos.z.val = heartng->mappos.z.val;
         }
     }
+    if (heartng->index != dungeon->dnheart_idx)
+    {
+        SYNCDBG(18, "Inactive Heart");
+        if (heartng->health <= 0)
+        {
+            struct Thing* efftng;
+            struct DungeonAdd* dungeonadd;
+            efftng = create_effect(&heartng->mappos, TngEff_Explosion4, heartng->owner);
+            if (!thing_is_invalid(efftng))
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+            efftng = create_effect(&heartng->mappos, TngEff_WoPExplosion, heartng->owner);
+            if (!thing_is_invalid(efftng))
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+            destroy_dungeon_heart_room(heartng->owner, heartng);
+            dungeonadd = get_dungeonadd(heartng->owner);
+            if (heartng->index == dungeonadd->backup_heart_idx)
+            {
+                dungeonadd->backup_heart_idx = 0;
+            }
+            delete_thing_structure(heartng, 0);
+        }
+        return TUFRet_Unchanged;
+    }
     process_dungeon_destroy(heartng);
+
     SYNCDBG(18,"Beat update");
     if ((heartng->alloc_flags & TAlF_Exists) == 0)
       return TUFRet_Modified;
@@ -1624,7 +1707,12 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
 {
     int result; // eax
     objtng->health = 2;
-
+    if (is_neutral_thing(objtng))
+    {
+        ERRORLOG("Neutral %s index %d cannot be power sight.", thing_model_name(objtng), (int)objtng->index);
+        delete_thing_structure(objtng, 0);
+        return 0;
+    }
     struct Dungeon * dungeon = get_dungeon(objtng->owner);
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_SIGHT);
 

@@ -456,7 +456,7 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
     long total_capacity = 0;
     
   
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -472,10 +472,11 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    if (room_kind == RoK_GARDEN) {
+    if (room_role_matches(room_kind, RoRoF_FoodStorage))
+    {
         return 9999;
     }
-    if (room_kind == RoK_LAIR)
+    if (room_role_matches(room_kind, RoRoF_LairStorage))
     {
         if (!dungeon_has_room(dungeon, room_kind)) {
             return 9999;
@@ -518,7 +519,7 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
     long free_capacity = computer_get_room_kind_free_capacity(comp, cproc->confval_4);
     if (free_capacity == 9999)
     {
-        if (cproc->confval_4 != RoK_GARDEN) {
+        if(!room_role_matches(cproc->confval_4, RoRoF_FoodStorage)) {
             SYNCDBG(8,"Need \"%s\" because of undetermined capacity",room_code_name(cproc->confval_4));
             return CProcRet_Continue;
         }

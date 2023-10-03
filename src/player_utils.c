@@ -53,6 +53,7 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
+#include "music_player.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -314,7 +315,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->offmap_money_owned = 0;
     }
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
@@ -448,6 +449,7 @@ void init_player_music(struct PlayerInfo *player)
 {
     LevelNumber lvnum = get_loaded_level_number();
     game.audiotrack = 3 + ((lvnum - 1) % 4);
+    game.last_audiotrack = max_track;
 }
 
 TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)
@@ -731,6 +733,9 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
     player->main_palette = engine_palette;
+    player->minimap_zoom = settings.minimap_zoom;
+    player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
+    player->frontview_zoom_level = settings.frontview_zoom_level;
     if (is_my_player(player))
     {
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
@@ -751,6 +756,16 @@ void init_player(struct PlayerInfo *player, short no_explore)
         }
         break;
     case GKind_MultiGame:
+        //workaround until settings are synced through multiplayer
+        player->minimap_zoom = 256;
+        if (game.packet_save_head.isometric_view_zoom_level == 0)
+        {
+            player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
+        }
+        if (game.packet_save_head.frontview_zoom_level == 0)
+        {
+            player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
+        }
         if (player->is_active != 1)
         {
           ERRORLOG("Non Keeper in Keeper game");
@@ -904,7 +919,7 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
     wandr->wdrfield_14 = 0;
 
     long stl_num_list_count = 0;
-    SubtlCodedCoords* stl_num_list = (SubtlCodedCoords*)scratch;
+    SubtlCodedCoords* stl_num_list = (SubtlCodedCoords*)big_scratch;
     SlabCodedCoords slb_num = 0;
     while (1)
     {
@@ -993,6 +1008,7 @@ void post_init_player(struct PlayerInfo *player)
 
 void post_init_players(void)
 {
+    SYNCDBG(8, "Starting");
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);

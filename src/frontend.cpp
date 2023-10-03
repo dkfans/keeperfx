@@ -96,7 +96,7 @@
 extern "C" {
 #endif
 
-extern void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
+extern void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr);
 /******************************************************************************/
 TbClockMSec gui_message_timeout = 0;
 char gui_message_text[TEXT_BUFFER_LENGTH];
@@ -993,7 +993,7 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind, 0, 0);
     struct RoomConfigStats *roomst;
-    roomst = &slab_conf.room_cfgstats[rkind];
+    roomst = &game.slab_conf.room_cfgstats[rkind];
     game.chosen_room_kind = rkind;
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = tooltip_id;
@@ -1111,7 +1111,7 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct PlayerInfo *player;
 
-    pwkind = pwkind % POWER_TYPES_COUNT;
+    pwkind = pwkind % magic_conf.power_types_count;
 
     if (is_special_power(pwkind)) {
         choose_special_spell(pwkind, tooltip_id);
@@ -1393,7 +1393,7 @@ void gui_area_text(struct GuiButton *gbtn)
                 lit_width += 32;
             }
             draw_lit_bar64k(gbtn->scr_pos_x - 6*units_per_pixel/16, gbtn->scr_pos_y - 6*units_per_pixel/16, bs_units_per_px, lit_width);
-        } 
+        }
         else
         {
             draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
@@ -2525,6 +2525,7 @@ void set_gui_visible(TbBool visible)
   switch (player->view_type)
   {
   case PVT_CreatureContrl:
+  case PVT_CreaturePasngr:
       toggle_first_person_menu(is_visbl);
       break;
   case PVT_MapScreen:
@@ -2567,7 +2568,7 @@ char *mdlf_for_cd(struct TbLoadFiles * tb_load_files)
     result = tb_load_files;
     if ( tb_load_files->FName[0] != 42 )
     {
-        sprintf(path_string, "%s\\%s", install_info.inst_path, tb_load_files->FName);
+        sprintf(path_string, "%s/%s", install_info.inst_path, tb_load_files->FName);
         return path_string;
     }
     return result->FName;
@@ -2670,7 +2671,7 @@ void frontend_shutdown_state(FrontendMenuState pstate)
         StopMusicPlayer();
         break;
     case FeSt_LEVEL_STATS:
-        StopStreamedSample();
+        stop_streamed_sample();
         turn_off_menu(GMnu_FESTATISTICS);
         break;
     case FeSt_HIGH_SCORES:
@@ -3652,7 +3653,7 @@ FrontendMenuState get_startup_menu_state(void)
       game_flags2 &= ~GF2_Server;
       SYNCLOG("Setup server");
 
-      if (setup_network_service(NS_TCP_IP))
+      if (setup_network_service(NS_ENET_UDP))
       {
           frontnet_service_setup();
           frontnet_session_setup();
@@ -3664,7 +3665,7 @@ FrontendMenuState get_startup_menu_state(void)
   {
       game_flags2 &= ~GF2_Connect;
       SYNCLOG("Setup client");
-      if (setup_network_service(NS_TCP_IP))
+      if (setup_network_service(NS_ENET_UDP))
       {
           frontnet_service_setup();
           frontnet_session_setup();

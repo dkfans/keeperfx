@@ -209,7 +209,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {person_sulk_at_lair, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 55, 1, 0, 1},
   {creature_going_home_to_sleep, NULL, NULL, NULL,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
   {creature_sleep, cleanup_sleep, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 2, 0, 54, 1, 0, 1},
   {NULL, NULL, NULL, NULL,
@@ -323,13 +323,13 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {imp_birth, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {at_temple, NULL, NULL, move_check_on_head_for_room,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 68, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 60, 1, 0, 1},
   {praying_in_temple, state_cleanup_in_temple, NULL, process_temple_function,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 2, 0, 68, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 2, 0, 60, 1, 0, 1},
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_follow_leader, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Follow, 0, 0, 0, 0,  0, 0, 0, 0},
+    0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Follow, 0, 0, 0, 0,  0, 0, 0, 0},
   {creature_door_combat, cleanup_door_combat, NULL, NULL,
     1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, CrStTyp_FightDoor, 0, 0, 3, 0, 51, 1, 0, 0},
   {creature_combat_flee, NULL, NULL, NULL,
@@ -1410,9 +1410,8 @@ short creature_being_dropped(struct Thing *creatng)
     set_start_state(creatng);
     // Check job which we can do after dropping at these coordinates
     CreatureJob new_job;
-    struct ThingAdd* creatngadd = get_thingadd(creatng->index);
     struct Room* room = room_get(slb->room_index);
-    if ((!room_is_invalid(room)) && (room->owner != creatngadd->holding_player))
+    if ((!room_is_invalid(room)) && (room->owner != creatng->holding_player))
     {
         new_job = Job_NULL;
     }
@@ -2187,7 +2186,7 @@ short creature_in_hold_audience(struct Thing *creatng)
     } else
     {
         cctrl->turns_at_job = 1;
-        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
     }
     return 1;
 }
@@ -2422,13 +2421,15 @@ void creature_drop_dragged_object(struct Thing *creatng, struct Thing *dragtng)
 
 TbBool creature_is_dragging_something(const struct Thing *creatng)
 {
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->dragtng_idx == 0) {
         return false;
     }
     const struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    if (!thing_exists(dragtng)) {
-        ERRORLOG("The %s is dragging non-existing thing",thing_model_name(creatng));
+    if (!thing_exists(dragtng))
+    {
+        ERRORLOG("The %s is dragging non-existing thing with ID %d",thing_model_name(creatng), cctrl->dragtng_idx);
+        cctrl->dragtng_idx = 0;
         return false;
     }
     return true;
@@ -2458,6 +2459,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         ERRORLOG("Invalid room or number of slabs is zero");
         return false;
     }
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     long selected = CREATURE_RANDOM(thing, room->slabs_count);
     unsigned long n = 0;
     long i = room->slabs_list;
@@ -2520,7 +2522,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         {
             MapSubtlCoord x = start_stl % 3 + stl_x;
             MapSubtlCoord y = start_stl / 3 + stl_y;
-            if (get_floor_filled_subtiles_at(x, y) == 1)
+            if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(x, y) == roomst->storage_height))
             {
                 struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
                 if (thing_is_invalid(objtng))
@@ -2562,7 +2564,8 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
             {
                 MapSubtlCoord astl_x = stl_x + around[nround].delta_x;
                 MapSubtlCoord astl_y = stl_y + around[nround].delta_y;
-                if (get_floor_filled_subtiles_at(astl_x, astl_y) == 1)
+
+                if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(astl_x, astl_y) == roomst->storage_height))
                 {
                     struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, astl_x, astl_y);
                     if (thing_is_invalid(objtng))
@@ -3043,7 +3046,7 @@ short creature_vandalise_rooms(struct Thing *creatng)
     }
     if (cctrl->instance_id == CrInst_NULL)
     {
-        set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+        set_creature_instance(creatng, CrInst_ATTACK_ROOM_SLAB, 0, 0);
     }
     return 1;
 }
@@ -3833,7 +3836,7 @@ short person_sulking(struct Thing *creatng)
           cctrl->turns_at_job = 0;
         } else
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(creatng, CrInst_MOAN, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_MOAN, 0, 0);
         }
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
@@ -3946,7 +3949,10 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
             pos.z.val = coord_z_beg;
             while (pos.z.val <= coord_z_end)
             {
-                create_effect(&pos, eff_kind, thing->owner);
+                if (eff_kind != 0)
+                {
+                    create_used_effect_or_element(&pos, eff_kind, thing->owner);
+                }
                 pos.z.val += COORD_PER_STL;
             }
             pos.y.val += COORD_PER_STL;
@@ -4260,8 +4266,8 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
     for (int i = 0; i < path.waypoints_num; ++i)
     {
         struct Coord3d pos2;
-        pos2.x.val = (uint16_t)path.waypoints[i].x;
-        pos2.y.val = (uint16_t)path.waypoints[i].y;
+        pos2.x.val = path.waypoints[i].x;
+        pos2.y.val = path.waypoints[i].y;
         distance += get_2d_distance(&pos1, (struct Coord3d*)&pos2);
         pos1 = pos2;
     }
@@ -4288,7 +4294,7 @@ short seek_the_enemy(struct Thing *creatng)
             {
               if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
               {
-                set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+                set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
                 thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 return 1;
               }
@@ -4801,6 +4807,7 @@ char creature_free_for_lunchtime(struct Thing *creatng)
 long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    RoomKind rkind;
     if ((crstat->hunger_rate == 0) || (cctrl->hunger_level <= (long)crstat->hunger_rate)) {
         return 0;
     }
@@ -4819,7 +4826,8 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
 
     if (!player_has_room_of_role(creatng->owner, RoRoF_FoodStorage))
     {
-        output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNeeded);
+        rkind = find_first_roomkind_with_role(RoRoF_FoodStorage);
+        output_message_room_related_from_computer_or_player_action(creatng->owner, rkind, OMsg_RoomNeeded);
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
@@ -4836,11 +4844,12 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
         if (room_is_invalid(nroom))
         {
             // There seem to be a correct room, but we can't reach it
-            output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNoRoute);
+            rkind = find_first_roomkind_with_role(RoRoF_FoodStorage);
+            output_message_room_related_from_computer_or_player_action(creatng->owner, rkind, OMsg_RoomNoRoute);
         } else
         {
             // The room is reachable, so it probably has just no food
-            output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomTooSmall);
+            output_message_room_related_from_computer_or_player_action(creatng->owner, nroom->kind, OMsg_RoomTooSmall);
         }
     }
     if (room_is_invalid(nroom)) {
@@ -5048,14 +5057,14 @@ long process_training_need(struct Thing *thing, const struct CreatureStats *crst
 long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if (cctrl->field_B9 == 0) {
+    if (cctrl->corpse_to_piss_on == 0) {
         return 0;
     }
-    struct Thing* pisstng = thing_get(cctrl->field_B9);
+    struct Thing* pisstng = thing_get(cctrl->corpse_to_piss_on);
     if ((pisstng->owner == thing->owner) || !crstat->piss_on_dead) {
         return 0;
     }
-    if (game.play_gameturn - cctrl->field_B2 <= 200) {
+    if (game.play_gameturn - cctrl->last_piss_turn <= 200) {
         return 0;
     }
     if (!external_set_thing_state(thing, CrSt_CreaturePiss))
@@ -5063,7 +5072,7 @@ long process_piss_need(struct Thing *thing, const struct CreatureStats *crstat)
         return 0;
     }
     cctrl->countdown_282 = 50;
-    cctrl->field_B2 = game.play_gameturn;
+    cctrl->last_piss_turn = game.play_gameturn;
     return 1;
 }
 

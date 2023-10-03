@@ -819,7 +819,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 

@@ -71,7 +71,7 @@ short creature_moan(struct Thing *thing)
         cctrl->mood.last_mood_sound_turn = game.play_gameturn;
     }
     if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(thing, CrInst_MOAN, 1, 0, 0);
+        set_creature_instance(thing, CrInst_MOAN, 0, 0);
     }
     return 1;
 }
@@ -116,7 +116,7 @@ short creature_be_happy(struct Thing *thing)
         cctrl->mood.last_mood_sound_turn = game.play_gameturn;
     }
     if (cctrl->instance_id == CrInst_NULL) {
-        set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 1, 0, 0);
+        set_creature_instance(thing, CrInst_CELEBRATE_SHORT, 0, 0);
     }
     return 1;
 }
@@ -133,7 +133,7 @@ short creature_piss(struct Thing *thing)
     if (i > 0) {
         return 1;
     }
-    cctrl->field_B2 = game.play_gameturn;
+    cctrl->last_piss_turn = game.play_gameturn;
     set_start_state(thing);
     return 0;
 }
@@ -246,7 +246,8 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
     SYNCDBG(18,"%s: Setting reason %d to %d for %s index %d",func_name,(int)reason,(int)annoy_lv,thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((game.numfield_14 != 0) || !creature_can_get_angry(creatng)) {
+    if (!creature_can_get_angry(creatng))
+    {
         return;
     }
     if (annoy_lv < 0)
@@ -505,7 +506,7 @@ TbBool process_job_causes_going_postal(struct Thing *creatng, struct Room *room,
     {
         SYNCDBG(8,"The %s index %d goes postal on %s index %d during %s",thing_model_name(creatng),(int)creatng->index,thing_model_name(combt_thing),(int)combt_thing->index,creature_job_code_name(going_postal_job));
         EVM_CREATURE_EVENT_WITH_TARGET("postal", creatng->owner, creatng, combt_thing->index);
-        set_creature_instance(creatng, inst_use, 0, combt_thing->index, 0);
+        set_creature_instance(creatng, inst_use, combt_thing->index, 0);
         external_set_thing_state(combt_thing, CrSt_CreatureEvacuateRoom);
         struct CreatureControl* combctrl = creature_control_get_from_thing(combt_thing);
         combctrl->evacuate.room_idx = room->index;

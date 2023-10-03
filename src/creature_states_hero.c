@@ -110,14 +110,14 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
     long best_backup_score = LONG_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
+        if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
+            continue;
+        }
         player = get_player(plyr_idx);
         if (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
         {
             if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
-                if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
-                    continue;
-                }
                 return plyr_idx;
             }
         }
@@ -322,7 +322,7 @@ TbBool good_setup_defend_rooms(struct Thing* creatng)
         return false;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    creatng->continue_state = CHeroTsk_DefendRooms;
+    creatng->continue_state = CrSt_PatrolHere;
     cctrl->target_room_id = room->index;
     return true;
 }
@@ -567,7 +567,7 @@ short good_attack_room(struct Thing *thing)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         if (cctrl->instance_id == CrInst_NULL)
         {
-            set_creature_instance(thing, CrInst_ATTACK_ROOM_SLAB, 1, 0, 0);
+            set_creature_instance(thing, CrInst_ATTACK_ROOM_SLAB, 0, 0);
             MapCoord ev_coord_x = subtile_coord_center(room->central_stl_x);
             MapCoord ev_coord_y = subtile_coord_center(room->central_stl_y);
             event_create_event_or_update_nearby_existing_event(ev_coord_x, ev_coord_y, EvKind_RoomUnderAttack, room->owner, 0);
@@ -985,12 +985,12 @@ short good_doing_nothing(struct Thing *creatng)
         {
             SYNCDBG(4,"No enemy dungeon to perform %s index %d task",
                 thing_model_name(creatng),(int)creatng->index);
+            cctrl->wait_to_turn = game.play_gameturn + 16;
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
             {
                 creatng->continue_state = CrSt_GoodDoingNothing;
                 return 1;
             }
-            cctrl->wait_to_turn = game.play_gameturn + 16;
         }
         return 1;
     }
@@ -1409,7 +1409,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
             MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.first_colliding_block);
             struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
             if ( (slabmap_owner(slb) == creatng->owner) || (slb->kind == SlbT_EARTH || (slb->kind == SlbT_TORCHDIRT)) ) { // if this is false, that means the current tile must have changed to an undiggable wall
-                set_creature_instance(creatng, CrInst_TUNNEL, 0, 0, 0);
+                set_creature_instance(creatng, CrInst_TUNNEL, 0, 0);
             }
         else {
             return 1;

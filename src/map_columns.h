@@ -28,6 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define COLUMNS_COUNT        2048
 #define COLUMN_STACK_HEIGHT     8
+#define COLUMN_WALL_HEIGHT      5
 /******************************************************************************/
 #pragma pack(1)
 
@@ -106,6 +107,7 @@ TbBool subtile_has_lava_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_liquid(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+TbBool subtile_is_wall(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 /******************************************************************************/
 #ifdef __cplusplus

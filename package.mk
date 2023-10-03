@@ -31,13 +31,19 @@ PKG_MAPPACK_FILES = \
 	$(patsubst %,pkg/levels/%.cfg,$(MAPPACKS)) \
 	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)/*.cfg))) \
 	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(filter-out %/readme.txt,$(wildcard levels/$(mappack)/*.txt)))) \
-	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)_crtr/*.cfg)))
+	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)_crtr/*.cfg))) \
+	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)_cfgs/*.cfg)))
 PKG_MAPPACK_DIRS = $(sort $(dir $(PKG_MAPPACK_FILES)))
 PKG_BIN = pkg/$(notdir $(BIN))
 PKG_BIN_MAP = $(PKG_BIN:%.exe=%.map)
 PKG_HVLOGBIN = pkg/$(notdir $(HVLOGBIN))
 PKG_HVLOGBIN_MAP = $(PKG_HVLOGBIN:%.exe=%.map)
 PKG_DOCS = pkg/keeperfx_readme.txt
+PKG_DLL = \
+	pkg/SDL2_net.dll \
+	pkg/SDL2_mixer.dll \
+	pkg/SDL2_image.dll \
+	pkg/SDL2.dll
 PKG_FILES = \
 	$(PKG_CAMPAIGN_FILES) \
 	$(PKG_CREATURE_FILES) \
@@ -51,7 +57,8 @@ PKG_FILES = \
 	$(PKG_BIN_MAP) \
 	$(PKG_HVLOGBIN) \
 	$(PKG_HVLOGBIN_MAP) \
-	$(PKG_DOCS)
+	$(PKG_DOCS) \
+	$(PKG_DLL)
 
 .PHONY: package
 
@@ -92,6 +99,18 @@ pkg/levels/%.cfg: levels/%.cfg | $(PKG_MAPPACK_DIRS)
 	$(CP) $^ $@
 
 pkg/levels/%.txt: levels/%.txt | $(PKG_MAPPACK_DIRS)
+	$(CP) $^ $@
+
+pkg/SDL2_net.dll: sdl/for_final_package/SDL2_net.dll | pkg
+	$(CP) $^ $@
+
+pkg/SDL2_mixer.dll: sdl/for_final_package/SDL2_mixer.dll | pkg
+	$(CP) $^ $@
+
+pkg/SDL2_image.dll: sdl/for_final_package/SDL2_image.dll | pkg
+	$(CP) $^ $@
+
+pkg/SDL2.dll: sdl/for_final_package/SDL2.dll | pkg
 	$(CP) $^ $@
 
 $(PKG_NAME): $(PKG_FILES) | pkg

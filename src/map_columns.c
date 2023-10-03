@@ -614,6 +614,12 @@ TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return cube_is_unclaimed_path(i);
 }
 
+TbBool subtile_is_wall(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Column* col = get_column_at(stl_x, stl_y);
+    return (get_column_floor_filled_subtiles(col) >= COLUMN_WALL_HEIGHT);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

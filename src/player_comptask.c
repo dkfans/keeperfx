@@ -583,8 +583,7 @@ void computer_pick_thing_by_hand(struct Computer2 *comp, struct Thing *thing)
         external_set_thing_state(thing, CrSt_InPowerHand);
         remove_all_traces_of_combat(thing);
     }
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    thingadd->holding_player = comp->dungeon->owner;
+    thing->holding_player = comp->dungeon->owner;
     place_thing_in_limbo(thing);
 }
 
@@ -608,12 +607,12 @@ TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNum
  * @param pos
  * @note originally named fake_dump_held_creatures_on_map()
  */
-short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *droptng, struct Coord3d *pos)
+short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *droptng, struct Coord3d *pos, CrtrStateId target_state)
 {
     if (thing_is_creature(droptng) && (droptng->active_state == CrSt_CreatureUnconscious)) {
         WARNLOG("The %s Held By computer is unconscious", creature_code_name(droptng->model));
     }
-    if (thing_is_creature(droptng))
+    if (thing_is_creature(droptng) && (target_state != CrSt_CreatureSacrifice))
     {
         if (!computer_find_safe_non_solid_block(comp, pos))
         {
@@ -1086,7 +1085,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     // The room digging task is complete - change it to room placing task
     if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
         struct RoomConfigStats *roomst;
-        roomst = &slab_conf.room_cfgstats[ctask->rkind];
+        roomst = &game.slab_conf.room_cfgstats[ctask->rkind];
         message_add_fmt(comp->dungeon->owner, "Now I can place the %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_PlaceRoom;
@@ -1123,12 +1122,12 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     dungeon = comp->dungeon;
     rkind = ctask->create_room.long_80;
     struct RoomConfigStats *roomst;
-    roomst = &slab_conf.room_cfgstats[rkind];
+    roomst = &game.slab_conf.room_cfgstats[rkind];
     // If we don't have money for the room - don't even try
     if (roomst->cost + 1000 >= dungeon->total_money_owned)
     {
         // Prefer leaving some gold, unless a flag is forcing us to build
-        if (((roomst->flags & RoCFlg_BuildToBroke) == 0) || (roomst->cost >= dungeon->total_money_owned)) {
+        if (((roomst->flags & RoCFlg_BuildTillBroke) == 0) || (roomst->cost >= dungeon->total_money_owned)) {
             return 0;
         }
     }
@@ -1247,7 +1246,7 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     const struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return IAvail_Never;
     }
     if (dungeon_invalid(dungeon)) {
@@ -1270,7 +1269,7 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
 ItemAvailability computer_check_room_of_role_available(const struct Computer2 * comp, RoomRole rrole)
 {
     ItemAvailability result = IAvail_Never;
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -1522,7 +1521,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     {
         if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
             struct RoomConfigStats *roomst;
-            roomst = &slab_conf.room_cfgstats[rkind];
+            roomst = &game.slab_conf.room_cfgstats[rkind];
             message_add_fmt(comp->dungeon->owner, "It is time to build %s.",get_string(roomst->name_stridx));
         }
         ctask->ttype = CTT_DigRoomPassage;
@@ -2641,7 +2640,7 @@ long task_pickup_for_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     thing = thing_get(comp->held_thing_idx);
     if (!thing_is_invalid(thing))
     {
-        if (computer_dump_held_things_on_map(comp, thing, &ctask->pickup_for_attack.target_pos)) {
+        if (computer_dump_held_things_on_map(comp, thing, &ctask->pickup_for_attack.target_pos, ctask->pickup_for_attack.word_80)) {
             return CTaskRet_Unk2;
         }
         computer_force_dump_held_things_on_map(comp, &comp->dungeon->essential_pos);
@@ -2692,7 +2691,7 @@ long task_move_creature_to_room(struct Computer2 *comp, struct ComputerTask *cta
             jobpref = get_job_for_room(room->kind, JoKF_AssignComputerDrop|JoKF_AssignAreaWithinRoom, crstat->job_primary|crstat->job_secondary);
             if (get_drop_position_for_creature_job_in_room(&pos, room, jobpref, thing))
             {
-                if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
+                if (computer_dump_held_things_on_map(comp, thing, &pos, CrSt_Unused) > 0) {
                     return CTaskRet_Unk2;
                 }
             }
@@ -2750,7 +2749,7 @@ long task_move_creature_to_pos(struct Computer2 *comp, struct ComputerTask *ctas
         {
             if (thing_is_creature(thing))
             {
-                if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_pos.pos_86)) {
+                if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_pos.pos_86, ctask->move_to_pos.target_state)) {
                     remove_task(comp, ctask);
                     return CTaskRet_Unk2;
                 }
@@ -2870,7 +2869,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
             {
                 return CTaskRet_Unk4;
             }
-            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos)) {
+            if (computer_dump_held_things_on_map(comp, thing, &ctask->move_to_defend.target_pos, ctask->move_to_defend.word_80)) {
                 return CTaskRet_Unk2;
             }
             ERRORLOG("Could not dump player %d %s into (%d,%d)",(int)dungeon->owner,
@@ -2928,7 +2927,7 @@ long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *cta
         {
             if (find_random_valid_position_for_thing_in_room(thing, room, &pos))
             {
-                if (computer_dump_held_things_on_map(comp, thing, &pos) > 0) {
+                if (computer_dump_held_things_on_map(comp, thing, &pos,0) > 0) {
                     return CTaskRet_Unk2;
                 }
             }
@@ -3116,6 +3115,8 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
     if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT)
     {
         //If the task has been active too long, restart the process to try a different approach.
+        ctask->ttype = ctask->ottype;
+        comp->task_state = CTaskSt_Select;
         restart_task_process(comp, ctask);
         return CTaskRet_Unk0;
     }
@@ -3124,8 +3125,10 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
         if ((is_room_available(plyr_idx, RoK_BRIDGE)) || (ctask->flags & ComTsk_Urgent))
         {
             //When the player already has the bridge available, or is doing an urgent task, don't keep the task active as long.
+            ctask->ttype = ctask->ottype;
+            comp->task_state = CTaskSt_Select;
             restart_task_process(comp, ctask);
-            return CTaskRet_Unk0;
+            return CTaskRet_Unk4;
         }
     }
 
@@ -3457,7 +3460,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
     ctask->move_to_pos.pos_86.y.val = pos.y.val;
     ctask->move_to_pos.pos_86.z.val = pos.z.val;
     ctask->move_to_pos.target_thing_idx = thing->index;
-    ctask->move_to_pos.word_80 = 0;
+    ctask->move_to_pos.target_state = dst_state;
     ctask->created_turn = game.play_gameturn;
     return true;
 }
@@ -3498,7 +3501,7 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
         room = room_get(room_idx);
         if (room_exists(room)) {
             struct RoomConfigStats *roomst;
-            roomst = &slab_conf.room_cfgstats[room->kind];
+            roomst = &game.slab_conf.room_cfgstats[room->kind];
             message_add_fmt(comp->dungeon->owner, "Time to put some creatures into %s.",get_string(roomst->name_stridx));
         } else {
             if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0)
@@ -3530,6 +3533,7 @@ TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos
     ctask->pickup_for_attack.target_pos.z.val = pos->z.val;
     ctask->pickup_for_attack.repeat_num = repeat_num;
     ctask->created_turn = game.play_gameturn;
+    ctask->pickup_for_attack.word_80 = 0;
     ctask->pickup_for_attack.long_86 = par3; // Originally only a word was set here
     return true;
 }
@@ -3736,7 +3740,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     }
     if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
         struct RoomConfigStats *roomst;
-        roomst = &slab_conf.room_cfgstats[RoK_ENTRANCE];
+        roomst = &game.slab_conf.room_cfgstats[RoK_ENTRANCE];
         message_add_fmt(comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_DigToEntrance;

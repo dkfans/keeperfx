@@ -635,7 +635,7 @@ TbBool process_dungeon_control_packet_dungeon_place_trap(long plyr_idx)
         return false;
     }
     player->full_slab_cursor = ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles));
-    long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->full_slab_cursor);
+    long i = tag_cursor_blocks_place_trap(player->id_number, stl_x, stl_y, player->full_slab_cursor, player->chosen_trap_kind);
     if ((pckt->control_flags & PCtr_LBtnClick) == 0)
     {
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && (player->cursor_button_down != 0))
@@ -872,7 +872,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
             break;
         case PSt_PlaceDoor:
         {
-            long k;
             if ((pckt->control_flags & PCtr_MapCoordsValid) != 0)
             {
                 player->full_slab_cursor = 1;
@@ -880,8 +879,6 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 i = tag_cursor_blocks_place_door(player->id_number, stl_x, stl_y);
                 if ((pckt->control_flags & PCtr_LBtnClick) != 0)
                 {
-                    k = get_slab_number(slb_x, slb_y);
-                    delete_room_slabbed_objects(k);
                     packet_place_door(stl_x, stl_y, player->id_number, player->chosen_door_kind, i);
                 }
                 unset_packet_control(pckt, PCtr_LBtnClick);

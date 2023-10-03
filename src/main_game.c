@@ -21,6 +21,7 @@
 #include "bflib_sound.h"
 
 #include "config_compp.h"
+#include "config_settings.h"
 #include "dungeon_data.h"
 #include "engine_lenses.h"
 #include "engine_redraw.h"
@@ -38,11 +39,13 @@
 #include "room_library.h"
 #include "room_list.h"
 #include "power_specials.h"
+#include "player_data.h"
 #include "player_utils.h"
 #include "vidfade.h"
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
+#include "sounds.h"
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -128,7 +131,6 @@ static void init_level(void)
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
     set_flag_byte(&game.system_flags, GSF_RunAfterVictory, false);
-    game.action_rand_seed = 1;
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
@@ -160,6 +162,7 @@ static void init_level(void)
     init_dungeons();
     init_map_size(get_selected_level_number());
     clear_messages();
+    init_seeds();
     // Load the actual level files
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
@@ -179,19 +182,6 @@ static void init_level(void)
 
     init_navigation();
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
-#ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    {
-      game.action_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
-    }
-    else
-#else
-    // Initialize unsynchronized random seed (the value may be different
-    // on computers in MP, as it shouldn't affect game actions)
-    game.unsync_rand_seed = (unsigned long)LbTimeSec();
-#endif
     light_set_lights_on(1);
     {
         struct PlayerInfo *player;
@@ -285,6 +275,8 @@ void startup_saved_packet_game(void)
         my_player_number = 0;
     else
         my_player_number = game.local_plyr_idx;
+    settings.isometric_view_zoom_level = game.packet_save_head.isometric_view_zoom_level;
+    settings.frontview_zoom_level = game.packet_save_head.frontview_zoom_level;
     init_level();
     setup_zombie_players();//TODO GUI What about packet file from network game? No zombies there..
     init_players();
@@ -295,11 +287,8 @@ void startup_saved_packet_game(void)
     post_init_level();
     post_init_players();
     set_selected_level_number(0);
-    if (is_key_pressed(KC_LALT, KMod_NONE))
-    {
-        struct PlayerInfo* player = get_my_player();
-        set_engine_view(player, PVM_FrontView);
-    }
+    struct PlayerInfo* player = get_my_player();
+    set_engine_view(player, rotate_mode_to_view_mode(game.packet_save_head.video_rotate_mode));
 }
 
 static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
@@ -307,6 +296,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
+    stop_streamed_sample();
     unsigned int flgmem;
     struct PlayerInfo *player;
     setup_count_players();
@@ -334,6 +324,12 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     {
         game.game_kind = GKind_MultiGame;
         init_players_network_game(context);
+
+        // Fix desyncs when two players have a different zoom distance cfg setting
+        // This temporary solution just disregards their cfg value and sets it here
+        int max_zoom_in_multiplayer = 60;
+        zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
+        frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
     }
     setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};
@@ -430,4 +426,28 @@ void clear_complete_game(void)
     game.packet_save_enable = start_params.packet_save_enable;
     game.packet_load_enable = start_params.packet_load_enable;
     my_player_number = default_loc_player;
+}
+
+void init_seeds()
+{
+    #ifdef AUTOTESTING
+    if (start_params.autotest_flags & ATF_FixedSeed)
+    {
+      game.action_rand_seed = 1;
+      game.unsync_rand_seed = 1;
+      srand(1);
+    }
+    else
+#endif
+    {
+        // Initialize random seeds (the value may be different
+        // on computers in MP, as it shouldn't affect game actions)
+        game.unsync_rand_seed = (unsigned long)LbTimeSec();
+        game.action_rand_seed = (game.packet_save_head.action_seed != 0) ? game.packet_save_head.action_seed : game.unsync_rand_seed;
+        if ((game.system_flags & GSF_NetworkActive) != 0)
+        {
+            init_network_seed();
+        }
+        start_seed = game.action_rand_seed;
+    }
 }

@@ -20,6 +20,7 @@
 #define DK_DNGN_DATA_H
 
 #include "bflib_basics.h"
+#include "config_magic.h"
 #include "config_trapdoor.h"
 #include "config_terrain.h"
 #include "player_computer.h"
@@ -43,9 +44,8 @@ extern "C" {
 /******************************************************************************/
 #define DUNGEONS_COUNT              5
 #define DIGGER_TASK_MAX_COUNT       64
-#define DUNGEON_RESEARCH_COUNT      34
-#define MAX_THINGS_IN_HAND          8
-#define KEEPER_POWERS_COUNT         20
+#define DUNGEON_RESEARCH_COUNT      64
+#define MAX_THINGS_IN_HAND          64
 #define TURN_TIMERS_COUNT           8
 #define SCRIPT_FLAGS_COUNT          8
 #define MAX_SOE_RADIUS              13
@@ -108,7 +108,7 @@ struct Dungeon {
     unsigned char computer_enabled;
     short creatr_list_start;
     short digger_list_start;
-    short things_in_hand[MAX_THINGS_IN_HAND];
+    ThingIndex things_in_hand[MAX_THINGS_IN_HAND];
     unsigned char num_things_in_hand;
     unsigned short field_64[CREATURE_TYPES_MAX][15];
     unsigned short guijob_all_creatrs_count[CREATURE_TYPES_MAX][3];
@@ -186,8 +186,8 @@ struct Dungeon {
      * Allowed creatures can join a dungeon if whether attraction condition is met
      * or force-enabled amount isn't reached. */
     unsigned char creature_allowed[CREATURE_TYPES_MAX];
-    unsigned char magic_level[KEEPER_POWERS_COUNT];
-    unsigned char magic_resrchable[KEEPER_POWERS_COUNT];
+    unsigned char magic_level[POWER_TYPES_MAX];
+    unsigned char magic_resrchable[POWER_TYPES_MAX];
     struct TurnTimer turn_timers[TURN_TIMERS_COUNT];
     long max_creatures_attracted;
     unsigned char heart_destroy_state;
@@ -292,6 +292,7 @@ struct DungeonAdd
     unsigned char         room_resrchable[TERRAIN_ITEMS_MAX];
     unsigned char         room_slabs_count[TERRAIN_ITEMS_MAX+1];
     unsigned short        backup_heart_idx;
+    unsigned short        free_soul_idx;
     struct HandRule       hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
 };
 /******************************************************************************/

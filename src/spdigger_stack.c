@@ -1607,8 +1607,8 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     remain_num = max_tasks;
     unsigned char *slbopt;
     struct SlabCoord *slblist;
-    slbopt = scratch;
-    slblist = (struct SlabCoord *)(scratch + gameadd.map_tiles_x*gameadd.map_tiles_y);
+    slbopt = big_scratch;
+    slblist = (struct SlabCoord *)(big_scratch + gameadd.map_tiles_x*gameadd.map_tiles_y);
     add_pretty_and_convert_to_imp_stack_prepare(dungeon, slbopt);
     add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, slbopt, slblist, &heartng->mappos, &remain_num);
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));
@@ -2656,7 +2656,7 @@ long check_out_imp_last_did(struct Thing *creatng)
       { 
         // If we were digging gems, after 5 repeats of this job, a 1 in 20 chance to select another dungeon job.
         // This allows to switch to other important tasks and not consuming all the diggers workforce forever
-        if ((( rand( ) % 20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
+        if (( CREATURE_RANDOM(creatng,20) == 1) && ((cctrl->digger.task_repeats % 5) == 0) && (dungeon->digger_stack_length > 1))
         {
           // Set position in digger tasks list to a random place
           SYNCDBG(9,"Digger %s index %d reset due to neverending task",thing_model_name(creatng),(int)creatng->index);

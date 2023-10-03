@@ -33,6 +33,7 @@
 #include "thing_effects.h"
 #include "power_process.h"
 #include "game_legacy.h"
+#include "console_cmd.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -59,6 +60,9 @@ const struct NamedCommand magic_spell_commands[] = {
   {"SHOTMODEL",       5},
   {"EFFECTMODEL",     6},
   {"SYMBOLSPRITES",   7},
+  {"SPELLPOWER",      8},
+  {"AURAEFFECT",      9},
+  {"SPELLFLAGS",     10},
   {NULL,              0},
   };
 
@@ -83,31 +87,33 @@ const struct NamedCommand magic_shot_commands[] = {
   {"SIZE_XY",               18},
   {"SIZE_YZ",               19},
   {"FALLACCELERATION",      20},
-  {"HITWALLSOUND",          21},
-  {"HITWALLSOUNDVARIANTS",  22},
-  {"HITWALLEFFECT",         23},
-  {"HITDOORSOUND",          24},
-  {"HITDOORSOUNDVARIANTS",  25},
-  {"HITDOOREFFECT",         26},
-  {"HITWATERSOUND",         27},
-  {"HITWATERSOUNDVARIANTS", 28},
-  {"HITWATEREFFECT",        29},
-  {"HITLAVASOUND",          30},
-  {"HITLAVASOUNDVARIANTS",  31},
-  {"HITLAVAEFFECT",         32},
-  {"HITCREATURESOUND",      33},
-  {"ANIMATIONTRANSPARENCY", 34},
-  {"DIGSOUND",              35},
-  {"DIGSOUNDVARIANTS",      36},
-  {"DIGEFFECT",             37},
-  {"DESTROYONHIT",          38},
-  {"BASEEXPERIENCEGAIN",    39},
-  {"TARGETHITSTOPTURNS",    40},
-  {"SHOTSOUNDPRIORITY",     41},
-  {"LIGHTING",              42},
-  {"INERTIA",               43},
-  {"UNSHADED",              44},
-  {"SOFTLANDING",           45},
+  {"VISUALEFFECT",          21},
+  {"VISUALEFFECTAMOUNT",    22},
+  {"VISUALEFFECTSPREAD",    23},
+  {"VISUALEFFECTHEALTH",    24},
+  {"HITWALLEFFECT",         25},
+  {"HITWALLSOUND",          26},
+  {"HITCREATUREEFFECT",     27},
+  {"HITCREATURESOUND",      28},
+  {"HITDOOREFFECT",         29},
+  {"HITDOORSOUND",          30},
+  {"HITWATEREFFECT",        31},
+  {"HITWATERSOUND",         32},
+  {"HITLAVAEFFECT",         33},
+  {"HITLAVASOUND",          34},
+  {"DIGHITEFFECT",          35},
+  {"DIGHITSOUND",           36},
+  {"EXPLOSIONEFFECTS",      37},
+  {"WITHSTANDHITAGAINST",   38},
+  {"ANIMATIONTRANSPARENCY", 39},
+  {"DESTROYONHIT",          40},
+  {"BASEEXPERIENCEGAIN",    41},
+  {"TARGETHITSTOPTURNS",    42},
+  {"SHOTSOUNDPRIORITY",     43},
+  {"LIGHTING",              44},
+  {"INERTIA",               45},
+  {"UNSHADED",              46},
+  {"SOFTLANDING",           47},
   {NULL,                     0},
   };
 
@@ -142,6 +148,17 @@ const struct NamedCommand magic_special_commands[] = {
   {NULL,               0},
   };
 
+
+const struct NamedCommand shotmodel_withstand_types[] = {
+  {"CREATURE",      1},
+  {"WALL",          2},
+  {"DOOR",          3},
+  {"WATER",         4},
+  {"LAVA",          5},
+  {"DIG",           6},
+  {NULL,            0},
+};
+
 const struct NamedCommand shotmodel_properties_commands[] = {
   {"SLAPPABLE",            1},
   {"NAVIGABLE",            2},
@@ -155,19 +172,17 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"STRENGTH_BASED",      10},
   {"ALARMS_UNITS",        11},
   {"CAN_COLLIDE",         12},
-  {"WITHSTAND_DOOR_HIT",  13},
-  {"WITHSTAND_WALL_HIT",  14},
-  {"WITHSTAND_LAVA_HIT",  15},
-  {"WITHSTAND_WATER_HIT", 16},
-  {"NO_AIR_DAMAGE",       17},
-  {"WIND_IMMUNE",         18},
-  {"FIXED_DAMAGE",        19},
-  {"HIDDEN_PROJECTILE",   20},
-  {"DISARMING",           21},
+  {"EXPLODE_FLESH",       13},
+  {"NO_AIR_DAMAGE",       14},
+  {"WIND_IMMUNE",         15},
+  {"FIXED_DAMAGE",        16},
+  {"HIDDEN_PROJECTILE",   17},
+  {"DISARMING",           18},
+  {"BLOCKS_REBIRTH",      19},
   {NULL,                   0},
   };
 
-const struct NamedCommand powermodel_castability_commands[] = {
+const struct LongNamedCommand powermodel_castability_commands[] = {
   {"CUSTODY_CRTRS",    PwCast_CustodyCrtrs},
   {"OWNED_CRTRS",      PwCast_OwnedCrtrs},
   {"ALLIED_CRTRS",     PwCast_AlliedCrtrs},
@@ -196,6 +211,8 @@ const struct NamedCommand powermodel_castability_commands[] = {
   {"UNREVEALED",       PwCast_Unrevealed},
   {"REVEALED_TEMP",    PwCast_RevealedTemp},
   {"THING_OR_MAP",     PwCast_ThingOrMap},
+  {"ONLY_DIGGERS",     PwCast_DiggersOnly},
+  {"NO_DIGGERS",       PwCast_DiggersNot},
   {"ANYWHERE",         PwCast_Anywhere},
   {"ALL_CRTRS",        PwCast_AllCrtrs},
   {"ALL_FOOD",         PwCast_AllFood},
@@ -255,25 +272,25 @@ struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 }
 #endif
 /******************************************************************************/
-struct SpellInfo *get_magic_info(int mgc_idx)
+struct SpellConfig *get_spell_config(int mgc_idx)
 {
   if ((mgc_idx < 0) || (mgc_idx >= MAGIC_TYPES_COUNT))
-    return &spell_info[0];
-  return &spell_info[mgc_idx];
+    return &magic_conf.spell_config[0];
+  return &magic_conf.spell_config[mgc_idx];
 }
 
-TbBool magic_info_is_invalid(const struct SpellInfo *mgcinfo)
+TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
 {
-  if (mgcinfo <= &spell_info[0])
+  if (mgcinfo <= &magic_conf.spell_config[0])
     return true;
   return false;
 }
 
 struct SpellData *get_power_data(int pwkind)
 {
-  if ((pwkind > 0) && (pwkind < POWER_TYPES_COUNT))
+  if ((pwkind > 0) && (pwkind < magic_conf.power_types_count))
     return &spell_data[pwkind];
-  if ((pwkind < -1) || (pwkind >= POWER_TYPES_COUNT))
+  if ((pwkind < -1) || (pwkind >= magic_conf.power_types_count))
     ERRORLOG("Request of invalid power (no %d) intercepted",pwkind);
   return &spell_data[0];
 }
@@ -340,7 +357,7 @@ TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst)
 
 struct MagicStats *get_power_dynamic_stats(PowerKind pwkind)
 {
-    if (pwkind >= POWER_TYPES_COUNT)
+    if (pwkind >= magic_conf.power_types_count)
         return &game.keeper_power_stats[0];
     return &game.keeper_power_stats[pwkind];
 }
@@ -484,44 +501,43 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
 TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
   struct SpellConfigStats *spellst;
-  struct SpellConfig *splconf;
-  struct SpellInfo *spinfo;
+  struct SpellConfig *spconf;
   int i;
   // Block name and parameter word store variables
   // Initialize the array
-  int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      arr_size = sizeof(magic_conf.spell_cfgstats)/sizeof(magic_conf.spell_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
-      {
-          spellst = get_spell_model_stats(i);
-          LbMemorySet(spellst->code_name, 0, COMMAND_WORD_LEN);
-          if (i < magic_conf.spell_types_count)
-          {
-            spell_desc[i].name = spellst->code_name;
-            spell_desc[i].num = i;
-          } else
-          {
-            spell_desc[i].name = NULL;
-            spell_desc[i].num = 0;
-          }
-      }
-      arr_size = magic_conf.spell_types_count;
-      for (i=0; i < arr_size; i++)
-      {
-          splconf = &game.spells_config[i];
-          splconf->duration = 0;
-          spinfo = get_magic_info(i);
-          spinfo->caster_affected = 0;
-          spinfo->caster_affect_sound = 0;
-          spinfo->cast_at_thing = 0;
-          spinfo->shot_model = 0;
-          spinfo->cast_effect_model = 0;
-          spinfo->bigsym_sprite_idx = 0;
-          spinfo->medsym_sprite_idx = 0;
-      }
-  }
+  int arr_size = sizeof(magic_conf.spell_cfgstats) / sizeof(magic_conf.spell_cfgstats[0]);
+    for (i=0; i < arr_size; i++)
+    {
+        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(magic_conf.spell_cfgstats[i].code_name) <= 0))
+        {
+            spellst = get_spell_model_stats(i);
+            LbMemorySet(&magic_conf.spell_cfgstats[i].code_name, 0, COMMAND_WORD_LEN);
+            if (i < magic_conf.spell_types_count)
+            {
+                spell_desc[i].name = magic_conf.spell_cfgstats[i].code_name;
+                spell_desc[i].num = i;
+            }
+            else
+            {
+                spell_desc[i].name = NULL;
+                spell_desc[i].num = 0;
+            }
+
+            spconf = get_spell_config(i);
+            spconf->linked_power = 0;
+            spconf->duration = 0;
+            spconf->caster_affected = 0;
+            spconf->caster_affect_sound = 0;
+            spconf->cast_at_thing = 0;
+            spconf->shot_model = 0;
+            spconf->cast_effect_model = 0;
+            spconf->bigsym_sprite_idx = 0;
+            spconf->medsym_sprite_idx = 0;
+            spconf->aura_effect = 0;
+            spconf->spell_flags = 0;
+        }
+    }
+    
   // Load the file
   arr_size = magic_conf.spell_types_count;
   for (i=0; i < arr_size; i++)
@@ -539,8 +555,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           }
           continue;
     }
-    splconf = &game.spells_config[i];
-    spinfo = get_magic_info(i);
+    spconf = get_spell_config(i);
     spellst = get_spell_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_spell_commands,cmd_num)
     while (pos<len)
@@ -566,13 +581,18 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
               break;
           }
+          if (spell_desc[i].name == NULL)
+          {
+              spell_desc[i].name = spellst->code_name;
+              spell_desc[i].num = i;
+          }
           n++;
           break;
       case 2: // DURATION
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              splconf->duration = k;
+              spconf->duration = k;
               n++;
           }
           if (n < 1)
@@ -585,13 +605,13 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              spinfo->caster_affected = k;
+              spconf->caster_affected = k;
               n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              spinfo->caster_affect_sound = k;
+              spconf->caster_affect_sound = k;
               n++;
           }
           if (n < 2)
@@ -604,7 +624,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              spinfo->cast_at_thing = k;
+              spconf->cast_at_thing = k;
               n++;
           }
           if (n < 1)
@@ -618,7 +638,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           {
               k = get_id(shot_desc, word_buf);
               if (k >= 0) {
-                  spinfo->shot_model = k;
+                  spconf->shot_model = k;
                   n++;
               }
           }
@@ -633,8 +653,17 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = get_id(effect_desc, word_buf);
-              if (k >= 0) {
-                  spinfo->cast_effect_model = k;
+              if (k < 0)
+              {
+                  if (parameter_is_number(word_buf))
+                  {
+                      k = atoi(word_buf);
+                      spconf->cast_effect_model = k;
+                      n++;
+                  }
+              } else
+              {
+                  spconf->cast_effect_model = k;
                   n++;
               }
           }
@@ -648,21 +677,21 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
       case 7: // SYMBOLSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              spinfo->bigsym_sprite_idx = bad_icon_id;
+              spconf->bigsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
-                  spinfo->bigsym_sprite_idx = k;
+                  spconf->bigsym_sprite_idx = k;
                   n++;
               }
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              spinfo->medsym_sprite_idx = bad_icon_id;
+              spconf->medsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
               if (k >= 0)
               {
-                  spinfo->medsym_sprite_idx = k;
+                  spconf->medsym_sprite_idx = k;
                   n++;
               }
           }
@@ -670,6 +699,70 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 8: // SPELLPOWER
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+              }
+              else
+              {
+                  k = get_id(power_desc, word_buf);
+              }
+              if (k >= 0)
+              {
+                  spconf->linked_power = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 9: // AURAEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              if (parameter_is_number(word_buf))
+              {
+                  k = atoi(word_buf);
+                  spconf->aura_effect = k;
+                  n++;
+              }
+              else
+              {
+                  k = get_id(effect_desc, word_buf);
+                  if (k >= 0)
+                  {
+                      spconf->aura_effect = k;
+                      n++;
+                  }
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 10: // SPELLFLAGS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  spconf->spell_flags = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment
@@ -694,60 +787,57 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
   int i;
   // Block name and parameter word store variables
   // Initialize the array
-  int arr_size;
-  {
-      arr_size = sizeof(magic_conf.shot_cfgstats) / sizeof(magic_conf.shot_cfgstats[0]);
-      for (i = 0; i < arr_size; i++)
-      {
-          shotst = get_shot_model_stats(i);
-          if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(shotst->code_name) <= 0))
-          {
-              LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
-              shotst->model_flags = 0;
-              if (i < magic_conf.shot_types_count)
-              {
-                  shot_desc[i].name = shotst->code_name;
-                  shot_desc[i].num = i;
-              }
-              else
-              {
-                  shot_desc[i].name = NULL;
-                  shot_desc[i].num = 0;
-              }
-              shotst->area_hit_type = THit_CrtrsOnly;
-              shotst->area_range = 0;
-              shotst->area_damage = 0;
-              shotst->area_blow = 0;
-              shotst->bounce_angle = 0;
-              shotst->damage = 0;
-              shotst->fall_acceleration = 0;
-              shotst->hidden_projectile = 0;
-              shotst->hit_door.withstand = 0;
-              shotst->hit_generic.withstand = 0;
-              shotst->hit_lava.withstand = 0;
-              shotst->hit_water.withstand = 0;
-              shotst->no_air_damage = 0;
-              shotst->push_on_hit = 0;
-              shotst->max_range = 0;
-              shotst->size_xy = 0;
-              shotst->size_yz = 0;
-              shotst->speed = 0;
-              shotst->destroy_on_first_hit = 0;
-              shotst->experience_given_to_shooter = 0;
-              shotst->wind_immune = 0;
-              shotst->animation_transparency = 0;
-              shotst->fixed_damage = 0;
-              shotst->sound_priority = 0;
-              shotst->light_radius = 0;
-              shotst->light_intensity = 0;
-              shotst->lightf_53 = 0;
-              shotst->inertia_air = 0;
-              shotst->inertia_floor = 0;
-              shotst->target_hitstop_turns = 0;
-              shotst->soft_landing = 0;
-          }
-      }
-  }
+  int arr_size = sizeof(magic_conf.shot_cfgstats) / sizeof(magic_conf.shot_cfgstats[0]);
+    for (i = 0; i < arr_size; i++)
+    {
+        shotst = get_shot_model_stats(i);
+        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(shotst->code_name) <= 0))
+        {
+            LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
+            shotst->model_flags = 0;
+            if (i < magic_conf.shot_types_count)
+            {
+                shot_desc[i].name = shotst->code_name;
+                shot_desc[i].num = i;
+            }
+            else
+            {
+                shot_desc[i].name = NULL;
+                shot_desc[i].num = 0;
+            }
+            shotst->area_hit_type = THit_CrtrsOnly;
+            shotst->area_range = 0;
+            shotst->area_damage = 0;
+            shotst->area_blow = 0;
+            shotst->bounce_angle = 0;
+            shotst->damage = 0;
+            shotst->fall_acceleration = 0;
+            shotst->hidden_projectile = 0;
+            shotst->hit_door.withstand = 0;
+            shotst->hit_generic.withstand = 0;
+            shotst->hit_lava.withstand = 0;
+            shotst->hit_water.withstand = 0;
+            shotst->no_air_damage = 0;
+            shotst->push_on_hit = 0;
+            shotst->max_range = 0;
+            shotst->size_xy = 0;
+            shotst->size_yz = 0;
+            shotst->speed = 0;
+            shotst->destroy_on_first_hit = 0;
+            shotst->experience_given_to_shooter = 0;
+            shotst->wind_immune = 0;
+            shotst->animation_transparency = 0;
+            shotst->fixed_damage = 0;
+            shotst->sound_priority = 0;
+            shotst->light_radius = 0;
+            shotst->light_intensity = 0;
+            shotst->lightf_53 = 0;
+            shotst->inertia_air = 0;
+            shotst->inertia_floor = 0;
+            shotst->target_hitstop_turns = 0;
+            shotst->soft_landing = 0;
+        }
+    }
   // Load the file
   arr_size = magic_conf.shot_types_count;
   for (i=0; i < arr_size; i++)
@@ -764,8 +854,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
               return false;
           }
           continue;
-    }
-    shotst = get_shot_model_stats(i);
+      }
+      shotst = get_shot_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(magic_shot_commands,cmd_num)
     while (pos<len)
     {
@@ -892,10 +982,6 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           break;
       case 8: // PROPERTIES
           shotst->model_flags = 0;
-          shotst->hit_door.withstand = 0;
-          shotst->hit_generic.withstand = 0;
-          shotst->hit_lava.withstand = 0;
-          shotst->hit_water.withstand = 0;
           shotst->no_air_damage = 0;
           shotst->wind_immune = 0;
           shotst->hidden_projectile = 0;
@@ -952,40 +1038,32 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_CanCollide;
                 n++;
                 break;
-            case 13: // WITHSTAND_DOOR_HIT
-                shotst->hit_door.withstand = 1; //todo flag
+            case 13: // EXPLODE_FLESH
+                shotst->model_flags |= ShMF_Exploding;
                 n++;
                 break;
-            case 14: // WITHSTAND_WALL_HIT
-                shotst->hit_generic.withstand = 1; //todo flag
-                n++;
-                break;
-            case 15: // WITHSTAND_LAVA_HIT
-                shotst->hit_lava.withstand = 1; //todo flag
-                n++;
-                break;
-            case 16: // WITHSTAND_WATER_HIT
-                shotst->hit_water.withstand = 1; //todo flag
-                n++;
-                break;
-            case 17: // NO_AIR_DAMAGE
+            case 14: // NO_AIR_DAMAGE
                 shotst->no_air_damage = 1;
                 n++;
                 break;
-            case 18: // WIND_IMMUNE
+            case 15: // WIND_IMMUNE
                 shotst->wind_immune = 1;
                 n++;
                 break;
-            case 19: // FIXED_DAMAGE
+            case 16: // FIXED_DAMAGE
                 shotst->fixed_damage = 1;
                 n++;
                 break;
-            case 20: // HIDDEN_PROJECTILE
+            case 17: // HIDDEN_PROJECTILE
                 shotst->hidden_projectile = 1;
                 n++;
                 break;
-            case 21: // DISARMING
+            case 18: // DISARMING
                 shotst->model_flags |= ShMF_Disarming;
+                n++;
+                break;
+            case 19: // BlocksRebirth
+                shotst->model_flags |= ShMF_BlocksRebirth;
                 n++;
                 break;
             default:
@@ -1062,7 +1140,8 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 14: //ANIMATION
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              struct Objects obj_tmp;
+              k = get_anim_id(word_buf, &obj_tmp);
               shotst->sprite_anim_idx = k;
               n++;
           }
@@ -1149,12 +1228,12 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
-          break;
-      case 21: //HITWALLSOUND
+          break; 
+      case 21: //VISUALEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->hit_generic.sndsample_idx = k;
+              shotst->visual.effect_model = k;
               n++;
           }
           if (n < 1)
@@ -1163,11 +1242,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 22: //HITWALLSOUNDVARIANTS
+      case 22: //VISUALEFFECTAMOUNT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->hit_generic.sndsample_range = k;
+              shotst->visual.amount = k;
               n++;
           }
           if (n < 1)
@@ -1176,7 +1255,33 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 23: //HITWALLEFFECT
+      case 23: //VISUALEFFECTSPREAD
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->visual.random_range = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 24: //VISUALEFFECTHEALTH
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->visual.shot_health = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 25: //HITWALLEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1189,11 +1294,30 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 24: //HITDOORSOUND
+      case 26: //HITWALLSOUND
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->hit_door.sndsample_idx = k;
+              shotst->hit_generic.sndsample_idx = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_generic.sndsample_range = k;
+              n++;
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 27: //HITCREATUREEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_creature.effect_model = k;
               n++;
           }
           if (n < 1)
@@ -1202,20 +1326,26 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 25: //HITDOORSOUNDVARIANTS
+      case 28: //HITCREATURESOUND
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->hit_door.sndsample_range = k;
+              shotst->hit_creature.sndsample_idx = k;
               n++;
           }
-          if (n < 1)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_creature.sndsample_range = k;
+              n++;
+          }
+          if (n < 2)
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 26: //HITDOOREFFECT
+      case 29: //HITDOOREFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1228,33 +1358,26 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 27: //HITWATERSOUND
+      case 30: //HITDOORSOUND
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->hit_water.sndsample_idx = k;
+              shotst->hit_door.sndsample_idx = k;
               n++;
           }
-          if (n < 1)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_door.sndsample_range = k;
+              n++;
+          }
+          if (n < 2)
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 28: //HITWATERSOUNDVARIANTS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_water.sndsample_range = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 29: //HITWATEREFFECT
+      case 31: //HITWATEREFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1267,33 +1390,26 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 30: //HITLAVASOUND
+      case 32: //HITWATERSOUND
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->hit_lava.sndsample_idx = k;
+              shotst->hit_water.sndsample_idx = k;
               n++;
           }
-          if (n < 1)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_water.sndsample_range = k;
+              n++;
+          }
+          if (n < 2)
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 31: //HITLAVASOUNDVARIANTS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->hit_lava.sndsample_range = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 32: //HITLAVAEFFECT
+      case 33: //HITLAVAEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1306,59 +1422,26 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 33: //HITCREATURESOUND
+      case 34: //HITLAVASOUND
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->hit_creature.sndsample_idx = k;
+              shotst->hit_lava.sndsample_idx = k;
               n++;
           }
-          if (n < 1)
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->hit_lava.sndsample_range = k;
+              n++;
+          }
+          if (n < 2)
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 34: //ANIMATIONTRANSPARENCY
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->animation_transparency = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 35: //DIGSOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->dig.sndsample_idx = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 36: //DIGSOUNDVARIANTS
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              shotst->dig.sndsample_range = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 37: //DIGEFFECT
+      case 35: //DIGHITEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1371,7 +1454,106 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 38: //DESTROYONHIT
+      case 36: //DIGHITSOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.sndsample_idx = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->dig.sndsample_range = k;
+              n++;
+          }
+          if (n < 2)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 37: // EXPLOSIONEFFECTS
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->explode.effect1_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->explode.effect2_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->explode.around_effect1_model = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->explode.around_effect2_model = k;
+              n++;
+          }
+          if (n < 4)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 38: //WITHSTANDHITAGAINST
+          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(shotmodel_withstand_types, word_buf);
+              switch (k)
+              {
+              case 1: // CREATURE
+                  shotst->hit_creature.withstand = 1;
+                  n++;
+                  break;
+              case 2: // WALL
+                  shotst->hit_generic.withstand = 1;
+                  n++;
+                  break;
+              case 3: // DOOR
+                  shotst->hit_door.withstand = 1;
+                  n++;
+                  break;
+              case 4: // WATER
+                  shotst->hit_water.withstand = 1;
+                  n++;
+                  break;
+              case 5: // LAVA
+                  shotst->hit_lava.withstand = 1;
+                  n++;
+                  break;
+              case 6: // DIG
+                  shotst->dig.withstand = 1;
+                  n++;
+                  break;
+              default:
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), word_buf, block_buf, config_textname);
+              }
+          }
+          break;
+      case 39: //ANIMATIONTRANSPARENCY
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->animation_transparency = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 40: //DESTROYONHIT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1384,7 +1566,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 39: //BASEEXPERIENCEGAIN
+      case 41: //BASEEXPERIENCEGAIN
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1397,7 +1579,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 40: //TARGETHITSTOPTURNS
+      case 42: //TARGETHITSTOPTURNS
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1410,7 +1592,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 41: //SHOTSOUNDPRIORITY
+      case 43: //SHOTSOUNDPRIORITY
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1423,7 +1605,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 42: // LIGHTING
+      case 44: // LIGHTING
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1448,7 +1630,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 43: // INERTIA
+      case 45: // INERTIA
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1467,7 +1649,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 44: //UNSHADED
+      case 46: //UNSHADED
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1480,7 +1662,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 45: //SOFTLANDING
+      case 47: //SOFTLANDING
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
@@ -1517,29 +1699,29 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   // Block name and parameter word store variables
   // Initialize the array
   int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
+  arr_size = sizeof(magic_conf.power_cfgstats) / sizeof(magic_conf.power_cfgstats[0]);
+  for (i = 0; i < arr_size; i++)
   {
-      arr_size = sizeof(magic_conf.power_cfgstats)/sizeof(magic_conf.power_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
+      if ((flags & CnfLd_AcceptPartial) == 0)
       {
-          powerst = get_power_model_stats(i);
-          LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
-          powerst->artifact_model = 0;
-          powerst->can_cast_flags = 0;
-          powerst->config_flags = 0;
-          powerst->overcharge_check = NULL;
-          powerst->work_state = 0;
-          powerst->bigsym_sprite_idx = 0;
-          powerst->medsym_sprite_idx = 0;
-          powerst->name_stridx = 0;
-          powerst->tooltip_stridx = 0;
-          powerst->select_sample_idx = 0;
-          powerst->pointer_sprite_idx = 0;
-          powerst->panel_tab_idx = 0;
-          powerst->select_sound_idx = 0;
-          powerst->cast_cooldown = 0;
-          if (i < magic_conf.power_types_count)
+          if ((i < magic_conf.power_types_count) || (strlen(power_desc[i].name) <= 0))
           {
+              powerst = get_power_model_stats(i);
+              LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
+              powerst->artifact_model = 0;
+              powerst->can_cast_flags = 0;
+              powerst->config_flags = 0;
+              powerst->overcharge_check = NULL;
+              powerst->work_state = 0;
+              powerst->bigsym_sprite_idx = 0;
+              powerst->medsym_sprite_idx = 0;
+              powerst->name_stridx = 0;
+              powerst->tooltip_stridx = 0;
+              powerst->select_sample_idx = 0;
+              powerst->pointer_sprite_idx = 0;
+              powerst->panel_tab_idx = 0;
+              powerst->select_sound_idx = 0;
+              powerst->cast_cooldown = 0;
               power_desc[i].name = powerst->code_name;
               power_desc[i].num = i;
           } else
@@ -1549,8 +1731,12 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
       }
       arr_size = sizeof(gameadd.object_conf.object_to_power_artifact)/sizeof(gameadd.object_conf.object_to_power_artifact[0]);
-      for (i=0; i < arr_size; i++) {
-          gameadd.object_conf.object_to_power_artifact[i] = 0;
+      for (i = 0; i < arr_size; i++)
+      {
+          if ((flags & CnfLd_AcceptPartial) == 0)
+          {
+              gameadd.object_conf.object_to_power_artifact[i] = 0;
+          }
       }
   }
   arr_size = magic_conf.power_types_count;
@@ -1560,7 +1746,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       char block_buf[COMMAND_WORD_LEN];
       sprintf(block_buf, "power%d", i);
       long pos = 0;
-      int k = find_conf_block(buf, &pos, len, block_buf);
+      long long k = find_conf_block(buf, &pos, len, block_buf);
       if (k < 0)
       {
           if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1596,6 +1782,8 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num),block_buf,config_textname);
               break;
           }
+          power_desc[i].name = powerst->code_name;
+          power_desc[i].num = i;
           break;
       case 2: // POWER
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1652,7 +1840,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           powerst->can_cast_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = get_id(powermodel_castability_commands, word_buf);
+              k = get_long_id(powermodel_castability_commands, word_buf);
               if ((k != 0) && (k != -1))
               {
                   powerst->can_cast_flags |= k;
@@ -2194,7 +2382,7 @@ int power_model_id(const char * code_name)
  */
 TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
-    if (pwkind >= KEEPER_POWERS_COUNT)
+    if (pwkind >= magic_conf.power_types_count)
     {
         ERRORLOG("Can't add incorrect power %d to player %d",(int)pwkind, (int)plyr_idx);
         return false;
@@ -2272,7 +2460,7 @@ TbBool make_all_powers_cost_free(void)
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    for (long i = 0; i < KEEPER_POWERS_COUNT; i++)
+    for (long i = 0; i < magic_conf.power_types_count; i++)
     {
         dungeon->magic_resrchable[i] = 1;
     }
@@ -2330,7 +2518,7 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if (pwkind >= KEEPER_POWERS_COUNT)
+    if (pwkind >= magic_conf.power_types_count)
     {
         ERRORLOG("Incorrect power %ld (player %ld)", pwkind, plyr_idx);
         return false;
@@ -2361,7 +2549,7 @@ TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind)
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if (pwkind >= KEEPER_POWERS_COUNT) {
+    if (pwkind >= magic_conf.power_types_count) {
         ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
         return false;
     }
@@ -2380,7 +2568,7 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
       ERRORDBG(11,"Cannot make research available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
-  for (long i = 0; i < KEEPER_POWERS_COUNT; i++)
+  for (long i = 0; i < magic_conf.power_types_count; i++)
   {
     if (dungeon->magic_resrchable[i])
     {

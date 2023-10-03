@@ -116,17 +116,17 @@ extern "C" {
 #define NOMSG(format, ...)
 
 // Debug function-like macros - for code logging (with function name)
-#define ERRORLOG(format, ...) LbErrorLog("%s: " format "\n", __func__ , ##__VA_ARGS__)
-#define WARNLOG(format, ...) LbWarnLog("%s: " format "\n", __func__ , ##__VA_ARGS__)
-#define SYNCLOG(format, ...) LbSyncLog("%s: " format "\n", __func__ , ##__VA_ARGS__)
-#define JUSTLOG(format, ...) LbJustLog("%s: " format "\n", __func__ , ##__VA_ARGS__)
+#define ERRORLOG(format, ...) LbErrorLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define WARNLOG(format, ...) LbWarnLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define SYNCLOG(format, ...) LbSyncLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define JUSTLOG(format, ...) LbJustLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define SCRPTLOG(format, ...) LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
 #define SCRPTERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define SCRPTWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define CONFLOG(format, ...) LbConfigLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
 #define CONFERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
 #define CONFWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define NETLOG(format, ...) LbNetLog("%s: " format "\n", __func__ , ##__VA_ARGS__)
+#define NETLOG(format, ...) LbNetLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define NOLOG(format, ...)
 
 // Debug function-like macros - for debug code logging
@@ -312,7 +312,6 @@ struct Coord2d {
     } y;
 };
 
-
 struct Coord3d {
     union {
       long val;
@@ -339,24 +338,24 @@ struct Coord3d {
 
 struct CoordDelta3d {
     union {
-      short val;
+      long val;
       struct {
         unsigned char pos;
-        char num;
+        short num;
         } stl;
     } x;
     union {
-      short val;
+      long val;
       struct {
         unsigned char pos;
-        char num;
+        short num;
         } stl;
     } y;
     union {
-      short val;
+      long val;
       struct {
         unsigned char pos;
-        char num;
+        short num;
         } stl;
     } z;
 };
@@ -407,6 +406,7 @@ struct IRECT_2D {
     int b;
 };
 
+extern GameTurn get_gameturn();
 #ifdef __cplusplus
 }
 #endif

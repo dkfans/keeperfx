@@ -36,7 +36,7 @@ extern "C" {
 
 #define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384
-#define KEEPERSPRITE_ADD_NUM 2048
+#define KEEPERSPRITE_ADD_NUM 8192
 
 struct EngineCoord { // sizeof = 28
   long view_width; // X screen position, probably not a width
@@ -60,13 +60,11 @@ struct M33 { // sizeof = 48
 struct MapVolumeBox { // sizeof = 24
   unsigned char visible;
   unsigned char color;
-  unsigned char field_2;
   long beg_x;
   long beg_y;
   long end_x;
   long end_y;
   long floor_height_z;
-  unsigned char field_17;
 };
 
 /******************************************************************************/

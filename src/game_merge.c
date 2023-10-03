@@ -96,9 +96,9 @@ LevelNumber get_selected_level_number(void)
  */
 LevelNumber set_selected_level_number(LevelNumber lvnum)
 {
-  if (lvnum >= 0)
-    game.selected_level_number = lvnum;
-  return game.selected_level_number;
+    if (lvnum >= 0)
+        game.selected_level_number = lvnum;
+    return game.selected_level_number;
 }
 
 /**
@@ -214,14 +214,6 @@ void update_extra_levels_visibility(void)
 {
 }
 
-struct ThingAdd *get_thingadd(Thingid thing_idx)
-{
-    return &gameadd.things[thing_idx];
-}
-struct LightAdd *get_lightadd(unsigned short light_idx)
-{
-    return &gameadd.lights[light_idx];
-}
 /******************************************************************************/
 #ifdef __cplusplus
 }

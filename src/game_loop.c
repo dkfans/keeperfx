@@ -83,6 +83,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     long plyr_idx = heartng->owner;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Thing* soultng = thing_get(dungeonadd->free_soul_idx);
 
     if (dungeon->heart_destroy_state == 0)
     {
@@ -102,7 +103,49 @@ void process_dungeon_destroy(struct Thing* heartng)
     {
     case 1:
         if (no_backup)
-        initialise_devastate_dungeon_from_heart(plyr_idx);
+        {
+            initialise_devastate_dungeon_from_heart(plyr_idx);
+        }
+        else
+        {
+            if ((dungeon->heart_destroy_turn == 10) && (dungeonadd->free_soul_idx == 0))
+            {
+                soultng = create_creature(&dungeon->mappos, get_players_spectator_model(plyr_idx), plyr_idx);
+                if (!thing_is_invalid(soultng))
+                {
+                    dungeon->num_active_creatrs--;
+                    dungeon->owned_creatures_of_model[soultng->model]--;
+                    dungeonadd->free_soul_idx = soultng->index;
+                    short xplevel = 0;
+                    if (dungeon->lvstats.player_score > 1000)
+                    {
+                        xplevel = min(((dungeon->lvstats.player_score - 1000) / 10), (CREATURE_MAX_LEVEL - 1));
+                    }
+                    set_creature_level(soultng, xplevel);
+                    initialise_thing_state(soultng, CrSt_CreatureWantsAHome);
+                }
+            }
+            else if (dungeon->heart_destroy_turn == 20)
+            {
+                apply_spell_effect_to_thing(soultng, SplK_Invisibility, 1);
+            }
+            else if (dungeon->heart_destroy_turn == 25)
+            {
+                struct Thing* bheartng = thing_get(dungeonadd->backup_heart_idx);
+                soultng->mappos = bheartng->mappos;
+                soultng->mappos.z.val = get_ceiling_height_at(&bheartng->mappos);
+            }
+            else if (dungeon->heart_destroy_turn == 28)
+            {
+                terminate_thing_spell_effect(soultng, SplK_Invisibility);
+            }
+            else if (dungeon->heart_destroy_turn == 30)
+            {
+                dungeonadd->free_soul_idx = 0; 
+                delete_thing_structure(soultng, 0);
+            }
+        }
+
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {

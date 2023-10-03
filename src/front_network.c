@@ -173,7 +173,7 @@ void frontnet_service_update(void)
     }
 }
 
-void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+void enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
     if (net_number_of_enum_players >= 4)
     {
@@ -184,19 +184,14 @@ void __stdcall enum_players_callback(struct TbNetworkCallbackData *netcdat, void
     net_number_of_enum_players++;
 }
 
-void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
+void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
 {
     if (net_number_of_sessions >= 32)
     {
         ERRORLOG("Too many sessions in enumeration");
         return;
     }
-    if (net_service_index_selected == 0)
-    {
-        net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-        net_number_of_sessions++;
-    } else
-    if (net_service_index_selected != 1)
+    if (net_service_index_selected >= 0)
     {
         net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
         net_number_of_sessions++;
@@ -210,29 +205,14 @@ void __stdcall enum_sessions_callback(struct TbNetworkCallbackData *netcdat, voi
 }
 
 // TODO: remove all this weird stuff
-static void __stdcall enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
+static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
     if (net_number_of_services >= NET_SERVICES_COUNT)
     {
       ERRORLOG("Too many services in enumeration");
       return;
     }
-    if (strcasecmp("SERIAL", netcdat->svc_name) == 0)
-    {
-      LbStringCopy(net_service[net_number_of_services], get_string(GUIStr_NetSerial), NET_MESSAGE_LEN);
-      net_number_of_services++;
-    } else
-    if (strcasecmp("MODEM", netcdat->svc_name) == 0)
-    {
-        LbStringCopy(net_service[net_number_of_services], get_string(GUIStr_NetModem), NET_MESSAGE_LEN);
-        net_number_of_services++;
-    } else
-    if (strcasecmp("IPX", netcdat->svc_name) == 0)
-    {
-        LbStringCopy(net_service[net_number_of_services], get_string(GUIStr_NetIpx), NET_MESSAGE_LEN);
-        net_number_of_services++;
-    }
-    else if (strcasecmp("TCP", netcdat->svc_name) == 0)
+    if (strcasecmp("TCP", netcdat->svc_name) == 0)
     {
         LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
@@ -447,8 +427,6 @@ void frontnet_session_setup(void)
 void frontnet_start_setup(void)
 {
     frontend_alliances = -1;
-    net_current_message_index = 0;
-    net_current_message[0] = 0;
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;
     net_message_scroll_offset = 0;

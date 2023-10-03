@@ -42,7 +42,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define MESSAGE_TEXT_LEN           1024
-#define QUICK_MESSAGES_COUNT         50
+#define QUICK_MESSAGES_COUNT        256
 #define BONUS_LEVEL_STORAGE_COUNT     6
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
@@ -95,20 +95,22 @@ enum GameGUIFlags {
 };
 
 enum ClassicBugFlags {
-    ClscBug_None                   = 0x0000,
-    ClscBug_ResurrectForever       = 0x0001,
-    ClscBug_Overflow8bitVal        = 0x0002,
-    ClscBug_ClaimRoomAllThings     = 0x0004,
-    ClscBug_ResurrectRemoved       = 0x0008,
-    ClscBug_NoHandPurgeOnDefeat    = 0x0010,
-    ClscBug_MustObeyKeepsNotDoJobs = 0x0020,
-    ClscBug_BreakNeutralWalls      = 0x0040,
-    ClscBug_AlwaysTunnelToRed      = 0x0080,
-    ClscBug_FullyHappyWithGold     = 0x0100,
-    ClscBug_FaintedImmuneToBoulder = 0x0200,
-    ClscBug_RebirthKeepsSpells     = 0x0400,
-    ClscBug_FriendlyFaint          = 0x0800,
-    ClscBug_PassiveNeutrals        = 0x1000,
+    ClscBug_None                          = 0x0000,
+    ClscBug_ResurrectForever              = 0x0001,
+    ClscBug_Overflow8bitVal               = 0x0002,
+    ClscBug_ClaimRoomAllThings            = 0x0004,
+    ClscBug_ResurrectRemoved              = 0x0008,
+    ClscBug_NoHandPurgeOnDefeat           = 0x0010,
+    ClscBug_MustObeyKeepsNotDoJobs        = 0x0020,
+    ClscBug_BreakNeutralWalls             = 0x0040,
+    ClscBug_AlwaysTunnelToRed             = 0x0080,
+    ClscBug_FullyHappyWithGold            = 0x0100,
+    ClscBug_FaintedImmuneToBoulder        = 0x0200,
+    ClscBug_RebirthKeepsSpells            = 0x0400,
+    ClscBug_FriendlyFaint                 = 0x0800,
+    ClscBug_PassiveNeutrals               = 0x1000,
+    ClscBug_NeutralTortureConverts        = 0x2000,
+    ClscBug_ListEnd                       = 0x4000,
 };
 
 enum GameFlags2 {
@@ -206,9 +208,6 @@ struct GameAdd {
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
 
-    struct ThingAdd things[THINGS_COUNT];
-    struct LightAdd lights[LIGHTS_COUNT];
-
     struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
     struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
@@ -246,6 +245,7 @@ struct GameAdd {
     short around_slab[AROUND_SLAB_LENGTH];
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
+    unsigned char max_things_in_hand;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
@@ -270,9 +270,6 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum);
 void update_extra_levels_visibility(void);
 TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *player, unsigned long sp_lvnum, short visible);
 /******************************************************************************/
-
-struct ThingAdd *get_thingadd(Thingid thing_idx);
-struct LightAdd *get_lightadd(unsigned short light_idx);
 
 #ifdef __cplusplus
 }
