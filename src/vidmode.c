@@ -965,6 +965,8 @@ TbScreenMode reenter_video_mode(void)
 
 TbScreenMode switch_to_next_video_mode(void)
 {
+    char percent_x = ((float)lbDisplay.MMouseX / (float)(lbDisplay.MouseWindowX + lbDisplay.MouseWindowWidth)) * 100;
+    char percent_y = ((float)lbDisplay.MMouseY / (float)(lbDisplay.MouseWindowY + lbDisplay.MouseWindowHeight)) * 100;
     TbScreenMode scrmode = get_next_vidmode(lbDisplay.ScreenMode);
     if ( setup_screen_mode(scrmode) )
     {
@@ -1008,6 +1010,7 @@ TbScreenMode switch_to_next_video_mode(void)
     {
         turn_on_menu(GMnu_VIDEO);
     }
+    LbMouseSetPosition(((lbDisplay.MouseWindowX + lbDisplay.MouseWindowWidth) / 100) * percent_x, ((lbDisplay.MouseWindowY + lbDisplay.MouseWindowHeight) / 100) * percent_y);
     return scrmode;
 }
 

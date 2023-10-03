@@ -1071,8 +1071,6 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
     long i;
     long k;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ((game.system_flags & GSF_NetworkActive) != 0)
-      return;
     for (i=0; i < gameadd.script.win_conditions_num; i++)
     {
       k = gameadd.script.win_conditions[i];

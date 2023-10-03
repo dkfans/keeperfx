@@ -1609,6 +1609,7 @@ void reinit_level_after_load(void)
     restore_room_update_functions_after_load();
     restore_computer_player_after_load();
     sound_reinit_after_load();
+    music_reinit_after_load();
 }
 
 /**
@@ -3773,6 +3774,7 @@ void game_loop(void)
       LbScreenClear(0);
       LbScreenSwap();
       StopMusicPlayer();
+      free_custom_music();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();

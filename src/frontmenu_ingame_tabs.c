@@ -1663,8 +1663,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
 
-    long spkind = inst_inf->func_params[0];
-    if (!creature_instance_has_reset(ctrltng, curbtn_inst_id) || ((spkind != 0) && thing_affected_by_spell(ctrltng, spkind)))
+    if ( (!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || ( (thing_affected_by_spell(ctrltng, SplK_Freeze)) && (!inst_inf->instant ) ) )
       spr_idx++;
     if (MyScreenHeight < 400)
     {
@@ -2294,6 +2293,7 @@ void gui_set_button_flashing(long btn_idx, long gameturns)
 
 void update_room_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, but skip "sell" button at end
     for (i=0; i < 4*4-1; i++)
@@ -2331,6 +2331,7 @@ void update_room_tab_to_config(void)
 
 void update_trap_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, but skip "sell" button at end
     for (i=0; i < 4*4-1; i++)
@@ -2384,6 +2385,7 @@ void update_trap_tab_to_config(void)
 
 void update_powers_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, no "sell" button at end
     for (i=0; i < 4*4; i++)

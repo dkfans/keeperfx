@@ -122,7 +122,7 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
         SYNCDBG(5,"No matching player %d creature of model %d (%s) found to level up",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
-    creature_increase_multiple_levels(thing,count);
+    creature_change_multiple_levels(thing,count);
     return true;
 }
 
@@ -614,20 +614,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   case Cmd_QUICK_INFORMATION:
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
           set_quick_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
-      break;
-  case Cmd_PLAY_MESSAGE:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-      {
-          switch (val2)
-          {
-          case 1:
-              output_message(val3, 0, true);
-              break;
-          case 2:
-              play_non_3d_sample(val3);
-              break;
-          }
-      }
       break;
   case Cmd_ADD_GOLD_TO_PLAYER:
       for (i=plr_start; i < plr_end; i++)
