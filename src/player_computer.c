@@ -1273,7 +1273,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     comp->turn_begin = cpt->turn_begin;
     comp->sim_before_dig = cpt->sim_before_dig;
     comp->field_C = 1;
-    comp->field_34 = cpt->field_1C;
+    comp->task_delay = cpt->drop_delay;
     comp->task_state = CTaskSt_Select;
 
     for (i=0; i < PLAYERS_COUNT; i++)

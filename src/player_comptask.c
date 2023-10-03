@@ -3484,7 +3484,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
     ctask->move_to_defend.field_70 = evflags;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
-    ctask->delay = comp->field_34;
+    ctask->delay = comp->task_delay;
     return true;
 }
 

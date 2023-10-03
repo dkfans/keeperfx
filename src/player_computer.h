@@ -526,7 +526,7 @@ struct Computer2 { // sizeof = 5322
   unsigned long model;
   unsigned long turn_begin;
   unsigned long max_room_build_tasks;
-  unsigned long field_34;
+  unsigned long task_delay;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
   union
   {

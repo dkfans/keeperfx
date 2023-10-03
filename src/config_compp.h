@@ -39,7 +39,7 @@ struct ComputerProcessTypes {
   long max_room_build_tasks;
   long turn_begin;
   long sim_before_dig;
-  long field_1C;
+  long drop_delay;
   struct ComputerProcess *processes[COMPUTER_PROCESSES_COUNT];
   struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
   struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
