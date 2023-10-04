@@ -364,6 +364,7 @@ struct SpellConfig {
     short cast_sound;
     short crtr_summon_model;
     short crtr_summon_level;
+    short crtr_summon_amount;
     short linked_power;
     short duration;
     short aura_effect;
