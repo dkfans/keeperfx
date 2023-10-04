@@ -57,6 +57,8 @@ extern "C" {
 #define COMPUTER_URGENT_BRIDGE_TIMEOUT 1200
 #define COMPUTER_TOOL_DIG_LIMIT 356
 
+#define COMPUTER_REDROP_DELAY 80
+
 enum ComputerTaskTypes {
     CTT_None = 0,
     CTT_DigRoomPassage,
