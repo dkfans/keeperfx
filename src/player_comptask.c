@@ -3612,7 +3612,7 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell
     ctask->ttype = CTT_SellTrapsAndDoors;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
-    ctask->delay = 1;
+    ctask->delay = comp->task_delay;
     ctask->sell_traps_doors.items_amount = num_to_sell;
     ctask->sell_traps_doors.gold_gain = 0;
     ctask->sell_traps_doors.gold_gain_limit = gold_up_to;
@@ -3643,7 +3643,7 @@ TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_mov
     ctask->ttype = CTT_MoveGoldToTreasury;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
-    ctask->delay = 1;
+    ctask->delay = comp->task_delay;
     ctask->move_gold.items_amount = num_to_move;
     ctask->move_gold.gold_gain = 0;
     ctask->move_gold.gold_gain_limit = gold_up_to;
