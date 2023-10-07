@@ -1896,32 +1896,51 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           break;
       case 10: // SYMBOLSPRITES
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              powerst->bigsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
-              {
-                  powerst->bigsym_sprite_idx = k;
-                  n++;
-              }
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              powerst->medsym_sprite_idx = bad_icon_id;
-              k = get_icon_id(word_buf);
-              if (k >= 0)
-              {
-                  powerst->medsym_sprite_idx = k;
-                  n++;
-              }
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
+        {
+        short bigsym_sprite_idx = bad_icon_id;
+        short medsym_sprite_idx = bad_icon_id;
+        
+        for (PlayerNumber plr_idx = 0; plr_idx < PLAYERS_COUNT; plr_idx++)
+        {
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                powerst->bigsym_sprite_idx = bad_icon_id;
+                k = get_icon_id(word_buf);
+                if (k >= 0)
+                {
+                    if(is_my_player_number(plr_idx))
+                    {
+                        powerst->bigsym_sprite_idx = k;
+                    }
+                    bigsym_sprite_idx =k;
+                    n++;
+                }
+            }
+            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                powerst->medsym_sprite_idx = bad_icon_id;
+                k = get_icon_id(word_buf);
+                if (k >= 0)
+                {
+                    if(is_my_player_number(plr_idx))
+                    {
+                        powerst->medsym_sprite_idx = k;
+                    }
+                    medsym_sprite_idx = k;
+                    n++;
+                }
+            }
+        }
+        
+
+        if (n == 2)
+        {
+            powerst->bigsym_sprite_idx = bigsym_sprite_idx;
+            powerst->medsym_sprite_idx = medsym_sprite_idx;
+            break;
+        }
+        }
+        break;
       case 11: // POINTERSPRITES
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
