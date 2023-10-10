@@ -53,6 +53,10 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb);
 short get_hug_side_options(MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short direction, PlayerNumber plyr_idx,
     MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y);
 /******************************************************************************/
+#define CREATURE_OWNER_FLAG (1 << creatng->owner) // set creature owner flag in crt_owner_bit
+#define CHECK_SLAB_OWNER (((1 << slabmap_owner(slb)) & crt_owner_bit) != 0) // return TRUE if the creature and slab are owned by the same player, unless...
+#define IGNORE_SLAB_OWNER_CHECK 0 // if crt_owner_bit == 0, CHECK_SLAB_OWNER will always return false
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

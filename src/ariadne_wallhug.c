@@ -476,7 +476,7 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
             struct SlabMap* slb = get_slabmap_block(subtile_slab(current_stl_x), subtile_slab(current_stl_y));
 
             if (((mapblk->flags & slab_flag) == 0 && slb->kind != SlbT_ROCK)
-             || ((slab_flag & mapblk->flags & SlbAtFlg_Filled) != 0 && ((1 << slabmap_owner(slb)) & crt_owner_bit) != 0))
+             || ((slab_flag & mapblk->flags & SlbAtFlg_Filled) != 0 && CHECK_SLAB_OWNER))
             {
                 continue;
             }
@@ -730,7 +730,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
     char side,
     int max_speed,
     int speed,
-    int crt_owner_bit)
+    unsigned char crt_owner_bit)
 {
 
     struct Coord3d pos;
@@ -887,7 +887,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
             v47.z.val = get_thing_height_at(creatng, &v47);
             if (creature_cannot_move_directly_to_with_collide(creatng, &v47, slab_flag, crt_owner_bit) == 4)
             {
-                v25 = get_hugging_blocked_flags(creatng, &v47, slab_flag, 0);
+                v25 = get_hugging_blocked_flags(creatng, &v47, slab_flag, IGNORE_SLAB_OWNER_CHECK);
                 hugging_blocked_flags = v25;
                 v27 = v25;
                 pos.x.val = creatng->mappos.x.val;
@@ -1248,7 +1248,7 @@ static signed char get_starting_angle_and_side_of_hug(
             pos_43.z.val = get_thing_height_at(creatng, &pos_43);
             if (creature_cannot_move_directly_to_with_collide(creatng, &pos_43, slab_flag, crt_owner_bit) == 4)
             {
-                get_starting_angle_and_side_of_hug_sub1(creatng, &pos_43, slab_flag, 0);
+                get_starting_angle_and_side_of_hug_sub1(creatng, &pos_43, slab_flag, IGNORE_SLAB_OWNER_CHECK);
                 if (creatng->mappos.x.val != pos_43.x.val || creatng->mappos.y.val != pos_43.y.val)
                 {
                     creatng->mappos = pos_43;
@@ -1487,7 +1487,7 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     return (min_dist < LONG_MAX);
 }
 
-static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char slabmap_flags)
+static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travelling_to(struct Thing *creatng, struct Coord3d *startpos, struct Coord3d *endpos, long mapblk_flags, unsigned char crt_owner_bit)
 {
     SubtlCodedCoords stl_num;
     struct Coord3d pos;
@@ -1504,7 +1504,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
 
     if (endpos->x.stl.num == creature_pos.x.stl.num || endpos->y.stl.num == creature_pos.y.stl.num)
     {
-        stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, endpos, mapblk_flags, slabmap_flags);
+        stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, endpos, mapblk_flags, crt_owner_bit);
         if (stl_num >= 0)
         {
             return_stl_num = stl_num;
@@ -1530,7 +1530,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
             pos.x.val = (int)(delta_x * abs(pos.y.val - v27_x)) / delta_y + v27_y;
 
             pos.z.val = creature_pos.z.val;
-            stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+            stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, crt_owner_bit);
             if (stl_num >= 0)
             {
                 creatng->mappos = orig_creat_pos;
@@ -1550,7 +1550,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
             
             pos.y.val = (int)(delta_y * abs(pos.x.val - v27_x) / delta_x + v27_y);
             pos.z.val = creature_pos.z.val;
-            stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+            stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, crt_owner_bit);
             if (stl_num >= 0)
             {
                 creatng->mappos = orig_creat_pos;
@@ -1560,7 +1560,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
             pos.x.val = endpos->x.val;
             pos.y = endpos->y;
             pos.z = creatng->mappos.z;
-            stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+            stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, crt_owner_bit);
             if (stl_num >= 0)
             {
                 return_stl_num = stl_num;
@@ -1568,7 +1568,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
             creatng->mappos = orig_creat_pos;
             return return_stl_num;
         }
-        stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, endpos, mapblk_flags, slabmap_flags);
+        stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, endpos, mapblk_flags, crt_owner_bit);
         if (stl_num >= 0)
         {
             return_stl_num = stl_num;
@@ -1588,7 +1588,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
     }
     pos.y.val = (int)(delta_y * abs(pos.x.val - v27_y)) / delta_x + v27_x;
     pos.z.val = creature_pos.z.val;
-    stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+    stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, crt_owner_bit);
     if (stl_num >= 0)
     {
         creatng->mappos = orig_creat_pos;
@@ -1607,7 +1607,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
     }
     pos.x.val = (int)(delta_x * abs(pos.y.val - v27_x) / delta_y + v27_y);
     pos.z.val = creature_pos.z.val;
-    stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+    stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, crt_owner_bit);
     if (stl_num >= 0)
     {
         creatng->mappos = orig_creat_pos;
@@ -1618,7 +1618,7 @@ static SubtlCodedCoords get_map_index_of_first_block_thing_colliding_with_travel
     pos = *endpos;
     pos.z.val = creatng->mappos.z.val;
 
-    stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, slabmap_flags);
+    stl_num = get_map_index_of_first_block_thing_colliding_with_at(creatng, &pos, mapblk_flags, crt_owner_bit);
     if (stl_num >= 0)
     {
         return_stl_num = stl_num;
@@ -1657,7 +1657,7 @@ static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thi
     navi->dist_to_final_pos = get_2d_box_distance(&creatng->mappos, pos);
     if (cannot_move == 1)
     {
-        SubtlCodedCoords stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, 40, 0);
+        SubtlCodedCoords stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, IGNORE_SLAB_OWNER_CHECK);
         navi->first_colliding_block = stl_num;
         MapSubtlCoord stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(stl_num)));
         MapSubtlCoord stl_y = slab_subtile_center(subtile_slab(stl_num_decode_y(stl_num)));
@@ -1679,7 +1679,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         cctrl->flgfield_2 = 0;
         cctrl->combat_flags = 0;
     }
-    crt_owner_bit |= (1 << creatng->owner);
+    crt_owner_bit |= CREATURE_OWNER_FLAG;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     SubtlCodedCoords stl_num;
@@ -1714,7 +1714,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             if (cannot_move == 4)
             {
                 struct SlabMap *slb;
-                stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, 0);
+                stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, IGNORE_SLAB_OWNER_CHECK);
                 slb = get_slabmap_for_subtile(stl_num_decode_x(stl_num), stl_num_decode_y(stl_num));
                 unsigned short ownflag;
                 ownflag = 0;
@@ -1753,7 +1753,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             }
             if (cannot_move == 1)
             {
-                stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, 0);
+                stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, IGNORE_SLAB_OWNER_CHECK);
                 navi->first_colliding_block = stl_num;
                 nav_radius = thing_nav_sizexy(creatng) / 2;
                 stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(stl_num)));
@@ -1910,7 +1910,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
             return 1;
         }
-        stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, 0);
+        stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, IGNORE_SLAB_OWNER_CHECK);
         navi->first_colliding_block = stl_num;
         nav_radius = thing_nav_sizexy(creatng) / 2;
         stl_x = slab_subtile_center(subtile_slab(stl_num_decode_x(stl_num)));
