@@ -1362,7 +1362,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             {
                 pos.x.val = pos_a->x.val;
                 pos.y.val = nav_radius + creatng->mappos.y.val - COORD_PER_STL;
-                pos.y.stl.pos = -1;
+                pos.y.stl.pos = (COORD_PER_STL-1);
                 pos.y.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
                 break;
@@ -1395,7 +1395,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             {
                 pos.y.val = pos_a->y.val;
                 pos.x.val = nav_radius + creatng->mappos.x.val - COORD_PER_STL;
-                pos.x.stl.pos = -1;
+                pos.x.stl.pos = (COORD_PER_STL-1);
                 pos.x.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
                 break;
