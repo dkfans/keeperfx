@@ -4516,7 +4516,7 @@ void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y
 
 struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    game.map_changed_for_nagivation = 1;
+    game.update_navigation = true;
     if (subtile_coords_invalid(stl_x, stl_y))
         return INVALID_ROOM;
     long slb_x = subtile_slab(stl_x);

@@ -228,7 +228,7 @@ unsigned int packet_file_pos;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     GameTurnDelta food_generation_speed;
     enum GameKinds game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
-    TbBool map_changed_for_nagivation; // something with navigation
+    TbBool update_navigation; // navigation route(s) need to be updated, if this is true
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     unsigned long default_max_crtrs_gen_entrance;
     unsigned long default_imp_dig_damage;

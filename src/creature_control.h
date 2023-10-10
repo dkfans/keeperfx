@@ -206,7 +206,7 @@ unsigned char sound_flag;
   struct {
     char target_plyr_idx;
     unsigned char player_broken_into_flags;
-    long long_8B;
+    long tunnel_count;
     unsigned char byte_8F;
     SubtlCodedCoords member_pos_stl[5];
   } party;
@@ -226,19 +226,11 @@ unsigned char sound_flag;
     MapSubtlCoord stl_y;
   } patrol;
   struct {
-    char sbyte_89;
     unsigned char hero_gate_creation_turn;
-    TbBool byte_8B;
-    TbBool byte_8C;
+    TbBool update_navigation;
     long look_for_enemy_dungeon_turn;
     long wait_time;
   } hero;
-  struct {
-    char sbyte_89_unused;
-    unsigned char unused;
-    TbBool byte_8B;
-    TbBool byte_8C;
-  } unknown;
   };
 
   union {

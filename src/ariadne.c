@@ -418,7 +418,7 @@ long init_navigation(void)
     init_navigation_map();
     triangulate_map(IanMap);
     nav_rulesA2B = navigation_rule_normal;
-    game.map_changed_for_nagivation = 1;
+    game.update_navigation = true;
     return 1;
 }
 
@@ -3338,7 +3338,7 @@ AriadneReturn ariadne_get_next_position_for_route(struct Thing *thing, struct Co
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long speed, AriadneRouteFlags flags)
 {
     SYNCDBG(18,"Starting");
-    if (game.map_changed_for_nagivation)
+    if (game.update_navigation)
     {
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);

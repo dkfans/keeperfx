@@ -45,7 +45,7 @@ enum WallHugSideState {
 /******************************************************************************/
 
 /******************************************************************************/
-long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long a3);
+long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val);
 long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *creatng, struct Coord3d *pos, unsigned char a3);
 TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside);

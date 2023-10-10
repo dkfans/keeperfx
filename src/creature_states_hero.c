@@ -71,10 +71,10 @@ TbBool has_available_enemy_dungeon_heart(struct Thing *thing, PlayerNumber plyr_
 {
     SYNCDBG(18,"Starting");
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->hero.byte_8C != 0) || (cctrl->hero.byte_8B != 0))
+    if ((cctrl->party.tunnel_count != 0) || (cctrl->hero.update_navigation))
     {
-        cctrl->hero.byte_8C = 0;
-        cctrl->hero.byte_8B = 0;
+        cctrl->party.tunnel_count = 0;
+        cctrl->hero.update_navigation = false;
     }
     // Try accessing dungeon heart of undefeated enemy players
     if (!player_is_friendly_or_defeated(plyr_idx, thing->owner) && (creature_can_get_to_dungeon_heart(thing, plyr_idx)))
@@ -88,10 +88,10 @@ TbBool has_available_rooms_to_attack(struct Thing* thing, PlayerNumber plyr_idx)
 {
     SYNCDBG(18, "Starting");
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    if ((cctrl->hero.byte_8C != 0) || (cctrl->hero.byte_8B != 0))
+    if ((cctrl->party.tunnel_count != 0) || (cctrl->hero.update_navigation))
     {
-        cctrl->hero.byte_8C = 0;
-        cctrl->hero.byte_8B = 0;
+        cctrl->party.tunnel_count = 0;
+        cctrl->hero.update_navigation = false;
     }
     if (players_are_enemies(thing->owner, plyr_idx) && creature_can_get_to_any_of_players_rooms(thing, plyr_idx))
     {
@@ -972,7 +972,7 @@ short good_doing_nothing(struct Thing *creatng)
         if (nturns > 400)
         {
             cctrl->hero.wait_time = game.play_gameturn;
-            cctrl->hero.byte_8C = 1;
+            cctrl->party.tunnel_count = 1;
         }
         nturns = game.play_gameturn - cctrl->hero.look_for_enemy_dungeon_turn;
         if (nturns > 64)
