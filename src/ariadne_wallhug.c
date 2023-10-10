@@ -1361,7 +1361,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((pos_a->y.val - nav_radius) & 0xFFFFFF00) < (int)((creatng->mappos.y.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.x.val = pos_a->x.val;
-                pos.y.stl.num = (nav_radius + creatng->mappos.y.val - COORD_PER_STL ) / COORD_PER_STL;
+                pos.y.val = nav_radius + creatng->mappos.y.val - COORD_PER_STL;
                 pos.y.stl.pos = -1;
                 pos.y.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -1372,7 +1372,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((nav_radius + pos_a->x.val) & 0xFFFFFF00) > (int)((nav_radius + creatng->mappos.x.val) & 0xFFFFFF00))
             {
                 pos.y.val = pos_a->y.val;
-                pos.x.stl.num = (creatng->mappos.x.val - nav_radius + COORD_PER_STL ) / COORD_PER_STL;
+                pos.x.val = creatng->mappos.x.val - nav_radius + COORD_PER_STL;
                 pos.x.stl.pos = 0;
                 pos.x.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -1383,7 +1383,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((nav_radius + pos_a->y.val) & 0xFFFFFF00) > (int)((nav_radius + creatng->mappos.y.val) & 0xFFFFFF00))
             {
                 pos.x.val = pos_a->x.val;
-                pos.y.stl.num = (creatng->mappos.y.val - nav_radius + COORD_PER_STL ) / COORD_PER_STL;
+                pos.y.val = creatng->mappos.y.val - nav_radius + COORD_PER_STL;
                 pos.y.stl.pos = 0;
                 pos.y.val += nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
@@ -1394,7 +1394,7 @@ static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct C
             if ((int)((pos_a->x.val - nav_radius) & 0xFFFFFF00) < (int)((creatng->mappos.x.val - nav_radius) & 0xFFFFFF00))
             {
                 pos.y.val = pos_a->y.val;
-                pos.x.stl.num = (uint16_t)(nav_radius + creatng->mappos.x.val - COORD_PER_STL ) / COORD_PER_STL;
+                pos.x.val = nav_radius + creatng->mappos.x.val - COORD_PER_STL;
                 pos.x.stl.pos = -1;
                 pos.x.val -= nav_radius;
                 pos.z.val = get_thing_height_at(creatng, &pos);
