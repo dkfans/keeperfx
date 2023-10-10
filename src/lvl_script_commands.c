@@ -3216,9 +3216,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
         value->shorts[1] = scline->np[1];
     }
 
-    if (scline->np[2] < 0 || scline->np[2] > 53) //slab kind
+    if (scline->np[2] < 0 || scline->np[2] >= game.slab_conf.slab_types_count) //slab kind
     {
-        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-53 allowed.", scline->np[2]);
+        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-%d allowed.", scline->np[2],game.slab_conf.slab_types_count-1);
         return;
     }
     else

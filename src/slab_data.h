@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define SLABSET_COUNT        1304
+#define SLABSET_COUNT        2048
 #define SLABOBJS_COUNT        512
 
 enum SlabTypes {

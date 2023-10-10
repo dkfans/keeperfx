@@ -2946,7 +2946,7 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
             {
                 new_value++;
-                if (new_value > SlbT_PURPLE)
+                if (new_value >= game.slab_conf.slab_types_count)
                 {
                     new_value = SlbT_ROCK;
                 }
