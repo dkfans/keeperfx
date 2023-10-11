@@ -440,7 +440,7 @@ struct ComputerTask { // sizeof = 148
         short word_78;
         short field_7Ac;
         long repeat_num;
-        short word_80;
+        short target_state;
         short word_82;
         unsigned char field_84[2];
         struct Coord3d pos_86;
