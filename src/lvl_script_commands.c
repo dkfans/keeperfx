@@ -25,6 +25,7 @@
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "gui_soundmsgs.h"
+#include "config_settings.h"
 #include "config_effects.h"
 #include "config_trapdoor.h"
 #include "thing_effects.h"
@@ -43,6 +44,7 @@
 #include "post_inc.h"
 #include "music_player.h"
 #include "bflib_sound.h"
+#include "sounds.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -418,6 +420,7 @@ const struct NamedCommand texture_pack_desc[] = {
   {NULL,           0},
 };
 
+Mix_Chunk* Ext_Sounds[];
 
 static int sac_compare_fn(const void *ptr_a, const void *ptr_b)
 {
@@ -1374,6 +1377,30 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
+static void new_creature_type_check(const struct ScriptLine* scline)
+{
+    if (gameadd.crtr_conf.model_count >= CREATURE_TYPES_MAX)
+    {
+        SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", scline->tp[0], CREATURE_TYPES_MAX);
+        return;
+    }
+
+    int i = gameadd.crtr_conf.model_count;
+    gameadd.crtr_conf.model_count++;
+    LbStringCopy(gameadd.crtr_conf.model[i].name, scline->tp[0], COMMAND_WORD_LEN);
+    creature_desc[i-1].name = gameadd.crtr_conf.model[i].name;
+    creature_desc[i-1].num = i;
+
+    if (load_creaturemodel_config(i, 0))
+    {
+        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), gameadd.crtr_conf.model_count - 1);
+    }
+    else
+    {
+        SCRPTERRLOG("Failed to load config for creature '%s'(%d).", gameadd.crtr_conf.model[i].name,i);
+    }
+}
+
 static void new_room_type_check(const struct ScriptLine* scline)
 {
     if (game.slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
@@ -1382,7 +1409,7 @@ static void new_room_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRIPTDBG(7, "Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.slab_conf.room_types_count + 1);
+    SCRPTLOG("Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.slab_conf.room_types_count + 1);
     game.slab_conf.room_types_count++;
 
     struct RoomConfigStats* roomst;
@@ -1417,7 +1444,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRIPTDBG(7, "Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], gameadd.object_conf.object_types_count + 1);
+    SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], gameadd.object_conf.object_types_count + 1);
     gameadd.object_conf.object_types_count++;
 
     struct ObjectConfigStats* objst;
@@ -1445,7 +1472,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
         return;
     }
 
-    SCRIPTDBG(7, "Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], gameadd.trapdoor_conf.trap_types_count + 1);
+    SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], gameadd.trapdoor_conf.trap_types_count + 1);
     gameadd.trapdoor_conf.trap_types_count++;
 
     short i = gameadd.trapdoor_conf.trap_types_count-1;
@@ -2088,6 +2115,10 @@ static void create_effect_process(struct ScriptContext *context)
     if (Price)
     {
         pos.z.val += 128;
+    }
+    else
+    {
+        pos.z.val += context->value->arg1;
     }
     struct Thing* efftng = create_used_effect_or_element(&pos, context->value->chars[0], game.neutral_player_num);
     if (!thing_is_invalid(efftng))
@@ -3796,12 +3827,12 @@ static void set_music_check(const struct ScriptLine *scline)
                 return;
             }
         }
-        if ( (game.last_audiotrack < max_track) || (game.last_audiotrack > MUSIC_TRACKS_COUNT) )
+        if ( (game.last_audiotrack < max_track) || (game.last_audiotrack >= MUSIC_TRACKS_COUNT) )
         {
             WARNLOG("Music track %d is out of range - resetting.", game.last_audiotrack);
             game.last_audiotrack = max_track;
         }
-        if (game.last_audiotrack < MUSIC_TRACKS_COUNT)
+        if (game.last_audiotrack < MUSIC_TRACKS_COUNT-1)
         {
             game.last_audiotrack++;
         }
@@ -3878,7 +3909,49 @@ static void play_message_check(const struct ScriptLine *scline)
     }
     value->chars[0] = scline->np[0];
     value->chars[1] = msgtype_id;
-    value->arg1 = scline->np[2];
+    if (parameter_is_number(scline->tp[2]))
+    {
+        value->shorts[1] = atoi(scline->tp[2]);
+        value->bytes[4] = 0;
+    }
+    else
+    {
+        value->bytes[4] = 1;
+        for (unsigned char i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
+        {
+            if (strcmp(scline->tp[2], game.loaded_sound[i]) == 0)
+            {
+                value->bytes[2] = i;
+                PROCESS_SCRIPT_VALUE(scline->command);
+                return;
+            }
+        }
+        if (game.sounds_count >= EXTERNAL_SOUNDS_COUNT)
+        {
+            ERRORLOG("All external sounds slots are used.");
+            return;
+        }
+        unsigned char slot = game.sounds_count+1;
+        if (sprintf(&game.loaded_sound[slot][0], "%s", script_strdup(scline->tp[2])) < 0)
+        {
+            SCRPTERRLOG("Unable to store filename for external sound %s", scline->tp[1]);
+            return;
+        }
+        char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &game.loaded_sound[slot][0]);
+        Ext_Sounds[slot] = Mix_LoadWAV(fname);
+        if (Ext_Sounds[slot] != NULL)
+        {
+            Mix_VolumeChunk(Ext_Sounds[slot], settings.sound_volume);
+            game.sounds_count++;
+        }
+        else
+        {
+            SCRPTERRLOG("Could not load sound %s: %s", fname, Mix_GetError());
+            return;
+        }
+        SCRPTLOG("Loaded sound file %s into slot %u.", fname, slot);
+        value->bytes[2] = slot;
+    }
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -3886,14 +3959,40 @@ static void play_message_process(struct ScriptContext *context)
 {
     if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
     {
-        switch (context->value->chars[1])
+        if (!context->value->bytes[4])
         {
-            case 1:
-                output_message(context->value->arg1, 0, true);
-                break;
-            case 2:
-                play_non_3d_sample(context->value->arg1);
-                break;
+            switch (context->value->chars[1])
+            {
+                case 1:
+                {
+                    output_message(context->value->shorts[1], 0, true);
+                    break;
+                }
+                case 2:
+                {
+                    play_non_3d_sample(context->value->shorts[1]);
+                    break;
+                }
+            }
+        }
+        else
+        {
+            if (!SoundDisabled)
+            {
+                switch (context->value->chars[1])
+                {
+                    case 1:
+                    {
+                        output_message(-context->value->bytes[2], 0, true);
+                        break;
+                    }
+                    case 2:
+                    {
+                        play_external_sound_sample(context->value->bytes[2]);
+                        break;
+                    }
+                }
+            }
         }
     }
 }
@@ -3965,7 +4064,7 @@ const struct CommandDesc command_desc[] = {
   {"SWAP_CREATURE",                     "AC      ", Cmd_SWAP_CREATURE, NULL, NULL},
   {"PRINT",                             "A       ", Cmd_PRINT, NULL, NULL},
   {"MESSAGE",                           "A       ", Cmd_MESSAGE, NULL, NULL},
-  {"PLAY_MESSAGE",                      "PAN     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
+  {"PLAY_MESSAGE",                      "PAA     ", Cmd_PLAY_MESSAGE, &play_message_check, &play_message_process},
   {"ADD_GOLD_TO_PLAYER",                "PN      ", Cmd_ADD_GOLD_TO_PLAYER, NULL, NULL},
   {"SET_CREATURE_TENDENCIES",           "PAN     ", Cmd_SET_CREATURE_TENDENCIES, NULL, NULL},
   {"REVEAL_MAP_RECT",                   "PNNNN   ", Cmd_REVEAL_MAP_RECT, NULL, NULL},
@@ -4039,6 +4138,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_TRAP_TYPE",                     "A       ", Cmd_NEW_TRAP_TYPE, &new_trap_type_check, &null_process},
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
+  {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process },
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
