@@ -33,8 +33,7 @@
 			"windows": {
 				"command": [
 					"Write-Host ('Source Code directory: ' + '${workspaceFolder}'.Replace('\\', '/')) -ForegroundColor White;",
-    				"$cleanedJson = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | ForEach-Object {$_ -replace ',\\s*}', '}' -replace '(?m)^\\s*//.*$', ''} | ConvertFrom-Json | ConvertTo-Json -Depth 100);",
-					"$gameDir = ($cleanedJson | ConvertFrom-Json).configurations[0].cwd.TrimEnd('\\');",
+					"$gameDir = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | Select-String -Pattern '\\\"cwd\\\"\\s*:\\s*\\\"(.*?)\\\"').Matches[0].Groups[1].Value.Replace('\\', '/');",
 					"if (-not (Test-Path $gameDir)) {",
 					"    Write-Host 'The directories are incorrect in /.vscode/launch.json, please edit the file and update it.' -ForegroundColor Red;",
 					"    Write-Host 'Example: D:/Games/DungeonKeeper/ (be sure to use forward slashes)' -ForegroundColor Red;",
@@ -48,7 +47,7 @@
 					"    Write-Host 'Compilation failed!' -ForegroundColor Red;",
 					"    exit 1;",
 					"}",
-					"Copy-Item -LiteralPath '${workspaceFolder}\\bin\\*' -Destination '$gameDir' -Force;",
+					"Copy-Item -Path '${workspaceFolder}\\bin\\*' -Destination $gameDir -Force;",
 				],
 			},
 			"linux": {"command": []},
@@ -111,8 +110,7 @@
 			"type": "shell",
 			"windows": {
 				"command": [
-					"$cleanedJson = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | ForEach-Object {$_ -replace ',\\s*}', '}' -replace '(?m)^\\s*//.*$', ''} | ConvertFrom-Json | ConvertTo-Json -Depth 100);",
-					"$gameDir = ($cleanedJson | ConvertFrom-Json).configurations[0].cwd.TrimEnd('\\');",
+					"$gameDir = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | Select-String -Pattern '\\\"cwd\\\"\\s*:\\s*\\\"(.*?)\\\"').Matches[0].Groups[1].Value.Replace('\\', '/');",
 					"cd $gameDir;",
 					"Clear-Content keeperfx.log;",
 					"Get-Content keeperfx.log -Wait"
