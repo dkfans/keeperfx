@@ -1292,7 +1292,7 @@ void sort_campaigns_quicksort(struct CampaignsList *clist, int beg, int end)
 
 
 
-void sort_campaigns(struct CampaignsList *clist,char* fname)
+void sort_campaigns(struct CampaignsList *clist,const char* fname)
 {
 
     FILE *fp = fopen(fname, "r");
@@ -1312,9 +1312,6 @@ void sort_campaigns(struct CampaignsList *clist,char* fname)
 
         for (int i = 0; i < clist->items_num; i++)
         {
-            
-            JUSTLOG("compare %s, %s",clist->items[i].fname,line);
-
             if (strcasecmp(clist->items[i].fname,line) == 0)
             {
                 if (i != beg)
