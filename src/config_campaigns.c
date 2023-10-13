@@ -1290,16 +1290,14 @@ void sort_campaigns_quicksort(struct CampaignsList *clist, int beg, int end)
   }
 }
 
-
-
-void sort_campaigns(struct CampaignsList *clist,const char* fname)
+void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
 {
 
-    FILE *fp = fopen(fname, "r");
+    FILE *fp = fopen(sort_fname, "r");
 
     if( !fp )
     {
-        ERRORLOG("failed to read %s",fname);
+        ERRORLOG("failed to read %s",sort_fname);
         return;
     }
     int beg = 0;
