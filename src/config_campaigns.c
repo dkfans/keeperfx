@@ -1347,7 +1347,7 @@ TbBool load_campaigns_list(void)
     }
     LbFileFindEnd(&fileinfo);
     SYNCDBG(0,"Found %d campaign files, properly loaded %d.",cnum_all,cnum_ok);
-    char* ordfname = prepare_file_path(FGrp_Campgn, "campgn_order.txt");
+    const char* ordfname = prepare_file_path(FGrp_Campgn, "campgn_order.txt");
     sort_campaigns(&campaigns_list,ordfname);
     return (campaigns_list.items_num > 0);
 }
@@ -1378,7 +1378,7 @@ TbBool load_mappacks_list(void)
     }
     LbFileFindEnd(&fileinfo);
     SYNCDBG(0,"Found %d map pack files, properly loaded %d.",cnum_all,cnum_ok);
-    char* ordfname = prepare_file_path(FGrp_VarLevels, "campgn_order.txt");
+    const char* ordfname = prepare_file_path(FGrp_VarLevels, "campgn_order.txt");
     sort_campaigns(&mappacks_list,ordfname);
     return (mappacks_list.items_num > 0);
 }
