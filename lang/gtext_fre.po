@@ -709,7 +709,7 @@ msgid ""
 "ample Hatcheries. These corpulent monstrosities attack somewhat "
 "unconventionally."
 msgstr ""
-"Un Démon Enrage a choisi de rallier votre camp. Il lui faut un Antre et un "
+"Un Démon Bileux a choisi de rallier votre camp. Il lui faut un Antre et un "
 "Couvoir spacieux. Ces monstres corpulents ont une manière d'attaquer plutôt "
 "particulière..."
 
