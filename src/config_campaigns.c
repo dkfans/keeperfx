@@ -1378,7 +1378,7 @@ TbBool load_mappacks_list(void)
     }
     LbFileFindEnd(&fileinfo);
     SYNCDBG(0,"Found %d map pack files, properly loaded %d.",cnum_all,cnum_ok);
-    const char* ordfname = prepare_file_path(FGrp_VarLevels, "campgn_order.txt");
+    const char* ordfname = prepare_file_path(FGrp_VarLevels, "mappck_order.txt");
     sort_campaigns(&mappacks_list,ordfname);
     return (mappacks_list.items_num > 0);
 }

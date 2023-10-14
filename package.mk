@@ -29,7 +29,7 @@ PKG_CAMPAIGN_DIRS = $(sort $(dir $(PKG_CAMPAIGN_FILES)))
 PKG_CREATURE_FILES = $(patsubst config/creatrs/%,pkg/creatrs/%,$(wildcard config/creatrs/*.cfg))
 PKG_FXDATA_FILES = $(patsubst config/fxdata/%,pkg/fxdata/%,$(wildcard config/fxdata/*.cfg))
 PKG_MAPPACK_FILES = \
-	$(patsubst %,pkg/levels/campgn_order.txt,$(MAPPACKS)) \
+	$(patsubst %,pkg/levels/mappck_order.txt,$(MAPPACKS)) \
 	$(patsubst %,pkg/levels/%.cfg,$(MAPPACKS)) \
 	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(wildcard levels/$(mappack)/*.cfg))) \
 	$(patsubst %,pkg/%,$(foreach mappack,$(MAPPACKS),$(filter-out %/readme.txt,$(wildcard levels/$(mappack)/*.txt)))) \
