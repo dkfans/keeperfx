@@ -3,7 +3,7 @@ REM
 REM Script for Level 205
 REM
 REM ********************************************
-
+LEVEL_VERSION(1)
 SET_GENERATE_SPEED(400)
 
 MAX_CREATURES(PLAYER0,15)
@@ -18,9 +18,9 @@ ADD_CREATURE_TO_POOL(DWARFA,20)
 ADD_CREATURE_TO_POOL(FAIRY,20)
 ADD_CREATURE_TO_POOL(THIEF,20)
 
-CREATURE_AVAILABLE(PLAYER0,THIEF,1,1)
-CREATURE_AVAILABLE(PLAYER0,DWARFA,1,1)
-CREATURE_AVAILABLE(PLAYER0,TUNNELLER,1,1)
+CREATURE_AVAILABLE(PLAYER0,THIEF,1,0)
+CREATURE_AVAILABLE(PLAYER0,DWARFA,1,0)
+CREATURE_AVAILABLE(PLAYER0,TUNNELLER,1,0)
 
 ROOM_AVAILABLE(ALL_PLAYERS,TREASURE,1,1)
 ROOM_AVAILABLE(ALL_PLAYERS,RESEARCH,1,1)
@@ -41,83 +41,54 @@ DOOR_AVAILABLE(ALL_PLAYERS,WOOD,1,0)
 DOOR_AVAILABLE(ALL_PLAYERS,BRACED,1,0)
 TRAP_AVAILABLE(ALL_PLAYERS,POISON_GAS,1,0)
 
+SET_HEART_HEALTH(PLAYER_GOOD,18000)
+
+
 SET_TIMER(PLAYER0,TIMER0)
-
-
 IF(PLAYER0,GAME_TURN > 10000)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,IMP,3,1,3,0)
 ENDIF
 
-
-IF(PLAYER0,WORKSHOP >= 1)
-    CREATURE_AVAILABLE(PLAYER0,ARCHER,1,1)
-ENDIF
-
-IF(PLAYER0,TRAINING >= 1)
-    CREATURE_AVAILABLE(PLAYER0,BARBARIAN,1,1)
-ENDIF
-
-IF(PLAYER0,RESEARCH >= 9)
-    CREATURE_AVAILABLE(PLAYER0,FAIRY,1,1)
-ENDIF
-
-
-IF(PLAYER0,WORKSHOP < 1)
-    NEXT_COMMAND_REUSABLE
-    CREATURE_AVAILABLE(PLAYER0,ARCHER,0,0)
-ENDIF
-
-IF(PLAYER0,TRAINING < 1)
-    NEXT_COMMAND_REUSABLE
-    CREATURE_AVAILABLE(PLAYER0,BARBARIAN,0,0)
-ENDIF
-
-IF(PLAYER0,RESEARCH < 9)
-    NEXT_COMMAND_REUSABLE
-    CREATURE_AVAILABLE(PLAYER0,FAIRY,0,0)
-ENDIF
-
 IF(PLAYER0,GAME_TURN > 10900)
+    REM "The Spawners have come, be ready for their offspring."
     DISPLAY_OBJECTIVE(10,ALL_PLAYERS)
-    REM QUICK_OBJECTIVE(1,"The Spawners have come, be ready for their offspring.",PLAYER0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN > 20)
+    REM "Welcome to this realm, noble hero. It is your holy quest to vanquish the spawners from here forever. They spawn in a pit of lava, heavily guarded. If only you could cover it up....."
     DISPLAY_OBJECTIVE(11,ALL_PLAYERS)
-REM QUICK_OBJECTIVE(2,"Welcome to this realm, noble hero. It is your holy quest to vanquish the spawners from here forever. They spawn in a pit of lava, heavily guarded. If only you could cover it up.....",PLAYER0)
 ENDIF
 
 IF(PLAYER0,GAME_TURN > 150)
+    REM "There is new technology available to you, oh noble one. Build a library to research them. Wizards are attracted to libraries, but they do not see the spawners as much of a threat, and so will not come. Make do without them!"
     DISPLAY_INFORMATION(12,ALL_PLAYERS)
-REM QUICK_INFORMATION(3,"There is new technology available to you, oh noble one. Build a library to research them. Wizards are attracted to libraries, but they do not see the spawners as much of a threat, and so will not come. Make do without them!")
 ENDIF
 
 IF(PLAYER0,THIEF > 0)
+    REM "A Thief has joined you! They are weak at low levels, but later they can become very sneaky. One day, they will learn the error of thier ways (level 11 :P)"
     DISPLAY_INFORMATION(13,ALL_PLAYERS)
-REM    QUICK_INFORMATION(4,"A Thief has joined you! They are weak at low levels, but later they can become very sneaky. One day, they will learn the error of thier ways (level 11 :P")
 ENDIF
 
 IF(PLAYER0,BARBARIAN > 0)
+    REM "A Barbarian has joined you! These are mean, strong heros, with attitude!"
     DISPLAY_INFORMATION(14,ALL_PLAYERS)
-REM    QUICK_INFORMATION(5,"A Barbarian has joined you! These are mean, strong heros, with attitude!")
 ENDIF
 
 IF(PLAYER0,FAIRY > 0)
+    REM "A Fairy, how lovely! They are good researchers, and very destructive"
     DISPLAY_INFORMATION(15,ALL_PLAYERS)
-REM    QUICK_INFORMATION(6,"A Fairy, how lovely! They are good researchers, and very destructive")
 ENDIF
 
 IF(PLAYER0,BRIDGE >= 41)
     ADD_CREATURE_TO_LEVEL(PLAYER_GOOD,HORNY,4,1,5,0)
-    
 ENDIF
 
 IF(PLAYER0,BRIDGE >= 41)
+    REM "Very clever! But it looks like a Horned Reaper has come for revenge... and he looks angry!"
     DISPLAY_INFORMATION(16,ALL_PLAYERS)
-REM    QUICK_INFORMATION(7,"Very clever! But it looks like a Horned Reaper has come for revenge... and he looks angry!")
     IF(PLAYER_GOOD,TOTAL_CREATURES == 0)
         DISPLAY_INFORMATION(17,ALL_PLAYERS)
-        REM QUICK_INFORMATION(8,"Well done! Thats another bit of evil destroyed! Congratulations!")
+        REM "Well done! Thats another bit of evil destroyed! Congratulations!"
         WIN_GAME
     ENDIF
 ENDIF
