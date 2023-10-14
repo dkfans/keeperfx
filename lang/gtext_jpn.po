@@ -6679,7 +6679,7 @@ msgstr "ニコライの城キャンペーン"
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - New Game+"
 msgstr "増強された原キャンペーン"
 
 #: guitext:1028
