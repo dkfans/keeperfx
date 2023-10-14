@@ -155,9 +155,8 @@ msgstr "一位巫师来了。他们是研究领域真正的大师，也是最强
 
 #: guitext:22
 msgctxt "In-game message"
-msgid "A giant! This Slow, Brutal killing machine is a tank! Use him wisely!"
-msgstr "一个巨人来了！这个行动缓慢但力大无穷的杀戮机器犹如一架坦克！"
-"明智地使用他吧！"
+msgid "A giant! This brutal killing machine is no tank! Use him wisely!"
+msgstr "一个巨人！这残酷的杀戮机器并非坦克！明智使用！"
 
 #: guitext:23
 msgctxt "In-game message"
