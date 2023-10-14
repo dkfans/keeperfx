@@ -145,10 +145,15 @@ msgctxt "In-game message"
 msgid "Snow white and the 7 dwarves are safe! Rejoice!"
 msgstr "Blanche-neige et les 7 nains sont en sécurité! Rejouissons-nous Votre Sainteté"
 
-#: guitext:26 guitext:27 guitext:28 guitext:29
+#: guitext:26
+msgctxt "In-game message"
+msgid "A Time Mage, I don't remember those. Perhaps this has not happened before."
+msgstr "Mag Czasu, nie pamiętam takich. Może to się wcześniej nie zdarzyło."
+
+#: guitext:27 guitext:28 guitext:29
 msgctxt "In-game message"
 msgid "Moo14"
-msgstr "Moo14"
+msgstr ""
 
 #: guitext:30
 msgctxt "In-game message"
