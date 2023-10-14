@@ -148,7 +148,7 @@ msgstr "Blanche-neige et les 7 nains sont en sécurité! Rejouissons-nous Votre 
 #: guitext:26
 msgctxt "In-game message"
 msgid "A Time Mage, I don't remember those. Perhaps this has not happened before."
-msgstr "Mag Czasu, nie pamiętam takich. Może to się wcześniej nie zdarzyło."
+msgstr "Un Mage du Temps, je ne me souviens pas de cela. Peut-être que cela ne s'est jamais produit auparavant."
 
 #: guitext:27 guitext:28 guitext:29
 msgctxt "In-game message"
