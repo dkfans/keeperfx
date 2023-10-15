@@ -373,12 +373,12 @@ void init_navigation_map(void)
 static long get_navtree_owner(long treeI)
 {
     long owner;
-    owner = ((treeI & 0xE0) >> 5) - 1;
-    if (owner == 5)
+    owner = ((treeI & NAVMAP_OWNERSELECT_MASK) >> NAVMAP_OWNERSELECT_BIT) - 1;
+    if (owner == NAVMAP_OWNER_HERO)
     {
         owner = game.hero_player_num;
     } else
-    if (owner == 6)
+    if (owner == NAVMAP_OWNER_NEUTRAL)
     {
         owner = game.neutral_player_num;
     }
@@ -387,27 +387,27 @@ static long get_navtree_owner(long treeI)
 
 long Keeper_nav_rulesA2B(long treeA, long treeB)
 {
-    if ((treeB & 0x0F) - (treeA & 0x0F) > 1)
+    if ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK) > 1)
         return 0;
-    if ((treeB & 0x10) == 0)
+    if ((treeB & NAVMAP_UNSAFE_SURFACE) == 0)
         return 1;
     return 2;
 }
 
 long navigation_rule_normal(long treeA, long treeB)
 {
-    if ((treeB & 0x0F) - (treeA & 0x0F) > 1)
+    if ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK) > 1)
       return 0;
-    if ((treeB & 0xF0) == 0)
+    if ((treeB & (NAVMAP_OWNERSELECT_MASK | NAVMAP_UNSAFE_SURFACE)) == 0)
       return 1;
     if (owner_player_navigating != -1)
     {
         if (get_navtree_owner(treeB) == owner_player_navigating)
           return 0;
     }
-    if ((treeB & 0x10) == 0)
+    if ((treeB & NAVMAP_UNSAFE_SURFACE) == 0)
         return 1;
-    if ((treeA & 0x10) != 0)
+    if ((treeA & NAVMAP_UNSAFE_SURFACE) != 0)
         return 1;
     return nav_thing_can_travel_over_lava;
 }
@@ -4801,6 +4801,9 @@ long get_navigation_colour_for_door(long stl_x, long stl_y)
         ERRORLOG("Cannot find door for flagged position (%d,%d)",(int)stl_x,(int)stl_y);
         return (1 << NAVMAP_FLOORHEIGHT_BIT);
     }
+
+
+    //if not locked anyone can pass
     if (doortng->door.is_locked == 0)
     {
         return (1 << NAVMAP_FLOORHEIGHT_BIT);
