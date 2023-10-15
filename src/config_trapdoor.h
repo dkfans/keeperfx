@@ -55,6 +55,14 @@ struct DoorConfigStats {
     unsigned short slbkind[2];
     long health;
     unsigned short open_speed;
+    unsigned short model_flags;
+};
+
+  /** Contains properties of a door model, to be stored in DoorConfigStats.
+ */
+enum DoorModelFlags {
+    DoMF_ResistNonMagic = 0x0001,
+    DoMF_Secret         = 0x0002,
 };
 
 struct TrapConfigStats {

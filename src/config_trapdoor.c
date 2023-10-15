@@ -103,6 +103,14 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"PLACEONBRIDGE",        36},
   {NULL,                    0},
 };
+
+const struct NamedCommand door_properties_commands[] = {
+  {"RESIST_NON_MAGIC",     1},
+  {"SECRET",               2},
+  {NULL,                   0},
+  };
+
+
 /******************************************************************************/
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
@@ -1222,7 +1230,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-          case 13: // OPENSPEED
+      case 13: // OPENSPEED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1238,6 +1246,28 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
+      case 14: // PROPERTIES
+          doorst->model_flags = 0;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = get_id(door_properties_commands, word_buf);
+            switch (k)
+            {
+            case 1: // RESIST_NON_MAGIC
+                doorst->model_flags |= DoMF_ResistNonMagic;
+                n++;
+                break;
+            case 2: // SECRET
+                doorst->model_flags |= DoMF_Secret;
+                n++;
+                break;
+            default:
+                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+            }
+          }
+          break;
+
       case 0: // comment
           break;
       case -1: // end of buffer
