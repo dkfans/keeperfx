@@ -1432,11 +1432,8 @@ TbBool slab_kind_is_friable_dirt(RoomKind slbkind)
 
 TbBool slab_kind_is_door(SlabKind slbkind)
 {
-    if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORMAGIC2))
-    {
-        return true;
-    }
-    return false;
+    struct SlabAttr *slbattr = get_slab_kind_attrs(slbkind);
+    return (slbattr->block_flags & (SlbAtFlg_IsDoor));
 }
 
 TbBool slab_kind_is_nonmagic_door(SlabKind slbkind)
