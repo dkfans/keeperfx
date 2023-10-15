@@ -272,7 +272,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = player_highlight_colours[owner];
           } else
-          if (thing->door.is_locked)
+          if (thing->door.is_locked)//todo, check what makes sense here for color
           {
             pixval = 79;
           } else

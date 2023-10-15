@@ -47,12 +47,6 @@ extern "C" {
 
 char const build_door_angle[] = {-1, -1, -1, -1, -1, 0, -1, 0, -1, -1, 1, 1, -1, 0, 1, -1 };
 
-/* Obsolete - use DoorConfigStats instead
-const short door_names[] = {
-    201, 590, 591, 592, 593, 0,
-};
-*/
-
 /******************************************************************************/
 #ifdef __cplusplus
 }

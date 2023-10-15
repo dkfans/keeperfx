@@ -740,6 +740,7 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         } else
         if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
         {
+            //todo, check what makes sense here for color
             struct Thing *doortng;
             doortng = get_door_for_position(stl_x, stl_y);
             if (!thing_is_invalid(doortng)) {
