@@ -378,12 +378,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     } else {
         thing->light_id = 0;
     }
-    switch (thing->model)
+    if (thing_is_beating_dungeon_heart(thing))
     {
-      case ObjMdl_SoulCountainer:
         thing->heart.beat_direction = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
-        break;
+    }
+    switch (thing->model)
+    {
       case ObjMdl_TempleSpangle: // Why it is hardcoded? And what is TempleS
         thing->rendering_flags &= TRF_Transpar_Flags;
         thing->rendering_flags |= TRF_Transpar_4;
@@ -584,6 +585,14 @@ TbBool thing_is_dungeon_heart(const struct Thing *thing)
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
     return (objst->model_flags & OMF_Heart);
+}
+
+TbBool thing_is_beating_dungeon_heart(const struct Thing* thing)
+{
+    if (!thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->model_flags & (OMF_Beating|OMF_Heart));
 }
 
 TbBool thing_is_mature_food(const struct Thing *thing)
@@ -1421,6 +1430,9 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 {
     SYNCDBG(18,"Starting");
     struct Dungeon* dungeon = INVALID_DUNGEON;
+    struct ObjectConfig* objconf;
+    struct ObjectConfigStats* objst;
+
     if (heartng->owner != game.neutral_player_num)
     {
         dungeon = get_players_num_dungeon(heartng->owner);
@@ -1428,7 +1440,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-        struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
+        objconf = get_object_model_stats2(heartng->model);
         if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
         {
             heartng->health += game.dungeon_heart_heal_health;
@@ -1486,7 +1498,11 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     SYNCDBG(18,"Beat update");
     if ((heartng->alloc_flags & TAlF_Exists) == 0)
       return TUFRet_Modified;
-    update_dungeon_heart_beat(heartng);
+    objst = get_object_model_stats(heartng->model);
+    if (objst->model_flags & OMF_Beating)
+    {
+        update_dungeon_heart_beat(heartng);
+    }
     return TUFRet_Modified;
 }
 
