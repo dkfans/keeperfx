@@ -301,8 +301,6 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         game.boulder_reduce_health_room = 10;
         game.pay_day_gap = 5000;
         game.chest_gold_hold = 1000;
-        gameadd.object_conf.base_config[5].health = 100;
-        game.objects_config[5].health = 100;
         game.dungeon_heart_heal_time = 10;
         game.dungeon_heart_heal_health = 1;
         game.hero_door_wait_time = 100;

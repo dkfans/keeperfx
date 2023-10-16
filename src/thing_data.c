@@ -316,7 +316,7 @@ void query_thing(struct Thing *thing)
                 {
                     sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
-                sprintf((char*)health, "Health: %ld/%d", querytng->health, objconf->health);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, objconf->health);
             }  
             else 
             if (querytng->class_id == TCls_Door)
