@@ -74,8 +74,8 @@ static long tree_Ax8;
 static long tree_Ay8;
 static long tree_Bx8;
 static long tree_By8;
-static unsigned char *LastTriangulatedMap;
-static unsigned char *fringe_map;
+static unsigned short *LastTriangulatedMap;
+static unsigned short *fringe_map;
 static long fringe_y1;
 static long fringe_y2;
 static long fringe_x1;
@@ -350,7 +350,7 @@ unsigned long fits_thro(long tri_idx, long ormask_idx)
     return EdgeFit[eidx];
 }
 
-void triangulate_map(unsigned char *imap)
+void triangulate_map(unsigned short *imap)
 {
     triangulate_area(imap, 0, 0, gameadd.navigation_map_size_x, gameadd.navigation_map_size_y);
 }
@@ -359,7 +359,7 @@ void init_navigation_map(void)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    LbMemorySet(game.navigation_map, 0, gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
+    LbMemorySet(game.navigation_map, 0, sizeof(unsigned short)*gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
     for (stl_y=0; stl_y < gameadd.navigation_map_size_y; stl_y++)
     {
         for (stl_x=0; stl_x < gameadd.navigation_map_size_x; stl_x++)
@@ -370,19 +370,9 @@ void init_navigation_map(void)
     nav_map_initialised = 1;
 }
 
-static long get_navtree_owner(long treeI)
+static PlayerBitFlag get_navtree_owner_flags(long treeI)
 {
-    long owner;
-    owner = ((treeI & NAVMAP_OWNERSELECT_MASK) >> NAVMAP_OWNERSELECT_BIT) - 1;
-    if (owner == NAVMAP_OWNER_HERO)
-    {
-        owner = game.hero_player_num;
-    } else
-    if (owner == NAVMAP_OWNER_NEUTRAL)
-    {
-        owner = game.neutral_player_num;
-    }
-    return owner;
+    return treeI >> NAVMAP_OWNERSELECT_BIT;
 }
 
 long Keeper_nav_rulesA2B(long treeA, long treeB)
@@ -402,7 +392,7 @@ long navigation_rule_normal(long treeA, long treeB)
       return 1;
     if (owner_player_navigating != -1)
     {
-        if (get_navtree_owner(treeB) == owner_player_navigating)
+        if (get_navtree_owner_flags(treeB) & (1 << owner_player_navigating))
           return 0;
     }
     if ((treeB & NAVMAP_UNSAFE_SURFACE) == 0)
@@ -414,7 +404,7 @@ long navigation_rule_normal(long treeA, long treeB)
 
 long init_navigation(void)
 {
-    IanMap = (unsigned char *)&game.navigation_map;
+    IanMap = (unsigned short *)&game.navigation_map;
     init_navigation_map();
     triangulate_map(IanMap);
     nav_rulesA2B = navigation_rule_normal;
@@ -4094,12 +4084,12 @@ static TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
     return true;
 }
 
-TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
+TbBool border_clip_horizontal(const unsigned short *imap, long start_x, long end_x, long start_y, long end_y)
 {
-    unsigned char map_center;
-    unsigned char map_up;
-    const unsigned char* mapp_center;
-    const unsigned char* mapp_up;
+    unsigned short map_center;
+    unsigned short map_up;
+    const unsigned short* mapp_center;
+    const unsigned short* mapp_up;
     TbBool r;
     long i;
     r = true;
@@ -4138,12 +4128,12 @@ TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_
     return r;
 }
 
-TbBool border_clip_vertical(const unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
+TbBool border_clip_vertical(const unsigned short *imap, long start_x, long end_x, long start_y, long end_y)
 {
-    unsigned char map_center;
-    unsigned char map_left;
-    const unsigned char* mapp_center;
-    const unsigned char* mapp_left;
+    unsigned short map_center;
+    unsigned short map_left;
+    const unsigned short* mapp_center;
+    const unsigned short* mapp_left;
     TbBool r;
     long i;
     r = true;
@@ -4522,7 +4512,7 @@ static void brute_fill_rectangle(long start_x, long start_y, long end_x, long en
 }
 
 #define fill_rectangle(start_x, start_y, end_x, end_y, nav_colour) fill_rectangle_f(start_x, start_y, end_x, end_y, nav_colour, __func__)
-void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour, const char *func_name)
+void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsigned short nav_colour, const char *func_name)
 {
     long tri_n0;
     long tri_k0;
@@ -4587,7 +4577,7 @@ void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsign
     brute_fill_rectangle(start_x, start_y, end_x, end_y, nav_colour);
 }
 
-TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour)
+TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned short nav_colour)
 {
     long sx;
     long sy;
@@ -4664,7 +4654,7 @@ long fringe_scan(long *outfri_x, long *outfri_y, long *outlen_x, long *outlen_y)
     return 1;
 }
 
-long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, unsigned char *oval)
+long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, unsigned short *oval)
 {
     NAVIDBG(19,"Starting");
     long fri_x;
@@ -4676,7 +4666,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     if (!fringe_scan(&fri_x,&fri_y,&len_x,&len_y)) {
         return 0;
     }
-    unsigned char *fri_map;
+    unsigned short *fri_map;
     fri_map = &fringe_map[get_subtile_number(fri_x,fri_y)];
     // Find dx and dy
     long dx;
@@ -4794,33 +4784,26 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
 long get_navigation_colour_for_door(long stl_x, long stl_y)
 {
     struct Thing *doortng;
-    long owner;
+    long color = (1 << NAVMAP_FLOORHEIGHT_BIT);
+
     doortng = get_door_for_position(stl_x, stl_y);
+    const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
     if (thing_is_invalid(doortng))
     {
         ERRORLOG("Cannot find door for flagged position (%d,%d)",(int)stl_x,(int)stl_y);
-        return (1 << NAVMAP_FLOORHEIGHT_BIT);
+        return color;
     }
 
-
-    //if not locked anyone can pass
-    if (doortng->door.is_locked == 0)
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        return (1 << NAVMAP_FLOORHEIGHT_BIT);
+        if ((plyr_idx == doortng->owner && doortng->door.is_locked) ||
+            (plyr_idx != doortng->owner && doorst->model_flags & DoMF_Secret && !(doortng->door.revealed & (1 << plyr_idx))))
+        {
+            color |= 1 << (NAVMAP_OWNERSELECT_BIT + plyr_idx);
+        }
     }
-    if (is_hero_thing(doortng))
-        owner = NAVMAP_OWNER_HERO;
-    else
-    if (doortng->owner == game.neutral_player_num)
-        owner = NAVMAP_OWNER_NEUTRAL;
-    else
-        owner = doortng->owner;
-    if (owner > NAVMAP_OWNERSELECT_MAX)
-    {
-        ERRORLOG("Doors at (%d,%d) have outranged player %ld",(int)stl_x,(int)stl_y,owner);
-        return (1 << NAVMAP_FLOORHEIGHT_BIT);
-    }
-    return ((owner+1) << NAVMAP_OWNERSELECT_BIT) | (1 << NAVMAP_FLOORHEIGHT_BIT);
+    return color;
+    
 }
 
 long get_navigation_colour_for_cube(long stl_x, long stl_y)
@@ -4852,7 +4835,7 @@ long get_navigation_colour(long stl_x, long stl_y)
     return get_navigation_colour_for_cube(stl_x, stl_y);
 }
 
-long uniform_area_colour(const unsigned char *imap, long start_x, long start_y, long end_x, long end_y)
+long uniform_area_colour(const unsigned short *imap, long start_x, long start_y, long end_x, long end_y)
 {
     long uniform;
     long x;
@@ -4936,12 +4919,12 @@ void triangulation_init(void)
     }
 }
 
-TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long end_x, long end_y)
+TbBool triangulate_area(unsigned short *imap, long start_x, long start_y, long end_x, long end_y)
 {
     TbBool one_tile;
     TbBool not_whole_map;
     long colour;
-    unsigned char ccolour;
+    unsigned short ccolour;
     long rect_sx;
     long rect_sy;
     long rect_ex;
