@@ -67,7 +67,6 @@ const struct NamedCommand objects_object_commands[] = {
   {"UPDATEFUNCTION",    20},
   {"DRAWCLASS",         21},
   {"PERSISTENCE",       22},
-  {"ISHEART",           23},
   {NULL,                 0},
   };
 
@@ -77,6 +76,8 @@ const struct NamedCommand objects_properties_commands[] = {
   {"CHOWNED_ON_ROOM_CLAIM",   3},
   {"DESTROYED_ON_ROOM_PLACE", 4},
   {"BUOYANT",                 5},
+  {"BEATING",                 6},
+  {"HEART",                   7},
   {NULL,                      0},
   };
 
@@ -352,6 +353,14 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                       objst->model_flags |= OMF_Buoyant;
                       n++;
                       break;
+                  case 6: // BEATING
+                      objst->model_flags |= OMF_Beating;
+                      n++;
+                      break;
+                  case 7: // HEART
+                      objst->model_flags |= OMF_Heart;
+                      n++;
+                      break;
                   default:
                       CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                           COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -599,15 +608,6 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 23: // ISHEART
-                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-                {
-                    n = get_icon_id(word_buf);
-                    if (n >= -1)
-                    {
-                        objst->is_heart = n;
-                    }
-                }
             case 0: // comment
                 break;
             case -1: // end of buffer
@@ -824,7 +824,6 @@ void init_objects(void)
     game.objects_config[5].fall_acceleration = 20;
     game.objects_config[5].light_unaffected = 0;
     game.objects_config[5].ilght.is_dynamic = 1;
-    game.objects_config[5].is_heart = 1;
     game.objects_config[5].movement_flag = 1;
     game.objects_config[6].fall_acceleration = 8;
     game.objects_config[6].health = 50;

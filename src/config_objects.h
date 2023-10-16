@@ -52,7 +52,9 @@ enum ObjectModelFlags {
     OMF_DestroyedOnRoomClaim = 0x0002, // Some objects should be destroyed if they're in a room which is changing owner
     OMF_ChOwnedOnRoomClaim   = 0x0004, // Most objects should change their owner with the room
     OMF_DestroyedOnRoomPlace = 0x0008, // Some objects should be destroyed when a new room/trap/door is placed on a slab
-    OMF_Buoyant               = 0x0010, // Some objects do not get their sprite cut off when on water/lava
+    OMF_Buoyant              = 0x0010, // Some objects do not get their sprite cut off when on water/lava
+    OMF_Beating              = 0x0020, // If the object is a heart, do the flashing, beating, back and forth animation that imitates a heartbeat
+    OMF_Heart                = 0x0040, // Functions as the heart of the dungeon
 };
 
 /******************************************************************************/
@@ -62,7 +64,6 @@ struct ObjectConfig { // sizeof=0x1D
 long health;
 char fall_acceleration;
 char light_unaffected;
-char is_heart;
 char resistant_to_nonmagic;
 char movement_flag;
     struct InitLight ilght;
@@ -76,7 +77,6 @@ struct ObjectConfigStats {
     long genre;
     long name_stridx;
     long map_icon;
-    TbBool is_heart;
 };
 
 struct ObjectsConfig {
