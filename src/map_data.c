@@ -386,11 +386,20 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
     }
     MapSubtlCoord stl_x = coord_subtile(cor_x);
     MapSubtlCoord stl_y = coord_subtile(cor_y);
-    MapCoord height = get_ceiling_height_at_subtile(stl_x, stl_y);
-    if (cor_z > height)
+    MapCoord height;
+    if (cor_z < -1)
     {
-        if (flags & MapCoord_ClipZ) cor_z = height;
+        if (flags & MapCoord_ClipZ) cor_z = -1;
         corrected = true;
+    }
+    else
+    {
+        height = get_ceiling_height_at_subtile(stl_x, stl_y);
+        if (cor_z > height)
+        {
+            if (flags & MapCoord_ClipZ) cor_z = height;
+            corrected = true;
+        }
     }
     if (cor_x < subtile_coord(0,0)) {
         if (flags & MapCoord_ClipX) cor_x = subtile_coord(0,0);

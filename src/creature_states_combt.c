@@ -1786,6 +1786,7 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing)
  */
 CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
+    struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
     {
@@ -1814,6 +1815,17 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     if (!creature_affected_by_spell(thing, SplK_Fly))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
+    }
+    for (int i = CrInst_LISTEND; i < gameadd.crtr_conf.instances_count; i++)
+    {
+        inst_inf = creature_instance_info_get(i);
+        if ((inst_inf->flags & InstPF_SelfBuff))
+        {
+            if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, i);
+            }
+        }
     }
     return CrInst_NULL;
 }

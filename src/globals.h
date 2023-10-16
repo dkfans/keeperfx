@@ -116,7 +116,7 @@ extern "C" {
 #define NOMSG(format, ...)
 
 // Debug function-like macros - for code logging (with function name)
-#define ERRORLOG(format, ...) LbErrorLog("[%d] %s): " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define ERRORLOG(format, ...) LbErrorLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define WARNLOG(format, ...) LbWarnLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define SYNCLOG(format, ...) LbSyncLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define JUSTLOG(format, ...) LbJustLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
@@ -295,44 +295,57 @@ typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
 
+/* Stores a 2d coordinate (x,y).
+
+Members:
+.val - coord position (relative to whole map)
+.stl.pos - coord position (relative to subtile)
+.stl.num - subtile position (relative to whole map)
+*/
 struct Coord2d {
-    union {
-      unsigned long val;
-      struct {
-        unsigned char pos;
-        unsigned short num;
+    union { // x position
+      unsigned long val; // x.val - coord x position (relative to whole map)
+      struct { // subtile
+        unsigned char pos; // x.stl.pos - coord x position (relative to subtile)
+        unsigned short num; // x.stl.num - subtile x position (relative to whole map)
         } stl;
-    } x;
-    union {
-      unsigned long val;
-      struct {
-        unsigned char pos;
-        unsigned short num;
+    } x; 
+    union { // y position
+      unsigned long val; // y.val - coord y position (relative to whole map)
+      struct { // subtile
+        unsigned char pos; // y.stl.pos - coord y position (relative to subtile)
+        unsigned short num; // y.stl.num - subtile y position (relative to whole map)
         } stl;
     } y;
 };
 
+/* Stores a 3d coordinate (x,y,z).
 
+Members:
+.val - coord position (relative to whole map)
+.stl.pos - coord position (relative to subtile)
+.stl.num - subtile position (relative to whole map)
+*/
 struct Coord3d {
-    union {
-      long val;
-      struct {
-        unsigned char pos;
-        unsigned short num;
+    union { // x position
+      long val; // x.val - coord x position (relative to whole map)
+      struct { // subtile
+        unsigned char pos; // x.stl.pos - coord x position (relative to subtile)
+        unsigned short num; // x.stl.num - subtile x position (relative to whole map)
         } stl;
     } x;
-    union {
-      long val;
-      struct {
-        unsigned char pos;
-        unsigned short num;
+    union { // y position
+      long val; // y.val - coord y position (relative to whole map)
+      struct { // subtile
+        unsigned char pos; // y.stl.pos - coord y position (relative to subtile)
+        unsigned short num; // y.stl.num - subtile y position (relative to whole map)
         } stl;
     } y;
-    union {
-      long val;
-      struct {
-        unsigned char pos;
-        unsigned short num;
+    union { // z position
+      long val; // z.val - coord z position (relative to whole map)
+      struct { // subtile
+        unsigned char pos; // z.stl.pos - coord z position (relative to subtile)
+        unsigned short num; // z.stl.num - subtile z position (relative to whole map)
         } stl;
     } z;
 };

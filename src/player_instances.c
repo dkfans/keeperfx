@@ -56,6 +56,7 @@
 #include "config_magic.h"
 #include "thing_shots.h"
 #include "bflib_inputctrl.h"
+#include "map_blocks.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1173,8 +1174,15 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);
     if (!room_is_invalid(room))
     {
-      if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
-        dungeon->lvstats.bridges_built++;
+        if (room_role_matches(rkind, RoRoF_PassWater | RoRoF_PassLava))
+        {
+            if ((player->allocflags & PlaF_CompCtrl) != 0)
+            {
+                //Computer players need sight to build more bridge tiles
+                set_explored_around(subtile_slab(stl_x), subtile_slab(stl_y), plyr_idx);
+            }
+            dungeon->lvstats.bridges_built++;
+        }
       if (is_my_player(player))
       {
           play_non_3d_sample(77);
