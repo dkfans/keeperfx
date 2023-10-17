@@ -1290,21 +1290,38 @@ void sort_campaigns_quicksort(struct CampaignsList *clist, int beg, int end)
   }
 }
 
-void sort_campaigns(struct CampaignsList *clist,const char *fname_first)
+void sort_campaigns(struct CampaignsList *clist,const char* sort_fname)
 {
-    int beg = 0;
-    for (int i = 0; i < clist->items_num; i++)
+
+    FILE *fp = fopen(sort_fname, "r");
+
+    if( !fp )
     {
-        if (strcasecmp(clist->items[i].fname,fname_first) == 0)
+        ERRORLOG("failed to read %s",sort_fname);
+        return;
+    }
+    int beg = 0;
+
+    char line[DISKPATH_SIZE];
+    while(fgets(line, DISKPATH_SIZE, fp)) {
+       
+        //cut off trailing \n
+        line[strlen(line)-1] = 0;
+
+        for (int i = 0; i < clist->items_num; i++)
         {
-            if (i > 0)
+            if (strcasecmp(clist->items[i].fname,line) == 0)
             {
-                swap_campaigns_in_list(clist, 0, i);
+                if (i != beg)
+                {
+                    swap_campaigns_in_list(clist, beg, i);
+                }
+                beg++;
+                break;
             }
-            beg++;
-            break;
         }
     }
+    fclose(fp);
     sort_campaigns_quicksort(clist, beg, clist->items_num);
 }
 
@@ -1330,7 +1347,8 @@ TbBool load_campaigns_list(void)
     }
     LbFileFindEnd(&fileinfo);
     SYNCDBG(0,"Found %d campaign files, properly loaded %d.",cnum_all,cnum_ok);
-    sort_campaigns(&campaigns_list,keeper_campaign_file);
+    const char* ordfname = prepare_file_path(FGrp_Campgn, "campgn_order.txt");
+    sort_campaigns(&campaigns_list,ordfname);
     return (campaigns_list.items_num > 0);
 }
 
@@ -1360,7 +1378,8 @@ TbBool load_mappacks_list(void)
     }
     LbFileFindEnd(&fileinfo);
     SYNCDBG(0,"Found %d map pack files, properly loaded %d.",cnum_all,cnum_ok);
-    sort_campaigns(&mappacks_list,deeper_mappack_file);
+    const char* ordfname = prepare_file_path(FGrp_VarLevels, "mappck_order.txt");
+    sort_campaigns(&mappacks_list,ordfname);
     return (mappacks_list.items_num > 0);
 }
 
