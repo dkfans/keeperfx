@@ -6824,7 +6824,7 @@ msgstr "니콜라이의 성 캠패인"
 
 #: guitext:1027
 msgctxt "Menu interface item"
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - New Game+"
 msgstr "던전 키퍼 - 새 게임+"
 
 #: guitext:1028
