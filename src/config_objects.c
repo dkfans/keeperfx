@@ -669,6 +669,7 @@ void update_all_object_stats()
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
     struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
@@ -680,7 +681,8 @@ void update_all_object_stats()
         thing->flags = 0;
         thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
 
-        if (thing_is_dungeon_heart(thing))
+        dungeon = get_dungeon(thing->owner);
+        if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
         {
             dungeonadd = get_dungeonadd(thing->owner);
             if (dungeonadd->backup_heart_idx == 0)
