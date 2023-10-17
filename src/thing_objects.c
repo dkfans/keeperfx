@@ -94,16 +94,6 @@ static Thing_Class_Func object_update_functions[] = {
     object_update_object_scale,
     object_update_power_sight,
     object_update_power_lightning,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    NULL,
-    object_update_dungeon_heart, //todo remove
-    NULL,
-    NULL,
-    NULL,
-    NULL,
 };
 
 /**
