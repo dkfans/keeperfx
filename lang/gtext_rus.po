@@ -6966,7 +6966,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - New Game+"
 msgstr ""
 
 #: guitext:1028
