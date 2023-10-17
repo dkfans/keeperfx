@@ -1626,11 +1626,10 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         // todo duration
         // todo sound
 
-        for (int i=0; i < spconf->crtr_summon_amount; i++)
-
+        for (int j=0; j < spconf->crtr_summon_amount; j++)
         {
             struct Thing *sumntng = activate_trap_spawn_creature(castng, spconf->crtr_summon_model);
-                if (!thing_is_invalid(sumntng))
+            if (!thing_is_invalid(sumntng))
             {
                 struct CreatureControl* smncctrl = creature_control_get_from_thing(sumntng);
                 smncctrl->summoner_idx = castng->index;
