@@ -411,8 +411,9 @@ unsigned char cowers_from_slap_turns;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
-    unsigned long unsummon_turn;
-    short summoner_idx;
+    GameTurn unsummon_turn;
+    ThingIndex summoner_idx;
+    ThingIndex familiar_idx[8]; //todo magic number
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
