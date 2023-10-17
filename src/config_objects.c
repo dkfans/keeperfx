@@ -668,6 +668,7 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
 void update_all_object_stats()
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
+    struct DungeonAdd* dungeonadd;
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
@@ -678,6 +679,15 @@ void update_all_object_stats()
         // TODO: Should we rotate this on per-object basis?
         thing->flags = 0;
         thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+
+        if (thing_is_dungeon_heart(thing))
+        {
+            dungeonadd = get_dungeonadd(thing->owner);
+            if (dungeonadd->backup_heart_idx == 0)
+            {
+                dungeonadd->backup_heart_idx = thing->index;
+            }
+        }
 
         struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
         if (thing->light_id != 0)
@@ -697,6 +707,7 @@ void update_all_object_stats()
         }
     }
 }
+
 TbBool load_objects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global objects config";
