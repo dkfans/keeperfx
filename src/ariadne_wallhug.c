@@ -2051,13 +2051,6 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
     return false;
 }
 
-TbBool slab_good_for_computer_claim_path(const struct SlabMap* slb)
-{
-    if ((slb->kind == SlbT_WATER) || (slb->kind == SlbT_LAVA))
-        return true;
-    return false;
-}
-
 static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned short digflags)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -2070,12 +2063,9 @@ static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pla
             return false;
         }
     }
-    if ((digflags & ToolDig_AllowLiquidWBridge) == ToolDig_AllowLiquidWBridge)
+    if ((digflags & ToolDig_AllowLiquidWBridge) && slab_kind_is_liquid(slb->kind))
     {
-        if (slab_good_for_computer_claim_path(slb))
-        {
-            return false;
-        }
+        return false;
     }
     if (!slab_good_for_computer_dig_path(slb)) {
         SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
