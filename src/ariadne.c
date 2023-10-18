@@ -4458,7 +4458,7 @@ long triangle_area1(long tri_idx)
     return llabs(area1+area2);
 }
 
-static void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char ntree_alt)
+static void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned short ntree_alt)
 {
     // Replace start and end if they are switched
     if (end_x < start_x)
@@ -4680,7 +4680,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     for (dy = 1; dy < len_y; dy++)
     {
         // Our data is 0-terminated, so we can use string functions to compare
-        if (memcmp(&fri_map[(gameadd.map_subtiles_x + 1) * dy], &fri_map[0], dx) != 0) {
+        if (memcmp(&fri_map[(gameadd.map_subtiles_x + 1) * dy], &fri_map[0], dx*sizeof(short)) != 0) {
             break;
         }
     }
