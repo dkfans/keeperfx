@@ -130,6 +130,7 @@ namespace
         host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
         if (!host)
         {
+            NETMSG("Unable to join: failed to create host");
             return Lb_FAIL;
         }
         P = strchr(session,':');
@@ -141,6 +142,7 @@ namespace
             {
                 host_destroy();
                 return Lb_FAIL;
+                NETMSG("Unable to join: did not find a port");
             }
         }
         else
@@ -151,16 +153,19 @@ namespace
         if (enet_address_set_host(&address, buf) < 0)
         {
             host_destroy();
+            NETMSG("Unable to join: found no address %s", address.host);
             return Lb_FAIL;
         }
         client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
         if (!client_peer)
         {
+            NETMSG("Unable to join: unable to connect to host");
             return Lb_FAIL;
         }
         if (wait_for_connect(CONNECT_TIMEOUT))
         {
             host_destroy();
+            NETMSG("Unable to join: connection timed out");
             return Lb_FAIL;
         }
         return Lb_OK;

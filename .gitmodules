@@ -10,4 +10,4 @@
 	url = https://github.com/mity/centijson.git
 [submodule "deps/enet"]
 	path = deps/enet
-	url = https://github.com/lsalzman/enet.git
+	url = https://github.com/zpl-c/enet.git
