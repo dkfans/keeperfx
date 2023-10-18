@@ -40,7 +40,6 @@
 #include "engine_render.h"
 #include "gui_topmsg.h"
 
-#include "thing_navigate.h"
 #include "keeperfx.hpp"
 #include "creature_senses.h"
 #include "cursor_tag.h"
@@ -572,7 +571,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         break;
     case TrpAcT_CreatureShot:
         creature_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
-        traptng->move_angle_xy = get_angle_xy_to(&traptng->mappos, &creatng->mappos) & LbFPMath_AngleMask;
+        traptng->move_angle_xy = get_angle_xy_to(&traptng->mappos, &creatng->mappos);
         break;
     case TrpAcT_CreatureSpawn:
         activate_trap_spawn_creature(traptng, trapstat->created_itm_model);
