@@ -582,7 +582,7 @@ TbBool thing_is_beating_dungeon_heart(const struct Thing* thing)
     if (!thing_is_object(thing))
         return false;
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    return (objst->model_flags & (OMF_Beating|OMF_Heart));
+    return ((objst->model_flags & (OMF_Beating | OMF_Heart)) == (OMF_Beating | OMF_Heart));
 }
 
 TbBool thing_is_mature_food(const struct Thing *thing)
