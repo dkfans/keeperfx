@@ -4797,7 +4797,7 @@ long get_navigation_colour_for_door(long stl_x, long stl_y)
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if ((players_are_mutual_allies(plyr_idx,doortng->owner) && doortng->door.is_locked) ||
-            (plyr_idx != doortng->owner && doorst->model_flags & DoMF_Secret && !(doortng->door.revealed & (1 << plyr_idx))))
+            ((plyr_idx != doortng->owner) && (doorst->model_flags & DoMF_Secret) && !(doortng->door.revealed & (1 << plyr_idx))))
         {
             color |= 1 << (NAVMAP_OWNERSELECT_BIT + plyr_idx);
         }
