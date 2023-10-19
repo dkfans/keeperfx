@@ -55,7 +55,7 @@ struct Map {
 /******************************************************************************/
 extern struct Map bad_map_block;
 extern MapSubtlCoord map_subtiles_z;
-extern unsigned short *IanMap;
+extern NavColour *IanMap;
 extern long nav_map_initialised;
 /******************************************************************************/
 /** Convert subtile to slab. */

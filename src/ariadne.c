@@ -74,8 +74,8 @@ static long tree_Ax8;
 static long tree_Ay8;
 static long tree_Bx8;
 static long tree_By8;
-static unsigned short *LastTriangulatedMap;
-static unsigned short *fringe_map;
+static NavColour *LastTriangulatedMap;
+static NavColour *fringe_map;
 static long fringe_y1;
 static long fringe_y2;
 static long fringe_x1;
@@ -350,7 +350,7 @@ unsigned long fits_thro(long tri_idx, long ormask_idx)
     return EdgeFit[eidx];
 }
 
-void triangulate_map(unsigned short *imap)
+void triangulate_map(NavColour *imap)
 {
     triangulate_area(imap, 0, 0, gameadd.navigation_map_size_x, gameadd.navigation_map_size_y);
 }
@@ -359,7 +359,7 @@ void init_navigation_map(void)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    LbMemorySet(game.navigation_map, 0, sizeof(unsigned short)*gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
+    LbMemorySet(game.navigation_map, 0, sizeof(NavColour)*gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
     for (stl_y=0; stl_y < gameadd.navigation_map_size_y; stl_y++)
     {
         for (stl_x=0; stl_x < gameadd.navigation_map_size_x; stl_x++)
@@ -404,7 +404,7 @@ long navigation_rule_normal(long treeA, long treeB)
 
 long init_navigation(void)
 {
-    IanMap = (unsigned short *)&game.navigation_map;
+    IanMap = (NavColour *)&game.navigation_map;
     init_navigation_map();
     triangulate_map(IanMap);
     nav_rulesA2B = navigation_rule_normal;
@@ -4084,12 +4084,12 @@ static TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
     return true;
 }
 
-TbBool border_clip_horizontal(const unsigned short *imap, long start_x, long end_x, long start_y, long end_y)
+TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, long start_y, long end_y)
 {
-    unsigned short map_center;
-    unsigned short map_up;
-    const unsigned short* mapp_center;
-    const unsigned short* mapp_up;
+    NavColour map_center;
+    NavColour map_up;
+    const NavColour* mapp_center;
+    const NavColour* mapp_up;
     TbBool r;
     long i;
     r = true;
@@ -4128,12 +4128,12 @@ TbBool border_clip_horizontal(const unsigned short *imap, long start_x, long end
     return r;
 }
 
-TbBool border_clip_vertical(const unsigned short *imap, long start_x, long end_x, long start_y, long end_y)
+TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, long start_y, long end_y)
 {
-    unsigned short map_center;
-    unsigned short map_left;
-    const unsigned short* mapp_center;
-    const unsigned short* mapp_left;
+    NavColour map_center;
+    NavColour map_left;
+    const NavColour* mapp_center;
+    const NavColour* mapp_left;
     TbBool r;
     long i;
     r = true;
@@ -4512,7 +4512,7 @@ static void brute_fill_rectangle(long start_x, long start_y, long end_x, long en
 }
 
 #define fill_rectangle(start_x, start_y, end_x, end_y, nav_colour) fill_rectangle_f(start_x, start_y, end_x, end_y, nav_colour, __func__)
-void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsigned short nav_colour, const char *func_name)
+void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour, const char *func_name)
 {
     long tri_n0;
     long tri_k0;
@@ -4577,7 +4577,7 @@ void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsign
     brute_fill_rectangle(start_x, start_y, end_x, end_y, nav_colour);
 }
 
-TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned short nav_colour)
+TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour)
 {
     long sx;
     long sy;
@@ -4654,7 +4654,7 @@ long fringe_scan(long *outfri_x, long *outfri_y, long *outlen_x, long *outlen_y)
     return 1;
 }
 
-long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, unsigned short *oval)
+long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, NavColour *oval)
 {
     NAVIDBG(19,"Starting");
     long fri_x;
@@ -4666,7 +4666,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     if (!fringe_scan(&fri_x,&fri_y,&len_x,&len_y)) {
         return 0;
     }
-    unsigned short *fri_map;
+    NavColour *fri_map;
     fri_map = &fringe_map[get_subtile_number(fri_x,fri_y)];
     // Find dx and dy
     long dx;
@@ -4680,7 +4680,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     for (dy = 1; dy < len_y; dy++)
     {
         // Our data is 0-terminated, so we can use string functions to compare
-        if (memcmp(&fri_map[(gameadd.map_subtiles_x + 1) * dy], &fri_map[0], dx*sizeof(short)) != 0) {
+        if (memcmp(&fri_map[(gameadd.map_subtiles_x + 1) * dy], &fri_map[0], dx*sizeof(NavColour)) != 0) {
             break;
         }
     }
@@ -4781,10 +4781,10 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
     return false;
 }
 
-long get_navigation_colour_for_door(long stl_x, long stl_y)
+NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
 {
     struct Thing *doortng;
-    long color = (1 << NAVMAP_FLOORHEIGHT_BIT);
+    NavColour color = (1 << NAVMAP_FLOORHEIGHT_BIT);
 
     doortng = get_door_for_position(stl_x, stl_y);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
@@ -4806,11 +4806,11 @@ long get_navigation_colour_for_door(long stl_x, long stl_y)
     
 }
 
-long get_navigation_colour_for_cube(long stl_x, long stl_y)
+NavColour get_navigation_colour_for_cube(long stl_x, long stl_y)
 {
     long tcube;
     long cube_pos;
-    long i;
+    NavColour i;
     i = get_floor_filled_subtiles_at(stl_x, stl_y);
     if (i > NAVMAP_FLOORHEIGHT_MAX)
       i = NAVMAP_FLOORHEIGHT_MAX;
@@ -4820,7 +4820,7 @@ long get_navigation_colour_for_cube(long stl_x, long stl_y)
     return i;
 }
 
-long get_navigation_colour(long stl_x, long stl_y)
+NavColour get_navigation_colour(long stl_x, long stl_y)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
