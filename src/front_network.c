@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "bflib_inputctrl.h"
 #include "bflib_network.h"
 #include "bflib_netsession.h"
 #include "bflib_guibtns.h"
@@ -36,6 +37,7 @@
 #include "gui_draw.h"
 #include "front_simple.h"
 #include "front_landview.h"
+#include "front_masterserver.h"
 #include "frontend.h"
 #include "player_data.h"
 #include "net_game.h"
@@ -186,7 +188,7 @@ void enum_players_callback(struct TbNetworkCallbackData *netcdat, void *a2)
 
 void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
 {
-    if (net_number_of_sessions >= 32)
+    if (net_number_of_sessions >= MAX_SESSIONS)
     {
         ERRORLOG("Too many sessions in enumeration");
         return;
@@ -199,7 +201,7 @@ void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
     if (net_number_of_sessions == 0)
     {
         net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-        strcpy(&netcdat->svc_name[8],get_string(GUIStr_NetModem));
+        strcpy(&netcdat->svc_name[8],get_string(GUIStr_Public));
         net_number_of_sessions++;
     }
 }
@@ -227,25 +229,190 @@ static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *
     }
 }
 
+static int masterserver_sessions_num = 0;
+static int masterserver_ping_session = 0;
+static struct TbNetworkSessionNameEntry masterserver_sessions[MAX_SESSIONS];
+
+void masterserver_fetch_sessions()
+{
+    VALUE ret_obj;
+    VALUE *ret = &ret_obj, *val, *lst;
+    masterserver_sessions_num = 0;
+    masterserver_ping_session = 0;
+    if (net_service_index_selected != NS_ENET_UDP)
+    {
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Masterserver is for ENET only" );
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+        return;
+    }
+    const char *masterserver_host = value_string(value_dict_get(&config_dict, "MASTERSERVER_HOST"));
+    if (masterserver_host == NULL || *masterserver_host == 0)
+    {
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Masterserver is not configured" );
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+
+        return;
+    }
+    if (!send_json_to_masterserver("{\"method\":\"list_lobbies\"}\n", ret))
+    {
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, get_string(GUIStr_NetClear)); //No masterserver response
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+        return;
+    }
+    VALUE_GET_KEY("v")
+    if (value_int32(val) != 1)
+    {
+        ERRORLOG("Unsupported ver");
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, get_string(GUIStr_NetHangup)); // version mismatch
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+        goto end;
+    }
+    VALUE_GET_KEY("success");
+    if (!value_bool(val))
+    {
+        ERRORLOG("Got an error from masterserver");
+        goto end;
+    }
+    VALUE_GET_KEY("lobbies");
+    if (value_type(val) != VALUE_ARRAY)
+    {
+        goto unable;
+    }
+    lst = val;
+    if (value_array_size(lst) == 0)
+    {
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, get_string(GUIStr_NetInit)); //No lobbies
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+        goto end;
+    }
+    for (size_t i = 0; i < value_array_size(lst); i++)
+    {
+        VALUE *row = value_array_get(lst, i);
+        VALUE *name, *ip, *port, *status, *version;
+        //value_dict_walk_sorted(ret, print_lst, NULL);
+        name = value_dict_get(row, "name");
+        if ((name == NULL) || (value_string(name) == NULL))
+        {
+            goto unable;
+        }
+        ip = value_dict_get(row,"ip");
+        if ((ip == NULL) || (value_string(ip) == NULL))
+        {
+            goto unable;
+        }
+        port = value_dict_get(row,"port");
+        if ((port == NULL) || (value_int32(port) == 0))
+        {
+            goto unable;
+        }
+        status = value_dict_get(row,"status");
+        if ((status != NULL) && (value_string(status) != NULL) && \
+            (0 != strcmp(value_string(status), MASTERSERVER_STATUS_OPEN)))
+        {
+            continue;
+        }
+        int len = value_string_length(name);
+        if (value_string_length(name) >= sizeof(masterserver_sessions[masterserver_sessions_num].text))
+        {
+            WARNLOG("Session name too long ses:%s %d", value_string(name), len);
+            continue;
+        }
+        if (value_string_length(ip) >= 14)
+        {
+            WARNLOG("Session ip too long ses:%s %d", value_string(name), value_string_length(ip));
+            continue;
+        }
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, value_string(name) );
+        version = value_dict_get(row,"game_version");
+        if (value_string(version) && (0 == strcmp(PRODUCT_VERSION, value_string(version))))
+        {
+            masterserver_sessions[masterserver_sessions_num].is_invalid_version = false;
+            masterserver_sessions[masterserver_sessions_num].joinable = true;
+        }
+        else
+        {
+            masterserver_sessions[masterserver_sessions_num].is_invalid_version = true;
+            masterserver_sessions[masterserver_sessions_num].joinable = false;
+        }
+        masterserver_sessions[masterserver_sessions_num].is_message = false;
+        sprintf(masterserver_sessions[masterserver_sessions_num].ip_port, "%s:%d", value_string(ip), value_int32(port));
+        masterserver_sessions_num++;
+        if (masterserver_sessions_num >= MAX_SESSIONS)
+            break;
+       /* TODO: not used: has_password, players, status */
+    }
+    goto end;
+    unable:
+    WARNLOG("Unable to parse answer from masterserver");
+    end:
+    if (masterserver_sessions_num == 0)
+    {
+        strcpy(masterserver_sessions[masterserver_sessions_num].text, "Unable to parse answer from masterserver");
+        masterserver_sessions[masterserver_sessions_num].joinable = false;
+        masterserver_sessions[masterserver_sessions_num].is_message = true;
+        masterserver_sessions_num++;
+    }
+    value_fini(ret);
+}
+
+TbBool ping_host_sometimes(struct TbNetworkSessionNameEntry *p_entry)
+{
+    if (p_entry->is_message || !p_entry->joinable)
+        return true;
+    if (LbNetwork_PingSession(p_entry) == Lb_OK)
+        return false;
+    return true;
+}
+
 void frontnet_session_update(void)
 {
     static long last_enum_players = 0;
-    static long last_enum_sessions = 0;
+    static TbClockMSec last_enum_sessions = 0;
 
+    LbNetwork_EnumerateUpdate();
     if (LbTimerClock() >= last_enum_sessions)
     {
       net_number_of_sessions = 0;
       LbMemorySet(net_session, 0, sizeof(net_session));
       if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
-        ERRORLOG("LbNetwork_EnumerateSessions() failed");
-      last_enum_sessions = LbTimerClock();
+      {
+          ERRORLOG("LbNetwork_EnumerateSessions() failed");
+      }
+      //Check masterserver
+
+      if (masterserver_sessions_num > 0)
+      {
+          if (ping_host_sometimes(&masterserver_sessions[masterserver_ping_session]))
+          {
+              masterserver_ping_session++;
+              if (masterserver_ping_session >= masterserver_sessions_num)
+                  masterserver_ping_session = 0;
+          }
+
+          for (int i = 0; i < masterserver_sessions_num; i++)
+          {
+              net_session[net_number_of_sessions] = &masterserver_sessions[i];
+              net_number_of_sessions++;
+          }
+      }
+
+      last_enum_sessions = LbTimerClock() + 500; // Session update time
 
       if (net_number_of_sessions == 0)
       {
         net_session_index_active = -1;
-        net_session_index_active_id = -1;
-      } else
-      if (net_session_index_active != -1)
+      }
+      else if (net_session_index_active != -1)
       {
           if ((net_session_index_active >= net_number_of_sessions)
             || (!net_session[net_session_index_active]->joinable))
@@ -260,16 +427,14 @@ void frontnet_session_update(void)
               }
             }
           }
-          if (net_session_index_active == -1)
-            net_session_index_active_id = -1;
       }
     }
 
     if ((net_number_of_sessions == 0) || (net_session_scroll_offset < 0))
     {
       net_session_scroll_offset = 0;
-    } else
-    if (net_session_scroll_offset > net_number_of_sessions-1)
+    }
+    else if (net_session_scroll_offset > net_number_of_sessions-1)
     {
       net_session_scroll_offset = net_number_of_sessions-1;
     }
@@ -277,15 +442,14 @@ void frontnet_session_update(void)
     if (net_session_index_active == -1)
     {
       net_number_of_enum_players = 0;
-    } else
-    if (LbTimerClock() >= last_enum_players)
+    }
+    else if (LbTimerClock() >= last_enum_players)
     {
       net_number_of_enum_players = 0;
       LbMemorySet(net_player, 0, sizeof(net_player));
       if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
       {
         net_session_index_active = -1;
-        net_session_index_active_id = -1;
         return;
       }
       last_enum_players = LbTimerClock();
@@ -294,12 +458,12 @@ void frontnet_session_update(void)
     if (net_number_of_enum_players == 0)
     {
       net_player_scroll_offset = 0;
-    } else
-    if (net_player_scroll_offset < 0)
+    }
+    else if (net_player_scroll_offset < 0)
     {
       net_player_scroll_offset = 0;
-    } else
-    if (net_player_scroll_offset > net_number_of_enum_players-1)
+    }
+    else if (net_player_scroll_offset > net_number_of_enum_players-1)
     {
       net_player_scroll_offset = net_number_of_enum_players-1;
     }
@@ -329,8 +493,9 @@ void frontnet_rewite_net_messages(void)
 void frontnet_start_update(void)
 {
     static TbClockMSec player_last_time = 0;
+    static TbClockMSec masterserver_update_time = 0;
     SYNCDBG(18,"Starting");
-    if (LbTimerClock() >= player_last_time+200)
+    if (LbTimerClock() > player_last_time)
     {
       net_number_of_enum_players = 0;
       LbMemorySet(net_player, 0, sizeof(net_player));
@@ -339,7 +504,15 @@ void frontnet_start_update(void)
         ERRORLOG("LbNetwork_EnumeratePlayers() failed");
         return;
       }
-      player_last_time = LbTimerClock();
+      player_last_time = LbTimerClock() + 200;
+    }
+    if (LbTimerClock() > masterserver_update_time)
+    {
+        masterserver_update_time = LbTimerClock() + MASTERSERVER_KEEPALIVE_TIME;
+        if (my_player_number == SERVER_ID)
+        {
+            masterserver_send_update();
+        }
     }
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {
@@ -351,6 +524,16 @@ void frontnet_start_update(void)
     }
     process_frontend_packets();
     frontnet_rewite_net_messages();
+}
+
+void display_message(const char *msg)
+{
+    if (LbScreenLock() == Lb_SUCCESS)
+    {
+        draw_text_box(msg);
+        LbScreenUnlock();
+    }
+    LbScreenSwap();
 }
 
 void display_attempting_to_join_message(void)
@@ -418,10 +601,13 @@ void frontnet_session_setup(void)
         snprintf(net_player_name, sizeof(net_player_name), "%s", net_config_info.net_player_name);
         strcpy(tmp_net_player_name, net_config_info.net_player_name);
     }
+    masterserver_sessions_num = 0;
+    masterserver_ping_session = 0;
     net_session_index_active = -1;
     fe_computer_players = 2;
     lbInkey = 0;
-    net_session_index_active_id = -1;
+    if (net_service_index_selected == NS_ENET_UDP)
+        masterserver_fetch_sessions();
 }
 
 void frontnet_start_setup(void)

@@ -1,0 +1,32 @@
+[[data]]
+
+name = "icon_refresh_red"
+file = "glyphs.png"
+src_x = 170
+src_y = 0
+src_w = 16
+src_h = 26
+colormap = { "b83000" = 0xF2, "080400" = 0x10, "9c3000" = 0xF1, "483410" = 0xF5, "f4f498" = 0xF8, "9c5824" = 229, "f0e480" = 0xB7 }
+# "b83000" = 0xF0, "9c3000" = 0xF1, "7c3410" = 3, "483410" = 4 (gray) # "080400" = 6 (black)
+# f4f498" = 0xF8 yellow "9c5824" = yellow tail
+# F0-F3 - Red
+# F4-F7 - Brownish
+# F8 - Yellow
+# FB - brown-green
+# FD - gray?
+# FE - dark brown
+# FF - purple
+# bright red = 243
+# dark red = 228; maybeblack = 234
+# 240 red
+# yellow = 248  //// 229 yellow brown
+
+[[data]]
+
+name = "icon_refresh_yellow"
+file = "glyphs.png"
+src_x = 170
+src_y = 26
+src_w = 16
+src_h = 26
+colormap = { "b83000" = 0xF2, "080400" = 0x10, "9c3000" = 0xF1, "483410" = 0xF5, "f4f498" = 0xF8, "9c5824" = 229, "f0e480" = 0xB7 }

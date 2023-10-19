@@ -8,7 +8,7 @@
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   KeeperFX Team
- * @date     05 Jan 2009 - 09 Oct 2010
+ * @date     05 Jan 2009 - Aug 2023
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -47,6 +47,7 @@ void frontnet_session_maintain(struct GuiButton *gbtn);
 void frontnet_players_up_maintain(struct GuiButton *gbtn);
 void frontnet_players_down_maintain(struct GuiButton *gbtn);
 void frontnet_join_game_maintain(struct GuiButton *gbtn);
+void frontnet_refresh_maintain(struct GuiButton* gbtn);
 void frontnet_maintain_alliance(struct GuiButton *gbtn);
 void frontnet_messages_up_maintain(struct GuiButton *gbtn);
 void frontnet_messages_down_maintain(struct GuiButton *gbtn);
@@ -79,12 +80,13 @@ void frontnet_players_down_maintain(struct GuiButton *gbtn);
 void frontnet_draw_players_scroll_tab(struct GuiButton *gbtn);
 void frontnet_draw_net_session_players(struct GuiButton *gbtn);
 void frontnet_session_add(struct GuiButton *gbtn);
+void frontnet_masterserver_refresh(struct GuiButton *gbtn);
+void frontend_masterserver_draw_refresh(struct GuiButton *gbtn);
 void frontnet_session_join(struct GuiButton *gbtn);
 void frontnet_session_create(struct GuiButton *gbtn);
 void frontnet_return_to_main_menu(struct GuiButton *gbtn);
 void frontnet_add_session_done(struct GuiButton *gbtn);
 void frontnet_add_session_back(struct GuiButton *gbtn);
-void frontnet_join_game_maintain(struct GuiButton *gbtn);
 void frontnet_draw_alliance_box_tab(struct GuiButton *gbtn);
 void frontnet_draw_net_start_players(struct GuiButton *gbtn);
 void frontnet_select_alliance(struct GuiButton *gbtn);
@@ -111,6 +113,10 @@ void frontnet_service_up(struct GuiButton *gbtn);
 void frontnet_service_down(struct GuiButton *gbtn);
 void frontnet_service_maintain(struct GuiButton *gbtn);
 void frontnet_draw_service_button(struct GuiButton *gbtn);
+void frontnet_init_session_start_menu();
+void frontnet_init_session_menu();
+
+short frontnet_map_latency_to_icon(int latency_time);
 
 #define frontnet_draw_scroll_box_tab frontend_draw_scroll_box_tab
 #define frontnet_draw_scroll_box frontend_draw_scroll_box

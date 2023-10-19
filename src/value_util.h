@@ -35,3 +35,4 @@ static inline MapCoord value_read_stl_coord(VALUE *value)
 
 int value_parse_class(VALUE *value);
 int value_parse_model(int oclass, VALUE *value);
+void value_dump(VALUE *value, char *buf, char *end);

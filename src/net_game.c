@@ -42,7 +42,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
-struct TbNetworkSessionNameEntry *net_session[32];
+struct TbNetworkSessionNameEntry *net_session[MAX_SESSIONS];
 long net_number_of_sessions;
 long net_session_index_active;
 struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];
@@ -99,6 +99,11 @@ static CoroutineLoopState setup_exchange_player_number(CoroutineLoop *context)
               default: player->view_mode_restore = PVM_IsoWibbleView; break;
           }
           player->is_active = pckt->actn_par1;
+          TbClockMSec latency = 0;
+          if (LbNetwork_GetLatency(i , &latency) == Lb_SUCCESS)
+          {
+              net_player_info[i].latency = latency;
+          }
           init_player(player, 0);
           snprintf(player->player_name, sizeof(struct TbNetworkPlayerName), "%s", net_player[i].name);
           k++;
@@ -190,7 +195,7 @@ long network_session_join(void)
 {
     long plyr_num;
     display_attempting_to_join_message();
-    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num, NULL) )
+    if ( LbNetwork_Join(net_session[net_session_index_active], net_player_name, &plyr_num) )
     {
       process_network_error(-802);
       return -1;

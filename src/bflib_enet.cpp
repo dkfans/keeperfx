@@ -13,6 +13,7 @@
 /******************************************************************************/
 
 #include "pre_inc.h"
+#include "bflib_datetm.h"
 #include "bflib_enet.h"
 #include "bflib_network.h"
 
@@ -25,6 +26,7 @@
 
 #define NUM_CHANNELS 2
 #define CONNECT_TIMEOUT 3000
+#define PING_TIMEOUT 300
 #define DEFAULT_PORT 5556
 
 namespace
@@ -32,6 +34,9 @@ namespace
     NetDropCallback g_drop_callback = nullptr;
     ENetHost *host = nullptr;
     ENetPeer *client_peer = nullptr;
+
+    TbBool ping_is_active = false;
+    TbClockMSec ping_start_time = 0;
 
     // List
     ENetPacket *oldest_packet = nullptr;
@@ -63,6 +68,7 @@ namespace
         }
         if (client_peer)
         {
+            enet_peer_disconnect_now(client_peer, 0);
             client_peer = nullptr;
         }
         if (host)
@@ -70,6 +76,7 @@ namespace
             enet_host_destroy(host);
             host = nullptr;
         }
+        ping_is_active = false;
     }
 
     void bf_enet_exit()
@@ -77,6 +84,36 @@ namespace
         host_destroy();
         g_drop_callback = nullptr;
         enet_deinitialize();
+    }
+
+#define PARSE_ADDRESS(src_str, dst_addr) \
+    {                   \
+        P = strchr(src_str,':'); \
+        if (P) \
+        { \
+            strncpy(buf, src_str, P - src_str); \
+            dst_addr.port = strtoul(P + 1, &E, 10); \
+            if (dst_addr.port == 0) \
+            { \
+                goto fail;      \
+            }                            \
+        }                            \
+        else \
+        { \
+            strncpy(buf, src_str, sizeof(buf) - 1); \
+        }                            \
+        if (enet_address_set_host(&dst_addr, buf) < 0) \
+        { \
+        goto fail;  \
+        }           \
+    }
+
+#define USE_BIND(dst_addr) \
+    VALUE *net_opts = (VALUE*)options; \
+    const char *bind_addr = value_string(value_dict_get(net_opts, "bind")); \
+    if (bind_addr) \
+    { \
+        PARSE_ADDRESS(bind_addr, dst_addr); \
     }
 
     /**
@@ -88,14 +125,24 @@ namespace
      */
     TbError bf_enet_host(const char *session, void *options)
     {
-        ENetAddress addr = {.host = 0,
-                            .port = DEFAULT_PORT };
+        char buf[64] = {0};
+        const char *P;
+        char *E;
+        ENetAddress addr = {ENET_HOST_ANY, DEFAULT_PORT};
         if (!*session)
             return Lb_FAIL;
+        if (ping_is_active)
+        {
+            host_destroy();
+        }
+        USE_BIND(addr);
         host = enet_host_create(&addr, 4, NUM_CHANNELS, 0, 0);
         return Lb_OK;
+        fail:
+        return Lb_FAIL;
     }
 
+    // This is blocking!
     int wait_for_connect(int timeout)
     {
         ENetEvent ev;
@@ -127,43 +174,105 @@ namespace
         const char *P;
         char *E;
         ENetAddress address = {ENET_HOST_ANY, ENET_PORT_ANY};
+        if (ping_is_active)
+        {
+            host_destroy();
+        }
+        USE_BIND(address);
         host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
         if (!host)
         {
             return Lb_FAIL;
         }
-        P = strchr(session,':');
-        if (P)
-        {
-            strncpy(buf, session, P-session);
-            address.port = strtoul(P+1, &E, 10);
-            if (address.port == 0)
-            {
-                host_destroy();
-                return Lb_FAIL;
-            }
-        }
-        else
-        {
-            strncpy(buf, session, sizeof(buf) - 1);
-            address.port = DEFAULT_PORT;
-        }
-        if (enet_address_set_host(&address, buf) < 0)
-        {
-            host_destroy();
-            return Lb_FAIL;
-        }
+        address.port = DEFAULT_PORT;
+        PARSE_ADDRESS(session, address);
         client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
         if (!client_peer)
         {
-            return Lb_FAIL;
+            goto fail;
         }
         if (wait_for_connect(CONNECT_TIMEOUT))
         {
-            host_destroy();
-            return Lb_FAIL;
+            goto fail;
         }
         return Lb_OK;
+        fail:
+        host_destroy();
+        return Lb_FAIL;
+    }
+
+    TbError bf_enet_get_latency(NetUserId client_id, TbClockMSec *latency)
+    {
+        if (client_peer != nullptr)
+        {
+            return Lb_FAIL;
+        }
+        if (host == nullptr)
+        {
+            return Lb_FAIL;
+        }
+        for (int i = 0; i < host->peerCount; i++)
+        {
+            ENetPeer *peer = &host->peers[i];
+            if (NetUserId(reinterpret_cast<ptrdiff_t>(peer->data)) == client_id)
+            {
+                *latency = peer->roundTripTime;
+                return Lb_SUCCESS;
+            }
+        }
+        return Lb_OK;
+    }
+
+    TbError bf_enet_ping(const char *session, TbClockMSec *latency, void *options)
+    {
+        char buf[64] = {0};
+        const char *P;
+        char *E;
+        ENetAddress address = {ENET_HOST_ANY, ENET_PORT_ANY};
+        if (!ping_is_active)
+        {
+            if (host)
+            {
+                ERRORLOG("Trying to ping while there is a host already");
+                return Lb_FAIL;
+            }
+            USE_BIND(address);
+            host = enet_host_create(&address, 4, NUM_CHANNELS, 0, 0);
+            if (!host || !latency)
+            {
+                goto fail;
+            }
+            *latency = -2;
+            address.port = DEFAULT_PORT;
+            PARSE_ADDRESS(session, address);
+            client_peer = enet_host_connect(host, &address, NUM_CHANNELS, 0);
+            if (!client_peer)
+            {
+                goto fail;
+            }
+            ping_is_active = true;
+            ping_start_time = LbTimerClock();
+            return Lb_OK;
+        }
+        if (client_peer->state != ENET_PEER_STATE_CONNECTED)
+        {
+            if (LbTimerClock() > ping_start_time + PING_TIMEOUT)
+            {
+                ping_is_active = false;
+                *latency = -1;
+                host_destroy();
+                return Lb_SUCCESS;
+            }
+            return Lb_OK;
+        }
+        // Connected
+        *latency = client_peer->roundTripTime;
+        ping_is_active = false;
+        host_destroy();
+        return Lb_SUCCESS;
+        fail:
+        host_destroy();
+        return Lb_FAIL;
     }
 
     /*
@@ -230,7 +339,7 @@ namespace
      */
     void bf_enet_update(NetNewUserCallback new_user)
     {
-        while (bf_enet_read_event(new_user, 0))
+        while (bf_enet_read_event(new_user, 0) > 0)
         {
             // Loop
         }
@@ -348,6 +457,8 @@ struct NetSP *InitEnetSP()
             .host = &bf_enet_host,
             .join = &bf_enet_join,
             .update = &bf_enet_update,
+            .ping = &bf_enet_ping,
+            .get_latency = &bf_enet_get_latency,
             .sendmsg_single = &bf_enet_sendmsg_single,
             .sendmsg_all = &bf_enet_sendmsg_all,
             .msgready = &bf_enet_msgready,

@@ -316,6 +316,7 @@ struct FrontEndButtonData frontend_button_info[] = {
     {GUIStr_MnuAddComputer, 1}, // [110]
     {GUIStr_MnuReturnToFreePlay, 1},
     {GUIStr_MnuMapPacks, 2},
+    {GUIStr_NetSessionMenu, 0},
 };
 
 // bttn_sprite, tooltip_stridx, msg_stridx, lifespan_turns, turns_between_events, replace_event_kind_button;
@@ -393,7 +394,6 @@ long net_level_hilighted;
 struct NetMessage net_message[NET_MESSAGES_COUNT];
 long net_number_of_messages;
 long net_message_scroll_offset;
-long net_session_index_active_id;
 long net_session_scroll_offset;
 long net_player_scroll_offset;
 struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
@@ -436,9 +436,9 @@ long packet_left_button_double_clicked[6];
 long packet_left_button_click_space_count[6];
 char frontend_alliances;
 char busy_doing_gui;
-long gui_last_left_button_pressed_id;
-long gui_last_right_button_pressed_id;
+// TODO: pack into some struct
 int fe_computer_players;
+TbBool fe_public;
 long old_mouse_over_button;
 long frontend_mouse_over_button;
 
@@ -1542,6 +1542,28 @@ void frontend_toggle_computer_players(struct GuiButton *gbtn)
     }
 }
 
+void frontend_draw_public_session(struct GuiButton *gbtn)
+{
+    int font_idx;
+    font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
+    LbTextSetFont(frontend_font[font_idx]);
+    int tx_units_per_px;
+    tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
+    int ln_height;
+    ln_height = LbTextLineHeight() * tx_units_per_px / 16;
+    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, ln_height);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    const char* text;
+    if (fe_public) {
+        text = get_string(GUIStr_Public);
+    }
+    else {
+        text = get_string(GUIStr_Private);
+    }
+    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    lbDisplay.DrawFlags = 0;
+}
+
 void frontend_draw_computer_players(struct GuiButton *gbtn)
 {
     int font_idx;
@@ -1567,6 +1589,7 @@ void frontend_draw_computer_players(struct GuiButton *gbtn)
 
 void set_packet_start(struct GuiButton *gbtn)
 {
+    masterserver_session_started();
     struct ScreenPacket *nspck;
     nspck = &net_screen_packet[my_player_number];
     if ((nspck->field_4 & 0xF8) == 0)
@@ -2775,12 +2798,14 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           break;
       case FeSt_NET_SESSION:
           turn_on_menu(GMnu_FENET_SESSION);
+          frontnet_init_session_menu();
           frontnet_session_setup();
           set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
           set_pointer_graphic_menu();
           break;
       case FeSt_NET_START:
           turn_on_menu(GMnu_FENET_START);
+          frontnet_init_session_start_menu();
           frontnet_start_setup();
           set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
           set_pointer_graphic_menu();
@@ -3812,6 +3837,12 @@ void frontend_draw_product_version(struct GuiButton *gbtn)
     LbTextSetWindow(0, gbtn->scr_pos_y, gbtn->width, h);
     char* text = buf_sprintf("%s %s", PRODUCT_NAME, PRODUCT_VERSION);
     LbTextDrawResized(0, 0, units_per_px, text);
+}
+
+const char *TR(const char *msgid)
+{
+    // TODO: Read .po files as is
+    return msgid;
 }
 
 /******************************************************************************/

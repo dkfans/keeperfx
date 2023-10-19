@@ -37,6 +37,7 @@ extern char tmp_net_player_name[24];
 
 #pragma pack()
 /******************************************************************************/
+void display_message(const char *msg);
 void process_network_error(long errcode);
 void draw_out_of_sync_box(long a1, long a2, long box_width);
 void display_attempting_to_join_message(void);

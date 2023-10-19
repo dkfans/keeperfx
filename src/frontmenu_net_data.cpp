@@ -30,12 +30,14 @@
 
 #include "config_strings.h"
 #include "front_network.h"
+#include "frontmenu_ingame_tabs.h"
 #include "gui_frontbtns.h"
 #include "gui_draw.h"
 #include "frontend.h"
 #include "front_landview.h"
 #include "net_game.h"
 #include "sprites.h"
+#include "custom_sprites.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -61,11 +63,11 @@ struct GuiButtonInit frontend_net_service_buttons[] = {
 };
 
 struct GuiButtonInit frontend_net_session_buttons[] = {
-  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  12, 999,  12,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,      {12},            0, NULL },
+  { 0,  0, 0, 0, NULL,               NULL,        NULL,               0, 999,  12, 999,  12,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,      {113},            0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82,  61,  82,  61,165, 29, frontnet_draw_text_bar,            0, GUIStr_Empty, 0,      {27},            0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  95,  63,  91,  63,165, 25, frontend_draw_text,                0, GUIStr_Empty, 0,      {19},            0, NULL },
   { 5, -1,-1, 0, frontnet_session_set_player_name,NULL,frontend_over_button,19,200,63,95,63,432, 25, frontend_draw_enter_text,          0, GUIStr_Empty, 0,{(long)tmp_net_player_name}, 20, NULL },
-  { 0,  0, 0, 0, frontnet_session_add,NULL,      frontend_over_button,0, 321,  93, 321,  93,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,     {110},            0, NULL },
+  //{ 0,  0, 0, 0, frontnet_session_add,NULL,      frontend_over_button,0, 321,  93, 321,  93,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,     {110},            0, NULL }, //Non-functional add session button
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 112,  82, 112,220, 26, frontnet_draw_scroll_box_tab,      0, GUIStr_Empty, 0,      {28},            0, NULL },
   { 0,  0, 0, 0, NULL,               NULL,        NULL,               0,  82, 138,  82, 138,450,180, frontnet_draw_scroll_box,          0, GUIStr_Empty, 0,      {25},            0, NULL },
   { 1,  0, 0, 0, frontnet_session_up,NULL,       frontend_over_button,0, 532, 137, 532, 137, 26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,      {17},            0, frontnet_session_up_maintain },
@@ -86,6 +88,7 @@ struct GuiButtonInit frontend_net_session_buttons[] = {
   { 0,  0, 0, 0, frontnet_session_join,NULL,     frontend_over_button,0,  72, 360,  72, 360,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,      {13},            0, frontnet_join_game_maintain },
   { 0,  0, 0, 0, frontnet_session_create,NULL,   frontend_over_button,0, 321, 360, 321, 360,247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,      {14},            0, NULL },
   { 0,  0, 0, 0, frontnet_return_to_main_menu,NULL,frontend_over_button,0,999,404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty, 0,       {6},            0, NULL },
+  { 0,  BID_MASTERSERVER_REFRESH, 0, 0, frontnet_masterserver_refresh,NULL,      frontend_over_button,0, 87,  110, 87,  110,230, 29, frontend_masterserver_draw_refresh,   0, GUIStr_Empty, 0,     {111},            0, frontnet_refresh_maintain },
   {-1,  0, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,           0,  0,       {0},            0, NULL },
 };
 
@@ -104,25 +107,27 @@ struct GuiButtonInit frontend_net_start_buttons[] = {
   { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  0, 431, 134, 431, 134,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {75},    0, frontnet_maintain_alliance },
   { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  1, 453, 134, 453, 134,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {75},    0, frontnet_maintain_alliance },
   { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  2, 475, 134, 475, 134,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {75},    0, frontnet_maintain_alliance },
-  { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  3, 497, 134, 497, 134,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {75},    0, frontnet_maintain_alliance },
-  { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  0, 431, 160, 431, 160,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {76},    0, frontnet_maintain_alliance },
-  { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  1, 453, 160, 453, 160,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {76},    0, frontnet_maintain_alliance },
-  { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  2, 475, 160, 475, 160,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {76},    0, frontnet_maintain_alliance },
-  { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  3, 497, 160, 497, 160,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {76},    0, frontnet_maintain_alliance },
-  { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  0, 431, 186, 431, 183,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {77},    0, frontnet_maintain_alliance },
-  { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  1, 453, 186, 453, 186,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {77},    0, frontnet_maintain_alliance },
-  { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  2, 475, 186, 475, 186,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {77},    0, frontnet_maintain_alliance },
-  { 0,  0, 0, 0, frontnet_select_alliance,NULL,frontend_over_button,  3, 497, 186, 497, 186,  22, 26, frontnet_draw_alliance_button,     0, GUIStr_Empty, 0,  {77},    0, frontnet_maintain_alliance },
-  { 1,  0, 0, 0, NULL,               NULL,   NULL,                    0, 284, 217, 284, 217, 240, 26, frontnet_draw_bottom_scroll_box_tab,0,GUIStr_Empty, 0,  {28},    0, NULL },
-  { 0,  0, 0, 0, frontend_toggle_computer_players,NULL,frontend_over_button,0,297,214,297,214,220,26, frontend_draw_computer_players,    0, GUIStr_Empty, 0, {103},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 246,  82, 246, 220, 26, frontnet_draw_scroll_box_tab,      0, GUIStr_Empty, 0,  {28},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 272,  82, 272, 450,111, frontnet_draw_scroll_box,          0, GUIStr_Empty, 0,  {91},    0, NULL },
-  { 1,  0, 0, 0, frontnet_messages_up,NULL,  frontend_over_button,    0, 532, 271, 532, 271,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {38},    0, frontnet_messages_up_maintain },
-  { 1,  0, 0, 0, frontnet_messages_down,NULL,frontend_over_button,    0, 532, 373, 532, 373,  26, 14, frontnet_draw_slider_button,       0, GUIStr_Empty, 0,  {39},    0, frontnet_messages_down_maintain },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0, 102, 247, 102, 247, 220, 26, frontend_draw_text,                0, GUIStr_Empty, 0,  {34},    0, NULL },
-  { 1,  0, 0, 0, NULL,               NULL,   NULL,                    0, 536, 285, 536, 285,  20, 88, frontnet_draw_messages_scroll_tab, 0, GUIStr_Empty, 0,  {40},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  82, 386,  82, 386, 459, 28, frontnet_draw_current_message,     0, GUIStr_Empty, 0,  {43},    0, NULL },
-  { 0,  0, 0, 0, NULL,               NULL,   NULL,                    0,  89, 273,  89, 273, 438,104, frontnet_draw_messages,            0, GUIStr_Empty, 0,  {44},    0, NULL },
+  { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 3, 497, 134, 497, 134, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {75},  0, frontnet_maintain_alliance },
+  { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 0, 431, 160, 431, 160, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {76},  0, frontnet_maintain_alliance },
+  { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 1, 453, 160, 453, 160, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {76},  0, frontnet_maintain_alliance },
+  { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 2, 475, 160, 475, 160, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {76},  0, frontnet_maintain_alliance },
+  { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 3, 497, 160, 497, 160, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {76},  0, frontnet_maintain_alliance },
+  { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 0, 431, 186, 431, 183, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {77},  0, frontnet_maintain_alliance },
+  { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 1, 453, 186, 453, 186, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {77},  0, frontnet_maintain_alliance },
+  { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 2, 475, 186, 475, 186, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {77},  0, frontnet_maintain_alliance },
+  { 0,  0, 0, 0, frontnet_select_alliance,         NULL, frontend_over_button, 3, 497, 186, 497, 186, 22,  26,  frontnet_draw_alliance_button,       0, GUIStr_Empty, 0, {77},  0, frontnet_maintain_alliance },
+  { 1,  0, 0, 0, NULL,                             NULL,   NULL,               0, 144, 217, 144, 217, 80, 26,  frontnet_draw_bottom_scroll_box_tab, 0, GUIStr_Empty, 0, {28},  0, NULL },
+  { 0,  BID_MASTERSERVER_PUBLIC, 0, 0, masterserver_toggle_public  ,     NULL, frontend_over_button, 0, 160, 214, 157, 214, 80, 26,  frontend_draw_public_session,        0, GUIStr_Empty, 0, {104}, 0, NULL },
+  { 1,  0, 0, 0, NULL,                             NULL,   NULL,               0, 284, 217, 284, 217, 240, 26,  frontnet_draw_bottom_scroll_box_tab, 0, GUIStr_Empty, 0, {28},  0, NULL },
+  { 0,  0, 0, 0, frontend_toggle_computer_players, NULL, frontend_over_button, 0, 297, 214, 297, 214, 220, 26,  frontend_draw_computer_players,      0, GUIStr_Empty, 0, {103}, 0, NULL },
+  { 0,  0, 0, 0, NULL,                             NULL,   NULL,               0, 82,  246, 82,  246, 220, 26, frontnet_draw_scroll_box_tab,         0, GUIStr_Empty, 0, {28},  0, NULL },
+  { 0,  0, 0, 0, NULL,                             NULL,   NULL,               0, 82,  272, 82,  272, 450, 111, frontnet_draw_scroll_box,            0, GUIStr_Empty, 0, {91},  0, NULL },
+  { 1,  0, 0, 0, frontnet_messages_up,             NULL, frontend_over_button, 0, 532, 271, 532, 271, 26,  14, frontnet_draw_slider_button,          0, GUIStr_Empty, 0, {38},  0, frontnet_messages_up_maintain },
+  { 1,  0, 0, 0, frontnet_messages_down,           NULL, frontend_over_button, 0, 532, 373, 532, 373, 26,  14, frontnet_draw_slider_button,          0, GUIStr_Empty, 0, {39},  0, frontnet_messages_down_maintain },
+  { 0,  0, 0, 0, NULL,                             NULL,   NULL,               0, 102, 247, 102, 247, 220, 26,  frontend_draw_text,                  0, GUIStr_Empty, 0, {34},  0, NULL },
+  { 1,  0, 0, 0, NULL,                             NULL,   NULL,               0, 536, 285, 536, 285, 20,  88,  frontnet_draw_messages_scroll_tab,   0, GUIStr_Empty, 0, {40},  0, NULL },
+  { 0,  0, 0, 0, NULL,                             NULL,   NULL,               0, 82,  386, 82,  386, 459, 28,  frontnet_draw_current_message,       0, GUIStr_Empty, 0, {43},  0, NULL },
+  { 0,  0, 0, 0, NULL,                             NULL,   NULL,               0, 89,  273, 89,  273, 438, 104, frontnet_draw_messages,              0, GUIStr_Empty, 0, {44},  0, NULL },
   { 0,  0, 0, 0, set_packet_start,   NULL,   frontend_over_button,    0,  49, 412,  49, 412, 247, 46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {15},    0, frontnet_start_game_maintain },
   { 0,  0, 0, 0, frontnet_return_to_session_menu,NULL,frontend_over_button,1, 345,412,345,412,247,46, frontend_draw_small_menu_button,   0, GUIStr_Empty, 0,  {16},    0, NULL },
   {-1,  0, 0, 0, NULL,               NULL,   NULL,                    0,   0,   0,   0,   0,   0,  0, NULL,                              0,           0,  0,   {0},    0, NULL },
@@ -170,7 +175,7 @@ void frontnet_draw_session_selected(struct GuiButton *gbtn)
         const char *text;
         text = net_session[net_session_index_active]->text;
         i = frontend_button_caption_font(gbtn, 0);
-        if (text != NULL)
+        if (text != NULL && !net_session[net_session_index_active]->is_message)
         {
             lbDisplay.DrawFlags = 0;
             LbTextSetFont(frontend_font[i]);
@@ -191,8 +196,14 @@ void frontnet_session_select(struct GuiButton *gbtn)
     i = (long)gbtn->content + net_session_scroll_offset - 45;
     if (net_number_of_sessions > i)
     {
-        net_session_index_active = i;
-        net_session_index_active_id = net_session[i]->id;
+        if (net_session[net_session_index_active] && net_session[net_session_index_active]->is_message)
+        {
+            net_session_index_active = -1;
+        }
+        else
+        {
+            net_session_index_active = i;
+        }
     }
 }
 
@@ -208,20 +219,46 @@ void frontnet_draw_session_button(struct GuiButton *gbtn)
         return;
     int font_idx;
     font_idx = frontend_button_caption_font(gbtn,frontend_mouse_over_button);
-    LbTextSetFont(frontend_font[font_idx]);
-    lbDisplay.DrawFlags = 0;
     int tx_units_per_px;
     tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     height = LbTextLineHeight() * tx_units_per_px / 16;
-    LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
-    LbTextDrawResized(0, 0, tx_units_per_px, net_session[sessionIndex]->text);
+
+    if (net_session[sessionIndex]->is_message)
+    {
+        LbTextSetFont(frontend_font[3]);
+        lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+        LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+        LbTextDrawResized(0, 0, tx_units_per_px, net_session[sessionIndex]->text);
+    }
+    else
+    {
+        LbTextSetFont(frontend_font[font_idx]);
+        lbDisplay.DrawFlags = 0;
+        LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, height);
+        LbTextDrawResized(40, 0, tx_units_per_px, net_session[sessionIndex]->text);
+    }
+
+    if (net_session[sessionIndex]->is_invalid_version)
+    {
+        LbSpriteDrawResized(gbtn->scr_pos_x - 8, gbtn->scr_pos_y + (gbtn->height / 5), tx_units_per_px,
+                            get_frontend_sprite(GFS_scrollbar_indicator_std)); // TODO: need an icon for wrong version
+    }
+    else if (net_session[sessionIndex]->valid_ping)
+    {
+        short latencystatus;
+        if (net_session[sessionIndex]->latency_time >= 0)
+        {
+            latencystatus = frontnet_map_latency_to_icon(net_session[sessionIndex]->latency_time);
+            LbSpriteDrawResized(gbtn->scr_pos_x - 8, gbtn->scr_pos_y + (gbtn->height / 5), tx_units_per_px,
+                                get_frontend_sprite(latencystatus));
+        }
+    }
 }
 
 void frontnet_session_create(struct GuiButton *gbtn)
 {
   struct TbNetworkSessionNameEntry *nsname;
   unsigned long plyr_num;
-  void *conn_options;
   char *text;
   char *txpos;
   long i;
@@ -243,14 +280,14 @@ void frontnet_session_create(struct GuiButton *gbtn)
     text = buf_sprintf("%s (%d)", net_player_name, idx+1);
   else
     text = buf_sprintf("%s", net_player_name);
-  conn_options = NULL;
-  if (LbNetwork_Create(text, net_player_name, &plyr_num, conn_options))
+  if (LbNetwork_Create(text, net_player_name, &plyr_num))
   {
       process_network_error(-801);
     return;
   }
   frontend_set_player_number(plyr_num);
   fe_computer_players = 0;
+  fe_public = false;
   frontend_set_state(FeSt_NET_START);
 }
 /******************************************************************************/

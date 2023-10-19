@@ -39,8 +39,10 @@ extern "C" {
 struct TbNetworkSessionNameEntry;
 
 /******************************************************************************/
+#define MAX_SESSIONS 32
+
 extern struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
-extern struct TbNetworkSessionNameEntry *net_session[32];
+extern struct TbNetworkSessionNameEntry *net_session[MAX_SESSIONS];
 extern long net_number_of_sessions;
 extern long net_session_index_active;
 extern struct TbNetworkPlayerName net_player[NET_PLAYERS_COUNT];

@@ -120,7 +120,6 @@ extern long net_level_hilighted;
 extern struct NetMessage net_message[NET_MESSAGES_COUNT];
 extern long net_number_of_messages;
 extern long net_message_scroll_offset;
-extern long net_session_index_active_id;
 extern long net_session_scroll_offset;
 extern long net_player_scroll_offset;
 extern struct GuiButton active_buttons[ACTIVE_BUTTONS_COUNT];
@@ -164,9 +163,8 @@ extern long packet_left_button_double_clicked[6];
 extern long packet_left_button_click_space_count[6];
 extern char frontend_alliances;
 extern char busy_doing_gui;
-extern long gui_last_left_button_pressed_id;
-extern long gui_last_right_button_pressed_id;
 extern int fe_computer_players;
+extern TbBool fe_public;
 extern long old_mouse_over_button;
 extern long frontend_mouse_over_button;
 
@@ -238,6 +236,10 @@ void frontend_draw_enter_text(struct GuiButton *gbtn);
 void frontend_draw_small_menu_button(struct GuiButton *gbtn);
 void frontend_toggle_computer_players(struct GuiButton *gbtn);
 void frontend_draw_computer_players(struct GuiButton *gbtn);
+void masterserver_toggle_public(struct GuiButton *gbtn);
+void masterserver_session_started();
+void masterserver_remove_session();
+void frontend_draw_public_session(struct GuiButton *gbtn);
 void set_packet_start(struct GuiButton *gbtn);
 void gui_area_scroll_window(struct GuiButton *gbtn);
 void gui_go_to_event(struct GuiButton *gbtn);
@@ -318,6 +320,8 @@ void turn_off_roaming_menus(void);
 void frontend_set_player_number(long plr_num);
 TbBool frontend_start_new_campaign(const char *cmpgn_fname);
 void frontend_draw_product_version(struct GuiButton *gbtn);
+
+const char *TR(const char *msgid);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -51,3 +51,101 @@ int value_parse_model(int oclass, VALUE *value)
     // TODO: model names for different classes
     return -1;
 }
+
+static char* value_dump_impl(const VALUE *value, char *buf, char *end, int tabs);
+
+struct Opts
+{
+    char *buf;
+    char *end;
+    int tabs;
+};
+
+static int value_visit(const VALUE *key, VALUE *val, void *arg)
+{
+    struct Opts *opts = arg;
+    opts->buf = value_dump_impl(key, opts->buf, opts->end, 0);
+    *(opts->buf++) = '='; *opts->buf = 0;
+    opts->buf = value_dump_impl(val, opts->buf, opts->end, opts->tabs);
+    *(opts->buf++) = '\n'; *opts->buf = 0;
+    return 0;
+}
+
+static char * value_dump_impl(const VALUE *value, char *buf, char *end, int tabs)
+{
+#define ADD_CHAR(x) \
+    *(dst++) = x;
+#define ADD_TABS \
+    for (int i = 0; i < tabs; i++) \
+    { \
+        ADD_CHAR(' ') \
+        ADD_CHAR(' ') \
+    } \
+    *dst = 0;
+
+    struct Opts opts;
+    char *dst = buf;
+    switch (value_type(value))
+    {
+        case VALUE_NULL:
+            break;
+        case VALUE_DICT:
+            ADD_TABS;
+            ADD_CHAR('{'); ADD_CHAR('\n')
+            opts.buf = dst;
+            opts.end = end;
+            opts.tabs = tabs;
+            value_dict_walk_sorted(value, &value_visit, &opts);
+            dst = opts.buf;
+            ADD_TABS;
+            ADD_CHAR('}'); ADD_CHAR('\n')
+            break;
+        case VALUE_ARRAY:
+            ADD_TABS;
+            ADD_CHAR('['); ADD_CHAR('\n')
+            for (int i = 0; i < value_array_size(value); i++)
+            {
+                value_dump_impl(value_array_get(value, i), dst, end, tabs + 1);
+            }
+            ADD_TABS;
+            ADD_CHAR(']'); ADD_CHAR('\n')
+            break;
+        case VALUE_STRING:
+            ADD_TABS;
+            if (dst + value_string_length(value) >= end)
+            {
+                // TODO: Overflow
+                return dst;
+            }
+            ADD_CHAR('"'); *dst = 0;
+            strcat(dst, value_string(value));
+            dst += strlen(dst);
+            ADD_CHAR('"');
+            break;
+        case VALUE_INT32:
+            ADD_TABS;
+            dst += sprintf(dst, "%d", value_int32(value));
+            break;
+        case VALUE_BOOL:
+            ADD_TABS;
+            if (value_bool(value))
+            {
+                strcat(dst, "true");
+            }
+            else
+            {
+                strcat(dst, "false");
+            }
+            dst += strlen(dst);
+        default:
+            break;
+    }
+    *dst = 0;
+    return dst;
+}
+
+void value_dump(VALUE *value, char *buf, char *end)
+{
+    *buf = 0;
+    value_dump_impl(value, buf, end, 0);
+}

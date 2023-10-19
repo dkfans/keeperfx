@@ -19,7 +19,7 @@
 /******************************************************************************/
 #ifndef BFLIB_NETSESSION_H
 #define BFLIB_NETSESSION_H
-
+#include "bflib_basics.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,9 +46,13 @@ enum NetMsgType
 struct TbNetworkSessionNameEntry {
     unsigned char joinable; //possibly active or selected is better name
     unsigned long id;
-    unsigned long in_use;
+    unsigned char in_use;
+    unsigned char valid_ping;
+    unsigned char is_message;
+    unsigned char is_invalid_version; // TODO pack them into flag
     char text[SESSION_NAME_MAX_LEN];
-    unsigned char field_29[20]; //does not appear to be a string
+    char ip_port[20];
+    TbClockMSec latency_time;
 };
 
 struct TbNetworkPlayerEntry {

@@ -1,0 +1,17 @@
+[[frontft2.block]]
+start = 0x21b0
+end = 0x21bf
+x = 0
+y = 0
+dx = 17
+dy = 26
+width = 17
+
+[[frontft3.block]]
+start = 0x21b0
+end = 0x21bf
+x = 0
+y = 26
+dx = 17
+dy = 26
+width = 17

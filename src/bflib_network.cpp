@@ -115,6 +115,9 @@ struct UnidirectionalDataMessage dataMessage;
 //struct UnidirectionalHeader endMessage;
 //struct UnidirectionalHeader abortMessage;
 struct UnidirectionalRTSMessage rtsMessage;
+
+VALUE bf_network_options_store;
+VALUE *bf_network_options = &bf_network_options_store;
 /******************************************************************************/
 
 // New network code declarations start here ===================================
@@ -123,6 +126,7 @@ struct UnidirectionalRTSMessage rtsMessage;
  * Max wait for a client before we declare client messed up.
  */
 #define WAIT_FOR_CLIENT_TIMEOUT_IN_MS   10000
+#define WAIT_FOR_LOGIN_TIMEOUT_IN_MS 100
 #define WAIT_FOR_SERVER_TIMEOUT_IN_MS   WAIT_FOR_CLIENT_TIMEOUT_IN_MS
 
 /**
@@ -605,6 +609,7 @@ static void AddSession(const char * str, size_t len)
 
         sessions[i].in_use = 1;
         sessions[i].joinable = 1; //actually we don't know, but keep for now
+        sessions[i].ip_port[0] = 0;
         net_copy_name_string(sessions[i].text, str, min((size_t)SESSION_NAME_MAX_LEN, len + 1));
 
         break;
@@ -632,6 +637,21 @@ void LbNetwork_InitSessionsFromCmdLine(const char * str)
     if (start != end) {
         AddSession(start, end - start);
     }
+}
+
+void    LbNetwork_Option(const char *name, const char *value)
+{
+    if (value_type(bf_network_options) == VALUE_NULL)
+    {
+        value_init_dict(bf_network_options);
+    }
+    VALUE *new_obj = value_dict_add(bf_network_options, name);
+    if (new_obj == NULL)
+    {
+        ERRORLOG("Unable to add option");
+        return;
+    }
+    value_init_string(new_obj, value);
 }
 
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data)
@@ -717,7 +737,7 @@ TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct 
   return res;
 }
 
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, long *plyr_num, void *optns)
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name, long *plyr_num)
 {
   /*TbError ret;
   TbClockMSec tmStart;
@@ -782,7 +802,15 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
         return Lb_FAIL;
     }
 
-    if (netstate.sp->join(nsname->text, optns) == Lb_FAIL) {
+    if (!nsname)
+    {
+        ERRORLOG("No session selected");
+        return Lb_FAIL;
+    }
+
+    const char *ip_port = (nsname->ip_port[0] != 0)? nsname->ip_port: nsname->text;
+
+    if (netstate.sp->join(ip_port, bf_network_options) == Lb_FAIL) {
         return Lb_FAIL;
     }
 
@@ -806,7 +834,7 @@ TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *plyr_name
     return Lb_OK;
 }
 
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns)
+TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num)
 {
   /*if (spPtr == NULL)
   {
@@ -847,7 +875,7 @@ TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_
         return Lb_FAIL;
     }
 
-    if (netstate.sp->host(":5555", optns) == Lb_FAIL) {
+    if (netstate.sp->host(":5555", bf_network_options) == Lb_FAIL) {
         return Lb_FAIL;
     }
 
@@ -939,7 +967,7 @@ static TbBool OnNewUser(NetUserId * assigned_id)
             *assigned_id = i;
             netstate.users[i].progress = USER_CONNECTED;
             netstate.users[i].ack = -1;
-            NETLOG("Assigning new user to ID %u", i);
+            NETDBG(1, "Assigning new user to ID %u", i);
             return 1;
         }
     }
@@ -960,10 +988,19 @@ static void OnDroppedUser(NetUserId id, enum NetDropReason reason)
     }
 
     //return;
-    if (reason == NETDROP_ERROR) {
-        NETMSG("Connection error with user %i %s", id, netstate.users[id].name);
+    if (reason == NETDROP_ERROR)
+    {
+        if ((netstate.my_id != SERVER_ID) || (netstate.users[id].progress != USER_CONNECTED))
+        {
+            NETMSG("Connection error with user %i %s", id, netstate.users[id].name);
+        }
+        else
+        {
+            NETDBG(1, "Connection error with user %i %s", id, netstate.users[id].name);
+        }
     }
-    else if (reason == NETDROP_MANUAL) {
+    else if (reason == NETDROP_MANUAL)
+    {
         NETMSG("Dropped user %i %s", id, netstate.users[id].name);
     }
 
@@ -1070,20 +1107,19 @@ TbError LbNetwork_ExchangeServer(void *server_buf, size_t client_frame_size)
         if (netstate.users[id].progress == USER_UNUSED) {
             continue;
         }
-
-        if (netstate.users[id].progress == USER_LOGGEDIN)
+        else if (netstate.users[id].progress == USER_CONNECTED)
         {
-            //if (netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
-                //TODO NET take time to detect a lagger which can then be announced
-                ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
-            //}
-
+            ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_LOGIN_TIMEOUT_IN_MS);
             netstate.seq_nbr += 1;
             SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
         }
         else
         {
+            //if (netstate.seq_nbr >= SCHEDULED_LAG_IN_FRAMES) { //scheduled lag in TCP stream
+            //TODO NET take time to detect a lagger which can then be announced
             ProcessMessagesUntilNextFrame(id, server_buf, client_frame_size, WAIT_FOR_CLIENT_TIMEOUT_IN_MS);
+            //}
+
             netstate.seq_nbr += 1;
             SendServerFrame(server_buf, client_frame_size, CountLoggedInClients() + 1);
         }
@@ -1269,6 +1305,47 @@ TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNet
     }
 
     return Lb_OK;
+}
+
+TbError LbNetwork_EnumerateUpdate()
+{
+    if (netstate.sp)
+    {
+        netstate.sp->update(OnNewUser);
+    }
+    return Lb_OK;
+}
+
+TbError LbNetwork_PingSession(struct TbNetworkSessionNameEntry *ses)
+{
+    if (netstate.sp)
+    {
+        if (netstate.sp->ping)
+        {
+            TbClockMSec latency_time;
+            TbError ret = netstate.sp->ping(ses->ip_port, &latency_time, bf_network_options);
+            if (ret == Lb_SUCCESS)
+            {
+                if (latency_time == -1)
+                {
+                    ses->latency_time = -1;
+                    ses->valid_ping = true;
+                }
+                else
+                {
+                    ses->valid_ping = (latency_time > 0);
+                    ses->latency_time = latency_time;
+                }
+            }
+            return ret;
+        }
+    }
+    return Lb_OK;
+}
+
+TbError LbNetwork_GetLatency(NetUserId connection_id, TbClockMSec *ret)
+{
+    return netstate.sp->get_latency(connection_id, ret);
 }
 
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr)

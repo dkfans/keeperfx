@@ -32,6 +32,7 @@
 #include <json.h>
 #include <json-dom.h>
 #include "post_inc.h"
+#include <toml.h>
 
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
@@ -71,6 +72,11 @@ struct SpriteContext
     TbBool rotatable;
 };
 
+struct AtlasItem
+{
+    unsigned long x, y, w, h;
+};
+
 struct PaletteRecord
 {
     uint32_t color;
@@ -92,17 +98,22 @@ static int num_added_icons = 0;
 int num_icons_total = GUI_PANEL_SPRITES_COUNT;
 unsigned char base_pal[PALETTE_SIZE];
 
-static unsigned char big_scratch_data[1024*1024*16] = {0};
+static unsigned char big_scratch_data[1024 * 1024 * 16] = {0};
 unsigned char *big_scratch = big_scratch_data;
 
 static void init_pal_conversion();
 
-static void compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h);
+static void
+compress_raw(struct TbHugeSprite *sprite, unsigned char *src_buf, int x, int y, int w, int h, int src_w, int src_h,
+             const struct PaletteRecord *fixed_pal, size_t pal_size);
 
 static TbBool add_custom_sprite(const char *path);
 
 static TbBool
 add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root));
+
+static TbBool
+add_custom_toml(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root));
 
 static TbBool process_icon(const char *path, unzFile zip, VALUE *root);
 
@@ -129,6 +140,72 @@ static const unsigned char bad_icon_data[] = // 16x16
         };
 
 short bad_icon_id = GUI_PANEL_SPRITES_COUNT;
+
+/*
+ * Parse html color
+ */
+uint32_t parse_hex_color(const char *src)
+{
+    if (src == NULL)
+        goto err;
+    uint8_t r, g, b;
+    uint8_t v;
+    TbBool need_dquote = false;
+    if (*src == '"')
+    {
+        src++;
+        need_dquote = true;
+    }
+    if (*src == '#')
+        src++;
+#define PARSE_HEX_NIBBLE \
+        if ((*src >= '0') && (*src <='9')) \
+        { \
+            v += *src - '0'; \
+        } \
+        else if ((*src >= 'A') && (*src <='F')) \
+        { \
+            v += *src - 'A' + 10; \
+        } \
+        else if ((*src >= 'a') && (*src <='f')) \
+        { \
+            v += *src - 'a' + 10; \
+        } \
+        else \
+        { \
+            goto err; \
+        } \
+        src++;
+
+    v = 0;
+    PARSE_HEX_NIBBLE;
+    v <<= 4;
+    PARSE_HEX_NIBBLE;
+    r = v;
+    v = 0;
+    PARSE_HEX_NIBBLE;
+    v <<= 4;
+    PARSE_HEX_NIBBLE;
+    g = v;
+    v = 0;
+    PARSE_HEX_NIBBLE;
+    v <<= 4;
+    PARSE_HEX_NIBBLE;
+    b = v;
+    if (need_dquote)
+    {
+        if (*src != '"')
+            goto err;
+        src++;
+    }
+    if (*src != 0)
+        goto err;
+
+    uint32_t ret = (b << 16) | (g << 8) | (r);
+    return ret;
+    err:
+    return 0;
+}
 
 static int pal_compare_fn(const void *a, const void *b)
 {
@@ -169,7 +246,11 @@ static void load_system_sprites(short fgroup)
         {
             cnt_ok++;
         }
-        if (add_custom_json(path, "icons.json", &process_icon))
+        if (add_custom_toml(path, "icons.toml", &process_icon))
+        {
+            cnt_icons++;
+        }
+        else if (add_custom_json(path, "icons.json", &process_icon))
         {
             cnt_icons++;
         }
@@ -273,7 +354,7 @@ static void init_pal_conversion()
     memset(pal_records, 0, sizeof(pal_records));
 
     struct PaletteNode pal_tree_tmp[MAX_COLOR_VALUE] = {0}; // one color
-    char* fname;
+    char *fname;
     TbBool result = true;
     fname = prepare_file_fmtpath(FGrp_StdData, "pal%05d.dat", 0);
     if (!LbFileExists(fname))
@@ -590,7 +671,29 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
     return 0;
 }
 
-static int read_png_icon(unzFile zip, const char *path, const char *subpath, int *icon_ptr)
+static int read_colormap(const VALUE *key, VALUE *val, void *ctx)
+{
+    struct PaletteRecord **dst = ctx;
+    const char *str_key = value_string(key);
+    int32_t val_int = value_int32(val);
+    if (str_key == NULL)
+    {
+        ERRORLOG("Invalid key in colormap. Should be in hex form `RRGGBB`");
+        return 0;
+    }
+    if ((val_int > 255) || (val_int < 0))
+    {
+        ERRORLOG("Invalid color index value in colormap.");
+        return 0;
+    }
+    (*dst)->color = parse_hex_color(str_key);
+    (*dst)->color_idx = val_int;
+    (*dst)++;
+    return 0;
+}
+
+static int read_png_icon(unzFile zip, const char *path, const char *subpath, struct AtlasItem *atlas, int *icon_ptr,
+                         VALUE *colormap)
 {
     struct TbHugeSprite sprite = {0};
     size_t out_size;
@@ -622,8 +725,23 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
     struct spng_plte plte = {0};
     r = spng_get_plte(ctx, &plte);
 
-    sprite.SWidth = ihdr.width;
-    sprite.SHeight = ihdr.height;
+    if (atlas->w > 0)
+    {
+        if ((ihdr.width < atlas->w + atlas->x) ||
+            (ihdr.height < atlas->h + atlas->y))
+        {
+            ERRORLOG("Invalid atlas size: %s/%s", path, subpath);
+            spng_ctx_free(ctx);
+            return 0;
+        }
+        sprite.SWidth = atlas->w;
+        sprite.SHeight = atlas->h;
+    }
+    else
+    {
+        sprite.SWidth = ihdr.width;
+        sprite.SHeight = ihdr.height;
+    }
 
     int fmt = SPNG_FMT_RGBA8; // for indexed should be SPNG_FMT_PNG
 
@@ -644,11 +762,23 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
         return 0;
     }
 
+    struct PaletteRecord *fixed_pal = NULL;
+    if (value_type(colormap) == VALUE_DICT)
+    {
+        fixed_pal = malloc(sizeof(struct PaletteRecord) * value_dict_size(colormap));
+        struct PaletteRecord *dst = fixed_pal;
+        value_dict_walk_sorted(colormap, &read_colormap, &dst);
+    }
+
     size_t sz = (sprite.SWidth + 2) * (sprite.SHeight + 3);
     sprite.Data = malloc(sz);
 
-    compress_raw(&sprite, dst_buf, 0, 0, sprite.SWidth, sprite.SHeight);
-
+    compress_raw(&sprite, dst_buf, atlas->x, atlas->y, sprite.SWidth, sprite.SHeight, ihdr.width, ihdr.height,
+                 fixed_pal, value_dict_size(colormap));
+    if (fixed_pal)
+    {
+        free(fixed_pal);
+    }
     spng_ctx_free(ctx);
 
     if (next_free_icon >= GUI_PANEL_SPRITES_NEW)
@@ -668,6 +798,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-branch-clone"
+
 static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath,
                          int fp, VALUE *def, VALUE *itm)
 {
@@ -749,7 +880,8 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     size_t sz = (dst_w + 2) * (dst_h + 3);
     keepersprite_add[sprite_idx] = malloc(sz);
     context->sprite.Data = keepersprite_add[sprite_idx];
-    compress_raw(&context->sprite, dst_buf, context->x, context->y, dst_w, dst_h);
+    compress_raw(&context->sprite, dst_buf, context->x, context->y, dst_w, dst_h, sprite->SWidth, sprite->SHeight,
+                 NULL, 0);
     struct KeeperSprite *ksprite = &creature_table_add[sprite_idx];
 
     if (context->ksp_first == NULL)
@@ -799,9 +931,11 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     spng_ctx_free(ctx);
     return 1;
 }
+
 #pragma clang diagnostic pop
 
-static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
+static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len,
+                        const struct PaletteRecord *fixed_pal, size_t pal_size)
 {
 #define SCALE 4
     for (int i = 0; i < len; i++, src_buf++, dst_buf++)
@@ -812,15 +946,30 @@ static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
         uint8_t max_val = 255;
         uint32_t max_dst = 3 * 64 * 64;
 
-        for (struct PaletteRecord *rec = node->rec; rec != node->rec + node->size; rec++)
+        // First use fixed_pal
+        TbBool found = 0;
+        for (const struct PaletteRecord *rec = fixed_pal; rec != fixed_pal + pal_size; rec++)
         {
-            int8_t dr = (rec->color & 0x00000FF) - (data & 0x0000FF) / SCALE;
-            int8_t dg = ((rec->color & 0xFF00) >> 8) - ((data & 0xFF00) >> 8) / SCALE;
-            int8_t db = ((rec->color & 0xFF0000) >> 16) - ((data & 0xFF0000) >> 16) / SCALE;
-            if (dr * dr + dg * dg + db * db < max_dst)
+            if (rec->color == (data & 0xFFFFFF))
             {
-                max_dst = dr * dr + dg * dg + db * db;
                 max_val = rec->color_idx;
+                found = 1;
+                break;
+            }
+        }
+        // Then search for best matching color
+        if (!found)
+        {
+            for (struct PaletteRecord *rec = node->rec; rec != node->rec + node->size; rec++)
+            {
+                int8_t dr = (rec->color & 0x00000FF) - (data & 0x0000FF) / SCALE;
+                int8_t dg = ((rec->color & 0xFF00) >> 8) - ((data & 0xFF00) >> 8) / SCALE;
+                int8_t db = ((rec->color & 0xFF0000) >> 16) - ((data & 0xFF0000) >> 16) / SCALE;
+                if (dr * dr + dg * dg + db * db < max_dst)
+                {
+                    max_dst = dr * dr + dg * dg + db * db;
+                    max_val = rec->color_idx;
+                }
             }
         }
         *dst_buf = max_val;
@@ -828,7 +977,9 @@ static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
 #undef SCALE
 }
 
-static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, int w, int h)
+static void
+compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, int x, int y, int w, int h, int src_w, int src_h,
+             const struct PaletteRecord *fixed_pal, size_t pal_size)
 {
 #define TEST_TRANSP(x) ((x & 0xFF000000u) < 0x40000000u)
 
@@ -836,8 +987,8 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, in
     uint32_t *src_buf = (uint32_t *) inp_buf;
     TbBool is_transp;
     int len;
-    int tail = sprite->SWidth - w;
-    src_buf += y * sprite->SWidth;
+    int tail = src_w - w;
+    src_buf += y * src_w;
     src_buf += x;
     for (int j = 0; j < h; j++)
     {
@@ -867,7 +1018,7 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, in
                     {
                         *buf = len;
                         buf++;
-                        convert_row(buf, src_buf - len, len);
+                        convert_row(buf, src_buf - len, len, fixed_pal, pal_size);
                         buf += len;
                     }
 
@@ -884,7 +1035,7 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, in
         {
             *buf = len;
             buf++;
-            convert_row(buf, src_buf - len, len);
+            convert_row(buf, src_buf - len, len, fixed_pal, pal_size);
             buf += len;
         }
         *buf = 0;
@@ -1198,6 +1349,82 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
     return ret_ok;
 }
 
+static TbBool
+add_custom_toml(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root))
+{
+    unz_file_info64 zip_info = {0};
+    VALUE root;
+    char error_buf[256];
+    unzFile zip = unzOpen(path);
+
+    if (zip == NULL)
+        return 0;
+
+    if (UNZ_OK != unzLocateFile(zip, name, 0))
+    {
+        unzClose(zip);
+        return 0;
+    }
+
+    if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0)
+            )
+    {
+        unzClose(zip);
+        return 0;
+    }
+
+    if (zip_info.uncompressed_size >= 1024 * 1024)
+    {
+        WARNLOG("File too big %s/%s", path, name);
+        unzClose(zip);
+        return 0;
+    }
+
+    if (UNZ_OK != unzOpenCurrentFile(zip))
+    {
+        unzClose(zip);
+        return 0;
+    }
+
+    if (unzReadCurrentFile(zip, big_scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size)
+    {
+        WARNLOG("Unable to read %s/%s", path, name);
+        unzClose(zip);
+        return 0;
+    }
+    big_scratch[zip_info.uncompressed_size] = 0;
+
+    if (UNZ_OK != unzCloseCurrentFile(zip))
+    {
+        unzClose(zip);
+        return 0;
+    }
+
+    int ret = toml_parse_len((char *) big_scratch, zip_info.uncompressed_size,
+                             error_buf, sizeof(error_buf) - 1, &root);
+    if (ret)
+    {
+
+        WARNLOG("Incorrect %s/%s %s", path, name, error_buf);
+        unzClose(zip);
+        return 0;
+    }
+    VALUE *data = value_dict_get(&root, "data");
+    if (VALUE_ARRAY != value_type(data))
+    {
+        WARNLOG("%s/%s should be array of dictionaries", path, name);
+        unzClose(zip);
+        return 0;
+    }
+    TbBool ret_ok = process(path, zip, data);
+
+    value_fini(&root);
+
+    unzClose(zip);
+
+    return ret_ok;
+}
+
 static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE *root)
 {
     VALUE *val;
@@ -1236,6 +1463,15 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
         return 0;
     }
 
+    // Atlas support
+    struct AtlasItem atlas = {
+            .x = value_int32(value_dict_get(root, "src_x")),
+            .y = value_int32(value_dict_get(root, "src_y")),
+            .w = value_int32(value_dict_get(root, "src_w")),
+            .h = value_int32(value_dict_get(root, "src_h")),
+    };
+
+
     int first_icon = 0;
     int icons_count = value_array_size(file_value);
     for (int i = 0; i < icons_count; i++)
@@ -1254,7 +1490,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
         }
 
         int icon;
-        if (!read_png_icon(zip, path, file, &icon))
+        if (!read_png_icon(zip, path, file, &atlas, &icon, value_dict_get(root, "colormap")))
         {
             unzCloseCurrentFile(zip);
             return 0;
@@ -1439,7 +1675,9 @@ const struct TbSprite *get_button_sprite(short sprite_idx)
 
 const struct TbSprite *get_frontend_sprite(short sprite_idx)
 {
-    if (sprite_idx < GUI_PANEL_SPRITES_COUNT)
+    if (sprite_idx < 0)
+        return NULL;
+    else if (sprite_idx < GUI_PANEL_SPRITES_COUNT)
         return &frontend_sprite[sprite_idx];
     else if (sprite_idx < num_icons_total)
         return &gui_panel_sprites[sprite_idx];

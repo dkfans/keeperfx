@@ -72,6 +72,16 @@ static size_t   tcpSP_msgready(NetUserId source, unsigned timeout);
 static size_t   tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size);
 static void     tcpSP_drop_user(NetUserId id);
 
+static TbError tcpSP_ping(const char *session, TbClockMSec *latency, void *options)
+{
+    return Lb_FAIL;
+}
+
+static TbError tcpSP_get_latency(NetUserId client_id, TbClockMSec *latency)
+{
+    return Lb_FAIL;
+}
+
 const struct NetSP tcpSP =
 {
     tcpSP_init,
@@ -79,6 +89,8 @@ const struct NetSP tcpSP =
     tcpSP_host,
     tcpSP_join,
     tcpSP_update,
+    tcpSP_ping,
+    tcpSP_get_latency,
     tcpSP_sendmsg_single,
     tcpSP_sendmsg_all,
     tcpSP_msgready,

@@ -427,7 +427,7 @@ static char *norm_basic_str(const char *src, int srclen, int multiline,
     char *dst = 0; /* will write to dst[] and return it */
     int max = 0;   /* max size of dst[] */
     int off = 0;   /* cur offset in dst[] */
-    const unsigned char *sp = (unsigned char*) src;
+    const unsigned char *sp = (unsigned char *) src;
     const unsigned char *sq = sp + srclen;
     int ch;
 
@@ -469,7 +469,7 @@ static char *norm_basic_str(const char *src, int srclen, int multiline,
             }
 
             // a plain copy suffice
-            dst[off++] = (char)ch;
+            dst[off++] = (char) ch;
             continue;
         }
 
@@ -486,10 +486,10 @@ static char *norm_basic_str(const char *src, int srclen, int multiline,
         {
 
             // if there is only whitespace after the backslash ...
-            if (sp[strspn((const char*)sp, " \t\r")] == '\n')
+            if (sp[strspn((const char *) sp, " \t\r")] == '\n')
             {
                 /* skip all the following whitespaces */
-                sp += strspn((const char*)sp, " \t\r\n");
+                sp += strspn((const char *) sp, " \t\r\n");
                 continue;
             }
         }
@@ -523,7 +523,7 @@ static char *norm_basic_str(const char *src, int srclen, int multiline,
                     }
                     ucs = ucs * 16 + v;
                 }
-                int n = toml_ucs_to_utf8(ucs, (unsigned char *)&dst[off]);
+                int n = toml_ucs_to_utf8(ucs, (unsigned char *) &dst[off]);
                 if (-1 == n)
                 {
                     snprintf(errbuf, errbufsz, "illegal ucs code in \\u or \\U");
@@ -719,7 +719,7 @@ static table_t create_table_in_table(context_t *ctx, table_t tab, token_t keytok
 /* Create an array in the table.
  */
 static table_t create_keyarray_in_table(context_t *ctx, table_t tab,
-                                       token_t keytok, char kind)
+                                        token_t keytok, char kind)
 {
     /* first, normalize the key to be used for lookup.
      * remember to free it if we error out.
@@ -765,7 +765,7 @@ static table_t create_keyarray_in_table(context_t *ctx, table_t tab,
 
 static table_t create_value_in_table(context_t *ctx, table_t parent, token_t key)
 {
-    table_t ret = { 0 };
+    table_t ret = {0};
     VALUE *dest = value_dict_add_(parent.tab, key.ptr, key.len);
     VALUE *meta = value_dict_add_(value_array_get(parent.meta, IDX_CHILDREN), key.ptr, key.len);
     if (!dest || !meta || init_meta(meta))
@@ -781,7 +781,7 @@ static table_t create_value_in_table(context_t *ctx, table_t parent, token_t key
 static table_t create_value_in_array(context_t *ctx,
                                      table_t parent)
 {
-    table_t ret = { 0 };
+    table_t ret = {0};
     VALUE *dest = value_array_append(parent.tab);
     VALUE *meta = value_array_append(value_array_get(parent.meta, IDX_CHILDREN));
     if (!dest || !meta || init_meta(meta))
@@ -825,7 +825,7 @@ static table_t create_array_in_array(context_t *ctx,
 /* Create a table in an array
  */
 static table_t create_table_in_array(context_t *ctx,
-                                    table_t parent)
+                                     table_t parent)
 {
     table_t ret = {0};
     VALUE *dest = value_array_append(parent.tab);
@@ -892,7 +892,8 @@ static int parse_simple_token(context_t *ctx, table_t dst, token_t token)
             return valtype;
         case 'i':
         case 'd':
-            init_number(dst.tab, token.ptr, token.len);
+            if (init_number(dst.tab, token.ptr, token.len))
+                return e_syntax(ctx, ctx->tok.lineno, "Unexpected value");
             return valtype;
         case 'u':
             return e_syntax(ctx, ctx->tok.lineno, "Unexpected value");
@@ -980,7 +981,7 @@ static int parse_array(context_t *ctx, table_t arr)
 
                 /* set array type if this is the first entry */
                 if (value_array_size(arr.tab) == 1)
-                    ptoml_set_kind(arr, (char)valtype);
+                    ptoml_set_kind(arr, (char) valtype);
                 else if (kind != valtype)
                     ptoml_set_kind(arr, 'm'); /* mixed */
 
@@ -1377,7 +1378,12 @@ static int parse_select(context_t *ctx)
     return 0;
 }
 
-int toml_parse(char *conf, char *errbuf, int errbufsz, VALUE *root)
+int toml_parse(char *conf, char *errbuf, size_t errbufsz, VALUE *root)
+{
+    return toml_parse_len(conf, strlen(conf), errbuf, errbufsz, root);
+}
+
+int toml_parse_len(char *conf, size_t len, char *errbuf, size_t errbufsz, VALUE *root)
 {
     context_t ctx;
     VALUE meta;
@@ -1391,7 +1397,7 @@ int toml_parse(char *conf, char *errbuf, int errbufsz, VALUE *root)
     // init context
     memset(&ctx, 0, sizeof(ctx));
     ctx.start = conf;
-    ctx.stop = ctx.start + strlen(conf);
+    ctx.stop = ctx.start + len;
     ctx.errbuf = errbuf;
     ctx.errbufsz = errbufsz;
 
@@ -1414,7 +1420,7 @@ int toml_parse(char *conf, char *errbuf, int errbufsz, VALUE *root)
 
     // set root as default table
     {
-        table_t cur = { ctx.root, ctx.meta};
+        table_t cur = {ctx.root, ctx.meta};
         ctx.curtab = cur;
     }
 

@@ -93,7 +93,10 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
             (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
             left_button_released = 0;
-            do_button_release_actions(gbtn, &gbtn->gbactn_1, callback);
+            if (gbtn->flags & LbBtnF_Enabled)
+            {
+                do_button_release_actions(gbtn, &gbtn->gbactn_1, callback);
+            }
         }
         return true;
     }
@@ -102,8 +105,11 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
         callback = gbtn->rclick_event;
         if (callback != NULL)
         {
-          right_button_released = 0;
-          do_button_release_actions(gbtn, &gbtn->gbactn_2, callback);
+            right_button_released = 0;
+            if (gbtn->flags & LbBtnF_Enabled)
+            {
+                do_button_release_actions(gbtn, &gbtn->gbactn_2, callback);
+            }
         }
         return true;
     }
@@ -286,7 +292,6 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
            (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
           left_button_clicked = 0;
-          gui_last_left_button_pressed_id = gbtn->id_num;
           do_button_click_actions(gbtn, &gbtn->gbactn_1, callback);
         }
     } else
@@ -303,7 +308,6 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
         if ((callback != NULL))
         {
           right_button_clicked = 0;
-          gui_last_right_button_pressed_id = gbtn->id_num;
           do_button_click_actions(gbtn, &gbtn->gbactn_2, callback);
         }
     }
@@ -326,6 +330,28 @@ int guibutton_get_unused_slot(void)
         }
     }
     return -1;
+}
+
+int guibutton_get_idx_by_id(short gbtn_id)
+{
+    struct GuiButton *gbtn;
+    for (int i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
+    {
+        gbtn = &active_buttons[i];
+        if ((gbtn->flags & LbBtnF_Active) && (gbtn->id_num == gbtn_id) )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+struct GuiButton *guibutton_get(int gbtn_idx)
+{
+    static struct GuiButton null_button = { 0 };
+    if ((gbtn_idx >= ACTIVE_BUTTONS_COUNT) || (gbtn_idx < 0))
+        return &null_button;
+    return &active_buttons[gbtn_idx];
 }
 
 void init_slider_bars(struct GuiMenu *gmnu)
@@ -769,6 +795,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     struct TbSprite *spr;
     // Detect scaling factor
     int units_per_px;
+    int delta;
     units_per_px = simple_frontend_sprite_height_units_per_px(gbtn, GFS_hugebutton_a05l, 100);
     x = gbtn->scr_pos_x;
     y = gbtn->scr_pos_y;
@@ -795,7 +822,9 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     default:
         spr = &frontend_sprite[spridx];
         LbSpriteDrawResized(x, y, units_per_px, spr);
-        x += spr->SWidth * units_per_px / 16;
+        //x += spr->SWidth * units_per_px / 16;
+        delta = gbtn->width - frontend_sprite[spridx+2].SWidth * units_per_px / 16;
+        x += delta - 1;
         break;
     }
     spr = &frontend_sprite[spridx+2];

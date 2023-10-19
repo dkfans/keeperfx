@@ -88,6 +88,15 @@ struct NetSP // new version
     void    (*update)(NetNewUserCallback new_user);
 
     /**
+     * Ping a session
+     */
+    TbError    (*ping)(const char *session, TbClockMSec *latency, void *options);
+
+    /**
+     * Ping a session
+     */
+    TbError    (*get_latency) (NetUserId client_id, TbClockMSec *latency);
+    /**
      * Sends a message buffer to a certain user.
      * @param destination Destination user.
      * @param buffer
@@ -142,7 +151,7 @@ struct TbNetworkSessionNameEntry;
 typedef long (*Net_Callback_Func)(void);
 
 enum TbNetworkService {
-    NS_TCP_IP,
+    NS_TCP_IP = 0,
     NS_ENET_UDP,
 };
 
@@ -159,14 +168,17 @@ struct ConfigInfo {
 };
 
 struct TbNetworkPlayerInfo {
-char name[32];
-long active;
+    char name[32];
+    long active;
+    TbClockMSec latency;
 };
 
+// This struct is casted to TbNetworkSessionNameEntry
 struct TbNetworkCallbackData {
   char svc_name[12];
   char plyr_name[20];
   char field_20[32];
+  uint32_t roundTripTime;
 };
 
 struct TbNetworkPlayerName {
@@ -222,18 +234,22 @@ long field_0;
 /******************************************************************************/
 void    LbNetwork_InitSessionsFromCmdLine(const char * str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
-TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);
-TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
+TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num);
+TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num);
 TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
 TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
 TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
+TbError LbNetwork_GetLatency(NetUserId player_id, TbClockMSec *latency);
 TbBool  LbNetwork_Resync(void * buf, size_t len);
 void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumerateSessions(TbNetworkCallbackFunc callback, void *ptr);
+TbError LbNetwork_EnumerateUpdate();
+TbError LbNetwork_PingSession(struct TbNetworkSessionNameEntry *ses);
 TbError LbNetwork_Stop(void);
+void    LbNetwork_Option(const char *name, const char *value);
 /******************************************************************************/
 #ifdef __cplusplus
 }
