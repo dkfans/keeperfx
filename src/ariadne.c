@@ -45,7 +45,7 @@
 #define EDGEFIT_LEN           64
 #define EDGEOR_COUNT           4
 
-typedef long (*NavRules)(long, long);
+typedef long (*NavRules)(NavColour, NavColour);
 
 struct QuadrantOffset {
     long x;
@@ -370,12 +370,12 @@ void init_navigation_map(void)
     nav_map_initialised = 1;
 }
 
-static PlayerBitFlag get_navtree_owner_flags(long treeI)
+static PlayerBitFlag get_navtree_owner_flags(NavColour treeI)
 {
     return treeI >> NAVMAP_OWNERSELECT_BIT;
 }
 
-long Keeper_nav_rulesA2B(long treeA, long treeB)
+long Keeper_nav_rulesA2B(NavColour treeA, NavColour treeB)
 {
     if ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK) > 1)
         return 0;
@@ -384,7 +384,7 @@ long Keeper_nav_rulesA2B(long treeA, long treeB)
     return 2;
 }
 
-long navigation_rule_normal(long treeA, long treeB)
+long navigation_rule_normal(NavColour treeA, NavColour treeB)
 {
     if ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK) > 1)
       return 0;
@@ -1661,11 +1661,11 @@ TbBool triangle_check_and_add_navitree_fwd(long ttri)
         {
             if ( fits_thro(ttri, n) )
             {
-                long ttri_alt;
-                long k_alt;
+                NavColour ttri_alt;
+                NavColour k_alt;
                 ttri_alt = get_triangle_tree_alt(ttri);
                 k_alt = get_triangle_tree_alt(k);
-                if ((ttri_alt != -1) && (k_alt != -1))
+                if ((ttri_alt != NAV_COL_UNSET) && (k_alt != NAV_COL_UNSET))
                 {
                     long mvcost;
                     long navrule;
@@ -1709,11 +1709,11 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
         k = tri->tags[i];
         if (!is_current_tag(k))
         {
-            long ttri_alt;
-            long k_alt;
+            NavColour ttri_alt;
+            NavColour k_alt;
             ttri_alt = get_triangle_tree_alt(ttri);
             k_alt = get_triangle_tree_alt(k);
-            if ((ttri_alt != -1) && (k_alt != -1))
+            if ((ttri_alt != NAV_COL_UNSET) && (k_alt != NAV_COL_UNSET))
             {
                 long mvcost;
                 long navrule;
@@ -4741,7 +4741,7 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
     for (brd_idx=0; brd_idx < ix_Border; brd_idx++)
     {
         tri_idx = Border[brd_idx];
-        if (get_triangle_tree_alt(tri_idx) != -1)
+        if (get_triangle_tree_alt(tri_idx) != NAV_COL_UNSET)
         {
             tri = get_triangle(tri_idx);
             for (i=0; i < 3; i++)
@@ -4759,7 +4759,7 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
     // Second try - triangles
     for (tri_idx=0; tri_idx < ix_Triangles; tri_idx++)
     {
-        if (get_triangle_tree_alt(tri_idx) != -1)
+        if (get_triangle_tree_alt(tri_idx) != NAV_COL_UNSET)
         {
             tri = get_triangle(tri_idx);
             for (i=0; i < 3; i++)
@@ -4784,14 +4784,14 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
 NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
 {
     struct Thing *doortng;
-    NavColour color = (1 << NAVMAP_FLOORHEIGHT_BIT);
+    NavColour colour = (1 << NAVMAP_FLOORHEIGHT_BIT);
 
     doortng = get_door_for_position(stl_x, stl_y);
     const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
     if (thing_is_invalid(doortng))
     {
         ERRORLOG("Cannot find door for flagged position (%d,%d)",(int)stl_x,(int)stl_y);
-        return color;
+        return colour;
     }
 
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
@@ -4799,10 +4799,10 @@ NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
         if ((players_are_mutual_allies(plyr_idx,doortng->owner) && doortng->door.is_locked) ||
             ((plyr_idx != doortng->owner) && (doorst->model_flags & DoMF_Secret) && !(doortng->door.revealed & (1 << plyr_idx))))
         {
-            color |= 1 << (NAVMAP_OWNERSELECT_BIT + plyr_idx);
+            colour |= 1 << (NAVMAP_OWNERSELECT_BIT + plyr_idx);
         }
     }
-    return color;
+    return colour;
     
 }
 
@@ -4835,9 +4835,9 @@ NavColour get_navigation_colour(long stl_x, long stl_y)
     return get_navigation_colour_for_cube(stl_x, stl_y);
 }
 
-long uniform_area_colour(const unsigned short *imap, long start_x, long start_y, long end_x, long end_y)
+NavColour uniform_area_colour(const NavColour *imap, long start_x, long start_y, long end_x, long end_y)
 {
-    long uniform;
+    NavColour uniform;
     long x;
     long y;
     uniform = imap[navmap_tile_number(start_x,start_y)];
@@ -4899,7 +4899,7 @@ void triangulation_initxy(long startx, long starty, long endx, long endy)
     {
         struct Triangle *tri;
         tri = &Triangles[i];
-        tri->tree_alt = 255;
+        tri->tree_alt = NAV_COL_UNSET;
     }
     tri_initialised = 1;
     triangulation_initxy_points(startx, starty, endx, endy);
@@ -4919,12 +4919,12 @@ void triangulation_init(void)
     }
 }
 
-TbBool triangulate_area(unsigned short *imap, long start_x, long start_y, long end_x, long end_y)
+TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x, long end_y)
 {
     TbBool one_tile;
     TbBool not_whole_map;
-    long colour;
-    unsigned short ccolour;
+    NavColour colour;
+    NavColour ccolour;
     long rect_sx;
     long rect_sy;
     long rect_ex;
@@ -4991,7 +4991,7 @@ TbBool triangulate_area(unsigned short *imap, long start_x, long start_y, long e
         colour = uniform_area_colour(imap, start_x, start_y, end_x, end_y);
     }
 
-    if (colour == -1)
+    if (colour == NAV_COL_UNSET)
     {
         fringe_map = imap;
         fringe_x1 = start_x;
