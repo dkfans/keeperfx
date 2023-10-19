@@ -104,7 +104,7 @@ static TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSub
     if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
     {
         struct Thing* doortng = get_door_for_position(stl_x, stl_y);
-        if (!thing_is_invalid(doortng) && (doortng->owner == creatng->owner) && !doortng->door.is_locked)
+        if (!thing_is_invalid(doortng) && door_will_open_for_thing(doortng,creatng))
         {
             return true;
         }
