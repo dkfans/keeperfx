@@ -272,7 +272,11 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = player_highlight_colours[owner];
           } else
-          if (thing->door.is_locked)//todo, check what makes sense here for color
+          if(door_is_hidden_to_player(thing,plyr_idx))
+          {
+            pixval = pixmap.ghost[background + 0x1000];
+          }else
+          if (thing->door.is_locked)
           {
             pixval = 79;
           } else

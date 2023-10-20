@@ -43,6 +43,7 @@
 #include "power_hand.h"
 #include "kjm_input.h"
 #include "frontmenu_ingame_tabs.h"
+#include "thing_doors.h"
 #include "vidmode.h"
 #include "vidfade.h"
 #include "player_instances.h"
@@ -744,7 +745,14 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
             struct Thing *doortng;
             doortng = get_door_for_position(stl_x, stl_y);
             if (!thing_is_invalid(doortng)) {
-                col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * doortng->model) + 110;
+                if(door_is_hidden_to_player(doortng,plyr_idx))
+                {
+                    col = 1;
+                }
+                else
+                {
+                    col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2) + 110;
+                }
             }
         } else
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
