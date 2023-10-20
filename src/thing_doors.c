@@ -345,6 +345,16 @@ TbBool door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
   return false;
 }
 
+TbBool door_is_hidden_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
+{
+    struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+    if((plyr_idx != doortng->owner) && (doorst->model_flags & DoMF_Secret))
+    {
+        return !(doortng->door.revealed & (1 << plyr_idx));
+    }
+    return false;
+}
+
 long process_door_open(struct Thing *thing)
 {
     // If doors are locked, delay to closing = 0

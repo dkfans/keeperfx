@@ -4787,7 +4787,6 @@ NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
     NavColour colour = (1 << NAVMAP_FLOORHEIGHT_BIT);
 
     doortng = get_door_for_position(stl_x, stl_y);
-    const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
     if (thing_is_invalid(doortng))
     {
         ERRORLOG("Cannot find door for flagged position (%d,%d)",(int)stl_x,(int)stl_y);
@@ -4797,7 +4796,7 @@ NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if ((players_are_mutual_allies(plyr_idx,doortng->owner) && doortng->door.is_locked) ||
-            ((plyr_idx != doortng->owner) && (doorst->model_flags & DoMF_Secret) && !(doortng->door.revealed & (1 << plyr_idx))))
+            door_is_hidden_to_player(doortng,plyr_idx))
         {
             colour |= 1 << (NAVMAP_OWNERSELECT_BIT + plyr_idx);
         }
