@@ -122,6 +122,10 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     doortng->creation_turn = game.play_gameturn;
     doortng->health = doorst->health;
     doortng->door.is_locked = is_locked;
+    if (doorst->model_flags & DoMF_Thick)
+    {
+        doortng->clipbox_size_xy = 1024;
+    }
 
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
