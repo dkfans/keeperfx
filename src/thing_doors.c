@@ -361,7 +361,6 @@ void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
     {
         return;
     }
-    JUSTLOG("revealing door");
     doortng->door.revealed |= (1 << plyr_idx);
     MapSubtlCoord stl_x = doortng->mappos.x.stl.num;
     MapSubtlCoord stl_y = doortng->mappos.y.stl.num;
