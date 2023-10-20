@@ -251,7 +251,6 @@ unsigned int packet_file_pos;
     unsigned long hero_door_wait_time;
     unsigned long dungeon_heart_heal_time;
     long dungeon_heart_heal_health;
-    unsigned long dungeon_heart_health;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
