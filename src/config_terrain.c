@@ -1436,15 +1436,6 @@ TbBool slab_kind_is_door(SlabKind slbkind)
     return (slbattr->block_flags & (SlbAtFlg_IsDoor));
 }
 
-TbBool slab_kind_is_nonmagic_door(SlabKind slbkind)
-{
-    if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORIRON2))
-    {
-        return true;
-    }
-    return false;
-}
-
 /**
  * Returns if given slab type represents liquid slab.
  * Liquid slabs can be used to build bridges, and other rooms cannot be built on them.
