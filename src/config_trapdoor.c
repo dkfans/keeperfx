@@ -61,6 +61,7 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"POINTERSPRITES",       11},
   {"PANELTABINDEX",        12},
   {"OPENSPEED",            13},
+  {"PROPERTIES",           14},
   {NULL,                    0},
 };
 
