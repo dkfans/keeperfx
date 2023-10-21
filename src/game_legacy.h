@@ -133,14 +133,12 @@ char numfield_1A;
     struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
     struct Things things;
     struct Persons persons;
-    
     struct Columns columns;
     unsigned short slabset_num;
     struct SlabSet slabset[SLABSET_COUNT];
     unsigned short slabobjs_num;
     short slabobjs_idx[SLABSET_COUNT];
     struct SlabObj slabobjs[SLABOBJS_COUNT];
-
     unsigned char land_map_start;
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
