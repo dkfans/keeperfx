@@ -158,7 +158,8 @@ struct PlayerInfo {
 unsigned char field_14;
     char player_name[20];
     unsigned char victory_state;
-    unsigned char allied_players; // bit 0-4 (allies), bit 5-7 (locked allies)
+    unsigned char allied_players;
+    unsigned char players_with_locked_ally_status;
     unsigned char id_number;
     unsigned char is_active;
     short controlled_thing_idx;

@@ -254,10 +254,10 @@ TbBool is_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx)
     if (player_invalid(player))
         return false;
 
-    if (ally_idx < PLAYER1 || ally_idx > PLAYER3)
+    if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
         return false;
 
-    return player->allied_players & (0x20 << (ally_idx - PLAYER1)); // returns true if player ally_idx's ally status is locked for player plyridx
+    return player->players_with_locked_ally_status & (1 << ally_idx); // returns true if player ally_idx's ally status is locked for player plyridx
 }
 
 void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool lock_alliance)
@@ -266,14 +266,14 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
     if (player_invalid(player))
         return;
 
-    if (ally_idx < PLAYER1 || ally_idx > PLAYER3)
+    if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
         return;
 
     unsigned char mask = 0x20 << (ally_idx - PLAYER1);
     if (lock_alliance)
-        player->allied_players |= mask; // lock ally player's ally status with player plyridx
+        player->players_with_locked_ally_status |= (1 << ally_idx); // lock ally player's ally status with player plyridx
     else
-        player->allied_players &= ~mask; // unlock ally player's ally status with player plyridx
+        player->players_with_locked_ally_status &= ~(1 << ally_idx); // unlock ally player's ally status with player plyridx
 }
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
