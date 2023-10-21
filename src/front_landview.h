@@ -32,6 +32,8 @@ extern "C" {
 /******************************************************************************/
 #define FRONTMAP_ZOOM_LENGTH 240
 #define FRONTMAP_ZOOM_STEP 4
+
+#define DESCRIPTION_CHANNEL 0
 /******************************************************************************/
 #pragma pack(1)
 

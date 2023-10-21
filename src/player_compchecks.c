@@ -1227,6 +1227,11 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
         {
             if (set_creature_tendencies(player, CrTend_Imprison, true))
             {
+                if (is_my_player(player)) {
+                    dungeon = get_players_dungeon(player);
+                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
+                    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+                }
                 SYNCDBG(18, "Player %d has enabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
                 return CTaskRet_Unk1;
             }
@@ -1254,6 +1259,11 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
         {
             if (set_creature_tendencies(player, CrTend_Imprison, false))
             {
+                if (is_my_player(player)) {
+                    dungeon = get_players_dungeon(player);
+                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
+                    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+                }
                 SYNCDBG(18, "Player %d has disabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
                 return CTaskRet_Unk1;
             }

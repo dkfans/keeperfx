@@ -1456,6 +1456,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
         }
         pos.z.val += subtile_coord(2,0);
         move_thing_in_map(thing, &pos);
+        remove_all_traces_of_combat(thing);
         reset_interpolation_of_thing(thing);
         ariadne_invalidate_creature_route(thing);
         check_map_explored(thing, pos.x.stl.num, pos.y.stl.num);
@@ -2465,7 +2466,8 @@ void cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         flags |= CrDed_NoEffects;
     }
     if (((flags & CrDed_NoEffects) == 0) && (crstat->rebirth != 0)
-     && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel))
+     && (cctrl->lairtng_idx > 0) && (crstat->rebirth-1 <= cctrl->explevel)
+        && ((flags & CrDed_NoRebirth) == 0))
     {
         creature_rebirth_at_lair(thing);
         return;
@@ -2589,9 +2591,15 @@ TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
         ERRORLOG("Tried to kill non-existing thing!");
         return false;
     }
-    // Dying creatures must be visible
+    // Dying creatures must be visible and no chicken
     if (creature_affected_by_spell(creatng, SplK_Invisibility)) {
         terminate_thing_spell_effect(creatng, SplK_Invisibility);
+    }
+    if (creature_affected_by_spell(creatng, SplK_Chicken)) {
+        terminate_thing_spell_effect(creatng, SplK_Chicken);
+    }
+    if (creature_affected_by_spell(creatng, SplK_Rebound)) {
+        terminate_thing_spell_effect(creatng, SplK_Rebound);
     }
     if (!is_neutral_thing(creatng)) {
         dungeon = get_players_num_dungeon(creatng->owner);
@@ -5192,6 +5200,7 @@ TbBool remove_creature_score_from_owner(struct Thing *thing)
 
 void init_creature_scores(void)
 {
+    SYNCDBG(8, "Starting");
     long i;
     long score;
     // compute maximum score
@@ -5267,7 +5276,42 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     // Transforming
-    struct Thing* newtng = create_creature(&thing->mappos, crstat->grow_up, thing->owner);
+    struct CreatureModelConfig* oriconf = &gameadd.crtr_conf.model[thing->model];
+    ThingModel model = crstat->grow_up;
+    if (model == CREATURE_ANY)
+    {
+        while (1) {
+            model = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
+
+            if (model >= gameadd.crtr_conf.model_count) {
+                continue;
+            }
+
+            // Exclude growing up into same creature, spectators and diggers
+            if (model == thing->model) {
+                continue;
+            }
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[model];
+            if ((crconf->model_flags & CMF_IsSpectator) != 0) {
+                continue;
+            }
+            if ((crconf->model_flags & CMF_IsSpecDigger) != 0) {
+                continue;
+            }
+
+            //evil growup evil, good growup good
+            if (((crconf->model_flags & CMF_IsEvil) == 0) && ((oriconf->model_flags & CMF_IsEvil) == 0))
+            {
+                break;
+            }
+            if ((crconf->model_flags & CMF_IsEvil) && (oriconf->model_flags & CMF_IsEvil))
+            {
+                break;
+            }
+        }
+    }
+
+    struct Thing* newtng = create_creature(&thing->mappos, model, thing->owner);
     if (thing_is_invalid(newtng))
     {
         ERRORLOG("Could not create creature to transform %s to",thing_model_name(thing));
