@@ -1634,7 +1634,7 @@ TbBool set_default_startup_parameters(void)
 
 void clear_slabsets(void)
 {
-    struct SlabKindSets *sset;
+    struct SlabSet *sset;
     struct SlabObj *sobj;
     int i;
     for (i=0; i < SLABSET_COUNT; i++)
