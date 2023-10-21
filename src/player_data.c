@@ -245,6 +245,7 @@ TbBool set_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
         player->allied_players |= (1 << ally_idx); // add player ally_idx to player plyridx's allies list
     else // enemy 
         player->allied_players &= ~(1 << ally_idx); // remove player ally_idx from player plyridx's allies list
+
     return true;
 }
 
