@@ -295,10 +295,10 @@ TbBool players_are_enemies(long plyr1_idx, long plyr2_idx);
 TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool players_creatures_tolerate_each_other(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx);
 TbBool player_is_friendly_or_defeated(PlayerNumber check_plyr_idx, PlayerNumber origin_plyr_idx);
-TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state);
-void toggle_ally_with_player(long plyridx, unsigned int allyidx);
-TbBool is_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx);
-void set_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool value);
+TbBool set_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool make_ally);
+void toggle_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx);
+TbBool is_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx);
+void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool lock_alliance);
 
 void set_player_state(struct PlayerInfo *player, short a1, long a2);
 void set_player_mode(struct PlayerInfo *player, unsigned short nview);

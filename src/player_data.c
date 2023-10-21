@@ -226,62 +226,43 @@ void clear_players(void)
     //game.game_kind = GKind_LocalGame;
 }
 
-void toggle_ally_with_player(long plyridx, unsigned int allyidx)
+void toggle_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx)
 {
-    struct PlayerInfo* player = get_player(plyridx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player))
         return;
-    player->allied_players ^= (1 << allyidx);
+    player->allied_players ^= (1 << ally_idx); // toggle player ally_idx in player plyridx's allies list
 }
 
-TbBool set_ally_with_player(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool state)
+TbBool set_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool make_ally)
 {
-    struct PlayerInfo* player = get_player(plyridx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player))
         return false;
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
         return false;
-    char allyid = (1 << ally_idx);
-    if (player->allied_players && allyid)
-    {
-        if (!state)
-        {
-            player->allied_players &= ~(1 << ally_idx);
-        }
-        else
-        {
-            return false;
-        }
-    }
-    else
-    {
-        if (state)
-        {
-            player->allied_players |= (1 << ally_idx);
-        }
-        else
-        {
-            return false;
-        }
-    }      
+    if (make_ally)
+        player->allied_players |= (1 << ally_idx); // add player ally_idx to player plyridx's allies list
+    else // enemy 
+        player->allied_players &= ~(1 << ally_idx); // remove player ally_idx from player plyridx's allies list
     return true;
 }
 
-TbBool is_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx)
+TbBool is_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx)
 {
-    struct PlayerInfo* player = get_player(plyridx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player))
         return false;
 
     if (ally_idx < PLAYER1 || ally_idx > PLAYER3)
         return false;
 
-    return player->allied_players & (0x20 << (ally_idx - PLAYER1));
+    return player->allied_players & (0x20 << (ally_idx - PLAYER1)); // returns true if player ally_idx's ally status is locked for player plyridx
 }
 
-void set_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool value)
+void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool lock_alliance)
 {
-    struct PlayerInfo* player = get_player(plyridx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player))
         return;
 
@@ -289,10 +270,10 @@ void set_player_ally_locked(PlayerNumber plyridx, PlayerNumber ally_idx, TbBool 
         return;
 
     unsigned char mask = 0x20 << (ally_idx - PLAYER1);
-    if (value)
-        player->allied_players |= mask;
+    if (lock_alliance)
+        player->allied_players |= mask; // lock ally player's ally status with player plyridx
     else
-        player->allied_players &= ~mask;
+        player->allied_players &= ~mask; // unlock ally player's ally status with player plyridx
 }
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
