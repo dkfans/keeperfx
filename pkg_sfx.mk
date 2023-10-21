@@ -57,6 +57,7 @@ $(foreach lng,eng,ncastles_$(lng)) \
 $(foreach lng,eng,postanck_$(lng)) \
 $(foreach lng,eng,pstunded_$(lng)) \
 $(foreach lng,eng,questfth_$(lng)) \
+$(foreach lng,eng,revlord_$(lng)) \
 $(foreach lng,eng dut,twinkprs_$(lng)) \
 $(foreach lng,eng,undedkpr_$(lng))
 
