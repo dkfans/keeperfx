@@ -129,7 +129,7 @@ TbBool setup_trap_tooltips(struct Coord3d *pos)
     SYNCDBG(18,"Starting");
     // Traps searching is restricted to one subtile - otherwise we could lose tooltips for other objects.
     struct Thing* thing = get_trap_at_subtile_of_model_and_owned_by(pos->x.stl.num, pos->y.stl.num, -1, -1);
-    //thing = get_trap_for_slab_position(subtile_slab_fast(pos->x.stl.num),subtile_slab_fast(pos->y.stl.num));
+    //thing = get_trap_for_slab_position(subtile_slab(pos->x.stl.num),subtile_slab(pos->y.stl.num));
     if (thing_is_invalid(thing)) return false;
     struct PlayerInfo* player = get_my_player();
     if ((thing->trap.revealed == 0) && (player->id_number != thing->owner))
@@ -159,12 +159,13 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
   if (!thing_is_invalid(thing))
   {
       update_gui_tooltip_target(thing);
-      if (thing->model == ObjMdl_SpecboxCustom)
+      if (thing_is_custom_special_box(thing))
       {
           // TODO: get it from Map script
           if (gameadd.box_tooltip[thing->custom_box.box_kind][0] == 0)
           {
-              set_gui_tooltip_box_fmt(5, "%s", get_string(2005));
+              i = box_thing_to_special(thing);
+              set_gui_tooltip_box_fmt(5, "%s", get_string(get_special_description_strindex(i)));
           }
           else
           {
@@ -229,7 +230,7 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
       {
           struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[objdat->related_creatr_model];
-          const struct RoomConfigStats* roomst = get_room_kind_stats(RoK_LAIR);                                      //TODO use a separate string for creature lair object than for lair room
+          const struct RoomConfigStats* roomst = get_room_kind_stats(RoK_LAIR);     //TODO use a separate string for creature lair object than for lair room
           set_gui_tooltip_box_fmt(5, "%s %s", get_string(crconf->namestr_idx), get_string(roomst->name_stridx)); // (creature) Lair
       } else
       {
@@ -306,47 +307,52 @@ short setup_scrolling_tooltips(struct Coord3d *mappos)
   return shown;
 }
 
-void setup_gui_tooltip(struct GuiButton *gbtn)
+void setup_gui_tooltip(struct GuiButton* gbtn)
 {
-  long k;
-  if (gbtn->tooltip_stridx == GUIStr_Empty)
-    return;
-  if (!settings.tooltips_on)
-    return;
-  struct Dungeon* dungeon = get_my_dungeon();
-  set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
-  long i = gbtn->tooltip_stridx;
-  const char* text = get_string(i);
-  if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
-  {
-      if (tool_tip_box.gbutton != NULL)
-          k = (long)tool_tip_box.gbutton->content;
-      else
-          k = -1;
-      struct PlayerInfo* player = get_player(k);
-      if (player->field_15[0] != '\0')
-          set_gui_tooltip_box_fmt(0, "%s: %s", text, player->field_15);
-      else
-          set_gui_tooltip_box_fmt(0, "%s", text);
-  } else
-  if ((i == get_power_description_strindex(PwrK_CHICKEN)) && (dungeon->chickens_sacrificed > 16)) // Chicken spell tooltip easter egg
-  {
-      set_gui_tooltip_box_fmt(0, "%s", jtytext);
-  } else
-  if (i == GUIStr_PickCreatrMostExpDesc)
-  {
-      k = gbtn->btype_value & LbBFeF_IntValueMask;
-      if ((k > 0) && (top_of_breed_list+k < gameadd.crtr_conf.model_count))
-          k = breed_activities[top_of_breed_list+k];
-      else
-          k = get_players_special_digger_model(my_player_number);
-      struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[k];
-      set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crconf->namestr_idx), text);
-  } else
-  {
-      set_gui_tooltip_box_fmt(0, "%s", text);
-  }
-  update_gui_tooltip_button(gbtn);
+    long k;
+    if (gbtn->tooltip_stridx == GUIStr_Empty)
+        return;
+    if (!settings.tooltips_on)
+        return;
+    struct Dungeon* dungeon = get_my_dungeon();
+    long i = gbtn->tooltip_stridx;
+    const char* text = get_string(i);
+    if ((i == GUIStr_NumberOfCreaturesDesc) || (i == GUIStr_NumberOfRoomsDesc))
+    {
+        if (tool_tip_box.gbutton != NULL)
+            k = (long)tool_tip_box.gbutton->content;
+        else
+            k = -1;
+        struct PlayerInfo* player = get_player(k);
+        if (player->player_name[0] != '\0')
+            set_gui_tooltip_box_fmt(0, "%s: %s", text, player->player_name);
+        else
+            set_gui_tooltip_box_fmt(0, "%s", text);
+    }
+    else
+    if ((i == get_power_description_strindex(PwrK_CHICKEN)) && (dungeon->chickens_sacrificed > 16)) // Chicken spell tooltip easter egg
+    {
+        set_gui_tooltip_box_fmt(0, "%s", jtytext);
+    }
+    else
+    if (i == GUIStr_PickCreatrMostExpDesc)
+    {
+        k = gbtn->btype_value & LbBFeF_IntValueMask;
+        if ((k > 0) && (top_of_breed_list + k < gameadd.crtr_conf.model_count))
+            k = breed_activities[top_of_breed_list + k];
+        else
+            k = get_players_special_digger_model(my_player_number);
+        if (k > 0)
+        {
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[k];
+            set_gui_tooltip_box_fmt(0, "%-6s: %s", get_string(crconf->namestr_idx), text);
+        }
+    }
+    else
+    {
+        set_gui_tooltip_box_fmt(0, "%s", text);
+    }
+    update_gui_tooltip_button(gbtn);
 }
 
 TbBool gui_button_tooltip_update(int gbtn_idx)

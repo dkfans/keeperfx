@@ -456,7 +456,7 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
     long total_capacity = 0;
     
   
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -472,10 +472,11 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    if (room_kind == RoK_GARDEN) {
+    if (room_role_matches(room_kind, RoRoF_FoodStorage))
+    {
         return 9999;
     }
-    if (room_kind == RoK_LAIR)
+    if (room_role_matches(room_kind, RoRoF_LairStorage))
     {
         if (!dungeon_has_room(dungeon, room_kind)) {
             return 9999;
@@ -518,7 +519,7 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
     long free_capacity = computer_get_room_kind_free_capacity(comp, cproc->confval_4);
     if (free_capacity == 9999)
     {
-        if (cproc->confval_4 != RoK_GARDEN) {
+        if(!room_role_matches(cproc->confval_4, RoRoF_FoodStorage)) {
             SYNCDBG(8,"Need \"%s\" because of undetermined capacity",room_code_name(cproc->confval_4));
             return CProcRet_Continue;
         }
@@ -1000,8 +1001,8 @@ long computer_setup_dig_to_gold(struct Computer2 *comp, struct ComputerProcess *
         return CProcRet_Wait;
     }
     struct Coord3d endpos;
-    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(gldlook->x_stl_num));
-    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(gldlook->y_stl_num));
+    endpos.x.val = subtile_coord_center(stl_slab_center_subtile(gldlook->stl_x));
+    endpos.y.val = subtile_coord_center(stl_slab_center_subtile(gldlook->stl_y));
     endpos.z.val = subtile_coord(1,0);
     startpos.x.val = subtile_coord_center(stl_slab_center_subtile(startpos.x.stl.num));
     startpos.y.val = subtile_coord_center(stl_slab_center_subtile(startpos.y.stl.num));
@@ -1216,10 +1217,10 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                             pos = &comp->opponent_relations[slab_owner].pos_A[current_idx];
                             comp->opponent_relations[slab_owner].next_idx = (current_idx + 1) % COMPUTER_SPARK_POSITIONS_COUNT;
                             comp->opponent_relations[slab_owner].field_0 = game.play_gameturn;
-                            pos->x.stl.pos = stl_x_current;
-                            pos->x.stl.num = 0;
-                            pos->y.stl.pos = stl_y_current;
-                            pos->y.stl.num = 0;
+                            pos->x.stl.num = stl_x_current;
+                            pos->x.stl.pos = 0;
+                            pos->y.stl.num = stl_y_current;
+                            pos->y.stl.pos = 0;
                             if ((1 << (game.neutral_player_num + 1)) - computer_player_bit == 1)
                                 return computer_player_bit;
                         }

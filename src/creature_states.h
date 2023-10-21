@@ -112,7 +112,7 @@ enum CreatureStates {
     CrSt_CreatureTakeSalary,
     CrSt_TunnellerDoingNothing,
     CrSt_CreatureObjectCombat,
-    CrSt_Null79,
+    CrSt_CreatureObjectSnipe,
     CrSt_CreatureChangeLair,//[80]
     CrSt_ImpBirth,
     CrSt_AtTemple,
@@ -165,7 +165,7 @@ enum CreatureStates {
     CrSt_GoodWaitInExitDoor,
     CrSt_GoodAttackRoom1,//[130]
     CrSt_CreatureSearchForGoldToStealInRoom2,
-    CrSt_GoodAttackRoom2,
+    CrSt_GoodArrivedAtSabotageRoom,
     CrSt_CreaturePretendChickenSetupMove,
     CrSt_CreaturePretendChickenMove,
     CrSt_CreatureAttackRooms,
@@ -250,8 +250,8 @@ struct StateInfo { // sizeof = 41
     unsigned char override_sleep;
     unsigned char override_fight_crtr;
     unsigned char override_gets_salary;
-    unsigned char override_prev_fld1F;
-    unsigned char override_prev_fld20;
+    unsigned char override_captive;
+    unsigned char override_transition;
     unsigned char override_escape;
     unsigned char override_unconscious;
     unsigned char override_anger_job;
@@ -260,13 +260,13 @@ struct StateInfo { // sizeof = 41
     unsigned char override_call2arms;
     unsigned char override_follow;
     unsigned char state_type;
-  unsigned char field_1F;
-  unsigned char field_20;
-  unsigned short field_21;
-  unsigned char field_23;
+  unsigned char captive;
+  unsigned char transition;
+  unsigned short follow_behavior;
+  unsigned char blocks_all_state_changes;
     unsigned short sprite_idx;
-  unsigned char field_26;
-  unsigned char field_27;
+  unsigned char display_thought_bubble;
+  unsigned char sneaky;
   unsigned char react_to_cta;
 };
 

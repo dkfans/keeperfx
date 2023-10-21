@@ -39,7 +39,12 @@
 #include "config_settings.h"
 #include "keeperfx.hpp"
 #include "gui_topmsg.h"
+#include "lvl_script_commands.h"
+#include "lvl_script.h"
+#include "sounds.h"
 #include "post_inc.h"
+
+#include <SDL2/SDL_mixer.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -270,11 +275,7 @@ void gui_video_view_distance_level(struct GuiButton *gbtn)
 void gui_video_rotate_mode(struct GuiButton *gbtn)
 {
     struct Packet* pckt = get_packet(my_player_number);
-    switch (settings.video_rotate_mode) {
-        case 0: set_packet_action(pckt, PckA_SwitchView, PVM_IsoWibbleView, 0, 0, 0); break;
-        case 1: set_packet_action(pckt, PckA_SwitchView, PVM_IsoStraightView, 0, 0, 0); break;
-        case 2: set_packet_action(pckt, PckA_SwitchView, PVM_FrontView, 0, 0, 0); break;
-    }
+    set_packet_action(pckt, PckA_SwitchView, rotate_mode_to_view_mode(settings.video_rotate_mode), 0, 0, 0);
     save_settings();
 }
 
@@ -315,6 +316,13 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
     save_settings();
     SetSoundMasterVolume(settings.sound_volume);
     SetMusicMasterVolume(settings.sound_volume);
+    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
+    {
+        if (Ext_Sounds[i] != NULL)
+        {
+            Mix_VolumeChunk(Ext_Sounds[i], settings.sound_volume);
+        }
+    }
 }
 
 void gui_set_music_volume(struct GuiButton *gbtn)

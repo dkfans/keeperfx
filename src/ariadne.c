@@ -80,7 +80,7 @@ static long fringe_y1;
 static long fringe_y2;
 static long fringe_x1;
 static long fringe_x2;
-static long fringe_y[256];
+static long fringe_y[MAX_SUBTILES_Y];
 static long ix_Border;
 static long Border[BORDER_LENGTH];
 static long route_fwd[ROUTE_LENGTH];
@@ -352,17 +352,17 @@ unsigned long fits_thro(long tri_idx, long ormask_idx)
 
 void triangulate_map(unsigned char *imap)
 {
-    triangulate_area(imap, 0, 0, navigation_map_size_x, navigation_map_size_y);
+    triangulate_area(imap, 0, 0, gameadd.navigation_map_size_x, gameadd.navigation_map_size_y);
 }
 
 void init_navigation_map(void)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    LbMemorySet(game.navigation_map, 0, navigation_map_size_x*navigation_map_size_y);
-    for (stl_y=0; stl_y < navigation_map_size_y; stl_y++)
+    LbMemorySet(game.navigation_map, 0, gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
+    for (stl_y=0; stl_y < gameadd.navigation_map_size_y; stl_y++)
     {
-        for (stl_x=0; stl_x < navigation_map_size_x; stl_x++)
+        for (stl_x=0; stl_x < gameadd.navigation_map_size_x; stl_x++)
         {
             set_navigation_map(stl_x, stl_y, get_navigation_colour(stl_x, stl_y));
         }
@@ -704,7 +704,6 @@ void waypoint_normal(long tri1_id, long cor1_id, long *norm_x, long *norm_y)
             break;
         }
     }
-
     int diff_x;
     int diff_y;
     if ((cor2_id >= 0) && (cor3_id >= 0))
@@ -2996,9 +2995,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
         if ((int)((pos->y.val - nav_radius) & 0xFFFFFF00) < (int)((thing->mappos.y.val - nav_radius) & 0xFFFFFF00))
         {
             nav_boundry_pos.x.val = pos->x.val;
-            nav_boundry_pos.y.stl.num = (thing->mappos.y.val - nav_radius) >> 8;
-            nav_boundry_pos.y.stl.pos = 0;
-            nav_boundry_pos.y.val += nav_radius;
+            nav_boundry_pos.y.val = subtile_coord((thing->mappos.y.val - nav_radius) >> 8, 0) + nav_radius;
             isOk = true;
         }
         break;
@@ -3006,9 +3003,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
         if ((int)((nav_radius + pos->y.val) & 0xFFFFFF00) > (int)((nav_radius + thing->mappos.y.val) & 0xFFFFFF00))
         {
             nav_boundry_pos.x.val = pos->x.val;
-            nav_boundry_pos.y.stl.num = (nav_radius + thing->mappos.y.val) >> 8;
-            nav_boundry_pos.y.stl.pos = COORD_PER_STL - 1;
-            nav_boundry_pos.y.val -= nav_radius;
+            nav_boundry_pos.y.val = subtile_coord((nav_radius + thing->mappos.y.val) >> 8, COORD_PER_STL - 1) - nav_radius;
             isOk = true;
         }
         break;
@@ -3016,9 +3011,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
         if ((int)((pos->x.val - nav_radius) & 0xFFFFFF00) < (int)((thing->mappos.x.val - nav_radius) & 0xFFFFFF00))
         {
             nav_boundry_pos.y.val = pos->y.val;
-            nav_boundry_pos.x.stl.num = (thing->mappos.x.val - nav_radius) >> 8;
-            nav_boundry_pos.x.stl.pos = 0;
-            nav_boundry_pos.x.val += nav_radius;
+            nav_boundry_pos.x.val = subtile_coord((thing->mappos.x.val - nav_radius) >> 8, 0) + nav_radius;
             isOk = true;
         }
         break;
@@ -3026,9 +3019,7 @@ static TbBool ariadne_check_forward_for_wallhug_gap(struct Thing *thing, struct 
         if ((int)((nav_radius + pos->x.val) & 0xFFFFFF00) > (int)((nav_radius + thing->mappos.x.val) & 0xFFFFFF00))
         {
             nav_boundry_pos.y.val = pos->y.val;
-            nav_boundry_pos.x.stl.num = (nav_radius + thing->mappos.x.val) >> 8;
-            nav_boundry_pos.x.stl.pos = COORD_PER_STL - 1;
-            nav_boundry_pos.x.val -= nav_radius;
+            nav_boundry_pos.x.val = subtile_coord((nav_radius + thing->mappos.x.val) >> 8, COORD_PER_STL - 1) - nav_radius;
             isOk = true;
         }
         break;
@@ -4686,7 +4677,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
         return 0;
     }
     unsigned char *fri_map;
-    fri_map = &fringe_map[256 * fri_y + fri_x];
+    fri_map = &fringe_map[get_subtile_number(fri_x,fri_y)];
     // Find dx and dy
     long dx;
     long dy;
@@ -4699,7 +4690,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     for (dy = 1; dy < len_y; dy++)
     {
         // Our data is 0-terminated, so we can use string functions to compare
-        if (memcmp(&fri_map[256*dy], &fri_map[0], dx) != 0) {
+        if (memcmp(&fri_map[(gameadd.map_subtiles_x + 1) * dy], &fri_map[0], dx) != 0) {
             break;
         }
     }
@@ -4977,16 +4968,16 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
     }
     // Prepare some basic logic information
     one_tile = (((end_x - start_x) == 1) && ((end_y - start_y) == 1));
-    not_whole_map = (start_x != 0) || (start_y != 0) || (end_x != 256) || (end_y != 256);
+    not_whole_map = (start_x != 0) || (start_y != 0) || (end_x != gameadd.map_subtiles_x + 1) || (end_y != gameadd.map_subtiles_y + 1);
     // If coordinates are out of range, update the whole map area
-    if ((start_x < 1) || (start_y < 1) || (end_x >= 255) || (end_y >= 255))
+    if ((start_x < 1) || (start_y < 1) || (end_x >= gameadd.map_subtiles_x) || (end_y >= gameadd.map_subtiles_y))
     {
         one_tile = 0;
         not_whole_map = 0;
         start_x = 0;
-        end_x = 256;
+        end_x = gameadd.map_subtiles_x + 1;
         start_y = 0;
-        end_y = 256;
+        end_y = gameadd.map_subtiles_y + 1;
     }
     triangulation_init();
     if ( not_whole_map )
@@ -5001,7 +4992,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
         }
     } else
     {
-        triangulation_initxy(-256, -256, 512, 512);
+        triangulation_initxy(-(gameadd.map_subtiles_x + 1), -(gameadd.map_subtiles_y + 1), (gameadd.map_subtiles_x + 1) * 2, (gameadd.map_subtiles_y + 1) * 2);
         tri_set_rectangle(start_x, start_y, end_x, end_y, 0);
     }
     colour = -1;

@@ -43,6 +43,7 @@
 #include "config_cubes.h"
 #include "map_columns.h"
 #include "map_events.h"
+#include "music_player.h"
 #include "lvl_script.h"
 #include "gui_msgs.h"
 #include "player_computer.h"
@@ -122,7 +123,7 @@ struct Game {
     unsigned char flags_cd;
     unsigned char eastegg02_cntr;
     char audiotrack;
-char numfield_14;
+    char last_audiotrack;
 char numfield_15;
     LevelNumber selected_level_number;
 char numfield_1A;
@@ -130,7 +131,6 @@ char numfield_1A;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
     struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
-    struct SpellConfig spells_config[30];
     struct Things things;
     struct Persons persons;
     
@@ -145,11 +145,12 @@ char numfield_1A;
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
-    unsigned char navigation_map[256*256];
-    struct Map map[256*256]; // field offset 0xDC157
+    unsigned char navigation_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+    struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y]; // field offset 0xDC157
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
-    struct SlabMap slabmap[85*85];
+    struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
+    struct SlabsConfig slab_conf;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
@@ -200,7 +201,7 @@ unsigned int packet_file_pos;
     unsigned char small_map_state;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
-    struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
+    struct MagicStats keeper_power_stats[POWER_TYPES_MAX];
     char active_players_count;
     PlayerNumber hero_player_num;
     PlayerNumber neutral_player_num;
@@ -224,7 +225,7 @@ unsigned int packet_file_pos;
     unsigned short fight_hate_kill_value;
     unsigned short body_remains_for;
     unsigned short graveyard_convert_time;
-    unsigned char min_distance_for_teleport;
+    MapSubtlDelta min_distance_for_teleport;
     unsigned char recovery_frequency;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     GameTurnDelta food_generation_speed;
@@ -252,7 +253,6 @@ unsigned int packet_file_pos;
     unsigned long hero_door_wait_time;
     unsigned long dungeon_heart_heal_time;
     long dungeon_heart_heal_health;
-    unsigned long dungeon_heart_health;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
@@ -305,6 +305,10 @@ unsigned int packet_file_pos;
     int manufactr_spridx;
     int manufactr_tooltip;
     short barrack_max_party_size;
+    unsigned short training_room_max_level;
+    char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
+    char loaded_sound[EXTERNAL_SOUNDS_COUNT][DISKPATH_SIZE];
+    unsigned char sounds_count;
 };
 
 #pragma pack()

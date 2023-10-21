@@ -821,6 +821,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
         cdamage = apply_damage_to_creature(thing, dmg);
         break;
     case TCls_Object:
+    case TCls_Trap:
         cdamage = apply_damage_to_object(thing, dmg);
         break;
     case TCls_Door:

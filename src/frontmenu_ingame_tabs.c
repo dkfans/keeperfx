@@ -637,7 +637,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_special_spell code to choose_special_spell
     //TODO: equivalent to gui_choose_spell now... try merge
-    choose_spell(((int) gbtn->content) % POWER_TYPES_COUNT, gbtn->tooltip_stridx);
+    choose_spell(((int) gbtn->content) % POWER_TYPES_MAX, gbtn->tooltip_stridx);
 }
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
@@ -1019,7 +1019,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 void maintain_big_spell(struct GuiButton *gbtn)
 {
     long spl_idx = game.chosen_spell_type;
-    if ((spl_idx < 0) || (spl_idx >= KEEPER_POWERS_COUNT)) {
+    if ((spl_idx < 0) || (spl_idx >= magic_conf.power_types_count)) {
         return;
     }
     gbtn->content = (unsigned long *)spl_idx;
@@ -1039,7 +1039,7 @@ void maintain_room(struct GuiButton *gbtn)
 {
     RoomKind rkind = (long)gbtn->content;
     struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return;
     }
     if (dungeonadd_invalid(dungeonadd)) {
@@ -1059,7 +1059,7 @@ void maintain_big_room(struct GuiButton *gbtn)
 {
     long rkind = game.chosen_room_kind;
     struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return;
     }
     if (dungeonadd_invalid(dungeonadd)) {
@@ -1175,6 +1175,7 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
     int tx_units_per_px;
     int text_x;
+    int text_y = -6*dst_w/base_w;
     if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
     {
         tx_units_per_px = scale_ui_value(32);
@@ -1183,9 +1184,18 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     else
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        if ( (dbc_language > 0) && (MyScreenWidth > 640) )
+        {
+            tx_units_per_px = scale_value_by_horizontal_resolution(12 + (MyScreenWidth / 640));
+            text_y += 12;
+        }
+        else
+        {
+            tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
+        }
         text_x = 0;
     }
-    LbTextDrawResized(text_x, -6*dst_w/base_w, tx_units_per_px, text);
+    LbTextDrawResized(text_x, text_y, tx_units_per_px, text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
     LbTextSetClipWindow(0, 0, LbGraphicsScreenWidth(), LbGraphicsScreenHeight());
     LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
@@ -1368,7 +1378,7 @@ void gui_go_to_next_room(struct GuiButton *gbtn)
     unsigned long rkind = (long)gbtn->content;
     go_to_my_next_room_of_type_and_select(rkind);
     game.chosen_room_kind = rkind;
-    struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[rkind];
+    struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[rkind];
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = gbtn->tooltip_stridx;
 }
@@ -1653,8 +1663,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
 
-    long spkind = inst_inf->func_params[0];
-    if (!creature_instance_has_reset(ctrltng, curbtn_inst_id) || ((spkind != 0) && thing_affected_by_spell(ctrltng, spkind)))
+    if ( (!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || ( (thing_affected_by_spell(ctrltng, SplK_Freeze)) && (!inst_inf->instant ) ) )
       spr_idx++;
     if (MyScreenHeight < 400)
     {
@@ -1680,8 +1689,9 @@ void maintain_instance(struct GuiButton *gbtn)
     }
     int curbtn_avail_pos = (long)gbtn->content;
     int curbtn_inst_id = creature_instance_get_available_id_for_pos(ctrltng, curbtn_avail_pos);
-    gbtn->sprite_idx = instance_button_init[curbtn_inst_id].symbol_spridx;
-    gbtn->tooltip_stridx = instance_button_init[curbtn_inst_id].tooltip_stridx;
+    struct InstanceInfo* inst_inf = creature_instance_info_get(curbtn_inst_id);
+    gbtn->sprite_idx = inst_inf->symbol_spridx;
+    gbtn->tooltip_stridx = inst_inf->tooltip_stridx;
     if (creature_instance_is_available(ctrltng, curbtn_inst_id))
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
@@ -2283,6 +2293,7 @@ void gui_set_button_flashing(long btn_idx, long gameturns)
 
 void update_room_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, but skip "sell" button at end
     for (i=0; i < 4*4-1; i++)
@@ -2296,9 +2307,9 @@ void update_room_tab_to_config(void)
         ibtn->ptover_event = NULL;
         ibtn->draw_call = gui_area_new_null_button;
     }
-    for (i=0; i < slab_conf.room_types_count; i++)
+    for (i=0; i < game.slab_conf.room_types_count; i++)
     {
-        struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[i];
+        struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[i];
         if (roomst->panel_tab_idx < 1)
             continue;
         struct GuiButtonInit* ibtn = &room_menu.buttons[roomst->panel_tab_idx - 1];
@@ -2310,10 +2321,17 @@ void update_room_tab_to_config(void)
         ibtn->ptover_event = gui_over_room_button;
         ibtn->draw_call = gui_area_room_button;
     }
+    // Update active menu
+    if (menu_is_active(GMnu_ROOM))
+    {
+        turn_off_menu(GMnu_ROOM);
+        turn_on_menu(GMnu_ROOM);
+    }
 }
 
 void update_trap_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, but skip "sell" button at end
     for (i=0; i < 4*4-1; i++)
@@ -2367,6 +2385,7 @@ void update_trap_tab_to_config(void)
 
 void update_powers_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, no "sell" button at end
     for (i=0; i < 4*4; i++)

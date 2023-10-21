@@ -220,14 +220,22 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         && ((game.play_gameturn & 4) != 0))
     {
         pixval = pixmap.ghost[background + 0x1A00];
+        if ((slb->kind == SlbT_GEMS))
+        {
+            pixval = pixval + 2;
+        }
     } else
     if (!map_block_revealed(mapblk,plyr_idx))
     {
         pixval = background;
     } else
-    if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
+    if (slb->kind == SlbT_GOLD)
     {
         pixval = pixmap.ghost[background + 0x8C00];
+    } else
+    if (slb->kind == SlbT_GEMS)
+    {
+        pixval = 102 + (pixmap.ghost[background] >> 6);
     }
     else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0) // Room slab
     {
@@ -337,7 +345,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
         struct TbSprite* spr = &gui_panel_sprites[57];
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
-    long rkind_select = (game.play_gameturn >> 1) % slab_conf.room_types_count;
+    long rkind_select = (game.play_gameturn >> 1) % game.slab_conf.room_types_count;
     for (struct Room* room = start_rooms; room < end_rooms; room++)
     {
       if (room_exists(room))
@@ -376,7 +384,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
             struct Dungeon* dungeon = get_dungeon(i);
             lbDisplay.DrawFlags = Lb_SPRITE_OUTLINE;
             const struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
-            long m = (4 * ((i + game.play_gameturn) & 7) * subtile_slab_fast(pwrdynst->strength[dungeon->cta_splevel]));
+            long m = (4 * ((i + game.play_gameturn) & 7) * subtile_slab(pwrdynst->strength[dungeon->cta_splevel]));
             long pos_x = map_area->left + block_size * (int)dungeon->cta_stl_x / STL_PER_SLB;
             long pos_y = map_area->top + block_size * (int)dungeon->cta_stl_y / STL_PER_SLB;
             long radius = (((m & 7) + m) >> 3);
@@ -702,7 +710,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
                 }
                 if (spridx > 0)
                 {
-                    draw_gui_panel_sprite_centered(scr_x + (spos_x * 3 / 2), scr_y - (spos_y / 2), ps_units_per_px, spridx);
+                    draw_gui_panel_sprite_centered(spos_x + scr_x, scr_y + spos_y - 6 * units_per_pixel / 16, ps_units_per_px, spridx);
                 }
                 break;
             default:

@@ -1062,7 +1062,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "Du har tillverkat en stenfälla. Placera den i en korridor och skratta "
@@ -6714,7 +6714,6 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr ""
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
@@ -6802,7 +6801,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - New Game+"
 msgstr ""
 
 #: guitext:1028
@@ -6834,3 +6833,45 @@ msgstr ""
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
 msgstr ""
+
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr "Oanvänd5"
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr "Bomb Fälla"
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid ""
+"Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "Bomb Fälla: En explosion med makalös kraft."
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid ""
+"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "Vakts Fälla: Står vakt och skjuter mot fiender som syns."
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr "Oanvänd6"
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr "Ande"
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr "Druid"
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr "Tids Magiker"

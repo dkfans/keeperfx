@@ -153,35 +153,36 @@ TbBool slab_coords_invalid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 long slabmap_owner(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
-        return 5;
+        return NEUTRAL_PLAYER;
     return slb->flags & 0x07;
-}
-
-/**
- * Sets owner of given SlabMap.
- */
-void slabmap_set_owner(struct SlabMap *slb, PlayerNumber owner)
-{
-    if (slabmap_block_invalid(slb))
-        return;
-    slb->flags ^= (slb->flags ^ owner) & 0x07;
 }
 
 /**
  * Sets owner of a slab on given position.
  */
-void set_whole_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
+void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
 {
-    MapSubtlCoord stl_x = STL_PER_SLB * slb_x;
-    MapSubtlCoord stl_y = STL_PER_SLB * slb_y;
-    for (long i = 0; i < STL_PER_SLB; i++)
+    struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+    if (slabmap_block_invalid(slb))
+        return;
+    if (owner == NEUTRAL_PLAYER)
     {
-        for (long k = 0; k < STL_PER_SLB; k++)
+        gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+    }
+    else
+    {
+        struct Dungeon *dungeon = get_dungeon(owner);
+        if (dungeon->texture_pack == 0)
         {
-            struct SlabMap* slb = get_slabmap_for_subtile(stl_x + k, stl_y + i);
-            slabmap_set_owner(slb, owner);
+            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = gameadd.slab_ext_data_initial[get_slab_number(slb_x,slb_y)];
+        }
+        else
+        {
+            gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] = dungeon->texture_pack;
         }
     }
+
+    slb->flags ^= (slb->flags ^ owner) & 0x07;
 }
 
 /**
@@ -209,8 +210,11 @@ void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag)
  */
 SlabCodedCoords get_next_slab_number_in_room(SlabCodedCoords slab_num)
 {
-    if (slab_num >= gameadd.map_tiles_x*gameadd.map_tiles_y)
+    if (slab_num >= gameadd.map_tiles_x * gameadd.map_tiles_y)
+    {
+        ERRORLOG("Slabnumber %d exceeds map dimensions %d*%d", slab_num, gameadd.map_tiles_x, gameadd.map_tiles_y);
         return 0;
+    }
     return game.slabmap[slab_num].next_in_room;
 }
 
@@ -240,15 +244,18 @@ TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    if ( (slb->kind <= SlbT_WALLPAIRSHR) || (slb->kind == SlbT_GEMS) )
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
-        return true;
+        MapSubtlCoord astl_x = stl_x + small_around[i].delta_x;
+        MapSubtlCoord astl_y = stl_y + small_around[i].delta_y;
+        if (!subtile_is_wall(astl_x, astl_y))
+        {
+            return false;
+        }
     }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 TbBool is_slab_type_walkable(SlabKind slbkind)
@@ -259,12 +266,8 @@ TbBool is_slab_type_walkable(SlabKind slbkind)
 
 TbBool slab_kind_is_animated(SlabKind slbkind)
 {
-    if (slab_kind_is_door(slbkind))
-        return true;
-    // if ((slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
-        if (slbkind >= SlbT_SLAB50)
-        return true;
-    return false;
+    struct SlabAttr* slbattr = get_slab_kind_attrs(slbkind);
+    return slbattr->animated;
 }
 
 TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
@@ -468,8 +471,14 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
                     eff_score++;
                     break;
                   case SlbT_WALLDRAPE:
-                    if (slabmap_owner(round_slb) == slabmap_owner(slb))
-                        eff_score += 2;
+                      if (slabmap_owner(round_slb) == slabmap_owner(slb))
+                      {
+                          eff_score += 2;
+                      }
+                      else
+                      {
+                          eff_score++;
+                      }
                     break;
                   case SlbT_DOORWOOD1:
                     if (slabmap_owner(round_slb) == slabmap_owner(slb))

@@ -45,26 +45,29 @@ const struct NamedCommand objects_common_commands[] = {
   };
 
 const struct NamedCommand objects_object_commands[] = {
-  {"NAME",              1},
-  {"GENRE",             2},
-  {"RELATEDCREATURE",   3},
-  {"PROPERTIES",        4},
-  {"ANIMATIONID",       5},
-  {"ANIMATIONSPEED",    6},
-  {"SIZE_XY",           7},
-  {"SIZE_YZ",           8},
-  {"MAXIMUMSIZE",       9},
-  {"DESTROYONLIQUID",  10},
-  {"DESTROYONLAVA",    11},
-  {"HEALTH",           12},
-  {"FALLACCELERATION", 13},
-  {"LIGHTUNAFFECTED",  14},
-  {"LIGHTINTENSITY",   15},
-  {"LIGHTRADIUS",      16},
-  {"LIGHTISDYNAMIC",   17},
-  {"MAPICON",          18},
-  {"AMBIENCESOUND",    19},
-  {NULL,                0},
+  {"NAME",               1},
+  {"GENRE",              2},
+  {"RELATEDCREATURE",    3},
+  {"PROPERTIES",         4},
+  {"ANIMATIONID",        5},
+  {"ANIMATIONSPEED",     6},
+  {"SIZE_XY",            7},
+  {"SIZE_YZ",            8},
+  {"MAXIMUMSIZE",        9},
+  {"DESTROYONLIQUID",   10},
+  {"DESTROYONLAVA",     11},
+  {"HEALTH",            12},
+  {"FALLACCELERATION",  13},
+  {"LIGHTUNAFFECTED",   14},
+  {"LIGHTINTENSITY",    15},
+  {"LIGHTRADIUS",       16},
+  {"LIGHTISDYNAMIC",    17},
+  {"MAPICON",           18},
+  {"AMBIENCESOUND",     19},
+  {"UPDATEFUNCTION",    20},
+  {"DRAWCLASS",         21},
+  {"PERSISTENCE",       22},
+  {NULL,                 0},
   };
 
 const struct NamedCommand objects_properties_commands[] = {
@@ -72,6 +75,9 @@ const struct NamedCommand objects_properties_commands[] = {
   {"DESTROYED_ON_ROOM_CLAIM", 2},
   {"CHOWNED_ON_ROOM_CLAIM",   3},
   {"DESTROYED_ON_ROOM_PLACE", 4},
+  {"BUOYANT",                 5},
+  {"BEATING",                 6},
+  {"HEART",                   7},
   {NULL,                      0},
   };
 
@@ -343,6 +349,18 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                       objst->model_flags |= OMF_DestroyedOnRoomPlace;
                       n++;
                       break;
+                  case 5: // BOUYANT
+                      objst->model_flags |= OMF_Buoyant;
+                      n++;
+                      break;
+                  case 6: // BEATING
+                      objst->model_flags |= OMF_Beating;
+                      n++;
+                      break;
+                  case 7: // HEART
+                      objst->model_flags |= OMF_Heart;
+                      n++;
+                      break;
                   default:
                       CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                           COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -551,13 +569,51 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     }
                 }
                 break;
+            case 20: // UPDATEFUNCTION
+                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    n = get_id(object_update_functions_desc, word_buf);
+                }
+                if (n < 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    break;
+                }
+                objdat->updatefn_idx = n;
+                break;
+            case 21: // DRAWCLASS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objdat->draw_class = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 22: // PERSISTENCE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objdat->persistence = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
             case 0: // comment
                 break;
             case -1: // end of buffer
                 break;
             default:
-                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                    cmd_num,block_buf,config_textname);
+                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.", cmd_num,block_buf,config_textname);
                 break;
             }
             skip_conf_to_next_line(buf,&pos,len);
@@ -612,6 +668,8 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
 void update_all_object_stats()
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
+    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
@@ -620,8 +678,18 @@ void update_all_object_stats()
         struct Objects* objdat = get_objects_data_for_thing(thing);
         set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
         // TODO: Should we rotate this on per-object basis?
-        get_thingadd(thing->index)->flags = 0;
-        get_thingadd(thing->index)->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+        thing->flags = 0;
+        thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+
+        dungeon = get_dungeon(thing->owner);
+        if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
+        {
+            dungeonadd = get_dungeonadd(thing->owner);
+            if (dungeonadd->backup_heart_idx == 0)
+            {
+                dungeonadd->backup_heart_idx = thing->index;
+            }
+        }
 
         struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
         if (thing->light_id != 0)
@@ -641,6 +709,7 @@ void update_all_object_stats()
         }
     }
 }
+
 TbBool load_objects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global objects config";
@@ -768,7 +837,6 @@ void init_objects(void)
     game.objects_config[5].fall_acceleration = 20;
     game.objects_config[5].light_unaffected = 0;
     game.objects_config[5].ilght.is_dynamic = 1;
-    game.objects_config[5].is_heart = 1;
     game.objects_config[5].movement_flag = 1;
     game.objects_config[6].fall_acceleration = 8;
     game.objects_config[6].health = 50;

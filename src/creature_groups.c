@@ -629,7 +629,6 @@ TbBool delete_member_from_party(int party_id, long crtr_model, long crtr_level)
             return true;
         }
     }
-    WARNLOG("Creature not found party:%s model:%d level:%d", party->prtname, crtr_model, crtr_level);
     return false;
 }
 
@@ -690,7 +689,7 @@ long process_obey_leader(struct Thing *thing)
     struct CreatureControl *cctrl;
     struct CreatureControl *leadctrl;
     struct StateInfo* stati = get_creature_state_with_task_completion(leadtng);
-    switch (stati->field_21)
+    switch (stati->follow_behavior)
     {
     case 1:
         if (thing->active_state != CrSt_CreatureFollowLeader) {

@@ -32,6 +32,7 @@
 #include "engine_camera.h"
 #include "gui_soundmsgs.h"
 #include "gui_topmsg.h"
+#include "front_landview.h"
 #include "frontmenu_ingame_evnt.h"
 #include "thing_data.h"
 #include "thing_navigate.h"
@@ -45,6 +46,7 @@
 #include "creature_states.h"
 #include "thing_objects.h"
 #include "config.h"
+#include "lvl_script_commands.h"
 
 #include "keeperfx.hpp"
 #include "game_heap.h"
@@ -63,8 +65,10 @@ const char foot_down_sound_sample_variant[] = {
 char sound_dir[64] = "SOUND";
 int atmos_sound_frequency = 800;
 static char ambience_timer;
+int sdl_flags = 0;
+Mix_Chunk* streamed_sample;
 /******************************************************************************/
-void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long a7, long loudness)
+void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness)
 {
     if (SoundDisabled)
         return;
@@ -81,11 +85,11 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
         {
-            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, a7);
+            S3DAddSampleToEmitterPri(eidx, smptbl_idx, 0, pitch, loudness, a4, a5, a6 | 0x01, priority);
         } else
         {
             eidx = S3DCreateSoundEmitterPri(thing->mappos.x.val, thing->mappos.y.val, thing->mappos.z.val,
-               smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, a7);
+               smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
     }
@@ -217,7 +221,7 @@ void find_nearest_rooms_for_ambient_sound(void)
             struct Room* room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[room->kind];
+            struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[room->kind];
             long k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
@@ -269,10 +273,7 @@ void update_player_sounds(void)
         process_messages();
         if (!SoundDisabled)
         {
-            if (game.audiotrack >= FIRST_TRACK && game.audiotrack <= max_track)
-            {
-                PlayMusicPlayer(game.audiotrack);
-            }
+            PlayMusicPlayer(game.audiotrack);
             update_3d_sound_receiver(player);
         }
         game.play_gameturn++;
@@ -282,9 +283,12 @@ void update_player_sounds(void)
     int k = (game.bonus_time - game.play_gameturn) / 2;
     if (bonus_timer_enabled())
     {
-      if ((game.bonus_time == game.play_gameturn) ||
-         ((game.bonus_time > game.play_gameturn) && (((k <= 100) && ((k % 10) == 0)) ||
-          ((k<=300) && ((k % 50) == 0)) || ((k % 250) == 0))) )
+        if ((game.bonus_time == game.play_gameturn) ||
+            ((game.bonus_time > game.play_gameturn) &&
+            (   ((k <= 100)  && ((k % 10) == 0)) ||
+                ((k <= 300)  && ((k % 50) == 0)) ||
+                ((k <= 5000) && ((k % 250) == 0)) ||
+                                ((k % 5000) == 0)    )  ))
         play_non_3d_sample(89);
     }
     if (game.play_gameturn != 0)
@@ -358,6 +362,9 @@ void process_sound_heap(void)
     long i = 0;
     SYNCDBG(9,"Starting");
     struct SampleInfo* smpinfo_last = GetLastSampleInfoStructure();
+    if (smpinfo_last == NULL) {
+        return;
+    }
     for (struct SampleInfo* smpinfo = GetFirstSampleInfoStructure(); smpinfo <= smpinfo_last; smpinfo++)
     {
       if ( (smpinfo->field_0 != 0) && ((smpinfo->flags_17 & 0x01) != 0) )
@@ -480,6 +487,7 @@ TbBool init_sound(void)
     snd_settng->redbook_enable = IsRedbookMusicActive();
     snd_settng->sound_system = 0;
     InitAudio(snd_settng);
+    sdl_flags = InitialiseSDLAudio();
     InitializeMusicPlayer();
     if (!GetSoundInstalled())
     {
@@ -625,6 +633,26 @@ void sound_reinit_after_load(void)
     }
     ambient_sound_stop();
     init_messages();
+    free_sound_chunks();
+    for (unsigned int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
+    {
+        char *sound = &game.loaded_sound[sample][0];
+        if (sound[0] != '\0')
+        {
+            char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", sound);
+            Ext_Sounds[sample] = Mix_LoadWAV(fname);
+            if (Ext_Sounds[sample] != NULL)
+            {
+                Mix_VolumeChunk(Ext_Sounds[sample], settings.sound_volume);
+                SYNCLOG("Loaded sound file %s into slot %u.", fname, sample);
+                game.sounds_count++;
+            }
+            else
+            {
+                ERRORLOG("Could not reload sound %s (slot %u): %s", fname, sample, Mix_GetError());
+            }
+        }
+    }
 }
 
 void stop_thing_playing_sample(struct Thing *thing, short smpl_idx)
@@ -712,7 +740,7 @@ void update_first_person_object_ambience(struct Thing *thing)
              objtng = thing_get(objtng->next_of_class))
         {
             objdat = get_objects_data_for_thing(objtng);
-            if (objdat->fp_smpl_idx != 0)
+            if ((objdat->fp_smpl_idx != 0) && !thing_is_in_limbo(objtng))
             {
                 new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)
@@ -750,6 +778,104 @@ void update_first_person_object_ambience(struct Thing *thing)
         }
     }
     ambience_timer = (ambience_timer + 1) % 4;
+}
+
+int InitialiseSDLAudio()
+{
+    if (SDL_Init(SDL_INIT_AUDIO) < 0) {
+        ERRORLOG("Unable to initialise SDL audio subsystem: %s", SDL_GetError());
+        return 0;
+    }
+    int flags = Mix_Init(MIX_INIT_OGG|MIX_INIT_MP3);
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096) < 0)
+    {
+        ERRORLOG("Could not open audio device for SDL mixer: %s", Mix_GetError());
+        Mix_Quit();
+        return 0;
+    }
+    Mix_ReserveChannels(1); // reserve for external speech samples
+    return flags;
+}
+
+void ShutDownSDLAudio()
+{
+    int frequency, channels;
+    unsigned short format;
+    int i = Mix_QuerySpec(&frequency, &format, &channels);
+    if (i == 0)
+    {
+        ERRORLOG("Could not query SDL mixer: %s", Mix_GetError());
+    }
+    while (i > 0)
+    {
+        Mix_CloseAudio();
+        i--;
+    }
+    while (Mix_Init(0))
+    {
+        Mix_Quit();
+    }
+}
+
+void free_sound_chunks()
+{
+    Mix_HaltChannel(-1);
+    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
+    {
+        if (Ext_Sounds[i] != NULL)
+        {
+            Mix_FreeChunk(Ext_Sounds[i]);
+            Ext_Sounds[i] = NULL;
+        }
+    }
+    game.sounds_count = 0;
+}
+
+void play_external_sound_sample(unsigned char smpl_id)
+{
+    if (Mix_PlayChannel(-1, Ext_Sounds[smpl_id], 0) == -1)
+    {
+        ERRORLOG("Could not play sound %s: %s", &game.loaded_sound[smpl_id][0], Mix_GetError());
+    }
+}
+
+TbBool play_streamed_sample(char* fname, int volume, int loops)
+{
+    if (!SoundDisabled)
+    {
+        if (streamed_sample != NULL)
+        {
+            WARNLOG("Overwriting loaded sample.");
+            stop_streamed_sample();
+        }
+        streamed_sample = Mix_LoadWAV(fname);
+        if (streamed_sample != NULL)
+        {
+            Mix_VolumeChunk(streamed_sample, volume);
+            if (Mix_PlayChannel(DESCRIPTION_CHANNEL, streamed_sample, loops) == -1)
+            {
+                ERRORLOG("Could not play sound %s: %s", fname, Mix_GetError());
+                return false;
+            }
+        }
+        else
+        {
+            ERRORLOG("Could not load sound %s: %s", fname, Mix_GetError());
+            return false;
+        }
+        return true;
+    }
+    return false;
+}
+
+void stop_streamed_sample()
+{
+    Mix_HaltChannel(DESCRIPTION_CHANNEL);
+    if (streamed_sample != NULL)
+    {
+        Mix_FreeChunk(streamed_sample);
+        streamed_sample = NULL;
+    }
 }
 /******************************************************************************/
 #ifdef __cplusplus

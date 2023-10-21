@@ -53,6 +53,7 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
+#include "music_player.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -124,7 +125,7 @@ void set_player_as_won_level(struct PlayerInfo *player)
   dungeon->lvstats.player_score = compute_player_final_score(player, dungeon->max_gameplay_score);
   dungeon->lvstats.allow_save_score = 1;
   if ((game.system_flags & GSF_NetworkActive) == 0)
-    player->field_4EB = game.play_gameturn + 300;
+    player->display_objective_turn = game.play_gameturn + 300;
   if (my_player)
   {
     if (lord_of_the_land_in_prison_or_tortured())
@@ -179,7 +180,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
     set_player_mode(player, PVT_DungeonTop);
     set_player_state(player, PSt_CtrlDungeon, 0);
     if ((game.system_flags & GSF_NetworkActive) == 0)
-        player->field_4EB = game.play_gameturn + 300;
+        player->display_objective_turn = game.play_gameturn + 300;
     if ((game.system_flags & GSF_NetworkActive) != 0)
         reveal_whole_map(player);
     if ((dungeon->computer_enabled & 0x01) != 0)
@@ -314,7 +315,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->offmap_money_owned = 0;
     }
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
@@ -448,6 +449,7 @@ void init_player_music(struct PlayerInfo *player)
 {
     LevelNumber lvnum = get_loaded_level_number();
     game.audiotrack = 3 + ((lvnum - 1) % 4);
+    game.last_audiotrack = max_track;
 }
 
 TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)
@@ -494,7 +496,6 @@ TbBool map_position_initially_explored_for_player(PlayerNumber plyr_idx, MapSlab
 
 void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-
     
     int block_flags;
     int v13;
@@ -531,8 +532,8 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
     };
 
     struct XY {
-        char x;
-        char y;
+        MapSlabCoord x;
+        MapSlabCoord y;
     };
 
     static const struct XY byte_522199[6] =
@@ -545,10 +546,10 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         { 0, 0}
     };
 
-    char *first_scratch = (char*) scratch;
+    char *first_scratch = (char*) big_scratch;
     
-    struct XY *second_scratch = (struct XY *)scratch + gameadd.map_tiles_x * gameadd.map_tiles_y;
-    memset((void *)scratch, 0, gameadd.map_tiles_x * gameadd.map_tiles_y);
+    struct XY *second_scratch = (struct XY *)big_scratch + gameadd.map_tiles_x * gameadd.map_tiles_y;
+    memset((void *)big_scratch, 0, gameadd.map_tiles_x * gameadd.map_tiles_y);
 
     for(MapSlabCoord slb_y_2 = 0;slb_y_2 < gameadd.map_tiles_y;slb_y_2++)
     {
@@ -732,6 +733,9 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
     player->main_palette = engine_palette;
+    player->minimap_zoom = settings.minimap_zoom;
+    player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
+    player->frontview_zoom_level = settings.frontview_zoom_level;
     if (is_my_player(player))
     {
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
@@ -752,6 +756,16 @@ void init_player(struct PlayerInfo *player, short no_explore)
         }
         break;
     case GKind_MultiGame:
+        //workaround until settings are synced through multiplayer
+        player->minimap_zoom = 256;
+        if (game.packet_save_head.isometric_view_zoom_level == 0)
+        {
+            player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
+        }
+        if (game.packet_save_head.frontview_zoom_level == 0)
+        {
+            player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
+        }
         if (player->is_active != 1)
         {
           ERRORLOG("Non Keeper in Keeper game");
@@ -905,7 +919,7 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
     wandr->wdrfield_14 = 0;
 
     long stl_num_list_count = 0;
-    SubtlCodedCoords* stl_num_list = (SubtlCodedCoords*)scratch;
+    SubtlCodedCoords* stl_num_list = (SubtlCodedCoords*)big_scratch;
     SlabCodedCoords slb_num = 0;
     while (1)
     {
@@ -994,6 +1008,7 @@ void post_init_player(struct PlayerInfo *player)
 
 void post_init_players(void)
 {
+    SYNCDBG(8, "Starting");
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
@@ -1068,15 +1083,15 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 {
     struct Thing *thing;
     struct Coord3d pos;
-    MapSlabCoord slb_x = subtile_slab_fast(stl_x);
-    MapSlabCoord slb_y = subtile_slab_fast(stl_y);
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
     long sell_value = 0;
     unsigned long traps_sold;
     struct PlayerInfo* player = get_player(plyr_idx);
     if (player->full_slab_cursor == false)
     {
         thing = get_trap_for_position(stl_x, stl_y);
-        if (thing_is_invalid(thing))
+        if (!thing_is_sellable_trap(thing))
         {
             return false;
         }
@@ -1085,8 +1100,8 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     }
     else
     {
-        thing = get_trap_for_slab_position(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
-        if (thing_is_invalid(thing))
+        thing = get_trap_for_slab_position(subtile_slab(stl_x), subtile_slab(stl_y));
+        if (!thing_is_sellable_trap(thing))
         {
             return false;
         }
@@ -1143,7 +1158,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     if (is_my_player_number(plyr_idx))
         play_non_3d_sample(115);
     struct Coord3d pos;
-    set_coords_to_slab_center(&pos,subtile_slab_fast(stl_x),subtile_slab_fast(stl_y));
+    set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     if (sell_value != 0)
     {
         create_price_effect(&pos, plyr_idx, sell_value);

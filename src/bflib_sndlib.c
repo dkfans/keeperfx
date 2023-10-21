@@ -51,7 +51,7 @@ typedef struct SampleInfo * (WINAPI *FARPROC_PLAY1)(int,int,int,int,int,unsigned
 
 // GetModuleHandleExA(0,"WSND7R",&hModule); seems not to work
 
-int __stdcall FreeAudio(void)
+int FreeAudio(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_FreeAudio@0");
@@ -60,7 +60,7 @@ int __stdcall FreeAudio(void)
     return proc();
 }
 
-int __stdcall SetRedbookVolume(int volume)
+int SetRedbookVolume(int volume)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_SetRedbookVolume@4");
@@ -69,7 +69,7 @@ int __stdcall SetRedbookVolume(int volume)
     return ((FARPROCI)proc)(volume);
 }
 
-int __stdcall SetSoundMasterVolume(int volume)
+int SetSoundMasterVolume(int volume)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_SetSoundMasterVolume@4");
@@ -78,7 +78,7 @@ int __stdcall SetSoundMasterVolume(int volume)
     return ((FARPROCI)proc)(volume);
 }
 
-int __stdcall SetMusicMasterVolume(int volume)
+int SetMusicMasterVolume(int volume)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_SetMusicMasterVolume@4");
@@ -87,7 +87,7 @@ int __stdcall SetMusicMasterVolume(int volume)
     return ((FARPROCI)proc)(volume);
 }
 
-int __stdcall GetSoundInstalled(void)
+int GetSoundInstalled(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_GetSoundInstalled@0");
@@ -96,7 +96,7 @@ int __stdcall GetSoundInstalled(void)
     return proc();
 }
 
-int __stdcall PlayRedbookTrack(int track)
+int PlayRedbookTrack(int track)
 {
     SYNCDBG(18,"Starting");
     HMODULE hModule=LoadLibrary("WSND7R");
@@ -106,7 +106,7 @@ int __stdcall PlayRedbookTrack(int track)
     return ((FARPROCI)proc)(track);
 }
 
-int __stdcall PauseRedbookTrack(void)
+int PauseRedbookTrack(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_PauseRedbookTrack@0");
@@ -115,7 +115,7 @@ int __stdcall PauseRedbookTrack(void)
     return proc();
 }
 
-int __stdcall ResumeRedbookTrack(void)
+int ResumeRedbookTrack(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_ResumeRedbookTrack@0");
@@ -124,7 +124,7 @@ int __stdcall ResumeRedbookTrack(void)
     return proc();
 }
 
-int __stdcall MonitorStreamedSoundTrack(void)
+int MonitorStreamedSoundTrack(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_MonitorStreamedSoundTrack@0");
@@ -133,7 +133,7 @@ int __stdcall MonitorStreamedSoundTrack(void)
     return proc();
 }
 
-int __stdcall StopRedbookTrack(void)
+int StopRedbookTrack(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_StopRedbookTrack@0");
@@ -142,7 +142,7 @@ int __stdcall StopRedbookTrack(void)
     return proc();
 }
 
-void * __stdcall GetSoundDriver(void)
+void * GetSoundDriver(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_GetSoundDriver@0");
@@ -151,7 +151,7 @@ void * __stdcall GetSoundDriver(void)
     return (void *)proc();
 }
 
-int __stdcall StopAllSamples(void)
+int StopAllSamples(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_StopAllSamples@0");
@@ -160,7 +160,7 @@ int __stdcall StopAllSamples(void)
     return proc();
 }
 
-struct SampleInfo * __stdcall GetFirstSampleInfoStructure(void)
+struct SampleInfo * GetFirstSampleInfoStructure(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_GetFirstSampleInfoStructure@0");
@@ -169,7 +169,7 @@ struct SampleInfo * __stdcall GetFirstSampleInfoStructure(void)
     return (struct SampleInfo *)proc();
 }
 
-int __stdcall InitAudio(void *i)
+int InitAudio(void *i)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_InitAudio@4");
@@ -178,7 +178,7 @@ int __stdcall InitAudio(void *i)
     return ((FARPROCP)proc)(i);
 }
 
-int __stdcall SetupAudioOptionDefaults(void *i)
+int SetupAudioOptionDefaults(void *i)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_SetupAudioOptionDefaults@4");
@@ -187,25 +187,7 @@ int __stdcall SetupAudioOptionDefaults(void *i)
     return ((FARPROCP)proc)(i);
 }
 
-int __stdcall PlayStreamedSample(char *fname, int sample_type, int a3, int a4)
-{
-    /*
-    Possible sample types:
-    811 - 8-bit 11khz
-    822 - 8-bit 22khz
-    844 - 8-bit 44khz
-    1611 - 16-bit 11khz
-    1622 - 16-bit 22khz
-    1644 - 16-bit 44khz
-    */
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_PlayStreamedSample@16");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of PlayStreamedSample function; skipped."); return 0; }
-    return ((FARPROCSIII)proc)(fname, sample_type, a3, a4);
-}
-
-int __stdcall IsSamplePlaying(int a1, int a2, int a3)
+int IsSamplePlaying(int a1, int a2, int a3)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_IsSamplePlaying@12");
@@ -214,34 +196,7 @@ int __stdcall IsSamplePlaying(int a1, int a2, int a3)
     return (unsigned char)((FARPROCIII)proc)(a1, a2, a3);
 }
 
-int __stdcall StopStreamedSample(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_StopStreamedSample@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of StopStreamedSample function; skipped."); return 0; }
-    return proc();
-}
-
-int __stdcall StreamedSampleFinished(void)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_StreamedSampleFinished@0");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of StreamedSampleFinished function; skipped."); return 0; }
-    return proc();
-}
-
-int __stdcall SetStreamedSampleVolume(int volume)
-{
-    HMODULE hModule=LoadLibrary("WSND7R");
-    FARPROC proc = GetProcAddress(hModule, "_SetStreamedSampleVolume@4");
-    if (proc==NULL)
-    { ERRORLOG("Can't get address of SetStreamedSampleVolume function; skipped."); return 0; }
-    return ((FARPROCI)proc)(volume);
-}
-
-struct SampleInfo * __stdcall GetLastSampleInfoStructure(void)
+struct SampleInfo * GetLastSampleInfoStructure(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_GetLastSampleInfoStructure@0");
@@ -250,7 +205,7 @@ struct SampleInfo * __stdcall GetLastSampleInfoStructure(void)
     return (struct SampleInfo *)proc();
 }
 
-int __stdcall GetCurrentSoundMasterVolume(void)
+int GetCurrentSoundMasterVolume(void)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_GetCurrentSoundMasterVolume@0");
@@ -259,7 +214,7 @@ int __stdcall GetCurrentSoundMasterVolume(void)
     return proc();
 }
 
-int __stdcall StopSample(SoundEmitterID emit_id, long smptbl_id)
+int StopSample(SoundEmitterID emit_id, long smptbl_id)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_StopSample@8");
@@ -268,7 +223,7 @@ int __stdcall StopSample(SoundEmitterID emit_id, long smptbl_id)
     return ((FARPROCII)proc)(emit_id,smptbl_id);
 }
 
-int __stdcall SetSampleVolume(SoundEmitterID emit_id, long smptbl_id,long volume,long d)
+int SetSampleVolume(SoundEmitterID emit_id, long smptbl_id,long volume,long d)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_SetSampleVolume@16");
@@ -277,7 +232,7 @@ int __stdcall SetSampleVolume(SoundEmitterID emit_id, long smptbl_id,long volume
     return ((FARPROCIIII)proc)(emit_id,smptbl_id,volume,d);
 }
 
-int __stdcall SetSamplePan(SoundEmitterID emit_id, long smptbl_id,long pan,int d)
+int SetSamplePan(SoundEmitterID emit_id, long smptbl_id,long pan,int d)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_SetSamplePan@16");
@@ -286,7 +241,7 @@ int __stdcall SetSamplePan(SoundEmitterID emit_id, long smptbl_id,long pan,int d
     return ((FARPROCIIII)proc)(emit_id,smptbl_id,pan,d);
 }
 
-int __stdcall SetSamplePitch(SoundEmitterID emit_id, long smptbl_id,long pitch,int d)
+int SetSamplePitch(SoundEmitterID emit_id, long smptbl_id,long pitch,int d)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_SetSamplePitch@16");
@@ -295,7 +250,7 @@ int __stdcall SetSamplePitch(SoundEmitterID emit_id, long smptbl_id,long pitch,i
     return ((FARPROCIIII)proc)(emit_id,smptbl_id,pitch,d);
 }
 
-struct SampleInfo * __stdcall PlaySampleFromAddress(SoundEmitterID emit_id, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int sfxid)
+struct SampleInfo * PlaySampleFromAddress(SoundEmitterID emit_id, int smpl_idx, int a3, int a4, int a5, unsigned char a6, unsigned char a7, void * buf, int sfxid)
 {
     HMODULE hModule=LoadLibrary("WSND7R");
     FARPROC proc = GetProcAddress(hModule, "_PlaySampleFromAddress@36");

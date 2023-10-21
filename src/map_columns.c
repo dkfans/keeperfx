@@ -195,7 +195,7 @@ TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return get_map_ceiling_filled_subtiles(mapblk) > 0;
 }
 
-long get_top_cube_at_pos(long stl_num)
+long get_top_cube_at_pos(SubtlCodedCoords stl_num)
 {
     struct Column *col;
     struct Map *mapblk;
@@ -612,6 +612,12 @@ TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     long i;
     i = get_top_cube_at(stl_x, stl_y, NULL);
     return cube_is_unclaimed_path(i);
+}
+
+TbBool subtile_is_wall(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct Column* col = get_column_at(stl_x, stl_y);
+    return (get_column_floor_filled_subtiles(col) >= COLUMN_WALL_HEIGHT);
 }
 
 /******************************************************************************/

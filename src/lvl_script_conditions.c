@@ -36,7 +36,7 @@ extern "C" {
 
 static int script_current_condition = 0;
 static unsigned short condition_stack_pos;
-static unsigned short condition_stack[48];
+static unsigned short condition_stack[CONDITIONS_COUNT];
 
 
 long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx)
@@ -180,7 +180,11 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         dungeon = get_dungeon(plyr_idx);
         return dungeon->creatures_scavenge_gain;
     case SVar_AVAILABLE_MAGIC: // IF_AVAILABLE(MAGIC)
-        return is_power_available(plyr_idx, validx);
+        dungeon = get_dungeon(plyr_idx);
+        if (is_power_available(plyr_idx, validx)) {
+            return dungeon->magic_level[validx];
+        }
+        return 0;
     case SVar_AVAILABLE_TRAP: // IF_AVAILABLE(TRAP)
         dungeonadd = get_dungeonadd(plyr_idx);
         return dungeonadd->mnfct_info.trap_amount_stored[validx%gameadd.trapdoor_conf.trap_types_count]
@@ -191,7 +195,7 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
               + dungeonadd->mnfct_info.door_amount_offmap[validx%gameadd.trapdoor_conf.door_types_count];
     case SVar_AVAILABLE_ROOM: // IF_AVAILABLE(ROOM)
         dungeonadd = get_dungeonadd(plyr_idx);
-        return (dungeonadd->room_buildable[validx%slab_conf.room_types_count] & 1);
+        return (dungeonadd->room_buildable[validx%game.slab_conf.room_types_count] & 1);
     case SVar_AVAILABLE_CREATURE: // IF_AVAILABLE(CREATURE)
         dungeon = get_dungeon(plyr_idx);
         if (creature_will_generate_for_dungeon(dungeon, validx)) {
@@ -200,13 +204,13 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         return 0;
     case SVar_SLAB_OWNER: //IF_SLAB_OWNER
     {
-        long varib_id = get_slab_number(plyr_idx, validx);
+        long varib_id = get_slab_number((unsigned char)plyr_idx, validx);
         struct SlabMap* slb = get_slabmap_direct(varib_id);
         return slabmap_owner(slb);
     }
     case SVar_SLAB_TYPE: //IF_SLAB_TYPE
     {
-        long varib_id = get_slab_number(plyr_idx, validx);
+        long varib_id = get_slab_number((unsigned char)plyr_idx, validx);
         struct SlabMap* slb = get_slabmap_direct(varib_id);
         return slb->kind;
     }
@@ -283,6 +287,8 @@ long get_condition_value(PlayerNumber plyr_idx, unsigned char valtype, unsigned 
         struct PlayerInfo* player = get_player(plyr_idx);
         return player_allied_with(player, validx);
     }
+    case SVar_ACTIVE_BATTLES:
+        return count_active_battles(plyr_idx);
     default:
         break;
     };
@@ -357,9 +363,9 @@ static void process_condition(struct Condition *condt, int idx)
                         WARNLOG("Invalid player range %d in CONDITION command %d.", (int)condt->plyr_range, (int)condt->variabl_type);
                         return;
                     }
-                    for (i = plr_start; i < plr_end; i++)
+                    for (long j = plr_start_right; j < plr_end_right; j++)
                     {
-                        right_value = get_condition_value(i, condt->variabl_type_right, condt->variabl_idx_right);
+                        right_value = get_condition_value(j, condt->variabl_type_right, condt->variabl_idx_right);
                         new_status = get_condition_status(condt->operation, left_value, right_value);
                         if (new_status != false)
                         {

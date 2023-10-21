@@ -103,8 +103,8 @@ static void draw_creature_view_icons(struct Thing* creatng)
     {
         if (creature_affected_by_spell(creatng, Spell))
         {
-            struct SpellInfo* spinfo = get_magic_info(Spell);
-            long spridx = spinfo->medsym_sprite_idx;
+            struct SpellConfig* spconf = get_spell_config(Spell);
+            long spridx = spconf->medsym_sprite_idx;
             if ( (Spell == SplK_Invisibility) && (cctrl->force_visible & 2) )
             {
                 spridx++;
@@ -122,15 +122,17 @@ static void draw_creature_view_icons(struct Thing* creatng)
         {
             case TCls_Object:
             {
+                RoomKind rkind;
                 struct RoomConfigStats *roomst;
                 if (thing_is_workshop_crate(dragtng))
                 {
-                    roomst = get_room_kind_stats(RoK_WORKSHOP);
+                    rkind = find_first_roomkind_with_role(RoRoF_CratesStorage);
                 }
                 else
                 {
-                    roomst = get_room_kind_stats(RoK_LIBRARY);
+                    rkind = find_first_roomkind_with_role(RoRoF_PowersStorage);
                 }
+                roomst = get_room_kind_stats(rkind);
                 spr_idx = roomst->medsym_sprite_idx;
                 break;
             }
@@ -155,10 +157,15 @@ static void draw_creature_view_icons(struct Thing* creatng)
     }
     else
     {
-        if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+        struct PlayerInfo* player = get_my_player();
+        if (player->view_type == PVT_CreatureContrl)
         {
-            x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, instance_button_init[cctrl->active_instance_id % CREATURE_INSTANCES_COUNT].symbol_spridx);
+            if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+            {
+                x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
+                struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % gameadd.crtr_conf.instances_count);
+                draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
+            }
         }
     }
 }
@@ -660,17 +667,17 @@ void make_camera_deviations(struct PlayerInfo *player,struct Dungeon *dungeon)
       {
         x = 0;
       } else
-      if (x > 65535)
+      if (x > (gameadd.map_subtiles_x + 1) * COORD_PER_STL -1)
       {
-        x = 65535;
+        x = (gameadd.map_subtiles_x + 1) * COORD_PER_STL -1;
       }
       if (y < 0)
       {
         y = 0;
       } else
-      if (y > 65535)
+      if (y > (gameadd.map_subtiles_y + 1) * COORD_PER_STL -1)
       {
-        y = 65535;
+        y = (gameadd.map_subtiles_y + 1) * COORD_PER_STL -1;
       }
       // setting deviated position
       player->acamera->mappos.x.val = x;
@@ -1008,7 +1015,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if ( ((game.numfield_D & GNFldD_CreaturePasngr) != 0) || (cheat_menu_is_active()) )
+        if (cheat_menu_is_active())
           set_pointer_graphic(MousePG_Arrow);
         else
           set_pointer_graphic(MousePG_Invisible);

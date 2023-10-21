@@ -20,6 +20,7 @@
 #define DK_CRTRINSTANCE_H
 
 #include "globals.h"
+#include "creature_control.h"
 #include "bflib_basics.h"
 #include "config.h"
 
@@ -78,6 +79,7 @@ enum CreatureInstances {
     CrInst_TORTURED,
     CrInst_TOKING,
     CrInst_RELAXING,
+    CrInst_LISTEND,
 };
 
 /******************************************************************************/
@@ -87,7 +89,7 @@ struct Thing;
 
 typedef long (*Creature_Instf_Func)(struct Thing *, long *);
 
-struct InstanceInfo { // sizeof = 42
+struct InstanceInfo {
     TbBool instant;
     long time;
     long fp_time;
@@ -96,20 +98,18 @@ struct InstanceInfo { // sizeof = 42
     long reset_time;
     long fp_reset_time;
     unsigned char graphics_idx;
-    unsigned char flags;
+    short flags;
     short force_visibility;
     unsigned char primary_target;
     Creature_Instf_Func func_cb;
     long func_params[2];
-};
-
-struct InstanceButtonInit {  // sizeof=0x6
+    long range_min;
+    long range_max;
     long symbol_spridx;
     short tooltip_stridx;
 };
-/******************************************************************************/
 
-extern struct InstanceButtonInit instance_button_init[48];
+/******************************************************************************/
 
 #pragma pack()
 /******************************************************************************/
@@ -128,12 +128,15 @@ TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum
 TbBool creature_choose_first_available_instance(struct Thing *thing);
 void creature_increase_available_instances(struct Thing *thing);
 TbBool creature_has_ranged_weapon(const struct Thing *thing);
+TbBool creature_has_disarming_weapon(const struct Thing* creatng);
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 TbBool creature_has_quick_range_weapon(const struct Thing *creatng);
 
 int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
+
+TbBool instance_draws_possession_swipe(CrInstance inum);
 
 void delay_teleport(struct Thing *creatng);
 void delay_heal_sleep(struct Thing *creatng);

@@ -16,15 +16,11 @@
 #      (at your option) any later version.
 #
 # ******************************************************************************
-msgid ""
-msgstr ""
 "Project-Id-Version: GUI Strings for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/POT-Creation-"
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/"
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2021-11-22 14:59+0100\n"
-"Last-Translator: Vosa G Thomas <vosathomas@gmail.com>\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -713,7 +709,7 @@ msgid ""
 "ample Hatcheries. These corpulent monstrosities attack somewhat "
 "unconventionally."
 msgstr ""
-"Un Démon Enrage a choisi de rallier votre camp. Il lui faut un Antre et un "
+"Un Démon Bileux a choisi de rallier votre camp. Il lui faut un Antre et un "
 "Couvoir spacieux. Ces monstres corpulents ont une manière d'attaquer plutôt "
 "particulière..."
 
@@ -1068,7 +1064,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "Vous avez fabriqué un piège Rocher. Installez-le dans un couloir et hurlez de "
@@ -6936,7 +6932,7 @@ msgstr ""
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
-msgstr ""
+msgstr "Résolution d'affichage: Passez à la prochaine résolution d'affichage configurée. LMB bascule. RMB affiche la résolution actuelle."
 
 #: guitext:1008
 msgctxt "In-game interface item"
@@ -6948,7 +6944,6 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "Ambiance"
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
@@ -7036,7 +7031,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - New Game+"
 msgstr ""
 
 #: guitext:1028
@@ -7068,3 +7063,45 @@ msgstr ""
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
 msgstr ""
+
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr "Piège de démolition"
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid "Description du piège"
+"Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "Piège de démolition: Un explosif d'une puissance destructrice sans égale"
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid "Description du piège"
+"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "Piège de Sentinelle: Monte la garde et tire sur les ennemies à vue" 
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr "Esprit"
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr "Druide"
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr "Mage du temps"

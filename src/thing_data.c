@@ -90,9 +90,6 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     game.free_things_start_index++;
     TRACE_THING(thing);
 
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    LbMemorySet(thingadd, 0, sizeof(struct ThingAdd)); // Clear any previously used ThingAdd stuff
-    
     return thing;
 }
 
@@ -145,6 +142,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     }
     if (!a2)
     {
+        delete_effects_attached_to_creature(thing);
         if (thing->light_id != 0) {
             light_delete_light(thing->light_id);
             thing->light_id = 0;
@@ -228,6 +226,11 @@ TbBool thing_exists(const struct Thing *thing)
     return true;
 }
 
+TbBool thing_is_in_limbo(const struct Thing* thing)
+{
+    return (thing->alloc_flags & TAlF_IsInLimbo);
+}
+
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing)
 {
     return ((thing->state_flags & TF1_IsDragged1) != 0) || ((thing->alloc_flags & TAlF_IsDragged) != 0);
@@ -254,7 +257,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
         thing->sprite_size = scale;
     }
     if (a5 != -1) {
-        set_flag_byte(&thing->rendering_flags, TRF_Unmoving, a5);
+        set_flag_byte(&thing->rendering_flags, TRF_AnimateOnce, a5);
     }
     if (start_frame == -2)
     {
@@ -292,7 +295,7 @@ void query_thing(struct Thing *thing)
         const char* name = thing_model_name(querytng);
         const char owner[24]; 
         const char health[24];
-        const char position[24];
+        const char position[29];
         const char amount[24] = "\0";
         char output[36];
         sprintf((char*)title, "Thing ID: %d", querytng->index);
@@ -301,28 +304,28 @@ void query_thing(struct Thing *thing)
         if (querytng->class_id == TCls_Trap)
         {
             struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
-            sprintf((char*)health, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
+            sprintf((char*)health, "Health: %ld", querytng->health);
+            sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
         }
         else
         {
             if (querytng->class_id == TCls_Object)
             {
+                struct ObjectConfig* objconf = get_object_model_stats2(querytng->model);
                 if (object_is_gold(querytng))
                 {
                     sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, objconf->health);
             }  
-            sprintf((char*)health, "Health: %ld", querytng->health);
+            else 
             if (querytng->class_id == TCls_Door)
             {
                 sprintf(output, "%s/%ln", health, &gameadd.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
-            else if (querytng->class_id == TCls_Object)
+            else
             {
-                if (querytng->model == ObjMdl_SoulCountainer)  //todo make model independent
-                {
-                    sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
-                }
+                sprintf((char*)health, "Health: %ld", querytng->health);
             }
         }
         create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&position, (const char*)&amount);

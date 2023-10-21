@@ -283,33 +283,31 @@ long get_foot_creature_has_down(struct Thing *thing)
     return 0;
 }
 
-void process_keeper_spell_effect(struct Thing *thing)
+void process_keeper_spell_aura(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->field_2AE--;
-    if (cctrl->field_2AE <= 0)
+    cctrl->spell_aura_duration--;
+    if (cctrl->spell_aura_duration <= 0)
     {
-        cctrl->field_2B0 = 0;
+        cctrl->spell_aura = 0;
         return;
     }
-    if (cctrl->field_2B0 == 7)
-    {
-        struct Coord3d pos;
-        long amp;
-        long direction;
-        long delta_x;
-        long delta_y;
-        amp = 5 * thing->clipbox_size_xy / 8;
-        direction = CREATURE_RANDOM(thing, 2*LbFPMath_PI);
-        delta_x = (amp * LbSinL(direction) >> 8);
-        delta_y = (amp * LbCosL(direction) >> 8);
-        pos.x.val = thing->mappos.x.val + (delta_x >> 8);
-        pos.y.val = thing->mappos.y.val - (delta_y >> 8);
-        pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, TngEffElm_Heal, thing->owner); // Heal
-    }
+    struct Coord3d pos;
+    long amp;
+    long direction;
+    long delta_x;
+    long delta_y;
+    amp = 5 * thing->clipbox_size_xy / 8;
+    direction = CREATURE_RANDOM(thing, 2*LbFPMath_PI);
+    delta_x = (amp * LbSinL(direction) >> 8);
+    delta_y = (amp * LbCosL(direction) >> 8);
+    pos.x.val = thing->mappos.x.val + (delta_x >> 8);
+    pos.y.val = thing->mappos.y.val - (delta_y >> 8);
+    pos.z.val = thing->mappos.z.val;
+
+    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner);
 }
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
@@ -915,7 +913,7 @@ void update_thing_animation(struct Thing *thing)
         }
         if (thing->anim_time > i-1)
         {
-          if (thing->rendering_flags & TRF_Unmoving)
+          if (thing->rendering_flags & TRF_AnimateOnce)
           {
             thing->anim_speed = 0;
             thing->anim_time = i-1;
@@ -976,6 +974,7 @@ void init_keeper(void)
     init_spiral_steps();
     init_key_to_strings();
     // Load configs which may have per-campaign part, and even be modified within a level
+    init_custom_sprites(SPRITE_LAST_LEVEL);
     load_computer_player_config(CnfLd_Standard);
     load_stats_files();
     check_and_auto_fix_stats();
@@ -1053,6 +1052,7 @@ short setup_game(void)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
   }
+  SYNCMSG("Build image base: %p", GetModuleHandle(NULL));
   v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
   if (GetVersionEx(&v))
   {
@@ -1414,20 +1414,31 @@ void toggle_hero_health_flowers(void)
 
 void reset_gui_based_on_player_mode(void)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
-    if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_CreatureContrl)
     {
-        turn_on_menu(GMnu_CREATURE_QUERY1);
-    } else
+        turn_on_menu(vid_change_query_menu);
+    }
+    else if (player->view_type == PVT_CreaturePasngr)
+    {
+        turn_on_menu(vid_change_query_menu);
+        turn_off_query_menus();
+    }
+    else
     {
         turn_on_menu(GMnu_MAIN);
         if (game.active_panel_mnu_idx > 0)
         {
             initialise_tab_tags(game.active_panel_mnu_idx);
-            turn_on_menu(game.active_panel_mnu_idx);
-            MenuNumber mnuidx;
-            mnuidx = menu_id_to_number(GMnu_MAIN);
+            if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
+            {
+                turn_on_menu(vid_change_query_menu);
+            }
+            else
+            {
+                turn_on_menu(game.active_panel_mnu_idx);
+            }
+            MenuNumber mnuidx = menu_id_to_number(GMnu_MAIN);
             if (mnuidx != MENU_INVALID_ID) {
                 setup_radio_buttons(&active_menus[mnuidx]);
             }
@@ -1595,8 +1606,10 @@ void reinit_level_after_load(void)
     erstats_clear();
     player = get_my_player();
     reinit_tagged_blocks_for_player(player->id_number);
+    restore_room_update_functions_after_load();
     restore_computer_player_after_load();
     sound_reinit_after_load();
+    music_reinit_after_load();
 }
 
 /**
@@ -2173,14 +2186,14 @@ void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
 {
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
     struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    struct LightAdd* lightadd = get_lightadd(player->cursor_light_idx);
+    struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
     if (playeradd->mouse_is_offmap == true) {
-        lightadd->disable_interp_for_turns = 2;
+        light->disable_interp_for_turns = 2;
     }
-    if (lightadd->disable_interp_for_turns > 0) {
-        lightadd->disable_interp_for_turns -= 1;
-        lightadd->last_turn_drawn = 0;
+    if (light->disable_interp_for_turns > 0) {
+        light->disable_interp_for_turns -= 1;
+        light->last_turn_drawn = 0;
     }
 }
 
@@ -2657,22 +2670,22 @@ long update_cave_in(struct Thing *thing)
     if ((game.play_gameturn % 3) == 0)
     {
         int n;
-        n = UNSYNC_RANDOM(AROUND_TILES_COUNT);
-        pos.x.val = thing->mappos.x.val + UNSYNC_RANDOM(704) * around[n].delta_x;
-        pos.y.val = thing->mappos.y.val + UNSYNC_RANDOM(704) * around[n].delta_y;
+        n = GAME_RANDOM(AROUND_TILES_COUNT);
+        pos.x.val = thing->mappos.x.val + GAME_RANDOM(704) * around[n].delta_x;
+        pos.y.val = thing->mappos.y.val + GAME_RANDOM(704) * around[n].delta_y;
         if (subtile_has_slab(coord_subtile(pos.x.val),coord_subtile(pos.y.val)))
         {
             pos.z.val = get_ceiling_height(&pos) - 128;
             efftng = create_effect_element(&pos, TngEff_Flash, owner);
             if (!thing_is_invalid(efftng)) {
-                efftng->health = pwrdynst->time;
+                efftng->health = pwrdynst->duration;
             }
         }
     }
 
     GameTurnDelta turns_between;
     GameTurnDelta turns_alive;
-    turns_between = pwrdynst->time / 5;
+    turns_between = pwrdynst->duration / 5;
     turns_alive = game.play_gameturn - thing->creation_turn;
     if ((turns_alive != 0) && ((turns_between < 1) || (3 * turns_between / 4 == turns_alive % turns_between)))
     {
@@ -2699,9 +2712,9 @@ long update_cave_in(struct Thing *thing)
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
     }
 
-    if ((8 * pwrdynst->time / 10 >= thing->health) && (2 * pwrdynst->time / 10 <= thing->health))
+    if ((8 * pwrdynst->duration / 10 >= thing->health) && (2 * pwrdynst->duration / 10 <= thing->health))
     {
-        if ((pwrdynst->time < 10) || ((thing->health % (pwrdynst->time / 10)) == 0))
+        if ((pwrdynst->duration < 10) || ((thing->health % (pwrdynst->duration / 10)) == 0))
         {
             int round_idx;
             round_idx = CREATURE_RANDOM(thing, AROUND_TILES_COUNT);
@@ -3507,9 +3520,9 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, unsigned char a5)
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed)
 {
-    if (!a5) {
+    if (!allowed) {
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(119);
         return 0;
@@ -3517,7 +3530,10 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
     if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
         return 0;
     }
-    remove_dead_creatures_from_slab(subtile_slab(stl_x), subtile_slab(stl_y));
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+    remove_dead_creatures_from_slab(slb_x, slb_y);
     return 1;
 }
 
@@ -3842,6 +3858,8 @@ void game_loop(void)
       LbScreenClear(0);
       LbScreenSwap();
       StopMusicPlayer();
+      free_custom_music();
+      free_sound_chunks();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -3863,6 +3881,7 @@ void game_loop(void)
     if ((game.system_flags & GSF_CaptureMovie) != 0) {
         movie_record_stop();
     }
+    ShutDownSDLAudio();
     SYNCDBG(7,"Done");
 }
 
@@ -3885,8 +3904,7 @@ short process_command_line(unsigned short argc, char *argv[])
 {
   char fullpath[CMDLN_MAXLEN+1];
   snprintf(fullpath, CMDLN_MAXLEN, "%s", argv[0]);
-
-  sprintf( keeper_runtime_directory, fullpath);
+  snprintf(keeper_runtime_directory, sizeof(keeper_runtime_directory), "%s", fullpath);
   char *endpos = strrchr( keeper_runtime_directory, '\\');
   if (endpos==NULL)
       endpos=strrchr( keeper_runtime_directory, '/');

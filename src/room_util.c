@@ -27,6 +27,7 @@
 #include "player_data.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
+#include "thing_doors.h"
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_effects.h"
@@ -61,14 +62,14 @@ struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coor
 void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos)
 {
     long k;
-    long i = room->field_43;
+    long i = room->flames_around_idx;
     MapSubtlCoord x = pos->x.stl.num + (MapSubtlCoord)small_around[i].delta_x;
     MapSubtlCoord y = pos->y.stl.num + (MapSubtlCoord)small_around[i].delta_y;
     struct Room* curoom = subtile_room_get(x, y);
     if (curoom->index != room->index)
     {
         k = (i + 1) % SMALL_AROUND_LENGTH;
-        room->field_43 = k;
+        room->flames_around_idx = k;
         return;
     }
     k = (i + 3) % SMALL_AROUND_LENGTH;
@@ -77,19 +78,19 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
     curoom = subtile_room_get(x,y);
     if (curoom->index != room->index)
     {
-        room->field_41 += gameadd.small_around_slab[i];
+        room->flame_slb += gameadd.small_around_slab[i];
         return;
     }
-    room->field_41 += gameadd.small_around_slab[i] + gameadd.small_around_slab[k];
-    room->field_43 = k;
+    room->flame_slb += gameadd.small_around_slab[i] + gameadd.small_around_slab[k];
+    room->flames_around_idx = k;
 }
 
 void process_room_surrounding_flames(struct Room *room)
 {
     SYNCDBG(19,"Starting");
-    MapSlabCoord x = slb_num_decode_x(room->field_41);
-    MapSlabCoord y = slb_num_decode_y(room->field_41);
-    long i = 3 * room->field_43 + room->flame_stl;
+    MapSlabCoord x = slb_num_decode_x(room->flame_slb);
+    MapSlabCoord y = slb_num_decode_y(room->flame_slb);
+    long i = 3 * room->flames_around_idx + room->flame_stl;
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(slab_subtile_center(x)) + room_spark_offset[i].delta_x;
     pos.y.val = subtile_coord_center(slab_subtile_center(y)) + room_spark_offset[i].delta_y;
@@ -118,7 +119,7 @@ void recompute_rooms_count_in_dungeons(void)
     {
         struct Dungeon* dungeon = get_dungeon(i);
         dungeon->total_rooms = 0;
-        for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+        for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
         {
             if (!room_never_buildable(rkind))
             {
@@ -292,6 +293,10 @@ TbBool replace_slab_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned
     struct Room* room = slab_room_get(slb_x, slb_y);
     struct SlabMap* slb = get_slabmap_for_subtile(slab_subtile(slb_x, 0), slab_subtile(slb_y, 0));
     short plyr_idx = slabmap_owner(slb);
+    if (slab_kind_has_no_ownership(slabkind))
+    {
+        plyr_idx = game.neutral_player_num;
+    }
     RoomKind rkind = slab_corresponding_room(slabkind);
     //When the slab to be replaced does not have a room yes, simply place the room/slab.
     if (room_is_invalid(room))
@@ -382,18 +387,46 @@ void change_slab_owner_from_script(MapSlabCoord slb_x, MapSlabCoord slb_y, Playe
         struct Room* room = room_get(slb->room_index);
         take_over_room(room, plyr_idx);
     } else
-    if (slb->kind >= SlbT_WALLDRAPE && slb->kind <= SlbT_CLAIMED) //All slabs that can be owned but aren't rooms
     {
-        short slbkind;
-        if (slb->kind == SlbT_PATH)
+        SlabKind slbkind = (slb->kind == SlbT_PATH) ? SlbT_CLAIMED : slb->kind;
+        if (slab_kind_has_no_ownership(slbkind) == false)
         {
-            slbkind = SlbT_CLAIMED;
+            if (slab_kind_is_door(slbkind))
+            {
+                MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+                MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+                struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+                if (!thing_is_invalid(doortng))
+                {
+                    if (!is_neutral_thing(doortng))
+                    {
+                        game.dungeon[doortng->owner].total_doors--;
+                    }
+                    remove_key_on_door(doortng);
+                    set_slab_owner(slb_x, slb_y, plyr_idx);
+                    place_animating_slab_type_on_map(slbkind, doortng->door.closing_counter / 256, stl_x, stl_y, plyr_idx);
+                    doortng->owner = plyr_idx;
+                    if (!is_neutral_thing(doortng))
+                    {
+                        game.dungeon[doortng->owner].total_doors++;
+                    }
+                    if (doortng->door.is_locked)
+                    {
+                        add_key_on_door(doortng);
+                    }
+                    update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
+                }
+            }
+            else if (slab_kind_is_animated(slbkind))
+            {
+                place_animating_slab_type_on_map(slbkind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+            }
+            else
+            {
+                place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+            }
+            do_slab_efficiency_alteration(slb_x, slb_y);
         }
-        else
-        {
-            slbkind = slb->kind;
-        }
-        place_slab_type_on_map(slbkind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
     }
 }
 

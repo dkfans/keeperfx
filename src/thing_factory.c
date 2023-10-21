@@ -70,11 +70,11 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
     struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
-    thing->cave_in.time = pwrdynst->time;
+    thing->cave_in.time = pwrdynst->duration;
     thing->cave_in.x = pos->x.stl.num;
     thing->cave_in.y = pos->y.stl.num;
     thing->cave_in.model = cimodel;
-    thing->health = pwrdynst->time;
+    thing->health = pwrdynst->duration;
     if (owner != game.neutral_player_num)
     {
         struct Dungeon* dungeon = get_dungeon(owner);
@@ -155,7 +155,7 @@ TbBool thing_create_thing(struct InitThing *itng)
             {
                 thing->hero_gate.number = itng->params[1];
             }
-            else if (thing->model == ObjMdl_SpecboxCustom)
+            else if (thing_is_custom_special_box(thing))
             {
                 thing->custom_box.box_kind = itng->params[1];
                 if (itng->params[1] > gameadd.max_custom_box_kind)
@@ -168,7 +168,7 @@ TbBool thing_create_thing(struct InitThing *itng)
             thing = INVALID_THING;
         } else
         {
-            ERRORLOG("Couldn't create object model %d", (int)itng->model);
+            ERRORLOG("Couldn't create object model %d (%s)", (int)itng->model, object_code_name(itng->model));
             return false;
         }
         break;
@@ -176,7 +176,7 @@ TbBool thing_create_thing(struct InitThing *itng)
         thing = create_creature(&itng->mappos, itng->model, itng->owner);
         if (thing_is_invalid(thing))
         {
-            ERRORLOG("Couldn't create creature model %d", (int)itng->model);
+            ERRORLOG("Couldn't create creature model %d (%s)", (int)itng->model, creature_code_name(itng->model));
             return false;
         }
         init_creature_level(thing, itng->params[1]);
@@ -193,7 +193,7 @@ TbBool thing_create_thing(struct InitThing *itng)
         thing = create_thing(&itng->mappos, itng->oclass, itng->model, itng->owner, itng->index);
         if (thing_is_invalid(thing))
         {
-            ERRORLOG("Couldn't create trap model %d", (int)itng->model);
+            ERRORLOG("Couldn't create trap model %d (%s)", (int)itng->model, trap_code_name(itng->model));
             return false;
         }
         break;
@@ -201,7 +201,7 @@ TbBool thing_create_thing(struct InitThing *itng)
         thing = create_door(&itng->mappos, itng->model, itng->params[0], itng->owner, itng->params[1]);
         if (thing_is_invalid(thing))
         {
-            ERRORLOG("Couldn't create door model %d", (int)itng->model);
+            ERRORLOG("Couldn't create door model %d (%s)", (int)itng->model, door_code_name(itng->model));
             return false;
         }
         break;
@@ -269,13 +269,13 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             {
                 if (object_is_hero_gate(thing))
                 {
-                    int gate = value_int32(value_dict_get(init_data, "HerogateNumber"));
-                    if (gate >= 0)
+                    VALUE* gate = value_dict_get(init_data, "HerogateNumber");
+                    if (gate != NULL)
                     {
-                        thing->hero_gate.number = (unsigned char) gate;
+                        thing->hero_gate.number = value_int32(gate);
                     }
                 }
-                else if (thing->model == ObjMdl_SpecboxCustom)
+                else if (thing_is_custom_special_box(thing))
                 {
                     int box_kind = value_int32(value_dict_get(init_data, "CustomBox"));
                     if (box_kind == -1)
@@ -286,20 +286,34 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                         gameadd.max_custom_box_kind = box_kind;
                     }
                 }
+                else if (object_is_gold_pile(thing))
+                {
+                    VALUE* value = value_dict_get(init_data, "GoldValue");
+                    if (value != NULL)
+                    {
+                        thing->valuable.gold_stored = value_int32(value);
+                    }
+                }
                 check_and_asimilate_thing_by_room(thing);
+                VALUE* rotation = value_dict_get(init_data, "Orientation");
+                if (rotation != NULL)
+                {
+                    thing->move_angle_xy = value_int32(rotation);
+                }
                 // make sure we don't have invalid pointer
                 thing = INVALID_THING;
             } else
             {
-                ERRORLOG("Couldn't create object model %d", (int)model);
+                ERRORLOG("Couldn't create object model %d (%s)", (int)model, object_code_name(model));
                 return false;
             }
             break;
         case TCls_Creature:
             thing = create_creature(&mappos, model, owner);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
             if (thing_is_invalid(thing))
             {
-                ERRORLOG("Couldn't create creature model %d", model);
+                ERRORLOG("Couldn't create creature model %d (%s)", model, creature_code_name(model));
                 return false;
             }
             {
@@ -314,6 +328,32 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                     level --; //levels are in readable format in file, gamecode always has them 1 lower
                 }
                 init_creature_level(thing, level);
+                VALUE* creature_rotation = value_dict_get(init_data, "Orientation");
+                if (creature_rotation != NULL)
+                {
+                    thing->move_angle_xy = value_int32(creature_rotation);
+                }
+                VALUE* gold_held = value_dict_get(init_data, "CreatureGold");
+                if (gold_held != NULL)
+                {
+                    thing->creature.gold_carried = value_int32(gold_held);
+                }
+                VALUE *HealthPercentage = value_dict_get(init_data, "CreatureInitialHealth");
+                if (HealthPercentage != NULL)
+                {
+                    thing->health = value_int32(HealthPercentage) * cctrl->max_health / 100;
+                }
+                const char* creatureName = value_string(value_dict_get(init_data, "CreatureName"));
+                if(creatureName != NULL)
+                {
+                    if(strlen(creatureName) > 24)
+                    {
+                        ERRORLOG("init creature name (%s) to long max 24 chars", creatureName);
+                        break;
+                    }
+                    strcpy(cctrl->creature_name,creatureName);
+                }
+
             }
             break;
         case TCls_EffectGen:
@@ -331,8 +371,13 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             thing = create_thing(&mappos, oclass, model, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
             if (thing_is_invalid(thing))
             {
-                ERRORLOG("Couldn't create trap model %d", (int)model);
+                ERRORLOG("Couldn't create trap model %d (%s)", (int)model, trap_code_name(model));
                 return false;
+            }
+            VALUE* trap_rotation = value_dict_get(init_data, "Orientation");
+            if (trap_rotation != NULL)
+            {
+                thing->move_angle_xy = value_int32(trap_rotation);
             }
             break;
         case TCls_Door:
@@ -347,7 +392,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
             }
             if (thing_is_invalid(thing))
             {
-                ERRORLOG("Couldn't create door model %d", (int)model);
+                ERRORLOG("Couldn't create door model %d (%s)", (int)model, door_code_name(model));
                 return false;
             }
             break;

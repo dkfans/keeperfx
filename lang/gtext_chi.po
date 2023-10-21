@@ -971,7 +971,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "你制造出了一个圆石陷阱。将它放在通道上，它将发出无情的隆隆声咆哮着碾碎那些大"
@@ -6341,7 +6341,6 @@ msgctxt "In-game interface item"
 msgid "Ambience"
 msgstr "环境音效"
 
-msgstr ""
 #: guitext:1010
 msgctxt "Unused"
 msgid "Moo4"
@@ -6429,7 +6428,7 @@ msgstr "尼古莱的城堡战役"
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - New Game+"
 msgstr "原版增强战役"
 
 #: guitext:1028
@@ -6461,3 +6460,45 @@ msgstr "双子守护者战役"
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
 msgstr "亡灵守护者战役"
+
+#: guitext:1034 guitext:1035
+msgctxt "Unused"
+msgid "Moo5"
+msgstr ""
+
+#: guitext:1036
+msgctxt "Trap names"
+msgid "Demolition Trap"
+msgstr "爆破陷井"
+
+#: guitext:1037
+msgctxt "Trap description"
+msgid ""
+"Demolition Trap: An explosive with unrivaled destructive power."
+msgstr "爆破陷井:一个具有无与伦比破坏力的爆炸物。"
+
+#: guitext:1038
+msgctxt "Trap description"
+msgid ""
+"Sentry Trap: Stands guard and shoots at enemies in sight."
+msgstr "岗哨陷井：守卫在原地并向视野范围内的敌人开火。"
+
+#: guitext:1039 guitext:1040
+msgctxt "Unused"
+msgid "Moo6"
+msgstr ""
+
+#: guitext:1041
+msgctxt "Creature name"
+msgid "Spirit"
+msgstr "灵魂"
+
+#: guitext:1042
+msgctxt "Creature name"
+msgid "Druid"
+msgstr "德鲁伊"
+
+#: guitext:1043
+msgctxt "Creature name"
+msgid "Time Mage"
+msgstr "时间法师"

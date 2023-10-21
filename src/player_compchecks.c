@@ -333,7 +333,7 @@ static int count_faces_of_indestructible_valuables_marked_for_dig(struct Dungeon
             const struct SlabAttr* slbattr = get_slab_attrs(slb);
             if (((slbattr->block_flags & SlbAtFlg_Valuable) != 0) && slab_kind_is_indestructible(slb->kind))
             {
-                num_faces += block_count_diggable_sides(subtile_slab_fast(stl_x), subtile_slab_fast(stl_y));
+                num_faces += block_count_diggable_sides(subtile_slab(stl_x), subtile_slab(stl_y));
             }
         }
     }
@@ -618,17 +618,17 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
     static const RoomKind opponent_room_kinds[] = {RoK_DUNGHEART, RoK_PRISON, RoK_LIBRARY, RoK_TREASURE};
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
-    if (dungeon_invalid(dungeon) || (slab_conf.room_types_count < 1)) {
+    if (dungeon_invalid(dungeon) || (game.slab_conf.room_types_count < 1)) {
         return INVALID_ROOM;
     }
     int n = opponent_room_kinds[PLAYER_RANDOM(comp->dungeon->owner, sizeof(opponent_room_kinds) / sizeof(opponent_room_kinds[0]))];
-    for (int i = 0; i < slab_conf.room_types_count; i++)
+    for (int i = 0; i < game.slab_conf.room_types_count; i++)
     {
         struct Room* room = room_get(dungeonadd->room_kind[n]);
         if (room_exists(room)) {
             return room;
         }
-        n = (n + 1) % slab_conf.room_types_count;
+        n = (n + 1) % game.slab_conf.room_types_count;
     }
     return INVALID_ROOM;
 }
@@ -737,7 +737,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
 
 struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(struct Computer2 *comp, RoomKind rkind)
 {
-    if ((rkind < 1) || (rkind > slab_conf.room_types_count))
+    if ((rkind < 1) || (rkind > game.slab_conf.room_types_count))
     {
         ERRORLOG("Invalid room kind %d",(int)rkind);
         return INVALID_THING;
@@ -881,8 +881,8 @@ static TbBool find_place_to_put_door_around_room(const struct Room *room, struct
     for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         // Get position containing room center
-        MapSlabCoord slb_x = subtile_slab_fast(room->central_stl_x);
-        MapSlabCoord slb_y = subtile_slab_fast(room->central_stl_y);
+        MapSlabCoord slb_x = subtile_slab(room->central_stl_x);
+        MapSlabCoord slb_y = subtile_slab(room->central_stl_y);
         // Move the position to edge of the room
         struct Room* sibroom = slab_room_get(slb_x, slb_y);
         while (!room_is_invalid(sibroom) && (sibroom->index == room->index))
@@ -946,7 +946,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
         long rkind = check->param1;
         if (rkind == 0)
         {
-            rkind = (check->param2 + 1) % slab_conf.room_types_count;
+            rkind = (check->param2 + 1) % game.slab_conf.room_types_count;
             check->param2 = rkind;
         }
         unsigned long k = 0;
@@ -1227,6 +1227,11 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
         {
             if (set_creature_tendencies(player, CrTend_Imprison, true))
             {
+                if (is_my_player(player)) {
+                    dungeon = get_players_dungeon(player);
+                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
+                    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+                }
                 SYNCDBG(18, "Player %d has enabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
                 return CTaskRet_Unk1;
             }
@@ -1254,6 +1259,11 @@ long computer_check_prison_tendency(struct Computer2* comp, struct ComputerCheck
         {
             if (set_creature_tendencies(player, CrTend_Imprison, false))
             {
+                if (is_my_player(player)) {
+                    dungeon = get_players_dungeon(player);
+                    game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
+                    game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+                }
                 SYNCDBG(18, "Player %d has disabled imprisonment with %d total prison capacity", player->id_number, total_capacity);
                 return CTaskRet_Unk1;
             }
