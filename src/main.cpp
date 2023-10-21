@@ -1640,7 +1640,7 @@ void clear_slabsets(void)
     for (i=0; i < SLABSET_COUNT; i++)
     {
         sset = &game.slabset[i];
-        memset(sset, 0, sizeof(struct SlabKindSets));
+        memset(sset, 0, sizeof(struct SlabSet));
         game.slabobjs_idx[i] = -1;
     }
     game.slabset_num = SLABSET_COUNT;

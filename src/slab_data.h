@@ -106,16 +106,6 @@ struct SlabMap {
 struct SlabSet { // sizeof = 18
   ColumnIndex col_idx[9];
 };
-struct SlabSetStyle {
-    struct SlabSet slabset[9];
-};
-struct SlabKindSets {
-    TbBool is_animated;
-    struct SlabSetStyle style[3]; //0 = normal, 1 = near water, 2 = near lava / for room walls this is if it's pretty or not
-    struct SlabSet center; //the center one doesn't need a style
-};
-
-
 
 struct SlabObj {
   unsigned char isLight;
