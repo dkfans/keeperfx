@@ -269,7 +269,6 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
         return;
 
-    unsigned char mask = 0x20 << (ally_idx - PLAYER1);
     if (lock_alliance)
         player->players_with_locked_ally_status |= (1 << ally_idx); // lock ally player's ally status with player plyridx
     else
