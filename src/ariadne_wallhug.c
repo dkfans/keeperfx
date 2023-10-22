@@ -2039,16 +2039,6 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
     return 1;
 }
 
-TbBool slab_good_for_computer_dig_path_check_rock(const struct SlabMap *slb)
-{
-    const struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if (slb->kind == SlbT_ROCK)
-        return false;
-    if ( ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
-        return true;
-    return false;
-}
-
 TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 {
     const struct SlabAttr* slbattr = get_slab_attrs(slb);
@@ -2111,7 +2101,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     int dx = small_around[round_idx].delta_x;
     int dy = small_around[round_idx].delta_y;
     // If we can follow direction straight to the target, and we will get closer to it, then do it
-    if ((dist <= *maxdist) && slab_good_for_computer_dig_path(get_slabmap_for_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy)))
+    if ((dist <= *maxdist) && is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
     {
         curr_stl_x += STL_PER_SLB*dx;
         curr_stl_y += STL_PER_SLB*dy;
@@ -2131,7 +2121,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         {
             dx = small_around[round_idx].delta_x;
             dy = small_around[round_idx].delta_y;
-            if (!slab_good_for_computer_dig_path_check_rock(get_slabmap_for_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy)))
+            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
             {
                 break;
             }
