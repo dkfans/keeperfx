@@ -1213,19 +1213,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
-      case 23:  //DungeonHeartHealth
-          if (val3 <= LONG_MAX)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_health, val3);
-              game.dungeon_heart_health = val3;
-              game.objects_config[5].health = val3;
-              gameadd.object_conf.base_config[5].health = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, SHRT_MAX);
-          }
-          break;
       case 24: //HungerHealthLoss
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.hunger_health_loss, val3);
           game.hunger_health_loss = val3;
@@ -1284,6 +1271,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
+      case 23:  //DungeonHeartHealth
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
           break;

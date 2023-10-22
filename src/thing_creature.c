@@ -2608,9 +2608,15 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
         ERRORLOG("Tried to kill non-existing thing!");
         return INVALID_THING;
     }
-    // Dying creatures must be visible
+    // Dying creatures must be visible and no chicken
     if (creature_affected_by_spell(creatng, SplK_Invisibility)) {
         terminate_thing_spell_effect(creatng, SplK_Invisibility);
+    }
+    if (creature_affected_by_spell(creatng, SplK_Chicken)) {
+        terminate_thing_spell_effect(creatng, SplK_Chicken);
+    }
+    if (creature_affected_by_spell(creatng, SplK_Rebound)) {
+        terminate_thing_spell_effect(creatng, SplK_Rebound);
     }
     if (!is_neutral_thing(creatng)) {
         dungeon = get_players_num_dungeon(creatng->owner);
