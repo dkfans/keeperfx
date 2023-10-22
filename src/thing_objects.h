@@ -174,6 +174,7 @@ TbBool thing_is_workshop_crate(const struct Thing *thing);
 TbBool thing_is_trap_crate(const struct Thing *thing);
 TbBool thing_is_door_crate(const struct Thing *thing);
 TbBool thing_is_dungeon_heart(const struct Thing *thing);
+TbBool thing_is_beating_dungeon_heart(const struct Thing* thing);
 TbBool thing_is_mature_food(const struct Thing *thing);
 TbBool object_is_hero_gate(const struct Thing *thing);
 TbBool object_is_infant_food(const struct Thing *thing);
