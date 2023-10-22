@@ -1,0 +1,7 @@
+#order of the map packs, packs not in the list will be at the bottom alphabetically
+deepdngn.cfg
+personal.cfg
+standard.cfg
+classic.cfg
+legacy.cfg
+lostlvls.cfg

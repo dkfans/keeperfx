@@ -2138,10 +2138,12 @@ static void set_heart_health_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->arg0 = scline->np[0];
-    if (scline->np[1] > (signed long)game.dungeon_heart_health)
+    struct Thing* heartng = get_player_soul_container(value->arg0);
+    struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
+    if (scline->np[1] > objconf->health)
     {
-        SCRPTWRNLOG("Value %ld is greater than maximum: %ld", scline->np[1], game.dungeon_heart_health);
-        value->arg1 = game.dungeon_heart_health;
+        SCRPTWRNLOG("Value %ld is greater than maximum: %ld", scline->np[1], objconf->health);
+        value->arg1 = objconf->health;
     }
     else
     {
@@ -2173,12 +2175,13 @@ static void add_heart_health_process(struct ScriptContext *context)
     struct Thing* heartng = get_player_soul_container(context->value->arg0);
     if (!thing_is_invalid(heartng))
     {
+        struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
         long old_health = heartng->health;
         long long new_health = heartng->health + context->value->arg1;
-        if (new_health > (signed long)game.dungeon_heart_health)
+        if (new_health > objconf->health)
         {
-            SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, game.dungeon_heart_health);
-            new_health = game.dungeon_heart_health;
+            SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, objconf->health);
+            new_health = objconf->health;
         }
         heartng->health = new_health;
         TbBool warn_on_damage = (context->value->arg2);

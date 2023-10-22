@@ -919,9 +919,9 @@ TbBool frontend_is_player_allied(long idx1, long idx2)
 {
     if (idx1 == idx2)
       return true;
-    if ((idx1 < 0) || (idx1 >= PLAYERS_COUNT))
+    if ((idx1 < 0) || (idx1 >= HERO_PLAYER))
       return false;
-    if ((idx2 < 0) || (idx2 >= PLAYERS_COUNT))
+    if ((idx2 < 0) || (idx2 >= HERO_PLAYER))
       return false;
     return ((frontend_alliances & alliance_grid[idx1][idx2]) != 0);
 }

@@ -2979,6 +2979,7 @@ void make_creature_unconscious(struct Thing *creatng)
     TRACE_THING(creatng);
     SYNCDBG(18,"Starting");
     clear_creature_instance(creatng);
+    set_creature_size_stuff(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved)
     {
