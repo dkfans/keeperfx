@@ -81,7 +81,14 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
     if (buf == NULL)
         return false;
     // Loading file data
-    len = LbFileLoadAt(fname, buf);
+    long fsize = LbFileLoadAt(fname, buf);
+
+    if (fsize < len)
+    {
+        WARNMSG("failed to read the %s file \"%s\".",textname,fname);
+        LbMemoryFree(buf);
+        return false;
+    }
     
     if (buf == NULL)
         return false;
@@ -95,7 +102,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
         LbMemoryFree(buf);
         return false;
     }
-    
+
     VALUE *section;
     // Create sections
     for (int slab_kind = 0; slab_kind < game.slab_conf.slab_types_count; slab_kind++)
