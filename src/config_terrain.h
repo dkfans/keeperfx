@@ -62,7 +62,6 @@ enum SlabFillStyle {
     SlbFillStl_Normal = 0,
     SlbFillStl_Lava = 1,
     SlbFillStl_Water = 2,
-    SlbFillStl_Center = 3,
 };
 
 enum RoomCfgFlags {
