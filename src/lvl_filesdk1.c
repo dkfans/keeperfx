@@ -47,7 +47,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 const char slabclm_fname[] = "slabs.clm";
-const char slabdat_fname[] = "slabs.dat";
 
 /** Global storage for level file version number.
  * Note that the version number is not stored anywhere on load/save.
@@ -933,40 +932,6 @@ TbBool load_aptfx_file(LevelNumber lv_num)
                               &actnpoint_create_actnpoint_adv);
 }
 
-TbBool load_slabdat_file(struct SlabSet *slbset, long *scount)
-{
-  long k;
-  long n;
-  SYNCDBG(5,"Starting");
-  long fsize = 2;
-  unsigned char* buf = load_data_file_to_buffer(&fsize, FGrp_StdData, "slabs.dat");
-  if (buf == NULL)
-    return false;
-  long i = 0;
-  long total = lword(&buf[i]);
-  i += 2;
-  // Validate total amount of indices
-  if ((total < 0) || (total > (fsize-2)/(9*sizeof(short))))
-  {
-    total = (fsize-2)/(9*sizeof(short));
-    WARNMSG("Bad amount of indices in Slab Set file; corrected to %ld.",total);
-  }
-  if (total > *scount)
-  {
-    WARNMSG("Only %d slabs supported, Slab Set file has %ld.",SLABSET_COUNT,total);
-    total = *scount;
-  }
-  for (n=0; n < total; n++)
-    for (k=0; k < 9; k++)
-    {
-      slbset[n].col_idx[k] = lword(&buf[i]);
-      i += 2;
-    }
-  *scount = total;
-  LbMemoryFree(buf);
-  return true;
-}
-
 /**
  * Updates "use" property of given columns set, using given SlabSet entries.
  */
@@ -1120,29 +1085,9 @@ TbBool load_slab_datclm_files(void)
       LbMemoryFree(cols);
       return false;
     }
-    // Load Slab Set
-    long slbset_tot = SLABSET_COUNT;
-    struct SlabSet* slbset = (struct SlabSet*)LbMemoryAlloc(slbset_tot * sizeof(struct SlabSet));
-    if (slbset == NULL)
-    {
-      WARNMSG("Can't allocate memory for %d slab sets.",slbset_tot);
-      return false;
-    }
-    if (!load_slabdat_file(slbset, &slbset_tot))
-    {
-      LbMemoryFree(cols);
-      LbMemoryFree(slbset);
-      return false;
-    }
-    // Update the structure
-    for (long i = 0; i < slbset_tot; i++)
-    {
-        struct SlabSet* sset = &game.slabset[i];
-        LbMemoryCopy(sset, &slbset[i], sizeof(struct SlabSet));
-    }
+    long slbset_tot = game.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
     game.slabset_num = slbset_tot;
-    update_columns_use(cols,cols_tot,slbset,slbset_tot);
-    LbMemoryFree(slbset);
+    update_columns_use(cols,cols_tot,game.slabset,slbset_tot);
     create_columns_from_list(cols,cols_tot);
     update_slabset_column_indices(cols,cols_tot);
     LbMemoryFree(cols);
@@ -1327,9 +1272,9 @@ short load_map_slab_file(unsigned long lv_num)
       {
         slb = get_slabmap_block(x,y);
         n = lword(&buf[i]);
-        if (n > SLAB_TYPES_COUNT)
+        if (n > game.slab_conf.slab_types_count)
         {
-          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,SLAB_TYPES_COUNT);
+          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,game.slab_conf.slab_types_count);
           n = SlbT_ROCK;
         }
         slb->kind = n;
