@@ -75,6 +75,8 @@ unsigned short pixel_size;
 unsigned short pixels_per_block;
 unsigned short units_per_pixel;
 
+unsigned short display_number = 0; // the display to use to display the game, 0 is the first (or only) screen, 1 is the second screen. Can be set in cfg file, or defaults to 0.
+
 static unsigned char fade_started;
 static unsigned char from_pal[PALETTE_SIZE];
 static unsigned char to_pal[PALETTE_SIZE];
@@ -458,7 +460,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
             {
                 // reset window
                 SDL_DestroyWindow(lbWindow);
-                lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
+                lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED_DISPLAY(display_number), SDL_WINDOWPOS_CENTERED_DISPLAY(display_number), mdinfo->Width, mdinfo->Height, sdlFlags);
             }
         }
         int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
@@ -487,7 +489,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         }
     }
     if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
-        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
+        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED_DISPLAY(display_number), SDL_WINDOWPOS_CENTERED_DISPLAY(display_number), mdinfo->Width, mdinfo->Height, sdlFlags);
     }
     if (lbWindow == NULL) {
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());
