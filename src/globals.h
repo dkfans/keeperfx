@@ -294,6 +294,8 @@ typedef short FrontendMenuState;
 typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
+/** Holds the return values for the CPU "mark for digging" functions. (see enum ToolDigResults) */
+typedef signed char ToolDigResult;
 
 /* Stores a 2d coordinate (x,y).
 
