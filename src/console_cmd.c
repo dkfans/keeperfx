@@ -1038,9 +1038,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = get_player_soul_container(id);
             if (thing_is_dungeon_heart(thing))
             {
+                struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
                 if (pr3str == NULL)
                 {
-                    float percent = ((float) thing->health / (float) game.dungeon_heart_health) * 100;
+                    float percent = ((float) thing->health / (float)objconf->health) * 100;
                     targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,
                                          "Player %d heart health: %ld (%.2f per cent)", id, thing->health, percent);
                     return true;

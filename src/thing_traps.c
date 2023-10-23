@@ -558,6 +558,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     {
     case TrpAcT_HeadforTarget90:
         activate_trap_shot_head_for_target90(traptng, creatng);
+        traptng->move_angle_xy = (((get_angle_xy_to(&traptng->mappos, &creatng->mappos) + LbFPMath_PI/4) & LbFPMath_AngleMask) / (LbFPMath_PI/2)) * (LbFPMath_PI/2);
         break;
     case TrpAcT_EffectonTrap:
         activate_trap_effect_on_trap(traptng);
@@ -570,6 +571,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         break;
     case TrpAcT_CreatureShot:
         creature_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
+        traptng->move_angle_xy = get_angle_xy_to(&traptng->mappos, &creatng->mappos);
         break;
     case TrpAcT_CreatureSpawn:
         activate_trap_spawn_creature(traptng, trapstat->created_itm_model);
