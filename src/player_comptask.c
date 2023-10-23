@@ -893,15 +893,15 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
     struct Coord3d pos;
     switch (tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly))
     {
-    case -5:
+    case TDR_BuildBridgeOnSlab:
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
         return CTaskRet_Unk4;
-    case -3:
-    case -2:
+    case TDR_FailedToReachDestination:
+    case TDR_ToolDigError:
         shut_down_task_process(comp, ctask);
-        return 0;
-    case -1:
+        return CTaskRet_Unk0;
+    case TDR_ReachedDestination:
         pos.x.val = ctask->pos_6A.x.val;
         pos.y.val = ctask->pos_6A.y.val;
         pos.z.val = ctask->pos_6A.z.val;
@@ -917,14 +917,14 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
         pos.z.val = ctask->new_room_pos.z.val;
         setup_computer_dig_room(&ctask->dig, &pos, ctask->create_room.area);
         ctask->ttype = CTT_DigRoom;
-        return 1;
+        return CTaskRet_Unk1;
     default:
         if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
         {
             ctask->flags &= ~ComTsk_AddTrapLocation;
             add_to_trap_location(comp, &ctask->dig.pos_next);
         }
-        return 2;
+        return CTaskRet_Unk2;
     }
 }
 
@@ -1211,12 +1211,12 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     switch ( dig_ret )
     {
-    case -5:
+    case TDR_BuildBridgeOnSlab:
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
-        return 4;
-    case -3:
-    case -2:
+        return CTaskRet_Unk4;
+    case TDR_FailedToReachDestination:
+    case TDR_ToolDigError:
         room = room_get(ctask->dig_to_room.target_room_idx);
         room->player_interested[dungeon->owner] |= 0x02;
         curtask = get_computer_task(comp->task_idx);
@@ -1224,7 +1224,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
             remove_task(comp, curtask);
         }
         return dig_ret;
-    case -1:
+    case TDR_ReachedDestination:
         curtask = get_computer_task(comp->task_idx);
         if (!computer_task_invalid(curtask)) {
             remove_task(comp, curtask);
@@ -1623,7 +1623,7 @@ short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Compute
         if ((subtile_slab(cdig->pos_dest.x.stl.num) == nextslb_x) && (subtile_slab(cdig->pos_dest.y.stl.num) == nextslb_y))
         {
             SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)nextslb_x,(int)nextslb_y);
-            return -1;
+            return TDR_ReachedDestination;
         }
         // Move position towards the target subtile, shortest way
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
@@ -1632,7 +1632,7 @@ short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Compute
         if (i > gameadd.map_tiles_x+gameadd.map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
-            return -2;
+            return TDR_ToolDigError;
         }
     }
     return i;
@@ -1695,7 +1695,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         if ((subtile_slab(cdig->pos_dest.x.stl.num) == nextslb_x) && (subtile_slab(cdig->pos_dest.y.stl.num) == nextslb_y))
         {
             SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)nextslb_x,(int)nextslb_y);
-            return -1;
+            return TDR_ReachedDestination;
         }
         // Move position towards the target subtile, shortest way
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
@@ -1704,7 +1704,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         if (i > gameadd.map_tiles_x*gameadd.map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
-            return -2;
+            return TDR_ToolDigError;
         }
     }
     nextslb_x = subtile_slab(*nextstl_x);
@@ -1714,7 +1714,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         cdig->pos_next.x.stl.num = *nextstl_x;
         cdig->pos_next.y.stl.num = *nextstl_y;
         SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)nextslb_x,(int)nextslb_y);
-        return -1;
+        return TDR_ReachedDestination;
     }
     return i;
 }
@@ -1750,7 +1750,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         WARNLOG("%s: Player %d ComputerDig calls count (%d) exceeds limit for path from (%d,%d) to (%d,%d)",func_name,
             (int)dungeon->owner,(int)cdig->calls_count,(int)coord_slab(cdig->pos_begin.x.val),(int)coord_slab(cdig->pos_begin.y.val),
             (int)coord_slab(cdig->pos_dest.x.val),(int)coord_slab(cdig->pos_dest.y.val));
-        return -2;
+        return TDR_ToolDigError;
     }
     gldstl_x = stl_slab_center_subtile(cdig->pos_begin.x.stl.num);
     gldstl_y = stl_slab_center_subtile(cdig->pos_begin.y.stl.num);
@@ -1771,7 +1771,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             cdig->pos_next.y.stl.num = gldstl_y;
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid slab (%d,%d)",func_name,
                 (int)dungeon->owner,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
-            return -5;
+            return TDR_BuildBridgeOnSlab;
         }
         
         counter1 = tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(comp, cdig, simulation, digflags, &gldstl_x, &gldstl_y, func_name);
@@ -1791,7 +1791,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                 cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner);
             cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
             SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
-            return 0;
+            return TDR_DigSlab;
         }
         if (cdig->subfield_2C == comp->field_C)
         {
@@ -1813,7 +1813,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         cdig->subfield_48++;
         if ((cdig->subfield_48 > 10) && (cdig->sub4C_stl_x == gldstl_x) && (cdig->sub4C_stl_y == gldstl_y)) {
             SYNCDBG(5,"%s: Positions are equal at subtile (%d,%d)",func_name,(int)gldstl_x,(int)gldstl_y);
-            return -2;
+            return TDR_ToolDigError;
         }
         cdig->sub4C_stl_x = gldstl_x;
         cdig->sub4C_stl_y = gldstl_y;
@@ -1825,7 +1825,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             cdig->direction_around, cdig->hug_side);
         if (i == -1) {
             SYNCDBG(5,"%s: Player %d short digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)cdig->pos_next.x.stl.num,(int)cdig->pos_next.y.stl.num);
-            return -2;
+            return TDR_ToolDigError;
         }
         digstl_x = stl_num_decode_x(i);
         digstl_y = stl_num_decode_y(i);
@@ -1838,7 +1838,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             cdig->pos_next.y.stl.num = digstl_y;
             cdig->pos_next.x.stl.num = digstl_x;
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid subtile (%d,%d)",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
-            return -5;
+            return TDR_BuildBridgeOnSlab;
         }
     } else
     {
@@ -1846,7 +1846,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->hug_side);
         if (i == -1) {
             SYNCDBG(5,"%s: Player %d long digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
-            return -2;
+            return TDR_ToolDigError;
         }
         digstl_x = stl_num_decode_x(i);
         digstl_y = stl_num_decode_y(i);
@@ -1872,7 +1872,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                     if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                     {
                         magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y-3, PwCast_Unrevealed);
-                        return -5;
+                        return TDR_BuildBridgeOnSlab;
                     }
                     else
                     {
@@ -1881,7 +1881,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                         if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                         {
                             magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y+3, PwCast_Unrevealed);
-                            return -5;
+                            return TDR_BuildBridgeOnSlab;
                         }
                         else
                         {
@@ -1890,7 +1890,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                             if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                             {
                                 magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x-3, digstl_y, PwCast_Unrevealed);
-                                return -5;
+                                return TDR_BuildBridgeOnSlab;
                             }
                             else
                             {
@@ -1899,7 +1899,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                                 if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                                 {
                                     magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x+3, digstl_y, PwCast_Unrevealed);
-                                    return -5;
+                                    return TDR_BuildBridgeOnSlab;
                                 }
                             }
                         }
@@ -1908,7 +1908,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                 if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) 
                 {
                     ERRORLOG("%s: Couldn't do game action - cannot dig",func_name);
-                    return -2;
+                    return TDR_ToolDigError;
                 }
             }
         }
@@ -1919,12 +1919,12 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     if ((subtile_slab(cdig->pos_dest.x.stl.num) == digslb_x) && (subtile_slab(cdig->pos_dest.y.stl.num) == digslb_y))
     {
         SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)digslb_x,(int)digslb_y);
-        return -1;
+        return TDR_ReachedDestination;
     }
     cdig->pos_begin.x.stl.num = digstl_x;
     cdig->pos_begin.y.stl.num = digstl_y;
     SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)digslb_x,(int)digslb_y);
-    return 0;
+    return TDR_DigSlab;
 }
 
 int find_trap_location_index(const struct Computer2 * comp, const struct Coord3d * coord)
@@ -2041,7 +2041,7 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     // Try to find gold tiles around current position
     if (search_spiral(&ctask->dig.pos_dest, comp->dungeon->owner, 25, check_for_gold) == 25) {
         SYNCDBG(5,"Player %d did not found next gold",(int)comp->dungeon->owner);
-        return 0;
+        return CTaskRet_Unk0;
     }
 
     memcpy(&ctask->dig.pos_begin, &ctask->dig.pos_next, sizeof(struct Coord3d));
@@ -2057,13 +2057,13 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
         retval = tool_dig_to_pos2(comp, &cdig, 1, ToolDig_BasicOnly);
         SYNCDBG(5,"retval=%d, dig.distance=%d, dig.subfield_54=%d",
             retval, cdig.distance, cdig.calls_count);
-    } while (retval == 0);
+    } while (retval == TDR_DigSlab);
 
     SYNCDBG(6,"Finished");
-    if ((retval != -1) && (retval != -5)) {
-        return 0;
+    if ((retval != TDR_ReachedDestination) && (retval != TDR_BuildBridgeOnSlab)) {
+        return CTaskRet_Unk0;
     } else {
-        return 1;
+        return CTaskRet_Unk1;
     }
 }
 
@@ -2077,7 +2077,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     if ((dungeon->digger_stack_length > 0) && (dungeon->digger_stack_length >= i))
     {
         SYNCDBG(6,"Player %d did nothing because digger stack length is over %d",(int)dungeon->owner,(int)i);
-        return 0;
+        return CTaskRet_Unk0;
     }
 
     if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.slabs_dig_count)
@@ -2089,7 +2089,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
             ctask->field_60--;
             if (ctask->field_60 > 0) {
                 SYNCDBG(6,"Player %d needs to dig %d more",(int)dungeon->owner,(int)ctask->field_60);
-                return 0;
+                return CTaskRet_Unk0;
             }
         }
         ctask->dig.valuable_slabs_tagged = 0;
@@ -2145,7 +2145,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         ctask->field_60 = 700 / comp->click_rate;
     }
 
-    if (retval == -5)
+    if (retval == TDR_BuildBridgeOnSlab)
     {
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
@@ -2154,16 +2154,16 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         return CTaskRet_Unk4;
     }
 
-    if ((retval < -3) || (retval > -1))
+    if ((retval < TDR_FailedToReachDestination) || (retval > TDR_ReachedDestination))
     {
         SYNCDBG(6,"Player %d finished, code %d",(int)dungeon->owner,(int)retval);
         return retval;
     }
 
-    if (find_next_gold(comp, ctask) != 0)
+    if (find_next_gold(comp, ctask) != CTaskRet_Unk0)
     {
         SYNCDBG(7,"Player %d found next slab",(int)dungeon->owner);
-        return 0;
+        return CTaskRet_Unk0;
     }
 
     struct GoldLookup* gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
@@ -2183,7 +2183,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         ctask->dig.pos_begin.x.stl.num = gldstl_x;
         ctask->dig.pos_begin.y.stl.num = gldstl_y;
 
-        if (find_next_gold(comp, ctask) != 0) // || (retval < -3) -- Already returned
+        if (find_next_gold(comp, ctask) != CTaskRet_Unk0) // || (retval < -3) -- Already returned
         {
             SYNCDBG(7,"Player %d found next slab",(int)dungeon->owner);
             return retval;
@@ -2191,13 +2191,13 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     }
 
     // move to next task or return to enclosing task or return to try again later
-    if ((retval == -3) || (retval == -2))
+    if ((retval == TDR_FailedToReachDestination) || (retval == TDR_ToolDigError))
     {
         gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
         gold_lookup->player_interested[dungeon->owner] |= 0x02;
         remove_task(comp, ctask);
     } else
-    if (retval == -1) // unnecessary check as retval < -3 and retval > -1 did return before
+    if (retval == TDR_ReachedDestination) // unnecessary check as retval < -3 and retval > -1 did return before
     {
         remove_task(comp, ctask);
     }
@@ -2234,17 +2234,17 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     int i;
     switch (dig_ret)
     {
-    case -5:
+    case TDR_BuildBridgeOnSlab:
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
         dig_ret = CTaskRet_Unk4;
         break;
-    case -3:
-    case -2:
+    case TDR_FailedToReachDestination:
+    case TDR_ToolDigError:
         comp->task_state = CTaskSt_Select;
         suspend_task_process(comp, ctask);
         break;
-    case 0:
+    case TDR_DigSlab:
         for (i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
         {
             MapSubtlCoord stl_x;
@@ -2261,7 +2261,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
             break;
         }
         // fall through
-    case -1:
+    case TDR_ReachedDestination:
         {
             struct ComputerProcess *cproc;
             cproc = get_computer_process(comp, ctask->field_8C);
@@ -3046,13 +3046,13 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     short digret;
     digret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
-    if (digret == -5)
+    if (digret == TDR_BuildBridgeOnSlab)
     {
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
         return CTaskRet_Unk4;
     }
-    if ((digret >= -3) && (digret <= -1))
+    if ((digret >= TDR_FailedToReachDestination) && (digret <= TDR_ReachedDestination))
     {
         suspend_task_process(comp,ctask);
         return digret;

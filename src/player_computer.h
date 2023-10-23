@@ -129,6 +129,17 @@ enum ToolDigFlags {
                                             Also allows to dig through valuable slabs(which should be later changed)). */
 };
 
+// These are the possible return values for the CPU player's "mark for digging" functions
+enum ToolDigResults {
+    TDR_DestroyWallOnSlab = -6, // prospective and unused
+    TDR_BuildBridgeOnSlab = -5,
+    TDR_CallCountExceeded = -4, // prospective and unused
+    TDR_FailedToReachDestination = -3, // prospective and unused
+    TDR_ToolDigError = -2,
+    TDR_ReachedDestination = -1,
+    TDR_DigSlab = 0,
+};
+
 enum CompProcessFlags {
     ComProc_Unkn0001 = 0x0001,
     ComProc_Unkn0002 = 0x0002, /* Last? */

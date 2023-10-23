@@ -871,7 +871,7 @@ TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const s
     while ( 1 )
     {
         digres = tool_dig_to_pos2(comp, &cdig, true, digflags);
-        if (digres != 0)
+        if (digres != TDR_DigSlab)
           break;
         // If the slab we've got from digging is safe to walk and connected to original room, use it as starting position
         // But don't change distance - it should be computed from our rooms (and resetting it could lead to infinite loop)
@@ -883,7 +883,7 @@ TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const s
         }
         (*dig_distance)++;
     }
-    return ((digres == -1) || (digres == -5));
+    return ((digres == TDR_ReachedDestination) || (digres == TDR_BuildBridgeOnSlab));
 }
 
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *cproc)
