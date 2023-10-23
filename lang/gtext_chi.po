@@ -6428,7 +6428,7 @@ msgstr "尼古莱的城堡战役"
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - New Game+"
 msgstr "原版增强战役"
 
 #: guitext:1028

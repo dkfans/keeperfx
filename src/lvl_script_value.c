@@ -122,7 +122,7 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
         SYNCDBG(5,"No matching player %d creature of model %d (%s) found to level up",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
-    creature_increase_multiple_levels(thing,count);
+    creature_change_multiple_levels(thing,count);
     return true;
 }
 
@@ -1211,19 +1211,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
-      case 23:  //DungeonHeartHealth
-          if (val3 <= LONG_MAX)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_health, val3);
-              game.dungeon_heart_health = val3;
-              game.objects_config[5].health = val3;
-              gameadd.object_conf.base_config[5].health = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, SHRT_MAX);
-          }
-          break;
       case 24: //HungerHealthLoss
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.hunger_health_loss, val3);
           game.hunger_health_loss = val3;
@@ -1271,6 +1258,18 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
           }
           break;
+      case 34: //TrainingRoomMaxLevel
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.training_room_max_level, val3);
+              game.training_room_max_level = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 23:  //DungeonHeartHealth
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
           break;
