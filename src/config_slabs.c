@@ -111,7 +111,6 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
         {
             sprintf(key, "slab%d", slab_kind);
             slb_section = value_dict_get(root_ptr, key);
-            JUSTLOG("key %s",key);
         }
         if (value_type(slb_section) != VALUE_DICT)
         {
@@ -127,8 +126,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
                 {
                     VALUE *col_arr = value_dict_get(section, "columns");
                     ColumnIndex col_idx = value_int32(value_array_get(col_arr, col_no));
-                    JUSTLOG("col_idx %d",col_idx);
-                    game.slabset[slab_kind * SLABSETS_PER_SLAB + slabset_no].col_idx[col_no] = col_idx;
+                    game.slabset[slab_kind * SLABSETS_PER_SLAB + slabset_no].col_idx[col_no] = -col_idx;
                 }
             }
         }
