@@ -772,23 +772,20 @@ static void display_objective_process(struct ScriptContext *context)
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long all;
-    if (parameter_is_number(scline->tp[5]))
+    TbBool all = 0;
+
+    if ((strcmp(scline->tp[5], "") == 0) || (strcmp(scline->tp[5], "0") == 0))
     {
-        all = atoi(scline->tp[5]);
-        if (all > 1)
-        {
-            SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
-            all = 0;
-        }
+        all = 0;
+    }
+    else
+    if ((strcmp(scline->tp[5], "ALL") == 0) || (strcmp(scline->tp[5], "1") == 0))
+    {
+        all = 1;
     }
     else
     {
-        all = strcmp(scline->tp[5], "ALL") == 0;
-        if (!all && (strcmp(scline->tp[5], "") != 0))
-        {
-            SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
-        }
+        SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
     }
     
     MapSubtlCoord x = scline->np[1];
