@@ -103,26 +103,32 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
         return false;
     }
 
-    VALUE *section;
+    VALUE *slb_section;
     // Create sections
     for (int slab_kind = 0; slab_kind < game.slab_conf.slab_types_count; slab_kind++)
     {
-        for (int slabset_no = 0; slabset_no < SLABSETS_PER_SLAB; slabset_no++)
+       
         {
+            sprintf(key, "slab%d", slab_kind);
+            slb_section = value_dict_get(root_ptr, key);
+            JUSTLOG("key %s",key);
+        }
+        if (value_type(slb_section) != VALUE_DICT)
+        {
+            WARNMSG("Invalid section %d", slab_kind);
+        }
+        else
+        {
+            for (int slabset_no = 0; slabset_no < SLABSETS_PER_SLAB; slabset_no++)
             {
-                sprintf(key, "slab%d.%s", slab_kind,slab_styles_commands[slabset_no].name);
-                section = value_dict_get(root_ptr, key);
-            }
-            if (value_type(section) != VALUE_DICT)
-            {
-                WARNMSG("Invalid section %d", slab_kind);
-            }
-            else
-            {
-                for (size_t col_idx = 0; col_idx < 9; col_idx++)
+                VALUE * section = value_dict_get(slb_section, slab_styles_commands[slabset_no].name);
+                
+                for (size_t col_no = 0; col_no < 9; col_no++)
                 {
                     VALUE *col_arr = value_dict_get(section, "columns");
-                    game.slabset[slab_kind * SLABSETS_PER_SLAB + slabset_no].col_idx[col_idx] = value_int32(value_array_get(col_arr, col_idx));
+                    ColumnIndex col_idx = value_int32(value_array_get(col_arr, col_no));
+                    JUSTLOG("col_idx %d",col_idx);
+                    game.slabset[slab_kind * SLABSETS_PER_SLAB + slabset_no].col_idx[col_no] = col_idx;
                 }
             }
         }
