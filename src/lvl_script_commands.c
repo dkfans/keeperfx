@@ -771,6 +771,7 @@ static void display_objective_process(struct ScriptContext *context)
 
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     TbBool all = strcmp(scline->tp[5], "ALL") == 0;
     if (!all)
     {
@@ -781,17 +782,25 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
         SCRPTWRNLOG("Hide value \"%s\" not recognized", scline->tp[5]);
     }
 
-    command_add_value(Cmd_CONCEAL_MAP_RECT, scline->np[0], scline->np[1], scline->np[2],
-                      (scline->np[4]<<16) | scline->np[3] | (all?1<<24:0));
+    value->plyr_range = scline->np[0];
+    value->shorts[1] = scline->np[1];
+    value->shorts[2] = scline->np[2];
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = scline->np[4];
+    value->shorts[5] = (all ? 1 : 0);
+    
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void conceal_map_rect_process(struct ScriptContext *context)
 {
-    long w = context->value->bytes[8];
-    long h = context->value->bytes[10];
-
-    conceal_map_area(context->value->plyr_range, context->value->arg0 - (w>>1), context->value->arg0 + (w>>1) + (w&1),
-                     context->value->arg1 - (h>>1), context->value->arg1 + (h>>1) + (h&1), context->value->bytes[11]);
+    MapSubtlCoord x = context->value->shorts[1];
+    MapSubtlCoord y = context->value->shorts[2];
+    MapSubtlDelta width = context->value->shorts[3];
+    MapSubtlDelta height = context->value->shorts[4];
+    TbBool conceal_all = context->value->shorts[5];
+    
+    conceal_map_area(context->value->plyr_range, (x - (width/2)), (x + (width/2) + (width&1)),(y - (height/2)),(y + (height/2) + (height&1)), conceal_all);
 }
 
 /**
