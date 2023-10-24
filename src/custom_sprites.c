@@ -144,7 +144,7 @@ short bad_icon_id = GUI_PANEL_SPRITES_COUNT;
 static VALUE zip_cache_v;
 static VALUE *zip_cache = &zip_cache_v;
 
-static int fixUnzLocateFile(unzFile zip, const char *szFileName, int iCaseSensitivity)
+static int fastUnzLocateFile(unzFile zip, const char *szFileName, int iCaseSensitivity)
 {
     //return unzLocateFile(file, szFileName, iCaseSensitivity);
     char seek_for[PATH_MAX];
@@ -164,7 +164,7 @@ static int fixUnzLocateFile(unzFile zip, const char *szFileName, int iCaseSensit
  * Construct a cache for files.
  * Also if there is no indexFile just return instead
  * */
-static int fixUnzConstructCache(unzFile zip, const char *indexFile)
+static int fastUnzConstructCache(unzFile zip)
 {
     char szCurrentFileName[PATH_MAX];
     if (value_type(zip_cache) != VALUE_NULL)
@@ -172,7 +172,6 @@ static int fixUnzConstructCache(unzFile zip, const char *indexFile)
         ERRORLOG("Zip cache is not clear!");
     }
     value_init_dict(zip_cache);
-    TbBool found = false;
 
     for (int err = unzGoToFirstFile(zip);
          err == UNZ_OK;
@@ -186,10 +185,7 @@ static int fixUnzConstructCache(unzFile zip, const char *indexFile)
             continue;
         }
         make_lowercase(szCurrentFileName);
-        if (!found && (0 == strncasecmp(szCurrentFileName, indexFile, PATH_MAX)))
-        {
-            found = true;
-        }
+
         unz64_file_pos file_pos;
         unzGetFilePos64(zip, &file_pos);
 
@@ -198,10 +194,10 @@ static int fixUnzConstructCache(unzFile zip, const char *indexFile)
         value_init_int64(value_array_append(rec), file_pos.pos_in_zip_directory);
         value_init_int64(value_array_append(rec), file_pos.num_of_file);
     }
-    return found? UNZ_OK: UNZ_END_OF_LIST_OF_FILE;
+    return UNZ_OK;
 }
 
-static int fixUnzClearCache()
+static int fastUnzClearCache()
 {
     value_fini(zip_cache);
     return 0;
@@ -1089,7 +1085,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                     WARNLOG("Invalid sprite file record in '%s/sprites.json'", path);
                     return 1;
                 }
-                if (fixUnzLocateFile(zip, name, 0))
+                if (fastUnzLocateFile(zip, name, 0))
                 {
                     WARNLOG("Png '%s' not found in '%s'", name, path);
                     return 1;
@@ -1225,13 +1221,16 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
     if (zip == NULL)
         return 0;
 
-    if (UNZ_OK != fixUnzConstructCache(zip, name))
+    if (UNZ_OK != fastUnzConstructCache(zip))
     {
         goto end;
     }
 
-    // This can't fail because of fixUnzConstructCache
-    fixUnzLocateFile(zip, name, 0);
+    if (UNZ_OK != fastUnzLocateFile(zip, name, 0))
+    {
+        goto end;
+    }
+
     if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0)
             )
     {
@@ -1279,12 +1278,12 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
 
     value_fini(&root);
 
-    fixUnzClearCache();
+    fastUnzClearCache();
     unzClose(zip);
 
     return ret_ok;
 end:
-    fixUnzClearCache();
+    fastUnzClearCache();
     unzClose(zip);
     return 0;
 }
@@ -1334,7 +1333,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
         const char *file = value_string(value_array_get(file_value, i));
 
 
-        if (fixUnzLocateFile(zip, file, 0))
+        if (fastUnzLocateFile(zip, file, 0))
         {
             WARNLOG("Png '%s' not found in '%s'", file, path);
             return 0;
