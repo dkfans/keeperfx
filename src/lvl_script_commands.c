@@ -823,8 +823,8 @@ static void conceal_map_rect_process(struct ScriptContext *context)
 {
     MapSubtlCoord start_x = context->value->shorts[1];
     MapSubtlCoord end_x = context->value->shorts[2];
-    MapSubtlDelta start_y = context->value->shorts[3];
-    MapSubtlDelta end_y = context->value->shorts[4];
+    MapSubtlCoord start_y = context->value->shorts[3];
+    MapSubtlCoord end_y = context->value->shorts[4];
     TbBool conceal_all = context->value->shorts[5];
     
     conceal_map_area(context->value->plyr_range, start_x, end_x, start_y, end_y, conceal_all);
