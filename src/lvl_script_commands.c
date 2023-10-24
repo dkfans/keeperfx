@@ -772,16 +772,16 @@ static void display_objective_process(struct ScriptContext *context)
 static void conceal_map_rect_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    TbBool all = 0;
+    TbBool conceal_all = 0;
 
     if ((strcmp(scline->tp[5], "") == 0) || (strcmp(scline->tp[5], "0") == 0))
     {
-        all = 0;
+        conceal_all = 0;
     }
     else
     if ((strcmp(scline->tp[5], "ALL") == 0) || (strcmp(scline->tp[5], "1") == 0))
     {
-        all = 1;
+        conceal_all = 1;
     }
     else
     {
@@ -792,7 +792,6 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
     MapSubtlCoord y = scline->np[2];
     MapSubtlDelta width = scline->np[3];
     MapSubtlDelta height = scline->np[4];
-    TbBool conceal_all = (all ? 1 : 0);
 
     MapSubtlCoord start_x = x - (width / 2);
     MapSubtlCoord end_x = x + (width / 2) + (width & 1);
