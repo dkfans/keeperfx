@@ -791,25 +791,43 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
         }
     }
     
+    MapSubtlCoord x = scline->np[1];
+    MapSubtlCoord y = scline->np[2];
+    MapSubtlDelta width = scline->np[3];
+    MapSubtlDelta height = scline->np[4];
+    TbBool conceal_all = (all ? 1 : 0);
+
+    MapSubtlCoord start_x = x - (width / 2);
+    MapSubtlCoord end_x = x + (width / 2) + (width & 1);
+    MapSubtlCoord start_y = y - (height / 2);
+    MapSubtlCoord end_y = y + (height / 2) + (height & 1);
+
+    if ((start_x < 0) || (end_x > gameadd.map_subtiles_x) || (start_y < 0) || (end_y > gameadd.map_subtiles_y))
+    {
+        SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%d,%d) to (%d,%d) on map size %dx%d", start_x, start_y, end_x, end_y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
     value->plyr_range = scline->np[0];
-    value->shorts[1] = scline->np[1];
-    value->shorts[2] = scline->np[2];
-    value->shorts[3] = scline->np[3];
-    value->shorts[4] = scline->np[4];
-    value->shorts[5] = (all ? 1 : 0);
+    value->shorts[1] = start_x;
+    value->shorts[2] = end_x;
+    value->shorts[3] = start_y;
+    value->shorts[4] = end_y;
+    value->shorts[5] = conceal_all;
     
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void conceal_map_rect_process(struct ScriptContext *context)
 {
-    MapSubtlCoord x = context->value->shorts[1];
-    MapSubtlCoord y = context->value->shorts[2];
-    MapSubtlDelta width = context->value->shorts[3];
-    MapSubtlDelta height = context->value->shorts[4];
+    MapSubtlCoord start_x = context->value->shorts[1];
+    MapSubtlCoord end_x = context->value->shorts[2];
+    MapSubtlDelta start_y = context->value->shorts[3];
+    MapSubtlDelta end_y = context->value->shorts[4];
     TbBool conceal_all = context->value->shorts[5];
     
-    conceal_map_area(context->value->plyr_range, (x - (width/2)), (x + (width/2) + (width&1)),(y - (height/2)),(y + (height/2) + (height&1)), conceal_all);
+    conceal_map_area(context->value->plyr_range, start_x, end_x, start_y, end_y, conceal_all);
 }
 
 /**
