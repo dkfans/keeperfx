@@ -892,11 +892,17 @@ TbBool add_trap_location_if_requested(struct Computer2 *comp, struct ComputerTas
     if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
     {
         if (is_task_dig_to_attack)
+        {
             ctask->lastrun_turn++;
             if (ctask->lastrun_turn > 5)
+            {
                 ctask->flags &= ~ComTsk_AddTrapLocation;
+            }
+        }
         else
+        {
             ctask->flags &= ~ComTsk_AddTrapLocation;
+        }
         add_to_trap_location(comp, &ctask->dig.pos_next);
         return true;
     }
@@ -906,10 +912,10 @@ TbBool add_trap_location_if_requested(struct Computer2 *comp, struct ComputerTas
 long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
+    struct Coord3d pos;
     switch((ToolDigResult)tool_dig_to_pos2(comp, &ctask->dig, TDM_ForReal, ToolDig_BasicOnly))
     {
         case TDR_ReachedDestination:
-            struct Coord3d pos;
             pos.x.val = ctask->pos_6A.x.val;
             pos.y.val = ctask->pos_6A.y.val;
             pos.z.val = ctask->pos_6A.z.val;

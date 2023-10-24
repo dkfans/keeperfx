@@ -143,7 +143,7 @@ enum ToolDigResults {
 enum ToolDigModes {
     TDM_ForReal = 0,
     TDM_Simulation = 1,
-}
+};
 
 enum CompProcessFlags {
     ComProc_Unkn0001 = 0x0001,
