@@ -959,7 +959,7 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
             pick = 0;
         }
     }
-    return 28 * slbkind + 9 * style + pick;
+    return SLABSETS_PER_SLAB * slbkind + 9 * style + pick;
 }
 
 void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoord stl_y, unsigned short slabct_num, unsigned short slbelem, PlayerNumber plyr_idx)
