@@ -823,7 +823,7 @@ static void conceal_map_rect_process(struct ScriptContext *context)
     MapSubtlCoord end_y = context->value->shorts[4];
     TbBool conceal_all = context->value->shorts[5];
     
-    conceal_map_area(context->value->plyr_range, start_x, end_x, start_y, end_y, conceal_all);
+    conceal_map_area(context->player_idx, start_x, end_x, start_y, end_y, conceal_all);
 }
 
 /**
