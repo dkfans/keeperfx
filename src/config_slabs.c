@@ -68,7 +68,7 @@ const struct NamedCommand slab_styles_commands[] = {
     {"CENTER",   27}
 };
 
-TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags)
+TbBool load_toml_file(const char *textname, const char *fname,VALUE *value)
 {
     SYNCDBG(5,"Starting");
     long len = LbFileLengthRnc(fname);
@@ -78,7 +78,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);
-    if (buf == NULL)
+    if (buf == false)
         return false;
     // Loading file data
     long fsize = LbFileLoadAt(fname, buf);
@@ -90,19 +90,29 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
         return false;
     }
     
-    if (buf == NULL)
+    if (buf == false)
         return false;
-    VALUE file_root, *root_ptr = &file_root;
     char err[255];
-    char key[64];
+    
 
-    if (toml_parse((char*)buf, err, sizeof(err), root_ptr))
+    if (toml_parse((char*)buf, err, sizeof(err), value))
     {
         WARNMSG("Unable to load %s file\n %s", fname, err);
         LbMemoryFree(buf);
         return false;
     }
+    LbMemoryFree(buf);
+    return true;
+}
 
+TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags)
+{
+    VALUE file_root;
+    
+    if (!load_toml_file(textname, fname,&file_root))
+        return false;
+    
+    char key[64];
     VALUE *slb_section;
     // Create sections
     for (int slab_kind = 0; slab_kind < game.slab_conf.slab_types_count; slab_kind++)
@@ -110,7 +120,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
        
         {
             sprintf(key, "slab%d", slab_kind);
-            slb_section = value_dict_get(root_ptr, key);
+            slb_section = value_dict_get(&file_root, key);
         }
         if (value_type(slb_section) != VALUE_DICT)
         {
@@ -131,8 +141,8 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
             }
         }
     }
-    value_fini(root_ptr);
-    LbMemoryFree(buf);
+    value_fini(&file_root);
+    
     return true;
 }
 
