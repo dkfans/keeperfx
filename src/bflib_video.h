@@ -265,6 +265,8 @@ extern unsigned short pixel_size;
 extern unsigned short pixels_per_block;
 extern unsigned short units_per_pixel;
 
+extern unsigned short display_number;
+
 extern TbDisplayStruct lbDisplay;
 extern SDL_Window *lbWindow;
 /******************************************************************************/
