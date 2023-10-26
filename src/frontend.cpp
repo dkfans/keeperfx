@@ -928,10 +928,6 @@ TbBool frontend_is_player_allied(PlayerNumber idx1, PlayerNumber idx2)
 
 void frontend_set_alliance(PlayerNumber idx1, PlayerNumber idx2)
 {
-    if (idx1 >= HERO_PLAYER)
-      return;
-    if (idx2 >= HERO_PLAYER)
-      return;
     if (frontend_is_player_allied(idx1, idx2))
       frontend_alliances &= ~alliance_grid[idx1][idx2];
     else
