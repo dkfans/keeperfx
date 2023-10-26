@@ -171,7 +171,7 @@ struct Dungeon {
     short hates_player[DUNGEONS_COUNT];
     struct MapTask task_list[MAPTASKS_COUNT];
     int task_count;
-    unsigned char owner;
+    PlayerNumber owner;
     int camera_deviate_quake;
     int camera_deviate_jump;
     long score;

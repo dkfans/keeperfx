@@ -142,7 +142,7 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
 
 CoroutineLoopState setup_alliances(CoroutineLoop *loop)
 {
-    for (int i = 0; i < PLAYERS_COUNT; i++)
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
         if (!is_my_player_number(i) && player_exists(player))

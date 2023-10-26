@@ -265,7 +265,7 @@ void process_pause_packet(long curr_pause, long new_pause)
 {
   struct PlayerInfo *player;
   TbBool can = true;
-  for (long i = 0; i < PLAYERS_COUNT; i++)
+  for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
   {
     player = get_player(i);
     if (player_exists(player) && (player->is_active == 1))
@@ -1477,7 +1477,7 @@ void process_packets(void)
 
 void process_frontend_packets(void)
 {
-  long i;
+  PlayerNumber i;
   for (i=0; i < NET_PLAYERS_COUNT; i++)
   {
     net_screen_packet[i].field_4 &= ~0x01;
@@ -1554,7 +1554,7 @@ void process_frontend_packets(void)
             frontend_set_state(FeSt_NETLAND_VIEW);
             break;
         case 4:
-            frontend_set_alliance(nspckt->param1, nspckt->param2);
+            frontend_set_alliance((PlayerNumber)nspckt->param1, (PlayerNumber)nspckt->param2);
             break;
         case 7:
             fe_computer_players = nspckt->param1;

@@ -136,8 +136,8 @@ struct Wander
   unsigned long max_found_per_check;
   unsigned char wdrfield_14;
   unsigned char wandr_slot;
-  unsigned char plyr_idx;
-  unsigned char plyr_bit;
+  PlayerNumber plyr_idx;
+  PlayerBitFlag plyr_bit;
   /** Array of points where the creatures could go wander. */
   struct SubtileXY points[WANDER_POINTS_COUNT];
 };
@@ -158,9 +158,9 @@ struct PlayerInfo {
 unsigned char field_14;
     char player_name[20];
     unsigned char victory_state;
-    unsigned char allied_players;
-    unsigned char players_with_locked_ally_status;
-    unsigned char id_number;
+    PerPlayerFlags allied_players;
+    PerPlayerFlags players_with_locked_ally_status;
+    PlayerNumber id_number;
     unsigned char is_active;
     short controlled_thing_idx;
     long controlled_thing_creatrn;
@@ -266,7 +266,7 @@ struct PlayerInfoAdd {
 };
 
 /******************************************************************************/
-extern unsigned char my_player_number;
+extern PlayerNumber my_player_number;
 
 #pragma pack()
 /******************************************************************************/
@@ -307,7 +307,7 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 
 void clear_players(void);
 
-PlayerNumber player_bit_to_player_number(unsigned char plyr_bit);
+PlayerNumber player_bit_to_player_number(PlayerBitFlag plyr_bit);
 unsigned char rotate_mode_to_view_mode(unsigned char mode);
 /******************************************************************************/
 #ifdef __cplusplus

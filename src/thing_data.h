@@ -101,7 +101,7 @@ struct Thing {
     unsigned char state_flags;
     unsigned short next_on_mapblk;
     unsigned short prev_on_mapblk;
-    unsigned char owner;
+    PlayerNumber owner;
     unsigned char active_state;
     unsigned char continue_state;
     long creation_turn;

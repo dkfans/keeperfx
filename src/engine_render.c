@@ -462,7 +462,7 @@ static long map_z_pos;
 static int normal_shade_front;
 static int normal_shade_back;
 static long me_distance;
-static unsigned char engine_player_number;
+static PlayerNumber engine_player_number;
 static long UseFastBlockDraw;
 static long thelens;
 static long fade_mmm;
@@ -489,7 +489,7 @@ TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];
 struct HeapMgrHeader *graphics_heap;
 TbFileHandle jty_file_handle;
 
-unsigned char player_bit;
+PlayerBitFlag player_bit;
 
 struct MapVolumeBox map_volume_box;
 long view_height_over_2;
@@ -749,7 +749,7 @@ static void update_normal_shade(struct M33 *matx)
 void update_engine_settings(struct PlayerInfo *player)
 {
     engine_player_number = player->id_number;
-    player_bit = (1 << engine_player_number);
+    player_bit = player_bit_flag(engine_player_number);
     switch (settings.field_0)
     {
     case 0:
@@ -9098,7 +9098,7 @@ void draw_frontview_engine(struct Camera *cam)
     gtblock_set_clipping_window(lbDisplay.GraphicsWindowPtr, ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, lbDisplay.GraphicsScreenWidth, ewnd.width, ewnd.height);
     engine_player_number = player->id_number;
-    player_bit = (1 << player->id_number);
+    player_bit = player_bit_flag(player->id_number);
     clear_fast_bucket_list();
     store_engine_window(&ewnd,1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);

@@ -99,7 +99,7 @@ struct DemoItem { //sizeof = 5
 };
 
 struct NetMessage { // sizeof = 0x41
-  unsigned char plyr_idx;
+  PlayerNumber plyr_idx;
   char text[NET_MESSAGE_LEN];
 };
 
@@ -266,8 +266,8 @@ void init_save_menu(struct GuiMenu *gmnu);
 void init_video_menu(struct GuiMenu *gmnu);
 void init_audio_menu(struct GuiMenu *gmnu);
 void frontend_init_options_menu(struct GuiMenu *gmnu);
-TbBool frontend_is_player_allied(long idx1, long idx2);
-void frontend_set_alliance(long idx1, long idx2);
+TbBool frontend_is_player_allied(PlayerNumber idx1, PlayerNumber idx2);
+void frontend_set_alliance(PlayerNumber idx1, PlayerNumber idx2);
 char update_menu_fade_level(struct GuiMenu *gmnu);
 void draw_menu_buttons(struct GuiMenu *gmnu);
 MenuNumber create_menu(struct GuiMenu *mnu);
@@ -293,7 +293,7 @@ void get_player_gui_clicks(void);
 short game_is_busy_doing_gui(void);
 void set_gui_visible(TbBool visible);
 void toggle_gui(void);
-void add_message(long plyr_idx, char *msg);
+void add_message(PlayerNumber plyr_idx, char *msg);
 TbBool validate_versions(void);
 void versions_different_error(void);
 unsigned long toggle_status_menu(short visib);
@@ -315,7 +315,7 @@ void initialise_tab_tags(MenuID menu_id);
 void initialise_tab_tags_and_menu(MenuID menu_id);
 void turn_off_roaming_menus(void);
 
-void frontend_set_player_number(long plr_num);
+void frontend_set_player_number(PlayerNumber plr_num);
 TbBool frontend_start_new_campaign(const char *cmpgn_fname);
 void frontend_draw_product_version(struct GuiButton *gbtn);
 /******************************************************************************/

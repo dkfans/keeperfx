@@ -280,14 +280,14 @@ TbBool open_new_packet_file_for_save(void)
     game.packet_save_head.frontview_zoom_level = settings.frontview_zoom_level;
     game.packet_save_head.video_rotate_mode = settings.video_rotate_mode;
     game.packet_save_head.action_seed = start_seed;
-    for (int i = 0; i < PLAYERS_COUNT; i++)
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player))
         {
-            game.packet_save_head.players_exist |= (1 << i) & 0xff;
+            add_player_to_flags(i, game.packet_save_head.players_exist);
             if ((player->allocflags & PlaF_CompCtrl) != 0)
-              game.packet_save_head.players_comp |= (1 << i) & 0xff;
+                add_player_to_flags(i, game.packet_save_head.players_comp);
         }
     }
     LbFileDelete(game.packet_fname);

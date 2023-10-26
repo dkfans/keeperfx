@@ -295,6 +295,24 @@ typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
 
+/** @brief convert a PlayerNumber to a PlayerBitFlag. */
+#define player_bit_flag(player_idx) (1 << player_idx)
+
+/** @brief Returns TRUE if a given player is flagged in the given PerPlayerFlags. */
+#define player_is_flagged(player_idx, flags) ((flags & player_bit_flag(player_idx)) != 0)
+
+/** @brief add a player to a given PerPlayerFlags. */
+#define add_player_to_flags(player_idx, flags) flags |= player_bit_flag(player_idx)
+
+/** @brief remove a player from a given PerPlayerFlags. */
+#define remove_player_from_flags(player_idx, flags) flags &= ~(player_bit_flag(player_idx))
+
+/** @brief toggle a player's flag in a given PerPlayerFlags. */
+#define toggle_player_flag(player_idx, flags) flags ^= player_bit_flag(player_idx)
+
+/** @brief Returns TRUE if a given player bit flag is set in the given PerPlayerFlags. */
+#define player_bit_is_flagged(player_bit_flag, flags) ((flags & player_bit_flag) != 0)
+
 /* Stores a 2d coordinate (x,y).
 
 Members:

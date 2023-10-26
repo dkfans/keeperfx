@@ -100,7 +100,7 @@ long calculate_efficiency(PlayerNumber plyr_idx)
     return 100 * efficiency / (count * ROOM_EFFICIENCY_MAX);
 }
 
-long calculate_style(long plyr_idx)
+long calculate_style(PlayerNumber plyr_idx)
 {
     long area = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
