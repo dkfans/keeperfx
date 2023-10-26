@@ -310,7 +310,7 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
             interpolate_minimap_thing(thing, cam);
             long zmpos_x = thing->interp_minimap_pos_x / scaled_zoom;
             long zmpos_y = thing->interp_minimap_pos_y / scaled_zoom;
-            
+
             // Now rotate the coordinates to receive minimap points
             RealScreenCoord mapos_x;
             RealScreenCoord mapos_y;
@@ -390,7 +390,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 interpolate_minimap_thing(thing, cam);
                 long zmpos_x = thing->interp_minimap_pos_x / scaled_zoom;
                 long zmpos_y = thing->interp_minimap_pos_y / scaled_zoom;
-                
+
                 long mapos_x;
                 long mapos_y;
                 // Now rotate the coordinates to receive minimap points
@@ -398,7 +398,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
                 RealScreenCoord basepos;
                 basepos = MapDiagonalLength/2;
-                
+
                 // Do the drawing
                 if ((game.play_gameturn & 3) == 1) {
                     if (thing_is_special_box(thing) || thing_is_spellbook(thing))
@@ -433,7 +433,7 @@ void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord ba
         pannel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
         return;
     }
-    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);     
+    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
     for (int i = 0; i < pixel_end; i++)
     {
         pannel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
@@ -1179,11 +1179,11 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     update_pannel_colours();
     struct PlayerInfo *player = get_my_player();
     struct Camera *cam = player->acamera;
-    
+
     if ((cam == NULL) || (MapDiagonalLength < 1))
         return;
     if (game.play_gameturn <= 1) {reset_all_minimap_interpolation = true;} //Fixes initial minimap frame being purple
-    
+
     long shift_x;
     long shift_y;
     long shift_stl_x;

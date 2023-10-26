@@ -31,7 +31,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-extern struct TbSprite *frontstory_font;
+extern struct SpriteSheet *frontstory_font;
 extern long credits_offset;
 extern int credits_end;
 

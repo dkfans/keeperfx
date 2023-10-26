@@ -65,13 +65,7 @@ static unsigned char *torture_background;
 static unsigned char *torture_palette;
 
 extern struct DoorDesc doors[TORTURE_DOORS_COUNT];
-extern struct TbSprite *fronttor_sprites;
-extern struct TbSprite *fronttor_end_sprites;
-extern unsigned char *fronttor_data;
-extern unsigned char * fronttor_end_data;
-/******************************************************************************/
-extern struct TbLoadFiles torture_load_files[];
-extern struct TbSetupSprite setup_torture_sprites[];
+extern struct SpriteSheet *fronttor_sprites;
 
 long torture_doors_available = TORTURE_DOORS_COUNT;
 /******************************************************************************/
@@ -117,7 +111,7 @@ long torture_door_over_point(long x,long y)
 
 void fronttorture_unload(void)
 {
-  LbDataFreeAll(torture_load_files);
+  DeleteSprites(&fronttor_sprites);
   memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
   StopAllSamples();
   // Clearing the space used for torture graphics
@@ -148,52 +142,17 @@ void fronttorture_load(void)
     ptr += i;
 
     // Load DAT/TAB sprites for doors
-    long k = 0;
+    for (int k=0; k < TORTURE_DOORS_COUNT; k++)
     {
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].data = ptr;
-        ptr += i;
-        doors[k].data_end = ptr;
-
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].sprites = (struct TbSprite *)ptr;
-        ptr += i;
-        doors[k].sprites_end =(struct TbSprite *) ptr;
+        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d",k+1);
+        doors[k].sprites = LoadSprites(fname);
+        if (doors[k].sprites == NULL) {
+            ERRORLOG("Unable to load door file %s", fname);
+        }
     }
-    ptr = &game.land_map_start;
-    for (k=1; k < 8; k++)
-    {
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].data = ptr;
-        ptr += i;
-        doors[k].data_end = ptr;
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].sprites = (struct TbSprite *)ptr;
-        ptr += i;
-        doors[k].sprites_end = (struct TbSprite *)ptr;
-    }
-    ptr = poly_pool;
-    k = 8;
-    {
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.dat",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].data = ptr;
-        ptr += i;
-        doors[k].data_end = ptr;
-        fname = prepare_file_fmtpath(FGrp_LoData,"door%02d.tab",k+1);
-        i = LbFileLoadAt(fname, ptr);
-        doors[k].sprites = (struct TbSprite *)ptr;
-        ptr += i;
-        doors[k].sprites_end = (struct TbSprite *)ptr;
-    }
-
-    if ( LbDataLoadAll(torture_load_files) )
-        ERRORLOG("Unable to load torture load files");
-    LbSpriteSetupAll(setup_torture_sprites);
+    fronttor_sprites = LoadSprites("ldata/fronttor");
+    if (fronttor_sprites == NULL)
+        ERRORLOG("Unable to load torture files");
     frontend_load_data_reset();
     memcpy(&frontend_palette, torture_palette, PALETTE_SIZE);
     torture_state.action = 0;
@@ -205,7 +164,7 @@ void fronttorture_load(void)
     struct PlayerInfo* player = get_my_player();
     if (player->victory_state == VicS_WonLevel)
     {
-        LbMouseChangeSpriteAndHotspot(&fronttor_sprites[1], 0, 0);
+        LbMouseChangeSpriteAndHotspot(GetSprite(fronttor_sprites, 1), 0, 0);
     } else
     {
         LbMouseChangeSpriteAndHotspot(0, 0, 0);
@@ -231,15 +190,16 @@ TbBool fronttorture_draw(void)
 
   for (int i = 0; i < torture_doors_available; i++)
   {
-      struct TbSprite* spr;
+      const struct TbSprite* spr;
       if (i == torture_door_selected)
       {
-          spr = &doors[i].sprites[torture_sprite_frame];
-    } else
-    {
-      spr = &doors[i].sprites[1];
-    }
-    LbSpriteDrawResized(spx + doors[i].pos_spr_x*units_per_px/16, spy + doors[i].pos_spr_y*units_per_px/16, units_per_px, spr);
+          spr = GetSprite(doors[i].sprites, torture_sprite_frame);
+      }
+      else
+      {
+          spr = GetSprite(doors[i].sprites, 1);
+      }
+      LbSpriteDrawResized(spx + doors[i].pos_spr_x*units_per_px/16, spy + doors[i].pos_spr_y*units_per_px/16, units_per_px, spr);
   }
   return true;
 }

@@ -72,8 +72,6 @@ struct NetMapPlayersState {
 };
 
 /******************************************************************************/
-#define WINDOW_X_SIZE 960
-#define WINDOW_Y_SIZE 720
 TbPixel net_player_colours[] = { 251, 58, 182, 11};
 const long hand_limp_xoffset[] = { 32,  31,  30,  29,  28,  27,  26,  24,  22,  19,  15,  9, };
 const long hand_limp_yoffset[] = {-11, -10,  -9,  -8,  -7,  -6,  -5,  -4,  -3,  -2,  -1,  0, };
@@ -83,27 +81,20 @@ long limp_hand_x = 0;
 long limp_hand_y = 0;
 LevelNumber mouse_over_lvnum;
 LevelNumber playing_speech_lvnum;
-struct TbHugeSprite map_window;
-long map_window_len = 0;
+struct HugeSprite * map_window = NULL;
 
 TbClockMSec play_desc_speech_time;
 unsigned long played_bad_descriptive_speech;
 unsigned long played_good_descriptive_speech;
-TbSpriteData map_flag_data;
-unsigned long end_map_flag_data;
-struct TbSprite *map_flag;
-struct TbSprite *end_map_flag;
-struct TbSprite *map_font;
-struct TbSprite *map_hand;
+struct SpriteSheet *map_flag;
+struct SpriteSheet *map_font;
+struct SpriteSheet *map_hand;
 long map_sound_fade;
 unsigned char *map_screen;
 long fe_net_level_selected;
 long net_map_limp_time;
 struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
 long players_currently_in_session;
-/******************************************************************************/
-extern struct TbSetupSprite map_flag_setup_sprites[];
-extern struct TbSetupSprite netmap_flag_setup_sprites[];
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -117,12 +108,13 @@ void draw_map_screen(void)
         map_screen,LANDVIEW_MAP_WIDTH,LANDVIEW_MAP_HEIGHT);
 }
 
-struct TbSprite *get_map_ensign(long idx)
+const struct TbSprite * get_map_ensign(long idx)
 {
-    struct TbSprite* spr = &map_flag[idx];
-    if (spr < end_map_flag)
-        return spr;
-    return &dummy_sprite;
+    const struct TbSprite * spr = GetSprite(map_flag, idx);
+    if (spr == NULL) {
+        return &dummy_sprite;
+    }
+    return spr;
 }
 
 /**
@@ -296,9 +288,9 @@ void update_frontmap_ambient_sound(void)
   }
 }
 
-struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame)
+const struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, int anim_frame)
 {
-  struct TbSprite *spr;
+  const struct TbSprite *spr;
   int i;
   if (lvinfo == NULL)
     return NULL;
@@ -403,7 +395,7 @@ void draw_map_level_ensigns(void)
     while (lvinfo != NULL)
     {
       // the flag sprite
-      struct TbSprite* spr = get_ensign_sprite_for_level(lvinfo, k);
+      const struct TbSprite* spr = get_ensign_sprite_for_level(lvinfo, k);
       if (spr != NULL)
       {
           long x = lvinfo->ensign_x - map_info.screen_shift_x - (int)(spr->SWidth >> 1);
@@ -713,7 +705,7 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
 
 TbBool set_pointer_graphic_spland(long frame)
 {
-    struct TbSprite* spr = get_map_ensign(1);
+    const struct TbSprite* spr = get_map_ensign(1);
     if (spr == &dummy_sprite)
       ERRORLOG("Can't get Land view Mouse sprite");
     LbMouseChangeSprite(spr);
@@ -816,7 +808,7 @@ void compressed_window_draw(void)
     SYNCDBG(18,"Starting");
     long xshift = map_info.screen_shift_x / 2;
     long yshift = map_info.screen_shift_y / 2;
-    LbHugeSpriteDraw(&map_window, map_window_len,
+    LbHugeSpriteDraw(map_window,
         lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.PhysicalScreenHeight,
         xshift, yshift, units_per_pixel);
 }
@@ -831,7 +823,7 @@ void unload_map_and_window(void)
     clear_rooms();
     clear_dungeons();
     LbMemoryCopy(frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-    map_window_len = 0;
+    DeleteHugeSprite(&map_window);
 }
 
 TbBool load_map_and_window(LevelNumber lvnum)
@@ -887,27 +879,17 @@ TbBool load_map_and_window(LevelNumber lvnum)
     }
     map_screen = &game.land_map_start;
     // Texture blocks memory isn't used here, so reuse it instead of allocating
-    unsigned char* ptr = block_mem;
     memcpy(frontend_backup_palette, &frontend_palette, PALETTE_SIZE);
     // Now prepare window sprite file name and load the file
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.dat",land_window);
     wait_for_cd_to_be_available();
-    map_window_len = LbFileLoadAt(fname, ptr);
-    if (map_window_len < (long)(WINDOW_Y_SIZE*sizeof(long)))
+    map_window = LoadHugeSprite(fname, 960, 720);
+    if (map_window == NULL)
     {
         ERRORLOG("Unable to load Land Map Window \"%s.dat\"",land_window);
         unload_map_and_window();
         return false;
     }
-    // Prepare pointer to offsets array; WINDOW_Y_SIZE entries
-    map_window.Lines = (long *)&ptr[0];
-    // Prepare pointer to window data
-    map_window.Data = &ptr[WINDOW_Y_SIZE*sizeof(long)];
-    // Fill the rest of huge sprite
-    map_window.SWidth = WINDOW_X_SIZE;
-    map_window.SHeight = WINDOW_Y_SIZE;
-    // Update length, so that it corresponds to map_window pointer
-    map_window_len -= WINDOW_Y_SIZE*sizeof(long);
     // Load palette
     fname = prepare_file_fmtpath(FGrp_LandView,"%s.pal",land_view);
     wait_for_cd_to_be_available();
@@ -942,7 +924,8 @@ void frontnetmap_unload(void)
     clear_dungeons();
     clear_slabs();
     memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
-    LbDataFreeAll(netmap_flag_load_files);
+    DeleteSprites(&map_flag);
+    DeleteSprites(&map_hand);
     memcpy(&frontend_palette, frontend_backup_palette, PALETTE_SIZE);
     fe_network_active = 0;
     StopMusicPlayer();
@@ -963,15 +946,13 @@ TbBool frontnetmap_load(void)
     switch (campaign.land_markers)
     {
     case LndMk_PINPOINTS:
-        strcpy(netmap_flag_load_files[0].FName, "ldata/netflag_pin.dat");
-        strcpy(netmap_flag_load_files[1].FName, "ldata/netflag_pin.tab");
+        map_flag = LoadSprites("ldata/netflag_pin");
         break;
     default:
         ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
         // Fall Through
     case LndMk_ENSIGNS:
-        strcpy(netmap_flag_load_files[0].FName, "ldata/netflag_ens.dat");
-        strcpy(netmap_flag_load_files[1].FName, "ldata/netflag_ens.tab");
+        map_flag = LoadSprites("ldata/netflag_ens");
         break;
     }
     if (!load_map_and_window(0))
@@ -979,12 +960,12 @@ TbBool frontnetmap_load(void)
         frontend_load_data_reset();
         return false;
     }
-    if (LbDataLoadAll(netmap_flag_load_files))
-    {
-      ERRORLOG("Unable to load MAP SCREEN sprites");
-      return false;
+    map_hand = LoadSprites("ldata/maphand");
+    map_font = LoadSprites("ldata/netfont");
+    if (map_flag == NULL || map_hand == NULL || map_font == NULL) {
+        ERRORLOG("Unable to load MAP SCREEN sprites");
+        return false;
     }
-    LbSpriteSetupAll(netmap_flag_setup_sprites);
     frontend_load_data_reset();
     frontnet_init_level_descriptions();
     frontmap_zoom_skip_init(SINGLEPLAYER_NOTSTARTED);
@@ -1097,15 +1078,13 @@ TbBool frontmap_load(void)
     switch (campaign.land_markers)
     {
     case LndMk_PINPOINTS:
-        strcpy(map_flag_load_files[0].FName, "ldata/lndflag_pin.dat");
-        strcpy(map_flag_load_files[1].FName, "ldata/lndflag_pin.tab");
+        map_flag = LoadSprites("ldata/lndflag_pin");
         break;
     default:
         ERRORLOG("Unsupported land markers type %d",(int)campaign.land_markers);
         // Fall through
     case LndMk_ENSIGNS:
-        strcpy(map_flag_load_files[0].FName, "ldata/lndflag_ens.dat");
-        strcpy(map_flag_load_files[1].FName, "ldata/lndflag_ens.tab");
+        map_flag = LoadSprites("ldata/lndflag_ens");
         break;
     }
     LevelNumber lvnum = get_continue_level_number();
@@ -1114,13 +1093,10 @@ TbBool frontmap_load(void)
         frontend_load_data_reset();
         return false;
     }
-    if (LbDataLoadAll(map_flag_load_files))
-    {
+    if (map_flag == NULL) {
         ERRORLOG("Unable to load Land View Screen sprites");
         frontend_load_data_reset();
-        return false;
     }
-    LbSpriteSetupAll(map_flag_setup_sprites);
     frontend_load_data_reset();
     PlayMusicPlayer(2);
     struct PlayerInfo* player = get_my_player();
@@ -1196,21 +1172,21 @@ TbBool test_hand_slap_collides(PlayerNumber plyr_idx)
   {
     rctb.left = nspck->field_6 - 31;
     rctb.top = nspck->field_8 - 27;
-    rctb.right = map_hand[9].SWidth + rctb.left;
-    rctb.bottom = rctb.top + map_hand[9].SHeight;
+    rctb.right = GetSprite(map_hand, 9)->SWidth + rctb.left;
+    rctb.bottom = rctb.top + GetSprite(map_hand, 9)->SHeight;
   } else
   if (nspck->param1 != SINGLEPLAYER_NOTSTARTED)
   {
     rctb.left = nspck->field_6 - 20;
     rctb.top = nspck->field_8 - 14;
-    rctb.right = map_hand[17].SWidth + rctb.left;
-    rctb.bottom = rctb.top + map_hand[17].SHeight;
+    rctb.right = GetSprite(map_hand, 17)->SWidth + rctb.left;
+    rctb.bottom = rctb.top + GetSprite(map_hand, 17)->SHeight;
   } else
   {
     rctb.left = nspck->field_6 - 19;
     rctb.top = nspck->field_8 - 25;
-    rctb.right = map_hand[1].SWidth + rctb.left;
-    rctb.bottom = rctb.top + map_hand[1].SHeight;
+    rctb.right = GetSprite(map_hand, 1)->SWidth + rctb.left;
+    rctb.bottom = rctb.top + GetSprite(map_hand, 1)->SHeight;
   }
   // Return if the rectangles are intersecting
   if (rectangle_intersects(&rcta, &rctb))
@@ -1312,7 +1288,7 @@ void draw_netmap_players_hands(void)
 {
   struct ScreenPacket *nspck;
   const char *plyr_nam;
-  struct TbSprite *spr;
+  const struct TbSprite *spr;
   TbPixel colr;
   long x;
   long y;
@@ -1334,7 +1310,7 @@ void draw_netmap_players_hands(void)
         if (n == 8)
         {
           k = (unsigned char)nspck->param1;
-          spr = &map_hand[k];
+          spr = GetSprite(map_hand, k);
         } else
         if (n == 16)
         {
@@ -1345,16 +1321,16 @@ void draw_netmap_players_hands(void)
             k = 0;
           x = hand_limp_xoffset[k];
           y = hand_limp_yoffset[k];
-          spr = &map_hand[21];
+          spr = GetSprite(map_hand, 21);
         } else
         if (nspck->param1 == SINGLEPLAYER_NOTSTARTED)
         {
             k = LbTimerClock() / 150;
-            spr = &map_hand[1 + (k%8)];
+            spr = GetSprite(map_hand, 1 + (k%8));
         } else
         {
             k = LbTimerClock() / 150;
-            spr = &map_hand[17 + (k%4)];
+            spr = GetSprite(map_hand, 17 + (k%4));
         }
         x += nspck->field_6 - map_info.screen_shift_x - 18;
         y += nspck->field_8 - map_info.screen_shift_y - 25;
@@ -1567,7 +1543,7 @@ void frontmap_unload(void)
     SYNCDBG(8,"Starting");
     set_pointer_graphic_none();
     unload_map_and_window();
-    LbDataFreeAll(map_flag_load_files);
+    DeleteSprites(&map_flag);
     StopAllSamples();
     stop_description_speech();
     StopMusicPlayer();
@@ -1632,7 +1608,7 @@ TbBool frontmap_exchange_screen_packet(void)
     } else
     if (fe_net_level_selected > 0)
     {
-        struct TbSprite* spr = get_map_ensign(1);
+        const struct TbSprite* spr = get_map_ensign(1);
         struct LevelInformation* lvinfo = get_level_info(fe_net_level_selected);
         if (lvinfo != NULL)
         {

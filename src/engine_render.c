@@ -5102,7 +5102,7 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
 {
     struct PlayerInfo *player;
     unsigned short flg_mem;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     long val;
     long ndigits;
     long w;
@@ -5115,7 +5115,7 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     flg_mem = lbDisplay.DrawFlags;
     player = get_my_player();
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
-    spr = &button_sprite[GBS_fontchars_number_dig0];
+    spr = GetSprite(button_sprite, GBS_fontchars_number_dig0);
     w = scale_ui_value(spr->SWidth) * scale_by_zoom;
     h = scale_ui_value(spr->SHeight) * scale_by_zoom;
     if (
@@ -5133,7 +5133,7 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
             pos_x = w*(ndigits-1)/2 + num->x;
             for (val = num->lvl; val > 0; val /= 10)
             {
-                spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
+                spr = GetSprite(button_sprite, (val%10) + GBS_fontchars_number_dig0);
                 LbSpriteDrawScaled(pos_x, num->y - h, spr, w, h);
 
                 pos_x -= w;
@@ -5376,7 +5376,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     int h;
     const struct TbSprite *spr;
     int bs_units_per_px;
-    spr = &button_sprite[GBS_creature_states_cloud];
+    spr = GetSprite(button_sprite, GBS_creature_states_cloud);
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
 
     if (cam->view_mode == PVM_FrontView) {
@@ -5386,7 +5386,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     if ( state_spridx || anger_spridx )
     {
-        spr = &button_sprite[GBS_creature_states_cloud];
+        spr = GetSprite(button_sprite, GBS_creature_states_cloud);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
@@ -5396,7 +5396,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
     {
-        spr = &button_sprite[anger_spridx];
+        spr = GetSprite(button_sprite, anger_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
@@ -5438,7 +5438,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
               h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
           }
-          spr = &button_sprite[GBS_creature_flower_level_01 + exp];
+          spr = GetSprite(button_sprite, GBS_creature_flower_level_01 + exp);
           w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
           h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
           LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
@@ -5460,16 +5460,16 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     flg_mem = lbDisplay.DrawFlags;
     int bar_fill;
     int bar_empty;
-    struct TbSprite *spr;
+    const struct TbSprite *spr;
     int ps_units_per_px;
-    spr = &gui_panel_sprites[303];
+    spr = GetSprite(gui_panel_sprites, 303);
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
     roomst = &game.slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
-    spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
+    spr = GetSprite(gui_panel_sprites, roomst->medsym_sprite_idx);
     LbSpriteDrawResized(x - 2*units_per_px/16, y - 4*units_per_px/16, ps_units_per_px, spr);
     bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH;
     bar_empty = 0;
@@ -9212,7 +9212,7 @@ static void render_sprite_debug_id(struct Thing* thing, long scr_x, long scr_y)
     }
     ushort flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
-    struct TbSprite *spr = &button_sprite[GBS_fontchars_number_dig0];
+    const struct TbSprite *spr = GetSprite(button_sprite, GBS_fontchars_number_dig0);
     long w = scale_ui_value(spr->SWidth);
     long h = scale_ui_value(spr->SHeight);
 
@@ -9227,7 +9227,7 @@ static void render_sprite_debug_id(struct Thing* thing, long scr_x, long scr_y)
     long pos_x = w * (ndigits - 1) / 2 + scr_x;
     for (val = value; val > 0; val /= 10)
     {
-        spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
+        spr = GetSprite(button_sprite, (val%10) + GBS_fontchars_number_dig0);
         LbSpriteDrawScaled(pos_x, scr_y - h, spr, w, h);
 
         pos_x -= w;

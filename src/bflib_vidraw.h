@@ -21,6 +21,7 @@
 #define BFLIB_VIDRAW_H
 
 #include "bflib_video.h"
+#include "bflib_sprite.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -193,14 +194,32 @@ int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,const unsigned 
 TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height);
 TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour);
 int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap);
-#define LbSpriteDrawResized(xpos, ypos, un_per_px, sprite) LbSpriteDrawScaled(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16)
-#define LbSpriteDrawResizedOneColour(xpos, ypos, un_per_px, sprite, colour) LbSpriteDrawScaledOneColour(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16, colour)
-#define LbSpriteDrawResizedRemap(xpos, ypos, un_per_px, sprite, cmap) LbSpriteDrawScaledRemap(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16, cmap)
 
-TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
+static inline TbResult LbSpriteDrawResized(long xpos, long ypos, int un_per_px, const struct TbSprite *sprite)
+{
+    const long width = ((sprite)->SWidth * un_per_px + 8) / 16;
+    const long height = ((sprite)->SHeight * un_per_px + 8) / 16;
+    return LbSpriteDrawScaled(xpos, ypos, sprite, width, height);
+}
+
+static inline TbResult LbSpriteDrawResizedOneColour(long xpos, long ypos, int un_per_px, const struct TbSprite *sprite, TbPixel colour)
+{
+    const long width = ((sprite)->SWidth * un_per_px + 8) / 16;
+    const long height = ((sprite)->SHeight * un_per_px + 8) / 16;
+    return LbSpriteDrawScaledOneColour(xpos, ypos, sprite, width, height, colour);
+}
+
+static inline TbResult LbSpriteDrawResizedRemap(long xpos, long ypos, int un_per_px, const struct TbSprite *sprite, const unsigned char *cmap)
+{
+    const long width = ((sprite)->SWidth * un_per_px + 8) / 16;
+    const long height = ((sprite)->SHeight * un_per_px + 8) / 16;
+    return LbSpriteDrawScaledRemap(xpos, ypos, sprite, width, height, cmap);
+}
+
+TbResult LbHugeSpriteDraw(const struct HugeSprite * spr,
     unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px);
-void LbTiledSpriteDraw(long x, long y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite);
-int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite);
+void LbTiledSpriteDraw(long x, long y, long units_per_px, struct TiledSprite *bigspr, const struct SpriteSheet *);
+int LbTiledSpriteHeight(struct TiledSprite *bigspr, const struct SpriteSheet *);
 
 /******************************************************************************/
 #ifdef __cplusplus

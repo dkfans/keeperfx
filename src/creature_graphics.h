@@ -61,43 +61,43 @@ struct Thing;
 
 struct CreaturePickedUpOffset
 {
-  short delta_x;
-  short delta_y;
-  short field_4;
-  short field_6;
+  int16_t delta_x;
+  int16_t delta_y;
+  int16_t field_4;
+  int16_t field_6;
 };
 
 /**
  * Enhanced TbSprite structure, with additional fields for thing animation sprites.
  */
 struct KeeperSprite { // sizeof = 16
-  unsigned long DataOffset;
+  uint32_t DataOffset;
 #ifdef SPRITE_FORMAT_V2
-  unsigned short SWidth;
-  unsigned short SHeight;
-  unsigned short FrameWidth;
-  unsigned short FrameHeight;
-  unsigned char Rotable;
-  unsigned char FramesCount;
-  unsigned short FrameOffsW;
-  unsigned short FrameOffsH;
+  uint16_t SWidth;
+  uint16_t SHeight;
+  uint16_t FrameWidth;
+  uint16_t FrameHeight;
+  uint8_t Rotable;
+  uint8_t FramesCount;
+  uint16_t FrameOffsW;
+  uint16_t FrameOffsH;
 #else
-  unsigned char SWidth;
-  unsigned char SHeight;
-  unsigned char FrameWidth;
-  unsigned char FrameHeight;
-  unsigned char Rotable;
-  unsigned char FramesCount;
-  unsigned char FrameOffsW;
-  unsigned char FrameOffsH;
+  uint8_t SWidth;
+  uint8_t SHeight;
+  uint8_t FrameWidth;
+  uint8_t FrameHeight;
+  uint8_t Rotable;
+  uint8_t FramesCount;
+  uint8_t FrameOffsW;
+  uint8_t FrameOffsH;
 #endif
-  short offset_x;
-  short offset_y;
+  int16_t offset_x;
+  int16_t offset_y;
 };
 
 struct KeeperSpriteExt // More info for custom sprites
 {
-    unsigned char rotation; // Used to implement rotated statues from rotatable
+    uint8_t rotation; // Used to implement rotated statues from rotatable
 };
 /******************************************************************************/
 //extern unsigned short creature_graphics[][22];

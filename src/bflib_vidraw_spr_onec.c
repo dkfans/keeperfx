@@ -63,7 +63,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataTrans1RL(uchar *outbuf, int scan
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -78,7 +78,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataTrans1RL(uchar *outbuf, int scan
     {
         if (ycurstep[1] != 0)
         {
-            unsigned char *prevdata;
+            const uint8_t *prevdata;
             int xdup;
             int ydup;
             long *xcurstep;
@@ -170,7 +170,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataTrans1LR(uchar *outbuf, int scan
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -185,7 +185,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataTrans1LR(uchar *outbuf, int scan
     {
         if (ycurstep[1] != 0)
         {
-            unsigned char *prevdata;
+            const uint8_t *prevdata;
             int xdup;
             int ydup;
             long *xcurstep;
@@ -277,7 +277,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataTrans2RL(uchar *outbuf, int scan
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -292,7 +292,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataTrans2RL(uchar *outbuf, int scan
     {
         if (ycurstep[1] != 0)
         {
-            unsigned char *prevdata;
+            const uint8_t *prevdata;
             int xdup;
             int ydup;
             long *xcurstep;
@@ -384,7 +384,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataTrans2LR(uchar *outbuf, int scan
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -399,7 +399,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataTrans2LR(uchar *outbuf, int scan
     {
         if (ycurstep[1] != 0)
         {
-            unsigned char *prevdata;
+            const uint8_t *prevdata;
             int xdup;
             int ydup;
             long *xcurstep;
@@ -490,7 +490,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataSolidRL(uchar *outbuf, int scanl
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -613,7 +613,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataSolidLR(uchar *outbuf, int scanl
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -735,7 +735,7 @@ TbResult LbSpriteDrawOneColourUsingScalingDownDataTrans1RL(uchar *outbuf, int sc
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -826,7 +826,7 @@ TbResult LbSpriteDrawOneColourUsingScalingDownDataTrans1LR(uchar *outbuf, int sc
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -917,7 +917,7 @@ TbResult LbSpriteDrawOneColourUsingScalingDownDataTrans2RL(uchar *outbuf, int sc
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -1008,7 +1008,7 @@ TbResult LbSpriteDrawOneColourUsingScalingDownDataTrans2LR(uchar *outbuf, int sc
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -1098,7 +1098,7 @@ TbResult LbSpriteDrawOneColourUsingScalingDownDataSolidRL(uchar *outbuf, int sca
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
@@ -1187,7 +1187,7 @@ TbResult LbSpriteDrawOneColourUsingScalingDownDataSolidLR(uchar *outbuf, int sca
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
-    unsigned char *sprdata;
+    const uint8_t *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;

@@ -2124,7 +2124,7 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
  * @return Gives 0 on success.
  */
 TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int outheight,
-    long *xstep, long *ystep, const struct TbHugeSprite *sprite)
+    long *xstep, long *ystep, const struct HugeSprite *sprite)
 {
     SYNCDBG(17,"Drawing");
     int ystep_delta;
@@ -2137,8 +2137,10 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
     }
     ycurstep = ystep;
 
-    int h;
-    for (h=0; h < sprite->SHeight; h++)
+    uint32_t h;
+    const uint32_t cols = HugeSpriteWidth(sprite);
+    const uint32_t rows = HugeSpriteHeight(sprite);
+    for (h=0; h < rows; h++)
     {
         if (ycurstep[1] != 0)
         {
@@ -2152,7 +2154,7 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
             if (ycurstep[0]+ydup > outheight)
                 ydup = outheight-ycurstep[0];
             xcurstep = xstep;
-            sprdata = &sprite->Data[sprite->Lines[h]];
+            sprdata = HugeSpriteLine(sprite, h);
             TbPixel *out_end;
             out_end = outbuf;
             while (out_end - outbuf < scanline)
@@ -2199,7 +2201,7 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
                 out_end -= xcurstep[0];
                 xcurstep += 2 * pxlen;
                 // In case we've exceeded sprite width, don't try to access xcurstep[] any more
-                if ((xcurstep - xstep)/2 >= sprite->SWidth)
+                if ((xcurstep - xstep)/2 >= cols)
                     break;
                 out_end += xcurstep[0];
             }
@@ -2227,10 +2229,17 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
  * @param yshift Shift of the drawing, Y coord.
  * @return
  */
-TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
+TbResult LbHugeSpriteDraw(const struct HugeSprite * spr,
     unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px)
 {
-    LbSpriteSetScalingData(-scale_value_for_resolution(xshift), -scale_value_for_resolution(yshift), spr->SWidth, spr->SHeight, scale_value_for_resolution(spr->SWidth), scale_value_for_resolution(spr->SHeight));
+    const uint32_t width = HugeSpriteWidth(spr);
+    const uint32_t height = HugeSpriteWidth(spr);
+    LbSpriteSetScalingData(
+        -scale_value_for_resolution(xshift),
+        -scale_value_for_resolution(yshift),
+        width, height,
+        scale_value_for_resolution(width),
+        scale_value_for_resolution(height));
     return LbHugeSpriteDrawUsingScalingUpData(r, r_row_delta, r_height, xsteps_array, ysteps_array, spr);
 }
 
@@ -2243,7 +2252,7 @@ TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
  * @param sprite
  * @note originally named DrawBigSprite()
  */
-void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite)
+void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct TiledSprite *bigspr, const struct SpriteSheet *sprites)
 {
     long x;
     long y;
@@ -2260,11 +2269,11 @@ void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Til
         spr_idx = &bigspr->spr_idx[spnum_y][0];
         for (spnum_x = 0; spnum_x < bigspr->x_num; spnum_x++)
         {
-            delta_x = sprite[*spr_idx].SWidth * units_per_px / 16;
-            delta_y = sprite[*spr_idx].SHeight * units_per_px / 16;
+            delta_x = GetSprite(sprites, *spr_idx)->SWidth * units_per_px / 16;
+            delta_y = GetSprite(sprites, *spr_idx)->SHeight * units_per_px / 16;
             if (*spr_idx)
             {
-                LbSpriteDrawScaled(x, y, &sprite[*spr_idx], delta_x, delta_y);
+                LbSpriteDrawScaled(x, y, GetSprite(sprites, *spr_idx), delta_x, delta_y);
             } else
             {
                 unsigned short *prev_spr_idx;
@@ -2273,7 +2282,7 @@ void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Til
                 for (spnum_p = 1; spnum_p <= spnum_y; spnum_p++)
                 {
                     if (*prev_spr_idx) {
-                        delta_x = sprite[bigspr->spr_idx[(spnum_y - spnum_p)][spnum_x]].SWidth * units_per_px / 16;
+                        delta_x = GetSprite(sprites, bigspr->spr_idx[(spnum_y - spnum_p)][spnum_x])->SWidth * units_per_px / 16;
                         break;
                     }
                     prev_spr_idx -= 10;
@@ -2286,7 +2295,7 @@ void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Til
     }
 }
 
-int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite)
+int LbTiledSpriteHeight(struct TiledSprite *bigspr, const struct SpriteSheet *sprites)
 {
     long height;
     int spnum_y;
@@ -2295,7 +2304,7 @@ int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite)
     {
         unsigned short *spr_idx;
         spr_idx = &bigspr->spr_idx[spnum_y][0];
-        height += sprite[*spr_idx].SHeight;
+        height += GetSprite(sprites, *spr_idx)->SHeight;
     }
     return height;
 }

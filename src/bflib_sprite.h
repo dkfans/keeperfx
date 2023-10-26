@@ -31,31 +31,20 @@ extern "C" {
 /**
  * Type which contains buffer of a sprite, with RLE-encoded alpha channel.
  */
-typedef unsigned char * TbSpriteData;
+typedef uint8_t * TbSpriteData;
 
 struct TbSprite {
-    TbSpriteData Data;
+    const uint8_t * Data;
 #ifdef SPRITE_FORMAT_V2
-    unsigned short SWidth;
-    unsigned short SHeight;
+    uint16_t SWidth;
+    uint16_t SHeight;
 #else
-    unsigned char SWidth;
-    unsigned char SHeight;
+    uint8_t SWidth;
+    uint8_t SHeight;
 #endif
 };
 
-struct TbSetupSprite {
-    struct TbSprite **Start;
-    struct TbSprite **End;
-    TbSpriteData *Data;
-};
-
-struct TbHugeSprite {
-    TbSpriteData Data;  //**< Raw sprite data, with RLE coded transparency.
-    long * Lines;  //**< Index of line starts in the sprite data.
-    unsigned long SWidth;
-    unsigned long SHeight;
-};
+struct HugeSprite;
 
 struct TiledSprite {
     unsigned char x_num;
@@ -64,16 +53,20 @@ struct TiledSprite {
 };
 
 #pragma pack()
+
+struct SpriteSheet;
+
 /******************************************************************************/
-/*
-extern struct TbSetupSprite setup_sprites[];
-extern char mouse_pointer_sprite;
-extern char lang_selection;
-*/
-/******************************************************************************/
-int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
-int LbSpriteClearAll(struct TbSetupSprite t_setup[]);
-short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char * data);
+
+struct SpriteSheet * LoadSprites(const char * basename);
+void DeleteSprites(struct SpriteSheet **);
+const struct TbSprite * GetSprite(const struct SpriteSheet *, size_t index);
+size_t CountSprites(const struct SpriteSheet *);
+struct HugeSprite * LoadHugeSprite(const char * filename, uint32_t width, uint32_t height);
+void DeleteHugeSprite(struct HugeSprite **);
+const uint8_t * HugeSpriteLine(const struct HugeSprite *, int row);
+uint32_t HugeSpriteWidth(const struct HugeSprite *);
+uint32_t HugeSpriteHeight(const struct HugeSprite *);
 
 /******************************************************************************/
 #ifdef __cplusplus

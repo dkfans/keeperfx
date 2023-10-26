@@ -153,7 +153,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
         struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[cstore->model];
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
-        struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+        const struct TbSprite* spr = GetSprite(gui_panel_sprites, spr_idx);
         int x;
         if (MyScreenWidth <= 640)
         {
@@ -171,7 +171,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
             ratio = 3;
         }
         int h = 0;
-        if ((dbc_initialized) && (dbc_enabled)) 
+        if ((dbc_initialized) && (dbc_enabled))
         {
             adjust = 2;
             if (MyScreenHeight < 400)
@@ -284,7 +284,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
         struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[thing->model];
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
-        struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+        const struct TbSprite* spr = GetSprite(gui_panel_sprites, spr_idx);
         int x;
         if (MyScreenWidth <= 640)
         {
@@ -302,7 +302,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
             ratio = 3;
         }
         int h = 0;
-        if ((dbc_initialized) && (dbc_enabled)) 
+        if ((dbc_initialized) && (dbc_enabled))
         {
             adjust = 2;
             if (MyScreenHeight < 400)

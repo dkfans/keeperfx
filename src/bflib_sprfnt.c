@@ -70,7 +70,7 @@ long dbc_colour1 = 0;
 short dbc_language = 0;
 TbBool dbc_initialized = false;
 TbBool dbc_enabled = true;
-const struct TbSprite *lbFontPtr;
+const struct SpriteSheet *lbFontPtr;
 
 static TbGraphicsWindow lbTextJustifyWindow;
 static TbGraphicsWindow lbTextClipWindow;
@@ -1403,7 +1403,7 @@ TbBool change_dbcfont(int nfont)
     return false;
 }
 
-TbBool LbTextSetFont(const struct TbSprite *font)
+TbBool LbTextSetFont(const struct SpriteSheet *font)
 {
     lbFontPtr = font;
     TbBool result = true;
@@ -1470,7 +1470,7 @@ TbBool LbTextSetFont(const struct TbSprite *font)
 
 unsigned char LbTextGetFontFaceColor(void)
 {
-    const struct TbSprite* font = lbFontPtr;
+    const struct SpriteSheet* font = lbFontPtr;
     if (font == frontend_font[0])
     {
       return 238;
@@ -1506,7 +1506,7 @@ unsigned char LbTextGetFontFaceColor(void)
 
 unsigned char LbTextGetFontBackColor(void)
 {
-    const struct TbSprite* font = lbFontPtr;
+    const struct SpriteSheet* font = lbFontPtr;
     if (font == font_sprites)
     {
       return 0;
@@ -1845,7 +1845,7 @@ long LbGetJustifiedCharHeight(long all_lines_height, long spr_height, long lines
  * @note Works only for characters stored in the sprite list.
  *       Multibyte characters are usually stored somewhere else.
  */
-int LbSprFontWordWidth(const struct TbSprite *font,const char *text)
+int LbSprFontWordWidth(const struct SpriteSheet *font,const char *text)
 {
   if ((font == NULL) || (text == NULL))
     return 0;
@@ -1866,7 +1866,7 @@ int LbSprFontWordWidth(const struct TbSprite *font,const char *text)
  * @note Works only for characters stored in the sprite list.
  *       Multibyte characters are usually stored somewhere else.
  */
-int LbSprFontCharWidth(const struct TbSprite *font,const unsigned long chr)
+int LbSprFontCharWidth(const struct SpriteSheet *font,const unsigned long chr)
 {
     const struct TbSprite* spr = LbFontCharSprite(font, chr);
     if (spr == NULL)
@@ -1880,7 +1880,7 @@ int LbSprFontCharWidth(const struct TbSprite *font,const unsigned long chr)
  * @note Works only for characters stored in the sprite list.
  *       Multibyte characters are usually stored somewhere else.
  */
-int LbSprFontCharHeight(const struct TbSprite *font,const unsigned long chr)
+int LbSprFontCharHeight(const struct SpriteSheet *font,const unsigned long chr)
 {
     const struct TbSprite* spr = LbFontCharSprite(font, chr);
     if (spr == NULL)
@@ -1892,13 +1892,14 @@ int LbSprFontCharHeight(const struct TbSprite *font,const unsigned long chr)
  * Returns sprite of a single character in given font.
  * For characters that don't have a sprite, returns NULL.
  */
-const struct TbSprite *LbFontCharSprite(const struct TbSprite *font,const unsigned long chr)
+const struct TbSprite *LbFontCharSprite(const struct SpriteSheet *font,const unsigned long chr)
 {
-  if (font == NULL)
-    return NULL;
-  if ((chr >= 31) && (chr < 256))
-    return &font[(chr-31)];
-  return NULL;
+    if (font == NULL) {
+        return NULL;
+    } else if (chr < 31) {
+        return NULL;
+    }
+    return GetSprite(font, chr - 31);
 }
 
 void dbc_shutdown(void)

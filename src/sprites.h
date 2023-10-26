@@ -734,8 +734,6 @@ enum GUIPanelSprite {
 	GPS_rpanel_rpanel_extra = 547,
 
 	GUI_PANEL_SPRITES_COUNT = 600,
-	GUI_PANEL_SPRITES_NEW = 256,
-	NEW_GUI_PANEL_SPRITES_COUNT = GUI_PANEL_SPRITES_COUNT + GUI_PANEL_SPRITES_NEW,
 };
 
 // Based on frontend-64/filelist_frontbit.txt
@@ -835,6 +833,11 @@ enum GUIFrontendSprite {
 	GFS_slider_horiz_c = 93,
 	GFS_slider_horiz_r = 94,
 	GFS_specicon_voice = 95,
+
+	GUI_FRONTEND_SPRITE_COUNT = 96,
 };
+
+#define FIRST_CUSTOM_SPRITE 600
+#define GUI_PANEL_SPRITES_NEW 256
 
 #endif

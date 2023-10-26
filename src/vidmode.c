@@ -81,19 +81,11 @@ long base_mouse_sensitivity = 256;
 
 static short force_video_mode_reset = true;
 
-struct TbSprite *pointer_sprites;
-struct TbSprite *end_pointer_sprites;
-unsigned char * pointer_data;
-
-struct TbSprite *end_map_font;
-struct TbSprite *end_map_hand;
-TbSpriteData map_font_data;
-TbSpriteData end_map_font_data;
-TbSpriteData map_hand_data;
-TbSpriteData end_map_hand_data;
+struct SpriteSheet *pointer_sprites = NULL;
 struct MapLevelInfo map_info;
 
 int MinimalResolutionSetup;
+int hires_mode = 0;
 
 struct TbColorTables pixmap;
 struct TbAlphaTables alpha_sprite_table;
@@ -101,11 +93,8 @@ unsigned char white_pal[256];
 unsigned char red_pal[256];
 /******************************************************************************/
 
-extern struct TbSetupSprite setup_sprites_minimal[];
-extern struct TbSetupSprite setup_sprites[];
 #if (BFDEBUG_LEVEL > 0)
 // Declarations for font testing screen (debug version only)
-extern struct TbSetupSprite setup_testfont[];
 extern struct TbLoadFiles testfont_load_files[];
 #endif
 
@@ -309,23 +298,38 @@ void set_frontend_vidmode(unsigned short nmode)
 
 void load_pointer_file(short hi_res)
 {
-  struct TbLoadFiles *ldfiles;
+  hires_mode = hi_res;
   if ((features_enabled & Ft_BigPointer) == 0)
   {
-    if (hi_res)
-      ldfiles = pointer_small_load_files_640;
-    else
-      ldfiles = pointer_small_load_files_320;
-  } else
-  {
-    if (hi_res)
-      ldfiles = pointer_load_files_640;
-    else
-      ldfiles = pointer_load_files_320;
+    if (hi_res) {
+#ifdef SPRITE_FORMAT_V2
+      pointer_sprites = LoadSprites("data/pointsm-64");
+#else
+      pointer_sprites = LoadSprites("data/points64");
+#endif
+    } else {
+#ifdef SPRITE_FORMAT_V2
+      pointer_sprites = LoadSprites("data/pointsm-32");
+#else
+      pointer_sprites = LoadSprites("data/points32");
+#endif
+    }
+  } else if (hi_res) {
+#ifdef SPRITE_FORMAT_V2
+    pointer_sprites = LoadSprites("data/pointer-64");
+#else
+    pointer_sprites = LoadSprites("data/pointer64");
+#endif
+  } else {
+#ifdef SPRITE_FORMAT_V2
+    pointer_sprites = LoadSprites("data/pointer-32");
+#else
+    pointer_sprites = LoadSprites("data/pointer32");
+#endif
   }
-  if ( LbDataLoadAll(ldfiles) )
-    ERRORLOG("Unable to load pointer files");
-  LbSpriteSetup(pointer_sprites, end_pointer_sprites, pointer_data);
+  if (pointer_sprites == NULL) {
+     ERRORLOG("Unable to load pointer files");
+  }
 }
 
 TbBool set_pointer_graphic_none(void)
@@ -342,7 +346,7 @@ TbBool set_pointer_graphic_menu(void)
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
-  LbMouseChangeSpriteAndHotspot(&frontend_sprite[GFS_cursor_horny], 0, 0);
+  LbMouseChangeSpriteAndHotspot(GetSprite(frontend_sprite, GFS_cursor_horny), 0, 0);
   return true;
 }
 
@@ -379,12 +383,13 @@ TbBool set_pointer_graphic_spell(long group_idx, long frame)
   }
   else
   {
-      spr = &pointer_sprites[40 + i];
+      spr = GetSprite(pointer_sprites, 40 + i);
       SYNCDBG(8,"Activating pointer %d", 40+i);
-      if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
+      if (spr)
       {
           LbMouseChangeSpriteAndHotspot(spr, x/2, y/2);
-      } else
+      }
+      else
       {
           WARNLOG("Sprite %d exceeds buffer, setting pointer to none",(int)i);
           LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
@@ -412,11 +417,11 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_Pickaxe:
   case MousePG_Query:
   case MousePG_DenyMark:
-      spr = &pointer_sprites[ptr_idx];
+      spr = GetSprite(pointer_sprites, ptr_idx);
       x = 12; y = 15;
       break;
   case MousePG_Sell:
-      spr = &pointer_sprites[ptr_idx];
+      spr = GetSprite(pointer_sprites, ptr_idx);
       x = 17; y = 29;
       break;
   case MousePG_PlaceTrap01:
@@ -455,7 +460,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case 179:
   case 180:
   case 181:
-      spr = &pointer_sprites[ptr_idx];
+      spr = GetSprite(pointer_sprites, ptr_idx);
       x = 12; y = 38;
       break;
   case  MousePG_SpellCharge0:
@@ -467,7 +472,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case  MousePG_SpellCharge6:
   case  MousePG_SpellCharge7:
   case  MousePG_SpellCharge8:
-      spr = &pointer_sprites[ptr_idx];
+      spr = GetSprite(pointer_sprites, ptr_idx);
       x = 20; y = 20;
       break;
   case  MousePG_PlaceRoom01:
@@ -485,13 +490,13 @@ TbBool set_pointer_graphic(long ptr_idx)
   case  MousePG_PlaceRoom13:
   case  MousePG_PlaceRoom14:
   case  MousePG_PlaceRoom15:
-      spr = &pointer_sprites[ptr_idx];
+      spr = GetSprite(pointer_sprites, ptr_idx);
       x = 12; y = 38;
       break;
   case  MousePG_LockMark:
   // 40..144 are spell pointers
   case  MousePG_Unkn47:
-      spr = &pointer_sprites[ptr_idx];
+      spr = GetSprite(pointer_sprites, ptr_idx);
       x = 12; y = 15;
       break;
   case  96:
@@ -502,7 +507,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case 101:
   case 102:
   case 103:
-      spr = &pointer_sprites[ptr_idx];
+      spr = GetSprite(pointer_sprites, ptr_idx);
       x = 12; y = 15;
       break;
   case MousePG_PlaceImpRock:
@@ -517,7 +522,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_MkDigger:
   case MousePG_MkCreature:
   case MousePG_MvCreature:
-      spr = &pointer_sprites[ptr_idx];
+      spr = GetSprite(pointer_sprites, ptr_idx);
       x = 12; y = 38;
       break;
   default:
@@ -531,10 +536,11 @@ TbBool set_pointer_graphic(long ptr_idx)
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
     return false;
   }
-  if ((spr >= pointer_sprites) && (spr < end_pointer_sprites))
+  if (spr)
   {
     LbMouseChangeSpriteAndHotspot(spr, x, y);
-  } else
+  }
+  else
   {
     WARNLOG("Sprite %d exceeds buffer, setting pointer to none",(int)ptr_idx);
     LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
@@ -544,22 +550,8 @@ TbBool set_pointer_graphic(long ptr_idx)
 
 void unload_pointer_file(short hi_res)
 {
-  struct TbLoadFiles *ldfiles;
   set_pointer_graphic_none();
-  if ((features_enabled & Ft_BigPointer) == 0)
-  {
-    if (hi_res)
-      ldfiles = pointer_small_load_files_640;
-    else
-      ldfiles = pointer_small_load_files_320;
-  } else
-  {
-    if (hi_res)
-      ldfiles = pointer_load_files_640;
-    else
-      ldfiles = pointer_load_files_320;
-  }
-  LbDataFreeAll(ldfiles);
+  DeleteSprites(&pointer_sprites);
 }
 
 TbBool init_fades_table(void)
@@ -802,11 +794,41 @@ TbBool update_screen_mode_data(long width, long height)
   calculate_aspect_ratio_factor(width, height);
   first_person_vertical_fov = DEFAULT_FIRST_PERSON_VERTICAL_FOV;
   first_person_horizontal_fov = FOV_based_on_aspect_ratio();
+  DeleteSprites(&button_sprite);
+  DeleteSprites(&gui_panel_sprites);
+  DeleteSprites(&frontend_font[0]);
+  DeleteSprites(&frontend_font[1]);
+  DeleteSprites(&frontend_font[2]);
+  DeleteSprites(&frontend_font[3]);
+  DeleteSprites(&font_sprites);
+  DeleteSprites(&winfont);
 
-  if (MinimalResolutionSetup)
-    LbSpriteSetupAll(setup_sprites_minimal);
-  else
-    LbSpriteSetupAll(setup_sprites);
+  if (MinimalResolutionSetup) {
+#ifdef SPRITE_FORMAT_V2
+    frontend_font[0] = LoadSprites("ldata/frontft1-64");
+    frontend_font[1] = LoadSprites("ldata/frontft2-64");
+    frontend_font[2] = LoadSprites("ldata/frontft3-64");
+    frontend_font[3] = LoadSprites("ldata/frontft4-64");
+#else
+    frontend_font[0] = LoadSprites("ldata/frontft1");
+    frontend_font[1] = LoadSprites("ldata/frontft2");
+    frontend_font[2] = LoadSprites("ldata/frontft3");
+    frontend_font[3] = LoadSprites("ldata/frontft4");
+#endif
+    if (hires_mode) {
+      button_sprite = LoadSprites("data/gui1-32");
+    }
+  } else if (hires_mode) {
+    font_sprites = LoadSprites("data/font1-64");
+    winfont = LoadSprites("data/font2-64");
+    gui_panel_sprites = LoadSprites("data/gui2-64");
+    button_sprite = LoadSprites("data/gui1-64");
+  } else {
+    font_sprites = LoadSprites("data/font1-32");
+    winfont = LoadSprites("data/font2-32");
+    gui_panel_sprites = LoadSprites("data/gui2-32");
+    button_sprite = LoadSprites("data/gui1-32");
+  }
   LbMouseChangeMoveRatio(base_mouse_sensitivity*units_per_pixel/16, base_mouse_sensitivity*units_per_pixel/16);
   LbMouseSetPointerHotspot(0, 0);
   LbScreenSetGraphicsWindow(0, 0, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
@@ -1017,18 +1039,31 @@ TbScreenMode switch_to_next_video_mode(void)
 #if (BFDEBUG_LEVEL > 0)
 TbBool load_testfont_fonts(void)
 {
-  if ( LbDataLoadAll(testfont_load_files) )
-  {
-    ERRORLOG("Unable to load testfont_load_files files");
-    return false;
-  }
-  LbSpriteSetupAll(setup_testfont);
-  return true;
+    if ( LbDataLoadAll(testfont_load_files) )
+    {
+        ERRORLOG("Unable to load testfont_load_files files");
+        return false;
+    }
+    testfont[0] = LoadSprites("ldata/frontft1");
+    testfont[1] = LoadSprites("ldata/frontft2");
+    testfont[2] = LoadSprites("ldata/frontft3");
+    testfont[3] = LoadSprites("ldata/frontft4");
+    testfont[4] = LoadSprites("data/font0-0");
+    testfont[5] = LoadSprites("data/font0-1");
+    testfont[6] = LoadSprites("data/font2-32");
+    testfont[7] = LoadSprites("data/font2-64");
+    testfont[8] = LoadSprites("data/font1-64");
+    testfont[9] = LoadSprites("data/font1-32");
+    testfont[10] = LoadSprites("ldata/netfont");
+    return true;
 }
 
 void free_testfont_fonts(void)
 {
-  LbDataFreeAll(testfont_load_files);
+    for (int i = 0; i < TESTFONTS_COUNT; ++i) {
+        DeleteSprites(&testfont[0]);
+    }
+    LbDataFreeAll(testfont_load_files);
 }
 #endif
 

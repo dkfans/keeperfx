@@ -45,20 +45,14 @@ extern "C" {
 
 struct GuiButton;
 /******************************************************************************/
-extern struct TbSprite gui_panel_sprites[];
-extern int num_icons_total;
-
-extern unsigned char * gui_panel_sprite_data;
-extern unsigned char * end_gui_panel_sprite_data;
+extern struct SpriteSheet *gui_panel_sprites;
+extern int num_custom_sprites;
 
 extern unsigned char *gui_slab;
 
 extern unsigned char *frontend_background;
 
-extern struct TbSprite *frontend_sprite;
-extern struct TbSprite *frontend_end_sprite;
-extern unsigned char * frontend_sprite_data;
-extern unsigned char * frontend_end_sprite_data;
+extern struct SpriteSheet *frontend_sprite;
 
 #pragma pack()
 /******************************************************************************/

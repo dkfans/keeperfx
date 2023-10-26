@@ -190,9 +190,9 @@ TbBool parchment_copy_background_at(const struct TbRect *bkgnd_area, int units_p
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
         img_width*units_per_px/16,img_height*units_per_px/16,bkgnd_area->left,bkgnd_area->top,srcbuf,img_width,img_height);
     // Burning candle flames
-    const struct TbSprite* spr = &button_sprite[GBS_parchment_map_screen_flame_1 + (game.play_gameturn & 3)];
+    const struct TbSprite* spr = GetSprite(button_sprite, GBS_parchment_map_screen_flame_1 + (game.play_gameturn & 3));
     LbSpriteDrawScaled(bkgnd_area->left+(36*units_per_px/(pixel_size << shift)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
-    spr = &button_sprite[GBS_parchment_map_screen_flame_5+(game.play_gameturn & 3)];
+    spr = GetSprite(button_sprite, GBS_parchment_map_screen_flame_5+(game.play_gameturn & 3));
     LbSpriteDrawScaled(bkgnd_area->left+(574*units_per_px/(pixel_size << shift)),(bkgnd_area->top+0*units_per_px/(16*pixel_size)), spr, spr->SWidth*units_per_px/16, spr->SHeight*units_per_px/16);
     return true;
 }
@@ -342,7 +342,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[57];
+        const struct TbSprite* spr = GetSprite(gui_panel_sprites, 57);
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
     long rkind_select = (game.play_gameturn >> 1) % game.slab_conf.room_types_count;
@@ -362,7 +362,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
                 const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
                 if (roomst->medsym_sprite_idx > 0)
                 {
-                    struct TbSprite* spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
+                    const struct TbSprite* spr = GetSprite(gui_panel_sprites, roomst->medsym_sprite_idx);
                     long pos_x = map_area->left + (block_size * room->central_stl_x / STL_PER_SLB) - (spr->SWidth * ps_units_per_px / 16 / 2);
                     long pos_y = map_area->top + (block_size * room->central_stl_y / STL_PER_SLB) - (spr->SHeight * ps_units_per_px / 16 / 2);
                     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_px, spr);
@@ -648,7 +648,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        const struct TbSprite* spr = GetSprite(gui_panel_sprites, 164); // Use dungeon special box as reference
         ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
     }
     struct PlayerInfo* player = get_my_player();
@@ -854,7 +854,7 @@ void draw_zoom_box(void)
     // Draw sprites surrounding the box
     int bs_units_per_px;
     {
-        struct TbSprite* spr = &button_sprite[GBS_parchment_map_frame_deco_b_tl];
+        const struct TbSprite* spr = GetSprite(button_sprite, GBS_parchment_map_frame_deco_b_tl);
         bs_units_per_px = (74 * units_per_pixel) / spr->SWidth;
     }
     LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
@@ -862,10 +862,10 @@ void draw_zoom_box(void)
     int beg_y = scrtop_y - scale_value_for_resolution(24);
     int end_x = scrtop_x - scale_value_for_resolution(46) + draw_tiles_x * subtile_size;
     int end_y = scrtop_y - scale_value_for_resolution(58) + draw_tiles_y * subtile_size;
-    LbSpriteDrawResized(beg_x, beg_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_tl]);
-    LbSpriteDrawResized(end_x, beg_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_tr]);
-    LbSpriteDrawResized(beg_x, end_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_bl]);
-    LbSpriteDrawResized(end_x, end_y, bs_units_per_px, &button_sprite[GBS_parchment_map_frame_deco_b_br]);
+    LbSpriteDrawResized(beg_x, beg_y, bs_units_per_px, GetSprite(button_sprite, GBS_parchment_map_frame_deco_b_tl));
+    LbSpriteDrawResized(end_x, beg_y, bs_units_per_px, GetSprite(button_sprite, GBS_parchment_map_frame_deco_b_tr));
+    LbSpriteDrawResized(beg_x, end_y, bs_units_per_px, GetSprite(button_sprite, GBS_parchment_map_frame_deco_b_bl));
+    LbSpriteDrawResized(end_x, end_y, bs_units_per_px, GetSprite(button_sprite, GBS_parchment_map_frame_deco_b_br));
     // Finish
     LbScreenSetGraphicsWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
