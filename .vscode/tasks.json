@@ -21,9 +21,10 @@
 					"Set-Content -LiteralPath \\\"${workspaceFolder}\\.vscode\\compile_settings.cfg\\\" -Value '${input:debugChoice}';",
 					"Write-Host ('Wrote ${input:debugChoice}' + ' to /.vscode/compile_settings.cfg') -ForegroundColor White;",
 					"if ('${input:debugChoice}' -eq 'DEBUG=1') {",
-					"    Write-Host 'Debug symbols will be included in the next executable you compile. Crash reports will have more information.' -ForegroundColor Green;",
+					"    Write-Host 'Debug symbols will be included in the next executable you compile. Crash reports will have more information.' -ForegroundColor Yellow;",
 					"} else {",
-					"    Write-Host 'Debug symbols will not be included in the next executable you compile. Crash reports will be have less information.' -ForegroundColor Yellow;",					"}"
+					"    Write-Host 'Debug symbols will not be included in the next executable you compile. Crash reports will be have less information.' -ForegroundColor Green;",
+					"}"
 				]
 			},
 			"linux": {
@@ -59,10 +60,15 @@
 					"Write-Host ('Game directory: ' + $gameDir) -ForegroundColor White;",
 					"$debugFlag = '';",
 					"if (Test-Path '${workspaceFolder}\\.vscode\\compile_settings.cfg') {",
-					"    $content = Get-Content '${workspaceFolder}\\.vscode\\compile_settings.cfg' -Raw;",
+					"    $content = (Get-Content '${workspaceFolder}\\.vscode\\compile_settings.cfg' -Raw).Trim();",
 					"    if ($content -eq 'DEBUG=1') {",
 					"        $debugFlag = 'DEBUG=1';",
 					"    }",
+					"}",
+					"if ($debugFlag -eq 'DEBUG=1') {",
+					"    Write-Host 'Compiling with DEBUG=1' -ForegroundColor Yellow;",
+					"} else {",
+					"    Write-Host 'Compiling with DEBUG=0' -ForegroundColor Green;",
 					"}",
 					"wsl make all -j`nproc` $debugFlag;",
 					"if ($?) {",
