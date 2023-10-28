@@ -294,8 +294,8 @@ typedef short FrontendMenuState;
 typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
-/** Holds the return values for the CPU "mark for digging" functions. (see enum ToolDigResults) */
-typedef signed char ToolDigResult;
+/** Either North (0), East (1), South (2), or West (3). (see enum CardinalIndices) */
+typedef signed char CardinalIndex;
 
 /* Stores a 2d coordinate (x,y).
 
@@ -374,6 +374,13 @@ struct CoordDelta3d {
         short num;
         } stl;
     } z;
+};
+
+enum CardinalIndices {
+    CI_NORTH = 0,
+    CI_EAST  = 1,
+    CI_SOUTH = 2,
+    CI_WEST  = 3,
 };
 
 struct Around { // sizeof = 2

@@ -45,7 +45,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, PlayerBitFlag crt_owner_flags);
-static int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
+CardinalIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
 static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flags, long a3, PlayerBitFlag crt_owner_flags);
 static void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *creatng, unsigned short block_flags, int nav_radius);
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, PlayerBitFlag crt_owner_flags);
@@ -59,14 +59,14 @@ const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
 
 /******************************************************************************/
 /**
- * Computes index in small_around[] array which contains coordinates directing towards given destination.
+ * @brief Computes index in small_around[] array which contains coordinates directing towards given destination.
  * @param srcpos_x Source position X; either map coordinates or subtiles, but have to match type of other coords.
  * @param srcpos_y Source position Y; either map coordinates or subtiles, but have to match type of other coords.
  * @param dstpos_x Destination position X; either map coordinates or subtiles, but have to match type of other coords.
  * @param dstpos_y Destination position Y; either map coordinates or subtiles, but have to match type of other coords.
  * @return Index for small_around[] array.
  */
-static int small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
+CardinalIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
 {
     long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI / 4);
     return (i >> 9) & 3;
@@ -189,7 +189,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
         return -1;
     }
 
-    unsigned short quadrant = (((LbArcTanAngle(pos2_stl_x - *pos1_stl_x, pos2_stl_y - *pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
+    CardinalIndex quadrant = (((LbArcTanAngle(pos2_stl_x - *pos1_stl_x, pos2_stl_y - *pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
 
     int v20 = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
     if ((int)abs(v20) <= *delta && hug_can_move_on(
@@ -213,13 +213,13 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
             *hug_val -= *i;
             return 0;
         }
-        int v24 = (*round_idx_plus1_1 + arr_offset_1) & 3;
+        CardinalIndex v24 = (*round_idx_plus1_1 + arr_offset_1) & 3;
         for (unsigned short j = 0;; ++j)
         {
-            int v41 = v24;
+            CardinalIndex v41 = v24;
             if (j >= 4u)
               break;
-            int v25 = v24;
+            CardinalIndex v25 = v24;
             if (hug_can_move_on(
                     creatng,
                     3 * small_around[v25].delta_x + *pos1_stl_x,
@@ -315,7 +315,7 @@ long slab_wall_hug_route(struct Thing *thing, struct Coord3d *pos, long max_val)
         if ((curr_pos.x.stl.num == stl_x) && (curr_pos.y.stl.num == stl_y)) {
             return i + 1;
         }
-        int round_idx = small_around_index_in_direction(curr_pos.x.stl.num, curr_pos.y.stl.num, stl_x, stl_y);
+        CardinalIndex round_idx = small_around_index_in_direction(curr_pos.x.stl.num, curr_pos.y.stl.num, stl_x, stl_y);
         if (hug_can_move_on(thing, curr_pos.x.stl.num, curr_pos.y.stl.num))
         {
             next_pos.x.val = curr_pos.x.val;
@@ -1467,7 +1467,7 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
     targetpos.y.val = subtile_coord_center(stl_y);
     targetpos.z.val = 0;
     long min_dist = LONG_MAX;
-    for (long n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
+    for (CardinalIndex n = 0; n < SMALL_AROUND_SLAB_LENGTH; n++)
     {
         long dx = spacing * (long)small_around[n].delta_x;
         long dy = spacing * (long)small_around[n].delta_y;
@@ -2070,7 +2070,7 @@ static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pla
     return true;
 }
 
-SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside)
+SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, CardinalIndex direction_around, TbBool revside)
 {
     long round_change;
     SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
@@ -2079,7 +2079,7 @@ SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x,
     } else {
       round_change = 3;
     }
-    long round_idx = (direction_around + SMALL_AROUND_LENGTH - round_change) % SMALL_AROUND_LENGTH;
+    CardinalIndex round_idx = (direction_around + SMALL_AROUND_LENGTH - round_change) % SMALL_AROUND_LENGTH;
     for (long i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
         MapSubtlCoord stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
@@ -2096,11 +2096,11 @@ SubtlCodedCoords dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x,
 }
 
 static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y, int dirctn, PlayerNumber plyr_idx,
-    char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, short *round, int *maxdist)
+    char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, CardinalIndex *round, int *maxdist)
 {
     MapSubtlCoord curr_stl_x = *ostl_x;
     MapSubtlCoord curr_stl_y = *ostl_y;
-    unsigned short round_idx = small_around_index_in_direction(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
+    CardinalIndex round_idx = small_around_index_in_direction(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
     int dist = max(abs(curr_stl_x - dst_stl_x), abs(curr_stl_y - dst_stl_y));
     int dx = small_around[round_idx].delta_x;
     int dy = small_around[round_idx].delta_y;
@@ -2146,7 +2146,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
 }
 
 short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y,
-    unsigned short direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y)
+    CardinalIndex direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y)
 {
     SYNCDBG(4,"Starting");
 
@@ -2155,12 +2155,12 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
     char state_a = WaHSS_Val0;
     MapSubtlCoord stl_a_x = src_stl_x;
     MapSubtlCoord stl_a_y = src_stl_y;
-    short round_a = (direction + SMALL_AROUND_LENGTH + 1) % SMALL_AROUND_LENGTH;
+    CardinalIndex round_a = (direction + SMALL_AROUND_LENGTH + 1) % SMALL_AROUND_LENGTH;
     int maxdist_a = dist - 1;
     char state_b = WaHSS_Val0;
     MapSubtlCoord stl_b_x = src_stl_x;
     MapSubtlCoord stl_b_y = src_stl_y;
-    short round_b = (direction + SMALL_AROUND_LENGTH - 1) % SMALL_AROUND_LENGTH;
+    CardinalIndex round_b = (direction + SMALL_AROUND_LENGTH - 1) % SMALL_AROUND_LENGTH;
     int maxdist_b = dist - 1;
 
     // Try moving in both directions

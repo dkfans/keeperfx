@@ -255,7 +255,7 @@ void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab
  * @param dest_y Destination position y coord.
  * @return Index closer to destination.
  */
-unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y)
+CardinalIndex small_around_index_towards_destination(long curr_x, long curr_y, long dest_x, long dest_y)
 {
     long n;
     long i = LbArcTanAngle(dest_x - curr_x, dest_y - curr_y);

@@ -870,7 +870,7 @@ TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const s
     setup_dig_to(&cdig, *startpos, *endpos);
     do
     {
-        dig_result = tool_dig_to_pos2(comp, &cdig, TDM_Simulation, digflags);
+        dig_result = tool_dig_to_pos2(comp, &cdig, true, digflags);
         if (dig_result == TDR_DigSlab)
         {
             // If the slab we've got from digging is safe to walk and connected to original room, use it as starting position

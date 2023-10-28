@@ -873,17 +873,17 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
     return param.num2;
 }
 
-void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos, long a3)
+void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos, long room_area)
 {
     cdig->pos_begin.x.val = pos->x.val;
     cdig->pos_begin.y.val = pos->y.val;
     cdig->pos_begin.z.val = pos->z.val;
-    cdig->subfield_30 = 0;
-    cdig->subfield_34 = 0;
-    cdig->subfield_38 = 0;
-    cdig->subfield_3C = 0;
-    cdig->subfield_40 = a3;
-    cdig->subfield_44 = 0;
+    cdig->number_of_turns_made_in_spiral = 0;
+    cdig->number_of_forward_steps_to_take_before_turning_in_spiral = 0;
+    cdig->number_of_forward_steps_remaining_before_turn_in_spiral = 0;
+    cdig->forward_direction_in_spiral = 0; // start facing NORTH
+    cdig->number_of_slabs_in_room_area = room_area;
+    cdig->number_of_slabs_processed_in_spiral = 0;
     cdig->subfield_2C = 1;
 }
 
@@ -913,15 +913,14 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     struct Coord3d pos;
-    switch((ToolDigResult)tool_dig_to_pos2(comp, &ctask->dig, TDM_ForReal, ToolDig_BasicOnly))
+    switch((ToolDigResult)tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly))
     {
         case TDR_ReachedDestination:
             pos.x.val = ctask->pos_6A.x.val;
             pos.y.val = ctask->pos_6A.y.val;
             pos.z.val = ctask->pos_6A.z.val;
             {
-                long round_directn;
-                round_directn = small_around_index_towards_destination(ctask->pos_6A.x.stl.num,ctask->pos_6A.y.stl.num,
+                CardinalIndex round_directn = small_around_index_towards_destination(ctask->pos_6A.x.stl.num,ctask->pos_6A.y.stl.num,
                     ctask->new_room_pos.x.stl.num,ctask->new_room_pos.y.stl.num);
                 pos_move_in_direction_to_last_allowing_drop(&pos, round_directn, comp->dungeon->owner, ctask->create_room.width+ctask->create_room.height);
             }
@@ -970,7 +969,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
     int i;
     for (i=ctask->dig.subfield_2C; i > 0; i--)
     {
-        if (ctask->dig.subfield_38 > 0)
+        if (ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral > 0)
         {
             if ((stl_x < gameadd.map_subtiles_x) && (stl_y < gameadd.map_subtiles_y))
             {
@@ -994,26 +993,28 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                         }
                     }
                 }
-                ctask->dig.subfield_44++;
-                if (ctask->dig.subfield_44 >= ctask->dig.subfield_40) {
+                ctask->dig.number_of_slabs_processed_in_spiral++;
+                if (ctask->dig.number_of_slabs_processed_in_spiral >= ctask->dig.number_of_slabs_in_room_area)
+                {
                     ctask->ttype = CTT_CheckRoomDug;
                     return 1;
                 }
             }
             const struct MyLookup *lkp;
-            lkp = &lookup[ctask->dig.subfield_3C];
+            lkp = &lookup[ctask->dig.forward_direction_in_spiral];
             stl_x += lkp->delta_x;
             stl_y += lkp->delta_y;
         }
-        ctask->dig.subfield_38--;
-        if (ctask->dig.subfield_38 <= 0)
+        ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral--;
+        if (ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral <= 0)
         {
-            ctask->dig.subfield_30++;
-            if ((ctask->dig.subfield_30 & 1) != 0) {
-                ctask->dig.subfield_34++;
+            ctask->dig.number_of_turns_made_in_spiral++;
+            if (ctask->dig.number_of_turns_made_in_spiral & 1)
+            {
+                ctask->dig.number_of_forward_steps_to_take_before_turning_in_spiral++;
             }
-            ctask->dig.subfield_38 = ctask->dig.subfield_34;
-            ctask->dig.subfield_3C = (ctask->dig.subfield_3C + 1) & 3;
+            ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral = ctask->dig.number_of_forward_steps_to_take_before_turning_in_spiral;
+            ctask->dig.forward_direction_in_spiral = (ctask->dig.forward_direction_in_spiral + 1) & 3; // rotate clockwise
         }
     }
     ctask->dig.pos_begin.x.stl.num = stl_x;
@@ -1163,7 +1164,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     stl_y = ctask->dig.pos_begin.y.stl.num;
     for (i = ctask->dig.subfield_2C; i > 0; i--)
     {
-        if (ctask->dig.subfield_38 > 0)
+        if (ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral > 0)
         {
             if (slab_has_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))) {
                 try_game_action(comp, dungeon->owner, GA_SellTrap, 0, stl_x, stl_y, 1, 0);
@@ -1172,26 +1173,30 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
             {
                 if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, stl_x, stl_y, 1, rkind) > Lb_OK)
                 {
-                    ctask->dig.subfield_44++;
-                    if (ctask->dig.subfield_40 <= ctask->dig.subfield_44) {
+                    ctask->dig.number_of_slabs_processed_in_spiral++;
+                    if (ctask->dig.number_of_slabs_processed_in_spiral >= ctask->dig.number_of_slabs_in_room_area)
+                    {
                         shut_down_task_process(comp, ctask);
                         return 1;
                     }
                 }
             }
             const struct MyLookup *lkp;
-            lkp = &lookup[ctask->dig.subfield_3C];
+            lkp = &lookup[ctask->dig.forward_direction_in_spiral];
             stl_x += lkp->delta_x;
             stl_y += lkp->delta_y;
         }
-        ctask->dig.subfield_38--;
-        if (ctask->dig.subfield_38 <= 0)
+        
+        ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral--;
+        if (ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral <= 0)
         {
-            ctask->dig.subfield_30++;
-            if (ctask->dig.subfield_30 & 1)
-                ctask->dig.subfield_34++;
-            ctask->dig.subfield_38 = ctask->dig.subfield_34;
-            ctask->dig.subfield_3C = (ctask->dig.subfield_3C + 1) & 3;
+            ctask->dig.number_of_turns_made_in_spiral++;
+            if (ctask->dig.number_of_turns_made_in_spiral & 1)
+            {
+                ctask->dig.number_of_forward_steps_to_take_before_turning_in_spiral++;
+            }
+            ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral = ctask->dig.number_of_forward_steps_to_take_before_turning_in_spiral;
+            ctask->dig.forward_direction_in_spiral = (ctask->dig.forward_direction_in_spiral + 1) & 3; // rotate clockwise
         }
     }
     ctask->dig.pos_begin.x.stl.num = stl_x;
@@ -1206,7 +1211,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     dungeon = comp->dungeon;
     struct Room *room;
     ToolDigResult dig_result = TDR_DigSlab;
-    for (int n=0; n < SMALL_AROUND_LENGTH; n++)
+    for (CardinalIndex n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
         MapSubtlCoord stl_x;
         MapSubtlCoord stl_y;
@@ -1225,7 +1230,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     struct ComputerTask *curtask;
     if (dig_result == TDR_DigSlab)
     {
-        dig_result = tool_dig_to_pos2(comp, &ctask->dig, TDM_ForReal, ToolDig_BasicOnly);
+        dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
         add_trap_location_if_requested(comp, ctask, false);
     }
     switch(dig_result)
@@ -1608,7 +1613,7 @@ ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct
     dungeon = comp->dungeon;
     MapSlabCoord nextslb_x;
     MapSlabCoord nextslb_y;
-    long around_index;
+    CardinalIndex around_index;
     ToolDigResult dig_result;
     for (dig_result = TDR_DigSlab; ; dig_result++)
     {
@@ -1682,7 +1687,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
     dungeon = comp->dungeon;
     MapSlabCoord nextslb_x;
     MapSlabCoord nextslb_y;
-    long around_index;
+    CardinalIndex around_index;
     ToolDigResult dig_result;
     for (dig_result = TDR_DigSlab; dig_result < cdig->subfield_2C; dig_result++)
     {
@@ -1744,15 +1749,23 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
 }
 
 /**
- * Tool function to do (or simulate) computer player digging. Get next action on "mark for digging" path.
+ * @brief Tool function to do (or simulate) computer player "mark for digging".
  * 
- * @param comp Computer player which is doing the task.
- * @param cdig The ComputerDig structure to be changed. Should be dummy if simulating.
- * @param simulation Indicates if we're simulating or doing the real thing.
- * @param digflags These are not really flags, but should be changed into flags when all calls to this func are rewritten. Use values from ToolDigFlags enum.
- * @return
+ * The tool finds a path from the start to the destination, and marks any dirt found for digging. 
+ * It will continue to plot a path until it either:
+ * reaches the destination, reaches a slab that requires an action, or hits some sort of error.
+ * This function will be called again if the path was not completed (after any pending action has been completed).
+ *  
+ * @param comp The Computer player that started the task.
+ * @param cdig The ComputerDig structure that will store all of the data for the computer digging task. Should be dummy if simulating.
+ * @param simulation If true: we're only simulating, or if false: we're doing the real thing.
+ * @param dig_flags Signifies what actions are allowed for the current digging task e.g. 
+ *                  whether bridges are allowed to be placed over water or lava, if valuables are allowed to be dug, or if only dirt can be dug. 
+ *                  Uses values from ToolDigFlags enum.
+ * @return Returns a ToolDigResult which is e.g. "Destination Reached", "Slab needs to be marked for digging", "Bridge needs to be built". 
+ *         See enum ToolDigResults for the full list.
  */
-ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name)
+ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags digflags, const char *func_name)
 {
     struct Dungeon *dungeon;
     struct SlabMap *slb;
@@ -1804,8 +1817,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
             return dig_result;
         }
         // If the straight road stopped and we were not able to find anything to dig, check other directions
-        long around_index;
-        around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
+        CardinalIndex around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
         if (dig_result > TDR_DigSlab)
         {
             cdig->pos_begin.x.stl.num = gldstl_x;
@@ -1835,13 +1847,13 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
             cdig->pos_next.y.val = cdig->pos_E.y.val;
             cdig->pos_next.z.val = cdig->pos_E.z.val;
         }
-        cdig->subfield_48++;
-        if ((cdig->subfield_48 > 10) && (cdig->sub4C_stl_x == gldstl_x) && (cdig->sub4C_stl_y == gldstl_y)) {
+        cdig->number_of_failed_actions++;
+        if ((cdig->number_of_failed_actions > COMPUTER_TOOL_FAILED_DIG_LIMIT) && (cdig->last_backwards_step_stl_x == gldstl_x) && (cdig->last_backwards_step_stl_y == gldstl_y)) {
             SYNCDBG(5,"%s: Positions are equal at subtile (%d,%d)",func_name,(int)gldstl_x,(int)gldstl_y);
             return TDR_ToolDigError;
         }
-        cdig->sub4C_stl_x = gldstl_x;
-        cdig->sub4C_stl_y = gldstl_y;
+        cdig->last_backwards_step_stl_x = gldstl_x;
+        cdig->last_backwards_step_stl_y = gldstl_y;
         cdig->distance = get_2d_distance(&cdig->pos_next, &cdig->pos_dest);
         cdig->hug_side = get_hug_side(cdig, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
                            cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner);
@@ -2079,7 +2091,7 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     ToolDigResult dig_result;
     do
     {
-        dig_result = tool_dig_to_pos2(comp, &cdig, TDM_Simulation, ToolDig_BasicOnly);
+        dig_result = tool_dig_to_pos2(comp, &cdig, true, ToolDig_BasicOnly);
         SYNCDBG(5,"retval=%d, dig.distance=%d, dig.calls_count=%d",
             dig_result, cdig.distance, cdig.calls_count);
     } while (dig_result == TDR_DigSlab);
@@ -2167,7 +2179,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
 
-    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, TDM_ForReal, ToolDig_AllowValuable);
+    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_AllowValuable);
 
     add_trap_location_if_requested(comp, ctask, false);
 
@@ -2265,7 +2277,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         }
         add_trap_location_if_requested(comp, ctask, true);
     }
-    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, TDM_ForReal, ToolDig_BasicOnly);
+    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
     switch(dig_result)
     {
         case TDR_ReachedDestination:
@@ -3080,7 +3092,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
 long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, TDM_ForReal, ToolDig_BasicOnly);
+    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
     switch(dig_result)
     {
         case TDR_DigSlab:

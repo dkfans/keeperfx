@@ -56,6 +56,12 @@ extern "C" {
 #define COMPUTER_DIG_ROOM_TIMEOUT 7500
 #define COMPUTER_URGENT_BRIDGE_TIMEOUT 1200
 #define COMPUTER_TOOL_DIG_LIMIT 356
+#define COMPUTER_TOOL_FAILED_DIG_LIMIT 10
+
+/** Holds the return values for the CPU "mark for digging" functions. (see enum ToolDigResults) */
+typedef signed char ToolDigResult;
+/**Flags to enable actions (e.g. dig gold, build bridge) for the CPU player whilst "marking for digging" (see enum ToolDigFlags). */
+typedef signed char DigFlags;
 
 enum ComputerTaskTypes {
     CTT_None = 0,
@@ -138,11 +144,6 @@ enum ToolDigResults {
     TDR_ToolDigError = -2,
     TDR_ReachedDestination = -1,
     TDR_DigSlab = 0,
-};
-
-enum ToolDigModes {
-    TDM_ForReal = 0,
-    TDM_Simulation = 1,
 };
 
 enum CompProcessFlags {
@@ -330,28 +331,26 @@ struct ComputerEventMnemonic {
   char name[16];
   struct ComputerEvent *event;
 };
-
-struct ComputerDig { // sizeof = 78
-    struct Coord3d pos_E;
-    struct Coord3d pos_dest;
-    struct Coord3d pos_begin;
-    struct Coord3d pos_next;
-    long distance;
-    unsigned char hug_side;
-    unsigned char direction_around;
-    unsigned long subfield_2C;
-    long subfield_30;
-    long subfield_34;
-    long subfield_38;
-    long subfield_3C; // dig direction index
-    long subfield_40;
-    long subfield_44; // marked tiles so far
-    long subfield_48;
-    long sub4C_stl_x;
-    long sub4C_stl_y;
-    long calls_count;
-    /** Amount of valuable slabs tagged for digging during this dig process. */
-    long valuable_slabs_tagged;
+struct ComputerDig {
+    struct Coord3d pos_E; // used by dig to position - set to pos_begin when a dig action fails ??
+    struct Coord3d pos_dest; // used by dig to position - the destination
+    struct Coord3d pos_begin; // used by dig to position (the start of the path) and for room dig/place (the centre of the room)
+    struct Coord3d pos_next; // used by dig to position - the next position in the path to check
+    long distance; // used by dig to position - the distance between a given position and the destination
+    unsigned char hug_side; // used by dig to position - the rule to follow when hugging the wall (left-hand rule/side or right-hand rule/side)
+    CardinalIndex direction_around; // used by dig to position - the forwards direction of the path
+    unsigned long subfield_2C; // this is always set to 1... but it's value is used to create a bool test: did action fail
+    long number_of_turns_made_in_spiral; // for room dig/place
+    long number_of_forward_steps_to_take_before_turning_in_spiral; // for room dig/place
+    long number_of_forward_steps_remaining_before_turn_in_spiral; // for room dig/place
+    CardinalIndex forward_direction_in_spiral;  // for room dig/place
+    long number_of_slabs_in_room_area; // for room dig/place
+    long number_of_slabs_processed_in_spiral; // for room dig/place
+    long number_of_failed_actions; // used by dig to position (incremented when gold is found but digflags is 0, or a mark for digging action failed)
+    MapSubtlCoord last_backwards_step_stl_x; // used by dig to position - ?? when a dig action fails, we step backwards, this is this the X coordinate of the slab we stepped back in to
+    MapSubtlCoord last_backwards_step_stl_y; // used by dig to position - ?? when a dig action fails, we step backwards, this is this the Y coordinate of the slab we stepped back in to
+    long calls_count; // used by dig to position
+    long valuable_slabs_tagged; //  used by dig to position - Amount of valuable slabs tagged for digging during this dig process.
 };
 
 struct ComputerTask { // sizeof = 148
@@ -672,7 +671,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
 TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, PlayerNumber victim_plyr_idx, long parent_cproc_idx);
 TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num);
 TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos);
-TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long par1, long gold_lookup_idx);
+TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long count_slabs_to_dig, long gold_lookup_idx);
 TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx);
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
 TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction);
@@ -687,9 +686,9 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
-ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name);
+ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags dig_flags, const char *func_name);
 TbBool add_trap_location_if_requested(struct Computer2 *comp, struct ComputerTask *ctask, TbBool is_task_dig_to_attack);
-#define tool_dig_to_pos2(comp,cdig,simulation,digflags) tool_dig_to_pos2_f(comp,cdig,simulation,digflags,__func__)
+#define tool_dig_to_pos2(comp,cdig,simulation,dig_flags) tool_dig_to_pos2_f(comp,cdig,simulation,dig_flags,__func__)
 #define search_spiral(pos, owner, area_total, cb) search_spiral_f(pos, owner, area_total, cb, __func__)
 int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name);
 /******************************************************************************/
