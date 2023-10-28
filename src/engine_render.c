@@ -671,6 +671,7 @@ static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
     div_h = (der_hp - der_hn) >> 8;
     if (div_v == 0 || div_h == 0)
     {
+        ERRORLOG("Invalid floor value from %d,%d", x, y);
         *floor_x = 0;
         *floor_y = 0;
         return;
