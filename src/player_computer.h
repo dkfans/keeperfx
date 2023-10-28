@@ -517,7 +517,7 @@ struct ComputerTask { // sizeof = 148
         short word_8A;
     } create_room;
     };
-    unsigned short field_8C; /* CProcessId */
+    unsigned short cproc_idx; /* CProcessId */
     long field_8E;
     unsigned short next_task;
 };

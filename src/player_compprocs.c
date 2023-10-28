@@ -276,7 +276,7 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
           ERRORLOG("Process \"%s\" is outside of Computer Player",cproc->name);
           i = COMPUTER_PROCESSES_COUNT;
         }
-        ctask->field_8C = i;
+        ctask->cproc_idx = i;
         shut_down_process(comp, cproc);
         return CProcRet_Finish;
     }
@@ -310,7 +310,7 @@ long computer_setup_any_room_continue(struct Computer2 *comp, struct ComputerPro
           ERRORLOG("Process \"%s\" is outside of Computer Player",cproc->name);
           i = COMPUTER_PROCESSES_COUNT;
         }
-        ctask->field_8C = i;
+        ctask->cproc_idx = i;
         shut_down_process(comp, cproc);
         cproc->flags &= ~ComProc_Unkn0008;
         return CProcRet_Finish;

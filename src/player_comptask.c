@@ -256,7 +256,7 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
 void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct ComputerProcess *cproc;
-    cproc = get_computer_process(comp, ctask->field_8C);
+    cproc = get_computer_process(comp, ctask->cproc_idx);
     if (cproc != NULL)
     {
         struct ComputerProcess *onproc;
@@ -269,7 +269,7 @@ void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
     } 
     else 
     {
-        ERRORLOG("Invalid computer process %d referenced",(int)ctask->field_8C);
+        ERRORLOG("Invalid computer process %d referenced",(int)ctask->cproc_idx);
     }
     remove_task(comp, ctask);
 }
@@ -277,7 +277,7 @@ void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 void suspend_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct ComputerProcess *cproc;
-    cproc = get_computer_process(comp, ctask->field_8C);
+    cproc = get_computer_process(comp, ctask->cproc_idx);
     suspend_process(comp, cproc);
     remove_task(comp, ctask);
 }
@@ -959,7 +959,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
         int digger_tasks;
         digger_tasks = dungeon->digger_stack_length;
         if ((digger_tasks > 0) && (comp->dig_stack_size * dungeon->total_area / 100 <= digger_tasks)) {
-            return 2;
+            return CTaskRet_Unk2;
         }
     }
     MapSubtlCoord stl_x;
@@ -988,7 +988,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                             if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1) <= Lb_OK)
                             {
                                 shut_down_task_process(comp, ctask);
-                                return 0;
+                                return CTaskRet_Unk0;
                             }
                         }
                     }
@@ -997,7 +997,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                 if (ctask->dig.number_of_slabs_processed_in_spiral >= ctask->dig.number_of_slabs_in_room_area)
                 {
                     ctask->ttype = CTT_CheckRoomDug;
-                    return 1;
+                    return CTaskRet_Unk1;
                 }
             }
             const struct MyLookup *lkp;
@@ -1019,7 +1019,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     ctask->dig.pos_begin.x.stl.num = stl_x;
     ctask->dig.pos_begin.y.stl.num = stl_y;
-    return 2;
+    return CTaskRet_Unk2;
 }
 
 /**
@@ -1089,7 +1089,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT) {
         WARNLOG("Task %s couldn't be completed in reasonable time, reset",computer_task_code_name(ctask->ttype));
         restart_task_process(comp, ctask);
-        return 0;
+        return CTaskRet_Unk0;
     }
     long waiting_slabs;
     long wrong_slabs;
@@ -1099,12 +1099,12 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     if (wrong_slabs > 0) {
         WARNLOG("Task %s couldn't be completed as %d wrong slabs are in destination area, reset",computer_task_code_name(ctask->ttype),(int)wrong_slabs);
         restart_task_process(comp, ctask);
-        return 0;
+        return CTaskRet_Unk0;
     }
     if (waiting_slabs > 0) {
         SYNCDBG(9,"The %d/%d tiles around %d,%d are not ready to place room",(int)wrong_slabs,
             (int)ctask->create_room.area, (int)ctask->new_room_pos.x.stl.num, (int)ctask->new_room_pos.y.stl.num);
-        return 4;
+        return CTaskRet_Unk4;
     }
     // The room digging task is complete - change it to room placing task
     if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
@@ -1114,21 +1114,21 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     ctask->ttype = CTT_PlaceRoom;
     setup_computer_dig_room(&ctask->dig, &ctask->new_room_pos, ctask->create_room.area);
-    return 1;
+    return CTaskRet_Unk1;
 }
 
 void shut_down_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct ComputerProcess *cproc;
     SYNCDBG(9,"Starting");
-    cproc = get_computer_process(comp, ctask->field_8C);
+    cproc = get_computer_process(comp, ctask->cproc_idx);
     if (cproc != NULL)
     {
         if ((cproc->flags & ComProc_Unkn0020) != 0) {
             shut_down_process(comp, cproc);
         }
     } else {
-        ERRORLOG("Invalid computer process %d referenced",(int)ctask->field_8C);
+        ERRORLOG("Invalid computer process %d referenced",(int)ctask->cproc_idx);
     }
     if (!computer_task_invalid(ctask)) {
         remove_task(comp, ctask);
@@ -1152,13 +1152,13 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         // Prefer leaving some gold, unless a flag is forcing us to build
         if (((roomst->flags & RoCFlg_BuildTillBroke) == 0) || (roomst->cost >= dungeon->total_money_owned)) {
-            return 0;
+            return CTaskRet_Unk0;
         }
     }
     // If we've lost the ability to build that room - kill the process and remove task (should we really remove task?)
     if (!is_room_available(dungeon->owner, rkind)) {
         shut_down_task_process(comp, ctask);
-        return 1;
+        return CTaskRet_Unk1;
     }
     stl_x = ctask->dig.pos_begin.x.stl.num;
     stl_y = ctask->dig.pos_begin.y.stl.num;
@@ -1177,7 +1177,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
                     if (ctask->dig.number_of_slabs_processed_in_spiral >= ctask->dig.number_of_slabs_in_room_area)
                     {
                         shut_down_task_process(comp, ctask);
-                        return 1;
+                        return CTaskRet_Unk1;
                     }
                 }
             }
@@ -1201,7 +1201,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     ctask->dig.pos_begin.x.stl.num = stl_x;
     ctask->dig.pos_begin.y.stl.num = stl_y;
-    return 0;
+    return CTaskRet_Unk0;
 }
 
 long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -2283,7 +2283,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         case TDR_ReachedDestination:
             {
                 struct ComputerProcess *cproc;
-                cproc = get_computer_process(comp, ctask->field_8C);
+                cproc = get_computer_process(comp, ctask->cproc_idx);
                 cproc->param_5 = computer_task_index(ctask);
                 cproc->func_complete(comp, cproc);
             }
@@ -2298,7 +2298,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
                     remove_task(comp, ctask);
                     {
                         struct ComputerProcess *cproc;
-                        cproc = get_computer_process(comp, ctask->field_8C);
+                        cproc = get_computer_process(comp, ctask->cproc_idx);
                         cproc->param_5 = computer_task_index(ctask);
                         cproc->func_complete(comp, cproc);
                     }
@@ -3255,7 +3255,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
 
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player");
-        return 0;
+        return CTaskRet_Unk0;
     }
     SYNCDBG(19,"Starting for player %d",(int)dungeon->owner);
     if ((ctask->sell_traps_doors.gold_gain <= ctask->sell_traps_doors.gold_gain_limit) && (dungeon->total_money_owned <= ctask->sell_traps_doors.total_money_limit))
@@ -3420,9 +3420,9 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 ctask->sell_traps_doors.items_amount--;
                 if (ctask->sell_traps_doors.items_amount <= 0) {
                     remove_task(comp, ctask);
-                    return 1;
+                    return CTaskRet_Unk1;
                 }
-                return 1;
+                return CTaskRet_Unk1;
             }
         }
         SYNCDBG(9,"Could not sell anything, aborting.");
@@ -3431,7 +3431,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
         SYNCDBG(9,"Initial conditions not met, aborting.");
     }
     remove_task(comp, ctask);
-    return 0;
+    return CTaskRet_Unk0;
 }
 
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos)
@@ -3723,7 +3723,7 @@ TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d st
     ctask->dig_somewhere.endpos.x.val = endpos.x.val;
     ctask->dig_somewhere.endpos.y.val = endpos.y.val;
     ctask->dig_somewhere.endpos.z.val = endpos.z.val;
-    ctask->field_8C = parent_cproc_idx;
+    ctask->cproc_idx = parent_cproc_idx;
     ctask->dig_somewhere.target_plyr_idx = victim_plyr_idx;
     ctask->lastrun_turn = 0;
     ctask->flags |= ComTsk_AddTrapLocation;
@@ -3777,7 +3777,7 @@ TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d star
     ctask->dig_to_gold.endpos.y.val = endpos.y.val;
     ctask->dig_to_gold.endpos.z.val = endpos.z.val;
     ctask->dig_to_gold.slabs_dig_count = count_slabs_to_dig;
-    ctask->field_8C = parent_cproc_idx;
+    ctask->cproc_idx = parent_cproc_idx;
     ctask->dig_to_gold.target_lookup_idx = gold_lookup_idx;
     // Setup the digging
     setup_dig_to(&ctask->dig, startpos, endpos);
@@ -3806,7 +3806,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     ctask->dig_to_room.endpos.x.val = endpos.x.val;
     ctask->dig_to_room.endpos.y.val = endpos.y.val;
     ctask->dig_to_room.endpos.z.val = endpos.z.val;
-    ctask->field_8C = parent_cproc_idx;
+    ctask->cproc_idx = parent_cproc_idx;
     ctask->dig_to_room.target_room_idx = entroom_idx;
     // Setup the digging
     setup_dig_to(&ctask->dig, startpos, endpos);
