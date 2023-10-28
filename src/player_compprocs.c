@@ -883,7 +883,7 @@ TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const s
             }
             (*dig_distance)++;
         }
-    } while (dig_result != TDR_DigSlab);
+    } while (dig_result == TDR_DigSlab);
 
     switch(dig_result)
     {
