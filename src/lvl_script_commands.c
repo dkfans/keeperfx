@@ -3450,9 +3450,9 @@ static void hide_hero_gate_check(const struct ScriptLine* scline)
 static void hide_hero_gate_process(struct ScriptContext* context)
 {
     struct Thing* thing = find_hero_gate_of_number(context->value->bytes[0]);
-
     if (context->value->bytes[1])
     {
+        light_turn_light_off(thing->light_id);
         create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
         place_thing_in_creature_controlled_limbo(thing);
     }
@@ -3460,6 +3460,7 @@ static void hide_hero_gate_process(struct ScriptContext* context)
     {
         create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
         remove_thing_from_creature_controlled_limbo(thing);
+        light_turn_light_on(thing->light_id);
     }
 }
 
