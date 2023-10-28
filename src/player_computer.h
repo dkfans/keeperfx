@@ -410,7 +410,7 @@ struct ComputerTask { // sizeof = 148
         struct Coord3d pos_70;
         struct Coord3d target_pos;
         long repeat_num;
-        long long_80;
+        long long_80; // unused
         short field_84;
         short word_86;
         long field_88;
@@ -511,7 +511,7 @@ struct ComputerTask { // sizeof = 148
         struct Coord3d endpos;
         short width;
         short height;
-        long long_80;
+        RoomKind kind;
         short word_84;
         long area;
         short word_8A;
