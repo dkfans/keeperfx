@@ -133,8 +133,7 @@ enum GameActionTypes {
 enum ToolDigFlags {
     ToolDig_BasicOnly = 0x00, /**< Allows to dig only through basic earth slabs. */
     ToolDig_AllowValuable = 0x01, /**< Allows to dig through valuable slabs. */
-    ToolDig_AllowLiquidWBridge = 0x02, /**< Allows to dig through liquid slabs, if only player has ability to build bridges through them.
-                                            Also allows to dig through valuable slabs(which should be later changed)). */
+    ToolDig_AllowLiquidWBridge = 0x02, /**< Allows to dig through liquid slabs, if only player has ability to build bridges through them. */
 };
 
 // These are the possible return values for the CPU player's "mark for digging" functions
@@ -688,9 +687,9 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
-ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags dig_flags, const char *func_name);
+ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags digflags, const char *func_name);
 TbBool add_trap_location_if_requested(struct Computer2 *comp, struct ComputerTask *ctask, TbBool is_task_dig_to_attack);
-#define tool_dig_to_pos2(comp,cdig,simulation,dig_flags) tool_dig_to_pos2_f(comp,cdig,simulation,dig_flags,__func__)
+#define tool_dig_to_pos2(comp,cdig,simulation,digflags) tool_dig_to_pos2_f(comp,cdig,simulation,digflags,__func__)
 #define search_spiral(pos, owner, area_total, cb) search_spiral_f(pos, owner, area_total, cb, __func__)
 int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name);
 /******************************************************************************/

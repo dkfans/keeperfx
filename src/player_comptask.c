@@ -1606,7 +1606,7 @@ short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoor
     return ((stl2_x+stl2_y)>>1)%2;
 }
 
-ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Computer2 * comp, struct ComputerDig * cdig, unsigned short digflags,
+ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Computer2 * comp, struct ComputerDig * cdig, DigFlags digflags,
     MapSubtlCoord *nextstl_x, MapSubtlCoord *nextstl_y, const char *func_name)
 {
     struct Dungeon *dungeon;
@@ -1680,7 +1680,7 @@ ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct
  * @param nextstl_y
  * @param func_name
  */
-ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags,
+ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags digflags,
     MapSubtlCoord *nextstl_x, MapSubtlCoord *nextstl_y, const char *func_name)
 {
     struct Dungeon *dungeon;
@@ -1702,7 +1702,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
         if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS)
           || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
         {
-            if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || (digflags == 0) ) {
+            if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || (digflags == ToolDig_BasicOnly) ) {
                 break;
             }
         }
@@ -1712,7 +1712,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
                 ERRORLOG("%s: Could not do game action at subtile (%d,%d)",func_name,(int)*nextstl_x,(int)*nextstl_y);
                 break;
             }
-            if (digflags != 0)
+            if (digflags & ToolDig_AllowValuable)
             {
                 if ((slbattr->block_flags & SlbAtFlg_Valuable) != 0) {
                     cdig->valuable_slabs_tagged++;
@@ -1759,7 +1759,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
  * @param comp The Computer player that started the task.
  * @param cdig The ComputerDig structure that will store all of the data for the computer digging task. Should be dummy if simulating.
  * @param simulation If true: we're only simulating, or if false: we're doing the real thing.
- * @param dig_flags Signifies what actions are allowed for the current digging task e.g. 
+ * @param digflags Signifies what actions are allowed for the current digging task e.g. 
  *                  whether bridges are allowed to be placed over water or lava, if valuables are allowed to be dug, or if only dirt can be dug. 
  *                  Uses values from ToolDigFlags enum.
  * @return Returns a ToolDigResult which is e.g. "Destination Reached", "Slab needs to be marked for digging", "Bridge needs to be built". 

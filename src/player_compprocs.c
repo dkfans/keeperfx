@@ -861,7 +861,7 @@ TbBool right_time_to_choose_target_entrance(struct ComputerProcess *cproc, long 
  * @param dig_distance Value which is increased by the amount of slabs travelled.
  * @param digflags Digging flags to be used.
  */
-TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const struct Coord3d *endpos, unsigned long *dig_distance, unsigned short digflags)
+TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const struct Coord3d *endpos, unsigned long *dig_distance, DigFlags digflags)
 {
     struct Dungeon* dungeon = comp->dungeon;
     struct ComputerDig cdig;
