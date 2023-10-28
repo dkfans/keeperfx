@@ -649,6 +649,8 @@ static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
     long long der_hn;
     long long der_vp;
     long long der_vn;
+    long long div_v;
+    long long div_h;
     if ( (vert_offset[1] == 0) && (hori_offset[1] == 0) )
     {
         *floor_x = 0;
@@ -665,8 +667,16 @@ static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
     sor_hn = (((long long)hori_offset[0] * ofs_y) / 2LL);
     der_hp = ((long long)vert_offset[0] * (long long)hori_offset[1]) / 8LL;
     der_hn = ((long long)hori_offset[0] * (long long)vert_offset[1]) / 8LL;
-    *floor_y = ((sor_vp-sor_vn) / ((der_vp-der_vn)>>8)) >> 2;
-    *floor_x = ((sor_hp-sor_hn) / ((der_hp-der_hn)>>8)) >> 2;
+    div_v = (der_vp - der_vn) >> 8;
+    div_h = (der_hp - der_hn) >> 8;
+    if (div_v == 0 || div_h == 0)
+    {
+        *floor_x = 0;
+        *floor_y = 0;
+        return;
+    }
+    *floor_y = ((sor_vp - sor_vn) / div_v) >> 2;
+    *floor_x = ((sor_hp - sor_hn) / div_h) >> 2;
 }
 
 static long compute_cells_away(void) // For overhead view, not for 1st person view
