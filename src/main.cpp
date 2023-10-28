@@ -4026,10 +4026,6 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
       } else
-      if (strcasecmp(parstr,"columnconvert") == 0)
-      {
-         set_flag_byte(&start_params.operation_flags,GOF_ColumnConvert,true);
-      } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
          set_flag_byte(&start_params.operation_flags,GOF_LightConvert,true);

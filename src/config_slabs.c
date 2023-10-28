@@ -35,6 +35,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 const char keeper_slabset_file[]="slabset.cfg";
+const char keeper_columns_file[]="columns.cfg";
 /******************************************************************************/
 typedef struct VALUE VALUE;
 const struct NamedCommand slab_styles_commands[] = {
@@ -146,7 +147,97 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
     return true;
 }
 
+TbBool load_columns_config_file(const char *textname, const char *fname, unsigned short flags,struct Column *cols,long *ccount)
+{
+    VALUE file_root;
+    
+    if (!load_toml_file(textname, fname,&file_root))
+        return false;
 
+    VALUE *common_section = value_dict_get(&file_root, "common");
+    if (!common_section)
+    {
+        WARNMSG("No [common] in %s for file %d", textname, fname);
+        value_fini(&file_root);
+        return false;
+    }
+
+    long count = value_int32(value_dict_get(common_section, "ColumnsCount"));
+    JUSTLOG("count %d",count);
+    if (count > *ccount)
+    {
+        *ccount = count;
+    }
+    if (*ccount > COLUMNS_COUNT)
+    {
+        ERRORLOG("more columns then allowed in %s %d/%d",textname,*ccount,COLUMNS_COUNT);
+        *ccount = COLUMNS_COUNT;
+    }
+
+    char key[64];
+    VALUE *section;
+    // Create sections
+
+
+    JUSTLOG("ccount %d",*ccount);
+
+    for (int col_no = 0; col_no < *ccount; col_no++)
+    {
+       
+        {
+            sprintf(key, "column%d", col_no);
+            section = value_dict_get(&file_root, key);
+        }
+        if (value_type(section) != VALUE_DICT)
+        {
+            WARNMSG("Invalid column section %d", col_no);
+        }
+        else
+        {
+            unsigned char bitfields = 0;
+            TbBool permanent = value_int32(value_dict_get(section, "Permanent"));
+            if (permanent > 1)
+            {
+                ERRORLOG("invalid Utilized (%d) for column %d",permanent,col_no);
+                continue;
+            }
+            bitfields |= permanent;
+
+            char Lintel = value_int32(value_dict_get(section, "Lintel"));
+            if (Lintel > 7 || Lintel < 0)
+            {
+                ERRORLOG("invalid Lintel (%d) for column %d",Lintel,col_no);
+                continue;
+            }
+            Lintel <<= 1;
+            bitfields |= Lintel;
+
+            char floorHeight = value_int32(value_dict_get(section, "Height"));
+            if (floorHeight > COLUMN_STACK_HEIGHT || floorHeight < 0)
+            {
+                ERRORLOG("invalid floorHeight (%d) for column %d",floorHeight,col_no);
+                continue;
+            }
+            floorHeight <<= 4;
+            bitfields |= floorHeight;
+
+            cols[col_no].use = value_int32(value_dict_get(section, "Utilized"));
+            cols[col_no].bitfields = bitfields;
+            cols[col_no].solidmask = value_int32(value_dict_get(section, "SolidMask"));
+            cols[col_no].baseblock = value_int32(value_dict_get(section, "FloorTexture"));
+            cols[col_no].orient = value_int32(value_dict_get(section, "Orientation"));
+
+            VALUE *Cubes_arr = value_dict_get(section, "Cubes");
+            for (size_t cube_no = 0; cube_no < COLUMN_STACK_HEIGHT; cube_no++)
+            {
+                cols[col_no].cubes[cube_no] = value_int32(value_array_get(Cubes_arr, cube_no));
+            }
+        }
+    }
+    value_fini(&file_root);
+    
+    return true;
+}
 
 
 TbBool load_slabset_config(const char *conf_fname,unsigned short flags)
@@ -161,6 +252,22 @@ TbBool load_slabset_config(const char *conf_fname,unsigned short flags)
         load_slabset_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
+    return result;
+}
+
+TbBool load_columns_config(const char *conf_fname,unsigned short flags,struct Column *cols,long *ccount)
+{
+    static const char config_global_textname[] = "global columns config";
+    static const char config_campgn_textname[] = "campaign columns config";
+    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    TbBool result = load_columns_config_file(config_global_textname, fname, flags,cols,ccount);
+    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_columns_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors,cols,ccount);
+    }
+    //Freeing and exiting
+
     return result;
 }
 
