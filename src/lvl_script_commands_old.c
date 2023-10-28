@@ -722,7 +722,7 @@ static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, lon
     command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
 }
 
-static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6)
+static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6, long val7)
 {
   int plr_start;
   int plr_end;
@@ -747,6 +747,10 @@ static void command_set_computer_globals(long plr_range_id, long val1, long val2
     comp->max_room_build_tasks = val4;
     comp->turn_begin           = val5;
     comp->sim_before_dig       = val6;
+    if (val7 != '\0')
+    {
+        comp->task_delay = val7;
+    }
   }
 }
 
@@ -1786,7 +1790,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_if_slab_type(scline->np[0], scline->np[1], scline->np[2]);
         break;
     case Cmd_SET_COMPUTER_GLOBALS:
-        command_set_computer_globals(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
+        command_set_computer_globals(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6], scline->np[7]);
         break;
     case Cmd_SET_COMPUTER_CHECKS:
         command_set_computer_checks(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
