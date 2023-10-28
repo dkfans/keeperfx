@@ -63,6 +63,8 @@ typedef signed char ToolDigResult;
 /**Flags to enable actions (e.g. dig gold, build bridge) for the CPU player whilst "marking for digging" (see enum ToolDigFlags). */
 typedef signed char DigFlags;
 
+#define COMPUTER_REDROP_DELAY 80
+
 enum ComputerTaskTypes {
     CTT_None = 0,
     CTT_DigRoomPassage,
@@ -371,7 +373,7 @@ struct ComputerTask { // sizeof = 148
         };
     };
     long lastrun_turn;
-    long field_60;
+    long delay;
     struct Coord3d new_room_pos;
     struct Coord3d pos_6A;
     union {
@@ -541,7 +543,7 @@ struct Computer2 { // sizeof = 5322
   unsigned long model;
   unsigned long turn_begin;
   unsigned long max_room_build_tasks;
-  unsigned long field_34;
+  unsigned long task_delay;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
   union
   {

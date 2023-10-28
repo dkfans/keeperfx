@@ -138,6 +138,7 @@ const struct NamedCommand conf_commands[] = {
   {"DELTA_TIME"                    , 25},
   {"CREATURE_STATUS_SIZE"          , 26},
   {"MAX_ZOOM_DISTANCE"             , 27},
+  {"DISPLAY_NUMBER"                , 28},
   {NULL,                   0},
   };
 
@@ -1085,6 +1086,17 @@ short load_configuration(void)
               if (i > 100) {i = 100;}
               zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)i/100.0);
               frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)i/100.0);
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 28: // DISPLAY_NUMBER
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              display_number = i;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }

@@ -635,6 +635,7 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
         from_plyr_idx = game.neutral_player_num;
     struct Room* near_entroom = NULL;
     struct Coord3d* near_startpos = NULL;
+    struct Coord3d locpos;
     long near_dist = LONG_MAX;
     *retroom = NULL;
     long i;
@@ -667,7 +668,6 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
             if (!room_is_invalid(nearoom) && (dist < near_dist)) {
                 near_dist = dist;
                 near_entroom = entroom;
-                struct Coord3d locpos;
                 near_startpos = &locpos;
                 locpos.x.val = subtile_coord_center(nearoom->central_stl_x);
                 locpos.y.val = subtile_coord_center(nearoom->central_stl_y);
