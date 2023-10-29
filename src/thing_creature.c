@@ -2588,12 +2588,10 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
-    struct Thing* deadtng = NULL;
     if ((flags & CrDed_NotReallyDying) == 0)
     {
         EVM_CREATURE_EVENT("died", creatng->owner, creatng);
     }
-    struct Dungeon* dungeon = INVALID_DUNGEON;
     cleanup_creature_state_and_interactions(creatng);
     if (!thing_is_invalid(killertng))
     {
@@ -2618,9 +2616,7 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     if (creature_affected_by_spell(creatng, SplK_Rebound)) {
         terminate_thing_spell_effect(creatng, SplK_Rebound);
     }
-    if (!is_neutral_thing(creatng)) {
-        dungeon = get_players_num_dungeon(creatng->owner);
-    }
+    struct Dungeon* dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
     if (!dungeon_invalid(dungeon))
     {
         if ((flags & CrDed_DiedInBattle) != 0) {
@@ -2634,8 +2630,7 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
         if ((flags & CrDed_NoEffects) && ((creatng->alloc_flags & TAlF_IsControlled) != 0)) {
             prepare_to_controlled_creature_death(creatng);
         }
-        deadtng = cause_creature_death(creatng, flags);
-        return deadtng;
+        return cause_creature_death(creatng, flags);
     }
     // Now we are sure that killertng and dungeon pointers are correct
     if (creatng->owner == killertng->owner)
@@ -2683,8 +2678,7 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
         (get_creature_model_flags(creatng) & CMF_NoImprisonment) )
     {
         if ((flags & CrDed_NoEffects) == 0) {
-            deadtng = cause_creature_death(creatng, flags);
-            return deadtng;
+            return cause_creature_death(creatng, flags);
         }
     }
     if ((flags & CrDed_NoEffects) != 0)
@@ -2692,12 +2686,11 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
         if ((creatng->alloc_flags & TAlF_IsControlled) != 0) {
             prepare_to_controlled_creature_death(creatng);
         }
-        deadtng = cause_creature_death(creatng, flags);
-        return deadtng;
+        return cause_creature_death(creatng, flags);
     }
     make_creature_unconscious(creatng);
     creatng->health = 1;
-    return deadtng;
+    return INVALID_THING;
 }
 
 void process_creature_standing_on_corpses_at(struct Thing *creatng, struct Coord3d *pos)
