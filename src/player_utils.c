@@ -1131,7 +1131,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Computer2* comp = get_computer_player(plyr_idx);
     if (!computer_player_invalid(comp))
     {
-        add_to_trap_location(comp, &pos);
+        add_to_trap_locations(comp, &pos);
     }
     return true;
 }
@@ -1167,7 +1167,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     { // Add the trap location to related computer player, in case we'll want to place a trap again
         struct Computer2* comp = get_computer_player(plyr_idx);
         if (!computer_player_invalid(comp)) {
-            add_to_trap_location(comp, &pos);
+            add_to_trap_locations(comp, &pos);
         }
     }
     return true;

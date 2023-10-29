@@ -180,7 +180,7 @@ enum CompCheckFlags {
 enum CompTaskFlags {
     ComTsk_Unkn0001 = 0x0001, /** task is disabled**/
     ComTsk_Unkn0002 = 0x0002,
-    ComTsk_AddTrapLocation = 0x0004,
+    ComTsk_AddTrapLocation = 0x0004, // if enabled, dug slabs will be added to the computer's list of potential trap positions
     ComTsk_Unkn0008 = 0x0008,
     ComTsk_Unkn0010 = 0x0010,
     ComTsk_Unkn0020 = 0x0020,
@@ -639,7 +639,7 @@ void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const
 long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);
 long move_imp_to_mine_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);
 void get_opponent(struct Computer2 *comp, struct THate hate[]);
-long add_to_trap_location(struct Computer2 *, struct Coord3d *);
+long add_to_trap_locations(struct Computer2 *, struct Coord3d *);
 /******************************************************************************/
 long set_next_process(struct Computer2 *comp);
 void computer_check_events(struct Computer2 *comp);

@@ -887,28 +887,6 @@ void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos
     cdig->subfield_2C = 1;
 }
 
-TbBool add_trap_location_if_requested(struct Computer2 *comp, struct ComputerTask *ctask, TbBool is_task_dig_to_attack)
-{
-    if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
-    {
-        if (is_task_dig_to_attack)
-        {
-            ctask->lastrun_turn++;
-            if (ctask->lastrun_turn > 5)
-            {
-                ctask->flags &= ~ComTsk_AddTrapLocation;
-            }
-        }
-        else
-        {
-            ctask->flags &= ~ComTsk_AddTrapLocation;
-        }
-        add_to_trap_location(comp, &ctask->dig.pos_next);
-        return true;
-    }
-    return false;
-}
-
 long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
@@ -932,7 +910,12 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
             ctask->ttype = CTT_DigRoom;
             return CTaskRet_Unk1;
         case TDR_DigSlab:
-            add_trap_location_if_requested(comp, ctask, false);
+            if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
+            {
+                // if the AddTrapLocation flag is set: add the dug slab to the list of potential trap locations
+                add_to_trap_locations(comp, &ctask->dig.pos_next);
+                ctask->flags &= ~ComTsk_AddTrapLocation; // only add the first dug slab to the list
+            }
             return CTaskRet_Unk2;
         case TDR_DestroyWallOnSlab:
         case TDR_BuildBridgeOnSlab:
@@ -1231,7 +1214,12 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     if (dig_result == TDR_DigSlab)
     {
         dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
-        add_trap_location_if_requested(comp, ctask, false);
+        if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
+        {
+            // if the AddTrapLocation flag is set: add the dug slab to the list of potential trap locations
+            add_to_trap_locations(comp, &ctask->dig.pos_next);
+            ctask->flags &= ~ComTsk_AddTrapLocation; // only add the first dug slab to the list
+        }
     }
     switch(dig_result)
     {
@@ -1981,8 +1969,8 @@ int find_trap_location_index(const struct Computer2 * comp, const struct Coord3d
     }
     return -1;
 }
-
-long add_to_trap_location(struct Computer2 * comp, struct Coord3d * coord)
+/** @brief add a position to the computer player's list of potential trap locations (the trap_locations[] array) */
+long add_to_trap_locations(struct Computer2 * comp, struct Coord3d * coord)
 {
     SYNCDBG(6,"Starting");
     // Avoid duplicating entries
@@ -2181,7 +2169,12 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_AllowValuable);
 
-    add_trap_location_if_requested(comp, ctask, false);
+    if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
+    {
+        // if the AddTrapLocation flag is set: add the dug slab to the list of potential trap locations
+        add_to_trap_locations(comp, &ctask->dig.pos_next);
+        ctask->flags &= ~ComTsk_AddTrapLocation; // only add the first dug slab to the list
+    }
 
     if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.slabs_dig_count)
     {
@@ -2275,7 +2268,16 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         if (slabmap_owner(slb) != comp->dungeon->owner) {
             return CTaskRet_Unk4;
         }
-        add_trap_location_if_requested(comp, ctask, true);
+        if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
+        {
+            // if the AddTrapLocation flag is set: add the dug slab to the list of potential trap locations
+            add_to_trap_locations(comp, &ctask->dig.pos_next);
+            ctask->lastrun_turn++;
+            if (ctask->lastrun_turn > 5)
+            {
+                ctask->flags &= ~ComTsk_AddTrapLocation;  // add the first 5 dug slabs to the list
+            }
+        }
     }
     ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
     switch(dig_result)
@@ -3099,10 +3101,16 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
     switch(dig_result)
     {
         case TDR_DigSlab:
-            add_trap_location_if_requested(comp, ctask, false);
+            if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
+            {
+                // if the AddTrapLocation flag is set: add the dug slab to the list of potential trap locations
+                add_to_trap_locations(comp, &ctask->dig.pos_next);
+                ctask->flags &= ~ComTsk_AddTrapLocation; // only add the first dug slab to the list
+            }
             return CTaskRet_Unk0;
         case TDR_DestroyWallOnSlab:
         case TDR_BuildBridgeOnSlab:
+            // make the task a "wait for bridge" task, and park the dig task
             ctask->ottype = ctask->ttype;
             ctask->ttype = CTT_WaitForBridge;
             return CTaskRet_Unk4;
@@ -3110,10 +3118,9 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
         case TDR_CallCountExceeded:
         case TDR_FailedToReachDestination:
         case TDR_ToolDigError:
-            suspend_task_process(comp,ctask);
-            return dig_result;
         default:
-            // can't get here
+            // end the task
+            suspend_task_process(comp,ctask);
             return dig_result;
     }
 }
@@ -3360,7 +3367,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             struct Coord3d pos;
                             set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
                             create_price_effect(&pos, dungeon->owner, value);
-                            add_to_trap_location(comp, &pos);
+                            add_to_trap_locations(comp, &pos);
                             SYNCDBG(4,"Placed door at (%d,%d) sold for %d gold by player %d",(int)stl_x,(int)stl_y,(int)value,(int)dungeon->owner);
                         } else
                         {
@@ -3396,7 +3403,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             struct Coord3d pos;
                             set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
                             create_price_effect(&pos, dungeon->owner, value);
-                            add_to_trap_location(comp, &pos);
+                            add_to_trap_locations(comp, &pos);
                             SYNCDBG(4,"Placed traps at (%d,%d) sold for %d gold by player %d",(int)stl_x,(int)stl_y,(int)value,(int)dungeon->owner);
                         } else
                         {
