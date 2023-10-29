@@ -1319,7 +1319,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     // The check with 0x02 flag identifies end of active checks
     // (the check with 0x02 flag is invalid - only previous checks are in use)
     //newchk = &comp->checks[i];
-    newchk->flags |= ComTsk_Unkn0002;
+    newchk->flags |= ComChk_Unkn0002;
 
     for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
