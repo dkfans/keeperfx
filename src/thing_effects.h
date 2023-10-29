@@ -338,11 +338,7 @@ long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, M
     HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type);
     
 TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner);
-    
-TbBool timebomb_explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner);
-    
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner);    
 /******************************************************************************/
 #ifdef __cplusplus
 }
