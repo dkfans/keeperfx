@@ -136,12 +136,12 @@ enum ToolDigFlags {
     ToolDig_AllowLiquidWBridge = 0x02, /**< Allows to dig through liquid slabs, if only player has ability to build bridges through them. */
 };
 
-// These are the possible return values for the CPU player's "mark for digging" functions
+/** These are the possible return values for the CPU player's "mark for digging" functions */
 enum ToolDigResults {
-    TDR_DestroyWallOnSlab = -6, // prospective and unused
+    TDR_DestroyWallOnSlab = -6, /**< prospective and unused */
     TDR_BuildBridgeOnSlab = -5,
-    TDR_CallCountExceeded = -4, // prospective and unused
-    TDR_FailedToReachDestination = -3, // prospective and unused
+    TDR_CallCountExceeded = -4, /**< prospective and unused */
+    TDR_FailedToReachDestination = -3, /**< prospective and unused */
     TDR_ToolDigError = -2,
     TDR_ReachedDestination = -1,
     TDR_DigSlab = 0,
@@ -149,11 +149,11 @@ enum ToolDigResults {
 
 enum CompProcessFlags {
     ComProc_Unkn0001 = 0x0001,
-    ComProc_Unkn0002 = 0x0002, /* Last? */
-    ComProc_Unkn0004 = 0x0004, /* Finished */
-    ComProc_Unkn0008 = 0x0008, /* Done (for subprocesses) */
+    ComProc_Unkn0002 = 0x0002, /**< Last? */
+    ComProc_Unkn0004 = 0x0004, /**< Finished */
+    ComProc_Unkn0008 = 0x0008, /**< Done (for subprocesses) */
     ComProc_Unkn0010 = 0x0010,
-    ComProc_Unkn0020 = 0x0020, /* Suspended */
+    ComProc_Unkn0020 = 0x0020, /**< Suspended (Ed: I think this flag is RoomBuildActive...) */
     ComProc_Unkn0040 = 0x0040,
     ComProc_Unkn0080 = 0x0080,
     ComProc_Unkn0100 = 0x0100,
@@ -163,8 +163,8 @@ enum CompProcessFlags {
 };
 
 enum CompCheckFlags {
-    ComChk_Unkn0001 = 0x0001, /* Disabled */
-    ComChk_Unkn0002 = 0x0002, /* Last */
+    ComChk_Unkn0001 = 0x0001, /**< Disabled */
+    ComChk_Unkn0002 = 0x0002, /**< Last */
     ComChk_Unkn0004 = 0x0004,
     ComChk_Unkn0008 = 0x0008,
     ComChk_Unkn0010 = 0x0010,
@@ -178,9 +178,9 @@ enum CompCheckFlags {
 };
 
 enum CompTaskFlags {
-    ComTsk_Unkn0001 = 0x0001, /** task is disabled**/
+    ComTsk_Unkn0001 = 0x0001, /**< task is disabled */
     ComTsk_Unkn0002 = 0x0002,
-    ComTsk_AddTrapLocation = 0x0004, // if enabled, dug slabs will be added to the computer's list of potential trap positions
+    ComTsk_AddTrapLocation = 0x0004, /** if enabled, dug slabs will be added to the computer's list of potential trap positions */
     ComTsk_Unkn0008 = 0x0008,
     ComTsk_Unkn0010 = 0x0010,
     ComTsk_Unkn0020 = 0x0020,
@@ -198,10 +198,10 @@ enum CompTaskStates {
 /** Return values for computer task functions. */
 enum CompTaskRet {
     CTaskRet_Unk0 = 0,
-    CTaskRet_Unk1, /* CONTINUE */
+    CTaskRet_Unk1, /**< CONTINUE */
     CTaskRet_Unk2,
     CTaskRet_Unk3,
-    CTaskRet_Unk4, /* FAIL? Wait? */
+    CTaskRet_Unk4, /**< FAIL? Wait? */
 };
 
 /** Return values for computer process functions. */
@@ -270,7 +270,7 @@ struct ComputerProcess { // sizeof = 72
   // Signed process config values
   long confval_2;
   long confval_3;
-  long confval_4;
+  long confval_4; /**< room kind or amount of creatures or gameturn or count of slabs */
   long confval_5;
   Comp_Process_Func func_check;
   Comp_Process_Func func_setup;
@@ -290,7 +290,7 @@ struct ComputerProcess { // sizeof = 72
 
 struct ComputerCheck { // sizeof = 32
   char *name;
-  unsigned long flags;
+  unsigned long flags; /**< Values from ComChk_* enumeration. */
   long turns_interval;
   Comp_Check_Func func;
   long param1;
@@ -355,7 +355,7 @@ struct ComputerDig {
 };
 
 struct ComputerTask { // sizeof = 148
-    unsigned char flags;
+    unsigned char flags; /**< Values from ComTsk_* enumeration. */
     unsigned char task_state;
     unsigned char ttype;
     unsigned char ottype;

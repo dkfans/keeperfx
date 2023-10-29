@@ -868,37 +868,32 @@ TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const s
     ToolDigResult dig_result;
     // Setup the digging on dummy ComputerDig, to compute distance and move start position near to wall
     setup_dig_to(&cdig, *startpos, *endpos);
-    do
+    while(1)
     {
         dig_result = tool_dig_to_pos2(comp, &cdig, true, digflags);
-        if (dig_result == TDR_DigSlab)
+        switch(dig_result)
         {
-            // If the slab we've got from digging is safe to walk and connected to original room, use it as starting position
-            // But don't change distance - it should be computed from our rooms (and resetting it could lead to infinite loop)
-            // Note: when verifying the path traced by computer player, we might want to disable this to see the full path
-            if (slab_is_safe_land(dungeon->owner, coord_slab(cdig.pos_next.x.val), coord_slab(cdig.pos_next.y.val))) {
-                if (navigation_points_connected(startpos, &cdig.pos_next)) {
-                    *startpos = cdig.pos_next;
+            case TDR_DigSlab:
+                // If the slab we've got from digging is safe to walk and connected to original room, use it as starting position
+                // But don't change distance - it should be computed from our rooms (and resetting it could lead to infinite loop)
+                // Note: when verifying the path traced by computer player, we might want to disable this to see the full path
+                if (slab_is_safe_land(dungeon->owner, coord_slab(cdig.pos_next.x.val), coord_slab(cdig.pos_next.y.val))) {
+                    if (navigation_points_connected(startpos, &cdig.pos_next)) {
+                        *startpos = cdig.pos_next;
+                    }
                 }
-            }
-            (*dig_distance)++;
+                (*dig_distance)++;
+                continue;
+            case TDR_ReachedDestination:
+            case TDR_DestroyWallOnSlab:
+            case TDR_BuildBridgeOnSlab:
+                return true;
+            case TDR_CallCountExceeded:
+            case TDR_FailedToReachDestination:
+            case TDR_ToolDigError:
+            default:
+                return false;
         }
-    } while (dig_result == TDR_DigSlab);
-
-    switch(dig_result)
-    {
-        case TDR_ReachedDestination:
-        case TDR_DestroyWallOnSlab:
-        case TDR_BuildBridgeOnSlab:
-            return dig_result;
-        case TDR_CallCountExceeded:
-        case TDR_FailedToReachDestination:
-        case TDR_ToolDigError:
-            return CTaskRet_Unk0;
-        case TDR_DigSlab:
-        default:
-            // can't get here
-            return CTaskRet_Unk0;
     }
 }
 
