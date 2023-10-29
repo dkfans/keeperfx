@@ -1696,8 +1696,7 @@ TbBool frontnetmap_update_players(struct NetMapPlayersState * nmps)
             nmps->tmp1++;
         } else
         {
-            //TODO FRONTEND This is so wrong - remove casting when param1 is changed to int
-            LevelNumber pckt_lvnum = (unsigned char)nspck->param1;
+            LevelNumber pckt_lvnum = nspck->param1;
             scratch[pckt_lvnum]++;
             if (scratch[pckt_lvnum] == tmp2)
             {
