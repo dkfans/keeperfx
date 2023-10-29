@@ -1248,12 +1248,12 @@ void process_players_creature_control_packet_control(long idx)
         else
         if (angle > 32)
             angle = 32;
-        ccctrl->field_6C += 56 * angle / 32;
+        ccctrl->view_angle += 56 * angle / 32;
     }
     long angle_limit = crstat->max_angle_change;
     if (angle_limit < 1)
         angle_limit = 1;
-    angle = ccctrl->field_6C;
+    angle = ccctrl->view_angle;
     if (angle < -angle_limit)
         angle = -angle_limit;
     else
@@ -1262,7 +1262,7 @@ void process_players_creature_control_packet_control(long idx)
     cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
     cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
     ccctrl->field_CC = 170 * angle / angle_limit;
-    ccctrl->field_6C = 4 * angle / 8;
+    ccctrl->view_angle = 4 * angle / 8;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)

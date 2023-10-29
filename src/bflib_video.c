@@ -75,6 +75,8 @@ unsigned short pixel_size;
 unsigned short pixels_per_block;
 unsigned short units_per_pixel;
 
+unsigned short display_number = 1; //1 is the first (or only) screen, 2 is the second screen. Can be set in cfg file, or defaults to 1.
+
 static unsigned char fade_started;
 static unsigned char from_pal[PALETTE_SIZE];
 static unsigned char to_pal[PALETTE_SIZE];
@@ -410,6 +412,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
 {
     long hot_x;
     long hot_y;
+     // get the display index from the display number, if display number has been incorrectly set to 0, then treat this as id number 0
+    unsigned short display_id = (display_number == 0) ? display_number : display_number - 1;
 
     const struct TbSprite* msspr = NULL;
     LbExeReferenceNumber();
@@ -458,7 +462,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
             {
                 // reset window
                 SDL_DestroyWindow(lbWindow);
-                lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
+                lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED_DISPLAY(display_id), SDL_WINDOWPOS_CENTERED_DISPLAY(display_id), mdinfo->Width, mdinfo->Height, sdlFlags);
             }
         }
         int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
@@ -487,7 +491,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         }
     }
     if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
-        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, mdinfo->Width, mdinfo->Height, sdlFlags);
+        lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED_DISPLAY(display_id), SDL_WINDOWPOS_CENTERED_DISPLAY(display_id), mdinfo->Width, mdinfo->Height, sdlFlags);
     }
     if (lbWindow == NULL) {
         ERRORLOG("SDL_CreateWindow: %s", SDL_GetError());

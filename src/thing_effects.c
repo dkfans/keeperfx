@@ -1018,17 +1018,17 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         elemtng->clipbox_size_xy = 20;
         elemtng->clipbox_size_yz = 20;
         long k;
-        if (egenstat->field_10)
+        if (egenstat->ignore_terrain)
         {
-            k = egenstat->field_11;
+            k = egenstat->spawn_height;
         } else
-        if (egenstat->field_11 == -1)
+        if (egenstat->spawn_height == -1)
         {
             elemtng->mappos.z.val = subtile_coord(8,0);
             k = get_next_gap_creature_can_fit_in_below_point(elemtng, &elemtng->mappos);
         } else
         {
-            k = egenstat->field_11 + get_thing_height_at(elemtng, &elemtng->mappos);
+            k = egenstat->spawn_height + get_thing_height_at(elemtng, &elemtng->mappos);
         }
         elemtng->mappos.z.val = k;
         if ( thing_in_wall_at(elemtng, &elemtng->mappos) )

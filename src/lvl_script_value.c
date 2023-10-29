@@ -427,9 +427,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       context.plr_start = plr_start;
       context.plr_end = plr_end;
       // TODO: this should be checked for sanity
-      //for (i=plr_start; i < plr_end; i++)
+      for (i=plr_start; i < plr_end; i++)
       {
-          context.player_idx = plr_start;
+          context.player_idx = i;
           context.value = value;
           desc->process_fn(&context);
       }

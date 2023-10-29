@@ -1377,12 +1377,6 @@ short cleanup_seek_the_enemy(struct Thing *creatng)
     return 1;
 }
 
-void set_flee_delay(struct Thing* creatng)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->wait_to_turn = game.play_gameturn + FIGHT_FEAR_DELAY;
-}
-
 short creature_being_dropped(struct Thing *creatng)
 {
     TRACE_THING(creatng);
@@ -1392,7 +1386,7 @@ short creature_being_dropped(struct Thing *creatng)
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     // Cannot teleport for a few turns after being dropped
     delay_teleport(creatng);
-    set_flee_delay(creatng);
+    cctrl->dropped_turn = game.play_gameturn;
     MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
