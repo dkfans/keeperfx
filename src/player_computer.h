@@ -310,7 +310,7 @@ struct ComputerEvent { // sizeof = 44
   long param1;
   long param2;
   long param3;
-  long last_test_gameturn; // event last checked time
+  long last_test_gameturn; /**< event last checked time */
 };
 
 struct ValidRooms { // sizeof = 8
@@ -333,28 +333,28 @@ struct ComputerEventMnemonic {
   struct ComputerEvent *event;
 };
 struct ComputerDig {
-    struct Coord3d pos_E; // used by dig to position - set to pos_begin when a dig action fails ??
-    struct Coord3d pos_dest; // used by dig to position - the destination
-    struct Coord3d pos_begin; // used by dig to position (the start of the path) and for room dig/place (the centre of the room)
-    struct Coord3d pos_next; // used by dig to position - the next position in the path to check
-    long distance; // used by dig to position - the distance between a given position and the destination
-    unsigned char hug_side; // used by dig to position - the rule to follow when hugging the wall (left-hand rule/side or right-hand rule/side)
-    CardinalIndex direction_around; // used by dig to position - the forwards direction of the path
-    unsigned long subfield_2C; // this is always set to 1... but it's value is used to create a bool test: did action fail
-    long number_of_turns_made_in_spiral; // for room dig/place
-    long number_of_forward_steps_to_take_before_turning_in_spiral; // for room dig/place
-    long number_of_forward_steps_remaining_before_turn_in_spiral; // for room dig/place
-    CardinalIndex forward_direction_in_spiral;  // for room dig/place
-    long number_of_slabs_in_room_area; // for room dig/place
-    long number_of_slabs_processed_in_spiral; // for room dig/place
-    long number_of_failed_actions; // used by dig to position (incremented when gold is found but digflags is 0, or a mark for digging action failed)
-    MapSubtlCoord last_backwards_step_stl_x; // used by dig to position - ?? when a dig action fails, we step backwards, this is this the X coordinate of the slab we stepped back in to
-    MapSubtlCoord last_backwards_step_stl_y; // used by dig to position - ?? when a dig action fails, we step backwards, this is this the Y coordinate of the slab we stepped back in to
-    long calls_count; // used by dig to position
-    long valuable_slabs_tagged; //  used by dig to position - Amount of valuable slabs tagged for digging during this dig process.
+    struct Coord3d pos_E; /**< used by dig to position - set to pos_begin when a dig action fails ?? */
+    struct Coord3d pos_dest; /**< used by dig to position - the destination */
+    struct Coord3d pos_begin; /**< used by dig to position (the start of the path) and for room dig/place (the centre of the room) */
+    struct Coord3d pos_next; /**< used by dig to position - the next position in the path to check */
+    long distance; /**< used by dig to position - the distance between a given position and the destination */
+    unsigned char hug_side; /**< used by dig to position - the rule to follow when hugging the wall (left-hand rule/side or right-hand rule/side) */
+    CardinalIndex direction_around; /**< used by dig to position - the forwards direction of the path */
+    unsigned long subfield_2C; /**< this is always set to 1... but it's value is used to create a bool test: did action fail */
+    long number_of_turns_made_in_spiral; /**< for room dig/place */
+    long number_of_forward_steps_to_take_before_turning_in_spiral; /**< for room dig/place */
+    long number_of_forward_steps_remaining_before_turn_in_spiral; /**< for room dig/place */
+    CardinalIndex forward_direction_in_spiral;  /**< for room dig/place */
+    long number_of_slabs_in_room_area; /**< for room dig/place */
+    long number_of_slabs_processed_in_spiral; /**< for room dig/place */
+    long number_of_failed_actions; /**< used by dig to position (incremented when gold is found but digflags is 0, or a mark for digging action failed) */
+    MapSubtlCoord last_backwards_step_stl_x; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the X coordinate of the slab we stepped back in to */
+    MapSubtlCoord last_backwards_step_stl_y; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the Y coordinate of the slab we stepped back in to */
+    long calls_count; /**< used by dig to position */
+    long valuable_slabs_tagged; /**< used by dig to position - Amount of valuable slabs tagged for digging during this dig process. */
 };
 
-struct ComputerTask { // sizeof = 148
+struct ComputerTask {
     unsigned char flags; /**< Values from ComTsk_* enumeration. */
     unsigned char task_state;
     unsigned char ttype;
@@ -409,7 +409,7 @@ struct ComputerTask { // sizeof = 148
         struct Coord3d pos_70;
         struct Coord3d target_pos;
         long repeat_num;
-        long long_80; // unused
+        long long_80; /**< unused */
         short field_84;
         short word_86;
         long field_88;
@@ -516,7 +516,7 @@ struct ComputerTask { // sizeof = 148
         short word_8A;
     } create_room;
     };
-    unsigned short cproc_idx; /* CProcessId */
+    unsigned short cproc_idx; /**< CProcessId */
     long field_8E;
     unsigned short next_task;
 };
