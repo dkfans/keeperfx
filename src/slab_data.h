@@ -111,9 +111,9 @@ struct SlabObj {
   unsigned char isLight;
   short slabct_num;
   unsigned char slbelem;
-  short stl_pos_x; // position within the subtile
-  short stl_pos_y;
-  short val_z;
+  short offset_x; // position within the subtile
+  short offset_y;
+  short offset_z;
   ThingClass class_id;
   unsigned char model; //for lights this is intencity
   unsigned char range; //radius for lights / range for effect generators

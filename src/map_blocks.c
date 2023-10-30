@@ -984,9 +984,9 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
             continue;
         }
         struct Coord3d pos;
-        pos.x.val = (stl_x << 8) + sobj->stl_pos_x;
-        pos.y.val = (stl_y << 8) + sobj->stl_pos_y;
-        pos.z.val = sobj->val_z;
+        pos.x.val = (stl_x << 8) + sobj->offset_x;
+        pos.y.val = (stl_y << 8) + sobj->offset_y;
+        pos.z.val = sobj->offset_z;
         struct Map *mapblk;
         mapblk = get_map_block_at(coord_subtile(pos.x.val), coord_subtile(pos.y.val));
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
