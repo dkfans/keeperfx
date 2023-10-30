@@ -129,15 +129,43 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
         }
         else
         {
-            for (int slabset_no = 0; slabset_no < SLABSETS_PER_SLAB; slabset_no++)
+            for (int slabstyle_no = 0; slabstyle_no < SLABSETS_PER_SLAB; slabstyle_no++)
             {
-                VALUE * section = value_dict_get(slb_section, slab_styles_commands[slabset_no].name);
+                VALUE * section = value_dict_get(slb_section, slab_styles_commands[slabstyle_no].name);
+
+                int slabset_no = slab_kind * SLABSETS_PER_SLAB + slabstyle_no;
                 
                 for (size_t col_no = 0; col_no < 9; col_no++)
                 {
                     VALUE *col_arr = value_dict_get(section, "columns");
                     ColumnIndex col_idx = value_int32(value_array_get(col_arr, col_no));
-                    game.slabset[slab_kind * SLABSETS_PER_SLAB + slabset_no].col_idx[col_no] = -col_idx;
+                    game.slabset[slabset_no].col_idx[col_no] = -col_idx;
+                }
+
+                sprintf(key, "%s_objects", slab_styles_commands[slabstyle_no].name);
+                VALUE * objects_arr = value_dict_get(slb_section, key);
+                for (size_t i = 0; i < value_array_size(objects_arr); i++)
+                {
+                    if(game.slabobjs_num >= SLABOBJS_COUNT)
+                    {
+                        ERRORLOG("exceeding max of %d slabobjects",SLABOBJS_COUNT);
+                        break;
+                    }
+                    VALUE * object = value_array_get(objects_arr, i);
+                    game.slabobjs[game.slabobjs_num].class_id = value_int32(value_dict_get(object, "ThingType"));
+                    game.slabobjs[game.slabobjs_num].isLight  = value_int32(value_dict_get(object, "IsLight"));
+                    game.slabobjs[game.slabobjs_num].model    = value_int32(value_dict_get(object, "ThingSubtype"));
+                    game.slabobjs[game.slabobjs_num].offset_x = COORD_PER_STL * value_double(value_dict_get(object, "RelativeX"));
+                    game.slabobjs[game.slabobjs_num].offset_y = COORD_PER_STL * value_double(value_dict_get(object, "RelativeY"));
+                    game.slabobjs[game.slabobjs_num].offset_z = COORD_PER_STL * value_double(value_dict_get(object, "RelativeZ"));
+                    game.slabobjs[game.slabobjs_num].range    = value_int32(value_dict_get(object, "EffectRange"));
+                    game.slabobjs[game.slabobjs_num].stl_id   = value_int32(value_dict_get(object, "Subtile"));
+                    game.slabobjs[game.slabobjs_num].slabset_id = slabset_no;
+                    if(i == 0)
+                    {
+                        game.slabobjs_idx[slabset_no] = game.slabobjs_num;
+                    }
+                    game.slabobjs_num++;
                 }
             }
         }

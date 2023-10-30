@@ -1082,26 +1082,12 @@ TbBool load_slab_datclm_files(void)
     return true;
 }
 
-TbBool load_slab_tng_file(void)
-{
-    SYNCDBG(5,"Starting");
-    char* fname = prepare_file_fmtpath(FGrp_StdData, "slabs.tng");
-    wait_for_cd_to_be_available();
-    if ( LbFileExists(fname) )
-      LbFileLoadAt(fname, &game.slabobjs_num);
-    else
-      ERRORLOG("Could not load slab object set");
-    return true;
-}
-
 TbBool load_slab_file(void)
 {
     TbBool result = true;
     if (!load_slab_datclm_files())
         result = false;
     if (!columns_add_static_entries())
-        result = false;
-    if (!load_slab_tng_file())
         result = false;
     return result;
 }
