@@ -29,7 +29,7 @@
 #include "config_trapdoor.h"
 #include "config_effects.h"
 #include "config_terrain.h"
-#include "config_slabs.h"
+#include "config_slabsets.h"
 #include "room_library.h"
 #include "game_legacy.h"
 #include "post_inc.h"

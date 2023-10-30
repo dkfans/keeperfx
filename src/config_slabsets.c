@@ -1,7 +1,7 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config_slabs.c
+/** @file config_slabsets.c
  *     Slabs, rooms, traps and doors configuration loading functions.
  * @par Purpose:
  *     Support of configuration files for trap and door elements.
@@ -17,7 +17,7 @@
  */
 /******************************************************************************/
 #include "pre_inc.h"
-#include "config_slabs.h"
+#include "config_slabsets.h"
 #include "globals.h"
 
 #include "bflib_basics.h"

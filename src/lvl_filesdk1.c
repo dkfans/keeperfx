@@ -30,7 +30,7 @@
 #include "front_simple.h"
 #include "config.h"
 #include "config_campaigns.h"
-#include "config_slabs.h"
+#include "config_slabsets.h"
 #include "config_terrain.h"
 #include "light_data.h"
 #include "map_ceiling.h"
