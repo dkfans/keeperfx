@@ -109,8 +109,8 @@ struct SlabSet { // sizeof = 18
 
 struct SlabObj {
   unsigned char isLight;
-  short slabct_num;
-  unsigned char slbelem;
+  short slabset_id;
+  unsigned char stl_id;
   short offset_x; // position within the subtile
   short offset_y;
   short offset_z;

@@ -962,14 +962,14 @@ unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsign
     return SLABSETS_PER_SLAB * slbkind + 9 * style + pick;
 }
 
-void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoord stl_y, unsigned short slabct_num, unsigned short slbelem, PlayerNumber plyr_idx)
+void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoord stl_y, unsigned short slabset_id, unsigned short stl_id, PlayerNumber plyr_idx)
 {
-    if (slabct_num >= SLABSET_COUNT) {
-        ERRORLOG("Illegal animating slab number: %d", (int)slabct_num);
+    if (slabset_id >= SLABSET_COUNT) {
+        ERRORLOG("Illegal animating slab number: %d", (int)slabset_id);
         return;
     }
     short sobj_idx;
-    sobj_idx = game.slabobjs_idx[slabct_num];
+    sobj_idx = game.slabobjs_idx[slabset_id];
     if (sobj_idx < 0) {
         return;
     }
@@ -977,10 +977,10 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
     {
         struct SlabObj *sobj;
         sobj = &game.slabobjs[sobj_idx];
-        if (sobj->slabct_num != slabct_num) {
+        if (sobj->slabset_id != slabset_id) {
             break;
         }
-        if (sobj->slbelem != slbelem) {
+        if (sobj->stl_id != stl_id) {
             continue;
         }
         struct Coord3d pos;
@@ -1032,7 +1032,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                     int nfilled;
                     int nprison;
 
-                    if ((tngmodel == ObjMdl_PrisonBar) && (slbelem != 4))
+                    if ((tngmodel == ObjMdl_PrisonBar) && (stl_id != 4))
                     {
                         MapSlabCoord slb_x;
                         MapSlabCoord slb_y;
@@ -1040,16 +1040,16 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                         slb_y = subtile_slab(stl_y);
                         nprison = 0;
                         nfilled = 0;
-                        if ((slbelem & 1) != 0)
+                        if ((stl_id & 1) != 0)
                         {
                             const struct SlabMap *slb;
-                            slb = get_slabmap_block(slb_x + my_around_nine[slbelem].delta_x, slb_y + my_around_nine[slbelem].delta_y);
+                            slb = get_slabmap_block(slb_x + my_around_nine[stl_id].delta_x, slb_y + my_around_nine[stl_id].delta_y);
                             const struct SlabAttr *slbattr;
                             slbattr = get_slab_attrs(slb);
                             needs_object = ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) == 0);
                         } else
                         {
-                          icorn = slab_element_to_corner[slbelem];
+                          icorn = slab_element_to_corner[stl_id];
                           if (icorn != -1)
                           {
                               struct SlabMap *slb;
@@ -1332,7 +1332,7 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
         against |= get_against(plyr_idx, slbkind, sslb_x, sslb_y);
     }
     i = 0;
-    int slabct_num;
+    int slabset_id;
     if ( against )
     {
         primitiv = slab_primitive[against];
@@ -1344,10 +1344,10 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
             {
                 for (i=0; i < 9; i++)
                 {
-                    slabct_num = get_slabset_index( slab_type_list[i], style_set[i] + room_pretty_list[i], specase[i]);
-                    slab_number_list[i] = slabct_num;
+                    slabset_id = get_slabset_index( slab_type_list[i], style_set[i] + room_pretty_list[i], specase[i]);
+                    slab_number_list[i] = slabset_id;
                     struct SlabSet *sset;
-                    sset = &game.slabset[slabct_num];
+                    sset = &game.slabset[slabset_id];
                     col_idx[i] = sset->col_idx[i];
                 }
             }
@@ -1359,10 +1359,10 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
         {
             for (i=0; i < 9; i++)
             {
-                slabct_num = get_slabset_index( slab_type_list[i], style_set[i] + room_pretty_list[i], primitiv);
-                slab_number_list[i] = slabct_num;
+                slabset_id = get_slabset_index( slab_type_list[i], style_set[i] + room_pretty_list[i], primitiv);
+                slab_number_list[i] = slabset_id;
                 struct SlabSet *sset;
-                sset = &game.slabset[slabct_num];
+                sset = &game.slabset[slabset_id];
                 col_idx[i] = sset->col_idx[i];
             }
         }
@@ -1386,20 +1386,20 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
             specase = special_cases[6];
             for (i=0; i < 9; i++)
             {
-                slabct_num = get_slabset_index( slab_type_list[i], style_set[i], specase[i]);
-                slab_number_list[i] = slabct_num;
+                slabset_id = get_slabset_index( slab_type_list[i], style_set[i], specase[i]);
+                slab_number_list[i] = slabset_id;
                 struct SlabSet *sset;
-                sset = &game.slabset[slabct_num];
+                sset = &game.slabset[slabset_id];
                 col_idx[i] = sset->col_idx[i];
             }
         } else
         {
             for (i=0; i < 9; i++)
             {
-                slabct_num = get_slabset_index( slab_type_list[i], 3, 0);
-                slab_number_list[i] = slabct_num;
+                slabset_id = get_slabset_index( slab_type_list[i], 3, 0);
+                slab_number_list[i] = slabset_id;
                 struct SlabSet *sset;
-                sset = &game.slabset[slabct_num];
+                sset = &game.slabset[slabset_id];
                 col_idx[i] = sset->col_idx[i];
             }
         }
@@ -1407,10 +1407,10 @@ void place_single_slab_prepare_column_index(SlabKind slbkind, MapSlabCoord slb_x
     {
         for (i=0; i < 9; i++)
         {
-            slabct_num = get_slabset_index( slab_type_list[i], 3, 0);
-            slab_number_list[i] = slabct_num;
+            slabset_id = get_slabset_index( slab_type_list[i], 3, 0);
+            slab_number_list[i] = slabset_id;
             struct SlabSet *sset;
-            sset = &game.slabset[slabct_num];
+            sset = &game.slabset[slabset_id];
             col_idx[i] = sset->col_idx[i];
         }
     }
@@ -1420,7 +1420,7 @@ void place_single_slab_modify_column_near_liquid(SlabKind slbkind, MapSlabCoord 
     PlayerNumber plyr_idx, short *slab_type_list, short *room_pretty_list, short *style_set, short *slab_number_list, ColumnIndex *col_idx)
 {
     int neigh;
-    int slabct_num;
+    int slabset_id;
     int i;
     for (i=0; i < AROUND_EIGHT_LENGTH; i+=2)
     {
@@ -1451,10 +1451,10 @@ void place_single_slab_modify_column_near_liquid(SlabKind slbkind, MapSlabCoord 
                 {
                   neigh = 4 + slab_element_around_eight[(i-1)&7];
                   slab_type_list[neigh] = SlbT_WALLWTWINS;
-                  slabct_num = get_slabset_index(slab_type_list[neigh], style_set[neigh], 8);
-                  slab_number_list[neigh] = slabct_num;
+                  slabset_id = get_slabset_index(slab_type_list[neigh], style_set[neigh], 8);
+                  slab_number_list[neigh] = slabset_id;
                   struct SlabSet *sset;
-                  sset = &game.slabset[slabct_num];
+                  sset = &game.slabset[slabset_id];
                   col_idx[neigh] = sset->col_idx[neigh];
                 }
             }
@@ -1485,10 +1485,10 @@ void place_single_slab_type_on_map(SlabKind slbkind, MapSlabCoord slb_x, MapSlab
 
     ColumnIndex col_idx[STL_PER_SLB*STL_PER_SLB];
     {
-        int slabct_num;
-        slabct_num = get_slabset_index(slbkind, 3, 0);
+        int slabset_id;
+        slabset_id = get_slabset_index(slbkind, 3, 0);
         struct SlabSet *sset;
-        sset = &game.slabset[slabct_num];
+        sset = &game.slabset[slabset_id];
         for (i=0; i < STL_PER_SLB*STL_PER_SLB; i++)
         {
             col_idx[i] = sset->col_idx[i];
@@ -1576,7 +1576,7 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
     }
 }
 
-void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
+void dump_slab_on_map(SlabKind slbkind, long slabset_id, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber owner)
 {
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
@@ -1586,9 +1586,9 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     MapSubtlCoord stl_ya;
     stl_xa = STL_PER_SLB * slb_x;
     stl_ya = STL_PER_SLB * slb_y;
-    if (slabct_num >= SLABSET_COUNT) {
-        ERRORLOG("Illegal animating slab number: %d", slabct_num);
-        slabct_num = 0;
+    if (slabset_id >= SLABSET_COUNT) {
+        ERRORLOG("Illegal animating slab number: %d", slabset_id);
+        slabset_id = 0;
     }
     struct SlabAttr *slbattr;
     slbattr = get_slab_kind_attrs(slbkind);
@@ -1596,7 +1596,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
     slb = get_slabmap_block(slb_x, slb_y);
     slb->health = game.block_health[slbattr->block_health_index];
     struct SlabSet *sset;
-    sset = &game.slabset[slabct_num];
+    sset = &game.slabset[slabset_id];
     place_slab_columns(slbkind, stl_xa, stl_ya, sset->col_idx);
     set_slab_owner(slb_x, slb_y, owner);
 
@@ -1655,7 +1655,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabct_num, MapSubtlCoord stl_x, Ma
                 }
             }
 
-            place_slab_object(place_slbnum, sstl_x, sstl_y, slabct_num, n, slabmap_owner(slb));
+            place_slab_object(place_slbnum, sstl_x, sstl_y, slabset_id, n, slabmap_owner(slb));
             n++;
         }
     }
