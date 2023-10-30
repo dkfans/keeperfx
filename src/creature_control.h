@@ -183,7 +183,7 @@ unsigned char sound_flag;
     unsigned short lair_room_id;
     /** Lair object thing index. */
     unsigned short lairtng_idx;
-    short field_6C;
+    short view_angle;
     /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
      *  Specific case is determined by flags. */
     short dragtng_idx;
@@ -411,6 +411,7 @@ unsigned short shot_shift_z;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
+    GameTurn dropped_turn;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

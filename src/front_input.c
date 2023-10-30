@@ -2987,12 +2987,12 @@ void process_cheat_mode_selection_inputs()
     }
 }
 
-TbBool process_cheat_heart_health_inputs(short *value)
+TbBool process_cheat_heart_health_inputs(short *value, long max_health)
 {
    short new_health = *value;
    if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
    {
-        if (new_health < game.dungeon_heart_health)
+        if (new_health < max_health) 
         {
             new_health++;
             *value = new_health;
