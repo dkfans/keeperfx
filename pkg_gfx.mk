@@ -189,7 +189,7 @@ pkg/ldata/netflag_ens.dat: gfx/landviewdattabs/landview_ensign/filelist_netflag.
 pkg/ldata/lndflag_pin.dat: gfx/landviewdattabs/landview_pinpnt/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
 pkg/ldata/netflag_pin.dat: gfx/landviewdattabs/landview_pinpnt/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
 pkg/ldata/maphand.dat:     gfx/landviewdattabs/landview_hand/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
-pkg/ldata/netfont.dat:     gfx/landviewdattabs/font_net/filelist_netfont.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/netfont.dat:     gfx/menufx/font_net/filelist_netfont.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
 
 pkg/ldata/fronttor.dat: gfx/menufx/torturescr/filelist_fronttor.txt pkg/ldata/torture.pal $(PNGTORAW)
 pkg/ldata/door01.dat:   gfx/menufx/torturescr/filelist_tortr_doora.txt pkg/ldata/torture.pal $(PNGTORAW)
