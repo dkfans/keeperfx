@@ -6088,7 +6088,19 @@ msgstr ""
 "你的丰功伟业让你成为传奇地城守护者。你邪恶与狡猾的恐怖故事会流传在下一代的人"
 "们脑中。"
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "秘密門"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr ""秘密門：一扇特殊的門，對敵人隱藏，但仔細觀察或當你自己的單位在敵人注視下打開它時可以發現。 人民幣變焦。""
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "哞2"

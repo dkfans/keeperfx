@@ -6434,7 +6434,20 @@ msgstr ""
 "I tuoi successi sono leggendari, Keeper. I racconti delle tue malvage "
 "imprese semineranno il terrore per molte generazioni."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Porta segreta"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr ""
+"Porta segreta: Una porta speciale, nascosta ai nemici, ma che può essere individuata guardando da vicino o quando le proprie unità la aprono mentre i nemici guardano. Zoom RMB."
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "Moo2"

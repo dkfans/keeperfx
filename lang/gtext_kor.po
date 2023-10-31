@@ -6363,7 +6363,20 @@ msgstr ""
 "당신은 전설적인 키퍼입니다. 당신의 사악하고 교활한 이야기는 세대에 걸쳐 공포"
 "의 이야기가 될 것입니다."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "비밀의 문"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr ""
+"비밀의 문: 적에게는 숨겨져 있지만 자세히 보면 발견할 수 있는 특별한 문으로, 아군 유닛이 적을 보고 있는 상태에서 열면 발견할 수 있습니다. 위안화 줌."
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "음매2"

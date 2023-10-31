@@ -6357,7 +6357,20 @@ msgstr ""
 "Det du åstadkommit är legendariskt, Väktare. Berättelser om din ondska och "
 "slughet kommer att bli skräckhistorier för generationer framöver."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Hemlig dörr"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr ""
+"Hemlig dörr: En specialdörr som är dold för fienden, men som kan upptäckas om man tittar noga, eller när dina egna enheter öppnar den medan fienden tittar. RMB-zoom."
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "Moo2"

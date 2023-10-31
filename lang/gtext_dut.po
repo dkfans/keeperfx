@@ -6362,7 +6362,21 @@ msgstr ""
 "Je prestaties zijn legendarisch, Keeper. Jouw terreur en sluwheid zullen "
 "generaties lang als griezelverhalen voortleven."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Geheime deur"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr ""
+"Geheime deur: Een speciale deur, verborgen voor vijanden,"
+" maar te zien als je goed kijkt, of als je eigen eenheden hem openen terwijl de vijand kijkt. RMK-zoom."
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "Moo2"

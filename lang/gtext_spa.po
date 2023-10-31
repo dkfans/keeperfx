@@ -5527,7 +5527,20 @@ msgctxt "In-game message"
 msgid "Your achievements are legendary Keeper. Tales of your evil and cunning will become the horror stories of generations."
 msgstr "Tus logros son legendarios, guardián. Los relatos sobre tu maldad y tu astucia serán los cuentos de horror de muchas generaciones."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Puerta Secreta"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr ""
+"Puerta Secreta: Una puerta especial, Oculta a los enemigos, pero puede ser descubierta cuando se mira de cerca, o cuando tus propias unidades la abren con el enemigo mirando. Zoom RMB."
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "Moo2"

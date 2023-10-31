@@ -6230,7 +6230,20 @@ msgstr ""
 "おまえの業績は伝説的だ。 おまえの悪徳とずる賢さこそは、 世代を越えた恐怖の物"
 "語となるであろう。"
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "シークレット・ドア"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr ""
+"シークレット・ドア 特殊なドアで、敵には見えないが、よく見ると発見できる、または敵が見ている時に自軍ユニットが開ける。RMBズーム。"
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "Moo2"

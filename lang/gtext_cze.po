@@ -6328,7 +6328,20 @@ msgstr ""
 "Strážce, Tvé úspěchy jsou legendární. Povídky o tvém zlu a mazanosti se "
 "stanou děsivými příběhy po generace."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Tajné dveře"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr "Tajné dveře: Dveře: Speciální dveře, které jsou pro nepřátele skryté, ale lze je spatřit,"
+"když se na ně pozorně podíváte, nebo když je otevřou vaše vlastní jednotky, když se nepřítel dívá. Zvoli se LTM, PTM zvetsi"
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "Moo2"

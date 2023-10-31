@@ -6569,7 +6569,22 @@ msgstr ""
 "votre sournoiserie constitueront les histoires d'horreur des prochaines "
 "générations."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Porte secrète"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr ""
+"Porte secrète : Une porte spéciale, cachée aux ennemis,"
+" mais qui peut être repérée en regardant de près,"
+" ou lorsque vos propres unités l'ouvrent sous le regard de l'ennemi. Zoom RMB."
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "Moo2"

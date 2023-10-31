@@ -5602,7 +5602,20 @@ msgid ""
 "become the horror stories of generations."
 msgstr ""
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Ostium secretum"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr ""
+"Ostium secretum: Ostium speciale, hostibus occultum, maculosum esse potest cum inspiciendo, vel cum unitates tuae aperiunt cum hoste aspiciendo. RMB zoom."
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr ""

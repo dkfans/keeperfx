@@ -6449,7 +6449,20 @@ msgstr ""
 "Strażniku, Twoje dokonania stały się legendą. Opowieści o Twej niegodziwości "
 "i przebiegłości będą wzbudzać strach w sercach przyszłych pokoleń."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Tajne drzwi"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: A special door, Hidden to enemies, but can be spotted when "
+"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+msgstr ""
+"Tajne drzwi: Specjalne drzwi, ukryte przed wrogami, ale możliwe do zauważenia po dokładnym przyjrzeniu się lub po otwarciu przez jednostki przeciwnika. Powiększenie RMB."
+
+#: guitext:937 guitext:938 guitext:939 guitext:940
 msgctxt "Unused"
 msgid "Moo2"
 msgstr "Muu2"
