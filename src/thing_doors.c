@@ -337,7 +337,7 @@ TbBool check_door_should_open(struct Thing *thing)
     return true;
 }
 
-TbBool door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
+TbBool door_will_open_for_thing(const struct Thing *doortng, const struct Thing *creatng)
 {
   if ( !doortng->door.is_locked && thing_is_creature(creatng) )
   {
