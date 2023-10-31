@@ -1671,7 +1671,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
         if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS)
           || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
         {
-            if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || (digflags == ToolDig_BasicOnly) ) {
+            if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || ((digflags & ToolDig_AllowValuable) == 0) ) {
                 break;
             }
         }

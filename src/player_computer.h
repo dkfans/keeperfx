@@ -131,9 +131,9 @@ enum GameActionTypes {
 };
 
 enum ToolDigFlags {
-    ToolDig_BasicOnly = 0x00, /**< Allows to dig only through basic earth slabs. */
-    ToolDig_AllowValuable = 0x01, /**< Allows to dig through valuable slabs. */
-    ToolDig_AllowLiquidWBridge = 0x02, /**< Allows to dig through liquid slabs, if only player has ability to build bridges through them. */
+    ToolDig_BasicOnly = 0x00, /**< Allows digging through basic earth slabs. */
+    ToolDig_AllowValuable = 0x01, /**< Allows digging through valuable slabs. */
+    ToolDig_AllowLiquidWBridge = 0x02, /**< Allows bridging over liquid (bridges must be available to the player for this to have an effect). */
 };
 
 /** These are the possible return values for the CPU player's "mark for digging" functions */
