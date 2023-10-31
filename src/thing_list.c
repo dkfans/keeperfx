@@ -3202,7 +3202,7 @@ TbBool update_thing(struct Thing *thing)
             struct Coord3d pos;
             pos.x.val = thing->mappos.x.val;
             pos.y.val = thing->mappos.y.val;
-            pos.z.val = thing->mappos.z.val + thing->clipbox_size_yz;
+            pos.z.val = thing->mappos.z.val + thing->clipbox_size_z;
             light_set_light_position(thing->light_id, &pos);
         } else
         {
