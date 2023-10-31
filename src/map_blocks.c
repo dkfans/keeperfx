@@ -283,8 +283,8 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
     long i;
     x = STL_PER_SLB * (stl_x/STL_PER_SLB);
     y = STL_PER_SLB * (stl_y/STL_PER_SLB);
-    if ( (x < 0) || (x >= gameadd.map_subtiles_x) || (y < 0) || (y >= gameadd.map_subtiles_y) ) {
-        ERRORLOG("Attempt to tag area outside of map");
+    if ( (x < 0) || (x > gameadd.map_subtiles_x) || (y < 0) || (y > gameadd.map_subtiles_y) ) {
+        ERRORLOG("Attempt to tag (%d,%d), which is outside of map",x,y);
         return 0;
     }
     i = get_subtile_number(x+1,y+1);

@@ -846,7 +846,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     if (target->health < 0) {
         shot_kill_object(shotng, target);
     }
-    if (!shotst->hit_door.withstand)
+    if (shotst->area_range != 0)
     {
         return detonate_shot(shotng);
     }
