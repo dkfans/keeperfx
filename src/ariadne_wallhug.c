@@ -59,7 +59,7 @@ const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
 
 /******************************************************************************/
 /**
- * @brief Computes index in small_around[] array which contains coordinates directing towards given destination.
+ * Computes index in small_around[] array which contains coordinates directing towards given destination.
  * @param srcpos_x Source position X; either map coordinates or subtiles, but have to match type of other coords.
  * @param srcpos_y Source position Y; either map coordinates or subtiles, but have to match type of other coords.
  * @param dstpos_x Destination position X; either map coordinates or subtiles, but have to match type of other coords.

@@ -1718,7 +1718,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
 }
 
 /**
- * @brief Tool function to do (or simulate) computer player "mark for digging".
+ * Tool function to do (or simulate) computer player "mark for digging".
  * 
  * The tool finds a path from the start to the destination, and marks any dirt found for digging. 
  * It will continue to plot a path until it either:
@@ -1950,7 +1950,7 @@ int find_trap_location_index(const struct Computer2 * comp, const struct Coord3d
     }
     return -1;
 }
-/** @brief add a position to the computer player's list of potential trap locations (the trap_locations[] array) */
+/** Add a position to the computer player's list of potential trap locations (the trap_locations[] array). */
 long add_to_trap_locations(struct Computer2 * comp, struct Coord3d * coord)
 {
     SYNCDBG(6,"Starting");
