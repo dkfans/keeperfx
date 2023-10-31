@@ -131,7 +131,7 @@ enum GameActionTypes {
 };
 
 enum ToolDigFlags {
-    ToolDig_BasicOnly = 0x00, /**< Allows digging through basic earth slabs. */
+    ToolDig_BasicOnly = 0x00, /**< Allows digging through basic earth slabs (default: always applies). */
     ToolDig_AllowValuable = 0x01, /**< Allows digging through valuable slabs. */
     ToolDig_AllowLiquidWBridge = 0x02, /**< Allows bridging over liquid (bridges must be available to the player for this to have an effect). */
 };
