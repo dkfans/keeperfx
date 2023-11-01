@@ -800,7 +800,7 @@ static void conceal_map_rect_check(const struct ScriptLine *scline)
 
     if ((start_x < 0) || (end_x > gameadd.map_subtiles_x) || (start_y < 0) || (end_y > gameadd.map_subtiles_y))
     {
-        SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%d,%d) to (%d,%d) on map size %dx%d", start_x, start_y, end_x, end_y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
+        SCRPTERRLOG("Conceal coordinates out of range, trying to conceal from (%d,%d) to (%d,%d) on map that's %dx%d subtiles", start_x, start_y, end_x, end_y, gameadd.map_subtiles_x, gameadd.map_subtiles_y);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -3251,9 +3251,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
         value->shorts[1] = scline->np[1];
     }
 
-    if (scline->np[2] < 0 || scline->np[2] > 53) //slab kind
+    if (scline->np[2] < 0 || scline->np[2] >= game.slab_conf.slab_types_count) //slab kind
     {
-        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-53 allowed.", scline->np[2]);
+        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-%d allowed.", scline->np[2],game.slab_conf.slab_types_count-1);
         return;
     }
     else
@@ -3450,9 +3450,9 @@ static void hide_hero_gate_check(const struct ScriptLine* scline)
 static void hide_hero_gate_process(struct ScriptContext* context)
 {
     struct Thing* thing = find_hero_gate_of_number(context->value->bytes[0]);
-
     if (context->value->bytes[1])
     {
+        light_turn_light_off(thing->light_id);
         create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
         place_thing_in_creature_controlled_limbo(thing);
     }
@@ -3460,6 +3460,7 @@ static void hide_hero_gate_process(struct ScriptContext* context)
     {
         create_effect(&thing->mappos, TngEff_BallPuffWhite, thing->owner);
         remove_thing_from_creature_controlled_limbo(thing);
+        light_turn_light_on(thing->light_id);
     }
 }
 
