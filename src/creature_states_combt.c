@@ -234,7 +234,10 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         return false;
     if (creature_affected_by_spell(enmtng, SplK_TimeBomb))
     {
-        return true;
+        if (creature_has_ranged_weapon(creatng) == false)
+        {
+            return true;
+        }
     }
     // Creature with fear 101 are scared of everything other that their own model
     if (crstat->fear_wounded >= 101)
