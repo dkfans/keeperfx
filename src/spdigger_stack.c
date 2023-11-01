@@ -754,10 +754,13 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
             }
             else if ((thing->alloc_flags & TAlF_IsControlled) != 0)
             {
-                struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-                if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
+                if (thing->owner == creatng->owner)
                 {
-                    return 0;
+                    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+                    if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
+                    {
+                        return 0;
+                    }
                 }
             }
         }
