@@ -1031,7 +1031,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
                     ncol = 0;
                 if (ncol == 0)
                 {
-                    ERRORLOG("E14R432Q#222564-3; I should be able to find a column here i:%d n:%d",i,n);
+                    ERRORLOG("column:%d referenced in slabset.cfg but not present in columns.cfg",-n);
                     continue;
                 }
             }
