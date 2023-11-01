@@ -878,12 +878,12 @@ void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos
     cdig->pos_begin.x.val = pos->x.val;
     cdig->pos_begin.y.val = pos->y.val;
     cdig->pos_begin.z.val = pos->z.val;
-    cdig->number_of_turns_made_in_spiral = 0;
-    cdig->number_of_forward_steps_to_take_before_turning_in_spiral = 0;
-    cdig->number_of_forward_steps_remaining_before_turn_in_spiral = 0;
-    cdig->forward_direction_in_spiral = 0; // start facing NORTH
-    cdig->number_of_slabs_in_room_area = room_area;
-    cdig->number_of_slabs_processed_in_spiral = 0;
+    cdig->room.spiral.turns_made = 0;
+    cdig->room.spiral.steps_to_take_before_turning = 0;
+    cdig->room.spiral.steps_remaining_before_turn = 0;
+    cdig->room.spiral.forward_direction = 0; // start facing NORTH
+    cdig->room.area = room_area;
+    cdig->room.slabs_processed = 0;
     cdig->subfield_2C = 1;
 }
 
@@ -950,7 +950,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
     MapSubtlCoord stl_y = stl_slab_center_subtile(ctask->dig.pos_begin.y.stl.num);
     if (ctask->dig.subfield_2C == 1) // this check might be unneeded, can't see when subfield_2C != 1
     {
-        if (ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral > 0)
+        if (ctask->dig.room.spiral.steps_remaining_before_turn > 0)
         {
             if ((stl_x < gameadd.map_subtiles_x) && (stl_y < gameadd.map_subtiles_y))
             {
@@ -971,27 +971,27 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                         }
                     }
                 }
-                ctask->dig.number_of_slabs_processed_in_spiral++;
-                if (ctask->dig.number_of_slabs_processed_in_spiral >= ctask->dig.number_of_slabs_in_room_area)
+                ctask->dig.room.slabs_processed++;
+                if (ctask->dig.room.slabs_processed >= ctask->dig.room.area)
                 {
                     ctask->ttype = CTT_CheckRoomDug;
                     return CTaskRet_Unk1;
                 }
             }
-            const struct MyLookup *lkp = &lookup[ctask->dig.forward_direction_in_spiral];
+            const struct MyLookup *lkp = &lookup[ctask->dig.room.spiral.forward_direction];
             stl_x += lkp->delta_x;
             stl_y += lkp->delta_y;
         }
-        ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral--;
-        if (ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral <= 0)
+        ctask->dig.room.spiral.steps_remaining_before_turn--;
+        if (ctask->dig.room.spiral.steps_remaining_before_turn <= 0)
         {
-            ctask->dig.number_of_turns_made_in_spiral++;
-            if (ctask->dig.number_of_turns_made_in_spiral & 1)
+            ctask->dig.room.spiral.turns_made++;
+            if (ctask->dig.room.spiral.turns_made & 1)
             {
-                ctask->dig.number_of_forward_steps_to_take_before_turning_in_spiral++;
+                ctask->dig.room.spiral.steps_to_take_before_turning++;
             }
-            ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral = ctask->dig.number_of_forward_steps_to_take_before_turning_in_spiral;
-            ctask->dig.forward_direction_in_spiral = (ctask->dig.forward_direction_in_spiral + 1) & 3; // rotate clockwise
+            ctask->dig.room.spiral.steps_remaining_before_turn = ctask->dig.room.spiral.steps_to_take_before_turning;
+            ctask->dig.room.spiral.forward_direction = (ctask->dig.room.spiral.forward_direction + 1) & 3; // rotate clockwise
         }
     }
     ctask->dig.pos_begin.x.stl.num = stl_x;
@@ -1136,7 +1136,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     MapSubtlCoord stl_y = ctask->dig.pos_begin.y.stl.num;
     if (ctask->dig.subfield_2C == 1) // this check might be unneeded, can't see when subfield_2C != 1
     {
-        if (ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral > 0)
+        if (ctask->dig.room.spiral.steps_remaining_before_turn > 0)
         {
             if (slab_has_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))) {
                 try_game_action(comp, dungeon->owner, GA_SellTrap, 0, stl_x, stl_y, 1, 0);
@@ -1145,29 +1145,29 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
             {
                 if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, stl_x, stl_y, 1, rkind) > Lb_OK)
                 {
-                    ctask->dig.number_of_slabs_processed_in_spiral++;
-                    if (ctask->dig.number_of_slabs_processed_in_spiral >= ctask->dig.number_of_slabs_in_room_area)
+                    ctask->dig.room.slabs_processed++;
+                    if (ctask->dig.room.slabs_processed >= ctask->dig.room.area)
                     {
                         shut_down_task_process(comp, ctask);
                         return CTaskRet_Unk1;
                     }
                 }
             }
-            const struct MyLookup *lkp = &lookup[ctask->dig.forward_direction_in_spiral];
+            const struct MyLookup *lkp = &lookup[ctask->dig.room.spiral.forward_direction];
             stl_x += lkp->delta_x;
             stl_y += lkp->delta_y;
         }
         
-        ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral--;
-        if (ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral <= 0)
+        ctask->dig.room.spiral.steps_remaining_before_turn--;
+        if (ctask->dig.room.spiral.steps_remaining_before_turn <= 0)
         {
-            ctask->dig.number_of_turns_made_in_spiral++;
-            if (ctask->dig.number_of_turns_made_in_spiral & 1)
+            ctask->dig.room.spiral.turns_made++;
+            if (ctask->dig.room.spiral.turns_made & 1)
             {
-                ctask->dig.number_of_forward_steps_to_take_before_turning_in_spiral++;
+                ctask->dig.room.spiral.steps_to_take_before_turning++;
             }
-            ctask->dig.number_of_forward_steps_remaining_before_turn_in_spiral = ctask->dig.number_of_forward_steps_to_take_before_turning_in_spiral;
-            ctask->dig.forward_direction_in_spiral = (ctask->dig.forward_direction_in_spiral + 1) & 3; // rotate clockwise
+            ctask->dig.room.spiral.steps_remaining_before_turn = ctask->dig.room.spiral.steps_to_take_before_turning;
+            ctask->dig.room.spiral.forward_direction = (ctask->dig.room.spiral.forward_direction + 1) & 3; // rotate clockwise
         }
     }
     ctask->dig.pos_begin.x.stl.num = stl_x;
