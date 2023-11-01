@@ -125,7 +125,10 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
         }
         if (value_type(slb_section) != VALUE_DICT)
         {
-            WARNMSG("Invalid section %d", slab_kind);
+            if ((flags & CnfLd_IgnoreErrors) == 0)
+            {
+                WARNMSG("Invalid section %d", slab_kind);
+            }
         }
         else
         {
@@ -205,10 +208,6 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
     char key[64];
     VALUE *section;
     // Create sections
-
-
-    JUSTLOG("ccount %d",*ccount);
-
     for (int col_no = 0; col_no < *ccount; col_no++)
     {
        
@@ -218,7 +217,10 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
         }
         if (value_type(section) != VALUE_DICT)
         {
-            WARNMSG("Invalid column section %d", col_no);
+            if ((flags & CnfLd_IgnoreErrors) == 0)
+            {
+                WARNMSG("Invalid column section %d", col_no);
+            }
         }
         else
         {
