@@ -378,6 +378,7 @@ struct CoordDelta3d {
     } z;
 };
 
+/** Valid values for CardinalIndex. */
 enum CardinalIndices {
     CI_NORTH = 0,
     CI_EAST  = 1,
