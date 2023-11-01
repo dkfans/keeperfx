@@ -60,7 +60,7 @@ extern "C" {
 
 /** Holds the return values for the CPU "mark for digging" functions. (see enum ToolDigResults) */
 typedef signed char ToolDigResult;
-/**Flags to enable actions (e.g. dig gold, build bridge) for the CPU player whilst "marking for digging" (see enum ToolDigFlags). */
+/** Flags to enable actions (e.g. dig gold, build bridge) for the CPU player whilst "marking for digging" (see enum ToolDigFlags). */
 typedef signed char DigFlags;
 
 #define COMPUTER_REDROP_DELAY 80
