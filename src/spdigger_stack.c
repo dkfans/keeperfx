@@ -745,14 +745,22 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+        if ( thing_is_creature(thing) && (thing->index != creatng->index) )
         {
-            if ( thing_is_creature(thing) && (thing->index != creatng->index) )
+            if (!thing_is_picked_up(thing) && (thing->active_state == CrSt_ImpConvertsDungeon)) {
+                SYNCDBG(8,"The slab %d,%d is already being converted by %s index %d",
+                    (int)slb_x,(int)slb_y,thing_model_name(thing),(int)thing->index);
+                return 0;
+            }
+            else if ((thing->alloc_flags & TAlF_IsControlled) != 0)
             {
-                if (!thing_is_picked_up(thing) && (thing->active_state == CrSt_ImpConvertsDungeon)) {
-                    SYNCDBG(8,"The slab %d,%d is already being converted by %s index %d",
-                        (int)slb_x,(int)slb_y,thing_model_name(thing),(int)thing->index);
-                    return 0;
+                if (thing->index != creatng->index)
+                {
+                    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+                    if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
+                    {
+                        return 0;
+                    }
                 }
             }
         }
