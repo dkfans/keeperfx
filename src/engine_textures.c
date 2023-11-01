@@ -37,7 +37,6 @@ extern "C" {
 /******************************************************************************/
 unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
 unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];
-unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
 
 long block_dimension = 32;
 long block_count_per_row = 8;
