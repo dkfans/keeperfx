@@ -29,6 +29,7 @@
 #include "config_trapdoor.h"
 #include "config_effects.h"
 #include "config_terrain.h"
+#include "config_slabsets.h"
 #include "room_library.h"
 #include "game_legacy.h"
 #include "post_inc.h"
@@ -72,6 +73,8 @@ TbBool load_stats_files(void)
       result = false;
     // note that rules file requires definitions of magic and creature types
     if (!load_rules_config(keeper_rules_file,CnfLd_Standard))
+      result = false;
+    if (!load_slabset_config(keeper_slabset_file,CnfLd_Standard))
       result = false;
     for (int i = 1; i < gameadd.crtr_conf.model_count; i++)
     {
