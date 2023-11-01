@@ -911,7 +911,6 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
             setup_computer_dig_room(&ctask->dig, &pos, ctask->create_room.area);
             ctask->ttype = CTT_DigRoom;
             return CTaskRet_Unk1;
-        case TDR_DestroyWallOnSlab:
         case TDR_DigSlab:
             // a slab has been marked for digging
             if (ctask->flags & ComTsk_AddTrapLocation)
@@ -925,8 +924,6 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
             ctask->ottype = ctask->ttype;
             ctask->ttype = CTT_WaitForBridge;
             return CTaskRet_Unk4;
-        case TDR_CallCountExceeded:
-        case TDR_FailedToReachDestination:
         case TDR_ToolDigError:
         default:
             // we can't go on to build a room
@@ -1217,15 +1214,12 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
             ctask->ottype = ctask->ttype;
             ctask->ttype = CTT_WaitForBridge;
             return CTaskRet_Unk4;
-        case TDR_CallCountExceeded:
-        case TDR_FailedToReachDestination:
         case TDR_ToolDigError:
             // we can't reach the room, so say we are disinterested in that room
             room = room_get(ctask->dig_to_room.target_room_idx);
             room->player_interested[dungeon->owner] |= 0x02;
             remove_task(comp, ctask);
             return dig_result;
-        case TDR_DestroyWallOnSlab:
         case TDR_DigSlab:
             // a slab has been marked for digging
         default:
@@ -2160,7 +2154,6 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     switch(dig_result)
     {
-        case TDR_DestroyWallOnSlab:
         case TDR_DigSlab:
             SYNCDBG(6,"Player %d finished, code %d",(int)dungeon->owner,(int)dig_result);
             return dig_result;
@@ -2210,8 +2203,6 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
             remove_task(comp, ctask);
             SYNCDBG(5,"Player %d task finished",(int)dungeon->owner);
             return dig_result;
-        case TDR_CallCountExceeded:
-        case TDR_FailedToReachDestination:
         case TDR_ToolDigError:
             gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
             gold_lookup->player_interested[dungeon->owner] |= 0x02;
@@ -2262,7 +2253,6 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
             }
             suspend_task_process(comp, ctask);
             return dig_result;  
-        case TDR_DestroyWallOnSlab: 
         case TDR_DigSlab:
             for (int i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
             {
@@ -2285,8 +2275,6 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
             ctask->ottype = ctask->ttype;
             ctask->ttype = CTT_WaitForBridge;
             return CTaskRet_Unk4;
-        case TDR_CallCountExceeded:
-        case TDR_FailedToReachDestination:
         case TDR_ToolDigError:
         default:
             comp->task_state = CTaskSt_Select;
@@ -3070,7 +3058,6 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
     ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
     switch(dig_result)
     {
-        case TDR_DestroyWallOnSlab:
         case TDR_DigSlab:
             // a slab has been marked for digging
             if (ctask->flags & ComTsk_AddTrapLocation)
@@ -3086,8 +3073,6 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
             ctask->ttype = CTT_WaitForBridge;
             return CTaskRet_Unk4;
         case TDR_ReachedDestination:
-        case TDR_CallCountExceeded:
-        case TDR_FailedToReachDestination:
         case TDR_ToolDigError:
         default:
             // suspend the task process (which removes the task)
