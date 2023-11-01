@@ -754,7 +754,7 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
             }
             else if ((thing->alloc_flags & TAlF_IsControlled) != 0)
             {
-                if (thing->owner == creatng->owner)
+                if (players_are_mutual_allies(thing->owner, creatng->owner))
                 {
                     struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
                     if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
