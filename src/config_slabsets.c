@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "value_util.h"
 
 #include <toml.h>
 #include "config_strings.h"
@@ -155,9 +156,11 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
                         break;
                     }
                     VALUE * object = value_array_get(objects_arr, i);
-                    game.slabobjs[game.slabobjs_num].class_id = value_int32(value_dict_get(object, "ThingType"));
+                    
+                    unsigned char class_id = value_parse_class(value_dict_get(object, "ThingType"));
+                    game.slabobjs[game.slabobjs_num].class_id = class_id;
                     game.slabobjs[game.slabobjs_num].isLight  = value_int32(value_dict_get(object, "IsLight"));
-                    game.slabobjs[game.slabobjs_num].model    = value_int32(value_dict_get(object, "ThingSubtype"));
+                    game.slabobjs[game.slabobjs_num].model    = value_parse_model(class_id,value_dict_get(object, "ThingSubtype"));
                     game.slabobjs[game.slabobjs_num].offset_x = COORD_PER_STL * value_double(value_dict_get(object, "RelativeX"));
                     game.slabobjs[game.slabobjs_num].offset_y = COORD_PER_STL * value_double(value_dict_get(object, "RelativeY"));
                     game.slabobjs[game.slabobjs_num].offset_z = COORD_PER_STL * value_double(value_dict_get(object, "RelativeZ"));
