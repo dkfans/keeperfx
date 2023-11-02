@@ -822,6 +822,7 @@ void init_players(void)
 TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
     SYNCDBG(16,"Starting");
+    struct Thing* heartng;
     MapSubtlCoord stl_x = stl_num_decode_x(stl_num);
     MapSubtlCoord stl_y = stl_num_decode_y(stl_num);
     if (wandr->wandr_slot == CrWaS_WithinDungeon)
@@ -834,7 +835,18 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0)
              && players_creatures_tolerate_each_other(wandr->plyr_idx,slabmap_owner(slb)))
             {
-                return true;
+                heartng = get_player_soul_container(wandr->plyr_idx);
+                if (!thing_is_invalid(heartng))
+                {
+                    struct Coord3d dstpos;
+                    dstpos.x.val = subtile_coord_center(stl_x);
+                    dstpos.y.val = subtile_coord_center(stl_y);
+                    dstpos.z.val = subtile_coord(1, 0);
+                    if (navigation_points_connected(&heartng->mappos, &dstpos))
+                    {
+                        return true;
+                    }
+                }
             }
         }
     } else
@@ -845,7 +857,7 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
         {
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
-                struct Thing* heartng = get_player_soul_container(wandr->plyr_idx);
+                heartng = get_player_soul_container(wandr->plyr_idx);
                 if (!thing_is_invalid(heartng))
                 {
                     struct Coord3d dstpos;
@@ -853,7 +865,9 @@ TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
                     dstpos.y.val = subtile_coord_center(stl_y);
                     dstpos.z.val = subtile_coord(1,0);
                     if (navigation_points_connected(&heartng->mappos, &dstpos))
-                      return true;
+                    {
+                        return true;
+                    }
                 }
             }
         }
