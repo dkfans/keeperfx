@@ -147,6 +147,7 @@ obj/config_objects.o \
 obj/config_players.o \
 obj/config_rules.o \
 obj/config_settings.o \
+obj/config_slabsets.o \
 obj/config_strings.o \
 obj/config_terrain.o \
 obj/config_cubes.o \
