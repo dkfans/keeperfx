@@ -102,7 +102,7 @@ static Thing_Class_Func object_update_functions[] = {
  * Originally was named objects[].
  */
 
-/*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_yz;sprite_size_max;field_F;fp_smpl_idx;
+/*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_z;sprite_size_max;field_F;fp_smpl_idx;
 draw_class;destroy_on_lava;related_creatr_model;persistence;destroy_on_liquid;rotation_flag;*/
 struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Unset, 0, 0, 0}, //0
@@ -319,9 +319,9 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     struct ObjectConfig* objconf = get_object_model_stats2(model);
     struct Objects* objdat = get_objects_data(model);
     thing->clipbox_size_xy = objdat->size_xy;
-    thing->clipbox_size_yz = objdat->size_yz;
+    thing->clipbox_size_z = objdat->size_z;
     thing->solid_size_xy = objdat->size_xy;
-    thing->solid_size_yz = objdat->size_yz;
+    thing->solid_size_z = objdat->size_z;
     thing->anim_speed = objdat->anim_speed;
     thing->anim_sprite = objdat->sprite_anim_idx;
     thing->health = saturate_set_signed(objconf->health,32);
@@ -1676,7 +1676,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
         short shspeed = objtng->armor.shspeed;
         pos.x.val += 32 * LbSinL(682 * shspeed) >> 16;
         pos.y.val += -(32 * LbCosL(682 * shspeed) >> 8) >> 8;
-        pos.z.val += shspeed * (thing->clipbox_size_yz >> 1);
+        pos.z.val += shspeed * (thing->clipbox_size_z >> 1);
         move_thing_in_map(objtng, &pos);
         objtng->move_angle_xy = thing->move_angle_xy;
         objtng->move_angle_z = thing->move_angle_z;
@@ -1684,7 +1684,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     }
     else
     {
-        pos.z.val += (thing->clipbox_size_yz >> 1);
+        pos.z.val += (thing->clipbox_size_z >> 1);
         objtng->move_angle_xy = get_angle_xy_to(&objtng->mappos, &pos);
         objtng->move_angle_z = get_angle_yz_to(&objtng->mappos, &pos);
         angles_to_vector(objtng->move_angle_xy, objtng->move_angle_z, 32, &cvect);

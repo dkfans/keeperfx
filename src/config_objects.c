@@ -53,6 +53,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"ANIMATIONSPEED",     6},
   {"SIZE_XY",            7},
   {"SIZE_YZ",            8},
+  {"SIZE_Z",             8},
   {"MAXIMUMSIZE",        9},
   {"DESTROYONLIQUID",   10},
   {"DESTROYONLAVA",     11},
@@ -408,11 +409,11 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 8: // SIZE_YZ
+            case 8: // SIZE_Z
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objdat->size_yz = n;
+                    objdat->size_z = n;
                     n++;
                 }
                 if (n <= 0)

@@ -1535,7 +1535,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     gameadd.trap_stats[i].transparency_flag = 0;
     gameadd.trap_stats[i].random_start_frame = 0;
     gameadd.trap_stats[i].size_xy = 0;
-    gameadd.trap_stats[i].size_yz = 0;
+    gameadd.trap_stats[i].size_z = 0;
     gameadd.trap_stats[i].trigger_type = 0;
     gameadd.trap_stats[i].activation_type = 0;
     gameadd.trap_stats[i].created_itm_model = 0;
@@ -1707,7 +1707,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 25: // ThingSize
             gameadd.trap_stats[trap_type].size_xy = value; // First
-            gameadd.trap_stats[trap_type].size_yz = value2; // Second
+            gameadd.trap_stats[trap_type].size_z = value2; // Second
             break;
         case 26: // HitType
             gameadd.trap_stats[trap_type].hit_type = value;
@@ -2659,7 +2659,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 19: // SIZE
             crstat->size_xy = value;
-            crstat->size_yz = value2;
+            crstat->size_z = value2;
             break;
         case 20: // ATTACKPREFERENCE
             crstat->attack_preference = value;
@@ -2683,7 +2683,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 27: // THINGSIZE
             crstat->thing_size_xy = value;
-            crstat->thing_size_yz = value2;
+            crstat->thing_size_z = value2;
             break;
         case 29: // NAMETEXTID
             crconf->namestr_idx = value;
@@ -2787,8 +2787,8 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 7: //SIZE_XY
             objdat->size_xy = context->value->arg2;
             break;
-        case 8: // SIZE_YZ
-            objdat->size_yz = context->value->arg2;
+        case 8: // SIZE_Z
+            objdat->size_z = context->value->arg2;
             break;
         case 9: // MAXIMUMSIZE
             objdat->sprite_size_max = context->value->arg2;

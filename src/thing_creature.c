@@ -946,7 +946,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     pos.z.val = thing->mappos.z.val;
                     pos.x.val += distance_with_angle_to_coord_x(32, n);
                     pos.y.val += distance_with_angle_to_coord_y(32, n);
-                    pos.z.val += k * (long)(thing->clipbox_size_yz >> 1);
+                    pos.z.val += k * (long)(thing->clipbox_size_z >> 1);
                     ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1);
                     if (!thing_is_invalid(ntng))
                     {
@@ -1030,7 +1030,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             n = 0;
             for (k = 0; k < 2; k++)
             {
-                set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->clipbox_size_yz >> 1));
+                set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->clipbox_size_z >> 1));
                 ntng = create_object(&pos, ObjMdl_LightBall, thing->owner, -1);
                 if (!thing_is_invalid(ntng))
                 {
@@ -2299,7 +2299,7 @@ void thing_death_flesh_explosion(struct Thing *thing)
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    for (long i = 0; i <= thing->clipbox_size_yz; i += 64)
+    for (long i = 0; i <= thing->clipbox_size_z; i += 64)
     {
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
@@ -2329,14 +2329,14 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    for (i = 0; i <= thing->clipbox_size_yz; i+=64)
+    for (i = 0; i <= thing->clipbox_size_z; i+=64)
     {
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
         pos.z.val = thing->mappos.z.val+i;
         create_effect(&pos, TngEff_Blood4, thing->owner);
     }
-    i = (thing->clipbox_size_yz >> 1);
+    i = (thing->clipbox_size_z >> 1);
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
@@ -2361,7 +2361,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    long i = (thing->clipbox_size_yz >> 1);
+    long i = (thing->clipbox_size_z >> 1);
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
@@ -2392,7 +2392,7 @@ void thing_death_ice_explosion(struct Thing *thing)
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    for (long i = 0; i <= thing->clipbox_size_yz; i += 64)
+    for (long i = 0; i <= thing->clipbox_size_z; i += 64)
     {
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
@@ -2849,7 +2849,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         pos2.x.val = target->mappos.x.val;
         pos2.y.val = target->mappos.y.val;
         pos2.z.val = target->mappos.z.val;
-        pos2.z.val += (target->clipbox_size_yz >> 1);
+        pos2.z.val += (target->clipbox_size_z >> 1);
         if (((shotst->model_flags & ShMF_StrengthBased) != 0) && ((shotst->model_flags & ShMF_ReboundImmune) != 0) && (target->class_id != TCls_Door))
         {
           flag1 = true;
@@ -2916,7 +2916,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     case ShM_Hail_storm:
     {
         long i;
-        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_yz)))
+        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
         {
             pos1.x.val = firing->mappos.x.val;
             pos1.y.val = firing->mappos.y.val;
@@ -2942,7 +2942,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         break;
     }
     default:
-        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_yz)))
+        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
         {
             pos1.x.val = firing->mappos.x.val;
             pos1.y.val = firing->mappos.y.val;
@@ -3765,9 +3765,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
     crtng->clipbox_size_xy = crstat->size_xy;
-    crtng->clipbox_size_yz = crstat->size_yz;
+    crtng->clipbox_size_z = crstat->size_z;
     crtng->solid_size_xy = crstat->thing_size_xy;
-    crtng->solid_size_yz = crstat->thing_size_yz;
+    crtng->solid_size_z = crstat->thing_size_z;
     crtng->fall_acceleration = 32;
     crtng->bounce_angle = 0;
     crtng->inertia_floor = 32;
@@ -4948,7 +4948,7 @@ TbBool update_flight_altitude_towards_typical(struct Thing *thing)
     if (max_speed < 1)
         max_speed = 1;
     MapCoordDelta i = floor_height + NORMAL_FLYING_ALTITUDE;
-    MapCoordDelta max_pos_to_ceiling = ceiling_height - thing->clipbox_size_yz;
+    MapCoordDelta max_pos_to_ceiling = ceiling_height - thing->clipbox_size_z;
     if ((floor_height < max_pos_to_ceiling) && (i > max_pos_to_ceiling))
         i = max_pos_to_ceiling;
     i -= thing_curr_alt;

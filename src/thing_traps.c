@@ -810,9 +810,9 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
         thing->rendering_flags &= ~TRF_AnimateOnce;
     }
     thing->clipbox_size_xy = trapstat->size_xy;
-    thing->clipbox_size_yz = trapstat->size_yz;
+    thing->clipbox_size_z = trapstat->size_z;
     thing->solid_size_xy = trapstat->size_xy;
-    thing->solid_size_yz = trapstat->size_yz;
+    thing->solid_size_z = trapstat->size_z;
     thing->creation_turn = game.play_gameturn;
     thing->health = trapstat->health;
     thing->rendering_flags &= ~TRF_Transpar_Flags;

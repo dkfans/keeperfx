@@ -285,7 +285,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           gameadd.trap_stats[i].transparency_flag = 0;
           gameadd.trap_stats[i].random_start_frame = 0;
           gameadd.trap_stats[i].size_xy = 0;
-          gameadd.trap_stats[i].size_yz = 0;
+          gameadd.trap_stats[i].size_z = 0;
           gameadd.trap_stats[i].trigger_type = 0;
           gameadd.trap_stats[i].activation_type = 0;
           gameadd.trap_stats[i].created_itm_model = 0;
@@ -762,7 +762,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  gameadd.trap_stats[i].size_yz = k;
+                  gameadd.trap_stats[i].size_z = k;
                   n++;
               }
           }

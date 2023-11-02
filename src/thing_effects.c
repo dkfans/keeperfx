@@ -62,7 +62,7 @@ struct EffectGeneratorStats effect_generator_stats[] = {
     { 2,  5,  1, 37, 0,  0,-15, 15,-15, 15,  0,  0,  0,  0, 0}
 };
 
-//start_health;generation_type;accel_xy_min;accel_xy_max;accel_z_min;accel_z_max;size_yz;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
+//start_health;generation_type;accel_xy_min;accel_xy_max;accel_z_min;accel_z_max;size_z;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
 struct InitEffect effect_info[] = {
     { 0, 1,   0,   0,  0,    0,  0,   0,  0,  0,  AAffT_None, 0, {0}, 0},
     { 1, 1,  32,  32, -32,  32,  1,  47,  1,  1,  AAffT_None, 1, { 512, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
@@ -296,9 +296,9 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->parent_idx = thing->index;
     thing->owner = owner;
     thing->clipbox_size_xy = 1;
-    thing->clipbox_size_yz = 1;
+    thing->clipbox_size_z = 1;
     thing->solid_size_xy = 1;
-    thing->solid_size_yz = 1;
+    thing->solid_size_z = 1;
 
     if (eestat->sprite_idx != -1)
     {
@@ -389,7 +389,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
 
         struct EffectElementStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
@@ -417,7 +417,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_Slow) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
         int i = cor_z_max / 64; //64 is the vertical speed of the circle.
         if (i <= 1)
           i = 1;
@@ -1016,7 +1016,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         if (thing_is_invalid(elemtng))
             break;
         elemtng->clipbox_size_xy = 20;
-        elemtng->clipbox_size_yz = 20;
+        elemtng->clipbox_size_z = 20;
         long k;
         if (egenstat->ignore_terrain)
         {
