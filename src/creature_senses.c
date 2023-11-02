@@ -610,7 +610,7 @@ TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
 
     if (line_of_sight_3d(&creat_pos, &thing_pos))
         return 1;
-    thing_pos.z.val += thing->clipbox_size_yz;
+    thing_pos.z.val += thing->clipbox_size_z;
     return line_of_sight_3d(&creat_pos, &thing_pos) != 0;
 }
 
