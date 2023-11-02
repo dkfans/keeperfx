@@ -729,7 +729,15 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         {
             struct Room *room;
             room = room_get(slb->room_index);
-            col = owner_col + 6 * room->kind + 8;
+
+            //TODO support roomkinds over 16
+            RoomKind rkind;
+            if(room->kind > 16)
+                rkind = 0;
+            else
+                rkind = room->kind;
+
+            col = owner_col + 6 * rkind + 8;
         } else
         if (slb->kind == SlbT_ROCK)
         {
@@ -750,7 +758,14 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
                 }
                 else
                 {
-                    col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * doortng->model) + 110;
+                    //TODO support doors over 4
+                    int model;
+                    if(doortng->model>4)
+                        model = 0;
+                    else
+                        model = doortng->model;
+
+                    col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * model ) + 110;
                 }
             }
         } else
