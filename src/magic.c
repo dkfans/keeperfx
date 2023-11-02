@@ -1247,7 +1247,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     heartng = get_player_soul_container(plyr_idx);
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = get_floor_height_at(&pos) + (heartng->clipbox_size_yz >> 1);
+    pos.z.val = get_floor_height_at(&pos) + (heartng->clipbox_size_z >> 1);
     thing = create_creature(&pos, get_players_special_digger_model(plyr_idx), plyr_idx);
     if (thing_is_invalid(thing))
     {

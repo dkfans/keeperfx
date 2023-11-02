@@ -452,7 +452,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
   short field_57[14];
   short field_73;
     unsigned short size_xy;
-    unsigned short size_yz;
+    unsigned short size_z;
     unsigned short walking_anim_speed;
     TbBool flying;
     TbBool immune_to_gas;
@@ -510,7 +510,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool bleeds;
     TbBool affected_by_wind;
     unsigned short thing_size_xy;
-    unsigned short thing_size_yz;
+    unsigned short thing_size_z;
     short annoy_eat_food;
     short annoy_in_hand;
     short damage_to_boulder;
