@@ -750,7 +750,7 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
                 }
                 else
                 {
-                    col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2) + 110;
+                    col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * doortng->model) + 110;
                 }
             }
         } else
