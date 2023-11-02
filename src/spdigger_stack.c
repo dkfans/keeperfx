@@ -701,42 +701,17 @@ long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
 
 long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap *slb;
-    PlayerNumber prev_owner;
+    if (!player_can_claim_slab(creatng->owner, slb_x, slb_y))
+    {
+        return 0;
+    }
     TRACE_THING(creatng);
-    slb = get_slabmap_block(slb_x, slb_y);
-    prev_owner = slabmap_owner(slb);
-    if (prev_owner == creatng->owner)
-        return 0;
-    if (players_are_mutual_allies(creatng->owner, prev_owner)) {
-        SYNCDBG(8,"The slab %d,%d is owned by ally, so cannot be converted",(int)slb_x, (int)slb_y);
-        return 0;
-    }
-
-    struct Room *room;
-    room = room_get(slb->room_index);
-    if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (room->kind == RoK_DUNGHEART))) {
-        SYNCDBG(8,"The slab %d,%d is not a valid kind %d to be converted",(int)slb_x, (int)slb_y, (int)slb->kind);
-        return 0;
-    }
-    struct Map *mapblk;
-    mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-    if (!map_block_revealed(mapblk, creatng->owner)) {
-        SYNCDBG(8,"The slab %d,%d is not revealed",(int)slb_x, (int)slb_y);
-        return 0;
-    }
-    if (!slab_by_players_land(creatng->owner, slb_x, slb_y)) {
-        SYNCDBG(8,"The slab %d,%d is not by players land",(int)slb_x, (int)slb_y);
-        return 0;
-    }
-    struct Thing *thing;
-    long i;
-    unsigned long k;
-    k = 0;
-    i = get_mapwho_thing_index(mapblk);
+    unsigned long k = 0;
+    struct Map *mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
@@ -756,10 +731,14 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
             {
                 if (players_are_mutual_allies(thing->owner, creatng->owner))
                 {
-                    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
-                    if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
+                    TbBool claimable = (thing->owner == creatng->owner) ? true : player_can_claim_slab(thing->owner, slb_x, slb_y);
+                    if (claimable)
                     {
-                        return 0;
+                        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+                        if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
+                        {
+                            return 0;
+                        }
                     }
                 }
             }
