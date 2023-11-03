@@ -1522,7 +1522,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         {
             target = thing_get(thing->shot.target_idx);
             struct ComponentVector cvect;
-            if ((thing_exists(target)) && (target->class_id == TCls_Creature))
+            if ((thing_exists(target)) && (target->class_id == TCls_Creature) && !thing_is_picked_up(target) && !creature_is_being_unconscious(target))
             {
                 pos2.x.val = target->mappos.x.val;
                 pos2.y.val = target->mappos.y.val;
