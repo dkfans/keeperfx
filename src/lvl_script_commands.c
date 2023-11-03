@@ -231,6 +231,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"Unstable",            33},
   {"Unsellable",          34},
   {"PlaceOnBridge",       35},
+  {"ShotOrigin",          36},
   {NULL,                   0},
 };
 

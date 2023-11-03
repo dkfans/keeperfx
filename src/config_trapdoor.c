@@ -101,6 +101,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"UNSTABLE",             34},
   {"UNSELLABLE",           35},
   {"PLACEONBRIDGE",        36},
+  {"SHOTORIGIN",           37},
   {NULL,                    0},
 };
 /******************************************************************************/
@@ -936,6 +937,34 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+      case 37: // SHOTORIGIN
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].shot_shift_x = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].shot_shift_y = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].shot_shift_z = k;
+                  n++;
+              }
+          }
       case 0: // comment
           break;
       case -1: // end of buffer
