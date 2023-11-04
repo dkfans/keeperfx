@@ -47,7 +47,7 @@ struct ActionPoint { // sizeof = 0xA
     struct Coord2d mappos;
     unsigned short range;
     unsigned short num;
-    unsigned char activated;
+    PerPlayerFlags activated;
 };
 
 #pragma pack()

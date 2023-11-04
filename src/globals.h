@@ -295,6 +295,18 @@ typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
 
+/** convert an index number to a bitflag (e.g. idx 0 = 0b001, idx 3 = 0b100). */
+#define idx_to_flag(idx) (1 << idx)
+/** Returns TRUE if the nth bit is set to 1 in the given bitflags. */
+#define flag_is_set(n, flags) ((flags & idx_to_flag(n)) != 0)
+/** Set the nth bit to 1 in the given bitflags. */
+#define set_flag(n, flags) flags |= idx_to_flag(n)
+/** Set the nth bit to 0 in the given bitflags. */
+#define clear_flag(n, flags) flags &= ~(idx_to_flag(n))
+/** Toggle the nth bit in the given bitflags. */
+#define toggle_flag(n, flags) flags ^= idx_to_flag(n)
+
+
 /* Stores a 2d coordinate (x,y).
 
 Members:

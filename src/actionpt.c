@@ -163,18 +163,8 @@ TbBool action_point_reset_idx(ActionPointId apt_idx)
  */
 TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx)
 {
-    unsigned long i = get_action_point_activated_by_players_mask(apt_idx);
-    return ((i & (1 << plyr_idx)) != 0);
-}
-
-/**
- * Returns an action point activation bitmask.
- * Bits which are set in the bitmask corresponds to players which have triggered action point.
- */
-unsigned long get_action_point_activated_by_players_mask(ActionPointId apt_idx)
-{
     struct ActionPoint* apt = action_point_get(apt_idx);
-    return apt->activated;
+    return flag_is_set(plyr_idx, apt->activated);
 }
 
 TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, long first_thing_idx)
