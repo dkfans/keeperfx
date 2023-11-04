@@ -86,8 +86,10 @@
     <ClCompile Include="src\config_players.c" />
     <ClCompile Include="src\config_rules.c" />
     <ClCompile Include="src\config_settings.c" />
+    <ClCompile Include="src\config_slabsets.c" />
     <ClCompile Include="src\config_strings.c" />
     <ClCompile Include="src\config_terrain.c" />
+    <ClCompile Include="src\config_textures.c" />
     <ClCompile Include="src\config_trapdoor.c" />
     <ClCompile Include="src\console_cmd.c" />
     <ClCompile Include="src\creature_battle.c" />
@@ -320,8 +322,10 @@
     <ClInclude Include="src\config_players.h" />
     <ClInclude Include="src\config_rules.h" />
     <ClInclude Include="src\config_settings.h" />
+    <ClInclude Include="src\config_slabsets.h" />
     <ClInclude Include="src\config_strings.h" />
     <ClInclude Include="src\config_terrain.h" />
+    <ClInclude Include="src\config_textures.h" />
     <ClInclude Include="src\config_trapdoor.h" />
     <ClInclude Include="src\console_cmd.h" />
     <ClInclude Include="src\creature_battle.h" />
