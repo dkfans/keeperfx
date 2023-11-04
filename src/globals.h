@@ -192,8 +192,8 @@ typedef int ScreenCoord;
 typedef int RealScreenCoord;
 /** Player identification number, or owner of in-game thing/room/slab. */
 typedef signed char PlayerNumber;
-/** bitflag where each bit represents a player */
-typedef unsigned char PlayerBitFlag;
+/** bitflags where each bit represents a player (e.g. player 0 = 0b001, player 3 = 0b100) */
+typedef unsigned char PlayerBitFlags;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
 /** Type which stores thing model. */
@@ -266,8 +266,7 @@ typedef long SubtlCodedCoords;
 typedef unsigned long SlabCodedCoords;
 /** Index in the columns array. */
 typedef short ColumnIndex;
-/** A variable which bits store bool value for each player. */
-typedef unsigned char PerPlayerFlags;
+
 /** Movement speed on objects in the game. */
 typedef short MoveSpeed;
 /** Parameter for storing gold sum or price. */
@@ -296,15 +295,15 @@ typedef unsigned short SpDiggerTaskType;
 typedef unsigned char NaviRouteFlags;
 
 /** convert an index number to a bitflag (e.g. idx 0 = 0b001, idx 3 = 0b100). */
-#define idx_to_flag(idx) (1 << idx)
+#define index_to_flag(idx) (1 << idx)
 /** Returns TRUE if the nth bit is set to 1 in the given bitflags. */
-#define flag_is_set(n, flags) ((flags & idx_to_flag(n)) != 0)
+#define flag_is_set(n, flags) ((flags & index_to_flag(n)) != 0)
 /** Set the nth bit to 1 in the given bitflags. */
-#define set_flag(n, flags) flags |= idx_to_flag(n)
+#define set_flag(n, flags) flags |= index_to_flag(n)
 /** Set the nth bit to 0 in the given bitflags. */
-#define clear_flag(n, flags) flags &= ~(idx_to_flag(n))
+#define clear_flag(n, flags) flags &= ~(index_to_flag(n))
 /** Toggle the nth bit in the given bitflags. */
-#define toggle_flag(n, flags) flags ^= idx_to_flag(n)
+#define toggle_flag(n, flags) flags ^= index_to_flag(n)
 
 
 /* Stores a 2d coordinate (x,y).

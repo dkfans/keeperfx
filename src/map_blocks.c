@@ -374,11 +374,11 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 }
 
 // only used by mine_out_block
-void set_slab_explored_flags(PlayerBitFlag flag, MapSlabCoord slb_x, MapSlabCoord slb_y)
+void set_slab_explored_flags(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     MapSubtlCoord stl_y = STL_PER_SLB * slb_y;
     MapSubtlCoord stl_x = STL_PER_SLB * slb_x;
-
+    PlayerBitFlags flag = index_to_flag(plyr_idx);
     struct Map *mapblk = get_map_block_at(stl_x, stl_y);
 
     if (mapblk->revealed != flag)
@@ -2059,7 +2059,7 @@ void mine_out_block(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_
     // Gold slabs are normally visible to all players,
     // so sine we're destroying it - make it invisible
     // TODO MAP Maybe it should be cleared only if sibling non-gold and non-rock slabs are invisible
-    set_slab_explored_flags(1 << plyr_idx, slb_x, slb_y);
+    set_slab_explored_flags(plyr_idx, slb_x, slb_y);
 }
 
 TbBool dig_has_revealed_area(MapSubtlCoord rev_stl_x, MapSubtlCoord rev_stl_y, PlayerNumber plyr_idx)

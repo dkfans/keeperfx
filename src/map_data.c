@@ -193,9 +193,8 @@ void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    PlayerBitFlag nflag = (1 << plyr_idx);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    mapblk->revealed |= nflag;
+    reveal_map_block(mapblk, plyr_idx);
 }
 
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
@@ -206,8 +205,12 @@ TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
 
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
 {
-    PlayerBitFlag nflag = (1 << plyr_idx);
-    mapblk->revealed |= nflag;
+    set_flag(plyr_idx, mapblk->revealed);
+}
+
+void conceal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
+{
+    clear_flag(plyr_idx, mapblk->revealed);
 }
 
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param)
@@ -303,24 +306,21 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (map_block_invalid(mapblk))
         return false;
-    PlayerBitFlag plyr_bit;
     if (gameadd.allies_share_vision)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
             if (players_are_mutual_allies(plyr_idx, i))
             {
-                plyr_bit = (1 << i);
-                if ((mapblk->revealed) & plyr_bit)
-                return true;
+                if (flag_is_set(i, mapblk->revealed))
+                    return true;
             }
         }
     }
     else
     {
-        plyr_bit = (1 << plyr_idx);
-        if ((mapblk->revealed) & plyr_bit)
-        return true;
+        if (flag_is_set(plyr_idx, mapblk->revealed))
+            return true;
     }
     return false;
 }
@@ -338,8 +338,8 @@ TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
         {
             if (players_are_mutual_allies(plyr_idx, i))
             {
-                if ((mapblk->revealed) & (1 << i))
-                return true;
+                if (flag_is_set(i, mapblk->revealed))
+                    return true;
             }
         }
     }
@@ -687,7 +687,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
                         break;
                 }
             }
-            mapblk->revealed &= ~(1 << plyr_idx);
+            conceal_map_block(mapblk, plyr_idx);
         }
     }
     pannel_map_update(start_x,start_y,end_x,end_y);

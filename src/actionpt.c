@@ -213,16 +213,16 @@ TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, 
     return false;
 }
 
-PerPlayerFlags action_point_get_players_within(long apt_idx)
+PlayerBitFlags action_point_get_players_within(long apt_idx)
 {
     struct ActionPoint* apt = action_point_get(apt_idx);
-    PerPlayerFlags activated = apt->activated;
+    PlayerBitFlags activated = apt->activated;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);
         if (player_exists(player))
         {
-            if ((activated & (1 << plyr_idx)) == 0)
+            if (!flag_is_set(plyr_idx, activated))
             {
                 struct Dungeon* dungeon = get_players_dungeon(player);
                 if (dungeon_invalid(dungeon)) {
@@ -230,11 +230,11 @@ PerPlayerFlags action_point_get_players_within(long apt_idx)
                 }
                 SYNCDBG(16,"Checking player %d",(int)plyr_idx);
                 if (action_point_is_creature_from_list_within(apt, dungeon->digger_list_start)) {
-                    activated |= (1 << plyr_idx);
+                    set_flag(plyr_idx, activated);
                     continue;
                 }
                 if (action_point_is_creature_from_list_within(apt, dungeon->creatr_list_start)) {
-                    activated |= (1 << plyr_idx);
+                    set_flag(plyr_idx, activated);
                     continue;
                 }
             }

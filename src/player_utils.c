@@ -571,7 +571,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         for(MapSubtlCoord lpstl_x = 0;lpstl_x < gameadd.map_subtiles_x;lpstl_x++)
         {
             struct Map *mapblk = get_map_block_at(lpstl_x,lpstl_y);
-            mapblk->revealed &= (~(1 << plyr_idx));
+            conceal_map_block(mapblk, plyr_idx);
         }
     }
 
