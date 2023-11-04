@@ -386,6 +386,7 @@ struct Thing* activate_trap_shot_head_for_target90(struct Thing *traptng, struct
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
         return INVALID_THING;
     }
+    traptng->move_angle_xy = (((get_angle_xy_to(&traptng->mappos, &creatng->mappos) + LbFPMath_PI / 4) & LbFPMath_AngleMask) / (LbFPMath_PI / 2)) * (LbFPMath_PI / 2);
     struct Coord3d pos1;
     pos1.x.val = traptng->mappos.x.val;
     pos1.y.val = traptng->mappos.y.val;
@@ -445,7 +446,16 @@ struct Thing* activate_trap_effect_on_trap(struct Thing *traptng)
         ERRORLOG("Trap activation of bad effect kind %d",(int)trapstat->created_itm_model);
         return INVALID_THING;
     }
-    struct Thing* efftng = create_effect(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Coord3d pos1;
+    pos1.x.val = traptng->mappos.x.val;
+    pos1.y.val = traptng->mappos.y.val;
+    pos1.z.val = traptng->mappos.z.val;
+    pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, traptng->move_angle_xy);
+    pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, traptng->move_angle_xy);
+    pos1.z.val += trapstat->shot_shift_z;
+    struct Thing* efftng = create_effect(&pos1, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(efftng)) 
     {
         efftng->shot_effect.hit_type = trapstat->hit_type;
@@ -477,7 +487,17 @@ struct Thing* activate_trap_shot_on_trap(struct Thing *traptng)
         return INVALID_THING;
     }
     
-    struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Coord3d pos1;
+    pos1.x.val = traptng->mappos.x.val;
+    pos1.y.val = traptng->mappos.y.val;
+    pos1.z.val = traptng->mappos.z.val;
+    pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, traptng->move_angle_xy);
+    pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, traptng->move_angle_xy);
+    pos1.z.val += trapstat->shot_shift_z;
+
+    struct Thing* shotng = create_shot(&pos1, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng)) {
         shotng->shot.hit_type = trapstat->hit_type;
         shotng->parent_idx = 0;
@@ -508,9 +528,21 @@ void activate_trap_slab_change(struct Thing *traptng)
 
 struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char model)
 {
-    struct Thing *thing = create_creature(&traptng->mappos, model, traptng->owner);
+    struct Thing* thing;
+    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     struct CreatureControl* cctrl;
 
+    struct Coord3d pos1;
+    pos1.x.val = traptng->mappos.x.val;
+    pos1.y.val = traptng->mappos.y.val;
+    pos1.z.val = traptng->mappos.z.val;
+    pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, traptng->move_angle_xy);
+    pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, traptng->move_angle_xy);
+    pos1.z.val += trapstat->shot_shift_z;
+
+    thing = create_creature(&pos1, model, traptng->owner);
     if (thing_is_invalid(thing))
     {
         return thing;
@@ -573,7 +605,6 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     {
     case TrpAcT_HeadforTarget90:
         shot = activate_trap_shot_head_for_target90(traptng, creatng);
-        traptng->move_angle_xy = (((get_angle_xy_to(&traptng->mappos, &creatng->mappos) + LbFPMath_PI/4) & LbFPMath_AngleMask) / (LbFPMath_PI/2)) * (LbFPMath_PI/2);
         break;
     case TrpAcT_EffectonTrap:
         shot = activate_trap_effect_on_trap(traptng);
