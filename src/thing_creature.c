@@ -2796,7 +2796,7 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     return damage;
 }
 
-void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
+struct Thing *creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
 {
     struct Coord3d pos2;
     struct Thing *tmptng;
@@ -2871,7 +2871,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
-          return;
+          return INVALID_THING;
         if (shot_model == ShM_Drain)
           draw_lightning(&pos1, &pos2, 96, TngEffElm_RedDot);
         else
@@ -2885,7 +2885,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
           project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 4);
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
-          return;
+          return INVALID_THING;
         draw_flame_breath(&pos1, &pos2, 96, 2);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
@@ -2927,7 +2927,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         }
         shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
-            return;
+            return INVALID_THING;
         shotng->move_angle_xy = angle_xy;
         shotng->move_angle_z = angle_yz;
         angles_to_vector(shotng->move_angle_xy, shotng->move_angle_z, shotst->speed, &cvect);
@@ -2983,6 +2983,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
       }
       set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
     }
+    return shotng;
 }
 
 void set_creature_level(struct Thing *thing, long nlvl)
