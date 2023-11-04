@@ -104,18 +104,6 @@ short update_animating_texture_maps(void)
   return result;
 }
 
-long load_texture_anim_file(void)
-{
-    SYNCDBG(8,"Starting");
-    char* fname = prepare_file_path(FGrp_StdData, "tmapanim.dat");
-    SYNCDBG(0,"Reading animated tmap file \"%s\".",fname);
-    if (LbFileLoadAt(fname, game.texture_animation) != sizeof(game.texture_animation))
-    {
-        return false;
-    }
-    return true;
-}
-
 static TbBool load_one_file(unsigned long tmapidx, void *dst)
 {
     SYNCDBG(9,"Starting");
