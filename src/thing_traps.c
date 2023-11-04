@@ -22,8 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
-#include "bflib_planar.h"
 #include "bflib_memory.h"
+#include "bflib_planar.h"
 
 #include "thing_data.h"
 #include "config_creature.h"
@@ -378,13 +378,13 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
     return false;
 }
 
-struct Thing* activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *creatng)
+void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *creatng)
 {
     struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
-        return INVALID_THING;
+        return;
     }
     traptng->move_angle_xy = (((get_angle_xy_to(&traptng->mappos, &creatng->mappos) + LbFPMath_PI / 4) & LbFPMath_AngleMask) / (LbFPMath_PI / 2)) * (LbFPMath_PI / 2);
     struct Coord3d pos1;
@@ -435,16 +435,15 @@ struct Thing* activate_trap_shot_head_for_target90(struct Thing *traptng, struct
             thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
-    return shotng;
 }
 
-struct Thing* activate_trap_effect_on_trap(struct Thing *traptng)
+void activate_trap_effect_on_trap(struct Thing *traptng)
 {
     struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad effect kind %d",(int)trapstat->created_itm_model);
-        return INVALID_THING;
+        return;
     }
     struct Coord3d pos1;
     pos1.x.val = traptng->mappos.x.val;
@@ -475,16 +474,15 @@ struct Thing* activate_trap_effect_on_trap(struct Thing *traptng)
             thing_play_sample(efftng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         }
     }
-    return efftng;
 }
 
-struct Thing* activate_trap_shot_on_trap(struct Thing *traptng)
+void activate_trap_shot_on_trap(struct Thing *traptng)
 {
     struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
-        return INVALID_THING;
+        return;
     }
     
     struct Coord3d pos1;
@@ -506,7 +504,6 @@ struct Thing* activate_trap_shot_on_trap(struct Thing *traptng)
         shotng->veloc_push_add.z.val += trapstat->shotvector.z;
         shotng->state_flags |= TF1_PushAdd;
     }
-    return shotng;
 }
 
 void activate_trap_slab_change(struct Thing *traptng)
@@ -594,7 +591,6 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     traptng->trap.revealed = 1;
     const struct TrapStats *trapstat = &gameadd.trap_stats[traptng->model];
     struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[traptng->model];
-    struct Thing *shot = INVALID_THING;
     // EVM_TRAP_EVENT("trap.actiated", traptng->owner, thing)
     if (trapst->notify == 1)
     {
@@ -604,22 +600,22 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     switch (trapstat->activation_type)
     {
     case TrpAcT_HeadforTarget90:
-        shot = activate_trap_shot_head_for_target90(traptng, creatng);
+        activate_trap_shot_head_for_target90(traptng, creatng);
         break;
     case TrpAcT_EffectonTrap:
-        shot = activate_trap_effect_on_trap(traptng);
+        activate_trap_effect_on_trap(traptng);
         break;
     case TrpAcT_ShotonTrap:
-        shot = activate_trap_shot_on_trap(traptng);
+        activate_trap_shot_on_trap(traptng);
         break;
     case TrpAcT_SlabChange:
         activate_trap_slab_change(traptng);
         break;
     case TrpAcT_CreatureShot:
-        shot = thing_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
+        thing_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
         break;
     case TrpAcT_CreatureSpawn:
-        shot = activate_trap_spawn_creature(traptng, trapstat->created_itm_model);
+        activate_trap_spawn_creature(traptng, trapstat->created_itm_model);
         break;
     case TrpAcT_Power:
         activate_trap_god_spell(traptng, creatng, trapstat->created_itm_model);
@@ -628,16 +624,6 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         ERRORLOG("Illegal trap activation type %d (idx=%d)",(int)trapstat->activation_type, traptng->index);
         break;
     }
-    /*if (!thing_is_invalid(shot))
-    {
-        remove_thing_from_mapwho(shot);
-        shot->mappos.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
-        shot->mappos.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
-        shot->mappos.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, traptng->move_angle_xy);
-        shot->mappos.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, traptng->move_angle_xy);
-        shot->mappos.z.val += trapstat->shot_shift_z;
-        place_thing_in_mapwho(shot);
-    }*/
 }
 
 TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing **found_thing)
