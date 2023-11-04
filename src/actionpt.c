@@ -164,7 +164,7 @@ TbBool action_point_reset_idx(ActionPointId apt_idx)
 TbBool action_point_activated_by_player(ActionPointId apt_idx, PlayerNumber plyr_idx)
 {
     struct ActionPoint* apt = action_point_get(apt_idx);
-    return flag_is_set(plyr_idx, apt->activated);
+    return indexed_flag_is_set(apt->activated, plyr_idx);
 }
 
 TbBool action_point_is_creature_from_list_within(const struct ActionPoint *apt, long first_thing_idx)
@@ -222,7 +222,7 @@ PlayerBitFlags action_point_get_players_within(long apt_idx)
         struct PlayerInfo* player = get_player(plyr_idx);
         if (player_exists(player))
         {
-            if (!flag_is_set(plyr_idx, activated))
+            if (!indexed_flag_is_set(activated, plyr_idx))
             {
                 struct Dungeon* dungeon = get_players_dungeon(player);
                 if (dungeon_invalid(dungeon)) {
@@ -230,11 +230,11 @@ PlayerBitFlags action_point_get_players_within(long apt_idx)
                 }
                 SYNCDBG(16,"Checking player %d",(int)plyr_idx);
                 if (action_point_is_creature_from_list_within(apt, dungeon->digger_list_start)) {
-                    set_flag(plyr_idx, activated);
+                    set_indexed_flag(activated, plyr_idx);
                     continue;
                 }
                 if (action_point_is_creature_from_list_within(apt, dungeon->creatr_list_start)) {
-                    set_flag(plyr_idx, activated);
+                    set_indexed_flag(activated, plyr_idx);
                     continue;
                 }
             }

@@ -175,6 +175,28 @@ long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
 void make_lowercase(char *);
 void make_uppercase(char *);
+
+// TODO: refactor usage of set_flag_* and toggle_flag_* functions to use the following macros instead
+
+/** Returns TRUE if the masked bit is set in the given bitflags. */
+#define flag_is_set(flags, masked_bit) (flags & masked_bit)
+/** Set the masked bit in the given bitflags. */
+#define set_flag(flags, masked_bit) flags |= masked_bit
+/** Clear the masked bit in the given bitflags. */
+#define clear_flag(flags, masked_bit) flags &= ~(masked_bit)
+/** Toggle the masked bit in the given bitflags. */
+#define toggle_flag(flags, masked_bit) flags ^= masked_bit
+
+/** convert an index number to a bitflag (e.g. idx 0 = 0b001, idx 3 = 0b100). */
+#define index_to_flag(idx) (1 << idx)
+/** Returns TRUE if the nth bit is set in the given bitflags. */
+#define indexed_flag_is_set(flags, n) flag_is_set(flags, index_to_flag(n))
+/** Set the nth bit in the given bitflags. */
+#define set_indexed_flag(flags, n) set_flag(flags, index_to_flag(n))
+/** Clear the nth bit in the given bitflags. */
+#define clear_indexed_flag(flags, n) clear_flag(flags, index_to_flag(n))
+/** Toggle the nth bit in the given bitflags. */
+#define toggle_indexed_flag(flags, n) toggle_flag(flags, index_to_flag(n))
 /******************************************************************************/
 #ifdef __cplusplus
 }

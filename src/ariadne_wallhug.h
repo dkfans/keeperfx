@@ -53,7 +53,7 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb);
 short get_hug_side_options(MapSubtlCoord stl1_x, MapSubtlCoord stl1_y, MapSubtlCoord stl2_x, MapSubtlCoord stl2_y, unsigned short direction, PlayerNumber plyr_idx,
     MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y);
 /******************************************************************************/
-#define CHECK_SLAB_OWNER flag_is_set(slabmap_owner(slb), crt_owner_flags) // return TRUE if the slab's owner is stored in crt_owner_flags
+#define CHECK_SLAB_OWNER (indexed_flag_is_set(crt_owner_flags, slabmap_owner(slb))) // return TRUE if the slab's owner is stored in crt_owner_flags
 #define IGNORE_SLAB_OWNER_CHECK 0 // crt_owner_flags can be set to 0 to nullify the check for the slab's owner
 /******************************************************************************/
 #ifdef __cplusplus

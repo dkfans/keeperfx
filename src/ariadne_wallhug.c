@@ -1683,7 +1683,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         cctrl->flgfield_2 = 0;
         cctrl->combat_flags = 0;
     }
-    set_flag(creatng->owner, crt_owner_flags);
+    set_indexed_flag(crt_owner_flags, creatng->owner);
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     SubtlCodedCoords stl_num;
