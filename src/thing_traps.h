@@ -74,7 +74,7 @@ struct TrapStats {
   unsigned char transparency_flag; // transparency in lower 2 bits
   unsigned char random_start_frame;
   short size_xy;
-  short size_yz;
+  short size_z;
   unsigned char trigger_type;
   unsigned char activation_type;
   unsigned char created_itm_model; // Shot model, effect model, slab kind
