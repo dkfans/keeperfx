@@ -2,13 +2,11 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file config_textures.c
- *     Slabs, rooms, traps and doors configuration loading functions.
+ *     texture animation configuration loading functions.
  * @par Purpose:
  *     Support of configuration files for trap and door elements.
  * @par Comment:
  *     None.
- * @author   Tomasz Lis
- * @date     25 May 2009 - 26 Jul 2009
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by

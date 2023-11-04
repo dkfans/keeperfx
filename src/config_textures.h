@@ -4,11 +4,9 @@
 /** @file config_trapdoor.h
  *     Header file for config_trapdoor.c.
  * @par Purpose:
- *     Traps and doors configuration loading functions.
+ *     texture animation configuration loading functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
- * @author   Tomasz Lis
- * @date     25 May 2009 - 21 Dec 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
