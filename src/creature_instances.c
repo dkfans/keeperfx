@@ -474,7 +474,7 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         target = NULL;
         SYNCDBG(8,"The %s index %d fires %s",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param));
     }
-    creature_fire_shot(creatng, target, *param, 1, hittype);
+    thing_fire_shot(creatng, target, *param, 1, hittype);
     // Start cooldown after shot is fired
     cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 0;
