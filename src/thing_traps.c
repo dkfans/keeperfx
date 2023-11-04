@@ -216,7 +216,7 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
             // Trigger for enemy player, or any player for neutral traps (otherwise neutral traps would be useless)
             if (players_are_enemies(traptng->owner,thing->owner) || is_neutral_thing(traptng))
             {
-                if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
+                if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
                  && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
                  && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0)) {
                     activate_trap(traptng, thing);

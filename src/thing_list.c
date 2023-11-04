@@ -293,7 +293,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                 struct Thing* traptng = thing_get(param->num1);
                 if (players_are_enemies(traptng->owner, thing->owner) || is_neutral_thing(traptng))
                 {
-                    if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
+                    if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
                         && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
                         && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
                     {
