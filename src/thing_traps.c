@@ -386,7 +386,16 @@ struct Thing* activate_trap_shot_head_for_target90(struct Thing *traptng, struct
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
         return INVALID_THING;
     }
-    struct Thing* shotng = create_shot(&traptng->mappos, trapstat->created_itm_model, traptng->owner);
+    struct Coord3d pos1;
+    pos1.x.val = traptng->mappos.x.val;
+    pos1.y.val = traptng->mappos.y.val;
+    pos1.z.val = traptng->mappos.z.val;
+    pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
+    pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, traptng->move_angle_xy);
+    pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, traptng->move_angle_xy);
+    pos1.z.val += trapstat->shot_shift_z;
+    struct Thing* shotng = create_shot(&pos1, trapstat->created_itm_model, traptng->owner);
     if (!thing_is_invalid(shotng))
     {
         {
@@ -576,8 +585,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         activate_trap_slab_change(traptng);
         break;
     case TrpAcT_CreatureShot:
-        shot = creature_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
-        traptng->move_angle_xy = get_angle_xy_to(&traptng->mappos, &creatng->mappos);
+        shot = thing_fire_shot(traptng, creatng, trapstat->created_itm_model, 1, THit_CrtrsNObjcts);
         break;
     case TrpAcT_CreatureSpawn:
         shot = activate_trap_spawn_creature(traptng, trapstat->created_itm_model);
@@ -589,7 +597,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         ERRORLOG("Illegal trap activation type %d (idx=%d)",(int)trapstat->activation_type, traptng->index);
         break;
     }
-    if (!thing_is_invalid(shot))
+    /*if (!thing_is_invalid(shot))
     {
         remove_thing_from_mapwho(shot);
         shot->mappos.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, traptng->move_angle_xy + LbFPMath_PI / 2);
@@ -598,7 +606,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         shot->mappos.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, traptng->move_angle_xy);
         shot->mappos.z.val += trapstat->shot_shift_z;
         place_thing_in_mapwho(shot);
-    }
+    }*/
 }
 
 TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing **found_thing)

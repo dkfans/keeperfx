@@ -1581,7 +1581,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
         return;
     }
-    creature_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
+    thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
 }
 
 /**
@@ -1612,7 +1612,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
           i = THit_CrtrsNObjcts;
         else
           i = THit_CrtrsOnlyNotOwn;
-        creature_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
+        thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
     } else
     // Check if the spell can be self-casted
     if (spconf->caster_affected)
@@ -2796,15 +2796,15 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     return damage;
 }
 
-struct Thing *creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
+struct Thing *thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
 {
     struct Coord3d pos2;
     struct Thing *tmptng;
     short angle_xy;
     short angle_yz;
     long damage;
-    struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
+    unsigned char dexterity, max_dexterity;
+
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     TbBool flag1 = false;
     // Prepare source position
@@ -2812,11 +2812,32 @@ struct Thing *creature_fire_shot(struct Thing *firing, struct Thing *target, Thi
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
-    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
-    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
-    pos1.z.val += (cctrl->shot_shift_z +(cctrl->shot_shift_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) /100);
+    if (firing->class_id == TCls_Trap)
+    {
+        struct TrapStats* trapstat = &gameadd.trap_stats[firing->model];
+        firing->move_angle_xy = get_angle_xy_to(&firing->mappos, &target->mappos); //visually rotates the trap
+        pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+        pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+        pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, firing->move_angle_xy);
+        pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, firing->move_angle_xy);
+        pos1.z.val += trapstat->shot_shift_z;
+
+        max_dexterity = UCHAR_MAX;
+        dexterity = max_dexterity/4 + CREATURE_RANDOM(firing, max_dexterity/2);
+    }
+    else
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
+        struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
+        dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+        max_dexterity = crstat->dexterity + ((crstat->dexterity * cctrl->explevel * gameadd.crtr_conf.exp.dexterity_increase_on_exp) / 100);
+
+        pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
+        pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
+        pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
+        pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
+        pos1.z.val += (cctrl->shot_shift_z + (cctrl->shot_shift_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    }
     // Compute launch angles
     if (thing_is_invalid(target))
     {
@@ -2939,12 +2960,12 @@ struct Thing *creature_fire_shot(struct Thing *firing, struct Thing *target, Thi
         shotng->health = shotst->health;
         shotng->parent_idx = firing->index;
         shotng->shot.target_idx = target_idx;
-        shotng->shot.dexterity = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+        shotng->shot.dexterity = dexterity;
             if (shot_model == ShM_Lizard)
             {
                 if (!thing_is_invalid(target))
                 {
-                    long range = 2200 - ((crstat->dexterity + (crstat->dexterity * cctrl->explevel * gameadd.crtr_conf.exp.dexterity_increase_on_exp)/100) * 19);
+                    long range = 2200 - (dexterity * 19);
                     range = range < 1 ? 1 : range;
                     long rnd = (CREATURE_RANDOM(firing, 2 * range) - range);
                     rnd = rnd < (range / 3) && rnd > 0 ? (CREATURE_RANDOM(firing, range / 2) + (range / 2)) + 200 : rnd + 200;
