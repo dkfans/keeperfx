@@ -614,6 +614,27 @@ TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
     return line_of_sight_3d(&creat_pos, &thing_pos) != 0;
 }
 
+TbBool creature_can_see_thing_ignoring_specific_door(struct Thing *creatng, struct Thing *thing,struct Thing *doortng)
+{
+    struct Coord3d thing_pos;
+    struct Coord3d creat_pos;
+
+    creat_pos.x.val = creatng->mappos.x.val;
+    creat_pos.y.val = creatng->mappos.y.val;
+    creat_pos.z.val = creatng->mappos.z.val;
+
+    thing_pos.x.val = thing->mappos.x.val;
+    thing_pos.y.val = thing->mappos.y.val;
+    thing_pos.z.val = thing->mappos.z.val;
+
+    creat_pos.z.val += get_creature_eye_height(creatng);
+
+    if (line_of_sight_3d(&creat_pos, &thing_pos))
+        return 1;
+    thing_pos.z.val += thing->clipbox_size_z;
+    return line_of_sight_3d_ignoring_specific_door(&creat_pos, &thing_pos,doortng) != 0;
+}
+
 TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
 {
     const struct Coord3d* srcpos = &creatng->mappos;

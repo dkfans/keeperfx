@@ -1786,6 +1786,14 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
           break;
         if (door_is_hidden_to_player(doortng,creatng->owner))
         {
+            if(creature_affected_by_spell(creatng,SplK_Sight))
+            {
+                if(creature_can_see_thing_ignoring_specific_door(creatng,doortng,doortng))
+                {
+                    reveal_secret_door_to_player(doortng,creatng->owner);
+                }
+            }
+            else
             // when closed the door itself blocks sight to the doortng so this checks if open, and in sight
             if(creature_can_see_thing(creatng,doortng)) 
             {
