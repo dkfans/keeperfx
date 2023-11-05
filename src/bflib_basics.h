@@ -197,6 +197,9 @@ void make_uppercase(char *);
 #define clear_indexed_flag(flags, n) clear_flag(flags, index_to_flag(n))
 /** Toggle the nth bit in the given bitflags. */
 #define toggle_indexed_flag(flags, n) toggle_flag(flags, index_to_flag(n))
+
+/** Returns TRUE if the all flags (up to the given max index) are set in the given bitflags. */
+#define all_flags_set(flags, max_index) ((1 << (max_index + 1)) - flags == 1)
 /******************************************************************************/
 #ifdef __cplusplus
 }

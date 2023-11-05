@@ -285,9 +285,9 @@ TbBool open_new_packet_file_for_save(void)
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player))
         {
-            game.packet_save_head.players_exist |= (1 << i) & 0xff;
+            set_indexed_flag(game.packet_save_head.players_exist, i);
             if ((player->allocflags & PlaF_CompCtrl) != 0)
-              game.packet_save_head.players_comp |= (1 << i) & 0xff;
+              set_indexed_flag(game.packet_save_head.players_comp, i);
         }
     }
     LbFileDelete(game.packet_fname);

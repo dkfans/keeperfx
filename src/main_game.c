@@ -270,8 +270,8 @@ void startup_saved_packet_game(void)
         WARNLOG("Packet file was created with different version of the game; this rarely works");
     }
     game.game_kind = GKind_LocalGame;
-    if (!(game.packet_save_head.players_exist & (1 << game.local_plyr_idx))
-        || (game.packet_save_head.players_comp & (1 << game.local_plyr_idx)))
+    if (!indexed_flag_is_set(game.packet_save_head.players_exist, game.local_plyr_idx)
+        || indexed_flag_is_set(game.packet_save_head.players_comp, game.local_plyr_idx))
         my_player_number = 0;
     else
         my_player_number = game.local_plyr_idx;

@@ -124,7 +124,7 @@ TbBool players_are_enemies(long origin_plyr_idx, long check_plyr_idx)
     if (!player_exists(check_player) && (check_plyr_idx != game.hero_player_num))
         return false;
     // And if they're valid, living players - get result from alliances table
-    return ((origin_player->allied_players & (1<<check_plyr_idx)) == 0);
+    return !indexed_flag_is_set(origin_player->allied_players, check_plyr_idx);
 }
 
 /**
@@ -149,8 +149,7 @@ TbBool players_are_mutual_allies(PlayerNumber plyr1_idx, PlayerNumber plyr2_idx)
         return false;
     if (!player_exists(player2))
         return false;
-    return ((player1->allied_players & (1<<plyr2_idx)) != 0)
-        && ((player2->allied_players & (1<<plyr1_idx)) != 0);
+    return (indexed_flag_is_set(player1->allied_players, plyr2_idx) && indexed_flag_is_set(player2->allied_players, plyr1_idx));
 }
 
 /**
@@ -171,8 +170,7 @@ TbBool players_creatures_tolerate_each_other(PlayerNumber plyr1_idx, PlayerNumbe
     struct PlayerInfo* player1 = get_player(plyr1_idx);
     struct PlayerInfo* player2 = get_player(plyr2_idx);
     // Check if we're allied
-    return ((player1->allied_players & (1<<plyr2_idx)) != 0)
-        && ((player2->allied_players & (1<<plyr1_idx)) != 0);
+    return (indexed_flag_is_set(player1->allied_players, plyr2_idx) && indexed_flag_is_set(player2->allied_players, plyr1_idx));
 }
 
 TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx)
@@ -182,7 +180,7 @@ TbBool player_allied_with(const struct PlayerInfo *player, PlayerNumber ally_idx
         WARNLOG("Tried to get non-existing player!");
         return false;
     }
-    return ((player->allied_players & (1<<ally_idx)) != 0);
+    return indexed_flag_is_set(player->allied_players, ally_idx);
 }
 
 /**
@@ -232,7 +230,7 @@ void toggle_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx)
     struct PlayerInfo* player = get_player(plyr_idx);
     if (player_invalid(player))
         return;
-    player->allied_players ^= (1 << ally_idx); // toggle player ally_idx in player plyridx's allies list
+    toggle_indexed_flag(player->allied_players, ally_idx); // toggle player ally_idx in player plyridx's allies list
 }
 
 TbBool set_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool make_ally)
@@ -243,9 +241,9 @@ TbBool set_ally_with_player(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
         return false;
     if (make_ally)
-        player->allied_players |= (1 << ally_idx); // add player ally_idx to player plyridx's allies list
-    else // enemy 
-        player->allied_players &= ~(1 << ally_idx); // remove player ally_idx from player plyridx's allies list
+        set_indexed_flag(player->allied_players, ally_idx); // add player ally_idx to player plyridx's allies list
+    else // enemy
+        clear_indexed_flag(player->allied_players, ally_idx); // remove player ally_idx from player plyridx's allies list
 
     return true;
 }
@@ -259,7 +257,7 @@ TbBool is_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx)
     if ((ally_idx < 0) || (ally_idx >= PLAYERS_COUNT))
         return false;
 
-    return player->players_with_locked_ally_status & (1 << ally_idx); // returns true if player ally_idx's ally status is locked for player plyridx
+    return indexed_flag_is_set(player->players_with_locked_ally_status, ally_idx); // returns true if player ally_idx's ally status is locked for player plyridx
 }
 
 void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool lock_alliance)
@@ -272,9 +270,9 @@ void set_player_ally_locked(PlayerNumber plyr_idx, PlayerNumber ally_idx, TbBool
         return;
 
     if (lock_alliance)
-        player->players_with_locked_ally_status |= (1 << ally_idx); // lock ally player's ally status with player plyridx
+        set_indexed_flag(player->players_with_locked_ally_status, ally_idx); // lock ally player's ally status with player plyridx
     else
-        player->players_with_locked_ally_status &= ~(1 << ally_idx); // unlock ally player's ally status with player plyridx
+        clear_indexed_flag(player->players_with_locked_ally_status, ally_idx); // unlock ally player's ally status with player plyridx
 }
 
 void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_kind)
