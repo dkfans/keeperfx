@@ -192,7 +192,7 @@ typedef int ScreenCoord;
 typedef int RealScreenCoord;
 /** Player identification number, or owner of in-game thing/room/slab. */
 typedef signed char PlayerNumber;
-/** bitflags where each bit represents a player (e.g. player 0 = 0b001, player 3 = 0b100) */
+/** bitflags where each bit represents a player (e.g. player 0 = 0b001, player 3 = 0b100). */
 typedef unsigned char PlayerBitFlags;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
@@ -266,7 +266,6 @@ typedef long SubtlCodedCoords;
 typedef unsigned long SlabCodedCoords;
 /** Index in the columns array. */
 typedef short ColumnIndex;
-
 /** Movement speed on objects in the game. */
 typedef short MoveSpeed;
 /** Parameter for storing gold sum or price. */
@@ -293,7 +292,6 @@ typedef short FrontendMenuState;
 typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
-
 
 /* Stores a 2d coordinate (x,y).
 
