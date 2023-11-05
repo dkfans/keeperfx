@@ -71,11 +71,8 @@ enum AriadneUpdateSubStateManoeuvreValues {
 #define NAVMAP_FLOORHEIGHT_MAX  0x0f
 #define NAVMAP_FLOORHEIGHT_MASK 0x0f
 #define NAVMAP_UNSAFE_SURFACE   0x10
-#define NAVMAP_OWNERSELECT_BIT  5
-#define NAVMAP_OWNERSELECT_MAX  0x06
-#define NAVMAP_OWNERSELECT_MASK 0xE0
-#define NAVMAP_OWNER_HERO    5
-#define NAVMAP_OWNER_NEUTRAL 6
+#define NAVMAP_OWNERSELECT_BIT  6
+#define NAVMAP_OWNERSELECT_MASK 0x7E0
 
 struct Ariadne { // sizeof = 102
     /** Position where the journey stated. */
