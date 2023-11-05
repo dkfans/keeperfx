@@ -766,7 +766,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
         }
         else
         {
-            pos.x.val = creatng->mappos.x.val - nav_radius;
+            pos.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
             pos.x.stl.pos = 1;
             pos.x.val += nav_radius;
         }
@@ -776,13 +776,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
     {
         if (arg_pos->y.val >= creatng->mappos.y.val)
         {
-            pos.y.val = nav_radius + creatng->mappos.y.val;
+            pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
             pos.y.stl.pos = -1;
             pos.y.val -= nav_radius;
         }
         else
         {
-            pos.y.val = creatng->mappos.y.val - nav_radius;
+            pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
             pos.y.stl.pos = 1;
             pos.y.val += nav_radius;
         }
@@ -804,13 +804,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
         }
         if (arg_pos->y.val >= creatng->mappos.y.val)
         {
-            pos.y.val = nav_radius + creatng->mappos.y.val;
+            pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
             pos.y.stl.pos = -1;
             pos.y.val -= nav_radius;
         }
         else
         {
-            pos.y.val = creatng->mappos.y.val - nav_radius;
+            pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
             pos.y.stl.pos = 1;
             pos.y.val += nav_radius;
         }
@@ -900,13 +900,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.x.val >= creatng->mappos.x.val)
                     {
-                        pos.x.val = nav_radius + creatng->mappos.x.val;
+                        pos.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
                         pos.x.stl.pos = -1;
                         pos.x.val -= nav_radius;
                     }
                     else
                     {
-                        pos.x.val = creatng->mappos.x.val - nav_radius;
+                        pos.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
                         pos.x.stl.pos = 1;
                         pos.x.val += nav_radius;
                     }
@@ -916,13 +916,13 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.y.val >= creatng->mappos.y.val)
                     {
-                        pos.y.val = nav_radius + creatng->mappos.y.val;
+                        pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
                         pos.y.stl.pos = -1;
                         pos.y.val -= nav_radius;
                     }
                     else
                     {
-                        pos.y.val = creatng->mappos.y.val - nav_radius;
+                        pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
                         pos.y.stl.pos = 1;
                         pos.y.val += nav_radius;
                     }
@@ -932,25 +932,25 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     if (v47.x.val >= creatng->mappos.x.val)
                     {
-                        pos.x.val = nav_radius + creatng->mappos.x.val;
+                        pos.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
                         pos.x.stl.pos = -1;
                         pos.x.val -= nav_radius;
                     }
                     else
                     {
-                        pos.x.val = creatng->mappos.x.val - nav_radius;
+                        pos.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
                         pos.x.stl.pos = 1;
                         pos.x.val += nav_radius;
                     }
                     if (v47.y.val >= (unsigned int)creatng->mappos.y.val)
                     {
-                        pos.y.val = nav_radius + creatng->mappos.y.val;
+                        pos.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
                         pos.y.stl.pos = -1;
                         pos.y.val -= nav_radius;
                     }
                     else
                     {
-                        pos.y.val = creatng->mappos.y.val - nav_radius;
+                        pos.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
                         pos.y.stl.pos = 1;
                         pos.y.val += nav_radius;
                     }
@@ -1028,13 +1028,13 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->x.val >= creatng->mappos.x.val)
         {
-            pos_2.x.val = nav_radius + creatng->mappos.x.val;
+            pos_2.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
             pos_2.x.stl.pos = -1;
             pos_2.x.val -= nav_radius;
         }
         else
         {
-            pos_2.x.val = creatng->mappos.x.val - nav_radius;
+            pos_2.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
             pos_2.x.stl.pos = 1;
             pos_2.x.val += nav_radius;
         }
@@ -1044,13 +1044,13 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->y.val >= creatng->mappos.y.val)
         {
-            pos_2.y.val = nav_radius + creatng->mappos.y.val;
+            pos_2.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
             pos_2.y.stl.pos = -1;
             pos_2.y.val -= nav_radius;
         }
         else
         {
-            pos_2.y.val = creatng->mappos.y.val - nav_radius;
+            pos_2.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
             pos_2.y.stl.pos = 1;
             pos_2.y.val += nav_radius;
         }
@@ -1060,25 +1060,25 @@ static int get_starting_angle_and_side_of_hug_sub1(
     {
         if (pos->x.val >= creatng->mappos.x.val)
         {
-            pos_2.x.val = nav_radius + creatng->mappos.x.val;
+            pos_2.x.stl.num = (nav_radius + creatng->mappos.x.val) >> 8;
             pos_2.x.stl.pos = -1;
             pos_2.x.val -= nav_radius;
         }
         else
         {
-            pos_2.x.val = creatng->mappos.x.val - nav_radius;
+            pos_2.x.stl.num = (creatng->mappos.x.val - nav_radius) >> 8;
             pos_2.x.stl.pos = 1;
             pos_2.x.val += nav_radius;
         }
         if (pos->y.val >= creatng->mappos.y.val)
         {
-            pos_2.y.val = nav_radius + creatng->mappos.y.val;
+            pos_2.y.stl.num = (nav_radius + creatng->mappos.y.val) >> 8;
             pos_2.y.stl.pos = -1;
             pos_2.y.val -= nav_radius;
         }
         else
         {
-            pos_2.y.val = creatng->mappos.y.val - nav_radius;
+            pos_2.y.stl.num = (creatng->mappos.y.val - nav_radius) >> 8;
             pos_2.y.stl.pos = 1;
             pos_2.y.val += nav_radius;
         }
