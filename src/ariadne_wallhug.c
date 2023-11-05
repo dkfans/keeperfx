@@ -482,6 +482,9 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
             if (((mapblk->flags & slab_flags) == 0 && slb->kind != SlbT_ROCK)
              || ((slab_flags & mapblk->flags & SlbAtFlg_Filled) != 0 && CHECK_SLAB_OWNER))
             {
+                if (mapblk->flags & SlbAtFlg_IsRoom)
+                    if(mapblk->flags & SlbAtFlg_Blocking)
+                        return get_subtile_number(current_stl_x,current_stl_y); // if the subtile is a room pillar then we are colliding with it
                 continue; // Don't check the current slab for collision, because {assumption} it is a low slab (which the current creature is allowed to walk across).
             }
             if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
