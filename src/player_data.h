@@ -266,6 +266,7 @@ struct PlayerInfoAdd {
 };
 
 /******************************************************************************/
+
 extern unsigned char my_player_number;
 
 #pragma pack()

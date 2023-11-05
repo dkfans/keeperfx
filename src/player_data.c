@@ -49,6 +49,7 @@ long hero_player_number = HERO_PLAYER;
 struct PlayerInfo bad_player;
 struct PlayerInfoAdd bad_playeradd;
 
+/** The current player's player number. */
 unsigned char my_player_number;
 /******************************************************************************/
 struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name)

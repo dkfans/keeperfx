@@ -84,7 +84,6 @@ TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, M
 TbBool slabs_change_owner(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool slabs_change_type(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx);
-TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit);
 
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y);
 long get_ceiling_height(const struct Coord3d *pos);
