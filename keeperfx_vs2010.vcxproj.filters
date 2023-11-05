@@ -732,6 +732,12 @@
     <ClCompile Include="src\map_ceiling.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\config_slabsets.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config_textures.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -1371,6 +1377,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\map_ceiling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config_slabsets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config_textures.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

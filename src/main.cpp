@@ -983,7 +983,6 @@ void init_keeper(void)
     load_cubes_config(CnfLd_Standard);
     //load_cube_file();
     init_top_texture_to_cube_table();
-    load_texture_anim_file();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
       game.generate_speed = game.default_generate_speed;
