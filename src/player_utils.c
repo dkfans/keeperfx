@@ -571,7 +571,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         for(MapSubtlCoord lpstl_x = 0;lpstl_x < gameadd.map_subtiles_x;lpstl_x++)
         {
             struct Map *mapblk = get_map_block_at(lpstl_x,lpstl_y);
-            mapblk->revealed &= (~(1 << plyr_idx));
+            remove_player_from_flags(plyr_idx, mapblk->revealed);
         }
     }
 
@@ -788,23 +788,23 @@ void init_player(struct PlayerInfo *player, short no_explore)
         init_player_music(player);
     }
     // By default, player is his own ally
-    player->allied_players = (1 << player->id_number);
+    player->allied_players = player_bit_flag(player->id_number);
     player->hand_busy_until_turn = 0;
 }
 
 void init_players(void)
 {
-    for (int i = 0; i < PLAYERS_COUNT; i++)
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if ((game.packet_save_head.players_exist & (1 << i)) != 0)
+        if (player_is_flagged(i, game.packet_save_head.players_exist))
             player->allocflags |= PlaF_Allocated;
         else
             player->allocflags &= ~PlaF_Allocated;
         if (player_exists(player))
         {
             player->id_number = i;
-            if ((game.packet_save_head.players_comp & (1 << i)) != 0)
+            if (player_is_flagged(i, game.packet_save_head.players_comp))
                 player->allocflags |= PlaF_CompCtrl;
             else
                 player->allocflags &= ~PlaF_CompCtrl;
@@ -929,7 +929,7 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
     wandr->plyr_idx = plyr_idx;
     wandr->point_insert_idx = 0;
     wandr->last_checked_slb_num = 0;
-    wandr->plyr_bit = (1 << plyr_idx);
+    wandr->plyr_bit = player_bit_flag(plyr_idx);
     wandr->num_check_per_run = 20;
     wandr->max_found_per_check = 4;
     wandr->wdrfield_14 = 0;

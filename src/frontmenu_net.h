@@ -51,7 +51,7 @@ void frontnet_maintain_alliance(struct GuiButton *gbtn);
 void frontnet_messages_up_maintain(struct GuiButton *gbtn);
 void frontnet_messages_down_maintain(struct GuiButton *gbtn);
 void frontnet_start_game_maintain(struct GuiButton *gbtn);
-long frontnet_number_of_players_in_session(void);
+PlayerNumber frontnet_number_of_players_in_session(void);
 TbBool frontnet_start_input(void);
 void frontnet_draw_services_scroll_tab(struct GuiButton *gbtn);
 void frontnet_draw_service_button(struct GuiButton *gbtn);

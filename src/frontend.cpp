@@ -589,7 +589,7 @@ void get_player_gui_clicks(void)
   }
 }
 
-void add_message(long plyr_idx, char *msg)
+void add_message(PlayerNumber plyr_idx, char *msg)
 {
     struct NetMessage *nmsg;
     long i;
@@ -915,18 +915,18 @@ TbBool frontend_should_all_players_quit(void)
     return (net_service_index_selected <= 1);
 }
 
-TbBool frontend_is_player_allied(long idx1, long idx2)
+TbBool frontend_is_player_allied(PlayerNumber idx1, PlayerNumber idx2)
 {
     if (idx1 == idx2)
       return true;
-    if ((idx1 < 0) || (idx1 >= HERO_PLAYER))
+    if (idx1 >= HERO_PLAYER)
       return false;
-    if ((idx2 < 0) || (idx2 >= HERO_PLAYER))
+    if (idx2 >= HERO_PLAYER)
       return false;
     return ((frontend_alliances & alliance_grid[idx1][idx2]) != 0);
 }
 
-void frontend_set_alliance(long idx1, long idx2)
+void frontend_set_alliance(PlayerNumber idx1, PlayerNumber idx2)
 {
     if (frontend_is_player_allied(idx1, idx2))
       frontend_alliances &= ~alliance_grid[idx1][idx2];
@@ -1435,7 +1435,7 @@ void frontend_init_options_menu(struct GuiMenu *gmnu)
     }
 }
 
-void frontend_set_player_number(long plr_num)
+void frontend_set_player_number(PlayerNumber plr_num)
 {
     struct PlayerInfo *player;
     my_player_number = plr_num;

@@ -43,12 +43,10 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-long frontnet_number_of_players_in_session(void)
+PlayerNumber frontnet_number_of_players_in_session(void)
 {
-    long i;
-    long nplyr;
-    nplyr = 0;
-    for (i=0; i < NET_PLAYERS_COUNT; i++)
+    PlayerNumber nplyr = 0;
+    for (PlayerNumber i = 0; i < NET_PLAYERS_COUNT; i++)
     {
       if (network_player_active(i))
         nplyr++;
@@ -253,7 +251,7 @@ void frontnet_session_join(struct GuiButton *gbtn)
     plyr_num = network_session_join();
     if (plyr_num < 0)
         return;
-    frontend_set_player_number(plyr_num);
+    frontend_set_player_number((PlayerNumber)plyr_num);
     frontend_set_state(FeSt_NET_START);
 }
 

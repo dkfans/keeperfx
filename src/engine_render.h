@@ -115,7 +115,7 @@ extern Offset vert_offset[3];
 extern Offset hori_offset[3];
 extern Offset high_offset[3];
 
-extern unsigned char player_bit;
+extern PlayerBitFlag player_bit;
 
 extern TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
 extern TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];

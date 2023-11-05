@@ -856,7 +856,7 @@ TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNu
 
 short player_keeping_creature_in_custody(const struct Thing* thing)
 {
-    for (int plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (thing_is_picked_up_by_player(thing, plyr_idx))
         {
@@ -3640,7 +3640,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
     struct Column* col;
 
     // NB: the code assumes PLAYERS_COUNT = DUNGEONS_COUNT
-    for (int i = 0; i < PLAYERS_COUNT; ++i)
+    for (PlayerNumber i = 0; i < PLAYERS_COUNT; ++i)
     {
         struct PlayerInfo* player = get_player(i);
         struct Dungeon* dgn = get_dungeon(i);
@@ -3651,7 +3651,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
             continue;
 
         // Player dungeon already broken into
-        if (cctrl->party.player_broken_into_flags & (1 << i))
+        if (player_is_flagged(i, cctrl->party.player_broken_into_flags))
             continue;
 
         if (!subtile_revealed(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, i))
@@ -3666,7 +3666,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
         if (!creature_can_navigate_to(creatng, &game.things.lookup[dgn->dnheart_idx]->mappos, NavRtF_Default))
             continue;
 
-        cctrl->party.player_broken_into_flags |= 1 << i;
+        add_player_to_flags(i, cctrl->party.player_broken_into_flags);
         ++dgn->times_broken_into;
         event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Breach, i, 0);
         if (is_my_player_number(i))
