@@ -39,7 +39,7 @@ extern "C" {
 
 struct CubeAttribs { // sizeof=0x12
     unsigned short texture_id[CUBE_TEXTURES];
-    unsigned char field_C[CUBE_TEXTURES];
+    unsigned char flags[CUBE_TEXTURES];
 };
 
 #pragma pack()

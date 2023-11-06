@@ -126,7 +126,7 @@ struct Objects {
     short sprite_anim_idx;
     short anim_speed;
     short size_xy;
-    short size_yz;
+    short size_z;
     short sprite_size_max;
     unsigned char field_F;      // Lower 2 bits are transparency flags
     unsigned short fp_smpl_idx;

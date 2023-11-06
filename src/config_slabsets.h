@@ -1,14 +1,14 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file engine_textures.h
- *     Header file for engine_textures.c.
+/** @file config_trapdoor.h
+ *     Header file for config_trapdoor.c.
  * @par Purpose:
- *     Texture blocks support.
+ *     Traps and doors configuration loading functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
- * @date     02 Apr 2010 - 02 May 2014
+ * @date     25 May 2009 - 21 Dec 2010
  * @par  Copying and copyrights:
  *     This program is free software; you can redistribute it and/or modify
  *     it under the terms of the GNU General Public License as published by
@@ -16,33 +16,25 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
+#ifndef DK_CFGSLABS_H
+#define DK_CFGSLABS_H
 
-#ifndef DK_ENGNTEXTR_H
-#define DK_ENGNTEXTR_H
-
-#include "bflib_basics.h"
 #include "globals.h"
-#include "game_legacy.h"
+#include "bflib_basics.h"
+#include "map_columns.h"
+
+#include "config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-// Num of known texture files
-#define TEXTURE_FILES_COUNT           16
+extern const char keeper_slabset_file[];
+extern const char keeper_columns_file[];
 
-#define  TEXTURE_LAND_MARKED_LAND     578
-#define  TEXTURE_LAND_MARKED_GOLD     579
-/******************************************************************************/
 
-extern unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
-extern unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];
-extern long block_dimension;
-/******************************************************************************/
-void setup_texture_block_mem(void);
-short init_animating_texture_maps(void);
-short update_animating_texture_maps(void);
-TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n);
+TbBool load_slabset_config(const char *conf_fname,unsigned short flags);
+TbBool load_columns_config(const char *conf_fname,unsigned short flags,struct Column *cols,long *ccount);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -240,9 +240,9 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
             {
                 if ( room_scores[room->index] == best_score )
                 {
-                    room_center_pos.x.stl.num = room->central_stl_x;
-                    room_center_pos.y.stl.num = room->central_stl_y;
-                    room_center_pos.z.val = 256;
+                    room_center_pos.x.val = subtile_coord_center(room->central_stl_x);
+                    room_center_pos.y.val = subtile_coord_center(room->central_stl_y);
+                    room_center_pos.z.val = get_floor_height_at(&room_center_pos);
                     distance = get_2d_box_distance(&creatng->mappos, &room_center_pos);
 
                     if ( min_distance > distance )

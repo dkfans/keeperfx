@@ -256,14 +256,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->base_speed = 1;
       crstat->gold_hold = 100;
       crstat->size_xy = 1;
-      crstat->size_yz = 1;
+      crstat->size_z = 1;
       crstat->attack_preference = 0;
       crstat->pay = 1;
       crstat->hero_vs_keeper_cost = 0;
       crstat->slaps_to_kill = 10;
       crstat->damage_to_boulder = 4;
       crstat->thing_size_xy = 128;
-      crstat->thing_size_yz = 64;
+      crstat->thing_size_z = 64;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
       crstat->immune_to_gas = false;
@@ -531,7 +531,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->size_yz = k;
+            crstat->size_z = k;
             n++;
           }
           if (n < 2)
@@ -624,7 +624,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->thing_size_yz = k;
+            crstat->thing_size_z = k;
             n++;
           }
           if (n < 2)

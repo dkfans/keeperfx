@@ -637,7 +637,7 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
     int height;
     int max_height;
     max_height = get_ceiling_height_above_thing_at(droptng, &locpos);
-    height = locpos.z.val + droptng->clipbox_size_yz;
+    height = locpos.z.val + droptng->clipbox_size_z;
     if (max_height <= height) {
         ERRORLOG("Ceiling is too low to drop %s at (%d,%d)", thing_model_name(droptng),(int)locpos.x.stl.num,(int)locpos.y.stl.num);
         return 0;

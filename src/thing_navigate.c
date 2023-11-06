@@ -723,10 +723,10 @@ long get_next_gap_creature_can_fit_in_below_point(struct Thing *thing, struct Co
 
     if (pos->z.val < highest_floor)
         return pos->z.val;
-    if (lowest_ceiling - thing->clipbox_size_yz <= highest_floor)
+    if (lowest_ceiling - thing->clipbox_size_z <= highest_floor)
         return pos->z.val;
     else
-        return lowest_ceiling - 1 - thing->clipbox_size_yz;
+        return lowest_ceiling - 1 - thing->clipbox_size_z;
 }
 
 TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coord3d *pos1, struct Coord3d *pos2)
@@ -738,7 +738,7 @@ TbBool thing_covers_same_blocks_in_two_positions(struct Thing *thing, struct Coo
      && (abs((pos2->y.val - nav_radius) - (pos1->y.val - nav_radius)) < COORD_PER_STL)
      && (abs((pos2->y.val + nav_radius) - (pos1->y.val + nav_radius)) < COORD_PER_STL)
      && (abs(pos2->z.val - pos1->z.val) < COORD_PER_STL)
-     && (abs((thing->clipbox_size_yz + pos2->z.val) - (thing->clipbox_size_yz + pos1->z.val)) < COORD_PER_STL) )
+     && (abs((thing->clipbox_size_z + pos2->z.val) - (thing->clipbox_size_z + pos1->z.val)) < COORD_PER_STL) )
     {
         return true;
     }

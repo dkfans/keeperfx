@@ -983,7 +983,6 @@ void init_keeper(void)
     load_cubes_config(CnfLd_Standard);
     //load_cube_file();
     init_top_texture_to_cube_table();
-    load_texture_anim_file();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
       game.generate_speed = game.default_generate_speed;
@@ -1657,7 +1656,6 @@ void clear_map(void)
     clear_mapmap();
     clear_slabs();
     clear_columns();
-    clear_slabsets();
 }
 
 void clear_things_and_persons_data(void)
@@ -1801,6 +1799,7 @@ void clear_game(void)
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
     init_thing_objects();
+    clear_slabsets();
 }
 
 void clear_game_for_save(void)
@@ -4025,10 +4024,6 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr,"q") == 0)
       {
          set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
-      } else
-      if (strcasecmp(parstr,"columnconvert") == 0)
-      {
-         set_flag_byte(&start_params.operation_flags,GOF_ColumnConvert,true);
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
