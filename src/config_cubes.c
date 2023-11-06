@@ -221,7 +221,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                           COMMAND_TEXT(cmd_num),block_buf,config_textname);
                       break;
                     }
-                    cubed->field_C[n] = k;
+                    cubed->flags[n] = k;
                     n++;
                 }
                 if (n < CUBE_TEXTURES)
@@ -341,7 +341,7 @@ void clear_cubes(void)
         }
         for (n = 0; n < CUBE_TEXTURES; n++)
         {
-            cubed->field_C[n] = 0;
+            cubed->flags[n] = 0;
         }
   }
 }
@@ -389,7 +389,7 @@ long load_cube_file(void)
                 cubed->texture_id[n] = cubuf->texture_id[n];
             }
             for (n=0; n < CUBE_TEXTURES; n++) {
-                cubed->field_C[n] = cubuf->field_C[n];
+                cubed->flags[n] = cubuf->flags[n];
             }
             cubuf++;
         }
