@@ -2761,7 +2761,7 @@ void update(void)
     }
     if (game.game_kind == GKind_Unknown1)
     {
-        game.map_changed_for_nagivation = 0;
+        game.update_navigation = false;
         return;
     }
     player = get_my_player();
@@ -2809,7 +2809,7 @@ void update(void)
     message_update();
     update_all_players_cameras();
     update_player_sounds();
-    game.map_changed_for_nagivation = 0;
+    game.update_navigation = false;
     SYNCDBG(6,"Finished");
 }
 
