@@ -481,34 +481,35 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
             struct Map* mapblk = get_map_block_at(current_stl_x,current_stl_y);
             struct SlabMap* slb = get_slabmap_block(subtile_slab(current_stl_x), subtile_slab(current_stl_y));
 
-            // if the current subtile has none of the attribute flags passed to this function (as slab_flags) and is not ROCK
-            // OR the current subtile is a dungeon wall that we should dig through
+            // If the current subtile has none of the attribute flags passed to this function (as slab_flags) and is not ROCK
+            // OR the current subtile is a dungeon wall that we should dig through.
             if (((mapblk->flags & slab_flags) == 0 && slb->kind != SlbT_ROCK)
              || ((slab_flags & mapblk->flags & SlbAtFlg_Filled) != 0 && CHECK_SLAB_OWNER))
             {
-                // "room pillars" get through the above check.
-                // if the subtile is a "room pillar"
+                // Note: "room pillars" get through the above check.
+                // If the subtile is a "room pillar"
                 if ((mapblk->flags & SlbAtFlg_IsRoom) && (mapblk->flags & SlbAtFlg_Blocking))
                 {
-                    return get_subtile_number(current_stl_x,current_stl_y); // then the creature collided with a "room pillar"
+                    return get_subtile_number(current_stl_x,current_stl_y); // then the creature collided with a "room pillar".
                 }
-                        
-                continue; // else there is no collision: the creature can path through the current subtile.
+                // else there is nothing for the creature to collide with on the subtile (creature can path through subtile).
+                continue;  // Continue the loop and check the next subtile.
             }
-            // else potential collision
-            // if the subtile is not flagged as a door
+            // else there is a potential collision.
+            // If the subtile is not flagged as a door
             if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
             {
-                return get_subtile_number(current_stl_x,current_stl_y); // the creature collided with ROCK, or a subtile with any attribute flag that was passed to this function (as slab_flags), or a dungeon wall we aren't allowed to dig
+                return get_subtile_number(current_stl_x,current_stl_y); // then the creature collided with ROCK, or a subtile with any attribute flag that was passed to this function (as slab_flags), or a dungeon wall we aren't allowed to dig
             }
-            // else the subtile is flagged as a door
+            // else the subtile is flagged as a door.
             struct Thing *doortng = get_door_for_position(current_stl_x, current_stl_y);
-            // if there is no valid door in the subtile, or the door is impassable for the creature
+            // If there is no valid door in the subtile, or the door is impassable for the creature
             if (thing_is_invalid(doortng) || !door_will_open_for_thing(doortng, creatng))
             {
-                return get_subtile_number(current_stl_x,current_stl_y); // the creature collied with an invalid door, or a door the creature cannot pass
+                return get_subtile_number(current_stl_x,current_stl_y); // then the creature collided with an invalid door, or a door the creature cannot pass.
             }
-            // else there is no collision: the subtile is a valid door that the creature can pass
+            // Else there is nothing for the creature to collide with on the subtile (the subtile has a valid door that the creature can pass).
+            // Continue the loop and check the next subtile.
         }
     }
     return -1;        
