@@ -109,8 +109,8 @@ TbBool get_nearest_valid_position_for_creature_at(struct Thing *thing, struct Co
         
         if ( (mapblk->flags & SlbAtFlg_Blocking) == 0 )
         {
-            spiral_pos.x.val = (stl_x << 8) + 128;
-            spiral_pos.y.val = (stl_y << 8) + 128;
+            spiral_pos.x.val = subtile_coord_center(stl_x);
+            spiral_pos.y.val = subtile_coord_center(stl_y);
             spiral_pos.z.val = get_thing_height_at(thing, &spiral_pos);
             if ( !thing_in_wall_at(thing, &spiral_pos) )
             {
@@ -138,14 +138,18 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
     else
         owner_player_navigating = thing->owner;
     nav_sizexy = thing_nav_block_sizexy(thing);
-    if (nav_sizexy > 0) nav_sizexy--;
-    nearest_search(nav_sizexy, thing->mappos.x.val, thing->mappos.y.val,
-      pos1->x.val, pos1->y.val, &px, &py);
+    if (nav_sizexy > 0)
+    {
+        nav_sizexy--;
+    }
+    nearest_search(nav_sizexy, thing->mappos.x.val, thing->mappos.y.val, pos1->x.val, pos1->y.val, &px, &py);
     pos2->x.val = px;
     pos2->y.val = py;
     pos2->z.val = get_thing_height_at(thing, pos2);
     if (thing_in_wall_at(thing, pos2))
+    {
         get_nearest_valid_position_for_creature_at(thing, pos2);
+    }
     nav_thing_can_travel_over_lava = 0;
 }
 
@@ -197,6 +201,9 @@ TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord st
         return false;
     }
     struct Coord3d navpos;
+    navpos.x.val = 0;
+    navpos.y.val = 0;
+    navpos.z.val = 0;
     get_nearest_navigable_point_for_thing(thing, &trgpos, &navpos, flags);
     if (!creature_can_navigate_to_with_storage(thing, &navpos, flags))
     {
@@ -389,8 +396,11 @@ TbBool creature_can_get_to_dungeon_heart(struct Thing *creatng, PlayerNumber ply
 TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int flags)
 {
     struct Coord3d pos;
-    return find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos)
-        && creature_can_navigate_to_with_storage(thing, &pos, flags);
+    if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
+    {
+        return creature_can_navigate_to_with_storage(thing, &pos, flags);
+    }
+    return false;
 }
 
 long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)

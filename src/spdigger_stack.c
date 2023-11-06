@@ -503,11 +503,11 @@ static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, Ma
     int continue_state;
     struct CreatureControl *cctrl;
     struct Coord3d pos2;
-
+    pos2.x.val = 0;
+    pos2.y.val = 0;
     pos2.x.stl.num = stl_x;
-    pos2.x.stl.pos = 0;
     pos2.y.stl.num = stl_y;
-    pos2.y.stl.pos = 0;
+    
     owner = creatng->owner;
     struct Dungeon *dungeon = get_dungeon(owner);
     struct Thing *thing = thing_get(dungeon->digger_list_start);
@@ -944,6 +944,9 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
 {
     long distance;
     struct Coord3d reinforce_pos;
+    reinforce_pos.x.val = 0;
+    reinforce_pos.y.val = 0;
+    reinforce_pos.z.val = 0;
     SubtlCodedCoords final_working_stl;
 
     struct CreatureControl *cctrl = creature_control_get_from_thing(spdigtng);

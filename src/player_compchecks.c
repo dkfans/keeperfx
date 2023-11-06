@@ -682,9 +682,7 @@ long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerChec
     }
     struct Coord3d pos;
     // TODO COMPUTER_PLAYER We should make sure the place of cast is accessible for creatures
-    pos.x.val = subtile_coord_center(room->central_stl_x);
-    pos.y.val = subtile_coord_center(room->central_stl_y);
-    pos.z.val = subtile_coord(1,0);
+    set_coords_to_subtile_center(&pos, room->central_stl_x, room->central_stl_y, 1);
     if (count_creatures_availiable_for_fight(comp, &pos) <= check->param3) {
         return CTaskRet_Unk4;
     }

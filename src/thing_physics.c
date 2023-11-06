@@ -745,8 +745,7 @@ long get_ceiling_height_above_thing_at(const struct Thing *thing, const struct C
     return subtile_coord(ceiling_height,0);
 }
 
-void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing,
-    const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor)
+void get_floor_and_ceiling_height_under_thing_at(const struct Thing *thing, const struct Coord3d *pos, MapCoord *floor_height_cor, MapCoord *ceiling_height_cor)
 {
     long i;
     if (thing_is_creature(thing)) {
