@@ -230,6 +230,9 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     MapCoordDelta distance;
     MapCoordDelta min_distance = INT_MAX;
     struct Coord3d room_center_pos;
+    room_center_pos.x.val = 0;
+    room_center_pos.y.val = 0;
+    room_center_pos.z.val = 0;
 
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
