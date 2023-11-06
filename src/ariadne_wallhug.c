@@ -499,7 +499,7 @@ static long get_map_index_of_first_block_thing_colliding_with_at(struct Thing *c
             // If the subtile is not flagged as a door
             if ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
             {
-                return get_subtile_number(current_stl_x,current_stl_y); // then the creature collided with ROCK, or a subtile with any attribute flag that was passed to this function (as slab_flags), or a dungeon wall we aren't allowed to dig
+                return get_subtile_number(current_stl_x,current_stl_y); // then the creature collided with ROCK, or a subtile with any attribute flag that was passed to this function (as slab_flags), or a dungeon wall we aren't allowed to dig.
             }
             // else the subtile is flagged as a door.
             struct Thing *doortng = get_door_for_position(current_stl_x, current_stl_y);
