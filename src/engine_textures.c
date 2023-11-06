@@ -37,7 +37,6 @@ extern "C" {
 /******************************************************************************/
 unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
 unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];
-unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
 
 long block_dimension = 32;
 long block_count_per_row = 8;
@@ -103,18 +102,6 @@ short update_animating_texture_maps(void)
       dst += TEXTURE_BLOCKS_COUNT;
   }
   return result;
-}
-
-long load_texture_anim_file(void)
-{
-    SYNCDBG(8,"Starting");
-    char* fname = prepare_file_path(FGrp_StdData, "tmapanim.dat");
-    SYNCDBG(0,"Reading animated tmap file \"%s\".",fname);
-    if (LbFileLoadAt(fname, game.texture_animation) != sizeof(game.texture_animation))
-    {
-        return false;
-    }
-    return true;
 }
 
 static TbBool load_one_file(unsigned long tmapidx, void *dst)

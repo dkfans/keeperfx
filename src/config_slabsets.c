@@ -70,43 +70,6 @@ const struct NamedCommand slab_styles_commands[] = {
     {"CENTER",   27}
 };
 
-TbBool load_toml_file(const char *textname, const char *fname,VALUE *value)
-{
-    SYNCDBG(5,"Starting");
-    long len = LbFileLengthRnc(fname);
-    if (len < MIN_CONFIG_FILE_SIZE)
-    {
-        WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
-    if (buf == false)
-        return false;
-    // Loading file data
-    long fsize = LbFileLoadAt(fname, buf);
-
-    if (fsize < len)
-    {
-        WARNMSG("failed to read the %s file \"%s\".",textname,fname);
-        LbMemoryFree(buf);
-        return false;
-    }
-    
-    if (buf == false)
-        return false;
-    char err[255];
-    
-
-    if (toml_parse((char*)buf, err, sizeof(err), value))
-    {
-        WARNMSG("Unable to load %s file\n %s", fname, err);
-        LbMemoryFree(buf);
-        return false;
-    }
-    LbMemoryFree(buf);
-    return true;
-}
-
 TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     VALUE file_root;
@@ -197,7 +160,6 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
     }
 
     long count = value_int32(value_dict_get(common_section, "ColumnsCount"));
-    JUSTLOG("count %d",count);
     if (count > *ccount)
     {
         *ccount = count;

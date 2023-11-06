@@ -231,6 +231,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"Unstable",            33},
   {"Unsellable",          34},
   {"PlaceOnBridge",       35},
+  {"ShotOrigin",          36},
   {NULL,                   0},
 };
 
@@ -1740,6 +1741,11 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 35: // PlaceOnBridge
             trapst->placeonbridge = value;
+            break;
+        case 36: // ShotOrigin
+            gameadd.trap_stats[trap_type].shot_shift_x = value;
+            gameadd.trap_stats[trap_type].shot_shift_y = value2;
+            gameadd.trap_stats[trap_type].shot_shift_z = value3;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
