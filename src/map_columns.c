@@ -207,7 +207,7 @@ long get_top_cube_at_pos(SubtlCodedCoords stl_num)
     if (top_pos > 0)
         tcube = col->cubes[top_pos-1];
     else
-        tcube = game.top_cube[col->baseblock];
+        tcube = game.top_cube[col->floor_texture];
     return tcube;
 }
 
@@ -221,7 +221,7 @@ long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *cube_pos)
     if (top_pos > 0)
         tcube = col->cubes[top_pos-1];
     else
-        tcube = game.top_cube[col->baseblock];
+        tcube = game.top_cube[col->floor_texture];
     if (cube_pos != NULL)
         *cube_pos = top_pos;
     return tcube;
@@ -321,7 +321,7 @@ long get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 static TbBool column_is_equivalent(struct Column * const src, struct Column *dst)
 {
-    if ((src->baseblock != dst->baseblock) ||
+    if ((src->floor_texture != dst->floor_texture) ||
         (src->solidmask != dst->solidmask) ||
         (src->orient != dst->orient))
         return 0;
@@ -420,7 +420,7 @@ void clear_columns(void)
   {
     colmn = &game.columns_data[i];
     LbMemorySet(colmn, 0, sizeof(struct Column));
-    colmn->baseblock = 1;
+    colmn->floor_texture = 1;
     make_solidmask(colmn);
   }
   game.unrevealed_column_idx = 0;
@@ -495,7 +495,7 @@ void init_whole_blocks(void)
     long i;
     LbMemorySet(&lcolmn, 0, sizeof(struct Column));
     // Prepare the local column
-    lcolmn.baseblock = 22;
+    lcolmn.floor_texture = 22;
     lcolmn.cubes[0] = 10;
     lcolmn.cubes[1] = 1;
     lcolmn.cubes[2] = 1;

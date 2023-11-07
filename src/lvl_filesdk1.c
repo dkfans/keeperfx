@@ -985,7 +985,7 @@ TbBool columns_add_static_entries(void)
     for (long i=0; i < 3; i++)
     {
         LbMemorySet(&lcolmn, 0, sizeof(struct Column));
-        lcolmn.baseblock = c[i];
+        lcolmn.floor_texture = c[i];
         for (long k = 0; k < 6; k++)
         {
           lcolmn.cubes[0] = player_cubes[k];
@@ -1015,7 +1015,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
             long ncol;
             if (n >= 0)
             {
-                lcolmn.baseblock = n;
+                lcolmn.floor_texture = n;
                 ncol = find_column(&lcolmn);
                 if (ncol == 0)
                 {

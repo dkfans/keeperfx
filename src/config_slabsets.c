@@ -219,7 +219,7 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
             cols[col_no].use = value_int32(value_dict_get(section, "Utilized"));
             cols[col_no].bitfields = bitfields;
             cols[col_no].solidmask = value_int32(value_dict_get(section, "SolidMask"));
-            cols[col_no].baseblock = value_int32(value_dict_get(section, "FloorTexture"));
+            cols[col_no].floor_texture = value_int32(value_dict_get(section, "FloorTexture"));
             cols[col_no].orient = value_int32(value_dict_get(section, "Orientation"));
 
             VALUE *Cubes_arr = value_dict_get(section, "Cubes");
