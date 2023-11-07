@@ -218,7 +218,7 @@ void make_uppercase(char *);
  * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to check in the "flags" parameter.
  * @return Returns TRUE if the given masked bit is set to 1 in the given flags variable.
  */
-#define flag_is_set(flags,mask) (flags & mask == mask)
+#define flag_is_set(flags,mask) ((flags & mask) == mask)
 
 /** 
  * Check if all of the flags are set - by checking if all of the bits are set to 1 in the given flags variable.
