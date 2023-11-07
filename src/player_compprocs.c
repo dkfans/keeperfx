@@ -1165,7 +1165,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
     struct Coord3d *pos;
 
     struct Dungeon *dungeon = comp->dungeon;
-    PlayerBitFlags potential_opponents = index_to_flag(dungeon->owner);
+    PlayerBitFlags potential_opponents = to_flag(dungeon->owner);
     MapSubtlDelta radius = range / 2;
 
     MapSubtlCoord stl_x_start = STL_PER_SLB * ((stl_x - radius) / STL_PER_SLB);
@@ -1200,14 +1200,14 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                 struct SlabAttr *slbattr = get_slab_kind_attrs(slb->kind);
                 if (slab_owner != game.neutral_player_num || (((slbattr->block_flags & (SlbAtFlg_Valuable | SlbAtFlg_Digable | SlbAtFlg_Filled)) == 0) && slb->kind != SlbT_LAVA))
                 {
-                    if (!indexed_flag_is_set(potential_opponents, slab_owner) && (get_slabmap_for_subtile(stl_x_current,stl_y_current)->flags & 7) == slab_owner)
+                    if (!flag_is_set(potential_opponents, to_flag(slab_owner)) && (get_slabmap_for_subtile(stl_x_current,stl_y_current)->flags & 7) == slab_owner)
                     {
                         if ((block_flags = slbattr->block_flags,
                              ((block_flags & SlbAtFlg_Blocking) == 0) &&
                                  slb->kind != SlbT_LAVA) ||
                             (block_flags & 2) != 0)
                         {
-                            set_indexed_flag(potential_opponents, slab_owner);
+                            set_flag(potential_opponents, to_flag(slab_owner));
                             current_idx = comp->opponent_relations[slab_owner].next_idx;
                             slab_owner = slab_owner;
                             pos = &comp->opponent_relations[slab_owner].pos_A[current_idx];
@@ -1217,7 +1217,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                             pos->x.stl.pos = 0;
                             pos->y.stl.num = stl_y_current;
                             pos->y.stl.pos = 0;
-                            if (all_flags_set(potential_opponents, game.neutral_player_num)) // exit early if every player is a potential opponent
+                            if (all_flags_are_set(potential_opponents, PLAYERS_EXT_COUNT)) // exit early if every player is a potential opponent
                                 return potential_opponents;
                         }
                     }
@@ -1228,7 +1228,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
         stl_y_current += STL_PER_SLB;
     }
 
-    if (potential_opponents == index_to_flag(dungeon->owner)) // no opponents found
+    if (potential_opponents == to_flag(dungeon->owner)) // no opponents found
         return -1;
     else
         return potential_opponents;

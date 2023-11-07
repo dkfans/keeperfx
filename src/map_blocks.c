@@ -378,7 +378,7 @@ void set_slab_explored_flags(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
 {
     MapSubtlCoord stl_y = STL_PER_SLB * slb_y;
     MapSubtlCoord stl_x = STL_PER_SLB * slb_x;
-    PlayerBitFlags flag = index_to_flag(plyr_idx);
+    PlayerBitFlags flag = to_flag(plyr_idx);
     struct Map *mapblk = get_map_block_at(stl_x, stl_y);
 
     if (mapblk->revealed != flag)

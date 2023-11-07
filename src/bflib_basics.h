@@ -178,28 +178,57 @@ void make_uppercase(char *);
 
 // TODO: refactor usage of set_flag_* and toggle_flag_* functions to use the following macros instead
 
-/** Returns TRUE if the masked bit is set in the given bitflags. */
-#define flag_is_set(flags, masked_bit) (flags & masked_bit)
-/** Set the masked bit in the given bitflags. */
-#define set_flag(flags, masked_bit) flags |= masked_bit
-/** Clear the masked bit in the given bitflags. */
-#define clear_flag(flags, masked_bit) flags &= ~(masked_bit)
-/** Toggle the masked bit in the given bitflags. */
-#define toggle_flag(flags, masked_bit) flags ^= masked_bit
+/**
+ * Converts an index number to a flag - by creating a bitmask where only the nth bit is set to 1.
+ * For example: idx=0 returns 0b000001, idx=1 returns 0b000010, idx=2 returns 0b000100.
+ * 
+ * @param idx The index number of the flag, or n, used to set the nth bit of the mask to 1.
+ * @return Returns a bitmask with a single masked bit (aka "flag", "bitflag").
+ */
+#define to_flag(idx) (1 << idx)
 
-/** convert an index number to a bitflag (e.g. idx 0 = 0b001, idx 3 = 0b100). */
-#define index_to_flag(idx) (1 << idx)
-/** Returns TRUE if the nth bit is set in the given bitflags. */
-#define indexed_flag_is_set(flags, n) flag_is_set(flags, index_to_flag(n))
-/** Set the nth bit in the given bitflags. */
-#define set_indexed_flag(flags, n) set_flag(flags, index_to_flag(n))
-/** Clear the nth bit in the given bitflags. */
-#define clear_indexed_flag(flags, n) clear_flag(flags, index_to_flag(n))
-/** Toggle the nth bit in the given bitflags. */
-#define toggle_indexed_flag(flags, n) toggle_flag(flags, index_to_flag(n))
+/** 
+ * Set a flag* - by setting the given masked bit(s) to 1 in the given flags variable. *Can set multiple flags.
+ * 
+ * @param flags The flags variable we want to change.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to set.
+ */
+#define set_flag(flags,mask) flags |= mask
 
-/** Returns TRUE if the all flags (up to the given max index) are set in the given bitflags. */
-#define all_flags_set(flags, max_index) ((1 << (max_index + 1)) - flags == 1)
+/** 
+ * Clear a flag* - by setting the given masked bit(s) to 0 in the given flags variable. *Can clear multiple flags.
+ * 
+ * @param flags The flags variable we want to change.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to clear.
+ */
+#define clear_flag(flags,mask) flags &= ~(mask)
+
+/** 
+ * Toggle a given flag* between set/cleared - by toggling the given masked bit(s) in the given flags variable. *Can toggle multiple flags.
+ * 
+ * @param flags The flags variable we want to change.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to toggle.
+ */
+#define toggle_flag(flags,mask) flags ^= mask
+
+/** 
+ * Check if the given flag* is set - by checking if the given masked bits are set to 1 in the given flags variable. *Can check for multiple flags.
+ * 
+ * @param flags The flags variable we want to check.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to check in the "flags" parameter.
+ * @return Returns TRUE if the given masked bit is set to 1 in the given flags variable.
+ */
+#define flag_is_set(flags,mask) (flags & mask == mask)
+
+/** 
+ * Check if all of the flags are set - by checking if all of the bits are set to 1 in the given flags variable.
+ * For example: all 6 players set in a flags variable would be 0b111111.
+ * 
+ * @param flags The flags variable we want to check.
+ * @param count The number of bits used by the flags variable.
+ * @return Returns TRUE if all bits are set to 1 in the given flags variable.
+ */
+#define all_flags_are_set(flags,count) ((1 << count) - flags == 1)
 /******************************************************************************/
 #ifdef __cplusplus
 }

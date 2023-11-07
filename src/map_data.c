@@ -205,12 +205,12 @@ TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
 
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
 {
-    set_indexed_flag(mapblk->revealed, plyr_idx);
+    set_flag(mapblk->revealed, to_flag(plyr_idx));
 }
 
 void conceal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
 {
-    clear_indexed_flag(mapblk->revealed, plyr_idx);
+    clear_flag(mapblk->revealed, to_flag(plyr_idx));
 }
 
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param)
@@ -312,14 +312,14 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
         {
             if (players_are_mutual_allies(plyr_idx, i))
             {
-                if (indexed_flag_is_set(mapblk->revealed, i))
+                if (flag_is_set(mapblk->revealed, to_flag(i)))
                     return true;
             }
         }
     }
     else
     {
-        if (indexed_flag_is_set(mapblk->revealed, plyr_idx))
+        if (flag_is_set(mapblk->revealed, to_flag(plyr_idx)))
             return true;
     }
     return false;

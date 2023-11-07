@@ -788,7 +788,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         init_player_music(player);
     }
     // By default, player is his own ally
-    player->allied_players = index_to_flag(player->id_number);
+    player->allied_players = to_flag(player->id_number);
     player->hand_busy_until_turn = 0;
 }
 
@@ -797,14 +797,14 @@ void init_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if (indexed_flag_is_set(game.packet_save_head.players_exist, i))
+        if (flag_is_set(game.packet_save_head.players_exist, to_flag(i)))
             player->allocflags |= PlaF_Allocated;
         else
             player->allocflags &= ~PlaF_Allocated;
         if (player_exists(player))
         {
             player->id_number = i;
-            if (indexed_flag_is_set(game.packet_save_head.players_comp, i))
+            if (flag_is_set(game.packet_save_head.players_comp, to_flag(i)))
                 player->allocflags |= PlaF_CompCtrl;
             else
                 player->allocflags &= ~PlaF_CompCtrl;
@@ -929,7 +929,7 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
     wandr->plyr_idx = plyr_idx;
     wandr->point_insert_idx = 0;
     wandr->last_checked_slb_num = 0;
-    wandr->plyr_bit = index_to_flag(plyr_idx);
+    wandr->plyr_bit = to_flag(plyr_idx);
     wandr->num_check_per_run = 20;
     wandr->max_found_per_check = 4;
     wandr->wdrfield_14 = 0;
