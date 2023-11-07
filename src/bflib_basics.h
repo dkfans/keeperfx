@@ -225,7 +225,7 @@ void make_uppercase(char *);
  * For example: all 6 players set in a flags variable would be 0b111111.
  * 
  * @param flags The flags variable we want to check.
- * @param count The number of bits used by the flags variable, i.e how many bits are there in "all of the bits".
+ * @param count The number of bits used by the flags variable, i.e the count of "all of the bits".
  * @return Returns TRUE if all bits are set to 1 in the given flags variable.
  */
 #define all_flags_are_set(flags,count) ((1 << count) - flags == 1)
