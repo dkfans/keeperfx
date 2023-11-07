@@ -467,17 +467,6 @@ struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name)
     return INVALID_PLAYER_ADD;
 }
 
-PlayerNumber player_bit_to_player_number(unsigned char plyr_bit)
-{
-    PlayerNumber result = 0;
-    while (plyr_bit != 0)
-    {
-        result++;
-        plyr_bit >>= 1;
-    }
-    return (result - 1);
-}
-
 unsigned char rotate_mode_to_view_mode(unsigned char mode)
 {
     switch (mode) {
