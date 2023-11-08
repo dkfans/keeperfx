@@ -108,6 +108,7 @@ enum TbVideoModeFlags {
     Lb_VF_TRUCOLOR    = 0x0002,
     Lb_VF_PALETTE     = 0x0004,
     Lb_VF_WINDOWED    = 0x0010,
+    Lb_VF_BORDERLESS  = 0x0020,
 };
 
 struct GraphicsWindow {
@@ -265,7 +266,7 @@ extern unsigned short pixel_size;
 extern unsigned short pixels_per_block;
 extern unsigned short units_per_pixel;
 
-extern unsigned short display_number;
+extern unsigned short display_id;
 
 extern TbDisplayStruct lbDisplay;
 extern SDL_Window *lbWindow;

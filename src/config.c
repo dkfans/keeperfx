@@ -1096,7 +1096,7 @@ short load_configuration(void)
             i = atoi(word_buf);
           }
           if ((i >= 0) && (i <= 32768)) {
-              display_number = i;
+              display_id = ((i == 0) ? 0 : (i - 1));
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }

@@ -75,7 +75,14 @@ unsigned short pixel_size;
 unsigned short pixels_per_block;
 unsigned short units_per_pixel;
 
-unsigned short display_number = 1; //1 is the first (or only) screen, 2 is the second screen. Can be set in cfg file, or defaults to 1.
+/** 
+  * The id number of the current display that the game renders to, defaults to 0.
+  * id 0 is the first (or only) screen, id 1 is the second screen, etc.
+  * 
+  * The display number can be set in cfg file (as DISPLAY_NUMBER), display number = display id + 1.
+  * Screen number 1 is the first (or only screen), etc.
+  */
+unsigned short display_id = 0; 
 
 static unsigned char fade_started;
 static unsigned char from_pal[PALETTE_SIZE];
@@ -314,16 +321,53 @@ TbResult LbScreenWaitVbi(void)
   return Lb_SUCCESS;
 }
 
+/** Check if a given mode is available on the current display, and set its Available field to TRUE if it is. */
 static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode)
 {
     TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
-    unsigned long sdlFlags = 0;
-  if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
-      sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP;
-  }
-  return true;
+    mdinfo->Available = false;
+    // if this is the borderless fullscreen mode
+    if (mdinfo->VideoFlags & Lb_VF_BORDERLESS)
+    {
+        // Get current desktop display width and height (after DPI scaling)
+        SDL_DisplayMode desktop_display_mode;
+        if (SDL_GetCurrentDisplayMode(display_id, &desktop_display_mode) != 0)
+        {
+            ERRORLOG("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
+            return false; // fo some reason we can't get the current desktop resolution!
+        }
+        // update the mode's width and height to the desktop resolution of the current monitor
+        mdinfo->Width = desktop_display_mode.w;
+        mdinfo->Height = desktop_display_mode.h;
+    }
+    // else if this is a normal window mode
+    else if (mdinfo->VideoFlags & Lb_VF_WINDOWED)
+    {
+        // what is the sanity filter here?
+    }
+    // else if this is a fullscreen mode
+    else  
+    {
+        // See if the desired fullscreen mode is a valid mode for the current display
+        SDL_DisplayMode desired_fullscreen_mode = {SDL_PIXELFORMAT_UNKNOWN, (int)mdinfo->Width, (int)mdinfo->Height, 0, 0}; // maybe there is a better/more accurate way to describe the display mode...
+        SDL_DisplayMode closest_working_fullscreen_mode = desired_fullscreen_mode;
+        SDL_DisplayMode *closest = &closest_working_fullscreen_mode; 
+        SDL_GetClosestDisplayMode(display_id, &desired_fullscreen_mode, closest);
+        if (closest == NULL)
+        {
+            return false; // all avaialbae modes are too small for the desired mode to fit
+        }
+        if ((desired_fullscreen_mode.w != closest->w) && (desired_fullscreen_mode.h != closest->h))
+        {
+            return false; // desired screen is not available (but a "close" match is)
+        }
+    }
+    // desired screen mode must be valid if we get here
+    mdinfo->Available = true;
+    return true;
 }
 
+/** Check all of the listed modes and return TRUE if there is at least one mode available. */
 TbResult LbScreenFindVideoModes(void)
 {
     int avail_num = 0;
@@ -332,15 +376,14 @@ TbResult LbScreenFindVideoModes(void)
     {
         if (LbHwCheckIsModeAvailable(i))
         {
-            lbScreenModeInfo[i].Available = true;
             avail_num++;
-        } else {
-          lbScreenModeInfo[i].Available = false;
-      }
-  }
-  if (avail_num > 0)
-      return Lb_SUCCESS;
-  return Lb_FAIL;
+        }
+    }
+    if (avail_num > 0)
+    {
+        return Lb_SUCCESS;
+    }
+    return Lb_FAIL;
 }
 
 /**
@@ -396,6 +439,7 @@ TbResult LbScreenInitialize(void)
     // Register default video modes
     if (lbScreenModeInfoNum == 0) {
         LbRegisterStandardVideoModes();
+        LbRegisterVideoMode("DESKTOP", 0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_BORDERLESS); // register borderless fullscreen window mode
     }
     // Initialize SDL library
     if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0) {
@@ -407,14 +451,12 @@ TbResult LbScreenInitialize(void)
     return Lb_SUCCESS;
 }
 
+/** Set up the window, render surface, etc. Uses SDL2. */
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
     long hot_x;
     long hot_y;
-     // get the display index from the display number, if display number has been incorrectly set to 0, then treat this as id number 0
-    unsigned short display_id = (display_number == 0) ? display_number : display_number - 1;
-
     const struct TbSprite* msspr = NULL;
     LbExeReferenceNumber();
     if (lbDisplay.MouseSprite != NULL)
@@ -434,63 +476,86 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if (prevScreenSurf != NULL) {
     }
 
+    // Get the screen that keeperfx is currently running on (if it is running)
+    int current_display_id = SDL_GetWindowDisplayIndex(lbWindow);
+    if (current_display_id >= 0)
+    {
+        display_id = (unsigned short)current_display_id; // update the record of the current display that keeperfx is rendering to
+    }
+    // Check that the desired mode is available for the current display
     TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
-    if ( !LbScreenIsModeAvailable(mode) )
+    if (!LbScreenIsModeAvailable(mode))
     {
         ERRORLOG("%s resolution %dx%d (mode %d) not available",
             (mdinfo->VideoFlags&Lb_VF_WINDOWED)?"Windowed":"Full screen",
             (int)mdinfo->Width,(int)mdinfo->Height,(int)mode);
         return Lb_FAIL;
     }
-
-    // SDL video mode flags
-    unsigned long sdlFlags = 0;
-    if ((mdinfo->VideoFlags & Lb_VF_WINDOWED) == 0) {
-        sdlFlags |= SDL_WINDOW_FULLSCREEN;
-    }
-    if (lbWindow != NULL) {
-        // We only need to create a new window if we now have a different resolution/mode to the existing window, so check new/old resolution and mode...
-        int cw, ch, cflags;
-        cflags = SDL_GetWindowFlags(lbWindow);
-        SDL_GetWindowSize(lbWindow, &cw, &ch);
-        TbBool sameResolution = ((mdinfo->Width == cw) && (mdinfo->Height == ch));
-        TbBool sameWindowMode = ((cflags & sdlFlags) != 0);
-        TbBool stillInWindowedMode = ((sdlFlags & 1) == 0) && ((cflags & 1) == 0); // it is hard to detect if windowed mode (flag = 0) is still the same (i.e. no change of mode, still in windowed mode)
-        if (stillInWindowedMode) {
-            sameWindowMode = (sameWindowMode || stillInWindowedMode);
-            if (!sameResolution)
-            {
-                // reset window
-                SDL_DestroyWindow(lbWindow);
-                lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED_DISPLAY(display_id), SDL_WINDOWPOS_CENTERED_DISPLAY(display_id), mdinfo->Width, mdinfo->Height, sdlFlags);
-            }
-        }
-        int fullscreenMode = (((sdlFlags & SDL_WINDOW_FULLSCREEN) != 0) ? SDL_WINDOW_FULLSCREEN : 0);
-        if (!sameWindowMode && (fullscreenMode == 0))
+    // initialise the SDL flags 
+    Uint32 sdlFlags = 0; // default to an normal window
+    if (!(mdinfo->VideoFlags & Lb_VF_WINDOWED))
+    {
+        if (mdinfo->VideoFlags & Lb_VF_BORDERLESS)
         {
-            SDL_DestroyWindow(lbWindow); // destroy window on transition from fullscreen to window, as it is quicker than using SDL_SetWindowFullscreen
-            lbWindow = NULL;
+            sdlFlags |= SDL_WINDOW_FULLSCREEN_DESKTOP; // fake fullscreen
         }
         else
         {
-            if (!sameResolution)
-            {
-                if (fullscreenMode == SDL_WINDOW_FULLSCREEN)
-                {
-                    SDL_DisplayMode dm = { SDL_PIXELFORMAT_UNKNOWN, 0, 0, 0, 0}; // maybe there is a better/more accurate way to describe the display mode...
-                    dm.w=mdinfo->Width;
-                    dm.h=mdinfo->Height;
-                    SDL_SetWindowDisplayMode(lbWindow, &dm); // set display mode for fullscreen
-                }
-                SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height); // we want to set window size for both windowed mode, and fullscreen
-            }
-            if (!sameWindowMode)
-            {
-                SDL_SetWindowFullscreen(lbWindow, fullscreenMode); // change to/from fullscreen if requested
-            }
+            sdlFlags |= SDL_WINDOW_FULLSCREEN; // real fullscreen
         }
     }
-    if (lbWindow == NULL) { // Only create a new window if we don't have a valid one already
+    //sdlFlags |= SDL_WINDOW_RESIZABLE; // todo later in the PR
+    
+    // If the game window already exists
+    if (lbWindow != NULL)
+    {
+        TbBool modeChanged = (SDL_GetWindowFlags(lbWindow) != sdlFlags);
+        if ((sdlFlags & SDL_WINDOW_FULLSCREEN_DESKTOP) == SDL_WINDOW_FULLSCREEN_DESKTOP)
+        {
+            if (modeChanged) // mode has changed, so set the new mode
+            {
+                if (SDL_SetWindowFullscreen(lbWindow, SDL_WINDOW_FULLSCREEN_DESKTOP) != 0)
+                {
+                    ERRORLOG("SDL_SetWindowFullscreen to fake fullscreen failed: %s", SDL_GetError());
+                    return Lb_FAIL;
+                }
+            }
+        }
+        else if (sdlFlags & SDL_WINDOW_FULLSCREEN)
+        {
+            SDL_DisplayMode real_fullscreen_mode = { SDL_PIXELFORMAT_UNKNOWN, (int)mdinfo->Width, (int)mdinfo->Height, 0, 0}; // maybe there is a better/more accurate way to describe the display mode...
+            if (SDL_SetWindowDisplayMode(lbWindow, &real_fullscreen_mode) != 0) // set display mode for fullscreen
+            {
+                ERRORLOG("SDL_SetWindowDisplayMode failed: %s", SDL_GetError());
+                return Lb_FAIL;
+            }
+            SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height); // only needed because of https://github.com/libsdl-org/SDL/issues/3869
+            if (modeChanged) // mode has changed, so set the new mode
+            {
+                if (SDL_SetWindowFullscreen(lbWindow, SDL_WINDOW_FULLSCREEN) != 0)
+                {
+                    ERRORLOG("SDL_SetWindowFullscreen to real fullscreen failed: %s", SDL_GetError());
+                    return Lb_FAIL;
+                }
+            }
+        }
+        else // windowed mode
+        {
+            if (modeChanged) // mode has changed, so set the new mode
+            {
+                if (SDL_SetWindowFullscreen(lbWindow, 0) != 0)
+                {
+                    ERRORLOG("SDL_SetWindowFullscreen to normal window failed: %s", SDL_GetError());
+                    return Lb_FAIL;
+                }
+            }
+            SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height);
+            SDL_SetWindowPosition(lbWindow, SDL_WINDOWPOS_CENTERED_DISPLAY(display_id), SDL_WINDOWPOS_CENTERED_DISPLAY(display_id));
+        }
+    }
+
+    // If the game window doesn't yet exists
+    if (lbWindow == NULL) {
         lbWindow = SDL_CreateWindow(lbDrawAreaTitle, SDL_WINDOWPOS_CENTERED_DISPLAY(display_id), SDL_WINDOWPOS_CENTERED_DISPLAY(display_id), mdinfo->Width, mdinfo->Height, sdlFlags);
     }
     if (lbWindow == NULL) {
@@ -787,6 +852,10 @@ TbBool LbScreenIsModeAvailable(TbScreenMode mode)
       return false;
     setup = true;
   }
+  else
+  {
+    LbHwCheckIsModeAvailable(mode); // we need to recheck modes, as we can change dispplays, and each display may support different modes
+  }
   TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
   return mdinfo->Available;
 }
@@ -880,8 +949,16 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
     int height;
     int bpp;
     unsigned long flags;
-    int ret;
+    int ret = 0;
+    // Check for desktop borderless fullscreen window mode
+    width = 0; height = 0; bpp = 32; flags = Lb_VF_DEFAULT; // width and height are set later
+    if (strcasecmp(desc, "DESKTOP") == 0)
     {
+        ret = 3; // a quick hack so this IF statement fits with the rest below (no elses needed)
+    }
+    if (ret != 3)
+    {
+        // pattern not matched - maybe it's fullscreen mode
         width = 0; height = 0; bpp = 0; flags = Lb_VF_DEFAULT;
         ret = sscanf(desc," %d x %d x %d", &width, &height, &bpp);
     }
