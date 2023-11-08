@@ -41,9 +41,10 @@ const struct NamedCommand cubes_common_commands[] = {
   };
 
 const struct NamedCommand cubes_cube_commands[] = {
-  {"NAME",            1},
-  {"TEXTURES",        2},
-  {"FLAGS",           3},
+  {"Name",            1},
+  {"Textures",        2},
+  {"OwnershipGroup",  3},
+  {"Owner",           4},
   {NULL,              0},
   };
 /******************************************************************************/
@@ -210,6 +211,39 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
+            case 3: // OwnershipGroup
+                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    k = atoi(word_buf);
+                    if (k > CUBE_OWNERSHIP_GROUPS)
+                    {
+                        CONFWRNLOG("exceeding max amount of ownership groups",k,CUBE_OWNERSHIP_GROUPS);
+                    }
+                    cubed->ownershipGroup = k;
+                    n++;
+                }
+                break;
+            case 4: // Owner
+                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                {
+                    if(cubed->ownershipGroup <= 0)
+                    {
+                      CONFWRNLOG("Player without PlayerOwnership in [%s] block of %s file.",block_buf,config_textname);
+                      break;
+                    }
+
+                    k = get_id(cmpgn_human_player_options, word_buf);
+                    if (k < 0 || k >= PLAYERS_EXT_COUNT)
+                    {
+                      CONFWRNLOG("invalid player in [%s] block of %s file.",block_buf,config_textname);
+                      cubed->ownershipGroup = 0;
+                      break;
+                    }
+                    cubed->owner = k;
+                    gameadd.cube_conf.cube_bits[cubed->ownershipGroup][k] = i;
+                    n++;
+                }
+                break;
             case 0: // comment
                 break;
             case -1: // end of buffer
@@ -311,15 +345,7 @@ ThingModel cube_model_id(const char * code_name)
 
 void clear_cubes(void)
 {
-    for (int i = 0; i < CUBE_ITEMS_MAX; i++)
-    {
-        struct CubeConfigStats* cubed = get_cube_model_stats(i);
-        int n;
-        for (n = 0; n < CUBE_TEXTURES; n++)
-        {
-            cubed->texture_id[n] = 0;
-        }
-  }
+    memset(&gameadd.cube_conf,0,sizeof(gameadd.cube_conf));
 }
 
 /******************************************************************************/

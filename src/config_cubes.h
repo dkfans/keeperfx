@@ -21,9 +21,9 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "player_data.h"
 
 #include "config.h"
-#include "light_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -32,16 +32,20 @@ extern "C" {
 #define CUBE_ITEMS_MAX 1024
 
 #define CUBE_TEXTURES 6
+#define CUBE_OWNERSHIP_GROUPS 20
 
 /******************************************************************************/
 struct CubeConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned short texture_id[CUBE_TEXTURES];
+    unsigned char ownershipGroup;
+    PlayerNumber owner;
 };
 
 struct CubesConfig {
     long cube_types_count;
     struct CubeConfigStats cube_cfgstats[CUBE_ITEMS_MAX];
+    unsigned short cube_bits[CUBE_OWNERSHIP_GROUPS][PLAYERS_EXT_COUNT];
 };
 /******************************************************************************/
 extern const char keeper_cubes_file[];
