@@ -942,6 +942,15 @@ short imp_birth(struct Thing *thing)
     return 0;
 }
 
+long digger_work_experience(struct Thing* spdigtng)
+{
+    if (creature_can_gain_experience(spdigtng))
+    {
+        return gameadd.digger_work_experience;
+    }
+    return 0;
+}
+
 short imp_converts_dungeon(struct Thing *spdigtng)
 {
     TRACE_THING(spdigtng);
@@ -982,7 +991,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
       }
       if (gameadd.digger_work_experience != 0)
       {
-          cctrl->exp_points += (gameadd.digger_work_experience / 6);
+          cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
           check_experience_upgrade(spdigtng);
       }
       return 1;
@@ -1012,7 +1021,7 @@ short imp_digs_mines(struct Thing *spdigtng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
     if (gameadd.digger_work_experience != 0)
     {
-        cctrl->exp_points += gameadd.digger_work_experience;
+        cctrl->exp_points += digger_work_experience(spdigtng);
         check_experience_upgrade(spdigtng);
     }
     struct MapTask* mtask = get_task_list_entry(spdigtng->owner, cctrl->digger.task_idx);
@@ -1173,7 +1182,7 @@ short imp_drops_gold(struct Thing *spdigtng)
     if (gameadd.digger_work_experience != 0)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-        cctrl->exp_points += gameadd.digger_work_experience;
+        cctrl->exp_points += digger_work_experience(spdigtng);
         check_experience_upgrade(spdigtng);
     }
     if ((spdigtng->creature.gold_carried != 0) && (room->used_capacity < room->total_capacity))
@@ -1197,7 +1206,7 @@ short imp_improves_dungeon(struct Thing *spdigtng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
     if (gameadd.digger_work_experience != 0)
     {
-        cctrl->exp_points += (gameadd.digger_work_experience / 6);
+        cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
         check_experience_upgrade(spdigtng);
     }
     // Check if we've arrived at the destination
@@ -1342,7 +1351,7 @@ short imp_reinforces(struct Thing *thing)
     }
     if (gameadd.digger_work_experience != 0)
     {
-        cctrl->exp_points += gameadd.digger_work_experience;
+        cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);
     }
     if (creature_turn_to_face(thing, &pos) > 0) {
@@ -1749,7 +1758,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     set_start_state(creatng);
     if (gameadd.digger_work_experience != 0)
     {
-        cctrl->exp_points += gameadd.digger_work_experience;
+        cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
     }
     return 1;
@@ -1877,7 +1886,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     set_start_state(creatng);
     if (gameadd.digger_work_experience != 0)
     {
-        cctrl->exp_points += gameadd.digger_work_experience;
+        cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
     }
     return 1;
@@ -1928,7 +1937,7 @@ short creature_arms_trap(struct Thing *thing)
     set_start_state(thing);
     if (gameadd.digger_work_experience != 0)
     {
-        cctrl->exp_points += gameadd.digger_work_experience;
+        cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);
     }
     return 1;
@@ -1947,7 +1956,7 @@ short creature_arms_trap_first_person(struct Thing *creatng)
     dungeon->lvstats.traps_armed++;
     if (gameadd.digger_work_experience != 0)
     {
-        cctrl->exp_points += gameadd.digger_work_experience;
+        cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
     }
     delete_thing_structure(cratetng, 0);
