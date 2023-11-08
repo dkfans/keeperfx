@@ -147,9 +147,11 @@ obj/config_objects.o \
 obj/config_players.o \
 obj/config_rules.o \
 obj/config_settings.o \
+obj/config_slabsets.o \
 obj/config_strings.o \
 obj/config_terrain.o \
 obj/config_cubes.o \
+obj/config_textures.o \
 obj/config_trapdoor.o \
 obj/console_cmd.o \
 obj/custom_sprites.o \
@@ -357,7 +359,7 @@ INCFLAGS =
 CV2PDB := $(shell PATH=`pwd`:$$PATH command -v cv2pdb.exe 2> /dev/null)
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
-  OPTFLAGS = -march=i686 -Og -fno-omit-frame-pointer
+  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O0
   DBGFLAGS = -g -DDEBUG
 else
   # frame pointer is required for ASM code to work
@@ -410,15 +412,22 @@ include prebuilds.mk
 -include $(filter %.d,$(STDOBJS:%.o=%.d))
 -include $(filter %.d,$(HVLOGOBJS:%.o=%.d))
 
+
 # 'make all' calculates the current checksum of all .h and .hpp files, storing the checksum in a file. Then it decides whether to run 'make clean' or 'make standard' based on whether any .h and .hpp files have been altered
 HEADER_CHECKSUM_FILE=.header_checksum
 
 all:
-	@current_checksum=$$(find . -type f \( -name "*.h" -o -name "*.hpp" \) -print0 | sort -z | xargs -0 sha256sum | sha256sum | awk '{print $$1}'); \
+	@start_time=$$(date +%s.%N); \
+	get_header_cksum=$$(find ./src/ -type f \( -name "*.h" -o -name "*.hpp" \) -print0 | sort -z | xargs -0 cksum | cksum | awk '{print $$1}'); \
+	current_checksum=$$(echo $$get_header_cksum $(DEBUG) | cksum | awk '{print $$1}'); \
 	if [ ! -f $(HEADER_CHECKSUM_FILE) ] || [ "$$(cat $(HEADER_CHECKSUM_FILE))" != "$$current_checksum" ]; then \
 		$(MAKE) clean; \
 	fi; \
-	$(MAKE) standard && echo "$$current_checksum" > $(HEADER_CHECKSUM_FILE)
+	$(MAKE) standard || exit 1; \
+	echo "$$current_checksum" > $(HEADER_CHECKSUM_FILE); \
+	end_time=$$(date +%s.%N); \
+	duration=$$(awk "BEGIN {print $$end_time - $$start_time}"); \
+	printf "\033[97mCompiled in: %0.2f seconds\033[0m\n" $$duration;
 
 standard: CXXFLAGS += $(STLOGFLAGS)
 standard: CFLAGS += $(STLOGFLAGS)
@@ -433,7 +442,8 @@ FOLDERS = bin obj/std obj/hvlog \
 obj/tests obj/cu \
 obj/std/json obj/hvlog/json \
 obj/std/centitoml obj/hvlog/centitoml \
-obj/enet
+obj/enet \
+sdl/for_final_package
 
 $(shell $(MKDIR) $(FOLDERS))
 

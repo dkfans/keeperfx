@@ -134,6 +134,7 @@ enum ShotModelFlags {
     ShMF_CanCollide     = 0x0800,
     ShMF_Disarming      = 0x1000,
     ShMF_Exploding      = 0x2000,
+    ShMF_BlocksRebirth  = 0x4000,
 };
 
 enum PowerCanCastFlags {
@@ -281,7 +282,7 @@ struct ShotConfigStats {
     unsigned short sprite_anim_idx;
     unsigned short sprite_size_max;
     short size_xy;
-    short size_yz;
+    short size_z;
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;

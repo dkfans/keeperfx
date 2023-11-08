@@ -616,7 +616,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (line_of_sight_3d_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
             // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
+            tgtpos.z.val += thing->clipbox_size_z;
             if (line_of_sight_3d_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
             return false;
@@ -628,7 +628,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
             // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
+            tgtpos.z.val += thing->clipbox_size_z;
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
             return false;
@@ -644,7 +644,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (line_of_sight_3d(&eyepos, &tgtpos))
                 return true;
             // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
+            tgtpos.z.val += thing->clipbox_size_z;
             if (line_of_sight_3d(&eyepos, &tgtpos))
                 return true;
             long angle = get_angle_xy_to(&tgtpos, &eyepos);
@@ -669,11 +669,11 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
                 return true;
             // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
+            tgtpos.z.val += thing->clipbox_size_z;
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
                 return true;
             // Check both sides at middle of thing height
-            tgtpos.z.val -= thing->clipbox_size_yz / 2;
+            tgtpos.z.val -= thing->clipbox_size_z / 2;
             long angle = get_angle_xy_to(&tgtpos, &eyepos);
             // Check left side
             // We're checking point at 60 degrees left; could use 90 deg, but making even slim edge visible might not be a good idea

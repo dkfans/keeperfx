@@ -1171,8 +1171,8 @@ msgstr ""
 #: guitext:162 guitext:163 guitext:164 guitext:165 guitext:166 guitext:167
 #: guitext:168 guitext:169 guitext:170 guitext:171 guitext:172
 msgctxt "In-game message"
-msgid "Moo"
-msgstr "Moo"
+msgid ""
+msgstr ""
 
 #: guitext:173
 msgctxt "In-game message"
@@ -1286,8 +1286,8 @@ msgstr ""
 #: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
 #: guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
-msgid "Moo2"
-msgstr "Moo2"
+msgid ""
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -1436,7 +1436,7 @@ msgstr "die Herausforderung von L'Cyfre"
 #: guitext:420 guitext:421 guitext:422 guitext:423 guitext:424
 #: guitext:425 guitext:426
 msgctxt "Unused"
-msgid "Moo3"
+msgid ""
 msgstr ""
 
 #: guitext:427
@@ -1450,7 +1450,7 @@ msgstr ""
 
 #: guitext:428 guitext:429
 msgctxt "Unused"
-msgid "Moo4"
+msgid ""
 msgstr ""
 
 #: guitext:430

@@ -180,7 +180,7 @@ unsigned int packet_file_pos;
     short col_static_entries[18];
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
-    short texture_animation[8*TEXTURE_BLOCKS_ANIM_COUNT];
+    short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
     unsigned short columns_used;
     unsigned char texture_id;
     unsigned short free_things[THINGS_COUNT-1];
@@ -251,7 +251,6 @@ unsigned int packet_file_pos;
     unsigned long hero_door_wait_time;
     unsigned long dungeon_heart_heal_time;
     long dungeon_heart_heal_health;
-    unsigned long dungeon_heart_health;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
@@ -304,7 +303,10 @@ unsigned int packet_file_pos;
     int manufactr_spridx;
     int manufactr_tooltip;
     short barrack_max_party_size;
+    unsigned short training_room_max_level;
     char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
+    char loaded_sound[EXTERNAL_SOUNDS_COUNT][DISKPATH_SIZE];
+    unsigned char sounds_count;
 };
 
 #pragma pack()

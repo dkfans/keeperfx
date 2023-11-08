@@ -62,7 +62,7 @@ struct EffectGeneratorStats effect_generator_stats[] = {
     { 2,  5,  1, 37, 0,  0,-15, 15,-15, 15,  0,  0,  0,  0, 0}
 };
 
-//start_health;generation_type;accel_xy_min;accel_xy_max;accel_z_min;accel_z_max;size_yz;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
+//start_health;generation_type;accel_xy_min;accel_xy_max;accel_z_min;accel_z_max;size_z;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
 struct InitEffect effect_info[] = {
     { 0, 1,   0,   0,  0,    0,  0,   0,  0,  0,  AAffT_None, 0, {0}, 0},
     { 1, 1,  32,  32, -32,  32,  1,  47,  1,  1,  AAffT_None, 1, { 512, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
@@ -296,9 +296,9 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
     thing->parent_idx = thing->index;
     thing->owner = owner;
     thing->clipbox_size_xy = 1;
-    thing->clipbox_size_yz = 1;
+    thing->clipbox_size_z = 1;
     thing->solid_size_xy = 1;
-    thing->solid_size_yz = 1;
+    thing->solid_size_z = 1;
 
     if (eestat->sprite_idx != -1)
     {
@@ -389,7 +389,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
 
         struct EffectElementStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
@@ -417,7 +417,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_Slow) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_yz + (thing->clipbox_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
         int i = cor_z_max / 64; //64 is the vertical speed of the circle.
         if (i <= 1)
           i = 1;
@@ -1016,19 +1016,19 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         if (thing_is_invalid(elemtng))
             break;
         elemtng->clipbox_size_xy = 20;
-        elemtng->clipbox_size_yz = 20;
+        elemtng->clipbox_size_z = 20;
         long k;
-        if (egenstat->field_10)
+        if (egenstat->ignore_terrain)
         {
-            k = egenstat->field_11;
+            k = egenstat->spawn_height;
         } else
-        if (egenstat->field_11 == -1)
+        if (egenstat->spawn_height == -1)
         {
             elemtng->mappos.z.val = subtile_coord(8,0);
             k = get_next_gap_creature_can_fit_in_below_point(elemtng, &elemtng->mappos);
         } else
         {
-            k = egenstat->field_11 + get_thing_height_at(elemtng, &elemtng->mappos);
+            k = egenstat->spawn_height + get_thing_height_at(elemtng, &elemtng->mappos);
         }
         elemtng->mappos.z.val = k;
         if ( thing_in_wall_at(elemtng, &elemtng->mappos) )
@@ -1173,7 +1173,7 @@ TbBool destroy_effect_thing(struct Thing *efftng)
  * @note If the function returns true, the effect might have caused death of the target.
  */
 TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner, TbBool no_stun)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner, unsigned long shot_model_flags)
 {
     TbBool affected = false;
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
@@ -1195,15 +1195,19 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                 affected = true;
                 if (tngdst->health < 0)
                 {
-                    struct Thing *origtng = thing_get(tngsrc->parent_idx);
+                    struct Thing *origtng = thing_get(tngsrc->parent_idx); //parent of the tngsrc(shot) is the shooting creature.
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (no_stun) )
+                    if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }
-                    kill_creature(tngdst, tngsrc, -1, dieflags);
+                    if ((shot_model_flags & ShMF_BlocksRebirth))
+                    {
+                        dieflags |= CrDed_NoRebirth;
+                    }
+                    kill_creature(tngdst, origtng, -1, dieflags);
                     affected = true;
                 }
             }
@@ -1277,7 +1281,7 @@ TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, cons
  * @param damage_type Type of the damage inflicted.
  */
 long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tngsrc, struct Map *mapblk,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, TbBool no_stun)
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, unsigned long shot_model_flags)
 {
     PlayerNumber owner;
     if (!thing_is_invalid(tngsrc))
@@ -1307,7 +1311,7 @@ long explosion_effect_affecting_map_block(struct Thing *efftng, struct Thing *tn
         } else
         if (effect_can_affect_thing(efftng, thing))
         {
-            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner, no_stun))
+            if (explosion_affecting_thing(tngsrc, thing, &efftng->mappos, max_dist, max_damage, blow_strength, damage_type, owner, shot_model_flags))
             {
                 num_affected++;
             }
@@ -1389,14 +1393,13 @@ void word_of_power_affecting_area(struct Thing *efftng, struct Thing *tngsrc, st
     if (stl_ymax > gameadd.map_subtiles_y) {
       stl_ymax = gameadd.map_subtiles_y;
     }
-    TbBool no_stun = ((shotst->model_flags & ShMF_NoStun) != 0);
     for (long stl_y = stl_ymin; stl_y <= stl_ymax; stl_y++)
     {
         for (long stl_x = stl_xmin; stl_x <= stl_xmax; stl_x++)
         {
             struct Map* mapblk = get_map_block_at(stl_x, stl_y);
             explosion_effect_affecting_map_block(efftng, tngsrc, mapblk, max_dist,
-                shotst->area_damage, shotst->area_blow, shotst->damage_type, no_stun);
+                shotst->area_damage, shotst->area_blow, shotst->damage_type, shotst->model_flags);
         }
     }
 }
@@ -1458,7 +1461,8 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
         // Per thing processing block
         if (area_effect_can_affect_thing(thing, hit_targets, owner))
         {
-            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner, false))
+            struct ShotConfigStats* shotst = get_shot_model_stats(tngsrc->model);
+            if (explosion_affecting_thing(tngsrc, thing, pos, max_dist, max_damage, blow_strength, damage_type, owner, shotst->model_flags))
                 num_affected++;
         }
         // Per thing processing block ends

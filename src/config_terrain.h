@@ -31,8 +31,8 @@ extern "C" {
 /******************************************************************************/
 
 #define TERRAIN_ITEMS_MAX    256
-// Amount of possible types of slabs
-#define SLAB_TYPES_COUNT      58
+#define SLABSETS_PER_SLAB   (9*3+1)
+
 
 /******************************************************************************/
 #pragma pack(1)
@@ -196,6 +196,7 @@ TbBool slab_kind_is_door(SlabKind slbkind);
 TbBool slab_kind_is_nonmagic_door(SlabKind slbkind);
 TbBool slab_kind_is_liquid(SlabKind slbkind);
 TbBool slab_kind_is_room(SlabKind slbkind);
+TbBool slab_kind_has_torches(SlabKind slbkind);
 /******************************************************************************/
 struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind);
 TbBool make_all_rooms_free(void);

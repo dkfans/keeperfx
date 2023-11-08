@@ -1,32 +1,183 @@
 {
-	// See https://go.microsoft.com/fwlink/?LinkId=733558
-	// for the documentation about the tasks.json format
 	"version": "2.0.0",
+	"inputs": [
+		{
+			"id": "debugChoice",
+			"type": "pickString",
+			"description": "Choose the debug option:",
+			"options": [
+				"DEBUG=1",
+				"DEBUG=0"
+			],
+			"default": "DEBUG=0"
+		}
+	],
 	"tasks": [
 		{
-			"label": "Compile",
+			"label": "Default task",
 			"type": "shell",
-			"command": "make -j`nproc` all",
-			"problemMatcher": "$gcc",
-			"group": {
-				"kind": "build",
-				"isDefault": true
+			"windows": {
+				"command": [
+					"Set-Content -LiteralPath \\\"${workspaceFolder}\\.vscode\\compile_settings.cfg\\\" -Value '${input:debugChoice}';",
+					"Write-Host ('Wrote ${input:debugChoice}' + ' to /.vscode/compile_settings.cfg') -ForegroundColor White;",
+					"if ('${input:debugChoice}' -eq 'DEBUG=1') {",
+					"    Write-Host 'Debug symbols will be included in the next executable you compile. Crash reports will have more information.' -ForegroundColor Yellow;",
+					"} else {",
+					"    Write-Host 'Debug symbols will not be included in the next executable you compile. Crash reports will be have less information.' -ForegroundColor Green;",
+					"}"
+				]
 			},
+			"linux": {
+				"command": [
+					"chmod +x '${workspaceFolder}/.vscode/linuxscript.sh';",
+					"'${workspaceFolder}/.vscode/linuxscript.sh' '${workspaceFolder}'"
+				]
+			},
+			"problemMatcher": "$gcc",
+			"group": {"kind": "build","isDefault": true},
+			"presentation": {
+				"clear": true,
+				"echo": false,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		},
+		{
+			// Called by launch.json
+			"label": "Compile, Copy Files",
+			"type": "shell",
+			"windows": {
+				"command": [
+					"Write-Host ('Source Code directory: ' + '${workspaceFolder}'.Replace('\\', '/')) -ForegroundColor White;",
+					"$gameDir = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | Select-String -Pattern '\\\"cwd\\\"\\s*:\\s*\\\"(.*?)\\\"').Matches[0].Groups[1].Value.Replace('\\', '/');",
+					"if (-not (Test-Path $gameDir)) {",
+					"    Write-Host 'The directories are incorrect in /.vscode/launch.json, please edit the file and update it.' -ForegroundColor Red;",
+					"    Write-Host 'Example: D:/Games/DungeonKeeper/ (be sure to use forward slashes)' -ForegroundColor Red;",
+					"    exit 1;",
+					"}",
+					"Write-Host ('Game directory: ' + $gameDir) -ForegroundColor White;",
+					"$debugFlag = '';",
+					"if (Test-Path '${workspaceFolder}\\.vscode\\compile_settings.cfg') {",
+					"    $content = (Get-Content '${workspaceFolder}\\.vscode\\compile_settings.cfg' -Raw).Trim();",
+					"    if ($content -eq 'DEBUG=1') {",
+					"        $debugFlag = 'DEBUG=1';",
+					"    }",
+					"}",
+					"if ($debugFlag -eq 'DEBUG=1') {",
+					"    Write-Host 'Compiling with DEBUG=1' -ForegroundColor Yellow;",
+					"} else {",
+					"    Write-Host 'Compiling with DEBUG=0' -ForegroundColor Green;",
+					"}",
+					"wsl make all -j`nproc` $debugFlag;",
+					"if ($?) {",
+					"    Write-Host 'Compilation successful!' -ForegroundColor Green;",
+					"} else {",
+					"    Write-Host 'Compilation failed!' -ForegroundColor Red;",
+					"    exit 1;",
+					"}",
+					"Copy-Item -Path '${workspaceFolder}\\bin\\*' -Destination $gameDir -Force;",
+				],
+			},
+			"linux": {"command": []},
+			"problemMatcher": "$gcc",
+			"group": "build",
+			"presentation": {
+				"clear": true,
+				"echo": false,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		},
+		{
+			// After the project is first opened, settings.json and launch.json will be created
+			"label": "Create settings.json and launch.json",
+			"type": "shell",
+			"windows": {
+				"command": [
+					"$settingsPath = '${workspaceFolder}\\.vscode\\settings.json';",
+					"if (-not (Test-Path $settingsPath)) {",
+					"    Copy-Item '${workspaceFolder}\\.vscode\\defaultsettings' $settingsPath;",
+					"    Write-Host '/.vscode/settings.json was created.';",
+					"}",
+					"if (-not (Test-Path '${workspaceFolder}\\.vscode\\launch.json')) {",
+					"    Copy-Item '${workspaceFolder}\\.vscode\\defaultlaunch' '${workspaceFolder}\\.vscode\\launch.json';",
+					"    Write-Host '/.vscode/launch.json was created, please edit it and fill in your game directories.';",
+					"}"
+				]
+			},
+			"linux": {
+				"command": [
+					"if [ ! -f \"${workspaceFolder}/.vscode/settings.json\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultsettings\" \"${workspaceFolder}/.vscode/settings.json\";",
+					"    echo \"/.vscode/settings.json was created.\";",
+					"fi;",
+					"if [ ! -f \"${workspaceFolder}/.vscode/launch.json\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultlaunch\" \"${workspaceFolder}/.vscode/launch.json\";",
+					"    echo \"/.vscode/launch.json was created, but it won't work on linux. Use Ctrl+Shift+B instead.\";",
+					"fi;",
+					"if [ ! -f \"${workspaceFolder}/.vscode/linuxscript.sh\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultlinuxscript\" \"${workspaceFolder}/.vscode/linuxscript.sh\";",
+					"    echo \"/.vscode/linuxscript.sh was created, please edit it and fill in your game directories.\";",
+					"fi"
+				]
+			},
+			"problemMatcher": "$gcc",
+			"runOptions": {"runOn": "folderOpen"},
+			"group": "build",
+			"presentation": {
+				"echo": false,
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		},
+		{
+			"label": "Log",
+			"type": "shell",
+			"windows": {
+				"command": [
+					"$gameDir = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | Select-String -Pattern '\\\"cwd\\\"\\s*:\\s*\\\"(.*?)\\\"').Matches[0].Groups[1].Value.Replace('\\', '/');",
+					"cd $gameDir;",
+					"Clear-Content keeperfx.log;",
+					"Get-Content keeperfx.log -Wait"
+				]
+			},
+			"linux": {},
+			"problemMatcher": "$gcc",
+			"dependsOn": "Check For Game Directory",
+			"group": "build"
 		},
 		{
 			"label": "Clean",
 			"type": "shell",
-			"command": "make -j`nproc` clean",
+			"windows": {
+				"command": "wsl make clean -j`nproc`"
+			},
+			"linux": {
+				"command": "make clean -j`nproc`"
+			},
 			"problemMatcher": "$gcc",
-			"group": "build",
+			"group": "build"
 		},
 		{
 			"label": "Generate compile_commands.json",
 			"type": "shell",
-			"command": "make clean-build clean-tools && bear -- make -j2 standard",
+			"windows": {
+				"command": [
+					"wsl make clean-build clean-tools;",
+					"wsl bear -- make -j2 standard"
+				]
+			},
+			"linux": {
+				"command": "make clean-build clean-tools && bear -- make -j2 standard"
+			},
 			"problemMatcher": "$gcc",
 			"group": "build",
-			"dependsOn": ["Compile"],
-		}
-	]
+			"dependsOn": "Compile",
+		},
+	],
 }

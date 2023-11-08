@@ -1280,11 +1280,15 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx = get_creature_model_graphics(ctrltng->model, CGI_HandSymbol);
-        struct TbSprite* spr = &gui_panel_sprites[spr_idx];
-        int ps_units_per_px = (gmnu->width * 22 / 100) * 16 / spr->SWidth;
-        draw_gui_panel_sprite_left(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx);
+        if (spr_idx > 0)
+        {
+            struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+            int ps_units_per_px = (gmnu->width * 22 / 100) * 16 / spr->SWidth;
+            draw_gui_panel_sprite_left(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx);
+        }
     }
 }
+
 unsigned short get_creature_pick_flags(TbBool pick_up)
 {
     unsigned short pick_flags = pick_up ? TPF_PickableCheck : 0;
@@ -2293,6 +2297,7 @@ void gui_set_button_flashing(long btn_idx, long gameturns)
 
 void update_room_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, but skip "sell" button at end
     for (i=0; i < 4*4-1; i++)
@@ -2330,6 +2335,7 @@ void update_room_tab_to_config(void)
 
 void update_trap_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, but skip "sell" button at end
     for (i=0; i < 4*4-1; i++)
@@ -2383,6 +2389,7 @@ void update_trap_tab_to_config(void)
 
 void update_powers_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, no "sell" button at end
     for (i=0; i < 4*4; i++)

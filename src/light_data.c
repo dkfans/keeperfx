@@ -1526,6 +1526,7 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
 
 void light_set_lights_on(char state)
 {
+    SYNCDBG(8, "Starting");
     if (state)
     {
         game.lish.global_ambient_light = 10;

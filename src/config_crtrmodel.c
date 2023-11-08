@@ -41,6 +41,7 @@
 #include "creature_states.h"
 #include "player_data.h"
 #include "custom_sprites.h"
+#include "lvl_script_lib.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -255,14 +256,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->base_speed = 1;
       crstat->gold_hold = 100;
       crstat->size_xy = 1;
-      crstat->size_yz = 1;
+      crstat->size_z = 1;
       crstat->attack_preference = 0;
       crstat->pay = 1;
       crstat->hero_vs_keeper_cost = 0;
       crstat->slaps_to_kill = 10;
       crstat->damage_to_boulder = 4;
       crstat->thing_size_xy = 128;
-      crstat->thing_size_yz = 64;
+      crstat->thing_size_z = 64;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
       crstat->immune_to_gas = false;
@@ -530,7 +531,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->size_yz = k;
+            crstat->size_z = k;
             n++;
           }
           if (n < 2)
@@ -623,7 +624,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->thing_size_yz = k;
+            crstat->thing_size_z = k;
             n++;
           }
           if (n < 2)
@@ -1010,7 +1011,10 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
         crstat->annoy_job_stress = 0;
         crstat->annoy_going_postal = 0;
         crstat->annoy_queue = 0;
-        crstat->lair_enemy = 0;
+        for (int i = 0; i < LAIR_ENEMY_MAX; i++)
+        {
+            crstat->lair_enemy[i] = 0;
+        }
         crstat->annoy_level = 0;
         crstat->jobs_anger = 0;
     }
@@ -1303,18 +1307,22 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             break;
         case 21: // LAIRENEMY
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            for (int i = 0; i < LAIR_ENEMY_MAX; i++)
             {
-                k = get_id(creature_desc, word_buf);
-                if (k >= 0)
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                  crstat->lair_enemy = k;
-                  n++;
-                } else
-                {
-                  crstat->lair_enemy = 0;
-                  if (strcasecmp(word_buf,"NULL") == 0)
-                    n++;
+                    k = get_id(creature_desc, word_buf);
+                    if (k >= 0)
+                    {
+                        crstat->lair_enemy[i] = k;
+                        n++;
+                    }
+                    else
+                    {
+                        crstat->lair_enemy[i] = 0;
+                        if (strcasecmp(word_buf, "NULL") == 0)
+                            n++;
+                    }
                 }
             }
             if (n < 1)
@@ -1802,7 +1810,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = get_id(creature_desc, word_buf);
+              k = parse_creature_name(word_buf);
               if (k >= 0)
               {
                 crstat->grow_up = k;

@@ -983,7 +983,6 @@ void init_keeper(void)
     load_cubes_config(CnfLd_Standard);
     //load_cube_file();
     init_top_texture_to_cube_table();
-    load_texture_anim_file();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
       game.generate_speed = game.default_generate_speed;
@@ -1052,6 +1051,7 @@ short setup_game(void)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
   }
+  SYNCMSG("Build image base: %p", GetModuleHandle(NULL));
   v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
   if (GetVersionEx(&v))
   {
@@ -1656,7 +1656,6 @@ void clear_map(void)
     clear_mapmap();
     clear_slabs();
     clear_columns();
-    clear_slabsets();
 }
 
 void clear_things_and_persons_data(void)
@@ -1800,6 +1799,7 @@ void clear_game(void)
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
     init_thing_objects();
+    clear_slabsets();
 }
 
 void clear_game_for_save(void)
@@ -3106,7 +3106,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
     if (i > 0)
     {
       mapblk = get_map_block_at(x,y);
-      visible = map_block_revealed_bit(mapblk, player_bit);
+      visible = map_block_revealed(mapblk, my_player_number);
       if ((!visible) || (get_mapblk_column_index(mapblk) > 0))
       {
         if (visible)
@@ -3858,6 +3858,7 @@ void game_loop(void)
       LbScreenSwap();
       StopMusicPlayer();
       free_custom_music();
+      free_sound_chunks();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -3879,6 +3880,7 @@ void game_loop(void)
     if ((game.system_flags & GSF_CaptureMovie) != 0) {
         movie_record_stop();
     }
+    ShutDownSDLAudio();
     SYNCDBG(7,"Done");
 }
 
@@ -4022,10 +4024,6 @@ short process_command_line(unsigned short argc, char *argv[])
       if (strcasecmp(parstr,"q") == 0)
       {
          set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
-      } else
-      if (strcasecmp(parstr,"columnconvert") == 0)
-      {
-         set_flag_byte(&start_params.operation_flags,GOF_ColumnConvert,true);
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {

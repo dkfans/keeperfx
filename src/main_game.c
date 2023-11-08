@@ -45,6 +45,7 @@
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
+#include "sounds.h"
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -269,8 +270,8 @@ void startup_saved_packet_game(void)
         WARNLOG("Packet file was created with different version of the game; this rarely works");
     }
     game.game_kind = GKind_LocalGame;
-    if (!(game.packet_save_head.players_exist & (1 << game.local_plyr_idx))
-        || (game.packet_save_head.players_comp & (1 << game.local_plyr_idx)))
+    if (!flag_is_set(game.packet_save_head.players_exist, to_flag(game.local_plyr_idx))
+        || flag_is_set(game.packet_save_head.players_comp, to_flag(game.local_plyr_idx)))
         my_player_number = 0;
     else
         my_player_number = game.local_plyr_idx;
@@ -295,6 +296,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
+    stop_streamed_sample();
     unsigned int flgmem;
     struct PlayerInfo *player;
     setup_count_players();

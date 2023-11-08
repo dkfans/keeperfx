@@ -138,6 +138,7 @@ const struct NamedCommand conf_commands[] = {
   {"DELTA_TIME"                    , 25},
   {"CREATURE_STATUS_SIZE"          , 26},
   {"MAX_ZOOM_DISTANCE"             , 27},
+  {"DISPLAY_NUMBER"                , 28},
   {NULL,                   0},
   };
 
@@ -1089,6 +1090,17 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
+      case 28: // DISPLAY_NUMBER
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              display_number = i;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1572,10 +1584,12 @@ unsigned long get_level_highest_score(LevelNumber lvnum)
 {
     for (int idx = 0; idx < campaign.hiscore_count; idx++)
     {
-        if (campaign.hiscore_table[idx].lvnum == lvnum)
+        if ((campaign.hiscore_table[idx].lvnum == lvnum) && (strcmp(campaign.hiscore_table[idx].name, "Bullfrog") != 0))
+        {
             return campaign.hiscore_table[idx].score;
-  }
-  return 0;
+        }
+    }
+    return 0;
 }
 
 struct LevelInformation *get_level_info(LevelNumber lvnum)

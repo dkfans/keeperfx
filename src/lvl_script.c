@@ -213,6 +213,7 @@ TbBool script_is_preloaded_command(long cmnd_index)
   case Cmd_NEW_TRAP_TYPE:
   case Cmd_NEW_OBJECT_TYPE:
   case Cmd_NEW_ROOM_TYPE:
+  case Cmd_NEW_CREATURE_TYPE:
       return true;
   default:
       return false;
@@ -891,11 +892,6 @@ short load_script(long lvnum)
     reset_creature_max_levels();
     reset_script_timers_and_flags();
     reset_hand_rules();
-    if ((game.operation_flags & GOF_ColumnConvert) != 0)
-    {
-        convert_old_column_file(lvnum);
-        game.operation_flags &= ~GOF_ColumnConvert;
-    }
     // Load the file
     long script_len = 1;
     char* script_data = (char*)load_single_map_file_to_buffer(lvnum, "txt", &script_len, LMFF_None);

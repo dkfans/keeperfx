@@ -711,7 +711,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
       player->cameras[CamIV_FrontView].orient_a = pckt->actn_par1;
       player->cameras[CamIV_Isometric].orient_a = pckt->actn_par1;
-      
+
       if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
         // Fixes interpolated Things lagging for 1 turn when pressing middle mouse button to flip the camera in FrontView
           reset_interpolation_of_camera(player);
@@ -1248,12 +1248,12 @@ void process_players_creature_control_packet_control(long idx)
         else
         if (angle > 32)
             angle = 32;
-        ccctrl->field_6C += 56 * angle / 32;
+        ccctrl->view_angle += 56 * angle / 32;
     }
     long angle_limit = crstat->max_angle_change;
     if (angle_limit < 1)
         angle_limit = 1;
-    angle = ccctrl->field_6C;
+    angle = ccctrl->view_angle;
     if (angle < -angle_limit)
         angle = -angle_limit;
     else
@@ -1262,7 +1262,7 @@ void process_players_creature_control_packet_control(long idx)
     cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
     cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
     ccctrl->field_CC = 170 * angle / angle_limit;
-    ccctrl->field_6C = 4 * angle / 8;
+    ccctrl->view_angle = 4 * angle / 8;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
@@ -1390,6 +1390,9 @@ static void replace_with_ai(int old_active_players)
             struct PlayerInfo *player = get_player(i);
             if (!network_player_active(player->packet_num))
             {
+                message_add(player->id_number, "I am the computer now!");
+                JUSTLOG("p:%d I am the computer now!", player->id_number);
+
                 player->allocflags |= PlaF_CompCtrl;
                 toggle_computer_player(i);
             }

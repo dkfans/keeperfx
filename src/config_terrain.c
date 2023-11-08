@@ -458,7 +458,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 3:
+            case 3: //BLOCKFLAGSHEIGHT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -474,7 +474,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 4:
+            case 4: //BLOCKHEALTHINDEX
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -490,8 +490,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 5:
-            case 6:
+            case 5: //BLOCKFLAGS
+            case 6: //NOBLOCKFLAGS
             {
                 unsigned long *flg = (cmd_num == 5) ? &slbattr->block_flags : &slbattr->noblck_flags;
                 *flg = 0;
@@ -551,7 +551,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 }
                 break;
             }
-            case 7:
+            case 7: //FILLSTYLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -567,7 +567,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 8:
+            case 8: //CATEGORY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -583,7 +583,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 9: // SLB_ID
+            case 9: // SLBID
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -599,7 +599,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 10:
+            case 10: //WIBBLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -615,7 +615,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 11:
+            case 11: //ISSAFELAND
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -631,7 +631,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 12:
+            case 12: //ISDIGGABLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -647,7 +647,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 13:
+            case 13: //WLBTYPE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -1240,6 +1240,21 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
     return true;
 }
 
+TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind)
+{
+    for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
+    {
+        struct ComputerProcess* cproc = &comp->processes[i];
+        if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == rkind))
+        {
+            cproc->flags &= ~ComProc_Unkn0004;
+            cproc->last_run_turn = 0;
+            return true;
+        }
+    }
+    return false;
+}
+
 /**
  * Sets room availability state.
  */
@@ -1248,6 +1263,7 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
     struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Computer2* comp = INVALID_COMPUTER_PLAYER;
     if (dungeonadd_invalid(dungeonadd)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
@@ -1263,6 +1279,16 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
         dungeonadd->room_buildable[rkind] |= (avail? 1 : 0 );
     else
         dungeonadd->room_buildable[rkind] &= ~1;
+
+    if (dungeonadd->room_buildable[rkind] & 1)
+    {
+        comp = get_computer_player(plyr_idx);
+        if (comp != INVALID_COMPUTER_PLAYER)
+        {
+            reactivate_build_process(comp, rkind);
+        }
+    }
+
     return true;
 }
 
@@ -1443,6 +1469,18 @@ TbBool slab_kind_is_liquid(SlabKind slbkind)
 TbBool slab_kind_is_room(SlabKind slbkind)
 {
     return (slab_corresponding_room(slbkind) != 0);
+}
+
+/**
+ * Returns if given slab type represents room slab.
+ * @param slbkind The slab kind to be checked.
+ * @return True if given slab kind is assigned to a room, false otherwise.
+ */
+TbBool slab_kind_has_torches(SlabKind slbkind)
+{
+    if ((slbkind == SlbT_WALLTORCH) || (slbkind == SlbT_TORCHDIRT))
+        return true;
+    return false;
 }
 
 /** Returns creature model to be created by given room kind.
