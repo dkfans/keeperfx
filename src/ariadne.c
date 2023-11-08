@@ -370,7 +370,7 @@ void init_navigation_map(void)
     nav_map_initialised = 1;
 }
 
-static PlayerBitFlag get_navtree_owner_flags(NavColour treeI)
+static PlayerBitFlags get_navtree_owner_flags(NavColour treeI)
 {
     return treeI >> NAVMAP_OWNERSELECT_BIT;
 }
