@@ -2568,7 +2568,7 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
 long element_top_face_texture(struct Map *mapblk)
 {
     struct Column *col;
-    struct CubeAttribs* cubed;
+    struct CubeConfigStats* cubed;
     unsigned int data = mapblk->data;
     TbBool visible = map_block_revealed(mapblk, my_player_number);
     int result = data & 0x7FF;
@@ -2585,12 +2585,12 @@ long element_top_face_texture(struct Map *mapblk)
         }
         if ( (col->bitfields & CLF_CEILING_MASK) != 0 )
         {
-            cubed = &gameadd.cubes_data[col->cubes[COLUMN_STACK_HEIGHT-get_column_ceiling_filled_subtiles(col)-1]];
+            cubed = get_cube_model_stats(col->cubes[COLUMN_STACK_HEIGHT-get_column_ceiling_filled_subtiles(col)-1]);
             return cubed->texture_id[4];
         }
         else if ((col->bitfields & CLF_FLOOR_MASK) != 0)
         {
-            cubed = &gameadd.cubes_data[col->cubes[get_column_floor_filled_subtiles(col) - 1]];
+            cubed = get_cube_model_stats(col->cubes[get_column_floor_filled_subtiles(col) - 1]);
             return cubed->texture_id[4];
         }
         else

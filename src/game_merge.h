@@ -189,8 +189,8 @@ struct GameAdd {
     unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
     unsigned long gold_per_hoard;
-    struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
+    struct CubesConfig cube_conf;
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];

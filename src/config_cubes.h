@@ -29,23 +29,15 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define CUBE_ITEMS_MAX_OLD 512
 #define CUBE_ITEMS_MAX 1024
 
 #define CUBE_TEXTURES 6
 
 /******************************************************************************/
-#pragma pack(1)
-
-struct CubeAttribs { // sizeof=0x12
-    unsigned short texture_id[CUBE_TEXTURES];
-    unsigned char flags[CUBE_TEXTURES];
-};
-
-#pragma pack()
-/******************************************************************************/
 struct CubeConfigStats {
     char code_name[COMMAND_WORD_LEN];
+    unsigned short texture_id[CUBE_TEXTURES];
+    unsigned char flags[CUBE_TEXTURES];
 };
 
 struct CubesConfig {
