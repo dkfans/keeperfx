@@ -331,7 +331,7 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode)
     {
         // Get current desktop display width and height (after DPI scaling)
         SDL_DisplayMode desktop_display_mode;
-        if (SDL_GetCurrentDisplayMode(display_id, &desktop_display_mode) != 0)
+        if (SDL_GetDesktopDisplayMode(display_id, &desktop_display_mode) != 0)
         {
             ERRORLOG("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
             return false; // fo some reason we can't get the current desktop resolution!
