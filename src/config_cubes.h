@@ -52,8 +52,6 @@ struct CubeConfigStats *get_cube_model_stats(long model);
 const char *cube_code_name(long model);
 ThingModel cube_model_id(const char * code_name);
 
-long load_cube_file(void);
-
 /******************************************************************************/
 #ifdef __cplusplus
 }
