@@ -37,7 +37,6 @@ extern "C" {
 struct CubeConfigStats {
     char code_name[COMMAND_WORD_LEN];
     unsigned short texture_id[CUBE_TEXTURES];
-    unsigned char flags[CUBE_TEXTURES];
 };
 
 struct CubesConfig {

@@ -210,25 +210,6 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
-            case 3: // FLAGS
-                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-                {
-                    k = atoi(word_buf);
-                    if (n >= CUBE_TEXTURES)
-                    {
-                      CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
-                          COMMAND_TEXT(cmd_num),block_buf,config_textname);
-                      break;
-                    }
-                    cubed->flags[n] = k;
-                    n++;
-                }
-                if (n < CUBE_TEXTURES)
-                {
-                    CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
-                }
-                break;
             case 0: // comment
                 break;
             case -1: // end of buffer
@@ -338,10 +319,6 @@ void clear_cubes(void)
         {
             cubed->texture_id[n] = 0;
         }
-        for (n = 0; n < CUBE_TEXTURES; n++)
-        {
-            cubed->flags[n] = 0;
-        }
   }
 }
 
@@ -386,9 +363,6 @@ long load_cube_file(void)
             int n;
             for (n=0; n < CUBE_TEXTURES; n++) {
                 cubed->texture_id[n] = cubuf->texture_id[n];
-            }
-            for (n=0; n < CUBE_TEXTURES; n++) {
-                cubed->flags[n] = cubuf->flags[n];
             }
             cubuf++;
         }
