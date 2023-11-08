@@ -491,7 +491,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
             (int)mdinfo->Width,(int)mdinfo->Height,(int)mode);
         return Lb_FAIL;
     }
-    // initialise the SDL flags 
+    // initialise the SDL flags
     Uint32 sdlFlags = 0; // default to an normal window
     if (!(mdinfo->VideoFlags & Lb_VF_WINDOWED))
     {
@@ -504,7 +504,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
             sdlFlags |= SDL_WINDOW_FULLSCREEN; // real fullscreen
         }
     }
-    //sdlFlags |= SDL_WINDOW_RESIZABLE; // todo later in the PR
+    //sdlFlags |= SDL_WINDOW_RESIZABLE; // todo (allow window to be freely scaled) - needs window resize function triggered by SDL_WINDOWEVENT_SIZE_CHANGED
     
     // If the game window already exists
     if (lbWindow != NULL)
