@@ -354,7 +354,7 @@ TbBool door_is_hidden_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
     struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
     if((plyr_idx != doortng->owner) && (doorst->model_flags & DoMF_Secret))
     {
-        return ((doortng->door.revealed & (1 << plyr_idx)) != (1 << plyr_idx));
+        return !flag_is_set(doortng->door.revealed,to_flag(plyr_idx));
     }
     return false;
 }
@@ -365,7 +365,7 @@ void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
     {
         return;
     }
-    doortng->door.revealed |= (1 << plyr_idx);
+    set_flag(doortng->door.revealed,to_flag(plyr_idx));
     MapSubtlCoord stl_x = doortng->mappos.x.stl.num;
     MapSubtlCoord stl_y = doortng->mappos.y.stl.num;
     update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
