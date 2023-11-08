@@ -151,6 +151,7 @@ obj/config_slabsets.o \
 obj/config_strings.o \
 obj/config_terrain.o \
 obj/config_cubes.o \
+obj/config_textures.o \
 obj/config_trapdoor.o \
 obj/console_cmd.o \
 obj/custom_sprites.o \

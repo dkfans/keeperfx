@@ -205,7 +205,7 @@ unsigned char sound_flag;
   union {
   struct {
     char target_plyr_idx;
-    unsigned char player_broken_into_flags;
+    PlayerBitFlags player_broken_into_flags;
     long long_8B;
     unsigned char byte_8F;
     SubtlCodedCoords member_pos_stl[5];
@@ -387,9 +387,9 @@ unsigned char cowers_from_slap_turns;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
-unsigned short shot_shift_x;
-unsigned short shot_shift_y;
-unsigned short shot_shift_z;
+    unsigned short shot_shift_x;
+    unsigned short shot_shift_y;
+    unsigned short shot_shift_z;
     unsigned long tasks_check_turn;
     unsigned long wander_around_check_turn;
     unsigned long job_primary_check_turn;

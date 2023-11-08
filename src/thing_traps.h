@@ -83,6 +83,9 @@ struct TrapStats {
   unsigned char light_intensity;
   unsigned char light_flag;
   struct ComponentVector shotvector;
+  unsigned short shot_shift_x;
+  unsigned short shot_shift_y;
+  unsigned short shot_shift_z;
 };
 
 /******************************************************************************/

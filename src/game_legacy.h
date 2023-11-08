@@ -180,7 +180,7 @@ unsigned int packet_file_pos;
     short col_static_entries[18];
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
-    short texture_animation[8*TEXTURE_BLOCKS_ANIM_COUNT];
+    short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
     unsigned short columns_used;
     unsigned char texture_id;
     unsigned short free_things[THINGS_COUNT-1];

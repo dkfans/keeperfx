@@ -983,7 +983,6 @@ void init_keeper(void)
     load_cubes_config(CnfLd_Standard);
     //load_cube_file();
     init_top_texture_to_cube_table();
-    load_texture_anim_file();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
       game.generate_speed = game.default_generate_speed;
@@ -3107,7 +3106,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
     if (i > 0)
     {
       mapblk = get_map_block_at(x,y);
-      visible = map_block_revealed_bit(mapblk, player_bit);
+      visible = map_block_revealed(mapblk, my_player_number);
       if ((!visible) || (get_mapblk_column_index(mapblk) > 0))
       {
         if (visible)
