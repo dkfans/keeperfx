@@ -118,11 +118,13 @@ short update_animating_texture_maps(void)
 static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst)
 {
     SYNCDBG(9,"Starting");
-#ifdef SPRITE_FORMAT_V2
-    fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d-%d.dat",tmapidx,32);
-#else
-    char* fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat",letter, tmapidx);
-#endif
+
+    char* fname = prepare_file_fmtpath(FGrp_CmpgConfig, "tmap%c%03d.dat",letter, tmapidx);
+    if (!LbFileExists(fname))
+    {
+        fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat",letter, tmapidx);
+    }
+
     if (!wait_for_cd_to_be_available())
         return false;
     if (!LbFileExists(fname))
