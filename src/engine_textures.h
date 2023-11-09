@@ -34,18 +34,18 @@ extern "C" {
 #define TEXTURE_BLOCKS_STAT_COUNT_A   544
 // Static textures in tmapb
 #define TEXTURE_BLOCKS_STAT_COUNT_B   544
-#define TEXTURE_BLOCKS_STAT_COUNT   TEXTURE_BLOCKS_STAT_COUNT_A + TEXTURE_BLOCKS_STAT_COUNT_B
+#define TEXTURE_BLOCKS_STAT_COUNT   (TEXTURE_BLOCKS_STAT_COUNT_A + TEXTURE_BLOCKS_STAT_COUNT_B)
 // Animated texture frames count
 #define TEXTURE_BLOCKS_ANIM_FRAMES    8
 // Animated textures amount
 #define TEXTURE_BLOCKS_ANIM_COUNT    1000 - TEXTURE_BLOCKS_STAT_COUNT_A
-#define TEXTURE_BLOCKS_COUNT         (TEXTURE_BLOCKS_STAT_COUNT_A + TEXTURE_BLOCKS_ANIM_COUNT)
+#define TEXTURE_BLOCKS_COUNT         (TEXTURE_BLOCKS_STAT_COUNT + TEXTURE_BLOCKS_ANIM_COUNT)
 
 #define  TEXTURE_LAND_MARKED_LAND     578
 #define  TEXTURE_LAND_MARKED_GOLD     579
 /******************************************************************************/
 
-extern unsigned char block_mem[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32];
+extern unsigned char block_mem[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
 extern unsigned char *block_ptrs[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_COUNT];
 extern long block_dimension;
 /******************************************************************************/
