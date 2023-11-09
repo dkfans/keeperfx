@@ -215,7 +215,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
                     k = atoi(word_buf);
-                    if (k > CUBE_OWNERSHIP_GROUPS)
+                    if (k >= CUBE_OWNERSHIP_GROUPS)
                     {
                         CONFWRNLOG("exceeding max amount of ownership groups",k,CUBE_OWNERSHIP_GROUPS);
                     }
