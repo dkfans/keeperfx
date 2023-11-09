@@ -1405,7 +1405,7 @@ static TbBool load_level_file(LevelNumber lvnum)
           result = false;
         load_map_wibble_file(lvnum);
         load_and_setup_map_info(lvnum);
-        load_texture_map_file(game.texture_id, 2);
+        load_texture_map_file(game.texture_id);
         if (new_format)
         {
             load_aptfx_file(lvnum);
@@ -1437,7 +1437,7 @@ static TbBool load_level_file(LevelNumber lvnum)
         load_slab_file();
         init_columns();
         game.texture_id = 0;
-        load_texture_map_file(game.texture_id, 2);
+        load_texture_map_file(game.texture_id);
         init_top_texture_to_cube_table();
         result = false;
     }

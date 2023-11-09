@@ -127,7 +127,7 @@ static TbBool load_one_file(unsigned long tmapidx, void *dst)
     }
     return true;
 }
-TbBool load_texture_map_file(unsigned long tmapidx, unsigned char n)
+TbBool load_texture_map_file(unsigned long tmapidx)
 {
     SYNCDBG(7,"Starting");
     memset(block_mem, 130, sizeof(block_mem));
