@@ -34,7 +34,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/******************************************************************************/
 unsigned char block_mem[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32];
 unsigned char *block_ptrs[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_COUNT];
 
@@ -68,6 +67,18 @@ void setup_texture_block_mem(void)
             src += (block_dimension-1)*block_dimension*block_count_per_row;
         }
         dst += TEXTURE_BLOCKS_ANIM_COUNT;
+        /*
+        for (int i = 0; i < TEXTURE_BLOCKS_STAT_COUNT_B / block_count_per_row; i++)
+        {
+            for (unsigned long k = 0; k < block_count_per_row; k++)
+            {
+                *dst = src;
+                src += block_dimension;
+                dst++;
+            }
+            src += (block_dimension-1)*block_dimension*block_count_per_row;
+        }
+        */
     }
 }
 
@@ -104,13 +115,13 @@ short update_animating_texture_maps(void)
   return result;
 }
 
-static TbBool load_one_file(unsigned long tmapidx, void *dst)
+static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst)
 {
     SYNCDBG(9,"Starting");
 #ifdef SPRITE_FORMAT_V2
     fname = prepare_file_fmtpath(FGrp_StdData,"tmapa%03d-%d.dat",tmapidx,32);
 #else
-    char* fname = prepare_file_fmtpath(FGrp_StdData, "tmapa%03d.dat", tmapidx);
+    char* fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat",letter, tmapidx);
 #endif
     if (!wait_for_cd_to_be_available())
         return false;
@@ -131,17 +142,25 @@ TbBool load_texture_map_file(unsigned long tmapidx)
 {
     SYNCDBG(7,"Starting");
     memset(block_mem, 130, sizeof(block_mem));
-    if (!load_one_file(tmapidx, block_mem))
+    if (!load_one_file(tmapidx,'a', block_mem))
     {
         return false;
     }
     unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);
     for (int i = 0; i < TEXTURE_VARIATIONS_COUNT-1; i++, dst += (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32))
+    /*
+    load_one_file(tmapidx,'b', dst);
+    dst += (TEXTURE_BLOCKS_STAT_COUNT_B * 32 * 32);
+
+    for (int i = 0; i < TEXTURE_VARIATIONS_COUNT-1; i++)
+    */
     {
-        if (!load_one_file(i, dst))
-        {
-            continue;
-        }
+        load_one_file(i,'a', dst);
+        /*
+        dst += (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);
+        load_one_file(i,'b', dst);
+        dst += (TEXTURE_BLOCKS_STAT_COUNT_B * 32 * 32);
+        */
     }
     return true;
 }

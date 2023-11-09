@@ -516,7 +516,7 @@ void init_top_texture_to_cube_table(void)
 {
     LbMemorySet(game.top_cube, 0, sizeof(game.top_cube));
     int n;
-    for (n=1; n < 592; n++)
+    for (n=1; n < TEXTURE_BLOCKS_COUNT; n++)
     {
         int i;
         for (i=1; i < CUBE_ITEMS_MAX; i++)

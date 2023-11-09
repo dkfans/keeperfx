@@ -29,6 +29,7 @@ extern "C" {
 /******************************************************************************/
 // Num of known texture files
 #define TEXTURE_VARIATIONS_COUNT        16
+
 // Static textures in tmapa
 #define TEXTURE_BLOCKS_STAT_COUNT_A   544
 // Static textures in tmapb
