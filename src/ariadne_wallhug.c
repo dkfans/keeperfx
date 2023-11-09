@@ -2067,7 +2067,7 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
     return false;
 }
 
-static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
+static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, unsigned short digflags)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     const struct SlabAttr* slbattr = get_slab_attrs(slb);
@@ -2079,6 +2079,10 @@ static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pla
             return false;
         }
     }
+    if ((digflags & ToolDig_AllowLiquidWBridge) && slab_kind_is_liquid(slb->kind))
+    {
+        return false;
+    }
     if (!slab_good_for_computer_dig_path(slb)) {
         SYNCDBG(17,"Subtile (%d,%d) rejected as not good for dig",(int)stl_x,(int)stl_y);
         return false;
@@ -2086,8 +2090,9 @@ static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pla
     return true;
 }
 
-long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside)
+long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, int direction_around, TbBool revside, unsigned short digflags)
 {
+    SubtlCodedCoords stl_num;
     long round_change;
     SYNCDBG(14,"Starting for subtile (%d,%d)",(int)basestl_x,(int)basestl_y);
     if (revside) {
@@ -2100,10 +2105,10 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
     {
         MapSubtlCoord stl_x = basestl_x + STL_PER_SLB * (int)small_around[round_idx].delta_x;
         MapSubtlCoord stl_y = basestl_y + STL_PER_SLB * (int)small_around[round_idx].delta_y;
-        if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx))
+        if (!is_valid_hug_subtile(stl_x, stl_y, plyr_idx, digflags))
         {
+            stl_num = get_subtile_number(stl_x, stl_y);
             SYNCDBG(7,"Subtile (%d,%d) accepted",(int)stl_x,(int)stl_y);
-            SubtlCodedCoords stl_num = get_subtile_number(stl_x, stl_y);
             return stl_num;
         }
         round_idx = (round_idx + round_change) % SMALL_AROUND_LENGTH;
@@ -2112,7 +2117,7 @@ long dig_to_position(PlayerNumber plyr_idx, MapSubtlCoord basestl_x, MapSubtlCoo
 }
 
 static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y, int dirctn, PlayerNumber plyr_idx,
-    char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, short *round, int *maxdist)
+    char *state, MapSubtlCoord *ostl_x, MapSubtlCoord *ostl_y, short *round, int *maxdist, unsigned short digflags)
 {
     MapSubtlCoord curr_stl_x = *ostl_x;
     MapSubtlCoord curr_stl_y = *ostl_y;
@@ -2121,7 +2126,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     int dx = small_around[round_idx].delta_x;
     int dy = small_around[round_idx].delta_y;
     // If we can follow direction straight to the target, and we will get closer to it, then do it
-    if ((dist <= *maxdist) && !is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
+    if ((dist <= *maxdist) && !is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx, digflags))
     {
         curr_stl_x += STL_PER_SLB*dx;
         curr_stl_y += STL_PER_SLB*dy;
@@ -2141,7 +2146,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         {
             dx = small_around[round_idx].delta_x;
             dy = small_around[round_idx].delta_y;
-            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB*dx, curr_stl_y + STL_PER_SLB*dy, plyr_idx))
+            if (!is_valid_hug_subtile(curr_stl_x + STL_PER_SLB * dx, curr_stl_y + STL_PER_SLB * dy, plyr_idx, digflags))
             {
                 break;
             }
@@ -2162,10 +2167,9 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
 }
 
 short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, MapSubtlCoord dst_stl_x, MapSubtlCoord dst_stl_y,
-    unsigned short direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y)
+    unsigned short direction, PlayerNumber plyr_idx, MapSubtlCoord *ostla_x, MapSubtlCoord *ostla_y, MapSubtlCoord *ostlb_x, MapSubtlCoord *ostlb_y, unsigned short digflags)
 {
     SYNCDBG(4,"Starting");
-
     int dist = max(abs(src_stl_x - dst_stl_x), abs(src_stl_y - dst_stl_y));
 
     char state_a = WaHSS_Val0;
@@ -2187,7 +2191,16 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
         }
         if (state_a != WaHSS_Val2)
         {
-            get_hug_side_next_step(dst_stl_x, dst_stl_y, -1, plyr_idx, &state_a, &stl_a_x, &stl_a_y, &round_a, &maxdist_a);
+            get_hug_side_next_step(dst_stl_x, dst_stl_y, -1, plyr_idx, &state_a, &stl_a_x, &stl_a_y, &round_a, &maxdist_a, digflags);
+            if (slab_is_liquid(subtile_slab(stl_a_x), subtile_slab(stl_a_y)))
+            {
+                // exit path early if water found, so that a bridge will be built here
+                *ostla_x = stl_a_x;
+                *ostla_y = stl_a_y;
+                *ostlb_x = stl_b_x;
+                *ostlb_y = stl_b_y;
+                return 1;
+            }
             if ((stl_a_x == dst_stl_x) && (stl_a_y == dst_stl_y)) {
                 *ostla_x = stl_a_x;
                 *ostla_y = stl_a_y;
@@ -2198,7 +2211,16 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
         }
         if (state_b != WaHSS_Val2)
         {
-            get_hug_side_next_step(dst_stl_x, dst_stl_y, 1, plyr_idx, &state_b, &stl_b_x, &stl_b_y, &round_b, &maxdist_b);
+            get_hug_side_next_step(dst_stl_x, dst_stl_y, 1, plyr_idx, &state_b, &stl_b_x, &stl_b_y, &round_b, &maxdist_b, digflags);
+            if (slab_is_liquid(subtile_slab(stl_b_x), subtile_slab(stl_b_y)))
+            {
+                // exit path early if water found, so that a bridge will be built here
+                *ostla_x = stl_a_x;
+                *ostla_y = stl_a_y;
+                *ostlb_x = stl_b_x;
+                *ostlb_y = stl_b_y;
+                return 0;
+            }
             if ((stl_b_x == dst_stl_x) && (stl_b_y == dst_stl_y)) {
                 *ostla_x = stl_a_x;
                 *ostla_y = stl_a_y;
