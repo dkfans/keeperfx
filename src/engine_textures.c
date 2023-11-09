@@ -35,7 +35,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT * 32 * 32];
+unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32];
 unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];
 
 long block_dimension = 32;
@@ -57,7 +57,7 @@ void setup_texture_block_mem(void)
     }
     for (int f = 0; f < TEXTURE_FILES_COUNT; f++)
     {
-        for (int i = 0; i < TEXTURE_BLOCKS_STAT_COUNT / block_count_per_row; i++)
+        for (int i = 0; i < TEXTURE_BLOCKS_STAT_COUNT_A / block_count_per_row; i++)
         {
             for (unsigned long k = 0; k < block_count_per_row; k++)
             {
@@ -90,9 +90,9 @@ short update_animating_texture_maps(void)
       for (int i = 0; i < TEXTURE_BLOCKS_ANIM_COUNT; i++)
       {
           short j = game.texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*i+anim_counter];
-          if ((j>=0) && (j<TEXTURE_BLOCKS_STAT_COUNT))
+          if ((j>=0) && (j<TEXTURE_BLOCKS_STAT_COUNT_A))
           {
-            dst[TEXTURE_BLOCKS_STAT_COUNT + i] = dst[j];
+            dst[TEXTURE_BLOCKS_STAT_COUNT_A + i] = dst[j];
           }
           else
           {
@@ -135,8 +135,8 @@ TbBool load_texture_map_file(unsigned long tmapidx)
     {
         return false;
     }
-    unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT * 32 * 32);
-    for (int i = 0; i < TEXTURE_FILES_COUNT-1; i++, dst += (TEXTURE_BLOCKS_STAT_COUNT * 32 * 32))
+    unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);
+    for (int i = 0; i < TEXTURE_FILES_COUNT-1; i++, dst += (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32))
     {
         if (!load_one_file(i, dst))
         {
