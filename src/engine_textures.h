@@ -28,7 +28,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 // Num of known texture files
-#define TEXTURE_FILES_COUNT           16
 #define TEXTURE_VARIATIONS_COUNT        16
 // Static textures in tmapa
 #define TEXTURE_BLOCKS_STAT_COUNT_A   544
@@ -45,8 +44,8 @@ extern "C" {
 #define  TEXTURE_LAND_MARKED_GOLD     579
 /******************************************************************************/
 
-extern unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32];
-extern unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];
+extern unsigned char block_mem[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32];
+extern unsigned char *block_ptrs[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_COUNT];
 extern long block_dimension;
 /******************************************************************************/
 void setup_texture_block_mem(void);

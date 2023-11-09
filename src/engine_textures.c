@@ -35,8 +35,8 @@ extern "C" {
 #endif
 /******************************************************************************/
 /******************************************************************************/
-unsigned char block_mem[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32];
-unsigned char *block_ptrs[TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT];
+unsigned char block_mem[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32];
+unsigned char *block_ptrs[TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_COUNT];
 
 long block_dimension = 32;
 long block_count_per_row = 8;
@@ -51,11 +51,11 @@ void setup_texture_block_mem(void)
 {
     unsigned char** dst = block_ptrs;
     unsigned char* src  = block_mem;
-    for (int i = 0; i < (TEXTURE_FILES_COUNT * TEXTURE_BLOCKS_COUNT); i++)
+    for (int i = 0; i < (TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_COUNT); i++)
     {
         block_ptrs[i] = block_mem + block_dimension;
     }
-    for (int f = 0; f < TEXTURE_FILES_COUNT; f++)
+    for (int f = 0; f < TEXTURE_VARIATIONS_COUNT; f++)
     {
         for (int i = 0; i < TEXTURE_BLOCKS_STAT_COUNT_A / block_count_per_row; i++)
         {
@@ -85,7 +85,7 @@ short update_animating_texture_maps(void)
   short result=true;
 
   anim_counter = (anim_counter+1) % TEXTURE_BLOCKS_ANIM_FRAMES;
-  for (int f = 0; f < TEXTURE_FILES_COUNT; f++)
+  for (int f = 0; f < TEXTURE_VARIATIONS_COUNT; f++)
   {
       for (int i = 0; i < TEXTURE_BLOCKS_ANIM_COUNT; i++)
       {
@@ -136,7 +136,7 @@ TbBool load_texture_map_file(unsigned long tmapidx)
         return false;
     }
     unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);
-    for (int i = 0; i < TEXTURE_FILES_COUNT-1; i++, dst += (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32))
+    for (int i = 0; i < TEXTURE_VARIATIONS_COUNT-1; i++, dst += (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32))
     {
         if (!load_one_file(i, dst))
         {
