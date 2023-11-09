@@ -334,7 +334,7 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode)
         if (SDL_GetDesktopDisplayMode(display_id, &desktop_display_mode) != 0)
         {
             ERRORLOG("SDL_GetDesktopDisplayMode failed: %s", SDL_GetError());
-            return false; // fo some reason we can't get the current desktop resolution!
+            return false; // for some reason we can't get the current desktop resolution!
         }
         // update the mode's width and height to the desktop resolution of the current monitor
         mdinfo->Width = desktop_display_mode.w;
@@ -854,7 +854,7 @@ TbBool LbScreenIsModeAvailable(TbScreenMode mode)
   }
   else
   {
-    LbHwCheckIsModeAvailable(mode); // we need to recheck modes, as we can change dispplays, and each display may support different modes
+    LbHwCheckIsModeAvailable(mode); // we need to recheck modes, as we can change displays, and each display may support different modes
   }
   TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
   return mdinfo->Available;
