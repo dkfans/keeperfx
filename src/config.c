@@ -714,16 +714,25 @@ short load_configuration(void)
   install_info.field_9A = 0;
   // Set default runtime directory and load the config file
   strcpy(keeper_runtime_directory,".");
-  const char* fname = prepare_file_path(FGrp_Main, keeper_config_file);
+  const char* sname;
+  if (start_params.overrides[Clo_ConfigFile])
+  {
+    sname = start_params.config_file;
+  }
+  else
+  {
+    sname = keeper_config_file;
+  }
+  const char* fname = prepare_file_path(FGrp_Main, sname);
   long len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,keeper_config_file);
+    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,sname);
     return false;
   }
   if (len > 65536)
   {
-    WARNMSG("%s file \"%s\" is too large.",config_textname,keeper_config_file);
+    WARNMSG("%s file \"%s\" is too large.",config_textname,sname);
     return false;
   }
   char* buf = (char*)LbMemoryAlloc(len + 256);

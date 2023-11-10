@@ -4089,6 +4089,12 @@ short process_command_line(unsigned short argc, char *argv[])
           }
           narg++;
       }
+      else if ( strcasecmp(parstr,"config") == 0 )
+      {
+        strcpy(start_params.config_file, pr2str);
+        start_params.overrides[Clo_ConfigFile] = true;
+        narg++;
+      }
 #ifdef AUTOTESTING
       else if (strcasecmp(parstr, "exit_at_turn") == 0)
       {

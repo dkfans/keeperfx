@@ -62,10 +62,12 @@ extern "C" {
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
-#define CMDLINE_OVERRIDES      1
+#define CMDLINE_OVERRIDES      2
 
+/** Command Line overrides for config settings. Checked after the config file is loaded. */
 enum CmdLineOverrides {
-    Clo_CDMusic = 0,
+    Clo_ConfigFile = 0, /**< Special: handled before the config file is loaded. */
+    Clo_CDMusic,
 };
 
 enum ModeFlags {
@@ -134,6 +136,7 @@ struct StartupParameters {
     int frame_skip;
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
+    char config_file[CMDLN_MAXLEN+1];
 #ifdef AUTOTESTING
     unsigned char autotest_flags;
     unsigned long autotest_exit_turn;
