@@ -1087,13 +1087,6 @@ short setup_game(void)
       return 0;
   }
 
-  // Check the failsafe mode
-  if (!LbScreenIsModeAvailable(get_failsafe_vidmode(), display_id))
-  {
-      ERRORLOG("Failsafe video mode is invalid");
-      return 0;
-  }
-
   // View the legal screen
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
@@ -1154,9 +1147,7 @@ short setup_game(void)
   // Setup the intro video mode
   if ( result && (!game.no_intro) )
   {
-      LbPaletteDataFillBlack(engine_palette);
-      int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, engine_palette, 2, 0);
-      if (mode_ok != 1)
+      if (!setup_screen_mode_zero(get_movies_vidmode()))
       {
         ERRORLOG("Can't enter movies screen mode to play intro");
         result=0;

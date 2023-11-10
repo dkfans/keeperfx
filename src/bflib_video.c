@@ -880,6 +880,10 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
 
 TbBool LbScreenIsModeAvailable(TbScreenMode mode, unsigned short display)
 {
+  if (mode == Lb_SCREEN_MODE_INVALID)
+  {
+    return false;
+  } 
   if (!LbHwCheckIsModeAvailable(mode, display))
   {
     TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);

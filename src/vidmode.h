@@ -158,9 +158,9 @@ void set_movies_vidmode(TbScreenMode nmode);
 void set_frontend_vidmode(TbScreenMode nmode);
 char *get_vidmode_name(TbScreenMode mode);
 
-TbBool setup_screen_mode(TbScreenMode nmode);
-TbBool setup_screen_mode_minimal(TbScreenMode nmode);
-TbBool setup_screen_mode_zero(TbScreenMode nmode);
+TbScreenMode setup_screen_mode(TbScreenMode nmode);
+TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode);
+TbScreenMode setup_screen_mode_zero(TbScreenMode nmode);
 
 short LoadMcgaData(void);
 short LoadMcgaDataMinimal(void);
