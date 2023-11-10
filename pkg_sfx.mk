@@ -39,7 +39,7 @@ NGSOUNDDATS = $(patsubst %,pkg/sound/%.dat,$(NGSPEECHBANKS) sound)
 NGSOUNDLISTS = $(patsubst %,sfx/%/filelist.txt,$(NGSPEECHBANKS) sound)
 
 LANDVIEWSPEECH = \
-$(foreach lng,eng,ancntkpr_$(lng)) \
+$(foreach lng,eng chi,ancntkpr_$(lng)) \
 $(foreach lng,eng,burdnimp_$(lng)) \
 $(foreach lng,eng dut,dzjr06lv_$(lng)) \
 $(foreach lng,eng,jdkmaps8_$(lng)) \
