@@ -101,7 +101,8 @@ short update_animating_texture_maps(void)
       for (int i = 0; i < TEXTURE_BLOCKS_ANIM_COUNT; i++)
       {
           short j = game.texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*i+anim_counter];
-          if ((j>=0) && (j<TEXTURE_BLOCKS_STAT_COUNT_A))
+          if (((j>=0) && (j<TEXTURE_BLOCKS_STAT_COUNT_A)) || 
+              ((j>=TEX_B_START_POINT) && (j<(TEX_B_START_POINT + TEXTURE_BLOCKS_STAT_COUNT_B))))
           {
             dst[TEXTURE_BLOCKS_STAT_COUNT_A + i] = dst[j];
           }
@@ -140,6 +141,7 @@ static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst)
     }
     return true;
 }
+
 TbBool load_texture_map_file(unsigned long tmapidx)
 {
     SYNCDBG(7,"Starting");
