@@ -67,7 +67,7 @@ void setup_texture_block_mem(void)
             src += (block_dimension-1)*block_dimension*block_count_per_row;
         }
         dst += TEXTURE_BLOCKS_ANIM_COUNT;
-        /*
+        
         for (int i = 0; i < TEXTURE_BLOCKS_STAT_COUNT_B / block_count_per_row; i++)
         {
             for (unsigned long k = 0; k < block_count_per_row; k++)
@@ -78,7 +78,7 @@ void setup_texture_block_mem(void)
             }
             src += (block_dimension-1)*block_dimension*block_count_per_row;
         }
-        */
+        
     }
 }
 
@@ -148,21 +148,19 @@ TbBool load_texture_map_file(unsigned long tmapidx)
     {
         return false;
     }
-    unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);
-    for (int i = 0; i < TEXTURE_VARIATIONS_COUNT-1; i++, dst += (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32))
-    /*
+    unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);    
     load_one_file(tmapidx,'b', dst);
     dst += (TEXTURE_BLOCKS_STAT_COUNT_B * 32 * 32);
 
     for (int i = 0; i < TEXTURE_VARIATIONS_COUNT-1; i++)
-    */
+    
     {
         load_one_file(i,'a', dst);
-        /*
+        
         dst += (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);
         load_one_file(i,'b', dst);
         dst += (TEXTURE_BLOCKS_STAT_COUNT_B * 32 * 32);
-        */
+        
     }
     return true;
 }
