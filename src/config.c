@@ -139,6 +139,7 @@ const struct NamedCommand conf_commands[] = {
   {"CREATURE_STATUS_SIZE"          , 26},
   {"MAX_ZOOM_DISTANCE"             , 27},
   {"DISPLAY_NUMBER"                , 28},
+  {"MUSIC_FROM_DISK"               , 29},
   {NULL,                   0},
   };
 
@@ -1101,6 +1102,19 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
+      case 29: // MUSIC_FROM_DISK
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_NoCdMusic;
+          else
+              features_enabled &= ~Ft_NoCdMusic;
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1148,6 +1162,19 @@ short load_configuration(void)
   }
   // Returning if the setting are valid
   return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');
+}
+
+/** CmdLine overrides allow settings from the command line to override the deafault settings, or those set in the config file.
+ * 
+ * See enum CmdLineOverrides and struct StartupParameters -> TbBool overrides[CMDLINE_OVERRIDES].
+ */
+void process_cmdline_overrides(void)
+{
+  // Use CD for music rather than OGG files
+  if (start_params.overrides[Clo_CDMusic])
+  {
+    features_enabled &= ~Ft_NoCdMusic;
+  }
 }
 
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)

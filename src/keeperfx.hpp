@@ -62,6 +62,11 @@ extern "C" {
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
+#define CMDLINE_OVERRIDES      1
+
+enum CmdLineOverrides {
+    Clo_CDMusic = 0,
+};
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
@@ -128,6 +133,7 @@ struct StartupParameters {
     unsigned char force_ppro_poly;
     int frame_skip;
     char selected_campaign[CMDLN_MAXLEN+1];
+    TbBool overrides[CMDLINE_OVERRIDES];
 #ifdef AUTOTESTING
     unsigned char autotest_flags;
     unsigned long autotest_exit_turn;
