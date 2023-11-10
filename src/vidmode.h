@@ -158,7 +158,7 @@ void set_movies_vidmode(TbScreenMode nmode);
 void set_frontend_vidmode(TbScreenMode nmode);
 char *get_vidmode_name(TbScreenMode mode);
 
-TbScreenMode setup_screen_mode(TbScreenMode nmode);
+TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe);
 TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode);
 TbScreenMode setup_screen_mode_zero(TbScreenMode nmode);
 
