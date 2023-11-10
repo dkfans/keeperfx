@@ -142,26 +142,25 @@ extern struct TbAlphaTables alpha_sprite_table;
 extern unsigned char white_pal[256];
 extern unsigned char red_pal[256];
 
-extern int MinimalResolutionSetup;
+extern TbBool MinimalResolutionSetup;
 /******************************************************************************/
 TbScreenMode switch_to_next_video_mode(void);
-void set_game_vidmode(unsigned short i,unsigned short nmode);
+void set_game_vidmode(unsigned short i, TbScreenMode nmode);
 unsigned short max_game_vidmode_count(void);
 TbScreenMode reenter_video_mode(void);
 TbScreenMode get_next_vidmode(TbScreenMode mode);
-TbScreenMode get_higher_vidmode(TbScreenMode curr_mode);
 TbScreenMode validate_vidmode(TbScreenMode mode);
 TbScreenMode get_failsafe_vidmode(void);
 TbScreenMode get_movies_vidmode(void);
 TbScreenMode get_frontend_vidmode(void);
-void set_failsafe_vidmode(unsigned short nmode);
-void set_movies_vidmode(unsigned short nmode);
-void set_frontend_vidmode(unsigned short nmode);
-char *get_vidmode_name(unsigned short mode);
+void set_failsafe_vidmode(TbScreenMode nmode);
+void set_movies_vidmode(TbScreenMode nmode);
+void set_frontend_vidmode(TbScreenMode nmode);
+char *get_vidmode_name(TbScreenMode mode);
 
-TbBool setup_screen_mode(unsigned short nmode);
-short setup_screen_mode_minimal(unsigned short nmode);
-TbBool setup_screen_mode_zero(unsigned short nmode);
+TbBool setup_screen_mode(TbScreenMode nmode);
+TbBool setup_screen_mode_minimal(TbScreenMode nmode);
+TbBool setup_screen_mode_zero(TbScreenMode nmode);
 
 short LoadMcgaData(void);
 short LoadMcgaDataMinimal(void);

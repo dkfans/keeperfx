@@ -47,7 +47,7 @@ struct GameSettings { // KFX settings
     unsigned char redbook_volume;
     unsigned char roomflags_on;
     unsigned short gamma_correction;
-    int video_scrnmode;
+    int video_scrnmode; // change to TbScreenMode
     struct GameKey kbkeys[GAME_KEYS_COUNT];
     unsigned char tooltips_on;
     unsigned char first_person_move_invert;

@@ -1087,6 +1087,13 @@ short setup_game(void)
       return 0;
   }
 
+  // Check the failsafe mode
+  if (!LbScreenIsModeAvailable(get_failsafe_vidmode(), display_id))
+  {
+      ERRORLOG("Failsafe video mode is invalid");
+      return 0;
+  }
+
   // View the legal screen
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
@@ -1144,8 +1151,7 @@ short setup_game(void)
     }
 
   result = 1;
-  // The 320x200 mode is required only for the intro;
-  // loading and no CD screens can run in both 320x2?0 and 640x4?0.
+  // Setup the intro video mode
   if ( result && (!game.no_intro) )
   {
       LbPaletteDataFillBlack(engine_palette);
