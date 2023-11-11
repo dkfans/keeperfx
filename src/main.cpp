@@ -1060,7 +1060,7 @@ short setup_game(void)
   // Enable features that require more resources
   update_features(mem_size);
 
-  //Default feature settings (in case the options are absent from keeperfx.cfg)
+  // Default feature settings (in case the options are absent from keeperfx.cfg)
   features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
   features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
   features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
@@ -1070,6 +1070,7 @@ short setup_game(void)
   features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   features_enabled |= Ft_DeltaTime; // enable delta time
+  features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
 
   // Configuration file
   if ( !load_configuration() )
@@ -1077,6 +1078,9 @@ short setup_game(void)
       ERRORLOG("Configuration load error.");
       return 0;
   }
+
+  // Process CmdLine overrides
+  process_cmdline_overrides();
 
   LbIKeyboardOpen();
 
@@ -3950,9 +3954,13 @@ short process_command_line(unsigned short argc, char *argv[])
       {
         start_params.no_intro = 1;
       } else
-      if (strcasecmp(parstr, "nocd") == 0)
+      if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
-          features_enabled |= Ft_NoCdMusic;
+          WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
+      } else
+      if (strcasecmp(parstr, "cd") == 0)
+      {
+          start_params.overrides[Clo_CDMusic] = true;
       } else
       if (strcasecmp(parstr, "1player") == 0)
       {
@@ -4080,6 +4088,12 @@ short process_command_line(unsigned short argc, char *argv[])
               TimerNoReset = true;
           }
           narg++;
+      }
+      else if ( strcasecmp(parstr,"config") == 0 )
+      {
+        strcpy(start_params.config_file, pr2str);
+        start_params.overrides[Clo_ConfigFile] = true;
+        narg++;
       }
 #ifdef AUTOTESTING
       else if (strcasecmp(parstr, "exit_at_turn") == 0)
