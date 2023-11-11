@@ -3958,6 +3958,10 @@ short process_command_line(unsigned short argc, char *argv[])
       {
         start_params.no_intro = 1;
       } else
+      if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
+      {
+          WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
+      } else
       if (strcasecmp(parstr, "cd") == 0)
       {
           start_params.overrides[Clo_CDMusic] = true;

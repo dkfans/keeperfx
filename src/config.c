@@ -1173,7 +1173,7 @@ short load_configuration(void)
   return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');
 }
 
-/** CmdLine overrides allow settings from the command line to override the deafault settings, or those set in the config file.
+/** CmdLine overrides allow settings from the command line to override the default settings, or those set in the config file.
  * 
  * See enum CmdLineOverrides and struct StartupParameters -> TbBool overrides[CMDLINE_OVERRIDES].
  */
