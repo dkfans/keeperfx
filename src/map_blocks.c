@@ -2546,7 +2546,7 @@ long element_top_face_texture(struct Map *mapblk)
         }
         else
         {
-            return col->baseblock;
+            return col->floor_texture;
         }
     }
     return result;
