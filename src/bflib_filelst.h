@@ -33,7 +33,7 @@ struct TbLoadFiles;
 typedef char *ModifyDataLoadFnameFunc(struct TbLoadFiles *);
 
 struct TbLoadFiles {
-        char FName[28];
+        char FName[DISKPATH_SIZE];
         unsigned char **Start;
         unsigned char **SEnd;
         unsigned long SLength;

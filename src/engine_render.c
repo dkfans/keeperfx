@@ -4142,7 +4142,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
     long ecpos;
     long clip_start;
     long clip_end;
-    struct CubeAttribs *texturing;
+    struct CubeConfigStats *texturing;
     unsigned short *cubenum_ptr;
     long i;
     long n;
@@ -4208,7 +4208,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         height_bit = 1;
         while (height_bit <= solidmsk_center)
         {
-            texturing = &gameadd.cubes_data[*cubenum_ptr];
+            texturing = get_cube_model_stats(*cubenum_ptr);
             if ((solidmsk_center & height_bit) != 0)
             {
               if ((solidmsk_top & height_bit) == 0)
@@ -4246,7 +4246,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         if (ecpos > 0)
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
-            texturing = &gameadd.cubes_data[*cubenum_ptr];
+            texturing = get_cube_model_stats(*cubenum_ptr);
             textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
@@ -4262,7 +4262,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         if (ecpos > 0)
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
-            texturing = &gameadd.cubes_data[*cubenum_ptr];
+            texturing = get_cube_model_stats(*cubenum_ptr);
             textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
@@ -4627,8 +4627,8 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         for (mask=1,ncor=0; mask <= solidmsk_cur; mask*=2,ncor++)
         {
             unsigned short textr_id;
-            struct CubeAttribs *cubed;
-            cubed = &gameadd.cubes_data[cur_colmn->cubes[ncor]];
+            struct CubeConfigStats *cubed;
+            cubed = get_cube_model_stats(cur_colmn->cubes[ncor]);
             if ((mask & solidmsk_cur) == 0)
             {
                 continue;
@@ -4679,7 +4679,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
              {
                 if ((ncor_raw > 0) && (ncor_raw <= COLUMN_STACK_HEIGHT))
                 {
-                    struct CubeAttribs * cubed = &gameadd.cubes_data[cur_colmn->cubes[ncor_raw-1]];
+                    struct CubeConfigStats * cubed = get_cube_model_stats(cur_colmn->cubes[ncor_raw-1]);
                     unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
                     // Top surface in cluedo mode
                     do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
@@ -4703,8 +4703,8 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         ncor = lintel_top_height[solidmsk_cur];
         if ((ncor > 0) && (ncor <= COLUMN_STACK_HEIGHT))
         {
-            struct CubeAttribs * cubed;
-            cubed = &gameadd.cubes_data[cur_colmn->cubes[ncor-1]];
+            struct CubeConfigStats * cubed;
+            cubed = get_cube_model_stats(cur_colmn->cubes[ncor-1]);
             unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
             do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
             do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
@@ -4816,8 +4816,8 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         for (mask=1,ncor=0; mask <= solidmsk_cur; mask*=2,ncor++)
         {
             unsigned short textr_id;
-            struct CubeAttribs *cubed;
-            cubed = &gameadd.cubes_data[cur_colmn->cubes[ncor]];
+            struct CubeConfigStats *cubed;
+            cubed = get_cube_model_stats(cur_colmn->cubes[ncor]);
             if ((mask & solidmsk_cur) == 0)
             {
                 continue;
@@ -4859,8 +4859,8 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
             }
             else if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
             {
-                struct CubeAttribs * cubed;
-                cubed = &gameadd.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
+                struct CubeConfigStats * cubed;
+                cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1));
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
                 // Top surface on full iso mode
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
@@ -4889,8 +4889,8 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         ncor = lintel_top_height[solidmsk_cur];
         if (ncor > 0)
         {
-            struct CubeAttribs * cubed;
-            cubed = &gameadd.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
+            struct CubeConfigStats * cubed;
+            cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1));
             unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
             do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
             do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
@@ -7379,7 +7379,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
 {
     struct PlayerInfo *myplyr;
     TbBool sibrevealed[3][3];
-    struct CubeAttribs *unkstrcp;
+    struct CubeConfigStats *unkstrcp;
     struct Map *mapblk;
     long lightness_arr[4][9];
     long bckt_idx;
@@ -7464,7 +7464,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if (col->cubes[tc] == 0)
         break;
       y -= delta_y;
-      unkstrcp = &gameadd.cubes_data[col->cubes[tc]];
+      unkstrcp = get_cube_model_stats(col->cubes[tc]);
       if (*ymax > y)
       {
         *ymax = y;
@@ -7514,7 +7514,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             if (col->cubes[tc] == 0)
               break;
             y -= delta_y;
-            unkstrcp = &gameadd.cubes_data[col->cubes[tc]];
+            unkstrcp = get_cube_model_stats(col->cubes[tc]);
             if (*ymax > y)
             {
               textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
