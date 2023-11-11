@@ -71,52 +71,6 @@ const unsigned char special_cases[][9] = {
     {0, 0, 0, 3, 3, 1, 2, 2, 2},
 };
 
-const unsigned short cube_bits[][6] = {
-    {  0,   0,   0,   0,   0,   0},
-    {160, 410, 413, 416, 419,  77},
-    {161, 411, 414, 417, 420,  77},
-    {162, 412, 415, 418, 421,  77},
-    {382, 422, 423, 424, 426, 425},
-    {393, 427, 428, 429, 431, 430},
-    { 67,  68,  69,  70,  71,   4},
-    {192, 193, 194, 195, 199, 198},
-};
-
-const unsigned char player_cube_group[] = {
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 0
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 16
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 32
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 48
-    0, 0, 0, 6, 6, 6, 6, 6, 0, 0, 0, 0, 0, 0, 0, 0, // 64
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 80
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 96
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 112
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 128
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 144
-    1, 2, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 160
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 176
-    7, 7, 7, 7, 7, 7, 7, 7, 0, 0, 0, 0, 0, 0, 0, 0, // 192
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 208
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 224
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 240
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 256
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 272
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 288
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 304
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 320
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 336
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 352
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 0, // 368
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, // 384
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 400
-    0, 0, 0, 0, 0, 0, 4, 4, 4, 4, 4, 0, 0, 0, 0, 0, // 416
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 432
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 448
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 464
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 480
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, // 496
-};
-
 const unsigned char  *against_to_case[] = {
     NULL,            NULL,            NULL,            NULL,
     NULL,special_cases[0],            NULL,special_cases[1],
@@ -827,17 +781,14 @@ void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoo
     int i;
     for (i=0; i < COLUMN_STACK_HEIGHT; i++)
     {
-        unsigned short *cube;
-        cube = &col.cubes[i];
-        if (*cube > 0)
+        if (col.cubes[i] > 0)
         {
-            unsigned char cube_grp;
-            cube_grp = player_cube_group[*cube];
-            if (cube_grp > 0) {
+            struct CubeConfigStats* cubed = get_cube_model_stats(col.cubes[i]);
+            if (cubed->ownershipGroup > 0) {
                 found = true;
                 struct SlabMap *slb;
                 slb = get_slabmap_for_subtile(stl_x, stl_y);
-                *cube = cube_bits[cube_grp][slabmap_owner(slb)];
+                col.cubes[i] = gameadd.cube_conf.cube_bits[cubed->ownershipGroup][slabmap_owner(slb)];
             }
         }
     }
@@ -2568,7 +2519,7 @@ void check_map_explored(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoor
 long element_top_face_texture(struct Map *mapblk)
 {
     struct Column *col;
-    struct CubeAttribs* cubed;
+    struct CubeConfigStats* cubed;
     unsigned int data = mapblk->data;
     TbBool visible = map_block_revealed(mapblk, my_player_number);
     int result = data & 0x7FF;
@@ -2585,12 +2536,12 @@ long element_top_face_texture(struct Map *mapblk)
         }
         if ( (col->bitfields & CLF_CEILING_MASK) != 0 )
         {
-            cubed = &gameadd.cubes_data[col->cubes[COLUMN_STACK_HEIGHT-get_column_ceiling_filled_subtiles(col)-1]];
+            cubed = get_cube_model_stats(col->cubes[COLUMN_STACK_HEIGHT-get_column_ceiling_filled_subtiles(col)-1]);
             return cubed->texture_id[4];
         }
         else if ((col->bitfields & CLF_FLOOR_MASK) != 0)
         {
-            cubed = &gameadd.cubes_data[col->cubes[get_column_floor_filled_subtiles(col) - 1]];
+            cubed = get_cube_model_stats(col->cubes[get_column_floor_filled_subtiles(col) - 1]);
             return cubed->texture_id[4];
         }
         else

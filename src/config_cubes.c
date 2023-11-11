@@ -41,13 +41,13 @@ const struct NamedCommand cubes_common_commands[] = {
   };
 
 const struct NamedCommand cubes_cube_commands[] = {
-  {"NAME",            1},
-  {"TEXTURES",        2},
-  {"FLAGS",           3},
+  {"Name",            1},
+  {"Textures",        2},
+  {"OwnershipGroup",  3},
+  {"Owner",           4},
   {NULL,              0},
   };
 /******************************************************************************/
-struct CubesConfig cube_conf;
 struct NamedCommand cube_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
 #ifdef __cplusplus
@@ -56,9 +56,9 @@ struct NamedCommand cube_desc[CUBE_ITEMS_MAX];
 /******************************************************************************/
 struct CubeConfigStats *get_cube_model_stats(long cumodel)
 {
-    if ((cumodel < 0) || (cumodel >= cube_conf.cube_types_count))
-        return &cube_conf.cube_cfgstats[0];
-    return &cube_conf.cube_cfgstats[cumodel];
+    if ((cumodel < 0) || (cumodel >= gameadd.cube_conf.cube_types_count))
+        return &gameadd.cube_conf.cube_cfgstats[0];
+    return &gameadd.cube_conf.cube_cfgstats[cumodel];
 }
 
 TbBool parse_cubes_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -67,7 +67,7 @@ TbBool parse_cubes_common_blocks(char *buf, long len, const char *config_textnam
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        cube_conf.cube_types_count = 1;
+        gameadd.cube_conf.cube_types_count = 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -98,7 +98,7 @@ TbBool parse_cubes_common_blocks(char *buf, long len, const char *config_textnam
               k = atoi(word_buf);
               if ((k > 0) && (k <= CUBE_ITEMS_MAX))
               {
-                  cube_conf.cube_types_count = k;
+                  gameadd.cube_conf.cube_types_count = k;
                   n++;
               }
             }
@@ -133,12 +133,12 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(cube_conf.cube_cfgstats)/sizeof(cube_conf.cube_cfgstats[0]);
+        arr_size = sizeof(gameadd.cube_conf.cube_cfgstats)/sizeof(gameadd.cube_conf.cube_cfgstats[0]);
         for (i=0; i < arr_size; i++)
         {
-            objst = &cube_conf.cube_cfgstats[i];
+            objst = &gameadd.cube_conf.cube_cfgstats[i];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
-            if (i < cube_conf.cube_types_count)
+            if (i < gameadd.cube_conf.cube_types_count)
             {
                 cube_desc[i].name = objst->code_name;
                 cube_desc[i].num = i;
@@ -150,7 +150,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
         }
     }
     // Load the file
-    arr_size = cube_conf.cube_types_count;
+    arr_size = gameadd.cube_conf.cube_types_count;
     for (i=0; i < arr_size; i++)
     {
         char block_buf[COMMAND_WORD_LEN];
@@ -165,8 +165,8 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
             }
             continue;
         }
-        objst = &cube_conf.cube_cfgstats[i];
-        struct CubeAttribs* cubed = &gameadd.cubes_data[i];
+        objst = &gameadd.cube_conf.cube_cfgstats[i];
+        struct CubeConfigStats* cubed = get_cube_model_stats(i);
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(cubes_cube_commands,cmd_num)
         while (pos<len)
         {
@@ -211,23 +211,37 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
                 }
                 break;
-            case 3: // FLAGS
+            case 3: // OwnershipGroup
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
                     k = atoi(word_buf);
-                    if (n >= CUBE_TEXTURES)
+                    if (k >= CUBE_OWNERSHIP_GROUPS)
                     {
-                      CONFWRNLOG("Too many \"%s\" parameters in [%s] block of %s file.",
-                          COMMAND_TEXT(cmd_num),block_buf,config_textname);
-                      break;
+                        CONFWRNLOG("exceeding max amount of ownership groups",k,CUBE_OWNERSHIP_GROUPS);
                     }
-                    cubed->flags[n] = k;
+                    cubed->ownershipGroup = k;
                     n++;
                 }
-                if (n < CUBE_TEXTURES)
+                break;
+            case 4: // Owner
+                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
                 {
-                    CONFWRNLOG("Couldn't read all \"%s\" parameters in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                    if(cubed->ownershipGroup <= 0)
+                    {
+                      CONFWRNLOG("Player without PlayerOwnership in [%s] block of %s file.",block_buf,config_textname);
+                      break;
+                    }
+
+                    k = get_id(cmpgn_human_player_options, word_buf);
+                    if (k < 0 || k >= PLAYERS_EXT_COUNT)
+                    {
+                      CONFWRNLOG("invalid player in [%s] block of %s file.",block_buf,config_textname);
+                      cubed->ownershipGroup = 0;
+                      break;
+                    }
+                    cubed->owner = k;
+                    gameadd.cube_conf.cube_bits[cubed->ownershipGroup][k] = i;
+                    n++;
                 }
                 break;
             case 0: // comment
@@ -318,9 +332,9 @@ const char *cube_code_name(long model)
  */
 ThingModel cube_model_id(const char * code_name)
 {
-    for (int i = 0; i < cube_conf.cube_types_count; ++i)
+    for (int i = 0; i < gameadd.cube_conf.cube_types_count; ++i)
     {
-        if (strncasecmp(cube_conf.cube_cfgstats[i].code_name, code_name,
+        if (strncasecmp(gameadd.cube_conf.cube_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
         }
@@ -331,72 +345,7 @@ ThingModel cube_model_id(const char * code_name)
 
 void clear_cubes(void)
 {
-    for (int i = 0; i < CUBE_ITEMS_MAX; i++)
-    {
-        struct CubeAttribs* cubed = &gameadd.cubes_data[i];
-        int n;
-        for (n = 0; n < CUBE_TEXTURES; n++)
-        {
-            cubed->texture_id[n] = 0;
-        }
-        for (n = 0; n < CUBE_TEXTURES; n++)
-        {
-            cubed->flags[n] = 0;
-        }
-  }
+    memset(&gameadd.cube_conf,0,sizeof(gameadd.cube_conf));
 }
 
-/**
- * Loads binary config of cubes.
- * @deprecated Replaced by text config - remove pending.
- */
-long load_cube_file(void)
-{
-    static const char textname[] = "binary cubes config";
-    char* fname = prepare_file_path(FGrp_StdData, "cube.dat");
-    SYNCDBG(0,"%s %s file \"%s\".","Reading",textname,fname);
-    clear_cubes();
-    long len = LbFileLengthRnc(fname);
-    if (len < MIN_CONFIG_FILE_SIZE)
-    {
-        WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
-    if (buf == NULL)
-        return false;
-    // Loading file data
-    len = LbFileLoadAt(fname, buf);
-    TbBool result = (len > 0);
-    // Parse the config file
-    if (result)
-    {
-        long count = *(long*)&buf[0];
-        if (count > len/sizeof(struct CubeAttribs)) {
-            count = len/sizeof(struct CubeAttribs);
-            WARNMSG("The %s file \"%s\" seem truncated.",textname,fname);
-        }
-        if (count > CUBE_ITEMS_MAX-1)
-            count = CUBE_ITEMS_MAX-1;
-        if (count < 0)
-            count = 0;
-        struct CubeAttribs* cubuf = (struct CubeAttribs*)&buf[4];
-        for (long i = 0; i < count; i++)
-        {
-            struct CubeAttribs* cubed = &gameadd.cubes_data[i];
-            int n;
-            for (n=0; n < CUBE_TEXTURES; n++) {
-                cubed->texture_id[n] = cubuf->texture_id[n];
-            }
-            for (n=0; n < CUBE_TEXTURES; n++) {
-                cubed->flags[n] = cubuf->flags[n];
-            }
-            cubuf++;
-        }
-        result = true;
-    }
-    //Freeing and exiting
-    LbMemoryFree(buf);
-    return result;
-}
 /******************************************************************************/
