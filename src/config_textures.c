@@ -48,17 +48,10 @@ TbBool load_textureanim_config_file(const char *textname, const char *fname, uns
     {
        
         {
-            sprintf(key, "texture%d", tex_no + TEXTURE_BLOCKS_STAT_COUNT);
+            sprintf(key, "texture%d", tex_no + TEXTURE_BLOCKS_STAT_COUNT_A);
             section = value_dict_get(&file_root, key);
         }
-        if (value_type(section) != VALUE_DICT)
-        {
-            if ((flags & CnfLd_IgnoreErrors) == 0)
-            {
-                WARNMSG("Invalid texture section %d", tex_no + TEXTURE_BLOCKS_STAT_COUNT);
-            }
-        }
-        else
+        if (value_type(section) == VALUE_DICT)
         {
             VALUE *frames_arr = value_dict_get(section, "frames");
             if(value_array_size(frames_arr) != TEXTURE_BLOCKS_ANIM_FRAMES)

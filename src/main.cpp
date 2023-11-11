@@ -981,7 +981,6 @@ void init_keeper(void)
     init_creature_scores();
     // Load graphics structures
     load_cubes_config(CnfLd_Standard);
-    //load_cube_file();
     init_top_texture_to_cube_table();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
@@ -1010,7 +1009,7 @@ TbBool initial_setup(void)
     // setting this will force video mode change, even if previous one is same
     MinimalResolutionSetup = true;
     // Set size of static textures buffer
-    game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
+    game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
     if (LbDataLoadAll(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
@@ -1595,7 +1594,7 @@ void reinit_level_after_load(void)
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
-    load_texture_map_file(game.texture_id, 2);
+    load_texture_map_file(game.texture_id);
     init_animating_texture_maps();
     init_gui();
     reset_gui_based_on_player_mode();
@@ -3103,7 +3102,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
     if (i > 0)
     {
       mapblk = get_map_block_at(x,y);
-      visible = map_block_revealed_bit(mapblk, player_bit);
+      visible = map_block_revealed(mapblk, my_player_number);
       if ((!visible) || (get_mapblk_column_index(mapblk) > 0))
       {
         if (visible)
