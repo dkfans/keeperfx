@@ -48,6 +48,10 @@ extern "C" {
 char const build_door_angle[] = {-1, -1, -1, -1, -1, 0, -1, 0, -1, -1, 1, 1, -1, 0, 1, -1 };
 
 /******************************************************************************/
+
+static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortng);
+
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif
@@ -129,6 +133,7 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
 
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
+    check_if_enemy_can_see_placement_of_hidden_door(doortng);
     place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     ceiling_partially_recompute_heights(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
@@ -347,6 +352,31 @@ TbBool door_will_open_for_thing(const struct Thing *doortng, const struct Thing 
     }
   }
   return false;
+}
+
+static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortng)
+{
+    struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+    if(!(doorst->model_flags & DoMF_Secret))
+    {
+        return;
+    }
+
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    long i = slist->index;
+    while (i > 0)
+    {
+        struct Thing* creatng = thing_get(i);
+        if (thing_is_invalid(creatng))
+          break;
+
+        if(creature_can_see_thing(creatng,doortng)) 
+        {
+            reveal_secret_door_to_player(doortng,creatng->owner);
+        }
+
+        i = creatng->next_of_class;
+    }
 }
 
 TbBool door_is_hidden_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
