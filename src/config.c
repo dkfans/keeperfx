@@ -799,19 +799,7 @@ short load_configuration(void)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              // check if the user wants to use the failsafe resolution
-              if (strncasecmp(word_buf, "SAME", 4) == 0)
-              {
-                k = get_failsafe_vidmode();
-                if (i == 0)
-                {
-                  CONFWRNLOG("Don't use SAME for failsafe video mode (unless you want 320x200x8). Error  in \"%s\" command of %s file.", COMMAND_TEXT(cmd_num),config_textname);
-                }
-              }
-              else
-              {
-                k = LbRegisterVideoModeString(word_buf);
-              }
+              k = LbRegisterVideoModeString(word_buf);
             }
               
             else
@@ -841,15 +829,7 @@ short load_configuration(void)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              // check if the user wants to use the failsafe resolution
-              if (strncasecmp(word_buf, "SAME", 4) == 0)
-              {
-                k = get_failsafe_vidmode();
-              }
-              else
-              {
-                k = LbRegisterVideoModeString(word_buf);
-              }
+              k = LbRegisterVideoModeString(word_buf);
               if (k > 0)
                 set_game_vidmode(i,k);
               else
