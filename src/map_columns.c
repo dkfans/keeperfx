@@ -521,8 +521,8 @@ void init_top_texture_to_cube_table(void)
         int i;
         for (i=1; i < CUBE_ITEMS_MAX; i++)
         {
-            struct CubeAttribs * cubed;
-            cubed = &gameadd.cubes_data[i];
+            struct CubeConfigStats * cubed;
+            cubed = get_cube_model_stats(i);
             if (cubed->texture_id[4] == n) {
                 game.top_cube[n] = i;
                 break;
