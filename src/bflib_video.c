@@ -548,7 +548,6 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     {
         Uint32 current_fullscreen_flags = SDL_GetWindowFlags(lbWindow) & SDL_WINDOW_FULLSCREEN_DESKTOP; // SDL_WINDOW_FULLSCREEN is already flagged in SDL_WINDOW_FULLSCREEN_DESKTOP
         Uint32 new_fullscreen_flags = mdinfo->sdlFlags & SDL_WINDOW_FULLSCREEN_DESKTOP;
-        
         // If the new mode is a real fullscreen mode, then set the new mode
         if (new_fullscreen_flags == SDL_WINDOW_FULLSCREEN)
         {
@@ -558,6 +557,14 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
                 ERRORLOG("SDL_SetWindowDisplayMode failed for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
                 return Lb_FAIL;
             }
+            // If we change to a fullscreen mode that is a higher res than the previous fullscreen mode (after having already changed 
+            // to a normal window/fake fullscreen window at some point in the past), then the result is a small window in the 
+            // top left of the screen, or potentially the buffer does not fill the whole mode's width/height (I don't know these things).
+            // The above seems to be this SDL issue: https://github.com/libsdl-org/SDL/issues/3869
+            // said issue was supposedly fixed in https://github.com/libsdl-org/SDL/pull/4392
+            // but that is either not the case, or said pull has been reverted (I cannot find evidence of it in the sdl2 codebase).
+            // The issue is fixed by running the following line (after SDL_SetWindowDisplayMode above):
+            SDL_SetWindowSize(lbWindow, mdinfo->Width, mdinfo->Height);
         }
         // If mode has changed between fullscreen/windowed/fake fullscreen, set the new mode
         if (current_fullscreen_flags != new_fullscreen_flags)
