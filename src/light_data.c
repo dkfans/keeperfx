@@ -218,7 +218,7 @@ TbBool light_create_light_adv(VALUE *init_data)
     lgt->mappos.z.val = value_read_stl_coord(value_dict_get(init_data, "SubtileZ"));
     lgt->radius = value_read_stl_coord(value_dict_get(init_data, "LightRange"));;
     lgt->intensity = value_uint32(value_dict_get(init_data, "LightIntensity"));
-    lgt->attached_slb = value_uint32(value_dict_get(init_data, "AttachedSlab"));
+    lgt->attached_slb = value_uint32(value_dict_get(init_data, "ParentTile"));
 
     /*
      * TODO: not implemented yet
