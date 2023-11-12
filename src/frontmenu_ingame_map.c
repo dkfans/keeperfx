@@ -112,7 +112,7 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     int units_per_px;
     units_per_px = (16*status_panel_width + 140/2) / 140;
     TbPixel col;
-    col = player_room_colours[owner];
+    col = player_room_colours[get_player_color_idx(owner)];
     int i;
     i = 2*(PANNEL_MAP_RADIUS*units_per_px/16) / 2;
     long center_x;
@@ -512,8 +512,8 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
             {
                 if ((game.play_gameturn & 4) == 0)
                 {
-                    col1 = player_room_colours[thing->owner];
-                    col2 = player_room_colours[thing->owner];
+                    col1 = player_room_colours[get_player_color_idx(thing->owner)];
+                    col2 = player_room_colours[get_player_color_idx(thing->owner)];
                 }
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
@@ -552,7 +552,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 } else
                 {
                     if (thing->owner == game.neutral_player_num) {
-                        col = player_room_colours[(game.play_gameturn + 1) & 3];
+                        col = player_room_colours[get_player_color_idx((game.play_gameturn + 1) & 3)];
                     } else {
                         col = col1;
                     }
@@ -573,8 +573,8 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                         break;
                     if ((game.play_gameturn & 4) == 0)
                     {
-                        col1 = player_room_colours[(uchar)cctrl->party.target_plyr_idx];
-                        col2 = player_room_colours[thing->owner];
+                        col1 = player_room_colours[get_player_color_idx((uchar)cctrl->party.target_plyr_idx)];
+                        col2 = player_room_colours[get_player_color_idx(thing->owner)];
                     }
                     long zmpos_x = ((stl_num_decode_x(memberpos) - (MapSubtlDelta)cam->mappos.x.stl.num) << 8);
                     long zmpos_y = ((stl_num_decode_y(memberpos) - (MapSubtlDelta)cam->mappos.y.stl.num) << 8);
@@ -973,7 +973,7 @@ void setup_pannel_colours(void)
     int frame;
     frame = game.play_gameturn & 3;
     unsigned int frcol;
-    frcol = RoomColours[frame];
+    frcol = RoomColours[get_player_color_idx(frame)];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
@@ -1047,7 +1047,7 @@ void update_pannel_colours(void)
     int frame;
     frame = game.play_gameturn & 3;
     unsigned int frcol;
-    frcol = RoomColours[frame];
+    frcol = RoomColours[get_player_color_idx(frame)];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;

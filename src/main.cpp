@@ -212,7 +212,7 @@ TbBool TimerFreeze = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
-  return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
+  return player_path_colours[get_player_color_idx(owner % PLAYERS_EXT_COUNT)];
 }
 
 void setup_stuff(void)

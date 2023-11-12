@@ -5420,16 +5420,14 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
-        int flash_owner;
-        if (is_neutral_thing(thing)) {
-            flash_owner = game.play_gameturn & 3;
-        } else {
-            flash_owner = thing->owner;
+        int flash_color = get_player_color_idx(thing->owner);
+        if (flash_color == NEUTRAL_PLAYER) {
+            flash_color = game.play_gameturn & 3;
         }
         spr = get_button_sprite(health_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-        LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
+        LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_color]);
     }
     else
     {
