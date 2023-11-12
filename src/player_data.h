@@ -309,6 +309,8 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 void clear_players(void);
 
 unsigned char rotate_mode_to_view_mode(unsigned char mode);
+
+unsigned char get_player_color_idx(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

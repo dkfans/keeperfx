@@ -578,6 +578,7 @@ void init_dungeons(void)
           else
             dungeon->hates_player[k] = game.fight_max_hate;
         }
+        dungeon->color_idx = i;
         LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }
 }

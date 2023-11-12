@@ -1539,7 +1539,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
         frame = 0;
         break;
     }
-    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[get_player_color_idx(objtng->owner)];
     struct Objects* objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->call_to_arms_flag.state = CTAOL_Birthing;
@@ -1568,7 +1568,7 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
         frame = 0;
         break;
     }
-    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[get_player_color_idx(objtng->owner)];
     struct Objects* objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->call_to_arms_flag.state = CTAOL_Dying;
@@ -1594,7 +1594,7 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
         frame = 0;
         break;
     }
-    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[get_player_color_idx(objtng->owner)];
     struct Objects* objdat = get_objects_data_for_thing(objtng);
     set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
     objtng->call_to_arms_flag.state = CTAOL_Rebirthing;
@@ -1609,7 +1609,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
         return -1;
     }
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[player->id_number];
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[dungeon->color_idx];
     struct Objects* objdat = get_objects_data_for_thing(thing);
 
     switch (thing->call_to_arms_flag.state)
@@ -1821,7 +1821,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
                 pos.x.val = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
                 pos.y.val = objtng->mappos.y.val + ((radius * LbCosL(angle)) / 8192);
                 pos.z.val = 1408;
-                create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
+                create_effect_element(&pos, twinkle_eff_elements[get_player_color_idx(objtng->owner)], objtng->owner);
             }
             return 1;
         }
@@ -1843,7 +1843,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             pos.x.val = pos_x;
             pos.y.val = pos_y;
             pos.z.val = 1408;
-            create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
+            create_effect_element(&pos, twinkle_eff_elements[get_player_color_idx(objtng->owner)], objtng->owner);
             if ( pos_x >= 0 && pos_x < gameadd.map_subtiles_x * COORD_PER_STL && pos_y >= 0 && pos_y < gameadd.map_subtiles_y * COORD_PER_STL ) {
                 const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + 13;
                 const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + 13;
@@ -1871,7 +1871,7 @@ static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
             if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
             {
                 pos.z.val = get_floor_height_at(&pos) + 128;
-                create_effect_element(&pos, lightning_spangles[objtng->owner], objtng->owner);
+                create_effect_element(&pos, lightning_spangles[get_player_color_idx(objtng->owner)], objtng->owner);
             }
         }
         variation++;
@@ -2039,7 +2039,7 @@ struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber p
     if (plyr_idx >= sizeof(player_guardflag_objects)/sizeof(player_guardflag_objects[0]))
         grdflag_kind = player_guardflag_objects[NEUTRAL_PLAYER];
     else
-        grdflag_kind = player_guardflag_objects[(int)plyr_idx];
+        grdflag_kind = player_guardflag_objects[get_player_color_idx(plyr_idx)];
     if (grdflag_kind <= 0)
         return INVALID_THING;
     // Guard posts have slab number set as parent

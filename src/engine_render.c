@@ -5208,8 +5208,9 @@ static unsigned short choose_health_sprite(struct Thing* thing)
     int color_idx;
     health = thing->health;
     maxhealth = cctrl->max_health;
-    color_idx = (thing->owner % 5);
-    if (is_neutral_thing(thing)) {
+    color_idx = get_player_color_idx(thing->owner);
+
+    if (color_idx == NEUTRAL_PLAYER) {
         color_idx = game.play_gameturn & 3;
     }
     if ((maxhealth <= 0) || (health <= 0))

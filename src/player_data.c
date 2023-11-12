@@ -476,4 +476,13 @@ unsigned char rotate_mode_to_view_mode(unsigned char mode)
         default: ERRORLOG("Unrecognised video rotate mode: %u", mode); return PVM_IsoWibbleView;
     }
 }
+
+unsigned char get_player_color_idx(PlayerNumber plyr_idx)
+{
+    //neutral has no dungeon to store this in
+    if(plyr_idx == NEUTRAL_PLAYER)
+        return plyr_idx;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    return dungeon->color_idx;
+}
 /******************************************************************************/

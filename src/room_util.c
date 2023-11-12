@@ -100,9 +100,9 @@ void process_room_surrounding_flames(struct Room *room)
     {
       create_room_surrounding_flame(room,&pos,game.play_gameturn & 3,game.neutral_player_num);
     } else
-    if (room_effect_elements[room->owner] != 0)
+    if (room_effect_elements[get_player_color_idx(room->owner)] != 0)
     {
-      create_room_surrounding_flame(room,&pos,room->owner,room->owner);
+      create_room_surrounding_flame(room,&pos,get_player_color_idx(room->owner),room->owner);
     }
     // Update coords for next element
     if (room->flame_stl == 2)
