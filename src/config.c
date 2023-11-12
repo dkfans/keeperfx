@@ -59,6 +59,7 @@ unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
 struct InstallInfo install_info;
 char keeper_runtime_directory[152];
+TbBool flash_neutral_room_colours = true;
 
 /**
  * Language 3-char abbreviations.
@@ -140,6 +141,7 @@ const struct NamedCommand conf_commands[] = {
   {"MAX_ZOOM_DISTANCE"             , 27},
   {"DISPLAY_NUMBER"                , 28},
   {"MUSIC_FROM_DISK"               , 29},
+  {"FLASH_NEUTRAL_ROOM_COLOURS"    , 30},
   {NULL,                   0},
   };
 
@@ -1123,6 +1125,16 @@ short load_configuration(void)
               features_enabled |= Ft_NoCdMusic;
           else
               features_enabled &= ~Ft_NoCdMusic;
+          break;
+      case 30: // FLASH_NEUTRAL_ROOM_COLOURS
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          flash_neutral_room_colours = (i == 1);
           break;
       case 0: // comment
           break;

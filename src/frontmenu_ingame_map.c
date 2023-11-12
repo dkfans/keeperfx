@@ -38,6 +38,7 @@
 #include "creature_states.h"
 #include "creature_states_hero.h"
 #include "creature_battle.h"
+#include "config.h"
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "power_hand.h"
@@ -65,7 +66,7 @@ struct InterpMinimap
 static unsigned char *MapBackground = NULL;
 static long *MapShapeStart = NULL;
 static long *MapShapeEnd = NULL;
-static const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
+static const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 31};
 static long PannelMapY;
 static long PannelMapX;
 static long NoBackColours;
@@ -1046,8 +1047,7 @@ void update_pannel_colours(void)
 {
     int frame;
     frame = game.play_gameturn & 3;
-    unsigned int frcol;
-    frcol = RoomColours[frame];
+    unsigned int frcol = flash_neutral_room_colours ? RoomColours[frame] : RoomColours[5];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;

@@ -38,7 +38,7 @@
 unsigned short player_colors_map[] = {0, 1, 2, 3, 4, 5, 0, 0, 0, };
 
 TbPixel player_path_colours[]  = {131, 90, 163, 181,  20,   4, };
-TbPixel player_room_colours[]  = {132, 92, 164, 183,  21, 132, };
+TbPixel player_room_colours[]  = {132, 92, 164, 183,  21, 31, };
 TbPixel player_flash_colours[] = {133, 94, 167, 142,  31,  15, };
 TbPixel player_highlight_colours[] = {31, 31, 31, 31,  31,  31, };
 

@@ -226,6 +226,7 @@ TbBool save_high_score_table(void);
 TbBool create_empty_high_score_table(void);
 int add_high_score_entry(unsigned long score, LevelNumber lvnum, const char *name);
 unsigned long get_level_highest_score(LevelNumber lvnum);
+extern TbBool flash_neutral_room_colours;
 /******************************************************************************/
 short is_bonus_level(LevelNumber lvnum);
 short is_extra_level(LevelNumber lvnum);
