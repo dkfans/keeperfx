@@ -29,6 +29,7 @@
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
+#include "bflib_fileio.h"
 
 #include "engine_lenses.h"
 #include "engine_arrays.h"
@@ -374,10 +375,23 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
         sprintf(t_lfile->FName, "data/swipe%02d-%d.tab", swpe_idx, 32);
         t_lfile++;
 #else
-        sprintf(t_lfile->FName, "data/swipe%02d.dat", swpe_idx);
-        t_lfile++;
-        sprintf(t_lfile->FName, "data/swipe%02d.tab", swpe_idx);
-        t_lfile++;
+
+    char* fname = prepare_file_fmtpath(FGrp_CmpgConfig, "swipe%02d.dat",swpe_idx);
+    if (!LbFileExists(fname))
+    {
+        fname = prepare_file_fmtpath(FGrp_StdData, "swipe%02d.dat",swpe_idx);
+    }
+    sprintf(t_lfile->FName, "%s", fname);
+    t_lfile++;
+
+    fname = prepare_file_fmtpath(FGrp_CmpgConfig, "swipe%02d.tab",swpe_idx);
+    if (!LbFileExists(fname))
+    {
+        fname = prepare_file_fmtpath(FGrp_StdData, "swipe%02d.tab",swpe_idx);
+    }
+    sprintf(t_lfile->FName, "%s", fname);
+    t_lfile++;
+
 #endif
     }
     if ( LbDataLoadAll(swipe_load_file) )
