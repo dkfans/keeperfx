@@ -4253,7 +4253,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         } else
         {
             ecpos = 0;
-            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), colmn->baseblock);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), colmn->floor_texture);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         }
@@ -4275,7 +4275,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         // Draw the universal ceiling on top of the columns
         ecpos = 8;
         {
-            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), floor_to_ceiling_map[colmn->baseblock]);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), floor_to_ceiling_map[colmn->floor_texture]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         }
@@ -4690,7 +4690,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         {
             if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
             {
-                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->baseblock);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->floor_texture);
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
             } else
@@ -4860,7 +4860,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
             else if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
             {
                 struct CubeConfigStats * cubed;
-                cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1));
+                cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->floor_texture + 2 * ncor + 1));
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
                 // Top surface on full iso mode
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
@@ -4876,7 +4876,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         {
             if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
             {
-                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->baseblock);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->floor_texture);
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
             } else
@@ -4890,7 +4890,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         if (ncor > 0)
         {
             struct CubeConfigStats * cubed;
-            cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1));
+            cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->floor_texture + 2 * ncor + 1));
             unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
             do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
             do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
@@ -7439,10 +7439,10 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
 
     if (*ymax > pos_y)
     {
-      if ((col->baseblock != 0) && (col->cubes[0] == 0))
+      if ((col->floor_texture != 0) && (col->cubes[0] == 0))
       {
           *ymax = pos_y;
-          textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->baseblock);
+          textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->floor_texture);
           if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
           {
               add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, a7, 0,

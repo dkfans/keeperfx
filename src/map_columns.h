@@ -38,7 +38,7 @@ struct Column { // sizeof=0x18
     short use;
     unsigned char bitfields;
     unsigned short solidmask;
-    unsigned short baseblock;
+    unsigned short floor_texture;
     unsigned char orient;
     unsigned short cubes[COLUMN_STACK_HEIGHT];
 };
