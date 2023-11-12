@@ -985,7 +985,7 @@ TbBool columns_add_static_entries(void)
     for (long i=0; i < 3; i++)
     {
         LbMemorySet(&lcolmn, 0, sizeof(struct Column));
-        lcolmn.baseblock = c[i];
+        lcolmn.floor_texture = c[i];
         for (long k = 0; k < 6; k++)
         {
           lcolmn.cubes[0] = player_cubes[k];
@@ -1015,7 +1015,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
             long ncol;
             if (n >= 0)
             {
-                lcolmn.baseblock = n;
+                lcolmn.floor_texture = n;
                 ncol = find_column(&lcolmn);
                 if (ncol == 0)
                 {
@@ -1405,7 +1405,7 @@ static TbBool load_level_file(LevelNumber lvnum)
           result = false;
         load_map_wibble_file(lvnum);
         load_and_setup_map_info(lvnum);
-        load_texture_map_file(game.texture_id, 2);
+        load_texture_map_file(game.texture_id);
         if (new_format)
         {
             load_aptfx_file(lvnum);
@@ -1437,7 +1437,7 @@ static TbBool load_level_file(LevelNumber lvnum)
         load_slab_file();
         init_columns();
         game.texture_id = 0;
-        load_texture_map_file(game.texture_id, 2);
+        load_texture_map_file(game.texture_id);
         init_top_texture_to_cube_table();
         result = false;
     }

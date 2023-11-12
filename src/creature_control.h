@@ -202,7 +202,7 @@ unsigned char sound_flag;
   union {
   struct {
     char target_plyr_idx;
-    unsigned char player_broken_into_flags;
+    PlayerBitFlags player_broken_into_flags;
     long long_8B;
     unsigned char byte_8F;
     SubtlCodedCoords member_pos_stl[5];
