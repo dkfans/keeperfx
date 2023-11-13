@@ -2441,7 +2441,8 @@ void gui_query_next_creature(struct GuiButton *gbtn)
     ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, creatng->model);
     if (next_creature != player->influenced_thing_idx)
     {
-        query_creature(player, next_creature);
+        struct Packet* pckt = get_packet(player->id_number);
+        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 0, 0);
         play_non_3d_sample(62);
     }
 }

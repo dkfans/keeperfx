@@ -1007,6 +1007,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_no_default = true;
         return false;
     }
+    case PckA_PlyrQueryCreature:
+    {
+        query_creature(player, pckt->actn_par1);
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
