@@ -31,6 +31,8 @@
 extern "C" {
 #endif
 
+#define MAX_GAME_VIDMODE_COUNT 6 /**< the size of the switching_vidmodes array. */
+
 enum MousePointerGraphics {
     MousePG_Invisible = 0,
     MousePG_Arrow,
@@ -144,12 +146,11 @@ extern unsigned char red_pal[256];
 
 extern TbBool MinimalResolutionSetup;
 /******************************************************************************/
-TbScreenMode switch_to_next_video_mode(void);
-void set_game_vidmode(unsigned short i, TbScreenMode nmode);
-unsigned short max_game_vidmode_count(void);
+void switch_to_next_video_mode_wrapper(void);
+TbBool switch_to_next_video_mode(void);
+void set_game_vidmode(uint i, TbScreenMode nmode);
+TbScreenMode get_game_vidmode(uint i);
 TbScreenMode reenter_video_mode(void);
-TbScreenMode get_next_vidmode(TbScreenMode mode);
-TbScreenMode validate_vidmode(TbScreenMode mode);
 TbScreenMode get_failsafe_vidmode(void);
 TbScreenMode get_movies_vidmode(void);
 TbScreenMode get_frontend_vidmode(void);

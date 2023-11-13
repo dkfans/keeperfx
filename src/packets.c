@@ -668,7 +668,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SwitchScrnRes:
       if (is_my_player(player))
       {
-          switch_to_next_video_mode();
+          switch_to_next_video_mode_wrapper();
       }
       return 1;
   case PckA_TogglePause:
