@@ -6415,6 +6415,18 @@ PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
     return creatng->owner;
 }
 
+void query_creature(struct PlayerInfo *player, ThingIndex index)
+{
+    if (is_my_player(player))
+    {
+        turn_off_all_panel_menus();
+        initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
+        turn_on_menu(GMnu_CREATURE_QUERY1);
+    }
+    player->influenced_thing_idx = index;
+    set_player_instance(player, PI_QueryCrtr, 0);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

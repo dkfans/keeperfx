@@ -4200,6 +4200,72 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
     }
     WARNLOG("No change performed");
 }
+
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel)
+{
+    unsigned long k = 0;
+    struct Thing* thing = current_creature;
+    ThingIndex i;
+    do
+    {
+        i = thing->prev_of_class;
+        if (i == 0)
+        {
+            return get_index_of_first_creature_of_owner_and_model(owner, crmodel);
+        }
+        else if (i == current_creature->index)
+        {
+            return i;
+        }
+        thing = thing_get(i);
+        if (thing_is_creature(thing))
+        {
+            if (thing->owner == owner)
+            {
+                if (thing->model == crmodel)
+                {
+                    return thing->index;
+                }
+            }
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    while (1);
+    return current_creature->index;
+}
+
+ThingIndex get_index_of_first_creature_of_owner_and_model(PlayerNumber owner, ThingModel crmodel)
+{
+    unsigned long k = 0;
+    ThingIndex i = 1;
+    while (i != 0)
+    {
+        struct Thing *thing = thing_get(i);
+        if (thing_is_creature(thing))
+        {
+            if (thing->owner == owner)
+            {
+                if (thing->model == crmodel)
+                {
+                    return thing->index;
+                }
+            }
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+        i++;
+    }
+    return 0;
+}
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -189,6 +189,8 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng);
 void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y);
 
 short get_creature_eye_height(const struct Thing *creatng);
+
+void query_creature(struct PlayerInfo *player, ThingIndex index);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);
