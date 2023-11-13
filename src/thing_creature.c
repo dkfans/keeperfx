@@ -29,6 +29,7 @@
 #include "bflib_planar.h"
 #include "bflib_vidraw.h"
 #include "bflib_sound.h"
+#include "bflib_fileio.h"
 
 #include "engine_lenses.h"
 #include "engine_arrays.h"
@@ -374,10 +375,23 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
         sprintf(t_lfile->FName, "data/swipe%02d-%d.tab", swpe_idx, 32);
         t_lfile++;
 #else
-        sprintf(t_lfile->FName, "data/swipe%02d.dat", swpe_idx);
-        t_lfile++;
-        sprintf(t_lfile->FName, "data/swipe%02d.tab", swpe_idx);
-        t_lfile++;
+
+    char* fname = prepare_file_fmtpath(FGrp_CmpgConfig, "swipe%02d.dat",swpe_idx);
+    if (!LbFileExists(fname))
+    {
+        fname = prepare_file_fmtpath(FGrp_StdData, "swipe%02d.dat",swpe_idx);
+    }
+    sprintf(t_lfile->FName, "%s", fname);
+    t_lfile++;
+
+    fname = prepare_file_fmtpath(FGrp_CmpgConfig, "swipe%02d.tab",swpe_idx);
+    if (!LbFileExists(fname))
+    {
+        fname = prepare_file_fmtpath(FGrp_StdData, "swipe%02d.tab",swpe_idx);
+    }
+    sprintf(t_lfile->FName, "%s", fname);
+    t_lfile++;
+
 #endif
     }
     if ( LbDataLoadAll(swipe_load_file) )
@@ -946,7 +960,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                     pos.z.val = thing->mappos.z.val;
                     pos.x.val += distance_with_angle_to_coord_x(32, n);
                     pos.y.val += distance_with_angle_to_coord_y(32, n);
-                    pos.z.val += k * (long)(thing->clipbox_size_yz >> 1);
+                    pos.z.val += k * (long)(thing->clipbox_size_z >> 1);
                     ntng = create_object(&pos, ObjMdl_Disease, thing->owner, -1);
                     if (!thing_is_invalid(ntng))
                     {
@@ -1030,7 +1044,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             n = 0;
             for (k = 0; k < 2; k++)
             {
-                set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->clipbox_size_yz >> 1));
+                set_coords_to_cylindric_shift(&pos, &thing->mappos, 32, n, k * (thing->clipbox_size_z >> 1));
                 ntng = create_object(&pos, ObjMdl_LightBall, thing->owner, -1);
                 if (!thing_is_invalid(ntng))
                 {
@@ -1581,7 +1595,7 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
         ERRORLOG("The %s owned by player %d tried to cast invalid spell %d",thing_model_name(castng),(int)castng->owner,(int)spl_idx);
         return;
     }
-    creature_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
+    thing_fire_shot(castng, targetng, spconf->shot_model, shot_lvl, hit_type);
 }
 
 /**
@@ -1612,7 +1626,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
           i = THit_CrtrsNObjcts;
         else
           i = THit_CrtrsOnlyNotOwn;
-        creature_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
+        thing_fire_shot(castng, INVALID_THING, spconf->shot_model, shot_lvl, i);
     } else
     // Check if the spell can be self-casted
     if (spconf->caster_affected)
@@ -2277,7 +2291,7 @@ void thing_death_flesh_explosion(struct Thing *thing)
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    for (long i = 0; i <= thing->clipbox_size_yz; i += 64)
+    for (long i = 0; i <= thing->clipbox_size_z; i += 64)
     {
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
@@ -2307,14 +2321,14 @@ void thing_death_gas_and_flesh_explosion(struct Thing *thing)
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    for (i = 0; i <= thing->clipbox_size_yz; i+=64)
+    for (i = 0; i <= thing->clipbox_size_z; i+=64)
     {
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
         pos.z.val = thing->mappos.z.val+i;
         create_effect(&pos, TngEff_Blood4, thing->owner);
     }
-    i = (thing->clipbox_size_yz >> 1);
+    i = (thing->clipbox_size_z >> 1);
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
     pos.z.val = thing->mappos.z.val+i;
@@ -2339,7 +2353,7 @@ void thing_death_smoke_explosion(struct Thing *thing)
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    long i = (thing->clipbox_size_yz >> 1);
+    long i = (thing->clipbox_size_z >> 1);
     struct Coord3d pos;
     pos.x.val = thing->mappos.x.val;
     pos.y.val = thing->mappos.y.val;
@@ -2370,7 +2384,7 @@ void thing_death_ice_explosion(struct Thing *thing)
     memaccl.x.val = thing->veloc_base.x.val;
     memaccl.y.val = thing->veloc_base.y.val;
     memaccl.z.val = thing->veloc_base.z.val;
-    for (long i = 0; i <= thing->clipbox_size_yz; i += 64)
+    for (long i = 0; i <= thing->clipbox_size_z; i += 64)
     {
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
@@ -2796,15 +2810,15 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
     return damage;
 }
 
-void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
+void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
 {
     struct Coord3d pos2;
     struct Thing *tmptng;
     short angle_xy;
     short angle_yz;
     long damage;
-    struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
+    unsigned char dexterity, max_dexterity;
+
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     TbBool flag1 = false;
     // Prepare source position
@@ -2812,11 +2826,32 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     pos1.x.val = firing->mappos.x.val;
     pos1.y.val = firing->mappos.y.val;
     pos1.z.val = firing->mappos.z.val;
-    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy+LbFPMath_PI/2);
-    pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
-    pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
-    pos1.z.val += (cctrl->shot_shift_z +(cctrl->shot_shift_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) /100);
+    if (firing->class_id == TCls_Trap)
+    {
+        struct TrapStats* trapstat = &gameadd.trap_stats[firing->model];
+        firing->move_angle_xy = get_angle_xy_to(&firing->mappos, &target->mappos); //visually rotates the trap
+        pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+        pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+        pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, firing->move_angle_xy);
+        pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, firing->move_angle_xy);
+        pos1.z.val += trapstat->shot_shift_z;
+
+        max_dexterity = UCHAR_MAX;
+        dexterity = max_dexterity/4 + CREATURE_RANDOM(firing, max_dexterity/2);
+    }
+    else
+    {
+        struct CreatureControl* cctrl = creature_control_get_from_thing(firing);
+        struct CreatureStats* crstat = creature_stats_get_from_thing(firing);
+        dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
+        max_dexterity = crstat->dexterity + ((crstat->dexterity * cctrl->explevel * gameadd.crtr_conf.exp.dexterity_increase_on_exp) / 100);
+
+        pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
+        pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
+        pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
+        pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
+        pos1.z.val += (cctrl->shot_shift_z + (cctrl->shot_shift_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+    }
     // Compute launch angles
     if (thing_is_invalid(target))
     {
@@ -2827,7 +2862,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         pos2.x.val = target->mappos.x.val;
         pos2.y.val = target->mappos.y.val;
         pos2.z.val = target->mappos.z.val;
-        pos2.z.val += (target->clipbox_size_yz >> 1);
+        pos2.z.val += (target->clipbox_size_z >> 1);
         if (((shotst->model_flags & ShMF_StrengthBased) != 0) && ((shotst->model_flags & ShMF_ReboundImmune) != 0) && (target->class_id != TCls_Door))
         {
           flag1 = true;
@@ -2894,7 +2929,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
     case ShM_Hail_storm:
     {
         long i;
-        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_yz)))
+        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
         {
             pos1.x.val = firing->mappos.x.val;
             pos1.y.val = firing->mappos.y.val;
@@ -2920,7 +2955,7 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         break;
     }
     default:
-        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_yz)))
+        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
         {
             pos1.x.val = firing->mappos.x.val;
             pos1.y.val = firing->mappos.y.val;
@@ -2939,12 +2974,12 @@ void creature_fire_shot(struct Thing *firing, struct Thing *target, ThingModel s
         shotng->health = shotst->health;
         shotng->parent_idx = firing->index;
         shotng->shot.target_idx = target_idx;
-        shotng->shot.dexterity = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+        shotng->shot.dexterity = dexterity;
             if (shot_model == ShM_Lizard)
             {
                 if (!thing_is_invalid(target))
                 {
-                    long range = 2200 - ((crstat->dexterity + (crstat->dexterity * cctrl->explevel * gameadd.crtr_conf.exp.dexterity_increase_on_exp)/100) * 19);
+                    long range = 2200 - (dexterity * 19);
                     range = range < 1 ? 1 : range;
                     long rnd = (CREATURE_RANDOM(firing, 2 * range) - range);
                     rnd = rnd < (range / 3) && rnd > 0 ? (CREATURE_RANDOM(firing, range / 2) + (range / 2)) + 200 : rnd + 200;
@@ -3081,7 +3116,7 @@ TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
 
     if (line_of_sight_3d(&creat_pos, &thing_pos))
         return 1;
-    thing_pos.z.val += thing->clipbox_size_yz;
+    thing_pos.z.val += thing->clipbox_size_z;
     return line_of_sight_3d(&creat_pos, &thing_pos) != 0;
 }
 
@@ -3765,9 +3800,9 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     crtng->mappos.y.val = pos->y.val;
     crtng->mappos.z.val = pos->z.val;
     crtng->clipbox_size_xy = crstat->size_xy;
-    crtng->clipbox_size_yz = crstat->size_yz;
+    crtng->clipbox_size_z = crstat->size_z;
     crtng->solid_size_xy = crstat->thing_size_xy;
-    crtng->solid_size_yz = crstat->thing_size_yz;
+    crtng->solid_size_z = crstat->thing_size_z;
     crtng->fall_acceleration = 32;
     crtng->bounce_angle = 0;
     crtng->inertia_floor = 32;
@@ -4948,7 +4983,7 @@ TbBool update_flight_altitude_towards_typical(struct Thing *thing)
     if (max_speed < 1)
         max_speed = 1;
     MapCoordDelta i = floor_height + NORMAL_FLYING_ALTITUDE;
-    MapCoordDelta max_pos_to_ceiling = ceiling_height - thing->clipbox_size_yz;
+    MapCoordDelta max_pos_to_ceiling = ceiling_height - thing->clipbox_size_z;
     if ((floor_height < max_pos_to_ceiling) && (i > max_pos_to_ceiling))
         i = max_pos_to_ceiling;
     i -= thing_curr_alt;

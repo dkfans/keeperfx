@@ -1160,13 +1160,12 @@ long computer_check_safe_attack(struct Computer2 *comp, struct ComputerProcess *
 
 static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl_x, MapSubtlCoord stl_y, MapSubtlDelta range)
 {
-    int slab_owner_bit;
     int block_flags;
     int current_idx;
     struct Coord3d *pos;
 
     struct Dungeon *dungeon = comp->dungeon;
-    long computer_player_bit = 1 << dungeon->owner;
+    PlayerBitFlags potential_opponents = to_flag(dungeon->owner);
     MapSubtlDelta radius = range / 2;
 
     MapSubtlCoord stl_x_start = STL_PER_SLB * ((stl_x - radius) / STL_PER_SLB);
@@ -1201,17 +1200,14 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                 struct SlabAttr *slbattr = get_slab_kind_attrs(slb->kind);
                 if (slab_owner != game.neutral_player_num || (((slbattr->block_flags & (SlbAtFlg_Valuable | SlbAtFlg_Digable | SlbAtFlg_Filled)) == 0) && slb->kind != SlbT_LAVA))
                 {
-                    slab_owner_bit = 1 << slab_owner;
-
-                    
-                    if ((computer_player_bit & (1 << slab_owner)) == 0 && (get_slabmap_for_subtile(stl_x_current,stl_y_current)->flags & 7) == slab_owner)
+                    if (!flag_is_set(potential_opponents, to_flag(slab_owner)) && (get_slabmap_for_subtile(stl_x_current,stl_y_current)->flags & 7) == slab_owner)
                     {
                         if ((block_flags = slbattr->block_flags,
                              ((block_flags & SlbAtFlg_Blocking) == 0) &&
                                  slb->kind != SlbT_LAVA) ||
                             (block_flags & 2) != 0)
                         {
-                            computer_player_bit |= slab_owner_bit;
+                            set_flag(potential_opponents, to_flag(slab_owner));
                             current_idx = comp->opponent_relations[slab_owner].next_idx;
                             slab_owner = slab_owner;
                             pos = &comp->opponent_relations[slab_owner].pos_A[current_idx];
@@ -1221,8 +1217,8 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                             pos->x.stl.pos = 0;
                             pos->y.stl.num = stl_y_current;
                             pos->y.stl.pos = 0;
-                            if ((1 << (game.neutral_player_num + 1)) - computer_player_bit == 1)
-                                return computer_player_bit;
+                            if (all_flags_are_set(potential_opponents, PLAYERS_EXT_COUNT)) // exit early if every player is a potential opponent
+                                return potential_opponents;
                         }
                     }
                 }
@@ -1232,10 +1228,10 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
         stl_y_current += STL_PER_SLB;
     }
 
-    if (1 << dungeon->owner == computer_player_bit)
+    if (potential_opponents == to_flag(dungeon->owner)) // no opponents found
         return -1;
     else
-        return computer_player_bit;
+        return potential_opponents;
 }
 
 long computer_process_sight_of_evil(struct Computer2 *comp, struct ComputerProcess *cproc)

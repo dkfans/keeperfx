@@ -54,15 +54,9 @@
 #include "sounds.h"
 #include "game_lghtshdw.h"
 #include "game_merge.h"
+#include "engine_textures.h"
 
 #define BOOKMARKS_COUNT               5
-// Static textures
-#define TEXTURE_BLOCKS_STAT_COUNT   544
-// Animated texture frames count
-#define TEXTURE_BLOCKS_ANIM_FRAMES    8
-// Animated textures amount
-#define TEXTURE_BLOCKS_ANIM_COUNT    48
-#define TEXTURE_BLOCKS_COUNT         (TEXTURE_BLOCKS_STAT_COUNT+TEXTURE_BLOCKS_ANIM_COUNT)
 
 #ifdef __cplusplus
 extern "C" {
@@ -180,7 +174,7 @@ unsigned int packet_file_pos;
     short col_static_entries[18];
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
-    short texture_animation[8*TEXTURE_BLOCKS_ANIM_COUNT];
+    short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
     unsigned short columns_used;
     unsigned char texture_id;
     unsigned short free_things[THINGS_COUNT-1];
@@ -195,7 +189,7 @@ unsigned int packet_file_pos;
     int something_light_x;
     int something_light_y;
     unsigned long time_delta;
-    short top_cube[592];
+    short top_cube[TEXTURE_BLOCKS_COUNT];// if you ask for top cube on a column without cubes, it'll return the first cube it finds with said texture at the top
     unsigned char small_map_state;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];

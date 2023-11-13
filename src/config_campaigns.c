@@ -111,6 +111,7 @@ const struct NamedCommand cmpgn_human_player_options[] = {
   {"GREEN",      2},
   {"YELLOW",     3},
   {"WHITE",      4},
+  {"NEUTRAL",    5},
   {NULL,         0},
   };
 
@@ -395,6 +396,7 @@ short parse_campaign_common_blocks(struct GameCampaign *campgn,char *buf,long le
   LbMemoryFree(campgn->hiscore_table);
   campgn->hiscore_table = NULL;
   campgn->hiscore_count = VISIBLE_HIGH_SCORES_COUNT;
+  campgn->human_player = 0;
   // Find the block
   char block_buf[32];
   sprintf(block_buf, "common");
