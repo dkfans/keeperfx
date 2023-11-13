@@ -584,7 +584,7 @@ TbBool packets_process_cheats(
                     {
                         if (player->controlled_thing_idx != player->thing_under_hand)
                         {
-                            query_creature(player, player->thing_under_hand);
+                            query_creature(player, player->thing_under_hand, true);
                         }
                     }
                     else

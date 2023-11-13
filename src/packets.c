@@ -1009,7 +1009,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
     }
     case PckA_PlyrQueryCreature:
     {
-        query_creature(player, pckt->actn_par1);
+        query_creature(player, pckt->actn_par1, pckt->actn_par2);
         return false;
     }
     default:

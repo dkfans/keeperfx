@@ -817,7 +817,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     {
                         if (player->controlled_thing_idx != player->thing_under_hand)
                         {
-                            query_creature(player, player->thing_under_hand);
+                            query_creature(player, player->thing_under_hand, true);
                         }
                     }
                     else
