@@ -1752,8 +1752,7 @@ void gui_activity_background(struct GuiMenu *gmnu)
         }
     }
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    int units_per_px = gmnu->width * 16 / 140;
-    LbDrawBox(gmnu->pos_x + 2*units_per_px/16, gmnu->pos_y + 218*units_per_px/16, 134*units_per_px/16, 24*units_per_px/16, colours[0][0][0]);
+    LbDrawBox(gmnu->pos_x + scale_ui_value(2), gmnu->pos_y + scale_ui_value(218), scale_ui_value(134), scale_ui_value(24), colours[0][0][0]);
     lbDisplay.DrawFlags = flg_mem;
 }
 
