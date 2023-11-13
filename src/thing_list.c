@@ -4220,9 +4220,9 @@ ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_c
         thing = thing_get(i);
         if (thing_is_creature(thing))
         {
-            if (thing->owner == owner)
+            if ( (thing->owner == owner) || (owner == -1) )
             {
-                if (thing->model == crmodel)
+                if ( (thing->model == crmodel) || (crmodel == 0) )
                 {
                     return thing->index;
                 }
@@ -4248,9 +4248,9 @@ ThingIndex get_index_of_first_creature_of_owner_and_model(PlayerNumber owner, Th
         struct Thing *thing = thing_get(i);
         if (thing_is_creature(thing))
         {
-            if (thing->owner == owner)
+            if ( (thing->owner == owner) || (owner == -1) )
             {
-                if (thing->model == crmodel)
+                if ( (thing->model == crmodel) || (crmodel == 0) )
                 {
                     return thing->index;
                 }
