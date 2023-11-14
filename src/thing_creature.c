@@ -6415,7 +6415,7 @@ PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
     return creatng->owner;
 }
 
-void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset)
+void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom)
 {
     if (is_my_player(player))
     {
@@ -6446,6 +6446,13 @@ void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset)
             {
                 menu = GMnu_CREATURE_QUERY1;
             }
+        }
+        if (zoom)
+        {
+            struct Thing *creatng = thing_get(index);
+            player->zoom_to_pos_x = creatng->mappos.x.val;
+            player->zoom_to_pos_y = creatng->mappos.y.val;
+            set_player_instance(player, PI_ZoomToPos, 0);
         }
         turn_off_all_panel_menus();
         initialise_tab_tags_and_menu(menu);

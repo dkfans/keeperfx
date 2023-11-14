@@ -258,6 +258,8 @@ struct Packet {
     long pos_y; //! Mouse Cursor Position Y
     unsigned short control_flags;
     unsigned char additional_packet_values; // uses the flags and values from TbPacketAddValues
+    long actn_par3; //! Players action parameter #3
+    long actn_par4; //! Players action parameter #4
 };
 
 struct PacketSaveHead {

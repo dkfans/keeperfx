@@ -2442,7 +2442,7 @@ void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
     if (next_creature != player->influenced_thing_idx)
     {
         struct Packet* pckt = get_packet(player->id_number);
-        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 0, 0);
+        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
         play_non_3d_sample(62);
     }
 }
@@ -2455,7 +2455,7 @@ void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
     if (next_creature != player->influenced_thing_idx)
     {
         struct Packet* pckt = get_packet(player->id_number);
-        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 0, 0);
+        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
         play_non_3d_sample(62);
     }
 }
