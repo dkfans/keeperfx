@@ -76,6 +76,7 @@ TbBool setup_person_move_to_coord_f(struct Thing *thing, const struct Coord3d *p
 TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags);
 
 TbBool creature_can_travel_over_lava(const struct Thing *creatng);
+long creature_can_fly_over_obstacles(const struct Thing* creatng);
 TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
 #define creature_can_navigate_to(thing,pos,flags) creature_can_navigate_to_f(thing,pos,flags,__func__)
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *crtng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);

@@ -68,12 +68,13 @@ enum AriadneUpdateSubStateManoeuvreValues {
 };
 
 #define NAVMAP_FLOORHEIGHT_BIT  0
-#define NAVMAP_FLOORHEIGHT_MAX  0x0f
-#define NAVMAP_FLOORHEIGHT_MASK 0x0f
+#define NAVMAP_FLOORHEIGHT_MAX  0x0F
+#define NAVMAP_FLOORHEIGHT_MASK 0x0F
 #define NAVMAP_UNSAFE_SURFACE   0x10
 #define NAVMAP_OWNERSELECT_BIT  5
 #define NAVMAP_OWNERSELECT_MAX  0x06
 #define NAVMAP_OWNERSELECT_MASK 0x07
+#define NAVMAP_OWNERSHIP_MASK 0xE0
 #define NAVMAP_OWNER_HERO    5
 #define NAVMAP_OWNER_NEUTRAL 6
 
@@ -229,6 +230,13 @@ long thing_nav_sizexy(const struct Thing *thing);
 
 void clear_wallhugging_path(struct Navigation *navi);
 void initialise_wallhugging_path_from_to(struct Navigation *navi, struct Coord3d *mvstart, struct Coord3d *mvend);
+
+
+void set_navigation_rule_for_creature(const struct Thing* creatng);
+void reset_navigation_rule();
+long navigation_rule_normal(long treeA, long treeB);
+long navigation_rule_fireproof(long treeA, long treeB);
+long navigation_rule_flying(long treeA, long treeB);
 
 /******************************************************************************/
 #ifdef __cplusplus

@@ -64,7 +64,14 @@ TbBool thing_touching_flight_altitude(const struct Thing *thing)
 TbBool thing_above_flight_altitude(const struct Thing* thing)
 {
     int floor_height = get_floor_height_under_thing_at(thing, &thing->mappos);
-    return (thing->mappos.z.val > floor_height + 19 * NORMAL_FLYING_ALTITUDE / 17);
+    if ((thing->mappos.z.val - floor_height) > (subtile_coord(2,0) + NORMAL_FLYING_ALTITUDE)) // More than 2 blocks over flying altitude is too high for sure
+    {
+        return true;
+    }
+
+    int navi_radius = 2 * subtile_coord(thing_nav_block_sizexy(thing), 0); // Otherwise consider the height of the surrounding subtiles
+    long flying_alt = get_thing_height_at_with_radius(thing, &thing->mappos, navi_radius);
+    return (thing->mappos.z.val > flying_alt + 19 * NORMAL_FLYING_ALTITUDE / 17);
 }
 
 void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long blocked_flags)
@@ -374,7 +381,7 @@ TbBool position_over_floor_level(const struct Thing *thing, const struct Coord3d
         }
         modpos.z.val = -1;
         norm_height = get_thing_height_at(thing, &modpos);
-        if ((norm_height == -1) || (norm_height - curr_height > 256))
+        if ((norm_height == -1) || ((norm_height - curr_height > 256) && !creature_can_fly_over_obstacles(thing)))
         {
             return true;
         }
@@ -516,9 +523,9 @@ TbBool creature_cannot_move_directly_to(struct Thing *thing, struct Coord3d *pos
     }
 
     if (position_over_floor_level(thing, pos)) {
-        return 1;
+        return true;
     }
-    return 0;
+    return false;
 }
 
 /** Retrieves planned next position for given thing, without collision detection.

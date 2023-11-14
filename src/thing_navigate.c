@@ -43,6 +43,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -132,7 +134,7 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
     long nav_sizexy;
     long px;
     long py;
-    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(thing);
+    set_navigation_rule_for_creature(thing);
     if ((flags & AridRtF_NoOwner) != 0)
         owner_player_navigating = -1;
     else
@@ -146,7 +148,7 @@ static void get_nearest_navigable_point_for_thing(struct Thing *thing, struct Co
     pos2->z.val = get_thing_height_at(thing, pos2);
     if (thing_in_wall_at(thing, pos2))
         get_nearest_valid_position_for_creature_at(thing, pos2);
-    nav_thing_can_travel_over_lava = 0;
+    reset_navigation_rule();
 }
 
 TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name)
@@ -326,6 +328,16 @@ TbBool move_creature_to_nearest_valid_position(struct Thing *thing)
     }
     move_thing_in_map(thing, &pos);
     return true;
+}
+
+/**
+ * Returns if a creature can currently travel over obstacles.
+ * @param thing
+ * @return
+ */
+long creature_can_fly_over_obstacles(const struct Thing* creatng)
+{
+    return ((creatng->movement_flags & TMvF_Flying) != 0);
 }
 
 /**

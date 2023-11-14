@@ -1391,7 +1391,7 @@ short creature_being_dropped(struct Thing *creatng)
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     // If dropping still in progress, do nothing
-    if ( !(thing_touching_floor(creatng) || (((creatng->movement_flags & TMvF_Flying) != 0) && thing_touching_flight_altitude(creatng))))
+    if ( !(thing_touching_floor(creatng) || (((creatng->movement_flags & TMvF_Flying) != 0) && !thing_above_flight_altitude(creatng))))
     {
         // Note that the creature should have no self control while dropping - after all, it was in hand moments ago
         SYNCDBG(17,"The %s index %d owner %d dropped at (%d,%d) isn't touching ground yet",thing_model_name(creatng),(int)creatng->index,(int)creatng->owner,(int)stl_x,(int)stl_y);
@@ -4231,8 +4231,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
 {
     if (pos->x.val == creatng->mappos.x.val && pos->y.val == creatng->mappos.y.val)
         return 0;
-
-    nav_thing_can_travel_over_lava = creature_can_travel_over_lava(creatng);
+    set_navigation_rule_for_creature(creatng);
     if (resetOwnerPlayerNavigating)
         owner_player_navigating = -1;
     else
@@ -4248,7 +4247,7 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
         pos->x.val,
         pos->y.val,
 	    -2, nav_sizexy, __func__);
-    nav_thing_can_travel_over_lava = 0;
+    reset_navigation_rule();
 
     int distance = 0;
     if (!path.waypoints_num)
