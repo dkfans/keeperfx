@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "config.h"
 
 
 #ifdef __cplusplus
@@ -52,6 +53,8 @@ enum MetaLocation {
   MML_RECENT_COMBAT,
 };
 
+extern const struct NamedCommand head_for_desc[];
+
 /******************************************************************************/
 unsigned short get_map_location_type(TbMapLocation location);
 unsigned long get_map_location_longval(TbMapLocation location);
@@ -64,6 +67,8 @@ TbBool get_coords_at_meta_action(struct Coord3d *pos, PlayerNumber target_plyr_i
 TbBool get_coords_at_action_point(struct Coord3d *pos, long apt_idx, unsigned char random_factor);
 TbBool get_coords_at_hero_door(struct Coord3d *pos, long gate_num, unsigned char random_factor);
 TbBool get_coords_at_dungeon_heart(struct Coord3d *pos, PlayerNumber plyr_idx);
+
+void find_map_location_coords(long location, long *x, long *y, int plyr_idx, const char *func_name);
 
 void find_location_pos(long location, PlayerNumber plyr_idx, struct Coord3d *pos, const char *func_name);
 

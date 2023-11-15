@@ -35,6 +35,8 @@
 #include "gui_soundmsgs.h"
 #include "kjm_input.h"
 #include "lvl_filesdk1.h"
+#include "lua_base.h"
+#include "lua_triggers.h"
 #include "net_sync.h"
 #include "room_library.h"
 #include "room_list.h"
@@ -164,6 +166,7 @@ static void init_level(void)
     clear_messages();
     init_seeds();
     // Load the actual level files
+    TbBool luascript_loaded = open_lua_script(get_selected_level_number());
     TbBool script_preloaded = preload_script(get_selected_level_number());
     if (!load_map_file(get_selected_level_number()))
     {
@@ -173,7 +176,7 @@ static void init_level(void)
     }
     else
     {
-        if (script_preloaded == false)
+        if (script_preloaded == false && luascript_loaded == false)
         {
             show_onscreen_msg(200,"%s: No Script %d", get_string(GUIStr_Error), get_selected_level_number());
             JUSTMSG("Unable to load script level %d from %s", get_selected_level_number(), campaign.name);
@@ -222,6 +225,7 @@ static void post_init_level(void)
     clear_creature_pool();
     setup_computer_players2();
     load_script(get_loaded_level_number());
+    lua_game_start();
     init_dungeons_research();
     init_dungeons_essential_position();
     if (!is_map_pack())
