@@ -3961,6 +3961,11 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
       } else
+      if (strcasecmp(parstr, "columnconvert") == 0) //todo remove once it's no longer in the launcher
+      {
+          WARNLOG("The -%s commandline parameter is no longer functional.", parstr);
+      }
+      else
       if (strcasecmp(parstr, "cd") == 0)
       {
           start_params.overrides[Clo_CDMusic] = true;
