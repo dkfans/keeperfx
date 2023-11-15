@@ -87,6 +87,7 @@ enum SlabTypes {
     SlbT_GEMS               =  52,
     SlbT_GUARDPOST          =  53,
     SlbT_PURPLE             =  54,
+    SlbT_ROCK_FLOOR         =  55,
 };
 
 /******************************************************************************/
