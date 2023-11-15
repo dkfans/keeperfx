@@ -6370,10 +6370,25 @@ msgid ""
 msgstr ""
 "Hemlig dörr: En specialdörr som är dold för fienden, men som kan upptäckas om man tittar noga, eller när dina egna enheter öppnar den medan fienden tittar. RMB-zoom."
 
-#: guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret door discovered: LMB toggle. RMB delete."
+msgstr "Hemlig dörr upptäckt: VMK växlar. HMK raderar."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret door discovered"
+msgstr "Hemlig dörr upptäckt"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your secret door: LMB toggle. RMB delete."
+msgstr "Fienden har upptäckt din hemliga dörr: VMK växlar. HMK raderar."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Fienden har upptäckt din hemliga dörr"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

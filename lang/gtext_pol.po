@@ -6462,10 +6462,25 @@ msgid ""
 msgstr ""
 "Tajne drzwi: Specjalne drzwi, ukryte przed wrogami, ale możliwe do zauważenia po dokładnym przyjrzeniu się lub po otwarciu przez jednostki przeciwnika. Powiększenie RMB."
 
-#: guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Muu2"
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret door discovered: LMB toggle. RMB delete."
+msgstr "Tajne przez odkryte: LPM przełącza, PPM likwiduje."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret door discovered"
+msgstr "Tajne przez odkryte"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your secret door: LMB toggle. RMB delete."
+msgstr "Wróg wykrył twoje tajne drzwi: LPM przełącza, PPM likwiduje."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Wróg wykrył twoje tajne drzwi"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

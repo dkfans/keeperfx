@@ -5540,10 +5540,25 @@ msgid ""
 msgstr ""
 "Puerta Secreta: Una puerta especial, Oculta a los enemigos, pero puede ser descubierta cuando se mira de cerca, o cuando tus propias unidades la abren con el enemigo mirando. Zoom RMB."
 
-#: guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret door discovered: LMB toggle. RMB delete."
+msgstr "Secreto por descubierto: Abre con BIR. Borra con BDR."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret door discovered"
+msgstr "Secreto por descubierto"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your secret door: LMB toggle. RMB delete."
+msgstr "El enemigo descubrió tu puerta secreta: Abre con BIR. Borra con BDR."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "El enemigo descubrió tu puerta secreta"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

@@ -6000,10 +6000,25 @@ msgid ""
 "looking closely, or when your own units open it with the enemy looking. RMB zoom."
 msgstr "秘密之门: 一种特殊的门，对敌人而言是隐藏的，但仔细观察时会被发现，或者当自己的部队在敌人的注视下打开门时也会被发现。"
 
-#: guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "哞2"
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret door discovered: LMB toggle. RMB delete."
+msgstr "发现暗门: 左键切换。右键删除。"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret door discovered"
+msgstr "发现暗门"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your secret door: LMB toggle. RMB delete."
+msgstr "敌人发现了你的暗门: 左键切换。右键删除。"
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "敌人发现了你的暗门"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

@@ -6341,10 +6341,25 @@ msgid ""
 msgstr "Tajné dveře: Dveře: Speciální dveře, které jsou pro nepřátele skryté, ale lze je spatřit,"
 "když se na ně pozorně podíváte, nebo když je otevřou vaše vlastní jednotky, když se nepřítel dívá. Zvoli se LTM, PTM zvetsi"
 
-#: guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret door discovered: LMB toggle. RMB delete."
+msgstr "Objevení tajných dveří: LTM přepnout, PTM smazat."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret door discovered"
+msgstr "Objevení tajných dveří"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your secret door: LMB toggle. RMB delete."
+msgstr "Nepřítel si všiml vašich tajných dveří: LTM přepnout, PTM smazat."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Nepřítel si všiml vašich tajných dveří"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

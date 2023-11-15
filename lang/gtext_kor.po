@@ -6376,10 +6376,25 @@ msgid ""
 msgstr ""
 "비밀의 문: 적에게는 숨겨져 있지만 자세히 보면 발견할 수 있는 특별한 문으로, 아군 유닛이 적을 보고 있는 상태에서 열면 발견할 수 있습니다. 위안화 줌."
 
-#: guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "음매2"
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret door discovered: LMB toggle. RMB delete."
+msgstr "비밀의 문 발견"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret door discovered"
+msgstr "비밀의 문 발견"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your secret door: LMB toggle. RMB delete."
+msgstr "적이 비밀 문을 발견했습니다."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "적이 비밀 문을 발견했습니다."
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

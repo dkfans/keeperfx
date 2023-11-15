@@ -6599,10 +6599,25 @@ msgstr ""
 "Geheime Tür: Eine spezielle Tür, die für Feinde unsichtbar ist,"
 " aber bei genauem Hinsehen entdeckt werden kann, oder wenn die eigenen Einheiten sie öffnen, während der Feind hinsieht. RMB-Zoom."
 
-#: guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret door discovered: LMB toggle. RMB delete."
+msgstr "Geheime Tür entdeckt: Mit der linken Maustaste lesen. Mit der rechten"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret door discovered"
+msgstr "Geheime Tür entdeckt"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your secret door: LMB toggle. RMB delete."
+msgstr "Feind hat deine Geheimtür entdeckt: Mit der linken Maustaste lesen. Mit der rechten"
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Feind hat deine Geheimtür entdeckt"
 
 #: guitext:941
 #, fuzzy

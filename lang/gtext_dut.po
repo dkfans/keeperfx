@@ -6376,10 +6376,25 @@ msgstr ""
 "Geheime deur: Een speciale deur, verborgen voor vijanden,"
 " maar te zien als je goed kijkt, of als je eigen eenheden hem openen terwijl de vijand kijkt. RMK-zoom."
 
-#: guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret door discovered: LMB toggle. RMB delete."
+msgstr "Geheime deur ontdekt: LMK: bladeren. RMK: wissen."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret door discovered"
+msgstr "Geheime deur ontdekt"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your secret door: LMB toggle. RMB delete."
+msgstr "Vijand heeft je geheime deur gezien: LMK: bladeren. RMK: wissen."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Vijand heeft je geheime deur gezien"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
