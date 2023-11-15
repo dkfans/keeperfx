@@ -595,6 +595,13 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
 {
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   TbScreenModeInfo* new_mdinfo = LbScreenGetModeInfo(nmode);
+  TbScreenMode old_mode = LbScreenActiveMode();
+  TbScreenModeInfo* old_mdinfo = LbScreenGetModeInfo(old_mode);
+  // we don't want to get the current display when using the "fill all" mode, we want to keep the old version
+  if (!(old_mdinfo->VideoFlags & Lb_VF_FILLALL))
+  {
+    display_id = LbGetCurrentDisplayIndex(); // get current display
+  }
   // Check that the desired mode is available for the current display
   if (!LbScreenIsModeAvailable(nmode, display_id))
   {
@@ -615,7 +622,6 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
     }
     new_mdinfo = LbScreenGetModeInfo(nmode);
   }
-  TbScreenMode old_mode = LbScreenActiveMode();
   if (!force_video_mode_reset)
   {
     if ((nmode == old_mode) && (!MinimalResolutionSetup))
@@ -649,11 +655,6 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
       LbDataFreeAll(hi_res ? gui_load_files_640 : gui_load_files_320);
     if (!hi_res) ERRORLOG("MCGA Minimal not allowed (Reset)");
     MinimalResolutionSetup = false;
-  }
-  TbScreenModeInfo* old_mdinfo = LbScreenGetModeInfo(LbScreenActiveMode());
-  if (!(old_mdinfo->VideoFlags & Lb_VF_FILLALL))
-  {
-      display_id = LbGetCurrentDisplayIndex();
   }
   hi_res = ((new_mdinfo->Height < 400) ? false : true);
   if (new_mdinfo->Height < 200)
@@ -760,6 +761,13 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
 {
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   TbScreenModeInfo* new_mdinfo = LbScreenGetModeInfo(nmode);
+  // we don't want to get the current display when using the "fill all" mode, we want to keep the old version
+  TbScreenMode old_mode = LbScreenActiveMode();
+  TbScreenModeInfo* old_mdinfo = LbScreenGetModeInfo(old_mode);
+  if (!(old_mdinfo->VideoFlags & Lb_VF_FILLALL))
+  {
+    display_id = LbGetCurrentDisplayIndex(); // get current display
+  }
   // Check that the desired mode is available for the current display
   if (!LbScreenIsModeAvailable(nmode, display_id))
   {
@@ -772,7 +780,6 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
       }
       new_mdinfo = LbScreenGetModeInfo(nmode);
   }
-  TbScreenMode old_mode = LbScreenActiveMode();
   if (!force_video_mode_reset)
   {
     if ((nmode == old_mode) && (MinimalResolutionSetup))
@@ -813,12 +820,6 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
         LbDataFreeAll(gui_load_files_320);
     }
     MinimalResolutionSetup = false;
-  }
-  // we don't want to get the current display when using the "fill all" mode, we want to keep the old version
-  TbScreenModeInfo* old_mdinfo = LbScreenGetModeInfo(old_mode);
-  if (!(old_mdinfo->VideoFlags & Lb_VF_FILLALL))
-  {
-      display_id = LbGetCurrentDisplayIndex(); // get current display
   }
   hi_res = ((new_mdinfo->Height < 400) ? false : true);
   if (new_mdinfo->Height < 200)
@@ -878,6 +879,13 @@ TbScreenMode setup_screen_mode_zero(TbScreenMode nmode)
 {
   SYNCDBG(4,"Setting up mode %d",(int)nmode);
   TbScreenModeInfo* new_mdinfo = LbScreenGetModeInfo(nmode);
+  // we don't want to get the current display when using the "fill all" mode, we want to keep the old version
+  TbScreenMode old_mode = LbScreenActiveMode();
+  TbScreenModeInfo* old_mdinfo = LbScreenGetModeInfo(old_mode);
+  if (!(old_mdinfo->VideoFlags & Lb_VF_FILLALL))
+  {
+    display_id = LbGetCurrentDisplayIndex(); // get current display
+  }
   // Check that the desired mode is available for the current display
   if (!LbScreenIsModeAvailable(nmode, display_id))
   {
