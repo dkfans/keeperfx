@@ -4136,7 +4136,6 @@ short process_command_line(unsigned short argc, char *argv[])
       else
       {
         WARNMSG("Unrecognized command line parameter '%s'.",parstr);
-        bad_param=narg;
       }
       narg++;
   }
@@ -4168,15 +4167,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval=0;
     LbErrorLogSetup("/", log_file_name, 5);
 
-    retval = process_command_line(argc,argv);
-    if (retval < 1)
-    {
-        static const char *msg_text="Command line parameters analysis failed.\n";
-        error_dialog_fatal(__func__, 1, msg_text);
-        LbErrorLogClose();
-        return 0;
-    }
-
+    process_command_line(argc,argv);
     retval = true;
     retval &= (LbTimerInit() != Lb_FAIL);
     retval &= (LbScreenInitialize() != Lb_FAIL);
