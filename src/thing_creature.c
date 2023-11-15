@@ -1798,8 +1798,11 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
         struct Thing* doortng = thing_get(i);
         if (thing_is_invalid(doortng))
           break;
+          
         if (door_is_hidden_to_player(doortng,creatng->owner))
         {
+            MapSubtlCoord z = doortng->mappos.z.stl.num;
+            doortng->mappos.z.stl.num = 2;
             if(creature_affected_by_spell(creatng,SplK_Sight))
             {
                 if(creature_can_see_thing_ignoring_specific_door(creatng,doortng,doortng))
@@ -1813,6 +1816,7 @@ void creature_look_for_hidden_doors(struct Thing *creatng)
             {
                 reveal_secret_door_to_player(doortng,creatng->owner);
             }
+            doortng->mappos.z.stl.num = z;
         }
         i = doortng->next_of_class;
     }

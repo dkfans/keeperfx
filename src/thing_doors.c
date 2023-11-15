@@ -361,6 +361,8 @@ static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortn
     {
         return;
     }
+    MapSubtlCoord z = doortng->mappos.z.stl.num;
+    doortng->mappos.z.stl.num = 2;
 
     const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
     long i = slist->index;
@@ -377,6 +379,7 @@ static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortn
 
         i = creatng->next_of_class;
     }
+    doortng->mappos.z.stl.num = z;
 }
 
 TbBool door_is_hidden_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
@@ -395,6 +398,7 @@ void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
     {
         return;
     }
+    event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_AlarmTriggered, doortng->owner, 0);
     set_flag(doortng->door.revealed,to_flag(plyr_idx));
     MapSubtlCoord stl_x = doortng->mappos.x.stl.num;
     MapSubtlCoord stl_y = doortng->mappos.y.stl.num;
