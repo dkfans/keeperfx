@@ -109,7 +109,7 @@ TbBool detonate_shot(struct Thing *shotng)
         long dist = compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel);
         long damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, shotng);
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
-        explosion_affecting_area(castng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
+        explosion_affecting_area(shotng, &shotng->mappos, dist, damage, shotst->area_blow, hit_targets, shotst->damage_type);
     }
    
     create_used_effect_or_element(&shotng->mappos, shotst->explode.effect1_model, shotng->owner);
@@ -843,7 +843,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     if (target->health < 0) {
         shot_kill_object(shotng, target);
     }
-    if (!shotst->hit_door.withstand)
+    if (shotst->area_range != 0)
     {
         return detonate_shot(shotng);
     }
@@ -988,7 +988,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle;
     } else {
         killertng = thing_get(shotng->parent_idx);
-        dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0);
+        dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0) | ((shotst->model_flags & ShMF_BlocksRebirth)? CrDed_NoRebirth : 0);
     }
     // Friendly fire should kill the creature, not knock out
     if ((shotng->owner == creatng->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint))
@@ -1141,7 +1141,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
             struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
-            short target_center = (killertng->solid_size_yz + ((killertng->solid_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
+            short target_center = (killertng->solid_size_z + ((killertng->solid_size_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
             pos2.z.val = target_center + killertng->mappos.z.val;
             clear_thing_acceleration(shotng);
             set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
@@ -1522,12 +1522,12 @@ TngUpdateRet update_shot(struct Thing *thing)
         {
             target = thing_get(thing->shot.target_idx);
             struct ComponentVector cvect;
-            if ((thing_exists(target)) && (target->class_id == TCls_Creature))
+            if ((thing_exists(target)) && (target->class_id == TCls_Creature) && !thing_is_picked_up(target) && !creature_is_being_unconscious(target))
             {
                 pos2.x.val = target->mappos.x.val;
                 pos2.y.val = target->mappos.y.val;
                 pos2.z.val = target->mappos.z.val;
-                pos2.z.val += (target->clipbox_size_yz >> 1);
+                pos2.z.val += (target->clipbox_size_z >> 1);
                 thing->move_angle_xy = get_angle_xy_to(&thing->mappos, &pos2);
                 thing->move_angle_z = get_angle_yz_to(&thing->mappos, &pos2);
                 angles_to_vector(thing->move_angle_xy, thing->move_angle_z, shotst->speed, &cvect);
@@ -1706,9 +1706,9 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
     thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Unknown01;
     thing->clipbox_size_xy = shotst->size_xy;
-    thing->clipbox_size_yz = shotst->size_yz;
+    thing->clipbox_size_z = shotst->size_z;
     thing->solid_size_xy = shotst->size_xy;
-    thing->solid_size_yz = shotst->size_yz;
+    thing->solid_size_z = shotst->size_z;
     thing->shot.damage = shotst->damage;
     thing->shot.dexterity = 255;
     thing->health = shotst->health;

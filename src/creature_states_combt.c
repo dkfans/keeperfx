@@ -265,7 +265,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         return true;
     }
     // Units dropped will fight stronger units for a bit
-    if ((cctrl->wait_to_turn > (long)game.play_gameturn))
+    if ((cctrl->dropped_turn + FIGHT_FEAR_DELAY) > game.play_gameturn)
     {
         return false;
     }
@@ -580,7 +580,7 @@ void update_battle_events(BattleIndex battle_id)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->battle_prev_creatr;
         // Per thing code starts
-        owner_flags |= (1 << thing->owner);
+        set_flag(owner_flags, to_flag(thing->owner));
         map_x = thing->mappos.x.val;
         map_y = thing->mappos.y.val;
         map_z = thing->mappos.z.val;
@@ -596,13 +596,13 @@ void update_battle_events(BattleIndex battle_id)
     {
         if ((i == game.hero_player_num) || (i == game.neutral_player_num))
             continue;
-        if ((1 << i) & owner_flags) 
+        if (flag_is_set(owner_flags, to_flag(i)))
         {
             dungeonadd = get_dungeonadd(i);
             dungeonadd->last_combat_location.x.val = map_x;
             dungeonadd->last_combat_location.y.val = map_y;
             dungeonadd->last_combat_location.z.val = map_z;
-            if ((1 << i) == owner_flags) {
+            if (owner_flags == to_flag(i)) { // if the current player (i) is the only player in the fight
                 event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, 0);
             } else {
                 event_create_event_or_update_old_event(map_x, map_y, EvKind_EnemyFight, i, 0);
@@ -1206,7 +1206,7 @@ TbBool set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *
     return true;
 }
 
-CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct Room *room,long crmodel, struct Thing **enemytng)
+CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct Room *room,short crmodel[], struct Thing **enemytng)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(fightng->owner);
@@ -1224,19 +1224,24 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (thing_is_creature(thing) && (thing->model == crmodel) && (cctrl->combat_flags == 0))
+        for (short j = 0; j < LAIR_ENEMY_MAX; j++)
         {
-            if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
-             && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+            if (crmodel[j] == 0)
+                break;
+            if (thing_is_creature(thing) && (thing->model == crmodel[j]) && (cctrl->combat_flags == 0))
             {
-                if ((thing->index != fightng->index) && (get_room_thing_is_on(thing)->index == room->index))
+                if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
+                    && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
                 {
-                    long dist = get_combat_distance(fightng, thing);
-                    CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, dist, 0, 0);
-                    if (attack_type > AttckT_Unset)
+                    if ((thing->index != fightng->index) && (get_room_thing_is_on(thing)->index == room->index))
                     {
-                        *enemytng = thing;
-                        return attack_type;
+                        long dist = get_combat_distance(fightng, thing);
+                        CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, dist, 0, 0);
+                        if (attack_type > AttckT_Unset)
+                        {
+                            *enemytng = thing;
+                            return attack_type;
+                        }
                     }
                 }
             }
@@ -1781,6 +1786,7 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing)
  */
 CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
+    struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
     {
@@ -1809,6 +1815,17 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     if (!creature_affected_by_spell(thing, SplK_Fly))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
+    }
+    for (int i = CrInst_LISTEND; i < gameadd.crtr_conf.instances_count; i++)
+    {
+        inst_inf = creature_instance_info_get(i);
+        if ((inst_inf->flags & InstPF_SelfBuff))
+        {
+            if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, i);
+            }
+        }
     }
     return CrInst_NULL;
 }
@@ -3014,7 +3031,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     }
 
     // If not too scared for combat, then do the combat
-    if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->wait_to_turn > (long)game.play_gameturn) )
+    if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->dropped_turn + FIGHT_FEAR_DELAY >= game.play_gameturn) )
     {
         set_creature_in_combat(creatng, enmtng, attack_type);
         return true;

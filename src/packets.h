@@ -265,8 +265,8 @@ struct PacketSaveHead {
     unsigned short game_ver_release;
     unsigned short game_ver_build;
     unsigned long level_num;
-    unsigned char players_exist;
-    unsigned char players_comp;
+    PlayerBitFlags players_exist;
+    PlayerBitFlags players_comp;
     unsigned long isometric_view_zoom_level;
     unsigned long frontview_zoom_level;
     unsigned char video_rotate_mode;

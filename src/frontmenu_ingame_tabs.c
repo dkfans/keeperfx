@@ -1280,11 +1280,15 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx = get_creature_model_graphics(ctrltng->model, CGI_HandSymbol);
-        struct TbSprite* spr = &gui_panel_sprites[spr_idx];
-        int ps_units_per_px = (gmnu->width * 22 / 100) * 16 / spr->SWidth;
-        draw_gui_panel_sprite_left(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx);
+        if (spr_idx > 0)
+        {
+            struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+            int ps_units_per_px = (gmnu->width * 22 / 100) * 16 / spr->SWidth;
+            draw_gui_panel_sprite_left(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx);
+        }
     }
 }
+
 unsigned short get_creature_pick_flags(TbBool pick_up)
 {
     unsigned short pick_flags = pick_up ? TPF_PickableCheck : 0;
@@ -1747,9 +1751,9 @@ void gui_activity_background(struct GuiMenu *gmnu)
             }
         }
     }
+    int mm_units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    int units_per_px = gmnu->width * 16 / 140;
-    LbDrawBox(gmnu->pos_x + 2*units_per_px/16, gmnu->pos_y + 218*units_per_px/16, 134*units_per_px/16, 24*units_per_px/16, colours[0][0][0]);
+    LbDrawBox(gmnu->pos_x + scale_value_for_resolution_with_upp(2, mm_units_per_px), gmnu->pos_y + scale_value_for_resolution_with_upp(218, mm_units_per_px), scale_value_for_resolution_with_upp(134, mm_units_per_px), scale_value_for_resolution_with_upp(24, mm_units_per_px), colours[0][0][0]);
     lbDisplay.DrawFlags = flg_mem;
 }
 

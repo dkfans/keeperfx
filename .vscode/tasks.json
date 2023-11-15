@@ -1,51 +1,42 @@
 {
 	"version": "2.0.0",
+	"inputs": [
+		{
+			"id": "debugChoice",
+			"type": "pickString",
+			"description": "Choose the debug option:",
+			"options": [
+				"DEBUG=1",
+				"DEBUG=0"
+			],
+			"default": "DEBUG=0"
+		}
+	],
 	"tasks": [
 		{
-			"label": "Compile, Copy Files, Launch",
+			"label": "Default task",
 			"type": "shell",
 			"windows": {
 				"command": [
-					"Write-Host ('Source Code directory: ' + '${workspaceFolder}'.Replace('\\', '/')) -ForegroundColor White;",
-					"$jsonContent = Get-Content '${workspaceFolder}\\.vscode\\user.json' | ConvertFrom-Json;",
-					"$gameDir = ($jsonContent | Select-Object -ExpandProperty game_directory).TrimEnd('\\');",
-					"if (-not (Test-Path $gameDir)) {",
-					"    Write-Host 'Game directory missing in /.vscode/user.json, please edit the file and update it.' -ForegroundColor Red;",
-					"    Write-Host 'Example: D:/Games/DungeonKeeper/ (be sure to use forward slashes)' -ForegroundColor Red;",
-					"    return;",
+					"Set-Content -LiteralPath \\\"${workspaceFolder}\\.vscode\\compile_settings.cfg\\\" -Value '${input:debugChoice}';",
+					"Write-Host ('Wrote ${input:debugChoice}' + ' to /.vscode/compile_settings.cfg') -ForegroundColor White;",
+					"if ('${input:debugChoice}' -eq 'DEBUG=1') {",
+					"    Write-Host 'Debug symbols will be included in the next executable you compile. Crash reports will have more information.' -ForegroundColor Yellow;",
 					"} else {",
-					"    Write-Host ('Game directory: ' + $gameDir) -ForegroundColor White;",
-					"}",
-					"wsl make -j`nproc` all;",
-					"if ($?) {",
-					"    Write-Host 'Compilation successful!' -ForegroundColor Green;",
-					"}",
-					"Stop-Process -Name 'keeperfx' -ErrorAction SilentlyContinue;",
-					"while (Get-Process -Name 'keeperfx' -ErrorAction SilentlyContinue) {",
-					"   Start-Sleep -Milliseconds 10;",
-					"}",
-					"copy \"${workspaceFolder}\\bin\\*\" \"$gameDir\";",
-					"$gameArgs = $jsonContent.game_arguments;",
-					"cd \"$gameDir\";",
-					"Start-Process keeperfx.exe -ArgumentList \"$gameArgs\""
+					"    Write-Host 'Debug symbols will not be included in the next executable you compile. Crash reports will be have less information.' -ForegroundColor Green;",
+					"}"
 				]
 			},
 			"linux": {
 				"command": [
-					"if [ ! -f \"${workspaceFolder}/.vscode/user.json\" ]; then cp \"${workspaceFolder}/.vscode/defaultuser\" \"${workspaceFolder}/.vscode/user.json\" && echo \"/.vscode/user.json was created, please edit it and fill in your game directory.\"; fi;",
-					"jq --version > /dev/null 2>&1 || { echo -e '\\033[0;91mError: jq is not installed. Please install it using: sudo apt-get install jq\\033[0m'; exit 1; };",
-					"echo -e '\\033[0;97mSource Code directory: ${workspaceFolder}\\033[0m'; game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); if [ ! -d \"$game_dir\" ]; then echo -e '\\033[0;91mGame directory missing in .vscode/user.json. Please edit the file and update it.\\033[0m'; exit 1; else echo -e '\\033[0;97mGame directory: ' $game_dir '\\033[0m'; fi;",
-					"make -j`nproc` all && echo -e '\\033[0;32mCompilation successful!\\033[0m';",
-					"game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); cd \"$game_dir\" && cp \"${workspaceFolder}/bin/\"* .;",
-					"game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); game_args=$(jq -r '.game_arguments' ${workspaceFolder}/.vscode/user.json); cd \"$game_dir\" && if [ -n \"$WSL_DISTRO_NAME\" ]; then cmd.exe /C \"keeperfx.exe $game_args\"; else wine 'keeperfx.exe' $game_args; fi;"
+					"chmod +x '${workspaceFolder}/.vscode/linuxscript.sh';",
+					"'${workspaceFolder}/.vscode/linuxscript.sh' '${workspaceFolder}'"
 				]
 			},
 			"problemMatcher": "$gcc",
-			"group": {
-				"kind": "build",
-				"isDefault": true
-			},
+			"group": {"kind": "build","isDefault": true},
 			"presentation": {
+				"clear": true,
 				"echo": false,
 				"reveal": "always",
 				"focus": true,
@@ -54,24 +45,88 @@
 			}
 		},
 		{
-			// After the project is first opened, user.json will be created
-			"label": "Create user.json",
+			// Called by launch.json
+			"label": "Compile, Copy Files",
 			"type": "shell",
 			"windows": {
 				"command": [
-					"if (-not (Test-Path '${workspaceFolder}\\.vscode\\user.json')) {",
-					"    Copy-Item '${workspaceFolder}\\.vscode\\defaultuser' '${workspaceFolder}\\.vscode\\user.json';",
-					"    Write-Host '/.vscode/user.json was created, please edit it and fill in your game directory.';",
+					"Write-Host ('Source Code directory: ' + '${workspaceFolder}'.Replace('\\', '/')) -ForegroundColor White;",
+					"$gameDir = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | Select-String -Pattern '\\\"cwd\\\"\\s*:\\s*\\\"(.*?)\\\"').Matches[0].Groups[1].Value.Replace('\\', '/');",
+					"if (-not (Test-Path $gameDir)) {",
+					"    Write-Host 'The directories are incorrect in /.vscode/launch.json, please edit the file and update it.' -ForegroundColor Red;",
+					"    Write-Host 'Example: D:/Games/DungeonKeeper/ (be sure to use forward slashes)' -ForegroundColor Red;",
+					"    exit 1;",
+					"}",
+					"Write-Host ('Game directory: ' + $gameDir) -ForegroundColor White;",
+					"$debugFlag = '';",
+					"if (Test-Path '${workspaceFolder}\\.vscode\\compile_settings.cfg') {",
+					"    $content = (Get-Content '${workspaceFolder}\\.vscode\\compile_settings.cfg' -Raw).Trim();",
+					"    if ($content -eq 'DEBUG=1') {",
+					"        $debugFlag = 'DEBUG=1';",
+					"    }",
+					"}",
+					"if ($debugFlag -eq 'DEBUG=1') {",
+					"    Write-Host 'Compiling with DEBUG=1' -ForegroundColor Yellow;",
+					"} else {",
+					"    Write-Host 'Compiling with DEBUG=0' -ForegroundColor Green;",
+					"}",
+					"wsl make all -j`nproc` $debugFlag;",
+					"if ($?) {",
+					"    Write-Host 'Compilation successful!' -ForegroundColor Green;",
+					"} else {",
+					"    Write-Host 'Compilation failed!' -ForegroundColor Red;",
+					"    exit 1;",
+					"}",
+					"Copy-Item -Path '${workspaceFolder}\\bin\\*' -Destination $gameDir -Force;",
+				],
+			},
+			"linux": {"command": []},
+			"problemMatcher": "$gcc",
+			"group": "build",
+			"presentation": {
+				"clear": true,
+				"echo": false,
+				"reveal": "always",
+				"focus": true,
+				"panel": "shared",
+				"showReuseMessage": false
+			}
+		},
+		{
+			// After the project is first opened, settings.json and launch.json will be created
+			"label": "Create settings.json and launch.json",
+			"type": "shell",
+			"windows": {
+				"command": [
+					"$settingsPath = '${workspaceFolder}\\.vscode\\settings.json';",
+					"if (-not (Test-Path $settingsPath)) {",
+					"    Copy-Item '${workspaceFolder}\\.vscode\\defaultsettings' $settingsPath;",
+					"    Write-Host '/.vscode/settings.json was created.';",
+					"}",
+					"if (-not (Test-Path '${workspaceFolder}\\.vscode\\launch.json')) {",
+					"    Copy-Item '${workspaceFolder}\\.vscode\\defaultlaunch' '${workspaceFolder}\\.vscode\\launch.json';",
+					"    Write-Host '/.vscode/launch.json was created, please edit it and fill in your game directories.';",
 					"}"
 				]
 			},
 			"linux": {
-				"command": "if [ ! -f \"${workspaceFolder}/.vscode/user.json\" ]; then cp \"${workspaceFolder}/.vscode/defaultuser\" \"${workspaceFolder}/.vscode/user.json\" && echo \"/.vscode/user.json was created, please edit it and fill in your game directory.\"; fi"
+				"command": [
+					"if [ ! -f \"${workspaceFolder}/.vscode/settings.json\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultsettings\" \"${workspaceFolder}/.vscode/settings.json\";",
+					"    echo \"/.vscode/settings.json was created.\";",
+					"fi;",
+					"if [ ! -f \"${workspaceFolder}/.vscode/launch.json\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultlaunch\" \"${workspaceFolder}/.vscode/launch.json\";",
+					"    echo \"/.vscode/launch.json was created, but it won't work on linux. Use Ctrl+Shift+B instead.\";",
+					"fi;",
+					"if [ ! -f \"${workspaceFolder}/.vscode/linuxscript.sh\" ]; then",
+					"    cp \"${workspaceFolder}/.vscode/defaultlinuxscript\" \"${workspaceFolder}/.vscode/linuxscript.sh\";",
+					"    echo \"/.vscode/linuxscript.sh was created, please edit it and fill in your game directories.\";",
+					"fi"
+				]
 			},
 			"problemMatcher": "$gcc",
-			"runOptions": {
-				"runOn": "folderOpen"
-			},
+			"runOptions": {"runOn": "folderOpen"},
 			"group": "build",
 			"presentation": {
 				"echo": false,
@@ -85,15 +140,13 @@
 			"type": "shell",
 			"windows": {
 				"command": [
-					"$gameDir = (Get-Content '${workspaceFolder}\\.vscode\\user.json' | ConvertFrom-Json).game_directory;",
+					"$gameDir = (Get-Content -Raw '${workspaceFolder}\\.vscode\\launch.json' | Select-String -Pattern '\\\"cwd\\\"\\s*:\\s*\\\"(.*?)\\\"').Matches[0].Groups[1].Value.Replace('\\', '/');",
 					"cd $gameDir;",
 					"Clear-Content keeperfx.log;",
 					"Get-Content keeperfx.log -Wait"
 				]
 			},
-			"linux": {
-				"command": "game_dir=$(jq -r '.game_directory' ${workspaceFolder}/.vscode/user.json); cd \"$game_dir\" && > keeperfx.log && less +F --mouse keeperfx.log"
-			},
+			"linux": {},
 			"problemMatcher": "$gcc",
 			"dependsOn": "Check For Game Directory",
 			"group": "build"
@@ -102,10 +155,10 @@
 			"label": "Clean",
 			"type": "shell",
 			"windows": {
-				"command": "wsl make -j`nproc` clean"
+				"command": "wsl make clean -j`nproc`"
 			},
 			"linux": {
-				"command": "make -j`nproc` clean"
+				"command": "make clean -j`nproc`"
 			},
 			"problemMatcher": "$gcc",
 			"group": "build"
@@ -125,6 +178,6 @@
 			"problemMatcher": "$gcc",
 			"group": "build",
 			"dependsOn": "Compile",
-		}
-	]
+		},
+	],
 }

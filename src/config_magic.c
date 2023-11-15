@@ -86,6 +86,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"BOUNCEANGLE",           17},
   {"SIZE_XY",               18},
   {"SIZE_YZ",               19},
+  {"SIZE_Z",                19},
   {"FALLACCELERATION",      20},
   {"VISUALEFFECT",          21},
   {"VISUALEFFECTAMOUNT",    22},
@@ -178,6 +179,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"FIXED_DAMAGE",        16},
   {"HIDDEN_PROJECTILE",   17},
   {"DISARMING",           18},
+  {"BLOCKS_REBIRTH",      19},
   {NULL,                   0},
   };
 
@@ -820,7 +822,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             shotst->push_on_hit = 0;
             shotst->max_range = 0;
             shotst->size_xy = 0;
-            shotst->size_yz = 0;
+            shotst->size_z = 0;
             shotst->speed = 0;
             shotst->destroy_on_first_hit = 0;
             shotst->experience_given_to_shooter = 0;
@@ -1061,6 +1063,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_Disarming;
                 n++;
                 break;
+            case 19: // BlocksRebirth
+                shotst->model_flags |= ShMF_BlocksRebirth;
+                n++;
+                break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -1198,11 +1204,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 19: //SIZE_YZ
+      case 19: //SIZE_Z
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->size_yz = k;
+              shotst->size_z = k;
               n++;
           }
           if (n < 1)

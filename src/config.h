@@ -218,6 +218,7 @@ TbBool lock_cursor_in_possession(void);
 TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
 short load_configuration(void);
+void process_cmdline_overrides(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);
 TbBool load_high_score_table(void);

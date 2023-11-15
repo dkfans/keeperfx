@@ -982,9 +982,7 @@ void init_keeper(void)
     init_creature_scores();
     // Load graphics structures
     load_cubes_config(CnfLd_Standard);
-    //load_cube_file();
     init_top_texture_to_cube_table();
-    load_texture_anim_file();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
       game.generate_speed = game.default_generate_speed;
@@ -1012,7 +1010,7 @@ TbBool initial_setup(void)
     // setting this will force video mode change, even if previous one is same
     MinimalResolutionSetup = true;
     // Set size of static textures buffer
-    game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
+    game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
     if (LbDataLoadAll(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
@@ -1053,6 +1051,7 @@ short setup_game(void)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
   }
+  SYNCMSG("Build image base: %p", GetModuleHandle(NULL));
   v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
   if (GetVersionEx(&v))
   {
@@ -1062,7 +1061,7 @@ short setup_game(void)
   // Enable features that require more resources
   update_features(mem_size);
 
-  //Default feature settings (in case the options are absent from keeperfx.cfg)
+  // Default feature settings (in case the options are absent from keeperfx.cfg)
   features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
   features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
   features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
@@ -1072,6 +1071,7 @@ short setup_game(void)
   features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   features_enabled |= Ft_DeltaTime; // enable delta time
+  features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
 
   // Configuration file
   if ( !load_configuration() )
@@ -1079,6 +1079,9 @@ short setup_game(void)
       ERRORLOG("Configuration load error.");
       return 0;
   }
+
+  // Process CmdLine overrides
+  process_cmdline_overrides();
 
   LbIKeyboardOpen();
 
@@ -1599,7 +1602,7 @@ void reinit_level_after_load(void)
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
-    load_texture_map_file(game.texture_id, 2);
+    load_texture_map_file(game.texture_id);
     init_animating_texture_maps();
     init_gui();
     reset_gui_based_on_player_mode();
@@ -1657,7 +1660,6 @@ void clear_map(void)
     clear_mapmap();
     clear_slabs();
     clear_columns();
-    clear_slabsets();
 }
 
 void clear_things_and_persons_data(void)
@@ -1801,6 +1803,7 @@ void clear_game(void)
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
     init_thing_objects();
+    clear_slabsets();
 }
 
 void clear_game_for_save(void)
@@ -3023,7 +3026,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
     if (i > 0)
     {
       mapblk = get_map_block_at(x,y);
-      visible = map_block_revealed_bit(mapblk, player_bit);
+      visible = map_block_revealed(mapblk, my_player_number);
       if ((!visible) || (get_mapblk_column_index(mapblk) > 0))
       {
         if (visible)
@@ -3775,6 +3778,7 @@ void game_loop(void)
       LbScreenSwap();
       StopMusicPlayer();
       free_custom_music();
+      free_sound_chunks();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -3796,6 +3800,7 @@ void game_loop(void)
     if ((game.system_flags & GSF_CaptureMovie) != 0) {
         movie_record_stop();
     }
+    ShutDownSDLAudio();
     SYNCDBG(7,"Done");
 }
 
@@ -3869,9 +3874,13 @@ short process_command_line(unsigned short argc, char *argv[])
       {
         start_params.no_intro = 1;
       } else
-      if (strcasecmp(parstr, "nocd") == 0)
+      if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
-          features_enabled |= Ft_NoCdMusic;
+          WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
+      } else
+      if (strcasecmp(parstr, "cd") == 0)
+      {
+          start_params.overrides[Clo_CDMusic] = true;
       } else
       if (strcasecmp(parstr, "1player") == 0)
       {
@@ -3940,10 +3949,6 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
       } else
-      if (strcasecmp(parstr,"columnconvert") == 0)
-      {
-         set_flag_byte(&start_params.operation_flags,GOF_ColumnConvert,true);
-      } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
          set_flag_byte(&start_params.operation_flags,GOF_LightConvert,true);
@@ -4003,6 +4008,12 @@ short process_command_line(unsigned short argc, char *argv[])
               TimerNoReset = true;
           }
           narg++;
+      }
+      else if ( strcasecmp(parstr,"config") == 0 )
+      {
+        strcpy(start_params.config_file, pr2str);
+        start_params.overrides[Clo_ConfigFile] = true;
+        narg++;
       }
 #ifdef AUTOTESTING
       else if (strcasecmp(parstr, "exit_at_turn") == 0)

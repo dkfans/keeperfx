@@ -62,6 +62,7 @@ enum CreatureDeathFlags {
     CrDed_DiedInBattle   = 0x02, /**< Set if the creature died during a battle. */
     CrDed_NoUnconscious  = 0x04, /**< Set if the creature isn't allowed to become unconscious. */
     CrDed_NotReallyDying = 0x08, /**< Set if it's not really death, it either transforms or leaves. */
+    CrDed_NoRebirth      = 0x10, /**< Set if the death blocks it from resurrecting */
 };
 
 struct CreatureStorage {
@@ -110,7 +111,7 @@ long creature_available_for_combat_this_turn(struct Thing *thing);
 TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_object_snipe(struct Thing* crthing, struct Thing* obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
-void creature_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
+void thing_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
 void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);

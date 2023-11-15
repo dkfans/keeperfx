@@ -26,12 +26,13 @@
 extern "C" {
 #endif
 /******************************************************************************/
-// Originally was 3000, but we're not using bak_path from DLL which gives us 517 extra
-#define TREE_ROUTE_LEN 3517
+// TREE_ROUTE_LEN <= 5000 results in crash on big maze map
+// ARID_PATH_WAYPOINTS_COUNT <= 1300 results in crash on big maze map
+#define TREE_ROUTE_LEN 6000
 #define BORDER_LENGTH 100
 #define ROUTE_LENGTH 12000
 #define ARID_WAYPOINTS_COUNT 10
-#define ARID_PATH_WAYPOINTS_COUNT 256
+#define ARID_PATH_WAYPOINTS_COUNT 1400
 
 /******************************************************************************/
 #pragma pack(1)
@@ -100,7 +101,7 @@ struct Ariadne { // sizeof = 102
     /** Amount of nearest waypoints stored in the array. */
     unsigned char stored_waypoints; // offs = 0x51
     /** Total amount of waypoints planned on the way towards endpos. */
-    unsigned char total_waypoints;
+    unsigned int total_waypoints;
   struct Coord3d pos_53;
   struct Coord3d pos_59;
   unsigned char manoeuvre_state;
@@ -140,12 +141,12 @@ struct Pathway { // sizeof = 7192
   long field_1C14;
 };
 
-struct WayPoints { // sizeof = 1040
+struct WayPoints {
   long wpfield_0;
   long wpfield_4;
   long wpfield_8;
   long wpfield_C;
-  long wpfield_10[256];
+  long wpfield_10[ARID_PATH_WAYPOINTS_COUNT];
 };
 
 struct Navigation { // sizeof = 0x27
@@ -160,7 +161,7 @@ struct Navigation { // sizeof = 0x27
   unsigned char field_11[4];
   SubtlCodedCoords first_colliding_block;
   SubtlCodedCoords field_17;
-  unsigned char field_19[2];
+  PlayerBitFlags field_19[2];
   struct Coord3d pos_next;
   struct Coord3d pos_final;
 };

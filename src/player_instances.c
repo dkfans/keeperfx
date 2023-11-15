@@ -56,6 +56,7 @@
 #include "config_magic.h"
 #include "thing_shots.h"
 #include "bflib_inputctrl.h"
+#include "map_blocks.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -231,7 +232,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           slap_creature(player, thing);
           pos.x.val = thing->mappos.x.val;
           pos.y.val = thing->mappos.y.val;
-          pos.z.val = thing->mappos.z.val + (thing->clipbox_size_yz >> 1);
+          pos.z.val = thing->mappos.z.val + (thing->clipbox_size_z >> 1);
           if ( creature_model_bleeds(thing->model) )
               create_effect(&pos, TngEff_HitBleedingUnit, thing->owner);
           thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
@@ -636,7 +637,7 @@ long pinstfs_zoom_out_of_heart(struct PlayerInfo *player, long *n)
     cam->zoom = player->frontview_zoom_level;
   } else
   {
-    cam->mappos.y.val = thing->mappos.y.val - (thing->clipbox_size_yz >> 1) -  thing->mappos.z.val;
+    cam->mappos.y.val = thing->mappos.y.val - (thing->clipbox_size_z >> 1) -  thing->mappos.z.val;
     cam->zoom = 24000;
   }
   cam->orient_a = 0;
@@ -661,12 +662,12 @@ long pinstfm_zoom_out_of_heart(struct PlayerInfo *player, long *n)
         {
           cam->zoom -= (24000 - player->isometric_view_zoom_level) / 16;
           cam->orient_a += LbFPMath_PI/64;
-          addval = (thing->clipbox_size_yz >> 1);
+          addval = (thing->clipbox_size_z >> 1);
           deltax = distance_with_angle_to_coord_x((long)thing->mappos.z.val+addval, cam->orient_a);
           deltay = distance_with_angle_to_coord_y((long)thing->mappos.z.val+addval, cam->orient_a);
         } else
         {
-          addval = (thing->clipbox_size_yz >> 1);
+          addval = (thing->clipbox_size_z >> 1);
           deltax = addval;
           deltay = -addval;
         }
@@ -1173,8 +1174,15 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
     struct Room* room = place_room(plyr_idx, rkind, stl_x, stl_y);
     if (!room_is_invalid(room))
     {
-      if (room_role_matches(rkind,RoRoF_PassWater|RoRoF_PassLava))
-        dungeon->lvstats.bridges_built++;
+        if (room_role_matches(rkind, RoRoF_PassWater | RoRoF_PassLava))
+        {
+            if ((player->allocflags & PlaF_CompCtrl) != 0)
+            {
+                //Computer players need sight to build more bridge tiles
+                set_explored_around(subtile_slab(stl_x), subtile_slab(stl_y), plyr_idx);
+            }
+            dungeon->lvstats.bridges_built++;
+        }
       if (is_my_player(player))
       {
           play_non_3d_sample(77);
