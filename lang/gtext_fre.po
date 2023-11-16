@@ -2072,7 +2072,7 @@ msgstr "Chene-Fauve"
 #: guitext:215
 msgctxt "Level name"
 msgid "Sleepiburgh"
-msgstr "Hann-Nuys-Moortell"
+msgstr "Hann-Nuys-Mortell"
 
 #: guitext:216
 msgctxt "Level name"
@@ -2092,7 +2092,7 @@ msgstr "Allay-Gretz"
 #: guitext:219
 msgctxt "Level name"
 msgid "Blaise End"
-msgstr "Feli-Cité"
+msgstr "Féli-Cité"
 
 #: guitext:220
 msgctxt "Level name"
