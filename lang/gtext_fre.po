@@ -2067,7 +2067,7 @@ msgstr "Danse des Elfes"
 #: guitext:214
 msgctxt "Level name"
 msgid "Buffy Oak"
-msgstr "Chene Fauve"
+msgstr "Chêne Fauve"
 
 #: guitext:215
 msgctxt "Level name"
