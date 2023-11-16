@@ -2057,7 +2057,7 @@ msgstr "Toujouraville"
 #: guitext:212
 msgctxt "Level name"
 msgid "Hearth"
-msgstr "Mondoult-Fouailler"
+msgstr "Mondoult Fouailler"
 
 #: guitext:213
 msgctxt "Level name"
@@ -2067,7 +2067,7 @@ msgstr "Danse des Elfes"
 #: guitext:214
 msgctxt "Level name"
 msgid "Buffy Oak"
-msgstr "Chene-Fauve"
+msgstr "Chene Fauve"
 
 #: guitext:215
 msgctxt "Level name"
@@ -2077,22 +2077,22 @@ msgstr "Hann-Nuys-Mortell"
 #: guitext:216
 msgctxt "Level name"
 msgid "Woodly Rhyme"
-msgstr "Allayc-Sandrain"
+msgstr "Allayc Sandrain"
 
 #: guitext:217
 msgctxt "Level name"
 msgid "Tulipscent"
-msgstr "Fleury-Merosiers"
+msgstr "Fleury Merosiers"
 
 #: guitext:218
 msgctxt "Level name"
 msgid "Mirthshire"
-msgstr "Allay-Gretz"
+msgstr "Allay Gretz"
 
 #: guitext:219
 msgctxt "Level name"
 msgid "Blaise End"
-msgstr "Féli-Cité"
+msgstr "Féli Cité"
 
 #: guitext:220
 msgctxt "Level name"
@@ -2102,7 +2102,7 @@ msgstr "Bruhmm"
 #: guitext:221
 msgctxt "Level name"
 msgid "Skybird Trill"
-msgstr "Lyons-Perruche"
+msgstr "Lyons Perruche"
 
 #: guitext:222
 msgctxt "In-game interface description"
