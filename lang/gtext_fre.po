@@ -6952,7 +6952,7 @@ msgstr ""
 #: guitext:1011
 msgctxt "Menu interface item""
 msgid "Dungeon Keeper original campaign"
-msgstr ""
+msgstr "Dungeon Keeper campagne d'origine"
 
 #: guitext:1012
 msgctxt "Menu interface item""
