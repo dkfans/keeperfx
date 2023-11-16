@@ -4614,7 +4614,7 @@ msgstr ""
 #: guitext:630
 msgctxt "Keeper spell name"
 msgid "Possess Creature"
-msgstr "SYMBIOSE"
+msgstr "Symbiose"
 
 #: guitext:631
 msgctxt "Keeper spell name"
