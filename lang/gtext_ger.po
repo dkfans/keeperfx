@@ -3452,7 +3452,7 @@ msgstr "Bonus"
 #: guitext:431
 msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
-msgstr "Highscore-tabelle"
+msgstr "Highscore-Tabelle"
 
 #: guitext:432
 msgctxt "Menu interface item"
