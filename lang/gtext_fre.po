@@ -6577,8 +6577,8 @@ msgstr "Porte secrète"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: A special door, Hidden to enemies, but can be spotted when "
-"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+"Secret Door: Enemies only notice it when they look closely or see your creatures "
+"use it. RMB zoom."
 msgstr ""
 "Porte secrète : Une porte spéciale, cachée aux ennemis,"
 " mais qui peut être repérée en regardant de près,"
@@ -6586,18 +6586,18 @@ msgstr ""
 
 #: guitext:937
 msgctxt "Game event description"
-msgid "Secret door discovered: LMB toggle. RMB delete."
+msgid "Secret Door discovered: LMB toggle. RMB delete."
 msgstr "Découverte d'une porte secrète: Changez avec le bouton gauche, supprimez avec le "
 "bouton droit."
 
 #: guitext:938
 msgctxt "Game event name"
-msgid "Secret door discovered"
+msgid "Secret Door discovered"
 msgstr "Découverte d'une porte secrète"
 
 #: guitext:939
 msgctxt "Game event description"
-msgid "Enemy spotted your secret door: LMB toggle. RMB delete."
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
 msgstr "L'ennemi a repéré votre porte secrète: Changez avec le bouton gauche, supprimez avec le "
 "bouton droit."
 

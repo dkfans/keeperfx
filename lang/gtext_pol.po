@@ -6457,24 +6457,24 @@ msgstr "Tajne drzwi"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: A special door, Hidden to enemies, but can be spotted when "
-"looking closely, or when your own units open it with the enemy looking. RMB zoom."
+"Secret Door: Enemies only notice it when they look closely or see your creatures "
+"use it. RMB zoom."
 msgstr ""
 "Tajne drzwi: Specjalne drzwi, ukryte przed wrogami, ale możliwe do zauważenia po dokładnym przyjrzeniu się lub po otwarciu przez jednostki przeciwnika. Powiększenie RMB."
 
 #: guitext:937
 msgctxt "Game event description"
-msgid "Secret door discovered: LMB toggle. RMB delete."
+msgid "Secret Door discovered: LMB toggle. RMB delete."
 msgstr "Tajne przez odkryte: LPM przełącza, PPM likwiduje."
 
 #: guitext:938
 msgctxt "Game event name"
-msgid "Secret door discovered"
+msgid "Secret Door discovered"
 msgstr "Tajne przez odkryte"
 
 #: guitext:939
 msgctxt "Game event description"
-msgid "Enemy spotted your secret door: LMB toggle. RMB delete."
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
 msgstr "Wróg wykrył twoje tajne drzwi: LPM przełącza, PPM likwiduje."
 
 #: guitext:940
