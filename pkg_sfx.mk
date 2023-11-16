@@ -40,7 +40,7 @@ NGSOUNDLISTS = $(patsubst %,sfx/%/filelist.txt,$(NGSPEECHBANKS) sound)
 
 LANDVIEWSPEECH = \
 $(foreach lng,eng chi,ancntkpr_$(lng)) \
-$(foreach lng,eng,burdnimp_$(lng)) \
+$(foreach lng,eng chi,burdnimp_$(lng)) \
 $(foreach lng,eng dut,dzjr06lv_$(lng)) \
 $(foreach lng,eng,jdkmaps8_$(lng)) \
 $(foreach lng,eng chi cht dut fre ger ita jpn kor pol rus spa swe,keeporig_$(lng)) \

@@ -2007,102 +2007,102 @@ msgstr "Meuh"
 #: guitext:202
 msgctxt "Level name"
 msgid "Eversmile"
-msgstr "EUPHORIA"
+msgstr "Euphoria"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Cosyton"
-msgstr "VILLEXQUISE"
+msgstr "Villexquise"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Waterdream Warm"
-msgstr "AQUAVILLE LA TIEDE"
+msgstr "Aquaville-la-Tiède"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Flowerhat"
-msgstr "CHAPOFLEURY"
+msgstr "Chapofleury"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Lushmeadow-on-Down"
-msgstr "BELLEPLOUZE SUR GAZONNE"
+msgstr "Belleplouze-sur-Gazonne"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Snuggledell"
-msgstr "BIENCACHAY"
+msgstr "Biencachay"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Wishvale"
-msgstr "VALLON D'EDEYZIHR"
+msgstr "Vallon d'Edeyzihr"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Tickle"
-msgstr "RIGAUT-LE-HAUT"
+msgstr "Rigaut-le-Haut"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Moonbrush Wood"
-msgstr "BOIS ANKHOR"
+msgstr "Bois Ankhor"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "Nevergrim"
-msgstr "TOUJOURAVILLE"
+msgstr "Toujouraville"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Hearth"
-msgstr "MONDOULT-FOUAILLER"
+msgstr "Mondoult Fouailler"
 
 #: guitext:213
 msgctxt "Level name"
 msgid "Elf's Dance"
-msgstr "DANSE-DES-ELFES"
+msgstr "Danse des Elfes"
 
 #: guitext:214
 msgctxt "Level name"
 msgid "Buffy Oak"
-msgstr "CHENE-FAUVE"
+msgstr "Chêne Fauve"
 
 #: guitext:215
 msgctxt "Level name"
 msgid "Sleepiburgh"
-msgstr "HANN NUYS MOORTELL"
+msgstr "Hann-Nuys-Mortell"
 
 #: guitext:216
 msgctxt "Level name"
 msgid "Woodly Rhyme"
-msgstr "ALLAYC-SANDRAIN"
+msgstr "Allayc Sandrain"
 
 #: guitext:217
 msgctxt "Level name"
 msgid "Tulipscent"
-msgstr "FLEURY-MEROSIERS"
+msgstr "Fleury Merosiers"
 
 #: guitext:218
 msgctxt "Level name"
 msgid "Mirthshire"
-msgstr "ALLAY-GRETZ"
+msgstr "Allay Gretz"
 
 #: guitext:219
 msgctxt "Level name"
 msgid "Blaise End"
-msgstr "FELI-CITE"
+msgstr "Féli Cité"
 
 #: guitext:220
 msgctxt "Level name"
 msgid "Mistle"
-msgstr "BRUHMM"
+msgstr "Bruhmm"
 
 #: guitext:221
 msgctxt "Level name"
 msgid "Skybird Trill"
-msgstr "LYONS-PERRUCHE"
+msgstr "Lyons Perruche"
 
 #: guitext:222
 msgctxt "In-game interface description"
@@ -6984,7 +6984,7 @@ msgstr ""
 #: guitext:1011
 msgctxt "Menu interface item""
 msgid "Dungeon Keeper original campaign"
-msgstr ""
+msgstr "Dungeon Keeper campagne d'origine"
 
 #: guitext:1012
 msgctxt "Menu interface item""

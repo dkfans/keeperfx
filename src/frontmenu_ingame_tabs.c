@@ -23,6 +23,7 @@
 
 #include "bflib_keybrd.h"
 #include "bflib_guibtns.h"
+#include "bflib_sound.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
@@ -1760,9 +1761,9 @@ void gui_activity_background(struct GuiMenu *gmnu)
             }
         }
     }
+    int mm_units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    int units_per_px = gmnu->width * 16 / 140;
-    LbDrawBox(gmnu->pos_x + 2*units_per_px/16, gmnu->pos_y + 218*units_per_px/16, 134*units_per_px/16, 24*units_per_px/16, colours[0][0][0]);
+    LbDrawBox(gmnu->pos_x + scale_value_for_resolution_with_upp(2, mm_units_per_px), gmnu->pos_y + scale_value_for_resolution_with_upp(218, mm_units_per_px), scale_value_for_resolution_with_upp(134, mm_units_per_px), scale_value_for_resolution_with_upp(24, mm_units_per_px), colours[0][0][0]);
     lbDisplay.DrawFlags = flg_mem;
 }
 
@@ -2440,5 +2441,31 @@ void draw_placefiller(long scr_x, long scr_y, long units_per_px)
 {
     struct TbSprite* spr = &gui_panel_sprites[547];
     LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
+}
+
+void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
+{
+    struct PlayerInfo *player = get_my_player();
+    struct Thing *creatng = thing_get(player->influenced_thing_idx);
+    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, creatng->model);
+    if (next_creature != player->influenced_thing_idx)
+    {
+        struct Packet* pckt = get_packet(player->id_number);
+        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
+        play_non_3d_sample(62);
+    }
+}
+
+void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
+{
+    struct PlayerInfo *player = get_my_player();
+    struct Thing *creatng = thing_get(player->influenced_thing_idx);
+    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, 0);
+    if (next_creature != player->influenced_thing_idx)
+    {
+        struct Packet* pckt = get_packet(player->id_number);
+        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
+        play_non_3d_sample(62);
+    }
 }
 /******************************************************************************/
