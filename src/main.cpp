@@ -1147,13 +1147,10 @@ short setup_game(void)
     }
 
   result = 1;
-  // The 320x200 mode is required only for the intro;
-  // loading and no CD screens can run in both 320x2?0 and 640x4?0.
+  // Setup the intro video mode
   if ( result && (!game.no_intro) )
   {
-      LbPaletteDataFillBlack(engine_palette);
-      int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, engine_palette, 2, 0);
-      if (mode_ok != 1)
+      if (!setup_screen_mode_zero(get_movies_vidmode()))
       {
         ERRORLOG("Can't enter movies screen mode to play intro");
         result=0;
