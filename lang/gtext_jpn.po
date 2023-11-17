@@ -6599,7 +6599,7 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr "ダンジョンキーパーの原キャンペーン"
 
 #: guitext:1012
@@ -6679,7 +6679,7 @@ msgstr "ニコライの城キャンペーン"
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr "増強された原キャンペーン"
 
 #: guitext:1028

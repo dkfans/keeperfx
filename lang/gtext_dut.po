@@ -6718,8 +6718,8 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
-msgstr "Dungeon Keeper oorspronkelijke campagne"
+msgid "Dungeon Keeper - Original Campaign"
+msgstr "Dungeon Keeper - Originele Campagne"
 
 #: guitext:1012
 msgctxt "Menu interface item""
@@ -6798,7 +6798,7 @@ msgstr "Nikolais Kasteel"
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028

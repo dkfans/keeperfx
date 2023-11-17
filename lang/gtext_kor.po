@@ -6744,7 +6744,7 @@ msgstr "Moo4"
 
 #: guitext:1011
 msgctxt "Menu interface item"
-msgid "Dungeon Keeper original campaign"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr "던전 키퍼 오리지널 캠패인"
 
 #: guitext:1012
@@ -6824,7 +6824,7 @@ msgstr "니콜라이의 성 캠패인"
 
 #: guitext:1027
 msgctxt "Menu interface item"
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr "던전 키퍼 - 새 게임+"
 
 #: guitext:1028
