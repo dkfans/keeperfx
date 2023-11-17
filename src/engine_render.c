@@ -8821,7 +8821,7 @@ static void do_map_who_for_thing(struct Thing *thing)
 
     switch (thing->draw_flags >> 2) // draw_class
     {
-    case ODC_DrawClass2:
+    case ODC_Default:
         ecor.field_8 = 0;
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);

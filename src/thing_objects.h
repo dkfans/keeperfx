@@ -120,7 +120,7 @@ enum ObjectModels
 /** Used for Objects->draw_class  EffectElementStats->draw_class and Thing->draw_flags. */
 enum ObjectsDrawClasses { 
   ODC_DrawClass0 = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG. */
-  ODC_DrawClass2 = 0x02, /**< Default. */
+  ODC_Default = 0x02,
   ODC_DrawClass3 = 0x03, /**< Unknown use. */
   ODC_DrawClass4 = 0x04, /**< Used by Floatingnumberthengoldisspent. */
   ODC_DrawClass5 = 0x05, /**< Used by ROOM_FLAG. */

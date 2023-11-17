@@ -231,7 +231,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             if (thing->health <= 0) {
                 thing->active_state = DCrSt_RigorMortis;
                 long i = get_creature_anim(thing, 16);
-                set_thing_draw(thing, i, 64, -1, 1, 0, ODC_DrawClass2);
+                set_thing_draw(thing, i, 64, -1, 1, 0, ODC_Default);
             }
         } else
         if (corpse_laid_to_rest(thing))
@@ -457,12 +457,12 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     case DCrSt_RigorMortis:
         thing->active_state = DCrSt_RigorMortis;
         k = get_creature_anim(thing, 17);
-        set_thing_draw(thing, k, 256, gameadd.crtr_conf.sprite_size, 0, 0, ODC_DrawClass2);
+        set_thing_draw(thing, k, 256, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
         break;
     default:
         thing->active_state = DCrSt_DramaticDying;
         k = get_creature_anim(thing, 15);
-        set_thing_draw(thing, k, 128, gameadd.crtr_conf.sprite_size, 0, 0, ODC_DrawClass2);
+        set_thing_draw(thing, k, 128, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
         thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
