@@ -8821,7 +8821,7 @@ static void do_map_who_for_thing(struct Thing *thing)
 
     switch (thing->field_50 >> 2) // draw_class
     {
-    case 2:
+    case ODC_DrawClass2:
         ecor.field_8 = 0;
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
@@ -8858,7 +8858,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             add_thing_sprite_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, bckt_idx);
         }
         break;
-    case 3:
+    case ODC_DrawClass3:
         ecor.field_8 = 0;
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
@@ -8868,7 +8868,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         object_origin.y = 0;
         object_origin.z = 0;
         break;
-    case 4:
+    case ODC_DrawClass4:
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_pos_y - map_z_pos);
@@ -8878,7 +8878,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             add_number_to_polypool(ecor.view_width, ecor.view_height, thing->price_effect.number, 1);
         }
         break;
-    case 5:
+    case ODC_DrawClass5:
         // Hide status flags when full zoomed out, for atmospheric overview
         if (hud_scale == 0) {
             break;
@@ -8912,7 +8912,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             }
         }
         break;
-    case 6:
+    case ODC_DrawClass6:
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_pos_y - map_z_pos);

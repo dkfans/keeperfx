@@ -251,7 +251,7 @@ struct EffectGeneratorStats { // sizeof = 57
 };
 
 struct EffectElementStats { // sizeof = 79
-  unsigned char draw_class;
+  unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
   unsigned char move_type;
   unsigned char unanimated;
   short lifespan;

@@ -116,6 +116,16 @@ enum ObjectModels
     ObjMdl_SpecboxCustom = 133,
     ObjMdl_GoldBag = 136
 };
+
+/** Used for Objects->draw_class. Values need proper names. */
+enum ObjectsDrawClasses { 
+  ODC_DrawClass0 = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG. */
+  ODC_DrawClass2 = 0x02, /**< Default. */
+  ODC_DrawClass3 = 0x03, /**< Unknown use. */
+  ODC_DrawClass4 = 0x04, /**< Used by Floatingnumberthengoldisspent. */
+  ODC_DrawClass5 = 0x05, /**< Used by ROOM_FLAG. */
+  ODC_DrawClass6 = 0x06, /**< Used by SPINNING_KEY. */
+};
 /******************************************************************************/
 #pragma pack(1)
 
@@ -130,7 +140,7 @@ struct Objects {
     short sprite_size_max;
     unsigned char field_F;      // Lower 2 bits are transparency flags
     unsigned short fp_smpl_idx;
-    unsigned char draw_class;
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     unsigned char related_creatr_model;

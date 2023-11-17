@@ -287,7 +287,7 @@ void define_custom_object(int obj_id, short anim_idx)
 
     struct Objects *obj_dst = &gameadd.thing_objects_data[obj_id];
 
-    obj_dst->draw_class = 2; // Default
+    obj_dst->draw_class = ODC_DrawClass2; // Default
     obj_dst->sprite_anim_idx = anim_idx;
 
 }
