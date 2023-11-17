@@ -117,14 +117,20 @@ enum ObjectModels
     ObjMdl_GoldBag = 136
 };
 
-/** Used for Objects->draw_class  EffectElementStats->draw_class and Thing->draw_flags. */
+/**
+ * Used for Objects->draw_class  EffectElementStats->draw_class and Thing->draw_flags. 
+ * 
+ * Used in in draw_frontview_thing_on_element() and do_map_who_for_thing().
+ * 
+ * See also see set_object_configuration_process(), parse_objects_object_blocks(), objects_data_init[], effect_element_stats[] and objects.cfg for setting of draw_class.
+ */
 enum ObjectsDrawClasses { 
-  ODC_DrawClass0 = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG. */
-  ODC_Default = 0x02,
-  ODC_DrawClass3 = 0x03, /**< Unknown use. */
-  ODC_DrawClass4 = 0x04, /**< Used by Floatingnumberthengoldisspent. */
-  ODC_DrawClass5 = 0x05, /**< Used by ROOM_FLAG. */
-  ODC_DrawClass6 = 0x06, /**< Used by SPINNING_KEY. */
+  ODC_None           = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG - do nothing in draw_frontview_thing_on_element() or do_map_who_for_thing(). */
+  ODC_Default        = 0x02, /**< Default behaviour in draw_frontview_thing_on_element() / do_map_who_for_thing(). */
+  ODC_DrawClass3     = 0x03, /**< Unknown use. Present in do_map_who_for_thing(). */
+  ODC_RoomPrice      = 0x04, /**< Used by Floatingnumberthengoldisspent. */
+  ODC_RoomStatusFlag = 0x05, /**< Used by ROOM_FLAG. */
+  ODC_SpinningKey    = 0x06, /**< Used by SPINNING_KEY. */
 };
 /******************************************************************************/
 #pragma pack(1)
