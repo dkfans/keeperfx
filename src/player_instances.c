@@ -841,6 +841,7 @@ long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
 {
     player->allocflags &= ~PlaF_MouseInputDisabled;
     player->allocflags &= ~PlaF_KeyboardInputDisabled;
+    player->controlled_thing_idx = player->influenced_thing_idx;
     return 0;
 }
 

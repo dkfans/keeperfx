@@ -6426,6 +6426,53 @@ PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
     return creatng->owner;
 }
 
+void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom)
+{
+    if (is_my_player(player))
+    {
+        MenuID menu;
+        if (reset)
+        {
+            menu = GMnu_CREATURE_QUERY1;
+        }
+        else
+        {
+            if (menu_is_active(GMnu_CREATURE_QUERY1))
+            {
+                menu = GMnu_CREATURE_QUERY1;
+            }
+            else if (menu_is_active(GMnu_CREATURE_QUERY2))
+            {
+                menu = GMnu_CREATURE_QUERY2;
+            }
+            else if (menu_is_active(GMnu_CREATURE_QUERY3))
+            {
+                menu = GMnu_CREATURE_QUERY3;
+            }
+            else if (menu_is_active(GMnu_CREATURE_QUERY4))
+            {
+                menu = GMnu_CREATURE_QUERY4;
+            }
+            else
+            {
+                menu = GMnu_CREATURE_QUERY1;
+            }
+        }
+        if (zoom)
+        {
+            struct Thing *creatng = thing_get(index);
+            player->zoom_to_pos_x = creatng->mappos.x.val;
+            player->zoom_to_pos_y = creatng->mappos.y.val;
+            set_player_instance(player, PI_ZoomToPos, 0);
+        }
+        turn_off_all_panel_menus();
+        initialise_tab_tags_and_menu(menu);
+        turn_on_menu(menu);
+    }
+    player->influenced_thing_idx = index;
+    set_player_instance(player, PI_QueryCrtr, 0);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
