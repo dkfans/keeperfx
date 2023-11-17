@@ -336,19 +336,19 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         }
     }
 
-    if (eestat->size_change != 0)
+    if (eestat->size_change != TSC_DontChangeSize)
     {
         thing->sprite_size_min = eestat->sprite_size_min;
         thing->sprite_size_max = eestat->sprite_size_max;
-        if (eestat->size_change == 2)
+        if (eestat->size_change == TSC_ChangeSizeContinuously)
         {
             thing->transformation_speed = 2 * (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
-            thing->field_50 |= 0x02;
+            thing->draw_flags |= TSC_ChangeSizeContinuously;
         }
         else
         {
             thing->transformation_speed = (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
-            thing->field_50 &= ~0x02;
+            thing->draw_flags &= ~TSC_ChangeSizeContinuously;
         }
         thing->sprite_size = eestat->sprite_size_min;
     } else
@@ -461,7 +461,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng->rendering_flags = thing->rendering_flags;
             effeltng->rendering_flags &= ~TRF_Transpar_8;
             effeltng->rendering_flags |= TRF_Transpar_4;
-            effeltng->field_50 = thing->field_50;
+            effeltng->draw_flags = thing->draw_flags;
             effeltng->tint_colour = thing->tint_colour;
             effeltng->anim_speed = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
@@ -490,7 +490,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
                 effeltng->rendering_flags = thing->rendering_flags;
                 effeltng->rendering_flags &= ~TRF_Transpar_8;
                 effeltng->rendering_flags |= TRF_Transpar_4;
-                effeltng->field_50 = thing->field_50;
+                effeltng->draw_flags = thing->draw_flags;
                 effeltng->tint_colour = thing->tint_colour;
                 effeltng->rendering_flags &= ~TRF_Transpar_8;
                 effeltng->rendering_flags |= TRF_Transpar_4;

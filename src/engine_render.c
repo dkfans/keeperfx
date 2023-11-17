@@ -8819,7 +8819,7 @@ static void do_map_who_for_thing(struct Thing *thing)
     render_pos_z = thing->interp_mappos.y.val;
     render_floorpos = thing->interp_floor_height;
 
-    switch (thing->field_50 >> 2) // draw_class
+    switch (thing->draw_flags >> 2) // draw_class
     {
     case ODC_DrawClass2:
         ecor.field_8 = 0;
@@ -8969,7 +8969,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     long cz;
     if ((thing->rendering_flags & TRF_Unknown01) != 0)
         return;
-    switch (thing->field_50 >> 2)
+    switch (thing->draw_flags >> 2)
     {
     case 2: // Things
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);

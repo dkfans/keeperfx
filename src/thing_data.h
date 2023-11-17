@@ -73,6 +73,13 @@ enum ThingRenderingFlags {
     TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
 };
 
+ /** Used for EffectElementStats->size_change and Thing->draw_flags. */
+enum ThingSizeChange {
+  TSC_DontChangeSize = 0x00, // not a flag
+  TSC_ChangeSize = 0x01, // used to when creature changing to/from chicken, and by the 47th effect element 
+  TSC_ChangeSizeContinuously = 0x02, // used by the 11th effect element
+};
+
 enum FreeThingAllocFlags {
     FTAF_Default             = 0x00,
     FTAF_FreeEffectIfNoSlots = 0x01,
@@ -256,7 +263,7 @@ unsigned char max_frames;
 unsigned short sprite_size_min;
 unsigned short sprite_size_max;
     unsigned char rendering_flags;
-    unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
+    unsigned char draw_flags; /**< Control rendering process. Stores: (draw_class << 2) + size_change. (See enum ThingSizeChange and enum ObjectsDrawClasses.) */
 unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;

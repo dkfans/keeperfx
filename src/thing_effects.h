@@ -267,7 +267,7 @@ struct EffectElementStats { // sizeof = 79
   unsigned char transparant;  // transparency flags in bits 4-5
   unsigned char field_15;
   unsigned char movement_flags;
-  unsigned char size_change;
+  unsigned char size_change; /**< See enum ThingSizeChange. */
   unsigned char fall_acceleration;
   unsigned char field_19_unused;
   short inertia_floor;
