@@ -127,6 +127,7 @@ enum ThingEffectKind {
     TngEff_Unknown69,
 };
 
+/** See struct EffectElementStats effect_element_stats for use. */
 enum ThingEffectElements {
     TngEffElm_None = 0,
     TngEffElm_Blast1,

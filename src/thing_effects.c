@@ -136,7 +136,7 @@ struct InitEffect effect_info[] = {
     { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0,          0, {0}, 0},
 };
 
-
+/** See enum ThingEffectElements for the labels of the "rows" of this table*/
 struct EffectElementStats effect_element_stats[] = {
  //draw_class,	move_type,	unanimated,	lifespan,	lifespan_random,	sprite_idx,	sprite_size_min,	sprite_size_max,	rendering_flag,	sprite_speed_min,	sprite_speed_max,	animate_on_floor,	unshaded,	transparant,	
     // field_15,	movement_flags,	size_change,	fall_acceleration,	field_19_unused,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	field_22,	effmodel_23,	solidgnd_snd_smpid,	solidgnd_loudness,

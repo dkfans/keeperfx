@@ -79,9 +79,9 @@ enum ThingRenderingFlags {
   * See effect_element_stats[] for setting of size_change.
   */
 enum ThingSizeChange {
-  TSC_DontChangeSize         = 0x00, // not a flag
-  TSC_ChangeSize             = 0x01, // used to when creature changing to/from chicken, and by the 47th effect element 
-  TSC_ChangeSizeContinuously = 0x02, // used by the 11th effect element
+  TSC_DontChangeSize         = 0x00, /**< Not a flag; used to check for the absense of the following 2 values. */
+  TSC_ChangeSize             = 0x01, /**< Used when creature changing to/from chicken, and by TngEffElm_Cloud3. */
+  TSC_ChangeSizeContinuously = 0x02, /**< Used by TngEffElm_IceShard. */
 };
 
 enum FreeThingAllocFlags {

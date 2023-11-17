@@ -128,7 +128,7 @@ enum ObjectsDrawClasses {
   ODC_None           = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG - do nothing in draw_frontview_thing_on_element() or do_map_who_for_thing(). */
   ODC_Default        = 0x02, /**< Default behaviour in draw_frontview_thing_on_element() / do_map_who_for_thing(). */
   ODC_DrawClass3     = 0x03, /**< Unknown use. Present in do_map_who_for_thing(). */
-  ODC_RoomPrice      = 0x04, /**< Used by Floatingnumberthengoldisspent. */
+  ODC_RoomPrice      = 0x04, /**< Used by TngEffElm_Price. */
   ODC_RoomStatusFlag = 0x05, /**< Used by ROOM_FLAG. */
   ODC_SpinningKey    = 0x06, /**< Used by SPINNING_KEY. */
 };
