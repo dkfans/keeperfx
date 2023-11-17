@@ -350,7 +350,7 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
     unsigned long i = get_creature_anim(thing, seq_idx);
     if (i != thing->anim_sprite)
     {
-        set_thing_draw(thing, i, speed, -1, -1, 0, 2);
+        set_thing_draw(thing, i, speed, -1, -1, 0, ODC_DrawClass2);
         return true;
     }
     return false;
@@ -361,7 +361,7 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
     unsigned long i = convert_td_iso(td_idx);
     if (i != thing->anim_sprite)
     {
-        set_thing_draw(thing, i, speed, -1, -1, 0, 2);
+        set_thing_draw(thing, i, speed, -1, -1, 0, ODC_DrawClass2);
         return true;
     }
     return false;

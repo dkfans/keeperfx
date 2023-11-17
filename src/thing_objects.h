@@ -117,7 +117,7 @@ enum ObjectModels
     ObjMdl_GoldBag = 136
 };
 
-/** Used for Objects->draw_class. Values need proper names. */
+/** Used for Objects->draw_class  EffectElementStats->draw_class and Thing->draw_flags. */
 enum ObjectsDrawClasses { 
   ODC_DrawClass0 = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG. */
   ODC_DrawClass2 = 0x02, /**< Default. */

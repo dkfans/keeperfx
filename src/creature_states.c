@@ -1588,7 +1588,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         {
             long n = (10 - cctrl->countdown_282) * (gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
-            set_thing_draw(efftng, k, 256, n, -1, 0, 2);
+            set_thing_draw(efftng, k, 256, n, -1, 0, ODC_DrawClass2);
             efftng->rendering_flags &= ~TRF_Transpar_Flags;
             efftng->rendering_flags |= TRF_Transpar_8;
         }
@@ -1619,7 +1619,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + gameadd.crtr_conf.sprite_size, -1, 0, 2);
+          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + gameadd.crtr_conf.sprite_size, -1, 0, ODC_DrawClass2);
           efftng->rendering_flags &= ~TRF_Transpar_Flags;
           efftng->rendering_flags |= TRF_Transpar_8;
       }

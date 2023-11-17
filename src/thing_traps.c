@@ -839,7 +839,7 @@ struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber 
     } else {
         start_frame = 0;
     }
-    set_thing_draw(thing, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, 2);
+    set_thing_draw(thing, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, ODC_DrawClass2);
     if (trapstat->unshaded) {
         thing->rendering_flags |= TRF_Unshaded;
     } else {

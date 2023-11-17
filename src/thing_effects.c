@@ -407,7 +407,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_FlashBall1, thing->owner, -1);
             if (thing_is_invalid(effeltng))
                 break;
-            set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, 2);
+            set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, ODC_DrawClass2);
             dtadd++;
             pos.z.val += 64;
             cframe = (cframe + 1) % nframes;
@@ -610,7 +610,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     int speed = eestat->sprite_speed_min + EFFECT_RANDOM(thing, eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
-    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->rendering_flag, 0, 2);
+    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->rendering_flag, 0, ODC_DrawClass2);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparant) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->fall_acceleration;

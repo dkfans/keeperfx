@@ -278,7 +278,7 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
       powerst = get_power_model_stats(PwrK_PICKUPFOOD);
       thing_play_sample(thing, powerst->select_sound_idx+i, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
       i = convert_td_iso(122);
-      set_thing_draw(thing, i, 256, -1, -1, 0, 2);
+      set_thing_draw(thing, i, 256, -1, -1, 0, ODC_DrawClass2);
       remove_food_from_food_room_if_possible(thing);
       picktng = thing;
       break;
@@ -327,10 +327,10 @@ void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long Anima
       thing = thing_get(player->hand_thing_idx);
       if ((AnimationID == 782) || (AnimationID == 781))
       {
-        set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 0, 0, 2);
+        set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 0, 0, ODC_DrawClass2);
       } else
       {
-        set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 1, 0, 2);
+        set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 1, 0, ODC_DrawClass2);
       }
     }
   }
@@ -906,7 +906,7 @@ void drop_held_thing_on_ground(struct Dungeon *dungeon, struct Thing *droptng, c
     if (thing_is_object(droptng))
     {
         if (object_is_mature_food(droptng)) {
-            set_thing_draw(droptng, convert_td_iso(819), 256, -1, -1, 0, 2);
+            set_thing_draw(droptng, convert_td_iso(819), 256, -1, -1, 0, ODC_DrawClass2);
         }
         droptng->continue_state = droptng->active_state;
         droptng->active_state = ObSt_BeingDropped;
@@ -1294,7 +1294,7 @@ TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx)
             light_delete_light(thing->light_id);
             thing->light_id = 0;
         }
-        set_thing_draw(thing, i, 256, -1, -1, 0, 2);
+        set_thing_draw(thing, i, 256, -1, -1, 0, ODC_DrawClass2);
     } else
     if (thing_is_object(thing))
     {
