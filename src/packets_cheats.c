@@ -535,16 +535,17 @@ TbBool packets_process_cheats(
         case PSt_HeartHealth:
         clear_messages_from_player(playeradd->cheatselection.chosen_player);
         thing = get_player_soul_container(playeradd->cheatselection.chosen_player);
+        struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
         if (!thing_is_invalid(thing))
         {
-            targeted_message_add(thing->owner, plyr_idx, 1, "%d/%d", thing->health, game.dungeon_heart_health);
+            targeted_message_add(thing->owner, plyr_idx, 1, "%d/%d", thing->health, objconf->health);
         }
         else
         {
             break;
         }
         short new_health = thing->health;
-        if (process_cheat_heart_health_inputs(&new_health))
+        if (process_cheat_heart_health_inputs(&new_health, objconf->health))
         {
             set_packet_action(pckt, PckA_CheatHeartHealth, playeradd->cheatselection.chosen_player, new_health, 0, 0);
         }
@@ -583,14 +584,7 @@ TbBool packets_process_cheats(
                     {
                         if (player->controlled_thing_idx != player->thing_under_hand)
                         {
-                            if (is_my_player(player))
-                            {
-                                turn_off_all_panel_menus();
-                                initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
-                                turn_on_menu(GMnu_CREATURE_QUERY1);
-                            }
-                            player->influenced_thing_idx = player->thing_under_hand;
-                            set_player_instance(player, PI_QueryCrtr, 0);
+                            query_creature(player, player->thing_under_hand, true, false);
                         }
                     }
                     else

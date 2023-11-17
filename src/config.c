@@ -138,6 +138,8 @@ const struct NamedCommand conf_commands[] = {
   {"DELTA_TIME"                    , 25},
   {"CREATURE_STATUS_SIZE"          , 26},
   {"MAX_ZOOM_DISTANCE"             , 27},
+  {"DISPLAY_NUMBER"                , 28},
+  {"MUSIC_FROM_DISK"               , 29},
   {NULL,                   0},
   };
 
@@ -712,16 +714,25 @@ short load_configuration(void)
   install_info.field_9A = 0;
   // Set default runtime directory and load the config file
   strcpy(keeper_runtime_directory,".");
-  const char* fname = prepare_file_path(FGrp_Main, keeper_config_file);
+  const char* sname;
+  if (start_params.overrides[Clo_ConfigFile])
+  {
+    sname = start_params.config_file;
+  }
+  else
+  {
+    sname = keeper_config_file;
+  }
+  const char* fname = prepare_file_path(FGrp_Main, sname);
   long len = LbFileLengthRnc(fname);
   if (len < 2)
   {
-    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,keeper_config_file);
+    WARNMSG("%s file \"%s\" doesn't exist or is too small.",config_textname,sname);
     return false;
   }
   if (len > 65536)
   {
-    WARNMSG("%s file \"%s\" is too large.",config_textname,keeper_config_file);
+    WARNMSG("%s file \"%s\" is too large.",config_textname,sname);
     return false;
   }
   char* buf = (char*)LbMemoryAlloc(len + 256);
@@ -799,32 +810,32 @@ short load_configuration(void)
             switch (i)
             {
             case 0:
-                set_failsafe_vidmode(k);
+                set_failsafe_vidmode((TbScreenMode)k);
                 break;
             case 1:
-                set_movies_vidmode(k);
+                set_movies_vidmode((TbScreenMode)k);
                 break;
             case 2:
-                set_frontend_vidmode(k);
+                set_frontend_vidmode((TbScreenMode)k);
                 break;
             }
           }
           break;
       case 7: // INGAME_RES
-          for (i=0; i<max_game_vidmode_count(); i++)
+          for (i=0; i<MAX_GAME_VIDMODE_COUNT; i++)
           {
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = LbRegisterVideoModeString(word_buf);
               if (k > 0)
-                set_game_vidmode(i,k);
+                set_game_vidmode((uint)i,(TbScreenMode)k);
               else
                   CONFWRNLOG("Couldn't recognize video mode %d in \"%s\" command of %s file.",
                     i+1,COMMAND_TEXT(cmd_num),config_textname);
             } else
             {
               if (i > 0)
-                set_game_vidmode(i,Lb_SCREEN_MODE_INVALID);
+                set_game_vidmode((uint)i,Lb_SCREEN_MODE_INVALID);
               else
                   CONFWRNLOG("Video modes list empty in \"%s\" command of %s file.",
                     COMMAND_TEXT(cmd_num),config_textname);
@@ -1089,6 +1100,30 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
+      case 28: // DISPLAY_NUMBER
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              display_id = ((i == 0) ? 0 : (i - 1));
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 29: // MUSIC_FROM_DISK
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          if (i == 1)
+              features_enabled |= Ft_NoCdMusic;
+          else
+              features_enabled &= ~Ft_NoCdMusic;
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1136,6 +1171,19 @@ short load_configuration(void)
   }
   // Returning if the setting are valid
   return (install_info.lang_id > 0) && (install_info.inst_path[0] != '\0');
+}
+
+/** CmdLine overrides allow settings from the command line to override the default settings, or those set in the config file.
+ * 
+ * See enum CmdLineOverrides and struct StartupParameters -> TbBool overrides[CMDLINE_OVERRIDES].
+ */
+void process_cmdline_overrides(void)
+{
+  // Use CD for music rather than OGG files
+  if (start_params.overrides[Clo_CDMusic])
+  {
+    features_enabled &= ~Ft_NoCdMusic;
+  }
 }
 
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname)

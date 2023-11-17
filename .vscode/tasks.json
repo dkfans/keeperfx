@@ -1,13 +1,31 @@
 {
 	"version": "2.0.0",
+	"inputs": [
+		{
+			"id": "debugChoice",
+			"type": "pickString",
+			"description": "Choose the debug option:",
+			"options": [
+				"DEBUG=1",
+				"DEBUG=0"
+			],
+			"default": "DEBUG=0"
+		}
+	],
 	"tasks": [
 		{
 			"label": "Default task",
 			"type": "shell",
 			"windows": {
 				"command": [
-					"Write-Host 'Windows users should press F5 to compile and run the game.' -ForegroundColor White;"
-				],
+					"Set-Content -LiteralPath \\\"${workspaceFolder}\\.vscode\\compile_settings.cfg\\\" -Value '${input:debugChoice}';",
+					"Write-Host ('Wrote ${input:debugChoice}' + ' to /.vscode/compile_settings.cfg') -ForegroundColor White;",
+					"if ('${input:debugChoice}' -eq 'DEBUG=1') {",
+					"    Write-Host 'Debug symbols will be included in the next executable you compile. Crash reports will have more information.' -ForegroundColor Yellow;",
+					"} else {",
+					"    Write-Host 'Debug symbols will not be included in the next executable you compile. Crash reports will be have less information.' -ForegroundColor Green;",
+					"}"
+				]
 			},
 			"linux": {
 				"command": [
@@ -40,7 +58,19 @@
 					"    exit 1;",
 					"}",
 					"Write-Host ('Game directory: ' + $gameDir) -ForegroundColor White;",
-					"wsl make all -j`nproc` DEBUG=1;",
+					"$debugFlag = '';",
+					"if (Test-Path '${workspaceFolder}\\.vscode\\compile_settings.cfg') {",
+					"    $content = (Get-Content '${workspaceFolder}\\.vscode\\compile_settings.cfg' -Raw).Trim();",
+					"    if ($content -eq 'DEBUG=1') {",
+					"        $debugFlag = 'DEBUG=1';",
+					"    }",
+					"}",
+					"if ($debugFlag -eq 'DEBUG=1') {",
+					"    Write-Host 'Compiling with DEBUG=1' -ForegroundColor Yellow;",
+					"} else {",
+					"    Write-Host 'Compiling with DEBUG=0' -ForegroundColor Green;",
+					"}",
+					"wsl make all -j`nproc` $debugFlag;",
 					"if ($?) {",
 					"    Write-Host 'Compilation successful!' -ForegroundColor Green;",
 					"} else {",
@@ -148,6 +178,6 @@
 			"problemMatcher": "$gcc",
 			"group": "build",
 			"dependsOn": "Compile",
-		}
+		},
 	],
 }

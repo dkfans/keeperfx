@@ -192,8 +192,8 @@ typedef int ScreenCoord;
 typedef int RealScreenCoord;
 /** Player identification number, or owner of in-game thing/room/slab. */
 typedef signed char PlayerNumber;
-/** bitflag where each bit represents a player */
-typedef unsigned char PlayerBitFlag;
+/** bitflags where each bit represents a player (e.g. player id 0 = 0b000001, player id 1 = 0b000010, player id 2 = 0b000100). */
+typedef unsigned char PlayerBitFlags;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
 /** Type which stores thing model. */
@@ -266,8 +266,6 @@ typedef long SubtlCodedCoords;
 typedef unsigned long SlabCodedCoords;
 /** Index in the columns array. */
 typedef short ColumnIndex;
-/** A variable which bits store bool value for each player. */
-typedef unsigned char PerPlayerFlags;
 /** Movement speed on objects in the game. */
 typedef short MoveSpeed;
 /** Parameter for storing gold sum or price. */
@@ -295,43 +293,57 @@ typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
 
+/* Stores a 2d coordinate (x,y).
+
+Members:
+.val - coord position (relative to whole map)
+.stl.pos - coord position (relative to subtile)
+.stl.num - subtile position (relative to whole map)
+*/
 struct Coord2d {
-    union {
-      unsigned long val;
-      struct {
-        unsigned char pos;
-        unsigned short num;
+    union { // x position
+      unsigned long val; // x.val - coord x position (relative to whole map)
+      struct { // subtile
+        unsigned char pos; // x.stl.pos - coord x position (relative to subtile)
+        unsigned short num; // x.stl.num - subtile x position (relative to whole map)
         } stl;
-    } x;
-    union {
-      unsigned long val;
-      struct {
-        unsigned char pos;
-        unsigned short num;
+    } x; 
+    union { // y position
+      unsigned long val; // y.val - coord y position (relative to whole map)
+      struct { // subtile
+        unsigned char pos; // y.stl.pos - coord y position (relative to subtile)
+        unsigned short num; // y.stl.num - subtile y position (relative to whole map)
         } stl;
     } y;
 };
 
+/* Stores a 3d coordinate (x,y,z).
+
+Members:
+.val - coord position (relative to whole map)
+.stl.pos - coord position (relative to subtile)
+.stl.num - subtile position (relative to whole map)
+*/
 struct Coord3d {
-    union {
-      long val;
-      struct {
-        unsigned char pos;
-        unsigned short num;
+    union { // x position
+      long val; // x.val - coord x position (relative to whole map)
+      struct { // subtile
+        unsigned char pos; // x.stl.pos - coord x position (relative to subtile)
+        unsigned short num; // x.stl.num - subtile x position (relative to whole map)
         } stl;
     } x;
-    union {
-      long val;
-      struct {
-        unsigned char pos;
-        unsigned short num;
+    union { // y position
+      long val; // y.val - coord y position (relative to whole map)
+      struct { // subtile
+        unsigned char pos; // y.stl.pos - coord y position (relative to subtile)
+        unsigned short num; // y.stl.num - subtile y position (relative to whole map)
         } stl;
     } y;
-    union {
-      long val;
-      struct {
-        unsigned char pos;
-        unsigned short num;
+    union { // z position
+      long val; // z.val - coord z position (relative to whole map)
+      struct { // subtile
+        unsigned char pos; // z.stl.pos - coord z position (relative to subtile)
+        unsigned short num; // z.stl.num - subtile z position (relative to whole map)
         } stl;
     } z;
 };

@@ -2271,7 +2271,7 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
     wp_y = arid->waypoints[wp_num].y.val;
     unsigned long blk_flags;
     blk_flags = ariadne_get_blocked_flags(thing, pos);
-    if ((blk_flags & 0x01) != 0)
+    if ((blk_flags & SlbBloF_WalledX) != 0)
     {
         if ((wp_y >= cur_pos_y_beg) && (wp_y <= cur_pos_y_end))
         {
@@ -2286,7 +2286,7 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
         }
         return 1;
     }
-    if ((blk_flags & 0x02) != 0)
+    if ((blk_flags & SlbBloF_WalledY) != 0)
     {
         if ((wp_x >= cur_pos_x_beg) && (wp_x <= cur_pos_x_end))
         {
@@ -2301,7 +2301,7 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
         }
         return 1;
     }
-    if ((blk_flags & 0x04) != 0)
+    if ((blk_flags & SlbBloF_WalledZ) != 0)
     {
         *rangle = blocked_xy_hug_start[crdelta_y_neg][crdelta_x_neg][axis_closer].angle;
         *rflag = blocked_xy_hug_start[crdelta_y_neg][crdelta_x_neg][axis_closer].flag;
@@ -2396,21 +2396,21 @@ long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
     lpos.x.val = pos->x.val;
     lpos.y.val = thing->mappos.y.val;
     lpos.z.val = thing->mappos.z.val;
-    blkflags = 0;
+    blkflags = SlbBloF_None;
     if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
-        blkflags |= 0x01;
+        blkflags |= SlbBloF_WalledX;
     lpos.x.val = thing->mappos.x.val;
     lpos.y.val = pos->y.val;
     lpos.z.val = thing->mappos.z.val;
     if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
-        blkflags |= 0x02;
-    if (blkflags == 0)
+        blkflags |= SlbBloF_WalledY;
+    if (blkflags == SlbBloF_None)
     {
         lpos.x.val = pos->x.val;
         lpos.y.val = pos->y.val;
         lpos.z.val = thing->mappos.z.val;
         if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
-          blkflags |= 0x04;
+          blkflags |= SlbBloF_WalledZ;
     }
     return blkflags;
 }
@@ -2430,7 +2430,7 @@ TbBool blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned lon
     end_x = ((long)pos->x.val + radius) / 256;
     start_y = ((long)pos->y.val - radius) / 256;
     end_y = ((long)pos->y.val + radius) / 256;
-    if ((blk_flags & 0x01) != 0)
+    if ((blk_flags & SlbBloF_WalledX) != 0)
     {
         stl_x = end_x;
         if (thing->mappos.x.val >= pos->x.val)
@@ -2444,7 +2444,7 @@ TbBool blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned lon
             }
         }
     }
-    if ((blk_flags & 0x02) != 0)
+    if ((blk_flags & SlbBloF_WalledY) != 0)
     {
         stl_y = end_y;
         if (thing->mappos.y.val >= pos->y.val)
@@ -2472,7 +2472,7 @@ long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3
     lpos.y.val = pos1->y.val;
     lpos.z.val = 0;
 
-    if ((blk_flags & 0x01) != 0)
+    if ((blk_flags & SlbBloF_WalledX) != 0)
     {
       if (pos1->x.val >= thing->mappos.x.val)
       {
@@ -2487,7 +2487,7 @@ long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3
       }
       lpos.z.val = get_thing_height_at(thing, &lpos);
     }
-    if ((blk_flags & 0x02) != 0)
+    if ((blk_flags & SlbBloF_WalledY) != 0)
     {
       if (pos1->y.val >= thing->mappos.y.val)
       {
@@ -2502,7 +2502,7 @@ long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3
       }
       lpos.z.val = get_thing_height_at(thing, &lpos);
     }
-    if ((blk_flags & 0x04) != 0)
+    if ((blk_flags & SlbBloF_WalledZ) != 0)
     {
       if (pos1->x.val >= thing->mappos.x.val)
       {
@@ -2562,8 +2562,8 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
         return 1;
     }
     ariadne_push_position_against_wall(thing, &requested_pos, &fixed_pos);
-    if ( (((blk_flags & 0x01) != 0) && (thing->mappos.x.val == fixed_pos.x.val))
-      || (((blk_flags & 0x02) != 0) && (thing->mappos.y.val == fixed_pos.y.val)) )
+    if ( (((blk_flags & SlbBloF_WalledX) != 0) && (thing->mappos.x.val == fixed_pos.x.val))
+      || (((blk_flags & SlbBloF_WalledY) != 0) && (thing->mappos.y.val == fixed_pos.y.val)) )
     {
         ariadne_init_wallhug(thing, arid, &requested_pos);
         arid->field_22 = 1;

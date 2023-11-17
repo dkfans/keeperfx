@@ -3637,6 +3637,23 @@ struct Room *find_nth_room_for_thing(struct Thing *thing, PlayerNumber owner, Ro
     return INVALID_ROOM;
 }
 
+struct Room* find_first_room_of_role(PlayerNumber owner, RoomRole rrole)
+{
+    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    {
+        if (room_role_matches(rkind, rrole))
+        {
+            int i = dungeonadd->room_kind[rkind];
+            if (i != 0)
+            {
+                return room_get(i);
+            }
+        }
+    }
+    return INVALID_ROOM;
+}
+
 /**
  * Gives the n-th room of given kind and owner where the creature can navigate to.
  * @param thing
@@ -5199,8 +5216,10 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
     if (room_is_invalid(room) || (!room_role_matches(room->kind,RoRoF_KeeperStorage)))
     {
         WARNLOG("The heart thing is not in heart room");
-        long i = dungeonadd->room_kind[RoK_DUNGHEART];
-        room = room_get(i);
+        if (dungeonadd->backup_heart_idx == 0)
+        {
+            room = find_first_room_of_role(plyr_idx, RoRoF_KeeperStorage);
+        }
     }
     if (room_is_invalid(room))
     {

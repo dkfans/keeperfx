@@ -2067,102 +2067,102 @@ msgstr "Moo"
 #: guitext:202
 msgctxt "Level name"
 msgid "Eversmile"
-msgstr "IMMERGRINS"
+msgstr "Immergrins"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Cosyton"
-msgstr "NETTSTADT"
+msgstr "Nettstadt"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Waterdream Warm"
-msgstr "HERZLICH HOLSTEIN"
+msgstr "Herzlich Holstein"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Flowerhat"
-msgstr "BLUMINGEN"
+msgstr "Blumingen"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Lushmeadow-on-Down"
-msgstr "ROSENBURG OB DER ZAUBER"
+msgstr "Rosenburg ob der Zauber"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Snuggledell"
-msgstr "LIEBLICHKNUFFELTAL"
+msgstr "Lieblichknuffeltal"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Wishvale"
-msgstr "TRAUMTAL"
+msgstr "Traumtal"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Tickle"
-msgstr "HERRLICH-HOHENBOLLERN"
+msgstr "Herrlich-Hohenbollern"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Moonbrush Wood"
-msgstr "MONDLICHTWALD"
+msgstr "Mondlichtwald"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "Nevergrim"
-msgstr "NIMMERBÖS"
+msgstr "Nimmerbös"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Hearth"
-msgstr "HEIMATHOF-TITSEE"
+msgstr "Heimathof-Titisee"
 
 #: guitext:213
 msgctxt "Level name"
 msgid "Elf's Dance"
-msgstr "ELFENTANZ"
+msgstr "Elfentanz"
 
 #: guitext:214
 msgctxt "Level name"
 msgid "Buffy Oak"
-msgstr "BADENERLAND"
+msgstr "Badenerland"
 
 #: guitext:215
 msgctxt "Level name"
 msgid "Sleepiburgh"
-msgstr "PENNBURG"
+msgstr "Pennburg"
 
 #: guitext:216
 msgctxt "Level name"
 msgid "Woodly Rhyme"
-msgstr "KNITTELVERS"
+msgstr "Knittelvers"
 
 #: guitext:217
 msgctxt "Level name"
 msgid "Tulipscent"
-msgstr "TULPENDUFT"
+msgstr "Tulpenduft"
 
 #: guitext:218
 msgctxt "Level name"
 msgid "Mirthshire"
-msgstr "GLÜCKSBERG"
+msgstr "Glücksberg"
 
 #: guitext:219
 msgctxt "Level name"
 msgid "Blaise End"
-msgstr "LUSCHENREICH"
+msgstr "Luschenreich"
 
 #: guitext:220
 msgctxt "Level name"
 msgid "Mistle"
-msgstr "DUDENHÖFEN"
+msgstr "Dudenhöfen"
 
 #: guitext:221
 msgctxt "Level name"
 msgid "Skybird Trill"
-msgstr "VOGELSANG"
+msgstr "Vogelsang"
 
 #: guitext:222
 #, fuzzy
@@ -4614,7 +4614,7 @@ msgstr ""
 #: guitext:630
 msgctxt "Keeper spell name"
 msgid "Possess Creature"
-msgstr "SYMBIOSE"
+msgstr "Symbiose"
 
 #: guitext:631
 msgctxt "Keeper spell name"
@@ -7043,7 +7043,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - New Game+"
 msgstr ""
 
 #: guitext:1028

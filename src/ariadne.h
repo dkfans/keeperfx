@@ -161,7 +161,7 @@ struct Navigation { // sizeof = 0x27
   unsigned char field_11[4];
   SubtlCodedCoords first_colliding_block;
   SubtlCodedCoords field_17;
-  unsigned char field_19[2];
+  PlayerBitFlags field_19[2];
   struct Coord3d pos_next;
   struct Coord3d pos_final;
 };
