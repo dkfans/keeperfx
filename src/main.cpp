@@ -741,12 +741,9 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
 
 void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, long eemodel)
 {
-    MapCoordDelta dist_x;
-    MapCoordDelta dist_y;
-    MapCoordDelta dist_z;
-    dist_x = pos2->x.val - (MapCoordDelta)pos1->x.val;
-    dist_y = pos2->y.val - (MapCoordDelta)pos1->y.val;
-    dist_z = pos2->z.val - (MapCoordDelta)pos1->z.val;
+    MapCoordDelta dist_x = pos2->x.val - pos1->x.val;
+    MapCoordDelta dist_y = pos2->y.val - pos1->y.val;
+    MapCoordDelta dist_z = pos2->z.val - pos1->z.val;
     int delta_x;
     int delta_y;
     int delta_z;
@@ -788,18 +785,14 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             delta_x = dist_x * delta_x / dist_y;
             delta_z = delta_z * dist_z / dist_y;
         }
-        int deviat_x;
-        int deviat_y;
-        int deviat_z;
-        deviat_x = 0;
-        deviat_y = 0;
-        deviat_z = 0;
+        int deviat_x = 0;
+        int deviat_y = 0;
+        int deviat_z = 0;
         struct Coord3d curpos;
         curpos.x.val = pos1->x.val + UNSYNC_RANDOM(eeinterspace/4);
         curpos.y.val = pos1->y.val + UNSYNC_RANDOM(eeinterspace/4);
         curpos.z.val = pos1->z.val + UNSYNC_RANDOM(eeinterspace/4);
-        int i;
-        for (i=nsteps+1; i > 0; i--)
+        for (int i=nsteps+1; i > 0; i--)
         {
             struct Coord3d tngpos;
             tngpos.x.val = curpos.x.val + deviat_x;
@@ -824,14 +817,12 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             } else {
                 deviat_z += 32;
             }
-            int deviat_limit;
-            long dist;
-            dist = get_3d_box_distance(&curpos, pos2);
-            deviat_limit = 128;
+            MapCoordDelta dist = get_3d_box_distance(&curpos, pos2);
+            int deviat_limit = 128;
             if (dist < 1024)
               deviat_limit = (dist * 128) / 1024;
             // Limit deviations
-            if (deviat_x >= -deviat_limit) {
+            if (deviat_x < -deviat_limit) {
                 deviat_x = -deviat_limit;
             } else
             if (deviat_x > deviat_limit) {
