@@ -6510,8 +6510,8 @@ msgstr "Секретная дверь"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: Enemies only notice it when they look closely or see your creatures "
-"use it. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
 msgstr ""
 "Секретная дверь: Специальная дверь, скрытая от врагов, но обнаруживаемая при внимательном рассмотрении, или когда ваши собственные юниты открывают ее под взглядом противника. RMB zoom."
 

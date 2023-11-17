@@ -6238,8 +6238,8 @@ msgstr "シークレット・ドア"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: Enemies only notice it when they look closely or see your creatures "
-"use it. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
 msgstr ""
 "シークレット・ドア 特殊なドアで、敵には見えないが、よく見ると発見できる、または敵が見ている時に自軍ユニットが開ける。RMBズーム。"
 

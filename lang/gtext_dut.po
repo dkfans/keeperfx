@@ -6370,11 +6370,11 @@ msgstr "Geheime deur"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: Enemies only notice it when they look closely or see your creatures "
-"use it. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
 msgstr ""
-"Geheime deur: Een speciale deur, verborgen voor vijanden,"
-" maar te zien als je goed kijkt, of als je eigen eenheden hem openen terwijl de vijand kijkt. RMK-zoom."
+"Geheime deur: Deze deur blijft verborgen voor vijanden, tenzij ze hem van dichtbij bekijken "
+"of hem open zien gaan. RKM: inzoomen"
 
 #: guitext:937
 msgctxt "Game event description"

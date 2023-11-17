@@ -6371,8 +6371,8 @@ msgstr "비밀의 문"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: Enemies only notice it when they look closely or see your creatures "
-"use it. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
 msgstr ""
 "비밀의 문: 적에게는 숨겨져 있지만 자세히 보면 발견할 수 있는 특별한 문으로, 아군 유닛이 적을 보고 있는 상태에서 열면 발견할 수 있습니다. 위안화 줌."
 

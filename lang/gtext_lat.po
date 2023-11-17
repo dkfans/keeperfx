@@ -5610,8 +5610,8 @@ msgstr "Ostium secretum"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: Enemies only notice it when they look closely or see your creatures "
-"use it. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
 msgstr ""
 "Ostium secretum: Ostium speciale, hostibus occultum, maculosum esse potest cum inspiciendo, vel cum unitates tuae aperiunt cum hoste aspiciendo. RMB zoom."
 

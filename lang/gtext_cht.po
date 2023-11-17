@@ -6096,8 +6096,8 @@ msgstr "秘密門"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: Enemies only notice it when they look closely or see your creatures "
-"use it. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
 msgstr "秘密門：一扇特殊的門，對敵人隱藏，但仔細觀察或當你自己的單位在敵人注視下打開它時可以發現。 人民幣變焦。"
 
 #: guitext:937

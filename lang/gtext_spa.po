@@ -5535,8 +5535,8 @@ msgstr "Puerta Secreta"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: Enemies only notice it when they look closely or see your creatures "
-"use it. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
 msgstr ""
 "Puerta Secreta: Una puerta especial, Oculta a los enemigos, pero puede ser descubierta cuando se mira de cerca, o cuando tus propias unidades la abren con el enemigo mirando. Zoom RMB."
 

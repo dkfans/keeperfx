@@ -6336,8 +6336,8 @@ msgstr "Tajné dveře"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: Enemies only notice it when they look closely or see your creatures "
-"use it. RMB zoom."
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
 msgstr "Tajné dveře: Dveře: Speciální dveře, které jsou pro nepřátele skryté, ale lze je spatřit,"
 "když se na ně pozorně podíváte, nebo když je otevřou vaše vlastní jednotky, když se nepřítel dívá. Zvoli se LTM, PTM zvetsi"
 
