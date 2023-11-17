@@ -1,0 +1,139 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#      KeeperFX GUI Strings translation file
+#  @par Purpose:
+#      Acts as a source of regional translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 17 Nov 2023
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+"Project-Id-Version: GUI Strings for origplus "
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/"
+
+
+#. Generic victory message
+#: guitext:0
+msgctxt "In-game message"
+msgid "Success! The land is yours. Press Space to proceed to the next realm."
+msgstr ""
+
+#. Level Eversmile information soon after start
+#: guitext:1
+msgctxt "In-game message"
+msgid "You are an experienced Keeper. Heroes will not wait for you to build a "
+"Dungeon. Rival Dungeon Keepers will give it their best to defeat you."
+msgstr ""
+
+#: guitext:2
+msgctxt "In-game message"
+msgid "Transferring creatures to a new realm has been made very difficult. "
+"But surely an experienced Keeper as yourself can conquer realms without help."
+msgstr ""
+
+#: guitext:202
+msgctxt "Level name"
+msgid "Eversmile"
+msgstr "欢笑之地"
+
+#: guitext:203
+msgctxt "Level name"
+msgid "Cosyton"
+msgstr "舒适小城"
+
+#: guitext:204
+msgctxt "Level name"
+msgid "Waterdream Warm"
+msgstr "安逸梦河"
+
+#: guitext:205
+msgctxt "Level name"
+msgid "Flowerhat"
+msgstr "饰花之帽"
+
+#: guitext:206
+msgctxt "Level name"
+msgid "Lushmeadow-on-Down"
+msgstr "繁茂草地"
+
+#: guitext:207
+msgctxt "Level name"
+msgid "Snuggledell"
+msgstr "温暖谷地"
+
+#: guitext:208
+msgctxt "Level name"
+msgid "Wishvale"
+msgstr "愿望溪谷"
+
+#: guitext:209
+msgctxt "Level name"
+msgid "Tickle"
+msgstr "欢娱村庄"
+
+#: guitext:210
+msgctxt "Level name"
+msgid "Moonbrush Wood"
+msgstr "美月灌木"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Nevergrim"
+msgstr "无忧小城"
+
+#: guitext:212
+msgctxt "Level name"
+msgid "Hearth"
+msgstr "家庭至上"
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Elf's Dance"
+msgstr "精灵之舞"
+
+#: guitext:214
+msgctxt "Level name"
+msgid "Buffy Oak"
+msgstr "黄色橡树"
+
+#: guitext:215
+msgctxt "Level name"
+msgid "Sleepiburgh"
+msgstr "寂静城堡"
+
+#: guitext:216
+msgctxt "Level name"
+msgid "Woodly Rhyme"
+msgstr "林木韵律"
+
+#: guitext:217
+msgctxt "Level name"
+msgid "Tulipscent"
+msgstr "郁金花香"
+
+#: guitext:218
+msgctxt "Level name"
+msgid "Mirthshire"
+msgstr "快乐之郡"
+
+#: guitext:219
+msgctxt "Level name"
+msgid "Blaise End"
+msgstr "安宁之角"
+
+#: guitext:220
+msgctxt "Level name"
+msgid "Mistle"
+msgstr "世外桃源"
+
+#: guitext:221
+msgctxt "Level name"
+msgid "Skybird Trill"
+msgstr "太阳鸟鸣"
