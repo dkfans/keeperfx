@@ -743,6 +743,11 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         {
             col = 2;
         } else
+        if (slb->kind == SlbT_ROCK_FLOOR)
+        {
+            col = 2;
+        }
+        else
         if ((mapblk->flags & SlbAtFlg_Filled) != 0)
         {
             col = 1;
