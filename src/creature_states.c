@@ -811,16 +811,10 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
         creature_is_being_dropped(thing))
     {
         struct Room* room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room)) 
-        {
-            //If the creature is not inside a room, or moving 
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            room = get_room_at_pos(&cctrl->moveto_pos);
-            if (room_is_invalid(room))
-            {
-                // This must mean we're being dropped outside of room, or sold/destroyed the room so not kept in custody - freed
-                return false;
-            }
+        if (room_is_invalid(room)) {
+            // This must mean we're being dropped outside of room, or sold/destroyed the room
+            // so not kept in custody - freed
+            return false;
         }
         if (thing->owner != room->owner) {
             // We're in a room, and it's not our own - must be enemy
@@ -848,13 +842,9 @@ TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNu
     {
         struct Room* room = get_room_thing_is_on(thing);
         if (room_is_invalid(room)) {
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            room = get_room_at_pos(&cctrl->moveto_pos);
-            if (room_is_invalid(room))
-            {
-                // This must mean we're being dropped outside of room, or sold/destroyed the room so not kept in custody - freed
-                return false;
-            }
+            // This must mean we're being dropped outside of room, or sold/destroyed the room
+            // so not kept in custody - freed
+            return false;
         }
         if (room->owner == plyr_idx) {
             // We're in a room, and it's the player we asked for
@@ -888,13 +878,9 @@ short player_keeping_creature_in_custody(const struct Thing* thing)
     {
         struct Room* room = get_room_thing_is_on(thing);
         if (room_is_invalid(room)) {
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            room = get_room_at_pos(&cctrl->moveto_pos);
-            if (room_is_invalid(room))
-            {
-                // This must mean we're being dropped outside of room, or sold/destroyed the room so not kept in custody - freed
-                return -1;
-            }
+            // This must mean we're being dropped outside of room, or sold/destroyed the room
+            // so not kept in custody - freed
+            return -1;
         }
         if (room->owner != thing->owner) {
             // We're in a room, and it's not the unit owner
