@@ -118,7 +118,7 @@ enum ObjectModels
 };
 
 /**
- * Used for Objects->draw_class  EffectElementStats->draw_class and Thing->draw_flags. 
+ * Used for Objects->draw_class  EffectElementStats->draw_class and Thing->draw_class. 
  * 
  * Used in in draw_frontview_thing_on_element() and do_map_who_for_thing().
  * 

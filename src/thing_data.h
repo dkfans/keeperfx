@@ -74,12 +74,12 @@ enum ThingRenderingFlags {
 };
 
  /**
-  * Used for EffectElementStats->size_change and Thing->draw_flags.
+  * Used for EffectElementStats->size_change and Thing->size_change.
   * 
   * See effect_element_stats[] for setting of size_change.
   */
 enum ThingSizeChange {
-  TSC_DontChangeSize         = 0x00, /**< Not a flag; used to check for the absense of the following 2 values. */
+  TSC_DontChangeSize         = 0x00, /**< Default behaviour. */
   TSC_ChangeSize             = 0x01, /**< Used when creature changing to/from chicken, and by TngEffElm_Cloud3. */
   TSC_ChangeSizeContinuously = 0x02, /**< Used by TngEffElm_IceShard. */
 };
@@ -267,7 +267,8 @@ unsigned char max_frames;
 unsigned short sprite_size_min;
 unsigned short sprite_size_max;
     unsigned char rendering_flags;
-    unsigned char draw_flags; /**< Control rendering process. Stores: (draw_class << 2) + size_change. (See enum ThingSizeChange and enum ObjectsDrawClasses.) */
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses for valid values. */
+    unsigned char size_change; /**< See enum ThingSizeChange for valid values. */
 unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;

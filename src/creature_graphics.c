@@ -417,9 +417,9 @@ void update_creature_graphic_anim(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
 
-    if ((thing->draw_flags & TSC_ChangeSize) != 0)
+    if ((thing->size_change & TSC_ChangeSize) != 0)
     {
-      thing->draw_flags &= ~TSC_ChangeSize;
+      thing->size_change &= ~TSC_ChangeSize;
     } else
     if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown_282 >= 0))
     {

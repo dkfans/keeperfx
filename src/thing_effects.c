@@ -343,12 +343,12 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         if (eestat->size_change == TSC_ChangeSizeContinuously)
         {
             thing->transformation_speed = 2 * (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
-            thing->draw_flags |= TSC_ChangeSizeContinuously;
+            thing->size_change |= TSC_ChangeSizeContinuously;
         }
         else
         {
             thing->transformation_speed = (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
-            thing->draw_flags &= ~TSC_ChangeSizeContinuously;
+            thing->size_change &= ~TSC_ChangeSizeContinuously;
         }
         thing->sprite_size = eestat->sprite_size_min;
     } else
