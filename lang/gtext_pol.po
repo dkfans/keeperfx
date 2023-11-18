@@ -6449,10 +6449,39 @@ msgstr ""
 "Strażniku, Twoje dokonania stały się legendą. Opowieści o Twej niegodziwości "
 "i przebiegłości będą wzbudzać strach w sercach przyszłych pokoleń."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Muu2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Tajne drzwi"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Tajne drzwi: Te drzwi pozostają ukryte dla wrogów, chyba że obserwują je z bliska lub widzą, jak się otwierają. lub PPM, aby zbliżyć się "
+"do niego."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Tajne przez odkryte: LPM przełącza, PPM likwiduje."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Tajne przez odkryte"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Wróg wykrył twoje tajne drzwi: LPM przełącza, PPM likwiduje."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Wróg wykrył twoje tajne drzwi"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

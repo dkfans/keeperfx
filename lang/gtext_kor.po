@@ -6363,10 +6363,38 @@ msgstr ""
 "당신은 전설적인 키퍼입니다. 당신의 사악하고 교활한 이야기는 세대에 걸쳐 공포"
 "의 이야기가 될 것입니다."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "음매2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "비밀의 문"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"비밀의 문: 이 문은 적들이 자세히 관찰하거나 열리는 것을 보지 않는 한 숨겨져 있습니다."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "비밀의 문 발견"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "비밀의 문 발견"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "적이 비밀 문을 발견했습니다."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "적이 비밀 문을 발견했습니다."
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

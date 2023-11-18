@@ -108,6 +108,9 @@ enum TbVideoModeFlags {
     Lb_VF_TRUCOLOR    = 0x0002,
     Lb_VF_PALETTE     = 0x0004,
     Lb_VF_WINDOWED    = 0x0010,
+    Lb_VF_BORDERLESS  = 0x0020,
+    Lb_VF_DESKTOP     = 0x0040,
+    Lb_VF_FILLALL     = 0x0080,
 };
 
 struct GraphicsWindow {
@@ -130,6 +133,12 @@ struct ScreenModeInfo {
     int Available;
     /** Video mode flags. */
     unsigned long VideoFlags;
+     /** Window position X. */
+    int window_pos_x;
+     /** Window position Y. */
+    int window_pos_y;
+    /** SDL window flags. */
+    Uint32 sdlFlags;
     /** Text description of the mode. */
     char Desc[23];
 };
@@ -265,7 +274,7 @@ extern unsigned short pixel_size;
 extern unsigned short pixels_per_block;
 extern unsigned short units_per_pixel;
 
-extern unsigned short display_number;
+extern unsigned short display_id;
 
 extern TbDisplayStruct lbDisplay;
 extern SDL_Window *lbWindow;
@@ -277,8 +286,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     unsigned char *palette, short buffers_count, TbBool wscreen_vid);
 TbResult LbScreenReset(void);
 
-TbResult LbScreenFindVideoModes(void);
-TbBool LbScreenIsModeAvailable(TbScreenMode mode);
+TbBool LbScreenIsModeAvailable(TbScreenMode mode, unsigned short display);
 TbScreenMode LbRecogniseVideoModeString(const char *desc);
 TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height,
     unsigned short bpp, unsigned long flags);
@@ -299,6 +307,7 @@ TbBool LbScreenIsLocked(void);
 TbResult LbScreenSwap(void);
 TbResult LbScreenClear(TbPixel colour);
 TbResult LbScreenWaitVbi(void);
+unsigned short LbGetCurrentDisplayIndex();
 
 long LbPaletteFade(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 TbResult LbPaletteStopOpenFade(void);

@@ -5988,10 +5988,37 @@ msgstr ""
 "你的丰功伟绩让你成为传奇的地下城守护者。你邪恶与狡猾的恐怖故事将会被一代又一"
 "代的人们传颂。"
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "哞2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "秘密之门"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr "秘密之门: 除非敌人仔细观察或看到门打开，否则这扇门对敌人来说是隐藏的。"
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "发现暗门: 左键切换。右键删除。"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "发现暗门"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "敌人发现了你的暗门: 左键切换。右键删除。"
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "敌人发现了你的暗门"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

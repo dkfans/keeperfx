@@ -6088,10 +6088,37 @@ msgstr ""
 "你的丰功伟业让你成为传奇地城守护者。你邪恶与狡猾的恐怖故事会流传在下一代的人"
 "们脑中。"
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "哞2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "秘密門"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr "秘密門：一扇特殊的門，對敵人隱藏，但仔細觀察或當你自己的單位在敵人注視下打開它時可以發現。 人民幣變焦。"
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "秘密門被發現。按滑鼠左键切换。按滑鼠右键删除。: 按滑鼠左键切换。按滑鼠右键删除。""
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "秘密門被發現。"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "敵人發現了你的秘密門 按滑鼠左键切换。按滑鼠右键删除。: 按滑鼠左键切换。按滑鼠右键删除。""
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "敵人發現了你的秘密門"
 
 #: guitext:941
 #, fuzzy

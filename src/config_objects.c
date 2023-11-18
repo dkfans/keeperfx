@@ -1036,7 +1036,6 @@ void init_objects(void)
     game.objects_config[86].fall_acceleration = 10;
     game.objects_config[86].light_unaffected = 0;
     game.objects_config[86].ilght.is_dynamic = 0;
-    game.objects_config[109].resistant_to_nonmagic = 1;
     game.objects_config[109].movement_flag = 1;
     game.objects_config[94].movement_flag = 1;
     game.objects_config[95].movement_flag = 1;
