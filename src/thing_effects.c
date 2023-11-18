@@ -461,7 +461,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng->rendering_flags = thing->rendering_flags;
             effeltng->rendering_flags &= ~TRF_Transpar_8;
             effeltng->rendering_flags |= TRF_Transpar_4;
-            effeltng->draw_flags = thing->draw_flags;
+            effeltng->size_change = thing->size_change;
+            effeltng->draw_class = thing->draw_class;
             effeltng->tint_colour = thing->tint_colour;
             effeltng->anim_speed = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
@@ -490,7 +491,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
                 effeltng->rendering_flags = thing->rendering_flags;
                 effeltng->rendering_flags &= ~TRF_Transpar_8;
                 effeltng->rendering_flags |= TRF_Transpar_4;
-                effeltng->draw_flags = thing->draw_flags;
+                effeltng->size_change = thing->size_change;
+                effeltng->draw_class = thing->draw_class;
                 effeltng->tint_colour = thing->tint_colour;
                 effeltng->rendering_flags &= ~TRF_Transpar_8;
                 effeltng->rendering_flags |= TRF_Transpar_4;
