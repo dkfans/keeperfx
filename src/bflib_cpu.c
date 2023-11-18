@@ -23,36 +23,59 @@
 #include "bflib_basics.h"
 #include "post_inc.h"
 
+#ifndef _WIN32
+#include <cpuid.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 
 /** Issue a single request to CPUID.
- *  Fits 'intel features', for instance note that even if only "eax" and "edx"
- *  are of interest, other registers will be modified by the operation,
- *  so we need to tell the compiler about it.
  */
-static inline void cpuid(int code, unsigned long *a, unsigned long *d) {
-#if __GNUC__
-  asm volatile("cpuid":"=a"(*a),"=d"(*d):"0"(code):"ecx","ebx");
+static void cpuid(uint32_t code, uint32_t regs[4])
+{
+#ifdef _MSC_VER
+    __cpuid((int*)regs, (int)code);
 #else
-  int regs[4] = { 0 };
-  __cpuid(regs, code);
-  *a = regs[0]; // EAX
-  *d = regs[3]; // EDX
+    __get_cpuid(code, &regs[0], &regs[1], &regs[2], &regs[3]);
 #endif
 }
 
-/** Issue a complete request, storing general registers output in an array.
+/** Issue one or more requests to get a string from CPUID and copy
+ *  it to the destination buffer. The buffer will be null-terminated.
  */
-static inline void cpuid_string(int code, unsigned long where[4]) {
-#if __GNUC__
-  asm volatile("cpuid":"=a"(*where),"=b"(*(where+1)),
-               "=c"(*(where+2)),"=d"(*(where+3)):"0"(code));
-#else
-  __cpuid(where, code);
-#endif
+static void cpuid_string(uint32_t code, char* buffer, size_t len)
+{
+    if (len > 1)
+    {
+        // Zero buffer
+        memset(buffer, 0, len);
+
+        if (code == CPUID_GETVENDORSTRING)
+        {
+            uint32_t regs[4];
+            cpuid(code, regs);
+            char reordered[12];
+            memcpy(&reordered[0], &regs[1], sizeof(uint32_t));
+            memcpy(&reordered[4], &regs[3], sizeof(uint32_t));
+            memcpy(&reordered[8], &regs[2], sizeof(uint32_t));
+            memcpy(buffer, reordered, min(sizeof(reordered), len));
+        }
+        else if (code == CPUID_INTELBRANDSTRING)
+        {
+            uint32_t regs[16];
+            cpuid(CPUID_INTELBRANDSTRING, &regs[0 * 4]);
+            cpuid(CPUID_INTELBRANDSTRINGMORE, &regs[1 * 4]);
+            cpuid(CPUID_INTELBRANDSTRINGEND, &regs[2 * 4]);
+            memcpy(buffer, regs, min(sizeof(regs), len));
+        }
+    }
+
+    // Ensure null terminator
+    if (len > 0)
+        buffer[len - 1] = '\0';
 }
 /******************************************************************************/
 
@@ -65,13 +88,10 @@ void cpu_detect(struct CPU_INFO *cpu)
   cpu->feature_intl = 0;
   cpu->feature_edx = 0;
   {
-    unsigned long where[4];
-    cpuid_string(CPUID_GETVENDORSTRING, where);
-    memcpy(&cpu->vendor[0],&where[1],4);
-    memcpy(&cpu->vendor[4],&where[3],4);
-    memcpy(&cpu->vendor[8],&where[2],4);
-    cpu->vendor[12] = '\0';
-    cpuid(CPUID_GETFEATURES, &where[0], &where[3]);
+    cpuid_string(CPUID_GETVENDORSTRING, cpu->vendor, sizeof(cpu->vendor));
+
+    uint32_t where[4];
+    cpuid(CPUID_GETFEATURES, where);
     cpu->feature_intl = where[0];
     cpu->feature_edx = where[3];
     if (cpu_get_family(cpu) >= 5)
@@ -79,13 +99,12 @@ void cpu_detect(struct CPU_INFO *cpu)
       if (cpu->feature_edx & CPUID_FEAT_EDX_TSC)
         cpu->timeStampCounter = 1;
     }
-    cpuid(CPUID_INTELEXTENDED, &where[0], &where[3]);
+
+    cpuid(CPUID_INTELEXTENDED, where);
     cpu->BrandString = (where[0] >= CPUID_INTELBRANDSTRING);
     if (cpu->BrandString)
     {
-        cpuid_string(CPUID_INTELBRANDSTRING, (unsigned long*)&cpu->brand[0]);
-        cpuid_string(CPUID_INTELBRANDSTRINGMORE, (unsigned long*)&cpu->brand[16]);
-        cpuid_string(CPUID_INTELBRANDSTRINGEND, (unsigned long*)&cpu->brand[32]);       
+      cpuid_string(CPUID_INTELBRANDSTRING, cpu->brand, sizeof(cpu->brand));
     }
   }
 }
