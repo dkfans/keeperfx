@@ -6368,8 +6368,7 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
 msgstr ""
-"Hemlig dörr: En specialdörr som är dold för fienden, men som kan upptäckas om man "
-"tittar noga, eller när dina egna enheter öppnar den medan fienden tittar. RMB-zoom."
+"Hemlig dörr: Denna dörr förblir dold för fiender om de inte observerar den noga eller ser den öppnas. HMK zoomar."
 
 #: guitext:937
 msgctxt "Game event description"

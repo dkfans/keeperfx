@@ -5998,7 +5998,7 @@ msgctxt "Door description"
 msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
-msgstr "秘密之门: 一种特殊的门，对敌人而言是隐藏的，但仔细观察时会被发现，或者当自己的部队在敌人的注视下打开门时也会被发现。"
+msgstr "秘密之门: 除非敌人仔细观察或看到门打开，否则这扇门对敌人来说是隐藏的。"
 
 #: guitext:937
 msgctxt "Game event description"

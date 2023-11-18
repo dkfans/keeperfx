@@ -6513,7 +6513,7 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
 msgstr ""
-"Секретная дверь: Специальная дверь, скрытая от врагов, но обнаруживаемая при внимательном рассмотрении, или когда ваши собственные юниты открывают ее под взглядом противника. RMB zoom."
+"Секретная дверь: Эта дверь остается скрытой для врагов, если они не наблюдают за ней или не видят, как она открывается, ПКМ - показать."
 
 #: guitext:937
 msgctxt "Game event description"

@@ -6241,7 +6241,7 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
 msgstr ""
-"シークレット・ドア 特殊なドアで、敵には見えないが、よく見ると発見できる、または敵が見ている時に自軍ユニットが開ける。RMBズーム。"
+"秘密のドア： このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には見えない。"
 
 #: guitext:937
 msgctxt "Game event description"

@@ -6373,8 +6373,7 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
 msgstr ""
-"Geheime deur: Deze deur blijft verborgen voor vijanden, tenzij ze hem van dichtbij bekijken "
-"of hem open zien gaan. RKM: inzoomen"
+"Geheime deur: Deze deur blijft verborgen voor vijanden tenzij ze hem goed observeren of zien openen. RKM: inzoomen"
 
 #: guitext:937
 msgctxt "Game event description"

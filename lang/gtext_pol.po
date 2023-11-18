@@ -6460,7 +6460,8 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
 msgstr ""
-"Tajne drzwi: Specjalne drzwi, ukryte przed wrogami, ale możliwe do zauważenia po dokładnym przyjrzeniu się lub po otwarciu przez jednostki przeciwnika. Powiększenie RMB."
+"Tajne drzwi: Te drzwi pozostają ukryte dla wrogów, chyba że obserwują je z bliska lub widzą, jak się otwierają. lub PPM, aby zbliżyć się "
+"do niego."
 
 #: guitext:937
 msgctxt "Game event description"

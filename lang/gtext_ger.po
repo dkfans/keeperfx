@@ -6596,9 +6596,8 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
 msgstr ""
-"Geheime Tür: Eine spezielle Tür, die für Feinde unsichtbar ist,"
-" aber bei genauem Hinsehen entdeckt werden kann, oder wenn die eigenen Einheiten sie öffnen, während der Feind hinsieht. "
-"Mit der rechten Maustaste zoomt Ihr sie heran."
+"Geheime Tür: Diese Tür bleibt für Feinde verborgen, es sei denn, sie beobachten sie genau oder sehen, wie sie sich öffnet. "
+"Mit der rechten Maustaste zoomt Ihr sie heran. TDM: visiona."
 
 #: guitext:937
 msgctxt "Game event description"
