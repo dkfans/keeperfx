@@ -6502,10 +6502,38 @@ msgstr ""
 "О Ваших достижениях слагают легенды, Хpанитель. Предания о Ваших злодеяниях "
 "и кознях будут передаваться из уст в уста многие столетия."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Mу 2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Секретная дверь"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Секретная дверь: Эта дверь остается скрытой для врагов, если они не наблюдают за ней или не видят, как она открывается, ПКМ - показать."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Секрет по обнаруженному: ЛКМ - развернуть, ПКМ - удалить."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr ""
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Враг заметил вашу потайную дверь: ЛКМ - развернуть, ПКМ - удалить."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Враг заметил вашу потайную дверь"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

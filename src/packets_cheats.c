@@ -584,14 +584,7 @@ TbBool packets_process_cheats(
                     {
                         if (player->controlled_thing_idx != player->thing_under_hand)
                         {
-                            if (is_my_player(player))
-                            {
-                                turn_off_all_panel_menus();
-                                initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
-                                turn_on_menu(GMnu_CREATURE_QUERY1);
-                            }
-                            player->influenced_thing_idx = player->thing_under_hand;
-                            set_player_instance(player, PI_QueryCrtr, 0);
+                            query_creature(player, player->thing_under_hand, true, false);
                         }
                     }
                     else
