@@ -20,7 +20,6 @@
 "Project-Id-Version: GUI Strings for origplus "
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/"
 
-
 #. Generic victory message
 #: guitext:0
 msgctxt "In-game message"
@@ -38,104 +37,4 @@ msgstr ""
 msgctxt "In-game message"
 msgid "Transferring creatures to a new realm has been made very difficult. "
 "But surely an experienced Keeper as yourself can conquer realms without help."
-msgstr ""
-
-#: guitext:202
-msgctxt "Level name"
-msgid "Eversmile +"
-msgstr ""
-
-#: guitext:203
-msgctxt "Level name"
-msgid "Cosyton +"
-msgstr ""
-
-#: guitext:204
-msgctxt "Level name"
-msgid "Waterdream Warm +"
-msgstr ""
-
-#: guitext:205
-msgctxt "Level name"
-msgid "Flowerhat +"
-msgstr ""
-
-#: guitext:206
-msgctxt "Level name"
-msgid "Lushmeadow-on-Down +"
-msgstr ""
-
-#: guitext:207
-msgctxt "Level name"
-msgid "Snuggledell +"
-msgstr ""
-
-#: guitext:208
-msgctxt "Level name"
-msgid "Wishvale +"
-msgstr ""
-
-#: guitext:209
-msgctxt "Level name"
-msgid "Tickle +"
-msgstr ""
-
-#: guitext:210
-msgctxt "Level name"
-msgid "Moonbrush Wood +"
-msgstr ""
-
-#: guitext:211
-msgctxt "Level name"
-msgid "Nevergrim +"
-msgstr ""
-
-#: guitext:212
-msgctxt "Level name"
-msgid "Hearth +"
-msgstr ""
-
-#: guitext:213
-msgctxt "Level name"
-msgid "Elf's Dance +"
-msgstr ""
-
-#: guitext:214
-msgctxt "Level name"
-msgid "Buffy Oak +"
-msgstr ""
-
-#: guitext:215
-msgctxt "Level name"
-msgid "Sleepiburgh +"
-msgstr ""
-
-#: guitext:216
-msgctxt "Level name"
-msgid "Woodly Rhyme +"
-msgstr ""
-
-#: guitext:217
-msgctxt "Level name"
-msgid "Tulipscent +"
-msgstr ""
-
-#: guitext:218
-msgctxt "Level name"
-msgid "Mirthshire +"
-msgstr ""
-
-#: guitext:219
-msgctxt "Level name"
-msgid "Blaise End +"
-msgstr ""
-
-#: guitext:220
-msgctxt "Level name"
-msgid "Mistle +"
-msgstr ""
-
-#: guitext:221
-msgctxt "Level name"
-msgid "Skybird Trill +"
 msgstr ""
