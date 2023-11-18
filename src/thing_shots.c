@@ -499,6 +499,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
               destroy_shot = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+            reveal_secret_door_to_player(doortng,shotng->owner);
         } else
         if (cube_is_water(cube_id))
         {
@@ -559,6 +560,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     destroy_shot = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+                reveal_secret_door_to_player(doortng,shotng->owner);
             } else
             {
                 eff_kind = shotst->hit_generic.effect_model;
@@ -647,6 +649,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
             // Apply damage to the door
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+            reveal_secret_door_to_player(doortng,shotng->owner);
       }
     }
     if (!thing_is_invalid(efftng)) {
@@ -734,10 +737,6 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (target->health < 0) {
         return false;
     }
-    struct ObjectConfig* objconf = get_object_model_stats2(target->model);
-    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
-        return false;
-    }
     struct Thing* shootertng = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shootertng = thing_get(shotng->parent_idx);
@@ -791,10 +790,6 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         return false;
     }
     if (target->health < 0) {
-        return false;
-    }
-    struct ObjectConfig* objconf = get_object_model_stats2(target->model);
-    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
         return false;
     }
     struct Thing* shootertng = INVALID_THING;
