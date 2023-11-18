@@ -653,11 +653,10 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
                 struct Map* mapblk = get_map_block_at(stl_x, stl_y);
                 if (!map_block_invalid(mapblk))
                 {
-                    unsigned long plyr_bit = (1 << player->id_number);
                     backup_flags = backup_explored[soe_y][soe_x];
-                    mapblk->revealed &= ~plyr_bit;
+                    conceal_map_block(mapblk, player->id_number);
                     if ((backup_flags & 1) != 0)
-                        mapblk->revealed |= plyr_bit ;
+                        reveal_map_block(mapblk, player->id_number);
                     if ((backup_flags & 2) != 0)
                         mapblk->flags |= SlbAtFlg_Unexplored;
                     if ((backup_flags & 4) != 0)

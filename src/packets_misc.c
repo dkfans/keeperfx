@@ -46,6 +46,8 @@ void set_players_packet_action(struct PlayerInfo *player, unsigned char pcktype,
     struct Packet* pckt = get_packet_direct(player->packet_num);
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
+    pckt->actn_par3 = par3;
+    pckt->actn_par4 = par4;
     pckt->action = pcktype;
 }
 
@@ -285,9 +287,9 @@ TbBool open_new_packet_file_for_save(void)
         struct PlayerInfo* player = get_player(i);
         if (player_exists(player))
         {
-            game.packet_save_head.players_exist |= (1 << i) & 0xff;
+            set_flag(game.packet_save_head.players_exist, to_flag(i));
             if ((player->allocflags & PlaF_CompCtrl) != 0)
-              game.packet_save_head.players_comp |= (1 << i) & 0xff;
+              set_flag(game.packet_save_head.players_comp, to_flag(i));
         }
     }
     LbFileDelete(game.packet_fname);

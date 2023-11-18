@@ -593,6 +593,48 @@ TbBool jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(const struc
     return true;
 }
 
+TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
+{
+    struct Coord3d thing_pos;
+    struct Coord3d creat_pos;
+
+    creat_pos.x.val = creatng->mappos.x.val;
+    creat_pos.y.val = creatng->mappos.y.val;
+    creat_pos.z.val = creatng->mappos.z.val;
+
+    thing_pos.x.val = thing->mappos.x.val;
+    thing_pos.y.val = thing->mappos.y.val;
+    thing_pos.z.val = thing->mappos.z.val;
+
+    creat_pos.z.val += get_creature_eye_height(creatng);
+
+    if (line_of_sight_3d(&creat_pos, &thing_pos))
+        return 1;
+    thing_pos.z.val += thing->clipbox_size_z;
+    return line_of_sight_3d(&creat_pos, &thing_pos) != 0;
+}
+
+TbBool creature_can_see_thing_ignoring_specific_door(struct Thing *creatng, struct Thing *thing,struct Thing *doortng)
+{
+    struct Coord3d thing_pos;
+    struct Coord3d creat_pos;
+
+    creat_pos.x.val = creatng->mappos.x.val;
+    creat_pos.y.val = creatng->mappos.y.val;
+    creat_pos.z.val = creatng->mappos.z.val;
+
+    thing_pos.x.val = thing->mappos.x.val;
+    thing_pos.y.val = thing->mappos.y.val;
+    thing_pos.z.val = thing->mappos.z.val;
+
+    creat_pos.z.val += get_creature_eye_height(creatng);
+
+    if (line_of_sight_3d(&creat_pos, &thing_pos))
+        return 1;
+    thing_pos.z.val += thing->clipbox_size_z;
+    return line_of_sight_3d_ignoring_specific_door(&creat_pos, &thing_pos,doortng) != 0;
+}
+
 TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing)
 {
     const struct Coord3d* srcpos = &creatng->mappos;
@@ -616,7 +658,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (line_of_sight_3d_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
             // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
+            tgtpos.z.val += thing->clipbox_size_z;
             if (line_of_sight_3d_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
             return false;
@@ -628,7 +670,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
             // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
+            tgtpos.z.val += thing->clipbox_size_z;
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_specific_door(&eyepos, &tgtpos, thing))
                 return true;
             return false;
@@ -644,7 +686,7 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (line_of_sight_3d(&eyepos, &tgtpos))
                 return true;
             // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
+            tgtpos.z.val += thing->clipbox_size_z;
             if (line_of_sight_3d(&eyepos, &tgtpos))
                 return true;
             long angle = get_angle_xy_to(&tgtpos, &eyepos);
@@ -669,11 +711,11 @@ TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *cre
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
                 return true;
             // Check top of the thing
-            tgtpos.z.val += thing->clipbox_size_yz;
+            tgtpos.z.val += thing->clipbox_size_z;
             if (jonty_line_of_sight_3d_including_lava_check_ignoring_own_door(&eyepos, &tgtpos, creatng->owner))
                 return true;
             // Check both sides at middle of thing height
-            tgtpos.z.val -= thing->clipbox_size_yz / 2;
+            tgtpos.z.val -= thing->clipbox_size_z / 2;
             long angle = get_angle_xy_to(&tgtpos, &eyepos);
             // Check left side
             // We're checking point at 60 degrees left; could use 90 deg, but making even slim edge visible might not be a good idea

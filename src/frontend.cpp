@@ -354,6 +354,8 @@ struct EventTypeInfo event_button_info[] = {
   {  0, GUIStr_Empty,                       GUIStr_Empty,                     50,  10, EvKind_Nothing}, // EvKind_PrisonerStarving
   {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_TorturedHurt
   {  0, GUIStr_Empty,                       GUIStr_Empty,                   1200,  50, EvKind_Nothing}, // EvKind_EnemyDoor
+  {260, GUIStr_EventSecretDoorDiscovDesc,   GUIStr_EventSecretDoorDiscovered,300, 200, EvKind_Nothing},
+  {260, GUIStr_EventSecretDoorSpottedDesc,  GUIStr_EventSecretDoorSpotted,   300, 200, EvKind_Nothing},
 };
 
 const unsigned long alliance_grid[4][4] = {
@@ -919,9 +921,9 @@ TbBool frontend_is_player_allied(long idx1, long idx2)
 {
     if (idx1 == idx2)
       return true;
-    if ((idx1 < 0) || (idx1 >= PLAYERS_COUNT))
+    if ((idx1 < 0) || (idx1 >= HERO_PLAYER))
       return false;
-    if ((idx2 < 0) || (idx2 >= PLAYERS_COUNT))
+    if ((idx2 < 0) || (idx2 >= HERO_PLAYER))
       return false;
     return ((frontend_alliances & alliance_grid[idx1][idx2]) != 0);
 }

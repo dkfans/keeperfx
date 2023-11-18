@@ -39,24 +39,15 @@ NGSOUNDDATS = $(patsubst %,pkg/sound/%.dat,$(NGSPEECHBANKS) sound)
 NGSOUNDLISTS = $(patsubst %,sfx/%/filelist.txt,$(NGSPEECHBANKS) sound)
 
 LANDVIEWSPEECH = \
-$(foreach lng,eng,ancntkpr_$(lng)) \
-$(foreach lng,eng,burdnimp_$(lng)) \
-$(foreach lng,eng,cqarctic_$(lng)) \
-$(foreach lng,eng,dstninja_$(lng)) \
+$(foreach lng,eng chi,ancntkpr_$(lng)) \
+$(foreach lng,eng chi,burdnimp_$(lng)) \
 $(foreach lng,eng dut,dzjr06lv_$(lng)) \
-$(foreach lng,eng,dzjr10lv_$(lng)) \
-$(foreach lng,eng,dzjr25lv_$(lng)) \
-$(foreach lng,eng fre ger,evilkeep_$(lng)) \
-$(foreach lng,eng,grkreign_$(lng)) \
 $(foreach lng,eng,jdkmaps8_$(lng)) \
-$(foreach lng,eng,kdklvpck_$(lng)) \
 $(foreach lng,eng chi cht dut fre ger ita jpn kor pol rus spa swe,keeporig_$(lng)) \
 $(foreach lng,eng dut,lqizgood_$(lng)) \
-$(foreach lng,eng,lrdvexer_$(lng)) \
-$(foreach lng,eng,ncastles_$(lng)) \
 $(foreach lng,eng,postanck_$(lng)) \
 $(foreach lng,eng,pstunded_$(lng)) \
-$(foreach lng,eng,questfth_$(lng)) \
+$(foreach lng,eng,revlord_$(lng)) \
 $(foreach lng,eng dut,twinkprs_$(lng)) \
 $(foreach lng,eng,undedkpr_$(lng))
 

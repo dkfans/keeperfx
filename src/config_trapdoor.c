@@ -61,6 +61,7 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"POINTERSPRITES",       11},
   {"PANELTABINDEX",        12},
   {"OPENSPEED",            13},
+  {"PROPERTIES",           14},
   {NULL,                    0},
 };
 
@@ -101,8 +102,18 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"UNSTABLE",             34},
   {"UNSELLABLE",           35},
   {"PLACEONBRIDGE",        36},
+  {"SHOTORIGIN",           37},
   {NULL,                    0},
 };
+
+const struct NamedCommand door_properties_commands[] = {
+  {"RESIST_NON_MAGIC",     1},
+  {"SECRET",               2},
+  {"THICK",                3},  
+  {NULL,                   0},
+  };
+
+
 /******************************************************************************/
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
@@ -275,7 +286,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           gameadd.trap_stats[i].transparency_flag = 0;
           gameadd.trap_stats[i].random_start_frame = 0;
           gameadd.trap_stats[i].size_xy = 0;
-          gameadd.trap_stats[i].size_yz = 0;
+          gameadd.trap_stats[i].size_z = 0;
           gameadd.trap_stats[i].trigger_type = 0;
           gameadd.trap_stats[i].activation_type = 0;
           gameadd.trap_stats[i].created_itm_model = 0;
@@ -286,6 +297,9 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           gameadd.trap_stats[i].shotvector.x = 0;
           gameadd.trap_stats[i].shotvector.y = 0;
           gameadd.trap_stats[i].shotvector.z = 0;
+          gameadd.trap_stats[i].shot_shift_x = 0;
+          gameadd.trap_stats[i].shot_shift_y = 0;
+          gameadd.trap_stats[i].shot_shift_z = 0;
 
           if (i < gameadd.trapdoor_conf.trap_types_count)
           {
@@ -752,7 +766,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  gameadd.trap_stats[i].size_yz = k;
+                  gameadd.trap_stats[i].size_z = k;
                   n++;
               }
           }
@@ -931,6 +945,40 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               }
           }
           if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 37: // SHOTORIGIN
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].shot_shift_x = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].shot_shift_y = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              if (k >= 0)
+              {
+                  gameadd.trap_stats[i].shot_shift_z = k;
+                  n++;
+              }
+          }
+          if (n < 3)
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -1222,7 +1270,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-          case 13: // OPENSPEED
+      case 13: // OPENSPEED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1238,6 +1286,32 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
+      case 14: // PROPERTIES
+          doorst->model_flags = 0;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = get_id(door_properties_commands, word_buf);
+            switch (k)
+            {
+            case 1: // RESIST_NON_MAGIC
+                doorst->model_flags |= DoMF_ResistNonMagic;
+                n++;
+                break;
+            case 2: // SECRET
+                doorst->model_flags |= DoMF_Secret;
+                n++;
+                break;
+            case 3: // THICK
+                doorst->model_flags |= DoMF_Thick;
+                n++;
+                break;
+            default:
+                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+            }
+          }
+          break;
+
       case 0: // comment
           break;
       case -1: // end of buffer

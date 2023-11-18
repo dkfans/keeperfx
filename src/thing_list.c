@@ -293,7 +293,7 @@ long near_thing_pos_thing_filter_is_enemy_which_can_be_shot_by_trap(const struct
                 struct Thing* traptng = thing_get(param->num1);
                 if (players_are_enemies(traptng->owner, thing->owner) || is_neutral_thing(traptng))
                 {
-                    if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing)
+                    if (!creature_is_being_unconscious(thing) && !thing_is_dragged_or_pulled(thing) && !thing_is_picked_up(thing)
                         && !creature_is_kept_in_custody_by_enemy(thing) && !creature_is_dying(thing)
                         && ((get_creature_model_flags(thing) & CMF_IsSpectator) == 0))
                     {
@@ -3202,7 +3202,7 @@ TbBool update_thing(struct Thing *thing)
             struct Coord3d pos;
             pos.x.val = thing->mappos.x.val;
             pos.y.val = thing->mappos.y.val;
-            pos.z.val = thing->mappos.z.val + thing->clipbox_size_yz;
+            pos.z.val = thing->mappos.z.val + thing->clipbox_size_z;
             light_set_light_position(thing->light_id, &pos);
         } else
         {
@@ -4199,6 +4199,72 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
         i_first = thing->next_on_mapblk;
     }
     WARNLOG("No change performed");
+}
+
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel)
+{
+    unsigned long k = 0;
+    struct Thing* thing = current_creature;
+    ThingIndex i;
+    do
+    {
+        i = thing->prev_of_class;
+        if (i == 0)
+        {
+            return get_index_of_first_creature_of_owner_and_model(owner, crmodel);
+        }
+        else if (i == current_creature->index)
+        {
+            return i;
+        }
+        thing = thing_get(i);
+        if (thing_is_creature(thing))
+        {
+            if ( (thing->owner == owner) || (owner == -1) )
+            {
+                if ( (thing->model == crmodel) || (crmodel == 0) )
+                {
+                    return thing->index;
+                }
+            }
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    while (1);
+    return current_creature->index;
+}
+
+ThingIndex get_index_of_first_creature_of_owner_and_model(PlayerNumber owner, ThingModel crmodel)
+{
+    unsigned long k = 0;
+    ThingIndex i = 1;
+    while (i != 0)
+    {
+        struct Thing *thing = thing_get(i);
+        if (thing_is_creature(thing))
+        {
+            if ( (thing->owner == owner) || (owner == -1) )
+            {
+                if ( (thing->model == crmodel) || (crmodel == 0) )
+                {
+                    return thing->index;
+                }
+            }
+        }
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+        i++;
+    }
+    return 0;
 }
 /******************************************************************************/
 #ifdef __cplusplus

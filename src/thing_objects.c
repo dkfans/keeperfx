@@ -102,7 +102,7 @@ static Thing_Class_Func object_update_functions[] = {
  * Originally was named objects[].
  */
 
-/*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_yz;sprite_size_max;field_F;fp_smpl_idx;
+/*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_z;sprite_size_max;field_F;fp_smpl_idx;
 draw_class;destroy_on_lava;related_creatr_model;persistence;destroy_on_liquid;rotation_flag;*/
 struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Unset, 0, 0, 0}, //0
@@ -319,9 +319,9 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     struct ObjectConfig* objconf = get_object_model_stats2(model);
     struct Objects* objdat = get_objects_data(model);
     thing->clipbox_size_xy = objdat->size_xy;
-    thing->clipbox_size_yz = objdat->size_yz;
+    thing->clipbox_size_z = objdat->size_z;
     thing->solid_size_xy = objdat->size_xy;
-    thing->solid_size_yz = objdat->size_yz;
+    thing->solid_size_z = objdat->size_z;
     thing->anim_speed = objdat->anim_speed;
     thing->anim_sprite = objdat->sprite_anim_idx;
     thing->health = saturate_set_signed(objconf->health,32);
@@ -368,12 +368,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     } else {
         thing->light_id = 0;
     }
-    switch (thing->model)
+    if (thing_is_beating_dungeon_heart(thing))
     {
-      case ObjMdl_SoulCountainer:
         thing->heart.beat_direction = 1;
         light_set_light_minimum_size_to_cache(thing->light_id, 0, 56);
-        break;
+    }
+    switch (thing->model)
+    {
       case ObjMdl_TempleSpangle: // Why it is hardcoded? And what is TempleS
         thing->rendering_flags &= TRF_Transpar_Flags;
         thing->rendering_flags |= TRF_Transpar_4;
@@ -572,8 +573,16 @@ TbBool thing_is_dungeon_heart(const struct Thing *thing)
 {
     if (!thing_is_object(thing))
         return false;
-    struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
-    return (objconf->is_heart) != 0;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return (objst->model_flags & OMF_Heart);
+}
+
+TbBool thing_is_beating_dungeon_heart(const struct Thing* thing)
+{
+    if (!thing_is_object(thing))
+        return false;
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    return ((objst->model_flags & (OMF_Beating | OMF_Heart)) == (OMF_Beating | OMF_Heart));
 }
 
 TbBool thing_is_mature_food(const struct Thing *thing)
@@ -1355,6 +1364,7 @@ void update_dungeon_heart_beat(struct Thing *heartng)
     {
         long i = (char)heartng->heart.beat_direction;
         heartng->anim_speed = 0;
+
         struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
         long long k = 1;
         if (objconf->health != 0)
@@ -1410,6 +1420,10 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 {
     SYNCDBG(18,"Starting");
     struct Dungeon* dungeon = INVALID_DUNGEON;
+    struct ObjectConfig* objconf;
+    struct ObjectConfigStats* objst;
+    struct DungeonAdd* dungeonadd;
+
     if (heartng->owner != game.neutral_player_num)
     {
         dungeon = get_players_num_dungeon(heartng->owner);
@@ -1417,7 +1431,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-        struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
+        objconf = get_object_model_stats2(heartng->model);
         if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
         {
             heartng->health += game.dungeon_heart_heal_health;
@@ -1430,11 +1444,14 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
               heartng->health = objconf->health;
             }
         }
-        long long k = ((heartng->health << 8) / objconf->health) << 7;
-        long i = (saturate_set_signed(k, 32) >> 8) + 128;
-        struct Objects* objdat = get_objects_data_for_thing(heartng);
-        heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
-        heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
+        if (objconf->health > 0) //prevent divide by 0 crash
+        {
+            long long k = ((heartng->health << 8) / objconf->health) << 7;
+            long i = (saturate_set_signed(k, 32) >> 8) + 128;
+            struct Objects* objdat = get_objects_data_for_thing(heartng);
+            heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
+            heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
+        }
     }
     else if ((dungeon != INVALID_DUNGEON) && (heartng->index == dungeon->dnheart_idx))
     {
@@ -1453,7 +1470,6 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         if (heartng->health <= 0)
         {
             struct Thing* efftng;
-            struct DungeonAdd* dungeonadd;
             efftng = create_effect(&heartng->mappos, TngEff_Explosion4, heartng->owner);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
@@ -1470,12 +1486,36 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         }
         return TUFRet_Unchanged;
     }
+    else
+    {
+        if (!thing_is_dungeon_heart(heartng))
+        {
+            dungeonadd = get_dungeonadd(heartng->owner);
+            if (dungeonadd->backup_heart_idx > 0)
+            {
+                dungeon->dnheart_idx = dungeonadd->backup_heart_idx;
+                dungeonadd->backup_heart_idx = 0;
+                struct Thing* scndthing = find_players_backup_dungeon_heart(heartng->owner);
+                {
+                    if (!thing_is_invalid(scndthing))
+                    {
+                        dungeonadd->backup_heart_idx = scndthing->index;
+                    }
+                }
+            }
+
+        }
+    }
     process_dungeon_destroy(heartng);
 
     SYNCDBG(18,"Beat update");
     if ((heartng->alloc_flags & TAlF_Exists) == 0)
       return TUFRet_Modified;
-    update_dungeon_heart_beat(heartng);
+    objst = get_object_model_stats(heartng->model);
+    if (objst->model_flags & OMF_Beating)
+    {
+        update_dungeon_heart_beat(heartng);
+    }
     return TUFRet_Modified;
 }
 
@@ -1636,7 +1676,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
         short shspeed = objtng->armor.shspeed;
         pos.x.val += 32 * LbSinL(682 * shspeed) >> 16;
         pos.y.val += -(32 * LbCosL(682 * shspeed) >> 8) >> 8;
-        pos.z.val += shspeed * (thing->clipbox_size_yz >> 1);
+        pos.z.val += shspeed * (thing->clipbox_size_z >> 1);
         move_thing_in_map(objtng, &pos);
         objtng->move_angle_xy = thing->move_angle_xy;
         objtng->move_angle_z = thing->move_angle_z;
@@ -1644,7 +1684,7 @@ static TngUpdateRet object_update_armour(struct Thing *objtng)
     }
     else
     {
-        pos.z.val += (thing->clipbox_size_yz >> 1);
+        pos.z.val += (thing->clipbox_size_z >> 1);
         objtng->move_angle_xy = get_angle_xy_to(&objtng->mappos, &pos);
         objtng->move_angle_z = get_angle_yz_to(&objtng->mappos, &pos);
         angles_to_vector(objtng->move_angle_xy, objtng->move_angle_z, 32, &cvect);
@@ -2091,15 +2131,21 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
 
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
+    struct Thing* thing = INVALID_THING;
     GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
         ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
-        return INVALID_THING;
+        return thing;
     }
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     if (value > max_hoard_size_in_room)
         value = max_hoard_size_in_room;
-    struct Thing* thing = create_gold_hoard_object(pos, room->owner, value);
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    const struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+    if ((roomst->storage_height < 0) || (get_map_floor_filled_subtiles(mapblk) == roomst->storage_height))
+    {
+        thing = create_gold_hoard_object(pos, room->owner, value);
+    }
     if (!thing_is_invalid(thing))
     {
         room->capacity_used_for_storage += thing->valuable.gold_stored;

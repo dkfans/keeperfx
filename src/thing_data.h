@@ -215,6 +215,7 @@ struct Thing {
       unsigned char opening_counter;
       short closing_counter;
       unsigned char is_locked;
+      PlayerBitFlags revealed;
       } door;
 //TCls_Unkn10
 //TCls_Unkn11
@@ -261,9 +262,9 @@ unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;
-    unsigned short clipbox_size_yz;
+    unsigned short clipbox_size_z;
     unsigned short solid_size_xy;
-    unsigned short solid_size_yz;
+    unsigned short solid_size_z;
     long health;
 unsigned short floor_height;
     unsigned short light_id;

@@ -1130,7 +1130,7 @@ short creature_hero_entering(struct Thing *thing)
     }
     if (cctrl->countdown_282 == 0)
     {
-        thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->clipbox_size_yz - 1;
+        thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->clipbox_size_z - 1;
         cctrl->countdown_282--;
         return CrStRet_Modified;
     }

@@ -637,7 +637,7 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
     int height;
     int max_height;
     max_height = get_ceiling_height_above_thing_at(droptng, &locpos);
-    height = locpos.z.val + droptng->clipbox_size_yz;
+    height = locpos.z.val + droptng->clipbox_size_z;
     if (max_height <= height) {
         ERRORLOG("Ceiling is too low to drop %s at (%d,%d)", thing_model_name(droptng),(int)locpos.x.stl.num,(int)locpos.y.stl.num);
         return 0;
@@ -2086,9 +2086,9 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
         if ((get_slab_attrs(slb)->block_flags & SlbAtFlg_Valuable) != 0)
         {
-            ctask->field_60--;
-            if (ctask->field_60 > 0) {
-                SYNCDBG(6,"Player %d needs to dig %d more",(int)dungeon->owner,(int)ctask->field_60);
+            ctask->delay--;
+            if (ctask->delay > 0) {
+                SYNCDBG(6,"Player %d needs to dig %d more",(int)dungeon->owner,(int)ctask->delay);
                 return 0;
             }
         }
@@ -2142,7 +2142,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.slabs_dig_count)
     {
-        ctask->field_60 = 700 / comp->click_rate;
+        ctask->delay = 700 / comp->click_rate;
     }
 
     if (retval == -5)
@@ -2360,10 +2360,10 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
     switch (ctask->task_state)
     {
     case 0:
-        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->field_60) {
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->delay) {
             return CTaskRet_Unk4;
         }
-        ctask->field_60 = 18;
+        ctask->delay = 18;
         ctask->lastrun_turn = game.play_gameturn;
         // If gathered enough creatures, go to next task state
         if (count_creatures_in_call_to_arms(comp) >= ctask->magic_cta.repeat_num) {
@@ -2396,13 +2396,13 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     case 1:
-        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->field_60) {
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->delay) {
             return CTaskRet_Unk2;
         }
         SYNCDBG(7,"Player %d casts CTA at (%d,%d)",(int)dungeon->owner, (int)ctask->magic_cta.target_pos.x.stl.num, (int)ctask->magic_cta.target_pos.y.stl.num);
         if (try_game_action(comp, dungeon->owner, GA_UsePwrCall2Arms, 5, ctask->magic_cta.target_pos.x.stl.num, ctask->magic_cta.target_pos.y.stl.num, 1, 1) >= Lb_OK) {
             ctask->task_state = CTaskSt_Select;
-            ctask->field_60 = ctask->field_8E;
+            ctask->delay = ctask->field_8E;
             return CTaskRet_Unk2;
         }
         SYNCDBG(7,"Player %d cannot cast CTA at (%d,%d), cancelling task",(int)dungeon->owner, (int)ctask->magic_cta.target_pos.x.stl.num, (int)ctask->magic_cta.target_pos.y.stl.num);
@@ -2416,13 +2416,13 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         if (count_creatures_at_call_to_arms(comp) < ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 4) 
         {
             // For a minimum amount of time
-            if ((game.play_gameturn - ctask->lastrun_turn) < (ctask->field_60 / 10)) 
+            if ((game.play_gameturn - ctask->lastrun_turn) < (ctask->delay / 10)) 
             {
                 return CTaskRet_Unk1;
             }
         }
         // There's a time limit for how long CTA may run
-        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->field_60) 
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->delay) 
             {
                 return CTaskRet_Unk1;
             }
@@ -2814,18 +2814,21 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                     {
                         if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
                         {
-                            struct PerExpLevelValues *expvalues;
-                            expvalues = &game.creature_scores[thing->model];
-                            long expval;
-                            long healthprm;
-                            long new_factor;
-                            expval = expvalues->value[cctrl->explevel];
-                            healthprm = get_creature_health_permil(thing);
-                            new_factor = healthprm * expval / 1000;
-                            if ((new_factor > best_factor) && (healthprm > 20))
+                            if (cctrl->dropped_turn < (COMPUTER_REDROP_DELAY + game.play_gameturn))
                             {
-                                best_factor = new_factor;
-                                best_creatng = thing;
+                                struct PerExpLevelValues* expvalues;
+                                expvalues = &game.creature_scores[thing->model];
+                                long expval;
+                                long healthprm;
+                                long new_factor;
+                                expval = expvalues->value[cctrl->explevel];
+                                healthprm = get_creature_health_permil(thing);
+                                new_factor = healthprm * expval / 1000;
+                                if ((new_factor > best_factor) && (healthprm > 20))
+                                {
+                                    best_factor = new_factor;
+                                    best_creatng = thing;
+                                }
                             }
                         }
                     }
@@ -2882,7 +2885,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    if (game.play_gameturn - ctask->lastrun_turn < ctask->field_60) {
+    if (game.play_gameturn - ctask->lastrun_turn < ctask->delay) {
         return CTaskRet_Unk4;
     }
     ctask->lastrun_turn = game.play_gameturn;
@@ -3484,7 +3487,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
     ctask->move_to_defend.field_70 = evflags;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
-    ctask->field_60 = comp->field_34;
+    ctask->delay = comp->task_delay;
     return true;
 }
 
@@ -3553,7 +3556,7 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
     ctask->task_state = CTaskSt_None;
     ctask->created_turn = game.play_gameturn;
     // Initial wait before start of casting
-    ctask->field_60 = 25;
+    ctask->delay = 25;
     ctask->lastrun_turn = game.play_gameturn - 25;
     ctask->magic_cta.target_pos.x.val = pos->x.val;
     ctask->magic_cta.target_pos.y.val = pos->y.val;
@@ -3578,7 +3581,7 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
     ctask->task_state = CTaskSt_None;
     ctask->created_turn = game.play_gameturn;
     // Initial wait before start of casting
-    ctask->field_60 = 25;
+    ctask->delay = 25;
     ctask->lastrun_turn = game.play_gameturn - 25;
     ctask->magic_cta.target_pos.x.val = pos->x.val;
     ctask->magic_cta.target_pos.y.val = pos->y.val;
@@ -3612,7 +3615,7 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell
     ctask->ttype = CTT_SellTrapsAndDoors;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
-    ctask->field_60 = 1;
+    ctask->delay = comp->task_delay;
     ctask->sell_traps_doors.items_amount = num_to_sell;
     ctask->sell_traps_doors.gold_gain = 0;
     ctask->sell_traps_doors.gold_gain_limit = gold_up_to;
@@ -3643,7 +3646,7 @@ TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_mov
     ctask->ttype = CTT_MoveGoldToTreasury;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
-    ctask->field_60 = 1;
+    ctask->delay = comp->task_delay;
     ctask->move_gold.items_amount = num_to_move;
     ctask->move_gold.gold_gain = 0;
     ctask->move_gold.gold_gain_limit = gold_up_to;

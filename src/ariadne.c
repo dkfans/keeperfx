@@ -45,7 +45,7 @@
 #define EDGEFIT_LEN           64
 #define EDGEOR_COUNT           4
 
-typedef long (*NavRules)(long, long);
+typedef long (*NavRules)(NavColour, NavColour);
 
 struct QuadrantOffset {
     long x;
@@ -74,8 +74,8 @@ static long tree_Ax8;
 static long tree_Ay8;
 static long tree_Bx8;
 static long tree_By8;
-static unsigned char *LastTriangulatedMap;
-static unsigned char *fringe_map;
+static NavColour *LastTriangulatedMap;
+static NavColour *fringe_map;
 static long fringe_y1;
 static long fringe_y2;
 static long fringe_x1;
@@ -350,7 +350,7 @@ unsigned long fits_thro(long tri_idx, long ormask_idx)
     return EdgeFit[eidx];
 }
 
-void triangulate_map(unsigned char *imap)
+void triangulate_map(NavColour *imap)
 {
     triangulate_area(imap, 0, 0, gameadd.navigation_map_size_x, gameadd.navigation_map_size_y);
 }
@@ -359,7 +359,7 @@ void init_navigation_map(void)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
-    LbMemorySet(game.navigation_map, 0, gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
+    LbMemorySet(game.navigation_map, 0, sizeof(NavColour)*gameadd.navigation_map_size_x*gameadd.navigation_map_size_y);
     for (stl_y=0; stl_y < gameadd.navigation_map_size_y; stl_y++)
     {
         for (stl_x=0; stl_x < gameadd.navigation_map_size_x; stl_x++)
@@ -370,51 +370,41 @@ void init_navigation_map(void)
     nav_map_initialised = 1;
 }
 
-static long get_navtree_owner(long treeI)
+static PlayerBitFlags get_navtree_owner_flags(NavColour treeI)
 {
-    long owner;
-    owner = ((treeI & 0xE0) >> 5) - 1;
-    if (owner == 5)
-    {
-        owner = game.hero_player_num;
-    } else
-    if (owner == 6)
-    {
-        owner = game.neutral_player_num;
-    }
-    return owner;
+    return treeI >> NAVMAP_OWNERSELECT_BIT;
 }
 
-long Keeper_nav_rulesA2B(long treeA, long treeB)
+long Keeper_nav_rulesA2B(NavColour treeA, NavColour treeB)
 {
-    if ((treeB & 0x0F) - (treeA & 0x0F) > 1)
+    if ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK) > 1)
         return 0;
-    if ((treeB & 0x10) == 0)
+    if ((treeB & NAVMAP_UNSAFE_SURFACE) == 0)
         return 1;
     return 2;
 }
 
-long navigation_rule_normal(long treeA, long treeB)
+long navigation_rule_normal(NavColour treeA, NavColour treeB)
 {
-    if ((treeB & 0x0F) - (treeA & 0x0F) > 1)
+    if ((treeB & NAVMAP_FLOORHEIGHT_MASK) - (treeA & NAVMAP_FLOORHEIGHT_MASK) > 1)
       return 0;
-    if ((treeB & 0xF0) == 0)
+    if ((treeB & (NAVMAP_OWNERSELECT_MASK | NAVMAP_UNSAFE_SURFACE)) == 0)
       return 1;
     if (owner_player_navigating != -1)
     {
-        if (get_navtree_owner(treeB) == owner_player_navigating)
+        if (get_navtree_owner_flags(treeB) & (1 << owner_player_navigating))
           return 0;
     }
-    if ((treeB & 0x10) == 0)
+    if ((treeB & NAVMAP_UNSAFE_SURFACE) == 0)
         return 1;
-    if ((treeA & 0x10) != 0)
+    if ((treeA & NAVMAP_UNSAFE_SURFACE) != 0)
         return 1;
     return nav_thing_can_travel_over_lava;
 }
 
 long init_navigation(void)
 {
-    IanMap = (unsigned char *)&game.navigation_map;
+    IanMap = (NavColour *)&game.navigation_map;
     init_navigation_map();
     triangulate_map(IanMap);
     nav_rulesA2B = navigation_rule_normal;
@@ -1671,11 +1661,11 @@ TbBool triangle_check_and_add_navitree_fwd(long ttri)
         {
             if ( fits_thro(ttri, n) )
             {
-                long ttri_alt;
-                long k_alt;
+                NavColour ttri_alt;
+                NavColour k_alt;
                 ttri_alt = get_triangle_tree_alt(ttri);
                 k_alt = get_triangle_tree_alt(k);
-                if ((ttri_alt != -1) && (k_alt != -1))
+                if ((ttri_alt != NAV_COL_UNSET) && (k_alt != NAV_COL_UNSET))
                 {
                     long mvcost;
                     long navrule;
@@ -1719,11 +1709,11 @@ TbBool triangle_check_and_add_navitree_bak(long ttri)
         k = tri->tags[i];
         if (!is_current_tag(k))
         {
-            long ttri_alt;
-            long k_alt;
+            NavColour ttri_alt;
+            NavColour k_alt;
             ttri_alt = get_triangle_tree_alt(ttri);
             k_alt = get_triangle_tree_alt(k);
-            if ((ttri_alt != -1) && (k_alt != -1))
+            if ((ttri_alt != NAV_COL_UNSET) && (k_alt != NAV_COL_UNSET))
             {
                 long mvcost;
                 long navrule;
@@ -2271,7 +2261,7 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
     wp_y = arid->waypoints[wp_num].y.val;
     unsigned long blk_flags;
     blk_flags = ariadne_get_blocked_flags(thing, pos);
-    if ((blk_flags & 0x01) != 0)
+    if ((blk_flags & SlbBloF_WalledX) != 0)
     {
         if ((wp_y >= cur_pos_y_beg) && (wp_y <= cur_pos_y_end))
         {
@@ -2286,7 +2276,7 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
         }
         return 1;
     }
-    if ((blk_flags & 0x02) != 0)
+    if ((blk_flags & SlbBloF_WalledY) != 0)
     {
         if ((wp_x >= cur_pos_x_beg) && (wp_x <= cur_pos_x_end))
         {
@@ -2301,7 +2291,7 @@ long ariadne_get_starting_angle_and_side_of_wallhug(struct Thing *thing, struct 
         }
         return 1;
     }
-    if ((blk_flags & 0x04) != 0)
+    if ((blk_flags & SlbBloF_WalledZ) != 0)
     {
         *rangle = blocked_xy_hug_start[crdelta_y_neg][crdelta_x_neg][axis_closer].angle;
         *rflag = blocked_xy_hug_start[crdelta_y_neg][crdelta_x_neg][axis_closer].flag;
@@ -2396,21 +2386,21 @@ long ariadne_get_blocked_flags(struct Thing *thing, const struct Coord3d *pos)
     lpos.x.val = pos->x.val;
     lpos.y.val = thing->mappos.y.val;
     lpos.z.val = thing->mappos.z.val;
-    blkflags = 0;
+    blkflags = SlbBloF_None;
     if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
-        blkflags |= 0x01;
+        blkflags |= SlbBloF_WalledX;
     lpos.x.val = thing->mappos.x.val;
     lpos.y.val = pos->y.val;
     lpos.z.val = thing->mappos.z.val;
     if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
-        blkflags |= 0x02;
-    if (blkflags == 0)
+        blkflags |= SlbBloF_WalledY;
+    if (blkflags == SlbBloF_None)
     {
         lpos.x.val = pos->x.val;
         lpos.y.val = pos->y.val;
         lpos.z.val = thing->mappos.z.val;
         if (ariadne_creature_blocked_by_wall_at(thing, &lpos))
-          blkflags |= 0x04;
+          blkflags |= SlbBloF_WalledZ;
     }
     return blkflags;
 }
@@ -2430,7 +2420,7 @@ TbBool blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned lon
     end_x = ((long)pos->x.val + radius) / 256;
     start_y = ((long)pos->y.val - radius) / 256;
     end_y = ((long)pos->y.val + radius) / 256;
-    if ((blk_flags & 0x01) != 0)
+    if ((blk_flags & SlbBloF_WalledX) != 0)
     {
         stl_x = end_x;
         if (thing->mappos.x.val >= pos->x.val)
@@ -2444,7 +2434,7 @@ TbBool blocked_by_door_at(struct Thing *thing, struct Coord3d *pos, unsigned lon
             }
         }
     }
-    if ((blk_flags & 0x02) != 0)
+    if ((blk_flags & SlbBloF_WalledY) != 0)
     {
         stl_y = end_y;
         if (thing->mappos.y.val >= pos->y.val)
@@ -2472,7 +2462,7 @@ long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3
     lpos.y.val = pos1->y.val;
     lpos.z.val = 0;
 
-    if ((blk_flags & 0x01) != 0)
+    if ((blk_flags & SlbBloF_WalledX) != 0)
     {
       if (pos1->x.val >= thing->mappos.x.val)
       {
@@ -2487,7 +2477,7 @@ long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3
       }
       lpos.z.val = get_thing_height_at(thing, &lpos);
     }
-    if ((blk_flags & 0x02) != 0)
+    if ((blk_flags & SlbBloF_WalledY) != 0)
     {
       if (pos1->y.val >= thing->mappos.y.val)
       {
@@ -2502,7 +2492,7 @@ long ariadne_push_position_against_wall(struct Thing *thing, const struct Coord3
       }
       lpos.z.val = get_thing_height_at(thing, &lpos);
     }
-    if ((blk_flags & 0x04) != 0)
+    if ((blk_flags & SlbBloF_WalledZ) != 0)
     {
       if (pos1->x.val >= thing->mappos.x.val)
       {
@@ -2562,8 +2552,8 @@ long ariadne_init_movement_to_current_waypoint(struct Thing *thing, struct Ariad
         return 1;
     }
     ariadne_push_position_against_wall(thing, &requested_pos, &fixed_pos);
-    if ( (((blk_flags & 0x01) != 0) && (thing->mappos.x.val == fixed_pos.x.val))
-      || (((blk_flags & 0x02) != 0) && (thing->mappos.y.val == fixed_pos.y.val)) )
+    if ( (((blk_flags & SlbBloF_WalledX) != 0) && (thing->mappos.x.val == fixed_pos.x.val))
+      || (((blk_flags & SlbBloF_WalledY) != 0) && (thing->mappos.y.val == fixed_pos.y.val)) )
     {
         ariadne_init_wallhug(thing, arid, &requested_pos);
         arid->field_22 = 1;
@@ -4094,12 +4084,12 @@ static TbBool make_edge(long start_x, long start_y, long end_x, long end_y)
     return true;
 }
 
-TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
+TbBool border_clip_horizontal(const NavColour *imap, long start_x, long end_x, long start_y, long end_y)
 {
-    unsigned char map_center;
-    unsigned char map_up;
-    const unsigned char* mapp_center;
-    const unsigned char* mapp_up;
+    NavColour map_center;
+    NavColour map_up;
+    const NavColour* mapp_center;
+    const NavColour* mapp_up;
     TbBool r;
     long i;
     r = true;
@@ -4138,12 +4128,12 @@ TbBool border_clip_horizontal(const unsigned char *imap, long start_x, long end_
     return r;
 }
 
-TbBool border_clip_vertical(const unsigned char *imap, long start_x, long end_x, long start_y, long end_y)
+TbBool border_clip_vertical(const NavColour *imap, long start_x, long end_x, long start_y, long end_y)
 {
-    unsigned char map_center;
-    unsigned char map_left;
-    const unsigned char* mapp_center;
-    const unsigned char* mapp_left;
+    NavColour map_center;
+    NavColour map_left;
+    const NavColour* mapp_center;
+    const NavColour* mapp_left;
     TbBool r;
     long i;
     r = true;
@@ -4468,7 +4458,7 @@ long triangle_area1(long tri_idx)
     return llabs(area1+area2);
 }
 
-static void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char ntree_alt)
+static void brute_fill_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned short ntree_alt)
 {
     // Replace start and end if they are switched
     if (end_x < start_x)
@@ -4522,7 +4512,7 @@ static void brute_fill_rectangle(long start_x, long start_y, long end_x, long en
 }
 
 #define fill_rectangle(start_x, start_y, end_x, end_y, nav_colour) fill_rectangle_f(start_x, start_y, end_x, end_y, nav_colour, __func__)
-void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour, const char *func_name)
+void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour, const char *func_name)
 {
     long tri_n0;
     long tri_k0;
@@ -4587,7 +4577,7 @@ void fill_rectangle_f(long start_x, long start_y, long end_x, long end_y, unsign
     brute_fill_rectangle(start_x, start_y, end_x, end_y, nav_colour);
 }
 
-TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour)
+TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour)
 {
     long sx;
     long sy;
@@ -4664,7 +4654,7 @@ long fringe_scan(long *outfri_x, long *outfri_y, long *outlen_x, long *outlen_y)
     return 1;
 }
 
-long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, unsigned char *oval)
+long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, NavColour *oval)
 {
     NAVIDBG(19,"Starting");
     long fri_x;
@@ -4676,7 +4666,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     if (!fringe_scan(&fri_x,&fri_y,&len_x,&len_y)) {
         return 0;
     }
-    unsigned char *fri_map;
+    NavColour *fri_map;
     fri_map = &fringe_map[get_subtile_number(fri_x,fri_y)];
     // Find dx and dy
     long dx;
@@ -4690,7 +4680,7 @@ long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, lon
     for (dy = 1; dy < len_y; dy++)
     {
         // Our data is 0-terminated, so we can use string functions to compare
-        if (memcmp(&fri_map[(gameadd.map_subtiles_x + 1) * dy], &fri_map[0], dx) != 0) {
+        if (memcmp(&fri_map[(gameadd.map_subtiles_x + 1) * dy], &fri_map[0], dx*sizeof(NavColour)) != 0) {
             break;
         }
     }
@@ -4751,7 +4741,7 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
     for (brd_idx=0; brd_idx < ix_Border; brd_idx++)
     {
         tri_idx = Border[brd_idx];
-        if (get_triangle_tree_alt(tri_idx) != -1)
+        if (get_triangle_tree_alt(tri_idx) != NAV_COL_UNSET)
         {
             tri = get_triangle(tri_idx);
             for (i=0; i < 3; i++)
@@ -4769,7 +4759,7 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
     // Second try - triangles
     for (tri_idx=0; tri_idx < ix_Triangles; tri_idx++)
     {
-        if (get_triangle_tree_alt(tri_idx) != -1)
+        if (get_triangle_tree_alt(tri_idx) != NAV_COL_UNSET)
         {
             tri = get_triangle(tri_idx);
             for (i=0; i < 3; i++)
@@ -4791,40 +4781,35 @@ TbBool triangulation_border_start(long *border_a, long *border_b)
     return false;
 }
 
-long get_navigation_colour_for_door(long stl_x, long stl_y)
+NavColour get_navigation_colour_for_door(long stl_x, long stl_y)
 {
     struct Thing *doortng;
-    long owner;
+    NavColour colour = (1 << NAVMAP_FLOORHEIGHT_BIT);
+
     doortng = get_door_for_position(stl_x, stl_y);
     if (thing_is_invalid(doortng))
     {
         ERRORLOG("Cannot find door for flagged position (%d,%d)",(int)stl_x,(int)stl_y);
-        return (1 << NAVMAP_FLOORHEIGHT_BIT);
+        return colour;
     }
-    if (doortng->door.is_locked == 0)
+
+    for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
-        return (1 << NAVMAP_FLOORHEIGHT_BIT);
+        if ((players_are_mutual_allies(plyr_idx,doortng->owner) && doortng->door.is_locked) ||
+            door_is_hidden_to_player(doortng,plyr_idx))
+        {
+            colour |= 1 << (NAVMAP_OWNERSELECT_BIT + plyr_idx);
+        }
     }
-    if (is_hero_thing(doortng))
-        owner = NAVMAP_OWNER_HERO;
-    else
-    if (doortng->owner == game.neutral_player_num)
-        owner = NAVMAP_OWNER_NEUTRAL;
-    else
-        owner = doortng->owner;
-    if (owner > NAVMAP_OWNERSELECT_MAX)
-    {
-        ERRORLOG("Doors at (%d,%d) have outranged player %ld",(int)stl_x,(int)stl_y,owner);
-        return (1 << NAVMAP_FLOORHEIGHT_BIT);
-    }
-    return ((owner+1) << NAVMAP_OWNERSELECT_BIT) | (1 << NAVMAP_FLOORHEIGHT_BIT);
+    return colour;
+    
 }
 
-long get_navigation_colour_for_cube(long stl_x, long stl_y)
+NavColour get_navigation_colour_for_cube(long stl_x, long stl_y)
 {
     long tcube;
     long cube_pos;
-    long i;
+    NavColour i;
     i = get_floor_filled_subtiles_at(stl_x, stl_y);
     if (i > NAVMAP_FLOORHEIGHT_MAX)
       i = NAVMAP_FLOORHEIGHT_MAX;
@@ -4834,7 +4819,7 @@ long get_navigation_colour_for_cube(long stl_x, long stl_y)
     return i;
 }
 
-long get_navigation_colour(long stl_x, long stl_y)
+NavColour get_navigation_colour(long stl_x, long stl_y)
 {
     struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
@@ -4849,9 +4834,9 @@ long get_navigation_colour(long stl_x, long stl_y)
     return get_navigation_colour_for_cube(stl_x, stl_y);
 }
 
-long uniform_area_colour(const unsigned char *imap, long start_x, long start_y, long end_x, long end_y)
+NavColour uniform_area_colour(const NavColour *imap, long start_x, long start_y, long end_x, long end_y)
 {
-    long uniform;
+    NavColour uniform;
     long x;
     long y;
     uniform = imap[navmap_tile_number(start_x,start_y)];
@@ -4913,7 +4898,7 @@ void triangulation_initxy(long startx, long starty, long endx, long endy)
     {
         struct Triangle *tri;
         tri = &Triangles[i];
-        tri->tree_alt = 255;
+        tri->tree_alt = NAV_COL_UNSET;
     }
     tri_initialised = 1;
     triangulation_initxy_points(startx, starty, endx, endy);
@@ -4933,12 +4918,12 @@ void triangulation_init(void)
     }
 }
 
-TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long end_x, long end_y)
+TbBool triangulate_area(NavColour *imap, long start_x, long start_y, long end_x, long end_y)
 {
     TbBool one_tile;
     TbBool not_whole_map;
-    long colour;
-    unsigned char ccolour;
+    NavColour colour;
+    NavColour ccolour;
     long rect_sx;
     long rect_sy;
     long rect_ex;
@@ -5005,7 +4990,7 @@ TbBool triangulate_area(unsigned char *imap, long start_x, long start_y, long en
         colour = uniform_area_colour(imap, start_x, start_y, end_x, end_y);
     }
 
-    if (colour == -1)
+    if (colour == NAV_COL_UNSET)
     {
         fringe_map = imap;
         fringe_x1 = start_x;

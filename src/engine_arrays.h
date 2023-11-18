@@ -26,7 +26,6 @@
 
 // All anims below this have two different sprites in 3d and map view
 #define TD_ISO_POINTS        982
-#define FLOOR_TO_CEILING_MAP_LEN 592
 #define RANDOMISORS_LEN      512
 #define RANDOMISORS_MASK   0x1ff
 #define RANDOMISORS_RANGE     63
@@ -50,7 +49,6 @@ struct WibbleTable {
 /******************************************************************************/
 extern long randomisors[512];
 extern struct WibbleTable wibble_table[128];
-extern unsigned short floor_to_ceiling_map[592];
 extern long floor_height_table[256];
 extern long lintel_top_height[256];
 extern long lintel_bottom_height[256];
@@ -60,7 +58,7 @@ extern long lintel_bottom_height[256];
 extern short iso_td_add[KEEPERSPRITE_ADD_NUM];
 extern short td_iso_add[KEEPERSPRITE_ADD_NUM];
 /******************************************************************************/
-extern unsigned short floor_to_ceiling_map[FLOOR_TO_CEILING_MAP_LEN];
+extern unsigned short floor_to_ceiling_map[TEXTURE_BLOCKS_COUNT];
 extern struct WibbleTable blank_wibble_table[128];
 /******************************************************************************/
 short convert_td_iso(short n);
