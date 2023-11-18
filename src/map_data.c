@@ -429,7 +429,7 @@ TbBool set_coords_to_slab_center(struct Coord3d *pos, MapSubtlCoord slb_x, MapSu
 TbBool set_coords_to_cylindric_shift(struct Coord3d *pos, const struct Coord3d *source, long radius, long angle, long z)
 {
     long px = source->x.val + ((radius * LbSinL(angle)) >> 16);
-    long py = source->y.val + ((-(radius * LbCosL(angle)) >> 8) >> 8);
+    long py = source->y.val - ((radius * LbCosL(angle)) >> 16);
     long pz = source->z.val + z;
     return set_coords_with_range_check(pos, px, py, pz, MapCoord_ClipX|MapCoord_ClipY|MapCoord_ClipZ);
 }
