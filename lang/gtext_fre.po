@@ -6580,7 +6580,7 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
 msgstr ""
-"Porte secrète : Cette porte reste cachée aux ennemis à moins qu'ils ne l'observent attentivement ou qu'ils ne la voient s'ouvrir, bouton droit pour zoomer."
+"Porte secrète: Cette porte reste cachée aux ennemis à moins qu'ils ne l'observent de près ou ne la voient s'ouvrir. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
 
 #: guitext:937
 msgctxt "Game event description"
