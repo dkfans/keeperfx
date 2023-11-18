@@ -1834,7 +1834,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
             {
                 if (setup_person_move_to_coord(thing, &locpos, NavRtF_Default))
                 {
-                    SYNCDBG(8,"Moving thing %s from (%d,%d) to (%d,%d)", thing_model_name(thing),
+                    SYNCDBG(8,"Moving thing %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
                         (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
                         (int)locpos.x.stl.num, (int)locpos.y.stl.num);
                     return true;
