@@ -6445,7 +6445,8 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
 msgstr ""
-"Porta segreta: Questa porta rimane nascosta ai nemici, a meno che non la osservino da vicino o la vedano aprirsi. Zoom RMB."
+"Porta segreta: Questa porta rimane nascosta ai nemici, a meno che non la osservino da vicino "
+"o la vedano aprirsi. TDM: Visona."
 
 #: guitext:937
 msgctxt "Game event description"
