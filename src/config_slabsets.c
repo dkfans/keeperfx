@@ -124,9 +124,11 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
                     game.slabobjs[game.slabobjs_num].class_id = class_id;
                     game.slabobjs[game.slabobjs_num].isLight  = value_int32(value_dict_get(object, "IsLight"));
                     game.slabobjs[game.slabobjs_num].model    = value_parse_model(class_id,value_dict_get(object, "Subtype"));
-                    game.slabobjs[game.slabobjs_num].offset_x = COORD_PER_STL * value_double(value_dict_get(object, "RelativeX"));
-                    game.slabobjs[game.slabobjs_num].offset_y = COORD_PER_STL * value_double(value_dict_get(object, "RelativeY"));
-                    game.slabobjs[game.slabobjs_num].offset_z = COORD_PER_STL * value_double(value_dict_get(object, "RelativeZ"));
+
+                    VALUE *RelativePosition_arr = value_dict_get(section, "RelativePosition");
+                    game.slabobjs[game.slabobjs_num].offset_x = value_int32(value_array_get(RelativePosition_arr, 0));
+                    game.slabobjs[game.slabobjs_num].offset_y = value_int32(value_array_get(RelativePosition_arr, 1));
+                    game.slabobjs[game.slabobjs_num].offset_z = value_int32(value_array_get(RelativePosition_arr, 2));
                     game.slabobjs[game.slabobjs_num].range    = value_int32(value_dict_get(object, "EffectRange"));
                     game.slabobjs[game.slabobjs_num].stl_id   = value_int32(value_dict_get(object, "Subtile"));
                     game.slabobjs[game.slabobjs_num].slabset_id = slabset_no;
