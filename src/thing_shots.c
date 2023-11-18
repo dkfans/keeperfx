@@ -737,10 +737,6 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (target->health < 0) {
         return false;
     }
-    struct ObjectConfig* objconf = get_object_model_stats2(target->model);
-    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
-        return false;
-    }
     struct Thing* shootertng = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shootertng = thing_get(shotng->parent_idx);
@@ -794,10 +790,6 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         return false;
     }
     if (target->health < 0) {
-        return false;
-    }
-    struct ObjectConfig* objconf = get_object_model_stats2(target->model);
-    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
         return false;
     }
     struct Thing* shootertng = INVALID_THING;
