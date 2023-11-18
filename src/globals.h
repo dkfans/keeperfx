@@ -292,6 +292,10 @@ typedef short FrontendMenuState;
 typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
+/** data used for navigating contains floor height, locked doors per player, unsafe surfaces */
+typedef unsigned short NavColour;
+
+
 
 /* Stores a 2d coordinate (x,y).
 
