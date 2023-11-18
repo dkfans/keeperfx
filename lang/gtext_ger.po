@@ -6596,8 +6596,8 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
 msgstr ""
-"Geheime Tür: Diese Tür bleibt für Feinde verborgen, es sei denn, sie beobachten sie genau oder sehen, wie sie sich öffnet. "
-"Mit der rechten Maustaste zoomt Ihr sie heran. TDM: visiona."
+"Geheim Tür: Eine spezielle Tür, die für Feinde unsichtbar ist, aber bei genauerem Hinsehen entdeckt werden kann oder wenn die eigenen Einheiten sie öffnet, während der Feind hinsieht"
+"Mit der rechten Maustaste zoomt Ihr sie heran."
 
 #: guitext:937
 msgctxt "Game event description"
@@ -6613,13 +6613,13 @@ msgstr "Geheime Tür entdeckt"
 #: guitext:939
 msgctxt "Game event description"
 msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
-msgstr "Feind hat deine Geheimtür entdeckt: Mit der linken Maustaste lesen. Mit der rechten "
+msgstr "der Feind hat deine Geheimtür entdeckt: Mit der linken Maustaste lesen. Mit der rechten "
 "Maustaste löschen."
 
 #: guitext:940
 msgctxt "Game event name"
 msgid "Enemy spotted your secret door"
-msgstr "Feind hat deine Geheimtür entdeckt"
+msgstr "der Feind hat deine Geheimtür entdeckt"
 
 #: guitext:941
 #, fuzzy
