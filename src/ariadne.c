@@ -2913,7 +2913,7 @@ AriadneReturn ariadne_update_state_on_line(struct Thing *thing, struct Ariadne *
     NAVIDBG(19,"Starting");
     angle = get_angle_xy_to(&thing->mappos, &arid->current_waypoint_pos);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if ((distance - arid->field_62) > 1024)
+    if ((distance - arid->field_62) > 4*COORD_PER_STL)
     {
         struct Coord3d pos;
         arid->pos_12.x.val = thing->mappos.x.val;
@@ -3110,7 +3110,7 @@ AriadneReturn ariadne_update_state_wallhug(struct Thing *thing, struct Ariadne *
     NAVIDBG(18,"Route for %s index %d from %3d,%3d to %3d,%3d", thing_model_name(thing),(int)thing->index,
         (int)thing->mappos.x.val, (int)thing->mappos.y.val, (int)arid->current_waypoint_pos.x.val, (int)arid->current_waypoint_pos.y.val);
     distance = get_2d_distance(&thing->mappos, &arid->current_waypoint_pos);
-    if ((distance - arid->field_62) > 1024)
+    if ((distance - arid->field_62) > 4*COORD_PER_STL)
     {
         struct Coord3d pos;
         arid->pos_12.x.val = thing->mappos.x.val;
