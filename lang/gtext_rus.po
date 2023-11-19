@@ -7068,3 +7068,23 @@ msgstr "Друид"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "Маг времени"
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Скальное образование."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Основная порода: Не принадлежащий вам каменный пол. Вы не можете присвоить его или построить на нем."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Плотная золотая жила: Содержит много богатства для добычи ваших бесов."

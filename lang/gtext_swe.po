@@ -6903,3 +6903,23 @@ msgstr "Druid"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "Tids Magiker"
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Stenformation."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Grundberg: Oöverklagad stenig mark. Du kan inte kräva den eller bygga på den."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Tät guldåder: Innehåller mycket rikedom för dina Smådjävlar att utvinna."

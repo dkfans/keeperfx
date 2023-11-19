@@ -7000,3 +7000,23 @@ msgstr ""
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr ""
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Formacja skalna."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Skała podstawowa: Niepomocne podłoże skalne. Nie możesz go oznaczyć ani na nim budować."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Gęste żyłki złota: Zawiera dużo bogactwa do wydobycia przez twoje Chochliki."
