@@ -20,6 +20,7 @@
 LANGUAGE ?= eng
 
 NGTEXTDATS = \
+pkg/fxdata/gtext_eng.dat \
 pkg/fxdata/gtext_chi.dat \
 pkg/fxdata/gtext_cht.dat \
 pkg/fxdata/gtext_cze.dat \
@@ -33,8 +34,7 @@ pkg/fxdata/gtext_lat.dat \
 pkg/fxdata/gtext_pol.dat \
 pkg/fxdata/gtext_rus.dat \
 pkg/fxdata/gtext_spa.dat \
-pkg/fxdata/gtext_swe.dat \
-pkg/fxdata/gtext_eng.dat
+pkg/fxdata/gtext_swe.dat
 
 NCTEXTDATS = \
 pkg/campgns/ami2019/text_eng.dat \
@@ -54,6 +54,7 @@ pkg/campgns/lqizgood/text_eng.dat \
 pkg/campgns/lqizgood/text_chi.dat \
 pkg/campgns/lqizgood/text_fre.dat \
 pkg/campgns/lqizgood/text_pol.dat \
+pkg/campgns/origplus/text_eng.dat \
 pkg/campgns/origplus/text_chi.dat \
 pkg/campgns/origplus/text_cht.dat \
 pkg/campgns/origplus/text_cze.dat \
@@ -68,7 +69,6 @@ pkg/campgns/origplus/text_pol.dat \
 pkg/campgns/origplus/text_rus.dat \
 pkg/campgns/origplus/text_spa.dat \
 pkg/campgns/origplus/text_swe.dat \
-pkg/campgns/origplus/text_eng.dat \
 pkg/campgns/ncastles/text_eng.dat \
 pkg/campgns/ncastles/text_pol.dat \
 pkg/campgns/ncastles/text_chi.dat \
