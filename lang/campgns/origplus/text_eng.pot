@@ -20,12 +20,6 @@
 "Project-Id-Version: GUI Strings for origplus "
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/"
 
-#. Generic victory message
-#: guitext:0
-msgctxt "In-game message"
-msgid "Success! The land is yours. Press Space to proceed to the next realm."
-msgstr ""
-
 #. Level Eversmile information soon after start
 #: guitext:1
 msgctxt "In-game message"

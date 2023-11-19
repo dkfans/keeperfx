@@ -18,22 +18,17 @@
 "Project-Id-Version: GUI Strings for origplus "
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/"
 
-
-#. Generic victory message
-#: guitext:0
-msgctxt "In-game message"
-msgid "Success! The land is yours. Press Space to proceed to the next realm."
-msgstr ""
-
 #. Level Eversmile information soon after start
 #: guitext:1
 msgctxt "In-game message"
 msgid "You are an experienced Keeper. Heroes will not wait for you to build a "
 "Dungeon. Rival Dungeon Keepers will give it their best to defeat you."
-msgstr ""
+msgstr "Je bent een ervaren Keeper. Helden wachten niet op jou om een kerker te "
+"bouwen. Rivaliserende Kerkerbewaarders zullen hun best doen om je te verslaan."
 
 #: guitext:2
 msgctxt "In-game message"
 msgid "Transferring creatures to a new realm has been made very difficult. "
 "But surely an experienced Keeper as yourself can conquer realms without help."
-msgstr ""
+msgstr "Het overbrengen van wezens naar een nieuw rijk is zeer moeilijk gemaakt. "
+"Maar een ervaren Keeper zoals kan vast rijken veroveren zonder hulp."
