@@ -5900,8 +5900,8 @@ msgstr "Moo4"
 
 #: guitext:1011
 msgctxt "Menu interface item"
-msgid "Dungeon Keeper original campaign"
-msgstr "Dungeon Keeper Original"
+msgid "Dungeon Keeper - Original Campaign"
+msgstr "Dungeon Keeper - Campaña Original"
 
 #: guitext:1012
 msgctxt "Menu interface item"
@@ -5980,7 +5980,7 @@ msgstr "El Castillo de Nikolai"
 
 #: guitext:1027
 msgctxt "Menu interface item"
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr "Dungeon Keeper - Nuevo Juego+"
 
 #: guitext:1028

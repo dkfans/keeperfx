@@ -6994,8 +6994,8 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
-msgstr ""
+msgid "Dungeon Keeper - Original Campaign"
+msgstr "Dungeon Keeper - Original-Kampagne"
 
 #: guitext:1012
 msgctxt "Menu interface item""
@@ -7074,7 +7074,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028

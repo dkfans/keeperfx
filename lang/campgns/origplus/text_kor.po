@@ -1,0 +1,32 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#      KeeperFX GUI Strings translation file
+#  @par Purpose:
+#      Acts as a source of regional translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 17 Nov 2023
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+"Project-Id-Version: GUI Strings for origplus "
+"Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/"
+
+#. Level Eversmile information soon after start
+#: guitext:1
+msgctxt "In-game message"
+msgid "You are an experienced Keeper. Heroes will not wait for you to build a "
+"Dungeon. Rival Dungeon Keepers will give it their best to defeat you."
+msgstr "당신은 경험이 풍부한 키퍼입니다. 영웅들은 당신이 던전을 짓기를 기다리지 않을 것입니다. 경쟁하는 던전 키퍼들은 당신을 이기기 위해 최선을 다할 것입니다."
+
+#: guitext:2
+msgctxt "In-game message"
+msgid "Transferring creatures to a new realm has been made very difficult. "
+"But surely an experienced Keeper as yourself can conquer realms without help."
+msgstr "새로운 영역으로 크리쳐를 이동시키는 것이 매우 어려워졌습니다. 하지만 분명히 여러분과 같이 경험이 풍부한 키퍼는 도움 없이도 영역을 정복할 수 있을 것입니다."
