@@ -41,7 +41,7 @@ struct Map bad_map_block;
  */
 MapSubtlCoord map_subtiles_z = 8;
 
-unsigned char *IanMap = NULL;
+NavColour *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
 /**
@@ -547,7 +547,7 @@ void clear_mapmap(void)
         for (unsigned long x = 0; x < (gameadd.map_subtiles_x + 1); x++)
         {
             struct Map* mapblk = get_map_block_at(x, y);
-            unsigned char* flg = &game.navigation_map[get_subtile_number(x, y)];
+            unsigned short* flg = &game.navigation_map[get_subtile_number(x, y)];
             LbMemorySet(mapblk, 0, sizeof(struct Map));
             *flg = 0;
         }
@@ -783,8 +783,7 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     {
         return true;
     }
-    //TODO DOOR Why magic door id different? This doesn't seem to be intended.
-    if (slab_kind_is_nonmagic_door(slb->kind))
+    if (slab_kind_is_door(slb->kind))
     {
         if (slabmap_owner(slb) == plyr_idx)
         {

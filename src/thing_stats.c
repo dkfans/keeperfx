@@ -780,9 +780,10 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
 {
     HitPoints dmg;
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    const struct ObjectConfig* objconf = get_object_model_stats2(door_crate_object_model(doortng->model));
+    const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+
     //TODO CONFIG replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn)
-    if ( !objconf->resistant_to_nonmagic || (shotst->damage_type == DmgT_Magical))
+    if ( !(doorst->model_flags & DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
     {
         dmg = shotng->shot.damage;
     } else
