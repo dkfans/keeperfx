@@ -3298,33 +3298,61 @@ static void change_slab_type_process(struct ScriptContext *context)
 
 static void reveal_map_location_check(const struct ScriptLine *scline)
 {
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     TbMapLocation location;
     if (!get_map_location_id(scline->tp[1], &location)) {
         return;
     }
-    command_add_value(Cmd_REVEAL_MAP_LOCATION, scline->np[0], location, scline->np[2], 0);
+    value->chars[0] = scline->np[0];
+    value->arg1 = location;
+    value->arg2 = scline->np[2];
+    PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void reveal_map_location_process(struct ScriptContext *context)
 {
-    TbMapLocation target = context->value->arg0;
+    TbMapLocation target = context->value->arg1;
     SYNCDBG(0, "Revealing location type %d", target);
     long x = 0;
     long y = 0;
-    long r = context->value->arg1;
+    long r = context->value->arg2;
     find_map_location_coords(target, &x, &y, context->player_idx, __func__);
     if ((x == 0) && (y == 0))
     {
         WARNLOG("Can't decode location %d", target);
         return;
     }
+    PlayerNumber plyr_idx;
     if (r == -1)
     {
         struct CompoundCoordFilterParam iter_param;
-        iter_param.plyr_idx = context->player_idx;
-        slabs_fill_iterate_from_slab(subtile_slab(x), subtile_slab(y), slabs_reveal_slab_and_corners, &iter_param);
+        if (context->value->chars[0] == ALL_PLAYERS)
+        {
+            for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+            {
+                iter_param.plyr_idx = plyr_idx;
+                slabs_fill_iterate_from_slab(subtile_slab(x), subtile_slab(y), slabs_reveal_slab_and_corners, &iter_param);
+            }
+        }
+        else
+        {
+            iter_param.plyr_idx = context->value->chars[0];
+            slabs_fill_iterate_from_slab(subtile_slab(x), subtile_slab(y), slabs_reveal_slab_and_corners, &iter_param);
+        }
     } else
-        reveal_map_area(context->player_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
+    {
+        if (context->value->chars[0] == ALL_PLAYERS)
+        {
+            for (plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+            {
+                reveal_map_area(plyr_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
+            }
+        }
+        else
+        {
+            reveal_map_area(context->value->chars[0], x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
+        }
+    }
 }
 
 static void use_spell_on_creature_check(const struct ScriptLine* scline)
