@@ -122,6 +122,7 @@ struct SlabAttr {
     unsigned char is_diggable;
     unsigned char wlb_type;
     unsigned char is_ownable;
+    unsigned char indestructible;
 };
 
 #pragma pack()

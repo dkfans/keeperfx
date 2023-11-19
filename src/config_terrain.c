@@ -61,6 +61,7 @@ const struct NamedCommand terrain_slab_commands[] = {
   {"WLBTYPE",        13},
   {"ANIMATED",       14},
   {"ISOWNABLE",      15},
+  {"INDESTRUCTIBLE", 16},
   {NULL,              0},
 };
 
@@ -687,6 +688,22 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 if (k >= 0)
                 {
                     slbattr->is_ownable = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 16: //INDESTRUCTIBLE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->indestructible = k;
                     n++;
                 }
             }
