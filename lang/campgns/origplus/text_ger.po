@@ -23,7 +23,7 @@
 msgctxt "In-game message"
 msgid "You are an experienced Keeper. Heroes will not wait for you to build a "
 "Dungeon. Rival Dungeon Keepers will give it their best to defeat you."
-msgstr "Ihr seid ein erfahrener Hüter. Helden werden nicht darauf warten, dass Ihr "
+msgstr "Ihr seid ein erfahrener Keeper. Helden werden nicht darauf warten, dass Ihr "
 "ein Dungeon baut. Rivalisierende Dungeon Keeper werden ihr Bestes geben, um euch zu besiegen."
 
 #: guitext:2
@@ -31,4 +31,4 @@ msgctxt "In-game message"
 msgid "Transferring creatures to a new realm has been made very difficult. "
 "But surely an experienced Keeper as yourself can conquer realms without help."
 msgstr "Das Übertragen von Kreaturen in ein neues Reich wurde sehr schwierig gemacht. "
-"Aber sicherlich kann ein erfahrener Hüter wie Ihr Reiche ohne Hilfe erobern."
+"Aber sicherlich kann ein erfahrener Keeper wie Ihr Reiche ohne Hilfe erobern."
