@@ -144,19 +144,43 @@ pkg/fxdata/gtext_%.dat: lang/gtext_%.pot $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/
 pkg/%/text_chi.dat : lang/%/text_chi.po $(POTONGDAT) $(CH_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(CH_CHAR_ENCODING) $< >/dev/null
 
+pkg/%/text_cht.dat : lang/%/text_cht.po $(POTONGDAT) $(CH_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(CH_CHAR_ENCODING) $< >/dev/null
+
+pkg/%/text_cze.dat: lang/%/text_cze.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
+
+pkg/%/text_dut.dat: lang/%/text_dut.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
+
 pkg/%/text_fre.dat: lang/%/text_fre.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
 pkg/%/text_ger.dat: lang/%/text_ger.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
+pkg/%/text_ita.dat: lang/%/text_ita.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
+
+pkg/%/text_kor.dat: lang/%/text_kor.po $(POTONGDAT) $(KR_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(KR_CHAR_ENCODING) $< >/dev/null
+
 pkg/%/text_jpn.dat: lang/%/text_jpn.po $(POTONGDAT) $(JP_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(JP_CHAR_ENCODING) $< >/dev/null
+
+pkg/%/text_lat.dat: lang/%/text_lat.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
 pkg/%/text_pol.dat: lang/%/text_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
+pkg/%/text_rus.dat: lang/%/text_rus.po $(POTONGDAT) $(RU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(RU_CHAR_ENCODING) $< >/dev/null
+
 pkg/%/text_spa.dat: lang/%/text_spa.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
+	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
+
+pkg/%/text_swe.dat: lang/%/text_swe.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
 	$(POTONGDAT) -o $@ -e $(EU_CHAR_ENCODING) $< >/dev/null
 
 pkg/%/landview_pol.dat: lang/%/landview_pol.po $(POTONGDAT) $(EU_CHAR_ENCODING) | pkg/%
