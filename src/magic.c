@@ -1411,6 +1411,9 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
         max_damage /= 4;
+    // Compensate for effect element position offset
+    pos.x.val += 128;
+    pos.y.val += 128;
     obtng = create_object(&pos, ObjMdl_PowerLightning, plyr_idx, -1);
     if (!thing_is_invalid(obtng))
     {
