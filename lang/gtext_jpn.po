@@ -6230,10 +6230,38 @@ msgstr ""
 "おまえの業績は伝説的だ。 おまえの悪徳とずる賢さこそは、 世代を越えた恐怖の物"
 "語となるであろう。"
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "秘密のドア"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"秘密のドア： このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には見えない。 右クリックで表示する。"
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "秘密のドアを見つけた: 左クリックで切り替え。 右クリックで削除。"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "秘密のドアを見つけた"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "敵が秘密のドアを見つけた: 左クリックで切り替え。 右クリックで削除。"
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "敵が秘密のドアを見つけた"
 
 #: guitext:941
 #, fuzzy

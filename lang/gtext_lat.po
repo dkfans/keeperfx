@@ -5602,10 +5602,38 @@ msgid ""
 "become the horror stories of generations."
 msgstr ""
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Ostium secretum"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
 msgstr ""
+"Ostium secretum: Ostium speciale, hostibus occultum, maculosum esse potest cum inspiciendo, vel cum unitates tuae aperiunt cum hoste aspiciendo. RMB zoom."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Secretum ostium inventum"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Secretum ostium inventum"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Hostis maculosus secretas ianuas tuas"
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Hostis maculosus secretas ianuas tuas"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

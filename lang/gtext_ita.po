@@ -6434,10 +6434,39 @@ msgstr ""
 "I tuoi successi sono leggendari, Keeper. I racconti delle tue malvage "
 "imprese semineranno il terrore per molte generazioni."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Porta segreta"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Porta segreta: Questa porta rimane nascosta ai nemici, a meno che non la osservino da vicino "
+"o la vedano aprirsi. TDM: Visona."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Scoperta una porta segreta TSM: attiva - disattiva. TDM: cancella."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Scoperta una porta segreta"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Il nemico ha individuato la vostra porta segreta TSM: attiva - disattiva. TDM: cancella."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Il nemico ha individuato la vostra porta segreta"
 
 #: guitext:941
 #, fuzzy

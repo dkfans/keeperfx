@@ -36,10 +36,12 @@ struct Point;
 struct Triangle {
   short points[3];
   int tags[3]; // Id of each triangle neighbour of this one
-  unsigned char tree_alt; // 255 is a special value here
+  NavColour tree_alt; // NAV_COL_UNSET is a special value here
   unsigned char field_D;
   unsigned short field_E;
 };
+
+#define NAV_COL_UNSET USHRT_MAX
 
 /******************************************************************************/
 extern struct Triangle Triangles[TRIANLGLES_COUNT];
@@ -63,7 +65,7 @@ long get_triangle_region_id(long tri_id);
 TbBool set_triangle_region_id(long tri_id, long reg_id);
 long get_triangle_edgelen(long tri_id);
 TbBool set_triangle_edgelen(long tri_id, long edgelen);
-long get_triangle_tree_alt(long tri_id);
+NavColour get_triangle_tree_alt(long tri_id);
 struct Point *get_triangle_point(long tri_id, long pt_cor);
 TbBool triangle_tip_equals(long tri_id, long pt_cor, long pt_x, long pt_y);
 long link_find(long ntri, long val);

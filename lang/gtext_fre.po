@@ -6569,10 +6569,38 @@ msgstr ""
 "votre sournoiserie constitueront les histoires d'horreur des prochaines "
 "générations."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Porte secrète"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Porte secrète : Cette porte reste cachée aux ennemis à moins qu'ils ne l'observent de près ou ne la voient s'ouvrir. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Découverte d'une porte secrète : Changez avec le bouton gauche, supprimez avec le bouton droit."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Découverte d'une porte secrète"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "L'ennemi a repéré votre porte secrète : Changez avec le bouton gauche, supprimez avec le bouton droit."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "L'ennemi a repéré votre porte secrète"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"

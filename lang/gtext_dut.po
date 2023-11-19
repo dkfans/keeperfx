@@ -6362,10 +6362,38 @@ msgstr ""
 "Je prestaties zijn legendarisch, Keeper. Jouw terreur en sluwheid zullen "
 "generaties lang als griezelverhalen voortleven."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Geheime deur"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Geheime deur: Deze deur blijft verborgen voor vijanden tenzij ze hem goed observeren of zien openen. RKM: inzoomen"
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Geheime deur ontdekt: LMK: bladeren. RMK: wissen."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Geheime deur ontdekt"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Vijand heeft je geheime deur gezien: LMK: bladeren. RMK: wissen."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Vijand heeft je geheime deur gezien"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
