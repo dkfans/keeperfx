@@ -127,8 +127,8 @@ struct GuiButtonInit frontend_statistics_buttons[] = {
 
 struct GuiButtonInit frontend_high_score_score_buttons[] = {
   { LbBtnT_NormalBtn,  BID_MENU_TITLE, 0, 0, NULL,               NULL,        NULL,                 0, 999,  30, 999,  30,495, 46, frontend_draw_vlarge_menu_button,  0, GUIStr_Empty,  0,      {85},            0, NULL },
-  { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, NULL,               NULL,        NULL,               0,  90, 72, 90, 72,220, 26, frontend_draw_highscores_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, NULL},
-  { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, NULL,               NULL,        NULL,               0, 110, 73, 110, 73,400, 26, frontend_draw_high_scores_mappack,0, GUIStr_Empty,  0,      {32},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, NULL,               NULL,        NULL,               0,  145, 72, 145, 72,220, 26, frontend_draw_highscores_scroll_box_tab,      0, GUIStr_Empty,  0,      {28},            0, NULL},
+  { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, NULL,               NULL,        NULL,               0, 120, 73, 120, 73,400, 26, frontend_draw_high_scores_mappack,0, GUIStr_Empty,  0,      {32},            0, NULL},
   { LbBtnT_NormalBtn,  BID_DEFAULT,    0, 0, NULL,               NULL,        NULL,                 0, 999,  97, 999,  97,450,286, frontend_draw_high_score_table,    0, GUIStr_Empty,  0,       {0},            0, NULL },
   { LbBtnT_HoldableBtn,BID_DEFAULT,    0, 0, highscore_scroll_up,NULL,frontend_over_button,  0, 545, 96, 545, 96, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {17},            0, frontend_highscore_scroll_up_maintain},
   { LbBtnT_HoldableBtn,BID_DEFAULT,    0, 0, highscore_scroll_down,NULL,frontend_over_button,0, 545, 374, 545, 374, 26, 14, frontend_draw_slider_button,       0, GUIStr_Empty,  0,      {18},            0, frontend_highscore_scroll_down_maintain},

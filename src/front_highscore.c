@@ -408,7 +408,7 @@ void frontend_draw_highscores_scroll_box_tab(struct GuiButton *gbtn)
     LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
     pos_x += spr->SWidth * fs_units_per_px / 16;
     spr = &frontend_sprite[GFS_hugearea_thc_tx1_tc];
-    for (int i = 4; i > 0; i--)
+    for (int i = 3; i > 0; i--)
     {
         LbSpriteDrawResized(pos_x, pos_y, fs_units_per_px, spr);
         pos_x += spr->SWidth * fs_units_per_px / 16;
