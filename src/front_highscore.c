@@ -381,7 +381,10 @@ void frontend_high_scores_update()
   } else
   if (highscore_scroll_offset > scores_count-visible_entries+1)
   {
-    highscore_scroll_offset = scores_count-visible_entries+1;
+      if (highscore_scroll_offset != high_score_entry_input_active)
+      {
+        highscore_scroll_offset = scores_count-visible_entries+1;
+      }
   }
   if (wheel_scrolled_down || (is_key_pressed(KC_DOWN,KMod_NONE)))
   {
