@@ -192,12 +192,7 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
         else
         {
             unsigned char bitfields = 0;
-            TbBool permanent = value_int32(value_dict_get(section, "Permanent"));
-            if (permanent > 1)
-            {
-                ERRORLOG("invalid Utilized (%d) for column %d",permanent,col_no);
-                continue;
-            }
+            TbBool permanent = true;
             bitfields |= permanent;
 
             char Lintel = value_int32(value_dict_get(section, "Lintel"));
@@ -218,7 +213,6 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
             floorHeight <<= 4;
             bitfields |= floorHeight;
 
-            cols[col_no].use = value_int32(value_dict_get(section, "Utilized"));
             cols[col_no].bitfields = bitfields;
             cols[col_no].solidmask = value_int32(value_dict_get(section, "SolidMask"));
             cols[col_no].floor_texture = value_int32(value_dict_get(section, "FloorTexture"));
