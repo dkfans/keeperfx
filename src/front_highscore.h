@@ -43,6 +43,7 @@ void highscore_scroll_down(struct GuiButton *gbtn);
 void highscore_scroll(struct GuiButton *gbtn);
 void frontend_highscore_scroll_up_maintain(struct GuiButton *gbtn);
 void frontend_highscore_scroll_down_maintain(struct GuiButton *gbtn);
+void frontend_highscore_scroll_tab_maintain(struct GuiButton *gbtn);
 void frontend_draw_highscores_scroll_tab(struct GuiButton *gbtn);
 void frontend_high_scores_update();
 void frontend_draw_highscores_scroll_box_tab(struct GuiButton *gbtn);

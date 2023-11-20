@@ -352,6 +352,10 @@ void frontend_highscore_scroll_up_maintain(struct GuiButton *gbtn)
 {
     if (gbtn == NULL)
         return;
+    if (scores_count > visible_entries)
+        gbtn->flags |= LbBtnF_Visible;
+    else
+        gbtn->flags &= ~LbBtnF_Visible;
     if (highscore_scroll_offset != 0)
         gbtn->flags |= LbBtnF_Enabled;
     else
@@ -362,10 +366,24 @@ void frontend_highscore_scroll_down_maintain(struct GuiButton *gbtn)
 {
     if (gbtn == NULL)
         return;
+    if (scores_count > visible_entries)
+        gbtn->flags |= LbBtnF_Visible;
+    else
+        gbtn->flags &= ~LbBtnF_Visible;
     if (highscore_scroll_offset < scores_count-visible_entries)
         gbtn->flags |= LbBtnF_Enabled;
     else
         gbtn->flags &= ~LbBtnF_Enabled;
+}
+
+void frontend_highscore_scroll_tab_maintain(struct GuiButton *gbtn)
+{
+    if (gbtn == NULL)
+        return;
+    if (scores_count > visible_entries)
+        gbtn->flags |= LbBtnF_Visible;
+    else
+        gbtn->flags &= ~LbBtnF_Visible;
 }
 
 void frontend_draw_highscores_scroll_tab(struct GuiButton *gbtn)
