@@ -67,8 +67,8 @@ CREATE_PARTY(THIEVES)
 
 REM ****************************************************************************
 
-REM "You are the Keeper, chosen one, And being evil is great fun."
-DISPLAY_OBJECTIVE(826,ALL_PLAYERS)
+REM "You are an experienced Keeper. Heroes will not wait for you to build a Dungeon. Rival Dungeon Keepers will give it their best to defeat you."
+DISPLAY_OBJECTIVE(1,ALL_PLAYERS)
 IF(PLAYER0,TOTAL_CREATURES >= 6)
 	SET_FLAG(PLAYER0,FLAG0,5)
 ENDIF
@@ -93,8 +93,8 @@ IF(PLAYER0,FLAG0 >= 6)
 			DISPLAY_OBJECTIVE(19,ALL_PLAYERS)
 			SET_FLAG(PLAYER0,FLAG0,7)
 		ENDIF
-	ENDIF							
-ENDIF								
+	ENDIF
+ENDIF
 
 REM END LEVEL CHECK - doesn't need a flag, as third battle is always LANDLORD,
 REM however it may be better to use the flag and then test if good player has no creatures.

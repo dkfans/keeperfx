@@ -64,7 +64,6 @@ struct ObjectConfig { // sizeof=0x1D
 long health;
 char fall_acceleration;
 char light_unaffected;
-char resistant_to_nonmagic;
 char movement_flag;
     struct InitLight ilght;
 };

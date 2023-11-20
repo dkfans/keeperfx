@@ -121,6 +121,8 @@ struct SlabAttr {
     unsigned char animated;
     unsigned char is_diggable;
     unsigned char wlb_type;
+    unsigned char is_ownable;
+    unsigned char indestructible;
 };
 
 #pragma pack()
@@ -193,7 +195,6 @@ TbBool slab_kind_is_fortified_wall(RoomKind slbkind);
 TbBool slab_kind_is_room_wall(RoomKind slbkind);
 TbBool slab_kind_is_friable_dirt(RoomKind slbkind);
 TbBool slab_kind_is_door(SlabKind slbkind);
-TbBool slab_kind_is_nonmagic_door(SlabKind slbkind);
 TbBool slab_kind_is_liquid(SlabKind slbkind);
 TbBool slab_kind_is_room(SlabKind slbkind);
 TbBool slab_kind_has_torches(SlabKind slbkind);
