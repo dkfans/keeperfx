@@ -371,7 +371,7 @@ void frontend_draw_highscores_scroll_tab(struct GuiButton *gbtn)
 
 void frontend_high_scores_update()
 {
-  if (scores_count <= 0)
+  if (scores_count == 0)
   {
     highscore_scroll_offset = 0;
   } else
