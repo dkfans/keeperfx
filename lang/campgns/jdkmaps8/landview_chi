@@ -1,0 +1,126 @@
+# *****************************************************************************
+#  Free implementation of Bullfrog's Dungeon Keeper strategy game.
+# *****************************************************************************
+#   @file jdkmaps8/landview_eng.pot
+#      KeeperFX Land View Strings translation template
+#  @par Purpose:
+#      Allows to create .po files used for translating the game.
+#      Also, acts as a source of english translation strings.
+#  @par Comment:
+#      Use this file to create or update source strings in translations.
+#  @author   KeeperFX Team
+#  @date     25 Aug 2012 - 30 Dec 2012
+#  @par  Copying and copyrights:
+#      This program is free software; you can redistribute it and/or modify
+#      it under the terms of the GNU General Public License as published by
+#      the Free Software Foundation; either version 2 of the License, or
+#      (at your option) any later version.
+#
+# *****************************************************************************
+#, fuzzy:
+msgid ""
+msgstr ""
+"Project-Id-Version:Japanese DKMaps8 pack for KeeperFX\n"
+"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
+"POT-Creation-Date: 2012-09-02 01:12+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Ninja\n"
+"Language-Team: KeeperFX Team <code.google.com>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: landview:0
+msgctxt "Campaign introduction"
+msgid "Japanese DKMaps8 pack"
+msgstr "日本人的地下城战役"
+
+#: landview:10
+msgctxt "Level introduction"
+msgid "Inferno. This Lands  its very dangerous. Its many cervice In the rock. In addition eruptions of the volcano are here heaps of times. But we must kounkuest this land to attack next lands."
+msgstr "炼狱。这片土地很危险。有许多房间建在岩浆的附近。此外，这里发生过多次火山喷发。但是，我们必须从这片土地出发，才能进攻下一个王国。"
+
+#: landview:11
+msgctxt "Level summary"
+msgid "No Man human lands.  This land is impossible to the habitation by the human, but demons are here magnificently. The perfect  work , my Lord!"
+msgstr "这里变成了没有人类的土地。人类现在无法居住在这片土地上，但恶魔却在这里横行霸道。干的漂亮，我的主人！"
+
+#: landview:20
+msgctxt "Level introduction"
+msgid "Omakase.  This land is a land of continuous fights. There go on here very big battles. The time to them to add to join and to kill all our enemies!"
+msgstr "怀石料理。这片土地上战火不断。现在就在发生着大规模的战争。是时候加入战场，并杀死我们所有的敌人了！"
+
+#: landview:21
+msgctxt "Level summary"
+msgid "Land's of the Magma.  This land is drunk a powerful magma. The beauty spot, inst. it?"
+msgstr "岩浆之地。这片土地现在沉没在了炙热的岩浆之中。好一番美景，不是吗？"
+
+#: landview:30
+msgctxt "Level introduction"
+msgid "Key of victory.  The demented land by  the civil war is torn on all possible  parts. The time to unite her into our unity!"
+msgstr "胜利的钥匙。这片疯狂的土地因为当地的内战而弄得四分五裂。是时候把它重新团结成一个整体了！"
+
+#: landview:31
+msgctxt "Level summary"
+msgid "Demon's.  We gave to our demons this land for this that so well they fought during previous fights. The excellent  work  my Lord!"
+msgstr "恶魔之家。我将这片土地赐予了我们的恶魔，因为他们在之前的战斗中表现出色。我的主人，干得漂亮！"
+
+#: landview:40
+msgctxt "Level introduction"
+msgid "Surround. This land is after the rule of the good Lord. We must kill him to gain this land!"
+msgstr "围剿。这片土地由一位善良的国王统治，我们必须杀了他才能得到这片土地。"
+
+#: landview:41
+msgctxt "Level summary"
+msgid "Furriery.  This land experienced the pain from our sword! The perfect  work, my Lord!"
+msgstr "毛皮大衣。这片土地经历了我们剑下的痛苦！干的漂亮，我的主人！"
+
+#: landview:50
+msgctxt "Level introduction"
+msgid "Sengoku musou. This land wields the lord which is a very good strategist. We must face to him to gain this land!"
+msgstr "战国时代。这片土地上的领主是个非常出色的战略家。我们必须面对他，才能夺得这块土地！"
+
+#: landview:51
+msgctxt "Level summary"
+msgid "Full Moon Land. This land nevermore will not see the sun, now inhabitants of the land will see only the moonlight! The excellent work my Lord!"
+msgstr "满月之地。这片土地从此再也见不到太阳，现在这里的居民只能看到月光！主人啊，真是您的杰作！"
+
+#: landview:60
+msgctxt "Level introduction"
+msgid "Riverside. The Lords of this land you hiding In his Castel, you Mast faund him and kill him!"
+msgstr "河岸。这片土地的国王得知你的到来，而躲在了他的城堡里，你必须找到他并且杀了他！"
+
+#: landview:61
+msgctxt "Level summary"
+msgid "Disgusting Lands. These lands became abominably distorted, the perfect work my Lord!"
+msgstr "令人作呕的土地。这些土地现在变得面目可憎，这就是主人的完美杰作！"
+
+#: landview:70
+msgctxt "Level introduction"
+msgid "Super rich. In this land you will have to a great many to seek,  who seeks this will find."
+msgstr "超有钱。在这片土地上，许多人类都在盯着你的巨量的钱财，并企图找到它。"
+
+#: landview:71
+msgctxt "Level summary"
+msgid "Destroy Lands.  These lands remained worn out after research of the enemy ruler. Now in this land came into being the true hell! The perfect  excellent  work my Lord!"
+msgstr "毁坏的土地。 经过敌人统治者的修复，这片土地依然破败不堪。而现在，这片土地变成了真正的地狱！真是完美的作品，我的主人！"
+
+#: landview:80
+msgctxt "Level introduction"
+msgid "Huge army. This land will be a place of the great battle. Here will resolve themselves fates  whether we arrive at the capital or else not. To the work, my lud!"
+msgstr "大军来袭。这片土地将要发生一场大战。在这里，我们将决定自己的命运，无论我们是否能抵达首都。开始工作吧，我的主人！"
+
+#: landview:81
+msgctxt "Level summary"
+msgid "Of upland. She took place happened here very big battle, not easily it was to conquer but you made this! The excellent work my Lord!"
+msgstr "高地。这片土地已经发生了一场大战，变得难以征服，但您还是成功地征服了它！出色的表现，我的主人！"
+
+#: landview:90
+msgctxt "Level introduction"
+msgid "Present maker. It is already the capital, here will decide himself the last battle. Gain this land, and we will gain the authority over the all the world!"
+msgstr "礼物制造者。我们已经到达这个世界的首都，最后一战将在这里决出胜负。获得这片土地，我们就能获得统治全世界的权力！"
+
+#: landview:91
+msgctxt "Level summary"
+msgid "Reds Lands. Congratulations never myself this you du! Would not expect you, you made this! The all the world belongs to us!"
+msgstr "血红的土地。恭喜您，这是我未曾实现的愿望！没想到您，您做到了这一点！现在，整个世界都属于我们了！"
