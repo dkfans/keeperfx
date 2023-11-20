@@ -22,6 +22,7 @@ START_MONEY(PLAYER0,5000)
 START_MONEY(PLAYER1,250000)
 
 COMPUTER_PLAYER(PLAYER1,4)
+SET_COMPUTER_CHECKS(PLAYER1,"COMPUTER CHECK IMPRISONMENT",1000,3,2,50,0)
 
 REM ****************************************************************************
 REM Flags used:
