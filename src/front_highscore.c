@@ -53,7 +53,9 @@ unsigned long scores_count;
 void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int col2_width, int col3_width, int col4_width, int units_per_px)
 {
     if ((idx >= scores_count) || (campaign.hiscore_table == NULL))
-      return;
+    {
+        return;
+    }
     struct HighScore* hscore = &campaign.hiscore_table[idx];
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     int i = pos_x + col1_width;
@@ -161,7 +163,9 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
         }
     }
     if (high_score_entry_input_active > k)
-      draw_high_score_entry(high_score_entry_input_active, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
+    {
+        draw_high_score_entry(high_score_entry_input_active, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
+    }
     else
     {
         if (pos_y < (gbtn->scr_pos_y + gbtn->height))
