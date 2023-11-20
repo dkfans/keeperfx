@@ -71,7 +71,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
         }
         else
         {
-            highscore_scroll_offset = idx;
+            highscore_scroll_offset = idx - visible_entries;
         }
         char str[64];
         memcpy(str, high_score_entry, sizeof(str));
