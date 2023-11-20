@@ -764,6 +764,12 @@ TbBool packets_process_cheats(
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
+        case PSt_RevealMap:
+        {
+          struct PlayerInfo* player = get_player(plyr_idx);
+          reveal_whole_map(player);
+            break;
+        }
         default:
             return false;
     }

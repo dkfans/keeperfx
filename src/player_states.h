@@ -83,6 +83,7 @@ enum PlayerStates {
     PSt_PlaceTerrain,
     PSt_DestroyThing,
     PSt_CreatrInfoAll,
+    PSt_RevealMap,
     PSt_ListEnd
 };
 

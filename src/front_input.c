@@ -1125,7 +1125,7 @@ long get_dungeon_control_action_inputs(void)
     }
     else if ( (player->work_state == PSt_PlaceTerrain) || (player->work_state == PSt_MkDigger) || (player->work_state == PSt_MkBadCreatr) || (player->work_state == PSt_MkGoodCreatr)
         || (player->work_state == PSt_KillPlayer) || (player->work_state == PSt_HeartHealth) || (player->work_state == PSt_StealRoom) ||
-        (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) )
+        (player->work_state == PSt_StealSlab) || (player->work_state == PSt_ConvertCreatr) || (player->work_state == PSt_RevealMap) )
     {
         process_cheat_mode_selection_inputs();
     }
