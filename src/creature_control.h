@@ -410,7 +410,6 @@ unsigned char cowers_from_slap_turns;
     unsigned char follow_leader_fails;
     GameTurn dropped_turn;
     unsigned long timebomb_countdown;
-    unsigned char timebomb_radius; //todo cleanup
     ThingIndex timebomb_countdown_id;
     ThingIndex timebomb_target_id;
     TbBool timebomb_death;

@@ -1036,7 +1036,6 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 cctrl->spell_flags |= CSAfF_Timebomb;
                 //pwrdynst = get_power_dynamic_stats(PwrK_TIMEBOMB);
                 cctrl->timebomb_countdown = duration;
-                //cctrl->timebomb_radius = spell_lev;
             }
         }
     } else
