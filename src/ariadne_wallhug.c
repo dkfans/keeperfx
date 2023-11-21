@@ -191,7 +191,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
 
     unsigned short quadrant = (((LbArcTanAngle(pos2_stl_x - *pos1_stl_x, pos2_stl_y - *pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
 
-    int v20 = chebyshev_distance(*pos1_stl_x, *pos1_stl_y, pos2_stl_x, pos2_stl_y);
+    int v20 = chebyshev_distance_xy(*pos1_stl_x, *pos1_stl_y, pos2_stl_x, pos2_stl_y);
     if ((int)abs(v20) <= *delta && hug_can_move_on(
                                        creatng,
                                        3 * small_around[quadrant].delta_x + *pos1_stl_x,
@@ -200,7 +200,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
         *pos1_stl_x += 3 * small_around[quadrant].delta_x;
         *pos1_stl_y += 3 * small_around[quadrant].delta_y;
 
-        *delta = chebyshev_distance(*pos1_stl_x, *pos1_stl_y, pos2_stl_x, pos2_stl_y);
+        *delta = chebyshev_distance_xy(*pos1_stl_x, *pos1_stl_y, pos2_stl_x, pos2_stl_y);
 
         *v58 = 1;
     }
@@ -255,8 +255,8 @@ static int hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d
     int round_idx_plus1 = (round_idx + 1) & 3;
     int round_idx_minus1 = (round_idx - 1) & 3;
 
-    MapSubtlDelta max_delta_1 = chebyshev_distance(pos1_stl_x, pos1_stl_y, pos2_stl_x, pos2_stl_y) - 1;
-    MapSubtlDelta max_delta_2 = chebyshev_distance(pos1_stl_x_2, pos1_stl_y_2, pos2_stl_x, pos2_stl_y) - 1;
+    MapSubtlDelta max_delta_1 = chebyshev_distance_xy(pos1_stl_x, pos1_stl_y, pos2_stl_x, pos2_stl_y) - 1;
+    MapSubtlDelta max_delta_2 = chebyshev_distance_xy(pos1_stl_x_2, pos1_stl_y_2, pos2_stl_x, pos2_stl_y) - 1;
 
     char v58 = 0;
     char v57 = 0;
@@ -2117,7 +2117,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     MapSubtlCoord curr_stl_x = *ostl_x;
     MapSubtlCoord curr_stl_y = *ostl_y;
     unsigned short round_idx = small_around_index_in_direction(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
-    int dist = chebyshev_distance(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
+    int dist = chebyshev_distance_xy(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
     int dx = small_around[round_idx].delta_x;
     int dy = small_around[round_idx].delta_y;
     // If we can follow direction straight to the target, and we will get closer to it, then do it
@@ -2126,7 +2126,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         curr_stl_x += STL_PER_SLB*dx;
         curr_stl_y += STL_PER_SLB*dy;
         *state = WaHSS_Val1;
-        *maxdist = chebyshev_distance(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
+        *maxdist = chebyshev_distance_xy(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
     } else
     // If met second wall, finish
     if (*state == WaHSS_Val1)
@@ -2166,7 +2166,7 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
 {
     SYNCDBG(4,"Starting");
 
-    int dist = chebyshev_distance(src_stl_x, src_stl_y, dst_stl_x, dst_stl_y);
+    int dist = chebyshev_distance_xy(src_stl_x, src_stl_y, dst_stl_x, dst_stl_y);
 
     char state_a = WaHSS_Val0;
     MapSubtlCoord stl_a_x = src_stl_x;

@@ -4180,7 +4180,7 @@ static TbBool wander_point_get_random_pos(const struct Wander *wandr, const stru
           long irnd = CREATURE_RANDOM(thing, wandr->points_count);
           MapSubtlCoord stl_x = wandr->points[irnd].stl_x;
           MapSubtlCoord stl_y = wandr->points[irnd].stl_y;
-          MapSubtlCoord dist = chebyshev_distance(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
+          MapSubtlCoord dist = chebyshev_distance_xy(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
           // Move at least 2 slabs, and prefer distance around 7 slabs
           // If previously selected selected_dist is too low, allow any place
           if (((dist > 6) && (abs(dist-21) < abs(selected_dist-21))) || (selected_dist <= 6))
