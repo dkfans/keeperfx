@@ -340,6 +340,13 @@ IF(PLAYER_GOOD,BARRACKS >= 1)
 		SET_TIMER(PLAYER_GOOD,TIMER1)
 	ENDIF
 ENDIF
+REM Hide the Hero Gate once it no longer spawns, but with a small delay.
+IF(PLAYER_GOOD,BARRACKS == 0)
+	SET_TIMER(PLAYER_GOOD,TIMER3)
+ENDIF
+IF(PLAYER_GOOD,TIMER3 > 50)
+	HIDE_HERO_GATE(-1,1)
+ENDIF
 
 REM After 20 minutes spawn some heroes from southern waterway
 IF(PLAYER0,GAME_TURN >= 24000)
