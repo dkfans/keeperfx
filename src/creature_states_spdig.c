@@ -22,6 +22,7 @@
 
 #include "bflib_sound.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "thing_physics.h"

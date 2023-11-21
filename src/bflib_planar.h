@@ -21,6 +21,7 @@
 #define BFLIB_PLANAR_H
 
 #include "bflib_basics.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,7 +49,7 @@ struct TbPoint {
  * @param y1 2-dimensional point #1; y coordinate
  * @param x2 2-dimensional point #2; x coordinate
  * @param y2 2-dimensional point #2; y coordinate
- * @return the Chebyshev distance between the 2 given 2d points.
+ * @return The Chebyshev distance between the 2 given 2d points.
  */
 #define chebyshev_distance(x1,y1,x2,y2) (max(abs(x1 - x2), abs(y1 - y2)))
 
@@ -61,7 +62,7 @@ struct TbPoint {
  * @param y1 2-dimensional point #1; y coordinate
  * @param x2 2-dimensional point #2; x coordinate
  * @param y2 2-dimensional point #2; y coordinate
- * @return the manhattan distance between the 2 given 2d points.
+ * @return The manhattan distance between the 2 given 2d points.
  */
 #define manhattan_distance(x1,y1,x2,y2) (abs(x1 - x2) + abs(y1 - y2))
 /******************************************************************************/
@@ -75,6 +76,7 @@ long distance_with_angle_to_coord_x(long distance, long angle);
 long distance_with_angle_to_coord_y(long distance, long angle);
 
 long get_distance_xy(long x1, long x2, long y1, long y2);
+MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 
 long distance3d_with_angles_to_coord_x(long distance, long angle_a, long angle_b);
 long distance3d_with_angles_to_coord_y(long distance, long angle_a, long angle_b);
