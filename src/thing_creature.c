@@ -3493,7 +3493,7 @@ struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord 
 
             if (can_cast_spell(plyr_idx,PwrK_POSSESS,stl_x,stl_y,thing,CastChk_Default ))
             {
-                MapCoordDelta distance = get_2d_box_distance_xy(thing->mappos.x.val, thing->mappos.y.val, x, y);
+                MapCoordDelta distance = chebyshev_distance(thing->mappos.x.val, thing->mappos.y.val, x, y);
                 if (distance < nearest_distance)
                 {
                     nearest_distance = distance;

@@ -142,15 +142,6 @@ MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord
     return dist_y;
 }
 
-MapCoordDelta get_2d_box_distance_xy(long pos1_x, long pos1_y, long pos2_x, long pos2_y)
-{
-    long dist_x = abs((long)pos1_x - (long)pos2_x);
-    long dist_y = abs((long)pos1_y - (long)pos2_y);
-    if (dist_y <= dist_x)
-      return dist_x;
-    return dist_y;
-}
-
 void angles_to_vector(short angle_xy, short angle_yz, long dist, struct ComponentVector *cvect)
 {
     long long cos_yz = LbCosL(angle_yz) >> 2;

@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 
 #include "creature_jobs.h"
 #include "creature_states.h"
@@ -425,7 +426,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
         slb_x = subtile_slab(stl_x);
         slb_y = subtile_slab(stl_y);
         int new_dist;
-        new_dist = get_2d_box_distance_xy(srcstl_x, srcstl_y, stl_x, stl_y);
+        new_dist = chebyshev_distance(srcstl_x, srcstl_y, stl_x, stl_y);
         if (new_dist >= min_dist) {
             continue;
         }
@@ -965,7 +966,7 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
             MapSlabCoord wall_slb_x = subtile_slab(wall_stl_x);
             MapSlabCoord wall_slb_y = subtile_slab(wall_stl_y);
 
-            distance = get_2d_box_distance_xy(spdig_stl_x, spdig_stl_y, wall_stl_x,wall_stl_y);
+            distance = chebyshev_distance(spdig_stl_x, spdig_stl_y, wall_stl_x, wall_stl_y);
             if ( min_distance > distance )
             {
                 MapSubtlCoord reinforce_stl_x;
@@ -1198,7 +1199,7 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
             SubtlCodedCoords tsk_stl_num;
             MapSubtlCoord tsk_dist;
             tsk_stl_num = mtask->coords;
-            tsk_dist = get_2d_box_distance_xy(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
+            tsk_dist = chebyshev_distance(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
             if (tsk_dist < best_dist)
             {
                 MapSubtlCoord tsk_stl_x;
