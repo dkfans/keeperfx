@@ -52,6 +52,18 @@ struct TbPoint {
  */
 #define chebyshev_distance(x1,y1,x2,y2) max(abs(x1 - x2), abs(y1 - y2))
 
+/**
+ * Calculate the manhattan distance* between two 2-dimensional points (x1,y1) and (x2,y2).
+ * 
+ * "This distance can be imagined as the length needed to move between two points in a grid where you can only move up, down, left or right." - https://simple.wikipedia.org/wiki/Manhattan_distance
+ * 
+ * @param x1 2-dimensional point #1; x coordinate
+ * @param y1 2-dimensional point #1; y coordinate
+ * @param x2 2-dimensional point #2; x coordinate
+ * @param y2 2-dimensional point #2; y coordinate
+ * @return the manhattan distance between the 2 given 2d points.
+ */
+#define manhattan_distance_xy(x1,y1,x2,y2) abs(x1 - x2) + abs(y1 - y2)
 /******************************************************************************/
 void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBottom);
 

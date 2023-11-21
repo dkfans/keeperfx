@@ -274,8 +274,8 @@ static int hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d
     if (!i)
       return -1;
 
-    MapSubtlDelta dist_1 = abs(pos1_stl_y - pos2_stl_y) + abs(pos1_stl_x - pos2_stl_x);
-    MapSubtlDelta dist_2 = abs(pos1_stl_y_2 - pos2_stl_y) + abs(pos1_stl_x_2 - pos2_stl_x);
+    MapSubtlDelta dist_1 = manhattan_distance_xy(pos1_stl_x, pos1_stl_y, pos2_stl_x, pos2_stl_y);
+    MapSubtlDelta dist_2 = manhattan_distance_xy(pos1_stl_x_2, pos1_stl_y_2, pos2_stl_x, pos2_stl_y);
     if (dist_2 >= dist_1)
     {
       pos1->x.stl.num = pos1_stl_x;
