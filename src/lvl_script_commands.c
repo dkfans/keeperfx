@@ -1482,6 +1482,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
 
     struct ObjectConfigStats* objst;
     int tmodel = gameadd.object_conf.object_types_count -1;
+    struct Objects* objdat = get_objects_data(tmodel);
 
     objst = &gameadd.object_conf.object_cfgstats[tmodel];
     LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
@@ -1489,7 +1490,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
     objst->name_stridx = 201;
     objst->map_icon = 0;
     objst->genre = 0;
-    objst->draw_class = ODC_Default;
+    objdat->draw_class = ODC_Default;
     object_desc[tmodel].name = objst->code_name;
     object_desc[tmodel].num = tmodel;
 }
