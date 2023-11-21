@@ -1231,7 +1231,8 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
     {
-        play_non_3d_sample(117);
+        struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);    
+        play_non_3d_sample(trap_cfg->place_sound_idx);
     }
     return true;
 }
