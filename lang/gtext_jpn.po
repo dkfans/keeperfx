@@ -6233,7 +6233,7 @@ msgstr ""
 #: guitext:935 
 msgctxt "Door name"
 msgid "Secret Door"
-msgstr "シークレット・ドア"
+msgstr "秘密のドア"
 
 #: guitext:936
 msgctxt "Door description"
@@ -6241,27 +6241,27 @@ msgid ""
 "Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
 "opening. RMB zoom."
 msgstr ""
-"秘密のドア： このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には見えない。"
+"秘密のドア： このドアは、敵がよく観察するか、ドアが開くのを見ない限り、敵には見えない。 右クリックで表示する。"
 
 #: guitext:937
 msgctxt "Game event description"
 msgid "Secret Door discovered: LMB toggle. RMB delete."
-msgstr "秘密のドア発見"
+msgstr "秘密のドアを見つけた: 左クリックで切り替え。 右クリックで削除。"
 
 #: guitext:938
 msgctxt "Game event name"
 msgid "Secret Door discovered"
-msgstr "秘密のドア発見"
+msgstr "秘密のドアを見つけた"
 
 #: guitext:939
 msgctxt "Game event description"
 msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
-msgstr "敵が秘密のドアを発見"
+msgstr "敵が秘密のドアを見つけた: 左クリックで切り替え。 右クリックで削除。"
 
 #: guitext:940
 msgctxt "Game event name"
 msgid "Enemy spotted your secret door"
-msgstr "敵が秘密のドアを発見"
+msgstr "敵が秘密のドアを見つけた"
 
 #: guitext:941
 #, fuzzy
@@ -6627,7 +6627,7 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr "ダンジョンキーパーの原キャンペーン"
 
 #: guitext:1012
@@ -6707,7 +6707,7 @@ msgstr "ニコライの城キャンペーン"
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr "増強された原キャンペーン"
 
 #: guitext:1028
@@ -6781,3 +6781,23 @@ msgstr "ドルイド"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "タイムメイジ"
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "岩の形成。"
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "岩盤：未請求の岩床。あなたはそれを請求したり、それに建物を建てたりすることはできません。"
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "密な金の層：あなたのインプが採掘するための多くの富を保持しています。"

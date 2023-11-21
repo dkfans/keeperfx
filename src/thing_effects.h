@@ -128,6 +128,7 @@ enum ThingEffectKind {
     TngEff_Unknown69,
 };
 
+/** See struct EffectElementStats effect_element_stats for use. */
 enum ThingEffectElements {
     TngEffElm_None = 0,
     TngEffElm_Blast1,
@@ -252,7 +253,7 @@ struct EffectGeneratorStats { // sizeof = 57
 };
 
 struct EffectElementStats { // sizeof = 79
-  unsigned char draw_class;
+  unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
   unsigned char move_type;
   unsigned char unanimated;
   short lifespan;
@@ -268,7 +269,7 @@ struct EffectElementStats { // sizeof = 79
   unsigned char transparant;  // transparency flags in bits 4-5
   unsigned char field_15;
   unsigned char movement_flags;
-  unsigned char size_change;
+  unsigned char size_change; /**< See enum ThingSizeChange. */
   unsigned char fall_acceleration;
   unsigned char field_19_unused;
   short inertia_floor;

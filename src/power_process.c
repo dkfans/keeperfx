@@ -377,12 +377,9 @@ void draw_god_lightning(struct Thing *shotng)
     for (int i = LbFPMath_PI / 4; i < 2 * LbFPMath_PI; i += LbFPMath_PI / 2)
     {
         struct Coord3d locpos;
-        locpos.x.val = shotng->mappos.x.val;
-        locpos.y.val = shotng->mappos.y.val;
-        locpos.z.val = shotng->mappos.z.val;
-        locpos.x.val +=  (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
-        locpos.y.val += -(LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
-        locpos.z.val = subtile_coord(12,0);
+        locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
+        locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
+        locpos.z.val = shotng->mappos.z.val + subtile_coord(12,0);
         draw_lightning(&locpos, &shotng->mappos, 256, TngEffElm_ElectricBall3);
     }
 }
