@@ -898,6 +898,10 @@ short get_status_panel_keyboard_action_inputs(void)
                 fake_button_click(BID_SPELL_TAB);
             }
         }
+        else
+        {
+            fake_button_click(BID_SPELL_TAB);
+        }
     }
     else
     {
