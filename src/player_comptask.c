@@ -25,6 +25,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_planar.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_memory.h"
@@ -1563,10 +1564,8 @@ short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoor
     if ((i == 0) || (i == 1)) {
         return i;
     }
-    int dist_a;
-    int dist_b;
-    dist_a = abs(stl_a_y - stl2_y) + abs(stl_a_x - stl1_x);
-    dist_b = abs(stl_b_y - stl2_y) + abs(stl_b_x - stl1_x);
+    int dist_a = manhattan_distance(stl_a_x, stl_a_y, stl1_x, stl2_y);
+    int dist_b = manhattan_distance(stl_b_x, stl_b_y, stl1_x, stl2_y);
     if (dist_b > dist_a) {
         return 1;
     }
@@ -2520,11 +2519,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                     }
                 } else
                 {
-                    long delta_x;
-                    long delta_y;
-                    delta_x = thing->mappos.x.stl.num - stl_x;
-                    delta_y = thing->mappos.y.stl.num - stl_y;
-                    if (abs(delta_x) + abs(delta_y) >= 2)
+                    if (manhattan_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, stl_x, stl_y) >= 2)
                     {
                         if (best_score) {
                             score = get_creature_thing_score(thing);
@@ -2599,7 +2594,7 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
                     {
                         if (room_is_invalid(room))
                         {
-                            if (abs(thing->mappos.x.stl.num - stl_x) + abs(thing->mappos.y.stl.num - stl_y) < 2 )
+                            if (manhattan_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, stl_x, stl_y) < 2)
                               continue;
                         } else
                         {

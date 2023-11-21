@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_planar.h"
 #include "room_data.h"
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -156,7 +157,7 @@ struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind 
       }
       i = room->next_of_owner;
       // Per-room code
-      long dist = abs(room->central_stl_y - stl_y) + abs(room->central_stl_x - stl_x);
+      long dist = manhattan_distance(room->central_stl_x, room->central_stl_y, stl_x, stl_y);
       if (dist < nearest_dist)
       {
           nearest_dist = dist;
@@ -209,7 +210,7 @@ struct Room * find_next_navigable_room_for_thing_with_capacity_and_closer_than(s
         i = room->next_of_owner;
         // Per-room code
         // Compute simplified distance - without use of mul or div
-        long distance = abs(thing->mappos.x.stl.num - (int)room->central_stl_x) + abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
+        long distance = manhattan_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, room->central_stl_x, room->central_stl_y);
         if ((*neardistance > distance) && (room->used_capacity >= used))
         {
             struct Coord3d pos;

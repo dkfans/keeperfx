@@ -25,6 +25,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 
 #include "config.h"
 #include "config_terrain.h"
@@ -403,7 +404,7 @@ struct ComputerTask *get_room_build_task_nearest_to(const struct Computer2 *comp
         // Per-task code
         if (((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0))
         {
-            long dist = abs((MapSubtlCoord)ctask->new_room_pos.x.stl.num - stl_x) + abs((MapSubtlCoord)ctask->new_room_pos.y.stl.num - stl_y);
+            long dist = manhattan_distance(ctask->new_room_pos.x.stl.num, ctask->new_room_pos.y.stl.num, stl_x, stl_y);
             if (dist < nearest_dist)
             {
                 nearest_dist = dist;

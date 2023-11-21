@@ -28,6 +28,7 @@
 #include "bflib_dernc.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 
 #include "config.h"
 #include "config_compp.h"
@@ -551,7 +552,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
                     pos->x.val = 0;
                 } else
                 {
-                    long dist = abs((MapSubtlCoord)pos->x.stl.num - dnstl_x) + abs((MapSubtlCoord)pos->y.stl.num - dnstl_y);
+                    long dist = manhattan_distance(pos->x.stl.num, pos->y.stl.num, dnstl_x, dnstl_y);
                     if (hate->distance_near >= dist)
                     {
                         hate->distance_near = dist;
