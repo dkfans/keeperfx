@@ -866,27 +866,42 @@ short get_status_panel_keyboard_action_inputs(void)
   if (is_key_pressed(KC_1, KMod_NONE))
   {
     clear_key_pressed(KC_1);
-    fake_button_click(1);
+    fake_button_click(BID_INFO_TAB);
   }
   if (is_key_pressed(KC_2, KMod_NONE))
   {
     clear_key_pressed(KC_2);
-    fake_button_click(2);
+    fake_button_click(BID_ROOM_TAB);
   }
   if (is_key_pressed(KC_3, KMod_NONE))
   {
     clear_key_pressed(KC_3);
-    fake_button_click(3);
+    if (menu_is_active(GMnu_SPELL))
+    {
+        turn_off_menu(GMnu_SPELL);
+        turn_on_menu(GMnu_SPELL2);
+        fake_button_click(BID_POWER_NXPG);
+    }
+    else if (menu_is_active(GMnu_SPELL2))
+    {
+        turn_off_menu(GMnu_SPELL2);
+        turn_on_menu(GMnu_SPELL);
+        fake_button_click(BID_POWER_NXPG);
+    }
+    else
+    {
+        fake_button_click(BID_SPELL_TAB);
+    }
   }
   if (is_key_pressed(KC_4, KMod_NONE))
   {
     clear_key_pressed(KC_4);
-    fake_button_click(4);
+    fake_button_click(BID_MNFCT_TAB);
   }
   if (is_key_pressed(KC_5, KMod_NONE))
   {
     clear_key_pressed(KC_5);
-    fake_button_click(5);
+    fake_button_click(BID_CREATR_TAB);
   }
   return false;
 }

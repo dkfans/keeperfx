@@ -195,6 +195,7 @@ struct GuiMenu *menu_list[] = {
     &frontend_add_session_box,
     &frontend_select_mappack_menu,
     &message_box,
+    &spell_menu2,
     NULL,
 };
 
