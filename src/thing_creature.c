@@ -1066,25 +1066,19 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
             }
             break;
         case SplK_Invisibility:
-        {
             cctrl->force_visible = 0;
-        }
-        break;
+            break;
+        case SplK_Teleport:
+            cctrl->stateblock_flags |= CCSpl_Teleport;
+            break;
         case SplK_Speed:
         case SplK_Slow:
-            i = get_free_spell_slot(thing);
-            break;
-        case SplK_Bleed:
-            i = get_free_spell_slot(thing);
-            if (i != -1)
-            {
-                fill_spell_slot(thing, i, spell_idx, spconf->duration);
-                cctrl->spell_flags |= CSAfF_Bleed;
-            }
+            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
             break;
         case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;
             break;
+
         }
         if (spconf->aura_effect != 0)
         {
@@ -1136,36 +1130,6 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         cctrl->spell_aura_duration = pwrdynst->duration;
         break;
     }
-    case SplK_Invisibility:
-        pwrdynst = get_power_dynamic_stats(PwrK_CONCEAL);
-        cspell->duration = pwrdynst->strength[spell_lev];
-        break;
-    case SplK_Teleport:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Speed:
-        pwrdynst = get_power_dynamic_stats(PwrK_SPEEDCRTR);
-        cspell->duration = pwrdynst->strength[spell_lev];
-        break;
-    case SplK_Slow:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Bleed:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Light:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Fly:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Sight:
-        cspell->duration = spconf->duration;
-        break;
-    case SplK_Disease:
-        pwrdynst = get_power_dynamic_stats(PwrK_DISEASE);
-        cspell->duration = pwrdynst->strength[spell_lev];
-        break;
     case SplK_Chicken:
         external_set_thing_state(thing, CrSt_CreatureChangeToChicken);
         cctrl->countdown_282 = duration/5;
