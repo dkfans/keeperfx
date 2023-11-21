@@ -103,7 +103,6 @@ extern struct EngineCoord object_origin;
 /******************************************************************************/
 extern long camera_zoom;
 /******************************************************************************/
-MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 void angles_to_vector(short theta, short phi, long dist, struct ComponentVector *cvect);
 long get_angle_xy_to(const struct Coord3d *pos1, const struct Coord3d *pos2);
 long get_angle_yz_to(const struct Coord3d *pos1, const struct Coord3d *pos2);

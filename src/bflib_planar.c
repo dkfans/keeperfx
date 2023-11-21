@@ -131,6 +131,20 @@ MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord
 }
 
 /**
+ * Calculate the Chebyshev^ distance between two 3-dimensional points (pos1) and (pos2).
+ * 
+ * ^"Chebyshev distance is a metric defined on a vector space where the distance between two vectors is the greatest of their differences along any coordinate dimension." - https://en.wikipedia.org/wiki/Chebyshev_distance
+ * 
+ * @param pos1 2-dimensional point #1 (x.val, y.val, z.val)
+ * @param pos2 2-dimensional point #1 (x.val, y.val, z.val)
+ * @return The Chebyshev distance between the 2 given 3d points.
+ */
+MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+    return chebyshev_distance_3d(pos1->x.val, pos1->y.val, pos1->z.val, pos2->x.val, pos2->y.val, pos2->z.val);
+}
+
+/**
  * Gives X coordinate of a 3D position shift by given distance into given direction.
  * @param distance Specifies the distance to move.
  * @param angle_a Specifies the movement rotation a.

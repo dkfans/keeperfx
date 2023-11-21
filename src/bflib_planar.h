@@ -54,6 +54,21 @@ struct TbPoint {
 #define chebyshev_distance(x1,y1,x2,y2) (max(abs(x1 - x2), abs(y1 - y2)))
 
 /**
+ * Calculate the Chebyshev distance^ between two 3-dimensional points (x1,y1,z1) and (x2,y2,z2).
+ * 
+ * ^"Chebyshev distance is a metric defined on a vector space where the distance between two vectors is the greatest of their differences along any coordinate dimension." - https://en.wikipedia.org/wiki/Chebyshev_distance
+ * 
+ * @param x1 3-dimensional point #1; x coordinate
+ * @param y1 3-dimensional point #1; y coordinate
+ * @param z1 3-dimensional point #1; z coordinate
+ * @param x2 3-dimensional point #2; x coordinate
+ * @param y2 3-dimensional point #2; y coordinate
+ * @param z2 3-dimensional point #2; z coordinate
+ * @return the Chebyshev distance between the 2 given 3d points.
+ */
+#define chebyshev_distance_3d(x1,y1,z1,x2,y2,z2) (max(max(abs(x1 - x2), abs(y1 - y2)),abs(z1 - z2)))
+
+/**
  * Calculate the manhattan distance* between two 2-dimensional points (x1,y1) and (x2,y2).
  * 
  * "This distance can be imagined as the length needed to move between two points in a grid where you can only move up, down, left or right." - https://simple.wikipedia.org/wiki/Manhattan_distance
@@ -77,6 +92,7 @@ long distance_with_angle_to_coord_y(long distance, long angle);
 
 long get_distance_xy(long x1, long x2, long y1, long y2);
 MapCoordDelta get_2d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
+MapCoordDelta get_3d_box_distance(const struct Coord3d *pos1, const struct Coord3d *pos2);
 
 long distance3d_with_angles_to_coord_x(long distance, long angle_a, long angle_b);
 long distance3d_with_angles_to_coord_y(long distance, long angle_a, long angle_b);
