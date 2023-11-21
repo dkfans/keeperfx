@@ -38,6 +38,21 @@ struct TbPoint {
   long y;
 };
 /******************************************************************************/
+
+/**
+ * Calculate the Chebyshev distance^ between two 2-dimensional points (x1,y1) and (x2,y2).
+ * 
+ * ^"Chebyshev distance is a metric defined on a vector space where the distance between two vectors is the greatest of their differences along any coordinate dimension." - https://en.wikipedia.org/wiki/Chebyshev_distance
+ * 
+ * @param x1 2-dimensional point #1; x coordinate
+ * @param y1 2-dimensional point #1; y coordinate
+ * @param x2 2-dimensional point #2; x coordinate
+ * @param y2 2-dimensional point #2; y coordinate
+ * @return the Chebyshev distance between the 2 given 2d points.
+ */
+#define chebyshev_distance(x1,y1,x2,y2) max(abs(x1 - x2), abs(y1 - y2))
+
+/******************************************************************************/
 void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBottom);
 
 long get_angle_symmetric_difference(long angle_a, long angle_b);

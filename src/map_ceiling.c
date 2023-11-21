@@ -19,6 +19,7 @@
 
 #include "pre_inc.h"
 #include "globals.h"
+#include "bflib_planar.h"
 #include "map_columns.h"
 #include "front_simple.h"
 #include "globals.h"
@@ -221,9 +222,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                             goto LABEL_43;
                     }
                     *v48 = v27;
-                    MapSubtlDelta delta_x = unk_stl_x - unk2_stl_x;
-                    MapSubtlDelta delta_y = unk_stl_y - unk2_stl_y;
-                    number_of_steps = max(abs(delta_x),abs(delta_y));
+                    number_of_steps = chebyshev_distance(unk_stl_x, unk_stl_y, unk2_stl_x, unk2_stl_y);
                     v31 = 1;
                 }
                 else
