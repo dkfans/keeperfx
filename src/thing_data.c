@@ -247,8 +247,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
 {
     unsigned long i;
     thing->anim_sprite = convert_td_iso(anim);
-    thing->field_50 &= 0x03;
-    thing->field_50 |= (draw_class << 2);
+    thing->draw_class = draw_class;
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {
         thing->anim_speed = speed;

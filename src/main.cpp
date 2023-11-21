@@ -923,7 +923,7 @@ void update_thing_animation(struct Thing *thing)
         if (thing->sprite_size >= thing->sprite_size_max)
         {
           thing->sprite_size = thing->sprite_size_max;
-          if ((thing->field_50 & 0x02) != 0)
+          if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
             thing->transformation_speed = -thing->transformation_speed;
           else
             thing->transformation_speed = 0;
@@ -931,7 +931,7 @@ void update_thing_animation(struct Thing *thing)
       } else
       {
         thing->sprite_size = thing->sprite_size_min;
-        if ((thing->field_50 & 0x02) != 0)
+        if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
           thing->transformation_speed = -thing->transformation_speed;
         else
           thing->transformation_speed = 0;
