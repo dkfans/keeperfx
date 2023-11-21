@@ -68,6 +68,11 @@ ROOM_AVAILABLE(PLAYER0,LAIR,1,1)
 ROOM_AVAILABLE(PLAYER0,GARDEN,1,1)
 ROOM_AVAILABLE(PLAYER0,TRAINING,1,1)
 ROOM_AVAILABLE(PLAYER0,GUARD_POST,1,0)
+ROOM_AVAILABLE(PLAYER0,BARRACKS,4,0)
+ROOM_AVAILABLE(PLAYER0,BRIDGE,4,0)
+ROOM_AVAILABLE(PLAYER0,PRISON,4,0)
+ROOM_AVAILABLE(PLAYER0,TEMPLE,4,0)
+ROOM_AVAILABLE(PLAYER0,TORTURE,4,0)
 
 MAGIC_AVAILABLE(PLAYER0,POWER_SLAP,1,1)
 MAGIC_AVAILABLE(PLAYER0,POWER_HAND,1,1)
@@ -120,25 +125,7 @@ IF(PLAYER0,RESEARCH >= 1)
 	DISPLAY_OBJECTIVE(23,ALL_PLAYERS)
 ENDIF
 
-IF(PLAYER0,BARRACKS >= 1)
-	ROOM_AVAILABLE(PLAYER0,BARRACKS,1,0)
-ENDIF
 
-IF(PLAYER0,BRIDGE >= 1)
-	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,0)
-ENDIF
-
-IF(PLAYER0,PRISON >= 1)
-	ROOM_AVAILABLE(PLAYER0,PRISON,1,0)
-ENDIF
-
-IF(PLAYER0,TEMPLE >= 1)
-	ROOM_AVAILABLE(PLAYER0,TEMPLE,1,0)
-ENDIF
-
-IF(PLAYER0,TORTURE >= 1)
-	ROOM_AVAILABLE(PLAYER0,TORTURE,1,0)
-ENDIF
 
 IF_ACTION_POINT(3,PLAYER0)
 	CREATURE_AVAILABLE(PLAYER0,TENTACLE,1,2)
@@ -207,7 +194,7 @@ REM ****************************************************************************
 REM Level starts here
 REM ****************************************************************************
 
-REM	QUICK_OBJECTIVE(1,"The best defence is a good offence. Kill the Heroes and steal their magic or they will overrun you.",ALL_PLAYERS)
+REM "The best defence is a good offence. Kill the Heroes and steal their magic or they will overrun you."
 DISPLAY_OBJECTIVE(22,ALL_PLAYERS)
 
 REM: Portal limit increases when you get more rooms. When you have 3 Portals heroes are ignored and you can get 24 creatures. If you lose units the new limit will be between 22-26 units.
@@ -234,14 +221,14 @@ IF(PLAYER0,SKELETON >= DRAWFROM(3,7))
 	SET_FLAG(PLAYER_GOOD,FLAG1,1)
 ENDIF
 IF(PLAYER_GOOD,FLAG1 == 1)
-	REM	QUICK_INFORMATION(3,"The heroes have learned being captured by you is a fate worse than death. They will avoid your prison at all cost. Better destroy them and take their magic before they really get smart",ALL_PLAYERS)
+	REM	"The heroes have learned being captured by you is a fate worse than death. They will avoid your prison at all cost. Better destroy them and take their magic before they really get smart"
 	DISPLAY_INFORMATION(24,ALL_PLAYERS)
 	NEXT_COMMAND_REUSABLE
 	SET_CREATURE_TENDENCIES(PLAYER0,IMPRISON,0)
 ENDIF
 
 IF(PLAYER0,DRAGON >= 1)
-	REM	QUICK_INFORMATION(10,"You have a dragon now, more powerful than you have ever seen!",ALL_PLAYERS)
+	REM	"You have a dragon now, more powerful than you have ever seen!"
 	DISPLAY_INFORMATION(25,ALL_PLAYERS)
 	PLAY_MESSAGE(PLAYER0,SOUND,386)
 ENDIF
@@ -260,7 +247,7 @@ IF(PLAYER0,GAME_TURN >= DRAWFROM(18000,20000))
 	SET_FLAG(PLAYER_GOOD,FLAG0,1)
 ENDIF
 IF(PLAYER_GOOD,FLAG0 == 1)
-	REM	QUICK_INFORMATION(7,"The heroes know where you are. They will come for you.",ALL_PLAYERS)
+	REM	The heroes know where you are. They will come for you."
 	DISPLAY_INFORMATION(26,ALL_PLAYERS)
 	SET_TIMER(PLAYER_GOOD,TIMER1)
 ENDIF
@@ -288,6 +275,9 @@ IF(PLAYER_GOOD,BARRACKS >= 1)
 		SET_TIMER(PLAYER_GOOD,TIMER6)
 	ENDIF
 ENDIF
+IF(PLAYER_GOOD,BARRACKS == 0)
+	HIDE_HERO_GATE(-4,1)
+ENDIF
 
 REM: Every few minutes spawn party 'fairies' at the fairy library. Loop stops when RESEARCH taken over.
 IF(PLAYER_GOOD,RESEARCH >= 20)
@@ -301,6 +291,9 @@ IF(PLAYER_GOOD,RESEARCH >= 20)
 		NEXT_COMMAND_REUSABLE
 		SET_TIMER(PLAYER_GOOD,TIMER3)
 	ENDIF
+ENDIF
+IF(PLAYER_GOOD,RESEARCH < 20)
+	HIDE_HERO_GATE(-5,1)
 ENDIF
 
 REM: Every few minutes spawn party 'holy' from the south-east. Loop stops when TEMPLE taken over.
@@ -335,7 +328,7 @@ REM: If the player turtles too much, we'll crush him.
 IF(PLAYER_GOOD,TIMER1 >= 72000)
 	REM: Not if player already reached enemy heart.
 	IF(PLAYER0,FLAG2 == 0)
-		REM	QUICK_OBJECTIVE(5,"You must hurry, the Heroes are gathering a massive party that will kill you. Strike them down or die trying.",PLAYER_GOOD)
+		REM	"You must hurry, the Heroes are gathering a massive party that will kill you. Strike them down or die trying."
 		DISPLAY_OBJECTIVE(27,PLAYER_GOOD)
 		SET_TIMER(PLAYER_GOOD,TIMER7)
 		BONUS_LEVEL_TIME(36000)
@@ -343,7 +336,7 @@ IF(PLAYER_GOOD,TIMER1 >= 72000)
 ENDIF
 IF(PLAYER0,FLAG2 == 0)
 	IF(PLAYER_GOOD,TIMER7 >= 36000)
-		REM	QUICK_OBJECTIVE(6,"This will hurt. You should have destroyed the heart.",PLAYER_GOOD)
+		REM	"This will hurt. You should have destroyed the heart."
 		DISPLAY_OBJECTIVE(28,PLAYER_GOOD)
 		ADD_TUNNELLER_PARTY_TO_LEVEL(PLAYER_GOOD,bleed,-8,DUNGEON_HEART,0,10,1000)
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,burn,-9,5)
@@ -365,7 +358,7 @@ ENDIF
 
 REM: Player reached good DUNGEON_HEART
 IF_ACTION_POINT(4,PLAYER0)
-	REM	QUICK_OBJECTIVE(4,"You have reached the heart of this fortress. The final battle is upon you. Kill all heroes, destroy the heart and claim their magic.",PLAYER_GOOD)
+	REM	"You have reached the heart of this fortress. The final battle is upon you. Kill all heroes, destroy the heart and claim their magic."
 	DISPLAY_OBJECTIVE(29,PLAYER_GOOD)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,bleed,-8,1)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,burn,-8,1)
@@ -376,6 +369,9 @@ IF_ACTION_POINT(4,PLAYER0)
 	ADD_PARTY_TO_LEVEL(PLAYER_GOOD,fierce,-12,1)
 	SET_FLAG(PLAYER0,FLAG2,1)
 	BONUS_LEVEL_TIME(0)
+	IF(PLAYER_GOOD,TEMPLE == 0)
+		HIDE_HERO_GATE(-10,1)
+	ENDIF
 ENDIF
 
 REM: Alarm trap NE
@@ -418,7 +414,7 @@ REM ****************************************************************************
 IF(PLAYER_GOOD,DUNGEON_DESTROYED == 1)
 	IF_CONTROLS(PLAYER_GOOD,TOTAL_CREATURES <= 0)
 		IF(PLAYER_GOOD,RESEARCH <= 0)
-			REM	QUICK_OBJECTIVE(9,"I was just starting to like them. Victory.",PLAYER0)
+			REM	"I was just starting to like them. Victory."
 			DISPLAY_OBJECTIVE(30,PLAYER0)
 			WIN_GAME
 		ENDIF
