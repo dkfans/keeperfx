@@ -29,7 +29,6 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define OBJECT_TYPES_COUNT_ORIGINAL  136
 #define OBJECT_TYPES_COUNT  255
 
 enum ObjectStates {
@@ -238,7 +237,6 @@ void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
 
-void define_custom_object(int obj_id, short anim_idx);
 void init_thing_objects();
 /******************************************************************************/
 #ifdef __cplusplus

@@ -310,12 +310,12 @@ void query_thing(struct Thing *thing)
         {
             if (querytng->class_id == TCls_Object)
             {
-                struct ObjectConfig* objconf = get_object_model_stats2(querytng->model);
+                struct ObjectConfigStats* objst = get_object_model_stats(querytng->model);
                 if (object_is_gold(querytng))
                 {
                     sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, objconf->health);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, objst->health);
             }  
             else 
             if (querytng->class_id == TCls_Door)

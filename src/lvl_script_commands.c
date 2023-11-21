@@ -1489,12 +1489,9 @@ static void new_object_type_check(const struct ScriptLine* scline)
     objst->name_stridx = 201;
     objst->map_icon = 0;
     objst->genre = 0;
+    objst->draw_class = ODC_Default;
     object_desc[tmodel].name = objst->code_name;
     object_desc[tmodel].num = tmodel;
-    if (tmodel > OBJECT_TYPES_COUNT_ORIGINAL)
-    {
-        define_custom_object(tmodel, 0);
-    }
 }
 
 static void new_trap_type_check(const struct ScriptLine* scline)
@@ -2177,11 +2174,11 @@ static void set_heart_health_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->arg0 = scline->np[0];
     struct Thing* heartng = get_player_soul_container(value->arg0);
-    struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
-    if (scline->np[1] > objconf->health)
+    struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
+    if (scline->np[1] > objst->health)
     {
-        SCRPTWRNLOG("Value %ld is greater than maximum: %ld", scline->np[1], objconf->health);
-        value->arg1 = objconf->health;
+        SCRPTWRNLOG("Value %ld is greater than maximum: %ld", scline->np[1], objst->health);
+        value->arg1 = objst->health;
     }
     else
     {
@@ -2213,13 +2210,13 @@ static void add_heart_health_process(struct ScriptContext *context)
     struct Thing* heartng = get_player_soul_container(context->value->arg0);
     if (!thing_is_invalid(heartng))
     {
-        struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
+        struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
         long old_health = heartng->health;
         long long new_health = heartng->health + context->value->arg1;
-        if (new_health > objconf->health)
+        if (new_health > objst->health)
         {
-            SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, objconf->health);
-            new_health = objconf->health;
+            SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
+            new_health = objst->health;
         }
         heartng->health = new_health;
         TbBool warn_on_damage = (context->value->arg2);
@@ -2772,7 +2769,6 @@ static void set_object_configuration_process(struct ScriptContext *context)
 {
     struct Objects* objdat = get_objects_data(context->value->arg0);
     struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
-    struct ObjectConfig* objbc = &gameadd.object_conf.base_config[context->value->arg0];
     switch (context->value->arg1)
     {
         case 2: // GENRE
@@ -2806,22 +2802,22 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objdat->destroy_on_lava = context->value->arg2;
             break;
         case 12: // HEALTH
-            objbc->health = context->value->arg2;
+            objst->health = context->value->arg2;
             break;
         case 13: // FALLACCELERATION
-            objbc->fall_acceleration = context->value->arg2;
+            objst->fall_acceleration = context->value->arg2;
             break;
         case 14: // LIGHTUNAFFECTED
-            objbc->light_unaffected = context->value->arg2;
+            objst->light_unaffected = context->value->arg2;
             break;
         case 15: // LIGHTINTENSITY
-            objbc->ilght.intensity = context->value->arg2;
+            objst->ilght.intensity = context->value->arg2;
             break;
         case 16: // LIGHTRADIUS
-            objbc->ilght.radius = context->value->arg2 << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+            objst->ilght.radius = context->value->arg2 << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
             break;
         case 17: // LIGHTISDYNAMIC
-            objbc->ilght.is_dynamic = context->value->arg2;
+            objst->ilght.is_dynamic = context->value->arg2;
             break;
         case 18: // MAPICON
             objst->map_icon = context->value->arg2;
