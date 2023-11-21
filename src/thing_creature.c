@@ -1064,71 +1064,27 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
                 }
                 n += 2 * LbFPMath_PI / 3;
             }
-        }
-        break;
-    case SplK_Rebound:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
+            break;
+        case SplK_Invisibility:
         {
-            fill_spell_slot(thing, i, spell_idx, spconf->duration);
-            cctrl->spell_flags |= CSAfF_Rebound;
-        }
-        break;
-    case SplK_Heal:
-        pwrdynst = get_power_dynamic_stats(PwrK_HEALCRTR);
-        i = saturate_set_signed(thing->health + pwrdynst->strength[spell_lev],16);
-        if (i < 0)
-        {
-          thing->health = 0;
-        } else {
-          thing->health = min(i,cctrl->max_health);
-        }
-        cctrl->spell_in_progress = SplK_Heal;
-        cctrl->spell_in_progress_remaining = pwrdynst->duration;
-        break;
-    case SplK_Invisibility:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            pwrdynst = get_power_dynamic_stats(PwrK_CONCEAL);
-            fill_spell_slot(thing, i, spell_idx, pwrdynst->strength[spell_lev]);
-            cctrl->spell_flags |= CSAfF_Invisibility;
             cctrl->force_visible = 0;
-            break;
-        case SplK_Teleport:
-            cctrl->stateblock_flags |= CCSpl_Teleport;
-            break;
+        }
+        break;
         case SplK_Speed:
         case SplK_Slow:
-            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-        }
-        break;
-    case SplK_Slow:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, spconf->duration);
-            cctrl->spell_flags |= CSAfF_Slow;
-            cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
-        }
-        break;
-    case SplK_Bleed:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, spconf->duration);
-            cctrl->spell_flags |= CSAfF_Bleed;
-        }
-        break;
-    case SplK_Fly:
-        i = get_free_spell_slot(thing);
-        if (i != -1)
-        {
-            fill_spell_slot(thing, i, spell_idx, spconf->duration);
-            cctrl->spell_flags |= CSAfF_Flying;
+            i = get_free_spell_slot(thing);
+            break;
+        case SplK_Bleed:
+            i = get_free_spell_slot(thing);
+            if (i != -1)
+            {
+                fill_spell_slot(thing, i, spell_idx, spconf->duration);
+                cctrl->spell_flags |= CSAfF_Bleed;
+            }
+            break;
+        case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;
             break;
-
         }
         if (spconf->aura_effect != 0)
         {
@@ -1176,8 +1132,8 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
         } else {
           thing->health = min(i,cctrl->max_health);
         }
-        cctrl->spell_in_progress = SplK_Heal;
-        cctrl->spell_in_progress_remaining = pwrdynst->duration;
+        cctrl->spell_aura = SplK_Heal;
+        cctrl->spell_aura_duration = pwrdynst->duration;
         break;
     }
     case SplK_Invisibility:
