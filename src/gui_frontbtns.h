@@ -78,6 +78,8 @@ void init_menu_buttons(struct GuiMenu *gmnu);
 void kill_button_area_input(void);
 void kill_button(struct GuiButton *gbtn);
 void setup_radio_buttons(struct GuiMenu *gmnu);
+
+struct GuiButton* get_gui_button(int btn_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -1075,6 +1075,19 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
     SYNCDBG(12,"Finished");
 }
 
+struct GuiButton* get_gui_button(int btn_idx)
+{
+    for (int i=0; i < ACTIVE_BUTTONS_COUNT; i++)
+    {
+        struct GuiButton *gbtn = &active_buttons[i];
+        if (gbtn->id_num == btn_idx)
+        {
+            return gbtn;
+        }
+    }
+    return NULL;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
