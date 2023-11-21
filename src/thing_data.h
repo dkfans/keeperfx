@@ -226,6 +226,7 @@ struct Thing {
       unsigned char opening_counter;
       short closing_counter;
       unsigned char is_locked;
+      PlayerBitFlags revealed;
       } door;
 //TCls_Unkn10
 //TCls_Unkn11

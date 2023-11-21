@@ -568,6 +568,8 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         case EvKind_NeedTreasureRoom:
         case EvKind_RoomLost:
         case EvKind_CreatrHungry:
+        case EvKind_SecretDoorDiscovered:
+        case EvKind_SecretDoorSpotted:
             other_off = 1;
             turn_on_menu(GMnu_TEXT_INFO);
             break;

@@ -1789,6 +1789,39 @@ TbBool creature_pick_up_interesting_object_laying_nearby(struct Thing *creatng)
     return false;
 }
 
+void creature_look_for_hidden_doors(struct Thing *creatng)
+{
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Door);
+    long i = slist->index;
+    while (i > 0)
+    {
+        struct Thing* doortng = thing_get(i);
+        if (thing_is_invalid(doortng))
+          break;
+          
+        if (door_is_hidden_to_player(doortng,creatng->owner))
+        {
+            MapSubtlCoord z = doortng->mappos.z.stl.num;
+            doortng->mappos.z.stl.num = 2;
+            if(creature_affected_by_spell(creatng,SplK_Sight))
+            {
+                if(creature_can_see_thing_ignoring_specific_door(creatng,doortng,doortng))
+                {
+                    reveal_secret_door_to_player(doortng,creatng->owner);
+                }
+            }
+            else
+            // when closed the door itself blocks sight to the doortng so this checks if open, and in sight
+            if(creature_can_see_thing(creatng,doortng)) 
+            {
+                reveal_secret_door_to_player(doortng,creatng->owner);
+            }
+            doortng->mappos.z.stl.num = z;
+        }
+        i = doortng->next_of_class;
+    }
+}
+
 TngUpdateRet process_creature_state(struct Thing *thing)
 {
     SYNCDBG(19,"Starting for %s index %d owned by player %d",thing_model_name(thing),(int)thing->index,(int)thing->owner);
@@ -1807,6 +1840,7 @@ TngUpdateRet process_creature_state(struct Thing *thing)
             fighting = creature_look_for_enemy_object_combat(thing);
         }
     }
+    creature_look_for_hidden_doors(thing);
     if ((cctrl->combat_flags & CmbtF_DoorFight) == 0)
     {
         if ((cctrl->collided_door_subtile > 0) && ((cctrl->flgfield_1 & CCFlg_NoCompControl) == 0))
@@ -3098,28 +3132,6 @@ short get_creature_eye_height(const struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     return (base_height + (base_height * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
 }
-
-TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing)
-{
-    struct Coord3d thing_pos;
-    struct Coord3d creat_pos;
-
-    creat_pos.x.val = creatng->mappos.x.val;
-    creat_pos.y.val = creatng->mappos.y.val;
-    creat_pos.z.val = creatng->mappos.z.val;
-
-    thing_pos.x.val = thing->mappos.x.val;
-    thing_pos.y.val = thing->mappos.y.val;
-    thing_pos.z.val = thing->mappos.z.val;
-
-    creat_pos.z.val += get_creature_eye_height(creatng);
-
-    if (line_of_sight_3d(&creat_pos, &thing_pos))
-        return 1;
-    thing_pos.z.val += thing->clipbox_size_z;
-    return line_of_sight_3d(&creat_pos, &thing_pos) != 0;
-}
-
 
 ThingIndex get_human_controlled_creature_target(struct Thing *thing, long primary_target)
 {
@@ -6413,6 +6425,53 @@ PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng)
         }
     }
     return creatng->owner;
+}
+
+void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom)
+{
+    if (is_my_player(player))
+    {
+        MenuID menu;
+        if (reset)
+        {
+            menu = GMnu_CREATURE_QUERY1;
+        }
+        else
+        {
+            if (menu_is_active(GMnu_CREATURE_QUERY1))
+            {
+                menu = GMnu_CREATURE_QUERY1;
+            }
+            else if (menu_is_active(GMnu_CREATURE_QUERY2))
+            {
+                menu = GMnu_CREATURE_QUERY2;
+            }
+            else if (menu_is_active(GMnu_CREATURE_QUERY3))
+            {
+                menu = GMnu_CREATURE_QUERY3;
+            }
+            else if (menu_is_active(GMnu_CREATURE_QUERY4))
+            {
+                menu = GMnu_CREATURE_QUERY4;
+            }
+            else
+            {
+                menu = GMnu_CREATURE_QUERY1;
+            }
+        }
+        if (zoom)
+        {
+            struct Thing *creatng = thing_get(index);
+            player->zoom_to_pos_x = creatng->mappos.x.val;
+            player->zoom_to_pos_y = creatng->mappos.y.val;
+            set_player_instance(player, PI_ZoomToPos, 0);
+        }
+        turn_off_all_panel_menus();
+        initialise_tab_tags_and_menu(menu);
+        turn_on_menu(menu);
+    }
+    player->influenced_thing_idx = index;
+    set_player_instance(player, PI_QueryCrtr, 0);
 }
 
 /******************************************************************************/

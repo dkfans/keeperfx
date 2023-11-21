@@ -111,6 +111,8 @@ void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, lo
 {
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
+    pckt->actn_par3 = par3;
+    pckt->actn_par4 = par4;
     pckt->action = pcktype;
 }
 
@@ -668,7 +670,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SwitchScrnRes:
       if (is_my_player(player))
       {
-          switch_to_next_video_mode();
+          switch_to_next_video_mode_wrapper();
       }
       return 1;
   case PckA_TogglePause:
@@ -1005,6 +1007,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
             playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par2;
         }
         playeradd->roomspace_no_default = true;
+        return false;
+    }
+    case PckA_PlyrQueryCreature:
+    {
+        query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
         return false;
     }
     default:
