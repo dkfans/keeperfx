@@ -90,9 +90,6 @@ struct Thing *allocate_free_thing_structure_f(unsigned char allocflags, const ch
     game.free_things_start_index++;
     TRACE_THING(thing);
 
-    struct ThingAdd* thingadd = get_thingadd(thing->index);
-    LbMemorySet(thingadd, 0, sizeof(struct ThingAdd)); // Clear any previously used ThingAdd stuff
-    
     return thing;
 }
 
@@ -145,6 +142,7 @@ void delete_thing_structure_f(struct Thing *thing, long a2, const char *func_nam
     }
     if (!a2)
     {
+        delete_effects_attached_to_creature(thing);
         if (thing->light_id != 0) {
             light_delete_light(thing->light_id);
             thing->light_id = 0;
@@ -249,8 +247,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
 {
     unsigned long i;
     thing->anim_sprite = convert_td_iso(anim);
-    thing->field_50 &= 0x03;
-    thing->field_50 |= (draw_class << 2);
+    thing->draw_class = draw_class;
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {
         thing->anim_speed = speed;
@@ -313,22 +310,21 @@ void query_thing(struct Thing *thing)
         {
             if (querytng->class_id == TCls_Object)
             {
+                struct ObjectConfig* objconf = get_object_model_stats2(querytng->model);
                 if (object_is_gold(querytng))
                 {
                     sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, objconf->health);
             }  
-            sprintf((char*)health, "Health: %ld", querytng->health);
+            else 
             if (querytng->class_id == TCls_Door)
             {
                 sprintf(output, "%s/%ln", health, &gameadd.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
-            else if (querytng->class_id == TCls_Object)
+            else
             {
-                if (querytng->model == ObjMdl_SoulCountainer)  //todo make model independent
-                {
-                    sprintf(output, "%s/%ld", health, game.dungeon_heart_health);
-                }
+                sprintf((char*)health, "Health: %ld", querytng->health);
             }
         }
         create_message_box((const char*)&title, name, (const char*)&owner, (const char*)&health, (const char*)&position, (const char*)&amount);

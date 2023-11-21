@@ -17,9 +17,6 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-#, fuzzy:
-msgid ""
-msgstr ""
 "Project-Id-Version: Good Campaign campaign for KeeperFX\n"
 "Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
@@ -37,110 +34,110 @@ msgstr ""
 
 #: landview:10
 msgctxt "Level introduction"
-msgid "First step. The land ruled by bad, angry keeper, who tortures his subordinates for fun. Children are terribly afraid of him, because he eats one for dinner every day. Apparently we have to change his taste, my lord."
+msgid "First step. This land is ruled by a cruel and wrathful keeper who tortures his subjects for fun. The children live in terror as he devours one of them for dinner every day. It seems we must change his taste, my lord."
 msgstr ""
 
 #: landview:11
 msgctxt "Level summary"
-msgid "We've quickly got rid of the keeper; he had no chances against You, lord. Local children are now happiest in the world. Excellent job."
+msgid "We swiftly dealt with the keeper; he stood no chance against you, my lord. The local children are now the happiest in the world. Excellent work."
 msgstr ""
 
 #: landview:20
 msgctxt "Level introduction"
-msgid "Offspring. Abominately evil Reaper governs here. Over a wing, he prefers leg for lunch. Fresh leg of a plump peasant. Beat him and win the next kingdom!"
+msgid "Offspring. This land is governed by an abominably evil Reaper. He prefers a leg for lunch and has a particular taste for the fresh leg of a plump peasant. Defeat him and claim the next kingdom!"
 msgstr ""
 
 #: landview:21
 msgctxt "Level summary"
-msgid "We have captured the Reaper and handed over to the local inhabitants. They hanged him, then burried. Rumours has it that when there's no moon in night, his floating spirit can still be seen near his grave."
+msgid "We have captured the Reaper and handed him over to the local inhabitants. They hanged and buried him. Rumor has it that when there's no moon at night, his wandering spirit can still be seen near his grave."
 msgstr ""
 
 #: landview:30
 msgctxt "Level introduction"
-msgid "Snow white and dwarves. Once this has been very quiet, but one day keeper came and destroyed everything on his way. All the residents are now kept in prison. There's no time to wait, get a sword and go liberate them!"
+msgid "Snow White and the Dwarves. This land was once peaceful, but a keeper arrived one day and laid waste to everything in his path. All the residents are now imprisoned. There's no time to waste—take up your sword and liberate them!"
 msgstr ""
 
 #: landview:31
 msgctxt "Level summary"
-msgid "The land has returned to its original look; there's peace and quiet one again. Residents of the surrounding estate are very grateful to you. Excellent job, my lord."
+msgid "The land has returned to its former serenity. Peace reigns once more, and the residents of the surrounding estate are immensely grateful to you. Excellent work, my lord."
 msgstr ""
 
 #: landview:40
 msgctxt "Level introduction"
-msgid "Warlocks slave. This land is controlled by a foul warlock, which uses powerful black magic. He has charmed souls of the dead to fight on his side. We need to eliminate him as soon as possible!"
+msgid "Warlock's Slave. This land is controlled by a despicable warlock who wields powerful black magic. He has enslaved the souls of the dead to fight on his side. We must make him see the error of his ways as soon as possible!"
 msgstr ""
 
 #: landview:41
 msgctxt "Level summary"
-msgid "Torturing the magician took some time, but after a few hours the light of wisdom has descended on him. Now he's teaching basics of white magic to the residing people. Excellent job, Master!"
+msgid "It took some time to break the warlock's spirit, but eventually, the light of wisdom shone upon him. He is now teaching the basics of white magic to the local people. Excellent work, Master!"
 msgstr ""
 
 #: landview:50
 msgctxt "Level introduction"
-msgid "Ug the Barbarian. Ruthless barbarian with his band of criminals is forcing poor peasants to pay him a tribute. Another keeper has also came here to corrupt villagers. We should give him a lesson he will not forget!"
+msgid "Ug the Barbarian. A ruthless barbarian and his band of criminals are extorting tribute from poor peasants. Another keeper has also arrived to corrupt the villagers. We must teach them a lesson they will not forget!"
 msgstr ""
 
 #: landview:51
 msgctxt "Level summary"
-msgid "Ug has joined our side, we just had to help him a little bit. Now he's helping local people to train an army of defenders in use of battle hammers, and self defense."
+msgid "Ug has joined our cause; we just needed to guide him a little. He is currently assisting the local people in forming an army of defenders trained in the use of battle hammers and self-defense."
 msgstr ""
 
 #: landview:60
 msgctxt "Level introduction"
-msgid "Power of Faith. Evil guardian of this land is totally devoted to his faith in demons. May his demons eat him alive, but first, let's desecrate his damned temples, my Lord!"
+msgid "Power of Faith. The evil guardian of this land is entirely devoted to his faith in demons. May his demons consume him, but first, let us desecrate his accursed temples, my Lord!"
 msgstr ""
 
 #: landview:61
 msgctxt "Level summary"
-msgid "Residents thank you, lord, for being freed from the evil guardian. They've raised a great monument so that your bravery would never be forgotten. Exordinary style!"
+msgid "The residents thank you, lord, for liberating them from the evil guardian. They have erected a grand monument in your honor, so that your bravery will never be forgotten. Extraordinary style!"
 msgstr ""
 
 #: landview:70
 msgctxt "Level introduction"
-msgid "Indoctrination. There's still ongoing fight for this land between two keepers. We'll jump in as a third power, to fight for peace in this area."
+msgid "Indoctrination. There is an ongoing struggle for this land between two keepers. We will step in as a third party to fight for peace in this region."
 msgstr ""
 
 #: landview:71
 msgctxt "Level summary"
-msgid "Of the 3 powers, you have proved to be the one worth controlling this area. People here can finally live in peace. So this is, where two fights each other, the third benefits."
+msgid "Among the three powers, you have proven to be the one worthy of controlling this area. The people can finally live in peace. As they say, when two dogs fight over a bone, the third one takes it home."
 msgstr ""
 
 #: landview:80
 msgctxt "Level introduction"
-msgid "Three on One. This land is ruled by three evil keepers, who intend to stand against you together. Show them what a real war is!"
+msgid "Three on One. This land is ruled by three evil keepers who have joined forces to stand against you. Show them what real war is!"
 msgstr ""
 
 #: landview:81
 msgctxt "Level summary"
-msgid "Pitiful tactics of the enemies were real act of desperation. This is the first time I've seen so short and sharp clashes, commanded by your hand. Now the population is finally happy. You're a growing legend!"
+msgid "The pitiful tactics of the enemies were acts of desperation. It was the first time I witnessed such swift and decisive clashes under your command. Now, the population can finally find happiness. You are becoming a legend!"
 msgstr ""
 
 #: landview:90
 msgctxt "Level introduction"
-msgid "Impure Blood. Evil spirits and demons are in control of this area. Some time ago, a noble king tried to recapture it. He have failed, but he left a dungeon completely built. This means we may quickly get to work."
+msgid "Impure Blood. Evil spirits and demons control this area. Some time ago, a noble king attempted to reclaim it. He failed, but he left behind a fully equipped dungeon. This means we can get to work quickly."
 msgstr ""
 
 #: landview:91
 msgctxt "Level summary"
-msgid "Clear water flows through this land once again. People there have already forgotten how good it tastes, but can now learn this once again. thanks to you. Well done!"
+msgid "Pure water flows through this land once again. The people had already forgotten how good it tasted, but they can now rediscover it thanks to you. Excellent work!"
 msgstr ""
 
 #: landview:100
 msgctxt "Level introduction"
-msgid "Save the Savior. The black blood brothers are governing here. They've captured our best warrior, the Avatar. We need to send them to the beyond, as soon as possible!"
+msgid "Save the Savior. The Black Blood Brothers reign here. They have captured our finest warrior, the Avatar. We must send them to their doom as soon as possible!"
 msgstr ""
 
 #: landview:101
 msgctxt "Level summary"
-msgid "After capturing the local vampires, we've tortured them until they could see the light. Then we've given them a choice. to go to temple as sacrifices, or as priests. They've chosen the second, and are now very successful religion teachers."
+msgid "After capturing the local vampires, we tortured them until they saw the light. Then we gave them a choice: to go to the temple as sacrifices or as priests. They chose the latter and are now highly successful religious teachers."
 msgstr ""
 
 #: landview:110
 msgctxt "Level introduction"
-msgid "Do or die. This last task can only be completed by our great hero, the Avatar. Former vampires have agreed to teach you the possession spell. Use it to reach the heart of the enemy dungeon."
+msgid "Do or Die. This final task can only be accomplished by our great hero, the Avatar. Former vampires have agreed to teach you the possession spell. Use it to reach the heart of the enemy's dungeon."
 msgstr ""
 
 #: landview:111
 msgctxt "Level summary"
-msgid "Hurray, victory! At last, the whole world is at peace of with we dreamed through whole life. With you, dreams have became reality. All hail the new king!"
+msgid "Hurray, victory! Finally, the whole world is at peace, just as we dreamed throughout our lives. With you, dreams have become reality. Long live the new king!"
 msgstr ""

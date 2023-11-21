@@ -111,6 +111,8 @@ void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, lo
 {
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
+    pckt->actn_par3 = par3;
+    pckt->actn_par4 = par4;
     pckt->action = pcktype;
 }
 
@@ -668,7 +670,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SwitchScrnRes:
       if (is_my_player(player))
       {
-          switch_to_next_video_mode();
+          switch_to_next_video_mode_wrapper();
       }
       return 1;
   case PckA_TogglePause:
@@ -711,7 +713,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       player->cameras[CamIV_Parchment].orient_a = pckt->actn_par1;
       player->cameras[CamIV_FrontView].orient_a = pckt->actn_par1;
       player->cameras[CamIV_Isometric].orient_a = pckt->actn_par1;
-      
+
       if ((is_my_player(player)) && (player->acamera->view_mode == PVM_FrontView)) {
         // Fixes interpolated Things lagging for 1 turn when pressing middle mouse button to flip the camera in FrontView
           reset_interpolation_of_camera(player);
@@ -1007,6 +1009,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_no_default = true;
         return false;
     }
+    case PckA_PlyrQueryCreature:
+    {
+        query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
@@ -1200,7 +1207,7 @@ void process_players_creature_control_packet_control(long idx)
                     {
                         inst_inf = creature_instance_info_get(i);
                         n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
-                        set_creature_instance(cctng, i, 1, n, 0);
+                        set_creature_instance(cctng, i, n, 0);
                     }
                 }
             }
@@ -1208,7 +1215,7 @@ void process_players_creature_control_packet_control(long idx)
             {
                 inst_inf = creature_instance_info_get(i);
                 n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
-                set_creature_instance(cctng, i, 1, n, 0);
+                set_creature_instance(cctng, i, n, 0);
             }
         }
     }
@@ -1226,7 +1233,7 @@ void process_players_creature_control_packet_control(long idx)
                     if (creature_instance_has_reset(cctng, i))
                     {
                         n = get_human_controlled_creature_target(cctng, inst_inf->primary_target);
-                        set_creature_instance(cctng, i, 1, n, 0);
+                        set_creature_instance(cctng, i, n, 0);
                     }
                 }
             }
@@ -1248,12 +1255,12 @@ void process_players_creature_control_packet_control(long idx)
         else
         if (angle > 32)
             angle = 32;
-        ccctrl->field_6C += 56 * angle / 32;
+        ccctrl->view_angle += 56 * angle / 32;
     }
     long angle_limit = crstat->max_angle_change;
     if (angle_limit < 1)
         angle_limit = 1;
-    angle = ccctrl->field_6C;
+    angle = ccctrl->view_angle;
     if (angle < -angle_limit)
         angle = -angle_limit;
     else
@@ -1262,7 +1269,7 @@ void process_players_creature_control_packet_control(long idx)
     cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
     cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
     ccctrl->field_CC = 170 * angle / angle_limit;
-    ccctrl->field_6C = 4 * angle / 8;
+    ccctrl->view_angle = 4 * angle / 8;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
@@ -1311,7 +1318,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
           i = pckt->actn_par1;
           inst_inf = creature_instance_info_get(i);
           k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
-          set_creature_instance(thing, i, 1, k, 0);
+          set_creature_instance(thing, i, k, 0);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
           }
@@ -1336,7 +1343,7 @@ void process_players_creature_control_packet_action(long plyr_idx)
           i = pckt->actn_par1;
           inst_inf = creature_instance_info_get(i);
           k = get_human_controlled_creature_target(thing, inst_inf->primary_target);
-          set_creature_instance(thing, i, 1, k, 0);
+          set_creature_instance(thing, i, k, 0);
           if (plyr_idx == my_player_number) {
               instant_instance_selected(i);
           }
@@ -1390,6 +1397,9 @@ static void replace_with_ai(int old_active_players)
             struct PlayerInfo *player = get_player(i);
             if (!network_player_active(player->packet_num))
             {
+                message_add(player->id_number, "I am the computer now!");
+                JUSTLOG("p:%d I am the computer now!", player->id_number);
+
                 player->allocflags |= PlaF_CompCtrl;
                 toggle_computer_player(i);
             }

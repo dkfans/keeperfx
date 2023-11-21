@@ -31,8 +31,8 @@ extern "C" {
 /******************************************************************************/
 
 #define TERRAIN_ITEMS_MAX    256
-// Amount of possible types of slabs
-#define SLAB_TYPES_COUNT      58
+#define SLABSETS_PER_SLAB   (9*3+1)
+
 
 /******************************************************************************/
 #pragma pack(1)
@@ -65,10 +65,12 @@ enum SlabFillStyle {
 };
 
 enum RoomCfgFlags {
-    RoCFlg_None          = 0x00,
-    RoCFlg_NoEnsign      = 0x01,
-    RoCFlg_CantVandalize = 0x02,
-    RoCFlg_BuildToBroke  = 0x04,
+    RoCFlg_None           = 0x00,
+    RoCFlg_NoEnsign       = 0x01,
+    RoCFlg_CantVandalize  = 0x02,
+    RoCFlg_BuildTillBroke = 0x04,
+    RoCFlg_CannotBeSold   = 0x08,
+    RoCFlg_ListEnd        = 0x10,
 };
 
 /**
@@ -116,9 +118,11 @@ struct SlabAttr {
     unsigned char slb_id;
     unsigned char wibble;
     unsigned char is_safe_land;
-    unsigned char is_unknflg13;
+    unsigned char animated;
     unsigned char is_diggable;
     unsigned char wlb_type;
+    unsigned char is_ownable;
+    unsigned char indestructible;
 };
 
 #pragma pack()
@@ -135,6 +139,7 @@ struct RoomConfigStats {
     TextStringId tooltip_stridx;
     long creature_creation_model;
     SlabKind assigned_slab;
+    char storage_height;
     unsigned long flags;
     RoomRole roles;
     long panel_tab_idx;
@@ -149,6 +154,9 @@ struct RoomConfigStats {
     long msg_no_route;
     short cost;
     unsigned short health;
+    int update_total_capacity_idx;
+    int update_storage_in_room_idx;
+    int update_workers_in_room_idx;
     Room_Update_Func update_total_capacity;
     Room_Update_Func update_storage_in_room;
     Room_Update_Func update_workers_in_room;
@@ -164,8 +172,13 @@ struct SlabsConfig {
 extern const char keeper_terrain_file[];
 extern struct NamedCommand slab_desc[TERRAIN_ITEMS_MAX];
 extern struct NamedCommand room_desc[TERRAIN_ITEMS_MAX];
-extern const struct NamedCommand  room_roles_desc[];
-extern struct SlabsConfig slab_conf;
+extern const struct NamedCommand terrain_room_properties_commands[];
+extern const struct NamedCommand room_roles_desc[];
+extern const struct NamedCommand terrain_room_total_capacity_func_type[];
+extern const struct NamedCommand terrain_room_used_capacity_func_type[];
+extern Room_Update_Func terrain_room_total_capacity_func_list[7];
+extern Room_Update_Func terrain_room_used_capacity_func_list[10];
+
 /******************************************************************************/
 TbBool load_terrain_config(const char *conf_fname,unsigned short flags);
 /******************************************************************************/
@@ -182,9 +195,9 @@ TbBool slab_kind_is_fortified_wall(RoomKind slbkind);
 TbBool slab_kind_is_room_wall(RoomKind slbkind);
 TbBool slab_kind_is_friable_dirt(RoomKind slbkind);
 TbBool slab_kind_is_door(SlabKind slbkind);
-TbBool slab_kind_is_nonmagic_door(SlabKind slbkind);
 TbBool slab_kind_is_liquid(SlabKind slbkind);
 TbBool slab_kind_is_room(SlabKind slbkind);
+TbBool slab_kind_has_torches(SlabKind slbkind);
 /******************************************************************************/
 struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind);
 TbBool make_all_rooms_free(void);
@@ -193,6 +206,7 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx);
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx);
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind room_idx);
 TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole);
+RoomKind find_first_available_roomkind_with_role(PlayerNumber plyr_idx, RoomRole rrole);
 ThingModel get_room_create_creature_model(RoomKind room_kind);
 TbBool enemies_may_work_in_room(RoomKind rkind);
 RoomRole get_room_roles(RoomKind rkind);
@@ -204,6 +218,7 @@ TbBool room_can_have_ensign(RoomKind rkind);
 SlabKind room_corresponding_slab(RoomKind rkind);
 RoomKind slab_corresponding_room(SlabKind slbkind);
 RoomKind find_first_roomkind_with_role(RoomRole rrole);
+void restore_room_update_functions_after_load();
 /******************************************************************************/
 #ifdef __cplusplus
 }

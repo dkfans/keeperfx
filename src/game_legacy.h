@@ -43,6 +43,7 @@
 #include "config_cubes.h"
 #include "map_columns.h"
 #include "map_events.h"
+#include "music_player.h"
 #include "lvl_script.h"
 #include "gui_msgs.h"
 #include "player_computer.h"
@@ -53,15 +54,9 @@
 #include "sounds.h"
 #include "game_lghtshdw.h"
 #include "game_merge.h"
+#include "engine_textures.h"
 
 #define BOOKMARKS_COUNT               5
-// Static textures
-#define TEXTURE_BLOCKS_STAT_COUNT   544
-// Animated texture frames count
-#define TEXTURE_BLOCKS_ANIM_FRAMES    8
-// Animated textures amount
-#define TEXTURE_BLOCKS_ANIM_COUNT    48
-#define TEXTURE_BLOCKS_COUNT         (TEXTURE_BLOCKS_STAT_COUNT+TEXTURE_BLOCKS_ANIM_COUNT)
 
 #ifdef __cplusplus
 extern "C" {
@@ -122,7 +117,7 @@ struct Game {
     unsigned char flags_cd;
     unsigned char eastegg02_cntr;
     char audiotrack;
-char numfield_14;
+    char last_audiotrack;
 char numfield_15;
     LevelNumber selected_level_number;
 char numfield_1A;
@@ -142,11 +137,12 @@ char numfield_1A;
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
-    unsigned char navigation_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
-    struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y]; // field offset 0xDC157
+    NavColour navigation_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+    struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
     struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
+    struct SlabsConfig slab_conf;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
@@ -178,7 +174,7 @@ unsigned int packet_file_pos;
     short col_static_entries[18];
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
-    short texture_animation[8*TEXTURE_BLOCKS_ANIM_COUNT];
+    short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
     unsigned short columns_used;
     unsigned char texture_id;
     unsigned short free_things[THINGS_COUNT-1];
@@ -193,11 +189,11 @@ unsigned int packet_file_pos;
     int something_light_x;
     int something_light_y;
     unsigned long time_delta;
-    short top_cube[592];
+    short top_cube[TEXTURE_BLOCKS_COUNT];// if you ask for top cube on a column without cubes, it'll return the first cube it finds with said texture at the top
     unsigned char small_map_state;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
-    struct MagicStats keeper_power_stats[POWER_TYPES_COUNT];
+    struct MagicStats keeper_power_stats[POWER_TYPES_MAX];
     char active_players_count;
     PlayerNumber hero_player_num;
     PlayerNumber neutral_player_num;
@@ -249,7 +245,6 @@ unsigned int packet_file_pos;
     unsigned long hero_door_wait_time;
     unsigned long dungeon_heart_heal_time;
     long dungeon_heart_heal_health;
-    unsigned long dungeon_heart_health;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
@@ -302,6 +297,10 @@ unsigned int packet_file_pos;
     int manufactr_spridx;
     int manufactr_tooltip;
     short barrack_max_party_size;
+    unsigned short training_room_max_level;
+    char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
+    char loaded_sound[EXTERNAL_SOUNDS_COUNT][DISKPATH_SIZE];
+    unsigned char sounds_count;
 };
 
 #pragma pack()

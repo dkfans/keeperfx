@@ -283,33 +283,31 @@ long get_foot_creature_has_down(struct Thing *thing)
     return 0;
 }
 
-void process_keeper_spell_effect(struct Thing *thing)
+void process_keeper_spell_aura(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
-    cctrl->spell_in_progress_remaining--;
-    if (cctrl->spell_in_progress_remaining <= 0)
+    cctrl->spell_aura_duration--;
+    if (cctrl->spell_aura_duration <= 0)
     {
-        cctrl->spell_in_progress = SplK_None;
+        cctrl->spell_aura = 0;
         return;
     }
-    if (cctrl->spell_in_progress == SplK_Heal)
-    {
-        struct Coord3d pos;
-        long amp;
-        long direction;
-        long delta_x;
-        long delta_y;
-        amp = 5 * thing->clipbox_size_xy / 8;
-        direction = CREATURE_RANDOM(thing, 2*LbFPMath_PI);
-        delta_x = (amp * LbSinL(direction) >> 8);
-        delta_y = (amp * LbCosL(direction) >> 8);
-        pos.x.val = thing->mappos.x.val + (delta_x >> 8);
-        pos.y.val = thing->mappos.y.val - (delta_y >> 8);
-        pos.z.val = thing->mappos.z.val;
-        create_effect_element(&pos, TngEffElm_Heal, thing->owner);
-    }
+    struct Coord3d pos;
+    long amp;
+    long direction;
+    long delta_x;
+    long delta_y;
+    amp = 5 * thing->clipbox_size_xy / 8;
+    direction = CREATURE_RANDOM(thing, 2*LbFPMath_PI);
+    delta_x = (amp * LbSinL(direction) >> 8);
+    delta_y = (amp * LbCosL(direction) >> 8);
+    pos.x.val = thing->mappos.x.val + (delta_x >> 8);
+    pos.y.val = thing->mappos.y.val - (delta_y >> 8);
+    pos.z.val = thing->mappos.z.val;
+
+    create_used_effect_or_element(&pos, cctrl->spell_aura, thing->owner);
 }
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
@@ -743,12 +741,9 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
 
 void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, long eemodel)
 {
-    MapCoordDelta dist_x;
-    MapCoordDelta dist_y;
-    MapCoordDelta dist_z;
-    dist_x = pos2->x.val - (MapCoordDelta)pos1->x.val;
-    dist_y = pos2->y.val - (MapCoordDelta)pos1->y.val;
-    dist_z = pos2->z.val - (MapCoordDelta)pos1->z.val;
+    MapCoordDelta dist_x = pos2->x.val - pos1->x.val;
+    MapCoordDelta dist_y = pos2->y.val - pos1->y.val;
+    MapCoordDelta dist_z = pos2->z.val - pos1->z.val;
     int delta_x;
     int delta_y;
     int delta_z;
@@ -790,18 +785,14 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             delta_x = dist_x * delta_x / dist_y;
             delta_z = delta_z * dist_z / dist_y;
         }
-        int deviat_x;
-        int deviat_y;
-        int deviat_z;
-        deviat_x = 0;
-        deviat_y = 0;
-        deviat_z = 0;
+        int deviat_x = 0;
+        int deviat_y = 0;
+        int deviat_z = 0;
         struct Coord3d curpos;
         curpos.x.val = pos1->x.val + UNSYNC_RANDOM(eeinterspace/4);
         curpos.y.val = pos1->y.val + UNSYNC_RANDOM(eeinterspace/4);
         curpos.z.val = pos1->z.val + UNSYNC_RANDOM(eeinterspace/4);
-        int i;
-        for (i=nsteps+1; i > 0; i--)
+        for (int i=nsteps+1; i > 0; i--)
         {
             struct Coord3d tngpos;
             tngpos.x.val = curpos.x.val + deviat_x;
@@ -826,14 +817,12 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             } else {
                 deviat_z += 32;
             }
-            int deviat_limit;
-            long dist;
-            dist = get_3d_box_distance(&curpos, pos2);
-            deviat_limit = 128;
+            MapCoordDelta dist = get_3d_box_distance(&curpos, pos2);
+            int deviat_limit = 128;
             if (dist < 1024)
               deviat_limit = (dist * 128) / 1024;
             // Limit deviations
-            if (deviat_x >= -deviat_limit) {
+            if (deviat_x < -deviat_limit) {
                 deviat_x = -deviat_limit;
             } else
             if (deviat_x > deviat_limit) {
@@ -934,7 +923,7 @@ void update_thing_animation(struct Thing *thing)
         if (thing->sprite_size >= thing->sprite_size_max)
         {
           thing->sprite_size = thing->sprite_size_max;
-          if ((thing->field_50 & 0x02) != 0)
+          if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
             thing->transformation_speed = -thing->transformation_speed;
           else
             thing->transformation_speed = 0;
@@ -942,7 +931,7 @@ void update_thing_animation(struct Thing *thing)
       } else
       {
         thing->sprite_size = thing->sprite_size_min;
-        if ((thing->field_50 & 0x02) != 0)
+        if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
           thing->transformation_speed = -thing->transformation_speed;
         else
           thing->transformation_speed = 0;
@@ -983,9 +972,7 @@ void init_keeper(void)
     init_creature_scores();
     // Load graphics structures
     load_cubes_config(CnfLd_Standard);
-    //load_cube_file();
     init_top_texture_to_cube_table();
-    load_texture_anim_file();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
       game.generate_speed = game.default_generate_speed;
@@ -1013,7 +1000,7 @@ TbBool initial_setup(void)
     // setting this will force video mode change, even if previous one is same
     MinimalResolutionSetup = true;
     // Set size of static textures buffer
-    game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
+    game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
     if (LbDataLoadAll(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
@@ -1054,6 +1041,7 @@ short setup_game(void)
   {
       SYNCMSG("%s", &cpu_info.brand[0]);
   }
+  SYNCMSG("Build image base: %p", GetModuleHandle(NULL));
   v.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
   if (GetVersionEx(&v))
   {
@@ -1063,7 +1051,7 @@ short setup_game(void)
   // Enable features that require more resources
   update_features(mem_size);
 
-  //Default feature settings (in case the options are absent from keeperfx.cfg)
+  // Default feature settings (in case the options are absent from keeperfx.cfg)
   features_enabled &= ~Ft_FreezeOnLoseFocus; // don't freeze the game, if the game window loses focus
   features_enabled &= ~Ft_UnlockCursorOnPause; // don't unlock the mouse cursor from the window, if the user pauses the game
   features_enabled |= Ft_LockCursorInPossession; // lock the mouse cursor to the window, when the user enters possession mode (when the cursor is already unlocked)
@@ -1073,6 +1061,7 @@ short setup_game(void)
   features_enabled &= ~Ft_SkipSplashScreens; // don't skip splash screens
   features_enabled &= ~Ft_DisableCursorCameraPanning; // don't disable cursor camera panning
   features_enabled |= Ft_DeltaTime; // enable delta time
+  features_enabled |= Ft_NoCdMusic; // use music files (OGG) rather than CD music
 
   // Configuration file
   if ( !load_configuration() )
@@ -1080,6 +1069,9 @@ short setup_game(void)
       ERRORLOG("Configuration load error.");
       return 0;
   }
+
+  // Process CmdLine overrides
+  process_cmdline_overrides();
 
   LbIKeyboardOpen();
 
@@ -1146,13 +1138,10 @@ short setup_game(void)
     }
 
   result = 1;
-  // The 320x200 mode is required only for the intro;
-  // loading and no CD screens can run in both 320x2?0 and 640x4?0.
+  // Setup the intro video mode
   if ( result && (!game.no_intro) )
   {
-      LbPaletteDataFillBlack(engine_palette);
-      int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, engine_palette, 2, 0);
-      if (mode_ok != 1)
+      if (!setup_screen_mode_zero(get_movies_vidmode()))
       {
         ERRORLOG("Can't enter movies screen mode to play intro");
         result=0;
@@ -1600,15 +1589,17 @@ void reinit_level_after_load(void)
     }
     start_rooms = &game.rooms[1];
     end_rooms = &game.rooms[ROOMS_COUNT];
-    load_texture_map_file(game.texture_id, 2);
+    load_texture_map_file(game.texture_id);
     init_animating_texture_maps();
     init_gui();
     reset_gui_based_on_player_mode();
     erstats_clear();
     player = get_my_player();
     reinit_tagged_blocks_for_player(player->id_number);
+    restore_room_update_functions_after_load();
     restore_computer_player_after_load();
     sound_reinit_after_load();
+    music_reinit_after_load();
 }
 
 /**
@@ -1656,7 +1647,6 @@ void clear_map(void)
     clear_mapmap();
     clear_slabs();
     clear_columns();
-    clear_slabsets();
 }
 
 void clear_things_and_persons_data(void)
@@ -1800,6 +1790,7 @@ void clear_game(void)
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
     init_thing_objects();
+    clear_slabsets();
 }
 
 void clear_game_for_save(void)
@@ -2185,14 +2176,14 @@ void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
 {
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
     struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    struct LightAdd* lightadd = get_lightadd(player->cursor_light_idx);
+    struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
     if (playeradd->mouse_is_offmap == true) {
-        lightadd->disable_interp_for_turns = 2;
+        light->disable_interp_for_turns = 2;
     }
-    if (lightadd->disable_interp_for_turns > 0) {
-        lightadd->disable_interp_for_turns -= 1;
-        lightadd->last_turn_drawn = 0;
+    if (light->disable_interp_for_turns > 0) {
+        light->disable_interp_for_turns -= 1;
+        light->last_turn_drawn = 0;
     }
 }
 
@@ -3106,7 +3097,7 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
     if (i > 0)
     {
       mapblk = get_map_block_at(x,y);
-      visible = map_block_revealed_bit(mapblk, player_bit);
+      visible = map_block_revealed(mapblk, my_player_number);
       if ((!visible) || (get_mapblk_column_index(mapblk) > 0))
       {
         if (visible)
@@ -3519,9 +3510,9 @@ TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
     }
 }
 
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, unsigned char a5)
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel tngmodel, TbBool allowed)
 {
-    if (!a5) {
+    if (!allowed) {
         if (is_my_player_number(plyr_idx))
             play_non_3d_sample(119);
         return 0;
@@ -3529,7 +3520,10 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
     if (!player_place_door_at(stl_x, stl_y, plyr_idx, tngmodel)) {
         return 0;
     }
-    remove_dead_creatures_from_slab(subtile_slab(stl_x), subtile_slab(stl_y));
+    MapSlabCoord slb_x = subtile_slab(stl_x);
+    MapSlabCoord slb_y = subtile_slab(stl_y);
+    delete_room_slabbed_objects(get_slab_number(slb_x, slb_y));
+    remove_dead_creatures_from_slab(slb_x, slb_y);
     return 1;
 }
 
@@ -3854,6 +3848,8 @@ void game_loop(void)
       LbScreenClear(0);
       LbScreenSwap();
       StopMusicPlayer();
+      free_custom_music();
+      free_sound_chunks();
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();
@@ -3875,6 +3871,7 @@ void game_loop(void)
     if ((game.system_flags & GSF_CaptureMovie) != 0) {
         movie_record_stop();
     }
+    ShutDownSDLAudio();
     SYNCDBG(7,"Done");
 }
 
@@ -3897,8 +3894,7 @@ short process_command_line(unsigned short argc, char *argv[])
 {
   char fullpath[CMDLN_MAXLEN+1];
   snprintf(fullpath, CMDLN_MAXLEN, "%s", argv[0]);
-
-  sprintf( keeper_runtime_directory, fullpath);
+  snprintf(keeper_runtime_directory, sizeof(keeper_runtime_directory), "%s", fullpath);
   char *endpos = strrchr( keeper_runtime_directory, '\\');
   if (endpos==NULL)
       endpos=strrchr( keeper_runtime_directory, '/');
@@ -3949,9 +3945,13 @@ short process_command_line(unsigned short argc, char *argv[])
       {
         start_params.no_intro = 1;
       } else
-      if (strcasecmp(parstr, "nocd") == 0)
+      if (strcasecmp(parstr, "nocd") == 0) // kept for legacy reasons
       {
-          features_enabled |= Ft_NoCdMusic;
+          WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
+      } else
+      if (strcasecmp(parstr, "cd") == 0)
+      {
+          start_params.overrides[Clo_CDMusic] = true;
       } else
       if (strcasecmp(parstr, "1player") == 0)
       {
@@ -4020,10 +4020,6 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
       } else
-      if (strcasecmp(parstr,"columnconvert") == 0)
-      {
-         set_flag_byte(&start_params.operation_flags,GOF_ColumnConvert,true);
-      } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
          set_flag_byte(&start_params.operation_flags,GOF_LightConvert,true);
@@ -4083,6 +4079,12 @@ short process_command_line(unsigned short argc, char *argv[])
               TimerNoReset = true;
           }
           narg++;
+      }
+      else if ( strcasecmp(parstr,"config") == 0 )
+      {
+        strcpy(start_params.config_file, pr2str);
+        start_params.overrides[Clo_ConfigFile] = true;
+        narg++;
       }
 #ifdef AUTOTESTING
       else if (strcasecmp(parstr, "exit_at_turn") == 0)

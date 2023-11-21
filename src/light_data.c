@@ -181,10 +181,6 @@ long light_create_light(struct InitLight *ilght)
     lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
-
-    struct LightAdd* lightadd = get_lightadd(lgt->index);
-    LbMemorySet(lightadd, 0, sizeof(struct LightAdd)); // Clear any previously used LightAdd stuff
-
     return lgt->index;
 }
 
@@ -222,6 +218,7 @@ TbBool light_create_light_adv(VALUE *init_data)
     lgt->mappos.z.val = value_read_stl_coord(value_dict_get(init_data, "SubtileZ"));
     lgt->radius = value_read_stl_coord(value_dict_get(init_data, "LightRange"));;
     lgt->intensity = value_uint32(value_dict_get(init_data, "LightIntensity"));
+    lgt->attached_slb = value_uint32(value_dict_get(init_data, "ParentTile"));
 
     /*
      * TODO: not implemented yet
@@ -230,9 +227,6 @@ TbBool light_create_light_adv(VALUE *init_data)
 
     lgt->attached_slb = ilght->attached_slb;
      */
-
-    struct LightAdd* lightadd = get_lightadd(lgt->index);
-    LbMemorySet(lightadd, 0, sizeof(struct LightAdd)); // Clear any previously used LightAdd stuff
 
     return true;
 }
@@ -429,8 +423,7 @@ long light_is_light_allocated(long lgt_id)
 }
 
 void set_previous_light_position(struct Light *light) {
-    struct LightAdd* lightadd = get_lightadd(light->index);
-    lightadd->previous_mappos = light->mappos;
+    light->previous_mappos = light->mappos;
 }
 
 void light_set_light_position(long lgt_id, struct Coord3d *pos)
@@ -1534,6 +1527,7 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
 
 void light_set_lights_on(char state)
 {
+    SYNCDBG(8, "Starting");
     if (state)
     {
         game.lish.global_ambient_light = 10;
@@ -1978,7 +1972,7 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
                         create_shadow_limits(lish, shadow_start, shadow_end);
                     }
                     TbBool v24 = false;
-                    
+
                     if (too_high)
                     {
                         switch (quadrant)
@@ -2026,22 +2020,21 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
 
 static char light_render_light(struct Light* lgt)
 {
-  struct LightAdd* lightadd = get_lightadd(lgt->index);
   int remember_original_lgt_mappos_x = lgt->mappos.x.val;
   int remember_original_lgt_mappos_y = lgt->mappos.y.val;
-  if ((lightadd->interp_has_been_initialized == false) || (game.play_gameturn - lightadd->last_turn_drawn > 1)) {
-    lightadd->interp_has_been_initialized = true;
-    lightadd->interp_mappos.x.val = lgt->mappos.x.val;
-    lightadd->interp_mappos.y.val = lgt->mappos.y.val;
-    lightadd->previous_mappos.x.val = lgt->mappos.x.val;
-    lightadd->previous_mappos.y.val = lgt->mappos.y.val;
+  if ((lgt->interp_has_been_initialized == false) || (game.play_gameturn - lgt->last_turn_drawn > 1)) {
+    lgt->interp_has_been_initialized = true;
+    lgt->interp_mappos.x.val = lgt->mappos.x.val;
+    lgt->interp_mappos.y.val = lgt->mappos.y.val;
+    lgt->previous_mappos.x.val = lgt->mappos.x.val;
+    lgt->previous_mappos.y.val = lgt->mappos.y.val;
   } else {
-    lightadd->interp_mappos.x.val = interpolate(lightadd->interp_mappos.x.val, lightadd->previous_mappos.x.val, lgt->mappos.x.val);
-    lightadd->interp_mappos.y.val = interpolate(lightadd->interp_mappos.y.val, lightadd->previous_mappos.y.val, lgt->mappos.y.val);
+    lgt->interp_mappos.x.val = interpolate(lgt->interp_mappos.x.val, lgt->previous_mappos.x.val, lgt->mappos.x.val);
+    lgt->interp_mappos.y.val = interpolate(lgt->interp_mappos.y.val, lgt->previous_mappos.y.val, lgt->mappos.y.val);
   }
-  lightadd->last_turn_drawn = game.play_gameturn;
-  lgt->mappos.x.val = lightadd->interp_mappos.x.val;
-  lgt->mappos.y.val = lightadd->interp_mappos.y.val;
+  lgt->last_turn_drawn = game.play_gameturn;
+  lgt->mappos.x.val = lgt->interp_mappos.x.val;
+  lgt->mappos.y.val = lgt->interp_mappos.y.val;
   TbBool is_dynamic = lgt->flags & LgtF_Dynamic;
 
   int intensity;
@@ -2066,6 +2059,12 @@ static char light_render_light(struct Light* lgt)
       render_radius = lgt->min_radius << 8;
     if ( intensity < lgt->min_intensity << 8 )
       intensity = lgt->min_intensity << 8;
+  }
+  if (render_radius == 0)
+  {
+      ERRORLOG("Light %d has no radius, deleting", lgt->index);
+      light_delete_light(lgt->index);
+      return 0;
   }
   unsigned int lighting_tables_idx;
   if ( intensity >= game.lish.global_ambient_light << 8 )
@@ -2212,7 +2211,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
 
   SubtlCodedCoords start_num = get_subtile_number(startx, starty);
 
-  
+
   if ( starty <= endy )
   {
     unsigned short *stl_lightness = &game.lish.subtile_lightness[start_num];

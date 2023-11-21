@@ -41,9 +41,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-char net_current_message[64];
-long net_current_message_index;
-
 struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
 struct TbNetworkSessionNameEntry *net_session[32];
 long net_number_of_sessions;
@@ -199,6 +196,12 @@ long network_session_join(void)
       return -1;
     }
     return plyr_num;
+}
+
+void init_network_seed()
+{
+   if (!LbNetwork_Resync(&game.action_rand_seed, 4))
+      ERRORLOG("Action seed initialisation failed"); 
 }
 /******************************************************************************/
 #ifdef __cplusplus

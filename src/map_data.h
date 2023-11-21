@@ -41,7 +41,7 @@ struct Map {
       unsigned char flags; // flags in enum SlabAttrFlags
       unsigned long data; // 4b unused 4b filled_subtiles 2b wibble_value 11b unused 11b column
       ThingIndex mapwho;
-      PlayerBitFlag revealed;
+      PlayerBitFlags revealed;
 };
 
 #define INVALID_MAP_BLOCK (&bad_map_block)
@@ -49,12 +49,13 @@ struct Map {
 #define STL_PER_SLB 3
 #define COORD_PER_STL 256
 #define FILLED_COLUMN_HEIGHT 1280
+#define DEFAULT_MAP_SIZE 85
 
 #pragma pack()
 /******************************************************************************/
 extern struct Map bad_map_block;
 extern MapSubtlCoord map_subtiles_z;
-extern unsigned char *IanMap;
+extern NavColour *IanMap;
 extern long nav_map_initialised;
 /******************************************************************************/
 /** Convert subtile to slab. */
@@ -78,11 +79,11 @@ void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
 #define thing_revealed(thing, plyr_idx) subtile_revealed(thing->mappos.x.stl.num, thing->mappos.y.stl.num, plyr_idx)
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx);
+void conceal_map_block(struct Map *mapblk, PlayerNumber plyr_idx);
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool slabs_change_owner(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool slabs_change_type(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param);
 TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx);
-TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit);
 
 TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y);
 long get_ceiling_height(const struct Coord3d *pos);

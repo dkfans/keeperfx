@@ -107,6 +107,7 @@ const struct NamedCommand creaturetype_instance_properties[] = {
   {"DESTRUCTIVE",          InstPF_Destructive},
   {"QUICK",                InstPF_Quick},
   {"DISARMING",            InstPF_Disarming},
+  {"DISPLAY_SWIPE",        InstPF_UsesSwipe},
   {NULL,                     0},
   };
 
@@ -190,7 +191,7 @@ const struct NamedCommand creature_graphics_desc[] = {
   };
 
 const struct NamedCommand instance_range_desc[] = {
-  {"MAX",         LONG_MAX},
+  {"MAX",          INT_MAX},
   {"MIN",                0},
   {NULL,                -1},
 };
@@ -310,40 +311,40 @@ void check_and_auto_fix_stats(void)
         struct CreatureStats* crstat = creature_stats_get(model);
         if ( (crstat->lair_size <= 0) && (crstat->toking_recovery <= 0) && (crstat->heal_requirement != 0) )
         {
-            ERRORLOG("Creature model %d has no LairSize and no TokingRecovery but has HealRequirment - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) has no LairSize and no TokingRecovery but has HealRequirment - Fixing", (int)model, creature_code_name(model));
             crstat->heal_requirement = 0;
         }
         if (crstat->heal_requirement > crstat->heal_threshold)
         {
-            ERRORLOG("Creature model %d Heal Requirment > Heal Threshold - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) Heal Requirment > Heal Threshold - Fixing", (int)model, creature_code_name(model));
             crstat->heal_threshold = crstat->heal_requirement;
         }
         if ( (crstat->hunger_rate != 0) && (crstat->hunger_fill == 0) )
         {
-            ERRORLOG("Creature model %d HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) HungerRate > 0 & Hunger Fill = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->hunger_fill = 1;
         }
         if ( (crstat->sleep_exp_slab != 0) && (crstat->sleep_experience == 0) )
         {
-            ERRORLOG("Creature model %d SleepSlab set but SleepExperience = 0 - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->sleep_exp_slab = 0;
         }
-        if (crstat->grow_up >= gameadd.crtr_conf.model_count)
+        if ((crstat->grow_up >= gameadd.crtr_conf.model_count) && !(crstat->grow_up == CREATURE_ANY))
         {
-            ERRORLOG("Creature model %d Invalid GrowUp model - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) Invalid GrowUp model - Fixing", (int)model, creature_code_name(model));
             crstat->grow_up = 0;
         }
         if (crstat->grow_up > 0)
         {
           if ( (crstat->grow_up_level < 1) || (crstat->grow_up_level > CREATURE_MAX_LEVEL) )
           {
-              ERRORLOG("Creature model %d GrowUp & GrowUpLevel invalid - Fixing", (int)model);
+              ERRORLOG("Creature model %d (%s) GrowUp & GrowUpLevel invalid - Fixing", (int)model, creature_code_name(model));
               crstat->grow_up_level = 1;
           }
         }
         if (crstat->rebirth > CREATURE_MAX_LEVEL)
         {
-            ERRORLOG("Creature model %d Rebirth Invalid - Fixing", (int)model);
+            ERRORLOG("Creature model %d (%s) Rebirth Invalid - Fixing", (int)model, creature_code_name(model));
             crstat->rebirth = 0;
         }
         for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
@@ -353,14 +354,14 @@ void check_and_auto_fix_stats(void)
             {
                 if ((n < 1) || (n > CREATURE_MAX_LEVEL))
                 {
-                    ERRORLOG("Creature model %d Learn Level for Instance slot %d Invalid - Fixing", (int)model, (int)(i+1));
+                    ERRORLOG("Creature model %d (%s) Learn Level for Instance slot %d Invalid - Fixing", (int)model, creature_code_name(model), (int)(i+1));
                     crstat->learned_instance_level[i] = 1;
                 }
             } else
             {
                 if (n != 0)
                 {
-                    ERRORLOG("Creature model %d Learn Level for Empty Instance slot %d - Fixing", (int)model, (int)(i+1));
+                    ERRORLOG("Creature model %d (%s) Learn Level for Empty Instance slot %d - Fixing", (int)model, creature_code_name(model), (int)(i+1));
                     crstat->learned_instance_level[i] = 0;
                 }
             }
@@ -422,6 +423,7 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
 {
     // Block name and parameter word store variables
     // Initialize block data
+    int k = sizeof(gameadd.crtr_conf.model) / sizeof(gameadd.crtr_conf.model[0]);
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
         gameadd.crtr_conf.model_count = 1;
@@ -433,11 +435,10 @@ TbBool parse_creaturetypes_common_blocks(char *buf, long len, const char *config
         gameadd.crtr_conf.special_digger_evil = 0;
         gameadd.crtr_conf.spectator_breed = 0;
         gameadd.crtr_conf.sprite_size = 300;
-    }
-    int k = sizeof(gameadd.crtr_conf.model) / sizeof(gameadd.crtr_conf.model[0]);
-    for (int i = 0; i < k; i++)
-    {
-      LbMemorySet(gameadd.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
+        for (int i = 0; i < k; i++)
+        {
+          LbMemorySet(gameadd.crtr_conf.model[i].name, 0, COMMAND_WORD_LEN);
+        }
     }
     LbStringCopy(gameadd.crtr_conf.model[0].name, "NOCREATURE", COMMAND_WORD_LEN);
     // Find the block
@@ -886,8 +887,6 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             continue;
         }
         inst_inf = creature_instance_info_get(i);
-        inst_inf->range_min = -1;
-        inst_inf->range_max = -1;
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(creaturetype_instance_commands,cmd_num)
       while (pos<len)
       {
@@ -1114,11 +1113,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 {
                     k = atoi(word_buf);
                 }
-                if (k >= 0)
-                {
-                    inst_inf->range_min = k;
-                    n++;
-                }
+                inst_inf->range_min = k;
+                n++;
             }
             if (n < 1)
             {
@@ -1134,11 +1130,8 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 {
                     k = atoi(word_buf);
                 }
-                if (k >= 0)
-                {
-                    inst_inf->range_max = k;
-                    n++;
-                }
+                inst_inf->range_max = k;
+                n++;
             }
             if (n < 1)
             {
@@ -1805,6 +1798,10 @@ const char *creature_own_name(const struct Thing *creatng)
         text = buf_sprintf("%s",get_string(crconf->namestr_idx));
         return text;
     }
+    if (cctrl->creature_name[0] > 0)
+    {
+        return cctrl->creature_name;
+    }
     const char ** starts;
     long starts_len;
     const char ** vowels;
@@ -1828,7 +1825,6 @@ const char *creature_own_name(const struct Thing *creatng)
         end_consonants_len = sizeof(name_consonants)/sizeof(name_consonants[0]);
     }
     {
-        //TODO CREATURE store creature name seed somewhere in CreatureControl instead making it from other parameters
         unsigned long seed = creatng->creation_turn + creatng->index + (cctrl->blood_type << 8);
         // Get amount of nucleus
         int name_len;
@@ -1875,6 +1871,7 @@ const char *creature_own_name(const struct Thing *creatng)
             strcat(text,part);
         }
     }
+    strcpy(cctrl->creature_name, text);
     return text;
 }
 
@@ -2087,7 +2084,7 @@ CreatureJob get_jobs_enemies_may_do_in_room(RoomKind rkind)
 RoomKind get_first_room_kind_for_job(CreatureJob job_flags)
 {
     struct CreatureJobConfig* jobcfg = get_config_for_job(job_flags);
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, jobcfg->room_role))
             return rkind;

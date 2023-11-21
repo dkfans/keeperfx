@@ -1,0 +1,22 @@
+{
+	"C_Cpp.intelliSenseEngine": "default",
+	"files.associations": {
+		"defaultlaunch": "jsonc",
+		"defaultsettings": "jsonc",
+		"defaultlinuxscript": "bash"
+	},
+	"files.exclude": {
+        "**/.vscode/defaultlaunch": true,
+		"**/.vscode/defaultsettings": true,
+		"**/.vscode/defaultlinuxscript": false
+    },
+	"search.exclude": {
+		"**/.git": true,
+		"**/.gitmodules": true,
+		"**/.github": true,
+		"**/deps": true,
+		"**/obj": true,
+		"**/sdl": true,
+		"**/tests": true
+	}
+}

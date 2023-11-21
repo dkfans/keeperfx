@@ -161,6 +161,11 @@ struct NamedCommand {
     int num;
 };
 
+struct LongNamedCommand {
+    const char* name;
+    long long num;
+};
+
 struct InstallInfo {
   char inst_path[150];
   int lang_id;
@@ -195,6 +200,7 @@ extern short is_near_new_moon;
 extern unsigned long text_line_number;
 extern const struct NamedCommand lang_type[];
 extern const struct NamedCommand logicval_type[];
+extern const struct NamedCommand scrshot_type[];
 /******************************************************************************/
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
 char *prepare_file_path(short fgroup,const char *fname);
@@ -212,6 +218,7 @@ TbBool lock_cursor_in_possession(void);
 TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
 short load_configuration(void);
+void process_cmdline_overrides(void);
 short calculate_moon_phase(short do_calculate,short add_to_log);
 void load_or_create_high_score_table(void);
 TbBool load_high_score_table(void);
@@ -277,6 +284,7 @@ int get_conf_list_int(const char *buf, const char **state, int *dst);
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_id(const struct NamedCommand *desc, const char *itmname);
+long long get_long_id(const struct LongNamedCommand* desc, const char* itmname);
 long get_rid(const struct NamedCommand *desc, const char *itmname);
 /******************************************************************************/
 #ifdef __cplusplus

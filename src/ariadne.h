@@ -26,12 +26,13 @@
 extern "C" {
 #endif
 /******************************************************************************/
-// Originally was 3000, but we're not using bak_path from DLL which gives us 517 extra
-#define TREE_ROUTE_LEN 3517
+// TREE_ROUTE_LEN <= 5000 results in crash on big maze map
+// ARID_PATH_WAYPOINTS_COUNT <= 1300 results in crash on big maze map
+#define TREE_ROUTE_LEN 6000
 #define BORDER_LENGTH 100
 #define ROUTE_LENGTH 12000
 #define ARID_WAYPOINTS_COUNT 10
-#define ARID_PATH_WAYPOINTS_COUNT 256
+#define ARID_PATH_WAYPOINTS_COUNT 1400
 
 /******************************************************************************/
 #pragma pack(1)
@@ -66,15 +67,23 @@ enum AriadneUpdateSubStateManoeuvreValues {
     AridUpSStM_Unkn2,
 };
 
+enum NavigationStateValues {
+    NavS_Unkn0   = 0,
+    NavS_Unkn1,
+    NavS_Unkn2,
+    NavS_Unkn3,
+    NavS_Unkn4,
+    NavS_Unkn5,
+    NavS_Unkn6,
+    NavS_Unkn7,
+};
+
 #define NAVMAP_FLOORHEIGHT_BIT  0
 #define NAVMAP_FLOORHEIGHT_MAX  0x0f
 #define NAVMAP_FLOORHEIGHT_MASK 0x0f
 #define NAVMAP_UNSAFE_SURFACE   0x10
-#define NAVMAP_OWNERSELECT_BIT  5
-#define NAVMAP_OWNERSELECT_MAX  0x06
-#define NAVMAP_OWNERSELECT_MASK 0x07
-#define NAVMAP_OWNER_HERO    5
-#define NAVMAP_OWNER_NEUTRAL 6
+#define NAVMAP_OWNERSELECT_BIT  6
+#define NAVMAP_OWNERSELECT_MASK 0x7E0
 
 struct Ariadne { // sizeof = 102
     /** Position where the journey stated. */
@@ -87,10 +96,10 @@ struct Ariadne { // sizeof = 102
   struct Coord3d pos_18;
   unsigned char route_flags;
   unsigned char field_1F;
-  unsigned char field_20;
+  unsigned char hug_side;
   unsigned char update_state;
   unsigned char field_22;
-  unsigned char field_23;
+  unsigned char may_need_reroute;
   short field_24;
   unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
@@ -100,7 +109,7 @@ struct Ariadne { // sizeof = 102
     /** Amount of nearest waypoints stored in the array. */
     unsigned char stored_waypoints; // offs = 0x51
     /** Total amount of waypoints planned on the way towards endpos. */
-    unsigned char total_waypoints;
+    unsigned int total_waypoints;
   struct Coord3d pos_53;
   struct Coord3d pos_59;
   unsigned char manoeuvre_state;
@@ -140,12 +149,12 @@ struct Pathway { // sizeof = 7192
   long field_1C14;
 };
 
-struct WayPoints { // sizeof = 1040
+struct WayPoints {
   long wpfield_0;
   long wpfield_4;
   long wpfield_8;
   long wpfield_C;
-  long wpfield_10[256];
+  long wpfield_10[ARID_PATH_WAYPOINTS_COUNT];
 };
 
 struct Navigation { // sizeof = 0x27
@@ -160,7 +169,7 @@ struct Navigation { // sizeof = 0x27
   unsigned char field_11[4];
   SubtlCodedCoords first_colliding_block;
   SubtlCodedCoords field_17;
-  unsigned char field_19[2];
+  PlayerBitFlags field_19[2];
   struct Coord3d pos_next;
   struct Coord3d pos_final;
 };
@@ -172,8 +181,8 @@ struct FOV { // sizeof=0x18
 };
 
 struct HugStart {
-    short angle;
-    unsigned char flag;
+    short wh_angle;
+    unsigned char wh_side;
 };
 
 /******************************************************************************/
@@ -189,7 +198,7 @@ extern const struct HugStart blocked_xy_hug_start[][2][2];
 /******************************************************************************/
 long init_navigation(void);
 long update_navigation_triangulation(long start_x, long start_y, long end_x, long end_y);
-TbBool triangulate_area(unsigned char *imap, long sx, long sy, long ex, long ey);
+TbBool triangulate_area(NavColour *imap, long sx, long sy, long ex, long ey);
 
 AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const struct Coord3d *pos, long speed, AriadneRouteFlags flags, const char *func_name);
 #define ariadne_initialise_creature_route(thing, pos, speed, flags) ariadne_initialise_creature_route_f(thing, pos, speed, flags, __func__)
@@ -202,19 +211,19 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
 AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing);
 
 TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
-void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size, const char *func_name);
+void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long subroute, unsigned char nav_size, const char *func_name);
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name);
 #define nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py) nearest_search_f(sizexy, srcx, srcy, dstx, dsty, px, py, __func__)
-long get_navigation_colour(long stl_x, long stl_y);
-TbBool border_clip_horizontal(const unsigned char *imap, long a1, long a2, long a3, long a4);
-TbBool border_clip_vertical(const unsigned char *imap, long a1, long a2, long a3, long a4);
+NavColour get_navigation_colour(long stl_x, long stl_y);
+TbBool border_clip_horizontal(const NavColour *imap, long a1, long a2, long a3, long a4);
+TbBool border_clip_vertical(const NavColour *imap, long a1, long a2, long a3, long a4);
 #define edge_lock(fin_x, fin_y, bgn_x, bgn_y) edge_lock_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
 TbBool edge_lock_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
 #define edge_unlock_record_and_regions(fin_x, fin_y, bgn_x, bgn_y) edge_unlock_record_and_regions_f(fin_x, fin_y, bgn_x, bgn_y, __func__)
 TbBool edge_unlock_record_and_regions_f(long ptend_x, long ptend_y, long ptstart_x, long ptstart_y, const char *func_name);
 void border_internal_points_delete(long a1, long a2, long a3, long a4);
-TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, unsigned char nav_colour);
-long fringe_get_rectangle(long *a1, long *a2, long *a3, long *a4, unsigned char *a5);
+TbBool tri_set_rectangle(long start_x, long start_y, long end_x, long end_y, NavColour nav_colour);
+long fringe_get_rectangle(long *outfri_x1, long *outfri_y1, long *outfri_x2, long *outfri_y2, unsigned short *oval);
 long delaunay_seeded(long a1, long a2, long a3, long a4);
 void border_unlock(long a1, long a2, long a3, long a4);
 TbBool triangulation_border_start(long *a1, long *a2);

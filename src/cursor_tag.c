@@ -127,7 +127,7 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     else if (floor_height_z == 1)
     {
         if ( ( ((subtile_is_sellable_room(plyr_idx, stl_x, stl_y)) || ( (slabmap_owner(slb) == plyr_idx) && ( (slab_is_door(slb_x, slb_y))
-            || ((!full_slab) ? (subtile_has_trap_on(stl_x, stl_y)) : (slab_has_trap_on(slb_x, slb_y))) ) ) ) )
+            || ((!full_slab) ? (subtile_has_sellable_trap_on(stl_x, stl_y)) : (slab_has_sellable_trap_on(slb_x, slb_y))) ) ) ) )
             && ( slb->kind != SlbT_ENTRANCE && slb->kind != SlbT_DUNGHEART ) )
         {
             colour = SLC_GREEN;
@@ -300,6 +300,8 @@ TbBool tag_cursor_blocks_order_creature(PlayerNumber plyr_idx, MapSubtlCoord stl
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     unsigned char colour;
     struct Coord3d pos;
+    pos.x.val = 0;
+    pos.y.val = 0;
     pos.x.stl.num = stl_x;
     pos.y.stl.num = stl_y;
     pos.z.val = get_floor_height(stl_x, stl_y);
@@ -358,12 +360,12 @@ TbBool tag_cursor_blocks_steal_slab(PlayerNumber plyr_idx, MapSubtlCoord stl_x, 
     return (colour != SLC_RED);
 }
 
-TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab)
+TbBool tag_cursor_blocks_place_trap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool full_slab, ThingModel trpkind)
 {
     SYNCDBG(7,"Starting");
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    TbBool can_place = can_place_trap_on(plyr_idx, stl_x, stl_y);
+    TbBool can_place = can_place_trap_on(plyr_idx, stl_x, stl_y, trpkind);
     int floor_height = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     if (is_my_player_number(plyr_idx))
     {

@@ -244,15 +244,18 @@ TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y)
 
 TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    if ( (slb->kind <= SlbT_WALLPAIRSHR) || (slb->kind == SlbT_GEMS) )
+    MapSubtlCoord stl_x = slab_subtile_center(slb_x);
+    MapSubtlCoord stl_y = slab_subtile_center(slb_y);
+    for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
-        return true;
+        MapSubtlCoord astl_x = stl_x + small_around[i].delta_x;
+        MapSubtlCoord astl_y = stl_y + small_around[i].delta_y;
+        if (!subtile_is_wall(astl_x, astl_y))
+        {
+            return false;
+        }
     }
-    else
-    {
-        return false;
-    }
+    return true;
 }
 
 TbBool is_slab_type_walkable(SlabKind slbkind)
@@ -263,12 +266,8 @@ TbBool is_slab_type_walkable(SlabKind slbkind)
 
 TbBool slab_kind_is_animated(SlabKind slbkind)
 {
-    if (slab_kind_is_door(slbkind))
-        return true;
-    // if ((slbkind == SlbT_GUARDPOST) || (slbkind == SlbT_BRIDGE) || (slbkind == SlbT_GEMS))
-        if (slbkind >= SlbT_SLAB50)
-        return true;
-    return false;
+    struct SlabAttr* slbattr = get_slab_kind_attrs(slbkind);
+    return slbattr->animated;
 }
 
 TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
@@ -472,8 +471,14 @@ long calculate_effeciency_score_for_room_slab(SlabCodedCoords slab_num, PlayerNu
                     eff_score++;
                     break;
                   case SlbT_WALLDRAPE:
-                    if (slabmap_owner(round_slb) == slabmap_owner(slb))
-                        eff_score += 2;
+                      if (slabmap_owner(round_slb) == slabmap_owner(slb))
+                      {
+                          eff_score += 2;
+                      }
+                      else
+                      {
+                          eff_score++;
+                      }
                     break;
                   case SlbT_DOORWOOD1:
                     if (slabmap_owner(round_slb) == slabmap_owner(slb))
@@ -736,8 +741,8 @@ void do_unprettying(PlayerNumber keep_plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 
 TbBool slab_kind_has_no_ownership(SlabKind slbkind)
 {
-    return ( (slbkind == SlbT_ROCK) || (slbkind == SlbT_GOLD) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_EARTH) || (slbkind == SlbT_TORCHDIRT)
-            || (slbkind == SlbT_PATH) || (slab_kind_is_liquid(slbkind)) );
+    struct SlabAttr* attributes = get_slab_kind_attrs(slbkind);
+    return (attributes->is_ownable == 0);
 }
 
 TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind)
@@ -782,6 +787,34 @@ TbBool slab_by_players_land(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCo
         }
     }
     return false;
+}
+
+TbBool player_can_claim_slab(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    PlayerNumber prev_owner = slabmap_owner(slb);
+    if (prev_owner == plyr_idx)
+        return false;
+    if (players_are_mutual_allies(plyr_idx, prev_owner)) {
+        SYNCDBG(8,"The slab %d,%d is owned by ally, so cannot be converted",(int)slb_x, (int)slb_y);
+        return false;
+    }
+
+    struct Room *room = room_get(slb->room_index);
+    if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (room->kind == RoK_DUNGHEART))) {
+        SYNCDBG(8,"The slab %d,%d is not a valid kind %d to be converted",(int)slb_x, (int)slb_y, (int)slb->kind);
+        return false;
+    }
+    struct Map *mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    if (!map_block_revealed(mapblk, plyr_idx)) {
+        SYNCDBG(8,"The slab %d,%d is not revealed",(int)slb_x, (int)slb_y);
+        return false;
+    }
+    if (!slab_by_players_land(plyr_idx, slb_x, slb_y)) {
+        SYNCDBG(8,"The slab %d,%d is not by players land",(int)slb_x, (int)slb_y);
+        return false;
+    }
+    return true;
 }
 /******************************************************************************/
 #ifdef __cplusplus

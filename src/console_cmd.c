@@ -791,7 +791,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         crmodel = atoi(pr2str);
                     }
                 }
-                if ((crmodel > 0) && (crmodel <= 31))
+                if ((crmodel > 0) && (crmodel < gameadd.crtr_conf.model_count))
                 {
                     player = get_player(plyr_idx);
                     pckt = get_packet_direct(player->packet_num);
@@ -949,7 +949,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                             }
                         }
                     }
-                    if ((slbkind >= 0) && (slbkind <= slab_conf.slab_types_count))
+                    if ((slbkind >= 0) && (slbkind <= game.slab_conf.slab_types_count))
                     {
                         if (subtile_is_room(stl_x, stl_y))
                         {
@@ -1038,9 +1038,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = get_player_soul_container(id);
             if (thing_is_dungeon_heart(thing))
             {
+                struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
                 if (pr3str == NULL)
                 {
-                    float percent = ((float) thing->health / (float) game.dungeon_heart_health) * 100;
+                    float percent = ((float) thing->health / (float)objconf->health) * 100;
                     targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,
                                          "Player %d heart health: %ld (%.2f per cent)", id, thing->health, percent);
                     return true;
@@ -1111,7 +1112,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 unsigned char inst = atoi(pr2str);
                 if (thing_is_creature(thing))
                 {
-                    set_creature_instance(thing, inst, 0, 0, 0);
+                    set_creature_instance(thing, inst, 0, 0);
                     return true;
                 }
             }

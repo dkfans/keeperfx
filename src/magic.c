@@ -290,6 +290,20 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     }
     if (thing_is_creature(thing))
     {
+        if (creature_is_for_dungeon_diggers_list(thing))
+        {
+            if (powerst->can_cast_flags & PwCast_DiggersNot)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (powerst->can_cast_flags & PwCast_DiggersOnly)
+            {
+                return false;
+            }
+        }
         // Don't allow casting on own creatures kept by enemy - they're out of our control
         if (thing->owner == plyr_idx)
         {
@@ -547,7 +561,7 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
 {
     struct Map *mapblk;
     struct SlabMap *slb;
-    unsigned long can_cast;
+    unsigned long long can_cast;
     mapblk = get_map_block_at(stl_x, stl_y);
     slb = get_slabmap_for_subtile(stl_x, stl_y);
     struct SlabAttr *slbattr;
@@ -788,7 +802,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     long price;
-    if (pwkind >= POWER_TYPES_COUNT)
+    if (pwkind >= magic_conf.power_types_count)
         return false;
     if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
         pwlevel = MAGIC_OVERCHARGE_LEVELS;
@@ -912,9 +926,11 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
     if (enemy_time_gap <= your_time_gap)
         enemy_time_gap = your_time_gap;
     game.armageddon_over_turn = game.armageddon.duration + enemy_time_gap;
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(PwrK_ARMAGEDDON);
-    play_non_3d_sample(powerst->select_sound_idx);
+    if (plyr_idx == my_player_number)
+    {
+        struct PowerConfigStats *powerst = get_power_model_stats(PwrK_ARMAGEDDON);
+        play_non_3d_sample(powerst->select_sound_idx);
+    }
     return Lb_SUCCESS;
 }
 
@@ -936,9 +952,11 @@ TbResult magic_use_power_obey(PlayerNumber plyr_idx, unsigned long mod_flags)
         dungeon->must_obey_turn = 0;
     } else {
         dungeon->must_obey_turn = game.play_gameturn;
-        struct PowerConfigStats *powerst;
-        powerst = get_power_model_stats(PwrK_OBEY);
-        play_non_3d_sample(powerst->select_sound_idx);
+        if (plyr_idx == my_player_number)
+        {
+            struct PowerConfigStats *powerst = get_power_model_stats(PwrK_OBEY);
+            play_non_3d_sample(powerst->select_sound_idx);
+        }
     }
     update_speed_of_player_creatures_of_model(plyr_idx, 0);
     return Lb_SUCCESS;
@@ -1032,9 +1050,11 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
             break;
         }
     }
-    struct PowerConfigStats *powerst;
-    powerst = get_power_model_stats(PwrK_HOLDAUDNC);
-    play_non_3d_sample(powerst->select_sound_idx);
+    if (plyr_idx == my_player_number)
+    {
+        struct PowerConfigStats *powerst = get_power_model_stats(PwrK_HOLDAUDNC);
+        play_non_3d_sample(powerst->select_sound_idx);
+    }
     SYNCDBG(19,"Finished");
     return Lb_SUCCESS;
 }
@@ -1227,7 +1247,7 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     heartng = get_player_soul_container(plyr_idx);
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
-    pos.z.val = get_floor_height_at(&pos) + (heartng->clipbox_size_yz >> 1);
+    pos.z.val = get_floor_height_at(&pos) + (heartng->clipbox_size_z >> 1);
     thing = create_creature(&pos, get_players_special_digger_model(plyr_idx), plyr_idx);
     if (thing_is_invalid(thing))
     {
@@ -1391,7 +1411,12 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
         max_damage /= 4;
-    obtng = create_object(&pos, ObjMdl_PowerLightning, plyr_idx, -1);
+    struct Coord3d objpos;
+    // Compensate for effect element position offset
+    objpos.x.val = pos.x.val + 128;
+    objpos.y.val = pos.y.val + 128;
+    objpos.z.val = 0;
+    obtng = create_object(&objpos, ObjMdl_PowerLightning, plyr_idx, -1);
     if (!thing_is_invalid(obtng))
     {
         obtng->lightning.spell_level = splevel;
@@ -2223,7 +2248,7 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
 {
   struct Dungeon *dungeon;
   int i;
-  if (pwkind >= POWER_TYPES_COUNT)
+  if (pwkind >= magic_conf.power_types_count)
       return false;
   dungeon = get_dungeon(player->id_number);
   const struct MagicStats *pwrdynst;

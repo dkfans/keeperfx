@@ -33,6 +33,7 @@
 #include "game_legacy.h"
 #include "globals.h"
 #include "game_heap.h"
+#include "gui_soundmsgs.h"
 #include "post_inc.h"
 
 #define INVALID_SOUND_EMITTER (&emitter[0])
@@ -58,8 +59,8 @@ struct SoundReceiver Receiver;
 long Non3DEmitter;
 struct SampleTable *sample_table;
 struct SampleTable *sample_table2;
-TbFileHandle sound_file;
-TbFileHandle sound_file2;
+TbFileHandle sound_file = -1;
+TbFileHandle sound_file2 = -1;
 unsigned char using_two_banks;
 long SpeechEmitter;
 struct HeapMgrHeader *sndheap;
@@ -95,7 +96,7 @@ long get_best_sound_heap_size(long sh_mem_size)
       return 0x0800000; // 8MB
     if (sh_mem_size <= 48)
         return 0x0c00000; // 12MB
-    
+
     return 0x3000000; // 50MB
 }
 
@@ -368,9 +369,9 @@ short sound_emitter_in_use(SoundEmitterID eidx)
 
 long get_sound_distance(const struct SoundCoord3d *pos1, const struct SoundCoord3d *pos2)
 {
-    long dist_x = abs(pos1->val_x - (long)pos2->val_x);
-    long dist_y = abs(pos1->val_y - (long)pos2->val_y);
-    long dist_z = abs(pos1->val_z - (long)pos2->val_z);
+    long dist_x = max(pos1->val_x, pos2->val_x) - min(pos1->val_x, pos2->val_x);
+    long dist_y = max(pos1->val_y, pos2->val_y) - min(pos1->val_y, pos2->val_y);
+    long dist_z = max(pos1->val_z, pos2->val_z) - min(pos1->val_z, pos2->val_z);
     // Make sure we're not exceeding sqrt(LONG_MAX/3), to fit the final result in long
     if (dist_x > 26754)
         dist_x = 26754;
@@ -383,9 +384,9 @@ long get_sound_distance(const struct SoundCoord3d *pos1, const struct SoundCoord
 
 long get_sound_squareedge_distance(const struct SoundCoord3d *pos1, const struct SoundCoord3d *pos2)
 {
-    long dist_x = abs(pos1->val_x - (long)pos2->val_x);
-    long dist_y = abs(pos1->val_y - (long)pos2->val_y);
-    long dist_z = abs(pos1->val_z - (long)pos2->val_z);
+    long dist_x = max(pos1->val_x, pos2->val_x) - min(pos1->val_x, pos2->val_x);
+    long dist_y = max(pos1->val_y, pos2->val_y) - min(pos1->val_y, pos2->val_y);
+    long dist_z = max(pos1->val_z, pos2->val_z) - min(pos1->val_z, pos2->val_z);
     // Make sure we're not exceeding LONG_MAX/3
     if (dist_x > LONG_MAX/3)
         dist_x = LONG_MAX/3;
@@ -961,6 +962,10 @@ long speech_sample_playing(void)
          return false;
      }
      SYNCDBG(17,"Starting");
+     if (Mix_Playing(MESSAGE_CHANNEL))
+     {
+         return true;
+     }
      long sp_emiter = SpeechEmitter;
      if (sp_emiter != 0)
      {
@@ -999,7 +1004,7 @@ long play_speech_sample(SoundSmplTblID smptbl_id)
     }
     SpeechEmitter = sp_emiter;
     long vol = lerp(0, 256, (float)settings.mentor_volume/127.0); // [0-127] rescaled to [0-256]
-    
+
     if (sp_emiter != 0)
     {
       if (S3DEmitterHasFinishedPlaying(sp_emiter))

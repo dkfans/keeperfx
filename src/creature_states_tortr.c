@@ -212,7 +212,7 @@ long process_torture_visuals(struct Thing *creatng, struct Room *room, CreatureJ
         cctrl->spell_flags &= ~CSAfF_Flying;
         creatng->mappos.z.val = get_thing_height_at(creatng, &creatng->mappos);
         if (cctrl->instance_id == CrInst_NULL) {
-            set_creature_instance(creatng, CrInst_TORTURED, 1, 0, 0);
+            set_creature_instance(creatng, CrInst_TORTURED, 0, 0);
         }
         if (thing_exists(sectng)) {
             sectng->rendering_flags |= TRF_Unknown01;
@@ -490,9 +490,12 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    if (room->owner == game.neutral_player_num || is_neutral_thing(creatng))
+    if ((gameadd.classic_bugs_flags & ClscBug_NeutralTortureConverts) == 0)
     {
-        return CrCkRet_Available;
+        if (room->owner == game.neutral_player_num || is_neutral_thing(creatng))
+        {
+            return CrCkRet_Available;
+        }
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);

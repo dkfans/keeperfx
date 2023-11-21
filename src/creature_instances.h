@@ -79,6 +79,7 @@ enum CreatureInstances {
     CrInst_TORTURED,
     CrInst_TOKING,
     CrInst_RELAXING,
+    CrInst_LISTEND,
 };
 
 /******************************************************************************/
@@ -134,6 +135,8 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng);
 int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id);
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos);
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos);
+
+TbBool instance_draws_possession_swipe(CrInstance inum);
 
 void delay_teleport(struct Thing *creatng);
 void delay_heal_sleep(struct Thing *creatng);

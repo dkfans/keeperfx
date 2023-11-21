@@ -114,7 +114,7 @@ TbBool packets_process_cheats(
                 unsigned char exp;
                 if (playeradd->cheatselection.chosen_hero_kind == 0)
                 {
-                    while (1) 
+                    while (1)
                     {
                         crmodel = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
                         if (crmodel >= gameadd.crtr_conf.model_count)
@@ -122,7 +122,7 @@ TbBool packets_process_cheats(
                             continue;
                         }
                         struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
-                        if ((crconf->model_flags & CMF_IsSpectator) != 0) 
+                        if ((crconf->model_flags & CMF_IsSpectator) != 0)
                         {
                             continue;
                         }
@@ -131,7 +131,7 @@ TbBool packets_process_cheats(
                             break;
                         }
                     }
-                    exp = GAME_RANDOM(CREATURE_MAX_LEVEL);                    
+                    exp = GAME_RANDOM(CREATURE_MAX_LEVEL);
                 }
                 else
                 {
@@ -259,7 +259,7 @@ TbBool packets_process_cheats(
         }
         else
         {
-            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[playeradd->cheatselection.chosen_creature_kind + 13];
+            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[playeradd->cheatselection.chosen_creature_kind];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), playeradd->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
@@ -282,11 +282,11 @@ TbBool packets_process_cheats(
                             break;
                         }
                     }
-                    exp = GAME_RANDOM(CREATURE_MAX_LEVEL);                    
+                    exp = GAME_RANDOM(CREATURE_MAX_LEVEL);
                 }
                 else
                 {
-                    crmodel = playeradd->cheatselection.chosen_creature_kind + 13;
+                    crmodel = playeradd->cheatselection.chosen_creature_kind;
                     exp = playeradd->cheatselection.chosen_experience_level;
                 }
                 unsigned short param2 = playeradd->cheatselection.chosen_player | (exp << 8);
@@ -342,11 +342,11 @@ TbBool packets_process_cheats(
         allowed = ( (room_exists(room)) && (room->owner != playeradd->cheatselection.chosen_player) );
         if (allowed)
         {
-            sprintf(str, get_string(419));
+            snprintf(str, sizeof(str), "%s", get_string(419));
         }
         targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, str);
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
-        {    
+        {
             if (allowed)
             {
                 TbBool effect = (is_key_pressed(KC_RALT, KMod_DONTCARE));
@@ -365,7 +365,7 @@ TbBool packets_process_cheats(
             targeted_message_add(-127, plyr_idx, 1, get_string(419));
         }
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
-        {          
+        {
             if (allowed)
             {
                 destroy_room_leaving_unclaimed_ground(room);
@@ -407,7 +407,7 @@ TbBool packets_process_cheats(
         if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
         {
             set_packet_action(pckt, PckA_CheatConvertCreature, playeradd->cheatselection.chosen_player, 0, 0, 0);
-            unset_packet_control(pckt, PCtr_LBtnRelease);    
+            unset_packet_control(pckt, PCtr_LBtnRelease);
         }
         break;
         case PSt_StealSlab:
@@ -535,16 +535,17 @@ TbBool packets_process_cheats(
         case PSt_HeartHealth:
         clear_messages_from_player(playeradd->cheatselection.chosen_player);
         thing = get_player_soul_container(playeradd->cheatselection.chosen_player);
+        struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
         if (!thing_is_invalid(thing))
         {
-            targeted_message_add(thing->owner, plyr_idx, 1, "%d/%d", thing->health, game.dungeon_heart_health);
+            targeted_message_add(thing->owner, plyr_idx, 1, "%d/%d", thing->health, objconf->health);
         }
         else
         {
             break;
         }
         short new_health = thing->health;
-        if (process_cheat_heart_health_inputs(&new_health))
+        if (process_cheat_heart_health_inputs(&new_health, objconf->health))
         {
             set_packet_action(pckt, PckA_CheatHeartHealth, playeradd->cheatselection.chosen_player, new_health, 0, 0);
         }
@@ -583,14 +584,7 @@ TbBool packets_process_cheats(
                     {
                         if (player->controlled_thing_idx != player->thing_under_hand)
                         {
-                            if (is_my_player(player))
-                            {
-                                turn_off_all_panel_menus();
-                                initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
-                                turn_on_menu(GMnu_CREATURE_QUERY1);
-                            }
-                            player->influenced_thing_idx = player->thing_under_hand;
-                            set_player_instance(player, PI_QueryCrtr, 0);
+                            query_creature(player, player->thing_under_hand, true, false);
                         }
                     }
                     else
@@ -677,7 +671,7 @@ TbBool packets_process_cheats(
             else
             {
                 slab_cfgstats = get_slab_kind_stats(playeradd->cheatselection.chosen_terrain_kind);
-                targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, slab_cfgstats->code_name);            
+                targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, slab_cfgstats->code_name);
             }
             clear_messages_from_player(-127);
             if (is_key_pressed(KC_RSHIFT, KMod_DONTCARE))
@@ -690,10 +684,10 @@ TbBool packets_process_cheats(
                 slb = get_slabmap_block(slb_x, slb_y);
                 slab_cfgstats = get_slab_kind_stats(slb->kind);
                 targeted_message_add(-127, plyr_idx, 1, "%s (%d) %d %d (%d) %d %d (%d)", slab_cfgstats->code_name, slabmap_owner(slb), slb_x, slb_y, get_slab_number(slb_x, slb_y), stl_x, stl_y, get_subtile_number(stl_x, stl_y));
-            }        
+            }
             if (((pckt->control_flags & PCtr_LBtnRelease) != 0) && ((pckt->control_flags & PCtr_MapCoordsValid) != 0))
-            {          
-                if (subtile_is_room(stl_x, stl_y)) 
+            {
+                if (subtile_is_room(stl_x, stl_y))
                 {
                     room = subtile_room_get(stl_x, stl_y);
                     delete_room_slab(slb_x, slb_y, true);
@@ -819,7 +813,7 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
             if (slab_kind_has_no_ownership(playeradd->cheatselection.chosen_terrain_kind))
             {
                clear_messages_from_player(playeradd->cheatselection.chosen_player);
-               playeradd->cheatselection.chosen_player = game.neutral_player_num; 
+               playeradd->cheatselection.chosen_player = game.neutral_player_num;
             }
             return false;
         }
@@ -923,7 +917,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                 if (pckt->actn_par1 == SlbT_CLAIMED)
                 {
                     pos.x.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_x)));
-                    pos.y.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_y))); 
+                    pos.y.val = subtile_coord_center(slab_subtile_center(subtile_slab(stl_y)));
                     pos.z.val = subtile_coord_center(1);
                     if (is_my_player(player))
                     {
@@ -948,7 +942,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                         if (map_block_revealed(mapblk, id) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
                         {
                             pos.z.val = get_floor_height_at(&pos);
-                            create_effect(&pos, imp_spangle_effects[id], id);  
+                            create_effect(&pos, imp_spangle_effects[id], id);
                         }
                     }
                 }

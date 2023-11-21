@@ -62,6 +62,13 @@ extern "C" {
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
+#define CMDLINE_OVERRIDES      2
+
+/** Command Line overrides for config settings. Checked after the config file is loaded. */
+enum CmdLineOverrides {
+    Clo_ConfigFile = 0, /**< Special: handled before the config file is loaded. */
+    Clo_CDMusic,
+};
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
@@ -77,11 +84,11 @@ enum ModeFlags {
 enum FFlags {
     FFlg_unk01              =  0x01,
     FFlg_unk02              =  0x02,
-    FFlg_unk04              =  0x04,
+    FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
     FFlg_unk08              =  0x08,
     FFlg_unk10              =  0x10,
     FFlg_AlexCheat          =  0x20,
-    FFlg_UsrSndFont         =  0x40,
+    FFlg_UsrSndFont         =  0x40, // now unused
     FFlg_unk80              =  0x80,
 };
 
@@ -128,6 +135,8 @@ struct StartupParameters {
     unsigned char force_ppro_poly;
     int frame_skip;
     char selected_campaign[CMDLN_MAXLEN+1];
+    TbBool overrides[CMDLINE_OVERRIDES];
+    char config_file[CMDLN_MAXLEN+1];
 #ifdef AUTOTESTING
     unsigned char autotest_flags;
     unsigned long autotest_exit_turn;
@@ -200,7 +209,7 @@ void update(void);
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx);
 struct Thing *get_queryable_object_near(MapCoord pos_x, MapCoord pos_y, long plyr_idx);
-long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, unsigned char a5);
+long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx, ThingModel dormodel, TbBool allowed);
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
@@ -284,7 +293,8 @@ void setup_3d(void);
 void setup_stuff(void);
 void give_shooter_drained_health(struct Thing *shooter, long health_delta);
 long get_foot_creature_has_down(struct Thing *thing);
-void process_keeper_spell_effect(struct Thing *thing);
+void process_keeper_spell_aura(struct Thing *thing);
+void init_seeds();
 
 TbPixel get_player_path_colour(unsigned short owner);
 

@@ -41,11 +41,11 @@ enum ObjectStates {
     ObSt_State5,
 };
 
-enum ObjectOwningCategory {
-    ObOC_Unknown0 = 0,
-    ObOC_Unknown1,
-    ObOC_Unknown2,
-    ObOC_Unknown3,
+enum ObjectPersistence {
+    ObPer_Unset = 0,
+    ObPer_Move,
+    ObPer_Persist,
+    ObPer_Vanish,
 };
 
 enum CallToArmsObjectLife {
@@ -116,6 +116,22 @@ enum ObjectModels
     ObjMdl_SpecboxCustom = 133,
     ObjMdl_GoldBag = 136
 };
+
+/**
+ * Used for Objects->draw_class  EffectElementStats->draw_class and Thing->draw_class. 
+ * 
+ * Used in in draw_frontview_thing_on_element() and do_map_who_for_thing().
+ * 
+ * See also see set_object_configuration_process(), parse_objects_object_blocks(), objects_data_init[], effect_element_stats[] and objects.cfg for setting of draw_class.
+ */
+enum ObjectsDrawClasses { 
+  ODC_None           = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG - do nothing in draw_frontview_thing_on_element() or do_map_who_for_thing(). */
+  ODC_Default        = 0x02, /**< Default behaviour in draw_frontview_thing_on_element() / do_map_who_for_thing(). */
+  ODC_DrawClass3     = 0x03, /**< Unknown use. Present in do_map_who_for_thing(). */
+  ODC_RoomPrice      = 0x04, /**< Used by TngEffElm_Price. */
+  ODC_RoomStatusFlag = 0x05, /**< Used by ROOM_FLAG. */
+  ODC_SpinningKey    = 0x06, /**< Used by SPINNING_KEY. */
+};
 /******************************************************************************/
 #pragma pack(1)
 
@@ -126,15 +142,15 @@ struct Objects {
     short sprite_anim_idx;
     short anim_speed;
     short size_xy;
-    short size_yz;
+    short size_z;
     short sprite_size_max;
     unsigned char field_F;      // Lower 2 bits are transparency flags
     unsigned short fp_smpl_idx;
-    unsigned char draw_class;
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     unsigned char related_creatr_model;
-    unsigned char own_category;
+    unsigned char persistence;
     unsigned char destroy_on_liquid;
     unsigned char rotation_flag;
     unsigned char updatefn_idx;
@@ -174,6 +190,7 @@ TbBool thing_is_workshop_crate(const struct Thing *thing);
 TbBool thing_is_trap_crate(const struct Thing *thing);
 TbBool thing_is_door_crate(const struct Thing *thing);
 TbBool thing_is_dungeon_heart(const struct Thing *thing);
+TbBool thing_is_beating_dungeon_heart(const struct Thing* thing);
 TbBool thing_is_mature_food(const struct Thing *thing);
 TbBool object_is_hero_gate(const struct Thing *thing);
 TbBool object_is_infant_food(const struct Thing *thing);
@@ -191,6 +208,9 @@ TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
 TbBool object_can_be_damaged(const struct Thing* thing);
+TbBool object_is_buoyant(const struct Thing* thing);
+TbBool thing_is_hardcoded_special_box(const struct Thing* thing);
+TbBool thing_is_custom_special_box(const struct Thing* thing);
 
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room);
 TbBool delete_lair_totem(struct Thing *lairtng);

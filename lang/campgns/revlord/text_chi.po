@@ -299,7 +299,7 @@ msgstr "恭喜你，陛下！你光明正大地打败了野蛮人酋长。"
 #. Widerwilds (lv4)
 #: guitext:45
 msgctxt "In-game message"
-msgid "Treachery! The Barbarian who challenged you has turned out to have been a Demon all along! Put him and his remaining minions down, quickly! "
+msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! Put him and his remaining minions down, quickly!"
 msgstr "造反了！那个挑衅你的野蛮人原来是只恶魔！赶快把他和他的爪牙镇压住！"
 
 #. Widerwilds (lv4) victory message
@@ -311,7 +311,7 @@ msgstr "终于大功告成了。无边荒野从邪恶的恶魔领主手里夺回
 #. Misty Bog (lv5)
 #: guitext:47
 msgctxt "In-game message"
-msgid "The vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires who have brought the Knightly Order of Dominus to ruin!"
+msgid "A vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires who have brought the Knightly Order of Dominus to ruin!"
 msgstr "邪恶的死灵法师将这个王国变得死气沉沉。召集当地人打败亡灵，并对那些摧毁了多米努斯骑士团的吸血鬼进行复仇！"
 
 #. Misty Bog (lv5)
@@ -359,32 +359,32 @@ msgstr "人们说这一带有一座闹鬼的寺庙。最好先把它净化一下
 #. Misty Bog (lv5)
 #: guitext:55
 msgctxt "In-game message"
-msgid "The heart of one evil Necromancer is destroyed, but there is another! Find and destroy his second phylactery, and then proceed to  stake all surviving vampires in the bog. "
-msgstr "邪恶的死灵法师的一颗心脏被摧毁了，但他还有另一颗心脏。找到并摧毁他的第二颗心脏，然后把所有幸存的吸血鬼都消灭在沼泽地里。"
+msgid "The heart of the evil Necromancer is destroyed, but he has another! Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog."
+msgstr "邪恶的死灵法师的一颗心脏被摧毁了，但他还有另一颗心脏！找到并摧毁他的第二个护符，然后把所有幸存的吸血鬼都钉死在沼泽地里。"
 
 #. Misty Bog (lv5)
 #: guitext:56
 msgctxt "In-game message"
-msgid "The last Necromancer is defeated. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance on your heroes."
-msgstr "邪恶的死灵法师被击败了。现在，你必须把所有幸存的吸血鬼都消灭在沼泽地里，它们会不断前来向你的英雄们复仇。"
+msgid "The Necromancer is defeated at last. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
+"on your heroes."
+msgstr "邪恶的死灵法师终于被击败了。现在，你必须把所有幸存的吸血鬼都钉死在沼泽地里，迟来的它们正准备向你的英雄们复仇。"
 
-#. Misty Bog (lv5)
 #: guitext:57
 msgctxt "In-game message"
-msgid "The heart of an evil Necromancer is destroyed, but another remains. Find and destroy his second phylactery, and then proceed to stake all surviving vampires in the bog. "
-msgstr "邪恶的死灵法师的一颗心脏被摧毁了，但他还有另一颗心脏。找到并摧毁他的第二颗心脏，然后把所有幸存的吸血鬼都消灭在沼泽地里。"
+msgid "Moo"
+msgstr ""
 
 #. Misty Bog (lv5) victory message
 #: guitext:58
 msgctxt "In-game message"
 msgid "Glorious victory, my Liege! The Undead are defeated and Misty Bog is safe! It is now possible to restore Knight's Castle, which fell into disrepair after the Vampires settled here."
-msgstr "光荣的胜利，陛下！所有的亡灵都被消灭了，迷雾沼泽现在安全了。现在我们可以去修复一直被吸血鬼占领的骑士城堡了，它已经年久失修。"
+msgstr "光荣的胜利，陛下！所有的亡灵都被击败了，迷雾沼泽现在安全了！现在我们可以去收复骑士城堡了，自从被吸血鬼占据之后，它已经年久失修。"
 
-#. Widerwilds (lv3)
+#. Widerwilds (lv4)
 #: guitext:59
 msgctxt "In-game message"
-msgid "Treachery! The Barbarian who challenged you has turned out to have been a demon all along! You now must breach his fortress and destroy both the dungeon heart and the monster himself!"
-msgstr "造反了！那个挑衅你的野蛮人原来是只恶魔！你现在必须攻入他的要塞，摧毁地下城心脏，消灭这个恶魔本人！"
+msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! You now must breach his fortress and destroy both the dungeon heart and the monster himself!"
+msgstr "造反了！那个挑战你的野蛮人原来是只恶魔！你现在必须攻入他的要塞，把这个恶魔和他的地下城心脏一同消灭！"
 
 #. Knight's castle (lv6)
 #: guitext:60
@@ -641,11 +641,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Revenge of the Lord"
-msgstr "领主的复仇"
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Dwarfton"
@@ -700,3 +695,8 @@ msgstr "小偷之窝"
 msgctxt "Level name"
 msgid "Coldamned"
 msgstr "极寒之境"
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Revenge of the Lord"
+msgstr "领主的复仇"

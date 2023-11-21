@@ -53,6 +53,7 @@
 #include "frontmenu_ingame_map.h"
 #include "keeperfx.hpp"
 #include "kjm_input.h"
+#include "music_player.h"
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -314,7 +315,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->offmap_money_owned = 0;
     }
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
@@ -448,6 +449,7 @@ void init_player_music(struct PlayerInfo *player)
 {
     LevelNumber lvnum = get_loaded_level_number();
     game.audiotrack = 3 + ((lvnum - 1) % 4);
+    game.last_audiotrack = max_track;
 }
 
 TbBool map_position_has_sibling_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind, PlayerNumber plyr_idx)
@@ -569,7 +571,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
         for(MapSubtlCoord lpstl_x = 0;lpstl_x < gameadd.map_subtiles_x;lpstl_x++)
         {
             struct Map *mapblk = get_map_block_at(lpstl_x,lpstl_y);
-            mapblk->revealed &= (~(1 << plyr_idx));
+            conceal_map_block(mapblk, plyr_idx);
         }
     }
 
@@ -731,6 +733,9 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->work_state = PSt_CtrlDungeon;
     player->field_14 = 2;
     player->main_palette = engine_palette;
+    player->minimap_zoom = settings.minimap_zoom;
+    player->isometric_view_zoom_level = settings.isometric_view_zoom_level;
+    player->frontview_zoom_level = settings.frontview_zoom_level;
     if (is_my_player(player))
     {
         set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
@@ -751,6 +756,16 @@ void init_player(struct PlayerInfo *player, short no_explore)
         }
         break;
     case GKind_MultiGame:
+        //workaround until settings are synced through multiplayer
+        player->minimap_zoom = 256;
+        if (game.packet_save_head.isometric_view_zoom_level == 0)
+        {
+            player->isometric_view_zoom_level = CAMERA_ZOOM_MAX;
+        }
+        if (game.packet_save_head.frontview_zoom_level == 0)
+        {
+            player->frontview_zoom_level = FRONTVIEW_CAMERA_ZOOM_MAX;
+        }
         if (player->is_active != 1)
         {
           ERRORLOG("Non Keeper in Keeper game");
@@ -773,7 +788,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
         init_player_music(player);
     }
     // By default, player is his own ally
-    player->allied_players = (1 << player->id_number);
+    player->allied_players = to_flag(player->id_number);
     player->hand_busy_until_turn = 0;
 }
 
@@ -782,14 +797,14 @@ void init_players(void)
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
         struct PlayerInfo* player = get_player(i);
-        if ((game.packet_save_head.players_exist & (1 << i)) != 0)
+        if (flag_is_set(game.packet_save_head.players_exist, to_flag(i)))
             player->allocflags |= PlaF_Allocated;
         else
             player->allocflags &= ~PlaF_Allocated;
         if (player_exists(player))
         {
             player->id_number = i;
-            if ((game.packet_save_head.players_comp & (1 << i)) != 0)
+            if (flag_is_set(game.packet_save_head.players_comp, to_flag(i)))
                 player->allocflags |= PlaF_CompCtrl;
             else
                 player->allocflags &= ~PlaF_CompCtrl;
@@ -807,38 +822,54 @@ void init_players(void)
 TbBool wp_check_map_pos_valid(struct Wander *wandr, SubtlCodedCoords stl_num)
 {
     SYNCDBG(16,"Starting");
+    struct Thing* heartng;
+    struct Map* mapblk;
+    struct Coord3d dstpos;
+    struct SlabMap* slb;
     MapSubtlCoord stl_x = stl_num_decode_x(stl_num);
     MapSubtlCoord stl_y = stl_num_decode_y(stl_num);
     if (wandr->wandr_slot == CrWaS_WithinDungeon)
     {
-        struct Map* mapblk = get_map_block_at_pos(stl_num);
+        mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are revealed to the wandering player, unless it's heroes - for them, add all
         if ((wandr->plyr_idx == game.hero_player_num) || map_block_revealed(mapblk, wandr->plyr_idx))
         {
-            struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+            slb = get_slabmap_for_subtile(stl_x, stl_y);
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0)
              && players_creatures_tolerate_each_other(wandr->plyr_idx,slabmap_owner(slb)))
             {
-                return true;
+                heartng = get_player_soul_container(wandr->plyr_idx);
+                if (!thing_is_invalid(heartng))
+                {
+                    
+                    dstpos.x.val = subtile_coord_center(stl_x);
+                    dstpos.y.val = subtile_coord_center(stl_y);
+                    dstpos.z.val = subtile_coord(1, 0);
+                    if (navigation_points_connected(&heartng->mappos, &dstpos))
+                    {
+                        return true;
+                    }
+                }
             }
         }
     } else
     {
-        struct Map* mapblk = get_map_block_at_pos(stl_num);
+        mapblk = get_map_block_at_pos(stl_num);
         // Add only tiles which are not revealed to the wandering player, unless it's heroes - for them, do nothing
         if ((wandr->plyr_idx != game.hero_player_num) && !map_block_revealed(mapblk, wandr->plyr_idx))
         {
             if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((get_navigation_map(stl_x, stl_y) & NAVMAP_UNSAFE_SURFACE) == 0))
             {
-                struct Thing* heartng = get_player_soul_container(wandr->plyr_idx);
+                heartng = get_player_soul_container(wandr->plyr_idx);
                 if (!thing_is_invalid(heartng))
                 {
-                    struct Coord3d dstpos;
                     dstpos.x.val = subtile_coord_center(stl_x);
                     dstpos.y.val = subtile_coord_center(stl_y);
                     dstpos.z.val = subtile_coord(1,0);
                     if (navigation_points_connected(&heartng->mappos, &dstpos))
-                      return true;
+                    {
+                        return true;
+                    }
                 }
             }
         }
@@ -898,13 +929,13 @@ long wander_point_initialise(struct Wander *wandr, PlayerNumber plyr_idx, unsign
     wandr->plyr_idx = plyr_idx;
     wandr->point_insert_idx = 0;
     wandr->last_checked_slb_num = 0;
-    wandr->plyr_bit = (1 << plyr_idx);
+    wandr->plyr_bit = to_flag(plyr_idx);
     wandr->num_check_per_run = 20;
     wandr->max_found_per_check = 4;
     wandr->wdrfield_14 = 0;
 
     long stl_num_list_count = 0;
-    SubtlCodedCoords* stl_num_list = (SubtlCodedCoords*)scratch;
+    SubtlCodedCoords* stl_num_list = (SubtlCodedCoords*)big_scratch;
     SlabCodedCoords slb_num = 0;
     while (1)
     {
@@ -993,6 +1024,7 @@ void post_init_player(struct PlayerInfo *player)
 
 void post_init_players(void)
 {
+    SYNCDBG(8, "Starting");
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         struct PlayerInfo* player = get_player(plyr_idx);

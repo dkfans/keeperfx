@@ -27,6 +27,7 @@
 #include "bflib_netsession.h"
 #include "bflib_netsp.hpp"
 #include "bflib_netsp_ipx.hpp"
+#include "bflib_sound.h"
 #include "globals.h"
 #include <assert.h>
 #include <ctype.h>
@@ -52,7 +53,7 @@ TbError CompleteTwoPlayerExchange(void *buf);
 TbError CompleteMultiPlayerExchange(void *buf);
 TbError HostDataCollection(void);
 TbError HostDataBroadcast(void);
-void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
+void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2);
 void *MultiPlayerCallback(unsigned long a1, unsigned long a2, unsigned long a3, void *a4);
 void MultiPlayerReqExDataMsgCallback(unsigned long a1, unsigned long a2, void *a3);
 void AddMsgCallback(unsigned long, char *, void *);
@@ -373,6 +374,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     //presume login successful from here
     NETMSG("User %s successfully logged in", netstate.users[source].name);
     netstate.users[source].progress = USER_LOGGEDIN;
+    play_non_3d_sample(76);
 
     //send reply
     ptr = netstate.msg_buffer;
@@ -1352,7 +1354,7 @@ TbError GetCurrentPlayers(void)
   return Lb_OK;
 }
 
-void __stdcall GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2)
+void GetCurrentPlayersCallback(struct TbNetworkCallbackData *netcdat, void *a2)
 {
   AddAPlayer((struct TbNetworkPlayerNameEntry *)netcdat);
 }

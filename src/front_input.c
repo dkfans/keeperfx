@@ -137,7 +137,6 @@ TbBool check_current_gui_layer(long layer_id)
                 {
                     case GuiLayer_OneClickBridgeBuild:
                         return true;
-                        break;
                     default:
                         return false;
                 }
@@ -1158,24 +1157,95 @@ short get_creature_passenger_action_inputs(void)
         get_gui_inputs(1);
     if (player->controlled_thing_idx == 0)
         return false;
+    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    TRACE_THING(thing);
+    if (thing_is_creature(thing))
+    {
+        if (menu_is_active(GMnu_CREATURE_QUERY1))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY1);
+            turn_on_menu(GMnu_CREATURE_QUERY2);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY1);
+            turn_on_menu(GMnu_CREATURE_QUERY4);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+        else if (menu_is_active(GMnu_CREATURE_QUERY2))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY2);
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY2);
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+        else if (menu_is_active(GMnu_CREATURE_QUERY3))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY3);
+            turn_on_menu(GMnu_CREATURE_QUERY4);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY3);
+            turn_on_menu(GMnu_CREATURE_QUERY2);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+        else if (menu_is_active(GMnu_CREATURE_QUERY4))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY4);
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY4);
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+    }
     if (right_button_released)
     {
         set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0, 0, 0);
         return true;
-  }
-  struct Thing* thing = thing_get(player->controlled_thing_idx);
-  TRACE_THING(thing);
-  if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
-  {
-    set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
-    return true;
-  }
-  if (is_key_pressed(KC_TAB,KMod_NONE))
-  {
-    clear_key_pressed(KC_TAB);
-    toggle_gui_overlay_map();
-  }
-  return false;
+    }
+    if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
+    {
+        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+        return true;
+    }
+    if (is_key_pressed(KC_TAB, KMod_CONTROL))
+    {
+        clear_key_pressed(KC_TAB);
+        toggle_gui();
+    }
+    return false;
 }
 
 short get_creature_control_action_inputs(void)
@@ -1860,9 +1930,7 @@ void get_isometric_view_nonaction_inputs(void)
       return;
     if (speed_pressed != 0)
         packet->additional_packet_values |= PCAdV_SpeedupPressed;
-    TbBool no_mods = false;
-    if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
-      no_mods = true;
+    TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
 
     get_isometric_or_front_view_mouse_inputs(packet, rotate_pressed, speed_pressed);
 
@@ -1936,9 +2004,7 @@ void get_front_view_nonaction_inputs(void)
     struct Packet* pckt = get_packet(my_player_number);
     int rotate_pressed = is_game_key_pressed(Gkey_RotateMod, NULL, true);
     int speed_pressed = is_game_key_pressed(Gkey_SpeedMod, NULL, true);
-    TbBool no_mods = false;
-    if ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)))
-      no_mods = true;
+    TbBool no_mods = ((rotate_pressed != 0) || (speed_pressed != 0) || (check_current_gui_layer(GuiLayer_OneClick)));
 
     if ((player->allocflags & PlaF_KeyboardInputDisabled) != 0)
       return;
@@ -2413,6 +2479,7 @@ short get_inputs(void)
         inp_handled = get_global_inputs();
     if (game_is_busy_doing_gui_string_input())
       return false;
+    get_screen_capture_inputs();
     SYNCDBG(7,"Getting inputs for view %d",(int)player->view_type);
     switch (player->view_type)
     {
@@ -2629,6 +2696,7 @@ void process_cheat_mode_selection_inputs()
     struct PlayerInfo *player = get_my_player();
     unsigned char new_value;
     struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    struct CreatureModelConfig* crconf;
     // player selection
     if (player->work_state == PSt_PlaceTerrain)
     {
@@ -2767,21 +2835,33 @@ void process_cheat_mode_selection_inputs()
                 if (player->work_state == PSt_MkGoodCreatr)
                 {
                     new_value = playeradd->cheatselection.chosen_hero_kind;
-                    new_value++;
-                    if (new_value> 13)
+                    do
                     {
-                        new_value = 0;
+                        new_value++;
+                        if (new_value >= gameadd.crtr_conf.model_count)
+                        {
+                            new_value = 0;
+                            break;
+                        }
+                        crconf = &gameadd.crtr_conf.model[new_value];
                     }
+                    while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
                 }
                 else if (player->work_state == PSt_MkBadCreatr)
                 {
                     new_value = playeradd->cheatselection.chosen_creature_kind;
-                    new_value++;
-                    if (new_value > 17)
+                    do
                     {
-                        new_value = 0;
+                        new_value++;
+                        if (new_value >= gameadd.crtr_conf.model_count)
+                        {
+                            new_value = 0;
+                            break;
+                        }
+                        crconf = &gameadd.crtr_conf.model[new_value];
                     }
+                    while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);
                 }
                 clear_key_pressed(KC_LSHIFT);
@@ -2866,7 +2946,7 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
             {
                 new_value++;
-                if (new_value > SlbT_PURPLE)
+                if (new_value >= game.slab_conf.slab_types_count)
                 {
                     new_value = SlbT_ROCK;
                 }
@@ -2907,12 +2987,12 @@ void process_cheat_mode_selection_inputs()
     }
 }
 
-TbBool process_cheat_heart_health_inputs(short *value)
+TbBool process_cheat_heart_health_inputs(short *value, long max_health)
 {
    short new_health = *value;
    if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
    {
-        if (new_health < game.dungeon_heart_health)
+        if (new_health < max_health) 
         {
             new_health++;
             *value = new_health;

@@ -1097,7 +1097,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "Ihr habt die INDY-FALLE hergestellt. Plaziert sie im Flur und freut Euch des "
@@ -2067,102 +2067,102 @@ msgstr "Moo"
 #: guitext:202
 msgctxt "Level name"
 msgid "Eversmile"
-msgstr "IMMERGRINS"
+msgstr "Immergrins"
 
 #: guitext:203
 msgctxt "Level name"
 msgid "Cosyton"
-msgstr "NETTSTADT"
+msgstr "Nettstadt"
 
 #: guitext:204
 msgctxt "Level name"
 msgid "Waterdream Warm"
-msgstr "HERZLICH HOLSTEIN"
+msgstr "Herzlich Holstein"
 
 #: guitext:205
 msgctxt "Level name"
 msgid "Flowerhat"
-msgstr "BLUMINGEN"
+msgstr "Blumingen"
 
 #: guitext:206
 msgctxt "Level name"
 msgid "Lushmeadow-on-Down"
-msgstr "ROSENBURG OB DER ZAUBER"
+msgstr "Rosenburg ob der Zauber"
 
 #: guitext:207
 msgctxt "Level name"
 msgid "Snuggledell"
-msgstr "LIEBLICHKNUFFELTAL"
+msgstr "Lieblichknuffeltal"
 
 #: guitext:208
 msgctxt "Level name"
 msgid "Wishvale"
-msgstr "TRAUMTAL"
+msgstr "Traumtal"
 
 #: guitext:209
 msgctxt "Level name"
 msgid "Tickle"
-msgstr "HERRLICH-HOHENBOLLERN"
+msgstr "Herrlich-Hohenbollern"
 
 #: guitext:210
 msgctxt "Level name"
 msgid "Moonbrush Wood"
-msgstr "MONDLICHTWALD"
+msgstr "Mondlichtwald"
 
 #: guitext:211
 msgctxt "Level name"
 msgid "Nevergrim"
-msgstr "NIMMERBÖS"
+msgstr "Nimmerbös"
 
 #: guitext:212
 msgctxt "Level name"
 msgid "Hearth"
-msgstr "HEIMATHOF-TITSEE"
+msgstr "Heimathof-Titisee"
 
 #: guitext:213
 msgctxt "Level name"
 msgid "Elf's Dance"
-msgstr "ELFENTANZ"
+msgstr "Elfentanz"
 
 #: guitext:214
 msgctxt "Level name"
 msgid "Buffy Oak"
-msgstr "BADENERLAND"
+msgstr "Badenerland"
 
 #: guitext:215
 msgctxt "Level name"
 msgid "Sleepiburgh"
-msgstr "PENNBURG"
+msgstr "Pennburg"
 
 #: guitext:216
 msgctxt "Level name"
 msgid "Woodly Rhyme"
-msgstr "KNITTELVERS"
+msgstr "Knittelvers"
 
 #: guitext:217
 msgctxt "Level name"
 msgid "Tulipscent"
-msgstr "TULPENDUFT"
+msgstr "Tulpenduft"
 
 #: guitext:218
 msgctxt "Level name"
 msgid "Mirthshire"
-msgstr "GLÜCKSBERG"
+msgstr "Glücksberg"
 
 #: guitext:219
 msgctxt "Level name"
 msgid "Blaise End"
-msgstr "LUSCHENREICH"
+msgstr "Luschenreich"
 
 #: guitext:220
 msgctxt "Level name"
 msgid "Mistle"
-msgstr "DUDENHÖFEN"
+msgstr "Dudenhöfen"
 
 #: guitext:221
 msgctxt "Level name"
 msgid "Skybird Trill"
-msgstr "VOGELSANG"
+msgstr "Vogelsang"
 
 #: guitext:222
 #, fuzzy
@@ -3452,7 +3452,7 @@ msgstr "Bonus"
 #: guitext:431
 msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
-msgstr "Highscore-tabelle"
+msgstr "Highscore-Tabelle"
 
 #: guitext:432
 msgctxt "Menu interface item"
@@ -4614,7 +4614,7 @@ msgstr ""
 #: guitext:630
 msgctxt "Keeper spell name"
 msgid "Possess Creature"
-msgstr "SYMBIOSE"
+msgstr "Symbiose"
 
 #: guitext:631
 msgctxt "Keeper spell name"
@@ -6585,10 +6585,41 @@ msgstr ""
 "Eure Erfolge sind legendär, Keeper. Die Geschichten Eurer Bösartigkeit "
 "werden die Bestseller der Horrorliteratur der nächsten Generation werden."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Geheime Tür"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Geheim Tür: Eine spezielle Tür, die für Feinde unsichtbar ist, aber bei genauerem Hinsehen entdeckt werden kann oder wenn die eigenen Einheiten sie öffnet, während der Feind hinsieht"
+"Mit der rechten Maustaste zoomt Ihr sie heran."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Geheime Tür entdeckt: Mit der linken Maustaste lesen. Mit der rechten "
+"Maustaste löschen."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Geheime Tür entdeckt"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "der Feind hat deine Geheimtür entdeckt: Mit der linken Maustaste lesen. Mit der rechten "
+"Maustaste löschen."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "der Feind hat deine Geheimtür entdeckt"
 
 #: guitext:941
 #, fuzzy
@@ -6963,8 +6994,8 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
-msgstr ""
+msgid "Dungeon Keeper - Original Campaign"
+msgstr "Dungeon Keeper - Original-Kampagne"
 
 #: guitext:1012
 msgctxt "Menu interface item""
@@ -7043,7 +7074,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
@@ -7115,3 +7146,23 @@ msgstr "Druide"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "Zeitmagier" 
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Felsformation."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Felsboden: Unbeanspruchter Felsenboden. Du kannst ihn nicht beanspruchen oder darauf bauen."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Dichte Goldader: Enthält viel Reichtum, den deine Imps abbauen können."

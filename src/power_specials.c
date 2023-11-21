@@ -140,7 +140,7 @@ void increase_level(struct PlayerInfo *player, int count)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (count > 1) creature_increase_multiple_levels(thing, count);
+        if (count != 1) creature_change_multiple_levels(thing, count);
         else creature_increase_level(thing);
         // Thing list loop body ends
         k++;
@@ -164,7 +164,7 @@ void increase_level(struct PlayerInfo *player, int count)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (count > 1) creature_increase_multiple_levels(thing, count);
+        if (count > 1) creature_change_multiple_levels(thing, count);
         else creature_increase_level(thing);
         // Thing list loop body ends
         k++;
@@ -254,7 +254,7 @@ TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos)
 
 void make_safe(struct PlayerInfo *player)
 {
-    unsigned char* areamap = (unsigned char*)scratch;
+    unsigned char* areamap = (unsigned char*)big_scratch;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
     // Prepare the array to remember which slabs were already taken care of
@@ -280,7 +280,7 @@ void make_safe(struct PlayerInfo *player)
     }
 
     PlayerNumber plyr_idx = player->id_number;
-    SlabCodedCoords* slblist = (SlabCodedCoords*)(scratch + gameadd.map_tiles_x * gameadd.map_tiles_y);
+    SlabCodedCoords* slblist = (SlabCodedCoords*)(big_scratch + gameadd.map_tiles_x * gameadd.map_tiles_y);
     unsigned int list_len = 0;
     unsigned int list_cur = 0;
     while (list_cur <= list_len)
@@ -344,7 +344,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y-1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y - 1);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 1u);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y-1,0), plyr_idx, 1);
                     do_slab_efficiency_alteration(slb_x, slb_y-1);
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y-1);
                 }
@@ -367,7 +367,7 @@ void make_safe(struct PlayerInfo *player)
                 if ((slbattr->category == SlbAtCtg_FriableDirt) && slab_by_players_land(plyr_idx, slb_x, slb_y+1))
                 {
                     unsigned char pretty_type = choose_pretty_type(plyr_idx, slb_x, slb_y + 1);
-                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 1u);
+                    place_slab_type_on_map(pretty_type, slab_subtile(slb_x,0), slab_subtile(slb_y+1,0), plyr_idx, 1);
                     do_slab_efficiency_alteration(slb_x, slb_y+1);
                     fill_in_reinforced_corners(plyr_idx, slb_x, slb_y+1);
                 }
@@ -448,23 +448,29 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
           delete_thing_structure(cratetng, 0);
           break;
         case SpcKind_Custom:
-          if (gameadd.current_player_turn == game.play_gameturn)
-          {
-              WARNLOG("box activation rejected turn:%d", gameadd.current_player_turn);
-              // If two players suddenly activated box at same turn it is not that we want to
-              return;
-          }
-          gameadd.current_player_turn = game.play_gameturn;
-          gameadd.script_current_player = player->id_number;
-          memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
-          dungeonadd->box_info.activated[cratetng->custom_box.box_kind]++;
-          no_speech = true;
-          remove_events_thing_is_attached_to(cratetng);
-          used = 1;
-          delete_thing_structure(cratetng, 0);
-          break;
         default:
-          ERRORLOG("Invalid dungeon special (Model %d)", (int)cratetng->model);
+            if (thing_is_custom_special_box(cratetng))
+            {
+                if (gameadd.current_player_turn == game.play_gameturn)
+                {
+                    WARNLOG("box activation rejected turn:%d", gameadd.current_player_turn);
+                    // If two players suddenly activated box at same turn it is not that we want to
+                    return;
+                }
+                gameadd.current_player_turn = game.play_gameturn;
+                gameadd.script_current_player = player->id_number;
+                memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
+                dungeonadd->box_info.activated[cratetng->custom_box.box_kind]++;
+                no_speech = true;
+                remove_events_thing_is_attached_to(cratetng);
+                used = 1;
+                delete_thing_structure(cratetng, 0);
+                break;
+            }
+            else
+            {
+                ERRORLOG("Invalid dungeon special (Model %d)", (int)cratetng->model);
+            }
           break;
       }
       if ( used )

@@ -23,6 +23,7 @@
 
 #include "bflib_keybrd.h"
 #include "bflib_guibtns.h"
+#include "bflib_sound.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
 #include "bflib_vidraw.h"
@@ -637,7 +638,7 @@ void gui_choose_special_spell(struct GuiButton *gbtn)
 {
     //NOTE by Petter: factored out original gui_choose_special_spell code to choose_special_spell
     //TODO: equivalent to gui_choose_spell now... try merge
-    choose_spell(((int) gbtn->content) % POWER_TYPES_COUNT, gbtn->tooltip_stridx);
+    choose_spell(((int) gbtn->content) % POWER_TYPES_MAX, gbtn->tooltip_stridx);
 }
 
 void gui_area_big_spell_button(struct GuiButton *gbtn)
@@ -955,7 +956,12 @@ void gui_over_door_button(struct GuiButton *gbtn)
 {
     int manufctr_idx = (long)gbtn->content;
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
-    gui_door_type_highlighted = manufctr->tngmodel;
+
+    //todo support more then 5 doors
+    if (manufctr->tngmodel >= 5)
+        gui_door_type_highlighted = 0;
+    else
+        gui_door_type_highlighted = manufctr->tngmodel;
 }
 
 void gui_remove_area_for_traps(struct GuiButton *gbtn)
@@ -1019,7 +1025,7 @@ void gui_area_big_trap_button(struct GuiButton *gbtn)
 void maintain_big_spell(struct GuiButton *gbtn)
 {
     long spl_idx = game.chosen_spell_type;
-    if ((spl_idx < 0) || (spl_idx >= KEEPER_POWERS_COUNT)) {
+    if ((spl_idx < 0) || (spl_idx >= magic_conf.power_types_count)) {
         return;
     }
     gbtn->content = (unsigned long *)spl_idx;
@@ -1039,7 +1045,7 @@ void maintain_room(struct GuiButton *gbtn)
 {
     RoomKind rkind = (long)gbtn->content;
     struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return;
     }
     if (dungeonadd_invalid(dungeonadd)) {
@@ -1059,7 +1065,7 @@ void maintain_big_room(struct GuiButton *gbtn)
 {
     long rkind = game.chosen_room_kind;
     struct DungeonAdd* dungeonadd = get_dungeonadd(my_player_number);
-    if ((rkind < 1) || (rkind >= slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return;
     }
     if (dungeonadd_invalid(dungeonadd)) {
@@ -1280,11 +1286,15 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
     if (thing_is_creature(ctrltng) && (ctrltng->ccontrol_idx > 0))
     {
         long spr_idx = get_creature_model_graphics(ctrltng->model, CGI_HandSymbol);
-        struct TbSprite* spr = &gui_panel_sprites[spr_idx];
-        int ps_units_per_px = (gmnu->width * 22 / 100) * 16 / spr->SWidth;
-        draw_gui_panel_sprite_left(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx);
+        if (spr_idx > 0)
+        {
+            struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+            int ps_units_per_px = (gmnu->width * 22 / 100) * 16 / spr->SWidth;
+            draw_gui_panel_sprite_left(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx);
+        }
     }
 }
+
 unsigned short get_creature_pick_flags(TbBool pick_up)
 {
     unsigned short pick_flags = pick_up ? TPF_PickableCheck : 0;
@@ -1378,14 +1388,18 @@ void gui_go_to_next_room(struct GuiButton *gbtn)
     unsigned long rkind = (long)gbtn->content;
     go_to_my_next_room_of_type_and_select(rkind);
     game.chosen_room_kind = rkind;
-    struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[rkind];
+    struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[rkind];
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = gbtn->tooltip_stridx;
 }
 
 void gui_over_room_button(struct GuiButton *gbtn)
 {
-    gui_room_type_highlighted = (long)gbtn->content;
+    //todo support more then 17 rooms
+    if ((long)gbtn->content >= 17)
+        gui_room_type_highlighted = 0;
+    else 
+        gui_room_type_highlighted = (long)gbtn->content;
 }
 
 void gui_area_room_button(struct GuiButton *gbtn)
@@ -1663,8 +1677,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
     LbTextDrawResized(gbtn->scr_pos_x + 52*units_per_px/16, gbtn->scr_pos_y + 9*units_per_px/16, tx_units_per_px, text);
     spr_idx = gbtn->sprite_idx;
 
-    long spkind = inst_inf->func_params[0];
-    if (!creature_instance_has_reset(ctrltng, curbtn_inst_id) || ((spkind != 0) && thing_affected_by_spell(ctrltng, spkind)))
+    if ( (!creature_instance_has_reset(ctrltng, curbtn_inst_id)) || ( (thing_affected_by_spell(ctrltng, SplK_Freeze)) && (!inst_inf->instant ) ) )
       spr_idx++;
     if (MyScreenHeight < 400)
     {
@@ -1748,9 +1761,9 @@ void gui_activity_background(struct GuiMenu *gmnu)
             }
         }
     }
+    int mm_units_per_px = (gmnu->width * 16 + 140 / 2) / 140;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    int units_per_px = gmnu->width * 16 / 140;
-    LbDrawBox(gmnu->pos_x + 2*units_per_px/16, gmnu->pos_y + 218*units_per_px/16, 134*units_per_px/16, 24*units_per_px/16, colours[0][0][0]);
+    LbDrawBox(gmnu->pos_x + scale_value_for_resolution_with_upp(2, mm_units_per_px), gmnu->pos_y + scale_value_for_resolution_with_upp(218, mm_units_per_px), scale_value_for_resolution_with_upp(134, mm_units_per_px), scale_value_for_resolution_with_upp(24, mm_units_per_px), colours[0][0][0]);
     lbDisplay.DrawFlags = flg_mem;
 }
 
@@ -2294,6 +2307,7 @@ void gui_set_button_flashing(long btn_idx, long gameturns)
 
 void update_room_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, but skip "sell" button at end
     for (i=0; i < 4*4-1; i++)
@@ -2307,9 +2321,9 @@ void update_room_tab_to_config(void)
         ibtn->ptover_event = NULL;
         ibtn->draw_call = gui_area_new_null_button;
     }
-    for (i=0; i < slab_conf.room_types_count; i++)
+    for (i=0; i < game.slab_conf.room_types_count; i++)
     {
-        struct RoomConfigStats* roomst = &slab_conf.room_cfgstats[i];
+        struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[i];
         if (roomst->panel_tab_idx < 1)
             continue;
         struct GuiButtonInit* ibtn = &room_menu.buttons[roomst->panel_tab_idx - 1];
@@ -2321,10 +2335,17 @@ void update_room_tab_to_config(void)
         ibtn->ptover_event = gui_over_room_button;
         ibtn->draw_call = gui_area_room_button;
     }
+    // Update active menu
+    if (menu_is_active(GMnu_ROOM))
+    {
+        turn_off_menu(GMnu_ROOM);
+        turn_on_menu(GMnu_ROOM);
+    }
 }
 
 void update_trap_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, but skip "sell" button at end
     for (i=0; i < 4*4-1; i++)
@@ -2378,6 +2399,7 @@ void update_trap_tab_to_config(void)
 
 void update_powers_tab_to_config(void)
 {
+    SYNCDBG(8, "Starting");
     int i;
     // Clear 4x4 area of buttons, no "sell" button at end
     for (i=0; i < 4*4; i++)
@@ -2419,5 +2441,31 @@ void draw_placefiller(long scr_x, long scr_y, long units_per_px)
 {
     struct TbSprite* spr = &gui_panel_sprites[547];
     LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
+}
+
+void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
+{
+    struct PlayerInfo *player = get_my_player();
+    struct Thing *creatng = thing_get(player->influenced_thing_idx);
+    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, creatng->model);
+    if (next_creature != player->influenced_thing_idx)
+    {
+        struct Packet* pckt = get_packet(player->id_number);
+        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
+        play_non_3d_sample(62);
+    }
+}
+
+void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
+{
+    struct PlayerInfo *player = get_my_player();
+    struct Thing *creatng = thing_get(player->influenced_thing_idx);
+    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, 0);
+    if (next_creature != player->influenced_thing_idx)
+    {
+        struct Packet* pckt = get_packet(player->id_number);
+        set_packet_action(pckt, PckA_PlyrQueryCreature, next_creature, 0, 1, 0);
+        play_non_3d_sample(62);
+    }
 }
 /******************************************************************************/

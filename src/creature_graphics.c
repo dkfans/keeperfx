@@ -43,41 +43,6 @@ extern "C" {
 
 struct KeeperSprite *creature_table;
 
-struct CreaturePickedUpOffset creature_picked_up_offset[] = {
-  {  0,   0,  0,  0},
-  {  6, 122,  0,  0},
-  { 38, 134,  0,  0},
-  {  0,  82,  0,  0},
-  { -1,  69,  0,  0},
-  { 14,  44,  0,  0},
-  {  8,  64,  0,  0},
-  { 14,  76,  0,  0},
-  { 12,  50,  0,  0},
-  {  6,  74,  0,  0},
-  { 10,  90,  0,  0},
-  {  8, 116,  0,  0},
-  { 10, 102,  0,  0},
-  {  4, 104,  0,  0},
-  {  4, 128,  0,  0},
-  { -5,  54,  0,  0},
-  {  4,  96,  0,  0},
-  { 14, 120,  0,  0},
-  {  0,  50,  0,  0},
-  { 14,  68,  0,  0},
-  { -6, 126,  0,  0},
-  { -8,  84,  0,  0},
-  { -8,  76,  0,  0},
-  { -2,  46,  0,  0},
-  { 22,  60,  0,  0},
-  {  0,  70,  0,  0},
-  {  2,  44,  0,  0},
-  {-12,  80,  0,  0},
-  { -8,  60,  0,  0},
-  {  0,  74,  0,  0},
-  {  5, 121,  0,  0},
-  {  0,   0,  0,  0},
-};
-
 /******************************************************************************/
 static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
     0, 30, 60, 65, 70, 95, 120, 125, 130, 134, 138, 140,
@@ -189,14 +154,15 @@ static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
     9101, 9109, 9117, 9125, 9133, 9141
 };
 /******************************************************************************/
-extern struct CreaturePickedUpOffset creature_picked_up_offset[];
+
 /******************************************************************************/
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
     int crmodel = thing->model;
     if ((crmodel < 1) || (crmodel >= gameadd.crtr_conf.model_count))
         crmodel = 0;
-    return &creature_picked_up_offset[crmodel];
+    struct CreatureStats* crstat = creature_stats_get(crmodel);
+    return &crstat->creature_picked_up_offset;
 }
 
 unsigned char keepersprite_frames(unsigned short n)
@@ -266,9 +232,14 @@ unsigned long keepersprite_index(unsigned short n)
     return creature_list[n];
 }
 
-long get_lifespan_of_animation(long ani, long frameskip)
+long get_lifespan_of_animation(long ani, long speed)
 {
-    return (keepersprite_frames(ani) << 8) / frameskip;
+    if (speed == 0)
+    {
+        WARNLOG("Animation %d has no speed value", ani);
+        return keepersprite_frames(ani);
+    }
+    return (keepersprite_frames(ani) << 8) / speed;
 }
 
 static struct KeeperSprite* sprite_by_frame(long kspr_frame)
@@ -379,7 +350,7 @@ TbBool update_creature_anim(struct Thing *thing, long speed, long seq_idx)
     unsigned long i = get_creature_anim(thing, seq_idx);
     if (i != thing->anim_sprite)
     {
-        set_thing_draw(thing, i, speed, -1, -1, 0, 2);
+        set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
         return true;
     }
     return false;
@@ -390,7 +361,7 @@ TbBool update_creature_anim_td(struct Thing *thing, long speed, long td_idx)
     unsigned long i = convert_td_iso(td_idx);
     if (i != thing->anim_sprite)
     {
-        set_thing_draw(thing, i, speed, -1, -1, 0, 2);
+        set_thing_draw(thing, i, speed, -1, -1, 0, ODC_Default);
         return true;
     }
     return false;
@@ -446,9 +417,9 @@ void update_creature_graphic_anim(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
 
-    if ((thing->field_50 & 0x01) != 0)
+    if ((thing->size_change & TSC_ChangeSize) != 0)
     {
-      thing->field_50 &= ~0x01;
+      thing->size_change &= ~TSC_ChangeSize;
     } else
     if ((thing->active_state == CrSt_CreatureHeroEntering) && (cctrl->countdown_282 >= 0))
     {
