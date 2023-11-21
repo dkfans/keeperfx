@@ -7184,7 +7184,7 @@ static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long s
     poly->field_14 = a4;
 }
 
-static void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
+static void add_spinning_key_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
     struct BucketKindJontySprite *poly;
     if (bckt_idx >= BUCKETS_COUNT)
@@ -8819,9 +8819,9 @@ static void do_map_who_for_thing(struct Thing *thing)
     render_pos_z = thing->interp_mappos.y.val;
     render_floorpos = thing->interp_floor_height;
 
-    switch (thing->field_50 >> 2) // draw_class
+    switch (thing->draw_class)
     {
-    case 2:
+    case ODC_Default:
         ecor.field_8 = 0;
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
@@ -8858,7 +8858,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             add_thing_sprite_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, bckt_idx);
         }
         break;
-    case 3:
+    case ODC_DrawClass3:
         ecor.field_8 = 0;
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
@@ -8868,7 +8868,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         object_origin.y = 0;
         object_origin.z = 0;
         break;
-    case 4:
+    case ODC_RoomPrice:
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_pos_y - map_z_pos);
@@ -8878,7 +8878,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             add_number_to_polypool(ecor.view_width, ecor.view_height, thing->price_effect.number, 1);
         }
         break;
-    case 5:
+    case ODC_RoomStatusFlag:
         // Hide status flags when full zoomed out, for atmospheric overview
         if (hud_scale == 0) {
             break;
@@ -8912,13 +8912,13 @@ static void do_map_who_for_thing(struct Thing *thing)
             }
         }
         break;
-    case 6:
+    case ODC_SpinningKey:
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_pos_y - map_z_pos);
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end) {
-            add_unkn18_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, 1);
+            add_spinning_key_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, 1);
         }
         break;
     default:
@@ -8969,9 +8969,9 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     long cz;
     if ((thing->rendering_flags & TRF_Unknown01) != 0)
         return;
-    switch (thing->field_50 >> 2)
+    switch (thing->draw_class)
     {
-    case 2: // Things
+    case ODC_Default: // Things
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
@@ -8982,14 +8982,14 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             }
         }
         break;
-    case 4: // Floating gold text when buying and selling
+    case ODC_RoomPrice: // Floating gold text when buying and selling
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_number_to_polypool(cx, cy, thing->creature.gold_carried, 1);
         }
         break;
-    case 5: // Room Status flags
+    case ODC_RoomStatusFlag: // Room Status flags
         // Hide status flags when full zoomed out, for atmospheric overview
         if (hud_scale == 0) {
             break;
@@ -9018,11 +9018,11 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             }
         }
         break;
-    case 6:
+    case ODC_SpinningKey:
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-            add_unkn18_to_polypool(thing, cx, cy, cy, cz-3);
+            add_spinning_key_to_polypool(thing, cx, cy, cy, cz-3);
         }
         break;
     default:

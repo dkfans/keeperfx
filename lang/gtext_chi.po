@@ -6431,7 +6431,7 @@ msgstr "格林尼斯的统治战役"
 #: guitext:1022
 msgctxt "Menu interface item""
 msgid "Japanese DKMaps8 pack"
-msgstr "日本人的战役"
+msgstr "日本人的地下城战役"
 
 #: guitext:1023
 msgctxt "Menu interface item""
