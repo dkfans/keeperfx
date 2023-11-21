@@ -705,7 +705,7 @@ void process_timebomb(struct Thing *creatng)
     {
         if ( (creatng->mappos.x.stl.num == trgtng->mappos.x.stl.num) && (creatng->mappos.y.stl.num == trgtng->mappos.y.stl.num) )
         {
-            if (abs(creatng->mappos.z.val - trgtng->mappos.z.val) <= creatng->solid_size_yz)
+            if (abs(creatng->mappos.z.val - trgtng->mappos.z.val) <= creatng->solid_size_z)
             {
                 timebomb_explode(creatng);
                 return;
