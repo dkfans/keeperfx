@@ -222,7 +222,7 @@ long ceiling_partially_recompute_heights(long sx, long sy, long ex, long ey)
                             goto LABEL_43;
                     }
                     *v48 = v27;
-                    number_of_steps = chebyshev_distance_xy(unk_stl_x, unk_stl_y, unk2_stl_x, unk2_stl_y);
+                    number_of_steps = chebyshev_distance(unk_stl_x, unk_stl_y, unk2_stl_x, unk2_stl_y);
                     v31 = 1;
                 }
                 else

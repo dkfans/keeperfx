@@ -4015,7 +4015,7 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
           while (!thing_is_invalid(thing)) 
           {
             TRACE_THING(thing);
-            long NewDistance = chebyshev_distance_xy(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            long NewDistance = chebyshev_distance(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if ( NewDistance < OldDistance )
             {
                 OldDistance = NewDistance;
