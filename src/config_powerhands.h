@@ -56,6 +56,8 @@ struct PowerHandConfig {
     struct PowerHandConfigStats pwrhnd_cfg_stats[NUM_VARIANTS];
 };
 
+extern struct NamedCommand powerhand_desc[NUM_VARIANTS + 1];
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

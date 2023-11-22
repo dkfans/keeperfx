@@ -28,6 +28,7 @@
 #include "config_settings.h"
 #include "config_effects.h"
 #include "config_trapdoor.h"
+#include "config_powerhands.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
@@ -4036,6 +4037,38 @@ static void play_message_process(struct ScriptContext *context)
     }
 }
 
+static void set_power_hand_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    long hand_idx = get_rid(powerhand_desc, scline->tp[1]);
+    if (hand_idx == -1)
+    {
+        if (parameter_is_number(scline->tp[1]))
+        {
+            hand_idx = atoi(scline->tp[1]);
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid hand_idx: '%s'", scline->tp[1]);
+            return;
+        }
+    }
+    value->shorts[0] = hand_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_power_hand_process(struct ScriptContext *context)
+{
+    long hand_idx = context->value->shorts[0];
+    struct PlayerInfo * player;
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        player = get_player(i);
+        player->hand_idx = hand_idx;
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -4178,6 +4211,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
   {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process },
+  {"SET_POWER_HAND",                    "PA      ", Cmd_SET_POWER_HAND, &set_power_hand_check, &set_power_hand_process },
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
