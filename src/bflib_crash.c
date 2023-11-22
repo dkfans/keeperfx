@@ -110,8 +110,9 @@ _backtrace(int depth , LPCONTEXT context)
         // Get base address from map file
         while (fgets(mapFileLine, sizeof(mapFileLine), mapFile) != NULL)
         {
-            if (sscanf(mapFileLine, " %*llx __image_base__ = %llx", &keeperFxBaseAddr) == 1){
-                // LbJustLog("KeeperFX base address in map file: %llx\n", keeperFxBaseAddr);
+            if (sscanf(mapFileLine, " %*llx __image_base__ = %llx", &keeperFxBaseAddr) == 1)
+            {
+                SYNCDBG(0, "KeeperFX base address in map file: %llx\n", keeperFxBaseAddr);
                 break;
             }
         }
@@ -145,8 +146,8 @@ _backtrace(int depth , LPCONTEXT context)
     HANDLE process = GetCurrentProcess();
     HANDLE thread = GetCurrentThread();
 
-    while (StackWalk(IMAGE_FILE_MACHINE_I386, process, thread, &frame,
-            context, 0, SymFunctionTableAccess, SymGetModuleBase, 0))
+    // Loop trough all traces in the stack
+    while (StackWalk(IMAGE_FILE_MACHINE_I386, process, thread, &frame, context, 0, SymFunctionTableAccess, SymGetModuleBase, 0))
     {
         --depth;
         if (depth < 0)
@@ -162,14 +163,17 @@ _backtrace(int depth , LPCONTEXT context)
         // The module will be the keeperfx bin or a library
         const char * module_name = "[unknown module]";
         char module_name_raw[MAX_PATH];
-        if (module_base &&
-            GetModuleFileNameA((HINSTANCE)module_base, module_name_raw, MAX_PATH))
+        if (module_base && GetModuleFileNameA((HINSTANCE)module_base, module_name_raw, MAX_PATH))
         {
             module_name = strrchr(module_name_raw,'\\');
             if (module_name != NULL)
+            {
                 module_name++;
+            }
             else
+            {
                 module_name = module_name_raw;
+            }
         }
 
         // Symbol information for looking up symbols
@@ -185,8 +189,6 @@ _backtrace(int depth , LPCONTEXT context)
         // This works if there are any debug symbols available and also most OS libraries
         if (SymFromAddr(process, frame.AddrPC.Offset, &displacement, pSymbol))
         {
-            // LbJustLog("[#%-2d] in %s at %04x:%s+0x%llx, base %08x\n",
-                    //   module_name, context->SegCs, pSymbol->Name, displacement, module_base);
             LbJustLog("[#%-2d]  in %14-s : %-40s [%04x:%08x+0x%llx, base %08x]\n",
                       depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, displacement, module_base);
             
@@ -224,6 +226,7 @@ _backtrace(int depth , LPCONTEXT context)
                             LbJustLog(
                                 "[#%-2d]  in %14-s : %-40s [0x%llx+0x%llx] \t(map lookup for %04x:%08x, base: %08x)\n",
                                 depth, module_name, prevName, prevAddr, displacement, context->SegCs, frame.AddrPC.Offset, module_base);
+
                             addrFound = true;
 
                             break;
