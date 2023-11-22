@@ -101,8 +101,33 @@ void ctrl_handler(int sig_id)
 static void
 _backtrace(int depth , LPCONTEXT context)
 {
+    DWORD64 keeperFxBaseAddr = 0x00000000;
+
+    char mapFileLine[512];
     FILE *mapFile = fopen("keeperfx.map", "r");
-    if (!mapFile)
+    if (mapFile)
+    {
+        // Get base address from map file
+        while (fgets(mapFileLine, sizeof(mapFileLine), mapFile) != NULL)
+        {
+            if (sscanf(mapFileLine, " %*llx __image_base__ = %llx", &keeperFxBaseAddr) == 1){
+                // LbJustLog("KeeperFX base address in map file: %llx\n", keeperFxBaseAddr);
+                break;
+            }
+        }
+
+        if(keeperFxBaseAddr != 0x00000000)
+        {
+            // Reset buffers
+            fseek(mapFile, 0, SEEK_SET);
+            memset(mapFileLine, 0, sizeof(mapFileLine));
+        }
+        else
+        {
+            fclose(mapFile);
+        }
+    }
+    else
     {
         LbWarnLog("No keeperfx.map file found for stacktrace map lookups\n");
     }
@@ -172,24 +197,22 @@ _backtrace(int depth , LPCONTEXT context)
             // Look up using the keeperfx.map file
             if(mapFile){
 
-                DWORD64 keeperFxBaseAddr = 0x00400000;
                 DWORD64 checkAddr = frame.AddrPC.Offset - (module_base - keeperFxBaseAddr);
 
                 bool addrFound = false;
                 DWORD64 prevAddr = 0x00000000;
                 char prevName[512];
-                char line[512];
 
                 // Loop trough all lines in the mapFile
                 // This should be pretty fast on modern systems
-                while (fgets(line, sizeof(line), mapFile) != NULL)
+                while (fgets(mapFileLine, sizeof(mapFileLine), mapFile) != NULL)
                 {
 
                     DWORD64 addr;
                     char name[512];
                     if (
-                        sscanf(line, "%llx %[^\t\n]", &addr, name) == 2 ||
-                        sscanf(line, " .text %llx %[^\t\n]", &addr, name) == 2
+                        sscanf(mapFileLine, "%llx %[^\t\n]", &addr, name) == 2 ||
+                        sscanf(mapFileLine, " .text %llx %[^\t\n]", &addr, name) == 2
                     ) {
                         // The offsets in our trace do not point to the start of the function.
                         // However, only the address of the start of our functions is stored in the map file.
@@ -213,7 +236,7 @@ _backtrace(int depth , LPCONTEXT context)
 
                 // Reset buffers
                 fseek(mapFile, 0, SEEK_SET);
-                memset(line, 0, sizeof(line));
+                memset(mapFileLine, 0, sizeof(mapFileLine));
 
                 if(addrFound)
                 {
