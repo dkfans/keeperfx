@@ -2069,7 +2069,14 @@ static char light_render_light(struct Light* lgt)
   unsigned int lighting_tables_idx;
   if ( intensity >= game.lish.global_ambient_light << 8 )
   {
-    lighting_tables_idx = (intensity - (game.lish.global_ambient_light << 8)) / (intensity / (render_radius / 256)) + 1;
+      short subtile_radius = (render_radius / 256);
+      if (subtile_radius == 0)
+          subtile_radius++;
+      short intensity_per_tile = intensity / subtile_radius;
+      if (intensity_per_tile == 0)
+          intensity_per_tile++;
+        
+    lighting_tables_idx = ((intensity - (game.lish.global_ambient_light << 8)) / intensity_per_tile) + 1;
     if ( lighting_tables_idx > 31 )
       lighting_tables_idx = 31;
   }
