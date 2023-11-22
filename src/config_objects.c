@@ -68,7 +68,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"UPDATEFUNCTION",    20},
   {"DRAWCLASS",         21},
   {"PERSISTENCE",       22},
-  {"Immobile",          23},
+  {"IMMOBILE",          23},
   {NULL,                 0},
   };
 
