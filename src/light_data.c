@@ -134,13 +134,13 @@ void light_shadow_cache_free(struct ShadowCache *shdc)
 
 TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
 {
-  if ((lgt->flags2 & 0x01) != 0)
+  if (flag_is_set(lgt->flags2,LgtF2_InList))
   {
     ERRORLOG("Light is already in list");
     return false;
   }
   list->count++;
-  lgt->flags2 |= 0x01;
+  set_flag(lgt->flags2,LgtF2_InList);
   lgt->next_in_list = list->index;
   list->index = lgt->index;
   return true;
@@ -177,8 +177,8 @@ long light_create_light(struct InitLight *ilght)
     lgt->mappos.z.val = ilght->mappos.z.val;
     lgt->radius = ilght->radius;
     lgt->intensity = ilght->intensity;
-    unsigned long k = 2 * ilght->field_3;
-    lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
+    lgt->flags2 |= ilght->field_3 << 1;
+
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
     return lgt->index;
@@ -479,7 +479,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
   TbBool Removed = false;
   struct Light *lgt2;
   struct Light *i;
-  if ( lgt->flags2 & 1 )
+  if ( flag_is_set(lgt->flags2,LgtF2_InList) )
   {
     if ( lgt->index == list->index )
     {
@@ -487,7 +487,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
       list->count--;
       list->index = lgt->next_in_list;
       lgt->next_in_list = 0;
-      lgt->flags2 &= ~1;
+      clear_flag(lgt->flags2,LgtF2_InList);
     }
     else
     {
@@ -500,7 +500,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
           if ( i )
           {
             i->next_in_list = lgt->next_in_list;
-            lgt->flags2 &= ~1;
+            clear_flag(lgt->flags2,LgtF2_InList);
             list->count--;
             lgt->next_in_list = 0;
           }
@@ -2243,24 +2243,24 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
         {
           if ( lgt->field_6 == 1 )
           {
-            if ( lgt->field_1E + lgt->radius >= lgt->field_20 )
+            if ( lgt->radius_delta + lgt->radius >= lgt->max_radius )
             {
-              lgt->radius = lgt->field_20;
+              lgt->radius = lgt->max_radius;
               lgt->field_6 = 2;
             }
             else
             {
-              lgt->radius += lgt->field_1E;
+              lgt->radius += lgt->radius_delta;
             }
           }
-          else if ( lgt->radius - lgt->field_1E <= lgt->field_22 )
+          else if ( lgt->radius - lgt->radius_delta <= lgt->min_radius2 )
           {
-            lgt->radius = lgt->field_22;
+            lgt->radius = lgt->min_radius2;
             lgt->field_6 = 1;
           }
           else
           {
-            lgt->radius -= lgt->field_1E;
+            lgt->radius -= lgt->radius_delta;
           }
           lgt->flags |= LgtF_Unkn08;
         }
@@ -2268,26 +2268,26 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
         {
           if ( lgt->field_3 == 1 )
           {
-            if ( lgt->field_4 + lgt->intensity >= lgt->field_7 )
+            if ( lgt->intensity_delta + lgt->intensity >= lgt->max_intensity )
             {
-              lgt->intensity = lgt->field_7;
+              lgt->intensity = lgt->max_intensity;
               lgt->field_3 = 2;
             }
             else
             {
-              lgt->intensity = lgt->field_4 + lgt->intensity;
+              lgt->intensity = lgt->intensity_delta + lgt->intensity;
             }
           }
           else
           {
-            if ( lgt->intensity - lgt->field_4 <= lgt->field_7 )
+            if ( lgt->intensity - lgt->intensity_delta <= lgt->max_intensity )
             {
-              lgt->intensity = lgt->field_7;
+              lgt->intensity = lgt->max_intensity;
               lgt->field_3 = 1;
             }
             else
             {
-              lgt->intensity = lgt->intensity - lgt->field_4;
+              lgt->intensity = lgt->intensity - lgt->intensity_delta;
             }
           }
           lgt->flags |= LgtF_Unkn08;

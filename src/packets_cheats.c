@@ -535,17 +535,17 @@ TbBool packets_process_cheats(
         case PSt_HeartHealth:
         clear_messages_from_player(playeradd->cheatselection.chosen_player);
         thing = get_player_soul_container(playeradd->cheatselection.chosen_player);
-        struct ObjectConfig* objconf = get_object_model_stats2(thing->model);
+        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
         if (!thing_is_invalid(thing))
         {
-            targeted_message_add(thing->owner, plyr_idx, 1, "%d/%d", thing->health, objconf->health);
+            targeted_message_add(thing->owner, plyr_idx, 1, "%d/%d", thing->health, objst->health);
         }
         else
         {
             break;
         }
         short new_health = thing->health;
-        if (process_cheat_heart_health_inputs(&new_health, objconf->health))
+        if (process_cheat_heart_health_inputs(&new_health, objst->health))
         {
             set_packet_action(pckt, PckA_CheatHeartHealth, playeradd->cheatselection.chosen_player, new_health, 0, 0);
         }
