@@ -10,6 +10,8 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "value_util.h"
+#include "custom_sprites.h"
+#include "thing_objects.h"
 
 #include "thing_list.h"
 
@@ -92,5 +94,18 @@ int value_parse_model(int oclass, VALUE *value)
     if (value_type(value) == VALUE_INT32)
         return value_int32(value);
     // TODO: model names for different classes
+    return -1;
+}
+
+int value_parse_anim(VALUE *value)
+{
+    if (value_type(value) == VALUE_INT32)
+        return value_int32(value);
+    else if (value_type(value) == VALUE_STRING)
+    {
+        const char *tst = value_string(value);
+        struct Objects obj_tmp;
+        return get_anim_id(tst, &obj_tmp);
+    }
     return -1;
 }
