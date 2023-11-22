@@ -123,7 +123,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
             struct Thing* thing = get_food_at_subtile_available_to_eat_and_owned_by(x, y, -1);
             if (!thing_is_invalid(thing))
             {
-                long dist = get_2d_box_distance(&creatng->mappos, &thing->mappos);
+                long dist = get_chessboard_distance(&creatng->mappos, &thing->mappos);
                 if (near_food_dist > dist)
                 {
                     near_food_dist = dist;

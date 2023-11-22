@@ -2071,7 +2071,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
         max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
         max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
     }
-    MapCoordDelta distance = get_2d_box_distance(pos, &tngdst->mappos);
+    MapCoordDelta distance = get_chessboard_distance(pos, &tngdst->mappos);
     if (distance < max_dist)
     {
         if (tngdst->class_id == TCls_Creature)
@@ -4015,7 +4015,7 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
           while (!thing_is_invalid(thing)) 
           {
             TRACE_THING(thing);
-            long NewDistance = chebyshev_distance(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            long NewDistance = chessboard_distance(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if ( NewDistance < OldDistance )
             {
                 OldDistance = NewDistance;

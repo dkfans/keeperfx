@@ -397,7 +397,7 @@ TbBool output_message_far_from_thing(struct Thing* thing, long msg_idx, long del
     rcpos.x.val = Receiver.pos.val_x;
     rcpos.y.val = Receiver.pos.val_y;
     rcpos.z.val = Receiver.pos.val_z;
-    if (get_3d_box_distance(&rcpos, &thing->mappos) > MaxSoundDistance)
+    if (get_chessboard_distance_3d(&rcpos, &thing->mappos) > MaxSoundDistance)
     {
         SYNCDBG(5, "Message %ld, delay %ld, queue %s", msg_idx, delay, queue ? "on" : "off");
         struct SMessage* smsg = &messages[msg_idx];

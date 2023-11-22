@@ -217,8 +217,8 @@ TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSub
               {
                   MapCoordDelta dist_other;
                   MapCoordDelta dist_creatng;
-                  dist_other = get_2d_box_distance(&thing->mappos, &pos2);
-                  dist_creatng = get_2d_box_distance(&creatng->mappos, &pos2);
+                  dist_other = get_chessboard_distance(&thing->mappos, &pos2);
+                  dist_creatng = get_chessboard_distance(&creatng->mappos, &pos2);
                   if (dist_other <= dist_creatng)
                       return true;
                   if (dist_other - dist_creatng <= subtile_coord(6,0))
@@ -426,7 +426,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
         slb_x = subtile_slab(stl_x);
         slb_y = subtile_slab(stl_y);
         int new_dist;
-        new_dist = chebyshev_distance(srcstl_x, srcstl_y, stl_x, stl_y);
+        new_dist = chessboard_distance(srcstl_x, srcstl_y, stl_x, stl_y);
         if (new_dist >= min_dist) {
             continue;
         }
@@ -528,8 +528,8 @@ static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, Ma
               cctrl = creature_control_get_from_thing(thing);
               if (cctrl->moveto_pos.x.stl.num == stl_x && cctrl->moveto_pos.y.stl.num == stl_y)
               {
-                  MapCoordDelta loop_distance = get_2d_box_distance(&thing->mappos, &pos2);
-                  MapCoordDelta imp_distance = get_2d_box_distance(&creatng->mappos, &pos2);
+                  MapCoordDelta loop_distance = get_chessboard_distance(&thing->mappos, &pos2);
+                  MapCoordDelta imp_distance = get_chessboard_distance(&creatng->mappos, &pos2);
                   if (loop_distance <= imp_distance || loop_distance - imp_distance <= 6 * COORD_PER_STL)
                       return true;
               }
@@ -966,7 +966,7 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
             MapSlabCoord wall_slb_x = subtile_slab(wall_stl_x);
             MapSlabCoord wall_slb_y = subtile_slab(wall_stl_y);
 
-            distance = chebyshev_distance(spdig_stl_x, spdig_stl_y, wall_stl_x, wall_stl_y);
+            distance = chessboard_distance(spdig_stl_x, spdig_stl_y, wall_stl_x, wall_stl_y);
             if ( min_distance > distance )
             {
                 MapSubtlCoord reinforce_stl_x;
@@ -1199,7 +1199,7 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
             SubtlCodedCoords tsk_stl_num;
             MapSubtlCoord tsk_dist;
             tsk_stl_num = mtask->coords;
-            tsk_dist = chebyshev_distance(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
+            tsk_dist = chessboard_distance(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
             if (tsk_dist < best_dist)
             {
                 MapSubtlCoord tsk_stl_x;

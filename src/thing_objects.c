@@ -961,7 +961,7 @@ static long food_moves(struct Thing *objtng)
             if (!thing_is_invalid(near_creatng))
                 room->hatchfield_1B = near_creatng->index;
         }
-        has_near_creature = (thing_exists(near_creatng) && (get_2d_box_distance(&objtng->mappos, &near_creatng->mappos) < 768));
+        has_near_creature = (thing_exists(near_creatng) && (get_chessboard_distance(&objtng->mappos, &near_creatng->mappos) < 768));
         if (has_near_creature)
         {
             objtng->food.angle = get_angle_xy_to(&near_creatng->mappos, &pos);
