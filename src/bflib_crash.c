@@ -223,6 +223,16 @@ _backtrace(int depth , LPCONTEXT context)
                         {
                             displacement = checkAddr - prevAddr;
 
+                            // Handle library traces
+                            // Example: '0x123 lib/thing.o'
+                            // We don't want that size at the beginning, but we do want the library path.
+                            char *splitPos = strchr(prevName, ' ');
+                            if (strncmp(prevName, "0x", 2) == 0 && splitPos != NULL){
+                                memmove(prevName, splitPos + 1, strlen(splitPos)); // remove anything before the space
+                                memmove(prevName + 4, prevName, strlen(prevName) + 1); // make space for the arrow symbol
+                                memcpy(prevName, "-> ", 3); // prepend the arrow symbol
+                            }
+
                             LbJustLog(
                                 "[#%-2d]  in %14-s : %-40s [0x%llx+0x%llx] \t(map lookup for %04x:%08x, base: %08x)\n",
                                 depth, module_name, prevName, prevAddr, displacement, context->SegCs, frame.AddrPC.Offset, module_base);
