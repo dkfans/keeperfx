@@ -982,12 +982,12 @@ TbBool switch_to_next_video_mode(void)
   {
     if (failsafe)
     {
-      show_onscreen_msg(game.num_fps * 6, "%s", get_string(856));
+      show_onscreen_msg(game_num_fps * 6, "%s", get_string(856));
     }
     else
     {
       // we managed to switch to a new mode
-      show_onscreen_msg(game.num_fps * 6, "%s", get_vidmode_name(scrmode));
+      show_onscreen_msg(game_num_fps * 6, "%s", get_vidmode_name(scrmode));
       settings.switching_vidmodes_index = i;
       save_settings();
     }

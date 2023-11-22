@@ -416,7 +416,7 @@ void clear_complete_game(void)
         set_selected_level_number(start_params.selected_level_number);
     else
         set_selected_level_number(first_singleplayer_level());
-    game.num_fps = start_params.num_fps;
+    game_num_fps = start_params.num_fps;
     game.flags_cd = start_params.flags_cd;
     game.no_intro = start_params.no_intro;
     set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
