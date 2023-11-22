@@ -3503,8 +3503,7 @@ struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const s
             long attractiveness = get_room_attractiveness_for_thing(dungeon, room, thing, rrole & get_room_roles(room->kind), needed_capacity);
             if (attractiveness > 0)
             {
-                long dist = abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
-                dist += abs(thing->mappos.x.stl.num - (int)room->central_stl_x);
+                long dist = manhattan_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, room->central_stl_x, room->central_stl_y);
                 dist = (dist*128)/attractiveness;
                 if (retdist > dist)
                 {
