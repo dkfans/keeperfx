@@ -110,7 +110,7 @@ _backtrace(int depth , LPCONTEXT context)
         // Get base address from map file
         while (fgets(mapFileLine, sizeof(mapFileLine), mapFile) != NULL)
         {
-            if (sscanf(mapFileLine, " %*llx __image_base__ = %llx", &keeperFxBaseAddr) == 1)
+            if (sscanf(mapFileLine, " %*x __image_base__ = %llx", &keeperFxBaseAddr) == 1)
             {
                 SYNCDBG(0, "KeeperFX base address in map file: %llx\n", keeperFxBaseAddr);
                 break;
