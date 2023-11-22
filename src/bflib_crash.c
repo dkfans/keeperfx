@@ -146,7 +146,7 @@ _backtrace(int depth , LPCONTEXT context)
     HANDLE process = GetCurrentProcess();
     HANDLE thread = GetCurrentThread();
 
-    // Loop trough all traces in the stack
+    // Loop through all traces in the stack
     while (StackWalk(IMAGE_FILE_MACHINE_I386, process, thread, &frame, context, 0, SymFunctionTableAccess, SymGetModuleBase, 0))
     {
         --depth;
@@ -205,7 +205,7 @@ _backtrace(int depth , LPCONTEXT context)
                 DWORD64 prevAddr = 0x00000000;
                 char prevName[512];
 
-                // Loop trough all lines in the mapFile
+                // Loop through all lines in the mapFile
                 // This should be pretty fast on modern systems
                 while (fgets(mapFileLine, sizeof(mapFileLine), mapFile) != NULL)
                 {
