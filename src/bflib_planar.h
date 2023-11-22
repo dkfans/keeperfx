@@ -55,11 +55,11 @@ struct TbPoint {
 #define chessboard_distance_3d(x1,y1,z1,x2,y2,z2) (max(max(abs(x1 - x2), abs(y1 - y2)),abs(z1 - z2)))
 
 /**
- * "This distance can be imagined as the length needed to move between two points in a grid where you can only move up, down, left or right." - https://simple.wikipedia.org/wiki/Manhattan_distance
+ * This distance is "the number of moves needed to move from one tile on a grid to another tile on a grid; where each move must be directly up, down, left or right (Like D&D)".
  * 
- * See: https://en.wikipedia.org/wiki/Taxicab_geometry for even more details.
+ * This is known as Manhattan distance (see https://simple.wikipedia.org/wiki/Manhattan_distance and https://en.wikipedia.org/wiki/Taxicab_geometry for details).
  */
-#define manhattan_distance(x1,y1,x2,y2) (abs(x1 - x2) + abs(y1 - y2))
+#define grid_distance(x1,y1,x2,y2) (abs(x1 - x2) + abs(y1 - y2))
 /******************************************************************************/
 void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBottom);
 

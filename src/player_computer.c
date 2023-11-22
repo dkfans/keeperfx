@@ -552,7 +552,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
                     pos->x.val = 0;
                 } else
                 {
-                    long dist = manhattan_distance(pos->x.stl.num, pos->y.stl.num, dnstl_x, dnstl_y);
+                    long dist = grid_distance(pos->x.stl.num, pos->y.stl.num, dnstl_x, dnstl_y);
                     if (hate->distance_near >= dist)
                     {
                         hate->distance_near = dist;

@@ -546,7 +546,7 @@ struct Thing * find_imp_for_pickup(struct Computer2 *comp, MapSubtlCoord stl_x, 
             {
                 if (!creature_is_being_dropped(thing) && can_thing_be_picked_up_by_player(thing, dungeon->owner))
                 {
-                    MapSubtlDelta dist = manhattan_distance(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+                    MapSubtlDelta dist = grid_distance(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
                     long state_type = get_creature_state_type(thing);
                     if (state_type == CrStTyp_Work)
                     {
@@ -1100,7 +1100,7 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
                 MapSlabCoord arslb_y = slb_y + small_around[m].delta_y;
                 MapSubtlCoord arstl_x = slab_subtile_center(arslb_x);
                 MapSubtlCoord arstl_y = slab_subtile_center(arslb_y);
-                long dist = manhattan_distance(room->central_stl_x, room->central_stl_y, arstl_x, arstl_y);
+                long dist = grid_distance(room->central_stl_x, room->central_stl_y, arstl_x, arstl_y);
                 if (dist <= max_radius)
                 {
                     if (can_build_room_at_slab(dungeon->owner, room->kind, arslb_x, arslb_y))
