@@ -117,11 +117,11 @@ _backtrace(int depth , LPCONTEXT context)
             }
         }
 
+        memset(mapFileLine, 0, sizeof(mapFileLine));
+
         if(keeperFxBaseAddr != 0x00000000)
         {
-            // Reset buffers
             fseek(mapFile, 0, SEEK_SET);
-            memset(mapFileLine, 0, sizeof(mapFileLine));
         }
         else
         {
