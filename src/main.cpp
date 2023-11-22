@@ -137,6 +137,7 @@ char *bf_argv[CMDLN_MAXLEN+1];
 short do_draw;
 short default_loc_player = 0;
 struct StartupParameters start_params;
+long game_num_fps;
 
 unsigned char *blue_palette;
 unsigned char *red_palette;
@@ -1399,7 +1400,7 @@ void toggle_hero_health_flowers(void)
       do_sound_menu_click();
       statstr = "on";
     }
-    show_onscreen_msg(2*game.num_fps, "Hero health flowers %s", statstr);
+    show_onscreen_msg(2*game_num_fps, "Hero health flowers %s", statstr);
 }
 
 void reset_gui_based_on_player_mode(void)
@@ -3340,7 +3341,7 @@ TbBool keeper_wait_for_next_turn(void)
     if (game.frame_skip == 0)
     {
         // Standard delaying system
-        TbClockMSec sleep_end = last_loop_time + 1000/game.num_fps;
+        TbClockMSec sleep_end = last_loop_time + 1000/game_num_fps;
         LbSleepUntil(sleep_end);
         last_loop_time = LbTimerClock();
         return true;

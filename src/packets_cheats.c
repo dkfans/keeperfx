@@ -777,7 +777,7 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
   {
       case PckA_CheatEnter:
     //      game.???[my_player_number].cheat_mode = 1;
-          show_onscreen_msg(2*game.num_fps, "Cheat mode activated by player %d", plyr_idx);
+          show_onscreen_msg(2*game_num_fps, "Cheat mode activated by player %d", plyr_idx);
           return true;
       case PckA_CheatAllFree:
           make_all_creatures_free();
