@@ -189,7 +189,7 @@ _backtrace(int depth , LPCONTEXT context)
         // This works if there are any debug symbols available and also most OS libraries
         if (SymFromAddr(process, frame.AddrPC.Offset, &displacement, pSymbol))
         {
-            LbJustLog("[#%-2d]  in %14-s : %-40s [%04x:%08x+0x%llx, base %08x]\n",
+            LbJustLog("[#%-2d]  in %14-s : %-40s [%04x:%08x+0x%llx, base %08x] (symbol lookup)\n",
                       depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, displacement, module_base);
             
             continue;
