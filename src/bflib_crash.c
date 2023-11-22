@@ -26,6 +26,7 @@
 #include <windows.h>
 #include <excpt.h>
 #include <imagehlp.h>
+#include <dbghelp.h>
 #include <psapi.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -100,6 +101,12 @@ void ctrl_handler(int sig_id)
 static void
 _backtrace(int depth , LPCONTEXT context)
 {
+    FILE *mapFile = fopen("keeperfx.map", "r");
+    if (!mapFile)
+    {
+        LbWarnLog("No keeperfx.map file found for stacktrace map lookups\n");
+    }
+
     STACKFRAME frame;
     LbMemorySet(&frame,0,sizeof(frame));
 
@@ -118,10 +125,16 @@ _backtrace(int depth , LPCONTEXT context)
     {
         --depth;
         if (depth < 0)
+        {
             break;
+        }
 
+        // Get the base address in the module
+        // This is where the address space of the functions start
         DWORD module_base = SymGetModuleBase(process, frame.AddrPC.Offset);
 
+        // Get the name of the module
+        // The module will be the keeperfx bin or a library
         const char * module_name = "[unknown module]";
         char module_name_raw[MAX_PATH];
         if (module_base &&
@@ -133,7 +146,82 @@ _backtrace(int depth , LPCONTEXT context)
             else
                 module_name = module_name_raw;
         }
-        LbJustLog("  in %s at %04x:%08x, base %08x\n", module_name, context->SegCs, frame.AddrPC.Offset, module_base);
+
+        // Symbol information for looking up symbols
+        char symbol_info[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+        PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)symbol_info;
+        pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+        pSymbol->MaxNameLen = MAX_SYM_NAME;
+
+        // The distance between the original function and the call in the trace
+        DWORD64 displacement;
+
+        // First check if we can find the symbol by its address
+        // This works if there are any debug symbols available and also most OS libraries
+        if (SymFromAddr(process, frame.AddrPC.Offset, &displacement, pSymbol))
+        {
+            // LbJustLog("[#%-2d] in %s at %04x:%s+0x%llx, base %08x\n",
+                    //   module_name, context->SegCs, pSymbol->Name, displacement, module_base);
+            LbJustLog("[#%-2d]  in %14-s : %-40s [%04x:%08x+0x%llx, base %08x]\n",
+                      depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, displacement, module_base);
+            
+            continue;
+        }
+        else {
+
+            // Look up using the keeperfx.map file
+            if(mapFile){
+
+                bool addrFound = false;
+                DWORD64 prevAddr = 0x00000000;
+                char prevName[512];
+                char line[512];
+
+                // Loop trough all lines in the mapFile
+                // This should be pretty fast on modern systems
+                while (fgets(line, sizeof(line), mapFile) != NULL)
+                {
+
+                    DWORD64 addr;
+                    char name[512];
+                    if (sscanf(line, "%llx %[^\t\n]", &addr, name) == 2)
+                    {
+                        // The offsets in our trace do not point to the start of the function.
+                        // However, only the address of the start of our functions is stored in the map file.
+                        // So we'll trace back to the last address.
+                        if (frame.AddrPC.Offset > prevAddr && frame.AddrPC.Offset < addr)
+                        {
+                            displacement = frame.AddrPC.Offset - prevAddr;
+
+                            LbJustLog(
+                                "[#%-2d]  in %14-s : %-40s [0x%llx+0x%llx] \t(map lookup for %04x:%08x, base: %08x)\n",
+                                depth, module_name, prevName, prevAddr, displacement, context->SegCs, frame.AddrPC.Offset, module_base);
+                            addrFound = true;
+
+                            break;
+                        }
+                    }
+
+                    prevAddr = addr;
+                    strcpy(prevName, name);
+                }
+
+                // Reset buffers
+                fseek(mapFile, 0, SEEK_SET);
+                memset(line, 0, sizeof(line));
+
+                if(addrFound){
+                    continue;
+                }
+            }
+        }
+
+        // Fallback
+        LbJustLog("[#%-2d]  in %13-s at %04x:%08x, base %08x\n", depth, module_name, context->SegCs, frame.AddrPC.Offset, module_base);
+    }
+
+    if(mapFile){
+        fclose(mapFile);
     }
 }
 

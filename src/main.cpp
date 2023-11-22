@@ -4288,7 +4288,7 @@ LONG __stdcall Vex_handler(
     _EXCEPTION_POINTERS *ExceptionInfo
 )
 {
-    LbJustLog("=== Crash ===");
+    LbJustLog("=== Crash ===\n");
     LbCloseLog();
     return 0;
 }
