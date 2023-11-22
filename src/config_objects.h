@@ -57,18 +57,7 @@ enum ObjectModelFlags {
     OMF_Heart                = 0x0040, // Functions as the heart of the dungeon
 };
 
-/******************************************************************************/
-#pragma pack(1)
 
-struct ObjectConfig { // sizeof=0x1D
-long health;
-char fall_acceleration;
-char light_unaffected;
-char movement_flag;
-    struct InitLight ilght;
-};
-
-#pragma pack()
 /******************************************************************************/
 struct ObjectConfigStats {
     char code_name[COMMAND_WORD_LEN];
@@ -76,6 +65,11 @@ struct ObjectConfigStats {
     long genre;
     long name_stridx;
     long map_icon;
+    long health;
+    char fall_acceleration;
+    char light_unaffected;
+    char immobile;
+    struct InitLight ilght;
 };
 
 struct ObjectsConfig {
@@ -85,7 +79,6 @@ struct ObjectsConfig {
     ThingModel object_to_power_artifact[OBJECT_TYPES_MAX];
     ThingModel object_to_special_artifact[OBJECT_TYPES_MAX];
     ThingClass workshop_object_class[OBJECT_TYPES_MAX];
-    struct ObjectConfig base_config[OBJECT_TYPES_MAX];
 };
 /******************************************************************************/
 extern const char keeper_objects_file[];
@@ -95,7 +88,6 @@ extern const struct NamedCommand objects_object_commands[];
 /******************************************************************************/
 TbBool load_objects_config(const char *conf_fname,unsigned short flags);
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);
-struct ObjectConfig *get_object_model_stats2(ThingModel tngmodel);
 const char *object_code_name(ThingModel tngmodel);
 ThingModel object_model_id(const char * code_name);
 ThingClass crate_to_workshop_item_class(ThingModel tngmodel);

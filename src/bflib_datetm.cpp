@@ -23,6 +23,7 @@
 #include <chrono>
 #include "bflib_basics.h"
 #include "globals.h"
+#include "game_legacy.h"
 
 #if defined(_WIN32)
 #define WIN32_LEAN_AND_MEAN
@@ -61,7 +62,7 @@ float get_delta_time()
     }
     long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
     delta_time_previous_timepoint = TimeNow;
-    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game.num_fps;
+    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game_num_fps;
     if (calculated_delta_time > 1.0) { // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
         calculated_delta_time = 1.0;
     }
@@ -77,7 +78,7 @@ void frametime_set_all_measurements_to_be_displayed()
     {
         // Once per half-second set the display text to highest frametime of the past half-second
         frametime_measurements.max_timer += gameadd.delta_time;
-        if (frametime_measurements.max_timer > (game.num_fps/2)) {
+        if (frametime_measurements.max_timer > (game_num_fps/2)) {
             frametime_measurements.max_timer = 0;
             once_per_half_second = true;
         }

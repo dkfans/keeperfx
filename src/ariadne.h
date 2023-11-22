@@ -67,6 +67,17 @@ enum AriadneUpdateSubStateManoeuvreValues {
     AridUpSStM_Unkn2,
 };
 
+enum NavigationStateValues {
+    NavS_Unkn0   = 0,
+    NavS_Unkn1,
+    NavS_Unkn2,
+    NavS_Unkn3,
+    NavS_Unkn4,
+    NavS_Unkn5,
+    NavS_Unkn6,
+    NavS_Unkn7,
+};
+
 #define NAVMAP_FLOORHEIGHT_BIT  0
 #define NAVMAP_FLOORHEIGHT_MAX  0x0f
 #define NAVMAP_FLOORHEIGHT_MASK 0x0f
@@ -85,10 +96,10 @@ struct Ariadne { // sizeof = 102
   struct Coord3d pos_18;
   unsigned char route_flags;
   unsigned char field_1F;
-  unsigned char field_20;
+  unsigned char hug_side;
   unsigned char update_state;
   unsigned char field_22;
-  unsigned char field_23;
+  unsigned char may_need_reroute;
   short field_24;
   unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
@@ -170,8 +181,8 @@ struct FOV { // sizeof=0x18
 };
 
 struct HugStart {
-    short angle;
-    unsigned char flag;
+    short wh_angle;
+    unsigned char wh_side;
 };
 
 /******************************************************************************/
@@ -200,7 +211,7 @@ long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *t
 AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing);
 
 TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);
-void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long a6, unsigned char nav_size, const char *func_name);
+void path_init8_wide_f(struct Path *path, long start_x, long start_y, long end_x, long end_y, long subroute, unsigned char nav_size, const char *func_name);
 void nearest_search_f(long sizexy, long srcx, long srcy, long dstx, long dsty, long *px, long *py, const char *func_name);
 #define nearest_search(sizexy, srcx, srcy, dstx, dsty, px, py) nearest_search_f(sizexy, srcx, srcy, dstx, dsty, px, py, __func__)
 NavColour get_navigation_colour(long stl_x, long stl_y);

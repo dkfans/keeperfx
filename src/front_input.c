@@ -341,7 +341,7 @@ void increaseFrameskip(void)
         game.frame_skip += (game.frame_skip/3);
     }
     clip_frame_skip();
-    show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+    show_onscreen_msg(game_num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
 }
 
 void decreaseFrameskip(void)
@@ -359,7 +359,7 @@ void decreaseFrameskip(void)
         game.frame_skip -= (game.frame_skip/4);
     }
     clip_frame_skip();
-    show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+    show_onscreen_msg(game_num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
 }
 
 /**
@@ -411,7 +411,7 @@ short get_packet_load_game_control_inputs(void)
     close_packet_file();
     game.packet_load_enable = false;
     game.packet_save_enable = false;
-    show_onscreen_msg(2*game.num_fps, "Packet mode disabled");
+    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
     set_gui_visible(true);
     return true;
   }
@@ -469,7 +469,7 @@ short get_bookmark_inputs(void)
                 bmark->x = player->acamera->mappos.x.stl.num;
                 bmark->y = player->acamera->mappos.y.stl.num;
                 bmark->flags |= 0x01;
-                show_onscreen_msg(game.num_fps, "Bookmark %d stored", i + 1);
+                show_onscreen_msg(game_num_fps, "Bookmark %d stored", i + 1);
             }
             return true;
         }
@@ -594,7 +594,7 @@ short get_global_inputs(void)
   {
     JUSTMSG("REPORT for gameturn %d",game.play_gameturn);
     // Timing report
-    JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game.num_fps);
+    JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game_num_fps);
     test_variable = !test_variable;
   }
 
@@ -649,8 +649,8 @@ short get_global_inputs(void)
         if ( timer_enabled() )
         {
             update_time();
-            struct GameTime GameT = get_game_time(game.play_gameturn, game.num_fps);
-            SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.",game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+            struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
+            SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.",game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);
