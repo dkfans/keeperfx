@@ -167,10 +167,13 @@ _backtrace(int depth , LPCONTEXT context)
             
             continue;
         }
-        else {
-
+        else
+        {
             // Look up using the keeperfx.map file
             if(mapFile){
+
+                DWORD64 keeperFxBaseAddr = 0x00400000;
+                DWORD64 checkAddr = frame.AddrPC.Offset - (module_base - keeperFxBaseAddr);
 
                 bool addrFound = false;
                 DWORD64 prevAddr = 0x00000000;
@@ -184,14 +187,16 @@ _backtrace(int depth , LPCONTEXT context)
 
                     DWORD64 addr;
                     char name[512];
-                    if (sscanf(line, "%llx %[^\t\n]", &addr, name) == 2)
-                    {
+                    if (
+                        sscanf(line, "%llx %[^\t\n]", &addr, name) == 2 ||
+                        sscanf(line, " .text %llx %[^\t\n]", &addr, name) == 2
+                    ) {
                         // The offsets in our trace do not point to the start of the function.
                         // However, only the address of the start of our functions is stored in the map file.
                         // So we'll trace back to the last address.
-                        if (frame.AddrPC.Offset > prevAddr && frame.AddrPC.Offset < addr)
+                        if (checkAddr > prevAddr && checkAddr < addr)
                         {
-                            displacement = frame.AddrPC.Offset - prevAddr;
+                            displacement = checkAddr - prevAddr;
 
                             LbJustLog(
                                 "[#%-2d]  in %14-s : %-40s [0x%llx+0x%llx] \t(map lookup for %04x:%08x, base: %08x)\n",
@@ -210,7 +215,8 @@ _backtrace(int depth , LPCONTEXT context)
                 fseek(mapFile, 0, SEEK_SET);
                 memset(line, 0, sizeof(line));
 
-                if(addrFound){
+                if(addrFound)
+                {
                     continue;
                 }
             }
