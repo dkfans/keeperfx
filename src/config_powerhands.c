@@ -101,7 +101,6 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
             game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_SideHover] = value_parse_anim(value_dict_get(section, "AnimSideHover"));
             game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_SideSlap]  = value_parse_anim(value_dict_get(section, "AnimSideSlap"));
             game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_Slap]      = value_parse_anim(value_dict_get(section, "AnimSlap"));
-            JUSTLOG("game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_Hold] %d",game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_Hold]);
         }
     }
     value_fini(&file_root);
