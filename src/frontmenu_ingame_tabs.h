@@ -69,6 +69,7 @@ extern struct GuiMenu creature_query_menu3;
 extern struct GuiMenu creature_query_menu4;
 extern struct TiledSprite status_panel;
 extern struct Around const draw_square[];
+extern struct GuiMenu spell_menu2;
 
 #define AROUND_2x2_PIXEL      4
 #define AROUND_3x3_PIXEL      9
@@ -102,8 +103,11 @@ void go_to_my_next_room_of_type_and_select(RoomKind rkind);
 void go_to_my_next_room_of_type(RoomKind rkind);
 RoomIndex find_my_next_room_of_type(RoomKind rkind);
 RoomIndex find_next_room_of_type(PlayerNumber plyr_idx, RoomKind rkind);
+
 void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn);
 void gui_query_next_creature_of_owner(struct GuiButton *gbtn);
+
+void maintain_spell_next_page_button(struct GuiButton *gbtn);
 /******************************************************************************/
 #ifdef __cplusplus
 }

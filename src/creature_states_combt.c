@@ -232,6 +232,13 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
+    if (creature_affected_by_spell(enmtng, SplK_TimeBomb))
+    {
+        if (creature_has_ranged_weapon(creatng) == false)
+        {
+            return true;
+        }
+    }
     // Creature with fear 101 are scared of everything other that their own model
     if (crstat->fear_wounded >= 101)
     {
@@ -1305,7 +1312,7 @@ short creature_combat_flee(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     GameTurnDelta turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->flee_start_turn;
-    if (get_2d_box_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
+    if (get_chessboard_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
     {
         SYNCDBG(8,"Starting distant flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
         if (has_melee_combat_attackers(creatng) || has_ranged_combat_attackers(creatng)
@@ -2334,7 +2341,7 @@ TbBool creature_in_flee_zone(struct Thing *thing)
         ERRORLOG("Creature index %d has invalid control",(int)thing->index);
         return false;
     }
-    unsigned long dist = get_2d_box_distance(&thing->mappos, &cctrl->flee_pos);
+    unsigned long dist = get_chessboard_distance(&thing->mappos, &cctrl->flee_pos);
     return (dist < gameadd.flee_zone_radius);
 }
 
@@ -2468,7 +2475,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
 {
     int i;
     struct CreatureControl* cctrl = creature_control_get_from_thing(enemy);
-    MapCoordDelta dist = get_2d_box_distance(&fighter->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + fighter->clipbox_size_xy) / 2;
+    MapCoordDelta dist = get_chessboard_distance(&fighter->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + fighter->clipbox_size_xy) / 2;
     struct Thing* best_fightng = fighter;
     long best_score = get_combat_score(fighter, enemy, attack_type, dist);
     long prev_score = best_score;
@@ -2485,7 +2492,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
           {
               creatng = thing_get(cctrl->opponents_ranged[i]);
               struct CreatureControl* crctrl = creature_control_get_from_thing(creatng);
-              dist = get_2d_box_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
+              dist = get_chessboard_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
               score = get_combat_score(creatng, enemy, crctrl->combat.attack_type, dist);
               if (creature_is_actually_scared(creatng, enemy)) {
                   score -= 512;
@@ -2507,7 +2514,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
             {
                 creatng = thing_get(cctrl->opponents_melee[i]);
                 struct CreatureControl* csctrl = creature_control_get_from_thing(creatng);
-                dist = get_2d_box_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
+                dist = get_chessboard_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
                 score = get_combat_score(creatng, enemy, csctrl->combat.attack_type, dist);
                 if (creature_is_actually_scared(creatng, enemy)) {
                     score -= 512;
