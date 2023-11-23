@@ -112,7 +112,7 @@ _backtrace(int depth , LPCONTEXT context)
         {
             if (sscanf(mapFileLine, " %*x __image_base__ = %llx", &keeperFxBaseAddr) == 1)
             {
-                SYNCDBG(0, "KeeperFX base address in map file: %llx\n", keeperFxBaseAddr);
+                SYNCDBG(0, "KeeperFX base address in map file: %llx", keeperFxBaseAddr);
                 break;
             }
         }
@@ -186,7 +186,7 @@ _backtrace(int depth , LPCONTEXT context)
         DWORD64 displacement;
 
         // First check if we can find the symbol by its address
-        // This works if there are any debug symbols available and also most OS libraries
+        // This works if there are any debug symbols available and also works for most OS libraries
         if (SymFromAddr(process, frame.AddrPC.Offset, &displacement, pSymbol))
         {
             LbJustLog("[#%-2d]  in %14-s : %-40s [%04x:%08x+0x%llx, base %08x] (symbol lookup)\n",
@@ -199,7 +199,7 @@ _backtrace(int depth , LPCONTEXT context)
             // Look up using the keeperfx.map file
             if(mapFile){
 
-                DWORD64 checkAddr = frame.AddrPC.Offset - (module_base - keeperFxBaseAddr);
+                DWORD64 checkAddr = frame.AddrPC.Offset - module_base + keeperFxBaseAddr;
 
                 bool addrFound = false;
                 DWORD64 prevAddr = 0x00000000;
