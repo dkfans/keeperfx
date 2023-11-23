@@ -197,7 +197,7 @@ _backtrace(int depth , LPCONTEXT context)
                 // This should be pretty fast on modern systems
                 while (fgets(mapFileLine, sizeof(mapFileLine), mapFile) != NULL)
                 {
-
+                    
                     int64_t addr;
                     char name[512];
                     if (
@@ -226,7 +226,6 @@ _backtrace(int depth , LPCONTEXT context)
                                 depth, module_name, prevName, prevAddr, displacement, context->SegCs, frame.AddrPC.Offset, module_base);
 
                             addrFound = true;
-
                             break;
                         }
                     }
@@ -264,11 +263,9 @@ _backtrace(int depth , LPCONTEXT context)
         } 
         else
         {
-
             // Fallback
             LbJustLog("[#%-2d]  in %13-s at %04x:%08x, base %08x\n", depth, module_name, context->SegCs, frame.AddrPC.Offset, module_base);
         }
-
     }
 
     if(mapFile){
