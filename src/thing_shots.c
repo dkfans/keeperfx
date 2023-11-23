@@ -499,6 +499,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
               destroy_shot = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+            reveal_secret_door_to_player(doortng,shotng->owner);
         } else
         if (cube_is_water(cube_id))
         {
@@ -559,6 +560,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     destroy_shot = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+                reveal_secret_door_to_player(doortng,shotng->owner);
             } else
             {
                 eff_kind = shotst->hit_generic.effect_model;
@@ -647,6 +649,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
             // Apply damage to the door
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+            reveal_secret_door_to_player(doortng,shotng->owner);
       }
     }
     if (!thing_is_invalid(efftng)) {
@@ -734,10 +737,6 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (target->health < 0) {
         return false;
     }
-    struct ObjectConfig* objconf = get_object_model_stats2(target->model);
-    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
-        return false;
-    }
     struct Thing* shootertng = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shootertng = thing_get(shotng->parent_idx);
@@ -791,10 +790,6 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         return false;
     }
     if (target->health < 0) {
-        return false;
-    }
-    struct ObjectConfig* objconf = get_object_model_stats2(target->model);
-    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
         return false;
     }
     struct Thing* shootertng = INVALID_THING;
@@ -972,10 +967,9 @@ long check_hit_when_attacking_door(struct Thing *thing)
  * Kills a creature with given shot.
  * @param shotng The shot which is killing the victim creature.
  * @param creatng The victim creature thing.
- * @return True if the creature is being killed, false if something have failed.
  * @note sometimes named shot_kills_creature().
  */
-TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
+void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     creatng->health = -1;
@@ -995,7 +989,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
     {
         dieflags |= CrDed_NoUnconscious;
     }
-    return kill_creature(creatng, killertng, shotng->owner, dieflags);
+    kill_creature(creatng, killertng, shotng->owner, dieflags);
 }
 
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
@@ -1701,7 +1695,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->inertia_floor = shotst->inertia_floor;
     thing->inertia_air = shotst->inertia_air;
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->soft_landing) & TMvF_Unknown08;
-    set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
+    set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
     thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Unknown01;

@@ -82,7 +82,7 @@ extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 long move_creature(struct Thing *thing);
-TbBool kill_creature(struct Thing *creatng, struct Thing *killertng,
+struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     PlayerNumber killer_plyr_idx, CrDeathFlags flags);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
@@ -189,6 +189,8 @@ struct Thing *controlled_get_trap_to_rearm(struct Thing *creatng);
 void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSubtlCoord *stl_x, MapSubtlCoord *stl_y);
 
 short get_creature_eye_height(const struct Thing *creatng);
+
+void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

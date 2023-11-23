@@ -136,7 +136,7 @@ struct InitEffect effect_info[] = {
     { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0,          0, {0}, 0},
 };
 
-
+/** See enum ThingEffectElements for the labels of the "rows" of this table. */
 struct EffectElementStats effect_element_stats[] = {
  //draw_class,	move_type,	unanimated,	lifespan,	lifespan_random,	sprite_idx,	sprite_size_min,	sprite_size_max,	rendering_flag,	sprite_speed_min,	sprite_speed_max,	animate_on_floor,	unshaded,	transparant,	
     // field_15,	movement_flags,	size_change,	fall_acceleration,	field_19_unused,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	field_22,	effmodel_23,	solidgnd_snd_smpid,	solidgnd_loudness,
@@ -336,19 +336,19 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         }
     }
 
-    if (eestat->size_change != 0)
+    if (eestat->size_change != TSC_DontChangeSize)
     {
         thing->sprite_size_min = eestat->sprite_size_min;
         thing->sprite_size_max = eestat->sprite_size_max;
-        if (eestat->size_change == 2)
+        if (eestat->size_change == TSC_ChangeSizeContinuously)
         {
             thing->transformation_speed = 2 * (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
-            thing->field_50 |= 0x02;
+            thing->size_change |= TSC_ChangeSizeContinuously;
         }
         else
         {
             thing->transformation_speed = (eestat->sprite_size_max - (long)eestat->sprite_size_min) / thing->health;
-            thing->field_50 &= ~0x02;
+            thing->size_change &= ~TSC_ChangeSizeContinuously;
         }
         thing->sprite_size = eestat->sprite_size_min;
     } else
@@ -407,7 +407,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng = create_thing(&pos, TCls_EffectElem, TngEffElm_FlashBall1, thing->owner, -1);
             if (thing_is_invalid(effeltng))
                 break;
-            set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, 2);
+            set_thing_draw(effeltng, eestat->sprite_idx, 256, eestat->sprite_size_min, 0, cframe, ODC_Default);
             dtadd++;
             pos.z.val += 64;
             cframe = (cframe + 1) % nframes;
@@ -461,7 +461,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
             effeltng->rendering_flags = thing->rendering_flags;
             effeltng->rendering_flags &= ~TRF_Transpar_8;
             effeltng->rendering_flags |= TRF_Transpar_4;
-            effeltng->field_50 = thing->field_50;
+            effeltng->size_change = thing->size_change;
+            effeltng->draw_class = thing->draw_class;
             effeltng->tint_colour = thing->tint_colour;
             effeltng->anim_speed = 0;
             effeltng->move_angle_xy = thing->move_angle_xy;
@@ -490,7 +491,8 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
                 effeltng->rendering_flags = thing->rendering_flags;
                 effeltng->rendering_flags &= ~TRF_Transpar_8;
                 effeltng->rendering_flags |= TRF_Transpar_4;
-                effeltng->field_50 = thing->field_50;
+                effeltng->size_change = thing->size_change;
+                effeltng->draw_class = thing->draw_class;
                 effeltng->tint_colour = thing->tint_colour;
                 effeltng->rendering_flags &= ~TRF_Transpar_8;
                 effeltng->rendering_flags |= TRF_Transpar_4;
@@ -610,7 +612,7 @@ void change_effect_element_into_another(struct Thing *thing, long nmodel)
     int speed = eestat->sprite_speed_min + EFFECT_RANDOM(thing, eestat->sprite_speed_max - eestat->sprite_speed_min + 1);
     int scale = eestat->sprite_size_min + EFFECT_RANDOM(thing, eestat->sprite_size_max - eestat->sprite_size_min + 1);
     thing->model = nmodel;
-    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->rendering_flag, 0, 2);
+    set_thing_draw(thing, eestat->sprite_idx, speed, scale, eestat->rendering_flag, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * eestat->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Transpar_8 * eestat->transparant) & (TRF_Transpar_Flags);
     thing->fall_acceleration = eestat->fall_acceleration;
@@ -1175,6 +1177,10 @@ TbBool destroy_effect_thing(struct Thing *efftng)
 TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
     MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner, unsigned long shot_model_flags)
 {
+    if (thing_is_deployed_door(tngdst))
+    {
+        return explosion_affecting_door(tngsrc, tngdst, pos, max_dist, max_damage, blow_strength, damage_type, owner);
+    }
     TbBool affected = false;
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
     if (nowibble_line_of_sight_3d(pos, &tngdst->mappos))
@@ -1185,7 +1191,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
             max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
         }
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
-        if (distance < max_dist)
+        if (distance <= max_dist)
         {
             if (tngdst->class_id == TCls_Creature)
             {
@@ -1483,11 +1489,11 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
  *
  * @param tngsrc The thing which caused the effect, usually spell caster.
  * @param pos Position of the effect epicenter.
- * @param range Range of the effect, in subtiles.
+ * @param max_dist Range of the effect.
  * @param max_damage Damage at epicenter of the effect.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
  * @param hit_targets Defines which things are affected.
- * @return Gives amount of things which were affected by the explosion.
+ * @return Gives number of things which were affected by the explosion.
  */
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
     HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type)

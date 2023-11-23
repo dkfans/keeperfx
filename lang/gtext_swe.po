@@ -6357,10 +6357,38 @@ msgstr ""
 "Det du åstadkommit är legendariskt, Väktare. Berättelser om din ondska och "
 "slughet kommer att bli skräckhistorier för generationer framöver."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Hemlig dörr"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Hemlig dörr: Denna dörr förblir dold för fiender om de inte observerar den noga eller ser den öppnas. HMK zoomar."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Hemlig dörr upptäckt: VMK växlar. HMK raderar."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Hemlig dörr upptäckt"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Fienden har upptäckt din hemliga dörr: VMK växlar. HMK raderar."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Fienden har upptäckt din hemliga dörr"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -6721,7 +6749,7 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr ""
 
 #: guitext:1012
@@ -6801,7 +6829,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
@@ -6875,3 +6903,23 @@ msgstr "Druid"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "Tids Magiker"
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Stenformation."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Grundberg: Oöverklagad stenig mark. Du kan inte kräva den eller bygga på den."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Tät guldåder: Innehåller mycket rikedom för dina Smådjävlar att utvinna."

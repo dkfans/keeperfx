@@ -198,8 +198,8 @@ void LbI_PointerHandler::Initialise(const struct TbSprite *spr, struct TbPoint *
     LbSemaLock semlock(&sema_rel,0);
     semlock.Lock(true);
     sprite = spr;
-    dstwidth = scale_ui_value_lofi(sprite->SWidth) + 1;
-    dstheight = scale_ui_value_lofi(sprite->SHeight) + 1;
+    dstwidth = scale_ui_value_lofi(sprite->SWidth + 1);
+    dstheight = scale_ui_value_lofi(sprite->SHeight + 1);
     LbScreenSurfaceCreate(&surf1, dstwidth, dstheight);
     LbScreenSurfaceCreate(&surf2, dstwidth, dstheight);
     surfbuf = LbScreenSurfaceLock(&surf1);
@@ -259,7 +259,6 @@ void LbI_PointerHandler::Release(void)
 {
     LbSemaLock semlock(&sema_rel,0);
     semlock.Lock(true);
-    void* surfbuf;
     if ( this->field_1050 )
     {
         if ( lbInteruptMouse )
@@ -269,16 +268,8 @@ void LbI_PointerHandler::Release(void)
         position = NULL;
         sprite = NULL;
         spr_offset = NULL;
-        surfbuf = LbScreenSurfaceLock(&surf1);
-        if (surfbuf == NULL)
-        {
-            LbScreenSurfaceRelease(&surf1);
-        }
-        surfbuf = LbScreenSurfaceLock(&surf2);
-        if (surfbuf == NULL)
-        {
-            LbScreenSurfaceRelease(&surf2);
-        }
+        LbScreenSurfaceRelease(&surf1);
+        LbScreenSurfaceRelease(&surf2);
     }
 }
 

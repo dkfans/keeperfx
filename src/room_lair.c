@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_planar.h"
 #include "room_data.h"
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -243,7 +244,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                     room_center_pos.x.val = subtile_coord_center(room->central_stl_x);
                     room_center_pos.y.val = subtile_coord_center(room->central_stl_y);
                     room_center_pos.z.val = get_floor_height_at(&room_center_pos);
-                    distance = get_2d_box_distance(&creatng->mappos, &room_center_pos);
+                    distance = get_chessboard_distance(&creatng->mappos, &room_center_pos);
 
                     if ( min_distance > distance )
                     {
