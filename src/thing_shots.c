@@ -967,10 +967,9 @@ long check_hit_when_attacking_door(struct Thing *thing)
  * Kills a creature with given shot.
  * @param shotng The shot which is killing the victim creature.
  * @param creatng The victim creature thing.
- * @return True if the creature is being killed, false if something have failed.
  * @note sometimes named shot_kills_creature().
  */
-TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
+void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     creatng->health = -1;
@@ -990,7 +989,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
     {
         dieflags |= CrDed_NoUnconscious;
     }
-    return kill_creature(creatng, killertng, shotng->owner, dieflags);
+    kill_creature(creatng, killertng, shotng->owner, dieflags);
 }
 
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)

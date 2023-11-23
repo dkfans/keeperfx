@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -238,7 +239,7 @@ long destroy_door(struct Thing *doortng)
         if (!player_exists(player))
             continue;
         struct Thing* thing = thing_get(player->controlled_thing_idx);
-        MapCoordDelta dist = get_2d_box_distance(&pos, &thing->mappos);
+        MapCoordDelta dist = get_chessboard_distance(&pos, &thing->mappos);
         long sight_stl = slab_subtile(get_explore_sight_distance_in_slabs(thing), 0);
         if (dist <= subtile_coord(sight_stl,0)) {
             check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);

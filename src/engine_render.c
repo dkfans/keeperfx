@@ -26,6 +26,7 @@
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
@@ -3884,7 +3885,7 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_d
         if ((lgt->flags & LgtF_Allocated) != 0)
         {
             long dist;
-            dist = get_2d_box_distance(pos, &lgt->mappos);
+            dist = get_chessboard_distance(pos, &lgt->mappos);
             if ((dist < 2560) && (nlgt_dist[settings.video_shadows-1] > dist)
                 && (pos->x.val != lgt->mappos.x.val) && (pos->y.val != lgt->mappos.y.val))
             {
