@@ -253,14 +253,14 @@ _backtrace(int depth , LPCONTEXT context)
         pSymbol->MaxNameLen = MAX_SYM_NAME;
 
         // The distance between the original function and the call in the trace
-        int64_t displacement;
+        uint64_t sfaDisplacement;
 
         // First check if we can find the symbol by its address
         // This works if there are any debug symbols available and also works for most OS libraries
-        if (SymFromAddr(process, frame.AddrPC.Offset, &displacement, pSymbol))
+        if (SymFromAddr(process, frame.AddrPC.Offset, &sfaDisplacement, pSymbol))
         {
             LbJustLog("[#%-2d]  in %14-s : %-40s [%04x:%08x+0x%llx, base %08x] (symbol lookup)\n",
-                      depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, displacement, module_base);
+                      depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, sfaDisplacement, module_base);
         } 
         else
         {
