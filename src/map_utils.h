@@ -70,6 +70,17 @@ struct CompoundCoordFilterParam {
 /******************************************************************************/
 extern struct MapOffset spiral_step[SPIRAL_STEPS_COUNT];
 /******************************************************************************/
+// 2D Direction Vectors - can express a realtive direction in 2D space. See: https://en.wikipedia.org/wiki/Unit_vector
+#define DV_BASE {0,0} /**< 2d direction vector for the current position. */
+#define DV_NORTH {0,-1} /**< 2d direction vector for Northern direction. */
+#define DV_NORTH_EAST {1,-1} /**< 2d direction vector for North-eastern direction. */
+#define DV_EAST {1,0} /**< 2d direction vector for Eastern direction. */
+#define DV_SOUTH_EAST {1,1} /**< 2d direction vector for South-eastern direction. */
+#define DV_SOUTH {0,1} /**< 2d direction vector for Southern direction. */
+#define DV_SOUTH_WEST {-1,1} /**< 2d direction vector for South-western direction. */
+#define DV_WEST {-1,0} /**< 2d direction vector for Western direction. */
+#define DV_NORTH_WEST {-1,-1} /**< 2d direction vector for North-western direction. */
+
 #define AROUND_TILES_COUNT      9
 extern struct Around const around[];
 #define MID_AROUND_LENGTH 9
