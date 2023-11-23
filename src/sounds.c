@@ -81,7 +81,7 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
     rcpos.x.val = Receiver.pos.val_x;
     rcpos.y.val = Receiver.pos.val_y;
     rcpos.z.val = Receiver.pos.val_z;
-    if (get_chessboard_distance_3d(&rcpos, &thing->mappos) < MaxSoundDistance)
+    if (get_chessboard_3d_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
     {
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)

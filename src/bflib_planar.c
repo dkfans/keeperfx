@@ -131,9 +131,9 @@ MapCoordDelta get_chessboard_distance(const struct Coord3d *pos1, const struct C
  * 
  * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance and https://en.wikipedia.org/wiki/Three-dimensional_chess for details).
  */
-MapCoordDelta get_chessboard_distance_3d(const struct Coord3d *pos1, const struct Coord3d *pos2)
+MapCoordDelta get_chessboard_3d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
 {
-    return chessboard_distance_3d(pos1->x.val, pos1->y.val, pos1->z.val, pos2->x.val, pos2->y.val, pos2->z.val);
+    return chessboard_3d_distance(pos1->x.val, pos1->y.val, pos1->z.val, pos2->x.val, pos2->y.val, pos2->z.val);
 }
 
 /**

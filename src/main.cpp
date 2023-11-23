@@ -818,7 +818,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             } else {
                 deviat_z += 32;
             }
-            MapCoordDelta dist = get_chessboard_distance_3d(&curpos, pos2);
+            MapCoordDelta dist = get_chessboard_3d_distance(&curpos, pos2);
             int deviat_limit = 128;
             if (dist < 1024)
               deviat_limit = (dist * 128) / 1024;
