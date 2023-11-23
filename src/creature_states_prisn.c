@@ -21,6 +21,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "creature_states.h"
 #include "creature_states_spdig.h"
 #include "thing_list.h"
@@ -189,7 +190,7 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
         }
         i = cctrl->next_in_room;
         // Per creature code
-        long dist = get_2d_box_distance(&creatng->mappos, &thing->mappos);
+        long dist = get_chessboard_distance(&creatng->mappos, &thing->mappos);
         if (out_delay < 0)
         {
             // If we have a victim which isn't frozen, accept only other unfrozen creatures

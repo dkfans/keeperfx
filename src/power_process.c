@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_memory.h"
 
 #include "player_data.h"
@@ -250,7 +251,7 @@ void lightning_modify_palette(struct Thing *thing)
     {
         if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
         {
-            if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+            if (get_chessboard_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
                 PaletteSetPlayerPalette(myplyr, engine_palette);
                 myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
@@ -262,7 +263,7 @@ void lightning_modify_palette(struct Thing *thing)
     {
         if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) == 0)
         {
-            if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+            if (get_chessboard_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
               PaletteSetPlayerPalette(myplyr, lightning_palette);
               myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;

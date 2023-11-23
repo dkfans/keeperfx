@@ -191,7 +191,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
 
     unsigned short quadrant = (((LbArcTanAngle(pos2_stl_x - *pos1_stl_x, pos2_stl_y - *pos1_stl_y) & LbFPMath_AngleMask) + 256) >> 9) & 3;
 
-    int v20 = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
+    int v20 = chessboard_distance(*pos1_stl_x, *pos1_stl_y, pos2_stl_x, pos2_stl_y);
     if ((int)abs(v20) <= *delta && hug_can_move_on(
                                        creatng,
                                        3 * small_around[quadrant].delta_x + *pos1_stl_x,
@@ -200,7 +200,7 @@ static int hug_round_sub(struct Thing *creatng, MapSubtlCoord *pos1_stl_x, MapSu
         *pos1_stl_x += 3 * small_around[quadrant].delta_x;
         *pos1_stl_y += 3 * small_around[quadrant].delta_y;
 
-        *delta = max(abs(*pos1_stl_x - pos2_stl_x), abs(*pos1_stl_y - pos2_stl_y));
+        *delta = chessboard_distance(*pos1_stl_x, *pos1_stl_y, pos2_stl_x, pos2_stl_y);
 
         *v58 = 1;
     }
@@ -255,8 +255,8 @@ static int hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d
     int round_idx_plus1 = (round_idx + 1) & 3;
     int round_idx_minus1 = (round_idx - 1) & 3;
 
-    MapSubtlDelta max_delta_1 = max(abs(pos1_stl_x - pos2_stl_x), abs(pos1_stl_y - pos2_stl_y)) - 1;
-    MapSubtlDelta max_delta_2 = max(abs(pos1_stl_x_2 - pos2_stl_x), abs(pos1_stl_y_2 - pos2_stl_y)) - 1;
+    MapSubtlDelta max_delta_1 = chessboard_distance(pos1_stl_x, pos1_stl_y, pos2_stl_x, pos2_stl_y) - 1;
+    MapSubtlDelta max_delta_2 = chessboard_distance(pos1_stl_x_2, pos1_stl_y_2, pos2_stl_x, pos2_stl_y) - 1;
 
     char v58 = 0;
     char v57 = 0;
@@ -274,8 +274,8 @@ static int hug_round(struct Thing *creatng, struct Coord3d *pos1, struct Coord3d
     if (!i)
       return -1;
 
-    MapSubtlDelta dist_1 = abs(pos1_stl_y - pos2_stl_y) + abs(pos1_stl_x - pos2_stl_x);
-    MapSubtlDelta dist_2 = abs(pos1_stl_y_2 - pos2_stl_y) + abs(pos1_stl_x_2 - pos2_stl_x);
+    MapSubtlDelta dist_1 = grid_distance(pos1_stl_x, pos1_stl_y, pos2_stl_x, pos2_stl_y);
+    MapSubtlDelta dist_2 = grid_distance(pos1_stl_x_2, pos1_stl_y_2, pos2_stl_x, pos2_stl_y);
     if (dist_2 >= dist_1)
     {
       pos1->x.stl.num = pos1_stl_x;
@@ -977,7 +977,7 @@ static int get_starting_angle_and_side_of_hug_sub2(
                 {
                     creatng->mappos = pos;
                     v43 = 1;
-                    navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+                    navi->distance_to_next_pos = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
                 }
             }
         }
@@ -1273,7 +1273,7 @@ static signed char get_starting_angle_and_side_of_hug(
                 {
                     creatng->mappos = pos_43;
                     v33 = 1;
-                    navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+                    navi->distance_to_next_pos = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
                 }
             }
         }
@@ -1494,7 +1494,7 @@ static TbBool find_approach_position_to_subtile(const struct Coord3d *srcpos, Ma
         struct Map* mapblk = get_map_block_at(tmpos.x.stl.num, tmpos.y.stl.num);
         if ((!map_block_invalid(mapblk)) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {
-            MapCoordDelta dist = get_2d_box_distance(srcpos, &tmpos);
+            MapCoordDelta dist = get_chessboard_distance(srcpos, &tmpos);
             if (min_dist > dist)
             {
                 min_dist = dist;
@@ -1658,13 +1658,13 @@ static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thi
     pos1.y.val = navi->pos_next.y.val;
     pos1.z.val = navi->pos_next.z.val;
     check_forward_for_prospective_hugs(creatng, &pos1, navi->angle, navi->side, SlbAtFlg_Filled|SlbAtFlg_Valuable, speed, crt_owner_flags);
-    if (get_2d_box_distance(&pos1, &creatng->mappos) > 16)
+    if (get_chessboard_distance(&pos1, &creatng->mappos) > 16)
     {
         navi->pos_next.x.val = pos1.x.val;
         navi->pos_next.y.val = pos1.y.val;
         navi->pos_next.z.val = pos1.z.val;
     }
-    navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+    navi->distance_to_next_pos = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
     int cannot_move = creature_cannot_move_directly_to_with_collide(creatng, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Valuable, crt_owner_flags);
 
     if (cannot_move == 4)
@@ -1674,7 +1674,7 @@ static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thi
         navi->pos_next.z.val = creatng->mappos.z.val;
         navi->distance_to_next_pos = 0;
     }
-    navi->dist_to_final_pos = get_2d_box_distance(&creatng->mappos, pos);
+    navi->dist_to_final_pos = get_chessboard_distance(&creatng->mappos, pos);
     if (cannot_move == 1)
     {
         SubtlCodedCoords stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, IGNORE_SLAB_OWNER_CHECK);
@@ -1713,7 +1713,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
     switch (navi->navstate)
     {
     case NavS_Unkn1:
-        dist_to_next = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+        dist_to_next = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
         if (dist_to_next >= navi->distance_to_next_pos) {
             navi->field_4 = 0;
         }
@@ -1723,7 +1723,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             navi->pos_next.x.val = creatng->mappos.x.val + distance_with_angle_to_coord_x(speed, navi->angle);
             navi->pos_next.y.val = creatng->mappos.y.val + distance_with_angle_to_coord_y(speed, navi->angle);
             navi->pos_next.z.val = get_thing_height_at(creatng, &navi->pos_next);
-            if (get_2d_box_distance(&creatng->mappos, pos) < get_2d_box_distance(&creatng->mappos, &navi->pos_next))
+            if (get_chessboard_distance(&creatng->mappos, pos) < get_chessboard_distance(&creatng->mappos, &navi->pos_next))
             {
                 navi->pos_next.x.val = pos->x.val;
                 navi->pos_next.y.val = pos->y.val;
@@ -1790,7 +1790,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             if (navi->field_4 > 32) {
                 ERRORLOG("I've been pushing for a very long time now...");
             }
-            if (get_2d_box_distance(&creatng->mappos, &navi->pos_next) <= 16)
+            if (get_chessboard_distance(&creatng->mappos, &navi->pos_next) <= 16)
             {
                 navi->field_4 = 0;
                 navigation_push_towards_target(navi, creatng, pos, speed, thing_nav_sizexy(creatng)/2, crt_owner_flags);
@@ -1798,7 +1798,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         }
         return 1;
     case NavS_Unkn2:
-        dist_to_next = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+        dist_to_next = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
         if (dist_to_next > 16)
         {
             if ((dist_to_next > navi->distance_to_next_pos) || creature_cannot_move_directly_to_with_collide(creatng, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Valuable, crt_owner_flags))
@@ -1814,7 +1814,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
             }
             return 1;
         }
-        if ((get_2d_box_distance(&creatng->mappos, pos) < navi->dist_to_final_pos)
+        if ((get_chessboard_distance(&creatng->mappos, pos) < navi->dist_to_final_pos)
           && thing_can_continue_direct_line_to(creatng, &creatng->mappos, pos, SlbAtFlg_Filled|SlbAtFlg_Valuable, 1, crt_owner_flags))
 
         {
@@ -1840,12 +1840,12 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
           {
               block_flags = get_hugging_blocked_flags(creatng, &tmpos, SlbAtFlg_Filled|SlbAtFlg_Valuable, crt_owner_flags);
               set_hugging_pos_using_blocked_flags(&tmpos, creatng, block_flags, thing_nav_sizexy(creatng)/2);
-              if (get_2d_box_distance(&tmpos, &creatng->mappos) > 16)
+              if (get_chessboard_distance(&tmpos, &creatng->mappos) > 16)
               {
                   navi->pos_next.x.val = tmpos.x.val;
                   navi->pos_next.y.val = tmpos.y.val;
                   navi->pos_next.z.val = tmpos.z.val;
-                  navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+                  navi->distance_to_next_pos = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
                   return 1;
               }
           }
@@ -1896,13 +1896,13 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         tmpos.z.val = navi->pos_next.z.val;
         check_forward_for_prospective_hugs(creatng, &tmpos, navi->angle, navi->side, SlbAtFlg_Filled|SlbAtFlg_Valuable, speed, crt_owner_flags);
 
-        if (get_2d_box_distance(&tmpos, &creatng->mappos) > 16)
+        if (get_chessboard_distance(&tmpos, &creatng->mappos) > 16)
         {
             navi->pos_next.x.val = tmpos.x.val;
             navi->pos_next.y.val = tmpos.y.val;
             navi->pos_next.z.val = tmpos.z.val;
         }
-        navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+        navi->distance_to_next_pos = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
         cannot_move = creature_cannot_move_directly_to_with_collide(creatng, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Valuable, crt_owner_flags);
         if (cannot_move == 4)
         {
@@ -1927,7 +1927,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         }
         if (cannot_move != 1)
         {
-            navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+            navi->distance_to_next_pos = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
             return 1;
         }
         stl_num = get_map_index_of_first_block_thing_colliding_with_travelling_to(creatng, &creatng->mappos, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Digable, IGNORE_SLAB_OWNER_CHECK);
@@ -1939,14 +1939,14 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         navi->angle = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
         navi->field_2 = 0;
         navi->field_3 = 0;
-        navi->distance_to_next_pos = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+        navi->distance_to_next_pos = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
         navi->navstate = NavS_Unkn4;
         return 1;
     case NavS_Unkn4:
-        dist_to_next = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+        dist_to_next = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
         if (dist_to_next > 16)
         {
-            if (get_2d_box_distance(&creatng->mappos, &navi->pos_next) > navi->distance_to_next_pos
+            if (get_chessboard_distance(&creatng->mappos, &navi->pos_next) > navi->distance_to_next_pos
              || creature_cannot_move_directly_to_with_collide(creatng, &navi->pos_next, SlbAtFlg_Filled|SlbAtFlg_Valuable, crt_owner_flags))
             {
                 navi->navstate = NavS_Unkn1;
@@ -1978,7 +1978,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         navi->field_17 = stl_num;
         return 2;
     case NavS_Unkn3:
-        dist_to_next = get_2d_box_distance(&creatng->mappos, &navi->pos_next);
+        dist_to_next = get_chessboard_distance(&creatng->mappos, &navi->pos_next);
         if (dist_to_next > 16)
         {
             navi->angle = get_angle_xy_to(&creatng->mappos, &navi->pos_next);
@@ -2042,7 +2042,7 @@ long get_next_position_and_angle_required_to_tunnel_creature_to(struct Thing *cr
         navi->navstate = NavS_Unkn1;
         return 1;
     case NavS_Unkn7:
-        if (get_2d_box_distance(&creatng->mappos, &navi->pos_next) > 16)
+        if (get_chessboard_distance(&creatng->mappos, &navi->pos_next) > 16)
         {
             return 1;
         }
@@ -2117,7 +2117,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
     MapSubtlCoord curr_stl_x = *ostl_x;
     MapSubtlCoord curr_stl_y = *ostl_y;
     unsigned short round_idx = small_around_index_in_direction(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
-    int dist = max(abs(curr_stl_x - dst_stl_x), abs(curr_stl_y - dst_stl_y));
+    int dist = chessboard_distance(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
     int dx = small_around[round_idx].delta_x;
     int dy = small_around[round_idx].delta_y;
     // If we can follow direction straight to the target, and we will get closer to it, then do it
@@ -2126,7 +2126,7 @@ static inline void get_hug_side_next_step(MapSubtlCoord dst_stl_x, MapSubtlCoord
         curr_stl_x += STL_PER_SLB*dx;
         curr_stl_y += STL_PER_SLB*dy;
         *state = WaHSS_Val1;
-        *maxdist = max(abs(curr_stl_x - dst_stl_x), abs(curr_stl_y - dst_stl_y));
+        *maxdist = chessboard_distance(curr_stl_x, curr_stl_y, dst_stl_x, dst_stl_y);
     } else
     // If met second wall, finish
     if (*state == WaHSS_Val1)
@@ -2166,7 +2166,7 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
 {
     SYNCDBG(4,"Starting");
 
-    int dist = max(abs(src_stl_x - dst_stl_x), abs(src_stl_y - dst_stl_y));
+    int dist = chessboard_distance(src_stl_x, src_stl_y, dst_stl_x, dst_stl_y);
 
     char state_a = WaHSS_Val0;
     MapSubtlCoord stl_a_x = src_stl_x;

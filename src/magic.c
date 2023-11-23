@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_sound.h"
 
 #include "player_data.h"
@@ -1813,7 +1814,7 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
     if (!creature_affected_by_call_to_arms(creatng) || stati->react_to_cta)
     {
         if (stati->react_to_cta
-          && (creature_affected_by_call_to_arms(creatng) || get_2d_box_distance(&creatng->mappos, cta_pos) < range))
+          && (creature_affected_by_call_to_arms(creatng) || get_chessboard_distance(&creatng->mappos, cta_pos) < range))
         {
             creature_mark_if_woken_up(creatng);
             if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos)) {

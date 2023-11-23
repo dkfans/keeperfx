@@ -3502,7 +3502,7 @@ struct Thing *get_creature_near_for_controlling(PlayerNumber plyr_idx, MapCoord 
 
             if (can_cast_spell(plyr_idx,PwrK_POSSESS,stl_x,stl_y,thing,CastChk_Default ))
             {
-                MapCoordDelta distance = get_2d_box_distance_xy(thing->mappos.x.val, thing->mappos.y.val, x, y);
+                MapCoordDelta distance = chessboard_distance(thing->mappos.x.val, thing->mappos.y.val, x, y);
                 if (distance < nearest_distance)
                 {
                     nearest_distance = distance;
@@ -5654,7 +5654,7 @@ TbBool change_creature_owner_if_near_dungeon_heart(struct Thing *creatng)
         if ( ((player->allocflags & PlaF_Allocated) != 0) && (player->is_active == 1) && (player->victory_state != VicS_LostLevel) )
         {
             struct Thing* heartng = get_player_soul_container(plyr_idx);
-            if (thing_exists(heartng) && (get_2d_box_distance(&creatng->mappos, &heartng->mappos) < subtile_coord(6,0)))
+            if (thing_exists(heartng) && (get_chessboard_distance(&creatng->mappos, &heartng->mappos) < subtile_coord(6,0)))
             {
                 change_creature_owner(creatng, plyr_idx);
                 mark_creature_joined_dungeon(creatng);
@@ -6288,7 +6288,7 @@ struct Thing *controlled_get_thing_to_pick_up(struct Thing *creatng)
                 {
                     if (line_of_sight_3d(&creatng->mappos, &picktng->mappos))
                     {
-                        new_distance = get_3d_box_distance(&creatng->mappos, &picktng->mappos);
+                        new_distance = get_chessboard_3d_distance(&creatng->mappos, &picktng->mappos);
                         if (new_distance < old_distance)
                         {
                             old_distance = new_distance;
