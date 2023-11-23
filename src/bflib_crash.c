@@ -101,10 +101,15 @@ void ctrl_handler(int sig_id)
 static void
 _backtrace(int depth , LPCONTEXT context)
 {
-    DWORD64 keeperFxBaseAddr = 0x00000000;
-
+    int64_t keeperFxBaseAddr = 0x00000000;
     char mapFileLine[512];
-    FILE *mapFile = fopen("keeperfx.map", "r");
+
+    #if (BFDEBUG_LEVEL == 0)
+        FILE *mapFile = fopen("keeperfx.map", "r");
+    #else
+        FILE *mapFile = fopen("keeperfx_hvlog.map", "r");
+    #endif
+
     if (mapFile)
     {
         // Get base address from map file
@@ -118,12 +123,9 @@ _backtrace(int depth , LPCONTEXT context)
         }
 
         memset(mapFileLine, 0, sizeof(mapFileLine));
+        fseek(mapFile, 0, SEEK_SET);
 
-        if(keeperFxBaseAddr != 0x00000000)
-        {
-            fseek(mapFile, 0, SEEK_SET);
-        }
-        else
+        if(keeperFxBaseAddr == 0x00000000)
         {
             fclose(mapFile);
         }
@@ -176,33 +178,19 @@ _backtrace(int depth , LPCONTEXT context)
             }
         }
 
-        // Symbol information for looking up symbols
-        char symbol_info[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
-        PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)symbol_info;
-        pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
-        pSymbol->MaxNameLen = MAX_SYM_NAME;
-
-        // The distance between the original function and the call in the trace
-        DWORD64 displacement;
-
-        // First check if we can find the symbol by its address
-        // This works if there are any debug symbols available and also works for most OS libraries
-        if (SymFromAddr(process, frame.AddrPC.Offset, &displacement, pSymbol))
+        // Check if the name of this module starts with 'keeperfx' 
+        // This can be done better but at this moment it should only match our own keeperfx.exe and keeperfx_hvlog.exe
+        if (strncmp(module_name, "keeperfx", strlen("keeperfx")) == 0)
         {
-            LbJustLog("[#%-2d]  in %14-s : %-40s [%04x:%08x+0x%llx, base %08x] (symbol lookup)\n",
-                      depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, displacement, module_base);
-            
-            continue;
-        }
-        else
-        {
+
             // Look up using the keeperfx.map file
-            if(mapFile){
+            if(mapFile)
+            {
 
-                DWORD64 checkAddr = frame.AddrPC.Offset - module_base + keeperFxBaseAddr;
+                int64_t checkAddr = frame.AddrPC.Offset - module_base + keeperFxBaseAddr;
 
                 bool addrFound = false;
-                DWORD64 prevAddr = 0x00000000;
+                int64_t prevAddr = 0x00000000;
                 char prevName[512];
 
                 // Loop through all lines in the mapFile
@@ -210,7 +198,7 @@ _backtrace(int depth , LPCONTEXT context)
                 while (fgets(mapFileLine, sizeof(mapFileLine), mapFile) != NULL)
                 {
 
-                    DWORD64 addr;
+                    int64_t addr;
                     char name[512];
                     if (
                         sscanf(mapFileLine, "%llx %[^\t\n]", &addr, name) == 2 ||
@@ -221,7 +209,7 @@ _backtrace(int depth , LPCONTEXT context)
                         // So we'll trace back to the last address.
                         if (checkAddr > prevAddr && checkAddr < addr)
                         {
-                            displacement = checkAddr - prevAddr;
+                            int64_t displacement = checkAddr - prevAddr;
 
                             // Handle library traces
                             // Example: '0x123 lib/thing.o'
@@ -258,8 +246,29 @@ _backtrace(int depth , LPCONTEXT context)
             }
         }
 
-        // Fallback
-        LbJustLog("[#%-2d]  in %13-s at %04x:%08x, base %08x\n", depth, module_name, context->SegCs, frame.AddrPC.Offset, module_base);
+        // Symbol information for looking up symbols
+        char symbol_info[sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR)];
+        PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)symbol_info;
+        pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+        pSymbol->MaxNameLen = MAX_SYM_NAME;
+
+        // The distance between the original function and the call in the trace
+        int64_t displacement;
+
+        // First check if we can find the symbol by its address
+        // This works if there are any debug symbols available and also works for most OS libraries
+        if (SymFromAddr(process, frame.AddrPC.Offset, &displacement, pSymbol))
+        {
+            LbJustLog("[#%-2d]  in %14-s : %-40s [%04x:%08x+0x%llx, base %08x] (symbol lookup)\n",
+                      depth, module_name, pSymbol->Name, context->SegCs, frame.AddrPC.Offset, displacement, module_base);
+        } 
+        else
+        {
+
+            // Fallback
+            LbJustLog("[#%-2d]  in %13-s at %04x:%08x, base %08x\n", depth, module_name, context->SegCs, frame.AddrPC.Offset, module_base);
+        }
+
     }
 
     if(mapFile){
