@@ -1712,7 +1712,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             gameadd.trap_stats[trap_type].hit_type = value;
             break;
         case 27: // LightRadius
-            gameadd.trap_stats[trap_type].light_radius = value;
+            gameadd.trap_stats[trap_type].light_radius = value << 8;
             break;
         case 28: // LightIntensity
             gameadd.trap_stats[trap_type].light_intensity = value;
