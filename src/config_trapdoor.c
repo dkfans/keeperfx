@@ -798,7 +798,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  gameadd.trap_stats[i].light_radius = k << 8; //keep it the same as the object light radius
+                  gameadd.trap_stats[i].light_radius = k * COORD_PER_STL;
                   n++;
               }
           }
