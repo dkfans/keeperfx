@@ -123,7 +123,7 @@ REM ****************************************************************************
 REM Level starts here
 REM ****************************************************************************
 
-REM	"Your chances in this realm are slim to none. Three keepers here are stronger than you are. A desperate struggle awaits you. Hurry!")
+REM	"Your chances in this realm are slim to none. Three keepers here are stronger than you are. A desperate struggle awaits you. Hurry!"
 DISPLAY_OBJECTIVE(43,ALL_PLAYERS)
 
 REM When a single Keeper is defeated, the others will ally and an objective is displayed.
@@ -140,7 +140,7 @@ IF(PLAYER3,DUNGEON_DESTROYED == 1)
 	ALLY_PLAYERS(PLAYER1,PLAYER2,1)
 ENDIF
 IF(PLAYER0,FLAG0 == 1)
-	REM	"The remaining keepers have allied against you. Kill all who stand against you.")
+	REM	"The remaining keepers have allied against you. Kill all who stand against you."
 	DISPLAY_OBJECTIVE(44,ALL_PLAYERS)
 ENDIF
 
@@ -149,17 +149,17 @@ REM Take note whenever a Keeper is almost destroyed. If he gets strong again lat
 IF(PLAYER0,GAME_TURN >= 9000)
 	IF_CONTROLS(PLAYER1,TOTAL_CREATURES <= 2)
 		ADD_TO_FLAG(PLAYER0,FLAG1,1)
-		REM	"Blue is desperate, kill him.")
+		REM	"Blue is desperate, kill him."
 		DISPLAY_INFORMATION(45,PLAYER1)
 	ENDIF
 	IF_CONTROLS(PLAYER2,TOTAL_CREATURES <= 2)
 		ADD_TO_FLAG(PLAYER0,FLAG1,1)
-		REM	"Green is trembling in fear. Finish the job,")
+		REM	"Green is trembling in fear. Finish the job,"
 		DISPLAY_INFORMATION(46,PLAYER2)
 	ENDIF
 	IF_CONTROLS(PLAYER3,TOTAL_CREATURES <= 2)
 		ADD_TO_FLAG(PLAYER0,FLAG1,1)
-		REM	"Yellow can't take much more. Strike now to end him.")
+		REM	"Yellow can't take much more. Strike now to end him."
 		DISPLAY_INFORMATION(47,PLAYER3)
 	ENDIF
 ENDIF
