@@ -3931,9 +3931,14 @@ static void set_music_process(struct ScriptContext *context)
             game.audiotrack = track_number;
         }
     }
+    else if (track_number == 0)
+    {
+        game.audiotrack = track_number;
+        SCRPTLOG("Setting music track to %d: No Music", track_number);
+    }
     else
     {
-        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
+        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d or 0 to disable.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
     }
 }
 
