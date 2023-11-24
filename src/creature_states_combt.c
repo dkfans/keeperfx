@@ -1747,8 +1747,11 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     }
     if (cctrl->job_assigned == Job_GUARD)
     {
-        if (guard_post_combat_move(thing, nstat)) {
-            return false;
+        if ((cctrl->turns_at_job > 0))
+        {
+            if (guard_post_combat_move(thing, nstat)) {
+                return false;
+            }
         }
     }
     if (!combat_has_line_of_sight(thing, enmtng, enmdist))
@@ -2264,8 +2267,11 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     }
     if (cctrl->job_assigned == Job_GUARD)
     {
-        if (guard_post_combat_move(thing, nstat)) {
-            return false;
+        if ((cctrl->turns_at_job > 0))
+        {
+            if (guard_post_combat_move(thing, nstat)) {
+                return false;
+            }
         }
     }
     if (enmdist < 156)
@@ -2652,8 +2658,11 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     }
     if (figctrl->job_assigned == Job_GUARD)
     {
-        if (guard_post_combat_move(figtng, retreat_crstate)) {
-            return 0;
+        if ((figctrl->turns_at_job > 0))
+        {
+            if (guard_post_combat_move(figtng, retreat_crstate)) {
+                return false;
+            }
         }
     }
     if (enmdist < 768) {
