@@ -1712,7 +1712,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             gameadd.trap_stats[trap_type].hit_type = value;
             break;
         case 27: // LightRadius
-            gameadd.trap_stats[trap_type].light_radius = value;
+            gameadd.trap_stats[trap_type].light_radius = value * COORD_PER_STL;
             break;
         case 28: // LightIntensity
             gameadd.trap_stats[trap_type].light_intensity = value;
@@ -2815,7 +2815,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->ilght.intensity = context->value->arg2;
             break;
         case 16: // LIGHTRADIUS
-            objst->ilght.radius = context->value->arg2 << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+            objst->ilght.radius = context->value->arg2 * COORD_PER_STL;
             break;
         case 17: // LIGHTISDYNAMIC
             objst->ilght.is_dynamic = context->value->arg2;
