@@ -148,17 +148,17 @@ ENDIF
 REM Take note whenever a Keeper is almost destroyed. If he gets strong again later, the player has only himself to blame.
 IF(PLAYER0,GAME_TURN >= 9000)
 	IF_CONTROLS(PLAYER1,TOTAL_CREATURES <= 2)
-		SET_FLAG(PLAYER1,FLAG1,1)
+		ADD_TO_FLAG(PLAYER0,FLAG1,1)
 		REM	"Blue is desperate, kill him.")
 		DISPLAY_INFORMATION(45,PLAYER1)
 	ENDIF
 	IF_CONTROLS(PLAYER2,TOTAL_CREATURES <= 2)
-		SET_FLAG(PLAYER2,FLAG2,1)
+		ADD_TO_FLAG(PLAYER0,FLAG1,1)
 		REM	"Green is trembling in fear. Finish the job,")
 		DISPLAY_INFORMATION(46,PLAYER2)
 	ENDIF
 	IF_CONTROLS(PLAYER3,TOTAL_CREATURES <= 2)
-		SET_FLAG(PLAYER3,FLAG3,1)
+		ADD_TO_FLAG(PLAYER0,FLAG1,1)
 		REM	"Yellow can't take much more. Strike now to end him.")
 		DISPLAY_INFORMATION(47,PLAYER3)
 	ENDIF
@@ -168,12 +168,8 @@ ENDIF
 REM After at least 27 minutes of play, check if all keepers have been weak at least once. If this is the case, wait 3 minutes and spawn the heroes.
 IF(PLAYER0,GAME_TURN >= 32400)
 	IF(PLAYER0,TOTAL_CREATURES >= 16)
-		IF(PLAYER1,FLAG1 == 1)
-			IF(PLAYER2,FLAG2 == 1)
-				IF(PLAYER3,FLAG3 == 1)
-					SET_TIMER(PLAYER0,TIMER2)
-				ENDIF
-			ENDIF
+		IF(PLAYER0,FLAG1 >= 3)
+			SET_TIMER(PLAYER0,TIMER2)
 		ENDIF
 	ENDIF
 ENDIF
