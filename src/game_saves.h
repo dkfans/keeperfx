@@ -73,6 +73,7 @@ struct CatalogueEntry {
     unsigned long version;
     char textname[SAVE_TEXTNAME_LEN];
     LevelNumber level_num;
+    LevelNumber continue_level_num;
     char campaign_name[LINEMSG_SIZE];
     char campaign_fname[DISKPATH_SIZE];
     char player_name[PLAYER_NAME_LENGTH];
