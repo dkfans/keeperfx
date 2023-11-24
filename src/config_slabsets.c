@@ -74,7 +74,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
 {
     VALUE file_root;
     
-    if (!load_toml_file(textname, fname,&file_root))
+    if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
     
     char key[64];
@@ -148,7 +148,7 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
 {
     VALUE file_root;
     
-    if (!load_toml_file(textname, fname,&file_root))
+    if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
 
     VALUE *common_section = value_dict_get(&file_root, "common");

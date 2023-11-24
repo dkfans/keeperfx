@@ -45,7 +45,7 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
 {
     VALUE file_root;
     
-    if (!load_toml_file(textname, fname,&file_root))
+    if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
 
     VALUE *common_section = value_dict_get(&file_root, "common");
@@ -75,12 +75,14 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
         sprintf(key, "hand%d", variant_no);
         section = value_dict_get(&file_root, key);
 
-        if (value_type(section) != VALUE_DICT && (flags & CnfLd_IgnoreErrors))
+        if (value_type(section) != VALUE_DICT && !(flags & CnfLd_IgnoreErrors))
         {
             WARNMSG("Invalid powerhand section %d", variant_no);
         }
         else
         {
+            struct PowerHandConfigStats *pwrhnd_cfg_stat = &game.power_hand_conf.pwrhnd_cfg_stats[variant_no];
+
             const char* name = value_string(value_dict_get(section, "Name"));
             if(name != NULL)
             {
@@ -89,18 +91,21 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
                     ERRORLOG("PowerHand name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);
                     break;
                 }
-                strcpy(game.power_hand_conf.pwrhnd_cfg_stats[variant_no].code_name,name);
+
+                strcpy(pwrhnd_cfg_stat->code_name,name);
+                powerhand_desc[variant_no].name = pwrhnd_cfg_stat->code_name;
+                powerhand_desc[variant_no].num = variant_no;
             }
             
-            game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_speed     = value_int32(value_dict_get(section, "AnimationSpeed"));
+            pwrhnd_cfg_stat->anim_speed = value_int32(value_dict_get(section, "AnimationSpeed"));
 
-            game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_Hold]      = value_parse_anim(value_dict_get(section, "AnimHold"));
-            game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_HoldGold]  = value_parse_anim(value_dict_get(section, "AnimHoldGold"));
-            game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_Hover]     = value_parse_anim(value_dict_get(section, "AnimHover"));
-            game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_Pickup]    = value_parse_anim(value_dict_get(section, "AnimPickup"));
-            game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_SideHover] = value_parse_anim(value_dict_get(section, "AnimSideHover"));
-            game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_SideSlap]  = value_parse_anim(value_dict_get(section, "AnimSideSlap"));
-            game.power_hand_conf.pwrhnd_cfg_stats[variant_no].anim_idx[HndA_Slap]      = value_parse_anim(value_dict_get(section, "AnimSlap"));
+            pwrhnd_cfg_stat->anim_idx[HndA_Hold]      = value_parse_anim(value_dict_get(section, "AnimHold"));
+            pwrhnd_cfg_stat->anim_idx[HndA_HoldGold]  = value_parse_anim(value_dict_get(section, "AnimHoldGold"));
+            pwrhnd_cfg_stat->anim_idx[HndA_Hover]     = value_parse_anim(value_dict_get(section, "AnimHover"));
+            pwrhnd_cfg_stat->anim_idx[HndA_Pickup]    = value_parse_anim(value_dict_get(section, "AnimPickup"));
+            pwrhnd_cfg_stat->anim_idx[HndA_SideHover] = value_parse_anim(value_dict_get(section, "AnimSideHover"));
+            pwrhnd_cfg_stat->anim_idx[HndA_SideSlap]  = value_parse_anim(value_dict_get(section, "AnimSideSlap"));
+            pwrhnd_cfg_stat->anim_idx[HndA_Slap]      = value_parse_anim(value_dict_get(section, "AnimSlap"));
         }
     }
     value_fini(&file_root);

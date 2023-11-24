@@ -18,13 +18,14 @@
 #include <string.h>
 #include "post_inc.h"
 
-TbBool load_toml_file(const char *textname, const char *fname,VALUE *value)
+TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsigned short flags)
 {
     SYNCDBG(5,"Starting");
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
-        WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+        if(!(flags & CnfLd_IgnoreErrors))
+            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
         return false;
     }
     char* buf = (char*)LbMemoryAlloc(len + 256);
