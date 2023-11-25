@@ -48,38 +48,14 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
     if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
 
-    VALUE *common_section = value_dict_get(&file_root, "common");
-    if (!common_section)
-    {
-        WARNMSG("No [common] in %s for file %d", textname, fname);
-        value_fini(&file_root);
-        return false;
-    }
-
-    long count = value_int32(value_dict_get(common_section, "HandsCount"));
-    if (count > game.power_hand_conf.variants_count)
-    {
-        game.power_hand_conf.variants_count = count;
-    }
-    if (game.power_hand_conf.variants_count > NUM_VARIANTS)
-    {
-        ERRORLOG("more hands then allowed in %s %d/%d",textname,game.power_hand_conf.variants_count,NUM_VARIANTS);
-        game.power_hand_conf.variants_count = NUM_VARIANTS;
-    }
-
     char key[64];
     VALUE *section;
     // Create sections
-    for (int variant_no = 0; variant_no < game.power_hand_conf.variants_count; variant_no++)
+    for (int variant_no = 0; variant_no < NUM_VARIANTS; variant_no++)
     {
         sprintf(key, "hand%d", variant_no);
         section = value_dict_get(&file_root, key);
-
-        if (value_type(section) != VALUE_DICT && !(flags & CnfLd_IgnoreErrors))
-        {
-            WARNMSG("Invalid powerhand section %d", variant_no);
-        }
-        else
+        if (value_type(section) == VALUE_DICT)
         {
             struct PowerHandConfigStats *pwrhnd_cfg_stat = &game.power_hand_conf.pwrhnd_cfg_stats[variant_no];
 
@@ -108,6 +84,14 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
             pwrhnd_cfg_stat->anim_idx[HndA_Slap]      = value_parse_anim(value_dict_get(section, "AnimSlap"));
         }
     }
+
+    sprintf(key, "hand%d", NUM_VARIANTS);
+    section = value_dict_get(&file_root, key);
+    if (value_type(section) == VALUE_DICT)
+    {
+        WARNMSG("more powerhands defined then max of %d", NUM_VARIANTS);
+    }
+
     value_fini(&file_root);
     
     return true;

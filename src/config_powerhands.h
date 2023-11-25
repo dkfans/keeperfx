@@ -52,7 +52,6 @@ struct PowerHandConfigStats {
 };
 
 struct PowerHandConfig {
-    long variants_count;
     struct PowerHandConfigStats pwrhnd_cfg_stats[NUM_VARIANTS];
 };
 
