@@ -420,7 +420,7 @@ void draw_swipe_graphic(void)
             long i = abs(n) >> 8;
             if (i >= SWIPE_SPRITE_FRAMES)
                 i = SWIPE_SPRITE_FRAMES-1;
-            struct TbSprite* sprlist = &swipe_sprites[SWIPE_SPRITES_X * SWIPE_SPRITES_Y * i];
+            struct TbSprite* sprlist = &swipe_sprites[SWIPE_SPRITES_X * SWIPE_SPRITES_Y * (i-1)];
             struct TbSprite* startspr = &sprlist[1];
             struct TbSprite* endspr = &sprlist[1];
             for (n=0; n < SWIPE_SPRITES_X; n++)
