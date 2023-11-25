@@ -30,6 +30,8 @@ MAX_CREATURES(PLAYER1,6)
 SET_CREATURE_ARMOUR(DRAGON,160)
 SET_CREATURE_HEALTH(DRAGON,1200)
 
+SET_OBJECT_CONFIGURATION(TORCH,AnimationID,VINE_TORCH)
+
 REM ****************************************************************************
 REM Flags used:
 REM  PLAYER0,FLAG0		- Horny summoned
