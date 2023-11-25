@@ -22,6 +22,7 @@
 
 #include "bflib_sound.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "creature_states.h"
 #include "thing_list.h"
 #include "thing_physics.h"
@@ -149,7 +150,7 @@ long check_out_unclaimed_unconscious_bodies(struct Thing *spdigtng, long range)
         if (!thing_is_dragged_or_pulled(thing) && (thing->owner != spdigtng->owner)
           && thing_revealed(thing, spdigtng->owner) && creature_is_being_unconscious(thing))
         {
-            if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+            if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
             {
                 if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                 {
@@ -198,7 +199,7 @@ long check_out_unclaimed_dead_bodies(struct Thing *spdigtng, long range)
         if (corpse_ready_for_collection(thing) && thing_revealed(thing, spdigtng->owner)
          && players_creatures_tolerate_each_other(spdigtng->owner,get_slab_owner_thing_is_on(thing)))
         {
-            if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+            if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
             {
                 if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                 {
@@ -251,7 +252,7 @@ long check_out_unclaimed_spells(struct Thing *spdigtng, long range)
             if ((thing->owner != spdigtng->owner) && !thing_is_dragged_or_pulled(thing)
               && (get_slab_owner_thing_is_on(thing) == spdigtng->owner) && thing_revealed(thing, spdigtng->owner))
             {
-                if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+                if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
                 {
                     if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                     {
@@ -312,7 +313,7 @@ long check_out_unclaimed_traps(struct Thing *spdigtng, long range)
         // Per-thing code
         if (thing_can_be_picked_to_place_in_player_room_of_role(thing, spdigtng->owner, RoRoF_CratesStorage, TngFRPickF_AllowStoredInOwnedRoom))
         {
-            if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+            if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
             {
                 if (!imp_will_soon_be_getting_object(spdigtng->owner, thing))
                 {
@@ -499,7 +500,7 @@ long check_out_unclaimed_gold(struct Thing *spdigtng, long range)
                 struct SlabMap* slb = get_slabmap_thing_is_on(thing);
                 if ((slabmap_owner(slb) == spdigtng->owner) || (slabmap_owner(slb) == game.neutral_player_num))
                 {
-                    if ((range < 0) || get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range)
+                    if ((range < 0) || get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range)
                     {
                         if (!imp_will_soon_be_working_at_excluding(spdigtng, thing->mappos.x.stl.num, thing->mappos.y.stl.num))
                         {
@@ -634,7 +635,7 @@ long check_out_empty_traps(struct Thing *spdigtng, long range)
         // Per-thing code
         if ((thing->trap.num_shots == 0) && (thing->owner == spdigtng->owner))
         {
-            if ( (range < 0) || (get_2d_box_distance(&thing->mappos, &spdigtng->mappos) < range) )
+            if ( (range < 0) || (get_chessboard_distance(&thing->mappos, &spdigtng->mappos) < range) )
             {
 
                 if ( !imp_will_soon_be_arming_trap(thing) && check_out_object_for_trap(spdigtng, thing) ) {
@@ -1503,7 +1504,7 @@ short creature_pick_up_unconscious_body(struct Thing *thing)
      struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
      struct Thing* picktng = thing_get(cctrl->pickup_creature_id);
      TRACE_THING(picktng);
-     if (thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || thing_is_dragged_or_pulled(picktng) || (get_2d_box_distance(&thing->mappos, &picktng->mappos) >= 512))
+     if (thing_is_invalid(picktng) || (picktng->active_state != CrSt_CreatureUnconscious) || thing_is_dragged_or_pulled(picktng) || (get_chessboard_distance(&thing->mappos, &picktng->mappos) >= 512))
      {
          SYNCDBG(8, "The %s index %d to be picked up isn't in correct place or state", thing_model_name(picktng), (int)picktng->index);
          set_start_state(thing);
@@ -1542,9 +1543,9 @@ short creature_picks_up_corpse(struct Thing *creatng)
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
     if (!thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default)
-     || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
+     || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
     if ( thing_is_invalid(picktng) || ((picktng->alloc_flags & TAlF_IsDragged) != 0)
-      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
+      || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(creatng);
         return 0;
@@ -1586,7 +1587,7 @@ short creature_picks_up_spell_object(struct Thing *creatng)
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
     if (!thing_can_be_picked_to_place_in_player_room_of_role(picktng, creatng->owner, RoRoF_PowersStorage, TngFRPickF_Default)
-     || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
+     || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= subtile_coord(2,0)))
     {
         set_start_state(creatng);
         return 0;
@@ -1627,7 +1628,7 @@ short creature_picks_up_crate_for_workshop(struct Thing *creatng)
     TRACE_THING(cratetng);
     // Check if everything is right
     if (!thing_can_be_picked_to_place_in_player_room_of_role(cratetng, creatng->owner, RoRoF_CratesStorage, TngFRPickF_Default)
-     || (get_2d_box_distance(&creatng->mappos, &cratetng->mappos) >= subtile_coord(2,0)))
+     || (get_chessboard_distance(&creatng->mappos, &cratetng->mappos) >= subtile_coord(2,0)))
     {
         set_start_state(creatng);
         return 0;
@@ -1681,7 +1682,7 @@ short creature_picks_up_trap_object(struct Thing *thing)
         set_start_state(thing);
         return 0;
     }
-    if (get_2d_box_distance(&thing->mappos, &cratetng->mappos) >= 512)
+    if (get_chessboard_distance(&thing->mappos, &cratetng->mappos) >= 512)
     {
         WARNLOG("The %s index %d was supposed to be near %s index %d for pickup, but it's too far",thing_model_name(cratetng),(int)cratetng->index,thing_model_name(thing),(int)thing->index);
         cctrl->arming_thing_id = 0;

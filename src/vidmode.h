@@ -176,7 +176,7 @@ void init_colours(void);
 
 TbBool set_pointer_graphic_none(void);
 TbBool set_pointer_graphic_menu(void);
-TbBool set_pointer_graphic_spell(long group_idx, long frame);
+TbBool set_pointer_graphic_spell(long spridx, long frame);
 TbBool set_pointer_graphic(long ptr_idx);
 
 /******************************************************************************/

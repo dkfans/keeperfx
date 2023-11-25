@@ -1377,7 +1377,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6,"Move %s index %d from (%d,%d) to (%d,%d) with speed %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->mappos.x.stl.num,(int)creatng->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)speed);
     cctrl->navi.field_19[0] = 0;
-    if (get_2d_box_distance(&creatng->mappos, pos) <= 32)
+    if (get_chessboard_distance(&creatng->mappos, pos) <= 32)
     {
         // We've reached the destination
         creature_set_speed(creatng, 0);

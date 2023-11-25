@@ -21,6 +21,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
@@ -148,6 +149,7 @@ short state_cleanup_unconscious(struct Thing *creatng);
 short state_cleanup_wait_at_door(struct Thing* creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
 short creature_pick_up_spell_to_steal(struct Thing *creatng);
+short creature_timebomb(struct Thing *creatng);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -456,6 +458,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
+  {creature_timebomb, cleanup_hold_audience, NULL, NULL,
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Idle, 1, 1, 1, 0, 0, 1, 0, 0},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -1461,7 +1465,7 @@ short creature_being_dropped(struct Thing *creatng)
             {
                 if (!thing_is_picked_up(leadtng))
                 {
-                    if (get_2d_box_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(9,0)) {
+                    if (get_chessboard_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(9,0)) {
                         SYNCDBG(3,"Removing %s index %d owned by player %d from group",
                             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
                         remove_creature_from_group(creatng);
@@ -1570,7 +1574,7 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
 		return 0;
 	}
 	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-		creatng->continue_state = 123;
+		creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
 	return 1;
 }
 
@@ -2079,7 +2083,7 @@ short creature_follow_leader(struct Thing *creatng)
         return 0;
     }
     cctrl->following_leader_since = game.play_gameturn;
-    MapCoordDelta distance_to_follower_pos = get_2d_box_distance(&creatng->mappos, &follwr_pos);
+    MapCoordDelta distance_to_follower_pos = get_chessboard_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
     // If we're too far from the designated position, do a speed run
@@ -2891,7 +2895,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
     if ( thing_is_invalid(picktng) || ((picktng->state_flags & TF1_IsDragged1) != 0)
-      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
+      || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(creatng);
         return 0;
@@ -4179,7 +4183,7 @@ static TbBool wander_point_get_random_pos(const struct Wander *wandr, const stru
           long irnd = CREATURE_RANDOM(thing, wandr->points_count);
           MapSubtlCoord stl_x = wandr->points[irnd].stl_x;
           MapSubtlCoord stl_y = wandr->points[irnd].stl_y;
-          MapSubtlCoord dist = get_2d_box_distance_xy(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
+          MapSubtlCoord dist = chessboard_distance(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
           // Move at least 2 slabs, and prefer distance around 7 slabs
           // If previously selected selected_dist is too low, allow any place
           if (((dist > 6) && (abs(dist-21) < abs(selected_dist-21))) || (selected_dist <= 6))
@@ -4296,7 +4300,7 @@ short seek_the_enemy(struct Thing *creatng)
     struct Thing* enemytng = thing_update_enemy_to_fight_with(creatng);
     if (!thing_is_invalid(enemytng))
     {
-        MapCoordDelta dist = get_2d_box_distance(&enemytng->mappos, &creatng->mappos);
+        MapCoordDelta dist = get_chessboard_distance(&enemytng->mappos, &creatng->mappos);
         if (creature_can_hear_within_distance(creatng, dist))
         {
             if (cctrl->instance_id == CrInst_NULL)
@@ -4608,6 +4612,12 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     {
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
+        return thing->active_state;
+    }
+    if (creature_affected_by_spell(thing, SplK_TimeBomb))
+    {
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, CrSt_Timebomb);
         return thing->active_state;
     }
     if (is_neutral_thing(thing))
@@ -5274,6 +5284,39 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
         }
     }
     return false;
+}
+
+short creature_timebomb(struct Thing *creatng)
+{
+    SYNCDBG(18,"Starting");
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control; no action");
+        return CrStRet_Unchanged;
+    }
+    if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+    {
+        struct Thing* trgtng = find_nearest_enemy_creature(creatng);
+        if ( (!thing_is_invalid(trgtng)) && (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default)) )
+        {
+            cctrl->timebomb_target_id = trgtng->index;
+            cctrl->moveto_pos.x.val = trgtng->mappos.x.val;
+            cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
+            cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
+            cctrl->move_flags = NavRtF_Default;
+            creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
+        }
+        else
+        {
+            cctrl->timebomb_target_id = 0;
+            creature_choose_random_destination_on_valid_adjacent_slab(creatng);
+        }
+        creatng->continue_state = CrSt_Timebomb;
+        return CrStRet_Modified;
+    }
+    return CrStRet_Unchanged;
 }
 
 /******************************************************************************/
