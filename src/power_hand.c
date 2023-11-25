@@ -317,7 +317,7 @@ void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
   player = get_player(plyr_idx);
 
   short anim_idx   = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
-  short anim_speed = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed;
+  short anim_speed = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
 
   if (player->hand_busy_until_turn >= game.play_gameturn)
   {

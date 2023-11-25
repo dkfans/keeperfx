@@ -73,15 +73,22 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
                 powerhand_desc[variant_no].num = variant_no;
             }
             
-            pwrhnd_cfg_stat->anim_speed = value_int32(value_dict_get(section, "AnimationSpeed"));
 
-            pwrhnd_cfg_stat->anim_idx[HndA_Hold]      = value_parse_anim(value_dict_get(section, "AnimHold"));
-            pwrhnd_cfg_stat->anim_idx[HndA_HoldGold]  = value_parse_anim(value_dict_get(section, "AnimHoldGold"));
-            pwrhnd_cfg_stat->anim_idx[HndA_Hover]     = value_parse_anim(value_dict_get(section, "AnimHover"));
-            pwrhnd_cfg_stat->anim_idx[HndA_Pickup]    = value_parse_anim(value_dict_get(section, "AnimPickup"));
-            pwrhnd_cfg_stat->anim_idx[HndA_SideHover] = value_parse_anim(value_dict_get(section, "AnimSideHover"));
-            pwrhnd_cfg_stat->anim_idx[HndA_SideSlap]  = value_parse_anim(value_dict_get(section, "AnimSideSlap"));
-            pwrhnd_cfg_stat->anim_idx[HndA_Slap]      = value_parse_anim(value_dict_get(section, "AnimSlap"));
+            pwrhnd_cfg_stat->anim_idx[HndA_Hold]      = value_parse_anim(value_dict_get(section, "HoldAnim"));
+            pwrhnd_cfg_stat->anim_idx[HndA_HoldGold]  = value_parse_anim(value_dict_get(section, "HoldGoldAnim"));
+            pwrhnd_cfg_stat->anim_idx[HndA_Hover]     = value_parse_anim(value_dict_get(section, "HoverAnim"));
+            pwrhnd_cfg_stat->anim_idx[HndA_Pickup]    = value_parse_anim(value_dict_get(section, "PickupAnim"));
+            pwrhnd_cfg_stat->anim_idx[HndA_SideHover] = value_parse_anim(value_dict_get(section, "SideHoverAnim"));
+            pwrhnd_cfg_stat->anim_idx[HndA_SideSlap]  = value_parse_anim(value_dict_get(section, "SideSlapAnim"));
+            pwrhnd_cfg_stat->anim_idx[HndA_Slap]      = value_parse_anim(value_dict_get(section, "SlapAnim"));
+
+            pwrhnd_cfg_stat->anim_speed[HndA_Hold]      = value_int32(value_dict_get(section, "HoldSpeed"));
+            pwrhnd_cfg_stat->anim_speed[HndA_HoldGold]  = value_int32(value_dict_get(section, "HoldGoldSpeed"));
+            pwrhnd_cfg_stat->anim_speed[HndA_Hover]     = value_int32(value_dict_get(section, "HoverSpeed"));
+            pwrhnd_cfg_stat->anim_speed[HndA_Pickup]    = value_int32(value_dict_get(section, "PickupSpeed"));
+            pwrhnd_cfg_stat->anim_speed[HndA_SideHover] = value_int32(value_dict_get(section, "SideHoverSpeed"));
+            pwrhnd_cfg_stat->anim_speed[HndA_SideSlap]  = value_int32(value_dict_get(section, "SideSlapSpeed"));
+            pwrhnd_cfg_stat->anim_speed[HndA_Slap]      = value_int32(value_dict_get(section, "SlapSpeed"));
         }
     }
 
