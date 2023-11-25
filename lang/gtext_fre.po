@@ -2740,8 +2740,8 @@ msgstr "Pour"
 msgctxt "In-game interface description"
 msgid "Shadows: The number of shadows cast by each creature. LMB toggle."
 msgstr ""
-"Ombres : Nombre d'ombres projetées par chaque créatures. Bouton droit pour "
-"choisir. [3.2.2]"
+"Ombres : Nombre d'ombres projetées par chaque créatures. "
+"Alterner avec le bouton gauche de la souris. [3.2.2]"
 
 #: guitext:314
 msgctxt "In-game interface description"
@@ -2753,7 +2753,7 @@ msgstr ""
 "Type d'affichage: Alterne entre deux types de vue de la perspective. La vue par "
 "défaut a des murs tordus et permet la rotation libre. Désactivez l'effet de torsion "
 "pour des lignes droites. La vue forcée change l'angle de vision et ne peut faire que "
-"des rotations à 90 degrés. BGS pour alterner."
+"des rotations à 90 degrés. Alterner avec le bouton gauche de la souris."
 
 #: guitext:315
 msgctxt "In-game interface description"
@@ -2762,7 +2762,7 @@ msgid ""
 "high, they are easier to see over. LMB toggle."
 msgstr ""
 "Hauteur des murs : Sélection de la hauteur des murs. Murs plus court signifie "
-"une meilleur visibilité. Bouton gauche pour changer de sélection. [3.2.2]"
+"une meilleur visibilité. Alterner avec le bouton gauche de la souris. [3.2.2]"
 
 #: guitext:316
 msgctxt "In-game interface description"
@@ -2771,14 +2771,14 @@ msgid ""
 "of the game. LMB toggle."
 msgstr ""
 "Surface affichée : Taille de la surface affichée ce qui affecte directement "
-"la vitesse du jeu. Bouton gauche pour changer de sélection. [3.2.2]"
+"la vitesse du jeu. Alterner avec le bouton gauche de la souris. [3.2.2]"
 
 #: guitext:317
 msgctxt "In-game interface description"
 msgid "Gamma Correction: Adjust the brightness of the game. LMB toggle."
 msgstr ""
-"Correction gamma : Ajuste la luminosité. Bouton gauche pour changer la "
-"sélection. [3.2.2]"
+"Correction gamma : Ajuste la luminosité. Alterner avec le bouton gauche "
+"de la souris. [3.2.2]"
 
 #: guitext:318
 msgctxt "In-game interface item"
@@ -4050,28 +4050,28 @@ msgstr "Avatar"
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr ""
-"Modifier l'assistant : Actuellement Agressif. Changement avec le bouton "
+"Modifier l'assistant : Actuellement Agressif. Choisir avec le bouton "
 "gauche de la souris. [3.2.4]"
 
 #: guitext:549
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr ""
-"Modifier l'assistant : Actuellement Défensif. Changement avec le bouton "
+"Modifier l'assistant : Actuellement Défensif. Choisir avec le bouton "
 "gauche de la souris. [3.2.4]"
 
 #: guitext:550
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr ""
-"Modifier l'assistant : Actuellement Construction seulement. Changement avec "
+"Modifier l'assistant : Actuellement Construction seulement. Choisir avec "
 "le bouton gauche de la souris. [3.2.4]"
 
 #: guitext:551
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr ""
-"Modifier l'assistant : Actuellement Déplacement uniquement. Changement avec "
+"Modifier l'assistant : Actuellement Déplacement uniquement. Choisir avec "
 "le bouton gauche de la souris. [3.2.4]"
 
 #: guitext:552
@@ -4920,195 +4920,197 @@ msgstr "Créatures affamées"
 #: guitext:687
 msgctxt "Game event name"
 msgid "Trap crate found"
-msgstr "Caisse piégée découverte"
+msgstr "Découverte d'un plan de piège"
 
 #: guitext:688
 msgctxt "Game event name"
 msgid "Door crate found"
-msgstr "Porte de caisse découverte"
+msgstr "Découverte d'un plan de porte"
 
 #: guitext:689
 msgctxt "Game event name"
 msgid "Dungeon Special found"
-msgstr "Objet spécial découvert"
+msgstr "Découverte d'une boîte magique"
 
 #: guitext:690
 msgctxt "Game event description"
 msgid "Treasure Room full: LMB toggle. RMB delete."
 msgstr ""
-"Salle du trésor pleine : Modifiez avec le bouton gauche de la souris et "
-"supprimez avec le bouton droit."
+"Salle du trésor pleine : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:691
 msgctxt "Game event description"
 msgid "Creature being scavenged: LMB toggle. RMB delete."
 msgstr ""
-"Créature en cours d'enrôlement : Modifiez avec le bouton gauche de la souris "
-"et supprimez avec le bouton droit."
+"Créature en cours d'enrôlement : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:692
 msgctxt "Game event description"
 msgid "Creature Payday: LMB toggle. RMB delete."
 msgstr ""
-"Jour de paye : Changez avec le bouton gauche de la souris, supprimez avec le "
+"Jour de paye : Afficher avec le bouton gauche de la souris, supprimer avec le "
 "bouton droit."
 
 #: guitext:693
 msgctxt "Game event description"
 msgid "New spell picked up: LMB toggle. RMB delete."
 msgstr ""
-"Nouveau sortilège dérobé : Changez avec le bouton gauche de la souris, "
-"supprimez avec le bouton droit."
+"Nouveau sortilège dérobé : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:694
 msgctxt "Game event description"
 msgid "New room taken over: LBM toggle. RMB delete."
 msgstr ""
-"Nouvelle salle capturée : Changez avec le bouton gauche de la souris. "
-"Supprimez avec le bouton droit."
+"Nouvelle salle capturée : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:695
 msgctxt "Game event description"
 msgid "New area discovered: LMB toggle. RMB delete."
 msgstr ""
-"Nouvelle zone découverte : Changez avec le bouton gauche, supprimez avec le "
-"bouton droit."
+"Nouvelle zone découverte : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:696
 msgctxt "Game event description"
 msgid "Information: LMB toggle. RMB delete."
 msgstr ""
-"Informations : Changez avec le bouton gauche, supprimez avec le bouton droit."
+"Informations : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:697
 msgctxt "Game event description"
 msgid "Room lost: LMB toggle. RMB delete."
 msgstr ""
-"Salle perdue : Changez avec le bouton gauche et supprimez avec le bouton "
-"droit."
+"Salle perdue : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:698
 msgctxt "Game event description"
 msgid "Dungeon Heart Attacked: LMB toggle. RMB delete."
 msgstr ""
-"Coeur du donjon attaqué : Changez avec le bouton gauche de la souris, "
-"supprimez avec le bouton droit."
+"Coeur du donjon attaqué : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:699
 msgctxt "Game event description"
 msgid "Fight: LMB toggle. RMB delete. [10.5]"
 msgstr ""
-"Combat : Changez avec le bouton gauche de la souris et supprimez avec le "
+"Combat : Afficher avec le bouton gauche de la souris, supprimer avec le "
 "bouton droit. [10.5]"
 
 #: guitext:700
 msgctxt "Game event description"
 msgid "Objective: LMB toggle. [11.3]"
-msgstr "Objectif : Changez avec le bouton gauche de la souris."
+msgstr "Objectif : Afficher avec le bouton gauche de la souris."
 
 #: guitext:701
 msgctxt "Game event description"
 msgid "Breach: LMB toggle. RMB delete."
 msgstr ""
-"Brèche : Changez avec le bouton gauche et supprimez avec le bouton droit."
+"Brèche : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:702
 msgctxt "Game event description"
 msgid "New spell researched: LMB toggle. RMB delete."
 msgstr ""
-"Nouveau sortilège découvert : Changez avec le bouton gauche de la souris, "
-"supprimez avec le bouton droit."
+"Nouveau sortilège découvert : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:703
 msgctxt "Game event description"
 msgid "New room researched: LMB toggle. RMB delete."
 msgstr ""
-"Nouvelle salle découverte : Changez avec le bouton gauche de la souris et "
-"supprimez avec le bouton droit."
+"Nouvelle salle découverte : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:704
 msgctxt "Game event description"
 msgid "New trap: LMB toggle. RMB delete."
 msgstr ""
-"Nouveau piège : Changez avec le bouton gauche de la souris, et supprimez avec "
+"Nouveau piège : Afficher avec le bouton gauche de la souris, supprimer avec "
 "le bouton droit."
 
 #: guitext:705
 msgctxt "Game event description"
 msgid "New door: LMB toggle. RMB delete."
 msgstr ""
-"Nouvelle porte : Changez avec le bouton gauche de la souris et supprimez avec "
+"Nouvelle porte : Afficher avec le bouton gauche de la souris, supprimer avec "
 "le bouton droit."
 
 #: guitext:706
 msgctxt "Game event description"
 msgid "New creature in dungeon: LMB toggle. RMB delete."
 msgstr ""
-"Nouvelle créature dans le donjon : Changez avec le bouton gauche de la souris "
-"et supprimez avec le bouton droit."
+"Nouvelle créature dans le donjon : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:707
 msgctxt "Game event description"
 msgid "Creature is annoyed: LMB toggle. RMB delete."
 msgstr ""
-"Créature contrariée : Changez avec le bouton gauche de la souris et supprimez "
+"Créature contrariée : Afficher avec le bouton gauche de la souris, supprimer "
 "avec le bouton droit."
 
 #: guitext:708
 msgctxt "Game event description"
 msgid "No more living set: LMB toggle. RMB delete."
 msgstr ""
-"Plus de trace de vie : Changez avec le bouton gauche de la souris, supprimez "
+"Plus de trace de vie : Afficher avec le bouton gauche de la souris, supprimer "
 "avec le bouton droit."
 
 #: guitext:709
 msgctxt "Game event description"
 msgid "Alarm triggered: LMB toggle. RMB delete."
 msgstr ""
-"Alarme déclenchée : Alternez avec le bouton gauche de la souris et supprimez "
+"Alarme déclenchée : Afficher avec le bouton gauche de la souris, supprimer "
 "avec le bouton droit."
 
 #: guitext:710
 msgctxt "Game event description"
 msgid "Room under attack: LMB toggle. RMB delete."
 msgstr ""
-"Salle attaquée : Alternez avec le bouton gauche de la souris, supprimez avec "
-"le bouton droit."
+"Salle attaquée : Afficher avec le bouton gauche de la souris, supprimer "
+"avec le bouton droit."
 
 #: guitext:711
 msgctxt "Game event description"
 msgid "Need Treasure Room: LMB toggle. RMB delete."
 msgstr ""
-"Besoin d'une salle du trésor : Alternez avec le bouton gauche de la souris et "
-"supprimez avec le bouton droit."
+"Besoin d'une salle du trésor : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:712
 msgctxt "Game event description"
 msgid "Creatures becoming hungry: LMB toggle. RMB delete."
 msgstr ""
-"Créatures affamées : Alternez avec le bouton gauche de la souris et supprimez "
+"Créatures affamées : Afficher avec le bouton gauche de la souris, supprimer "
 "avec le bouton droit."
 
 #: guitext:713
 msgctxt "Game event description"
 msgid "Trap crate found: LMB toggle. RMB delete."
 msgstr ""
-"Coffre piégé découvert : Changez avec le bouton gauche, supprimez avec le "
-"bouton droit."
+"Découverte d'un plan de piège : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:714
 msgctxt "Game event description"
 msgid "Door crate found: LMB toggle. RMB delete."
 msgstr ""
-"Porte de caisse découverte : Changez avec le bouton gauche, supprimez avec le "
-"bouton droit."
+"Découverte d'un plan de porte : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:715
 msgctxt "Game event description"
 msgid "Dungeon Special found: LMB toggle. RMB delete."
 msgstr ""
-"Coffre spécial découvert : Alternez avec le bouton gauche de la souris et "
-"utilisez le bouton droit pour supprimer."
+"Découverte d'une boîte magique : Afficher avec le bouton gauche de la souris, "
+"supprimer avec le bouton droit."
 
 #: guitext:716
 msgctxt "Menu interface, Main Menu item; In-game interface, Options title"
@@ -5144,18 +5146,18 @@ msgstr "Assistant"
 msgctxt "In-game interface description"
 msgid "Options: Open Options Panel. LMB open panel. [3.2]"
 msgstr ""
-"Options : Ouvrez le panneau d'options avec le bouton gauche de la souris. "
+"Options : Ouvrer le panneau d'options avec le bouton gauche de la souris. "
 "[3.2]"
 
 #: guitext:723
 msgctxt "In-game interface description"
 msgid "Graphics Menu: Customise the graphics. [3.2.2]"
-msgstr "Menu Graphiques : Personnalisez les graphismes. [3.2.2]"
+msgstr "Menu Graphiques : Personnaliser les graphismes. [3.2.2]"
 
 #: guitext:724
 msgctxt "In-game interface description"
 msgid "Sound Menu: Adjust the sound and music volumes. [3.2.3]"
-msgstr "Menu Son : Réglez le volume du son et de la musique. [3.2.3]"
+msgstr "Menu Son : Régler le volume du son et de la musique. [3.2.3]"
 
 #: guitext:725
 msgctxt "In-game interface description"
@@ -5170,12 +5172,12 @@ msgstr "Sauvegarder partie : Enregistrer la partie en cours. [3.2.1]"
 #: guitext:727
 msgctxt "In-game interface description"
 msgid "Quit Game: Quit back to the Level Map. [3.2.5]"
-msgstr "Quitter la partie : Quitter et retour à la Carte des niveaux. [3.2.5]"
+msgstr "Quitter la partie : Quitter et retour à la carte des niveaux. [3.2.5]"
 
 #: guitext:728
 msgctxt "In-game interface description"
 msgid "Computer Assistance Menu: Customise the Computer Assistant. [3.2.4]"
-msgstr "Menu Assistant : Personnalisez l'assistant. [3.2.4]"
+msgstr "Menu Assistant : Personnaliser l'assistant. [3.2.4]"
 
 #: guitext:729
 msgctxt "In-game interface description"
@@ -5184,7 +5186,7 @@ msgid ""
 "attack the enemy. LMB select. [3.2.4]"
 msgstr ""
 "Assistant agressif : Il construit votre donjon et essaie toujours d'attaquer "
-"l'ennemi. Sélectionnez avec le bouton gauche de la souris. [3.2.4]"
+"l'ennemi. Sélectionner avec le bouton gauche de la souris. [3.2.4]"
 
 #: guitext:730
 msgctxt "In-game interface description"
@@ -5193,7 +5195,7 @@ msgid ""
 "enemy. LMB select. [3.2.4]"
 msgstr ""
 "Assistant défensif : Il construit votre donjon mais n'attaque pas l'ennemi. "
-"Sélectionnez avec le bouton gauche de la souris. [3.2.4]"
+"Sélectionner avec le bouton gauche de la souris. [3.2.4]"
 
 #: guitext:731
 msgctxt "In-game interface description"
@@ -5202,7 +5204,7 @@ msgid ""
 "not move creatures. LMB select. [3.2.4]"
 msgstr ""
 "Assistant Construction seulement : Il creuse et installe des pièces et des "
-"pièges, mais ne déplace pas les créatures. Sélectionnez avec le bouton gauche "
+"pièges, mais ne déplace pas les créatures. Sélectionner avec le bouton gauche "
 "de la souris. [3.2.4]"
 
 #: guitext:732
@@ -5212,7 +5214,7 @@ msgid ""
 "[3.2.4]"
 msgstr ""
 "Assistant Déplacement seulement : il déplace et frappe vos créatures. "
-"Sélectionnez avec le bouton gauche de la souris. [3.2.4]"
+"Sélectionner avec le bouton gauche de la souris. [3.2.4]"
 
 #: guitext:733
 msgctxt "In-game interface description"
@@ -5220,29 +5222,29 @@ msgid ""
 "Pick up creatures: LMB All creatures. Ctrl LMB Experienced Creatures. RMB "
 "Zoom. [22.2.1]"
 msgstr ""
-"Saisir les créatures : Sélectionnez toutes avec le bouton gauche, Ctrl+Gauche "
-"pour les plus expérimentées et zoomez avec le bouton droit. [22.2.1]"
+"Saisir les créatures : Sélectionner avec le bouton gauche de la souris, "
+"Ctrl+Gauche pour les plus expérimentées et zoomer avec le bouton droit. [22.2.1]"
 
 #: guitext:734
 msgctxt "In-game interface description"
 msgid "Pick idle creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"Prenez les créatures oisives : Sélectionnez avec le bouton gauche, zoomez "
-"avec le bouton droit. [22.2.1]"
+"Saisir les créatures oisives : Sélectionner avec le bouton gauche de la souris, "
+"zoomer avec le bouton droit. [22.2.1]"
 
 #: guitext:735
 msgctxt "In-game interface description"
 msgid "Pick working creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"Prenez les créatures qui travaillent : Sélectionnez avec le bouton gauche, "
-"zoomez avec le bouton droit. [22.2.1]"
+"Saisir les créatures qui travaillent : Sélectionner avec le bouton gauche de "
+"la souris, zoomer avec le bouton droit. [22.2.1]"
 
 #: guitext:736
 msgctxt "In-game interface description"
 msgid "Pick fighting creatures: LMB Pick up creature. RMB Zoom. [22.2.1]"
 msgstr ""
-"Prenez les créatures qui se battent : Sélectionnez avec le bouton gauche de "
-"la souris, zoomez avec le bouton droit. [22.2.1]"
+"Saisir les créatures qui se battent : Sélectionner avec le bouton gauche de "
+"la souris, zoomer avec le bouton droit. [22.2.1]"
 
 #: guitext:737
 msgctxt "In-game interface description"
@@ -5251,7 +5253,7 @@ msgid ""
 "creature. LMB toggle."
 msgstr ""
 "Inverser souris : Inverse les déplacements verticaux de la souris lorsqu'une "
-"créature est possédée. Basculez avec le bouton gauche de la souris."
+"créature est possédée. Alterner avec le bouton gauche de la souris."
 
 #: guitext:738
 msgctxt "In-game interface description"
@@ -5259,9 +5261,9 @@ msgid ""
 "Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse "
 "movements when in Possess Creature mode. LMB toggle."
 msgstr ""
-"Possession - sensibilité de la souris : Ajustez la sensibilité des "
-"déplacements de la souris lorsque vous êtes en mode Possession. Basculez avec "
-"le bouton gauche de la souris."
+"Possession - sensibilité de la souris : Ajuste la sensibilité des "
+"déplacements de la souris lorsque vous êtes en mode Possession. "
+"Ajuster avec le bouton gauche de la souris."
 
 #: guitext:739
 msgctxt "In-game interface description"
@@ -6585,7 +6587,7 @@ msgstr ""
 #: guitext:937
 msgctxt "Game event description"
 msgid "Secret Door discovered: LMB toggle. RMB delete."
-msgstr "Découverte d'une porte secrète : Changez avec le bouton gauche, supprimez avec le bouton droit."
+msgstr "Découverte d'une porte secrète : Afficher avec le bouton gauche de la souris, supprimer avec le bouton droit."
 
 #: guitext:938
 msgctxt "Game event name"
@@ -6595,7 +6597,7 @@ msgstr "Découverte d'une porte secrète"
 #: guitext:939
 msgctxt "Game event description"
 msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
-msgstr "L'ennemi a repéré votre porte secrète : Changez avec le bouton gauche, supprimez avec le bouton droit."
+msgstr "L'ennemi a repéré votre porte secrète : Afficher avec le bouton gauche de la souris, supprimer avec le bouton droit."
 
 #: guitext:940
 msgctxt "Game event name"
@@ -6630,7 +6632,7 @@ msgstr "Votre créature ne peut pas atteindre la pièce qu'elle veut atteindre"
 #: guitext:946
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
-msgstr "Salle de travail inaccessible."
+msgstr "Salle de travail inaccessible. Afficher avec le bouton gauche de la souris, supprimer avec le bouton droit."
 
 #: guitext:947
 msgctxt "Game event name"
@@ -6641,7 +6643,7 @@ msgstr ""
 #: guitext:948
 msgctxt "Game event description"
 msgid "Storage room unreachable: LMB toggle. RMB delete."
-msgstr "Salle de stockage inaccessible."
+msgstr "Salle de stockage inaccessible. Afficher avec le bouton gauche de la souris, supprimer avec le bouton droit."
 
 #: guitext:949
 msgctxt "In-game interface description"
@@ -6779,12 +6781,12 @@ msgstr "Vie : La quantité maximum de points de vie pour cette créature."
 #: guitext:967
 msgctxt "Menu interface item"
 msgid "Toggle Message"
-msgstr "Activer les Messages"
+msgstr "Afficher les Messages"
 
 #: guitext:968
 msgctxt "Menu interface item"
 msgid "Return to Free Play levels"
-msgstr "Retourner au Niveaux de Jeu Libre"
+msgstr "Retour au menu Jeu Libre"
 
 #: guitext:969
 msgctxt "Menu interface item"
@@ -6844,17 +6846,17 @@ msgstr "Piège de Peur"
 #: guitext:984
 msgctxt "Trap names"
 msgid "Sentry Trap"
-msgstr "Piège Tourelle"
+msgstr "Piège Sentinelle"
 
 #: guitext:985
 msgctxt "Trap names"
 msgid "Mimic Trap"
-msgstr "Piège Mimic"
+msgstr "Piège Mimique"
 
 #: guitext:986
 msgctxt "Trap names"
 msgid "Spawn Trap"
-msgstr "Piège D'apparitions"
+msgstr "Piège à Invocation"
 
 #: guitext:987
 msgctxt "Trap names"
@@ -6869,12 +6871,12 @@ msgstr "Piège de Feu"
 #: guitext:989
 msgctxt "Trap names"
 msgid "Chicken Trap"
-msgstr "Piège au Poulets"
+msgstr "Piège aux Poulets"
 
 #: guitext:990
 msgctxt "Trap names"
 msgid "Disease Trap"
-msgstr "Piège au Maladies"
+msgstr "Piège aux Maladies"
 
 #: guitext:991
 msgctxt "Trap names"
@@ -6889,7 +6891,7 @@ msgstr "Interrupteur"
 #: guitext:993
 msgctxt "Trap names"
 msgid "Hidden Switch"
-msgstr "Interrupteur Dissimulé"
+msgstr "Interrupteur Caché"
 
 #: guitext:994
 msgctxt "Door name"
@@ -6899,7 +6901,7 @@ msgstr "Porte Spéciale"
 #: guitext:995
 msgctxt "Door name"
 msgid "Hidden Door"
-msgstr "Porte Dissimulée"
+msgstr "Porte Cachée"
 
 #: guitext:996
 msgctxt "Mouse"
@@ -6914,7 +6916,7 @@ msgstr "Défil. Roue de Souris Bas"
 #: guitext:998
 msgctxt "Mouse"
 msgid "Mouse Button"
-msgstr "Bouton de la Souris"
+msgstr "Bouton de la souris"
 
 #: guitext:999
 msgctxt "Game controls"
@@ -6924,7 +6926,7 @@ msgstr "Construire une salle carrée"
 #: guitext:1000
 msgctxt "Game controls"
 msgid "Detect Room"
-msgstr "Détecter la salle"
+msgstr "Détection de salle"
 
 #: guitext:1001
 msgctxt "Game controls"
@@ -6944,7 +6946,7 @@ msgstr "Vente Précise"
 #: guitext:1004
 msgctxt "Game controls"
 msgid "Snap Camera"
-msgstr "Caméra Snap"
+msgstr "Caméra Instantanée"
 
 #: guitext:1005
 msgctxt "Dungeon special description"
@@ -6955,12 +6957,12 @@ msgstr "Boite Mystérieuse : Rien ne peut nous dire ce qu'elle fera."
 msgctxt "Network game message"
 msgid "Joined player has different map version from host."
 msgstr ""
-"Le joueur qui a rejoint possède une version différente de la carte que l'hôte."
+"Le joueur qui a rejoint possède une version différente de la carte de l'hôte."
 
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
-msgstr "Résolution d'affichage: Passez à la prochaine résolution d'affichage configurée. LMB bascule. RMB affiche la résolution actuelle."
+msgstr "Résolution d'affichage: Passez à la prochaine résolution d'affichage configurée. Alterner avec le bouton gauche de la souris, afficher la résolution actuelle avec le bouton droit."
 
 #: guitext:1008
 msgctxt "In-game interface item"
@@ -7106,13 +7108,13 @@ msgstr "Piège de démolition"
 msgctxt "Trap description"
 msgid "Description du piège"
 "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr "Piège de démolition: Un explosif d'une puissance destructrice sans égale"
+msgstr "Piège de démolition: Un explosif d'une puissance destructrice sans égale."
 
 #: guitext:1038
 msgctxt "Trap description"
 msgid "Description du piège"
 "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr "Piège de Sentinelle: Monte la garde et tire sur les ennemies à vue" 
+msgstr "Piège Sentinelle: Monte la garde et tire sur les ennemies à vue." 
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"
@@ -7142,12 +7144,12 @@ msgstr ""
 #: guitext:1050
 msgctxt "Slab description"
 msgid "Rock Formation."
-msgstr "Formation rocheuse."
+msgstr "Formation Rocheuse."
 
 #: guitext:1051
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
-msgstr "Rocher de base : Sol rocheux non réclamé. Vous ne pouvez pas le revendiquer ni construire dessus."
+msgstr "Soubassement : Sol rocheux non réclamé. Vous ne pouvez pas le revendiquer ni construire dessus."
 
 #: guitext:1052
 msgctxt "Slab description"
