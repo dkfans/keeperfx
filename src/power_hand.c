@@ -656,7 +656,7 @@ void draw_power_hand(void)
             break;
         }
     }
-    if (player->hand_animationId == 784)
+    if (player->hand_animationId == HndA_Hold)
     {
         inputpos_x = GetMouseX() + scale_ui_value(58);
         inputpos_y = GetMouseY() +  scale_ui_value(6);
