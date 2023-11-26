@@ -88,6 +88,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_ExpLevelUp   = 0x4000,
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
     CSAfF_Grounded     = 0x8000,
+    CSAfF_Timebomb     = 0x10000,
 };
 
 enum PowerKinds {
@@ -282,7 +283,7 @@ struct ShotConfigStats {
     unsigned short sprite_anim_idx;
     unsigned short sprite_size_max;
     short size_xy;
-    short size_yz;
+    short size_z;
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;

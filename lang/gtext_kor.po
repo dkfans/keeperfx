@@ -6363,10 +6363,38 @@ msgstr ""
 "당신은 전설적인 키퍼입니다. 당신의 사악하고 교활한 이야기는 세대에 걸쳐 공포"
 "의 이야기가 될 것입니다."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "음매2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "비밀의 문"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"비밀의 문: 이 문은 적들이 자세히 관찰하거나 열리는 것을 보지 않는 한 숨겨져 있습니다."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "비밀의 문 발견"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "비밀의 문 발견"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "적이 비밀 문을 발견했습니다."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "적이 비밀 문을 발견했습니다."
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -6744,7 +6772,7 @@ msgstr "Moo4"
 
 #: guitext:1011
 msgctxt "Menu interface item"
-msgid "Dungeon Keeper original campaign"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr "던전 키퍼 오리지널 캠패인"
 
 #: guitext:1012
@@ -6824,7 +6852,7 @@ msgstr "니콜라이의 성 캠패인"
 
 #: guitext:1027
 msgctxt "Menu interface item"
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr "던전 키퍼 - 새 게임+"
 
 #: guitext:1028
@@ -6896,3 +6924,22 @@ msgstr "드루이드"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "시간 마법사"
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "암석 형성."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "기반암: 청구되지 않은 암반 바닥. 이를 청구하거나 위에 건물을 지을 수 없습니다."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "높은 금맥: 당신의 임프가 추출할 수 있는 많은 부를 보유하고 있습니다."

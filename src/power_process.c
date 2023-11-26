@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_memory.h"
 
 #include "player_data.h"
@@ -44,6 +45,7 @@
 #include "slab_data.h"
 #include "game_legacy.h"
 #include "power_hand.h"
+#include "player_instances.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -249,7 +251,7 @@ void lightning_modify_palette(struct Thing *thing)
     {
         if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) != 0)
         {
-            if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+            if (get_chessboard_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
                 PaletteSetPlayerPalette(myplyr, engine_palette);
                 myplyr->additional_flags &= ~PlaAF_LightningPaletteIsActive;
@@ -261,7 +263,7 @@ void lightning_modify_palette(struct Thing *thing)
     {
         if ((myplyr->additional_flags & PlaAF_LightningPaletteIsActive) == 0)
         {
-            if (get_2d_box_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
+            if (get_chessboard_distance(&myplyr->acamera->mappos, &thing->mappos) < 11520)
             {
               PaletteSetPlayerPalette(myplyr, lightning_palette);
               myplyr->additional_flags |= PlaAF_LightningPaletteIsActive;
@@ -376,12 +378,9 @@ void draw_god_lightning(struct Thing *shotng)
     for (int i = LbFPMath_PI / 4; i < 2 * LbFPMath_PI; i += LbFPMath_PI / 2)
     {
         struct Coord3d locpos;
-        locpos.x.val = shotng->mappos.x.val;
-        locpos.y.val = shotng->mappos.y.val;
-        locpos.z.val = shotng->mappos.z.val;
-        locpos.x.val +=  (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
-        locpos.y.val += -(LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10));
-        locpos.z.val = subtile_coord(12,0);
+        locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
+        locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
+        locpos.z.val = shotng->mappos.z.val + subtile_coord(12,0);
         draw_lightning(&locpos, &shotng->mappos, 256, TngEffElm_ElectricBall3);
     }
 }
@@ -653,11 +652,10 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
                 struct Map* mapblk = get_map_block_at(stl_x, stl_y);
                 if (!map_block_invalid(mapblk))
                 {
-                    unsigned long plyr_bit = (1 << player->id_number);
                     backup_flags = backup_explored[soe_y][soe_x];
-                    mapblk->revealed &= ~plyr_bit;
+                    conceal_map_block(mapblk, player->id_number);
                     if ((backup_flags & 1) != 0)
-                        mapblk->revealed |= plyr_bit ;
+                        reveal_map_block(mapblk, player->id_number);
                     if ((backup_flags & 2) != 0)
                         mapblk->flags |= SlbAtFlg_Unexplored;
                     if ((backup_flags & 4) != 0)
@@ -666,5 +664,104 @@ void remove_explored_flags_for_power_sight(struct PlayerInfo *player)
             }
         }
     }
+}
+
+void process_timebomb(struct Thing *creatng)
+{
+    SYNCDBG(18,"Starting");
+    if (!creature_affected_by_spell(creatng, SplK_TimeBomb)) {
+        return;
+    }
+    update_creature_speed(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
+    if (thing_is_invalid(timetng))
+    {
+        if ((cctrl->timebomb_countdown % game_num_fps) == 0)
+        {
+            long time = (cctrl->timebomb_countdown / game_num_fps);
+            timetng = create_price_effect(&creatng->mappos, creatng->owner, time);
+            cctrl->timebomb_countdown_id = timetng->index;
+            thing_play_sample(creatng, 853, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+        }
+    }
+    else
+    {
+        if (timetng->health <= 0)
+        {
+            delete_thing_structure(timetng, 0);
+            cctrl->timebomb_countdown_id = 0;
+        }
+        else
+        {
+            struct Coord3d pos;
+            pos.x.val = creatng->mappos.x.val;
+            pos.y.val = creatng->mappos.y.val;
+            pos.z.val = timetng->mappos.z.val;
+            move_thing_in_map(timetng, &pos);
+        }
+    }
+    struct Thing* trgtng = thing_get(cctrl->timebomb_target_id);
+    if (!thing_is_invalid(trgtng))
+    {
+        if ( (creatng->mappos.x.stl.num == trgtng->mappos.x.stl.num) && (creatng->mappos.y.stl.num == trgtng->mappos.y.stl.num) )
+        {
+            if (abs(creatng->mappos.z.val - trgtng->mappos.z.val) <= creatng->solid_size_z)
+            {
+                timebomb_explode(creatng);
+                return;
+            }
+        }
+    }
+    if (cctrl->timebomb_countdown != 0)
+    {
+        cctrl->timebomb_countdown--;
+    }
+    else
+    {
+        timebomb_explode(creatng);
+    }
+}
+
+void timebomb_explode(struct Thing *creatng)
+{
+    struct SpellConfig* spconf = get_spell_config(SplK_TimeBomb);
+    struct ShotConfigStats* shotst = get_shot_model_stats(spconf->shot_model);
+    SYNCDBG(8, "Explode Timebomb")
+    //struct Thing* castng = creatng; //todo cleanup
+    long weight = compute_creature_weight(creatng);
+    long weight_multiplier = weight / 64;
+    
+    if (shotst->area_range != 0) {
+        struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight_multiplier);
+        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight_multiplier);
+        HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+        explosion_affecting_area(creatng, &creatng->mappos, dist, damage, shotst->area_blow * weight_multiplier, hit_targets, shotst->damage_type);
+    }
+
+    create_used_effect_or_element(&creatng->mappos, shotst->explode.effect1_model, creatng->owner);
+    create_used_effect_or_element(&creatng->mappos, shotst->explode.effect2_model, creatng->owner);
+    if (shotst->explode.around_effect1_model != 0)
+    {
+        create_effect_around_thing(creatng, shotst->explode.around_effect1_model);
+    }
+    if (shotst->explode.around_effect2_model > 0)
+    {
+        create_effect_around_thing(creatng, shotst->explode.around_effect2_model);
+    }
+    if (creature_model_bleeds(creatng->model))
+    {
+        create_effect_around_thing(creatng, TngEff_Blood5);
+    }
+    HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->timebomb_death = ((shotst->model_flags & ShMF_Exploding) != 0);
+    MapCoord max_dist = shotst->area_range * weight_multiplier;
+    HitPoints max_damage = shotst->area_damage * weight_multiplier;
+    long blow_strength = shotst->area_blow * weight_multiplier;
+    struct Thing* deadtng = kill_creature(creatng, INVALID_THING, -1, CrDed_NoUnconscious);
+    explosion_affecting_area(deadtng, &deadtng->mappos, max_dist, max_damage, blow_strength, hit_targets, shotst->damage_type);
 }
 /******************************************************************************/

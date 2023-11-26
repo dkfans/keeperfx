@@ -231,6 +231,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"Unstable",            33},
   {"Unsellable",          34},
   {"PlaceOnBridge",       35},
+  {"ShotOrigin",          36},
   {NULL,                   0},
 };
 
@@ -1481,6 +1482,7 @@ static void new_object_type_check(const struct ScriptLine* scline)
 
     struct ObjectConfigStats* objst;
     int tmodel = gameadd.object_conf.object_types_count -1;
+    struct Objects* objdat = get_objects_data(tmodel);
 
     objst = &gameadd.object_conf.object_cfgstats[tmodel];
     LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
@@ -1488,12 +1490,9 @@ static void new_object_type_check(const struct ScriptLine* scline)
     objst->name_stridx = 201;
     objst->map_icon = 0;
     objst->genre = 0;
+    objdat->draw_class = ODC_Default;
     object_desc[tmodel].name = objst->code_name;
     object_desc[tmodel].num = tmodel;
-    if (tmodel > OBJECT_TYPES_COUNT_ORIGINAL)
-    {
-        define_custom_object(tmodel, 0);
-    }
 }
 
 static void new_trap_type_check(const struct ScriptLine* scline)
@@ -1535,7 +1534,7 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     gameadd.trap_stats[i].transparency_flag = 0;
     gameadd.trap_stats[i].random_start_frame = 0;
     gameadd.trap_stats[i].size_xy = 0;
-    gameadd.trap_stats[i].size_yz = 0;
+    gameadd.trap_stats[i].size_z = 0;
     gameadd.trap_stats[i].trigger_type = 0;
     gameadd.trap_stats[i].activation_type = 0;
     gameadd.trap_stats[i].created_itm_model = 0;
@@ -1584,7 +1583,7 @@ void refresh_trap_anim(long trap_id)
             else {
                 start_frame = 0;
             }
-            set_thing_draw(traptng, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, 2);
+            set_thing_draw(traptng, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, ODC_Default);
         }
         // Per thing code ends
         k++;
@@ -1707,13 +1706,13 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 25: // ThingSize
             gameadd.trap_stats[trap_type].size_xy = value; // First
-            gameadd.trap_stats[trap_type].size_yz = value2; // Second
+            gameadd.trap_stats[trap_type].size_z = value2; // Second
             break;
         case 26: // HitType
             gameadd.trap_stats[trap_type].hit_type = value;
             break;
         case 27: // LightRadius
-            gameadd.trap_stats[trap_type].light_radius = value;
+            gameadd.trap_stats[trap_type].light_radius = value * COORD_PER_STL;
             break;
         case 28: // LightIntensity
             gameadd.trap_stats[trap_type].light_intensity = value;
@@ -1740,6 +1739,11 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 35: // PlaceOnBridge
             trapst->placeonbridge = value;
+            break;
+        case 36: // ShotOrigin
+            gameadd.trap_stats[trap_type].shot_shift_x = value;
+            gameadd.trap_stats[trap_type].shot_shift_y = value2;
+            gameadd.trap_stats[trap_type].shot_shift_z = value3;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -2171,11 +2175,11 @@ static void set_heart_health_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     value->arg0 = scline->np[0];
     struct Thing* heartng = get_player_soul_container(value->arg0);
-    struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
-    if (scline->np[1] > objconf->health)
+    struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
+    if (scline->np[1] > objst->health)
     {
-        SCRPTWRNLOG("Value %ld is greater than maximum: %ld", scline->np[1], objconf->health);
-        value->arg1 = objconf->health;
+        SCRPTWRNLOG("Value %ld is greater than maximum: %ld", scline->np[1], objst->health);
+        value->arg1 = objst->health;
     }
     else
     {
@@ -2207,13 +2211,13 @@ static void add_heart_health_process(struct ScriptContext *context)
     struct Thing* heartng = get_player_soul_container(context->value->arg0);
     if (!thing_is_invalid(heartng))
     {
-        struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
+        struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
         long old_health = heartng->health;
         long long new_health = heartng->health + context->value->arg1;
-        if (new_health > objconf->health)
+        if (new_health > objst->health)
         {
-            SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, objconf->health);
-            new_health = objconf->health;
+            SCRIPTDBG(7,"Player %d's calculated heart health (%ld) is greater than maximum: %ld", heartng->owner, new_health, objst->health);
+            new_health = objst->health;
         }
         heartng->health = new_health;
         TbBool warn_on_damage = (context->value->arg2);
@@ -2659,7 +2663,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 19: // SIZE
             crstat->size_xy = value;
-            crstat->size_yz = value2;
+            crstat->size_z = value2;
             break;
         case 20: // ATTACKPREFERENCE
             crstat->attack_preference = value;
@@ -2683,7 +2687,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             break;
         case 27: // THINGSIZE
             crstat->thing_size_xy = value;
-            crstat->thing_size_yz = value2;
+            crstat->thing_size_z = value2;
             break;
         case 29: // NAMETEXTID
             crconf->namestr_idx = value;
@@ -2766,7 +2770,6 @@ static void set_object_configuration_process(struct ScriptContext *context)
 {
     struct Objects* objdat = get_objects_data(context->value->arg0);
     struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
-    struct ObjectConfig* objbc = &gameadd.object_conf.base_config[context->value->arg0];
     switch (context->value->arg1)
     {
         case 2: // GENRE
@@ -2787,8 +2790,8 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 7: //SIZE_XY
             objdat->size_xy = context->value->arg2;
             break;
-        case 8: // SIZE_YZ
-            objdat->size_yz = context->value->arg2;
+        case 8: // SIZE_Z
+            objdat->size_z = context->value->arg2;
             break;
         case 9: // MAXIMUMSIZE
             objdat->sprite_size_max = context->value->arg2;
@@ -2800,22 +2803,22 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objdat->destroy_on_lava = context->value->arg2;
             break;
         case 12: // HEALTH
-            objbc->health = context->value->arg2;
+            objst->health = context->value->arg2;
             break;
         case 13: // FALLACCELERATION
-            objbc->fall_acceleration = context->value->arg2;
+            objst->fall_acceleration = context->value->arg2;
             break;
         case 14: // LIGHTUNAFFECTED
-            objbc->light_unaffected = context->value->arg2;
+            objst->light_unaffected = context->value->arg2;
             break;
         case 15: // LIGHTINTENSITY
-            objbc->ilght.intensity = context->value->arg2;
+            objst->ilght.intensity = context->value->arg2;
             break;
         case 16: // LIGHTRADIUS
-            objbc->ilght.radius = context->value->arg2 << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+            objst->ilght.radius = context->value->arg2 * COORD_PER_STL;
             break;
         case 17: // LIGHTISDYNAMIC
-            objbc->ilght.is_dynamic = context->value->arg2;
+            objst->ilght.is_dynamic = context->value->arg2;
             break;
         case 18: // MAPICON
             objst->map_icon = context->value->arg2;
@@ -3928,9 +3931,14 @@ static void set_music_process(struct ScriptContext *context)
             game.audiotrack = track_number;
         }
     }
+    else if (track_number == 0)
+    {
+        game.audiotrack = track_number;
+        SCRPTLOG("Setting music track to %d: No Music", track_number);
+    }
     else
     {
-        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
+        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d or 0 to disable.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
     }
 }
 

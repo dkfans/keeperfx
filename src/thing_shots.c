@@ -499,6 +499,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
               destroy_shot = 1;
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+            reveal_secret_door_to_player(doortng,shotng->owner);
         } else
         if (cube_is_water(cube_id))
         {
@@ -559,6 +560,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     destroy_shot = 1;
                 i = calculate_shot_real_damage_to_door(doortng, shotng);
                 apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+                reveal_secret_door_to_player(doortng,shotng->owner);
             } else
             {
                 eff_kind = shotst->hit_generic.effect_model;
@@ -647,6 +649,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
             // Apply damage to the door
             i = calculate_shot_real_damage_to_door(doortng, shotng);
             apply_damage_to_thing(doortng, i, shotst->damage_type, -1);
+            reveal_secret_door_to_player(doortng,shotng->owner);
       }
     }
     if (!thing_is_invalid(efftng)) {
@@ -734,10 +737,6 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (target->health < 0) {
         return false;
     }
-    struct ObjectConfig* objconf = get_object_model_stats2(target->model);
-    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
-        return false;
-    }
     struct Thing* shootertng = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shootertng = thing_get(shotng->parent_idx);
@@ -791,10 +790,6 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         return false;
     }
     if (target->health < 0) {
-        return false;
-    }
-    struct ObjectConfig* objconf = get_object_model_stats2(target->model);
-    if (objconf->resistant_to_nonmagic && !(shotst->damage_type == DmgT_Magical)) {
         return false;
     }
     struct Thing* shootertng = INVALID_THING;
@@ -972,10 +967,9 @@ long check_hit_when_attacking_door(struct Thing *thing)
  * Kills a creature with given shot.
  * @param shotng The shot which is killing the victim creature.
  * @param creatng The victim creature thing.
- * @return True if the creature is being killed, false if something have failed.
  * @note sometimes named shot_kills_creature().
  */
-TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
+void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     creatng->health = -1;
@@ -995,7 +989,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
     {
         dieflags |= CrDed_NoUnconscious;
     }
-    return kill_creature(creatng, killertng, shotng->owner, dieflags);
+    kill_creature(creatng, killertng, shotng->owner, dieflags);
 }
 
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
@@ -1141,7 +1135,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
             struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
-            short target_center = (killertng->solid_size_yz + ((killertng->solid_size_yz * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
+            short target_center = (killertng->solid_size_z + ((killertng->solid_size_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
             pos2.z.val = target_center + killertng->mappos.z.val;
             clear_thing_acceleration(shotng);
             set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
@@ -1522,12 +1516,12 @@ TngUpdateRet update_shot(struct Thing *thing)
         {
             target = thing_get(thing->shot.target_idx);
             struct ComponentVector cvect;
-            if ((thing_exists(target)) && (target->class_id == TCls_Creature))
+            if ((thing_exists(target)) && (target->class_id == TCls_Creature) && !thing_is_picked_up(target) && !creature_is_being_unconscious(target))
             {
                 pos2.x.val = target->mappos.x.val;
                 pos2.y.val = target->mappos.y.val;
                 pos2.z.val = target->mappos.z.val;
-                pos2.z.val += (target->clipbox_size_yz >> 1);
+                pos2.z.val += (target->clipbox_size_z >> 1);
                 thing->move_angle_xy = get_angle_xy_to(&thing->mappos, &pos2);
                 thing->move_angle_z = get_angle_yz_to(&thing->mappos, &pos2);
                 angles_to_vector(thing->move_angle_xy, thing->move_angle_z, shotst->speed, &cvect);
@@ -1701,14 +1695,14 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->inertia_floor = shotst->inertia_floor;
     thing->inertia_air = shotst->inertia_air;
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->soft_landing) & TMvF_Unknown08;
-    set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
+    set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
     thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Unknown01;
     thing->clipbox_size_xy = shotst->size_xy;
-    thing->clipbox_size_yz = shotst->size_yz;
+    thing->clipbox_size_z = shotst->size_z;
     thing->solid_size_xy = shotst->size_xy;
-    thing->solid_size_yz = shotst->size_yz;
+    thing->solid_size_z = shotst->size_z;
     thing->shot.damage = shotst->damage;
     thing->shot.dexterity = 255;
     thing->health = shotst->health;

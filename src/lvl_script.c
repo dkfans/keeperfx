@@ -892,11 +892,6 @@ short load_script(long lvnum)
     reset_creature_max_levels();
     reset_script_timers_and_flags();
     reset_hand_rules();
-    if ((game.operation_flags & GOF_ColumnConvert) != 0)
-    {
-        convert_old_column_file(lvnum);
-        game.operation_flags &= ~GOF_ColumnConvert;
-    }
     // Load the file
     long script_len = 1;
     char* script_data = (char*)load_single_map_file_to_buffer(lvnum, "txt", &script_len, LMFF_None);

@@ -5988,10 +5988,37 @@ msgstr ""
 "你的丰功伟绩让你成为传奇的地下城守护者。你邪恶与狡猾的恐怖故事将会被一代又一"
 "代的人们传颂。"
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "哞2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "密门"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr "密门: 除非敌人仔细观察或看到这扇门打开，否则这扇门对敌人来说是隐藏的。"
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "发现密门: 左键切换。右键删除。"
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "发现密门"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "敌人发现了你的暗门: 左键切换。右键删除。"
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "敌人发现了你的暗门"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -6348,7 +6375,7 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr "地下城守护者原版战役"
 
 #: guitext:1012
@@ -6404,7 +6431,7 @@ msgstr "格林尼斯的统治战役"
 #: guitext:1022
 msgctxt "Menu interface item""
 msgid "Japanese DKMaps8 pack"
-msgstr "日本人的战役"
+msgstr "日本人的地下城战役"
 
 #: guitext:1023
 msgctxt "Menu interface item""
@@ -6428,7 +6455,7 @@ msgstr "尼古莱的城堡战役"
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr "原版增强战役"
 
 #: guitext:1028
@@ -6502,3 +6529,23 @@ msgstr "德鲁伊"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "时间法师"
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "岩石形态。"
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "基岩：未声明的岩石地板。你不能声明它或在上面建造。"
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "密集的金属矿层：为你的小鬼提供丰富的财富。"

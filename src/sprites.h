@@ -730,6 +730,11 @@ enum GUIPanelSprite {
 	GPS_plyrsym_symbol_player_white_good_dead = 540,
 	GPS_plyrsym_symbol_player_any_dead = 541,
 	GPS_plyrsym_symbol_room_white_std = 542,
+    
+    GPS_keepower_timebomb_std_s = 550,
+    GPS_keepower_timebomb_dis_s = 551,
+    GPS_keepower_timebomb_std_l = 566,
+    GPS_keepower_timebomb_dis_l = 567,
 
 	GPS_rpanel_rpanel_extra = 547,
 
