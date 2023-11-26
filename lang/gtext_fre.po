@@ -792,7 +792,7 @@ msgid ""
 "place your own creatures within the room whenever disciplinary measures "
 "become necessary."
 msgstr ""
-"Vous avez demandé une Salle de Tortures. Placez les créatures et les héros "
+"Vous avez capturé une Chambre des tortures. Placez les créatures et les héros "
 "captifs dans cette chambre des horreurs pour les convertir à votre programme "
 "du maléfice suprême. Vous pouvez aussi y placer vos propres créatures si des "
 "mesures disciplinaires s'imposent."
@@ -862,7 +862,7 @@ msgid ""
 "An Orc warlord joins you and brings with him the plans for building a "
 "Barracks. In this room you can form creatures into teams."
 msgstr ""
-"Un sorcier orque vous rejoint et apporte les plans d'un Quartier Général. "
+"Un sorcier orque vous rejoint et apporte les plans d'une Caserne. "
 "Dans cette salle, vous pourrez rassembler des équipes de créatures."
 
 #. Level Wishvale objective
@@ -3406,47 +3406,47 @@ msgstr "Bonus"
 #: guitext:431
 msgctxt "Menu interface, Main Menu item"
 msgid "High Score Table"
-msgstr "Les Meilleurs Scores"
+msgstr "Meilleurs Scores"
 
 #: guitext:432
 msgctxt "Menu interface item"
 msgid "Go to Query Mode"
-msgstr "Mode Question"
+msgstr "Mode Requête"
 
 #: guitext:433
 msgctxt "Menu interface item"
 msgid "More information"
-msgstr "Autres Informations"
+msgstr "Autres informations"
 
 #: guitext:434
 msgctxt "Menu interface item"
 msgid "Back to main Query Screen"
-msgstr "Retour A L'écran D'aide"
+msgstr "Retour à l'écran d'aide"
 
 #: guitext:435
 msgctxt "Menu interface item"
 msgid "Selected action"
-msgstr "Action Sélectionnée"
+msgstr "Action sélectionnée"
 
 #: guitext:436
 msgctxt "Menu interface item"
 msgid "Choose party"
-msgstr "Choisir Un Camp"
+msgstr "Choisir un groupe"
 
 #: guitext:437
 msgctxt "Menu interface item"
 msgid "Enter dungeon"
-msgstr "Entrer Dans Le Donjon"
+msgstr "Entrer dans le donjon"
 
 #: guitext:438
 msgctxt "Menu interface item"
 msgid "Party members"
-msgstr "Membres De L'équipe"
+msgstr "Membres du groupe"
 
 #: guitext:439
 msgctxt "Menu interface item"
 msgid "Available creatures"
-msgstr "Créatures Disponibles"
+msgstr "Créatures disponibles"
 
 #: guitext:440
 msgctxt "Menu interface item"
@@ -3456,7 +3456,7 @@ msgstr "Créature"
 #: guitext:441
 msgctxt "Menu interface item"
 msgid "Money available"
-msgstr "Argent Disponible"
+msgstr "Argent disponible"
 
 #: guitext:442
 msgctxt "Menu interface item"
@@ -3476,7 +3476,7 @@ msgstr "Renvoyer"
 #: guitext:445
 msgctxt "Menu interface item"
 msgid "Cost"
-msgstr "Cout"
+msgstr "Coût"
 
 #: guitext:446
 msgctxt "Menu interface item"
@@ -4050,34 +4050,34 @@ msgstr "Avatar"
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Aggressive. LMB toggle."
 msgstr ""
-"Modifier l'assistant : Actuellement Agressif. Choisir avec le bouton "
+"Modifier l'assistant : Actuellement Agressif. Activer avec le bouton "
 "gauche de la souris. [3.2.4]"
 
 #: guitext:549
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Defensive. LMB toggle."
 msgstr ""
-"Modifier l'assistant : Actuellement Défensif. Choisir avec le bouton "
+"Modifier l'assistant : Actuellement Défensif. Activer avec le bouton "
 "gauche de la souris. [3.2.4]"
 
 #: guitext:550
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Construction Only. LMB toggle."
 msgstr ""
-"Modifier l'assistant : Actuellement Construction seulement. Choisir avec "
+"Modifier l'assistant : Actuellement Construction seulement. Activer avec "
 "le bouton gauche de la souris. [3.2.4]"
 
 #: guitext:551
 msgctxt "In-game interface description"
 msgid "Toggle Computer Assistant: Currently - Move Only. LMB toggle."
 msgstr ""
-"Modifier l'assistant : Actuellement Déplacement uniquement. Choisir avec "
+"Modifier l'assistant : Actuellement Déplacement uniquement. Activer avec "
 "le bouton gauche de la souris. [3.2.4]"
 
 #: guitext:552
 msgctxt "In-game tab with rooms"
 msgid "Treasure Room"
-msgstr "Salle Du Trésor"
+msgstr "Salle du trésor"
 
 #: guitext:553
 msgctxt "In-game tab with rooms"
@@ -4097,7 +4097,7 @@ msgstr "Prison"
 #: guitext:556
 msgctxt "In-game tab with rooms"
 msgid "Torture Room"
-msgstr "Salle Des Tortures"
+msgstr "Chambre des tortures"
 
 #: guitext:557
 msgctxt "In-game tab with rooms"
@@ -4107,7 +4107,7 @@ msgstr "Salle d'entraînement"
 #: guitext:558
 msgctxt "In-game tab with rooms"
 msgid "Dungeon Heart"
-msgstr "Coeur Du Donjon"
+msgstr "Coeur du donjon"
 
 #: guitext:559
 msgctxt "In-game tab with rooms"
@@ -4132,7 +4132,7 @@ msgstr "Cimetière"
 #: guitext:563
 msgctxt "In-game tab with rooms"
 msgid "Barracks"
-msgstr "Quartier Général"
+msgstr "Caserne"
 
 #: guitext:564
 msgctxt "In-game tab with rooms"
@@ -4142,7 +4142,7 @@ msgstr "Couvoir"
 #: guitext:565
 msgctxt "In-game tab with rooms"
 msgid "Guard Post"
-msgstr "Poste De Garde"
+msgstr "Poste de garde"
 
 #: guitext:566
 msgctxt "In-game tab with rooms"
@@ -4155,7 +4155,7 @@ msgstr "Combat"
 
 #: guitext:568
 msgid "Annoyed"
-msgstr "Créatures Ennuyés"
+msgstr "Créatures ennuyées"
 
 #: guitext:569
 msgctxt "Keyboard"
@@ -4378,7 +4378,7 @@ msgstr "Prison"
 #: guitext:602
 msgctxt "Room name"
 msgid "Torture Chamber"
-msgstr "Salle des tortures"
+msgstr "Chambre des tortures"
 
 #: guitext:603
 msgctxt "Room name"
@@ -4403,7 +4403,7 @@ msgstr "Cimetière"
 #: guitext:607
 msgctxt "Room name"
 msgid "Barracks"
-msgstr "Quartier général"
+msgstr "Caserne"
 
 #: guitext:608
 msgctxt "Room name"
@@ -4480,7 +4480,7 @@ msgid ""
 "Torture Chamber: Torture creatures for your own evil ends. LMB select. RMB "
 "zoom. [17.11]"
 msgstr ""
-"Salle des tortures : Torturez des créatures pour satisfaire vos malins "
+"Chambre des tortures : Torturez des créatures pour satisfaire vos malins "
 "plaisirs. Sélectionnez avec le bouton gauche de la souris et zoomez avec le "
 "bouton droit. [17.11]"
 
@@ -4514,7 +4514,7 @@ msgid ""
 "Barracks: Group creatures by placing them into the room. LMB select. RMB "
 "zoom. [17.9]"
 msgstr ""
-"Quartier général : Rassemblez les créatures en les plaçant dans cette salle. "
+"Caserne : Rassemblez les créatures en les plaçant dans cette salle. "
 "Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton "
 "droit. [17.9]"
 
@@ -5674,7 +5674,7 @@ msgstr ""
 msgctxt "Easter egg"
 msgid "Trespassers will meet their doom, In your dungeon's Torture Room."
 msgstr ""
-"Les intrus qui trop loin s'aventurent finiront dans votre salle des tortures."
+"Les intrus qui trop loin s'aventurent finiront dans votre Chambre des tortures."
 
 #: guitext:816
 msgctxt "Easter egg"
