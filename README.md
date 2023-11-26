@@ -1,6 +1,6 @@
 # KeeperFX
 
-![KeeperFX Logo](/docs/top-banner.png)
+![KeeperFX Logo](/docs/assets/readme-banner.png)
 
 ![PRs welcome](https://img.shields.io/badge/PRs-welcome-brightgreen?style=flat-square)
 ![Release](https://img.shields.io/github/v/release/dkfans/keeperfx?style=flat-square)
