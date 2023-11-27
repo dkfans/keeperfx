@@ -179,7 +179,7 @@ long light_create_light(struct InitLight *ilght)
     lgt->intensity = ilght->intensity;
     lgt->flags2 |= ilght->field_3 << 1;
 
-    set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
+    set_flag_value(lgt->flags, LgtF_Dynamic, ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
     return lgt->index;
 }

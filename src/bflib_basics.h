@@ -165,7 +165,6 @@ unsigned long blong (unsigned char *p);
 unsigned long llong (unsigned char *p);
 unsigned long bword (unsigned char *p);
 unsigned long lword (unsigned char *p);
-void set_flag_byte(unsigned char *flags,unsigned char mask,short value);
 long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
 void make_lowercase(char *);
@@ -224,6 +223,15 @@ void make_uppercase(char *);
  * @return Returns TRUE if all bits are set to 1 in the given flags variable.
  */
 #define all_flags_are_set(flags,count) ((1 << count) - flags == 1)
+
+/** 
+ * Set a flag* - by setting the given masked bit(s) to "bool value" in the given flags variable. *Can set multiple flags.
+ * 
+ * @param flags The flags variable we want to change.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to set.
+ * @param value If value == 0, then set the masked bit(s) to 0 in "flags". If value != 0, then set the masked bit(s) to 1 in "flags".
+ */
+#define set_flag_value(flags,mask,value) ((value) ? (set_flag(flags,mask)) : (clear_flag(flags,mask)))
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -2586,7 +2586,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_off_all_window_menus();
         turn_off_query_menus();
         turn_on_main_panel_menu();
-        set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+        set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   light_turn_light_on(player->cursor_light_idx);
 }
@@ -3059,7 +3059,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
       {
         thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
       }
-      set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
+      set_flag_value(shotng->movement_flags, TMvF_Unknown10, flag1);
     }
 }
 

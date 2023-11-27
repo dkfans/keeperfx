@@ -317,7 +317,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
-    set_flag_byte(&thing->movement_flags, TMvF_Immobile, objst->immobile);
+    set_flag_value(thing->movement_flags, TMvF_Immobile, objst->immobile);
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
 
@@ -331,11 +331,11 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       k = -1;
     }
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
-    set_flag_byte(&thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
-    set_flag_byte(&thing->rendering_flags, TRF_Unknown01, objdat->not_drawn & 0x01);
+    set_flag_value(thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
+    set_flag_value(thing->rendering_flags, TRF_Unknown01, objdat->not_drawn & 0x01);
 
-    set_flag_byte(&thing->rendering_flags, TRF_Transpar_4, objdat->field_F & 0x01);
-    set_flag_byte(&thing->rendering_flags, TRF_Transpar_8, objdat->field_F & 0x02);
+    set_flag_value(thing->rendering_flags, TRF_Transpar_4, objdat->field_F & 0x01);
+    set_flag_value(thing->rendering_flags, TRF_Transpar_8, objdat->field_F & 0x02);
 
     thing->active_state = objdat->initial_state;
     if (objst->ilght.radius != 0)

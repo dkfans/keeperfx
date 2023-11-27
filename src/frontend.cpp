@@ -1858,7 +1858,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     // Restore saved data
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-    set_flag_byte(&player->additional_flags,PlaAF_UnlockedLordTorture,flg_mem);
+    set_flag_value(player->additional_flags, PlaAF_UnlockedLordTorture, flg_mem);
     // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
     if (((game.system_flags & GSF_NetworkActive) != 0)
      || ((game.operation_flags & GOF_SingleLevel) != 0)
@@ -2529,7 +2529,7 @@ TbBool toggle_first_person_menu(TbBool visible)
 void set_gui_visible(TbBool visible)
 {
   SYNCDBG(6,"Starting");
-  set_flag_byte(&game.operation_flags,GOF_ShowGui,visible);
+  set_flag_value(game.operation_flags, GOF_ShowGui, visible);
   struct PlayerInfo *player=get_my_player();
   unsigned char is_visbl = ((game.operation_flags & GOF_ShowGui) != 0);
   switch (player->view_type)

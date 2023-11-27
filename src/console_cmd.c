@@ -451,7 +451,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (load_game(slot_num))
             {
-                set_flag_byte(&game.operation_flags,GOF_Paused,Pause); // unpause, because games are saved whilst paused
+                set_flag_value(game.operation_flags, GOF_Paused, Pause); // unpause, because games are saved whilst paused
                 return true;
             }
             else

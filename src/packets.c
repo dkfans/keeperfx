@@ -294,9 +294,9 @@ void process_pause_packet(long curr_pause, long new_pause)
   if ( can )
   {
       player = get_my_player();
-      set_flag_byte(&game.operation_flags, GOF_Paused, curr_pause);
+      set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if ((game.operation_flags & GOF_Paused) != 0)
-          set_flag_byte(&game.operation_flags, GOF_WorldInfluence, new_pause);
+          set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
       else
           clear_flag(game.operation_flags, GOF_Paused);
       if ( !SoundDisabled )
