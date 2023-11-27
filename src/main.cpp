@@ -1391,7 +1391,7 @@ void update_creatr_model_activities_list(void)
 void toggle_hero_health_flowers(void)
 {
     const char *statstr;
-    toggle_flag(game.flags_cd,MFlg_NoHeroHealthFlower);
+    toggle_flag(game.flags_cd, MFlg_NoHeroHealthFlower);
     if (game.flags_cd & MFlg_NoHeroHealthFlower)
     {
       statstr = "off";

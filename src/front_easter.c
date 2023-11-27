@@ -203,7 +203,7 @@ void draw_eastegg(void)
         LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
           scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
       }
-      clear_flag(lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR);
+      clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
       pos=game.play_gameturn;
       LbTextDrawResized(scale_fixed_DK_value((LbCosL(16*(long)pos) / 512 + skeksis_x_offset) / pixel_size),
           scale_fixed_DK_value((LbSinL(32*(long)pos) / 512 + skeksis_y_offset) / pixel_size), ee_units_per_px, text);
