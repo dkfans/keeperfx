@@ -577,7 +577,7 @@ static void command_add_tunneller_to_level(long plr_range_id, const char *locnam
     {
         struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
         set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
+        clear_flag(tn_trig->flags, TrgF_DISABLED);
         tn_trig->plyr_idx = plr_id;
         tn_trig->location = location;
         tn_trig->heading = heading;
@@ -638,7 +638,7 @@ static void command_add_tunneller_party_to_level(long plr_range_id, const char *
     {
         struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
         set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
+        clear_flag(tn_trig->flags, TrgF_DISABLED);
         tn_trig->plyr_idx = plr_id;
         tn_trig->location = location;
         tn_trig->heading = heading;

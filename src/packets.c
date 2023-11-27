@@ -298,7 +298,7 @@ void process_pause_packet(long curr_pause, long new_pause)
       if ((game.operation_flags & GOF_Paused) != 0)
           set_flag_byte(&game.operation_flags, GOF_WorldInfluence, new_pause);
       else
-          set_flag_byte(&game.operation_flags, GOF_Paused, false);
+          clear_flag(game.operation_flags, GOF_Paused);
       if ( !SoundDisabled )
       {
         if ((game.operation_flags & GOF_Paused) != 0)
@@ -1445,10 +1445,10 @@ void process_packets(void)
   {
   case 1:
       set_flag(game.system_flags, GSF_NetGameNoSync);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+      clear_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   case 2:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
+      clear_flag(game.system_flags, GSF_NetGameNoSync);
       set_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   case 3:
@@ -1456,8 +1456,8 @@ void process_packets(void)
       set_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   default:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+      clear_flag(game.system_flags, GSF_NetGameNoSync);
+      clear_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   }
   // Write packets into file, if requested

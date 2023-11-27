@@ -2775,7 +2775,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           last_mouse_y = GetMouseY();
           time_last_played_demo = LbTimerClock();
           fe_high_score_table_from_main_menu = true;
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_FELOAD_GAME:
@@ -2797,7 +2797,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_NET_SESSION:
           turn_on_menu(GMnu_FENET_SESSION);
           frontnet_session_setup();
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_NET_START:

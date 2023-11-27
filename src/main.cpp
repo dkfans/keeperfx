@@ -1611,13 +1611,13 @@ TbBool set_default_startup_parameters(void)
 {
     memset(&start_params, 0, sizeof(struct StartupParameters));
     start_params.packet_checksum_verify = 1;
-    set_flag_byte(&start_params.flags_font,FFlg_unk01,false);
+    clear_flag(start_params.flags_font, FFlg_unk01);
     // Set levels to 0, as we may not have the campaign loaded yet
     start_params.selected_level_number = 0;
     start_params.num_fps = 20;
     start_params.one_player = 1;
     start_params.computer_chat_flags = CChat_None;
-    set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
+    clear_flag(start_params.flags_cd, MFlg_IsDemoMode);
     set_flag(start_params.flags_cd, MFlg_unk40);
     start_params.force_ppro_poly = 0;
     return true;
@@ -1802,7 +1802,7 @@ void clear_game_for_save(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    set_flag_byte(&game.operation_flags,GOF_Unkn04,false);
+    clear_flag(game.operation_flags, GOF_Unkn04);
     clear_columns();
     clear_players_for_save();
     clear_dungeons();
@@ -2764,7 +2764,7 @@ void update(void)
         if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
-            set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
+            clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
@@ -3669,7 +3669,7 @@ static TbBool wait_at_frontend(void)
     try_restore_frontend_error_box();
 
     short finish_menu = 0;
-    set_flag_byte(&game.flags_cd,MFlg_unk40,false);
+    clear_flag(game.flags_cd, MFlg_unk40);
     // TODO move to separate function
     // Begin the frontend loop
     long fe_last_loop_time = LbTimerClock();
@@ -3749,7 +3749,7 @@ static TbBool wait_at_frontend(void)
     case FeSt_START_KPRLEVEL:
           my_player_number = default_loc_player;
           game.game_kind = GKind_LocalGame;
-          set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           player = get_my_player();
           player->is_active = 1;
           startup_network_game(&loop, true);
@@ -3763,7 +3763,7 @@ static TbBool wait_at_frontend(void)
           break;
     case FeSt_LOAD_GAME:
           flgmem = game.numfield_15;
-          set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           LbScreenClear(0);
           LbScreenSwap();
           if (!load_game(game.numfield_15))
@@ -3777,7 +3777,7 @@ static TbBool wait_at_frontend(void)
           game.flags_cd |= MFlg_IsDemoMode;
           startup_saved_packet_game();
           set_gui_visible(false);
-          set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+          clear_flag(game.operation_flags, GOF_ShowPanel);
           break;
     }
 
@@ -3823,7 +3823,7 @@ void game_loop(void)
         } else
         {
           game.numfield_15 = -1;
-          set_flag_byte(&game.operation_flags,GOF_Paused,false);
+          clear_flag(game.operation_flags, GOF_Paused);
         }
       } else {
           toggle_status_menu(1); // Required when skipping PI_HeartZoom

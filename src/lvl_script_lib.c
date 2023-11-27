@@ -40,7 +40,7 @@ struct ScriptValue *allocate_script_value(void)
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id)
 {
     set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
-    set_flag_byte(&value->flags, TrgF_DISABLED, false);
+    clear_flag(value->flags, TrgF_DISABLED);
     value->valtype = var_index;
     value->plyr_range = plr_range_id;
     value->condit_idx = get_script_current_condition();

@@ -67,7 +67,7 @@ static inline void reset_scrolling_tooltip(void)
 {
     render_tooltip_scroll_offset = 0;
     render_tooltip_scroll_timer = 25.0;
-    set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,false);
+    clear_flag(tool_tip_box.flags, TTip_NeedReset);
 }
 
 void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)

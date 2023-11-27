@@ -396,7 +396,7 @@ TbBool load_game(long slot_num)
         my_player_number = default_loc_player;
         player = get_my_player();
         game.flagfield_14EA4A = 2;
-        set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
+        clear_flag(game.system_flags, GSF_NetworkActive);
         player->is_active = 1;
         set_selected_level_number(((struct Game *)buf)->load_restart_level);
         set_continue_level_number(((struct Game *)buf)->continue_level_number);
@@ -426,8 +426,8 @@ TbBool load_game(long slot_num)
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();
-    set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
-    set_flag_byte(&player->additional_flags,PlaAF_FreezePaletteIsActive,false);
+    clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
+    clear_flag(player->additional_flags, PlaAF_FreezePaletteIsActive);
     player->palette_fade_step_pain = 0;
     player->palette_fade_step_possession = 0;
     player->lens_palette = 0;

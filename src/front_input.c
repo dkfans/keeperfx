@@ -751,7 +751,7 @@ TbBool get_level_lost_inputs(void)
                 if (toggle_status_menu(0))
                   set_flag(game.operation_flags, GOF_ShowPanel);
                 else
-                  set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+                  clear_flag(game.operation_flags, GOF_ShowPanel);
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
           } else
           {
@@ -2709,7 +2709,7 @@ short get_gui_inputs(short gameplay_on)
       over_slider_button = -1;
       do_sound_menu_click();
   }
-  set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+  clear_flag(tool_tip_box.flags, TTip_Visible);
   gui_button_tooltip_update(gmbtn_idx);
   if (gui_slider_button_inputs(over_slider_button))
       return true;

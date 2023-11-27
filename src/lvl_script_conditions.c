@@ -321,7 +321,7 @@ static void process_condition(struct Condition *condt, int idx)
     SYNCDBG(18,"Starting for type %d, player %d",(int)condt->variabl_type,(int)condt->plyr_range);
     if (condition_inactive(condt->condit_idx))
     {
-        set_flag_byte(&condt->status, 0x01, false);
+        clear_flag(condt->status, 0x01);
         return;
     }
     if ((condt->variabl_type == SVar_SLAB_OWNER) || (condt->variabl_type == SVar_SLAB_TYPE)) //These variable types abuse the plyr_range, since all slabs don't fit in an unsigned short
@@ -391,7 +391,7 @@ static void process_condition(struct Condition *condt, int idx)
     set_flag_byte(&condt->status, 0x01,  new_status);
     if (((condt->status & 0x01) == 0) || ((condt->status & 0x02) != 0))
     {
-        set_flag_byte(&condt->status, 0x04,  false);
+        clear_flag(&condt->status, 0x04);
     } else
     {
         set_flag(condt->status, 0x02);

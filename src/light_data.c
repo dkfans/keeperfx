@@ -209,7 +209,7 @@ TbBool light_create_light_adv(VALUE *init_data)
         light_total_stat_lights++;
         light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
         stat_light_needs_updating = 1;
-        set_flag_byte(&lgt->flags, LgtF_Dynamic, false);
+        clear_flag(lgt->flags, LgtF_Dynamic);
     }
     lgt->flags |= LgtF_Unkn02;
     lgt->flags |= LgtF_Unkn08;

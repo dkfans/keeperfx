@@ -440,7 +440,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
           ERRORLOG("Error in save!");
           create_error_box(GUIStr_ErrorSaving);
         }
-        set_flag_byte(&game.operation_flags,GOF_Paused,false); // unpause after save attempt
+        clear_flag(game.operation_flags, GOF_Paused); // unpause after save attempt
         return result;
     }
     else if (strcasecmp(parstr, "game.load") == 0)
