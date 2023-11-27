@@ -46,35 +46,45 @@ int frontend_load_game_button_to_index(struct GuiButton *gbtn)
     int k = -1;
     for (int i = gbidx + load_game_scroll_offset - 45; i >= 0; i--)
     {
-        struct CatalogueEntry* centry;
+        struct CatalogueEntry *centry;
         do
         {
             k++;
             if (k >= TOTAL_SAVE_SLOTS_COUNT)
+            {
                 return -1;
+            }
             centry = &save_game_catalogue[k];
         } while ((centry->flags & CEF_InUse) == 0);
-  }
-  return k;
+    }
+    return k;
 }
 
 void gui_load_game_maintain(struct GuiButton *gbtn)
 {
-  long slot_num;
-  if (gbtn != NULL)
-      slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
-  else
-      slot_num = 0;
-  struct CatalogueEntry* centry = &save_game_catalogue[slot_num];
-  if ((centry->flags & CEF_InUse) != 0)
-      gbtn->flags |= LbBtnF_Enabled;
-  else
-      gbtn->flags &=  ~LbBtnF_Enabled;
+    long slot_num;
+    if (gbtn != NULL)
+    {
+        slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
+    }
+    else
+    {
+        slot_num = 0;
+    }
+    struct CatalogueEntry *centry = &save_game_catalogue[slot_num];
+    if ((centry->flags & CEF_InUse) != 0)
+    {
+        gbtn->flags |= LbBtnF_Enabled;
+    }
+    else
+    {
+        gbtn->flags &= ~LbBtnF_Enabled;
+    }
 }
 
 void gui_load_game(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     long slot_num = gbtn->btype_value & LbBFeF_IntValueMask;
     if (!load_game(slot_num))
     {
@@ -83,13 +93,16 @@ void gui_load_game(struct GuiButton *gbtn)
         set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
         quit_game = 1;
         return;
-  }
-  set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
+    }
+    set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
 }
 
 void draw_load_button(struct GuiButton *gbtn)
 {
-    if (gbtn == NULL) return;
+    if (gbtn == NULL)
+    {
+        return;
+    }
     int bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, GBS_frontend_button_std_c, 94);
     int width = gbtn->width;
     TbBool low_res = (MyScreenHeight < 400);
@@ -100,53 +113,59 @@ void draw_load_button(struct GuiButton *gbtn)
     if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
-        int lit_width = gbtn->width + 6*units_per_pixel/16;
+        int lit_width = gbtn->width + 6 * units_per_pixel / 16;
         if (low_res)
         {
             lit_width += 32;
         }
-        draw_lit_bar64k(gbtn->scr_pos_x - 6*units_per_pixel/16, gbtn->scr_pos_y - 6*units_per_pixel/16, bs_units_per_px, lit_width);
-    } else
+        draw_lit_bar64k(gbtn->scr_pos_x - 6 * units_per_pixel / 16, gbtn->scr_pos_y - 6 * units_per_pixel / 16, bs_units_per_px, lit_width);
+    }
+    else
     {
         draw_bar64k(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, width);
     }
     if (gbtn->content != NULL)
     {
-        snprintf(gui_textbuf, sizeof(gui_textbuf), "%s", (const char*)gbtn->content);
-        draw_button_string(gbtn, (gbtn->width*32 + 16)/gbtn->height, gui_textbuf);
+        snprintf(gui_textbuf, sizeof(gui_textbuf), "%s", (const char *)gbtn->content);
+        draw_button_string(gbtn, (gbtn->width * 32 + 16) / gbtn->height, gui_textbuf);
     }
 }
 
 void gui_save_game(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
-    if (strcasecmp((char*)gbtn->content, get_string(GUIStr_SlotUnused)) != 0)
+    struct PlayerInfo *player = get_my_player();
+    if (strcasecmp((char *)gbtn->content, get_string(GUIStr_SlotUnused)) != 0)
     {
         long slot_num = (gbtn->btype_value & LbBFeF_IntValueMask) % TOTAL_SAVE_SLOTS_COUNT;
-        fill_game_catalogue_slot(slot_num, (char*)gbtn->content);
+        fill_game_catalogue_slot(slot_num, (char *)gbtn->content);
         if (save_game(slot_num))
         {
             output_message(SMsg_GameSaved, 0, true);
-        } else
-      {
-          ERRORLOG("Error in save!");
-          create_error_box(GUIStr_ErrorSaving);
-      }
-  }
-  set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
+        }
+        else
+        {
+            ERRORLOG("Error in save!");
+            create_error_box(GUIStr_ErrorSaving);
+        }
+    }
+    set_players_packet_action(player, PckA_TogglePause, 0, 0, 0, 0);
 }
 
 void update_loadsave_input_strings(struct CatalogueEntry *game_catalg)
 {
-    SYNCDBG(6,"Starting");
+    SYNCDBG(6, "Starting");
     for (long slot_num = 0; slot_num < TOTAL_SAVE_SLOTS_COUNT; slot_num++)
     {
-        struct CatalogueEntry* centry = &game_catalg[slot_num];
-        const char* text;
+        struct CatalogueEntry *centry = &game_catalg[slot_num];
+        const char *text;
         if ((centry->flags & CEF_InUse) != 0)
+        {
             text = centry->textname;
+        }
         else
-          text = get_string(GUIStr_SlotUnused);
+        {
+            text = get_string(GUIStr_SlotUnused);
+        }
         snprintf(input_string[slot_num], SAVE_TEXTNAME_LEN, "%s", text);
     }
 }
@@ -155,24 +174,31 @@ void frontend_load_game(struct GuiButton *gbtn)
 {
     int i = frontend_load_game_button_to_index(gbtn);
     if (i < 0)
+    {
         return;
+    }
     game.numfield_15 = i;
     if (is_save_game_loadable(i))
     {
         frontend_set_state(FeSt_LOAD_GAME);
-  } else
-  {
-    save_catalogue_slot_disable(i);
-    if (!initialise_load_game_slots())
-      frontend_set_state(FeSt_MAIN_MENU);
-  }
+    }
+    else
+    {
+        save_catalogue_slot_disable(i);
+        if (!initialise_load_game_slots())
+        {
+            frontend_set_state(FeSt_MAIN_MENU);
+        }
+    }
 }
 
 void frontend_draw_load_game_button(struct GuiButton *gbtn)
 {
     int i = frontend_load_game_button_to_index(gbtn);
     if (i < 0)
+    {
         return;
+    }
     // Select font to draw
     int font_idx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
     LbTextSetFont(frontend_font[font_idx]);
@@ -192,9 +218,9 @@ void frontend_load_game_up_maintain(struct GuiButton *gbtn)
     }
     else
     {
-        gbtn->flags &=  ~LbBtnF_Enabled;
+        gbtn->flags &= ~LbBtnF_Enabled;
     }
-    if (wheel_scrolled_up || (is_key_pressed(KC_UP,KMod_NONE)))
+    if (wheel_scrolled_up || (is_key_pressed(KC_UP, KMod_NONE)))
     {
         if (load_game_scroll_offset > 0)
         {
@@ -205,60 +231,65 @@ void frontend_load_game_up_maintain(struct GuiButton *gbtn)
 
 void frontend_load_game_down_maintain(struct GuiButton *gbtn)
 {
-    if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
+    if (load_game_scroll_offset < number_of_saved_games - frontend_load_menu_items_visible + 1)
     {
         gbtn->flags |= LbBtnF_Enabled;
     }
     else
     {
-        gbtn->flags &=  ~LbBtnF_Enabled;
+        gbtn->flags &= ~LbBtnF_Enabled;
     }
-    if (wheel_scrolled_down || (is_key_pressed(KC_DOWN,KMod_NONE)))
+    if (wheel_scrolled_down || (is_key_pressed(KC_DOWN, KMod_NONE)))
     {
-        if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
+        if (load_game_scroll_offset < number_of_saved_games - frontend_load_menu_items_visible + 1)
         {
             load_game_scroll_offset++;
         }
-	}
+    }
 }
 
 void frontend_load_game_up(struct GuiButton *gbtn)
 {
-  if (load_game_scroll_offset > 0)
-    load_game_scroll_offset--;
+    if (load_game_scroll_offset > 0)
+    {
+        load_game_scroll_offset--;
+    }
 }
 
 void frontend_load_game_down(struct GuiButton *gbtn)
 {
-    if (load_game_scroll_offset < number_of_saved_games-frontend_load_menu_items_visible+1)
-      load_game_scroll_offset++;
+    if (load_game_scroll_offset < number_of_saved_games - frontend_load_menu_items_visible + 1)
+    {
+        load_game_scroll_offset++;
+    }
 }
 
 void frontend_load_game_scroll(struct GuiButton *gbtn)
 {
-    load_game_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_load_menu_items_visible-2, number_of_saved_games);
+    load_game_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), frontend_load_menu_items_visible - 2, number_of_saved_games);
 }
 
 void frontend_draw_games_scroll_tab(struct GuiButton *gbtn)
 {
-    frontend_draw_scroll_tab(gbtn, load_game_scroll_offset, frontend_load_menu_items_visible-2, number_of_saved_games);
+    frontend_draw_scroll_tab(gbtn, load_game_scroll_offset, frontend_load_menu_items_visible - 2, number_of_saved_games);
 }
 
 void init_load_menu(struct GuiMenu *gmnu)
 {
-  SYNCDBG(6,"Starting");
-  struct PlayerInfo* player = get_my_player();
-  set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
-  load_game_save_catalogue();
-  update_loadsave_input_strings(save_game_catalogue);
+    SYNCDBG(6, "Starting");
+    struct PlayerInfo *player = get_my_player();
+    set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
+    load_game_save_catalogue();
+    update_loadsave_input_strings(save_game_catalogue);
 }
 
 void init_save_menu(struct GuiMenu *gmnu)
 {
-  SYNCDBG(6,"Starting");
-  struct PlayerInfo* player = get_my_player();
-  set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
-  load_game_save_catalogue();
-  update_loadsave_input_strings(save_game_catalogue);
+    SYNCDBG(6, "Starting");
+    struct PlayerInfo *player = get_my_player();
+    set_players_packet_action(player, PckA_UpdatePause, 1, 1, 0, 0);
+    load_game_save_catalogue();
+    update_loadsave_input_strings(save_game_catalogue);
 }
+
 /******************************************************************************/

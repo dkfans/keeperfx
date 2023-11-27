@@ -60,25 +60,34 @@ std::map<int, TbKeyCode> keymap_sdl_to_bf;
  * @param button SDL button definition.
  * @return
  */
- 
 
-static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent * button)
+static unsigned int mouse_button_actions_mapping(int eventType, const SDL_MouseButtonEvent *button)
 {
-    if (eventType == SDL_MOUSEBUTTONDOWN) {
-        switch (button->button)  {
-        case SDL_BUTTON_LEFT: return MActn_LBUTTONDOWN;
-        case SDL_BUTTON_MIDDLE: return MActn_MBUTTONDOWN;
-        case SDL_BUTTON_RIGHT: return MActn_RBUTTONDOWN;
+    if (eventType == SDL_MOUSEBUTTONDOWN)
+    {
+        switch (button->button)
+        {
+        case SDL_BUTTON_LEFT:
+            return MActn_LBUTTONDOWN;
+        case SDL_BUTTON_MIDDLE:
+            return MActn_MBUTTONDOWN;
+        case SDL_BUTTON_RIGHT:
+            return MActn_RBUTTONDOWN;
         }
     }
-    else if (eventType == SDL_MOUSEBUTTONUP) {
-        switch (button->button) {
-        case SDL_BUTTON_LEFT: return MActn_LBUTTONUP;
-        case SDL_BUTTON_MIDDLE: return MActn_MBUTTONUP;
-        case SDL_BUTTON_RIGHT: return MActn_RBUTTONUP;
+    else if (eventType == SDL_MOUSEBUTTONUP)
+    {
+        switch (button->button)
+        {
+        case SDL_BUTTON_LEFT:
+            return MActn_LBUTTONUP;
+        case SDL_BUTTON_MIDDLE:
+            return MActn_MBUTTONUP;
+        case SDL_BUTTON_RIGHT:
+            return MActn_RBUTTONUP;
         }
     }
-    WARNMSG("Unidentified event, type %d button %d",(int)eventType,(int)button->button);
+    WARNMSG("Unidentified event, type %d button %d", (int)eventType, (int)button->button);
     return MActn_NONE;
 }
 
@@ -218,7 +227,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDO, KC_UNASSIGNED));
 }
 
-static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
+static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent *key)
 {
     /*
     key->keysym.scancode;         < hardware specific scancode
@@ -237,7 +246,7 @@ static unsigned int keyboard_keys_mapping(const SDL_KeyboardEvent * key)
     return KC_UNASSIGNED;
 }
 
-static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
+static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent *key)
 {
     TbKeyMods keymod = KMod_NONE;
     switch (key->keysym.sym)
@@ -257,11 +266,17 @@ static TbKeyMods keyboard_mods_mapping(const SDL_KeyboardEvent * key)
     // If pressed any other key, mind the modifiers, to allow keyboard control fixes.
     default:
         if ((key->keysym.mod & KMOD_CTRL) != 0)
+        {
             keymod |= KMod_CONTROL;
+        }
         if ((key->keysym.mod & KMOD_SHIFT) != 0)
+        {
             keymod |= KMod_SHIFT;
+        }
         if ((key->keysym.mod & KMOD_ALT) != 0)
+        {
             keymod |= KMod_ALT;
+        }
         break;
     }
     return keymod;
@@ -283,20 +298,24 @@ static void process_event(const SDL_Event *ev)
     case SDL_KEYDOWN:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
-            keyboardControl(KActn_KEYDOWN,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
+        {
+            keyboardControl(KActn_KEYDOWN, x, keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
+        }
         break;
 
     case SDL_KEYUP:
         x = keyboard_keys_mapping(&ev->key);
         if (x != KC_UNASSIGNED)
-            keyboardControl(KActn_KEYUP,x,keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
+        {
+            keyboardControl(KActn_KEYUP, x, keyboard_mods_mapping(&ev->key), ev->key.keysym.sym);
+        }
         break;
 
     case SDL_MOUSEMOTION:
         if (!isMouseActive)
         {
-          SDL_GetMouseState(&prevMouseX, &prevMouseY);
-          return;
+            SDL_GetMouseState(&prevMouseX, &prevMouseY);
+            return;
         }
         if (lbMouseGrabbed && lbDisplay.MouseMoveRatio > 0)
         {
@@ -322,7 +341,7 @@ static void process_event(const SDL_Event *ev)
     case SDL_MOUSEBUTTONUP:
         if (!isMouseActive)
         {
-          return;
+            return;
         }
         mouseDelta.x = 0;
         mouseDelta.y = 0;
@@ -387,7 +406,7 @@ static void process_event(const SDL_Event *ev)
     case SDL_JOYHATMOTION:
     case SDL_JOYBUTTONDOWN:
     case SDL_JOYBUTTONUP:
-        //TODO INPUT make joypad support
+        // TODO INPUT make joypad support
         break;
 
     case SDL_SYSWMEVENT:
@@ -399,12 +418,14 @@ static void process_event(const SDL_Event *ev)
         break;
     }
 }
+
 /******************************************************************************/
 TbBool LbWindowsControl(void)
 {
     SDL_Event ev;
-    //process events until event queue is empty
-    while (SDL_PollEvent(&ev)) {
+    // process events until event queue is empty
+    while (SDL_PollEvent(&ev))
+    {
         process_event(&ev);
     }
     return (lbUserQuit < 1);
@@ -412,9 +433,11 @@ TbBool LbWindowsControl(void)
 
 TbBool LbIsActive(void)
 {
-  // On error, let's assume the window is active.
+    // On error, let's assume the window is active.
     if (!lbScreenInitialised)
+    {
         return true;
+    }
 
     return lbAppActive;
 }
@@ -446,7 +469,7 @@ void LbMouseCheckPosition(TbBool grab_state_changed)
                 }
                 else
                 {
-                    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
+                    LbMouseSetPosition(lbDisplay.PhysicalScreenWidth / 2, lbDisplay.PhysicalScreenHeight / 2);
                 }
             }
         }

@@ -2,10 +2,10 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file roomspace_detection.c
- *     Function for finding the best "room space" based on the player's 
+ *     Function for finding the best "room space" based on the player's
  *     current cursor position.
  * @par Purpose:
- *     Establishes an algorithm to search the area surrounding the cursor for 
+ *     Establishes an algorithm to search the area surrounding the cursor for
  *     square/rectangular areas that could contain the chosen room type.
  *     A composite of the several boxes is then returned as a "room space".
  * @par Comment:
@@ -27,10 +27,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-//variable init
+// variable init
 struct RoomQuery new_room_query;
+
 /******************************************************************************/
-//functions
+// functions
 void test_box_roomspaces_from_biggest_to_smallest(struct RoomQuery *room_query)
 {
     TbBool findCorridors = room_query->findCorridors;
@@ -58,10 +59,10 @@ void test_box_roomspaces_from_biggest_to_smallest(struct RoomQuery *room_query)
     struct RoomSpace best_corridor = room_query->best_corridor;
     int roomarea = 0;
 
-    //don't check for rooms when they can't be found
+    // don't check for rooms when they can't be found
     if ((room_query->mode & 2) == 2)
     {
-        if ((check_room_at_slab_loose(room_query->plyr_idx, room_query->rkind, centre_x, centre_y, room_query->roomspace_discovery_looseness)  + room_query->leniency) <= 0)
+        if ((check_room_at_slab_loose(room_query->plyr_idx, room_query->rkind, centre_x, centre_y, room_query->roomspace_discovery_looseness) + room_query->leniency) <= 0)
         {
             return;
         }
@@ -75,30 +76,30 @@ void test_box_roomspaces_from_biggest_to_smallest(struct RoomQuery *room_query)
     for (int w = max_width; w >= min_width; w--)
     {
         if ((w * max_width) < current_biggest_room.slab_count) // || (findCorridors && ((w * max_width) < best_corridor.slab_count)))
-        {   // sanity check, to stop pointless iterations of the loop
-            break; 
+        {                                                      // sanity check, to stop pointless iterations of the loop
+            break;
         }
 
         for (int h = max_width; h >= min_height; h--)
         {
             if ((w * h) < current_biggest_room.slab_count) // || (findCorridors && ((w * h) < best_corridor.slab_count)))
-            {   // sanity check, to stop pointless iterations of the loop
+            {                                              // sanity check, to stop pointless iterations of the loop
                 break;
             }
             int slabs = w * h;
             // check aspect ratio of the new room, and if the room w/h is = 10
-            if ((((min(w,h) * 1.0) / (max(w,h) * 1.0)) < minimumComparisonRatio) || (max(w,h) >= 10))
-            {   // this is a corridor
+            if ((((min(w, h) * 1.0) / (max(w, h) * 1.0)) < minimumComparisonRatio) || (max(w, h) >= 10))
+            { // this is a corridor
                 if (!findCorridors || (slabs <= best_corridor.slab_count))
-                {   // skip small corridors (this is trigger most of the time, as we either have a large corridor (1st one found) or we are not finding any corridors.
+                { // skip small corridors (this is trigger most of the time, as we either have a large corridor (1st one found) or we are not finding any corridors.
                     continue;
                 }
             }
             // get the extents of the current room
-            int leftExtent   = centre_x - calc_distance_from_roomspace_centre(w,0);
-            int rightExtent  = centre_x + calc_distance_from_roomspace_centre(w,(w % 2 == 0));
-            int topExtent    = centre_y - calc_distance_from_roomspace_centre(h,0);
-            int bottomExtent = centre_y + calc_distance_from_roomspace_centre(h,(h % 2 == 0));
+            int leftExtent = centre_x - calc_distance_from_roomspace_centre(w, 0);
+            int rightExtent = centre_x + calc_distance_from_roomspace_centre(w, (w % 2 == 0));
+            int topExtent = centre_y - calc_distance_from_roomspace_centre(h, 0);
+            int bottomExtent = centre_y + calc_distance_from_roomspace_centre(h, (h % 2 == 0));
             // check if cursor is not in the current room
             if (!(cursor_x >= leftExtent && cursor_x <= rightExtent && cursor_y >= topExtent && cursor_y <= bottomExtent))
             {
@@ -117,8 +118,8 @@ void test_box_roomspaces_from_biggest_to_smallest(struct RoomQuery *room_query)
             if (roomarea >= (slabs - room_query->leniency))
             {
                 // check aspect ratio of the new room, and if the room w/h is = 10
-                if ((((min(w,h) * 1.0) / (max(w,h) * 1.0)) < minimumComparisonRatio) || ((max(w,h) >= 10)))
-                { 
+                if ((((min(w, h) * 1.0) / (max(w, h) * 1.0)) < minimumComparisonRatio) || ((max(w, h) >= 10)))
+                {
                     // this is a corridor
                     if (roomarea > best_corridor.slab_count)
                     {
@@ -135,9 +136,9 @@ void test_box_roomspaces_from_biggest_to_smallest(struct RoomQuery *room_query)
                     }
                     break;
                 }
-                //else if (((roomarea * room_query->rkind_cost) <= room_query->moneyLeft) && (((min(w,h) * 1.0) / (max(w,h) * 1.0)) >= minimumRatio))
-                else if (((min(w,h) * 1.0) / (max(w,h) * 1.0)) >= minimumRatio)
-                { 
+                // else if (((roomarea * room_query->rkind_cost) <= room_query->moneyLeft) && (((min(w,h) * 1.0) / (max(w,h) * 1.0)) >= minimumRatio))
+                else if (((min(w, h) * 1.0) / (max(w, h) * 1.0)) >= minimumRatio)
+                {
                     TbBool isCorridorHorizontal = (best_corridor.width >= best_corridor.height);
                     TbBool isInCorridor = isCorridorHorizontal ? (topExtent >= best_corridor.top && bottomExtent <= best_corridor.bottom) : (leftExtent >= best_corridor.left && rightExtent <= best_corridor.right);
                     if (!isInCorridor || !findCorridors)
@@ -164,7 +165,7 @@ void test_box_roomspaces_from_biggest_to_smallest(struct RoomQuery *room_query)
             }
         }
     } // end loop of room sizes
-    
+
     room_query->best_corridor = best_corridor;
     room_query->best_room = current_biggest_room;
     if (findCorridors && best_corridor.width > 1 && best_corridor.height > 1)
@@ -184,13 +185,13 @@ void find_roomspace_within_radius(struct RoomQuery *room_query)
 {
     // Loop through all of the tiles in a search area, and then test for rooms centred on each of these tiles.
 
-    int direction = 0; // current direction; 0=RIGHT, 1=DOWN, 2=LEFT, 3=UP
+    int direction = 0;    // current direction; 0=RIGHT, 1=DOWN, 2=LEFT, 3=UP
     int tile_counter = 0; // the number of tiles that have been processed
-    int chain_size = 1; // a spiral is constructed out of chains, increasing in size around the centre
+    int chain_size = 1;   // a spiral is constructed out of chains, increasing in size around the centre
     int searchWidth = room_query->maxRoomWidth + (room_query->maxRoomWidth % 2 == 0);
     int max_count = searchWidth * searchWidth; // total number of tiles to iterate over
-    int chain_position = 0; // position along the current chain
-    int chain_iterations = 0; // every 2 iterations, the chain size is increased
+    int chain_position = 0;                    // position along the current chain
+    int chain_iterations = 0;                  // every 2 iterations, the chain size is increased
 
     // starting point (centre of area - start at current cursor position)
     int x = room_query->cursor_x; // current position; x
@@ -218,10 +219,18 @@ void find_roomspace_within_radius(struct RoomQuery *room_query)
         }
         switch (direction) // increase x/y based on direction of the chain
         {
-            case 0: y = y + 1; break; // moving Right
-            case 1: x = x + 1; break; // moving Down
-            case 2: y = y - 1; break; // moving Left
-            case 3: x = x - 1; break; // moving Up
+        case 0:
+            y = y + 1;
+            break; // moving Right
+        case 1:
+            x = x + 1;
+            break; // moving Down
+        case 2:
+            y = y - 1;
+            break; // moving Left
+        case 3:
+            x = x - 1;
+            break; // moving Up
         }
     } while (tile_counter < max_count); // loop through every tile in the search area
 }
@@ -252,7 +261,7 @@ void add_to_composite_roomspace(struct RoomQuery *room_query, struct RoomQuery *
     int metaRoomWidth = (maxX - minX + 1);
     int metaRoomHeight = (maxY - minY + 1);
     // idiot check for empty room
-    if ((metaRoomWidth * metaRoomHeight) <= 1) 
+    if ((metaRoomWidth * metaRoomHeight) <= 1)
     {
         return;
     }
@@ -280,13 +289,13 @@ void add_to_composite_roomspace(struct RoomQuery *room_query, struct RoomQuery *
             TbBool isSlabInNewRoom = (current_x >= room_query->best_room.left && current_x <= room_query->best_room.right && current_y >= room_query->best_room.top && current_y <= room_query->best_room.bottom);
             if (isSlabInMetaRoom)
             {
-                best_room.slab_grid[x][y] = meta_room->best_room.slab_grid[current_x-meta_room->best_room.left][current_y-meta_room->best_room.top];
+                best_room.slab_grid[x][y] = meta_room->best_room.slab_grid[current_x - meta_room->best_room.left][current_y - meta_room->best_room.top];
             }
             if (isSlabInNewRoom && (best_room.slab_grid[x][y] == false))
             {
                 best_room.slab_grid[x][y] = true;
             }
-             best_room.slab_count += best_room.slab_grid[x][y];
+            best_room.slab_count += best_room.slab_grid[x][y];
         }
     }
     if (best_room.slab_count != (best_room.width * best_room.height))
@@ -298,7 +307,7 @@ void add_to_composite_roomspace(struct RoomQuery *room_query, struct RoomQuery *
 
 void find_composite_roomspace(struct RoomQuery *room_query)
 {
-    //struct RoomQuery bestRooms[room_query.subRoomCheckCount];
+    // struct RoomQuery bestRooms[room_query.subRoomCheckCount];
     new_room_query = (*room_query);
     struct RoomQuery meta_room = new_room_query;
     int bestRoomsCount = 0;
@@ -310,10 +319,10 @@ void find_composite_roomspace(struct RoomQuery *room_query)
     do
     {
         find_roomspace_within_radius(&new_room_query);
-        //room_query->maxRoomRadius = room_query->maxRoomRadius - 1;
-        //room_query->maxRoomWidth = (room_query->maxRoomRadius * 2) - 1;
-        //new_room_query.findCorridors = false;
-        //new_room_query.bestRoomsCount = bestRoomsCount;
+        // room_query->maxRoomRadius = room_query->maxRoomRadius - 1;
+        // room_query->maxRoomWidth = (room_query->maxRoomRadius * 2) - 1;
+        // new_room_query.findCorridors = false;
+        // new_room_query.bestRoomsCount = bestRoomsCount;
         if (((mode & 32) == 32) && (bestRoomsCount < subRoomCheckCount))
         {
             // Adjust leniency counter
@@ -350,23 +359,23 @@ void find_composite_roomspace(struct RoomQuery *room_query)
                 new_room_query = meta_room;
             }
             else
-            {   // set up settings for next pass for subrooms
-                //int correct_index = ((bestRoomsCount > 3) ? bestRoomsCount - 3 : 0); // we want to compare to the previously stored widest/tallest room
+            { // set up settings for next pass for subrooms
+                // int correct_index = ((bestRoomsCount > 3) ? bestRoomsCount - 3 : 0); // we want to compare to the previously stored widest/tallest room
                 if (bestRoomsCount % 3 == 1) // check for wider rooms
                 {
-                    new_room_query.minRoomWidth = min(room_query->maxRoomWidth,max(meta_room.best_room.width + 1, room_query->minRoomWidth));
+                    new_room_query.minRoomWidth = min(room_query->maxRoomWidth, max(meta_room.best_room.width + 1, room_query->minRoomWidth));
                     new_room_query.minRoomHeight = room_query->minRoomWidth;
-                    //new_room_query.minimumRatio = (1.0 / 4.0);
+                    // new_room_query.minimumRatio = (1.0 / 4.0);
                     new_room_query.minimumRatio = room_query->minimumRatio;
                 }
-                else if (bestRoomsCount % 3 == 2)  // check for taller rooms
+                else if (bestRoomsCount % 3 == 2) // check for taller rooms
                 {
                     new_room_query.minRoomWidth = room_query->minRoomWidth;
-                    new_room_query.minRoomHeight = min(room_query->maxRoomWidth,max(meta_room.best_room.height + 1, room_query->minRoomWidth));
-                    //new_room_query.minimumRatio = (1.0 / 4.0);
+                    new_room_query.minRoomHeight = min(room_query->maxRoomWidth, max(meta_room.best_room.height + 1, room_query->minRoomWidth));
+                    // new_room_query.minimumRatio = (1.0 / 4.0);
                     new_room_query.minimumRatio = room_query->minimumRatio;
                 }
-                else //check for square room (only worth running once)
+                else // check for square room (only worth running once)
                 {
                     new_room_query.minRoomWidth = room_query->minRoomWidth;
                     new_room_query.minRoomHeight = room_query->minRoomWidth;
@@ -375,10 +384,9 @@ void find_composite_roomspace(struct RoomQuery *room_query)
                 // finish meta room checks
                 new_room_query.best_room.slab_count = 1;
                 new_room_query.best_room.invalid_slabs_count = 0;
-                
             }
         }
-    } while(((mode & 32) == 32) && (bestRoomsCount < subRoomCheckCount)); // loop again, if in mode 32, for the extra room checks
+    } while (((mode & 32) == 32) && (bestRoomsCount < subRoomCheckCount)); // loop again, if in mode 32, for the extra room checks
     // if the "best room" is a corridor, then grab the best AxA room in the corridor.
     if (new_room_query.isCorridor) //  if the "best room" is a corridor, then grab the best AxA room in the corridor.
     {
@@ -390,7 +398,7 @@ void find_composite_roomspace(struct RoomQuery *room_query)
         new_room_query.findCorridors = false;
         new_room_query.best_room.slab_count = 1;
         new_room_query.best_corridor.slab_count = 1;
-        //new_room_query.best_corridor = room_query->best_corridor;
+        // new_room_query.best_corridor = room_query->best_corridor;
         /*if ((new_room_query.best_corridor.width * new_room_query.best_corridor.height) >= ((room_query->maxRoomWidth - 1) * (room_query->maxRoomWidth - 1))) // 10x10 room = open plan
         {   // so return a 5x5 room?? 9x9???
             new_room_query.maxRoomWidth = room_query->maxRoomWidth;
@@ -399,17 +407,17 @@ void find_composite_roomspace(struct RoomQuery *room_query)
         }
         else
         {*/
-           // grab the closest AxA room to the cursor, that is within the detected corridor
-            
+        // grab the closest AxA room to the cursor, that is within the detected corridor
+
         //}
-        
+
         find_roomspace_within_radius(&new_room_query);
     }
     (*room_query) = new_room_query;
 }
 
 struct RoomSpace get_biggest_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
-    MapSlabCoord cursor_x, MapSlabCoord cursor_y, short rkind_cost, int total_player_money, int mode, int roomspace_discovery_looseness)
+                                       MapSlabCoord cursor_x, MapSlabCoord cursor_y, short rkind_cost, int total_player_money, int mode, int roomspace_discovery_looseness)
 {
     int maxRoomWidth = 9; // 9x9 Room
     int minRoomWidth = 2; // Don't look for rooms smaller than 2x2
@@ -418,19 +426,19 @@ struct RoomSpace get_biggest_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     int subRoomCheckCount = 6; // the number of sub-rooms to combine in to a final meta-room
     int bestRoomsCount = 0;
     // Set default "room" - i.e. 1x1 slabs, centred on the cursor
-    struct RoomSpace best_room = { {{false}}, 1, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, rkind_cost, 0, plyr_idx, rkind, false, 0, 0, false, true, false, false, false, false, 0, 0, 0, 0, false, top_left_to_bottom_right };
-    //int leniency = (((mode & 16) == 16)) ? tolerance : 0; // mode=16 :- (setting to 1 would allow e.g. 1 dirt block in the room)
+    struct RoomSpace best_room = {{{false}}, 1, true, 1, 1, cursor_x, cursor_y, cursor_x, cursor_y, cursor_x, cursor_y, rkind_cost, 0, plyr_idx, rkind, false, 0, 0, false, true, false, false, false, false, 0, 0, 0, 0, false, top_left_to_bottom_right};
+    // int leniency = (((mode & 16) == 16)) ? tolerance : 0; // mode=16 :- (setting to 1 would allow e.g. 1 dirt block in the room)
     int leniency = 0;
     struct RoomSpace best_corridor = best_room;
     if (roomspace_discovery_looseness > 0)
     {
         mode |= 2;
     }
-    //don't check for rooms when they can't be found
+    // don't check for rooms when they can't be found
     if ((mode & 2) == 2)
     {
         int room_check = check_room_at_slab_loose(plyr_idx, rkind, cursor_x, cursor_y, roomspace_discovery_looseness);
-        if (room_check == 0 || room_check == 6) //reject invalid and liquid slabs
+        if (room_check == 0 || room_check == 6) // reject invalid and liquid slabs
         {
             return best_room;
         }
@@ -439,7 +447,7 @@ struct RoomSpace get_biggest_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
     {
         return best_room;
     }
-    struct RoomQuery room_query = { rkind_cost, total_player_money, mode, 0, maxRoomWidth, minRoomWidth, minRoomWidth, subRoomCheckCount, bestRoomsCount, best_room, best_corridor, cursor_x, cursor_y, cursor_x, cursor_y, plyr_idx, rkind, minimumRatio, minimumComparisonRatio, false, false, leniency, total_player_money, 0, true, false, roomspace_discovery_looseness};
+    struct RoomQuery room_query = {rkind_cost, total_player_money, mode, 0, maxRoomWidth, minRoomWidth, minRoomWidth, subRoomCheckCount, bestRoomsCount, best_room, best_corridor, cursor_x, cursor_y, cursor_x, cursor_y, plyr_idx, rkind, minimumRatio, minimumComparisonRatio, false, false, leniency, total_player_money, 0, true, false, roomspace_discovery_looseness};
     find_composite_roomspace(&room_query);
     room_query.best_room = check_slabs_in_roomspace(room_query.best_room, rkind_cost);
     if (room_query.best_room.slab_count > 0)

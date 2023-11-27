@@ -37,7 +37,7 @@ extern "C" {
 #ifdef __cplusplus
 #define NULL 0
 #else
-#define NULL ((void*)0)
+#define NULL ((void *)0)
 #endif
 #endif
 
@@ -70,9 +70,9 @@ typedef char CHAR;
 typedef short SHORT;
 typedef long LONG;
 typedef char CCHAR, *PCCHAR;
-typedef unsigned char UCHAR,*PUCHAR;
-typedef unsigned short USHORT,*PUSHORT;
-typedef unsigned long ULONG,*PULONG;
+typedef unsigned char UCHAR, *PUCHAR;
+typedef unsigned short USHORT, *PUSHORT;
+typedef unsigned long ULONG, *PULONG;
 typedef char *PSZ;
 
 typedef struct _MEMORYSTATUS {
@@ -84,7 +84,7 @@ typedef struct _MEMORYSTATUS {
     DWORD dwAvailPageFile;
     DWORD dwTotalVirtual;
     DWORD dwAvailVirtual;
-} MEMORYSTATUS,*LPMEMORYSTATUS;
+} MEMORYSTATUS, *LPMEMORYSTATUS;
 
 WINBASEAPI VOID WINAPI GlobalMemoryStatus(LPMEMORYSTATUS);
 
@@ -94,39 +94,40 @@ WINBASEAPI VOID WINAPI GlobalMemoryStatus(LPMEMORYSTATUS);
 }
 #endif
 /******************************************************************************/
-static unsigned long lbMemoryAvailable=0;
-static short lbMemorySetup=0;
+static unsigned long lbMemoryAvailable = 0;
+static short lbMemorySetup = 0;
 
 char lbEmptyString[] = "";
 unsigned long mem_size;
+
 /******************************************************************************/
 /**
  * Updates memory status variables.
  */
 short update_memory_constraits(void)
 {
-  LbMemoryCheck();
-  if (lbMemoryAvailable <= (8 * 1024 * 1024))
-  {
-      mem_size = 8;
-      WARNLOG("Very limited memory available: %d, PhysicalMemory %d\n", lbMemoryAvailable, mem_size);
-  }
-  else
-  {
-      mem_size = 64;
-      LbSyncLog("PhysicalMemory %d\n", mem_size);
-  }
-  return true;
+    LbMemoryCheck();
+    if (lbMemoryAvailable <= (8 * 1024 * 1024))
+    {
+        mem_size = 8;
+        WARNLOG("Very limited memory available: %d, PhysicalMemory %d\n", lbMemoryAvailable, mem_size);
+    }
+    else
+    {
+        mem_size = 64;
+        LbSyncLog("PhysicalMemory %d\n", mem_size);
+    }
+    return true;
 }
 
-void * LbMemorySet(void *dst, uchar c, ulong length)
+void *LbMemorySet(void *dst, uchar c, ulong length)
 {
-  return memset(dst, c, length);
+    return memset(dst, c, length);
 }
 
-void * LbMemoryCopy(void *in_dst, const void *in_src, ulong len)
+void *LbMemoryCopy(void *in_dst, const void *in_src, ulong len)
 {
-  return memcpy(in_dst,in_src,len);
+    return memcpy(in_dst, in_src, len);
 }
 
 /**
@@ -134,41 +135,53 @@ void * LbMemoryCopy(void *in_dst, const void *in_src, ulong len)
  * Appends characters of source to destination, plus a terminating null-character.
  * Prevents string in dst of getting bigger than maxlen characters.
  */
-void * LbStringConcat(char *dst, const char *src, const ulong dst_buflen)
+void *LbStringConcat(char *dst, const char *src, const ulong dst_buflen)
 {
-  int max_num=dst_buflen-strlen(dst);
-  if (max_num<=0) return dst;
-  strncat(dst, src, max_num);
-  dst[dst_buflen-1]='\0';
-  return dst;
+    int max_num = dst_buflen - strlen(dst);
+    if (max_num <= 0)
+    {
+        return dst;
+    }
+    strncat(dst, src, max_num);
+    dst[dst_buflen - 1] = '\0';
+    return dst;
 }
 
-void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen)
+void *LbStringCopy(char *dst, const char *src, const ulong dst_buflen)
 {
-  if (dst_buflen < 1)
+    if (dst_buflen < 1)
+    {
+        return dst;
+    }
+    snprintf(dst, dst_buflen, "%s", src);
     return dst;
-  snprintf(dst, dst_buflen, "%s", src);
-  return dst;
 }
 
-void * LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen)
+void *LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen)
 {
-  if (dst_buflen < 1)
+    if (dst_buflen < 1)
+    {
+        return dst;
+    }
+    for (int i = 0; i < dst_buflen; i++)
+    {
+        char chr = tolower(src[i]);
+        dst[i] = chr;
+        if (chr == '\0')
+        {
+            break;
+        }
+    }
+    dst[dst_buflen - 1] = '\0';
     return dst;
-  for (int i = 0; i < dst_buflen; i++)
-  {
-      char chr = tolower(src[i]);
-      dst[i] = chr;
-      if (chr == '\0')
-          break;
-  }
-  dst[dst_buflen-1]='\0';
-  return dst;
 }
 
 ulong LbStringLength(const char *str)
 {
-    if (str == NULL) return 0;
+    if (str == NULL)
+    {
+        return 0;
+    }
     return strlen(str);
 }
 
@@ -182,7 +195,9 @@ void LbMemRegister_Setup(void)
 int LbMemorySetup()
 {
     if (lbMemorySetup != 0)
+    {
         return 0;
+    }
     lbMemorySetup = 1;
     /* Heap handling by application is only required for some platforms
     if (heap_handle == NULL)
@@ -199,7 +214,9 @@ int LbMemorySetup()
 int LbMemoryReset(void)
 {
     if (lbMemorySetup == 0)
+    {
         return 0;
+    }
     lbMemorySetup = 0;
     /* Heap handling by application is only required for some platforms
     if (heap_handle != NULL)
@@ -213,26 +230,33 @@ int LbMemoryReset(void)
     return 1;
 }
 
-unsigned char * LbMemoryAllocLow(ulong size)
+unsigned char *LbMemoryAllocLow(ulong size)
 {
-//Simplified as we no longer need such memory routines
-unsigned char* ptr = (unsigned char*)malloc(size);
-if (ptr != NULL)
-    memset(ptr, 0, size);
-return ptr;
+    // Simplified as we no longer need such memory routines
+    unsigned char *ptr = (unsigned char *)malloc(size);
+    if (ptr != NULL)
+    {
+        memset(ptr, 0, size);
+    }
+    return ptr;
 }
 
-unsigned char * LbMemoryAlloc(ulong size)
+unsigned char *LbMemoryAlloc(ulong size)
 {
-    unsigned char* ptr = (unsigned char*)malloc(size);
+    unsigned char *ptr = (unsigned char *)malloc(size);
     if (ptr != NULL)
-      memset(ptr,0,size);
+    {
+        memset(ptr, 0, size);
+    }
     return ptr;
 }
 
 int LbMemoryFree(void *mem_ptr)
 {
-    if (mem_ptr==NULL) return -1;
+    if (mem_ptr == NULL)
+    {
+        return -1;
+    }
     free(mem_ptr);
     return 1;
 }
@@ -240,14 +264,14 @@ int LbMemoryFree(void *mem_ptr)
 short LbMemoryCheck(void)
 {
 #if defined(_WIN32)
-  struct _MEMORYSTATUS msbuffer;
-  msbuffer.dwLength = 32;
-  GlobalMemoryStatus(&msbuffer);
-  lbMemoryAvailable=msbuffer.dwTotalPhys;
+    struct _MEMORYSTATUS msbuffer;
+    msbuffer.dwLength = 32;
+    GlobalMemoryStatus(&msbuffer);
+    lbMemoryAvailable = msbuffer.dwTotalPhys;
 #else
-  lbMemoryAvailable=536870912;
+    lbMemoryAvailable = 536870912;
 #endif
-  return 1;
+    return 1;
 }
 
 /** Enlarge previously allocated memory block.
@@ -261,9 +285,9 @@ short LbMemoryCheck(void)
  * @param ptr The previously allocated memory block.
  * @param size New size of the block.
  */
-void * LbMemoryGrow(void *ptr, unsigned long size)
+void *LbMemoryGrow(void *ptr, unsigned long size)
 {
-    return realloc(ptr,size);
+    return realloc(ptr, size);
 }
 
 /** Reduce previously allocated memory block.
@@ -275,9 +299,9 @@ void * LbMemoryGrow(void *ptr, unsigned long size)
  * @param ptr The previously allocated memory block.
  * @param size New size of the block.
  */
-void * LbMemoryShrink(void *ptr, unsigned long size)
+void *LbMemoryShrink(void *ptr, unsigned long size)
 {
-    return realloc(ptr,size);
+    return realloc(ptr, size);
 }
 
 /** Reduce previously allocated memory block.
@@ -291,7 +315,7 @@ void * LbMemoryShrink(void *ptr, unsigned long size)
  */
 int LbMemoryCompare(void *ptr1, void *ptr2, unsigned long size)
 {
-    return memcmp(ptr1,ptr2,size);
+    return memcmp(ptr1, ptr2, size);
 }
 
 /******************************************************************************/

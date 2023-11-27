@@ -30,7 +30,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-struct EdgePoint { //sizeof = 8
+struct EdgePoint { // sizeof = 8
     long field_0;
     long field_4;
 };

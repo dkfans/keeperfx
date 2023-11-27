@@ -28,7 +28,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-TbBool load_creaturemodel_config(long crmodel,unsigned short flags);
+TbBool load_creaturemodel_config(long crmodel, unsigned short flags);
 TbBool swap_creature(long ncrt_id, long crtr_id);
 
 TbBool make_all_creatures_free(void);

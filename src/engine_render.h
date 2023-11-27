@@ -30,23 +30,23 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define POLY_POOL_SIZE 16777216 // Originally 262144, adjusted for view distance
+#define POLY_POOL_SIZE 16777216   // Originally 262144, adjusted for view distance
 #define Z_DRAW_DISTANCE_MAX 65536 // Originally 11232, adjusted for view distance
-#define BUCKETS_COUNT 4098 // Originally 704, adjusted for view distance. (65536/16)+2
+#define BUCKETS_COUNT 4098        // Originally 704, adjusted for view distance. (65536/16)+2
 
 #define KEEPSPRITE_LENGTH 9149
 #define KEEPERSPRITE_ADD_OFFSET 16384
 #define KEEPERSPRITE_ADD_NUM 8192
 
-struct EngineCoord { // sizeof = 28
-  long view_width; // X screen position, probably not a width
-  long view_height; // Y screen position, probably not a height
-  unsigned short field_8; // Affects the drawing of offscreen triangles and something to do with Splittypes
-  unsigned short field_A; // Lightness
-  long field_C; // Distance to camera
-  long x;
-  long y;
-  long z;
+struct EngineCoord {        // sizeof = 28
+    long view_width;        // X screen position, probably not a width
+    long view_height;       // Y screen position, probably not a height
+    unsigned short field_8; // Affects the drawing of offscreen triangles and something to do with Splittypes
+    unsigned short field_A; // Lightness
+    long field_C;           // Distance to camera
+    long x;
+    long y;
+    long z;
 };
 
 struct M31 {
@@ -58,20 +58,20 @@ struct M33 { // sizeof = 48
 };
 
 struct MapVolumeBox { // sizeof = 24
-  unsigned char visible;
-  unsigned char color;
-  long beg_x;
-  long beg_y;
-  long end_x;
-  long end_y;
-  long floor_height_z;
+    unsigned char visible;
+    unsigned char color;
+    long beg_x;
+    long beg_y;
+    long end_x;
+    long end_y;
+    long floor_height_z;
 };
 
 /******************************************************************************/
 // Stripey Line Color Arrays
 
 enum stripey_line_colors {
-    SLC_RED = 0, // INVALID SELECTION
+    SLC_RED = 0,   // INVALID SELECTION
     SLC_GREEN = 1, // VALID SELECTION
     SLC_YELLOW,
     SLC_BROWN,

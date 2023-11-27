@@ -39,6 +39,7 @@ extern "C" {
 /******************************************************************************/
 static struct MessageQueueEntry message_queue[MESSAGE_QUEUE_COUNT];
 static unsigned long message_playing;
+
 /******************************************************************************/
 enum SpeechPhraseIndex {
     SpchIdx_Invalid = 0,
@@ -171,143 +172,142 @@ enum SpeechPhraseIndex {
 
 /** Array used for converting speech phrase index into sample data. */
 Phrase phrases[] = {
-    0,  1,  2,  3,  4,  5,  6,  7,  8, 9,  10, 11, 12, 13, 14, 15,
-   16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-   32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
-   48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
-   64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
-   80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
-   96, 97, 98, 99,100,101,102,103,104,105,106,107,108,109,110,111,
-  112,113,114,115,116,117,118,119,120,121,122,123,124,125,
-};
+    0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+    16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
+    32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47,
+    48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63,
+    64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79,
+    80, 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95,
+    96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111,
+    112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125};
 
 struct SMessage messages[] = {
-  {SpchIdx_Invalid, 0, 0}, // [0] SMsg_None
-  {SpchIdx_CreatureAngryAnyReson, 1, 0},
-  {SpchIdx_CreatureAngryNoLair, 1, 0},
-  {SpchIdx_CreatureAngryNotPayed, 1, 0},
-  {SpchIdx_CreatureAngryNoFood, 1, 0},
-  {SpchIdx_CreatureDestroyingRooms, 1, 0}, // [5]
-  {SpchIdx_CreatureLeaving, 1, 0},
-  {SpchIdx_WallsBreach, 1, 0},
-  {SpchIdx_HeartUnderAttack, 1, 0},
-  {SpchIdx_BattleDefeat, 1, 0},
-  {SpchIdx_BattleVictory, 1, 0}, // [10] SMsg_BattleVictory
-  {SpchIdx_BattleDeath, 1, 0},
-  {SpchIdx_BattleWon, 1, 0},
-  {SpchIdx_CreatureDefending, 1, 0},
-  {SpchIdx_CreatureAttacking, 1, 0},
-  {SpchIdx_EnemyDestroyingRooms, 1, 0}, // [15]
-  {SpchIdx_EnemyClaimingGround, 1, 0},
-  {SpchIdx_EnemyRoomTakenOver, 1, 0},
-  {SpchIdx_NewRoomTakenOver, 1, 0},
-  {SpchIdx_LordOfTheLandComming, 1, 0},
-  {SpchIdx_FingthingFriends, 1, 0}, // [20] SMsg_FingthingFriends
-  {SpchIdx_BattleOver, 1, 0},
-  {SpchIdx_GardenTooSmall, 1, 0},
-  {SpchIdx_LairTooSmall, 1, 0},
-  {SpchIdx_TreasuryTooSmall, 1, 0},
-  {SpchIdx_LibraryTooSmall, 1, 0},
-  {SpchIdx_PrisonTooSmall, 1, 0},
-  {SpchIdx_TortureTooSmall, 1, 0},
-  {SpchIdx_TrainingTooSmall, 1, 0},
-  {SpchIdx_WorkshopTooSmall, 1, 0},
-  {SpchIdx_ScavengeTooSmall, 1, 0}, // [30] SMsg_ScavengeTooSmall
-  {SpchIdx_TempleTooSmall, 1, 0},
-  {SpchIdx_GraveyardTooSmall, 1, 0},
-  {SpchIdx_BarracksTooSmall, 1, 0},
-  {SpchIdx_NoRouteToGarden, 1, 0},
-  {SpchIdx_NoRouteToTreasury, 1, 0},
-  {SpchIdx_NoRouteToLair, 1, 0},
-  {SpchIdx_EntranceClaimed, 1, 0},
-  {SpchIdx_EntranceLost, 1, 0},
-  {SpchIdx_RoomTreasureNeeded, 1, 0},
-  {SpchIdx_RoomLairNeeded, 1, 0}, // [40] SMsg_RoomLairNeeded
-  {SpchIdx_RoomGardenNeeded, 1, 0},
-  {SpchIdx_ResearchedRoom, 1, 0},
-  {SpchIdx_ResearchedSpell, 1, 0},
-  {SpchIdx_ManufacturedDoor, 1, 0},
-  {SpchIdx_ManufacturedTrap, 1, 0},
-  {SpchIdx_NoMoreReseach, 1, 0},
-  {SpchIdx_SpellbookTaken, 1, 0},
-  {SpchIdx_TrapTaken, 1, 0},
-  {SpchIdx_DoorTaken, 1, 0},
-  {SpchIdx_SpellbookStolen, 1, 0}, // [50] SMsg_SpellbookStolen
-  {SpchIdx_TrapStolen, 1, 0},
-  {SpchIdx_DoorStolen, 1, 0},
-  {SpchIdx_TortureInformation, 1, 0},
-  {SpchIdx_TortureConverted, 1, 0},
-  {SpchIdx_PrisonerMadeSkeleton, 1, 0},
-  {SpchIdx_TortureMadeGhost, 1, 0},
-  {SpchIdx_PrisonersEscaping, 1, 0},
-  {SpchIdx_GraveyardMadeVampire, 1, 0},
-  {SpchIdx_CreaturesFreedFromPrison, 1, 0},
-  {SpchIdx_PrisonersStarving, 1, 0}, // [60] SMsg_PrisonersStarving
-  {SpchIdx_CreatureScanvenged, 1, 0},
-  {SpchIdx_MinionScanvenged, 1, 0},
-  {SpchIdx_CreatureJoinedEnemy, 1, 0},
-  {SpchIdx_CreatureRevealedInfo, 1, 0},
-  {SpchIdx_SacrificeGood, 1, 0},
-  {SpchIdx_SacrificeReward, 1, 0},
-  {SpchIdx_SacrificeNeutral, 1, 0},
-  {SpchIdx_SacrificeBad, 1, 0},
-  {SpchIdx_SacrificePunish, 1, 0},
-  {SpchIdx_SacrificeWishing, 1, 0}, // [70] SMsg_SacrificeWishing
-  {SpchIdx_DiscoveredSpecial, 1, 0},
-  {SpchIdx_DiscoveredSpell, 1, 0},
-  {SpchIdx_DiscoveredDoor, 1, 0},
-  {SpchIdx_DiscoveredTrap, 1, 0},
-  {SpchIdx_CreaturesJoinedYou, 1, 0},
-  {SpchIdx_DugIntoNewArea, 1, 0},
-  {SpchIdx_SpecialRevealMap, 1, 0},
-  {SpchIdx_SpecialResurrect, 1, 0},
-  {SpchIdx_SpecialTransfer, 1, 0},
-  {SpchIdx_CommonAcknowledge, 1, 0}, // [80]
-  {SpchIdx_SpecialHeroStolen, 1, 0},
-  {SpchIdx_SpecialCreaturesDoubled, 1, 0},
-  {SpchIdx_SpecialIncreasedLevel, 1, 0},
-  {SpchIdx_SpecialWallsFortified, 1, 0},
-  {SpchIdx_SpecialHiddenWorld, 1, 0},
-  {SpchIdx_GoldLow, 1, 0},
-  {SpchIdx_GoldNotEnough, 1, 0},
-  {SpchIdx_NoGoldToScavenge, 1, 0},
-  {SpchIdx_NoGoldToTrain, 1, 0},
-  {SpchIdx_Payday, 1, 0}, // [90]
-  {SpchIdx_FullOfPies, 1, 0},
-  {SpchIdx_SurrealHappen, 1, 0},
-  {SpchIdx_StrangeAccent, 1, 0},
-  {SpchIdx_PantsTooTight, 1, 0},
-  {SpchIdx_CraveChocolate, 1, 0},
-  {SpchIdx_SmellAgain, 1, 0},
-  {SpchIdx_Hello, 1, 0},
-  {SpchIdx_Glaagh, 1, 0},
-  {SpchIdx_Achew, 1, 0},
-  {SpchIdx_Chgreche, 1, 0}, // [100]
-  {SpchIdx_ImpJobsLimit, 1, 0},
-  {SpchIdx_GameLoaded, 1, 0},
-  {SpchIdx_GameSaved, 1, 0},
-  {SpchIdx_DefeatedKeeper, 1, 0},
-  {SpchIdx_LevelFailed, 1, 0},
-  {SpchIdx_LevelWon, 1, 0},
-  {SpchIdx_SenceAvatar, 1, 0},
-  {SpchIdx_AvatarBodyVanished, 1, 0},
-  {SpchIdx_GameFinalVictory, 1, 0},
-  {SpchIdx_KeeperHarassment1, 1, 0}, // [110]
-  {SpchIdx_KeeperHarassment2, 1, 0},
-  {SpchIdx_KeeperHarassment3, 1, 0},
-  {SpchIdx_KeeperHarassment4, 1, 0},
-  {SpchIdx_KeeperHarassment5, 1, 0},
-  {SpchIdx_KeeperHarassment6, 1, 0},
-  {SpchIdx_KeeperHarassment7, 1, 0},
-  {SpchIdx_KeeperHarassment8, 1, 0},
-  {SpchIdx_HeroHarassment1, 1, 0},
-  {SpchIdx_HeroHarassment2, 1, 0},
-  {SpchIdx_HeroHarassment3, 1, 0}, // [120]
-  {SpchIdx_HeroHarassment4, 1, 0},
-  {SpchIdx_HeroHarassment5, 1, 0},
-  {SpchIdx_HeroHarassment6, 1, 0},
-  {SpchIdx_HeroHarassment7, 1, 0},
-  {SpchIdx_HeroHarassment8, 1, 0},
+    {                 SpchIdx_Invalid, 0, 0}, // [0] SMsg_None
+    {   SpchIdx_CreatureAngryAnyReson, 1, 0},
+    {     SpchIdx_CreatureAngryNoLair, 1, 0},
+    {   SpchIdx_CreatureAngryNotPayed, 1, 0},
+    {     SpchIdx_CreatureAngryNoFood, 1, 0},
+    { SpchIdx_CreatureDestroyingRooms, 1, 0}, // [5]
+    {         SpchIdx_CreatureLeaving, 1, 0},
+    {             SpchIdx_WallsBreach, 1, 0},
+    {        SpchIdx_HeartUnderAttack, 1, 0},
+    {            SpchIdx_BattleDefeat, 1, 0},
+    {           SpchIdx_BattleVictory, 1, 0}, // [10] SMsg_BattleVictory
+    {             SpchIdx_BattleDeath, 1, 0},
+    {               SpchIdx_BattleWon, 1, 0},
+    {       SpchIdx_CreatureDefending, 1, 0},
+    {       SpchIdx_CreatureAttacking, 1, 0},
+    {    SpchIdx_EnemyDestroyingRooms, 1, 0}, // [15]
+    {     SpchIdx_EnemyClaimingGround, 1, 0},
+    {      SpchIdx_EnemyRoomTakenOver, 1, 0},
+    {        SpchIdx_NewRoomTakenOver, 1, 0},
+    {    SpchIdx_LordOfTheLandComming, 1, 0},
+    {        SpchIdx_FingthingFriends, 1, 0}, // [20] SMsg_FingthingFriends
+    {              SpchIdx_BattleOver, 1, 0},
+    {          SpchIdx_GardenTooSmall, 1, 0},
+    {            SpchIdx_LairTooSmall, 1, 0},
+    {        SpchIdx_TreasuryTooSmall, 1, 0},
+    {         SpchIdx_LibraryTooSmall, 1, 0},
+    {          SpchIdx_PrisonTooSmall, 1, 0},
+    {         SpchIdx_TortureTooSmall, 1, 0},
+    {        SpchIdx_TrainingTooSmall, 1, 0},
+    {        SpchIdx_WorkshopTooSmall, 1, 0},
+    {        SpchIdx_ScavengeTooSmall, 1, 0}, // [30] SMsg_ScavengeTooSmall
+    {          SpchIdx_TempleTooSmall, 1, 0},
+    {       SpchIdx_GraveyardTooSmall, 1, 0},
+    {        SpchIdx_BarracksTooSmall, 1, 0},
+    {         SpchIdx_NoRouteToGarden, 1, 0},
+    {       SpchIdx_NoRouteToTreasury, 1, 0},
+    {           SpchIdx_NoRouteToLair, 1, 0},
+    {         SpchIdx_EntranceClaimed, 1, 0},
+    {            SpchIdx_EntranceLost, 1, 0},
+    {      SpchIdx_RoomTreasureNeeded, 1, 0},
+    {          SpchIdx_RoomLairNeeded, 1, 0}, // [40] SMsg_RoomLairNeeded
+    {        SpchIdx_RoomGardenNeeded, 1, 0},
+    {          SpchIdx_ResearchedRoom, 1, 0},
+    {         SpchIdx_ResearchedSpell, 1, 0},
+    {        SpchIdx_ManufacturedDoor, 1, 0},
+    {        SpchIdx_ManufacturedTrap, 1, 0},
+    {           SpchIdx_NoMoreReseach, 1, 0},
+    {          SpchIdx_SpellbookTaken, 1, 0},
+    {               SpchIdx_TrapTaken, 1, 0},
+    {               SpchIdx_DoorTaken, 1, 0},
+    {         SpchIdx_SpellbookStolen, 1, 0}, // [50] SMsg_SpellbookStolen
+    {              SpchIdx_TrapStolen, 1, 0},
+    {              SpchIdx_DoorStolen, 1, 0},
+    {      SpchIdx_TortureInformation, 1, 0},
+    {        SpchIdx_TortureConverted, 1, 0},
+    {    SpchIdx_PrisonerMadeSkeleton, 1, 0},
+    {        SpchIdx_TortureMadeGhost, 1, 0},
+    {       SpchIdx_PrisonersEscaping, 1, 0},
+    {    SpchIdx_GraveyardMadeVampire, 1, 0},
+    {SpchIdx_CreaturesFreedFromPrison, 1, 0},
+    {       SpchIdx_PrisonersStarving, 1, 0}, // [60] SMsg_PrisonersStarving
+    {      SpchIdx_CreatureScanvenged, 1, 0},
+    {        SpchIdx_MinionScanvenged, 1, 0},
+    {     SpchIdx_CreatureJoinedEnemy, 1, 0},
+    {    SpchIdx_CreatureRevealedInfo, 1, 0},
+    {           SpchIdx_SacrificeGood, 1, 0},
+    {         SpchIdx_SacrificeReward, 1, 0},
+    {        SpchIdx_SacrificeNeutral, 1, 0},
+    {            SpchIdx_SacrificeBad, 1, 0},
+    {         SpchIdx_SacrificePunish, 1, 0},
+    {        SpchIdx_SacrificeWishing, 1, 0}, // [70] SMsg_SacrificeWishing
+    {       SpchIdx_DiscoveredSpecial, 1, 0},
+    {         SpchIdx_DiscoveredSpell, 1, 0},
+    {          SpchIdx_DiscoveredDoor, 1, 0},
+    {          SpchIdx_DiscoveredTrap, 1, 0},
+    {      SpchIdx_CreaturesJoinedYou, 1, 0},
+    {          SpchIdx_DugIntoNewArea, 1, 0},
+    {        SpchIdx_SpecialRevealMap, 1, 0},
+    {        SpchIdx_SpecialResurrect, 1, 0},
+    {         SpchIdx_SpecialTransfer, 1, 0},
+    {       SpchIdx_CommonAcknowledge, 1, 0}, // [80]
+    {       SpchIdx_SpecialHeroStolen, 1, 0},
+    { SpchIdx_SpecialCreaturesDoubled, 1, 0},
+    {   SpchIdx_SpecialIncreasedLevel, 1, 0},
+    {   SpchIdx_SpecialWallsFortified, 1, 0},
+    {      SpchIdx_SpecialHiddenWorld, 1, 0},
+    {                 SpchIdx_GoldLow, 1, 0},
+    {           SpchIdx_GoldNotEnough, 1, 0},
+    {        SpchIdx_NoGoldToScavenge, 1, 0},
+    {           SpchIdx_NoGoldToTrain, 1, 0},
+    {                  SpchIdx_Payday, 1, 0}, // [90]
+    {              SpchIdx_FullOfPies, 1, 0},
+    {           SpchIdx_SurrealHappen, 1, 0},
+    {           SpchIdx_StrangeAccent, 1, 0},
+    {           SpchIdx_PantsTooTight, 1, 0},
+    {          SpchIdx_CraveChocolate, 1, 0},
+    {              SpchIdx_SmellAgain, 1, 0},
+    {                   SpchIdx_Hello, 1, 0},
+    {                  SpchIdx_Glaagh, 1, 0},
+    {                   SpchIdx_Achew, 1, 0},
+    {                SpchIdx_Chgreche, 1, 0}, // [100]
+    {            SpchIdx_ImpJobsLimit, 1, 0},
+    {              SpchIdx_GameLoaded, 1, 0},
+    {               SpchIdx_GameSaved, 1, 0},
+    {          SpchIdx_DefeatedKeeper, 1, 0},
+    {             SpchIdx_LevelFailed, 1, 0},
+    {                SpchIdx_LevelWon, 1, 0},
+    {             SpchIdx_SenceAvatar, 1, 0},
+    {      SpchIdx_AvatarBodyVanished, 1, 0},
+    {        SpchIdx_GameFinalVictory, 1, 0},
+    {       SpchIdx_KeeperHarassment1, 1, 0}, // [110]
+    {       SpchIdx_KeeperHarassment2, 1, 0},
+    {       SpchIdx_KeeperHarassment3, 1, 0},
+    {       SpchIdx_KeeperHarassment4, 1, 0},
+    {       SpchIdx_KeeperHarassment5, 1, 0},
+    {       SpchIdx_KeeperHarassment6, 1, 0},
+    {       SpchIdx_KeeperHarassment7, 1, 0},
+    {       SpchIdx_KeeperHarassment8, 1, 0},
+    {         SpchIdx_HeroHarassment1, 1, 0},
+    {         SpchIdx_HeroHarassment2, 1, 0},
+    {         SpchIdx_HeroHarassment3, 1, 0}, // [120]
+    {         SpchIdx_HeroHarassment4, 1, 0},
+    {         SpchIdx_HeroHarassment5, 1, 0},
+    {         SpchIdx_HeroHarassment6, 1, 0},
+    {         SpchIdx_HeroHarassment7, 1, 0},
+    {         SpchIdx_HeroHarassment8, 1, 0},
 };
 
 /******************************************************************************/
@@ -344,11 +344,11 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
             }
         }
     }
-    SYNCDBG(5,"Message %ld, delay %ld, queue %s",msg_idx, delay, queue?"on":"off");
-    struct SMessage* smsg = &messages[msg_idx];
+    SYNCDBG(5, "Message %ld, delay %ld, queue %s", msg_idx, delay, queue ? "on" : "off");
+    struct SMessage *smsg = &messages[msg_idx];
     if (!message_can_be_played(msg_idx))
     {
-        SYNCDBG(8,"Delay to turn %ld didn't passed, skipping",(long)smsg->end_time);
+        SYNCDBG(8, "Delay to turn %ld didn't passed, skipping", (long)smsg->end_time);
         return false;
     }
     if (!speech_sample_playing())
@@ -358,41 +358,48 @@ TbBool output_message(long msg_idx, long delay, TbBool queue)
         {
             SYNCDBG(8, "No phrase %d sample, skipping", (int)msg_idx);
             return false;
-      }
-      if (play_speech_sample(i))
-      {
-          message_playing = msg_idx;
-          smsg->end_time = (long)game.play_gameturn + delay;
-          SYNCDBG(8,"Playing prepared");
-          return true;
-      }
+        }
+        if (play_speech_sample(i))
+        {
+            message_playing = msg_idx;
+            smsg->end_time = (long)game.play_gameturn + delay;
+            SYNCDBG(8, "Playing prepared");
+            return true;
+        }
     }
-    if ( (msg_idx == message_playing) || (message_already_in_queue(msg_idx)) )
+    if ((msg_idx == message_playing) || (message_already_in_queue(msg_idx)))
     {
-        SYNCDBG(8,"Message %ld is already in queue",msg_idx);
+        SYNCDBG(8, "Message %ld is already in queue", msg_idx);
         return false;
     }
     if (queue)
     {
-      if (add_message_to_queue(msg_idx, delay))
-      {
-          SYNCDBG(8,"Playing queued");
-          return true;
-      }
+        if (add_message_to_queue(msg_idx, delay))
+        {
+            SYNCDBG(8, "Playing queued");
+            return true;
+        }
     }
-    WARNDBG(8,"Playing message %ld failed",msg_idx);
+    WARNDBG(8, "Playing message %ld failed", msg_idx);
     return false;
 }
 
 #define MinSoundDistance = 1800;
-TbBool output_message_far_from_thing(struct Thing* thing, long msg_idx, long delay, TbBool queue)
+
+TbBool output_message_far_from_thing(struct Thing *thing, long msg_idx, long delay, TbBool queue)
 {
     if (SoundDisabled)
+    {
         return 0;
+    }
     if (GetCurrentSoundMasterVolume() <= 0)
+    {
         return 0;
+    }
     if (thing_is_invalid(thing))
+    {
         return 0;
+    }
     struct Coord3d rcpos;
     rcpos.x.val = Receiver.pos.val_x;
     rcpos.y.val = Receiver.pos.val_y;
@@ -400,7 +407,7 @@ TbBool output_message_far_from_thing(struct Thing* thing, long msg_idx, long del
     if (get_chessboard_3d_distance(&rcpos, &thing->mappos) > MaxSoundDistance)
     {
         SYNCDBG(5, "Message %ld, delay %ld, queue %s", msg_idx, delay, queue ? "on" : "off");
-        struct SMessage* smsg = &messages[msg_idx];
+        struct SMessage *smsg = &messages[msg_idx];
         if (!message_can_be_played(msg_idx))
         {
             SYNCDBG(8, "Delay to turn %ld didn't passed, skipping", (long)smsg->end_time);
@@ -443,9 +450,9 @@ TbBool output_message_far_from_thing(struct Thing* thing, long msg_idx, long del
 
 TbBool remove_message_from_queue(long queue_idx)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7, "Starting");
     long i = queue_idx;
-    struct MessageQueueEntry* mqentry = &message_queue[i];
+    struct MessageQueueEntry *mqentry = &message_queue[i];
     // If there's nothing to remove, don't bother trying
     if (mqentry->state != 1)
     {
@@ -453,7 +460,7 @@ TbBool remove_message_from_queue(long queue_idx)
     }
     for (i++; i < MESSAGE_QUEUE_COUNT; i++)
     {
-        struct MessageQueueEntry* mqprev = mqentry;
+        struct MessageQueueEntry *mqprev = mqentry;
         mqentry = &message_queue[i];
         mqprev->state = mqentry->state;
         mqprev->msg_idx = mqentry->msg_idx;
@@ -470,16 +477,16 @@ TbBool remove_message_from_queue(long queue_idx)
 
 void process_messages(void)
 {
-    SYNCDBG(17,"Starting");
+    SYNCDBG(17, "Starting");
     // If already playing, just wait for next time
     if (!speech_sample_playing())
     {
-        SYNCDBG(17,"play on");
+        SYNCDBG(17, "play on");
         message_playing = 0;
         // If no messages are in queue, don't play anything
         if (message_queue_empty())
         {
-            SYNCDBG(19,"Finished");
+            SYNCDBG(19, "Finished");
             return;
         }
         // Otherwise remove next message from queue and try to play it
@@ -488,13 +495,15 @@ void process_messages(void)
         remove_message_from_queue(0);
         output_message(msg_idx, delay, true);
     }
-    SYNCDBG(19,"Finished");
+    SYNCDBG(19, "Finished");
 }
 
 TbBool message_can_be_played(long msg_idx)
 {
-    if ( (msg_idx < 0) || (msg_idx >= sizeof(messages)/sizeof(messages[0])) )
+    if ((msg_idx < 0) || (msg_idx >= sizeof(messages) / sizeof(messages[0])))
+    {
         return false;
+    }
     return ((long)game.play_gameturn >= messages[msg_idx].end_time);
 }
 
@@ -502,11 +511,13 @@ TbBool message_already_in_queue(long msg_idx)
 {
     for (long i = 0; i < MESSAGE_QUEUE_COUNT; i++)
     {
-        struct MessageQueueEntry* mqentry = &message_queue[i];
+        struct MessageQueueEntry *mqentry = &message_queue[i];
         if ((mqentry->state == 1) && (msg_idx == mqentry->msg_idx))
+        {
             return true;
-  }
-  return false;
+        }
+    }
+    return false;
 }
 
 TbBool message_queue_empty(void)
@@ -518,13 +529,13 @@ TbBool add_message_to_queue(long msg_idx, long delay)
 {
     for (long i = 0; i < MESSAGE_QUEUE_COUNT; i++)
     {
-        struct MessageQueueEntry* mqentry = &message_queue[i];
+        struct MessageQueueEntry *mqentry = &message_queue[i];
         if (mqentry->state == 0)
         {
-          mqentry->state = 1;
-          mqentry->msg_idx = msg_idx;
-          mqentry->delay = delay;
-          return true;
+            mqentry->state = 1;
+            mqentry->msg_idx = msg_idx;
+            mqentry->delay = delay;
+            return true;
         }
     }
     return false;
@@ -533,9 +544,11 @@ TbBool add_message_to_queue(long msg_idx, long delay)
 /** Returns a random speech phrase for given message */
 long get_phrase_for_message(long msg_idx)
 {
-    struct SMessage* smsg = &messages[msg_idx];
+    struct SMessage *smsg = &messages[msg_idx];
     if (smsg->count <= 0)
+    {
         return -1;
+    }
     long i = UNSYNC_RANDOM(smsg->count);
     return smsg->start_idx + i;
 }
@@ -547,20 +560,22 @@ long get_phrase_for_message(long msg_idx)
  */
 long get_phrase_sample(long phr_idx)
 {
-    if ((phr_idx < 0) || (phr_idx >= sizeof(phrases)/sizeof(phrases[0])))
+    if ((phr_idx < 0) || (phr_idx >= sizeof(phrases) / sizeof(phrases[0])))
+    {
         phr_idx = 0;
+    }
     return phrases[phr_idx];
 }
 
 void clear_messages(void)
 {
     int i;
-    for (i=0; i < MESSAGE_QUEUE_COUNT; i++)
+    for (i = 0; i < MESSAGE_QUEUE_COUNT; i++)
     {
         LbMemorySet(&message_queue[i], 0, sizeof(struct MessageQueueEntry));
     }
     // Set end turn to 0 for all messages
-    for (i=0; i < sizeof(messages)/sizeof(messages[0]); i++)
+    for (i = 0; i < sizeof(messages) / sizeof(messages[0]); i++)
     {
         messages[i].end_time = 0;
     }
@@ -571,17 +586,18 @@ void init_messages_turns(long delay)
     // Set end turn for all messages
     for (int i = 0; i < sizeof(messages) / sizeof(messages[0]); i++)
     {
-        struct SMessage* smsg = &messages[i];
+        struct SMessage *smsg = &messages[i];
         smsg->end_time = game.play_gameturn + delay;
     }
 }
 
 TbBool output_message_room_related_from_computer_or_player_action(PlayerNumber plyr_idx, RoomKind rkind, OutputMessageKind msg_kind)
 {
-    if (!is_my_player_number(plyr_idx)) {
+    if (!is_my_player_number(plyr_idx))
+    {
         return false;
     }
-    const struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
+    const struct RoomConfigStats *roomst = get_room_kind_stats(rkind);
     long delay;
     long msg_idx;
     switch (msg_kind)
@@ -607,7 +623,8 @@ TbBool output_message_room_related_from_computer_or_player_action(PlayerNumber p
         delay = 0;
         break;
     }
-    if (msg_idx < 1) {
+    if (msg_idx < 1)
+    {
         return false;
     }
     return output_message(msg_idx, delay, true);
@@ -619,6 +636,7 @@ void init_messages(void)
     // Set end turn
     init_messages_turns(0);
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

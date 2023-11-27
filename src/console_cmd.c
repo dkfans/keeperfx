@@ -2,7 +2,7 @@
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
 /** @file console_cmd.c
- *     
+ *
  * @par Purpose:
  *     Define various console commans
  * @par Comment:
@@ -75,15 +75,15 @@ extern "C" {
 extern void render_set_sprite_debug(int level);
 
 static struct GuiBoxOption cmd_comp_procs_data[COMPUTER_PROCESSES_COUNT + 3] = {
-  {"!", 1, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0 }
-  };
+    {"!", 1, NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0}
+};
 
 static char cmd_comp_procs_label[COMPUTER_PROCESSES_COUNT + 2][COMMAND_WORD_LEN + 8];
 
-struct GuiBoxOption cmd_comp_checks_data[COMPUTER_CHECKS_COUNT + 1] = { 0 };
+struct GuiBoxOption cmd_comp_checks_data[COMPUTER_CHECKS_COUNT + 1] = {0};
 static char cmd_comp_checks_label[COMPUTER_CHECKS_COUNT][COMMAND_WORD_LEN + 8];
 
-struct GuiBoxOption cmd_comp_events_data[COMPUTER_EVENTS_COUNT + 1] = { 0 };
+struct GuiBoxOption cmd_comp_events_data[COMPUTER_EVENTS_COUNT + 1] = {0};
 
 static TbBool script_set_pool(PlayerNumber player_idx, const char *creature, const char *num);
 
@@ -93,12 +93,16 @@ static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);
-    struct ComputerProcess* cproc = &comp->processes[args[1]];
+    struct ComputerProcess *cproc = &comp->processes[args[1]];
 
     if (cproc->flags & ComProc_Unkn0020)
-        message_add_fmt(args[0], "resuming %s", cproc->name?cproc->name:"(null)");
+    {
+        message_add_fmt(args[0], "resuming %s", cproc->name ? cproc->name : "(null)");
+    }
     else
-        message_add_fmt(args[0], "suspending %s", cproc->name?cproc->name:"(null)");
+    {
+        message_add_fmt(args[0], "suspending %s", cproc->name ? cproc->name : "(null)");
+    }
 
     cproc->flags ^= ComProc_Unkn0020; // Suspend, but do not update running time
     return 1;
@@ -111,10 +115,10 @@ static long cmd_comp_procs_update(struct GuiBox *gbox, struct GuiBoxOption *gopt
 
     for (; i < args[1]; i++)
     {
-        struct ComputerProcess* cproc = &comp->processes[i];
+        struct ComputerProcess *cproc = &comp->processes[i];
         if (cproc != NULL)
         {
-            char *label = (char*)goptn[i].label;
+            char *label = (char *)goptn[i].label;
             sprintf(label, "%02lx", cproc->flags);
             label[2] = ' ';
         }
@@ -131,10 +135,10 @@ long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, lon
 
     for (; i < args[1]; i++)
     {
-        struct ComputerCheck* check = &comp->checks[i];
+        struct ComputerCheck *check = &comp->checks[i];
         if (check != NULL)
         {
-            char *label = (char*)goptn[i].label;
+            char *label = (char *)goptn[i].label;
             sprintf(label, "%02lx", check->flags);
             label[2] = ' ';
         }
@@ -143,14 +147,13 @@ long cmd_comp_checks_update(struct GuiBox *gbox, struct GuiBoxOption *goptn, lon
 }
 
 int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
-    struct GuiBoxOption *data_list, char label_list[][COMMAND_WORD_LEN + 8],
-    const char *(*get_name)(struct Computer2 *, int),
-    unsigned long (*get_flags)(struct Computer2 *, int),
-    Gf_OptnBox_4Callback click_fn
-    )
+                  struct GuiBoxOption *data_list, char label_list[][COMMAND_WORD_LEN + 8],
+                  const char *(*get_name)(struct Computer2 *, int),
+                  unsigned long (*get_flags)(struct Computer2 *, int),
+                  Gf_OptnBox_4Callback click_fn)
 {
     close_creature_cheat_menu();
-    //gui_cheat_box_2
+    // gui_cheat_box_2
     int i = 0;
     struct Computer2 *comp;
     comp = get_computer_player(plyr_idx);
@@ -159,9 +162,13 @@ int cmd_comp_list(PlayerNumber plyr_idx, int max_count,
         unsigned long flags = get_flags(comp, i);
         const char *name = get_name(comp, i);
         if (name == NULL)
+        {
             sprintf(label_list[i], "%02lx %s", flags, "(null2)");
+        }
         else
-          sprintf(label_list[i], "%02lx %s", flags, name);
+        {
+            sprintf(label_list[i], "%02lx %s", flags, name);
+        }
         data_list[i].label = label_list[i];
 
         data_list[i].numfield_4 = 1;
@@ -180,16 +187,18 @@ static const char *get_process_name(struct Computer2 *comp, int i)
 {
     return comp->processes[i].name;
 }
-static unsigned long  get_process_flags(struct Computer2 *comp, int i)
+
+static unsigned long get_process_flags(struct Computer2 *comp, int i)
 {
     return comp->processes[i].flags;
 }
+
 static void cmd_comp_procs(PlayerNumber plyr_idx)
 {
     int i = cmd_comp_list(plyr_idx, COMPUTER_PROCESSES_COUNT,
-        cmd_comp_procs_data, cmd_comp_procs_label,
-        &get_process_name, &get_process_flags,
-        &cmd_comp_procs_click);
+                          cmd_comp_procs_data, cmd_comp_procs_label,
+                          &get_process_name, &get_process_flags,
+                          &cmd_comp_procs_click);
 
     cmd_comp_procs_data[0].active_cb = &cmd_comp_procs_update;
 
@@ -209,40 +218,47 @@ static const char *get_event_name(struct Computer2 *comp, int i)
 {
     return comp->events[i].name;
 }
-static unsigned long  get_event_flags(struct Computer2 *comp, int i)
+
+static unsigned long get_event_flags(struct Computer2 *comp, int i)
 {
     return 0;
 }
+
 static void cmd_comp_events(PlayerNumber plyr_idx)
 {
     cmd_comp_list(plyr_idx, COMPUTER_EVENTS_COUNT,
-        cmd_comp_events_data, cmd_comp_events_label,
-        &get_event_name, &get_event_flags, NULL);
+                  cmd_comp_events_data, cmd_comp_events_label,
+                  &get_event_name, &get_event_flags, NULL);
     cmd_comp_events_data[0].active_cb = NULL;
 
     gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_events_data);
 }
 
-
 static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *goptn, unsigned char btn, long *args)
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);
-    struct ComputerCheck* cproc = &comp->checks[args[1]];
+    struct ComputerCheck *cproc = &comp->checks[args[1]];
 
     if (cproc->flags & ComChk_Unkn0001)
-        message_add_fmt(args[0], "resuming %s", cproc->name?cproc->name:"(null)");
+    {
+        message_add_fmt(args[0], "resuming %s", cproc->name ? cproc->name : "(null)");
+    }
     else
-        message_add_fmt(args[0], "suspending %s", cproc->name?cproc->name:"(null)");
+    {
+        message_add_fmt(args[0], "suspending %s", cproc->name ? cproc->name : "(null)");
+    }
 
     cproc->flags ^= ComChk_Unkn0001;
     return 1;
 }
+
 static const char *get_check_name(struct Computer2 *comp, int i)
 {
     return comp->checks[i].name;
 }
-static unsigned long  get_check_flags(struct Computer2 *comp, int i)
+
+static unsigned long get_check_flags(struct Computer2 *comp, int i)
 {
     return comp->checks[i].flags;
 }
@@ -250,8 +266,8 @@ static unsigned long  get_check_flags(struct Computer2 *comp, int i)
 static void cmd_comp_checks(PlayerNumber plyr_idx)
 {
     cmd_comp_list(plyr_idx, COMPUTER_CHECKS_COUNT,
-        cmd_comp_checks_data, cmd_comp_checks_label,
-        &get_check_name, &get_check_flags, &cmd_comp_checks_click);
+                  cmd_comp_checks_data, cmd_comp_checks_label,
+                  &get_check_name, &get_check_flags, &cmd_comp_checks_click);
     cmd_comp_checks_data[0].active_cb = NULL;
 
     gui_cheat_box_2 = gui_create_box(my_mouse_x, 20, cmd_comp_checks_data);
@@ -263,7 +279,7 @@ static char *cmd_strtok(char *tail)
     {
         return NULL;
     }
-    char* next = strchr(tail,' ');
+    char *next = strchr(tail, ' ');
     if (next == NULL)
     {
         return NULL;
@@ -271,22 +287,26 @@ static char *cmd_strtok(char *tail)
     next[0] = '\0';
     next++; // it was space
     while (*next == ' ')
-      next++;
+    {
+        next++;
+    }
     return next;
 }
 
 static void str_replace(char *str, int from, int to)
 {
-    for (char *p = strchr(str, from); p != NULL; p = strchr(p+1, from))
+    for (char *p = strchr(str, from); p != NULL; p = strchr(p + 1, from))
     {
         *p = to;
     }
 }
 
-static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char* creature_str, const char*  slot_str, char* instance_str)
+static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char *creature_str, const char *slot_str, char *instance_str)
 {
     if (creature_str == NULL || slot_str == NULL || instance_str == NULL)
+    {
         return false;
+    }
     str_replace(creature_str, '.', '_');
     str_replace(instance_str, '.', '_');
     int creature = get_id(creature_desc, creature_str);
@@ -311,11 +331,11 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char* creature_str, cons
         targeted_message_add(10, plyr_idx, GUI_MESSAGES_DELAY, "Invalid instance");
         return false;
     }
-    struct CreatureStats* crstat = creature_stats_get(creature);
+    struct CreatureStats *crstat = creature_stats_get(creature);
     crstat->learned_instance_id[slot] = instance;
     for (long i = 0; i < THINGS_COUNT; i++)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if ((thing->alloc_flags & TAlF_Exists) != 0)
         {
             if (thing->class_id == TCls_Creature)
@@ -330,25 +350,25 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char* creature_str, cons
 
 TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
 {
-    SYNCDBG(2,"Command %d: %s",(int)plyr_idx, msg);
-    char * parstr = msg + 1;
-    char * pr2str = cmd_strtok(msg + 1);
-    char * pr3str = (pr2str != NULL) ? cmd_strtok(pr2str + 1) : NULL;
-    char * pr4str = (pr3str != NULL) ? cmd_strtok(pr3str + 1) : NULL;
-    char * pr5str = (pr4str != NULL) ? cmd_strtok(pr4str + 1) : NULL;
-    struct PlayerInfo* player;
-    struct Thing* thing;
-    struct Dungeon* dungeon;
-    struct DungeonAdd* dungeonadd;
-    struct Room* room;
-    struct Packet* pckt;
+    SYNCDBG(2, "Command %d: %s", (int)plyr_idx, msg);
+    char *parstr = msg + 1;
+    char *pr2str = cmd_strtok(msg + 1);
+    char *pr3str = (pr2str != NULL) ? cmd_strtok(pr2str + 1) : NULL;
+    char *pr4str = (pr3str != NULL) ? cmd_strtok(pr3str + 1) : NULL;
+    char *pr5str = (pr4str != NULL) ? cmd_strtok(pr4str + 1) : NULL;
+    struct PlayerInfo *player;
+    struct Thing *thing;
+    struct Dungeon *dungeon;
+    struct DungeonAdd *dungeonadd;
+    struct Room *room;
+    struct Packet *pckt;
     struct SlabMap *slb;
     struct Coord3d pos = {0};
     if (strcasecmp(parstr, "stats") == 0)
     {
-      targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
-      targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d",clock(),game_num_fps);
-      return true;
+        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Now time is %d, last loop time was %d", LbTimerClock(), last_loop_time);
+        targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d", clock(), game_num_fps);
+        return true;
     }
     else if (strcasecmp(parstr, "fps") == 0)
     {
@@ -365,18 +385,24 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     }
     else if (strcasecmp(parstr, "frametime") == 0 || strcasecmp(parstr, "ft") == 0)
     {
-        if (debug_display_frametime == 1) { // If already displaying, then turn off
+        if (debug_display_frametime == 1)
+        { // If already displaying, then turn off
             debug_display_frametime = 0;
-        } else {
+        }
+        else
+        {
             debug_display_frametime = 1;
         }
         return true;
     }
     else if (strcasecmp(parstr, "frametime.max") == 0 || strcasecmp(parstr, "ft.max") == 0)
     {
-        if (debug_display_frametime == 2) { // If already displaying, then turn off
+        if (debug_display_frametime == 2)
+        { // If already displaying, then turn off
             debug_display_frametime = 0;
-        } else {
+        }
+        else
+        {
             debug_display_frametime = 2;
         }
         return true;
@@ -398,7 +424,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     {
         game_flags2 ^= GF2_Timer;
         player = get_player(plyr_idx);
-        if ( (player->victory_state == VicS_WonLevel) && (timer_enabled()) && (TimerGame) )
+        if ((player->victory_state == VicS_WonLevel) && (timer_enabled()) && (TimerGame))
         {
             dungeon = get_my_dungeon();
             TimerTurns = dungeon->lvstats.hopes_dashed;
@@ -409,7 +435,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     {
         TimerGame ^= 1;
         player = get_player(plyr_idx);
-        if ( (player->victory_state == VicS_WonLevel) && (timer_enabled()) && (TimerGame) )
+        if ((player->victory_state == VicS_WonLevel) && (timer_enabled()) && (TimerGame))
         {
             dungeon = get_my_dungeon();
             TimerTurns = dungeon->lvstats.hopes_dashed;
@@ -424,12 +450,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     else if (strcasecmp(parstr, "game.save") == 0)
     {
         long slot_num = atoi(pr2str);
-        if ( (pr3str != NULL) && (slot_num <= TOTAL_SAVE_SLOTS_COUNT) )
+        if ((pr3str != NULL) && (slot_num <= TOTAL_SAVE_SLOTS_COUNT))
         {
             fill_game_catalogue_slot(slot_num, pr3str);
         }
         player = get_player(plyr_idx);
-        set_flag_byte(&game.operation_flags,GOF_Paused,true); // games are saved in a paused state
+        set_flag_byte(&game.operation_flags, GOF_Paused, true); // games are saved in a paused state
         TbBool result = save_game(slot_num);
         if (result)
         {
@@ -437,10 +463,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else
         {
-          ERRORLOG("Error in save!");
-          create_error_box(GUIStr_ErrorSaving);
+            ERRORLOG("Error in save!");
+            create_error_box(GUIStr_ErrorSaving);
         }
-        set_flag_byte(&game.operation_flags,GOF_Paused,false); // unpause after save attempt
+        set_flag_byte(&game.operation_flags, GOF_Paused, false); // unpause after save attempt
         return result;
     }
     else if (strcasecmp(parstr, "game.load") == 0)
@@ -451,7 +477,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (load_game(slot_num))
             {
-                set_flag_byte(&game.operation_flags,GOF_Paused,Pause); // unpause, because games are saved whilst paused
+                set_flag_byte(&game.operation_flags, GOF_Paused, Pause); // unpause, because games are saved whilst paused
                 return true;
             }
             else
@@ -479,7 +505,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s: %d %s: %d", get_string(340), settings.sound_volume, get_string(341), settings.redbook_volume);
         return true;
     }
-    else if ( (strcasecmp(parstr, "volume.sound") == 0) || (strcasecmp(parstr, "volume.sfx") == 0) )
+    else if ((strcasecmp(parstr, "volume.sound") == 0) || (strcasecmp(parstr, "volume.sfx") == 0))
     {
         if (pr2str != NULL)
         {
@@ -496,7 +522,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             }
         }
     }
-    else if ( (strcasecmp(parstr, "volume.music") == 0) || (strcasecmp(parstr, "volume.soundtrack") == 0) )
+    else if ((strcasecmp(parstr, "volume.music") == 0) || (strcasecmp(parstr, "volume.soundtrack") == 0))
     {
         if (pr2str != NULL)
         {
@@ -518,18 +544,23 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         if (strcasecmp(parstr, "compuchat") == 0)
         {
             if (pr2str == NULL)
+            {
                 return false;
+            }
 
             if ((strcasecmp(pr2str, "scarce") == 0) || (strcasecmp(pr2str, "1") == 0))
             {
                 for (int i = 0; i < PLAYERS_COUNT; i++)
                 {
-                    if ((i == game.hero_player_num)
-                        || (plyr_idx == game.neutral_player_num))
+                    if ((i == game.hero_player_num) || (plyr_idx == game.neutral_player_num))
+                    {
                         continue;
+                    }
                     struct Computer2 *comp = get_computer_player(i);
                     if (player_exists(get_player(i)) && (!computer_player_invalid(comp)))
-                        targeted_message_add(i, plyr_idx, GUI_MESSAGES_DELAY, "Ai model %d", (int) comp->model);
+                    {
+                        targeted_message_add(i, plyr_idx, GUI_MESSAGES_DELAY, "Ai model %d", (int)comp->model);
+                    }
                 }
                 gameadd.computer_chat_flags = CChat_TasksScarce;
             }
@@ -548,30 +579,42 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if (strcasecmp(parstr, "comp.procs") == 0)
         {
             if (pr2str == NULL)
+            {
                 return false;
+            }
             int id = atoi(pr2str);
             if (id < 0 || id > PLAYERS_COUNT)
+            {
                 return false;
+            }
             cmd_comp_procs(id);
             return true;
         }
         else if (strcasecmp(parstr, "comp.events") == 0)
         {
             if (pr2str == NULL)
+            {
                 return false;
+            }
             int id = atoi(pr2str);
             if (id < 0 || id > PLAYERS_COUNT)
+            {
                 return false;
+            }
             cmd_comp_events(id);
             return true;
         }
         else if (strcasecmp(parstr, "comp.checks") == 0)
         {
             if (pr2str == NULL)
+            {
                 return false;
+            }
             int id = atoi(pr2str);
             if (id < 0 || id > PLAYERS_COUNT)
+            {
                 return false;
+            }
             cmd_comp_checks(id);
             return true;
         }
@@ -593,8 +636,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                                        subtile_slab(stl_x - r2),
                                        subtile_slab(stl_x + r - r2),
                                        subtile_slab(stl_y - r2),
-                                       subtile_slab(stl_y + r - r2)
-                );
+                                       subtile_slab(stl_y + r - r2));
                 reveal_map_rect(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
                 pannel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
             }
@@ -629,13 +671,16 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if (strcasecmp(parstr, "comp.kill") == 0)
         {
             if (pr2str == NULL)
+            {
                 return false;
+            }
             int id = atoi(pr2str);
             if (id < 0 || id > PLAYERS_COUNT)
+            {
                 return false;
+            }
             thing = get_player_soul_container(id);
             thing->health = 0;
-
         }
         else if (strcasecmp(parstr, "player.score") == 0)
         {
@@ -674,18 +719,22 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if (strcasecmp(parstr, "comp.me") == 0)
         {
             if (pr2str == NULL)
+            {
                 return false;
+            }
             if (!setup_a_computer_player(plyr_idx, atoi(pr2str)))
             {
                 targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "unable to set assistant");
             }
             else
+            {
                 targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "computer assistant is %d", atoi(pr2str));
+            }
             return true;
         }
         else if (strcasecmp(parstr, "magic.instance") == 0)
         {
-            return cmd_magic_instance(plyr_idx, (char *) pr2str, pr3str, (char *) pr4str);
+            return cmd_magic_instance(plyr_idx, (char *)pr2str, pr3str, (char *)pr4str);
         }
         else if ((strcasecmp(parstr, "give.trap") == 0) || (strcasecmp(parstr, "trap.give") == 0))
         {
@@ -814,7 +863,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                                 {
                                     move_creature_to_nearest_valid_position(creatng);
                                 }
-                                set_creature_level(creatng, (atoi(pr3str) - (unsigned char) (pr3str != NULL)));
+                                set_creature_level(creatng, (atoi(pr3str) - (unsigned char)(pr3str != NULL)));
                             }
                         }
                         return true;
@@ -1015,7 +1064,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
                 {
                     if (!set_power_available(plyr_idx, pw, 1, 1))
+                    {
                         WARNLOG("Setting power %s availability for player %d failed.", power_code_name(pw), 1);
+                    }
                 }
                 update_powers_tab_to_config();
                 return true;
@@ -1028,7 +1079,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     power = atoi(pr2str);
                 }
                 if (!set_power_available(plyr_idx, power, 1, 1))
+                {
                     WARNLOG("Setting power %s availability for player %d failed.", power_code_name(power), 1);
+                }
                 update_powers_tab_to_config();
                 return true;
             }
@@ -1039,10 +1092,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = get_player_soul_container(id);
             if (thing_is_dungeon_heart(thing))
             {
-                struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+                struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
                 if (pr3str == NULL)
                 {
-                    float percent = ((float) thing->health / (float)objst->health) * 100;
+                    float percent = ((float)thing->health / (float)objst->health) * 100;
                     targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,
                                          "Player %d heart health: %ld (%.2f per cent)", id, thing->health, percent);
                     return true;
@@ -1061,8 +1114,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             TbBool available = (pr3str == NULL) ? 1 : atoi(pr3str);
             PlayerNumber id = get_player_number_for_command(pr4str);
             if (!set_creature_available(id, crmodel, available, available))
+            {
                 WARNLOG("Setting creature %s availability for player %d failed.", creature_code_name(crmodel),
-                        (int) id);
+                        (int)id);
+            }
 
             return true;
         }
@@ -1177,7 +1232,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             }
             player = get_player(plyr_idx);
             struct Map *block = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
-            short thing_id = (short) get_mapwho_thing_index(block);
+            short thing_id = (short)get_mapwho_thing_index(block);
             thing = thing_get(thing_id);
             targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "first_thing:%d %s", thing_id,
                                  thing_class_and_model_name(thing->class_id, thing->model));
@@ -1247,7 +1302,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             pos.y.val = pckt->pos_y;
             pos.z.val = get_floor_height_at(&pos);
             targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Cursor at %d, %d, %d",
-                                 (int) pos.x.stl.num, (int) pos.y.stl.num, (int) pos.z.stl.num);
+                                 (int)pos.x.stl.num, (int)pos.y.stl.num, (int)pos.z.stl.num);
             return true;
         }
         else if (strcasecmp(parstr, "thing.get") == 0)
@@ -1268,7 +1323,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if (strcasecmp(parstr, "thing.show_id") == 0)
         {
-            render_set_sprite_debug((pr2str != NULL)? atoi(pr2str): 1);
+            render_set_sprite_debug((pr2str != NULL) ? atoi(pr2str) : 1);
             return true;
         }
         else if (strcasecmp(parstr, "thing.health") == 0)
@@ -1299,7 +1354,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     pos.x.stl.num = atoi(pr2str);
                     pos.y.stl.num = atoi(pr3str);
                     if ((pos.x.stl.num >= gameadd.map_subtiles_x) ||
-                            (pos.y.stl.num >= gameadd.map_subtiles_y))
+                        (pos.y.stl.num >= gameadd.map_subtiles_y))
                     {
                         targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "invalid location");
                         return true;
@@ -1338,7 +1393,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return true;
             }
         }
-        else if (strcasecmp(parstr, "room.get") == 0 )
+        else if (strcasecmp(parstr, "room.get") == 0)
         {
             player = get_player(plyr_idx);
             pckt = get_packet_direct(player->packet_num);
@@ -1365,7 +1420,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 else
                 {
-                    room-> health = atoi(pr2str);
+                    room->health = atoi(pr2str);
                     return true;
                 }
             }
@@ -1407,11 +1462,13 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 game.pool.crtr_kind[crmodel] += atoi(pr3str);
                 if (game.pool.crtr_kind[crmodel] < 0)
+                {
                     game.pool.crtr_kind[crmodel] = 0;
+                }
                 return true;
             }
         }
-        else if ( (strcasecmp(parstr, "creature.pool.sub") == 0) || (strcasecmp(parstr, "creature.pool.remove") == 0) )
+        else if ((strcasecmp(parstr, "creature.pool.sub") == 0) || (strcasecmp(parstr, "creature.pool.remove") == 0))
         {
             if (pr3str != NULL)
             {
@@ -1427,7 +1484,9 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 }
                 game.pool.crtr_kind[crmodel] -= atoi(pr3str);
                 if (game.pool.crtr_kind[crmodel] < 0)
+                {
                     game.pool.crtr_kind[crmodel] = 0;
+                }
                 return true;
             }
         }
@@ -1439,7 +1498,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 thing = thing_get(player->influenced_thing_idx);
                 if (thing_is_creature(thing))
                 {
-                    set_creature_level(thing, (atoi(pr2str)-1));
+                    set_creature_level(thing, (atoi(pr2str) - 1));
                     return true;
                 }
             }
@@ -1482,7 +1541,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         }
         else if (strcasecmp(parstr, "zoomto") == 0)
         {
-            if ( (pr2str != NULL) && (pr3str != NULL) )
+            if ((pr2str != NULL) && (pr3str != NULL))
             {
                 MapSubtlCoord stl_x = atoi(pr2str);
                 MapSubtlCoord stl_y = atoi(pr3str);
@@ -1523,7 +1582,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 unsigned char ap = atoi(pr2str);
                 if (action_point_exists_idx(ap))
                 {
-                    struct ActionPoint* actionpt = action_point_get(ap);
+                    struct ActionPoint *actionpt = action_point_get(ap);
                     targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Action Point %d X: %d Y: %d", ap, actionpt->mappos.x.stl.num, actionpt->mappos.y.stl.num);
                     return true;
                 }
@@ -1536,7 +1595,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 unsigned char ap = atoi(pr2str);
                 if (action_point_exists_idx(ap))
                 {
-                    struct ActionPoint* actionpt = action_point_get(ap);
+                    struct ActionPoint *actionpt = action_point_get(ap);
                     player = get_player(plyr_idx);
                     player->zoom_to_pos_x = subtile_coord_center(actionpt->mappos.x.stl.num);
                     player->zoom_to_pos_y = subtile_coord_center(actionpt->mappos.y.stl.num);
@@ -1562,7 +1621,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             {
                 unsigned char hg = atoi(pr2str);
                 thing = find_hero_gate_of_number(hg);
-                if ( (thing_is_object(thing)) && (object_is_hero_gate(thing)) )
+                if ((thing_is_object(thing)) && (object_is_hero_gate(thing)))
                 {
                     player = get_player(plyr_idx);
                     player->zoom_to_pos_x = subtile_coord_center(thing->mappos.x.stl.num);
@@ -1594,24 +1653,28 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
 
 static TbBool script_set_pool(PlayerNumber plyr_idx, const char *creature, const char *str_num)
 {
-  if (creature == NULL)
-    return false;
-  long kind = get_id(creature_desc, creature);
-  if (kind == -1)
-  {
-    if (0 == strcasecmp(creature, "EMPTY"))
+    if (creature == NULL)
     {
-      clear_creature_pool();
-      return true;
+        return false;
     }
-    targeted_message_add(10, plyr_idx, GUI_MESSAGES_DELAY, "Invalid creature");
-    return false;
-  }
-  int num = atoi(str_num);
-  if (num < 0)
-    return false;
-  game.pool.crtr_kind[kind] = num;
-  return true;
+    long kind = get_id(creature_desc, creature);
+    if (kind == -1)
+    {
+        if (0 == strcasecmp(creature, "EMPTY"))
+        {
+            clear_creature_pool();
+            return true;
+        }
+        targeted_message_add(10, plyr_idx, GUI_MESSAGES_DELAY, "Invalid creature");
+        return false;
+    }
+    int num = atoi(str_num);
+    if (num < 0)
+    {
+        return false;
+    }
+    game.pool.crtr_kind[kind] = num;
+    return true;
 }
 
 long get_creature_model_for_command(char *msg)
@@ -1643,19 +1706,19 @@ long get_creature_model_for_command(char *msg)
         {
             return 9;
         }
-        else if ( (strcasecmp(msg, "warlock") == 0) || (strcasecmp(msg, "sorcerer") == 0) )
+        else if ((strcasecmp(msg, "warlock") == 0) || (strcasecmp(msg, "sorcerer") == 0))
         {
             return 21;
         }
-        else if ( (strcasecmp(msg, "reaper") == 0) || (strcasecmp(msg, "hornedreaper") == 0) )
+        else if ((strcasecmp(msg, "reaper") == 0) || (strcasecmp(msg, "hornedreaper") == 0))
         {
             return 14;
         }
-        else if ( (strcasecmp(msg, "dwarf") == 0) || (strcasecmp(msg, "mountaindwarf") == 0) )
+        else if ((strcasecmp(msg, "dwarf") == 0) || (strcasecmp(msg, "mountaindwarf") == 0))
         {
             return 5;
         }
-        else if ( (strcasecmp(msg, "spirit") == 0) || (strcasecmp(msg, "floatingspirit") == 0) )
+        else if ((strcasecmp(msg, "spirit") == 0) || (strcasecmp(msg, "floatingspirit") == 0))
         {
             return 31;
         }
@@ -1687,11 +1750,11 @@ PlayerNumber get_player_number_for_command(char *msg)
     return id;
 }
 
-TbBool parameter_is_number(const char* parstr)
+TbBool parameter_is_number(const char *parstr)
 {
     for (int i = 0; parstr[i] != '\0'; i++)
     {
-        TbBool digit = (i == 0) ? ( (parstr[i] == 0x2D) || (isdigit(parstr[i])) ) : (isdigit(parstr[i]));
+        TbBool digit = (i == 0) ? ((parstr[i] == 0x2D) || (isdigit(parstr[i]))) : (isdigit(parstr[i]));
         if (!digit)
         {
             return false;
@@ -1700,16 +1763,16 @@ TbBool parameter_is_number(const char* parstr)
     return true;
 }
 
-char get_trap_number_for_command(char* msg)
+char get_trap_number_for_command(char *msg)
 {
     char id = get_rid(trap_desc, msg);
     if (id < 0)
     {
-        if ( (strcasecmp(msg, "gas") == 0) || (strcasecmp(msg, "poison") == 0) || (strcasecmp(msg, "poisongas") == 0) )
+        if ((strcasecmp(msg, "gas") == 0) || (strcasecmp(msg, "poison") == 0) || (strcasecmp(msg, "poisongas") == 0))
         {
             id = 3;
         }
-        else if ( (strcasecmp(msg, "word") == 0) || (strcasecmp(msg, "wordofpower") == 0) )
+        else if ((strcasecmp(msg, "word") == 0) || (strcasecmp(msg, "wordofpower") == 0))
         {
             id = 5;
         }
@@ -1724,14 +1787,14 @@ char get_trap_number_for_command(char* msg)
     return id;
 }
 
-char get_door_number_for_command(char* msg)
+char get_door_number_for_command(char *msg)
 {
     long id = get_rid(door_desc, msg);
     if (id < 0)
     {
         if (strcasecmp(msg, "wooden") == 0)
         {
-           id = 1;
+            id = 1;
         }
         else if (strcasecmp(msg, "iron") == 0)
         {

@@ -54,11 +54,11 @@ enum UniqueFunctions {
 };
 
 enum SacrificeReturn {
-    SacR_AngryWarn    = -1,
-    SacR_DontCare     =  0,
-    SacR_Pleased      =  1,
-    SacR_Awarded      =  2,
-    SacR_Punished     =  3,
+    SacR_AngryWarn = -1,
+    SacR_DontCare = 0,
+    SacR_Pleased = 1,
+    SacR_Awarded = 2,
+    SacR_Punished = 3,
 };
 
 struct SacrificeRecipe {
@@ -66,6 +66,7 @@ struct SacrificeRecipe {
     long action;
     long param;
 };
+
 /******************************************************************************/
 extern const char keeper_rules_file[];
 extern const struct NamedCommand research_desc[];

@@ -55,9 +55,10 @@ TbBool check_if_pos_is_over_button(const struct GuiButton *gbtn, TbScreenPos pos
 {
     TbScreenPos x = gbtn->pos_x;
     TbScreenPos y = gbtn->pos_y;
-    if ( (pos_x >= x) && (pos_x < x + gbtn->width)
-      && (pos_y >= y) && (pos_y < y + gbtn->height) )
+    if ((pos_x >= x) && (pos_x < x + gbtn->width) && (pos_y >= y) && (pos_y < y + gbtn->height))
+    {
         return true;
+    }
     return false;
 }
 
@@ -69,16 +70,20 @@ void do_sound_menu_click(void)
 void do_sound_button_click(struct GuiButton *gbtn)
 {
     if (gbtn->gbtype == LbBtnT_RadioBtn)
+    {
         play_non_3d_sample(60);
+    }
     else
+    {
         play_non_3d_sample(61);
+    }
 }
 
-void setup_input_field(struct GuiButton *gbtn, const char * empty_text)
+void setup_input_field(struct GuiButton *gbtn, const char *empty_text)
 {
     lbInkey = 0;
     LbMemorySet(backup_input_field, 0, INPUT_FIELD_LEN);
-    char* content = (char*)gbtn->content;
+    char *content = (char *)gbtn->content;
     if (content == NULL)
     {
         ERRORLOG("Button has invalid content pointer");
@@ -86,7 +91,7 @@ void setup_input_field(struct GuiButton *gbtn, const char * empty_text)
     }
     snprintf(backup_input_field, INPUT_FIELD_LEN, "%s", content);
     // Check if the text drawn should be treated as empty; if it is, ignore that string
-    if ((empty_text != NULL) && (strncmp(empty_text, backup_input_field, INPUT_FIELD_LEN-1) == 0))
+    if ((empty_text != NULL) && (strncmp(empty_text, backup_input_field, INPUT_FIELD_LEN - 1) == 0))
     {
         *content = '\0';
     }

@@ -56,13 +56,13 @@ extern "C" {
 // Max length of the command line
 #define CMDLN_MAXLEN 259
 
-#define LEGAL_WIDTH  640
+#define LEGAL_WIDTH 640
 #define LEGAL_HEIGHT 480
 
-#define LENSES_COUNT           15
-#define SPELL_POINTER_GROUPS   14
-#define ZOOM_KEY_ROOMS_COUNT   15
-#define CMDLINE_OVERRIDES      2
+#define LENSES_COUNT 15
+#define SPELL_POINTER_GROUPS 14
+#define ZOOM_KEY_ROOMS_COUNT 15
+#define CMDLINE_OVERRIDES 2
 
 /** Command Line overrides for config settings. Checked after the config file is loaded. */
 enum CmdLineOverrides {
@@ -71,38 +71,38 @@ enum CmdLineOverrides {
 };
 
 enum ModeFlags {
-    MFlg_IsDemoMode         =  0x01,
-    MFlg_EyeLensReady       =  0x02,
-    MFlg_unk04              =  0x04,
-    MFlg_DeadBackToPool     =  0x08,
-    MFlg_NoCdMusic          =  0x10, // unused
-    MFlg_unk20              =  0x20,
-    MFlg_unk40              =  0x40,
-    MFlg_NoHeroHealthFlower              =  0x80,
+    MFlg_IsDemoMode = 0x01,
+    MFlg_EyeLensReady = 0x02,
+    MFlg_unk04 = 0x04,
+    MFlg_DeadBackToPool = 0x08,
+    MFlg_NoCdMusic = 0x10, // unused
+    MFlg_unk20 = 0x20,
+    MFlg_unk40 = 0x40,
+    MFlg_NoHeroHealthFlower = 0x80,
 };
 
 enum FFlags {
-    FFlg_unk01              =  0x01,
-    FFlg_unk02              =  0x02,
-    FFlg_unk04              =  0x04, // unused, had something to do with Passenger Control
-    FFlg_unk08              =  0x08,
-    FFlg_unk10              =  0x10,
-    FFlg_AlexCheat          =  0x20,
-    FFlg_UsrSndFont         =  0x40, // now unused
-    FFlg_unk80              =  0x80,
+    FFlg_unk01 = 0x01,
+    FFlg_unk02 = 0x02,
+    FFlg_unk04 = 0x04, // unused, had something to do with Passenger Control
+    FFlg_unk08 = 0x08,
+    FFlg_unk10 = 0x10,
+    FFlg_AlexCheat = 0x20,
+    FFlg_UsrSndFont = 0x40, // now unused
+    FFlg_unk80 = 0x80,
 };
 
 enum DebugFlags {
-    DFlg_ShotsDamage        =  0x01,
-    DFlg_CreatrPaths        =  0x02,
+    DFlg_ShotsDamage = 0x01,
+    DFlg_CreatrPaths = 0x02,
 };
 
 #ifdef AUTOTESTING
 enum AutotestFlags {
-    ATF_ExitOnTurn          = 0x01, // Exit from a game after some time
-    ATF_FixedSeed           = 0x02, // Set randomseed to 1 on game start
-    ATF_AI_Player           = 0x04, // Activate Ai player on level start
-    ATF_TestsCampaign       = 0x08  // Switch to testing levels
+    ATF_ExitOnTurn = 0x01,   // Exit from a game after some time
+    ATF_FixedSeed = 0x02,    // Set randomseed to 1 on game start
+    ATF_AI_Player = 0x04,    // Activate Ai player on level start
+    ATF_TestsCampaign = 0x08 // Switch to testing levels
 };
 #endif
 
@@ -134,9 +134,9 @@ struct StartupParameters {
     unsigned char packet_checksum_verify;
     unsigned char force_ppro_poly;
     int frame_skip;
-    char selected_campaign[CMDLN_MAXLEN+1];
+    char selected_campaign[CMDLN_MAXLEN + 1];
     TbBool overrides[CMDLINE_OVERRIDES];
-    char config_file[CMDLN_MAXLEN+1];
+    char config_file[CMDLN_MAXLEN + 1];
 #ifdef AUTOTESTING
     unsigned char autotest_flags;
     unsigned long autotest_exit_turn;
@@ -201,7 +201,7 @@ extern struct GuiBox *gui_cheat_box_3;
 extern int test_variable;
 extern struct StartupParameters start_params;
 
-//Functions - reworked
+// Functions - reworked
 short setup_game(void);
 void game_loop(void);
 short reset_game(void);
@@ -214,7 +214,7 @@ TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
 void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
-void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, long eemodel);
+void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, long eemodel);
 void toggle_hero_health_flowers(void);
 void check_players_won(void);
 void check_players_lost(void);
@@ -303,16 +303,18 @@ void faststartup_saved_packet_game(void);
 void reinit_level_after_load(void);
 void update_time(void);
 extern TbClockMSec timerstarttime;
+
 struct TimerTime {
-        unsigned char Hours;
-        unsigned char Minutes;
-        unsigned char Seconds;
-        unsigned short MSeconds;
+    unsigned char Hours;
+    unsigned char Minutes;
+    unsigned char Seconds;
+    unsigned short MSeconds;
 };
 extern struct TimerTime Timer;
 extern TbBool TimerGame;
 extern TbBool TimerNoReset;
 extern TbBool TimerFreeze;
+
 struct GameTime {
     unsigned char Seconds;
     unsigned char Minutes;

@@ -34,11 +34,11 @@ extern "C" {
 struct Point;
 
 struct Triangle {
-  short points[3];
-  int tags[3]; // Id of each triangle neighbour of this one
-  NavColour tree_alt; // NAV_COL_UNSET is a special value here
-  unsigned char field_D;
-  unsigned short field_E;
+    short points[3];
+    int tags[3];        // Id of each triangle neighbour of this one
+    NavColour tree_alt; // NAV_COL_UNSET is a special value here
+    unsigned char field_D;
+    unsigned short field_E;
 };
 
 #define NAV_COL_UNSET USHRT_MAX

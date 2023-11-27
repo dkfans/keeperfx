@@ -38,48 +38,66 @@ long triangle_brute_find8_near(long pos_x, long pos_y)
 {
     long cx = pos_x >> 14;
     if (cx < 0)
+    {
         cx = 0;
+    }
     if (cx > 3)
+    {
         cx = 3;
+    }
     long cy = pos_y >> 14;
     if (cy < 0)
+    {
         cy = 0;
+    }
     if (cy > 3)
+    {
         cy = 3;
-   // Try sibling
+    }
+    // Try sibling
     long tri_id;
-    if (cx-1 >= 0)
+    if (cx - 1 >= 0)
     {
-        tri_id = find_cache[cy][cx-1];
+        tri_id = find_cache[cy][cx - 1];
         if (get_triangle_tree_alt(tri_id) != NAV_COL_UNSET)
+        {
             return tri_id;
+        }
     }
-    if (cx+1 < 4)
+    if (cx + 1 < 4)
     {
-        tri_id = find_cache[cy][cx+1];
+        tri_id = find_cache[cy][cx + 1];
         if (get_triangle_tree_alt(tri_id) != NAV_COL_UNSET)
+        {
             return tri_id;
+        }
     }
-    if (cy-1 >= 0)
+    if (cy - 1 >= 0)
     {
-        tri_id = find_cache[cy-1][cx];
+        tri_id = find_cache[cy - 1][cx];
         if (get_triangle_tree_alt(tri_id) != NAV_COL_UNSET)
+        {
             return tri_id;
+        }
     }
-    if (cy+1 < 4)
+    if (cy + 1 < 4)
     {
-        tri_id = find_cache[cy+1][cx];
+        tri_id = find_cache[cy + 1][cx];
         if (get_triangle_tree_alt(tri_id) != NAV_COL_UNSET)
+        {
             return tri_id;
+        }
     }
     // Try any in cache
-    for (cy=0; cy < 4; cy++)
+    for (cy = 0; cy < 4; cy++)
     {
-        for (cx=0; cx < 4; cx++)
+        for (cx = 0; cx < 4; cx++)
         {
             tri_id = find_cache[cy][cx];
             if (get_triangle_tree_alt(tri_id) != NAV_COL_UNSET)
+            {
                 return tri_id;
+            }
         }
     }
     // Try any
@@ -91,14 +109,22 @@ long triangle_find_cache_get(long pos_x, long pos_y)
 {
     long cache_x = (pos_x >> 14);
     if (cache_x > 3)
+    {
         cache_x = 3;
+    }
     if (cache_x < 0)
+    {
         cache_x = 0;
+    }
     long cache_y = (pos_y >> 14);
     if (cache_y > 3)
+    {
         cache_y = 3;
+    }
     if (cache_y < 0)
+    {
         cache_y = 0;
+    }
 
     long ntri = find_cache[cache_y][cache_x];
     if (get_triangle_tree_alt(ntri) == NAV_COL_UNSET)
@@ -110,23 +136,30 @@ long triangle_find_cache_get(long pos_x, long pos_y)
             ntri = -1;
         }
         find_cache[cache_y][cache_x] = ntri;
-  }
-  return ntri;
-
+    }
+    return ntri;
 }
 
 void triangle_find_cache_put(long pos_x, long pos_y, long ntri)
 {
     long cache_x = (pos_x >> 14);
     if (cache_x > 3)
+    {
         cache_x = 3;
+    }
     if (cache_x < 0)
+    {
         cache_x = 0;
+    }
     long cache_y = (pos_y >> 14);
     if (cache_y > 3)
+    {
         cache_y = 3;
+    }
     if (cache_y < 0)
+    {
         cache_y = 0;
+    }
     find_cache[cache_y][cache_x] = ntri;
 }
 
@@ -143,8 +176,8 @@ void triangulation_init_cache(long tri_idx)
 
 long triangle_find8(long pt_x, long pt_y)
 {
-    NAVIDBG(19,"Starting");
-    //TODO PATHFINDING triangulate_area sub-sub-sub-function
+    NAVIDBG(19, "Starting");
+    // TODO PATHFINDING triangulate_area sub-sub-sub-function
     long ntri = triangle_find_cache_get(pt_x, pt_y);
     for (unsigned long k = 0; k < TRIANLGLES_COUNT; k++)
     {
@@ -184,11 +217,12 @@ long triangle_find8(long pt_x, long pt_y)
         case 0:
             triangle_find_cache_put(pt_x, pt_y, ntri);
             return ntri;
-      }
-      if (nxcor < 0) {
-          ERRORLOG("No position pointed at %d,%d",(int)pt_x, (int)pt_y);
-          return -1;
-      }
+        }
+        if (nxcor < 0)
+        {
+            ERRORLOG("No position pointed at %d,%d", (int)pt_x, (int)pt_y);
+            return -1;
+        }
     }
     ERRORLOG("Infinite loop detected");
     return -1;
@@ -211,16 +245,17 @@ TbBool point_find(long pt_x, long pt_y, long *out_tri_idx, long *out_cor_idx)
     }
     for (long cor_id = 0; cor_id < 3; cor_id++)
     {
-        struct Point* pt = get_triangle_point(tri_idx, cor_id);
+        struct Point *pt = get_triangle_point(tri_idx, cor_id);
         if ((pt->x == pt_x) && (pt->y == pt_y))
         {
-          *out_tri_idx = tri_idx;
-          *out_cor_idx = cor_id;
-          return true;
+            *out_tri_idx = tri_idx;
+            *out_cor_idx = cor_id;
+            return true;
         }
     }
     return false;
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -25,10 +25,10 @@
 #include "engine_render.h"
 
 // All anims below this have two different sprites in 3d and map view
-#define TD_ISO_POINTS        982
-#define RANDOMISORS_LEN      512
-#define RANDOMISORS_MASK   0x1ff
-#define RANDOMISORS_RANGE     63
+#define TD_ISO_POINTS 982
+#define RANDOMISORS_LEN 512
+#define RANDOMISORS_MASK 0x1ff
+#define RANDOMISORS_RANGE 63
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,15 +37,16 @@ extern "C" {
 #pragma pack(1)
 
 struct WibbleTable {
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
-  long field_10;
-  long field_14;
-  long field_18;
-  long field_1C;
+    long field_0;
+    long field_4;
+    long field_8;
+    long field_C;
+    long field_10;
+    long field_14;
+    long field_18;
+    long field_1C;
 };
+
 /******************************************************************************/
 extern long randomisors[512];
 extern struct WibbleTable wibble_table[128];

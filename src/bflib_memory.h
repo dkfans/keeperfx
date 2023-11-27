@@ -27,28 +27,28 @@
 extern "C" {
 #endif
 /******************************************************************************/
-typedef unsigned char * MemAllocFunc(ulong);
+typedef unsigned char *MemAllocFunc(ulong);
 /******************************************************************************/
 extern char lbEmptyString[];
 /******************************************************************************/
 extern unsigned long mem_size;
 /******************************************************************************/
 short update_memory_constraits(void);
-void * LbMemorySet(void *dst, uchar c, ulong length);
-void * LbMemoryCopy(void *in_dst, const void *in_src, ulong len);
+void *LbMemorySet(void *dst, uchar c, ulong length);
+void *LbMemoryCopy(void *in_dst, const void *in_src, ulong len);
 int LbMemorySetup();
 int LbMemoryReset(void);
 short LbMemoryCheck(void);
-unsigned char * LbMemoryAllocLow(ulong size);
-unsigned char * LbMemoryAlloc(ulong size);
+unsigned char *LbMemoryAllocLow(ulong size);
+unsigned char *LbMemoryAlloc(ulong size);
 int LbMemoryFree(void *mem_ptr);
-void * LbMemoryGrow(void *ptr, unsigned long size);
-void * LbMemoryShrink(void *ptr, unsigned long size);
+void *LbMemoryGrow(void *ptr, unsigned long size);
+void *LbMemoryShrink(void *ptr, unsigned long size);
 int LbMemoryCompare(void *ptr1, void *ptr2, unsigned long size);
-void * LbStringCopy(char *dst, const char *src, const ulong dst_buflen);
-void * LbStringConcat(char *dst, const char *src, const ulong dst_buflen);
+void *LbStringCopy(char *dst, const char *src, const ulong dst_buflen);
+void *LbStringConcat(char *dst, const char *src, const ulong dst_buflen);
 ulong LbStringLength(const char *str);
-void * LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen);
+void *LbStringToLowerCopy(char *dst, const char *src, const ulong dst_buflen);
 /******************************************************************************/
 #ifdef __cplusplus
 }

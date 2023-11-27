@@ -31,7 +31,7 @@ extern "C" {
 /******************************************************************************/
 extern struct TbTime global_time;
 extern struct TbDate global_date;
-extern TbClockMSec (* LbTimerClock)(void);
+extern TbClockMSec (*LbTimerClock)(void);
 /******************************************************************************/
 void LbDoMultitasking(void);
 TbBool LbSleepFor(TbClockMSec delay);
@@ -40,19 +40,21 @@ TbResult LbTime(struct TbTime *curr_time);
 TbTimeSec LbTimeSec(void);
 TbResult LbDate(struct TbDate *curr_date);
 TbResult LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time);
-TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date, struct TbTime *curr_time);
+TbResult LbDateTimeDecode(const time_t *datetime, struct TbDate *curr_date, struct TbTime *curr_time);
 TbResult LbTimerInit(void);
 double LbMoonPhase(void);
 TbClockMSec LbTimerClock_1000(void);
 /******************************************************************************/
 
 #define TOTAL_FRAMETIME_KINDS 4
+
 enum FrametimeKinds {
     Frametime_FullFrame = 0,
     Frametime_Logic = 1,
     Frametime_Draw = 2,
     Frametime_Sleep = 3,
 };
+
 struct FrametimeMeasurements {
     float starting_measurement[TOTAL_FRAMETIME_KINDS];
     float frametime_current[TOTAL_FRAMETIME_KINDS];

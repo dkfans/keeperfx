@@ -20,63 +20,61 @@
 #ifndef BFLIB_NETSESSION_H
 #define BFLIB_NETSESSION_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
 #define NETSP_PLAYERS_COUNT 32
 #define SESSION_ENTRIES_COUNT 32
-#define SESSION_NAME_MAX_LEN  32
+#define SESSION_NAME_MAX_LEN 32
 #define NETSP_PLAYER_NAME_MAX_LEN 32
 
-enum NetMsgType
-{
-    NETMSGTYPE_MULTIPLAYER      = 0,
-    NETMSGTYPE_ADD              = 1,
-    NETMSGTYPE_DELETE           = 2,
-    NETMSGTYPE_PROBABLYHOST     = 3, //might be incorrect
-    NETMSGTYPE_SYSUSER          = 4,
-    NETMSGTYPE_MPREQEXDATA      = 5,
-    NETMSGTYPE_MPREQCOMPEXDATA  = 6,
-    NETMSGTYPE_UNIDIRECTIONAL   = 7,
-    NETMSGTYPE_UNKNOWN          = 8
+enum NetMsgType {
+    NETMSGTYPE_MULTIPLAYER = 0,
+    NETMSGTYPE_ADD = 1,
+    NETMSGTYPE_DELETE = 2,
+    NETMSGTYPE_PROBABLYHOST = 3, // might be incorrect
+    NETMSGTYPE_SYSUSER = 4,
+    NETMSGTYPE_MPREQEXDATA = 5,
+    NETMSGTYPE_MPREQCOMPEXDATA = 6,
+    NETMSGTYPE_UNIDIRECTIONAL = 7,
+    NETMSGTYPE_UNKNOWN = 8
 };
 
 struct TbNetworkSessionNameEntry {
-    unsigned char joinable; //possibly active or selected is better name
+    unsigned char joinable; // possibly active or selected is better name
     unsigned long id;
     unsigned long in_use;
     char text[SESSION_NAME_MAX_LEN];
-    unsigned char field_29[20]; //does not appear to be a string
+    unsigned char field_29[20]; // does not appear to be a string
 };
 
 struct TbNetworkPlayerEntry {
-  unsigned char field_0;
-  unsigned long id;
-  unsigned long field_5;
-  unsigned long field_9;
-  char name[32];
+    unsigned char field_0;
+    unsigned long id;
+    unsigned long field_5;
+    unsigned long field_9;
+    char name[32];
 };
 
 struct ReceiveCallbacks {
-  void (*addMsg)(unsigned long, char *, void *);
-  void (*deleteMsg)(unsigned long, void *);
-  void (*hostMsg)(unsigned long, void *);
-  void (*sysMsg)(void *);
-  void *(*multiPlayer)(unsigned long, unsigned long, unsigned long, void *);
-  void (*mpReqExDataMsg)(unsigned long, unsigned long, void *);
-  void (*mpReqCompsExDataMsg)(unsigned long, unsigned long, void *);
-  void *(*unidirectionalMsg)(unsigned long, unsigned long, void *);
-  void (*systemUserMsg)(unsigned long, void *, unsigned long, void *);
-  void *(*field_24)(unsigned long, void *);
+    void (*addMsg)(unsigned long, char *, void *);
+    void (*deleteMsg)(unsigned long, void *);
+    void (*hostMsg)(unsigned long, void *);
+    void (*sysMsg)(void *);
+    void *(*multiPlayer)(unsigned long, unsigned long, unsigned long, void *);
+    void (*mpReqExDataMsg)(unsigned long, unsigned long, void *);
+    void (*mpReqCompsExDataMsg)(unsigned long, unsigned long, void *);
+    void *(*unidirectionalMsg)(unsigned long, unsigned long, void *);
+    void (*systemUserMsg)(unsigned long, void *, unsigned long, void *);
+    void *(*field_24)(unsigned long, void *);
 };
+
 /******************************************************************************/
-void net_copy_name_string(char *dst,const char *src,long max_len);
+void net_copy_name_string(char *dst, const char *src, long max_len);
 /******************************************************************************/
 #ifdef __cplusplus
 };
 #endif
 
-#endif //BFLIB_NETSESSION_H
-
+#endif // BFLIB_NETSESSION_H

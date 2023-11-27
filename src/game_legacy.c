@@ -34,6 +34,7 @@ GameTurn get_gameturn()
 {
     return game.play_gameturn;
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

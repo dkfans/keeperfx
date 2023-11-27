@@ -22,8 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
-#define SPIRAL_STEPS_RANGE     50
-#define SPIRAL_STEPS_COUNT   (SPIRAL_STEPS_RANGE*SPIRAL_STEPS_RANGE)
+#define SPIRAL_STEPS_RANGE 50
+#define SPIRAL_STEPS_COUNT (SPIRAL_STEPS_RANGE * SPIRAL_STEPS_RANGE)
 
 #ifdef __cplusplus
 extern "C" {
@@ -36,14 +36,14 @@ struct Thing;
 struct Coord3d;
 
 struct MapOffset {
-  char v;
-  char h;
-  unsigned short both;
+    char v;
+    char h;
+    unsigned short both;
 };
 
 #pragma pack()
 
-typedef struct CompoundCoordFilterParam * MaxCoordFilterParam;
+typedef struct CompoundCoordFilterParam *MaxCoordFilterParam;
 
 /** Definition of a callback type used for selecting best position by maximizing a value. */
 typedef long (*Coord_Maximizer_Filter)(const struct Coord3d *, MaxCoordFilterParam, long);
@@ -51,26 +51,29 @@ typedef long (*Coord_Maximizer_Filter)(const struct Coord3d *, MaxCoordFilterPar
 typedef TbBool (*SlabsFillIterAction)(MapSlabCoord, MapSlabCoord, MaxCoordFilterParam);
 
 struct CompoundCoordFilterParam {
-     long plyr_idx;
-     long slab_kind;
-     union {
-     long num1;
-     void *ptr1;
-     };
-     union {
-     long num2;
-     void *ptr2;
-     };
-     union {
-     long num3;
-     void *ptr3;
-     };
+    long plyr_idx;
+    long slab_kind;
+
+    union {
+        long num1;
+        void *ptr1;
+    };
+
+    union {
+        long num2;
+        void *ptr2;
+    };
+
+    union {
+        long num3;
+        void *ptr3;
+    };
 };
 
 /******************************************************************************/
 extern struct MapOffset spiral_step[SPIRAL_STEPS_COUNT];
 /******************************************************************************/
-#define AROUND_TILES_COUNT      9
+#define AROUND_TILES_COUNT 9
 extern struct Around const around[];
 #define MID_AROUND_LENGTH 9
 #define LARGE_AROUND_MAX 36
@@ -88,17 +91,16 @@ extern struct Around const my_around_eight[];
 #define AROUND_NINE_LENGTH 9
 extern struct Around const my_around_nine[];
 
-
 /******************************************************************************/
 void init_spiral_steps(void);
 
 void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubtlCoord stl_y_beg,
-    MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
-    MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height);
+                                                MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
+                                                MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height);
 
 void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab_y, SlabsFillIterAction f_action, MaxCoordFilterParam param);
 
-unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y);
+unsigned int small_around_index_towards_destination(long curr_x, long curr_y, long dest_x, long dest_y);
 
 long pos_move_in_direction_to_last_allowing_drop(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
 long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist);
@@ -108,8 +110,8 @@ long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, uns
 long near_coord_filter_battle_drop_point(const struct Coord3d *pos, MaxCoordFilterParam param, long maximizer);
 
 TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, MapCoord x, MapCoord y,
-    long spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
-TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoord x, MapCoord y, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
+                                                      long spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
+TbBool get_position_next_to_map_block_with_filter(struct Coord3d *retpos, MapCoord x, MapCoord y, Coord_Maximizer_Filter filter, MaxCoordFilterParam param);
 
 long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbkind);
 

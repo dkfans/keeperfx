@@ -34,29 +34,29 @@ extern "C" {
 /** Amount of fractional bits in resulting values of trigonometric operations. */
 #define LbFPMath_TrigmBits 16
 
-#define CEILING_POS(X) ((X-(int)(X)) > 0 ? (int)(X+1) : (int)(X))
-#define CEILING_NEG(X) ((X-(int)(X)) < 0 ? (int)(X-1) : (int)(X))
-#define CEILING(X) ( ((X) > 0) ? CEILING_POS(X) : CEILING_NEG(X) )
+#define CEILING_POS(X) ((X - (int)(X)) > 0 ? (int)(X + 1) : (int)(X))
+#define CEILING_NEG(X) ((X - (int)(X)) < 0 ? (int)(X - 1) : (int)(X))
+#define CEILING(X) (((X) > 0) ? CEILING_POS(X) : CEILING_NEG(X))
 
 enum MathOperator {
-    MOp_UNDEFINED                      =  0,
-    MOp_EQUAL                          =  1,
-    MOp_NOT_EQUAL                      =  2,
-    MOp_SMALLER                        =  3,
-    MOp_GREATER                        =  4,
-    MOp_SMALLER_EQ                     =  5,
-    MOp_GREATER_EQ                     =  6,
-    MOp_LOGIC_AND                      =  7,
-    MOp_LOGIC_OR                       =  8,
-    MOp_LOGIC_XOR                      =  9,
-    MOp_BITWS_AND                      = 10,
-    MOp_BITWS_OR                       = 11,
-    MOp_BITWS_XOR                      = 12,
-    MOp_SUM                            = 13,
-    MOp_SUBTRACT                       = 14,
-    MOp_MULTIPLY                       = 15,
-    MOp_DIVIDE                         = 16,
-    MOp_MODULO                         = 17,
+    MOp_UNDEFINED = 0,
+    MOp_EQUAL = 1,
+    MOp_NOT_EQUAL = 2,
+    MOp_SMALLER = 3,
+    MOp_GREATER = 4,
+    MOp_SMALLER_EQ = 5,
+    MOp_GREATER_EQ = 6,
+    MOp_LOGIC_AND = 7,
+    MOp_LOGIC_OR = 8,
+    MOp_LOGIC_XOR = 9,
+    MOp_BITWS_AND = 10,
+    MOp_BITWS_OR = 11,
+    MOp_BITWS_XOR = 12,
+    MOp_SUM = 13,
+    MOp_SUBTRACT = 14,
+    MOp_MULTIPLY = 15,
+    MOp_DIVIDE = 16,
+    MOp_MODULO = 17,
 };
 
 struct Proportion { // sizeof = 8
@@ -64,9 +64,9 @@ struct Proportion { // sizeof = 8
     long distance_ratio;
 };
 
-//extern struct Proportion proportions[513];
+// extern struct Proportion proportions[513];
 /******************************************************************************/
-#define LB_RANDOM(range,seed) LbRandomSeries(range, seed, __func__, __LINE__, "lb")
+#define LB_RANDOM(range, seed) LbRandomSeries(range, seed, __func__, __LINE__, "lb")
 
 /******************************************************************************/
 
@@ -74,7 +74,7 @@ long LbSinL(long x);
 long LbCosL(long x);
 long LbSqrL(long x);
 long LbArcTanL(long arg);
-long LbArcTanAngle(long x,long n);
+long LbArcTanAngle(long x, long n);
 long LbMathOperation(unsigned char opkind, long val1, long val2);
 unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place, const char *tag);
 TbBool LbNumberSignsSame(long num_a, long num_b);

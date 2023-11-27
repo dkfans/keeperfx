@@ -48,8 +48,8 @@ static long anim_counter;
 /******************************************************************************/
 void setup_texture_block_mem(void)
 {
-    unsigned char** dst = block_ptrs;
-    unsigned char* src  = block_mem;
+    unsigned char **dst = block_ptrs;
+    unsigned char *src = block_mem;
     for (int i = 0; i < (TEXTURE_VARIATIONS_COUNT * TEXTURE_BLOCKS_COUNT); i++)
     {
         block_ptrs[i] = block_mem + block_dimension;
@@ -64,10 +64,10 @@ void setup_texture_block_mem(void)
                 src += block_dimension;
                 dst++;
             }
-            src += (block_dimension-1)*block_dimension*block_count_per_row;
+            src += (block_dimension - 1) * block_dimension * block_count_per_row;
         }
         dst += TEXTURE_BLOCKS_ANIM_COUNT;
-        
+
         for (int i = 0; i < TEXTURE_BLOCKS_STAT_COUNT_B / block_count_per_row; i++)
         {
             for (unsigned long k = 0; k < block_count_per_row; k++)
@@ -76,67 +76,68 @@ void setup_texture_block_mem(void)
                 src += block_dimension;
                 dst++;
             }
-            src += (block_dimension-1)*block_dimension*block_count_per_row;
+            src += (block_dimension - 1) * block_dimension * block_count_per_row;
         }
-        
     }
 }
 
 short init_animating_texture_maps(void)
 {
-    SYNCDBG(8,"Starting");
-    anim_counter = TEXTURE_BLOCKS_ANIM_FRAMES-1;
+    SYNCDBG(8, "Starting");
+    anim_counter = TEXTURE_BLOCKS_ANIM_FRAMES - 1;
     return update_animating_texture_maps();
 }
 
 short update_animating_texture_maps(void)
 {
-  SYNCDBG(18,"Starting");
-  unsigned char** dst = block_ptrs;
-  short result=true;
+    SYNCDBG(18, "Starting");
+    unsigned char **dst = block_ptrs;
+    short result = true;
 
-  anim_counter = (anim_counter+1) % TEXTURE_BLOCKS_ANIM_FRAMES;
-  for (int f = 0; f < TEXTURE_VARIATIONS_COUNT; f++)
-  {
-      for (int i = 0; i < TEXTURE_BLOCKS_ANIM_COUNT; i++)
-      {
-          short j = game.texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*i+anim_counter];
-          if (((j>=0) && (j<TEXTURE_BLOCKS_STAT_COUNT_A)) || 
-              ((j>=TEX_B_START_POINT) && (j<(TEX_B_START_POINT + TEXTURE_BLOCKS_STAT_COUNT_B))))
-          {
-            dst[TEXTURE_BLOCKS_STAT_COUNT_A + i] = dst[j];
-          }
-          else
-          {
-            result=false;
-          }
-      }
-      dst += TEXTURE_BLOCKS_COUNT;
-  }
-  return result;
+    anim_counter = (anim_counter + 1) % TEXTURE_BLOCKS_ANIM_FRAMES;
+    for (int f = 0; f < TEXTURE_VARIATIONS_COUNT; f++)
+    {
+        for (int i = 0; i < TEXTURE_BLOCKS_ANIM_COUNT; i++)
+        {
+            short j = game.texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES * i + anim_counter];
+            if (((j >= 0) && (j < TEXTURE_BLOCKS_STAT_COUNT_A)) ||
+                ((j >= TEX_B_START_POINT) && (j < (TEX_B_START_POINT + TEXTURE_BLOCKS_STAT_COUNT_B))))
+            {
+                dst[TEXTURE_BLOCKS_STAT_COUNT_A + i] = dst[j];
+            }
+            else
+            {
+                result = false;
+            }
+        }
+        dst += TEXTURE_BLOCKS_COUNT;
+    }
+    return result;
 }
 
-static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst)
+static TbBool load_one_file(unsigned long tmapidx, char letter, void *dst)
 {
-    SYNCDBG(9,"Starting");
+    SYNCDBG(9, "Starting");
 
-    char* fname = prepare_file_fmtpath(FGrp_CmpgConfig, "tmap%c%03d.dat",letter, tmapidx);
+    char *fname = prepare_file_fmtpath(FGrp_CmpgConfig, "tmap%c%03d.dat", letter, tmapidx);
     if (!LbFileExists(fname))
     {
-        fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat",letter, tmapidx);
+        fname = prepare_file_fmtpath(FGrp_StdData, "tmap%c%03d.dat", letter, tmapidx);
     }
 
     if (!wait_for_cd_to_be_available())
+    {
         return false;
+    }
     if (!LbFileExists(fname))
     {
-        WARNMSG("Texture file \"%s\" doesn't exist.",fname);
+        WARNMSG("Texture file \"%s\" doesn't exist.", fname);
         return false;
     }
     // The texture file has always over 500kb
     if (LbFileLoadAt(fname, dst) < 65536)
     {
-        WARNMSG("Texture file \"%s\" can't be loaded or is too small.",fname);
+        WARNMSG("Texture file \"%s\" can't be loaded or is too small.", fname);
         return false;
     }
     return true;
@@ -144,26 +145,26 @@ static TbBool load_one_file(unsigned long tmapidx,char letter, void *dst)
 
 TbBool load_texture_map_file(unsigned long tmapidx)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7, "Starting");
     memset(block_mem, 130, sizeof(block_mem));
-    if (!load_one_file(tmapidx,'a', block_mem))
+    if (!load_one_file(tmapidx, 'a', block_mem))
     {
         return false;
     }
-    unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);    
-    load_one_file(tmapidx,'b', dst);
+    unsigned char *dst = block_mem + (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);
+    load_one_file(tmapidx, 'b', dst);
     dst += (TEXTURE_BLOCKS_STAT_COUNT_B * 32 * 32);
 
-    for (int i = 0; i < TEXTURE_VARIATIONS_COUNT-1; i++)
-    
+    for (int i = 0; i < TEXTURE_VARIATIONS_COUNT - 1; i++)
+
     {
-        load_one_file(i,'a', dst);
-        
+        load_one_file(i, 'a', dst);
+
         dst += (TEXTURE_BLOCKS_STAT_COUNT_A * 32 * 32);
-        load_one_file(i,'b', dst);
+        load_one_file(i, 'b', dst);
         dst += (TEXTURE_BLOCKS_STAT_COUNT_B * 32 * 32);
-        
     }
     return true;
 }
+
 /******************************************************************************/

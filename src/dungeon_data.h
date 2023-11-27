@@ -42,63 +42,63 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define DUNGEONS_COUNT              5
-#define DIGGER_TASK_MAX_COUNT       64
-#define DUNGEON_RESEARCH_COUNT      64
-#define MAX_THINGS_IN_HAND          64
-#define TURN_TIMERS_COUNT           8
-#define SCRIPT_FLAGS_COUNT          8
-#define MAX_SOE_RADIUS              13
-#define CREATURE_GUI_JOBS_COUNT     3
-#define CUSTOM_BOX_COUNT            256
-#define FX_LINES_COUNT              32
+#define DUNGEONS_COUNT 5
+#define DIGGER_TASK_MAX_COUNT 64
+#define DUNGEON_RESEARCH_COUNT 64
+#define MAX_THINGS_IN_HAND 64
+#define TURN_TIMERS_COUNT 8
+#define SCRIPT_FLAGS_COUNT 8
+#define MAX_SOE_RADIUS 13
+#define CREATURE_GUI_JOBS_COUNT 3
+#define CUSTOM_BOX_COUNT 256
+#define FX_LINES_COUNT 32
 
 #define INVALID_DUNGEON (&bad_dungeon)
 #define INVALID_DUNGEON_ADD (&bad_dungeonadd)
 
 enum CreatureGUIJob {
-    CrGUIJob_Any        =-1,
-    CrGUIJob_Wandering  = 0,
-    CrGUIJob_Working    = 1,
-    CrGUIJob_Fighting   = 2,
+    CrGUIJob_Any = -1,
+    CrGUIJob_Wandering = 0,
+    CrGUIJob_Working = 1,
+    CrGUIJob_Fighting = 2,
 };
 
 enum DungeonCreatureTendencies {
-    CrTend_None       = 0,
-    CrTend_Imprison   = 1,
-    CrTend_Flee       = 2,
+    CrTend_None = 0,
+    CrTend_Imprison = 1,
+    CrTend_Flee = 2,
 };
 
 enum DungeonResearchCategory {
-    RsCat_None        = 0,
-    RsCat_Power       = 1,
-    RsCat_Room        = 2,
-    RsCat_Creature    = 3,
+    RsCat_None = 0,
+    RsCat_Power = 1,
+    RsCat_Room = 2,
+    RsCat_Creature = 3,
 };
 
 enum DungeonManufactureBuildFlags {
     MnfBldF_Manufacturable = 0x01,
-    MnfBldF_Built          = 0x02,
-    MnfBldF_Used           = 0x04,
+    MnfBldF_Built = 0x02,
+    MnfBldF_Used = 0x04,
 };
 
 /******************************************************************************/
 #pragma pack(1)
 
 struct DiggerStack {
-      SubtlCodedCoords stl_num;
-      SpDiggerTaskType task_type;
+    SubtlCodedCoords stl_num;
+    SpDiggerTaskType task_type;
 };
 
 struct ResearchVal {
-  unsigned char rtyp;
-  unsigned char rkind;
-  long req_amount;
+    unsigned char rtyp;
+    unsigned char rkind;
+    long req_amount;
 };
 
 struct TurnTimer {
-  unsigned long count;
-  unsigned char state;
+    unsigned long count;
+    unsigned char state;
 };
 
 struct Dungeon {
@@ -118,7 +118,7 @@ struct Dungeon {
     unsigned char sight_casted_splevel;
     MapSubtlCoord sight_casted_stl_x;
     MapSubtlCoord sight_casted_stl_y;
-    unsigned char soe_explored_flags[2*MAX_SOE_RADIUS][2*MAX_SOE_RADIUS];
+    unsigned char soe_explored_flags[2 * MAX_SOE_RADIUS][2 * MAX_SOE_RADIUS];
     MapSubtlCoord cta_stl_x;
     MapSubtlCoord cta_stl_y;
     unsigned char cta_splevel;
@@ -214,7 +214,7 @@ struct Dungeon {
     long dead_creatures_count;
     long dead_creature_idx;
     /** Contains map event index or each even button visible on screen. */
-    unsigned char event_button_index[EVENT_BUTTONS_COUNT+1];
+    unsigned char event_button_index[EVENT_BUTTONS_COUNT + 1];
     unsigned short tortured_creatures[CREATURE_TYPES_MAX];
     unsigned char bodies_rotten_for_vampire;
     long portal_scavenge_boost;
@@ -228,19 +228,18 @@ struct Dungeon {
     unsigned char devastation_centr_y;
     unsigned long devastation_turn;
     long creatures_total_pay;
-unsigned short gold_hoard_for_pickup;
-unsigned long gold_pickup_amount;
+    unsigned short gold_hoard_for_pickup;
+    unsigned long gold_pickup_amount;
     /** Index of last creature picked up of given model. */
     unsigned short selected_creatures_of_model[CREATURE_TYPES_MAX];
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     unsigned char texture_pack;
-    };
+};
 
 #pragma pack()
 
-struct TrapInfo
-{
+struct TrapInfo {
     unsigned char trap_amount_offmap[TRAPDOOR_TYPES_MAX];
     unsigned char trap_amount_stored[TRAPDOOR_TYPES_MAX];
     /** Stores flag information about players manufacture of traps of specific kind. */
@@ -255,61 +254,57 @@ struct TrapInfo
     unsigned char door_build_flags[TRAPDOOR_TYPES_MAX];
     /** Stored information whether player can place blueprints of doors of specific kind (actually, doors are placed instantly). */
     unsigned char door_amount_placeable[TRAPDOOR_TYPES_MAX];
-
 };
 
-struct BoxInfo
-{
-    uint8_t               activated[CUSTOM_BOX_COUNT];
+struct BoxInfo {
+    uint8_t activated[CUSTOM_BOX_COUNT];
 };
 
-struct ComputerInfo
-{
+struct ComputerInfo {
     struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
     struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
 };
 
-struct DungeonAdd
-{
-    struct TrapInfo       mnfct_info;
-    struct BoxInfo        box_info;
-    struct Coord3d        last_combat_location;
-    int                   creature_awarded[CREATURE_TYPES_MAX];
-    unsigned char         creature_entrance_level;
-    unsigned long         evil_creatures_converted;
-    unsigned long         good_creatures_converted;
-    unsigned long         creatures_transferred;
-    unsigned long         traps_sold;
-    unsigned long         doors_sold;
-    unsigned long         manufacture_gold;
-    long                  creatures_total_backpay;
-    long                  cheaper_diggers;
-    struct ComputerInfo   computer_info;
-    long                  event_last_run_turn[EVENT_KIND_COUNT];
-    long                  script_flags[SCRIPT_FLAGS_COUNT];
-    unsigned short        room_kind[TERRAIN_ITEMS_MAX];
-    unsigned char         room_buildable[TERRAIN_ITEMS_MAX];
-    unsigned char         room_resrchable[TERRAIN_ITEMS_MAX];
-    unsigned char         room_slabs_count[TERRAIN_ITEMS_MAX+1];
-    unsigned short        backup_heart_idx;
-    unsigned short        free_soul_idx;
-    struct HandRule       hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
+struct DungeonAdd {
+    struct TrapInfo mnfct_info;
+    struct BoxInfo box_info;
+    struct Coord3d last_combat_location;
+    int creature_awarded[CREATURE_TYPES_MAX];
+    unsigned char creature_entrance_level;
+    unsigned long evil_creatures_converted;
+    unsigned long good_creatures_converted;
+    unsigned long creatures_transferred;
+    unsigned long traps_sold;
+    unsigned long doors_sold;
+    unsigned long manufacture_gold;
+    long creatures_total_backpay;
+    long cheaper_diggers;
+    struct ComputerInfo computer_info;
+    long event_last_run_turn[EVENT_KIND_COUNT];
+    long script_flags[SCRIPT_FLAGS_COUNT];
+    unsigned short room_kind[TERRAIN_ITEMS_MAX];
+    unsigned char room_buildable[TERRAIN_ITEMS_MAX];
+    unsigned char room_resrchable[TERRAIN_ITEMS_MAX];
+    unsigned char room_slabs_count[TERRAIN_ITEMS_MAX + 1];
+    unsigned short backup_heart_idx;
+    unsigned short free_soul_idx;
+    struct HandRule hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
 };
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
 extern struct DungeonAdd bad_dungeonadd;
 /******************************************************************************/
-struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name);
-struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char *func_name);
-struct DungeonAdd *get_players_dungeonadd_f(const struct PlayerInfo *player,const char *func_name);
-struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name);
-struct DungeonAdd *get_dungeonadd_f(PlayerNumber plyr_num,const char *func_name);
-#define get_players_num_dungeon(plyr_idx) get_players_num_dungeon_f(plyr_idx,__func__)
-#define get_players_dungeon(player) get_players_dungeon_f(player,__func__)
-#define get_players_dungeonadd(player) get_players_dungeonadd_f(player,__func__)
-#define get_dungeon(plyr_idx) get_dungeon_f(plyr_idx,__func__)
-#define get_dungeonadd(plyr_idx) get_dungeonadd_f(plyr_idx,__func__)
-#define get_my_dungeon() get_players_num_dungeon_f(my_player_number,__func__)
+struct Dungeon *get_players_num_dungeon_f(long plyr_idx, const char *func_name);
+struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player, const char *func_name);
+struct DungeonAdd *get_players_dungeonadd_f(const struct PlayerInfo *player, const char *func_name);
+struct Dungeon *get_dungeon_f(PlayerNumber plyr_num, const char *func_name);
+struct DungeonAdd *get_dungeonadd_f(PlayerNumber plyr_num, const char *func_name);
+#define get_players_num_dungeon(plyr_idx) get_players_num_dungeon_f(plyr_idx, __func__)
+#define get_players_dungeon(player) get_players_dungeon_f(player, __func__)
+#define get_players_dungeonadd(player) get_players_dungeonadd_f(player, __func__)
+#define get_dungeon(plyr_idx) get_dungeon_f(plyr_idx, __func__)
+#define get_dungeonadd(plyr_idx) get_dungeonadd_f(plyr_idx, __func__)
+#define get_my_dungeon() get_players_num_dungeon_f(my_player_number, __func__)
 struct DungeonAdd *get_dungeonadd_by_dungeon(const struct Dungeon *dungeon);
 
 TbBool dungeon_invalid(const struct Dungeon *dungeon);

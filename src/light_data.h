@@ -22,9 +22,9 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#define LIGHT_MAX_RANGE       256 // Large enough to cover the whole map
-#define LIGHTS_COUNT          400
-#define MINIMUM_LIGHTNESS    8192
+#define LIGHT_MAX_RANGE 256 // Large enough to cover the whole map
+#define LIGHTS_COUNT 400
+#define MINIMUM_LIGHTNESS 8192
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,46 +40,46 @@ enum ShadowCacheFlags {
 };
 
 enum LightFlags {
-    LgtF_Allocated    = 0x01,
-    LgtF_Unkn02       = 0x02,
-    LgtF_Dynamic      = 0x04,
-    LgtF_Unkn08       = 0x08,
-    LgtF_Unkn10       = 0x10,
-    LgtF_Unkn20       = 0x20,
-    LgtF_NeverCached  = 0x40,
-    LgtF_Unkn80       = 0x80,
+    LgtF_Allocated = 0x01,
+    LgtF_Unkn02 = 0x02,
+    LgtF_Dynamic = 0x04,
+    LgtF_Unkn08 = 0x08,
+    LgtF_Unkn10 = 0x10,
+    LgtF_Unkn20 = 0x20,
+    LgtF_NeverCached = 0x40,
+    LgtF_Unkn80 = 0x80,
 };
 
 enum LightFlags2 {
-    LgtF2_InList    = 0x01,
+    LgtF2_InList = 0x01,
 };
 
 struct Light {
-  unsigned char flags;
-  unsigned char flags2;
-  unsigned char intensity;
-  unsigned char field_3;
-  unsigned char intensity_delta;//seems never assigned
-  unsigned char range;
-  unsigned char field_6;
-  unsigned char max_intensity;//seems never assigned
-  unsigned char min_radius;
-  unsigned short index;
-  unsigned short shadow_index;
-  long attached_slb;
-  unsigned short radius;
-  unsigned short field_1C;
-  unsigned short radius_delta;//seems never assigned
-  unsigned short max_radius;//seems never assigned
-  unsigned short min_radius2;//seems never assigned
-  unsigned short min_intensity;
-  unsigned short next_in_list;
-  struct Coord3d mappos;
-  TbBool interp_has_been_initialized;
-  struct Coord3d previous_mappos;
-  struct Coord3d interp_mappos;
-  long last_turn_drawn;
-  long disable_interp_for_turns;
+    unsigned char flags;
+    unsigned char flags2;
+    unsigned char intensity;
+    unsigned char field_3;
+    unsigned char intensity_delta; // seems never assigned
+    unsigned char range;
+    unsigned char field_6;
+    unsigned char max_intensity; // seems never assigned
+    unsigned char min_radius;
+    unsigned short index;
+    unsigned short shadow_index;
+    long attached_slb;
+    unsigned short radius;
+    unsigned short field_1C;
+    unsigned short radius_delta; // seems never assigned
+    unsigned short max_radius;   // seems never assigned
+    unsigned short min_radius2;  // seems never assigned
+    unsigned short min_intensity;
+    unsigned short next_in_list;
+    struct Coord3d mappos;
+    TbBool interp_has_been_initialized;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long last_turn_drawn;
+    long disable_interp_for_turns;
 };
 
 struct InitLight { // sizeof=0x14

@@ -26,16 +26,17 @@
 
 /******************************************************************************/
 #if defined(_WIN32)
-//Selected declarations from Win32 API - I don't want to use whole API
-// since it influences everything
-typedef void *PVOID,*LPVOID;
+// Selected declarations from Win32 API - I don't want to use whole API
+//  since it influences everything
+typedef void *PVOID, *LPVOID;
 typedef PVOID HANDLE;
 #endif
 
 /******************************************************************************/
 
-class LbSemaphore {
-public:
+class LbSemaphore
+{
+  public:
     LbSemaphore(void);
     virtual ~LbSemaphore(void);
     HANDLE sHandle;
@@ -43,8 +44,9 @@ public:
 
 /******************************************************************************/
 
-class LbSemaLock {
-public:
+class LbSemaLock
+{
+  public:
     LbSemaLock(class LbSemaphore *sem, int a2);
     virtual ~LbSemaLock(void);
     int Lock(TbBool wait_forever);

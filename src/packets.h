@@ -28,192 +28,192 @@ extern "C" {
 /******************************************************************************/
 
 enum TbPacketAction {
-        PckA_None = 0,
-        PckA_Unknown001, // Quit
-        PckA_Unknown002,
-        PckA_Unknown003,
-        PckA_Unknown004,
-        PckA_FinishGame, // 5
-        PckA_Login,      // From `enum NetMessageType`
-        PckA_UserUpdate,
-        PckA_Frame,
-        PckA_Resync,
-        PckA_InitPlayerNum,//10
-        PckA_Unknown011,
-        PckA_LevelExactCheck,
-        PckA_PlyrMsgBegin,
-        PckA_PlyrMsgEnd,
-        PckA_Unknown015,//15
-        PckA_Unknown016,
-        PckA_Unknown017,
-        PckA_Unknown018,
-        PckA_Unknown019,
-        PckA_ToggleLights,//20
-        PckA_SwitchScrnRes,
-        PckA_TogglePause,
-        PckA_Unknown023,
-        PckA_SetCluedo,
-        PckA_Unknown025,//25
-        PckA_BookmarkLoad,
-        PckA_SetGammaLevel,
-        PckA_SetMinimapConf,
-        PckA_SetMapRotation,
-        PckA_Unknown030,//30
-        PckA_Unknown031,
-        PckA_PasngrCtrlExit,
-        PckA_DirectCtrlExit,
-        PckA_Unknown034,
-        PckA_Unknown035,//35
-        PckA_SetPlyrState,
-        PckA_SwitchView,
-        PckA_Unknown038,
-        PckA_CtrlCrtrSetInstnc,
-        PckA_Unknown040,//40
-        PckA_HoldAudience,
-        PckA_Unknown042,
-        PckA_Unknown043,
-        PckA_Unknown044,
-        PckA_Unknown045,//45
-        PckA_Unknown046,
-        PckA_Unknown047,
-        PckA_Unknown048,
-        PckA_Unknown049,
-        PckA_Unknown050,//50
-        PckA_Unknown051,
-        PckA_Unknown052,
-        PckA_Unknown053,
-        PckA_Unknown054,
-        PckA_ToggleTendency,//55
-        PckA_Unknown056,
-        PckA_Unknown057,
-        PckA_Unknown058,
-        PckA_Unknown059,
-        PckA_CheatEnter,//60
-        PckA_CheatAllFree,
-        PckA_CheatCrtSpells,
-        PckA_CheatRevealMap,
-        PckA_CheatCrAllSpls,
-        PckA_Unknown065,//65
-        PckA_CheatAllMagic,
-        PckA_CheatAllRooms,
-        PckA_Unknown068,
-        PckA_Unknown069,
-        PckA_CheatAllResrchbl,//70
-        PckA_Unknown071,
-        PckA_Unknown072,
-        PckA_Unknown073,
-        PckA_Unknown074,
-        PckA_Unknown075,//75
-        PckA_Unknown076,
-        PckA_Unknown077,
-        PckA_Unknown078,
-        PckA_Unknown079,
-        PckA_SetViewType,//80
-        PckA_ZoomFromMap,
-        PckA_UpdatePause,
-        PckA_Unknown083,
-        PckA_ZoomToRoom,
-        PckA_ZoomToTrap,//85
-        PckA_ZoomToDoor,
-        PckA_ZoomToPosition,
-        PckA_Unknown088,
-        PckA_PwrCTADis,
-        PckA_UsePwrHandPick,//90
-        PckA_UsePwrHandDrop,
-        PckA_Unknown092,
-        PckA_UseSpecialBox,
-        PckA_Unknown094,
-        PckA_ResurrectCrtr,//95
-        PckA_TransferCreatr,
-        PckA_UsePwrObey,
-        PckA_UsePwrArmageddon,
-        PckA_Unknown099,
-        PckA_Unknown100,//100
-        PckA_Unknown101,
-        PckA_Unknown102,
-        PckA_Unknown103,
-        PckA_Unknown104,
-        PckA_Unknown105,//105
-        PckA_ZoomToSpell,
-        PckA_ToggleComputer,
-        PckA_PlyrFastMsg,
-        PckA_SetComputerKind,
-        PckA_GoSpectator,//110
-        PckA_DumpHeldThingToOldPos,
-        PckA_Unknown112,
-        PckA_Unknown113,
-        PckA_PwrSOEDis,
-        PckA_EventBoxActivate,//115
-        PckA_EventBoxClose,
-        PckA_UsePwrOnThing,
-        PckA_PlyrToggleAlly,
-        PckA_SaveViewType,
-        PckA_LoadViewType,//120
-        PckA_PlyrMsgChar    =  121,
-        PckA_PlyrMsgClear,
-        PckA_DirectCtrlDragDrop,
-        PckA_CheatPlaceTerrain,
-        PckA_CheatMakeCreature,
-        PckA_CheatMakeDigger,
-        PckA_CheatStealSlab,
-        PckA_CheatStealRoom,
-        PckA_CheatHeartHealth,
-        PckA_CheatKillPlayer,
-        PckA_CheatConvertCreature,
-        PckA_CheatSwitchTerrain,
-        PckA_CheatSwitchPlayer,
-        PckA_CheatSwitchCreature,
-        PckA_CheatSwitchHero,
-        PckA_CheatSwitchExperience,
-        PckA_CheatCtrlCrtrSetInstnc,
-        PckA_SetFirstPersonDigMode,
-        PckA_SwitchTeleportDest,
-        PckA_SelectFPPickup,
-        PckA_CheatAllDoors,
-        PckA_CheatAllTraps,
-        PckA_SetRoomspaceAuto,
-        PckA_SetRoomspaceMan,
-        PckA_SetRoomspaceDrag,
-        PckA_SetRoomspaceDefault,
-        PckA_SetRoomspaceWholeRoom,
-        PckA_SetRoomspaceSubtile,
-        PckA_SetRoomspaceHighlight,
-        PckA_SetNearestTeleport,
-        PckA_SetRoomspaceDragPaint,
-        PckA_PlyrQueryCreature,
+    PckA_None = 0,
+    PckA_Unknown001, // Quit
+    PckA_Unknown002,
+    PckA_Unknown003,
+    PckA_Unknown004,
+    PckA_FinishGame, // 5
+    PckA_Login,      // From `enum NetMessageType`
+    PckA_UserUpdate,
+    PckA_Frame,
+    PckA_Resync,
+    PckA_InitPlayerNum, // 10
+    PckA_Unknown011,
+    PckA_LevelExactCheck,
+    PckA_PlyrMsgBegin,
+    PckA_PlyrMsgEnd,
+    PckA_Unknown015, // 15
+    PckA_Unknown016,
+    PckA_Unknown017,
+    PckA_Unknown018,
+    PckA_Unknown019,
+    PckA_ToggleLights, // 20
+    PckA_SwitchScrnRes,
+    PckA_TogglePause,
+    PckA_Unknown023,
+    PckA_SetCluedo,
+    PckA_Unknown025, // 25
+    PckA_BookmarkLoad,
+    PckA_SetGammaLevel,
+    PckA_SetMinimapConf,
+    PckA_SetMapRotation,
+    PckA_Unknown030, // 30
+    PckA_Unknown031,
+    PckA_PasngrCtrlExit,
+    PckA_DirectCtrlExit,
+    PckA_Unknown034,
+    PckA_Unknown035, // 35
+    PckA_SetPlyrState,
+    PckA_SwitchView,
+    PckA_Unknown038,
+    PckA_CtrlCrtrSetInstnc,
+    PckA_Unknown040, // 40
+    PckA_HoldAudience,
+    PckA_Unknown042,
+    PckA_Unknown043,
+    PckA_Unknown044,
+    PckA_Unknown045, // 45
+    PckA_Unknown046,
+    PckA_Unknown047,
+    PckA_Unknown048,
+    PckA_Unknown049,
+    PckA_Unknown050, // 50
+    PckA_Unknown051,
+    PckA_Unknown052,
+    PckA_Unknown053,
+    PckA_Unknown054,
+    PckA_ToggleTendency, // 55
+    PckA_Unknown056,
+    PckA_Unknown057,
+    PckA_Unknown058,
+    PckA_Unknown059,
+    PckA_CheatEnter, // 60
+    PckA_CheatAllFree,
+    PckA_CheatCrtSpells,
+    PckA_CheatRevealMap,
+    PckA_CheatCrAllSpls,
+    PckA_Unknown065, // 65
+    PckA_CheatAllMagic,
+    PckA_CheatAllRooms,
+    PckA_Unknown068,
+    PckA_Unknown069,
+    PckA_CheatAllResrchbl, // 70
+    PckA_Unknown071,
+    PckA_Unknown072,
+    PckA_Unknown073,
+    PckA_Unknown074,
+    PckA_Unknown075, // 75
+    PckA_Unknown076,
+    PckA_Unknown077,
+    PckA_Unknown078,
+    PckA_Unknown079,
+    PckA_SetViewType, // 80
+    PckA_ZoomFromMap,
+    PckA_UpdatePause,
+    PckA_Unknown083,
+    PckA_ZoomToRoom,
+    PckA_ZoomToTrap, // 85
+    PckA_ZoomToDoor,
+    PckA_ZoomToPosition,
+    PckA_Unknown088,
+    PckA_PwrCTADis,
+    PckA_UsePwrHandPick, // 90
+    PckA_UsePwrHandDrop,
+    PckA_Unknown092,
+    PckA_UseSpecialBox,
+    PckA_Unknown094,
+    PckA_ResurrectCrtr, // 95
+    PckA_TransferCreatr,
+    PckA_UsePwrObey,
+    PckA_UsePwrArmageddon,
+    PckA_Unknown099,
+    PckA_Unknown100, // 100
+    PckA_Unknown101,
+    PckA_Unknown102,
+    PckA_Unknown103,
+    PckA_Unknown104,
+    PckA_Unknown105, // 105
+    PckA_ZoomToSpell,
+    PckA_ToggleComputer,
+    PckA_PlyrFastMsg,
+    PckA_SetComputerKind,
+    PckA_GoSpectator, // 110
+    PckA_DumpHeldThingToOldPos,
+    PckA_Unknown112,
+    PckA_Unknown113,
+    PckA_PwrSOEDis,
+    PckA_EventBoxActivate, // 115
+    PckA_EventBoxClose,
+    PckA_UsePwrOnThing,
+    PckA_PlyrToggleAlly,
+    PckA_SaveViewType,
+    PckA_LoadViewType, // 120
+    PckA_PlyrMsgChar = 121,
+    PckA_PlyrMsgClear,
+    PckA_DirectCtrlDragDrop,
+    PckA_CheatPlaceTerrain,
+    PckA_CheatMakeCreature,
+    PckA_CheatMakeDigger,
+    PckA_CheatStealSlab,
+    PckA_CheatStealRoom,
+    PckA_CheatHeartHealth,
+    PckA_CheatKillPlayer,
+    PckA_CheatConvertCreature,
+    PckA_CheatSwitchTerrain,
+    PckA_CheatSwitchPlayer,
+    PckA_CheatSwitchCreature,
+    PckA_CheatSwitchHero,
+    PckA_CheatSwitchExperience,
+    PckA_CheatCtrlCrtrSetInstnc,
+    PckA_SetFirstPersonDigMode,
+    PckA_SwitchTeleportDest,
+    PckA_SelectFPPickup,
+    PckA_CheatAllDoors,
+    PckA_CheatAllTraps,
+    PckA_SetRoomspaceAuto,
+    PckA_SetRoomspaceMan,
+    PckA_SetRoomspaceDrag,
+    PckA_SetRoomspaceDefault,
+    PckA_SetRoomspaceWholeRoom,
+    PckA_SetRoomspaceSubtile,
+    PckA_SetRoomspaceHighlight,
+    PckA_SetNearestTeleport,
+    PckA_SetRoomspaceDragPaint,
+    PckA_PlyrQueryCreature,
 };
 
 /** Packet flags for non-action player operation. */
 enum TbPacketControl {
-        PCtr_None           = 0x0000,
-        PCtr_ViewRotateCW   = 0x0001,
-        PCtr_ViewRotateCCW  = 0x0002,
-        PCtr_MoveUp         = 0x0004,
-        PCtr_MoveDown       = 0x0008,
-        PCtr_MoveLeft       = 0x0010,
-        PCtr_MoveRight      = 0x0020,
-        PCtr_ViewZoomIn     = 0x0040,
-        PCtr_ViewZoomOut    = 0x0080,
-        PCtr_LBtnClick      = 0x0100,
-        PCtr_RBtnClick      = 0x0200,
-        PCtr_LBtnHeld       = 0x0400,
-        PCtr_RBtnHeld       = 0x0800,
-        PCtr_LBtnRelease    = 0x1000,
-        PCtr_RBtnRelease    = 0x2000,
-        PCtr_Gui            = 0x4000,
-        PCtr_MapCoordsValid = 0x8000,
+    PCtr_None = 0x0000,
+    PCtr_ViewRotateCW = 0x0001,
+    PCtr_ViewRotateCCW = 0x0002,
+    PCtr_MoveUp = 0x0004,
+    PCtr_MoveDown = 0x0008,
+    PCtr_MoveLeft = 0x0010,
+    PCtr_MoveRight = 0x0020,
+    PCtr_ViewZoomIn = 0x0040,
+    PCtr_ViewZoomOut = 0x0080,
+    PCtr_LBtnClick = 0x0100,
+    PCtr_RBtnClick = 0x0200,
+    PCtr_LBtnHeld = 0x0400,
+    PCtr_RBtnHeld = 0x0800,
+    PCtr_LBtnRelease = 0x1000,
+    PCtr_RBtnRelease = 0x2000,
+    PCtr_Gui = 0x4000,
+    PCtr_MapCoordsValid = 0x8000,
 };
 
 /**
  * Additional packet flags
  */
 enum TbPacketAddValues {
-    PCAdV_None              = 0x00, //!< Dummy flag
-    PCAdV_SpeedupPressed    = 0x01, //!< The keyboard modified used for speeding up camera movement is pressed.
-    PCAdV_ContextMask       = 0x1E, //!< Instead of a single bit, this value stores is 4-bit integer; stores context of map coordinates. The context is used to set the Cursor State.
+    PCAdV_None = 0x00,              //!< Dummy flag
+    PCAdV_SpeedupPressed = 0x01,    //!< The keyboard modified used for speeding up camera movement is pressed.
+    PCAdV_ContextMask = 0x1E,       //!< Instead of a single bit, this value stores is 4-bit integer; stores context of map coordinates. The context is used to set the Cursor State.
     PCAdV_CrtrContrlPressed = 0x20, //!< The keyboard modified used for creature control is pressed.
-    PCAdV_CrtrQueryPressed  = 0x40, //!< The keyboard modified used for querying creatures is pressed.
-    PCAdV_RotatePressed     = 0x80,
+    PCAdV_CrtrQueryPressed = 0x40,  //!< The keyboard modified used for querying creatures is pressed.
+    PCAdV_RotatePressed = 0x80,
 };
 
 enum ChecksumKind {
@@ -223,9 +223,9 @@ enum ChecksumKind {
     CKS_Creatures_2,
     CKS_Creatures_3,
     CKS_Creatures_4,
-    CKS_Creatures_5,  // Heroes
-    CKS_Creatures_6,  // Neutral
-    CKS_Things, //Objects, Traps, Shots etc
+    CKS_Creatures_5, // Heroes
+    CKS_Creatures_6, // Neutral
+    CKS_Things,      // Objects, Traps, Shots etc
     CKS_Effects,
     CKS_Rooms,
     CKS_MAX
@@ -250,16 +250,16 @@ extern unsigned long start_seed;
  */
 struct Packet {
     int field_0;
-    TbChecksum chksum; //! Checksum of all things within the game and synchronized random seed
+    TbChecksum chksum;    //! Checksum of all things within the game and synchronized random seed
     unsigned char action; //! Action kind performed by the player which owns this packet
-    long actn_par1; //! Players action parameter #1
-    long actn_par2; //! Players action parameter #2
-    long pos_x; //! Mouse Cursor Position X
-    long pos_y; //! Mouse Cursor Position Y
+    long actn_par1;       //! Players action parameter #1
+    long actn_par2;       //! Players action parameter #2
+    long pos_x;           //! Mouse Cursor Position X
+    long pos_y;           //! Mouse Cursor Position Y
     unsigned short control_flags;
     unsigned char additional_packet_values; // uses the flags and values from TbPacketAddValues
-    long actn_par3; //! Players action parameter #3
-    long actn_par4; //! Players action parameter #4
+    long actn_par3;                         //! Players action parameter #3
+    long actn_par4;                         //! Players action parameter #4
 };
 
 struct PacketSaveHead {
@@ -277,8 +277,7 @@ struct PacketSaveHead {
     unsigned long action_seed;
 };
 
-struct PacketEx
-{
+struct PacketEx {
     struct Packet packet;
     TbBigChecksum sums[CKS_MAX];
 };
@@ -319,7 +318,7 @@ TbBool open_packet_file_for_load(char *fname, struct CatalogueEntry *centry);
 short save_packets(void);
 void close_packet_file(void);
 TbBool reinit_packets_after_load(void);
-struct Room *keeper_build_room(long stl_x,long stl_y,long plyr_idx,long rkind);
+struct Room *keeper_build_room(long stl_x, long stl_y, long plyr_idx, long rkind);
 TbBool player_sell_room_at_subtile(long plyr_idx, long stl_x, long stl_y);
 void set_tag_untag_mode(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 /******************************************************************************/

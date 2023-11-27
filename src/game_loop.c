@@ -42,32 +42,35 @@ extern "C" {
  */
 /******************************************************************************/
 
-static void powerful_magic_breaking_sparks(struct Thing* breaktng)
+static void powerful_magic_breaking_sparks(struct Thing *breaktng)
 {
     struct Coord3d pos;
     pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + GAME_RANDOM(11) - 5);
     pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(11) - 5);
     pos.z.val = get_floor_height_at(&pos);
     draw_lightning(&breaktng->mappos, &pos, 96, TngEffElm_ElectricBall3);
-    if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0)) {
+    if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0))
+    {
         thing_play_sample(breaktng, 157, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
     }
 }
 
 void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon;
+    struct Dungeon *dungeon;
     dungeon = get_dungeon(plyr_idx);
     if (dungeon->devastation_turn == 0)
     {
-        struct Thing* heartng;
+        struct Thing *heartng;
         heartng = get_player_soul_container(plyr_idx);
-        if (thing_exists(heartng)) {
+        if (thing_exists(heartng))
+        {
             dungeon->devastation_turn = 1;
             dungeon->devastation_centr_x = heartng->mappos.x.stl.num;
             dungeon->devastation_centr_y = heartng->mappos.y.stl.num;
         }
-        else {
+        else
+        {
             dungeon->devastation_turn = 1;
             dungeon->devastation_centr_x = gameadd.map_subtiles_x / 2;
             dungeon->devastation_centr_y = gameadd.map_subtiles_y / 2;
@@ -75,15 +78,17 @@ void initialise_devastate_dungeon_from_heart(PlayerNumber plyr_idx)
     }
 }
 
-void process_dungeon_destroy(struct Thing* heartng)
+void process_dungeon_destroy(struct Thing *heartng)
 {
     if (heartng->owner == game.neutral_player_num)
+    {
         return;
+    }
 
     long plyr_idx = heartng->owner;
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    struct Thing* soultng = thing_get(dungeonadd->free_soul_idx);
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
+    struct Thing *soultng = thing_get(dungeonadd->free_soul_idx);
 
     if (dungeon->heart_destroy_state == 0)
     {
@@ -97,7 +102,7 @@ void process_dungeon_destroy(struct Thing* heartng)
     TbBool no_backup = !(dungeonadd->backup_heart_idx > 0);
 
     powerful_magic_breaking_sparks(heartng);
-    const struct Coord3d* central_pos;
+    const struct Coord3d *central_pos;
     central_pos = &heartng->mappos;
     switch (dungeon->heart_destroy_state)
     {
@@ -131,7 +136,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 25)
             {
-                struct Thing* bheartng = thing_get(dungeonadd->backup_heart_idx);
+                struct Thing *bheartng = thing_get(dungeonadd->backup_heart_idx);
                 soultng->mappos = bheartng->mappos;
                 soultng->mappos.z.val = get_ceiling_height_at(&bheartng->mappos);
             }
@@ -141,7 +146,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 30)
             {
-                dungeonadd->free_soul_idx = 0; 
+                dungeonadd->free_soul_idx = 0;
                 delete_thing_structure(soultng, 0);
             }
         }
@@ -149,7 +154,8 @@ void process_dungeon_destroy(struct Thing* heartng)
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {
-            if (GAME_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32) {
+            if (GAME_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32)
+            {
                 create_effect(central_pos, TngEff_HearthCollapse, plyr_idx);
             }
         }
@@ -176,13 +182,17 @@ void process_dungeon_destroy(struct Thing* heartng)
         if ((dungeon->num_things_in_hand > 0) && ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
         {
             if (no_backup)
+            {
                 dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
+            }
         }
         // Drop all held things, by computer player
-        struct Computer2* comp;
+        struct Computer2 *comp;
         comp = get_computer_player(plyr_idx);
         if (no_backup)
+        {
             computer_force_dump_held_things_on_map(comp, central_pos);
+        }
         // Now if players things are still in hand - they must be kept by enemies
         // Got to next phase
         dungeon->heart_destroy_state = 4;
@@ -190,44 +200,48 @@ void process_dungeon_destroy(struct Thing* heartng)
         break;
     case 4:
         // Final phase - destroy the heart, both pedestal room and container thing
-    {
-        struct Thing* efftng;
-        efftng = create_effect(central_pos, TngEff_Explosion4, plyr_idx);
-        if (!thing_is_invalid(efftng))
-            efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-        efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
-        if (!thing_is_invalid(efftng))
-            efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-        destroy_dungeon_heart_room(plyr_idx, heartng);
-        delete_thing_structure(heartng, 0);
-    }
-    { // If there is another heart owned by this player, set it to "working" heart
-        struct PlayerInfo* player;
-        player = get_player(plyr_idx);
-        init_player_start(player, true);
-        if (player_has_heart(plyr_idx))
         {
-            // If another heart was found, stop the process
-            dungeon->devastation_turn = 0;
-        }
-        else
-        {
-            if (gameadd.heart_lost_display_message)
+            struct Thing *efftng;
+            efftng = create_effect(central_pos, TngEff_Explosion4, plyr_idx);
+            if (!thing_is_invalid(efftng))
             {
-                if (is_my_player_number(dungeon->owner))
-                {
-                    const char* objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
-                    process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
-                }
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             }
-            // If this is the last heart the player had, finish him
-            setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
-            player->allied_players = to_flag(player->id_number);
+            efftng = create_effect(central_pos, TngEff_WoPExplosion, plyr_idx);
+            if (!thing_is_invalid(efftng))
+            {
+                efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
+            }
+            destroy_dungeon_heart_room(plyr_idx, heartng);
+            delete_thing_structure(heartng, 0);
         }
-    }
-    dungeon->heart_destroy_state = 0;
-    dungeon->heart_destroy_turn = 0;
-    break;
+        { // If there is another heart owned by this player, set it to "working" heart
+            struct PlayerInfo *player;
+            player = get_player(plyr_idx);
+            init_player_start(player, true);
+            if (player_has_heart(plyr_idx))
+            {
+                // If another heart was found, stop the process
+                dungeon->devastation_turn = 0;
+            }
+            else
+            {
+                if (gameadd.heart_lost_display_message)
+                {
+                    if (is_my_player_number(dungeon->owner))
+                    {
+                        const char *objective = (gameadd.heart_lost_quick_message) ? gameadd.quick_messages[gameadd.heart_lost_message_id] : get_string(gameadd.heart_lost_message_id);
+                        process_objective(objective, gameadd.heart_lost_message_target, 0, 0);
+                    }
+                }
+                // If this is the last heart the player had, finish him
+                setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
+                player->allied_players = to_flag(player->id_number);
+            }
+        }
+        dungeon->heart_destroy_state = 0;
+        dungeon->heart_destroy_turn = 0;
+        break;
     }
 }
 
@@ -237,8 +251,8 @@ void update_research(void)
 {
     int i;
     struct PlayerInfo *player;
-    SYNCDBG(6,"Starting");
-    for (i=0; i<PLAYERS_COUNT; i++)
+    SYNCDBG(6, "Starting");
+    for (i = 0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
         if (player_exists(player) && (player->is_active == 1))
@@ -252,8 +266,8 @@ void update_manufacturing(void)
 {
     int i;
     struct PlayerInfo *player;
-    SYNCDBG(16,"Starting");
-    for (i=0; i<PLAYERS_COUNT; i++)
+    SYNCDBG(16, "Starting");
+    for (i = 0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
         if (player_exists(player) && (player->is_active == 1))

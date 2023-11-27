@@ -45,24 +45,25 @@ extern "C" {
 /******************************************************************************/
 struct Room *start_rooms;
 struct Room *end_rooms;
+
 /******************************************************************************/
-long calculate_free_lair_space(struct Dungeon * dungeon)
+long calculate_free_lair_space(struct Dungeon *dungeon)
 {
-    SYNCDBG(9,"Starting");
+    SYNCDBG(9, "Starting");
     long cap_used = 0;
     long cap_total = 0;
     unsigned long k = 0;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
+    struct DungeonAdd *dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     long i;
 
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,RoRoF_LairStorage))
+        if (room_role_matches(rkind, RoRoF_LairStorage))
         {
             i = dungeonadd->room_kind[rkind];
             while (i != 0)
             {
-                struct Room* room = room_get(i);
+                struct Room *room = room_get(i);
                 if (room_is_invalid(room))
                 {
                     ERRORLOG("Jump to invalid room detected");
@@ -87,9 +88,9 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     i = dungeon->creatr_list_start;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
         {
             ERRORLOG("Jump to invalid creature detected");
@@ -99,7 +100,7 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
         // Thing list loop body
         if (cctrl->lair_room_id == 0)
         {
-            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+            struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
             cap_required += crstat->lair_size;
         }
         // Thing list loop body ends
@@ -110,17 +111,17 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
             break;
         }
     }
-    SYNCDBG(9,"Total lair capacity %d, used %d, will need %d more",(int)cap_total,(int)cap_used,(int)cap_required);
+    SYNCDBG(9, "Total lair capacity %d, used %d, will need %d more", (int)cap_total, (int)cap_used, (int)cap_required);
     return cap_total - cap_used - cap_required;
 }
 
-static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_units_of_different_kind,TbBool room_has_lair_enemy)
+static short get_lair_score(TbBool room_has_units_of_same_kind, TbBool room_has_units_of_different_kind, TbBool room_has_lair_enemy)
 {
-    if ( room_has_units_of_same_kind )
+    if (room_has_units_of_same_kind)
     {
-        if ( room_has_units_of_different_kind )
+        if (room_has_units_of_different_kind)
         {
-            if ( room_has_lair_enemy )
+            if (room_has_lair_enemy)
             {
                 return 2;
             }
@@ -131,7 +132,7 @@ static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_u
         }
         else
         {
-            if ( room_has_lair_enemy )
+            if (room_has_lair_enemy)
             {
                 return 0;
             }
@@ -141,9 +142,9 @@ static short get_lair_score(TbBool room_has_units_of_same_kind,TbBool room_has_u
             }
         }
     }
-    else if ( room_has_units_of_different_kind )
+    else if (room_has_units_of_different_kind)
     {
-        if ( room_has_lair_enemy )
+        if (room_has_lair_enemy)
         {
             return 1;
         }
@@ -163,7 +164,9 @@ TbBool creature_model_is_lair_enemy(const short lair_enemy[], short crmodel)
     for (int i = 0; i < LAIR_ENEMY_MAX; i++)
     {
         if (lair_enemy[i] == crmodel)
+        {
             return true;
+        }
     }
     return false;
 }
@@ -173,32 +176,33 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     struct Room *room;
     char best_score = 0;
 
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(creatng->owner);
+    const struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(creatng->owner);
 
     short *room_scores = (short *)scratch;
     memset(scratch, 0, ROOMS_COUNT);
 
-
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,RoRoF_LairStorage))
+        if (room_role_matches(rkind, RoRoF_LairStorage))
         {
             room = room_get(dungeonadd->room_kind[rkind]);
             while (!room_is_invalid(room))
             {
-                if ( room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP) && creature_can_head_for_room(creatng, room, 0) )
+                if (room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP) && creature_can_head_for_room(creatng, room, 0))
                 {
                     TbBool room_has_units_of_same_kind = false;
                     TbBool room_has_units_of_different_kind = false;
                     TbBool room_has_lair_enemy = false;
-                    for ( ThingModel model = 0; model < gameadd.crtr_conf.model_count; ++model )
+                    for (ThingModel model = 0; model < gameadd.crtr_conf.model_count; ++model)
                     {
-                        if ( room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy )
-                            break;
-                        if ( room->content_per_model[model] > 0) 
+                        if (room_has_units_of_same_kind && room_has_units_of_different_kind && room_has_lair_enemy)
                         {
-                            if ( creatng->model == model )
+                            break;
+                        }
+                        if (room->content_per_model[model] > 0)
+                        {
+                            if (creatng->model == model)
                             {
                                 room_has_units_of_same_kind = true;
                             }
@@ -212,16 +216,18 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
                             }
                         }
                     }
-                    char lair_score = get_lair_score(room_has_units_of_same_kind,room_has_units_of_different_kind,room_has_lair_enemy);
+                    char lair_score = get_lair_score(room_has_units_of_same_kind, room_has_units_of_different_kind, room_has_lair_enemy);
                     room_scores[room->index] = lair_score;
                     if (best_score < lair_score)
+                    {
                         best_score = lair_score;
+                    }
                 }
                 room = room_get(room->next_of_owner);
             }
         }
     }
-        
+
     if (best_score == 0)
     {
         return INVALID_ROOM;
@@ -234,19 +240,19 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
 
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,RoRoF_LairStorage))
+        if (room_role_matches(rkind, RoRoF_LairStorage))
         {
             room = room_get(dungeonadd->room_kind[rkind]);
             while (!room_is_invalid(room))
             {
-                if ( room_scores[room->index] == best_score )
+                if (room_scores[room->index] == best_score)
                 {
                     room_center_pos.x.val = subtile_coord_center(room->central_stl_x);
                     room_center_pos.y.val = subtile_coord_center(room->central_stl_y);
                     room_center_pos.z.val = get_floor_height_at(&room_center_pos);
                     distance = get_chessboard_distance(&creatng->mappos, &room_center_pos);
 
-                    if ( min_distance > distance )
+                    if (min_distance > distance)
                     {
                         min_distance = distance;
                         nearest_room = room;
@@ -258,4 +264,5 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     }
     return nearest_room;
 }
+
 /******************************************************************************/

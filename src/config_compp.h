@@ -32,18 +32,18 @@ extern "C" {
 #pragma pack(1)
 
 struct ComputerProcessTypes {
-  char *name;
-  long dig_stack_size;
-  long processes_time;
-  long click_rate;
-  long max_room_build_tasks;
-  long turn_begin;
-  long sim_before_dig;
-  GameTurnDelta drop_delay;
-  struct ComputerProcess *processes[COMPUTER_PROCESSES_COUNT];
-  struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
-  struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
-  long field_460;
+    char *name;
+    long dig_stack_size;
+    long processes_time;
+    long click_rate;
+    long max_room_build_tasks;
+    long turn_begin;
+    long sim_before_dig;
+    GameTurnDelta drop_delay;
+    struct ComputerProcess *processes[COMPUTER_PROCESSES_COUNT];
+    struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
+    struct ComputerEvent events[COMPUTER_EVENTS_COUNT];
+    long field_460;
 };
 
 #pragma pack()

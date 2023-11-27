@@ -22,8 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#define GUI_MESSAGES_COUNT      7
-#define GUI_MESSAGES_DELAY      400
+#define GUI_MESSAGES_COUNT 7
+#define GUI_MESSAGES_DELAY 400
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,15 +34,15 @@ extern "C" {
 
 struct GuiMessage_OLD { // sizeof = 0x45 (69)
     char text[64];
-PlayerNumber plyr_idx;
-unsigned long creation_turn;
+    PlayerNumber plyr_idx;
+    unsigned long creation_turn;
 };
 
 struct GuiMessage {
     char text[64];
-PlayerNumber plyr_idx;
-unsigned long creation_turn;
-PlayerNumber target_idx;
+    PlayerNumber plyr_idx;
+    unsigned long creation_turn;
+    PlayerNumber target_idx;
 };
 
 #pragma pack()

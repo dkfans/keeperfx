@@ -29,7 +29,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define OBJECT_TYPES_COUNT  255
+#define OBJECT_TYPES_COUNT 255
 
 enum ObjectStates {
     ObSt_Unused = 0,
@@ -55,10 +55,9 @@ enum CallToArmsObjectLife {
     CTAOL_Rebirthing,
 };
 
-//avoid using this enum for new stuff, all properties should come from config, not hardcoded to 1 type
-//only the ones still used by code are mentioned here
-enum ObjectModels
-{
+// avoid using this enum for new stuff, all properties should come from config, not hardcoded to 1 type
+// only the ones still used by code are mentioned here
+enum ObjectModels {
     ObjMdl_Torch = 2,
     ObjMdl_GoldChest = 3,
     ObjMdl_StatueLit = 4,
@@ -81,7 +80,7 @@ enum ObjectModels
     ObjMdl_Goldl = 43,
     ObjMdl_SpinningKey = 44,
     ObjMdl_HeroGate = 49,
-    ObjMdl_LightBall =  51,
+    ObjMdl_LightBall = 51,
     ObjMdl_GoldPile = 52,
     ObjMdl_GoldHorde1 = 53,
     ObjMdl_GoldHorde2 = 54,
@@ -117,20 +116,21 @@ enum ObjectModels
 };
 
 /**
- * Used for Objects->draw_class  EffectElementStats->draw_class and Thing->draw_class. 
- * 
+ * Used for Objects->draw_class  EffectElementStats->draw_class and Thing->draw_class.
+ *
  * Used in in draw_frontview_thing_on_element() and do_map_who_for_thing().
- * 
+ *
  * See also see set_object_configuration_process(), parse_objects_object_blocks(), objects_data_init[], effect_element_stats[] and objects.cfg for setting of draw_class.
  */
-enum ObjectsDrawClasses { 
-  ODC_None           = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG - do nothing in draw_frontview_thing_on_element() or do_map_who_for_thing(). */
-  ODC_Default        = 0x02, /**< Default behaviour in draw_frontview_thing_on_element() / do_map_who_for_thing(). */
-  ODC_DrawClass3     = 0x03, /**< Unknown use. Present in do_map_who_for_thing(). */
-  ODC_RoomPrice      = 0x04, /**< Used by TngEffElm_Price. */
-  ODC_RoomStatusFlag = 0x05, /**< Used by ROOM_FLAG. */
-  ODC_SpinningKey    = 0x06, /**< Used by SPINNING_KEY. */
+enum ObjectsDrawClasses {
+    ODC_None = 0x00,           /**< Used by POWER_SIGHT and POWER_LIGHTNG - do nothing in draw_frontview_thing_on_element() or do_map_who_for_thing(). */
+    ODC_Default = 0x02,        /**< Default behaviour in draw_frontview_thing_on_element() / do_map_who_for_thing(). */
+    ODC_DrawClass3 = 0x03,     /**< Unknown use. Present in do_map_who_for_thing(). */
+    ODC_RoomPrice = 0x04,      /**< Used by TngEffElm_Price. */
+    ODC_RoomStatusFlag = 0x05, /**< Used by ROOM_FLAG. */
+    ODC_SpinningKey = 0x06,    /**< Used by SPINNING_KEY. */
 };
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -143,7 +143,7 @@ struct Objects {
     short size_xy;
     short size_z;
     short sprite_size_max;
-    unsigned char field_F;      // Lower 2 bits are transparency flags
+    unsigned char field_F; // Lower 2 bits are transparency flags
     unsigned short fp_smpl_idx;
     unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char destroy_on_lava;
@@ -189,7 +189,7 @@ TbBool thing_is_workshop_crate(const struct Thing *thing);
 TbBool thing_is_trap_crate(const struct Thing *thing);
 TbBool thing_is_door_crate(const struct Thing *thing);
 TbBool thing_is_dungeon_heart(const struct Thing *thing);
-TbBool thing_is_beating_dungeon_heart(const struct Thing* thing);
+TbBool thing_is_beating_dungeon_heart(const struct Thing *thing);
 TbBool thing_is_mature_food(const struct Thing *thing);
 TbBool object_is_hero_gate(const struct Thing *thing);
 TbBool object_is_infant_food(const struct Thing *thing);
@@ -206,10 +206,10 @@ TbBool thing_is_lair_totem(const struct Thing *thing);
 TbBool object_is_room_equipment(const struct Thing *thing, RoomKind rkind);
 TbBool object_is_room_inventory(const struct Thing *thing, RoomRole rrole);
 TbBool object_is_unaffected_by_terrain_changes(const struct Thing *thing);
-TbBool object_can_be_damaged(const struct Thing* thing);
-TbBool object_is_buoyant(const struct Thing* thing);
-TbBool thing_is_hardcoded_special_box(const struct Thing* thing);
-TbBool thing_is_custom_special_box(const struct Thing* thing);
+TbBool object_can_be_damaged(const struct Thing *thing);
+TbBool object_is_buoyant(const struct Thing *thing);
+TbBool thing_is_hardcoded_special_box(const struct Thing *thing);
+TbBool thing_is_custom_special_box(const struct Thing *thing);
 
 TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *room);
 TbBool delete_lair_totem(struct Thing *lairtng);
@@ -225,12 +225,12 @@ struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value);
 long add_gold_to_hoarde(struct Thing *thing, struct Room *room, GoldAmount amount);
 long remove_gold_from_hoarde(struct Thing *thing, struct Room *room, GoldAmount amount);
-long gold_being_dropped_at_treasury(struct Thing* thing, struct Room* room);
+long gold_being_dropped_at_treasury(struct Thing *thing, struct Room *room);
 
 struct Thing *drop_gold_pile(long value, struct Coord3d *pos);
 struct Thing *create_gold_pot_at(long pos_x, long pos_y, PlayerNumber plyr_idx);
 TbBool add_gold_to_pile(struct Thing *thing, long value);
-struct Thing* create_gold_pile(struct Coord3d* pos, PlayerNumber plyr_idx, long value);
+struct Thing *create_gold_pile(struct Coord3d *pos, PlayerNumber plyr_idx, long value);
 GoldAmount gold_object_typical_value(ThingModel tngmodel);
 
 void set_call_to_arms_as_birthing(struct Thing *objtng);

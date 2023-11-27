@@ -27,7 +27,7 @@ extern "C" {
 #endif
 
 enum SlabBlockedFlags {
-    SlbBloF_None    = 0x00,
+    SlbBloF_None = 0x00,
     SlbBloF_WalledX = 0x01,
     SlbBloF_WalledY = 0x02,
     SlbBloF_WalledZ = 0x04,
@@ -37,8 +37,8 @@ enum SlabBlockedFlags {
  * Copied in order to separate from Ariadne interface. Changes in original enumeration should be reflected here.
  */
 enum NaviRouteFlagValues {
-    NavRtF_Default   = 0x00,
-    NavRtF_NoOwner   = 0x01,
+    NavRtF_Default = 0x00,
+    NavRtF_NoOwner = 0x01,
 };
 
 enum ThingAngles {
@@ -67,19 +67,19 @@ extern long nav_thing_can_travel_over_lava;
 #pragma pack()
 /******************************************************************************/
 TbBool setup_person_move_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name);
-#define setup_person_move_to_position(thing, stl_x, stl_y, flags) setup_person_move_to_position_f(thing, stl_x, stl_y, flags,__func__)
+#define setup_person_move_to_position(thing, stl_x, stl_y, flags) setup_person_move_to_position_f(thing, stl_x, stl_y, flags, __func__)
 TbBool setup_person_move_close_to_position(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags);
 TbBool setup_person_move_backwards_to_position_f(struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, NaviRouteFlags flags, const char *func_name);
-#define setup_person_move_backwards_to_position(thing, stl_x, stl_y, flags) setup_person_move_backwards_to_position_f(thing, stl_x, stl_y, flags,__func__)
+#define setup_person_move_backwards_to_position(thing, stl_x, stl_y, flags) setup_person_move_backwards_to_position_f(thing, stl_x, stl_y, flags, __func__)
 TbBool setup_person_move_to_coord_f(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
-#define setup_person_move_to_coord(thing, pos, flags) setup_person_move_to_coord_f(thing, pos, flags,__func__)
+#define setup_person_move_to_coord(thing, pos, flags) setup_person_move_to_coord_f(thing, pos, flags, __func__)
 TbBool setup_person_move_backwards_to_coord(struct Thing *thing, const struct Coord3d *pos, NaviRouteFlags flags);
 
 TbBool creature_can_travel_over_lava(const struct Thing *creatng);
 TbBool creature_can_navigate_to_f(const struct Thing *thing, struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
-#define creature_can_navigate_to(thing,pos,flags) creature_can_navigate_to_f(thing,pos,flags,__func__)
+#define creature_can_navigate_to(thing, pos, flags) creature_can_navigate_to_f(thing, pos, flags, __func__)
 TbBool creature_can_navigate_to_with_storage_f(const struct Thing *crtng, const struct Coord3d *pos, NaviRouteFlags flags, const char *func_name);
-#define creature_can_navigate_to_with_storage(crtng,pos,flags) creature_can_navigate_to_with_storage_f(crtng,pos,flags,__func__)
+#define creature_can_navigate_to_with_storage(crtng, pos, flags) creature_can_navigate_to_with_storage_f(crtng, pos, flags, __func__)
 TbBool creature_can_get_to_dungeon_heart(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int flags);
 struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng);

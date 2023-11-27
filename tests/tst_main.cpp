@@ -25,9 +25,8 @@ int SDL_main(int argc, char **argv)
             return run_client(argc, argv);
         }
     }
-    //CU_initialize_registry is called on any test
+    // CU_initialize_registry is called on any test
     CU_basic_run_tests();
     CU_cleanup_registry();
     return 0;
 }
-

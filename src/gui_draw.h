@@ -33,9 +33,9 @@
 #define POS_AUTO -9999
 #define POS_MOUSMID -999
 #define POS_MOUSPRV -998
-#define POS_SCRCTR  -997
-#define POS_SCRBTM  -996
-#define POS_GAMECTR  999
+#define POS_SCRCTR -997
+#define POS_SCRBTM -996
+#define POS_GAMECTR 999
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,8 +48,8 @@ struct GuiButton;
 extern struct TbSprite gui_panel_sprites[];
 extern int num_icons_total;
 
-extern unsigned char * gui_panel_sprite_data;
-extern unsigned char * end_gui_panel_sprite_data;
+extern unsigned char *gui_panel_sprite_data;
+extern unsigned char *end_gui_panel_sprite_data;
 
 extern unsigned char *gui_slab;
 
@@ -57,14 +57,14 @@ extern unsigned char *frontend_background;
 
 extern struct TbSprite *frontend_sprite;
 extern struct TbSprite *frontend_end_sprite;
-extern unsigned char * frontend_sprite_data;
-extern unsigned char * frontend_end_sprite_data;
+extern unsigned char *frontend_sprite_data;
+extern unsigned char *frontend_end_sprite_data;
 
 #pragma pack()
 /******************************************************************************/
 extern char gui_textbuf[TEXT_BUFFER_LENGTH];
 /******************************************************************************/
-int get_bitmap_max_scale(int img_w,int img_h,int rect_w,int rect_h);
+int get_bitmap_max_scale(int img_w, int img_h, int rect_w, int rect_h);
 int simple_button_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
 int simple_button_sprite_width_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
 int simple_frontend_sprite_height_units_per_px(const struct GuiButton *gbtn, long spridx, int fraction);
@@ -78,7 +78,7 @@ void draw_slab64k(long pos_x, long pos_y, int units_per_px, long width, long hei
 void draw_ornate_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long width, long height);
 void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height);
-void draw_string64k(long x, long y, int units_per_px, const char * text);
+void draw_string64k(long x, long y, int units_per_px, const char *text);
 
 void draw_button_string(struct GuiButton *gbtn, int base_width, const char *text);
 TbBool draw_text_box(const char *text);
@@ -95,7 +95,7 @@ void draw_button_sprite_rmleft(long x, long y, int units_per_px, long spridx, un
 
 void draw_frontend_sprite_left(long x, long y, int units_per_px, long spridx);
 
-void draw_frontmenu_background(int rect_x,int rect_y,int rect_w,int rect_h);
+void draw_frontmenu_background(int rect_x, int rect_y, int rect_w, int rect_h);
 /******************************************************************************/
 #ifdef __cplusplus
 }

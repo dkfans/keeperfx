@@ -26,9 +26,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define EVENT_BUTTONS_COUNT    12
-#define EVENT_KIND_COUNT       36
-#define EVENTS_COUNT          100
+#define EVENT_BUTTONS_COUNT 12
+#define EVENT_KIND_COUNT 36
+#define EVENTS_COUNT 100
 #define INVALID_EVENT &game.event[0]
 
 enum EventKinds {
@@ -37,32 +37,32 @@ enum EventKinds {
     EvKind_EnemyFight,
     EvKind_Objective,
     EvKind_Breach,
-    EvKind_NewRoomResrch, //5
+    EvKind_NewRoomResrch, // 5
     EvKind_NewCreature,
     EvKind_NewSpellResrch,
     EvKind_NewTrap,
     EvKind_NewDoor,
-    EvKind_CreatrScavenged, //10
+    EvKind_CreatrScavenged, // 10
     EvKind_TreasureRoomFull,
     EvKind_CreaturePayday,
     EvKind_AreaDiscovered,
     EvKind_SpellPickedUp,
-    EvKind_RoomTakenOver, //15
+    EvKind_RoomTakenOver, // 15
     EvKind_CreatrIsAnnoyed,
     EvKind_NoMoreLivingSet,
     EvKind_AlarmTriggered,
     EvKind_RoomUnderAttack,
-    EvKind_NeedTreasureRoom,//20
+    EvKind_NeedTreasureRoom, // 20
     EvKind_Information,
     EvKind_RoomLost,
     EvKind_CreatrHungry,
     EvKind_TrapCrateFound,
-    EvKind_DoorCrateFound, //25
+    EvKind_DoorCrateFound, // 25
     EvKind_DnSpecialFound,
     EvKind_QuickInformation,
     EvKind_FriendlyFight,
     EvKind_WorkRoomUnreachable,
-    EvKind_StorageRoomUnreachable, //30
+    EvKind_StorageRoomUnreachable, // 30
     EvKind_PrisonerStarving,
     EvKind_TorturedHurt,
     EvKind_EnemyDoor,
@@ -71,7 +71,7 @@ enum EventKinds {
 };
 
 enum EventFlags {
-    EvF_Exists       = 0x0001,
+    EvF_Exists = 0x0001,
     EvF_BtnFirstFall = 0x0002, /*< Informs whether the button is falling for a first time. */
 };
 
@@ -96,9 +96,9 @@ struct Event { // sizeof=0x15
 };
 
 struct Bookmark { // sizeof = 3
-  unsigned char x;
-  unsigned char y;
-  unsigned char flags;
+    unsigned char x;
+    unsigned char y;
+    unsigned char flags;
 };
 
 #pragma pack()

@@ -33,8 +33,9 @@ extern "C" {
 #endif
 /******************************************************************************/
 // the 50 is a static value, idealy would be equal to max_track. May not be smaller.
-Mix_Music* tracks[MUSIC_TRACKS_COUNT];
+Mix_Music *tracks[MUSIC_TRACKS_COUNT];
 int current_track;
+
 /******************************************************************************/
 
 TbBool IsRedbookMusicActive(void)
@@ -57,7 +58,7 @@ int InitializeMusicPlayer(void)
         // There is no keeper01.ogg. FIRST_TRACK defined as 2.
         for (int i = FIRST_TRACK; i <= max_track; i++)
         {
-            const char* fname = prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", i);
+            const char *fname = prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", i);
             tracks[i] = Mix_LoadMUS(fname);
             if (tracks[i] == NULL)
             {
@@ -94,14 +95,15 @@ void PlayMusicPlayer(int track)
     if (IsRedbookMusicActive())
     {
         PlayRedbookTrack(track);
-    } else
+    }
+    else
     {
         if (track != current_track)
         {
             current_track = track;
-            if(tracks[track] != NULL)
+            if (tracks[track] != NULL)
             {
-                if(Mix_PlayMusic(tracks[track], -1) == -1)
+                if (Mix_PlayMusic(tracks[track], -1) == -1)
                 {
                     SYNCLOG("Can't play track %d: %s", track, Mix_GetError());
                 }
@@ -119,7 +121,8 @@ void PauseMusicPlayer(void)
     if (IsRedbookMusicActive())
     {
         PauseRedbookTrack();
-    } else
+    }
+    else
     {
         Mix_PauseMusic();
     }
@@ -130,7 +133,8 @@ void ResumeMusicPlayer(void)
     if (IsRedbookMusicActive())
     {
         ResumeRedbookTrack();
-    } else
+    }
+    else
     {
         Mix_ResumeMusic();
     }
@@ -141,11 +145,12 @@ void StopMusicPlayer(void)
     if (IsRedbookMusicActive())
     {
         StopRedbookTrack();
-    } else
+    }
+    else
     {
-        if(Mix_PlayingMusic())
+        if (Mix_PlayingMusic())
         {
-            if(Mix_FadeOutMusic(1000) == 1)
+            if (Mix_FadeOutMusic(1000) == 1)
             {
                 current_track = -1;
             }
@@ -162,9 +167,10 @@ void SetMusicPlayerVolume(int volume)
     if (IsRedbookMusicActive())
     {
         SetRedbookVolume(volume);
-    } else
+    }
+    else
     {
-        float volume_f = (float) volume;
+        float volume_f = (float)volume;
         int normalized_volume = (int)((volume_f / MIX_MAX_VOLUME) * MIX_MAX_VOLUME);
         int old_volume = Mix_VolumeMusic(-1);
         Mix_VolumeMusic(normalized_volume);
@@ -184,7 +190,7 @@ void music_reinit_after_load()
         {
             WARNLOG("Can't load track %d: %s", i, Mix_GetError());
         }
-    }  
+    }
 }
 
 void free_custom_music()

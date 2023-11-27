@@ -33,7 +33,9 @@ extern "C" {
 void LbSetRect(struct TbRect *rect, long xLeft, long yTop, long xRight, long yBottom)
 {
     if (rect == NULL)
+    {
         return;
+    }
     rect->left = xLeft;
     rect->top = yTop;
     rect->right = xRight;
@@ -49,10 +51,13 @@ long get_angle_symmetric_difference(long angle_a, long angle_b)
 {
     long diff = (angle_a & LbFPMath_AngleMask) - (angle_b & LbFPMath_AngleMask);
     if (diff > LbFPMath_PI)
-        diff = (2*LbFPMath_PI - diff);
-    else
-    if (diff < -LbFPMath_PI)
-        diff = (2*LbFPMath_PI + diff);
+    {
+        diff = (2 * LbFPMath_PI - diff);
+    }
+    else if (diff < -LbFPMath_PI)
+    {
+        diff = (2 * LbFPMath_PI + diff);
+    }
     return diff;
 }
 
@@ -66,7 +71,9 @@ long get_angle_difference(long angle_a, long angle_b)
 {
     long diff = abs((angle_a & LbFPMath_AngleMask) - (angle_b & LbFPMath_AngleMask));
     if (diff > LbFPMath_PI)
-        diff = (2*LbFPMath_PI - diff);
+    {
+        diff = (2 * LbFPMath_PI - diff);
+    }
     return diff;
 }
 
@@ -74,16 +81,24 @@ long get_angle_sign(long angle_a, long angle_b)
 {
     long diff = (angle_b & LbFPMath_AngleMask) - (angle_a & LbFPMath_AngleMask);
     if (diff == 0)
+    {
         return 0;
+    }
     if (abs(diff) > LbFPMath_PI)
     {
-      if (diff >= 0)
-          diff -= 2*LbFPMath_PI;
-      else
-          diff += 2*LbFPMath_PI;
+        if (diff >= 0)
+        {
+            diff -= 2 * LbFPMath_PI;
+        }
+        else
+        {
+            diff += 2 * LbFPMath_PI;
+        }
     }
     if (diff == 0)
+    {
         return 0;
+    }
     return diff / abs(diff);
 }
 
@@ -118,7 +133,7 @@ long get_distance_xy(long x1, long y1, long x2, long y2)
 
 /**
  * This distance is "the number of moves needed by a king to move from one tile to another on a chess board".
- * 
+ *
  * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance for details).
  */
 MapCoordDelta get_chessboard_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -128,7 +143,7 @@ MapCoordDelta get_chessboard_distance(const struct Coord3d *pos1, const struct C
 
 /**
  * This distance is "the number of moves needed by a king to move from one cube to another on a 3d chess board".
- * 
+ *
  * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance and https://en.wikipedia.org/wiki/Three-dimensional_chess for details).
  */
 MapCoordDelta get_chessboard_3d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
@@ -144,8 +159,7 @@ MapCoordDelta get_chessboard_3d_distance(const struct Coord3d *pos1, const struc
  */
 long distance3d_with_angles_to_coord_x(long distance, long angle_a, long angle_b)
 {
-    long long val = (LbSinL(angle_a)>> 8)
-          * (distance * LbCosL(angle_b) >> 8);
+    long long val = (LbSinL(angle_a) >> 8) * (distance * LbCosL(angle_b) >> 8);
     return val >> 16;
 }
 
@@ -157,8 +171,7 @@ long distance3d_with_angles_to_coord_x(long distance, long angle_a, long angle_b
  */
 long distance3d_with_angles_to_coord_y(long distance, long angle_a, long angle_b)
 {
-    long long val = (LbCosL(angle_a) >> 8)
-        * (distance * LbCosL(angle_b) >> 8);
+    long long val = (LbCosL(angle_a) >> 8) * (distance * LbCosL(angle_b) >> 8);
     return (-(val >> 8)) >> 8;
 }
 
@@ -185,6 +198,7 @@ long move_coord_with_angle_y(long pos_y, long distance, long angle)
     long long val = (long long)distance * LbCosL(angle);
     return pos_y + ((-(val >> 8)) >> 8);
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

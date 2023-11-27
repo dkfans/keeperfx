@@ -27,13 +27,13 @@ extern "C" {
 #endif
 /******************************************************************************/
 enum PlayerNames {
-    PLAYER0          =  0,
-    PLAYER1          =  1,
-    PLAYER2          =  2,
-    PLAYER3          =  3,
-    PLAYER_GOOD      =  4,
-    PLAYER_NEUTRAL   =  5,
-    ALL_PLAYERS      =  8,
+    PLAYER0 = 0,
+    PLAYER1 = 1,
+    PLAYER2 = 2,
+    PLAYER3 = 3,
+    PLAYER_GOOD = 4,
+    PLAYER_NEUTRAL = 5,
+    ALL_PLAYERS = 8,
 };
 
 enum PlayerInstanceNum {
@@ -57,6 +57,7 @@ enum PlayerInstanceNum {
     PI_Unknown17,
     PI_Unknown18,
 };
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -66,15 +67,15 @@ struct PlayerInfo;
 typedef long (*InstncInfo_Func)(struct PlayerInfo *player, long *n);
 
 struct PlayerInstanceInfo { // sizeof = 44
-  long length_turns;
-  long field_4;
-  InstncInfo_Func start_cb;
-  InstncInfo_Func maintain_cb;
-  InstncInfo_Func end_cb;
-  long field_14[2];
-  unsigned char field_1C[8];
-  long field_24;
-  long field_28;
+    long length_turns;
+    long field_4;
+    InstncInfo_Func start_cb;
+    InstncInfo_Func maintain_cb;
+    InstncInfo_Func end_cb;
+    long field_14[2];
+    unsigned char field_1C[8];
+    long field_24;
+    long field_28;
 };
 
 #define PLAYER_INSTANCES_COUNT 19
@@ -92,9 +93,9 @@ void process_player_instances(void);
 
 void leave_creature_as_passenger(struct PlayerInfo *player, struct Thing *thing);
 void leave_creature_as_controller(struct PlayerInfo *player, struct Thing *thing);
-#define set_selected_creature(player,thing) set_selected_creature_f(player, thing, __func__)
+#define set_selected_creature(player, thing) set_selected_creature_f(player, thing, __func__)
 TbBool set_selected_creature_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name);
-#define set_selected_thing(player,thing) set_selected_thing_f(player, thing, __func__)
+#define set_selected_thing(player, thing) set_selected_thing_f(player, thing, __func__)
 TbBool set_selected_thing_f(struct PlayerInfo *player, struct Thing *thing, const char *func_name);
 TbBool clear_selected_thing(struct PlayerInfo *player);
 TbBool is_thing_directly_controlled(const struct Thing *thing);

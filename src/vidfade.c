@@ -45,6 +45,7 @@ static int lbFadeDelay = 25;
 unsigned char fade_palette_in;
 unsigned char frontend_palette[768];
 TbRGBColorTable colours;
+
 /******************************************************************************/
 void fade_in(void)
 {
@@ -57,7 +58,7 @@ void fade_out(void)
     LbScreenClear(0);
 }
 
-void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal)
+void compute_fade_tables(struct TbColorTables *coltbl, unsigned char *spal, unsigned char *dpal)
 {
     unsigned long i;
     unsigned long k;
@@ -66,47 +67,47 @@ void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsign
     unsigned long b;
     SYNCMSG("Recomputing fade tables");
     // Intense fade to/from black - slower fade near black
-    unsigned char* dst = coltbl->fade_tables;
-    for (i=0; i < 32; i++)
+    unsigned char *dst = coltbl->fade_tables;
+    for (i = 0; i < 32; i++)
     {
-      for (k=0; k < 256; k++)
-      {
-        r = spal[3*k+0];
-        g = spal[3*k+1];
-        b = spal[3*k+2];
-        *dst = LbPaletteFindColour(dpal, i * r >> 5, i * g >> 5, i * b >> 5);
-        dst++;
-      }
+        for (k = 0; k < 256; k++)
+        {
+            r = spal[3 * k + 0];
+            g = spal[3 * k + 1];
+            b = spal[3 * k + 2];
+            *dst = LbPaletteFindColour(dpal, i * r >> 5, i * g >> 5, i * b >> 5);
+            dst++;
+        }
     }
     // Intense fade to/from black - faster fade part
-    for (i=32; i < 192; i+=3)
+    for (i = 32; i < 192; i += 3)
     {
-      for (k=0; k < 256; k++)
-      {
-        r = spal[3*k+0];
-        g = spal[3*k+1];
-        b = spal[3*k+2];
-        *dst = LbPaletteFindColour(dpal, i * r >> 5, i * g >> 5, i * b >> 5);
-        dst++;
-      }
+        for (k = 0; k < 256; k++)
+        {
+            r = spal[3 * k + 0];
+            g = spal[3 * k + 1];
+            b = spal[3 * k + 2];
+            *dst = LbPaletteFindColour(dpal, i * r >> 5, i * g >> 5, i * b >> 5);
+            dst++;
+        }
     }
     // Other fadings - between all the colors
     dst = coltbl->ghost;
-    for (i=0; i < 256; i++)
+    for (i = 0; i < 256; i++)
     {
-      // Reference colors
-      unsigned long rr = spal[3 * i + 0];
-      unsigned long rg = spal[3 * i + 1];
-      unsigned long rb = spal[3 * i + 2];
-      // Creating fades
-      for (k=0; k < 256; k++)
-      {
-        r = dpal[3*k+0];
-        g = dpal[3*k+1];
-        b = dpal[3*k+2];
-        *dst = LbPaletteFindColour(dpal, (rr+2*r) / 3, (rg+2*g) / 3, (rb+2*b) / 3);
-        dst++;
-      }
+        // Reference colors
+        unsigned long rr = spal[3 * i + 0];
+        unsigned long rg = spal[3 * i + 1];
+        unsigned long rb = spal[3 * i + 2];
+        // Creating fades
+        for (k = 0; k < 256; k++)
+        {
+            r = dpal[3 * k + 0];
+            g = dpal[3 * k + 1];
+            b = dpal[3 * k + 2];
+            *dst = LbPaletteFindColour(dpal, (rr + 2 * r) / 3, (rg + 2 * g) / 3, (rb + 2 * b) / 3);
+            dst++;
+        }
     }
 }
 
@@ -120,18 +121,24 @@ void compute_alpha_table(unsigned char *alphtbl, unsigned char *spal, unsigned c
     {
         for (int n = 0; n < 256; n++)
         {
-            unsigned char* baseCol = &spal[3 * n];
+            unsigned char *baseCol = &spal[3 * n];
             int valR = blendR + baseCol[0];
             if (valR >= 63)
-              valR = 63;
+            {
+                valR = 63;
+            }
             int valG = blendG + baseCol[1];
             if (valG >= 63)
-              valG = 63;
+            {
+                valG = 63;
+            }
             int valB = blendB + baseCol[2];
             if (valB >= 63)
-              valB = 63;
+            {
+                valB = 63;
+            }
             TbPixel c = LbPaletteFindColour(dpal, valR, valG, valB);
-            alphtbl[nrow*256 + n] = c;
+            alphtbl[nrow * 256 + n] = c;
         }
         blendR += dred;
         blendG += dgreen;
@@ -139,7 +146,7 @@ void compute_alpha_table(unsigned char *alphtbl, unsigned char *spal, unsigned c
     }
 }
 
-void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,unsigned char *dpal)
+void compute_alpha_tables(struct TbAlphaTables *alphtbls, unsigned char *spal, unsigned char *dpal)
 {
     SYNCMSG("Recomputing alpha tables");
     {
@@ -160,7 +167,7 @@ void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,uns
     compute_alpha_table(alphtbls->green, spal, dpal, 2, 6, 2);
 }
 
-void compute_rgb2idx_table(TbRGBColorTable ctab,unsigned char *spal)
+void compute_rgb2idx_table(TbRGBColorTable ctab, unsigned char *spal)
 {
     SYNCMSG("Recomputing rgb-to-index tables");
     int scaler = (1 << 6) / COLOUR_TABLE_DIMENSION;
@@ -170,8 +177,8 @@ void compute_rgb2idx_table(TbRGBColorTable ctab,unsigned char *spal)
         {
             for (int valB = 0; valB < COLOUR_TABLE_DIMENSION; valB++)
             {
-                TbPixel c = LbPaletteFindColour(spal, scaler * valR + (scaler-1),
-                    scaler * valG + (scaler-1), scaler * valB + (scaler-1));
+                TbPixel c = LbPaletteFindColour(spal, scaler * valR + (scaler - 1),
+                                                scaler * valG + (scaler - 1), scaler * valB + (scaler - 1));
                 ctab[valR][valG][valB] = c;
             }
         }
@@ -193,43 +200,62 @@ void compute_shifted_palette_table(TbPixel *ocol, const unsigned char *spal, con
     for (int i = 0; i < 256; i++)
     {
         int valR = (int)spal[3 * i + 0] + shiftR;
-        if (valR >= 63) valR = 63;
-        if (valR <   0) valR = 0;
+        if (valR >= 63)
+        {
+            valR = 63;
+        }
+        if (valR < 0)
+        {
+            valR = 0;
+        }
         int valG = (int)spal[3 * i + 1] + shiftG;
-        if (valG >= 63) valG = 63;
-        if (valG <   0) valG = 0;
+        if (valG >= 63)
+        {
+            valG = 63;
+        }
+        if (valG < 0)
+        {
+            valG = 0;
+        }
         int valB = (int)spal[3 * i + 2] + shiftB;
-        if (valB >= 63) valB = 63;
-        if (valB <   0) valB = 0;
+        if (valB >= 63)
+        {
+            valB = 63;
+        }
+        if (valB < 0)
+        {
+            valB = 0;
+        }
         ocol[i] = LbPaletteFindColour(dpal, valR, valG, valB);
     }
 }
 
 void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg)
 {
-/*    if (flg != Lb_PALETTE_FADE_CLOSED)
-    {
-        LbPaletteFade(pal, fade_steps, flg);
-    } else*/
+    /*    if (flg != Lb_PALETTE_FADE_CLOSED)
+        {
+            LbPaletteFade(pal, fade_steps, flg);
+        } else*/
     if (lbAdvancedFade)
     {
         TbClockMSec latest_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
-          if (!is_key_pressed(KC_SPACE,KMod_DONTCARE) &&
-              !is_key_pressed(KC_ESCAPE,KMod_DONTCARE) &&
-              !is_key_pressed(KC_RETURN,KMod_DONTCARE) &&
-              !is_mouse_pressed_lrbutton())
-          {
-            latest_loop_time += lbFadeDelay;
-            LbSleepUntil(latest_loop_time);
-          }
+            if (!is_key_pressed(KC_SPACE, KMod_DONTCARE) &&
+                !is_key_pressed(KC_ESCAPE, KMod_DONTCARE) &&
+                !is_key_pressed(KC_RETURN, KMod_DONTCARE) &&
+                !is_mouse_pressed_lrbutton())
+            {
+                latest_loop_time += lbFadeDelay;
+                LbSleepUntil(latest_loop_time);
+            }
         }
-    } else
-    if (pal != NULL)
+    }
+    else if (pal != NULL)
     {
         LbPaletteSet(pal);
-    } else
+    }
+    else
     {
         LbPaletteDataFillBlack(palette_buf);
         LbPaletteSet(palette_buf);
@@ -248,17 +274,19 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
         TbClockMSec latest_loop_time = LbTimerClock();
         while (LbPaletteFade(pal, fade_steps, Lb_PALETTE_FADE_OPEN) < fade_steps)
         {
-          latest_loop_time += lbFadeDelay;
-          
-          if (is_feature_on(Ft_SkipSplashScreens) == false) {
-              LbSleepUntil(latest_loop_time);
-          }
+            latest_loop_time += lbFadeDelay;
+
+            if (is_feature_on(Ft_SkipSplashScreens) == false)
+            {
+                LbSleepUntil(latest_loop_time);
+            }
         }
-    } else
-    if (pal != NULL)
+    }
+    else if (pal != NULL)
     {
         LbPaletteSet(pal);
-    } else
+    }
+    else
     {
         LbMemorySet(palette_buf, 0, sizeof(palette_buf));
         LbPaletteSet(palette_buf);
@@ -268,7 +296,9 @@ void ProperForcedFadePalette(unsigned char *pal, long fade_steps, enum TbPalette
 long PaletteFadePlayer(struct PlayerInfo *player)
 {
     if (game.game_kind == GKind_MultiGame)
-        return 0; //todo Fix the bug properly. This function causes crashes in multiplayer.
+    {
+        return 0; // todo Fix the bug properly. This function causes crashes in multiplayer.
+    }
 
     long i;
     unsigned char palette[PALETTE_SIZE];
@@ -276,68 +306,87 @@ long PaletteFadePlayer(struct PlayerInfo *player)
     if ((player->palette_fade_step_pain != 0) && (player->palette_fade_step_possession != 0))
     {
         i = 12 * (player->palette_fade_step_pain - 1) + 10 * (player->palette_fade_step_possession - 1);
-  } else
-  if (player->palette_fade_step_possession != 0)
-  {
-    i = 2 * (5 * (player->palette_fade_step_possession-1));
-  } else
-  if (player->palette_fade_step_pain != 0)
-  {
-    i = 4 * (3 * (player->palette_fade_step_pain-1));
-  } else
-  { // both are == 0 - no fade
-    return 0;
-  }
-  if (i >= 120)
-    i = 120;
-  long step = 120 - i;
-  // Create the new palette
-  for (i=0; i < PALETTE_COLORS; i++)
-  {
-      unsigned char* src = &player->main_palette[3 * i];
-      unsigned char* dst = &palette[3 * i];
-      unsigned long pix = ((step * (((long)src[0]) - 63)) / 120) + 63;
-      if (pix > 63)
-          pix = 63;
-      dst[0] = pix;
-      pix = (step * ((long)src[1])) / 120;
-      if (pix > 63)
-          pix = 63;
-      dst[1] = pix;
-      pix = (step * ((long)src[2])) / 120;
-      if (pix > 63)
-          pix = 63;
-      dst[2] = pix;
-  }
-  // Update the fade step
-  if (player->palette_fade_step_pain > 0)
-    player->palette_fade_step_pain--;
-  if ((player->palette_fade_step_possession == 0) || (player->instance_num == PI_Unknown18) || (player->instance_num == PI_Unknown17))
-  {
-  } else
-  if ((player->instance_num == PI_DirctCtrl) || (player->instance_num == PI_PsngrCtrl))
-  {
-    if (player->palette_fade_step_possession <= 12)
-      player->palette_fade_step_possession++;
-  } else
-  {
-    if (player->palette_fade_step_possession > 0)
-      player->palette_fade_step_possession--;
-  }
-  // Set the palette to screen
-  LbScreenWaitVbi();
-  LbPaletteSet(palette);
-  return step;
+    }
+    else if (player->palette_fade_step_possession != 0)
+    {
+        i = 2 * (5 * (player->palette_fade_step_possession - 1));
+    }
+    else if (player->palette_fade_step_pain != 0)
+    {
+        i = 4 * (3 * (player->palette_fade_step_pain - 1));
+    }
+    else
+    { // both are == 0 - no fade
+        return 0;
+    }
+    if (i >= 120)
+    {
+        i = 120;
+    }
+    long step = 120 - i;
+    // Create the new palette
+    for (i = 0; i < PALETTE_COLORS; i++)
+    {
+        unsigned char *src = &player->main_palette[3 * i];
+        unsigned char *dst = &palette[3 * i];
+        unsigned long pix = ((step * (((long)src[0]) - 63)) / 120) + 63;
+        if (pix > 63)
+        {
+            pix = 63;
+        }
+        dst[0] = pix;
+        pix = (step * ((long)src[1])) / 120;
+        if (pix > 63)
+        {
+            pix = 63;
+        }
+        dst[1] = pix;
+        pix = (step * ((long)src[2])) / 120;
+        if (pix > 63)
+        {
+            pix = 63;
+        }
+        dst[2] = pix;
+    }
+    // Update the fade step
+    if (player->palette_fade_step_pain > 0)
+    {
+        player->palette_fade_step_pain--;
+    }
+    if ((player->palette_fade_step_possession == 0) || (player->instance_num == PI_Unknown18) || (player->instance_num == PI_Unknown17))
+    {
+    }
+    else if ((player->instance_num == PI_DirctCtrl) || (player->instance_num == PI_PsngrCtrl))
+    {
+        if (player->palette_fade_step_possession <= 12)
+        {
+            player->palette_fade_step_possession++;
+        }
+    }
+    else
+    {
+        if (player->palette_fade_step_possession > 0)
+        {
+            player->palette_fade_step_possession--;
+        }
+    }
+    // Set the palette to screen
+    LbScreenWaitVbi();
+    LbPaletteSet(palette);
+    return step;
 }
 
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense)
 {
     long i = player->palette_fade_step_pain + intense;
     if (i < 1)
+    {
         i = 1;
-    else
-    if (i > 10)
+    }
+    else if (i > 10)
+    {
         i = 10;
+    }
     player->palette_fade_step_pain = i;
 }
 
@@ -345,7 +394,6 @@ void PaletteClearPainFromPlayer(struct PlayerInfo *player)
 {
     player->palette_fade_step_pain = 0;
 }
-
 
 /******************************************************************************/
 #ifdef __cplusplus

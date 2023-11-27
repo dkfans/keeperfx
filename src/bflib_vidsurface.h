@@ -30,19 +30,19 @@ struct SDL_Surface;
 struct TbRect;
 
 struct SSurface {
-    struct SDL_Surface * surf_data;
+    struct SDL_Surface *surf_data;
     unsigned long locks_count;
     long pitch;
 };
 /******************************************************************************/
-extern struct SDL_Surface * lbScreenSurface;
-extern struct SDL_Surface * lbDrawSurface;
+extern struct SDL_Surface *lbScreenSurface;
+extern struct SDL_Surface *lbDrawSurface;
 /******************************************************************************/
 void LbScreenSurfaceInit(struct SSurface *surf);
 TbResult LbScreenSurfaceCreate(struct SSurface *surf, unsigned long w, unsigned long h);
 TbResult LbScreenSurfaceRelease(struct SSurface *surf);
 TbResult LbScreenSurfaceBlit(struct SSurface *surf, unsigned long x, unsigned long y,
-    struct TbRect *rect, unsigned long blflags);
+                             struct TbRect *rect, unsigned long blflags);
 void *LbScreenSurfaceLock(struct SSurface *surf);
 TbResult LbScreenSurfaceUnlock(struct SSurface *surf);
 /******************************************************************************/

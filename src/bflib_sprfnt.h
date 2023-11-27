@@ -30,11 +30,11 @@ extern "C" {
 #define TEXT_DRAW_MAX_LEN 4096
 
 enum TbFontDrawFlags {
-  Fnt_LeftJustify   = 0x00,
-  Fnt_RightJustify  = 0x01,
-  Fnt_CenterPos     = 0x02,
-  Fnt_CenterLeftPos = 0x03,
-  };
+    Fnt_LeftJustify = 0x00,
+    Fnt_RightJustify = 0x01,
+    Fnt_CenterPos = 0x02,
+    Fnt_CenterLeftPos = 0x03,
+};
 
 /******************************************************************************/
 #pragma pack(1)
@@ -43,36 +43,36 @@ struct TbSprite;
 struct TbSetupSprite;
 
 struct AsianFont {
-  const char *fname;
-  unsigned char *data;
-  unsigned long data_length;
-  unsigned long chars_count;
-  unsigned long ndata_shift;
-  unsigned long ndata_scanline;
-  unsigned long sdata_shift;
-  unsigned long sdata_scanline;
-  unsigned long field_20;
-  unsigned long field_24;
-  unsigned long field_28;
-  unsigned long bits_width;
-  unsigned long bits_height;
-  unsigned long field_34;
-  unsigned long field_38;
-  unsigned long field_3C;
-  unsigned long field_40;
-  unsigned long field_44;
+    const char *fname;
+    unsigned char *data;
+    unsigned long data_length;
+    unsigned long chars_count;
+    unsigned long ndata_shift;
+    unsigned long ndata_scanline;
+    unsigned long sdata_shift;
+    unsigned long sdata_scanline;
+    unsigned long field_20;
+    unsigned long field_24;
+    unsigned long field_28;
+    unsigned long bits_width;
+    unsigned long bits_height;
+    unsigned long field_34;
+    unsigned long field_38;
+    unsigned long field_3C;
+    unsigned long field_40;
+    unsigned long field_44;
 };
 
 struct AsianDraw {
-  unsigned long draw_char;
-  unsigned long bits_width;
-  unsigned long bits_height;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
-  unsigned char *sprite_data;
-  unsigned long field_1C;
-  unsigned long field_20;
+    unsigned long draw_char;
+    unsigned long bits_width;
+    unsigned long bits_height;
+    unsigned long field_C;
+    unsigned long field_10;
+    unsigned long field_14;
+    unsigned char *sprite_data;
+    unsigned long field_1C;
+    unsigned long field_20;
 };
 
 /**
@@ -80,10 +80,10 @@ struct AsianDraw {
  * Values are signed to ease comparison with negative values.
  */
 struct AsianFontWindow {
-  long width;
-  long height;
-  long scanline;
-  unsigned char *buf_ptr;
+    long width;
+    long height;
+    long scanline;
+    unsigned char *buf_ptr;
 };
 
 extern short dbc_language;
@@ -92,7 +92,6 @@ extern TbBool dbc_initialized;
 extern const struct TbSprite *lbFontPtr;
 
 /******************************************************************************/
-
 
 #pragma pack()
 /******************************************************************************/
@@ -128,10 +127,10 @@ long LbGetJustifiedCharWidth(long all_chars_width, long spr_width, long words_co
 long LbGetJustifiedCharHeight(long all_lines_height, long spr_height, long lines_count, unsigned short fdflags);
 
 // Function which require font sprites as parameter
-int LbSprFontWordWidth(const struct TbSprite *font,const char *text);
-int LbSprFontCharWidth(const struct TbSprite *font,const unsigned long chr);
-int LbSprFontCharHeight(const struct TbSprite *font,const unsigned long chr);
-const struct TbSprite *LbFontCharSprite(const struct TbSprite *font,const unsigned long chr);
+int LbSprFontWordWidth(const struct TbSprite *font, const char *text);
+int LbSprFontCharWidth(const struct TbSprite *font, const unsigned long chr);
+int LbSprFontCharHeight(const struct TbSprite *font, const unsigned long chr);
+const struct TbSprite *LbFontCharSprite(const struct TbSprite *font, const unsigned long chr);
 
 void LbTextUseByteCoding(TbBool is_enabled);
 long text_string_height(int units_per_px, const char *text);

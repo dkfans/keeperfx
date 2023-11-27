@@ -42,11 +42,11 @@ TbCharCount LbLocTextStringLength(const TbLocChar *s)
     TbSize i = 0;
     while (s[i] != 0)
     {
-      //if ((s[i] & 0xc0) != 0x80) // enable when/if UTF-8 is supported
-      {
-          j++;
-      }
-      i++;
+        // if ((s[i] & 0xc0) != 0x80) // enable when/if UTF-8 is supported
+        {
+            j++;
+        }
+        i++;
     }
     return j;
 }
@@ -59,8 +59,9 @@ TbCharCount LbLocTextStringLength(const TbLocChar *s)
 TbSize LbLocTextStringSize(const TbLocChar *s)
 {
     TbSize i = 0;
-    while (s[i] != 0) {
-      i++;
+    while (s[i] != 0)
+    {
+        i++;
     }
     return i;
 }
@@ -76,11 +77,11 @@ TbSize LbLocTextPosToLength(const TbLocChar *s, TbCharCount pos)
     TbSize i = 0;
     while ((s[i] != 0) && (j < pos))
     {
-      //if ((s[i] & 0xc0) != 0x80) // enable when/if UTF-8 is supported
-      {
-          j++;
-      }
-      i++;
+        // if ((s[i] & 0xc0) != 0x80) // enable when/if UTF-8 is supported
+        {
+            j++;
+        }
+        i++;
     }
     return i;
 }
@@ -88,32 +89,36 @@ TbSize LbLocTextPosToLength(const TbLocChar *s, TbCharCount pos)
 /**
  * Apples the second string at end of first string.
  */
-TbLocChar *LbLocTextStringConcat(TbLocChar *str,const TbLocChar *catstr, TbSize maxlen)
+TbLocChar *LbLocTextStringConcat(TbLocChar *str, const TbLocChar *catstr, TbSize maxlen)
 {
-   return strncat(str,catstr,maxlen);
+    return strncat(str, catstr, maxlen);
 }
 
 /**
  * Inserts the second string to the first string.
  */
-TbLocChar *LbLocTextStringInsert(TbLocChar *str,const TbLocChar *catstr, TbCharCount pos, TbSize maxlen)
+TbLocChar *LbLocTextStringInsert(TbLocChar *str, const TbLocChar *catstr, TbCharCount pos, TbSize maxlen)
 {
     TbSize spos = LbLocTextPosToLength(str, pos);
     TbSize slen = LbLocTextStringSize(str);
     TbSize clen = LbLocTextStringSize(catstr);
     // Check if we're ok
     if (slen < spos)
+    {
         spos = slen;
-    if (slen+clen >= maxlen)
+    }
+    if (slen + clen >= maxlen)
+    {
         return NULL;
+    }
     // Make place for the string to insert
     for (TbSize i = slen - spos; i > 0; i--)
     {
-        str[spos+clen+i-1] = str[spos+i-1];
+        str[spos + clen + i - 1] = str[spos + i - 1];
     }
-    str[slen+clen] = '\0';
+    str[slen + clen] = '\0';
     // And fill the string
-    memcpy(str+spos,catstr,clen);
+    memcpy(str + spos, catstr, clen);
     return str;
 }
 
@@ -127,18 +132,23 @@ TbLocChar *LbLocTextStringDelete(TbLocChar *str, TbCharCount pos, TbCharCount co
     TbSize clen = LbLocTextPosToLength(str, pos + count) - spos;
     // Check if we're ok
     if (slen < spos)
+    {
         return NULL;
-    if (spos+clen > slen)
-        clen = slen-spos;
+    }
+    if (spos + clen > slen)
+    {
+        clen = slen - spos;
+    }
     // Remove the chars
     TbSize lim = slen - spos - clen;
     for (TbSize i = 0; i < lim; i++)
     {
-        str[spos+i] = str[spos+clen+i];
+        str[spos + i] = str[spos + clen + i];
     }
-    str[slen-clen] = '\0';
+    str[slen - clen] = '\0';
     return str;
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

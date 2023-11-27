@@ -39,7 +39,7 @@ extern "C" {
 /******************************************************************************/
 struct TbTime global_time;
 struct TbDate global_date;
-TbClockMSec (* LbTimerClock)(void);
+TbClockMSec (*LbTimerClock)(void);
 /******************************************************************************/
 #define TimePoint std::chrono::high_resolution_clock::time_point
 #define TimeNow std::chrono::high_resolution_clock::now()
@@ -47,23 +47,26 @@ TimePoint initialized_time_point;
 struct FrametimeMeasurements frametime_measurements;
 TimePoint delta_time_previous_timepoint;
 int debug_display_frametime = 0;
+
 /******************************************************************************/
 void initial_time_point()
 {
-  initialized_time_point = TimeNow;
-  gameadd.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
+    initialized_time_point = TimeNow;
+    gameadd.process_turn_time = 1.0; // Begin initial turn as soon as possible (like original game)
 }
 
 float get_delta_time()
 {
     // Allow frame skip to work correctly when delta time is enabled
-    if ( (game.frame_skip != 0) && ((game.play_gameturn % game.frame_skip) != 0)) {
+    if ((game.frame_skip != 0) && ((game.play_gameturn % game.frame_skip) != 0))
+    {
         return 1.0;
     }
     long double frame_time_in_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - delta_time_previous_timepoint).count();
     delta_time_previous_timepoint = TimeNow;
-    float calculated_delta_time = (frame_time_in_nanoseconds/1000000000.0) * game_num_fps;
-    if (calculated_delta_time > 1.0) { // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
+    float calculated_delta_time = (frame_time_in_nanoseconds / 1000000000.0) * game_num_fps;
+    if (calculated_delta_time > 1.0)
+    { // Fix for when initially loading the map, frametime takes too long. Possibly other circumstances too.
         calculated_delta_time = 1.0;
     }
     return calculated_delta_time;
@@ -78,7 +81,8 @@ void frametime_set_all_measurements_to_be_displayed()
     {
         // Once per half-second set the display text to highest frametime of the past half-second
         frametime_measurements.max_timer += gameadd.delta_time;
-        if (frametime_measurements.max_timer > (game_num_fps/2)) {
+        if (frametime_measurements.max_timer > (game_num_fps / 2))
+        {
             frametime_measurements.max_timer = 0;
             once_per_half_second = true;
         }
@@ -88,21 +92,22 @@ void frametime_set_all_measurements_to_be_displayed()
     {
         switch (debug_display_frametime)
         {
-            case 1: // Frametime (show constantly)
-                frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
-                break;
-            case 2: // Frametime max (shown once per half-second)
-                // Always get highest frametime
-                if (frametime_measurements.frametime_current[i] > frametime_measurements.frametime_get_max[i]) {
-                    frametime_measurements.frametime_get_max[i] = frametime_measurements.frametime_current[i];
-                }
-                // Display once per half-second
-                if (once_per_half_second == true)
-                {
-                    frametime_measurements.frametime_display[i] = frametime_measurements.frametime_get_max[i];
-                    frametime_measurements.frametime_get_max[i] = 0;
-                }
-                break;
+        case 1: // Frametime (show constantly)
+            frametime_measurements.frametime_display[i] = frametime_measurements.frametime_current[i];
+            break;
+        case 2: // Frametime max (shown once per half-second)
+            // Always get highest frametime
+            if (frametime_measurements.frametime_current[i] > frametime_measurements.frametime_get_max[i])
+            {
+                frametime_measurements.frametime_get_max[i] = frametime_measurements.frametime_current[i];
+            }
+            // Display once per half-second
+            if (once_per_half_second == true)
+            {
+                frametime_measurements.frametime_display[i] = frametime_measurements.frametime_get_max[i];
+                frametime_measurements.frametime_get_max[i] = 0;
+            }
+            break;
         }
     }
 }
@@ -110,22 +115,24 @@ void frametime_set_all_measurements_to_be_displayed()
 void frametime_start_measurement(int frametime_kind)
 {
     long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
-    long double current_milliseconds = current_nanoseconds/1000000.0;
+    long double current_milliseconds = current_nanoseconds / 1000000.0;
     frametime_measurements.starting_measurement[frametime_kind] = float(current_milliseconds);
 }
 
 void frametime_end_measurement(int frametime_kind)
 {
     long double current_nanoseconds = std::chrono::duration_cast<std::chrono::nanoseconds>(TimeNow - initialized_time_point).count();
-    long double current_milliseconds = current_nanoseconds/1000000.0;
+    long double current_milliseconds = current_nanoseconds / 1000000.0;
     float result = float(current_milliseconds) - frametime_measurements.starting_measurement[frametime_kind];
     frametime_measurements.frametime_current[frametime_kind] = result;
 
-    if (frametime_kind == Frametime_FullFrame) {
+    if (frametime_kind == Frametime_FullFrame)
+    {
         // Done last at end of frame
         frametime_set_all_measurements_to_be_displayed();
     }
 }
+
 /******************************************************************************/
 /**
  * Returns the number of milliseconds elapsed since the program was launched.
@@ -133,7 +140,7 @@ void frametime_end_measurement(int frametime_kind)
  */
 TbClockMSec LbTimerClock_1000(void)
 {
-  return clock();
+    return clock();
 }
 
 /**
@@ -152,8 +159,8 @@ TbClockMSec LbTimerClock_1024(void)
  */
 TbClockMSec LbTimerClock_any(void)
 {
-  long long clk = 500 * clock();
-  return (clk / CLOCKS_PER_SEC) << 1;
+    long long clk = 500 * clock();
+    return (clk / CLOCKS_PER_SEC) << 1;
 }
 
 /** Fills structure with current time.
@@ -163,9 +170,9 @@ TbClockMSec LbTimerClock_any(void)
  */
 TbResult LbTime(struct TbTime *curr_time)
 {
-  time_t dtime;
-  time(&dtime);
-  return LbDateTimeDecode(&dtime,NULL,curr_time);
+    time_t dtime;
+    time(&dtime);
+    return LbDateTimeDecode(&dtime, NULL, curr_time);
 }
 
 /** Returns current calendar time in seconds.
@@ -174,51 +181,51 @@ TbResult LbTime(struct TbTime *curr_time)
  */
 TbTimeSec LbTimeSec(void)
 {
-  time_t dtime;
-  time(&dtime);
-  return dtime;
+    time_t dtime;
+    time(&dtime);
+    return dtime;
 }
 
-//Fills structure with current date
+// Fills structure with current date
 TbResult LbDate(struct TbDate *curr_date)
 {
-  time_t dtime;
-  time(&dtime);
-  return LbDateTimeDecode(&dtime,curr_date,NULL);
+    time_t dtime;
+    time(&dtime);
+    return LbDateTimeDecode(&dtime, curr_date, NULL);
 }
 
-//Fills structures with current date and time
+// Fills structures with current date and time
 TbResult LbDateTime(struct TbDate *curr_date, struct TbTime *curr_time)
 {
-  time_t dtime;
-  time(&dtime);
-  return LbDateTimeDecode(&dtime,curr_date,curr_time);
+    time_t dtime;
+    time(&dtime);
+    return LbDateTimeDecode(&dtime, curr_date, curr_time);
 }
 
-TbResult LbDateTimeDecode(const time_t *datetime,struct TbDate *curr_date,struct TbTime *curr_time)
+TbResult LbDateTimeDecode(const time_t *datetime, struct TbDate *curr_date, struct TbTime *curr_time)
 {
-  struct tm *ltime=localtime(datetime);
-  if (curr_date!=NULL)
-  {
-    curr_date->Day=ltime->tm_mday;
-    curr_date->Month=ltime->tm_mon+1;
-    curr_date->Year=1900+ltime->tm_year;
-    curr_date->DayOfWeek=ltime->tm_wday;
-  }
-  if (curr_time!=NULL)
-  {
-    curr_time->Hour=ltime->tm_hour;
-    curr_time->Minute=ltime->tm_min;
-    curr_time->Second=ltime->tm_sec;
-    curr_time->HSecond=0;
-  }
-  return Lb_SUCCESS;
+    struct tm *ltime = localtime(datetime);
+    if (curr_date != NULL)
+    {
+        curr_date->Day = ltime->tm_mday;
+        curr_date->Month = ltime->tm_mon + 1;
+        curr_date->Year = 1900 + ltime->tm_year;
+        curr_date->DayOfWeek = ltime->tm_wday;
+    }
+    if (curr_time != NULL)
+    {
+        curr_time->Hour = ltime->tm_hour;
+        curr_time->Minute = ltime->tm_min;
+        curr_time->Second = ltime->tm_sec;
+        curr_time->HSecond = 0;
+    }
+    return Lb_SUCCESS;
 }
 
 inline void LbDoMultitasking(void)
 {
 #if defined(_WIN32)
-    Sleep(LARGE_DELAY_TIME>>1); // This switches to other tasks
+    Sleep(LARGE_DELAY_TIME >> 1); // This switches to other tasks
 #endif
 }
 
@@ -230,10 +237,12 @@ TbBool LbSleepFor(TbClockMSec delay)
     {
         LbDoMultitasking();
         currclk = LbTimerClock();
-  }
-  while (currclk < endclk)
-    currclk=LbTimerClock();
-  return true;
+    }
+    while (currclk < endclk)
+    {
+        currclk = LbTimerClock();
+    }
+    return true;
 }
 
 TbBool LbSleepUntil(TbClockMSec endtime)
@@ -243,28 +252,30 @@ TbBool LbSleepUntil(TbClockMSec endtime)
     {
         LbDoMultitasking();
         currclk = LbTimerClock();
-  }
-  while (currclk < endtime)
-    currclk=LbTimerClock();
-  return true;
+    }
+    while (currclk < endtime)
+    {
+        currclk = LbTimerClock();
+    }
+    return true;
 }
 
 TbResult LbTimerInit(void)
 {
-  switch (CLOCKS_PER_SEC)
-  {
-  case 1000:
-    LbTimerClock = LbTimerClock_1000;
-    break;
-  case 1024:
-    LbTimerClock = LbTimerClock_1024;
-    break;
-  default:
-    LbTimerClock = LbTimerClock_any;
-    WARNMSG("Timer uses unsafe clock multiplication!");
-    break;
-  }
-  return Lb_SUCCESS;
+    switch (CLOCKS_PER_SEC)
+    {
+    case 1000:
+        LbTimerClock = LbTimerClock_1000;
+        break;
+    case 1024:
+        LbTimerClock = LbTimerClock_1024;
+        break;
+    default:
+        LbTimerClock = LbTimerClock_any;
+        WARNMSG("Timer uses unsafe clock multiplication!");
+        break;
+    }
+    return Lb_SUCCESS;
 }
 
 /******************************************************************************/

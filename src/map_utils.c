@@ -40,23 +40,35 @@ extern "C" {
 
 /******************************************************************************/
 struct Around const around[] = {
-  {-1,-1}, {-1, 0}, {-1, 1},
-  { 0,-1}, { 0, 0}, { 0, 1},
-  { 1,-1}, { 1, 0}, { 1, 1},
-  { 0, 0}, // this entry shouldn't be used
+    {-1, -1},
+    {-1,  0},
+    {-1,  1},
+    { 0, -1},
+    { 0,  0},
+    { 0,  1},
+    { 1, -1},
+    { 1,  0},
+    { 1,  1},
+    { 0,  0}, // this entry shouldn't be used
 };
 
 struct Around const mid_around[] = {
-  { 0,  0}, { 0, -1}, { 1,  0},
-  { 0,  1}, {-1,  0}, {-1, -1},
-  { 1, -1}, {-1,  1}, { 1,  1},
+    { 0,  0},
+    { 0, -1},
+    { 1,  0},
+    { 0,  1},
+    {-1,  0},
+    {-1, -1},
+    { 1, -1},
+    {-1,  1},
+    { 1,  1},
 };
 
 struct Around const small_around[] = {
-  { 0,-1},
-  { 1, 0},
-  { 0, 1},
-  {-1, 0},
+    { 0, -1},
+    { 1,  0},
+    { 0,  1},
+    {-1,  0},
 };
 struct Around const small_around_mid[] = {
     { 0, -1},
@@ -67,31 +79,77 @@ struct Around const small_around_mid[] = {
 };
 
 struct Around const large_around[] = {
-{ 0, 0},{ 1, 0},{ 1, 1},{ 0, 1},{-1, 1},{-1, 0},
-{-1,-1},{ 0,-1},{ 1,-1},{ 2,-1},{ 2, 0},{ 2, 1},
-{ 2, 2},{ 1, 2},{ 0, 2},{-1, 2},{-2, 2},{-2, 1},
-{-2, 0},{-2,-1},{-2,-2},{-1,-2},{ 0,-2},{ 1,-2},
-{ 2,-2},{ 3,-2},{ 3,-1},{ 3, 0},{ 3, 1},{ 3, 2},
-{ 3, 3},{ 2, 3},{ 1, 3},{ 0, 3},{-1, 3},{-2, 3},
+    { 0,  0},
+    { 1,  0},
+    { 1,  1},
+    { 0,  1},
+    {-1,  1},
+    {-1,  0},
+    {-1, -1},
+    { 0, -1},
+    { 1, -1},
+    { 2, -1},
+    { 2,  0},
+    { 2,  1},
+    { 2,  2},
+    { 1,  2},
+    { 0,  2},
+    {-1,  2},
+    {-2,  2},
+    {-2,  1},
+    {-2,  0},
+    {-2, -1},
+    {-2, -2},
+    {-1, -2},
+    { 0, -2},
+    { 1, -2},
+    { 2, -2},
+    { 3, -2},
+    { 3, -1},
+    { 3,  0},
+    { 3,  1},
+    { 3,  2},
+    { 3,  3},
+    { 2,  3},
+    { 1,  3},
+    { 0,  3},
+    {-1,  3},
+    {-2,  3},
 };
 
 struct Around const my_around_eight[] = {
-  { 0,-1}, { 1,-1},
-  { 1, 0}, { 1, 1},
-  { 0, 1}, {-1, 1},
-  {-1, 0}, {-1,-1},
+    { 0, -1},
+    { 1, -1},
+    { 1,  0},
+    { 1,  1},
+    { 0,  1},
+    {-1,  1},
+    {-1,  0},
+    {-1, -1},
 };
 
 struct Around const my_around_nine[] = {
-  {-1,-1}, { 0,-1}, { 1,-1},
-  {-1, 0}, { 0, 0}, { 1, 0},
-  {-1, 1}, { 0, 1}, { 1, 1},
+    {-1, -1},
+    { 0, -1},
+    { 1, -1},
+    {-1,  0},
+    { 0,  0},
+    { 1,  0},
+    {-1,  1},
+    { 0,  1},
+    { 1,  1},
 };
 
 struct Around const start_at_around[] = {
-    { 0,  0}, {-1, -1}, {-1,  0},
-    {-1,  1}, { 0, -1}, { 0,  1},
-    { 1, -1}, { 1,  0}, { 1,  1},
+    { 0,  0},
+    {-1, -1},
+    {-1,  0},
+    {-1,  1},
+    { 0, -1},
+    { 0,  1},
+    { 1, -1},
+    { 1,  0},
+    { 1,  1},
 };
 
 struct MapOffset spiral_step[SPIRAL_STEPS_COUNT];
@@ -105,7 +163,7 @@ void init_spiral_steps(void)
 {
     long y = 0;
     long x = 0;
-    struct MapOffset* sstep = &spiral_step[0];
+    struct MapOffset *sstep = &spiral_step[0];
     sstep->h = y;
     sstep->v = x;
     sstep->both = (short)y + ((short)x * gameadd.map_subtiles_y);
@@ -113,42 +171,59 @@ void init_spiral_steps(void)
     x = -1;
     for (long i = 1; i < SPIRAL_STEPS_COUNT; i++)
     {
-      sstep = &spiral_step[i];
-      sstep->h = y;
-      sstep->v = x;
-      sstep->both = (short)y + ((short)x * gameadd.map_subtiles_y);
-      if ((y < 0) && (x-y == 1))
-      {
-          y--;
-          x -= 2;
-      } else
-      if (x == y)
-      {
-          if (y < 0)
-            y++;
-          else
+        sstep = &spiral_step[i];
+        sstep->h = y;
+        sstep->v = x;
+        sstep->both = (short)y + ((short)x * gameadd.map_subtiles_y);
+        if ((y < 0) && (x - y == 1))
+        {
             y--;
-      } else
-      if (y+x == 0)
-      {
-          if (x >= 0)
-            x--;
-          else
-            x++;
-      } else
-      if (abs(x) >= abs(y))
-      {
-          if (x < 0)
-            y++;
-          else
-            y--;
-      } else
-      {
-          if (y >= 0)
-            x++;
-          else
-            x--;
-      }
+            x -= 2;
+        }
+        else if (x == y)
+        {
+            if (y < 0)
+            {
+                y++;
+            }
+            else
+            {
+                y--;
+            }
+        }
+        else if (y + x == 0)
+        {
+            if (x >= 0)
+            {
+                x--;
+            }
+            else
+            {
+                x++;
+            }
+        }
+        else if (abs(x) >= abs(y))
+        {
+            if (x < 0)
+            {
+                y++;
+            }
+            else
+            {
+                y--;
+            }
+        }
+        else
+        {
+            if (y >= 0)
+            {
+                x++;
+            }
+            else
+            {
+                x--;
+            }
+        }
     }
 }
 
@@ -162,8 +237,8 @@ void init_spiral_steps(void)
  * @param ceiling_height Ceiling height value reference. Set to min ceiling height in range.
  */
 void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubtlCoord stl_y_beg,
-    MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
-    MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height)
+                                                MapSubtlCoord stl_x_end, MapSubtlCoord stl_y_end,
+                                                MapSubtlCoord *floor_height, MapSubtlCoord *ceiling_height)
 {
     *floor_height = 0;
     *ceiling_height = 15;
@@ -173,7 +248,7 @@ void get_min_floor_and_ceiling_heights_for_rect(MapSubtlCoord stl_x_beg, MapSubt
         for (MapSubtlCoord stl_x = stl_x_beg; stl_x <= stl_x_end; stl_x++)
         {
             update_floor_and_ceiling_heights_at(stl_x, stl_y,
-                floor_height, ceiling_height);
+                                                floor_height, ceiling_height);
         }
     }
 }
@@ -196,9 +271,9 @@ void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab
 {
     long max_slb_dim_x = (gameadd.map_subtiles_x / STL_PER_SLB);
     long max_slb_dim_y = (gameadd.map_subtiles_y / STL_PER_SLB);
-    MapSlabCoord* stack_x = malloc(max_slb_dim_x * max_slb_dim_y);
-    MapSlabCoord* stack_y = malloc(max_slb_dim_x * max_slb_dim_y);
-    char* visited = malloc(max_slb_dim_x * max_slb_dim_y);
+    MapSlabCoord *stack_x = malloc(max_slb_dim_x * max_slb_dim_y);
+    MapSlabCoord *stack_y = malloc(max_slb_dim_x * max_slb_dim_y);
+    char *visited = malloc(max_slb_dim_x * max_slb_dim_y);
     if (stack_x != NULL && stack_y != NULL && visited != NULL)
     {
         memset(visited, 0, max_slb_dim_x * max_slb_dim_y);
@@ -213,27 +288,30 @@ void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab
             stack_head--;
             visited[cx + (cy * max_slb_dim_x)] = 1;
 
-            if (!f_action(cx, cy, param)) continue;
+            if (!f_action(cx, cy, param))
+            {
+                continue;
+            }
 
-            if (cx + 1 < max_slb_dim_x && !visited[cx+1 + (cy * max_slb_dim_x)])
+            if (cx + 1 < max_slb_dim_x && !visited[cx + 1 + (cy * max_slb_dim_x)])
             {
                 stack_head++;
                 stack_x[stack_head] = cx + 1;
                 stack_y[stack_head] = cy;
             }
-            if (cx - 1 >= 0 && !visited[cx-1 + (cy * max_slb_dim_x)])
+            if (cx - 1 >= 0 && !visited[cx - 1 + (cy * max_slb_dim_x)])
             {
                 stack_head++;
                 stack_x[stack_head] = cx - 1;
                 stack_y[stack_head] = cy;
             }
-            if (cy + 1 < max_slb_dim_y && !visited[cx + ((cy+1) * max_slb_dim_x)])
+            if (cy + 1 < max_slb_dim_y && !visited[cx + ((cy + 1) * max_slb_dim_x)])
             {
                 stack_head++;
                 stack_x[stack_head] = cx;
                 stack_y[stack_head] = cy + 1;
             }
-            if (cy - 1 >= 0 && !visited[cx + ((cy-1) * max_slb_dim_x)])
+            if (cy - 1 >= 0 && !visited[cx + ((cy - 1) * max_slb_dim_x)])
             {
                 stack_head++;
                 stack_x[stack_head] = cx;
@@ -255,7 +333,7 @@ void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab
  * @param dest_y Destination position y coord.
  * @return Index closer to destination.
  */
-unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y)
+unsigned int small_around_index_towards_destination(long curr_x, long curr_y, long dest_x, long dest_y)
 {
     long n;
     long i = LbArcTanAngle(dest_x - curr_x, dest_y - curr_y);
@@ -263,16 +341,17 @@ unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long
     if ((i & 0xFF) != 0)
     {
         // Just compute the index
-        n = (i + LbFPMath_PI/4) >> 9;
-    } else
-    {
-        //Special case - the angle is exact multiplication of pi/4
-        // Add some variant factor to make it little off this value.
-        // this should give better results because tangens values are rounded up or down.
-        //TODO: maybe it would be even better to get previous around_index as parameter - this way we could avoid taking same path without random factors.
-        n = (i + LbFPMath_PI/4 + 2*(((dest_x+dest_y)>>1)%2) - 1) >> 9;
+        n = (i + LbFPMath_PI / 4) >> 9;
     }
-    SYNCDBG(18,"Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)",dest_x - curr_x, dest_y - curr_y,i,(int)small_around[n].delta_x,(int)small_around[n].delta_y);
+    else
+    {
+        // Special case - the angle is exact multiplication of pi/4
+        //  Add some variant factor to make it little off this value.
+        //  this should give better results because tangens values are rounded up or down.
+        // TODO: maybe it would be even better to get previous around_index as parameter - this way we could avoid taking same path without random factors.
+        n = (i + LbFPMath_PI / 4 + 2 * (((dest_x + dest_y) >> 1) % 2) - 1) >> 9;
+    }
+    SYNCDBG(18, "Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)", dest_x - curr_x, dest_y - curr_y, i, (int)small_around[n].delta_x, (int)small_around[n].delta_y);
     return n & 3;
 }
 
@@ -287,14 +366,14 @@ unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long
  */
 TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, MapCoord x, MapCoord y, long spiral_len, Coord_Maximizer_Filter filter, MaxCoordFilterParam param)
 {
-    SYNCDBG(19,"Starting");
+    SYNCDBG(19, "Starting");
     long maximizer = 0;
     for (int around_val = 0; around_val < spiral_len; around_val++)
     {
-        struct MapOffset* sstep = &spiral_step[around_val];
+        struct MapOffset *sstep = &spiral_step[around_val];
         MapSubtlCoord sx = coord_subtile(x) + (MapSubtlCoord)sstep->h;
         MapSubtlCoord sy = coord_subtile(y) + (MapSubtlCoord)sstep->v;
-        struct Map* mapblk = get_map_block_at(sx, sy);
+        struct Map *mapblk = get_map_block_at(sx, sy);
         if (!map_block_invalid(mapblk))
         {
             long n = maximizer;
@@ -310,14 +389,16 @@ TbBool get_position_spiral_near_map_block_with_filter(struct Coord3d *retpos, Ma
                 retpos->z.val = newpos.z.val;
                 maximizer = n;
                 if (maximizer == LONG_MAX)
+                {
                     break;
+                }
             }
-      }
+        }
     }
     return (maximizer > 0);
 }
 
-TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoord x, MapCoord y, Coord_Maximizer_Filter filter, MaxCoordFilterParam param)
+TbBool get_position_next_to_map_block_with_filter(struct Coord3d *retpos, MapCoord x, MapCoord y, Coord_Maximizer_Filter filter, MaxCoordFilterParam param)
 {
     SYNCDBG(19, "Starting");
     long maximizer = 0;
@@ -325,7 +406,7 @@ TbBool get_position_next_to_map_block_with_filter(struct Coord3d* retpos, MapCoo
     {
         MapSubtlCoord sx = coord_subtile(x) + (small_around[around_val].delta_x * STL_PER_SLB);
         MapSubtlCoord sy = coord_subtile(y) + (small_around[around_val].delta_y * STL_PER_SLB);
-        struct Map* mapblk = get_map_block_at(sx, sy);
+        struct Map *mapblk = get_map_block_at(sx, sy);
         if (!map_block_invalid(mapblk))
         {
             long n = maximizer;
@@ -357,15 +438,21 @@ long slabs_count_near(MapSlabCoord tx, MapSlabCoord ty, long rad, SlabKind slbki
     {
         long y = ty + dy;
         if ((y < 0) || (y >= gameadd.map_tiles_y))
+        {
             continue;
+        }
         for (long dx = -rad; dx <= rad; dx++)
         {
             long x = tx + dx;
             if ((x < 0) || (x >= gameadd.map_tiles_x))
+            {
                 continue;
-            struct SlabMap* slb = get_slabmap_block(x, y);
+            }
+            struct SlabMap *slb = get_slabmap_block(x, y);
             if (slb->kind == slbkind)
+            {
                 count++;
+            }
         }
     }
     return count;
@@ -389,14 +476,16 @@ long pos_move_in_direction_to_last_allowing_drop(struct Coord3d *mvpos, unsigned
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
-        if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, 1)) {
+        if (!can_drop_thing_here(stl_x, stl_y, plyr_idx, 1))
+        {
             break;
         }
         prev_stl_x = stl_x;
         prev_stl_y = stl_y;
         stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
         stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
-        if (!subtile_has_slab(stl_x, stl_y)) {
+        if (!subtile_has_slab(stl_x, stl_y))
+        {
             ERRORLOG("Position moves beyond map border");
             return -1;
         }
@@ -420,17 +509,19 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
     MapSubtlCoord stl_x = mvpos->x.stl.num;
     MapSubtlCoord stl_y = mvpos->y.stl.num;
     int i;
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct SlabAttr *slbattr = get_slab_attrs(slb);
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
-        if (((slbattr->block_flags & SlbAtFlg_IsRoom) == 0) || (slabmap_owner(slb) != plyr_idx)) {
+        if (((slbattr->block_flags & SlbAtFlg_IsRoom) == 0) || (slabmap_owner(slb) != plyr_idx))
+        {
             break;
         }
         stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
         stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
-        if (!subtile_has_slab(stl_x, stl_y)) {
+        if (!subtile_has_slab(stl_x, stl_y))
+        {
             ERRORLOG("Position moves beyond map border");
             return -1;
         }
@@ -452,10 +543,11 @@ long pos_move_in_direction_to_outside_player_room(struct Coord3d *mvpos, unsigne
  */
 TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct SlabAttr *slbattr = get_slab_attrs(slb);
     // Lava is easy
-    if (map_pos_is_lava(stl_x, stl_y)) {
+    if (map_pos_is_lava(stl_x, stl_y))
+    {
         return true;
     }
     // Blocking wall is more complex
@@ -465,15 +557,17 @@ TbBool subtile_is_blocking_wall_or_lava(MapSubtlCoord stl_x, MapSubtlCoord stl_y
         // Mapmakers often surrounds heart with doors; treating only locked doors as blocking allows to support such situations
         if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
         {
-            if ((slabmap_owner(slb) == plyr_idx) && subtile_has_locked_door(stl_x, stl_y)) {
+            if ((slabmap_owner(slb) == plyr_idx) && subtile_has_locked_door(stl_x, stl_y))
+            {
                 return true;
             }
-        } else
-        // For others, as long as it's not room, blocking means blocking
-        if ((slbattr->block_flags & SlbAtFlg_IsRoom) == 0)
-        {
-            return true;
         }
+        else
+            // For others, as long as it's not room, blocking means blocking
+            if ((slbattr->block_flags & SlbAtFlg_IsRoom) == 0)
+            {
+                return true;
+            }
     }
     return false;
 }
@@ -486,12 +580,14 @@ long pos_move_in_direction_to_blocking_wall_or_lava(struct Coord3d *mvpos, unsig
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
-        if (subtile_is_blocking_wall_or_lava(stl_x, stl_y, plyr_idx)) {
+        if (subtile_is_blocking_wall_or_lava(stl_x, stl_y, plyr_idx))
+        {
             break;
         }
         stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
         stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
-        if (!subtile_has_slab(stl_x, stl_y)) {
+        if (!subtile_has_slab(stl_x, stl_y))
+        {
             ERRORLOG("Position moves beyond map border");
             return -1;
         }
@@ -507,21 +603,23 @@ long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, uns
     MapSubtlCoord stl_x = mvpos->x.stl.num;
     MapSubtlCoord stl_y = mvpos->y.stl.num;
     int i;
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct SlabAttr *slbattr = get_slab_attrs(slb);
     // If we're on room, move to non-room tile
     for (i = 0; i < slabs_dist; i++)
     {
-        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+        struct Map *mapblk = get_map_block_at(stl_x, stl_y);
         if ((!slbattr->is_diggable) || (slb->kind == SlbT_GEMS) || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx)) || (slb->kind == SlbT_WATER))
         {
-            if (((slb->kind != SlbT_CLAIMED) || (slabmap_owner(slb) != plyr_idx)) && (slb->kind != SlbT_PATH)) {
+            if (((slb->kind != SlbT_CLAIMED) || (slabmap_owner(slb) != plyr_idx)) && (slb->kind != SlbT_PATH))
+            {
                 break;
             }
         }
         stl_x += STL_PER_SLB * small_around[round_directn].delta_x;
         stl_y += STL_PER_SLB * small_around[round_directn].delta_y;
-        if (!subtile_has_slab(stl_x, stl_y)) {
+        if (!subtile_has_slab(stl_x, stl_y))
+        {
             ERRORLOG("Position moves beyond map border");
             return -1;
         }
@@ -533,4 +631,5 @@ long pos_move_in_direction_to_unowned_filled_or_water(struct Coord3d *mvpos, uns
     mvpos->y.val = subtile_coord_center(stl_y);
     return i;
 }
+
 /******************************************************************************/

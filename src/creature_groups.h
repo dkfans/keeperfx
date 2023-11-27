@@ -30,15 +30,15 @@ extern "C" {
 #define GROUP_MEMBERS_COUNT 30
 
 enum TriggerFlags {
-    TrgF_CREATE_PARTY                  =  0x00,
-    TrgF_CREATE_CREATURE               =  0x01,
-    TrgF_CREATE_OBJECT                 =  0x02,
-    TrgF_ADD_TO_PARTY                  =  0x03,
-    TrgF_DELETE_FROM_PARTY             =  0x04,
-    TrgF_COMMAND_MASK                  =  0x0F,
+    TrgF_CREATE_PARTY = 0x00,
+    TrgF_CREATE_CREATURE = 0x01,
+    TrgF_CREATE_OBJECT = 0x02,
+    TrgF_ADD_TO_PARTY = 0x03,
+    TrgF_DELETE_FROM_PARTY = 0x04,
+    TrgF_COMMAND_MASK = 0x0F,
 
-    TrgF_DISABLED                      =  0x40,
-    TrgF_REUSABLE                      =  0x80,
+    TrgF_DISABLED = 0x40,
+    TrgF_REUSABLE = 0x80,
 };
 
 /******************************************************************************/
@@ -46,10 +46,9 @@ enum TriggerFlags {
 
 struct Thing;
 
-enum MemberPosFlags
-{
-        MpF_OCCUPIED = 1,
-        MpF_AVAIL    = 2,
+enum MemberPosFlags {
+    MpF_OCCUPIED = 1,
+    MpF_AVAIL = 2,
 };
 
 /** Used for storing group members positions around leader.
@@ -60,27 +59,27 @@ struct MemberPos {
 };
 
 struct PartyMember { // sizeof = 13
-  unsigned char flags;
-  unsigned char field_65;
-  unsigned char crtr_kind;
-  unsigned char objectv;
-  long countdown;
-  unsigned char crtr_level;
-  unsigned short carried_gold;
-  unsigned short field_6F;
+    unsigned char flags;
+    unsigned char field_65;
+    unsigned char crtr_kind;
+    unsigned char objectv;
+    long countdown;
+    unsigned char crtr_level;
+    unsigned short carried_gold;
+    unsigned short field_6F;
 };
 
 struct Party {
-  char prtname[100];
-  struct PartyMember members[GROUP_MEMBERS_COUNT];
-  unsigned long members_num;
+    char prtname[100];
+    struct PartyMember members[GROUP_MEMBERS_COUNT];
+    unsigned long members_num;
 };
 
 #pragma pack()
 /******************************************************************************/
 /******************************************************************************/
 struct Thing *get_highest_experience_and_score_creature_in_group(struct Thing *grptng);
-struct Thing* get_best_creature_to_lead_group(struct Thing* grptng);
+struct Thing *get_best_creature_to_lead_group(struct Thing *grptng);
 long get_no_creatures_in_group(const struct Thing *grptng);
 TbBool get_free_position_behind_leader(struct Thing *leadtng, struct Coord3d *pos);
 

@@ -51,6 +51,7 @@ enum TrapTriggerTypes {
     TrpTrg_LineOfSight,
     TrpTrg_Pressure_Subtile,
 };
+
 enum TrapActivationTypes {
     TrpAcT_None = 0,
     TrpAcT_HeadforTarget90,
@@ -65,27 +66,27 @@ enum TrapActivationTypes {
 struct Thing;
 
 struct TrapStats {
-  unsigned long health;
-  unsigned long sprite_anim_idx;
-  unsigned long sprite_size_max;
-  unsigned char unanimated;
-  unsigned long anim_speed;
-  unsigned char unshaded;
-  unsigned char transparency_flag; // transparency in lower 2 bits
-  unsigned char random_start_frame;
-  short size_xy;
-  short size_z;
-  unsigned char trigger_type;
-  unsigned char activation_type;
-  unsigned char created_itm_model; // Shot model, effect model, slab kind
-  unsigned char hit_type;
-  short light_radius; // creates light if not null
-  unsigned char light_intensity;
-  unsigned char light_flag;
-  struct ComponentVector shotvector;
-  unsigned short shot_shift_x;
-  unsigned short shot_shift_y;
-  unsigned short shot_shift_z;
+    unsigned long health;
+    unsigned long sprite_anim_idx;
+    unsigned long sprite_size_max;
+    unsigned char unanimated;
+    unsigned long anim_speed;
+    unsigned char unshaded;
+    unsigned char transparency_flag; // transparency in lower 2 bits
+    unsigned char random_start_frame;
+    short size_xy;
+    short size_z;
+    unsigned char trigger_type;
+    unsigned char activation_type;
+    unsigned char created_itm_model; // Shot model, effect model, slab kind
+    unsigned char hit_type;
+    short light_radius; // creates light if not null
+    unsigned char light_intensity;
+    unsigned char light_flag;
+    struct ComponentVector shotvector;
+    unsigned short shot_shift_x;
+    unsigned short shot_shift_y;
+    unsigned short shot_shift_z;
 };
 
 /******************************************************************************/
@@ -102,14 +103,14 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
 
 TbBool destroy_trap(struct Thing *thing);
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx);
-struct Thing* activate_trap_spawn_creature(struct Thing* traptng, unsigned char model);
+struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char model);
 struct Thing *get_trap_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_trap_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool trap_is_active(const struct Thing *thing);
 TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool thing_is_deployed_trap(const struct Thing *thing);
-short thing_is_destructible_trap(const struct Thing* thing);
-TbBool thing_is_sellable_trap(const struct Thing* thing);
+short thing_is_destructible_trap(const struct Thing *thing);
+TbBool thing_is_sellable_trap(const struct Thing *thing);
 TbBool trap_on_bridge(ThingModel trpkind);
 TbBool rearm_trap(struct Thing *traptng);
 TngUpdateRet update_trap(struct Thing *thing);

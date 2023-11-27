@@ -19,17 +19,19 @@
 /******************************************************************************/
 #ifndef BFLIB_POM_H
 #define BFLIB_POM_H
+
 /******************************************************************************/
 namespace PhaseOfMoon {
-  double Calculate(void);
-  void FlMoon(const long n, const short nph, long &jd, double &frac);
-  long JulDay(const short mm, const short id, const int iyyy);
-  long JulToday(double &daypart,long &moon_periods_n);
-  void pom_error(const char *msg);
-  const double JULIAN_DAYS_PER_YEAR=365.25;       // days per year in Julian calendar
-  const double JULIAN_DAYS_PER_AVGMONTH=30.6001;  // average days per month in Julian calendar
-  const double SYNODIC_MONTH_IN_DAYS=29.53058868; // synodic month (new Moon to new Moon) in days
-  const double PI=3.141592653589793238;
-}
+double Calculate(void);
+void FlMoon(const long n, const short nph, long &jd, double &frac);
+long JulDay(const short mm, const short id, const int iyyy);
+long JulToday(double &daypart, long &moon_periods_n);
+void pom_error(const char *msg);
+const double JULIAN_DAYS_PER_YEAR = 365.25;       // days per year in Julian calendar
+const double JULIAN_DAYS_PER_AVGMONTH = 30.6001;  // average days per month in Julian calendar
+const double SYNODIC_MONTH_IN_DAYS = 29.53058868; // synodic month (new Moon to new Moon) in days
+const double PI = 3.141592653589793238;
+} // namespace PhaseOfMoon
+
 /******************************************************************************/
 #endif

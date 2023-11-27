@@ -31,26 +31,26 @@ extern "C" {
 #pragma pack(1)
 
 struct DoorSoundState { // sizeof = 8
-  long field_0;
-  long field_4;
+    long field_0;
+    long field_4;
 };
 
 struct DoorDesc { // sizeof = 44
-  long pos_spr_x;
-  long pos_spr_y;
-  long pos_x;
-  long pos_y;
-  long width;
-  long height;
-  struct TbSprite *sprites;
-  struct TbSprite *sprites_end;
-  unsigned char *data;
-  unsigned char *data_end;
-  long smptbl_id;
+    long pos_spr_x;
+    long pos_spr_y;
+    long pos_x;
+    long pos_y;
+    long width;
+    long height;
+    struct TbSprite *sprites;
+    struct TbSprite *sprites_end;
+    unsigned char *data;
+    unsigned char *data_end;
+    long smptbl_id;
 };
 
 struct TortureState { // sizeof = 4
-  long action;
+    long action;
 };
 
 #pragma pack()

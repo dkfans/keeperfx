@@ -28,10 +28,10 @@
 extern "C" {
 #endif
 
-#define NET_PLAYERS_COUNT       4
-#define NET_SERVICES_COUNT     16
-#define NET_SERVICE_LEN        64
-#define PACKETS_COUNT           5
+#define NET_PLAYERS_COUNT 4
+#define NET_SERVICES_COUNT 16
+#define NET_SERVICE_LEN 64
+#define PACKETS_COUNT 5
 
 /******************************************************************************/
 #pragma pack(1)

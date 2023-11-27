@@ -36,7 +36,7 @@ struct Thing;
 /******************************************************************************/
 TbBool jonty_creature_can_see_thing_including_lava_check(const struct Thing *creatng, const struct Thing *thing);
 TbBool sibling_line_of_sight_ignoring_door(const struct Coord3d *prevpos,
-    const struct Coord3d *nextpos, const struct Thing *doortng);
+                                           const struct Coord3d *nextpos, const struct Thing *doortng);
 #define sibling_line_of_sight(prevpos, nextpos) sibling_line_of_sight_ignoring_door(prevpos, nextpos, INVALID_THING)
 
 TbBool line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos);
@@ -45,7 +45,7 @@ TbBool line_of_sight_3d_ignoring_specific_door(const struct Coord3d *frpos, cons
 TbBool nowibble_line_of_sight_3d(const struct Coord3d *frpos, const struct Coord3d *topos);
 TbBool line_of_room_move_2d(const struct Coord3d *frpos, const struct Coord3d *topos, struct Room *room);
 TbBool creature_can_see_thing(struct Thing *creatng, struct Thing *thing);
-TbBool creature_can_see_thing_ignoring_specific_door(struct Thing *creatng, struct Thing *thing,struct Thing *doortng);
+TbBool creature_can_see_thing_ignoring_specific_door(struct Thing *creatng, struct Thing *thing, struct Thing *doortng);
 
 long get_explore_sight_distance_in_slabs(const struct Thing *thing);
 /******************************************************************************/

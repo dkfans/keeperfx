@@ -52,20 +52,23 @@ unsigned short battle_creature_over;
 /******************************************************************************/
 void gui_open_event(struct GuiButton *gbtn)
 {
-    struct Dungeon* dungeon = get_my_dungeon();
+    struct Dungeon *dungeon = get_my_dungeon();
     EventIndex evidx;
-    SYNCDBG(5,"Starting");
+    SYNCDBG(5, "Starting");
     unsigned int evbtn_idx = (unsigned long)gbtn->content;
-    if (evbtn_idx <= EVENT_BUTTONS_COUNT) {
+    if (evbtn_idx <= EVENT_BUTTONS_COUNT)
+    {
         evidx = dungeon->event_button_index[evbtn_idx];
-    } else {
+    }
+    else
+    {
         evidx = 0;
     }
     if (evidx == dungeon->visible_event_idx)
     {
         gui_close_objective(gbtn);
-    } else
-    if (evidx != 0)
+    }
+    else if (evidx != 0)
     {
         activate_event_box(evidx);
     }
@@ -73,35 +76,40 @@ void gui_open_event(struct GuiButton *gbtn)
 
 void gui_kill_event(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* player = get_my_player();
-    struct Dungeon* dungeon = get_players_dungeon(player);
+    struct PlayerInfo *player = get_my_player();
+    struct Dungeon *dungeon = get_players_dungeon(player);
     unsigned long i = (unsigned long)gbtn->content;
     set_players_packet_action(player, PckA_Unknown092, dungeon->event_button_index[i], 0, 0, 0);
 }
 
 void turn_on_event_info_panel_if_necessary(EventIndex evidx)
 {
-    struct Event* event = &game.event[evidx];
+    struct Event *event = &game.event[evidx];
     if ((event->kind == EvKind_FriendlyFight) || (event->kind == EvKind_EnemyFight))
     {
         if (!menu_is_active(GMnu_BATTLE))
-          turn_on_menu(GMnu_BATTLE);
-    } else
+        {
+            turn_on_menu(GMnu_BATTLE);
+        }
+    }
+    else
     {
         if (!menu_is_active(GMnu_TEXT_INFO))
-          turn_on_menu(GMnu_TEXT_INFO);
+        {
+            turn_on_menu(GMnu_TEXT_INFO);
+        }
     }
 }
 
 void activate_event_box(EventIndex evidx)
 {
-    struct PlayerInfo* player = get_my_player();
-    set_players_packet_action(player, PckA_EventBoxActivate, evidx, 0,0,0);
+    struct PlayerInfo *player = get_my_player();
+    set_players_packet_action(player, PckA_EventBoxActivate, evidx, 0, 0, 0);
 }
 
 void gui_previous_battle(struct GuiButton *gbtn)
 {
-    struct Dungeon* dungeon = get_my_dungeon();
+    struct Dungeon *dungeon = get_my_dungeon();
     BattleIndex battle_id = dungeon->visible_battles[0];
     if (battle_id != 0)
     {
@@ -119,7 +127,7 @@ void gui_previous_battle(struct GuiButton *gbtn)
 
 void gui_next_battle(struct GuiButton *gbtn)
 {
-    struct Dungeon* dungeon = get_my_dungeon();
+    struct Dungeon *dungeon = get_my_dungeon();
     BattleIndex battle_id = dungeon->visible_battles[2];
     if (battle_id != 0)
     {
@@ -137,16 +145,20 @@ void gui_next_battle(struct GuiButton *gbtn)
 
 void gui_get_creature_in_battle(struct GuiButton *gbtn)
 {
-    struct PlayerInfo* myplyr = get_my_player();
-    if (battle_creature_over <= 0) {
+    struct PlayerInfo *myplyr = get_my_player();
+    if (battle_creature_over <= 0)
+    {
         return;
     }
     PowerKind pwkind = 0;
     if (myplyr->work_state < PLAYER_STATES_COUNT)
+    {
         pwkind = player_state_to_power_kind[myplyr->work_state];
-    struct Thing* thing = thing_get(battle_creature_over);
-    if (!thing_exists(thing)) {
-        WARNLOG("Nonexisting thing %d in battle",(int)battle_creature_over);
+    }
+    struct Thing *thing = thing_get(battle_creature_over);
+    if (!thing_exists(thing))
+    {
+        WARNLOG("Nonexisting thing %d in battle", (int)battle_creature_over);
         battle_creature_over = 0;
         return;
     }
@@ -154,14 +166,17 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
     // If a spell is selected, try to cast it
     if (pwkind > 0)
     {
-        if (can_cast_spell(my_player_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
-            struct Packet* pckt = get_packet(my_player_number);
+        if (can_cast_spell(my_player_number, pwkind, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
+        {
+            struct Packet *pckt = get_packet(my_player_number);
             set_packet_action(pckt, PckA_UsePwrOnThing, pwkind, battle_creature_over, 0, 0);
         }
-    } else
+    }
+    else
     {
-        if (can_cast_spell(my_player_number, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default)) {
-            struct Packet* pckt = get_packet(my_player_number);
+        if (can_cast_spell(my_player_number, PwrK_HAND, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, CastChk_Default))
+        {
+            struct Packet *pckt = get_packet(my_player_number);
             set_packet_action(pckt, PckA_UsePwrHandPick, battle_creature_over, 0, 0, 0);
         }
     }
@@ -170,10 +185,10 @@ void gui_get_creature_in_battle(struct GuiButton *gbtn)
 
 void gui_go_to_person_in_battle(struct GuiButton *gbtn)
 {
-    struct Thing* thing = thing_get(battle_creature_over);
+    struct Thing *thing = thing_get(battle_creature_over);
     if (thing_exists(thing))
     {
-        struct Packet* pckt = get_packet(my_player_number);
+        struct Packet *pckt = get_packet(my_player_number);
         set_packet_action(pckt, PckA_ZoomToPosition, thing->mappos.x.val, thing->mappos.y.val, 0, 0);
     }
 }
@@ -183,12 +198,13 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
     int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
     if (battle_creature_over == 0)
     {
-        struct Dungeon* dungeon = get_my_dungeon();
-        struct Thing* thing = INVALID_THING;
+        struct Dungeon *dungeon = get_my_dungeon();
+        struct Thing *thing = INVALID_THING;
         if (dungeon->visible_battles[visbtl_id] != 0)
         {
             int battlr_id = (gbtn->scr_pos_x - lbDisplay.MMouseX * pixel_size) / (gbtn->width / 7) + 6;
-            if (battlr_id < MESSAGE_BATTLERS_COUNT-1) {
+            if (battlr_id < MESSAGE_BATTLERS_COUNT - 1)
+            {
                 thing = thing_get(friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
@@ -201,37 +217,45 @@ void gui_setup_friend_over(struct GuiButton *gbtn)
 
 void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per_px)
 {
-    if (thing_is_invalid(thing)) {
+    if (thing_is_invalid(thing))
+    {
         return;
     }
     short spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
-    struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+    struct TbSprite *spr = &gui_panel_sprites[spr_idx];
     int ps_units_per_px = (50 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     int curscr_x = scr_x - (spr->SWidth * ps_units_per_px / 16) / 2;
     int curscr_y = scr_y - (spr->SHeight * ps_units_per_px / 16) / 2;
-    if ((thing->creature.health_bar_turns) && ((game.play_gameturn & 1) != 0)) {
+    if ((thing->creature.health_bar_turns) && ((game.play_gameturn & 1) != 0))
+    {
         LbSpriteDrawResizedOneColour(curscr_x, curscr_y, ps_units_per_px, spr, player_flash_colours[thing->owner]);
-    } else {
+    }
+    else
+    {
         LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
     }
-    curscr_x = scr_x - 8*units_per_px/16;
-    curscr_y = scr_y - 8*units_per_px/16 + (spr->SHeight*ps_units_per_px/16)/2;
-    LbDrawBox(curscr_x, curscr_y, 16*units_per_px/16, 6*units_per_px/16, colours[0][0][0]);
+    curscr_x = scr_x - 8 * units_per_px / 16;
+    curscr_y = scr_y - 8 * units_per_px / 16 + (spr->SHeight * ps_units_per_px / 16) / 2;
+    LbDrawBox(curscr_x, curscr_y, 16 * units_per_px / 16, 6 * units_per_px / 16, colours[0][0][0]);
     // Show health
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     HitPoints health = thing->health;
     if (health < 0)
+    {
         health = 0;
+    }
     HitPoints max_health = cctrl->max_health;
     if (max_health < 1)
+    {
         max_health = 1;
-    LbDrawBox(curscr_x + 2*units_per_px/16, curscr_y + 2*units_per_px/16, ((12 * health)/max_health)*units_per_px/16, 2*units_per_px/16, player_room_colours[thing->owner]);
+    }
+    LbDrawBox(curscr_x + 2 * units_per_px / 16, curscr_y + 2 * units_per_px / 16, ((12 * health) / max_health) * units_per_px / 16, 2 * units_per_px / 16, player_room_colours[thing->owner]);
     // Draw experience level
     spr = &button_sprite[GBS_creature_flower_level_01];
     int bs_units_per_px = (17 * units_per_px + spr->SHeight / 2) / spr->SHeight;
     TbBool high_res = (MyScreenHeight >= 400);
-    curscr_y = (scr_y - ((spr->SHeight*bs_units_per_px/16) >> (unsigned char)high_res));
-    curscr_x = (scr_x - ((spr->SWidth*bs_units_per_px/16) >> (unsigned char)high_res));
+    curscr_y = (scr_y - ((spr->SHeight * bs_units_per_px / 16) >> (unsigned char)high_res));
+    curscr_x = (scr_x - ((spr->SWidth * bs_units_per_px / 16) >> (unsigned char)high_res));
     spr = &button_sprite[GBS_creature_flower_level_01 + cctrl->explevel];
     LbSpriteDrawResized(curscr_x, curscr_y, ps_units_per_px, spr);
 }
@@ -239,13 +263,15 @@ void draw_battle_head(struct Thing *thing, long scr_x, long scr_y, int units_per
 void gui_area_friendly_battlers(struct GuiButton *gbtn)
 {
     int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
+    struct Dungeon *dungeon = get_players_num_dungeon(my_player_number);
     BattleIndex battle_id = dungeon->visible_battles[visbtl_id];
-    struct CreatureBattle* battle = creature_battle_get(battle_id);
-    if (creature_battle_invalid(battle)) {
+    struct CreatureBattle *battle = creature_battle_get(battle_id);
+    if (creature_battle_invalid(battle))
+    {
         return;
     }
-    if (battle->fighters_num <= 0) {
+    if (battle->fighters_num <= 0)
+    {
         return;
     }
     int units_per_px = (gbtn->width * 16 + 160 / 2) / 160;
@@ -253,25 +279,25 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
     int scr_pos_x = gbtn->scr_pos_x - wdelta + gbtn->width;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
-        gbtn->width, gbtn->height, colours[0][0][0]);
+              gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT-1; battlr_id++)
+    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT - 1; battlr_id++)
     {
         int i = friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_creature(thing))
         {
             draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
-              if (game.play_gameturn & 2)
-              {
-                  TbPixel col = player_flash_colours[game.play_gameturn & 3];
-                  lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
-                  LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
-                    wdelta, gbtn->height, col);
-                  lbDisplay.DrawFlags &= ~(Lb_SPRITE_OUTLINE|0x0004);
-              }
+                if (game.play_gameturn & 2)
+                {
+                    TbPixel col = player_flash_colours[game.play_gameturn & 3];
+                    lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE | 0x0004);
+                    LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
+                              wdelta, gbtn->height, col);
+                    lbDisplay.DrawFlags &= ~(Lb_SPRITE_OUTLINE | 0x0004);
+                }
             }
             scr_pos_x -= wdelta;
         }
@@ -283,12 +309,13 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
     int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
     if (battle_creature_over == 0)
     {
-        struct Dungeon* dungeon = get_my_dungeon();
-        struct Thing* thing = INVALID_THING;
+        struct Dungeon *dungeon = get_my_dungeon();
+        struct Thing *thing = INVALID_THING;
         if (dungeon->visible_battles[visbtl_id] != 0)
         {
             int battlr_id = (lbDisplay.MMouseX * pixel_size - gbtn->scr_pos_x) / (gbtn->width / 7);
-            if (battlr_id < MESSAGE_BATTLERS_COUNT-1) {
+            if (battlr_id < MESSAGE_BATTLERS_COUNT - 1)
+            {
                 thing = thing_get(enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id]);
             }
         }
@@ -302,13 +329,15 @@ void gui_setup_enemy_over(struct GuiButton *gbtn)
 void gui_area_enemy_battlers(struct GuiButton *gbtn)
 {
     int visbtl_id = gbtn->btype_value & LbBFeF_IntValueMask;
-    struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
+    struct Dungeon *dungeon = get_players_num_dungeon(my_player_number);
     BattleIndex battle_id = dungeon->visible_battles[visbtl_id];
-    struct CreatureBattle* battle = creature_battle_get(battle_id);
-    if (creature_battle_invalid(battle)) {
+    struct CreatureBattle *battle = creature_battle_get(battle_id);
+    if (creature_battle_invalid(battle))
+    {
         return;
     }
-    if (battle->fighters_num <= 0) {
+    if (battle->fighters_num <= 0)
+    {
         return;
     }
     int units_per_px = (gbtn->width * 16 + 160 / 2) / 160;
@@ -316,25 +345,25 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     int scr_pos_x = gbtn->scr_pos_x;
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
-        gbtn->width, gbtn->height, colours[0][0][0]);
+              gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT-1; battlr_id++)
+    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT - 1; battlr_id++)
     {
         int i = enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_creature(thing))
         {
             draw_battle_head(thing, scr_pos_x + wdelta / 2, gbtn->scr_pos_y, units_per_px);
             if (thing->index == battle_creature_over)
             {
-              if (game.play_gameturn & 2)
-              {
-                  TbPixel col = player_flash_colours[game.play_gameturn & 3];
-                  lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE|0x0004);
-                  LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
-                    wdelta, gbtn->height, col);
-                  lbDisplay.DrawFlags &= ~(Lb_SPRITE_OUTLINE|0x0004);
-              }
+                if (game.play_gameturn & 2)
+                {
+                    TbPixel col = player_flash_colours[game.play_gameturn & 3];
+                    lbDisplay.DrawFlags |= (Lb_SPRITE_OUTLINE | 0x0004);
+                    LbDrawBox(scr_pos_x, gbtn->scr_pos_y,
+                              wdelta, gbtn->height, col);
+                    lbDisplay.DrawFlags &= ~(Lb_SPRITE_OUTLINE | 0x0004);
+                }
             }
             scr_pos_x += wdelta;
         }
@@ -343,10 +372,10 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
 
 short zoom_to_fight(PlayerNumber plyr_idx)
 {
-    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     if (active_battle_exists(plyr_idx))
     {
-        struct Dungeon* dungeon = get_players_num_dungeon(my_player_number);
+        struct Dungeon *dungeon = get_players_num_dungeon(my_player_number);
         set_players_packet_action(player, PckA_Unknown104, dungeon->visible_battles[0], 0, 0, 0);
         step_battles_forward(plyr_idx);
         return true;
@@ -357,7 +386,7 @@ short zoom_to_fight(PlayerNumber plyr_idx)
 void draw_bonus_timer(void)
 {
     int nturns = game.bonus_time - game.play_gameturn;
-    char* text;
+    char *text;
     if (gameadd.timer_real)
     {
         unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
@@ -403,12 +432,12 @@ void draw_bonus_timer(void)
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ((MyScreenHeight < 400) && (dbc_language > 0))
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    else if ((MyScreenWidth > 1280) && (dbc_language > 0))
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
@@ -417,9 +446,9 @@ void draw_bonus_timer(void)
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    LbTextSetWindow(0 / pixel_size, 0 / pixel_size, MyScreenWidth / pixel_size, MyScreenHeight / pixel_size);
 }
 
 /**
@@ -427,12 +456,12 @@ void draw_bonus_timer(void)
  */
 TbBool bonus_timer_enabled(void)
 {
-  return ((game.flags_gui & GGUI_CountdownTimer) != 0);
+    return ((game.flags_gui & GGUI_CountdownTimer) != 0);
 }
 
 void draw_timer(void)
 {
-    char* text;
+    char *text;
     if (TimerGame)
     {
         if (get_my_player()->victory_state != VicS_WonLevel)
@@ -471,7 +500,7 @@ void draw_timer(void)
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
     long scr_x = MyScreenWidth - width - 16 * units_per_pixel / 16;
     long scr_y = 16 * units_per_pixel / 16;
-    if ( (bonus_timer_enabled()) || (script_timer_enabled()) || (display_variable_enabled()) || (game.armageddon_cast_turn != 0) )
+    if ((bonus_timer_enabled()) || (script_timer_enabled()) || (display_variable_enabled()) || (game.armageddon_cast_turn != 0))
     {
         scr_y <<= 2;
     }
@@ -479,12 +508,12 @@ void draw_timer(void)
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ((MyScreenHeight < 400) && (dbc_language > 0))
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    else if ((MyScreenWidth > 1280) && (dbc_language > 0))
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
@@ -493,36 +522,36 @@ void draw_timer(void)
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    LbTextSetWindow(0 / pixel_size, 0 / pixel_size, MyScreenWidth / pixel_size, MyScreenHeight / pixel_size);
 }
 
 TbBool timer_enabled(void)
 {
-  return ((game_flags2 & GF2_Timer) != 0);
+    return ((game_flags2 & GF2_Timer) != 0);
 }
 
 TbBool frametime_enabled(void)
 {
-  return (debug_display_frametime != 0);
+    return (debug_display_frametime != 0);
 }
 
 TbBool script_timer_enabled(void)
 {
-  return ((game.flags_gui & GGUI_ScriptTimer) != 0);
+    return ((game.flags_gui & GGUI_ScriptTimer) != 0);
 }
 
 void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned long limit, TbBool real)
 {
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
     int nturns = (limit > 0) ? limit - (game.play_gameturn - dungeon->turn_timers[timer_id].count) : game.play_gameturn - dungeon->turn_timers[timer_id].count;
     if (nturns < 0)
     {
         game.flags_gui &= ~GGUI_ScriptTimer;
         return;
     }
-    char* text;
+    char *text;
     if (real)
     {
         unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
@@ -560,12 +589,12 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
-    {        
+    if ((MyScreenHeight < 400) && (dbc_language > 0))
+    {
         tx_units_per_px = scale_ui_value(32);
         y = 0;
     }
-    else if ( (MyScreenWidth > 1280) && (dbc_language > 0) )
+    else if ((MyScreenWidth > 1280) && (dbc_language > 0))
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
@@ -574,14 +603,14 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     {
         tx_units_per_px = (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
-    } 
+    }
     LbTextDrawResized(0, y, tx_units_per_px, text);
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    LbTextSetWindow(0 / pixel_size, 0 / pixel_size, MyScreenWidth / pixel_size, MyScreenHeight / pixel_size);
 }
 
 TbBool display_variable_enabled(void)
 {
-  return ((game.flags_gui & GGUI_Variable) != 0);
+    return ((game.flags_gui & GGUI_Variable) != 0);
 }
 
 void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned char validx, long target, unsigned char targettype)
@@ -589,13 +618,13 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     long value = get_condition_value(plyr_idx, valtype, validx);
     if (target != 0)
     {
-        if ( (targettype == 0) || (targettype == 2) )
+        if ((targettype == 0) || (targettype == 2))
         {
             value = target - value;
         }
         else if (targettype == 1)
         {
-            value = ((~target)+1) + value;
+            value = ((~target) + 1) + value;
         }
     }
     if (targettype != 2)
@@ -605,7 +634,7 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
             value = 0;
         }
     }
-    char* text = buf_sprintf("%ld", value);
+    char *text = buf_sprintf("%ld", value);
     LbTextSetFont(winfont);
     long width = 10 * (LbTextCharWidth('0') * units_per_pixel / 16);
     long height = LbTextLineHeight() * units_per_pixel / 16 + (LbTextLineHeight() * units_per_pixel / 16) / 2;
@@ -625,12 +654,12 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     {
         struct GuiMenu *gmnu = get_active_menu(menu_id_to_number(GMnu_MAIN));
         scr_x = (gmnu->width + (width >> 1) - 16 * units_per_pixel / 16);
-        if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
+        if ((bonus_timer_enabled()) || (script_timer_enabled()))
         {
             scr_x += ((width + (width >> 1)) - 16 * units_per_pixel / 16);
         }
     }
-    else if ( (bonus_timer_enabled()) || (script_timer_enabled()) )
+    else if ((bonus_timer_enabled()) || (script_timer_enabled()))
     {
         scr_x -= ((width + (width >> 1)) - 16 * units_per_pixel / 16);
     }
@@ -638,18 +667,18 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     draw_slab64k(scr_x, scr_y, units_per_pixel, width, height);
     int tx_units_per_px;
     int y;
-    if ( (dbc_language > 0) && (MyScreenWidth > 1280) )
+    if ((dbc_language > 0) && (MyScreenWidth > 1280))
     {
         tx_units_per_px = scale_ui_value(16 - (MyScreenWidth / 640));
         y = height / 4;
     }
     else
     {
-        tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
+        tx_units_per_px = ((MyScreenHeight < 400) && (dbc_language > 0)) ? scale_ui_value(32) : (22 * units_per_pixel) / LbTextLineHeight();
         y = 0;
     }
     LbTextDrawResized(0, y, tx_units_per_px, text);
-    LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+    LbTextSetWindow(0 / pixel_size, 0 / pixel_size, MyScreenWidth / pixel_size, MyScreenHeight / pixel_size);
 }
 
 void draw_frametime()
@@ -664,27 +693,30 @@ void draw_frametime()
     display_value = 1000 / frametime_measurements.frametime_display[Frametime_FullFrame];
 
     text = buf_sprintf("FPS: %f", display_value);
-    LbTextDrawResized(0, 27*tx_units_per_px, tx_units_per_px, text);
+    LbTextDrawResized(0, 27 * tx_units_per_px, tx_units_per_px, text);
 
     // Frametimes
-    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++) {
+    for (int i = 0; i < TOTAL_FRAMETIME_KINDS; i++)
+    {
         display_value = frametime_measurements.frametime_display[i];
-        switch (i) {
-            case Frametime_FullFrame:
-                text = buf_sprintf("Frametime: %f ms", display_value);
-                break;
-            case Frametime_Logic:
-                text = buf_sprintf("Logic: %f ms", display_value);
-                break;
-            case Frametime_Draw:
-                text = buf_sprintf("Draw: %f ms", display_value);
-                break;
-            case Frametime_Sleep:
-                text = buf_sprintf("Sleep: %f ms", display_value);
-                break;
+        switch (i)
+        {
+        case Frametime_FullFrame:
+            text = buf_sprintf("Frametime: %f ms", display_value);
+            break;
+        case Frametime_Logic:
+            text = buf_sprintf("Logic: %f ms", display_value);
+            break;
+        case Frametime_Draw:
+            text = buf_sprintf("Draw: %f ms", display_value);
+            break;
+        case Frametime_Sleep:
+            text = buf_sprintf("Sleep: %f ms", display_value);
+            break;
         }
-        LbTextDrawResized(0, (28+i)*tx_units_per_px, tx_units_per_px, text);
+        LbTextDrawResized(0, (28 + i) * tx_units_per_px, tx_units_per_px, text);
     }
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
 }
+
 /******************************************************************************/

@@ -41,12 +41,12 @@
 /******************************************************************************/
 short at_barrack_room(struct Thing *creatng)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     cctrl->target_room_id = 0;
-    struct Room* room = get_room_thing_is_on(creatng);
+    struct Room *room = get_room_thing_is_on(creatng);
     if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_BARRACK), creatng))
     {
-        WARNLOG("Room %s owned by player %d is invalid for %s index %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index);
+        WARNLOG("Room %s owned by player %d is invalid for %s index %d", room_code_name(room->kind), (int)room->owner, thing_model_name(creatng), (int)creatng->index);
         set_start_state(creatng);
         return 0;
     }
@@ -61,18 +61,20 @@ short at_barrack_room(struct Thing *creatng)
 
 short barracking(struct Thing *creatng)
 {
-    struct Room* room = get_room_thing_is_on(creatng);
+    struct Room *room = get_room_thing_is_on(creatng);
     if (!room_still_valid_as_type_for_thing(room, get_room_role_for_job(Job_BARRACK), creatng))
     {
-        WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
+        WARNLOG("Room %s owned by player %d is bad work place for %s index %d owner %d", room_code_name(room->kind), (int)room->owner, thing_model_name(creatng), (int)creatng->index, (int)creatng->owner);
         remove_creature_from_work_room(creatng);
         set_start_state(creatng);
         return CrStRet_ResetFail;
     }
-    if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_BARRACK)) {
+    if (!creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_BARRACK))
+    {
         return CrStRet_Unchanged;
     }
     creatng->continue_state = get_continue_state_for_job(Job_BARRACK);
     return CrStRet_Modified;
 }
+
 /******************************************************************************/

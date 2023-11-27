@@ -22,23 +22,21 @@
 #ifndef BFLIB_NETSYNC_H
 #define BFLIB_NETSYNC_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <stddef.h>
 
-enum DeltaEncoding
-{
-    DELTA_SELECTBEST,   //select delta encoding freely (for instruction)
-    DELTA_NONE,         //no delta encoding, straight copy
-    DELTA_PREVSTATE     //delta compared to last state
+enum DeltaEncoding {
+    DELTA_SELECTBEST, // select delta encoding freely (for instruction)
+    DELTA_NONE,       // no delta encoding, straight copy
+    DELTA_PREVSTATE   // delta compared to last state
 };
 
-typedef void (*NetsyncFixupFn)(char *destptr, char * srcptr, size_t len);
+typedef void (*NetsyncFixupFn)(char *destptr, char *srcptr, size_t len);
 
-//we need to write header if encoding in instruction was DELTA_SELECTBEST
+// we need to write header if encoding in instruction was DELTA_SELECTBEST
 typedef char NetsyncHeader;
 
 /**
@@ -59,13 +57,12 @@ typedef char NetsyncHeader;
  * Restoration is essentially the reverse. The meaning of destptr in on_restore
  * is ptr (swapped).
  */
-struct NetsyncInstr
-{
-    char * ptr;
+struct NetsyncInstr {
+    char *ptr;
     size_t len;
-    enum DeltaEncoding encoding; //probably best to leave at DELTA_SELECTBEST
-    NetsyncFixupFn on_collect; //called after data has been copied to new state buffer
-    NetsyncFixupFn on_restore; //called after data has been restored from new state buffer
+    enum DeltaEncoding encoding; // probably best to leave at DELTA_SELECTBEST
+    NetsyncFixupFn on_collect;   // called after data has been copied to new state buffer
+    NetsyncFixupFn on_restore;   // called after data has been restored from new state buffer
 };
 
 /**
@@ -73,7 +70,7 @@ struct NetsyncInstr
  * @param instr The instructions.
  * @return
  */
-size_t LbNetsyncBufferSize(const struct NetsyncInstr ** instr);
+size_t LbNetsyncBufferSize(const struct NetsyncInstr **instr);
 
 /**
  * Collects data and encodes it, for synchronization purposes.
@@ -82,8 +79,8 @@ size_t LbNetsyncBufferSize(const struct NetsyncInstr ** instr);
  * @param old_state The previous state buffer. Must be NULL if there is no previous state.
  * @param new_state The new state buffer. Save this to use as old state for next call.
  */
-void LbNetsyncCollect(const struct NetsyncInstr ** instr, char * out_buffer,
-    const char * old_state, char * new_state);
+void LbNetsyncCollect(const struct NetsyncInstr **instr, char *out_buffer,
+                      const char *old_state, char *new_state);
 
 /**
  * Restores data previously collected and encoded.
@@ -92,12 +89,11 @@ void LbNetsyncCollect(const struct NetsyncInstr ** instr, char * out_buffer,
  * @param old_state The previous state buffer. Must be NULL if there is no previous state.
  * @param new_state The new state buffer. Save this to use as old state for next call.
  */
-void LbNetsyncRestore(const struct NetsyncInstr ** instr, const char * in_buffer,
-    const char * old_state, char * new_state);
+void LbNetsyncRestore(const struct NetsyncInstr **instr, const char *in_buffer,
+                      const char *old_state, char *new_state);
 
 #ifdef __cplusplus
 };
 #endif
 
-#endif //BFLIB_NETSYNC_H
-
+#endif // BFLIB_NETSYNC_H

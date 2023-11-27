@@ -32,34 +32,44 @@ extern "C" {
 /******************************************************************************/
 struct Column *get_column(long idx)
 {
-  if ((idx < 1) || (idx >= COLUMNS_COUNT))
-    return INVALID_COLUMN;
-  return game.columns.lookup[idx];
+    if ((idx < 1) || (idx >= COLUMNS_COUNT))
+    {
+        return INVALID_COLUMN;
+    }
+    return game.columns.lookup[idx];
 }
 
 struct Column *get_column_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-  struct Map *mapblk;
-  mapblk = get_map_block_at(stl_x, stl_y);
-  if (map_block_invalid(mapblk))
-    return INVALID_COLUMN;
-  return game.columns.lookup[get_mapblk_column_index(mapblk)];
+    struct Map *mapblk;
+    mapblk = get_map_block_at(stl_x, stl_y);
+    if (map_block_invalid(mapblk))
+    {
+        return INVALID_COLUMN;
+    }
+    return game.columns.lookup[get_mapblk_column_index(mapblk)];
 }
 
 struct Column *get_map_column(const struct Map *mapblk)
 {
-  if (map_block_invalid(mapblk))
-    return INVALID_COLUMN;
-  return game.columns.lookup[get_mapblk_column_index(mapblk)];
+    if (map_block_invalid(mapblk))
+    {
+        return INVALID_COLUMN;
+    }
+    return game.columns.lookup[get_mapblk_column_index(mapblk)];
 }
 
 TbBool column_invalid(const struct Column *colmn)
 {
-  if (colmn == NULL)
-    return true;
-  if (colmn == INVALID_COLUMN)
-    return true;
-  return (colmn <= game.columns.lookup[0]) || (colmn > game.columns.lookup[COLUMNS_COUNT-1]) || (colmn == NULL);
+    if (colmn == NULL)
+    {
+        return true;
+    }
+    if (colmn == INVALID_COLUMN)
+    {
+        return true;
+    }
+    return (colmn <= game.columns.lookup[0]) || (colmn > game.columns.lookup[COLUMNS_COUNT - 1]) || (colmn == NULL);
 }
 
 /**
@@ -80,7 +90,9 @@ long get_map_floor_filled_subtiles(const struct Map *mapblk)
     const struct Column *col;
     col = get_map_column(mapblk);
     if (column_invalid(col))
+    {
         return 0;
+    }
     return (col->bitfields & 0xF0) >> 4;
 }
 
@@ -94,7 +106,9 @@ long get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     const struct Column *col;
     col = get_column_at(stl_x, stl_y);
     if (column_invalid(col))
+    {
         return 0;
+    }
     return (col->bitfields & 0xF0) >> 4;
 }
 
@@ -106,7 +120,7 @@ long get_floor_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 void set_column_floor_filled_subtiles(struct Column *col, MapSubtlCoord n)
 {
     col->bitfields &= ~0xF0;
-    col->bitfields |= (n<<4) & 0xF0;
+    col->bitfields |= (n << 4) & 0xF0;
 }
 
 /**
@@ -119,9 +133,11 @@ void set_map_floor_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
     struct Column *col;
     col = get_map_column(mapblk);
     if (column_invalid(col))
+    {
         return;
+    }
     col->bitfields &= ~0xF0;
-    col->bitfields |= (n<<4) & 0xF0;
+    col->bitfields |= (n << 4) & 0xF0;
 }
 
 /**
@@ -142,7 +158,9 @@ long get_map_ceiling_filled_subtiles(const struct Map *mapblk)
     const struct Column *col;
     col = get_map_column(mapblk);
     if (column_invalid(col))
+    {
         return 0;
+    }
     return (col->bitfields & CLF_CEILING_MASK) >> 1;
 }
 
@@ -156,7 +174,9 @@ long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     const struct Column *colmn;
     colmn = get_column_at(stl_x, stl_y);
     if (column_invalid(colmn))
+    {
         return 0;
+    }
     return (colmn->bitfields & CLF_CEILING_MASK) >> 1;
 }
 
@@ -168,7 +188,7 @@ long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 void set_column_ceiling_filled_subtiles(struct Column *col, MapSubtlCoord n)
 {
     col->bitfields &= ~CLF_CEILING_MASK;
-    col->bitfields |= (n<<1) & CLF_CEILING_MASK;
+    col->bitfields |= (n << 1) & CLF_CEILING_MASK;
 }
 
 /**
@@ -181,9 +201,11 @@ void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n)
     struct Column *col;
     col = get_map_column(mapblk);
     if (column_invalid(col))
+    {
         return;
+    }
     col->bitfields &= ~CLF_CEILING_MASK;
-    col->bitfields |= (n<<1) & CLF_CEILING_MASK;
+    col->bitfields |= (n << 1) & CLF_CEILING_MASK;
 }
 
 TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -191,7 +213,9 @@ TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     const struct Map *mapblk;
     mapblk = get_map_block_at(stl_x, stl_y);
     if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+    {
         return true;
+    }
     return get_map_ceiling_filled_subtiles(mapblk) > 0;
 }
 
@@ -205,9 +229,13 @@ long get_top_cube_at_pos(SubtlCodedCoords stl_num)
     col = get_map_column(mapblk);
     top_pos = get_column_floor_filled_subtiles(col);
     if (top_pos > 0)
-        tcube = col->cubes[top_pos-1];
+    {
+        tcube = col->cubes[top_pos - 1];
+    }
     else
+    {
         tcube = game.top_cube[col->floor_texture];
+    }
     return tcube;
 }
 
@@ -219,38 +247,50 @@ long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *cube_pos)
     col = get_column_at(stl_x, stl_y);
     top_pos = get_column_floor_filled_subtiles(col);
     if (top_pos > 0)
-        tcube = col->cubes[top_pos-1];
+    {
+        tcube = col->cubes[top_pos - 1];
+    }
     else
+    {
         tcube = game.top_cube[col->floor_texture];
+    }
     if (cube_pos != NULL)
+    {
         *cube_pos = top_pos;
+    }
     return tcube;
 }
 
 void make_solidmask(struct Column *col)
 {
-  int i;
-  col->solidmask = 0;
-  for (i=0; i<COLUMN_STACK_HEIGHT; i++)
-  {
-    if (col->cubes[i] != 0)
-      col->solidmask |= (1 << i);
-  }
+    int i;
+    col->solidmask = 0;
+    for (i = 0; i < COLUMN_STACK_HEIGHT; i++)
+    {
+        if (col->cubes[i] != 0)
+        {
+            col->solidmask |= (1 << i);
+        }
+    }
 }
 
 unsigned short find_column_height(struct Column *col)
 {
-  unsigned short h;
-  h = 0;
-  if (col->solidmask == 0)
+    unsigned short h;
+    h = 0;
+    if (col->solidmask == 0)
+    {
+        return h;
+    }
+    while (col->cubes[h] > 0)
+    {
+        h++;
+        if (h >= COLUMN_STACK_HEIGHT)
+        {
+            return COLUMN_STACK_HEIGHT;
+        }
+    }
     return h;
-  while (col->cubes[h] > 0)
-  {
-    h++;
-    if (h >= COLUMN_STACK_HEIGHT)
-      return COLUMN_STACK_HEIGHT;
-  }
-  return h;
 }
 
 /**
@@ -264,9 +304,12 @@ long get_map_floor_height(const struct Map *mapblk)
     long cubes_height;
     colmn = get_map_column(mapblk);
     i = get_column_floor_filled_subtiles(colmn);
-    if (i > 0) {
+    if (i > 0)
+    {
         cubes_height = i;
-    } else {
+    }
+    else
+    {
         cubes_height = 0;
     }
     return cubes_height << 8;
@@ -297,9 +340,12 @@ long get_map_ceiling_height(const struct Map *mapblk)
     long cubes_height;
     colmn = get_map_column(mapblk);
     i = get_column_ceiling_filled_subtiles(colmn);
-    if (i > 0) {
+    if (i > 0)
+    {
         cubes_height = 8 - i;
-    } else {
+    }
+    else
+    {
         cubes_height = get_mapblk_filled_subtiles(mapblk);
     }
     return cubes_height << 8;
@@ -319,23 +365,27 @@ long get_ceiling_height_at_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return get_map_ceiling_height(mapblk);
 }
 
-static TbBool column_is_equivalent(struct Column * const src, struct Column *dst)
+static TbBool column_is_equivalent(struct Column *const src, struct Column *dst)
 {
     if ((src->floor_texture != dst->floor_texture) ||
         (src->solidmask != dst->solidmask) ||
         (src->orient != dst->orient))
+    {
         return 0;
+    }
     return 0 == memcmp(src->cubes, dst->cubes, sizeof(src->cubes));
 }
 
 long find_column(struct Column *srccol)
 {
     int i;
-    for (i=1; i < COLUMNS_COUNT; i++) {
+    for (i = 1; i < COLUMNS_COUNT; i++)
+    {
         struct Column *col;
         col = get_column(i);
-        if (column_is_equivalent(srccol, col)) {
-          return i;
+        if (column_is_equivalent(srccol, col))
+        {
+            return i;
         }
     }
     return 0;
@@ -351,11 +401,11 @@ long create_column(struct Column *col)
     // Find an empty column
     result = 1;
     dst = &game.columns_data[1];
-    while (dst->use || dst->bitfields & CLF_ACTIVE )
+    while (dst->use || dst->bitfields & CLF_ACTIVE)
     {
         ++result;
         ++dst;
-        if ( result >= COLUMNS_COUNT )
+        if (result >= COLUMNS_COUNT)
         {
             ERRORLOG("Could not create column: None free");
             return 0;
@@ -367,17 +417,19 @@ long create_column(struct Column *col)
     make_solidmask(dst);
 
     // Find lowest cube
-    for (v6 = 0; v6 < COLUMN_STACK_HEIGHT;v6++)
+    for (v6 = 0; v6 < COLUMN_STACK_HEIGHT; v6++)
     {
-        if ( dst->cubes[v6] == 0)
+        if (dst->cubes[v6] == 0)
+        {
             break;
+        }
     }
     top_of_floor = v6;
     // set lowest cube info
     dst->bitfields &= ~CLF_FLOOR_MASK;
     dst->bitfields |= (top_of_floor << 4);
     ///
-    if (top_of_floor >= COLUMN_STACK_HEIGHT )
+    if (top_of_floor >= COLUMN_STACK_HEIGHT)
     {
         dst->bitfields &= CLF_FLOOR_MASK | CLF_ACTIVE;
     }
@@ -388,7 +440,9 @@ long create_column(struct Column *col)
         for (; ceiling < COLUMN_STACK_HEIGHT; ceiling++)
         {
             if (dst->cubes[ceiling])
+            {
                 break;
+            }
         }
 
         if (ceiling >= COLUMN_STACK_HEIGHT)
@@ -400,10 +454,12 @@ long create_column(struct Column *col)
             unsigned short *v13 = &dst->cubes[7];
             unsigned char v12 = 0;
             // Counting ceiling height
-            for (int i = 0; i < COLUMN_STACK_HEIGHT-1; i++)
+            for (int i = 0; i < COLUMN_STACK_HEIGHT - 1; i++)
             {
                 if (*v13)
+                {
                     dst->bitfields ^= (v12 ^ dst->bitfields) & CLF_CEILING_MASK;
+                }
                 --v13;
                 v12 += 2;
             }
@@ -414,26 +470,26 @@ long create_column(struct Column *col)
 
 void clear_columns(void)
 {
-  struct Column *colmn;
-  int i;
-  for (i=0; i < COLUMNS_COUNT; i++)
-  {
-    colmn = &game.columns_data[i];
-    LbMemorySet(colmn, 0, sizeof(struct Column));
-    colmn->floor_texture = 1;
-    make_solidmask(colmn);
-  }
-  game.unrevealed_column_idx = 0;
-  for (i=0; i < 18; i++)
-  {
-    game.col_static_entries[i] = 0;
-  }
+    struct Column *colmn;
+    int i;
+    for (i = 0; i < COLUMNS_COUNT; i++)
+    {
+        colmn = &game.columns_data[i];
+        LbMemorySet(colmn, 0, sizeof(struct Column));
+        colmn->floor_texture = 1;
+        make_solidmask(colmn);
+    }
+    game.unrevealed_column_idx = 0;
+    for (i = 0; i < 18; i++)
+    {
+        game.col_static_entries[i] = 0;
+    }
 }
 
 void init_columns(void)
 {
     int i;
-    for (i=1; i < COLUMNS_COUNT; i++)
+    for (i = 1; i < COLUMNS_COUNT; i++)
     {
         struct Column *col;
         col = get_column(i);
@@ -443,42 +499,48 @@ void init_columns(void)
             mskbit = 1;
             col->solidmask = 0;
             int n;
-            for (n=0; n < COLUMN_STACK_HEIGHT; n++)
+            for (n = 0; n < COLUMN_STACK_HEIGHT; n++)
             {
-                if (col->cubes[n] != 0) {
+                if (col->cubes[n] != 0)
+                {
                     col->solidmask |= mskbit;
                 }
                 mskbit *= 2;
             }
             if (col->solidmask)
             {
-                for (n=0; n < COLUMN_STACK_HEIGHT; n++)
+                for (n = 0; n < COLUMN_STACK_HEIGHT; n++)
                 {
-                    if (col->cubes[n] == 0) {
+                    if (col->cubes[n] == 0)
+                    {
                         break;
                     }
                 }
-            } else
+            }
+            else
             {
                 n = 0;
             }
             set_column_floor_filled_subtiles(col, n);
             n = get_column_floor_filled_subtiles(col);
-            for (;n < COLUMN_STACK_HEIGHT; n++)
+            for (; n < COLUMN_STACK_HEIGHT; n++)
             {
-                if (col->cubes[n] != 0) {
-                  break;
+                if (col->cubes[n] != 0)
+                {
+                    break;
                 }
             }
             if (n >= COLUMN_STACK_HEIGHT)
             {
                 col->bitfields &= ~0x0E;
-            } else
+            }
+            else
             {
                 mskbit = 0;
-                for (n=COLUMN_STACK_HEIGHT-1; n > 0; n--)
+                for (n = COLUMN_STACK_HEIGHT - 1; n > 0; n--)
                 {
-                    if (col->cubes[n] != 0) {
+                    if (col->cubes[n] != 0)
+                    {
                         col->bitfields ^= (mskbit ^ col->bitfields) & 0xE;
                     }
                     mskbit += 2;
@@ -505,7 +567,9 @@ void init_whole_blocks(void)
     // Find it or add to column list
     i = find_column(&lcolmn);
     if (i == 0)
-      i = create_column(&lcolmn);
+    {
+        i = create_column(&lcolmn);
+    }
     colmn = get_column(i);
     // Update its parameters
     colmn->bitfields |= CLF_ACTIVE;
@@ -516,14 +580,15 @@ void init_top_texture_to_cube_table(void)
 {
     LbMemorySet(game.top_cube, 0, sizeof(game.top_cube));
     int n;
-    for (n=1; n < TEXTURE_BLOCKS_COUNT; n++)
+    for (n = 1; n < TEXTURE_BLOCKS_COUNT; n++)
     {
         int i;
-        for (i=1; i < CUBE_ITEMS_MAX; i++)
+        for (i = 1; i < CUBE_ITEMS_MAX; i++)
         {
-            struct CubeConfigStats * cubed;
+            struct CubeConfigStats *cubed;
             cubed = get_cube_model_stats(i);
-            if (cubed->texture_id[4] == n) {
+            if (cubed->texture_id[4] == n)
+            {
                 game.top_cube[n] = i;
                 break;
             }
@@ -543,7 +608,7 @@ TbBool cube_is_lava(long cube_id)
 
 TbBool cube_is_unclaimed_path(long cube_id)
 {
-    return ( (cube_id == 0) || ( (cube_id >= 25) && (cube_id <= 29) ) );
+    return ((cube_id == 0) || ((cube_id >= 25) && (cube_id <= 29)));
 }
 
 /**
@@ -594,12 +659,12 @@ TbBool subtile_has_sacrificial_on_top(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     long cube_pos;
     i = get_top_cube_at(stl_x, stl_y, &cube_pos);
     // Only low ground cubes are really sacrificial - high ground is most likely magic door
-    return cube_pos<4 && cube_is_sacrificial(i);
+    return cube_pos < 4 && cube_is_sacrificial(i);
 }
 
 TbBool subtile_is_liquid(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    return ( (subtile_has_water_on_top(stl_x, stl_y)) || (subtile_has_lava_on_top(stl_x, stl_y)) );
+    return ((subtile_has_water_on_top(stl_x, stl_y)) || (subtile_has_lava_on_top(stl_x, stl_y)));
 }
 
 TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -616,7 +681,7 @@ TbBool subtile_is_unclaimed_path(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 
 TbBool subtile_is_wall(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Column* col = get_column_at(stl_x, stl_y);
+    struct Column *col = get_column_at(stl_x, stl_y);
     return (get_column_floor_filled_subtiles(col) >= COLUMN_WALL_HEIGHT);
 }
 

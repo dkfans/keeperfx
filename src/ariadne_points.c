@@ -34,6 +34,7 @@ static long ix_Points;
 static long free_Points;
 
 struct Point ari_Points[POINTS_COUNT];
+
 /******************************************************************************/
 /**
  * Checks if there's space for given amount of points.
@@ -44,7 +45,9 @@ struct Point ari_Points[POINTS_COUNT];
 TbBool has_free_points(long n)
 {
     if (count_Points + n >= POINTS_COUNT)
+    {
         return false;
+    }
     return true;
 }
 
@@ -66,17 +69,18 @@ AridPointId point_new(void)
         i = ix_Points;
         if ((i < 0) || (i >= POINTS_COUNT))
         {
-            WARNLOG("ix_Points overflow; %d allocated, id %d outranged",(int)count_Points,(int)ix_Points);
+            WARNLOG("ix_Points overflow; %d allocated, id %d outranged", (int)count_Points, (int)ix_Points);
             erstat_inc(ESE_NoFreePathPts);
             return -1;
         }
         ix_Points++;
-    } else
+    }
+    else
     {
         i = free_Points;
         if ((i < 0) || (i >= POINTS_COUNT))
         {
-            ERRORDBG(13,"free_Points overflow; %d allocated, id %d outranged",(int)count_Points,(int)free_Points);
+            ERRORDBG(13, "free_Points overflow; %d allocated, id %d outranged", (int)count_Points, (int)free_Points);
             erstat_inc(ESE_NoFreePathPts);
             return -1;
         }
@@ -118,30 +122,36 @@ struct Point *point_get(AridPointId pt_id)
 
 TbBool point_is_invalid(const struct Point *pt)
 {
-    return (pt < &ari_Points[0]) || (pt > &ari_Points[POINTS_COUNT-1]) || (pt == INVALID_POINT) || (pt == NULL);
+    return (pt < &ari_Points[0]) || (pt > &ari_Points[POINTS_COUNT - 1]) || (pt == INVALID_POINT) || (pt == NULL);
 }
 
 TbBool point_equals(AridPointId pt_idx, long pt_x, long pt_y)
 {
     if ((pt_idx < 0) || (pt_idx >= POINTS_COUNT))
+    {
         return false;
+    }
     long tip_x = ari_Points[pt_idx].x;
     long tip_y = ari_Points[pt_idx].y;
     if ((tip_x != pt_x) || (tip_y != pt_y))
+    {
         return false;
+    }
     return true;
 }
 
 AridPointId allocated_point_search(long pt_x, long pt_y)
 {
-    if (pt_y == 0x8000) {
+    if (pt_y == 0x8000)
+    {
         return -1;
     }
     for (AridPointId pt_idx = 0; pt_idx < POINTS_COUNT; pt_idx++)
     {
         long tip_x = ari_Points[pt_idx].x;
         long tip_y = ari_Points[pt_idx].y;
-        if ((tip_x == pt_x) && (tip_y == pt_y)) {
+        if ((tip_x == pt_x) && (tip_y == pt_y))
+        {
             return pt_idx;
         }
     }
@@ -151,11 +161,13 @@ AridPointId allocated_point_search(long pt_x, long pt_y)
 AridPointId point_set_new_or_reuse(long pt_x, long pt_y)
 {
     AridPointId pt_idx = allocated_point_search(pt_x, pt_y);
-    if (pt_idx >= 0) {
+    if (pt_idx >= 0)
+    {
         return pt_idx;
     }
     pt_idx = point_new();
-    if (pt_idx < 0) {
+    if (pt_idx < 0)
+    {
         return -1;
     }
     point_set(pt_idx, pt_x, pt_y);
@@ -166,7 +178,7 @@ void triangulation_initxy_points(long startx, long starty, long endx, long endy)
 {
     for (long i = 0; i < POINTS_COUNT; i++)
     {
-        struct Point* pt = &ari_Points[i];
+        struct Point *pt = &ari_Points[i];
         pt->y = 0x8000;
     }
     ari_Points[0].x = startx;
@@ -181,6 +193,7 @@ void triangulation_initxy_points(long startx, long starty, long endx, long endy)
     count_Points = 4;
     free_Points = -1;
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

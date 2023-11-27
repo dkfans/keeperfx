@@ -58,24 +58,28 @@ extern "C" {
  */
 TbBool creature_able_to_eat(const struct Thing *creatng)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
     if (creature_stats_invalid(crstat))
+    {
         return false;
+    }
     return (crstat->hunger_rate != 0);
 }
 
 TbBool hunger_is_creature_hungry(const struct Thing *creatng)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
     if (creature_control_invalid(cctrl) || creature_stats_invalid(crstat))
+    {
         return false;
+    }
     return ((crstat->hunger_rate != 0) && (cctrl->hunger_level > crstat->hunger_rate));
 }
 
 void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *room)
 {
-    thing_play_sample(creatng, 112+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 112 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     internal_set_thing_state(creatng, CrSt_CreatureEat);
     set_creature_instance(creatng, CrInst_EAT, 0, 0);
     creatng->continue_state = CrSt_CreatureToGarden;
@@ -84,31 +88,35 @@ void person_eat_food(struct Thing *creatng, struct Thing *foodtng, struct Room *
         /*struct CreatureStats *crstat;
         crstat = creature_stats_get_from_thing(creatng);
         anger_apply_anger_to_creature(creatng, crstat->annoy_eat_food, AngR_Other, 1);*/
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
         anger_apply_anger_to_creature(creatng, -cctrl->annoyance_level[AngR_Hungry], AngR_Hungry, 1);
     }
     if (thing_is_creature(foodtng))
     {
         thing_death_flesh_explosion(foodtng);
-    } else
+    }
+    else
     {
         int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
-        if (room->used_capacity >= required_cap) {
+        if (room->used_capacity >= required_cap)
+        {
             room->used_capacity -= required_cap;
-        } else {
+        }
+        else
+        {
             ERRORLOG("Trying to remove some food not in room");
             room->used_capacity = 0;
         }
         delete_thing_structure(foodtng, 0);
     }
-    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    struct Dungeon *dungeon = get_dungeon(creatng->owner);
     dungeon->lvstats.chickens_eaten++;
 }
 
 void person_search_for_food_again(struct Thing *creatng, struct Room *room)
 {
     long near_food_dist = LONG_MAX;
-    struct Thing* near_food_tng = INVALID_THING;
+    struct Thing *near_food_tng = INVALID_THING;
     unsigned long k = 0;
     unsigned long i = room->slabs_list;
     while (i > 0)
@@ -120,7 +128,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         {
             MapSubtlCoord x = slab_subtile(slb_x, n % 3);
             MapSubtlCoord y = slab_subtile(slb_y, n / 3);
-            struct Thing* thing = get_food_at_subtile_available_to_eat_and_owned_by(x, y, -1);
+            struct Thing *thing = get_food_at_subtile_available_to_eat_and_owned_by(x, y, -1);
             if (!thing_is_invalid(thing))
             {
                 long dist = get_chessboard_distance(&creatng->mappos, &thing->mappos);
@@ -140,7 +148,7 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
             break;
         }
     }
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
     if (thing_is_invalid(near_food_tng) || is_thing_directly_controlled(near_food_tng) || is_thing_passenger_controlled(near_food_tng))
     {
         RoomRole job_rrole = get_room_role_for_job(Job_TAKE_FEED);
@@ -149,16 +157,20 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomTooSmall);
         // Check whether there's a room which does have food
         // Try to find one which has plenty of food
-        struct Room* nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, crstat->hunger_fill + 1);
-        if (room_is_invalid(nroom)) {
+        struct Room *nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, crstat->hunger_fill + 1);
+        if (room_is_invalid(nroom))
+        {
             // If not found, maybe at least one chicken?
             nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, 1);
         }
         if (!room_is_invalid(nroom))
         {
-            if (creature_setup_random_move_for_job_in_room(creatng, nroom, Job_TAKE_FEED, NavRtF_Default)) {
+            if (creature_setup_random_move_for_job_in_room(creatng, nroom, Job_TAKE_FEED, NavRtF_Default))
+            {
                 creatng->continue_state = CrSt_CreatureArrivedAtGarden;
-            } else {
+            }
+            else
+            {
                 ERRORLOG("Attempting to move to garden we cannot navigate to - this should not be possible");
                 set_start_state(creatng);
             }
@@ -167,16 +179,19 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
         {
             anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
             // Try to find food in the original room
-            if (creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_TAKE_FEED)) {
+            if (creature_setup_adjacent_move_for_job_within_room(creatng, room, Job_TAKE_FEED))
+            {
                 creatng->continue_state = CrSt_CreatureArrivedAtGarden;
-            } else {
+            }
+            else
+            {
                 set_start_state(creatng);
             }
         }
         return;
     }
     if (!setup_person_move_close_to_position(creatng,
-           near_food_tng->mappos.x.stl.num, near_food_tng->mappos.y.stl.num, NavRtF_Default))
+                                             near_food_tng->mappos.x.stl.num, near_food_tng->mappos.y.stl.num, NavRtF_Default))
     {
         ERRORLOG("Cannot get near to food");
         person_eat_food(creatng, near_food_tng, room);
@@ -187,7 +202,8 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
     {
         cctrl = creature_control_get_from_thing(near_food_tng);
         cctrl->stateblock_flags |= CCSpl_ChickenRel;
-    } else
+    }
+    else
     {
         near_food_tng->food.byte_15 = 255;
         near_food_tng->food.byte_16 = 127;
@@ -199,13 +215,13 @@ void person_search_for_food_again(struct Thing *creatng, struct Room *room)
 
 short creature_arrived_at_garden(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     cctrl->target_room_id = 0;
-    struct Room* room = get_room_thing_is_on(thing);
+    struct Room *room = get_room_thing_is_on(thing);
     if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_TAKE_FEED), thing))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s index %d",
-            room_code_name(room->kind),(int)room->owner,thing_model_name(thing),(int)thing->index);
+                room_code_name(room->kind), (int)room->owner, thing_model_name(thing), (int)thing->index);
         set_start_state(thing);
         return 0;
     }
@@ -215,30 +231,34 @@ short creature_arrived_at_garden(struct Thing *thing)
 
 short creature_eat(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (cctrl->instance_id != CrInst_EAT)
+    {
         internal_set_thing_state(thing, thing->continue_state);
+    }
     return 1;
 }
 
 short creature_eating_at_garden(struct Thing *creatng)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct Thing* foodtng = thing_get(cctrl->eating.foodtng_idx);
-    if (!thing_exists(foodtng)) {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct Thing *foodtng = thing_get(cctrl->eating.foodtng_idx);
+    if (!thing_exists(foodtng))
+    {
         set_start_state(creatng);
         return 0;
     }
-    struct Room* room = INVALID_ROOM;
+    struct Room *room = INVALID_ROOM;
     room = get_room_thing_is_on(foodtng);
-    if (room_is_invalid(room) || (!room_role_matches(room->kind,get_room_role_for_job(Job_TAKE_FEED)))) {
+    if (room_is_invalid(room) || (!room_role_matches(room->kind, get_room_role_for_job(Job_TAKE_FEED))))
+    {
         set_start_state(creatng);
         return 0;
     }
     if (!thing_can_be_eaten(foodtng))
     {
         WARNLOG("Tried to eat %s index %d which cannot be eaten now but is in %s",
-            thing_model_name(foodtng),(int)foodtng->index,room_role_code_name(get_room_role_for_job(Job_TAKE_FEED)));
+                thing_model_name(foodtng), (int)foodtng->index, room_role_code_name(get_room_role_for_job(Job_TAKE_FEED)));
         set_start_state(creatng);
         return 0;
     }
@@ -250,34 +270,40 @@ short creature_eating_at_garden(struct Thing *creatng)
 short creature_to_garden(struct Thing *creatng)
 {
     struct Room *nroom;
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (cctrl->hunger_amount == 0) {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (cctrl->hunger_amount == 0)
+    {
         set_start_state(creatng);
         return 0;
     }
     RoomRole job_rrole = get_room_role_for_job(Job_TAKE_FEED);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(creatng);
     if (!player_has_room_of_role(creatng->owner, job_rrole))
     {
         // No room for feeding creatures
         event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);
         output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomNeeded);
         nroom = INVALID_ROOM;
-    } else
+    }
+    else
     {
         // Try to find one which has plenty of food
-        nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, crstat->hunger_fill+1);
-        if (room_is_invalid(nroom)) {
+        nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, crstat->hunger_fill + 1);
+        if (room_is_invalid(nroom))
+        {
             // If not found, maybe at least one chicken?
             nroom = find_nearest_room_of_role_for_thing_with_used_capacity(creatng, creatng->owner, job_rrole, NavRtF_Default, 1);
         }
-        if (room_is_invalid(nroom)) {
+        if (room_is_invalid(nroom))
+        {
             // No correct room - but check what exactly is the problem
             nroom = find_nearest_room_of_role_for_thing(creatng, creatng->owner, job_rrole, NavRtF_Default);
-            if (room_is_invalid(nroom)) {
+            if (room_is_invalid(nroom))
+            {
                 // There seem to be a correct room, but we can't reach it
                 output_message_room_related_from_computer_or_player_action(creatng->owner, find_first_roomkind_with_role(job_rrole), OMsg_RoomNoRoute);
-            } else
+            }
+            else
             {
                 // The room is reachable, so it probably has just no food
                 event_create_event_or_update_nearby_existing_event(0, 0, EvKind_CreatrHungry, creatng->owner, 0);

@@ -25,18 +25,19 @@
 
 class TCP_NetClient : public TCP_NetBase
 {
-	TCPsocket mySocket; //potentially mutex is needed for this
+    TCPsocket mySocket; // potentially mutex is needed for this
 
-	SDL_Thread * recvThread;
+    SDL_Thread *recvThread;
 
-	static int recvThreadFunc(void *);
-	void haltRecvThread();
-public:
-	TCP_NetClient(const char hostname[], ushort port);
-	virtual ~TCP_NetClient();
+    static int recvThreadFunc(void *);
+    void haltRecvThread();
 
-	virtual void update();
-	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen);
+  public:
+    TCP_NetClient(const char hostname[], ushort port);
+    virtual ~TCP_NetClient();
+
+    virtual void update();
+    virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen);
 };
 
-#endif //!BFLIB_CLIENT_TCP_HPP
+#endif //! BFLIB_CLIENT_TCP_HPP

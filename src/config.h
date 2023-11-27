@@ -30,91 +30,91 @@ extern "C" {
 struct CreditsItem;
 struct GameCampaign;
 /******************************************************************************/
-#define SINGLEPLAYER_FINISHED        -1
-#define SINGLEPLAYER_NOTSTARTED       0
-#define LEVELNUMBER_ERROR            -2
+#define SINGLEPLAYER_FINISHED -1
+#define SINGLEPLAYER_NOTSTARTED 0
+#define LEVELNUMBER_ERROR -2
 
-#define MIN_CONFIG_FILE_SIZE          4
+#define MIN_CONFIG_FILE_SIZE 4
 
-#define LANDVIEW_MAP_WIDTH         1280
-#define LANDVIEW_MAP_HEIGHT         960
+#define LANDVIEW_MAP_WIDTH 1280
+#define LANDVIEW_MAP_HEIGHT 960
 
 enum TbFileGroups {
-        FGrp_None,
-        FGrp_StdData,
-        FGrp_LrgData,
-        FGrp_FxData,
-        FGrp_LoData,
-        FGrp_HiData,
-        FGrp_VarLevels,
-        FGrp_Save,
-        FGrp_SShots,
-        FGrp_StdSound,
-        FGrp_LrgSound,
-        FGrp_AtlSound,
-        FGrp_Main,
-        FGrp_Campgn,
-        FGrp_CmpgLvls,
-        FGrp_LandView,
-        FGrp_CrtrData,
-        FGrp_CmpgCrtrs,
-        FGrp_CmpgConfig,
-        FGrp_CmpgMedia,
-        FGrp_Music,
+    FGrp_None,
+    FGrp_StdData,
+    FGrp_LrgData,
+    FGrp_FxData,
+    FGrp_LoData,
+    FGrp_HiData,
+    FGrp_VarLevels,
+    FGrp_Save,
+    FGrp_SShots,
+    FGrp_StdSound,
+    FGrp_LrgSound,
+    FGrp_AtlSound,
+    FGrp_Main,
+    FGrp_Campgn,
+    FGrp_CmpgLvls,
+    FGrp_LandView,
+    FGrp_CrtrData,
+    FGrp_CmpgCrtrs,
+    FGrp_CmpgConfig,
+    FGrp_CmpgMedia,
+    FGrp_Music,
 };
 
 enum TbFeature {
-    Ft_EyeLens      =  0x0001,
-    Ft_HiResVideo   =  0x0002,
-    Ft_BigPointer   =  0x0004,
-    Ft_HiResCreatr  =  0x0008,
-    Ft_AdvAmbSound  =  0x0010,
-    Ft_Censorship   =  0x0020,
-    Ft_Atmossounds  =  0x0040,
-    Ft_Resizemovies =  0x0080,
-    Ft_FreezeOnLoseFocus            = 0x0400,
-    Ft_UnlockCursorOnPause          = 0x0800,
-    Ft_LockCursorInPossession       = 0x1000,
-    Ft_PauseMusicOnGamePause        = 0x2000,
-    Ft_MuteAudioOnLoseFocus         = 0x4000,
-    Ft_SkipHeartZoom                = 0x8000,
-    Ft_SkipSplashScreens            = 0x10000,
-    Ft_DisableCursorCameraPanning   = 0x20000,
-    Ft_DeltaTime                    = 0x40000,
-    Ft_NoCdMusic                    = 0x80000,
+    Ft_EyeLens = 0x0001,
+    Ft_HiResVideo = 0x0002,
+    Ft_BigPointer = 0x0004,
+    Ft_HiResCreatr = 0x0008,
+    Ft_AdvAmbSound = 0x0010,
+    Ft_Censorship = 0x0020,
+    Ft_Atmossounds = 0x0040,
+    Ft_Resizemovies = 0x0080,
+    Ft_FreezeOnLoseFocus = 0x0400,
+    Ft_UnlockCursorOnPause = 0x0800,
+    Ft_LockCursorInPossession = 0x1000,
+    Ft_PauseMusicOnGamePause = 0x2000,
+    Ft_MuteAudioOnLoseFocus = 0x4000,
+    Ft_SkipHeartZoom = 0x8000,
+    Ft_SkipSplashScreens = 0x10000,
+    Ft_DisableCursorCameraPanning = 0x20000,
+    Ft_DeltaTime = 0x40000,
+    Ft_NoCdMusic = 0x80000,
 };
 
 enum TbExtraLevels {
-    ExLv_None      =  0,
-    ExLv_FullMoon  =  1,
-    ExLv_NewMoon   =  2,
+    ExLv_None = 0,
+    ExLv_FullMoon = 1,
+    ExLv_NewMoon = 2,
 };
 
 enum TbLevelOptions {
-    LvOp_None      =  0x00,
-    LvOp_IsSingle  =  0x01,
-    LvOp_IsMulti   =  0x02,
-    LvOp_IsBonus   =  0x04,
-    LvOp_IsExtra   =  0x08,
-    LvOp_IsFree    =  0x10,
-    LvOp_AlwsVisbl =  0x20,
-    LvOp_Tutorial  =  0x40,
+    LvOp_None = 0x00,
+    LvOp_IsSingle = 0x01,
+    LvOp_IsMulti = 0x02,
+    LvOp_IsBonus = 0x04,
+    LvOp_IsExtra = 0x08,
+    LvOp_IsFree = 0x10,
+    LvOp_AlwsVisbl = 0x20,
+    LvOp_Tutorial = 0x40,
 };
 
 enum TbLevelState {
-    LvSt_Hidden    =  0,
-    LvSt_HalfShow  =  1,
-    LvSt_Visible   =  2,
+    LvSt_Hidden = 0,
+    LvSt_HalfShow = 1,
+    LvSt_Visible = 2,
 };
 
 enum TbLevelLocation {
-    LvLc_VarLevels =  0,
-    LvLc_Campaign  =  1,
-    LvLc_Custom    =  2,
+    LvLc_VarLevels = 0,
+    LvLc_Campaign = 1,
+    LvLc_Custom = 2,
 };
 
 enum TbLanguage {
-    Lang_Unset    =  0,
+    Lang_Unset = 0,
     Lang_English,
     Lang_French,
     Lang_German,
@@ -141,10 +141,10 @@ enum TbLanguage {
 };
 
 enum TbConfigLoadFlags {
-    CnfLd_Standard      =  0x00, /**< Standard load, no special behavior. */
-    CnfLd_ListOnly      =  0x01, /**< Load only list of items and their names, don't parse actual options (when applicable). */
-    CnfLd_AcceptPartial =  0x02, /**< Accept partial files (with only some options set), and don't clear previous configuration. */
-    CnfLd_IgnoreErrors  =  0x04, /**< Do not log error message on failures (still, return with error). */
+    CnfLd_Standard = 0x00,      /**< Standard load, no special behavior. */
+    CnfLd_ListOnly = 0x01,      /**< Load only list of items and their names, don't parse actual options (when applicable). */
+    CnfLd_AcceptPartial = 0x02, /**< Accept partial files (with only some options set), and don't clear previous configuration. */
+    CnfLd_IgnoreErrors = 0x04,  /**< Do not log error message on failures (still, return with error). */
 };
 
 /******************************************************************************/
@@ -162,22 +162,22 @@ struct NamedCommand {
 };
 
 struct LongNamedCommand {
-    const char* name;
+    const char *name;
     long long num;
 };
 
 struct InstallInfo {
-  char inst_path[150];
-  int lang_id;
-  int field_9A;
+    char inst_path[150];
+    int lang_id;
+    int field_9A;
 };
 
 struct NetLevelDesc { // sizeof = 14
-  unsigned char lvnum;
-  unsigned char field_1;
-  unsigned long field_2;
-  unsigned long field_6;
-  char *text;
+    unsigned char lvnum;
+    unsigned char field_1;
+    unsigned long field_2;
+    unsigned long field_6;
+    char *text;
 };
 
 extern unsigned short AtmosRepeat;
@@ -202,8 +202,8 @@ extern const struct NamedCommand lang_type[];
 extern const struct NamedCommand logicval_type[];
 extern const struct NamedCommand scrshot_type[];
 /******************************************************************************/
-char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
-char *prepare_file_path(short fgroup,const char *fname);
+char *prepare_file_path_buf(char *ffullpath, short fgroup, const char *fname);
+char *prepare_file_path(short fgroup, const char *fname);
 char *prepare_file_fmtpath(short fgroup, const char *fmt_str, ...);
 unsigned char *load_data_file_to_buffer(long *ldsize, short fgroup, const char *fmt_str, ...);
 /******************************************************************************/
@@ -219,7 +219,7 @@ TbBool pause_music_when_game_paused(void);
 TbBool mute_audio_on_focus_lost(void);
 short load_configuration(void);
 void process_cmdline_overrides(void);
-short calculate_moon_phase(short do_calculate,short add_to_log);
+short calculate_moon_phase(short do_calculate, short add_to_log);
 void load_or_create_high_score_table(void);
 TbBool load_high_score_table(void);
 TbBool save_high_score_table(void);
@@ -272,19 +272,19 @@ const char *get_language_lwrstr(int lang_id);
 TbBool reset_credits(struct CreditsItem *credits);
 TbBool setup_campaign_credits_data(struct GameCampaign *campgn);
 /******************************************************************************/
-short find_conf_block(const char *buf,long *pos,long buflen,const char *blockname);
-int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
-TbBool skip_conf_to_next_line(const char *buf,long *pos,long buflen);
-int get_conf_parameter_single(const char *buf,long *pos,long buflen,char *dst,long dstlen);
-int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen);
-int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,long dstlen);
+short find_conf_block(const char *buf, long *pos, long buflen, const char *blockname);
+int recognize_conf_command(const char *buf, long *pos, long buflen, const struct NamedCommand *commands);
+TbBool skip_conf_to_next_line(const char *buf, long *pos, long buflen);
+int get_conf_parameter_single(const char *buf, long *pos, long buflen, char *dst, long dstlen);
+int get_conf_parameter_whole(const char *buf, long *pos, long buflen, char *dst, long dstlen);
+int get_conf_parameter_quoted(const char *buf, long *pos, long buflen, char *dst, long dstlen);
 
 int get_conf_list_int(const char *buf, const char **state, int *dst);
 
-int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
-const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
+int recognize_conf_parameter(const char *buf, long *pos, long buflen, const struct NamedCommand *commands);
+const char *get_conf_parameter_text(const struct NamedCommand commands[], int num);
 long get_id(const struct NamedCommand *desc, const char *itmname);
-long long get_long_id(const struct LongNamedCommand* desc, const char* itmname);
+long long get_long_id(const struct LongNamedCommand *desc, const char *itmname);
 long get_rid(const struct NamedCommand *desc, const char *itmname);
 /******************************************************************************/
 #ifdef __cplusplus

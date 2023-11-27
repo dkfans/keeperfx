@@ -19,7 +19,6 @@
 #ifndef DK_LVLSCRIPT_VALUE_H
 #define DK_LVLSCRIPT_VALUE_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif

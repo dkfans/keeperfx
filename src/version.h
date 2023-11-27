@@ -29,24 +29,24 @@
 #endif
 /* Version definitions */
 #include "../obj/ver_defs.h"
-//#define VER_MAJOR         1
-//#define VER_MINOR         2
-//#define VER_RELEASE       3
-//#define VER_BUILD         4
-//#define VER_STRING        "1.2.3.4"
+// #define VER_MAJOR         1
+// #define VER_MINOR         2
+// #define VER_RELEASE       3
+// #define VER_BUILD         4
+// #define VER_STRING        "1.2.3.4"
 /* Program name, copyrights and file names */
-#define PROGRAM_NAME      "Dungeon Keeper FX"
+#define PROGRAM_NAME "Dungeon Keeper FX"
 #define PROGRAM_FULL_NAME "KeeperFX"
-#define COMPANY_NAME      "Fan community"
-#define INTERNAL_NAME     "keeperfx"
-#define LEGAL_COPYRIGHT   "Open Source"
-#define LEGAL_TRADEMARKS  "DK is a trademark of Electronic Arts"
+#define COMPANY_NAME "Fan community"
+#define INTERNAL_NAME "keeperfx"
+#define LEGAL_COPYRIGHT "Open Source"
+#define LEGAL_TRADEMARKS "DK is a trademark of Electronic Arts"
 #define FILE_VERSION VER_STRING
 #define FILE_DESCRIPTION PROGRAM_NAME
-#define ORIGINAL_FILENAME INTERNAL_NAME".exe"
+#define ORIGINAL_FILENAME INTERNAL_NAME ".exe"
 #define PRODUCT_NAME PROGRAM_FULL_NAME
-#define PRODUCT_VERSION    VER_STRING
-#define DEFAULT_LOG_FILENAME INTERNAL_NAME".log"
+#define PRODUCT_VERSION VER_STRING
+#define DEFAULT_LOG_FILENAME INTERNAL_NAME ".log"
 
 #endif /*KEEPERFX_VERSION_H*/
 /******************************************************************************/

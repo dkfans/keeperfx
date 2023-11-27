@@ -33,21 +33,22 @@
 extern "C" {
 #endif
 /******************************************************************************/
-char onscreen_msg_text[255]="";
+char onscreen_msg_text[255] = "";
 float render_onscreen_msg_time;
 
 struct ErrorStatistics erstat[] = {
-    {0, 0, "Out of thing slots"},
-    {0, 0, "Out of creatures"},
-    {0, 0, "Out of path triangles"},
-    {0, 0, "Out of room slots"},
-    {0, 0, "Wrong creature state"},
-    {0, 0, "Out of path points"},
-    {0, 0, "Path heap failure"},
-    {0, 0, "Route tree failure"},
+    {0, 0,           "Out of thing slots"},
+    {0, 0,             "Out of creatures"},
+    {0, 0,        "Out of path triangles"},
+    {0, 0,            "Out of room slots"},
+    {0, 0,         "Wrong creature state"},
+    {0, 0,           "Out of path points"},
+    {0, 0,            "Path heap failure"},
+    {0, 0,           "Route tree failure"},
     {0, 0, "Cannot read packet from file"},
 };
 int last_checked_stat_num = 0;
+
 /******************************************************************************/
 void erstats_clear(void)
 {
@@ -61,15 +62,17 @@ void erstats_clear(void)
 
 long erstat_inc(int stat_num)
 {
-    if ((stat_num >= 0) && (stat_num < sizeof(erstat)/sizeof(erstat[0])))
+    if ((stat_num >= 0) && (stat_num < sizeof(erstat) / sizeof(erstat[0])))
+    {
         erstat[stat_num].n++;
-    return (erstat[stat_num].n-erstat[stat_num].nprv);
+    }
+    return (erstat[stat_num].n - erstat[stat_num].nprv);
 }
 
 TbBool show_onscreen_msg_va(int nturns, const char *fmt_str, va_list arg)
 {
     vsprintf(onscreen_msg_text, fmt_str, arg);
-    SYNCMSG("Onscreen message: %s",onscreen_msg_text);
+    SYNCMSG("Onscreen message: %s", onscreen_msg_text);
     render_onscreen_msg_time = (float)nturns;
     return true;
 }
@@ -92,10 +95,12 @@ TbBool erstat_check(void)
 {
     // Don't check more often than every 7 turns
     if ((game.play_gameturn & 0x07) != 0)
+    {
         return false;
+    }
 
     if (last_checked_stat_num >= sizeof(erstat) / sizeof(erstat[0]))
-    { 
+    {
         ERRORLOG("Invalid last checked stat number %d, resetting to 0", last_checked_stat_num);
         last_checked_stat_num = 0;
     }
@@ -106,13 +111,13 @@ TbBool erstat_check(void)
     if (sdiff != 0)
     {
 #if (BFDEBUG_LEVEL > 0)
-        show_onscreen_msg(game_num_fps,"%s, %ld occurrences",erstat[stat_num].msg,sdiff);
+        show_onscreen_msg(game_num_fps, "%s, %ld occurrences", erstat[stat_num].msg, sdiff);
 #else
-        WARNLOG("%s, %ld occurrences",erstat[stat_num].msg,sdiff);
+        WARNLOG("%s, %ld occurrences", erstat[stat_num].msg, sdiff);
 #endif
         erstat[stat_num].nprv = erstat[stat_num].n;
     }
-    last_checked_stat_num = (last_checked_stat_num+1) % (sizeof(erstat)/sizeof(erstat[0]));
+    last_checked_stat_num = (last_checked_stat_num + 1) % (sizeof(erstat) / sizeof(erstat[0]));
     return (sdiff != 0);
 }
 
@@ -122,7 +127,7 @@ TbBool erstat_check(void)
  */
 TbBool draw_onscreen_direct_messages(void)
 {
-    SYNCDBG(5,"Starting");
+    SYNCDBG(5, "Starting");
     int tx_units_per_px;
     if (dbc_language > 0)
     {
@@ -160,9 +165,10 @@ TbBool draw_onscreen_direct_messages(void)
         }
         msg_pos += scale_value_by_vertical_resolution(20);
     }
-    SYNCDBG(18,"Finished");
+    SYNCDBG(18, "Finished");
     return true;
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

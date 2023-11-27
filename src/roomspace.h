@@ -26,21 +26,21 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define MAX_ROOMSPACE_WIDTH                        20
-#define MAX_USER_ROOMSPACE_WIDTH                    9
-#define MIN_USER_ROOMSPACE_WIDTH                    1
-#define DEFAULT_USER_ROOMSPACE_WIDTH                5
-#define DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS  2
-#define MAX_USER_ROOMSPACE_DETECTION_LOOSENESS      9
+#define MAX_ROOMSPACE_WIDTH 20
+#define MAX_USER_ROOMSPACE_WIDTH 9
+#define MIN_USER_ROOMSPACE_WIDTH 1
+#define DEFAULT_USER_ROOMSPACE_WIDTH 5
+#define DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS 2
+#define MAX_USER_ROOMSPACE_DETECTION_LOOSENESS 9
 
 enum roomspace_placement_modes {
-    box_placement_mode = 0, // fixed width/height (default)
-    drag_placement_mode = 1, // fixed 1x1 roomspace, can hold left click to paint
+    box_placement_mode = 0,       // fixed width/height (default)
+    drag_placement_mode = 1,      // fixed 1x1 roomspace, can hold left click to paint
     roomspace_detection_mode = 2, // find biggest/best roomspace under cursor
     single_subtile_mode = 3,
 };
 
-// 
+//
 enum roomspace_tolerance_layers {
     disable_tolerance_layers = 0,
     tolerate_only_self_claimed_path = 1,
@@ -83,10 +83,10 @@ struct RoomSpace {
     int invalid_slabs_count;
     PlayerNumber plyr_idx;
     RoomKind rkind;
-	  TbBool is_roomspace_a_single_subtile;
+    TbBool is_roomspace_a_single_subtile;
 
-	  MapSlabCoord buildx, buildy;
-	  TbBool is_active;
+    MapSlabCoord buildx, buildy;
+    TbBool is_active;
     TbBool render_roomspace_as_box;
     TbBool tag_for_dig;
     TbBool highlight_mode;
@@ -99,31 +99,32 @@ struct RoomSpace {
     TbBool drag_mode;
     unsigned char drag_direction;
 };
+
 /******************************************************************************/
 /******************************************************************************/
 int calc_distance_from_roomspace_centre(int total_distance, TbBool offset);
 
 struct RoomSpace create_box_roomspace(struct RoomSpace roomspace, int width,
-int height, int centre_x, int centre_y);
+                                      int height, int centre_x, int centre_y);
 
 int can_build_roomspace_of_dimensions(PlayerNumber plyr_idx, RoomKind rkind,
-    MapSlabCoord slb_x, MapSlabCoord slb_y, int width, int height,
-    TbBool full_check);
+                                      MapSlabCoord slb_x, MapSlabCoord slb_y, int width, int height,
+                                      TbBool full_check);
 
 int can_build_fancy_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
-    struct RoomSpace roomspace);
+                              struct RoomSpace roomspace);
 
 struct RoomSpace check_slabs_in_roomspace(struct RoomSpace roomspace, short rkind_cost);
 
 int can_build_roomspace_of_dimensions_loose(PlayerNumber plyr_idx,
-    RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y, int width,
-    int height, int *invalid_blocks, int roomspace_discovery_looseness);
+                                            RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y, int width,
+                                            int height, int *invalid_blocks, int roomspace_discovery_looseness);
 
 int can_build_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
-    struct RoomSpace roomspace);
-    
-struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx, 
-                                               MapSlabCoord cursor_x, 
+                        struct RoomSpace roomspace);
+
+struct RoomSpace get_current_room_as_roomspace(PlayerNumber current_plyr_idx,
+                                               MapSlabCoord cursor_x,
                                                MapSlabCoord cursor_y);
 
 void get_dungeon_highlight_user_roomspace(struct RoomSpace *roomspace, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
@@ -144,7 +145,7 @@ void process_highlight_roomspace_inputs(PlayerNumber plyr_idx);
 
 void reset_dungeon_build_room_ui_variables(PlayerNumber plyr_idx);
 
-void update_slab_grid(struct RoomSpace* roomspace, unsigned char mode, TbBool sell);
+void update_slab_grid(struct RoomSpace *roomspace, unsigned char mode, TbBool sell);
 
 TbBool roomspace_can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind, MapSlabCoord slb_x, MapSlabCoord slb_y);
 void detect_roomspace_direction(struct RoomSpace *roomspace);

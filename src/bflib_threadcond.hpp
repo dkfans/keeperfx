@@ -26,21 +26,21 @@
 
 class ThreadCond
 {
-private:
-	SDL_mutex * const mutex;
-	SDL_cond * const cond;
-	bool exit; //shared
-	bool locked; //child thread
-public:
-	ThreadCond();
-	~ThreadCond();
+  private:
+    SDL_mutex *const mutex;
+    SDL_cond *const cond;
+    bool exit;   // shared
+    bool locked; // child thread
+  public:
+    ThreadCond();
+    ~ThreadCond();
 
-	void reset(); //parent thread
-	void signalExit(); //parent thread
-	void waitMs(unsigned long ms); //child thread
-	void lock(); //child thread
-	void unlock(); //child thread
-	bool shouldExit(); //child thread
+    void reset();                  // parent thread
+    void signalExit();             // parent thread
+    void waitMs(unsigned long ms); // child thread
+    void lock();                   // child thread
+    void unlock();                 // child thread
+    bool shouldExit();             // child thread
 };
 
-#endif //BFLIB_THREADCOND_HPP
+#endif // BFLIB_THREADCOND_HPP

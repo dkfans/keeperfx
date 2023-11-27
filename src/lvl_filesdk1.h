@@ -32,13 +32,14 @@ extern "C" {
 #define DEFAULT_LEVEL_VERSION 0
 
 enum LoadMapFileFlags {
-    LMFF_None     = 0x00,
+    LMFF_None = 0x00,
     LMFF_Optional = 0x01,
 };
+
 /******************************************************************************/
 extern long level_file_version;
 /******************************************************************************/
-unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum,const char *fext,long *ldsize,unsigned short flags);
+unsigned char *load_single_map_file_to_buffer(LevelNumber lvnum, const char *fext, long *ldsize, unsigned short flags);
 TbBool find_and_load_lif_files(void);
 TbBool find_and_load_lof_files(void);
 long convert_old_column_file(LevelNumber lv_num);

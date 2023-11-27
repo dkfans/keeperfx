@@ -27,17 +27,16 @@ extern "C" {
 #endif
 /******************************************************************************/
 enum TbFileMode {
-        Lb_FILE_MODE_NEW       = 0,
-        Lb_FILE_MODE_OLD       = 1,
-        Lb_FILE_MODE_READ_ONLY = 2,
+    Lb_FILE_MODE_NEW = 0,
+    Lb_FILE_MODE_OLD = 1,
+    Lb_FILE_MODE_READ_ONLY = 2,
 };
 
 enum TbFileSeekMode {
-        Lb_FILE_SEEK_BEGINNING = 0,
-        Lb_FILE_SEEK_CURRENT,
-        Lb_FILE_SEEK_END,
+    Lb_FILE_SEEK_BEGINNING = 0,
+    Lb_FILE_SEEK_CURRENT,
+    Lb_FILE_SEEK_END,
 };
-
 
 /******************************************************************************/
 
@@ -51,13 +50,13 @@ int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len);
 long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len);
 long LbFileLength(const char *fname);
 long LbFileLengthHandle(TbFileHandle handle);
-int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes);
+int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind, unsigned int attributes);
 int LbFileFindNext(struct TbFileFind *ffind);
 int LbFileFindEnd(struct TbFileFind *ffind);
 int LbFileDelete(const char *filename);
 short LbFileFlush(TbFileHandle handle);
 int LbFileMakeFullPath(const short append_cur_dir,
-  const char *directory, const char *filename, char *buf, const unsigned long len);
+                       const char *directory, const char *filename, char *buf, const unsigned long len);
 
 /******************************************************************************/
 #ifdef __cplusplus

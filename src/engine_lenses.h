@@ -30,7 +30,7 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-#define PERS_ROUTINES_COUNT    4
+#define PERS_ROUTINES_COUNT 4
 
 struct XYZ;
 struct PolyPoint;

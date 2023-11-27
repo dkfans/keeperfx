@@ -49,11 +49,12 @@ struct TbSpriteDrawData {
     short startShift;
     TbBool mirror;
 };
+
 /******************************************************************************/
-long xsteps_array[2*SPRITE_SCALING_XSTEPS];
-long ysteps_array[2*SPRITE_SCALING_YSTEPS];
-long alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
-long alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
+long xsteps_array[2 * SPRITE_SCALING_XSTEPS];
+long ysteps_array[2 * SPRITE_SCALING_YSTEPS];
+long alpha_xsteps_array[2 * SPRITE_SCALING_XSTEPS];
+long alpha_ysteps_array[2 * SPRITE_SCALING_YSTEPS];
 
 unsigned char *poly_screen;
 unsigned char *vec_screen;
@@ -66,6 +67,7 @@ unsigned char *dither_end;
 unsigned char *lbSpriteReMapPtr;
 long scale_up;
 long alpha_scale_up;
+
 /******************************************************************************/
 /**  Prints horizontal or vertical line on current graphics window.
  *  Does no screen locking - screen must be lock before and unlocked
@@ -79,135 +81,177 @@ long alpha_scale_up;
  */
 void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour)
 {
-  long width_max = lbDisplay.GraphicsWindowWidth - 1;
-  long height_max = lbDisplay.GraphicsWindowHeight - 1;
-  if ( xpos1 > xpos2 )
-  { //Switching & clipping x coordinates
-    if (xpos1 < 0) return;
-    if (xpos2 > width_max) return;
-    long nxpos1=xpos2;
-    long nxpos2=xpos1;
-    if ( xpos2 < 0 )
-      nxpos1 = 0;
-    if ( xpos1 > width_max )
-      nxpos2 = lbDisplay.GraphicsWindowWidth - 1;
-    xpos1 = nxpos1;
-    xpos2 = nxpos2;
-  } else
-  { //Clipping x coordinates
-    if (xpos2 < 0) return;
-    if (xpos1 > width_max) return;
-    if ( xpos1 < 0 )
-      xpos1 = 0;
-    if ( xpos2 > width_max )
-      xpos2 = lbDisplay.GraphicsWindowWidth - 1;
-  }
-  if ( ypos1 > ypos2 )
-  { //Switching & clipping y coordinates
-    if (ypos1 < 0) return;
-    if (ypos2 > height_max) return;
-    long nxpos1=xpos2;
-    long nxpos2=xpos1;
-    if ( ypos2 < 0 )
-      nxpos1 = 0;
-    if ( ypos1 > height_max )
-      nxpos2 = lbDisplay.GraphicsWindowHeight - 1;
-    ypos1 = nxpos1;
-    ypos2 = nxpos2;
-  } else
-  { //Clipping y coordinates
-    if (ypos2 < 0) return;
-    if (ypos1 > height_max) return;
-    if (ypos1 < 0)
-      ypos1 = 0;
-    if ( ypos2 > height_max )
-      ypos2 = lbDisplay.GraphicsWindowHeight - 1;
-  }
-  //And now to drawing
-  unsigned char *screen_ptr = lbDisplay.GraphicsWindowPtr + xpos1 +
-          lbDisplay.GraphicsScreenWidth * ypos1;
-  if ( xpos2 == xpos1 )
-  {//Vertical line
-    long idx = ypos2 - ypos1 + 1;
-    if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
-    {
-      unsigned short glass_idx = (unsigned char)colour << 8;
-      do {
-        glass_idx&=0xff00;
-        glass_idx |= *screen_ptr;
-        *screen_ptr = lbDisplay.GlassMap[glass_idx];
-        screen_ptr += lbDisplay.GraphicsScreenWidth;
-        idx--;
-      } while ( idx>0 );
-    } else
-    {
-      if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
-      {
-        unsigned short glass_idx = (unsigned char)colour;
-        do
+    long width_max = lbDisplay.GraphicsWindowWidth - 1;
+    long height_max = lbDisplay.GraphicsWindowHeight - 1;
+    if (xpos1 > xpos2)
+    { // Switching & clipping x coordinates
+        if (xpos1 < 0)
         {
-          glass_idx&=0x00ff;
-          glass_idx |= ((*screen_ptr)<<8);
-          *screen_ptr = lbDisplay.GlassMap[glass_idx];
-          screen_ptr += lbDisplay.GraphicsScreenWidth;
-          idx--;
+            return;
         }
-        while ( idx>0 );
-      } else
-      {
-        unsigned char col_idx = colour;
-        do
+        if (xpos2 > width_max)
         {
-          *screen_ptr = col_idx;
-          screen_ptr += lbDisplay.GraphicsScreenWidth;
-          idx--;
+            return;
         }
-        while ( idx>0 );
-      }
-    }
-  } else
-  {//Horizontal line
-    long idx = xpos2 - xpos1 + 1;
-    if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
-    {
-      unsigned short glass_idx = (unsigned char)colour << 8;
-      do
-      {
-        glass_idx&=0xff00;
-        glass_idx |= *screen_ptr;
-        *screen_ptr = lbDisplay.GlassMap[glass_idx];
-        screen_ptr++;
-        idx--;
-      }
-      while ( idx>0 );
+        long nxpos1 = xpos2;
+        long nxpos2 = xpos1;
+        if (xpos2 < 0)
+        {
+            nxpos1 = 0;
+        }
+        if (xpos1 > width_max)
+        {
+            nxpos2 = lbDisplay.GraphicsWindowWidth - 1;
+        }
+        xpos1 = nxpos1;
+        xpos2 = nxpos2;
     }
     else
-    {
-      if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
-      {
-        unsigned short glass_idx = (unsigned char)colour;
-        do
+    { // Clipping x coordinates
+        if (xpos2 < 0)
         {
-          glass_idx&=0x00ff;
-          glass_idx |= (((unsigned short)*screen_ptr)<<8);
-          *screen_ptr = lbDisplay.GlassMap[glass_idx];
-          screen_ptr++;
-          idx--;
+            return;
         }
-        while ( idx>0 );
-      }
-      else
-      {
-        unsigned char col_idx = colour;
-        while ( idx>0 )
+        if (xpos1 > width_max)
         {
-          *screen_ptr = col_idx;
-          screen_ptr++;
-          idx--;
+            return;
         }
-      }
+        if (xpos1 < 0)
+        {
+            xpos1 = 0;
+        }
+        if (xpos2 > width_max)
+        {
+            xpos2 = lbDisplay.GraphicsWindowWidth - 1;
+        }
     }
-  }
+    if (ypos1 > ypos2)
+    { // Switching & clipping y coordinates
+        if (ypos1 < 0)
+        {
+            return;
+        }
+        if (ypos2 > height_max)
+        {
+            return;
+        }
+        long nxpos1 = xpos2;
+        long nxpos2 = xpos1;
+        if (ypos2 < 0)
+        {
+            nxpos1 = 0;
+        }
+        if (ypos1 > height_max)
+        {
+            nxpos2 = lbDisplay.GraphicsWindowHeight - 1;
+        }
+        ypos1 = nxpos1;
+        ypos2 = nxpos2;
+    }
+    else
+    { // Clipping y coordinates
+        if (ypos2 < 0)
+        {
+            return;
+        }
+        if (ypos1 > height_max)
+        {
+            return;
+        }
+        if (ypos1 < 0)
+        {
+            ypos1 = 0;
+        }
+        if (ypos2 > height_max)
+        {
+            ypos2 = lbDisplay.GraphicsWindowHeight - 1;
+        }
+    }
+    // And now to drawing
+    unsigned char *screen_ptr = lbDisplay.GraphicsWindowPtr + xpos1 +
+                                lbDisplay.GraphicsScreenWidth * ypos1;
+    if (xpos2 == xpos1)
+    { // Vertical line
+        long idx = ypos2 - ypos1 + 1;
+        if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
+        {
+            unsigned short glass_idx = (unsigned char)colour << 8;
+            do
+            {
+                glass_idx &= 0xff00;
+                glass_idx |= *screen_ptr;
+                *screen_ptr = lbDisplay.GlassMap[glass_idx];
+                screen_ptr += lbDisplay.GraphicsScreenWidth;
+                idx--;
+            } while (idx > 0);
+        }
+        else
+        {
+            if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
+            {
+                unsigned short glass_idx = (unsigned char)colour;
+                do
+                {
+                    glass_idx &= 0x00ff;
+                    glass_idx |= ((*screen_ptr) << 8);
+                    *screen_ptr = lbDisplay.GlassMap[glass_idx];
+                    screen_ptr += lbDisplay.GraphicsScreenWidth;
+                    idx--;
+                } while (idx > 0);
+            }
+            else
+            {
+                unsigned char col_idx = colour;
+                do
+                {
+                    *screen_ptr = col_idx;
+                    screen_ptr += lbDisplay.GraphicsScreenWidth;
+                    idx--;
+                } while (idx > 0);
+            }
+        }
+    }
+    else
+    { // Horizontal line
+        long idx = xpos2 - xpos1 + 1;
+        if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
+        {
+            unsigned short glass_idx = (unsigned char)colour << 8;
+            do
+            {
+                glass_idx &= 0xff00;
+                glass_idx |= *screen_ptr;
+                *screen_ptr = lbDisplay.GlassMap[glass_idx];
+                screen_ptr++;
+                idx--;
+            } while (idx > 0);
+        }
+        else
+        {
+            if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
+            {
+                unsigned short glass_idx = (unsigned char)colour;
+                do
+                {
+                    glass_idx &= 0x00ff;
+                    glass_idx |= (((unsigned short)*screen_ptr) << 8);
+                    *screen_ptr = lbDisplay.GlassMap[glass_idx];
+                    screen_ptr++;
+                    idx--;
+                } while (idx > 0);
+            }
+            else
+            {
+                unsigned char col_idx = colour;
+                while (idx > 0)
+                {
+                    *screen_ptr = col_idx;
+                    screen_ptr++;
+                    idx--;
+                }
+            }
+        }
+    }
 }
 
 /** Draws a filled box on current graphic window.
@@ -222,83 +266,102 @@ void LbDrawHVLine(long xpos1, long ypos1, long xpos2, long ypos2, TbPixel colour
  */
 void LbDrawBoxClip(long x, long y, unsigned long width, unsigned long height, TbPixel colour)
 {
-  long ypos = y;
-  //Checking and clipping coordinates
-  if ( y >= lbDisplay.GraphicsWindowHeight )
-      return;
-  if ( y < 0 )
-  {
-      height += y;
-      ypos = 0;
-  }
-  if ( (long)(height + ypos) > lbDisplay.GraphicsWindowHeight )
-      height -= height + ypos - lbDisplay.GraphicsWindowHeight;
-  if ( (long)height <= 0 )
-      return;
+    long ypos = y;
+    // Checking and clipping coordinates
+    if (y >= lbDisplay.GraphicsWindowHeight)
+    {
+        return;
+    }
+    if (y < 0)
+    {
+        height += y;
+        ypos = 0;
+    }
+    if ((long)(height + ypos) > lbDisplay.GraphicsWindowHeight)
+    {
+        height -= height + ypos - lbDisplay.GraphicsWindowHeight;
+    }
+    if ((long)height <= 0)
+    {
+        return;
+    }
 
-  ypos = lbDisplay.GraphicsScreenWidth * (lbDisplay.GraphicsWindowY + ypos);
-  long xpos = x;
-  if ( x >= lbDisplay.GraphicsWindowWidth )
-      return;
-  if ( x < 0 )
-  {
-      width += x;
-      xpos = 0;
-  }
-  if ( (long)(width + xpos) > lbDisplay.GraphicsWindowWidth )
-      width -= width + xpos - lbDisplay.GraphicsWindowWidth;
-  if ( (long)width <= 0 )
-      return;
-  //And now let's start drawing
-  unsigned char *screen_ptr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX] + xpos + ypos;
-  unsigned long idxh = height;
-  //Space between lines in video buffer
-  unsigned long screen_delta = lbDisplay.GraphicsScreenWidth - width;
-  if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4 )
-  {
-      unsigned short glass_idx = (unsigned char)colour << 8;
-      do {
-          unsigned long idxw = width;
-          do {
-                glass_idx&=0xff00;
+    ypos = lbDisplay.GraphicsScreenWidth * (lbDisplay.GraphicsWindowY + ypos);
+    long xpos = x;
+    if (x >= lbDisplay.GraphicsWindowWidth)
+    {
+        return;
+    }
+    if (x < 0)
+    {
+        width += x;
+        xpos = 0;
+    }
+    if ((long)(width + xpos) > lbDisplay.GraphicsWindowWidth)
+    {
+        width -= width + xpos - lbDisplay.GraphicsWindowWidth;
+    }
+    if ((long)width <= 0)
+    {
+        return;
+    }
+    // And now let's start drawing
+    unsigned char *screen_ptr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX] + xpos + ypos;
+    unsigned long idxh = height;
+    // Space between lines in video buffer
+    unsigned long screen_delta = lbDisplay.GraphicsScreenWidth - width;
+    if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
+    {
+        unsigned short glass_idx = (unsigned char)colour << 8;
+        do
+        {
+            unsigned long idxw = width;
+            do
+            {
+                glass_idx &= 0xff00;
                 glass_idx |= *screen_ptr;
                 *screen_ptr = lbDisplay.GlassMap[glass_idx];
                 screen_ptr++;
                 idxw--;
-          } while ( idxw>0 );
-          screen_ptr += screen_delta;
-          idxh--;
-      } while ( idxh>0 );
-  } else
-  if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8 )
-  {
-      unsigned short glass_idx = (unsigned char)colour;
-      do {
-            unsigned long idxw = width;
-            do {
-              glass_idx&=0x00ff;
-              glass_idx |= (((unsigned short)*screen_ptr)<<8);
-              *screen_ptr = lbDisplay.GlassMap[glass_idx];
-              screen_ptr++;
-              idxw--;
-            } while ( idxw>0 );
+            } while (idxw > 0);
             screen_ptr += screen_delta;
             idxh--;
-      } while ( idxh>0 );
-  } else
-  {
-      unsigned char col_idx = colour;
-      do {
+        } while (idxh > 0);
+    }
+    else if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
+    {
+        unsigned short glass_idx = (unsigned char)colour;
+        do
+        {
             unsigned long idxw = width;
-            do {
-              *screen_ptr = col_idx;
-              screen_ptr++;
-              idxw--;
-            } while ( idxw>0 );
+            do
+            {
+                glass_idx &= 0x00ff;
+                glass_idx |= (((unsigned short)*screen_ptr) << 8);
+                *screen_ptr = lbDisplay.GlassMap[glass_idx];
+                screen_ptr++;
+                idxw--;
+            } while (idxw > 0);
             screen_ptr += screen_delta;
             idxh--;
-      } while ( idxh>0 );
-  }
+        } while (idxh > 0);
+    }
+    else
+    {
+        unsigned char col_idx = colour;
+        do
+        {
+            unsigned long idxw = width;
+            do
+            {
+                *screen_ptr = col_idx;
+                screen_ptr++;
+                idxw--;
+            } while (idxw > 0);
+            screen_ptr += screen_delta;
+            idxh--;
+        } while (idxh > 0);
+    }
 }
 
 /** Draws a rectangular box on current graphics window.
@@ -316,15 +379,18 @@ TbResult LbDrawBox(long x, long y, unsigned long width, unsigned long height, Tb
     if (lbDisplay.DrawFlags & Lb_SPRITE_OUTLINE)
     {
         if ((width < 1) || (height < 1))
-          return Lb_FAIL;
+        {
+            return Lb_FAIL;
+        }
         LbDrawHVLine(x, y, width + x - 1, y, colour);
         LbDrawHVLine(x, height + y - 1, width + x - 1, height + y - 1, colour);
         if (height > 2)
         {
-          LbDrawHVLine(x, y + 1, x, height + y - 2, colour);
-          LbDrawHVLine(width + x - 1, y + 1, width + x - 1, height + y - 2, colour);
+            LbDrawHVLine(x, y + 1, x, height + y - 2, colour);
+            LbDrawHVLine(width + x - 1, y + 1, width + x - 1, height + y - 2, colour);
         }
-    } else
+    }
+    else
     {
         LbDrawBoxClip(x, y, width, height, colour);
     }
@@ -344,17 +410,17 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
 {
     if (spr == NULL)
     {
-        SYNCDBG(19,"NULL sprite");
+        SYNCDBG(19, "NULL sprite");
         return Lb_FAIL;
     }
     if ((spr->SWidth < 1) || (spr->SHeight < 1))
     {
-        SYNCDBG(19,"Zero size sprite (%d,%d)",spr->SWidth,spr->SHeight);
+        SYNCDBG(19, "Zero size sprite (%d,%d)", spr->SWidth, spr->SHeight);
         return Lb_OK;
     }
     if ((lbDisplay.GraphicsWindowWidth == 0) || (lbDisplay.GraphicsWindowHeight == 0))
     {
-        SYNCDBG(19,"Invalid graphics window dimensions");
+        SYNCDBG(19, "Invalid graphics window dimensions");
         return Lb_FAIL;
     }
     x += lbDisplay.GraphicsWindowX;
@@ -365,70 +431,83 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
     short btm;
     short sprWd = spr->SWidth;
     short sprHt = spr->SHeight;
-    //Coordinates range checking - x coords
+    // Coordinates range checking - x coords
     int delta;
     delta = lbDisplay.GraphicsWindowX - x;
     if (delta <= 0)
     {
         left = 0;
-    } else
+    }
+    else
     {
         if (sprWd <= delta)
+        {
             return Lb_OK;
+        }
         left = delta;
     }
-    delta = x + sprWd - (lbDisplay.GraphicsWindowWidth+lbDisplay.GraphicsWindowX);
-    if ( delta <= 0 )
+    delta = x + sprWd - (lbDisplay.GraphicsWindowWidth + lbDisplay.GraphicsWindowX);
+    if (delta <= 0)
     {
         right = sprWd;
-    } else
+    }
+    else
     {
         if (sprWd <= delta)
+        {
             return Lb_OK;
+        }
         right = sprWd - delta;
     }
-    //Coordinates range checking - y coords
+    // Coordinates range checking - y coords
     delta = lbDisplay.GraphicsWindowY - y;
     if (delta <= 0)
     {
-      top = 0;
-    } else
+        top = 0;
+    }
+    else
     {
-      if (sprHt <= delta)
-        return Lb_OK;
-      top = delta;
+        if (sprHt <= delta)
+        {
+            return Lb_OK;
+        }
+        top = delta;
     }
     delta = y + sprHt - (lbDisplay.GraphicsWindowHeight + lbDisplay.GraphicsWindowY);
     if (y + sprHt - (lbDisplay.GraphicsWindowHeight + lbDisplay.GraphicsWindowY) <= 0)
     {
-      btm = sprHt;
-    } else
+        btm = sprHt;
+    }
+    else
     {
-      if (sprHt <= delta)
-        return Lb_OK;
-      btm = sprHt - delta;
+        if (sprHt <= delta)
+        {
+            return Lb_OK;
+        }
+        btm = sprHt - delta;
     }
     if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0)
     {
-        spd->r = &lbDisplay.WScreen[x + (y+btm-1)*lbDisplay.GraphicsScreenWidth + left];
+        spd->r = &lbDisplay.WScreen[x + (y + btm - 1) * lbDisplay.GraphicsScreenWidth + left];
         spd->nextRowDelta = -lbDisplay.GraphicsScreenWidth;
         short tmp_btm = btm;
         btm = sprHt - top;
         top = sprHt - tmp_btm;
-    } else
+    }
+    else
     {
-        spd->r = &lbDisplay.WScreen[x + (y+top)*lbDisplay.GraphicsScreenWidth + left];
+        spd->r = &lbDisplay.WScreen[x + (y + top) * lbDisplay.GraphicsScreenWidth + left];
         spd->nextRowDelta = lbDisplay.GraphicsScreenWidth;
     }
     spd->Ht = btm - top;
     spd->Wd = right - left;
     spd->sp = (char *)spr->Data;
-    SYNCDBG(19,"Sprite coords X=%d...%d Y=%d...%d data=%08x",left,right,top,btm,spd->sp);
+    SYNCDBG(19, "Sprite coords X=%d...%d Y=%d...%d data=%08x", left, right, top, btm, spd->sp);
     long htIndex;
-    if ( top )
+    if (top)
     {
         htIndex = top;
-        while ( 1 )
+        while (1)
         {
             char chr = *(spd->sp);
             while (chr > 0)
@@ -439,12 +518,15 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
             spd->sp++;
             if (chr == 0)
             {
-              htIndex--;
-              if (htIndex <= 0) break;
+                htIndex--;
+                if (htIndex <= 0)
+                {
+                    break;
+                }
             }
         }
     }
-    SYNCDBG(19,"Drawing sprite of size (%d,%d)",(int)spd->Ht,(int)spd->Wd);
+    SYNCDBG(19, "Drawing sprite of size (%d,%d)", (int)spd->Ht, (int)spd->Wd);
     if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
     {
         spd->r += spd->Wd - 1;
@@ -453,7 +535,8 @@ static inline TbResult LbSpriteDrawPrepare(struct TbSpriteDrawData *spd, long x,
         short tmpright = right;
         right = tmpwidth - left;
         spd->startShift = tmpwidth - tmpright;
-    } else
+    }
+    else
     {
         spd->mirror = false;
         spd->startShift = left;
@@ -482,8 +565,8 @@ static inline short LbSpriteDrawLineSkipLeft(const char **sp, short *x1, short l
             // Equal to 0 means EOL
             if (schr == 0)
             {
-              (*x1) = 0;
-              break;
+                (*x1) = 0;
+                break;
             }
             if (schr < 0)
             {
@@ -491,21 +574,24 @@ static inline short LbSpriteDrawLineSkipLeft(const char **sp, short *x1, short l
                 {
                     lpos += schr;
                     (*sp)++;
-                } else
+                }
+                else
                 // If we have more empty spaces than we want to skip
                 {
                     // Return remaining part to skip, so that we can do it outside
                     return lpos;
                 }
-            } else
-            //if (schr > 0)
+            }
+            else
+            // if (schr > 0)
             {
                 if (schr <= lpos)
                 // If we have less than we want to skip
                 {
                     lpos -= schr;
                     (*sp) += (*(*sp)) + 1;
-                } else
+                }
+                else
                 // If we have more characters than we want to skip
                 {
                     // Return remaining part to skip, so that we can draw it
@@ -527,16 +613,18 @@ static inline void LbSpriteDrawLineSkipToEol(const char **sp, short *x1)
     char schr;
     if ((*x1) <= 0)
     {
-      do {
-        schr = *(*sp);
-        while (schr > 0)
+        do
         {
-          (*sp) += schr+1;
-          schr = *(*sp);
-        }
-        (*sp)++;
-      } while (schr);
-    } else
+            schr = *(*sp);
+            while (schr > 0)
+            {
+                (*sp) += schr + 1;
+                schr = *(*sp);
+            }
+            (*sp)++;
+        } while (schr);
+    }
+    else
     {
         (*sp)++;
     }
@@ -549,54 +637,57 @@ static inline void LbSpriteDrawLineSkipToEol(const char **sp, short *x1)
  * @param buf_len
  * @param mirror
  */
-static inline void LbDrawBufferTranspr(unsigned char **buf_out,const char *buf_inp,
-        const int buf_len, const TbBool mirror)
+static inline void LbDrawBufferTranspr(unsigned char **buf_out, const char *buf_inp,
+                                       const int buf_len, const TbBool mirror)
 {
-  int i;
-  unsigned int val;
-  if ( mirror )
-  {
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
+    int i;
+    unsigned int val;
+    if (mirror)
     {
-        for (i=0; i<buf_len; i++ )
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
         {
-            val = *(const unsigned char *)buf_inp;
-            **buf_out = lbDisplay.GlassMap[(val<<8) + **buf_out];
-            buf_inp++;
-            (*buf_out)--;
+            for (i = 0; i < buf_len; i++)
+            {
+                val = *(const unsigned char *)buf_inp;
+                **buf_out = lbDisplay.GlassMap[(val << 8) + **buf_out];
+                buf_inp++;
+                (*buf_out)--;
+            }
         }
-    } else
-    {
-        for (i=0; i<buf_len; i++ )
+        else
         {
-            val = *(const unsigned char *)buf_inp;
-            **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + val];
-            buf_inp++;
-            (*buf_out)--;
-        }
-    }
-  } else
-  {
-    if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4 )
-    {
-        for (i=0; i<buf_len; i++ )
-        {
-            val = *(const unsigned char *)buf_inp;
-            **buf_out = lbDisplay.GlassMap[(val<<8) + **buf_out];
-            buf_inp++;
-            (*buf_out)++;
-        }
-    } else
-    {
-        for (i=0; i<buf_len; i++ )
-        {
-            val = *(const unsigned char *)buf_inp;
-            **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + val];
-            buf_inp++;
-            (*buf_out)++;
+            for (i = 0; i < buf_len; i++)
+            {
+                val = *(const unsigned char *)buf_inp;
+                **buf_out = lbDisplay.GlassMap[((**buf_out) << 8) + val];
+                buf_inp++;
+                (*buf_out)--;
+            }
         }
     }
-  }
+    else
+    {
+        if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
+        {
+            for (i = 0; i < buf_len; i++)
+            {
+                val = *(const unsigned char *)buf_inp;
+                **buf_out = lbDisplay.GlassMap[(val << 8) + **buf_out];
+                buf_inp++;
+                (*buf_out)++;
+            }
+        }
+        else
+        {
+            for (i = 0; i < buf_len; i++)
+            {
+                val = *(const unsigned char *)buf_inp;
+                **buf_out = lbDisplay.GlassMap[((**buf_out) << 8) + val];
+                buf_inp++;
+                (*buf_out)++;
+            }
+        }
+    }
 }
 
 /** Internal function used to draw part of sprite line.
@@ -608,21 +699,22 @@ static inline void LbDrawBufferTranspr(unsigned char **buf_out,const char *buf_i
  * @param buf_len
  * @param mirror
  */
-static inline void LbDrawBufferSolid(unsigned char **buf_out,const char *buf_inp,
-        const int buf_len, const TbBool mirror)
+static inline void LbDrawBufferSolid(unsigned char **buf_out, const char *buf_inp,
+                                     const int buf_len, const TbBool mirror)
 {
     int i;
-    if ( mirror )
+    if (mirror)
     {
-        for (i=0; i < buf_len; i++)
+        for (i = 0; i < buf_len; i++)
         {
             **buf_out = *(const unsigned char *)buf_inp;
             buf_inp++;
             (*buf_out)--;
         }
-    } else
+    }
+    else
     {
-        for (i=0; i < buf_len; i++)
+        for (i = 0; i < buf_len; i++)
         {
             **buf_out = *(const unsigned char *)buf_inp;
             buf_inp++;
@@ -638,41 +730,44 @@ static inline void LbDrawBufferSolid(unsigned char **buf_out,const char *buf_inp
  * @param buf_len
  * @param mirror
  */
-static inline void LbDrawBufferOneColour(unsigned char **buf_out,const TbPixel colour,
-        const int buf_len, const TbBool mirror)
+static inline void LbDrawBufferOneColour(unsigned char **buf_out, const TbPixel colour,
+                                         const int buf_len, const TbBool mirror)
 {
     int i;
-    if ( mirror )
+    if (mirror)
     {
-        if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4 )
+        if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
         {
-            for (i=0; i<buf_len; i++ )
+            for (i = 0; i < buf_len; i++)
             {
-                **buf_out = lbDisplay.GlassMap[(colour<<8) + **buf_out];
-                (*buf_out)--;
-            }
-        } else
-        {
-            for (i=0; i<buf_len; i++ )
-            {
-                **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + colour];
+                **buf_out = lbDisplay.GlassMap[(colour << 8) + **buf_out];
                 (*buf_out)--;
             }
         }
-    } else
-    {
-        if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4 )
+        else
         {
-            for (i=0; i<buf_len; i++ )
+            for (i = 0; i < buf_len; i++)
             {
-                **buf_out = lbDisplay.GlassMap[(colour<<8) + **buf_out];
+                **buf_out = lbDisplay.GlassMap[((**buf_out) << 8) + colour];
+                (*buf_out)--;
+            }
+        }
+    }
+    else
+    {
+        if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
+        {
+            for (i = 0; i < buf_len; i++)
+            {
+                **buf_out = lbDisplay.GlassMap[(colour << 8) + **buf_out];
                 (*buf_out)++;
             }
-        } else
+        }
+        else
         {
-            for (i=0; i<buf_len; i++ )
+            for (i = 0; i < buf_len; i++)
             {
-                **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + colour];
+                **buf_out = lbDisplay.GlassMap[((**buf_out) << 8) + colour];
                 (*buf_out)++;
             }
         }
@@ -685,20 +780,21 @@ static inline void LbDrawBufferOneColour(unsigned char **buf_out,const TbPixel c
  * @param colour
  * @param buf_len
  */
-static inline void LbDrawBufferOneColorSolid(unsigned char **buf_out,const TbPixel colour,
-        const int buf_len, const TbBool mirror)
+static inline void LbDrawBufferOneColorSolid(unsigned char **buf_out, const TbPixel colour,
+                                             const int buf_len, const TbBool mirror)
 {
     int i;
-    if ( mirror )
+    if (mirror)
     {
-        for (i=0; i < buf_len; i++)
+        for (i = 0; i < buf_len; i++)
         {
             **buf_out = colour;
             (*buf_out)--;
         }
-    } else
+    }
+    else
     {
-        for (i=0; i < buf_len; i++)
+        for (i = 0; i < buf_len; i++)
         {
             **buf_out = colour;
             (*buf_out)++;
@@ -713,54 +809,57 @@ static inline void LbDrawBufferOneColorSolid(unsigned char **buf_out,const TbPix
  * @param buf_len
  * @param mirror
  */
-static inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_inp,
-        const int buf_len, const unsigned char *cmap, const TbBool mirror)
+static inline void LbDrawBufferTrRemap(unsigned char **buf_out, const char *buf_inp,
+                                       const int buf_len, const unsigned char *cmap, const TbBool mirror)
 {
-  int i;
-  unsigned int val;
-  if ( mirror )
-  {
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
+    int i;
+    unsigned int val;
+    if (mirror)
     {
-        for (i=0; i<buf_len; i++ )
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
         {
-            val = cmap[*(const unsigned char *)buf_inp];
-            **buf_out = lbDisplay.GlassMap[(val<<8) + **buf_out];
-            buf_inp++;
-            (*buf_out)--;
+            for (i = 0; i < buf_len; i++)
+            {
+                val = cmap[*(const unsigned char *)buf_inp];
+                **buf_out = lbDisplay.GlassMap[(val << 8) + **buf_out];
+                buf_inp++;
+                (*buf_out)--;
+            }
         }
-    } else
-    {
-        for (i=0; i<buf_len; i++ )
+        else
         {
-            val = cmap[*(const unsigned char *)buf_inp];
-            **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + val];
-            buf_inp++;
-            (*buf_out)--;
-        }
-    }
-  } else
-  {
-    if ( lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4 )
-    {
-        for (i=0; i<buf_len; i++ )
-        {
-            val = cmap[*(const unsigned char *)buf_inp];
-            **buf_out = lbDisplay.GlassMap[(val<<8) + **buf_out];
-            buf_inp++;
-            (*buf_out)++;
-        }
-    } else
-    {
-        for (i=0; i<buf_len; i++ )
-        {
-            val = cmap[*(const unsigned char *)buf_inp];
-            **buf_out = lbDisplay.GlassMap[((**buf_out)<<8) + val];
-            buf_inp++;
-            (*buf_out)++;
+            for (i = 0; i < buf_len; i++)
+            {
+                val = cmap[*(const unsigned char *)buf_inp];
+                **buf_out = lbDisplay.GlassMap[((**buf_out) << 8) + val];
+                buf_inp++;
+                (*buf_out)--;
+            }
         }
     }
-  }
+    else
+    {
+        if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
+        {
+            for (i = 0; i < buf_len; i++)
+            {
+                val = cmap[*(const unsigned char *)buf_inp];
+                **buf_out = lbDisplay.GlassMap[(val << 8) + **buf_out];
+                buf_inp++;
+                (*buf_out)++;
+            }
+        }
+        else
+        {
+            for (i = 0; i < buf_len; i++)
+            {
+                val = cmap[*(const unsigned char *)buf_inp];
+                **buf_out = lbDisplay.GlassMap[((**buf_out) << 8) + val];
+                buf_inp++;
+                (*buf_out)++;
+            }
+        }
+    }
 }
 
 /** Internal function used to draw part of sprite line.
@@ -770,11 +869,11 @@ static inline void LbDrawBufferTrRemap(unsigned char **buf_out,const char *buf_i
  * @param buf_len
  * @param mirror
  */
-static inline void LbDrawBufferSlRemap(unsigned char **buf_out,const char *buf_inp,
-        const int buf_len, const unsigned char *cmap, const TbBool mirror)
+static inline void LbDrawBufferSlRemap(unsigned char **buf_out, const char *buf_inp,
+                                       const int buf_len, const unsigned char *cmap, const TbBool mirror)
 {
     int i;
-    for (i=0; i < buf_len; i++)
+    for (i = 0; i < buf_len; i++)
     {
         **buf_out = cmap[*(const unsigned char *)buf_inp];
         buf_inp++;
@@ -789,11 +888,11 @@ static inline void LbDrawBufferSlRemap(unsigned char **buf_out,const char *buf_i
  * @param buf_len
  * @param mirror
  */
-static inline void LbDrawBufferFCRemap(unsigned char **buf_out,const char *buf_inp,
-        const int buf_len, const unsigned char *cmap)
+static inline void LbDrawBufferFCRemap(unsigned char **buf_out, const char *buf_inp,
+                                       const int buf_len, const unsigned char *cmap)
 {
     int i;
-    for (i=0; i < buf_len; i++)
+    for (i = 0; i < buf_len; i++)
     {
         **buf_out = cmap[*(const unsigned char *)buf_inp];
         buf_inp++;
@@ -810,7 +909,7 @@ static inline void LbDrawBufferFCRemap(unsigned char **buf_out,const char *buf_i
  * @param mirror
  */
 static inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, short *x1,
-    short lpos, const TbBool mirror)
+                                           short lpos, const TbBool mirror)
 {
     char schr;
     unsigned char drawOut;
@@ -822,20 +921,28 @@ static inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, s
         {
             drawOut = -schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            if ( mirror )
+            {
+                drawOut = (*x1);
+            }
+            if (mirror)
+            {
                 (*r) -= drawOut;
+            }
             else
+            {
                 (*r) += drawOut;
+            }
             (*sp)++;
-
-        } else
+        }
+        else
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferTranspr(r,(*sp)+(lpos+1),drawOut,mirror);
+            {
+                drawOut = (*x1);
+            }
+            LbDrawBufferTranspr(r, (*sp) + (lpos + 1), drawOut, mirror);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
@@ -852,26 +959,33 @@ static inline void LbSpriteDrawLineTranspr(const char **sp, unsigned char **r, s
         if (schr < 0)
         { // Skipping some pixels
             (*x1) += schr;
-            if ( mirror )
-               (*r) += *(*sp);
+            if (mirror)
+            {
+                (*r) += *(*sp);
+            }
             else
-               (*r) -= *(*sp);
+            {
+                (*r) -= *(*sp);
+            }
             (*sp)++;
-        } else
-        //if ( schr > 0 )
+        }
+        else
+        // if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
             if (drawOut >= (*x1))
+            {
                 drawOut = (*x1);
-            LbDrawBufferTranspr(r,(*sp)+1,drawOut,mirror);
+            }
+            LbDrawBufferTranspr(r, (*sp) + 1, drawOut, mirror);
             (*x1) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
-    } //end while
+    } // end while
 }
 
-static inline TbResult LbSpriteDrawTranspr(const char *sp,short sprWd,short sprHt,unsigned char *r,
-    int nextRowDelta,short left,const TbBool mirror)
+static inline TbResult LbSpriteDrawTranspr(const char *sp, short sprWd, short sprHt, unsigned char *r,
+                                           int nextRowDelta, short left, const TbBool mirror)
 {
     unsigned char *nextRow;
     long htIndex;
@@ -884,17 +998,19 @@ static inline TbResult LbSpriteDrawTranspr(const char *sp,short sprWd,short sprH
         short lpos;
         x1 = sprWd;
         // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
+        lpos = LbSpriteDrawLineSkipLeft(&sp, &x1, left);
         // Do the actual drawing
-        LbSpriteDrawLineTranspr(&sp,&r,&x1,lpos,mirror);
+        LbSpriteDrawLineTranspr(&sp, &r, &x1, lpos, mirror);
         // Go to next line
         htIndex--;
         if (htIndex == 0)
+        {
             return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
+        }
+        LbSpriteDrawLineSkipToEol(&sp, &x1);
         r = nextRow;
         nextRow += nextRowDelta;
-    } //end while
+    } // end while
     return Lb_SUCCESS;
 }
 
@@ -919,16 +1035,21 @@ static inline void LbSpriteDrawLineSolid(const char **sp, unsigned char **r, sho
         {
             drawOut = -schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
+            {
+                drawOut = (*x1);
+            }
             (*r) -= drawOut;
             (*sp)++;
-        } else
+        }
+        else
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferSolid(r,(*sp)+(lpos+1),drawOut,mirror);
+            {
+                drawOut = (*x1);
+            }
+            LbDrawBufferSolid(r, (*sp) + (lpos + 1), drawOut, mirror);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
@@ -947,17 +1068,20 @@ static inline void LbSpriteDrawLineSolid(const char **sp, unsigned char **r, sho
             (*x1) += schr;
             (*r) += *(*sp);
             (*sp)++;
-        } else
-        //if ( schr > 0 )
+        }
+        else
+        // if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
             if (drawOut >= (*x1))
+            {
                 drawOut = (*x1);
-            LbDrawBufferSolid(r,(*sp)+1,drawOut,mirror);
+            }
+            LbDrawBufferSolid(r, (*sp) + 1, drawOut, mirror);
             (*x1) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
-    } //end while
+    } // end while
 }
 
 /** Solid sprite drawing routine. Optimized for mirrored ones, without transparency.
@@ -971,8 +1095,8 @@ static inline void LbSpriteDrawLineSolid(const char **sp, unsigned char **r, sho
  * @param mirror
  * @return
  */
-static inline TbResult LbSpriteDrawSolid(const char *sp,short sprWd,short sprHt,unsigned char *r,
-    int nextRowDelta,short left,const TbBool mirror)
+static inline TbResult LbSpriteDrawSolid(const char *sp, short sprWd, short sprHt, unsigned char *r,
+                                         int nextRowDelta, short left, const TbBool mirror)
 {
     unsigned char *nextRow;
     long htIndex;
@@ -985,17 +1109,19 @@ static inline TbResult LbSpriteDrawSolid(const char *sp,short sprWd,short sprHt,
         short lpos;
         x1 = sprWd;
         // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
+        lpos = LbSpriteDrawLineSkipLeft(&sp, &x1, left);
         // Do the actual drawing
-        LbSpriteDrawLineSolid(&sp,&r,&x1,lpos,mirror);
+        LbSpriteDrawLineSolid(&sp, &r, &x1, lpos, mirror);
         // Go to next line
         htIndex--;
         if (htIndex == 0)
+        {
             return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
+        }
+        LbSpriteDrawLineSkipToEol(&sp, &x1);
         r = nextRow;
         nextRow += nextRowDelta;
-    } //end while
+    } // end while
     return Lb_SUCCESS;
 }
 
@@ -1011,15 +1137,20 @@ static inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, s
         {
             drawOut = -schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
+            {
+                drawOut = (*x1);
+            }
             (*r) += drawOut;
             (*sp)++;
-        } else
+        }
+        else
         {
             drawOut = schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferSolid(r, (*sp)+(lpos+1), drawOut, false);
+            {
+                drawOut = (*x1);
+            }
+            LbDrawBufferSolid(r, (*sp) + (lpos + 1), drawOut, false);
             (*r) += drawOut;
             (*sp) += (*(*sp)) + 1;
         }
@@ -1038,18 +1169,21 @@ static inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, s
             (*x1) += schr;
             (*r) -= *(*sp);
             (*sp)++;
-        } else
-        //if ( schr > 0 )
+        }
+        else
+        // if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
             if (drawOut >= (*x1))
+            {
                 drawOut = (*x1);
-            memcpy((*r), (*sp)+1, drawOut);
+            }
+            memcpy((*r), (*sp) + 1, drawOut);
             (*x1) -= schr;
             (*r) += schr;
             (*sp) += (*(*sp)) + 1;
         }
-    } //end while
+    } // end while
 }
 
 /** Fast copy sprite drawing routine. Does not support transparency nor mirroring.
@@ -1063,8 +1197,8 @@ static inline void LbSpriteDrawLineFastCpy(const char **sp, unsigned char **r, s
  * @param mirror
  * @return
  */
-static inline TbResult LbSpriteDrawFastCpy(const char *sp,short sprWd,short sprHt,unsigned char *r,
-    int nextRowDelta,short left,const TbBool mirror)
+static inline TbResult LbSpriteDrawFastCpy(const char *sp, short sprWd, short sprHt, unsigned char *r,
+                                           int nextRowDelta, short left, const TbBool mirror)
 {
     unsigned char *nextRow;
     long htIndex;
@@ -1077,17 +1211,19 @@ static inline TbResult LbSpriteDrawFastCpy(const char *sp,short sprWd,short sprH
         short lpos;
         x1 = sprWd;
         // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
+        lpos = LbSpriteDrawLineSkipLeft(&sp, &x1, left);
         // Do the actual drawing
-        LbSpriteDrawLineFastCpy(&sp,&r,&x1,lpos);
+        LbSpriteDrawLineFastCpy(&sp, &r, &x1, lpos);
         // Go to next line
         htIndex--;
         if (htIndex == 0)
+        {
             return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
+        }
+        LbSpriteDrawLineSkipToEol(&sp, &x1);
         r = nextRow;
         nextRow += nextRowDelta;
-    } //end while
+    } // end while
     return Lb_SUCCESS;
 }
 
@@ -1095,17 +1231,24 @@ TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr)
 {
     struct TbSpriteDrawData spd;
     TbResult ret;
-    SYNCDBG(19,"At (%ld,%ld)",x,y);
+    SYNCDBG(19, "At (%ld,%ld)", x, y);
     ret = LbSpriteDrawPrepare(&spd, x, y, spr);
     if (ret != Lb_SUCCESS)
+    {
         return ret;
-    if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4|Lb_SPRITE_TRANSPAR8)) != 0)
-        return LbSpriteDrawTranspr(spd.sp,spd.Wd,spd.Ht,spd.r,spd.nextRowDelta,spd.startShift,spd.mirror);
+    }
+    if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_TRANSPAR8)) != 0)
+    {
+        return LbSpriteDrawTranspr(spd.sp, spd.Wd, spd.Ht, spd.r, spd.nextRowDelta, spd.startShift, spd.mirror);
+    }
+    else if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+    {
+        return LbSpriteDrawSolid(spd.sp, spd.Wd, spd.Ht, spd.r, spd.nextRowDelta, spd.startShift, spd.mirror);
+    }
     else
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
-        return LbSpriteDrawSolid(spd.sp,spd.Wd,spd.Ht,spd.r,spd.nextRowDelta,spd.startShift,spd.mirror);
-    else
-        return LbSpriteDrawFastCpy(spd.sp,spd.Wd,spd.Ht,spd.r,spd.nextRowDelta,spd.startShift,spd.mirror);
+    {
+        return LbSpriteDrawFastCpy(spd.sp, spd.Wd, spd.Ht, spd.r, spd.nextRowDelta, spd.startShift, spd.mirror);
+    }
 }
 
 /** Internal routine to draw one line of a remapped transparent sprite.
@@ -1117,7 +1260,7 @@ TbResult LbSpriteDraw(long x, long y, const struct TbSprite *spr)
  * @param mirror
  */
 static inline void LbSpriteDrawLineTrRemap(const char **sp, unsigned char **r, short *x1,
-    const unsigned char *cmap, short lpos,const TbBool mirror)
+                                           const unsigned char *cmap, short lpos, const TbBool mirror)
 {
     char schr;
     unsigned char drawOut;
@@ -1129,20 +1272,28 @@ static inline void LbSpriteDrawLineTrRemap(const char **sp, unsigned char **r, s
         {
             drawOut = -schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            if ( mirror )
+            {
+                drawOut = (*x1);
+            }
+            if (mirror)
+            {
                 (*r) -= drawOut;
+            }
             else
+            {
                 (*r) += drawOut;
+            }
             (*sp)++;
-
-        } else
+        }
+        else
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferTrRemap(r,(*sp)+(lpos+1),drawOut,cmap,mirror);
+            {
+                drawOut = (*x1);
+            }
+            LbDrawBufferTrRemap(r, (*sp) + (lpos + 1), drawOut, cmap, mirror);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
@@ -1159,26 +1310,33 @@ static inline void LbSpriteDrawLineTrRemap(const char **sp, unsigned char **r, s
         if (schr < 0)
         { // Skipping some pixels
             (*x1) += schr;
-            if ( mirror )
-               (*r) += *(*sp);
+            if (mirror)
+            {
+                (*r) += *(*sp);
+            }
             else
-               (*r) -= *(*sp);
+            {
+                (*r) -= *(*sp);
+            }
             (*sp)++;
-        } else
-        //if ( schr > 0 )
+        }
+        else
+        // if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
             if (drawOut >= (*x1))
+            {
                 drawOut = (*x1);
-            LbDrawBufferTrRemap(r,(*sp)+1,drawOut,cmap,mirror);
+            }
+            LbDrawBufferTrRemap(r, (*sp) + 1, drawOut, cmap, mirror);
             (*x1) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
-    } //end while
+    } // end while
 }
 
-static inline TbResult LbSpriteDrawTrRemap(const char *sp,short sprWd,short sprHt,
-        unsigned char *r,const unsigned char *cmap,int nextRowDelta,short left,const TbBool mirror)
+static inline TbResult LbSpriteDrawTrRemap(const char *sp, short sprWd, short sprHt,
+                                           unsigned char *r, const unsigned char *cmap, int nextRowDelta, short left, const TbBool mirror)
 {
     unsigned char *nextRow;
     long htIndex;
@@ -1191,22 +1349,24 @@ static inline TbResult LbSpriteDrawTrRemap(const char *sp,short sprWd,short sprH
         short lpos;
         x1 = sprWd;
         // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
+        lpos = LbSpriteDrawLineSkipLeft(&sp, &x1, left);
         // Do the actual drawing
-        LbSpriteDrawLineTrRemap(&sp,&r,&x1,cmap,lpos,mirror);
+        LbSpriteDrawLineTrRemap(&sp, &r, &x1, cmap, lpos, mirror);
         // Go to next line
         htIndex--;
         if (htIndex == 0)
+        {
             return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
+        }
+        LbSpriteDrawLineSkipToEol(&sp, &x1);
         r = nextRow;
         nextRow += nextRowDelta;
-    } //end while
+    } // end while
     return Lb_SUCCESS;
 }
 
 static inline void LbSpriteDrawLineSlRemap(const char **sp, unsigned char **r, short *x1,
-    const unsigned char *cmap, short lpos,const TbBool mirror)
+                                           const unsigned char *cmap, short lpos, const TbBool mirror)
 {
     char schr;
     unsigned char drawOut;
@@ -1218,16 +1378,21 @@ static inline void LbSpriteDrawLineSlRemap(const char **sp, unsigned char **r, s
         {
             drawOut = -schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
+            {
+                drawOut = (*x1);
+            }
             (*r) -= drawOut;
             (*sp)++;
-        } else
+        }
+        else
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferSlRemap(r,(*sp)+(lpos+1),drawOut,cmap,mirror);
+            {
+                drawOut = (*x1);
+            }
+            LbDrawBufferSlRemap(r, (*sp) + (lpos + 1), drawOut, cmap, mirror);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
@@ -1246,21 +1411,24 @@ static inline void LbSpriteDrawLineSlRemap(const char **sp, unsigned char **r, s
             (*x1) += schr;
             (*r) += *(*sp);
             (*sp)++;
-        } else
-        //if ( schr > 0 )
+        }
+        else
+        // if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
             if (drawOut >= (*x1))
+            {
                 drawOut = (*x1);
-            LbDrawBufferSlRemap(r,(*sp)+1,drawOut,cmap,mirror);
+            }
+            LbDrawBufferSlRemap(r, (*sp) + 1, drawOut, cmap, mirror);
             (*x1) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
-    } //end while
+    } // end while
 }
 
-static inline TbResult LbSpriteDrawSlRemap(const char *sp,short sprWd,short sprHt,
-        unsigned char *r,const unsigned char *cmap,int nextRowDelta,short left,const TbBool mirror)
+static inline TbResult LbSpriteDrawSlRemap(const char *sp, short sprWd, short sprHt,
+                                           unsigned char *r, const unsigned char *cmap, int nextRowDelta, short left, const TbBool mirror)
 {
     unsigned char *nextRow;
     long htIndex;
@@ -1273,22 +1441,24 @@ static inline TbResult LbSpriteDrawSlRemap(const char *sp,short sprWd,short sprH
         short lpos;
         x1 = sprWd;
         // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
+        lpos = LbSpriteDrawLineSkipLeft(&sp, &x1, left);
         // Do the actual drawing
-        LbSpriteDrawLineSlRemap(&sp,&r,&x1,cmap,lpos,mirror);
+        LbSpriteDrawLineSlRemap(&sp, &r, &x1, cmap, lpos, mirror);
         // Go to next line
         htIndex--;
         if (htIndex == 0)
+        {
             return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
+        }
+        LbSpriteDrawLineSkipToEol(&sp, &x1);
         r = nextRow;
         nextRow += nextRowDelta;
-    } //end while
+    } // end while
     return Lb_SUCCESS;
 }
 
 static inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, short *x1,
-    const unsigned char *cmap, short lpos,const TbBool mirror)
+                                           const unsigned char *cmap, short lpos, const TbBool mirror)
 {
     char schr;
     unsigned char drawOut;
@@ -1300,20 +1470,28 @@ static inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, s
         {
             drawOut = -schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            if ( mirror )
+            {
+                drawOut = (*x1);
+            }
+            if (mirror)
+            {
                 (*r) -= drawOut;
+            }
             else
+            {
                 (*r) += drawOut;
+            }
             (*sp)++;
-
-        } else
+        }
+        else
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferFCRemap(r,(*sp)+(lpos+1),drawOut,cmap);
+            {
+                drawOut = (*x1);
+            }
+            LbDrawBufferFCRemap(r, (*sp) + (lpos + 1), drawOut, cmap);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
@@ -1330,22 +1508,29 @@ static inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, s
         if (schr < 0)
         { // Skipping some pixels
             (*x1) += schr;
-            if ( mirror )
-               (*r) += *(*sp);
+            if (mirror)
+            {
+                (*r) += *(*sp);
+            }
             else
-               (*r) -= *(*sp);
+            {
+                (*r) -= *(*sp);
+            }
             (*sp)++;
-        } else
-        //if ( schr > 0 )
+        }
+        else
+        // if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
             if (drawOut >= (*x1))
+            {
                 drawOut = (*x1);
-            LbDrawBufferFCRemap(r,(*sp)+1,drawOut,cmap);
+            }
+            LbDrawBufferFCRemap(r, (*sp) + 1, drawOut, cmap);
             (*x1) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
-    } //end while
+    } // end while
 }
 
 /** Fast copy sprite drawing routine with colour remap. Does not support transparency nor mirroring.
@@ -1359,8 +1544,8 @@ static inline void LbSpriteDrawLineFCRemap(const char **sp, unsigned char **r, s
  * @param mirror
  * @return
  */
-static inline TbResult LbSpriteDrawFCRemap(const char *sp,short sprWd,short sprHt,unsigned char *r,
-    const unsigned char *cmap,int nextRowDelta,short left,const TbBool mirror)
+static inline TbResult LbSpriteDrawFCRemap(const char *sp, short sprWd, short sprHt, unsigned char *r,
+                                           const unsigned char *cmap, int nextRowDelta, short left, const TbBool mirror)
 {
     unsigned char *nextRow;
     long htIndex;
@@ -1373,36 +1558,43 @@ static inline TbResult LbSpriteDrawFCRemap(const char *sp,short sprWd,short sprH
         short lpos;
         x1 = sprWd;
         // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
+        lpos = LbSpriteDrawLineSkipLeft(&sp, &x1, left);
         // Do the actual drawing
-        LbSpriteDrawLineFCRemap(&sp,&r,&x1,cmap,lpos,mirror);
+        LbSpriteDrawLineFCRemap(&sp, &r, &x1, cmap, lpos, mirror);
         // Go to next line
         htIndex--;
         if (htIndex == 0)
+        {
             return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
+        }
+        LbSpriteDrawLineSkipToEol(&sp, &x1);
         r = nextRow;
         nextRow += nextRowDelta;
-    } //end while
+    } // end while
     return Lb_SUCCESS;
 }
 
-int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,const unsigned char *cmap)
+int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr, const unsigned char *cmap)
 {
     struct TbSpriteDrawData spd;
     TbResult ret;
-    SYNCDBG(19,"At (%ld,%ld)",x,y);
+    SYNCDBG(19, "At (%ld,%ld)", x, y);
     ret = LbSpriteDrawPrepare(&spd, x, y, spr);
     if (ret != Lb_SUCCESS)
-        return ret;
-    if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4|Lb_SPRITE_TRANSPAR8)) != 0) {
-        return LbSpriteDrawTrRemap(spd.sp,spd.Wd,spd.Ht,spd.r,cmap,spd.nextRowDelta,spd.startShift,spd.mirror);
-    } else
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0) {
-        return LbSpriteDrawSlRemap(spd.sp,spd.Wd,spd.Ht,spd.r,cmap,spd.nextRowDelta,spd.startShift,spd.mirror);
-    } else
     {
-        return LbSpriteDrawFCRemap(spd.sp,spd.Wd,spd.Ht,spd.r,cmap,spd.nextRowDelta,spd.startShift,spd.mirror);
+        return ret;
+    }
+    if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_TRANSPAR8)) != 0)
+    {
+        return LbSpriteDrawTrRemap(spd.sp, spd.Wd, spd.Ht, spd.r, cmap, spd.nextRowDelta, spd.startShift, spd.mirror);
+    }
+    else if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+    {
+        return LbSpriteDrawSlRemap(spd.sp, spd.Wd, spd.Ht, spd.r, cmap, spd.nextRowDelta, spd.startShift, spd.mirror);
+    }
+    else
+    {
+        return LbSpriteDrawFCRemap(spd.sp, spd.Wd, spd.Ht, spd.r, cmap, spd.nextRowDelta, spd.startShift, spd.mirror);
     }
 }
 
@@ -1415,7 +1607,7 @@ int LbSpriteDrawRemap(long x, long y, const struct TbSprite *spr,const unsigned 
  * @param mirror
  */
 static inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **r, short *x1,
-    TbPixel colour, short lpos,const TbBool mirror)
+                                               TbPixel colour, short lpos, const TbBool mirror)
 {
     char schr;
     unsigned char drawOut;
@@ -1427,20 +1619,28 @@ static inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **
         {
             drawOut = -schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            if ( mirror )
+            {
+                drawOut = (*x1);
+            }
+            if (mirror)
+            {
                 (*r) -= drawOut;
+            }
             else
+            {
                 (*r) += drawOut;
+            }
             (*sp)++;
-
-        } else
+        }
+        else
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferOneColour(r,colour,drawOut,mirror);
+            {
+                drawOut = (*x1);
+            }
+            LbDrawBufferOneColour(r, colour, drawOut, mirror);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
@@ -1457,26 +1657,33 @@ static inline void LbSpriteDrawLineTrOneColour(const char **sp, unsigned char **
         if (schr < 0)
         { // Skipping some pixels
             (*x1) += schr;
-            if ( mirror )
-               (*r) += *(*sp);
+            if (mirror)
+            {
+                (*r) += *(*sp);
+            }
             else
-               (*r) -= *(*sp);
+            {
+                (*r) -= *(*sp);
+            }
             (*sp)++;
-        } else
-        //if ( schr > 0 )
+        }
+        else
+        // if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
             if (drawOut >= (*x1))
+            {
                 drawOut = (*x1);
-            LbDrawBufferOneColour(r,colour,drawOut,mirror);
+            }
+            LbDrawBufferOneColour(r, colour, drawOut, mirror);
             (*x1) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
-    } //end while
+    } // end while
 }
 
-static inline TbResult LbSpriteDrawTrOneColour(const char *sp,short sprWd,short sprHt,
-        unsigned char *r,TbPixel colour,int nextRowDelta,short left,const TbBool mirror)
+static inline TbResult LbSpriteDrawTrOneColour(const char *sp, short sprWd, short sprHt,
+                                               unsigned char *r, TbPixel colour, int nextRowDelta, short left, const TbBool mirror)
 {
     unsigned char *nextRow;
     long htIndex;
@@ -1489,22 +1696,24 @@ static inline TbResult LbSpriteDrawTrOneColour(const char *sp,short sprWd,short 
         short lpos;
         x1 = sprWd;
         // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
+        lpos = LbSpriteDrawLineSkipLeft(&sp, &x1, left);
         // Do the actual drawing
-        LbSpriteDrawLineTrOneColour(&sp,&r,&x1,colour,lpos,mirror);
+        LbSpriteDrawLineTrOneColour(&sp, &r, &x1, colour, lpos, mirror);
         // Go to next line
         htIndex--;
         if (htIndex == 0)
+        {
             return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
+        }
+        LbSpriteDrawLineSkipToEol(&sp, &x1);
         r = nextRow;
         nextRow += nextRowDelta;
-    } //end while
+    } // end while
     return Lb_SUCCESS;
 }
 
 static inline void LbSpriteDrawLineSlOneColour(const char **sp, unsigned char **r, short *x1,
-    TbPixel colour, short lpos,const TbBool mirror)
+                                               TbPixel colour, short lpos, const TbBool mirror)
 {
     char schr;
     unsigned char drawOut;
@@ -1516,16 +1725,21 @@ static inline void LbSpriteDrawLineSlOneColour(const char **sp, unsigned char **
         {
             drawOut = -schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
+            {
+                drawOut = (*x1);
+            }
             (*r) -= drawOut;
             (*sp)++;
-        } else
+        }
+        else
         {
             // Draw the part of current block which exceeds value of 'lpos'
             drawOut = schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
-            LbDrawBufferOneColorSolid(r,colour,drawOut,mirror);
+            {
+                drawOut = (*x1);
+            }
+            LbDrawBufferOneColorSolid(r, colour, drawOut, mirror);
             // Update positions and break the skipping loop
             (*sp) += (*(*sp)) + 1;
         }
@@ -1544,21 +1758,24 @@ static inline void LbSpriteDrawLineSlOneColour(const char **sp, unsigned char **
             (*x1) += schr;
             (*r) += *(*sp);
             (*sp)++;
-        } else
-        //if ( schr > 0 )
+        }
+        else
+        // if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
             if (drawOut >= (*x1))
+            {
                 drawOut = (*x1);
-            LbDrawBufferOneColorSolid(r,colour,drawOut,mirror);
+            }
+            LbDrawBufferOneColorSolid(r, colour, drawOut, mirror);
             (*x1) -= schr;
             (*sp) += (*(*sp)) + 1;
         }
-    } //end while
+    } // end while
 }
 
-static inline TbResult LbSpriteDrawSlOneColour(const char *sp,short sprWd,short sprHt,
-        unsigned char *r,TbPixel colour,int nextRowDelta,short left,const TbBool mirror)
+static inline TbResult LbSpriteDrawSlOneColour(const char *sp, short sprWd, short sprHt,
+                                               unsigned char *r, TbPixel colour, int nextRowDelta, short left, const TbBool mirror)
 {
     unsigned char *nextRow;
     long htIndex;
@@ -1571,17 +1788,19 @@ static inline TbResult LbSpriteDrawSlOneColour(const char *sp,short sprWd,short 
         short lpos;
         x1 = sprWd;
         // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
+        lpos = LbSpriteDrawLineSkipLeft(&sp, &x1, left);
         // Do the actual drawing
-        LbSpriteDrawLineSlOneColour(&sp,&r,&x1,colour,lpos,mirror);
+        LbSpriteDrawLineSlOneColour(&sp, &r, &x1, colour, lpos, mirror);
         // Go to next line
         htIndex--;
         if (htIndex == 0)
+        {
             return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
+        }
+        LbSpriteDrawLineSkipToEol(&sp, &x1);
         r = nextRow;
         nextRow += nextRowDelta;
-    } //end while
+    } // end while
     return Lb_SUCCESS;
 }
 
@@ -1597,14 +1816,19 @@ static inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **
         {
             drawOut = -schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
+            {
+                drawOut = (*x1);
+            }
             (*r) += drawOut;
             (*sp)++;
-        } else
+        }
+        else
         {
             drawOut = schr - lpos;
             if (drawOut > (*x1))
-              drawOut = (*x1);
+            {
+                drawOut = (*x1);
+            }
             LbDrawBufferOneColorSolid(r, colour, drawOut, false);
             (*r) += drawOut;
             (*sp) += (*(*sp)) + 1;
@@ -1624,18 +1848,21 @@ static inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **
             (*x1) += schr;
             (*r) -= *(*sp);
             (*sp)++;
-        } else
-        //if ( schr > 0 )
+        }
+        else
+        // if ( schr > 0 )
         { // Drawing some pixels
             drawOut = schr;
             if (drawOut >= (*x1))
+            {
                 drawOut = (*x1);
+            }
             memset((*r), colour, drawOut);
             (*x1) -= schr;
             (*r) += schr;
             (*sp) += (*(*sp)) + 1;
         }
-    } //end while
+    } // end while
 }
 
 /** Fast copy one color sprite drawing routine. Does not support transparency nor mirroring.
@@ -1649,8 +1876,8 @@ static inline void LbSpriteDrawLineFCOneColour(const char **sp, unsigned char **
  * @param mirror
  * @return
  */
-static inline TbResult LbSpriteDrawFCOneColour(const char *sp,short sprWd,short sprHt,unsigned char *r,
-    TbPixel colour,int nextRowDelta,short left,const TbBool mirror)
+static inline TbResult LbSpriteDrawFCOneColour(const char *sp, short sprWd, short sprHt, unsigned char *r,
+                                               TbPixel colour, int nextRowDelta, short left, const TbBool mirror)
 {
     unsigned char *nextRow;
     long htIndex;
@@ -1663,17 +1890,19 @@ static inline TbResult LbSpriteDrawFCOneColour(const char *sp,short sprWd,short 
         short lpos;
         x1 = sprWd;
         // Skip the pixels left before drawing area
-        lpos = LbSpriteDrawLineSkipLeft(&sp,&x1,left);
+        lpos = LbSpriteDrawLineSkipLeft(&sp, &x1, left);
         // Do the actual drawing
-        LbSpriteDrawLineFCOneColour(&sp,&r,&x1,colour,lpos);
+        LbSpriteDrawLineFCOneColour(&sp, &r, &x1, colour, lpos);
         // Go to next line
         htIndex--;
         if (htIndex == 0)
+        {
             return Lb_SUCCESS;
-        LbSpriteDrawLineSkipToEol(&sp,&x1);
+        }
+        LbSpriteDrawLineSkipToEol(&sp, &x1);
         r = nextRow;
         nextRow += nextRowDelta;
-    } //end while
+    } // end while
     return Lb_SUCCESS;
 }
 
@@ -1681,30 +1910,34 @@ TbResult LbSpriteDrawOneColour(long x, long y, const struct TbSprite *spr, const
 {
     struct TbSpriteDrawData spd;
     TbResult ret;
-    SYNCDBG(19,"At (%ld,%ld)",x,y);
+    SYNCDBG(19, "At (%ld,%ld)", x, y);
     ret = LbSpriteDrawPrepare(&spd, x, y, spr);
     if (ret != Lb_SUCCESS)
+    {
         return ret;
-    if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4|Lb_SPRITE_TRANSPAR8)) != 0) {
-        return LbSpriteDrawTrOneColour(spd.sp,spd.Wd,spd.Ht,spd.r,colour,spd.nextRowDelta,spd.startShift,spd.mirror);
-    } else
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0) {
-        return LbSpriteDrawSlOneColour(spd.sp,spd.Wd,spd.Ht,spd.r,colour,spd.nextRowDelta,spd.startShift,spd.mirror);
-    } else {
-        return LbSpriteDrawFCOneColour(spd.sp,spd.Wd,spd.Ht,spd.r,colour,spd.nextRowDelta,spd.startShift,spd.mirror);
+    }
+    if ((lbDisplay.DrawFlags & (Lb_SPRITE_TRANSPAR4 | Lb_SPRITE_TRANSPAR8)) != 0)
+    {
+        return LbSpriteDrawTrOneColour(spd.sp, spd.Wd, spd.Ht, spd.r, colour, spd.nextRowDelta, spd.startShift, spd.mirror);
+    }
+    else if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+    {
+        return LbSpriteDrawSlOneColour(spd.sp, spd.Wd, spd.Ht, spd.r, colour, spd.nextRowDelta, spd.startShift, spd.mirror);
+    }
+    else
+    {
+        return LbSpriteDrawFCOneColour(spd.sp, spd.Wd, spd.Ht, spd.r, colour, spd.nextRowDelta, spd.startShift, spd.mirror);
     }
 }
 
-void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
+void LbPixelBlockCopyForward(TbPixel *dst, const TbPixel *src, long len)
 {
     TbPixel px;
     unsigned long pxquad;
-    if ( !((ptrdiff_t)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
-     && (!((ptrdiff_t)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len)
-     && (!((ptrdiff_t)dst & 3) ||  (px = *src, ++src, *dst = px, ++dst, --len, len))))) )
+    if (!((ptrdiff_t)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len) && (!((ptrdiff_t)dst & 3) || ((px = *src, ++src, *dst = px, ++dst, --len, len) && (!((ptrdiff_t)dst & 3) || (px = *src, ++src, *dst = px, ++dst, --len, len))))))
     {
         long l;
-        for ( l = len>>2; l > 0; l--)
+        for (l = len >> 2; l > 0; l--)
         {
             pxquad = *(unsigned long *)src;
             src += sizeof(unsigned long);
@@ -1713,13 +1946,15 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
         }
         if (len & 3)
         {
-          *dst = *src;
-          if ((len & 3) != 1)
-          {
-            *(dst + 1) = *(src + 1);
-            if ((len & 3) != 2)
-              *(dst + 2) = *(src + 2);
-          }
+            *dst = *src;
+            if ((len & 3) != 1)
+            {
+                *(dst + 1) = *(src + 1);
+                if ((len & 3) != 2)
+                {
+                    *(dst + 2) = *(src + 2);
+                }
+            }
         }
     }
 }
@@ -1733,36 +1968,41 @@ void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len)
  * @param dwidth Width which the sprite should have on destination buffer.
  * @param gwidth Graphics buffer visible window line width.
  */
-void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth, long dwidth, long gwidth)
+void LbSpriteSetScalingWidthClippedArray(long *xsteps_arr, long x, long swidth, long dwidth, long gwidth)
 {
     long *pwidth;
     long pxpos;
     pwidth = xsteps_arr;
-    long factor = (dwidth<<16)/swidth;
+    long factor = (dwidth << 16) / swidth;
     long tmp = (factor >> 1) + (x << 16);
     pxpos = tmp >> 16;
     long w = swidth;
-    do {
+    do
+    {
         tmp += factor;
         long pxstart;
         long pxend;
         pxstart = pxpos;
-        pxend = tmp>>16;
+        pxend = tmp >> 16;
         // Remember unclipped difference
         long wdiff = pxend - pxstart;
         // Now clip to graphics line bounds
-        if (pxstart < 0) {
+        if (pxstart < 0)
+        {
             pxstart = 0;
             pxend = pxstart;
-        } else
-        if (pxstart >= gwidth) {
-            pxstart = gwidth-1;
+        }
+        else if (pxstart >= gwidth)
+        {
+            pxstart = gwidth - 1;
             pxend = pxstart;
-        } else
-        if (pxend < 0) {
+        }
+        else if (pxend < 0)
+        {
             pxend = 0;
-        } else
-        if (pxend > gwidth) {
+        }
+        else if (pxend > gwidth)
+        {
             pxend = gwidth;
         }
         // Set clipped difference to be drawn
@@ -1777,67 +2017,78 @@ void LbSpriteSetScalingWidthClippedArray(long * xsteps_arr, long x, long swidth,
 
 void LbSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)swidth, (int)dwidth, (int)x);
     if (swidth > SPRITE_SCALING_XSTEPS)
+    {
         swidth = SPRITE_SCALING_XSTEPS;
+    }
     LbSpriteSetScalingWidthClippedArray(xsteps_array, x, swidth, dwidth, gwidth);
 }
 
 void LbSpriteSetAlphaScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)swidth, (int)dwidth, (int)x);
     if (swidth > SPRITE_SCALING_XSTEPS)
+    {
         swidth = SPRITE_SCALING_XSTEPS;
+    }
     LbSpriteSetScalingWidthClippedArray(alpha_xsteps_array, x, swidth, dwidth, gwidth);
 }
 
-void LbSpriteSetScalingWidthSimpleArray(long * xsteps_arr, long x, long swidth, long dwidth)
+void LbSpriteSetScalingWidthSimpleArray(long *xsteps_arr, long x, long swidth, long dwidth)
 {
     long *pwidth;
     long cwidth;
     pwidth = xsteps_arr;
-    long factor = (dwidth<<16)/swidth;
+    long factor = (dwidth << 16) / swidth;
     long tmp = (factor >> 1) + (x << 16);
     cwidth = tmp >> 16;
     long w = swidth;
-    do {
-      int i;
-      for (i=0; i < 16; i+=2)
-      {
-          pwidth[i] = cwidth;
-          tmp += factor;
-          pwidth[i+1] = (tmp>>16) - cwidth;
-          cwidth = (tmp>>16);
-          w--;
-          if (w <= 0)
-              break;
-      }
-      pwidth += 16;
+    do
+    {
+        int i;
+        for (i = 0; i < 16; i += 2)
+        {
+            pwidth[i] = cwidth;
+            tmp += factor;
+            pwidth[i + 1] = (tmp >> 16) - cwidth;
+            cwidth = (tmp >> 16);
+            w--;
+            if (w <= 0)
+            {
+                break;
+            }
+        }
+        pwidth += 16;
     } while (w > 0);
 }
 
 void LbSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)swidth, (int)dwidth, (int)x);
     if (swidth > SPRITE_SCALING_XSTEPS)
+    {
         swidth = SPRITE_SCALING_XSTEPS;
+    }
     LbSpriteSetScalingWidthSimpleArray(xsteps_array, x, swidth, dwidth);
 }
 
 void LbSpriteSetAlphaScalingWidthSimple(long x, long swidth, long dwidth)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)swidth, (int)dwidth, (int)x);
     if (swidth > SPRITE_SCALING_XSTEPS)
+    {
         swidth = SPRITE_SCALING_XSTEPS;
+    }
     LbSpriteSetScalingWidthSimpleArray(alpha_xsteps_array, x, swidth, dwidth);
 }
 
-void LbSpriteClearScalingWidthArray(long * xsteps_arr, long swidth)
+void LbSpriteClearScalingWidthArray(long *xsteps_arr, long swidth)
 {
     int i;
     long *pwidth;
     pwidth = xsteps_arr;
-    for (i=0; i < swidth; i++)
+    for (i = 0; i < swidth; i++)
     {
         pwidth[0] = 0;
         pwidth[1] = 0;
@@ -1864,40 +2115,49 @@ void LbSpriteClearAlphaScalingWidth(void)
  * @param dheight Height which the sprite should have on destination buffer.
  * @param gheight Graphics buffer visible window lines count.
  */
-void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheight, long dheight, long gheight)
+void LbSpriteSetScalingHeightClippedArray(long *ysteps_arr, long y, long sheight, long dheight, long gheight)
 {
     long *pheight;
     long lnpos;
     pheight = ysteps_arr;
-    long factor = (dheight<<16)/sheight;
+    long factor = (dheight << 16) / sheight;
     long tmp = (factor >> 1) + (y << 16);
     lnpos = tmp >> 16;
     if (lnpos < 0)
+    {
         lnpos = 0;
+    }
     if (lnpos >= gheight)
+    {
         lnpos = gheight;
+    }
     long h = sheight;
-    do {
+    do
+    {
         tmp += factor;
         long lnstart;
         long lnend;
         lnstart = lnpos;
-        lnend = tmp>>16;
+        lnend = tmp >> 16;
         // Remember unclipped difference
         long hdiff = lnend - lnstart;
         // Now clip to graphics line bounds
-        if (lnstart < 0) {
+        if (lnstart < 0)
+        {
             lnstart = 0;
             lnend = lnstart;
-        } else
-        if (lnstart >= gheight) {
-            lnstart = gheight-1;
+        }
+        else if (lnstart >= gheight)
+        {
+            lnstart = gheight - 1;
             lnend = lnstart;
-        } else
-        if (lnend < 0) {
+        }
+        else if (lnend < 0)
+        {
             lnend = 0;
-        } else
-        if (lnend > gheight) {
+        }
+        else if (lnend > gheight)
+        {
             lnend = gheight;
         }
         // Set clipped difference to be drawn
@@ -1912,67 +2172,78 @@ void LbSpriteSetScalingHeightClippedArray(long * ysteps_arr, long y, long sheigh
 
 void LbSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)sheight, (int)dheight, (int)y);
     if (sheight > SPRITE_SCALING_YSTEPS)
+    {
         sheight = SPRITE_SCALING_YSTEPS;
+    }
     LbSpriteSetScalingHeightClippedArray(ysteps_array, y, sheight, dheight, gheight);
 }
 
 void LbSpriteSetAlphaScalingHeightClipped(long y, long sheight, long dheight, long gheight)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)sheight, (int)dheight, (int)y);
     if (sheight > SPRITE_SCALING_YSTEPS)
+    {
         sheight = SPRITE_SCALING_YSTEPS;
+    }
     LbSpriteSetScalingHeightClippedArray(alpha_ysteps_array, y, sheight, dheight, gheight);
 }
 
-void LbSpriteSetScalingHeightSimpleArray(long * ysteps_arr, long y, long sheight, long dheight)
+void LbSpriteSetScalingHeightSimpleArray(long *ysteps_arr, long y, long sheight, long dheight)
 {
     long *pheight;
     long cheight;
     pheight = ysteps_arr;
-    long factor = (dheight<<16)/sheight;
+    long factor = (dheight << 16) / sheight;
     long tmp = (factor >> 1) + (y << 16);
     cheight = tmp >> 16;
     long h = sheight;
-    do {
-      int i=0;
-      for (i=0; i < 16; i+=2)
-      {
-        pheight[i] = cheight;
-        tmp += factor;
-        pheight[i+1] = (tmp>>16) - cheight;
-        cheight = (tmp>>16);
-        h--;
-        if (h <= 0)
-          break;
-      }
-      pheight += 16;
+    do
+    {
+        int i = 0;
+        for (i = 0; i < 16; i += 2)
+        {
+            pheight[i] = cheight;
+            tmp += factor;
+            pheight[i + 1] = (tmp >> 16) - cheight;
+            cheight = (tmp >> 16);
+            h--;
+            if (h <= 0)
+            {
+                break;
+            }
+        }
+        pheight += 16;
     } while (h > 0);
 }
 
 void LbSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)sheight, (int)dheight, (int)y);
     if (sheight > SPRITE_SCALING_YSTEPS)
+    {
         sheight = SPRITE_SCALING_YSTEPS;
+    }
     LbSpriteSetScalingHeightSimpleArray(ysteps_array, y, sheight, dheight);
 }
 
 void LbSpriteSetAlphaScalingHeightSimple(long y, long sheight, long dheight)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)sheight, (int)dheight, (int)y);
     if (sheight > SPRITE_SCALING_YSTEPS)
+    {
         sheight = SPRITE_SCALING_YSTEPS;
+    }
     LbSpriteSetScalingHeightSimpleArray(alpha_ysteps_array, y, sheight, dheight);
 }
 
-void LbSpriteClearScalingHeightArray(long * ysteps_arr, long sheight)
+void LbSpriteClearScalingHeightArray(long *ysteps_arr, long sheight)
 {
     int i;
     long *pheight;
     pheight = ysteps_arr;
-    for (i=0; i < sheight; i++)
+    for (i = 0; i < sheight; i++)
     {
         pheight[0] = 0;
         pheight[1] = 0;
@@ -2005,28 +2276,38 @@ void LbSpriteSetScalingData(long x, long y, long swidth, long sheight, long dwid
     long gheight = lbDisplay.GraphicsWindowHeight;
     scale_up = true;
     if ((dwidth <= swidth) && (dheight <= sheight))
+    {
         scale_up = false;
+    }
     // Checking whether to select simple scaling creation, or more comprehensive one - with clipping
-    if ((swidth <= 0) || (dwidth <= 0)) {
+    if ((swidth <= 0) || (dwidth <= 0))
+    {
         LbSpriteClearScalingWidth();
-    } else
-    // Normally it would be enough to check if ((dwidth+y) >= gwidth), but due to rounding we need to add swidth
-    if ((x < 0) || ((dwidth+swidth+x) >= gwidth))
-    {
-        LbSpriteSetScalingWidthClipped(x, swidth, dwidth, gwidth);
-    } else {
-        LbSpriteSetScalingWidthSimple(x, swidth, dwidth);
     }
-    if ((sheight <= 0) || (dheight <= 0)) {
+    else
+        // Normally it would be enough to check if ((dwidth+y) >= gwidth), but due to rounding we need to add swidth
+        if ((x < 0) || ((dwidth + swidth + x) >= gwidth))
+        {
+            LbSpriteSetScalingWidthClipped(x, swidth, dwidth, gwidth);
+        }
+        else
+        {
+            LbSpriteSetScalingWidthSimple(x, swidth, dwidth);
+        }
+    if ((sheight <= 0) || (dheight <= 0))
+    {
         LbSpriteClearScalingHeight();
-    } else
-    // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
-    if ((y < 0) || ((dheight+sheight+y) >= gheight))
-    {
-        LbSpriteSetScalingHeightClipped(y, sheight, dheight, gheight);
-    } else {
-        LbSpriteSetScalingHeightSimple(y, sheight, dheight);
     }
+    else
+        // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
+        if ((y < 0) || ((dheight + sheight + y) >= gheight))
+        {
+            LbSpriteSetScalingHeightClipped(y, sheight, dheight, gheight);
+        }
+        else
+        {
+            LbSpriteSetScalingHeightSimple(y, sheight, dheight);
+        }
 }
 
 void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth, long dheight)
@@ -2035,81 +2316,106 @@ void SetAlphaScalingData(long x, long y, long swidth, long sheight, long dwidth,
     long gheight = lbDisplay.GraphicsWindowHeight;
     alpha_scale_up = true;
     if ((dwidth <= swidth) && (dheight <= sheight))
+    {
         alpha_scale_up = false;
-    if ((swidth <= 0) || (dwidth <= 0)) {
+    }
+    if ((swidth <= 0) || (dwidth <= 0))
+    {
         LbSpriteClearAlphaScalingWidth();
-    } else
-    if ((x < 0) || ((dwidth+x) >= gwidth))
+    }
+    else if ((x < 0) || ((dwidth + x) >= gwidth))
     {
         LbSpriteSetAlphaScalingWidthClipped(x, swidth, dwidth, gwidth);
-    } else {
+    }
+    else
+    {
         LbSpriteSetAlphaScalingWidthSimple(x, swidth, dwidth);
     }
-    if ((sheight <= 0) || (dheight <= 0)) {
+    if ((sheight <= 0) || (dheight <= 0))
+    {
         LbSpriteClearAlphaScalingHeight();
-    } else
-    if ((y < 0) || ((dheight+y) >= gheight))
+    }
+    else if ((y < 0) || ((dheight + y) >= gheight))
     {
         LbSpriteSetAlphaScalingHeightClipped(y, sheight, dheight, gheight);
-    } else {
+    }
+    else
+    {
         LbSpriteSetAlphaScalingHeightSimple(y, sheight, dheight);
     }
 }
 
 TbResult LbSpriteDrawScaled(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height)
 {
-    SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
+    SYNCDBG(19, "At (%ld,%ld) size (%ld,%ld)", xpos, ypos, dest_width, dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))
-      return 1;
+    {
+        return 1;
+    }
     if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
+    {
         lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
+    }
     LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
     return LbSpriteDrawUsingScalingData(0, 0, sprite);
 }
 
 TbResult LbSpriteDrawScaledOneColour(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const TbPixel colour)
 {
-    SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
+    SYNCDBG(19, "At (%ld,%ld) size (%ld,%ld)", xpos, ypos, dest_width, dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))
-      return 1;
+    {
+        return 1;
+    }
     if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
+    {
         lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
+    }
     LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
     return LbSpriteDrawOneColourUsingScalingData(0, 0, sprite, colour);
 }
 
 int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite, long dest_width, long dest_height, const unsigned char *cmap)
 {
-    SYNCDBG(19,"At (%ld,%ld) size (%ld,%ld)",xpos,ypos,dest_width,dest_height);
+    SYNCDBG(19, "At (%ld,%ld) size (%ld,%ld)", xpos, ypos, dest_width, dest_height);
     if ((dest_width <= 0) || (dest_height <= 0))
-      return 1;
+    {
+        return 1;
+    }
     if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
+    {
         lbSpriteReMapPtr = lbDisplay.FadeTable + ((lbDisplay.FadeStep & 0x3F) << 8);
+    }
     LbSpriteSetScalingData(xpos, ypos, sprite->SWidth, sprite->SHeight, dest_width, dest_height);
     return LbSpriteDrawRemapUsingScalingData(0, 0, sprite, cmap);
 }
 
-
 void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
-        unsigned int line_len, unsigned int width, unsigned int height)
+                unsigned int line_len, unsigned int width, unsigned int height)
 {
-  if ( line_len > 0 )
-    vec_screen_width = line_len;
-  if (screenbuf != NULL)
-  {
-    vec_screen = screenbuf;
-    poly_screen = screenbuf - vec_screen_width;
-  }
-  if (nvec_map != NULL)
-  {
-    vec_map = nvec_map;
-    dither_map = nvec_map;
-    dither_end = nvec_map + 16;
-  }
-  if (height > 0)
-    vec_window_height = (long)height;
-  if (width > 0)
-    vec_window_width = (long)width;
+    if (line_len > 0)
+    {
+        vec_screen_width = line_len;
+    }
+    if (screenbuf != NULL)
+    {
+        vec_screen = screenbuf;
+        poly_screen = screenbuf - vec_screen_width;
+    }
+    if (nvec_map != NULL)
+    {
+        vec_map = nvec_map;
+        dither_map = nvec_map;
+        dither_end = nvec_map + 16;
+    }
+    if (height > 0)
+    {
+        vec_window_height = (long)height;
+    }
+    if (width > 0)
+    {
+        vec_window_width = (long)width;
+    }
 }
 
 /**
@@ -2124,33 +2430,36 @@ void setup_vecs(unsigned char *screenbuf, unsigned char *nvec_map,
  * @return Gives 0 on success.
  */
 TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int outheight,
-    long *xstep, long *ystep, const struct TbHugeSprite *sprite)
+                                            long *xstep, long *ystep, const struct TbHugeSprite *sprite)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     const unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     ycurstep = ystep;
 
     int h;
-    for (h=0; h < sprite->SHeight; h++)
+    for (h = 0; h < sprite->SHeight; h++)
     {
         if (ycurstep[1] != 0)
         {
             int ycur;
             int solid_len;
-            TbPixel * out_line;
+            TbPixel *out_line;
             int xdup;
             int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
-            if (ycurstep[0]+ydup > outheight)
-                ydup = outheight-ycurstep[0];
+            if (ycurstep[0] + ydup > outheight)
+            {
+                ydup = outheight - ycurstep[0];
+            }
             xcurstep = xstep;
             sprdata = &sprite->Data[sprite->Lines[h]];
             TbPixel *out_end;
@@ -2162,16 +2471,18 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
                 sprdata += 4;
                 TbPixel *out_start;
                 out_start = out_end;
-                for(;pxlen > 0; pxlen--)
+                for (; pxlen > 0; pxlen--)
                 {
                     xdup = xcurstep[1];
-                    if (xcurstep[0]+xdup > abs(scanline))
-                        xdup = abs(scanline)-xcurstep[0];
+                    if (xcurstep[0] + xdup > abs(scanline))
+                    {
+                        xdup = abs(scanline) - xcurstep[0];
+                    }
                     if (xdup > 0)
                     {
                         unsigned char pxval;
                         pxval = *sprdata;
-                        for (;xdup > 0; xdup--)
+                        for (; xdup > 0; xdup--)
                         {
                             *out_end = pxval;
                             out_end++;
@@ -2185,9 +2496,10 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
                 {
                     solid_len = out_end - out_start;
                     out_line = out_start + scanline;
-                    for (;ycur > 0; ycur--)
+                    for (; ycur > 0; ycur--)
                     {
-                        if (solid_len > 0) {
+                        if (solid_len > 0)
+                        {
                             LbPixelBlockCopyForward(out_line, out_start, solid_len);
                         }
                         out_line += scanline;
@@ -2199,13 +2511,15 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
                 out_end -= xcurstep[0];
                 xcurstep += 2 * pxlen;
                 // In case we've exceeded sprite width, don't try to access xcurstep[] any more
-                if ((xcurstep - xstep)/2 >= sprite->SWidth)
+                if ((xcurstep - xstep) / 2 >= sprite->SWidth)
+                {
                     break;
+                }
                 out_end += xcurstep[0];
             }
             outbuf += scanline;
             ycur = ydup - 1;
-            for (;ycur > 0; ycur--)
+            for (; ycur > 0; ycur--)
             {
                 outbuf += scanline;
             }
@@ -2227,8 +2541,8 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
  * @param yshift Shift of the drawing, Y coord.
  * @return
  */
-TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
-    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px)
+TbResult LbHugeSpriteDraw(const struct TbHugeSprite *spr, long sp_len,
+                          unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px)
 {
     LbSpriteSetScalingData(-scale_value_for_resolution(xshift), -scale_value_for_resolution(yshift), spr->SWidth, spr->SHeight, scale_value_for_resolution(spr->SWidth), scale_value_for_resolution(spr->SHeight));
     return LbHugeSpriteDrawUsingScalingUpData(r, r_row_delta, r_height, xsteps_array, ysteps_array, spr);
@@ -2265,14 +2579,16 @@ void LbTiledSpriteDraw(long start_x, long start_y, long units_per_px, struct Til
             if (*spr_idx)
             {
                 LbSpriteDrawScaled(x, y, &sprite[*spr_idx], delta_x, delta_y);
-            } else
+            }
+            else
             {
                 unsigned short *prev_spr_idx;
                 prev_spr_idx = (spr_idx - 10);
                 signed int spnum_p;
                 for (spnum_p = 1; spnum_p <= spnum_y; spnum_p++)
                 {
-                    if (*prev_spr_idx) {
+                    if (*prev_spr_idx)
+                    {
                         delta_x = sprite[bigspr->spr_idx[(spnum_y - spnum_p)][spnum_x]].SWidth * units_per_px / 16;
                         break;
                     }
@@ -2307,10 +2623,14 @@ void LbDrawPixel(long x, long y, TbPixel colour)
 
 void LbDrawPixelClip(long x, long y, TbPixel colour)
 {
-    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+    if ((x < 0) || (x >= lbDisplay.GraphicsWindowWidth))
+    {
         return;
-    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+    }
+    if ((y < 0) || (y >= lbDisplay.GraphicsWindowHeight))
+    {
         return;
+    }
     TbPixel *buf;
     int val;
     buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
@@ -2319,12 +2639,13 @@ void LbDrawPixelClip(long x, long y, TbPixel colour)
     {
         val = (colour << 8) + (*buf);
         *buf = lbDisplay.GlassMap[val];
-    } else
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
+    }
+    else if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
     {
         val = ((*buf) << 8) + colour;
         *buf = lbDisplay.GlassMap[val];
-    } else
+    }
+    else
     {
         *buf = colour;
     }
@@ -2359,7 +2680,8 @@ void LbDrawCircleFilled(long x, long y, long radius, TbPixel colour)
         LbDrawHVLine(x, radius + y, x, radius + y, colour);
         r = radius - 1;
         n += 10 - (4 * (radius - 1) + 4);
-    } else
+    }
+    else
     {
         r = radius;
         n += 10 - 4;
@@ -2377,7 +2699,8 @@ void LbDrawCircleFilled(long x, long y, long radius, TbPixel colour)
             i = dx - r;
             r--;
             n += 4 * i + 10;
-        } else
+        }
+        else
         {
             n += 4 * dx + 6;
         }
@@ -2393,10 +2716,14 @@ void LbDrawCircleFilled(long x, long y, long radius, TbPixel colour)
 
 static inline void LbDrawPixelClipOpaq1(long x, long y, TbPixel colour)
 {
-    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+    if ((x < 0) || (x >= lbDisplay.GraphicsWindowWidth))
+    {
         return;
-    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+    }
+    if ((y < 0) || (y >= lbDisplay.GraphicsWindowHeight))
+    {
         return;
+    }
     TbPixel *buf;
     int val;
     buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
@@ -2406,10 +2733,14 @@ static inline void LbDrawPixelClipOpaq1(long x, long y, TbPixel colour)
 
 static inline void LbDrawPixelClipOpaq2(long x, long y, TbPixel colour)
 {
-    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+    if ((x < 0) || (x >= lbDisplay.GraphicsWindowWidth))
+    {
         return;
-    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+    }
+    if ((y < 0) || (y >= lbDisplay.GraphicsWindowHeight))
+    {
         return;
+    }
     TbPixel *buf;
     int val;
     buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
@@ -2419,10 +2750,14 @@ static inline void LbDrawPixelClipOpaq2(long x, long y, TbPixel colour)
 
 static inline void LbDrawPixelClipSolid(long x, long y, TbPixel colour)
 {
-    if ( (x < 0) || (x >= lbDisplay.GraphicsWindowWidth) )
+    if ((x < 0) || (x >= lbDisplay.GraphicsWindowWidth))
+    {
         return;
-    if ( (y < 0) || (y >= lbDisplay.GraphicsWindowHeight) )
+    }
+    if ((y < 0) || (y >= lbDisplay.GraphicsWindowHeight))
+    {
         return;
+    }
     TbPixel *buf;
     buf = lbDisplay.GraphicsWindowPtr + lbDisplay.GraphicsScreenWidth * y + x;
     *buf = colour;
@@ -2442,7 +2777,7 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
             LbDrawPixelClipOpaq1(x, y, colour);
             return;
         }
-        for (na=0; na < nb; na++)
+        for (na = 0; na < nb; na++)
         {
             LbDrawPixelClipOpaq1(x - na, y - nb, colour);
             LbDrawPixelClipOpaq1(x + na, y - nb, colour);
@@ -2456,7 +2791,8 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
             {
                 n += 10 + 4 * (na - nb);
                 nb--;
-            } else
+            }
+            else
             {
                 n += 6 + 4 * na;
             }
@@ -2472,8 +2808,8 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
             LbDrawPixelClipOpaq1(x - nb, y + na, colour);
             LbDrawPixelClipOpaq1(x + nb, y + na, colour);
         }
-    } else
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
+    }
+    else if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
     {
         nb = radius;
         n = 3 - 2 * radius;
@@ -2482,7 +2818,7 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
             LbDrawPixelClipOpaq2(x, y, colour);
             return;
         }
-        for (na=0; na < nb; na++)
+        for (na = 0; na < nb; na++)
         {
             LbDrawPixelClipOpaq2(x - na, y - nb, colour);
             LbDrawPixelClipOpaq2(x + na, y - nb, colour);
@@ -2496,7 +2832,8 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
             {
                 n += 10 + 4 * (na - nb);
                 nb--;
-            } else
+            }
+            else
             {
                 n += 6 + 4 * na;
             }
@@ -2512,7 +2849,8 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
             LbDrawPixelClipOpaq2(x - nb, y + na, colour);
             LbDrawPixelClipOpaq2(x + nb, y + na, colour);
         }
-    } else
+    }
+    else
     {
         nb = radius;
         n = 3 - 2 * radius;
@@ -2521,7 +2859,7 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
             LbDrawPixelClipSolid(x, y, colour);
             return;
         }
-        for (na=0; na < nb; na++)
+        for (na = 0; na < nb; na++)
         {
             LbDrawPixelClipSolid(x - na, y - nb, colour);
             LbDrawPixelClipSolid(x + na, y - nb, colour);
@@ -2535,7 +2873,8 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
             {
                 n += 10 + 4 * (na - nb);
                 nb--;
-            } else
+            }
+            else
             {
                 n += 6 + 4 * na;
             }
@@ -2552,16 +2891,18 @@ void LbDrawCircleOutline(long x, long y, long radius, TbPixel colour)
             LbDrawPixelClipSolid(x + nb, y + na, colour);
         }
     }
-
-
 }
 
 void LbDrawCircle(long x, long y, long radius, TbPixel colour)
 {
     if ((lbDisplay.DrawFlags & Lb_SPRITE_OUTLINE) != 0)
+    {
         LbDrawCircleOutline(x, y, radius, colour);
+    }
     else
+    {
         LbDrawCircleFilled(x, y, radius, colour);
+    }
 }
 
 /*
@@ -2581,139 +2922,163 @@ unsigned short __fastcall is_it_clockwise(struct EnginePoint *point1,
 
 void draw_b_line(long x1, long y1, long x2, long y2, TbPixel colour)
 {
-  long apx = 2 * abs(x2 - x1);
-  long spx;
-  if ( x2-x1 <= 0 )
-    spx = -1;
-  else
-    spx = 1;
-  long apy = 2 * abs(y2 - y1);
-  long spy;
-  if ( y2-y1 <= 0 )
-    spy = -1;
-  else
-    spy = 1;
-  long doffy = spy * lbDisplay.GraphicsScreenWidth;
-  long offset = lbDisplay.GraphicsScreenWidth * y1 + x1;
-  long x = x1;
-  long y = y1;
-  if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
-  {
-    if (apx <= apy)
+    long apx = 2 * abs(x2 - x1);
+    long spx;
+    if (x2 - x1 <= 0)
     {
-      long d = apx - (apy>>1);
-      while ( true )
-      {
-        unsigned short glass_idx = lbDisplay.GraphicsWindowPtr[offset]
-                + ((unsigned char)colour<<8);
-        lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
-        if (y==y2) break;
-        if (d>=0)
-        {
-          offset += spx;
-          d -= apy;
-        }
-        y += spy;
-        offset += doffy;
-        d += apx;
-      }
-    } else
-    {
-      long d = apy - (apx >> 1);
-      while ( true )
-      {
-        unsigned short glass_idx = lbDisplay.GraphicsWindowPtr[offset]
-                + ((unsigned char)colour<<8);
-        lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
-        if (x==x2) break;
-        if (d>=0)
-        {
-          offset += doffy;
-          d -= apx;
-        }
-        x += spx;
-        offset += spx;
-        d += apy;
-      }
+        spx = -1;
     }
-  } else
-  if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
-  {
-      if ( apx <= apy )
-      {
-        long d = apx - (apy >> 1);
-        while ( 1 )
+    else
+    {
+        spx = 1;
+    }
+    long apy = 2 * abs(y2 - y1);
+    long spy;
+    if (y2 - y1 <= 0)
+    {
+        spy = -1;
+    }
+    else
+    {
+        spy = 1;
+    }
+    long doffy = spy * lbDisplay.GraphicsScreenWidth;
+    long offset = lbDisplay.GraphicsScreenWidth * y1 + x1;
+    long x = x1;
+    long y = y1;
+    if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4)
+    {
+        if (apx <= apy)
         {
-          unsigned short glass_idx = (lbDisplay.GraphicsWindowPtr[offset]<<8)
-                + ((unsigned char)colour);
-          lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
-          if (y==y2) break;
-          if (d>=0)
-          {
-            offset += spx;
-            d -= apy;
-          }
-          y += spy;
-          offset += doffy;
-          d += apx;
+            long d = apx - (apy >> 1);
+            while (true)
+            {
+                unsigned short glass_idx = lbDisplay.GraphicsWindowPtr[offset] + ((unsigned char)colour << 8);
+                lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
+                if (y == y2)
+                {
+                    break;
+                }
+                if (d >= 0)
+                {
+                    offset += spx;
+                    d -= apy;
+                }
+                y += spy;
+                offset += doffy;
+                d += apx;
+            }
         }
-      } else
-      {
-        long d = apy - (apx >> 1);
-        while ( 1 )
+        else
         {
-          unsigned short glass_idx = (lbDisplay.GraphicsWindowPtr[offset]<<8)
-                + ((unsigned char)colour);
-          lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
-          if (x==x2) break;
-          if (d>=0)
-          {
-            offset += doffy;
-            d -= apx;
-          }
-          x += spx;
-          offset += spx;
-          d += apy;
+            long d = apy - (apx >> 1);
+            while (true)
+            {
+                unsigned short glass_idx = lbDisplay.GraphicsWindowPtr[offset] + ((unsigned char)colour << 8);
+                lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
+                if (x == x2)
+                {
+                    break;
+                }
+                if (d >= 0)
+                {
+                    offset += doffy;
+                    d -= apx;
+                }
+                x += spx;
+                offset += spx;
+                d += apy;
+            }
         }
-      }
-  } else
-  {
-      if ( apx <= apy )
-      {
-        long d = apx - (apy >> 1);
-        while ( true )
+    }
+    else if (lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8)
+    {
+        if (apx <= apy)
         {
-          lbDisplay.GraphicsWindowPtr[offset] = ((unsigned char)colour);
-          if (y==y2) break;
-          if ( d >= 0 )
-          {
-            offset += spx;
-            d -= apy;
-          }
-          y += spy;
-          offset += doffy;
-          d += apx;
+            long d = apx - (apy >> 1);
+            while (1)
+            {
+                unsigned short glass_idx = (lbDisplay.GraphicsWindowPtr[offset] << 8) + ((unsigned char)colour);
+                lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
+                if (y == y2)
+                {
+                    break;
+                }
+                if (d >= 0)
+                {
+                    offset += spx;
+                    d -= apy;
+                }
+                y += spy;
+                offset += doffy;
+                d += apx;
+            }
         }
-      }
-      else
-      {
-        long d = apy - (apx >> 1);
-        while ( 1 )
+        else
         {
-          lbDisplay.GraphicsWindowPtr[offset] = ((unsigned char)colour);
-          if ( x == x2 )
-            break;
-          if ( d >= 0 )
-          {
-            offset += doffy;
-            d -= apx;
-          }
-          x += spx;
-          offset += spx;
-          d += apy;
+            long d = apy - (apx >> 1);
+            while (1)
+            {
+                unsigned short glass_idx = (lbDisplay.GraphicsWindowPtr[offset] << 8) + ((unsigned char)colour);
+                lbDisplay.GraphicsWindowPtr[offset] = lbDisplay.GlassMap[glass_idx];
+                if (x == x2)
+                {
+                    break;
+                }
+                if (d >= 0)
+                {
+                    offset += doffy;
+                    d -= apx;
+                }
+                x += spx;
+                offset += spx;
+                d += apy;
+            }
         }
-      }
-  }
+    }
+    else
+    {
+        if (apx <= apy)
+        {
+            long d = apx - (apy >> 1);
+            while (true)
+            {
+                lbDisplay.GraphicsWindowPtr[offset] = ((unsigned char)colour);
+                if (y == y2)
+                {
+                    break;
+                }
+                if (d >= 0)
+                {
+                    offset += spx;
+                    d -= apy;
+                }
+                y += spy;
+                offset += doffy;
+                d += apx;
+            }
+        }
+        else
+        {
+            long d = apy - (apx >> 1);
+            while (1)
+            {
+                lbDisplay.GraphicsWindowPtr[offset] = ((unsigned char)colour);
+                if (x == x2)
+                {
+                    break;
+                }
+                if (d >= 0)
+                {
+                    offset += doffy;
+                    d -= apx;
+                }
+                x += spx;
+                offset += spx;
+                d += apy;
+            }
+        }
+    }
 }
 
 /** Draws a line on current graphics window. Truncates the coordinates
@@ -2721,98 +3086,114 @@ void draw_b_line(long x1, long y1, long x2, long y2, TbPixel colour)
  */
 TbResult LbDrawLine(long x1, long y1, long x2, long y2, TbPixel colour)
 {
-  char result=0;
-  // Adjusting X-dimension coordinates
-  long width_max = lbDisplay.GraphicsWindowWidth - 1;
-  if ( x1 >= 0 )
-  {
-    if ( x1 <= width_max )
+    char result = 0;
+    // Adjusting X-dimension coordinates
+    long width_max = lbDisplay.GraphicsWindowWidth - 1;
+    if (x1 >= 0)
     {
-      if ( x2 >= 0 )
-      {
-        if ( x2 > width_max )
+        if (x1 <= width_max)
         {
-          y2 -= (x2-width_max)*(y2-y1) / (x2-x1);
-          x2 = width_max;
-          result = 1;
+            if (x2 >= 0)
+            {
+                if (x2 > width_max)
+                {
+                    y2 -= (x2 - width_max) * (y2 - y1) / (x2 - x1);
+                    x2 = width_max;
+                    result = 1;
+                }
+            }
+            else
+            {
+                y2 -= x2 * (y2 - y1) / (x2 - x1);
+                x2 = 0;
+                result = 1;
+            }
         }
-      } else
-      {
-        y2 -= x2 * (y2-y1) / (x2-x1);
-        x2 = 0;
+        else
+        {
+            if (x2 > width_max)
+            {
+                return 1;
+            }
+            y1 -= (x1 - width_max) * (y1 - y2) / (x1 - x2);
+            x1 = width_max;
+            result = 1;
+            if (x2 < 0)
+            {
+                y2 -= x2 * (y2 - y1) / (x2 - x1);
+                x2 = 0;
+            }
+        }
+    }
+    else
+    {
+        if (x2 < 0)
+        {
+            return 1;
+        }
+        y1 -= x1 * (y1 - y2) / (x1 - x2);
+        x1 = 0;
         result = 1;
-      }
-    } else
-    {
-      if ( x2 > width_max ) return 1;
-      y1 -= (x1-width_max) * (y1-y2) / (x1-x2);
-      x1 = width_max;
-      result = 1;
-      if ( x2 < 0 )
-      {
-        y2 -= x2 * (y2-y1) / (x2-x1);
-        x2 = 0;
-      }
+        if (x2 > width_max)
+        {
+            y2 -= (x2 - width_max) * (y2 - y1) / (x2 - x1);
+            x2 = lbDisplay.GraphicsWindowWidth - 1;
+        }
     }
-  }
-  else
-  {
-    if ( x2 < 0 ) return 1;
-    y1 -= x1 * (y1-y2) / (x1-x2);
-    x1 = 0;
-    result = 1;
-    if ( x2 > width_max )
+    // Adjusting Y-dimension coordinates
+    long height_max = lbDisplay.GraphicsWindowHeight - 1;
+    if (y1 < 0)
     {
-      y2 -= (x2-width_max) * (y2-y1) / (x2-x1);
-      x2 = lbDisplay.GraphicsWindowWidth - 1;
-    }
-  }
-  // Adjusting Y-dimension coordinates
-  long height_max = lbDisplay.GraphicsWindowHeight - 1;
-  if ( y1 < 0 )
-  {
-    if ( y2 < 0 ) return 1;
-    x1 -= y1 * (x1-x2) / (y1-y2);
-    y1 = 0;
-    result = 1;
-    if ( y2 > height_max )
-    {
-      x2 -= (y2-height_max) * (x2-x1) / (y2-y1);
-      y2 = height_max;
-    }
-  } else
-  if ( y1 <= height_max )
-  {
-    if ( y2 >= 0 )
-    {
-      if ( y2 > height_max )
-      {
-        x2 -= (y2-height_max) * (x2-x1) / (y2-y1);
-        y2 = height_max;
+        if (y2 < 0)
+        {
+            return 1;
+        }
+        x1 -= y1 * (x1 - x2) / (y1 - y2);
+        y1 = 0;
         result = 1;
-      }
-    } else
-    {
-      x2 -= y2 * (x2-x1) / (y2 - y1);
-      y2 = 0;
-      result = 1;
+        if (y2 > height_max)
+        {
+            x2 -= (y2 - height_max) * (x2 - x1) / (y2 - y1);
+            y2 = height_max;
+        }
     }
-  } else
-  {
-    if ( y2 > height_max )
-      return 1;
-    x1 -= (y1-height_max) * (x1-x2) / (y1-y2);
-    y1 = height_max;
-    result = 1;
-    if ( y2 < 0 )
+    else if (y1 <= height_max)
     {
-      x2 -= y2 * (x2-x1) / (y2-y1);
-      y2 = 0;
+        if (y2 >= 0)
+        {
+            if (y2 > height_max)
+            {
+                x2 -= (y2 - height_max) * (x2 - x1) / (y2 - y1);
+                y2 = height_max;
+                result = 1;
+            }
+        }
+        else
+        {
+            x2 -= y2 * (x2 - x1) / (y2 - y1);
+            y2 = 0;
+            result = 1;
+        }
     }
-  }
-  draw_b_line(x1, y1, x2, y2, colour);
-  return result;
+    else
+    {
+        if (y2 > height_max)
+        {
+            return 1;
+        }
+        x1 -= (y1 - height_max) * (x1 - x2) / (y1 - y2);
+        y1 = height_max;
+        result = 1;
+        if (y2 < 0)
+        {
+            x2 -= y2 * (x2 - x1) / (y2 - y1);
+            y2 = 0;
+        }
+    }
+    draw_b_line(x1, y1, x2, y2, colour);
+    return result;
 }
+
 /*
 //Draws any triangle on the current graphics window.
 //Does no screen locking.

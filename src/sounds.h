@@ -37,26 +37,26 @@ extern "C" {
 struct Thing;
 
 struct SoundSettings {
-  char *sound_data_path;
-  char *music_data_path;
-  char *dir3;
-  unsigned short sound_type;
-  unsigned short flags;
-  unsigned char max_number_of_samples;
-  unsigned char stereo;
-  unsigned char field_12;
-  unsigned char danger_music;
-  unsigned char no_load_sounds;
-  unsigned char no_load_music;
-  unsigned char field_16;
-  unsigned char sound_system;
-  unsigned char field_18;
-  unsigned char redbook_enable;
+    char *sound_data_path;
+    char *music_data_path;
+    char *dir3;
+    unsigned short sound_type;
+    unsigned short flags;
+    unsigned char max_number_of_samples;
+    unsigned char stereo;
+    unsigned char field_12;
+    unsigned char danger_music;
+    unsigned char no_load_sounds;
+    unsigned char no_load_music;
+    unsigned char field_16;
+    unsigned char sound_system;
+    unsigned char field_18;
+    unsigned char redbook_enable;
 };
 
 struct SoundBankHead { // sizeof = 18
-  unsigned char field_0[14];
-  unsigned long field_E;
+    unsigned char field_0[14];
+    unsigned long field_E;
 };
 
 struct SoundBankSample { // sizeof = 32
@@ -72,21 +72,21 @@ struct SoundBankSample { // sizeof = 32
 };
 
 struct SoundBankEntry { // sizeof = 16
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
+    unsigned long field_0;
+    unsigned long field_4;
+    unsigned long field_8;
+    unsigned long field_C;
 };
 
 enum SoundSettingsFlags {
-    SndSetting_None    = 0x00,
+    SndSetting_None = 0x00,
     SndSetting_MIDI = 0x01,
     SndSetting_Sound = 0x02,
 };
 
 extern int atmos_sound_frequency;
 extern int sdl_flags;
-extern Mix_Chunk* streamed_sample;
+extern Mix_Chunk *streamed_sample;
 
 #pragma pack()
 
@@ -116,7 +116,7 @@ int InitialiseSDLAudio();
 void ShutDownSDLAudio();
 void free_sound_chunks();
 void play_external_sound_sample(unsigned char smpl_id);
-TbBool play_streamed_sample(char* fname, int volume, int loops);
+TbBool play_streamed_sample(char *fname, int volume, int loops);
 void stop_streamed_sample();
 /******************************************************************************/
 #ifdef __cplusplus

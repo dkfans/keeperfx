@@ -37,109 +37,124 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_objects_file[]="objects.cfg";
+const char keeper_objects_file[] = "objects.cfg";
 
 const struct NamedCommand objects_common_commands[] = {
-  {"OBJECTSCOUNT",    1},
-  {NULL,              0},
-  };
+    {"OBJECTSCOUNT", 1},
+    {          NULL, 0},
+};
 
 const struct NamedCommand objects_object_commands[] = {
-  {"NAME",               1},
-  {"GENRE",              2},
-  {"RELATEDCREATURE",    3},
-  {"PROPERTIES",         4},
-  {"ANIMATIONID",        5},
-  {"ANIMATIONSPEED",     6},
-  {"SIZE_XY",            7},
-  {"SIZE_YZ",            8},
-  {"SIZE_Z",             8},
-  {"MAXIMUMSIZE",        9},
-  {"DESTROYONLIQUID",   10},
-  {"DESTROYONLAVA",     11},
-  {"HEALTH",            12},
-  {"FALLACCELERATION",  13},
-  {"LIGHTUNAFFECTED",   14},
-  {"LIGHTINTENSITY",    15},
-  {"LIGHTRADIUS",       16},
-  {"LIGHTISDYNAMIC",    17},
-  {"MAPICON",           18},
-  {"AMBIENCESOUND",     19},
-  {"UPDATEFUNCTION",    20},
-  {"DRAWCLASS",         21},
-  {"PERSISTENCE",       22},
-  {"IMMOBILE",          23},
-  {NULL,                 0},
-  };
+    {            "NAME",  1},
+    {           "GENRE",  2},
+    { "RELATEDCREATURE",  3},
+    {      "PROPERTIES",  4},
+    {     "ANIMATIONID",  5},
+    {  "ANIMATIONSPEED",  6},
+    {         "SIZE_XY",  7},
+    {         "SIZE_YZ",  8},
+    {          "SIZE_Z",  8},
+    {     "MAXIMUMSIZE",  9},
+    { "DESTROYONLIQUID", 10},
+    {   "DESTROYONLAVA", 11},
+    {          "HEALTH", 12},
+    {"FALLACCELERATION", 13},
+    { "LIGHTUNAFFECTED", 14},
+    {  "LIGHTINTENSITY", 15},
+    {     "LIGHTRADIUS", 16},
+    {  "LIGHTISDYNAMIC", 17},
+    {         "MAPICON", 18},
+    {   "AMBIENCESOUND", 19},
+    {  "UPDATEFUNCTION", 20},
+    {       "DRAWCLASS", 21},
+    {     "PERSISTENCE", 22},
+    {        "IMMOBILE", 23},
+    {              NULL,  0},
+};
 
 const struct NamedCommand objects_properties_commands[] = {
-  {"EXISTS_ONLY_IN_ROOM",     1},
-  {"DESTROYED_ON_ROOM_CLAIM", 2},
-  {"CHOWNED_ON_ROOM_CLAIM",   3},
-  {"DESTROYED_ON_ROOM_PLACE", 4},
-  {"BUOYANT",                 5},
-  {"BEATING",                 6},
-  {"HEART",                   7},
-  {NULL,                      0},
-  };
+    {    "EXISTS_ONLY_IN_ROOM", 1},
+    {"DESTROYED_ON_ROOM_CLAIM", 2},
+    {  "CHOWNED_ON_ROOM_CLAIM", 3},
+    {"DESTROYED_ON_ROOM_PLACE", 4},
+    {                "BUOYANT", 5},
+    {                "BEATING", 6},
+    {                  "HEART", 7},
+    {                     NULL, 0},
+};
 
 const struct NamedCommand objects_genres_desc[] = {
-  {"NONE",            OCtg_Unknown},
-  {"DECORATION",      OCtg_Decoration},
-  {"FURNITURE",       OCtg_Furniture},
-  {"VALUABLE",        OCtg_Valuable},
-  {"SPELLBOOK",       OCtg_Spellbook},
-  {"SPECIALBOX",      OCtg_SpecialBox},
-  {"WORKSHOPBOX",     OCtg_WrkshpBox},
-  {"TREASURE_HOARD",  OCtg_GoldHoard},
-  {"FOOD",            OCtg_Food},
-  {"POWER",           OCtg_Power},
-  {"LAIR_TOTEM",      OCtg_LairTotem},
-  {"EFFECT",          OCtg_Effect},
-  {NULL,              0},
-  };
+    {          "NONE",    OCtg_Unknown},
+    {    "DECORATION", OCtg_Decoration},
+    {     "FURNITURE",  OCtg_Furniture},
+    {      "VALUABLE",   OCtg_Valuable},
+    {     "SPELLBOOK",  OCtg_Spellbook},
+    {    "SPECIALBOX", OCtg_SpecialBox},
+    {   "WORKSHOPBOX",  OCtg_WrkshpBox},
+    {"TREASURE_HOARD",  OCtg_GoldHoard},
+    {          "FOOD",       OCtg_Food},
+    {         "POWER",      OCtg_Power},
+    {    "LAIR_TOTEM",  OCtg_LairTotem},
+    {        "EFFECT",     OCtg_Effect},
+    {            NULL,               0},
+};
 
 /******************************************************************************/
 struct NamedCommand object_desc[OBJECT_TYPES_MAX];
+
 /******************************************************************************/
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel)
 {
     if (tngmodel >= gameadd.object_conf.object_types_count)
+    {
         return &gameadd.object_conf.object_cfgstats[0];
+    }
     return &gameadd.object_conf.object_cfgstats[tngmodel];
 }
 
 ThingClass crate_to_workshop_item_class(ThingModel tngmodel)
 {
     if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
+    {
         return gameadd.object_conf.workshop_object_class[0];
+    }
     return gameadd.object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_to_workshop_item_model(ThingModel tngmodel)
 {
     if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
+    {
         return gameadd.object_conf.object_to_door_or_trap[0];
+    }
     return gameadd.object_conf.object_to_door_or_trap[tngmodel];
 }
 
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
 {
     if (!thing_is_workshop_crate(thing))
+    {
         return thing->class_id;
+    }
     ThingModel tngmodel = thing->model;
     if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
+    {
         return gameadd.object_conf.workshop_object_class[0];
+    }
     return gameadd.object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
 {
     if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
+    {
         return gameadd.object_conf.object_to_door_or_trap[0];
+    }
     ThingModel tngmodel = thing->model;
     if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
+    {
         return gameadd.object_conf.object_to_door_or_trap[0];
+    }
     return gameadd.object_conf.object_to_door_or_trap[tngmodel];
 }
 
@@ -159,16 +174,21 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+        {
+            WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
+        }
         return false;
     }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_common_commands,cmd_num)
-    while (pos<len)
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_common_commands, cmd_num)
+    while (pos < len)
     {
         // Finding command number in this line
         int cmd_num = recognize_conf_command(buf, &pos, len, objects_common_commands);
         // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
+        if (cmd_num == -3)
+        {
+            break; // if next block starts
+        }
         int n = 0;
         switch (cmd_num)
         {
@@ -177,17 +197,17 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
             char word_buf[COMMAND_WORD_LEN];
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= OBJECT_TYPES_MAX))
-              {
-                  gameadd.object_conf.object_types_count = k;
-                  n++;
-              }
+                k = atoi(word_buf);
+                if ((k > 0) && (k <= OBJECT_TYPES_MAX))
+                {
+                    gameadd.object_conf.object_types_count = k;
+                    n++;
+                }
             }
             if (n < 1)
             {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                           COMMAND_TEXT(cmd_num), block_buf, config_textname);
             }
             break;
         }
@@ -197,10 +217,10 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
             break;
         default:
             CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
+                       cmd_num, block_buf, config_textname);
             break;
         }
-        skip_conf_to_next_line(buf,&pos,len);
+        skip_conf_to_next_line(buf, &pos, len);
     }
 #undef COMMAND_TEXT
     return true;
@@ -215,8 +235,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(gameadd.object_conf.object_cfgstats)/sizeof(gameadd.object_conf.object_cfgstats[0]);
-        for (tmodel=0; tmodel < arr_size; tmodel++)
+        arr_size = sizeof(gameadd.object_conf.object_cfgstats) / sizeof(gameadd.object_conf.object_cfgstats[0]);
+        for (tmodel = 0; tmodel < arr_size; tmodel++)
         {
             objst = &gameadd.object_conf.object_cfgstats[tmodel];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
@@ -227,7 +247,8 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             {
                 object_desc[tmodel].name = objst->code_name;
                 object_desc[tmodel].num = tmodel;
-            } else
+            }
+            else
             {
                 object_desc[tmodel].name = NULL;
                 object_desc[tmodel].num = 0;
@@ -268,18 +289,23 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         }
 
         objst = &gameadd.object_conf.object_cfgstats[tmodel];
-        struct Objects* objdat = get_objects_data(tmodel);
-        objdat->draw_class = ODC_Default;    
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
-        while (pos<len)
+        struct Objects *objdat = get_objects_data(tmodel);
+        objdat->draw_class = ODC_Default;
+#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands, cmd_num)
+        while (pos < len)
         {
             // Finding command number in this line
             int cmd_num = recognize_conf_command(buf, &pos, len, objects_object_commands);
             // Now store the config item in correct place
-            if (cmd_num == -3) break; // if next block starts
-            if ((flags & CnfLd_ListOnly) != 0) {
+            if (cmd_num == -3)
+            {
+                break; // if next block starts
+            }
+            if ((flags & CnfLd_ListOnly) != 0)
+            {
                 // In "List only" mode, accept only name command
-                if (cmd_num > 1) {
+                if (cmd_num > 1)
+                {
                     cmd_num = 0;
                 }
             }
@@ -288,78 +314,78 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             switch (cmd_num)
             {
             case 1: // NAME
-                if (get_conf_parameter_single(buf,&pos,len,objst->code_name,COMMAND_WORD_LEN) <= 0)
+                if (get_conf_parameter_single(buf, &pos, len, objst->code_name, COMMAND_WORD_LEN) <= 0)
                 {
                     CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                     break;
                 }
                 break;
             case 2: // GENRE
-                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = get_id(objects_genres_desc, word_buf);
                 }
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                     break;
                 }
                 objst->genre = n;
                 break;
             case 3: // RELATEDCREATURE
-                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = get_id(creature_desc, word_buf);
                 }
                 if (n < 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                     break;
                 }
                 objdat->related_creatr_model = n;
                 break;
             case 4: // PROPERTIES
-                while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                  k = get_id(objects_properties_commands, word_buf);
-                  switch (k)
-                  {
-                  case 1: // EXISTS_ONLY_IN_ROOM
-                      objst->model_flags |= OMF_ExistsOnlyInRoom;
-                      n++;
-                      break;
-                  case 2: // DESTROYED_ON_ROOM_CLAIM
-                      objst->model_flags |= OMF_DestroyedOnRoomClaim;
-                      n++;
-                      break;
-                  case 3: // CHOWNED_ON_ROOM_CLAIM
-                      objst->model_flags |= OMF_ChOwnedOnRoomClaim;
-                      n++;
-                      break;
-                  case 4: // DESTROYED_ON_ROOM_PLACE
-                      objst->model_flags |= OMF_DestroyedOnRoomPlace;
-                      n++;
-                      break;
-                  case 5: // BOUYANT
-                      objst->model_flags |= OMF_Buoyant;
-                      n++;
-                      break;
-                  case 6: // BEATING
-                      objst->model_flags |= OMF_Beating;
-                      n++;
-                      break;
-                  case 7: // HEART
-                      objst->model_flags |= OMF_Heart;
-                      n++;
-                      break;
-                  default:
-                      CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                          COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
-                      break;
-                  }
+                    k = get_id(objects_properties_commands, word_buf);
+                    switch (k)
+                    {
+                    case 1: // EXISTS_ONLY_IN_ROOM
+                        objst->model_flags |= OMF_ExistsOnlyInRoom;
+                        n++;
+                        break;
+                    case 2: // DESTROYED_ON_ROOM_CLAIM
+                        objst->model_flags |= OMF_DestroyedOnRoomClaim;
+                        n++;
+                        break;
+                    case 3: // CHOWNED_ON_ROOM_CLAIM
+                        objst->model_flags |= OMF_ChOwnedOnRoomClaim;
+                        n++;
+                        break;
+                    case 4: // DESTROYED_ON_ROOM_PLACE
+                        objst->model_flags |= OMF_DestroyedOnRoomPlace;
+                        n++;
+                        break;
+                    case 5: // BOUYANT
+                        objst->model_flags |= OMF_Buoyant;
+                        n++;
+                        break;
+                    case 6: // BEATING
+                        objst->model_flags |= OMF_Beating;
+                        n++;
+                        break;
+                    case 7: // HEART
+                        objst->model_flags |= OMF_Heart;
+                        n++;
+                        break;
+                    default:
+                        CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                                   COMMAND_TEXT(cmd_num), word_buf, block_buf, config_textname);
+                        break;
+                    }
                 }
                 break;
             case 5: // ANIMATIONID
@@ -373,7 +399,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 6: // ANIMATIONSPEED
@@ -386,7 +412,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 7: // SIZE_XY
@@ -399,7 +425,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 8: // SIZE_Z
@@ -412,7 +438,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 9: // MAXIMUMSIZE
@@ -425,7 +451,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 10: // DESTROYONLIQUID
@@ -438,7 +464,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 11: // DESTROYONLAVA
@@ -451,7 +477,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 12: // HEALTH
@@ -464,7 +490,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 13: // FALLACCELERATION
@@ -477,7 +503,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 14: // LIGHTUNAFFECTED
@@ -490,7 +516,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 15: // LIGHTINTENSITY
@@ -503,20 +529,20 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 16: // LIGHTRADIUS
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objst->ilght.radius = n << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+                    objst->ilght.radius = n << 8; // Mystery bit shift. Remove it to get divide by 0 errors.
                     n++;
                 }
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 17: // LIGHTISDYNAMIC
@@ -529,7 +555,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 18: // MAPICON
@@ -545,17 +571,17 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 {
                     objst->map_icon = bad_icon_id;
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 19: // AMBIENCESOUND
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    if ( (!SoundDisabled) && ( (n < 0) || (n > (samples_in_bank - 1)) ) )
+                    if ((!SoundDisabled) && ((n < 0) || (n > (samples_in_bank - 1))))
                     {
                         CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
                     }
                     else
                     {
@@ -564,14 +590,14 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 }
                 break;
             case 20: // UPDATEFUNCTION
-                if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = get_id(object_update_functions_desc, word_buf);
                 }
                 if (n < 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num),block_buf,config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                     break;
                 }
                 objdat->updatefn_idx = n;
@@ -586,7 +612,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 22: // PERSISTENCE
@@ -599,7 +625,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 23: // Immobile
@@ -612,7 +638,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (n <= 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                               COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
             case 0: // comment
@@ -620,10 +646,10 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             case -1: // end of buffer
                 break;
             default:
-                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.", cmd_num,block_buf,config_textname);
+                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.", cmd_num, block_buf, config_textname);
                 break;
             }
-            skip_conf_to_next_line(buf,&pos,len);
+            skip_conf_to_next_line(buf, &pos, len);
         }
 #undef COMMAND_TEXT
     }
@@ -632,17 +658,21 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
 
 TbBool load_objects_config_file(const char *textname, const char *fname, unsigned short flags)
 {
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
+    SYNCDBG(0, "%s %s file \"%s\".", ((flags & CnfLd_ListOnly) == 0) ? "Reading" : "Parsing", textname, fname);
     long len = LbFileLengthRnc(fname);
     if (len < MIN_CONFIG_FILE_SIZE)
     {
         if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
+        {
+            WARNMSG("The %s file \"%s\" doesn't exist or is too small.", textname, fname);
+        }
         return false;
     }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
+    char *buf = (char *)LbMemoryAlloc(len + 256);
     if (buf == NULL)
+    {
         return false;
+    }
     // Loading file data
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
@@ -651,34 +681,42 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
     {
         result = parse_objects_common_blocks(buf, len, textname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
+        {
             result = true;
+        }
         if (!result)
-            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
+        {
+            WARNMSG("Parsing %s file \"%s\" common blocks failed.", textname, fname);
+        }
     }
     if (result)
     {
         result = parse_objects_object_blocks(buf, len, textname, flags);
         if ((flags & CnfLd_AcceptPartial) != 0)
+        {
             result = true;
+        }
         if (!result)
-            WARNMSG("Parsing %s file \"%s\" object blocks failed.",textname,fname);
+        {
+            WARNMSG("Parsing %s file \"%s\" object blocks failed.", textname, fname);
+        }
     }
-    //Freeing and exiting
+    // Freeing and exiting
     LbMemoryFree(buf);
     return result;
 }
 
 void update_all_object_stats()
 {
-    const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
-    struct DungeonAdd* dungeonadd;
-    struct Dungeon* dungeon;
+    const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
+    struct DungeonAdd *dungeonadd;
+    struct Dungeon *dungeon;
     for (int i = slist->index; i > 0;)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         i = thing->next_of_class
-            TRACE_THING(thing);
-        struct Objects* objdat = get_objects_data_for_thing(thing);
+                TRACE_THING(thing);
+        struct Objects *objdat = get_objects_data_for_thing(thing);
         set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
         // TODO: Should we rotate this on per-object basis?
         thing->flags = 0;
@@ -694,7 +732,7 @@ void update_all_object_stats()
             }
         }
 
-        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
         if (thing->light_id != 0)
         {
             light_delete_light(thing->light_id);
@@ -717,14 +755,14 @@ TbBool load_objects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global objects config";
     static const char config_campgn_textname[] = "campaign objects config";
-    char* fname = prepare_file_path(FGrp_FxData, conf_fname);
+    char *fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_objects_config_file(config_global_textname, fname, flags);
-    fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
+    fname = prepare_file_path(FGrp_CmpgConfig, conf_fname);
     if (strlen(fname) > 0)
     {
-        load_objects_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+        load_objects_config_file(config_campgn_textname, fname, flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
     }
-    //Freeing and exiting
+    // Freeing and exiting
     return result;
 }
 
@@ -733,9 +771,11 @@ TbBool load_objects_config(const char *conf_fname, unsigned short flags)
  */
 const char *object_code_name(ThingModel tngmodel)
 {
-    const char* name = get_conf_parameter_text(object_desc, tngmodel);
+    const char *name = get_conf_parameter_text(object_desc, tngmodel);
     if (name[0] != '\0')
+    {
         return name;
+    }
     return "INVALID";
 }
 
@@ -745,12 +785,13 @@ const char *object_code_name(ThingModel tngmodel)
  * @param code_name
  * @return A positive integer for the object model if found, otherwise -1
  */
-ThingModel object_model_id(const char * code_name)
+ThingModel object_model_id(const char *code_name)
 {
     for (int i = 0; i < gameadd.object_conf.object_types_count; ++i)
     {
         if (strncasecmp(gameadd.object_conf.object_cfgstats[i].code_name, code_name,
-                COMMAND_WORD_LEN) == 0) {
+                        COMMAND_WORD_LEN) == 0)
+        {
             return i;
         }
     }
@@ -777,30 +818,40 @@ int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmode
     case RoRoF_DeadStorage:
         crstat = creature_stats_get(relmodel);
         if (!creature_stats_invalid(crstat))
+        {
             return 1;
+        }
         break;
     case RoRoF_KeeperStorage:
         break;
     case RoRoF_GoldStorage:
         objst = get_object_model_stats(objmodel);
         if (objst->genre == OCtg_GoldHoard)
+        {
             return get_wealth_size_of_gold_hoard_model(objmodel);
+        }
         break;
     case RoRoF_FoodSpawn:
     case RoRoF_FoodStorage:
         objst = get_object_model_stats(objmodel);
         if ((objst->genre == OCtg_Food) || (objst->genre == OCtg_Furniture)) // non-mature chickens are furniture
+        {
             return 1;
+        }
         break;
     case RoRoF_CratesStorage:
         objst = get_object_model_stats(objmodel);
         if (objst->genre == OCtg_WrkshpBox)
+        {
             return 1;
+        }
         break;
     case RoRoF_PowersStorage:
         objst = get_object_model_stats(objmodel);
         if ((objst->genre == OCtg_Spellbook) || (objst->genre == OCtg_SpecialBox))
+        {
             return 1;
+        }
         break;
     default:
         break;

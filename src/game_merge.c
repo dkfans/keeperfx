@@ -32,6 +32,7 @@ extern "C" {
 struct GameAdd gameadd;
 struct IntralevelData intralvl;
 unsigned long game_flags2 = 0;
+
 /******************************************************************************/
 /******************************************************************************/
 /**
@@ -42,7 +43,9 @@ unsigned long game_flags2 = 0;
 TbBool emulate_integer_overflow(unsigned short nbits)
 {
     if (nbits == 8)
+    {
         return (gameadd.classic_bugs_flags & ClscBug_Overflow8bitVal) != 0;
+    }
     return false;
 }
 
@@ -51,7 +54,7 @@ TbBool emulate_integer_overflow(unsigned short nbits)
  */
 LevelNumber get_loaded_level_number(void)
 {
-  return game.loaded_level_number;
+    return game.loaded_level_number;
 }
 
 /**
@@ -59,9 +62,11 @@ LevelNumber get_loaded_level_number(void)
  */
 LevelNumber set_loaded_level_number(LevelNumber lvnum)
 {
-  if (lvnum > 0)
-    game.loaded_level_number = lvnum;
-  return game.loaded_level_number;
+    if (lvnum > 0)
+    {
+        game.loaded_level_number = lvnum;
+    }
+    return game.loaded_level_number;
 }
 
 /**
@@ -69,7 +74,7 @@ LevelNumber set_loaded_level_number(LevelNumber lvnum)
  */
 LevelNumber get_continue_level_number(void)
 {
-  return game.continue_level_number;
+    return game.continue_level_number;
 }
 
 /**
@@ -78,9 +83,11 @@ LevelNumber get_continue_level_number(void)
  */
 LevelNumber set_continue_level_number(LevelNumber lvnum)
 {
-  if (is_singleplayer_like_level(lvnum))
-    game.continue_level_number = lvnum;
-  return game.continue_level_number;
+    if (is_singleplayer_like_level(lvnum))
+    {
+        game.continue_level_number = lvnum;
+    }
+    return game.continue_level_number;
 }
 
 /**
@@ -88,7 +95,7 @@ LevelNumber set_continue_level_number(LevelNumber lvnum)
  */
 LevelNumber get_selected_level_number(void)
 {
-  return game.selected_level_number;
+    return game.selected_level_number;
 }
 
 /**
@@ -97,7 +104,9 @@ LevelNumber get_selected_level_number(void)
 LevelNumber set_selected_level_number(LevelNumber lvnum)
 {
     if (lvnum >= 0)
+    {
         game.selected_level_number = lvnum;
+    }
     return game.selected_level_number;
 }
 
@@ -112,15 +121,15 @@ TbBool is_bonus_level_visible(struct PlayerInfo *player, LevelNumber bn_lvnum)
         // This hapens quite often - status of bonus level is checked even
         // if there's no such bonus level. So no log message here.
         return false;
-  }
-  int n = i / 8;
-  int k = (1 << (i % 8));
-  if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
-  {
-    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
-    return false;
-  }
-  return ((intralvl.bonuses_found[n] & k) != 0);
+    }
+    int n = i / 8;
+    int k = (1 << (i % 8));
+    if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
+    {
+        WARNLOG("Bonus level %d has invalid store position.", (int)bn_lvnum);
+        return false;
+    }
+    return ((intralvl.bonuses_found[n] & k) != 0);
 }
 
 /**
@@ -133,16 +142,16 @@ TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
     {
         WARNLOG("Can't set state of non-existing bonus level %d.", (int)bn_lvnum);
         return false;
-  }
-  int n = i / 8;
-  int k = (1 << (i % 8));
-  if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
-  {
-    WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
-    return false;
-  }
-  set_flag_byte(&intralvl.bonuses_found[n], k, visible);
-  return true;
+    }
+    int n = i / 8;
+    int k = (1 << (i % 8));
+    if ((n < 0) || (n >= BONUS_LEVEL_STORAGE_COUNT))
+    {
+        WARNLOG("Bonus level %d has invalid store position.", (int)bn_lvnum);
+        return false;
+    }
+    set_flag_byte(&intralvl.bonuses_found[n], k, visible);
+    return true;
 }
 
 /**
@@ -154,18 +163,24 @@ TbBool set_bonus_level_visibility_for_singleplayer_level(struct PlayerInfo *play
     if (!set_bonus_level_visibility(bn_lvnum, visible))
     {
         if (visible)
+        {
             WARNMSG("Couldn't store bonus award for level %d", sp_lvnum);
+        }
         return false;
-  }
-  if (visible)
-    SYNCMSG("Bonus award for level %d enabled",sp_lvnum);
-  return true;
+    }
+    if (visible)
+    {
+        SYNCMSG("Bonus award for level %d enabled", sp_lvnum);
+    }
+    return true;
 }
 
 void hide_all_bonus_levels(struct PlayerInfo *player)
 {
     for (int i = 0; i < BONUS_LEVEL_STORAGE_COUNT; i++)
+    {
         intralvl.bonuses_found[i] = 0;
+    }
 }
 
 /**
@@ -175,23 +190,33 @@ unsigned short get_extra_level_kind_visibility(unsigned short elv_kind)
 {
     LevelNumber ex_lvnum = get_extra_level(elv_kind);
     if (ex_lvnum <= 0)
+    {
         return LvSt_Hidden;
+    }
     switch (elv_kind)
     {
     case ExLv_FullMoon:
         if (is_full_moon)
+        {
             return LvSt_Visible;
+        }
         if (is_near_full_moon)
+        {
             return LvSt_HalfShow;
+        }
         break;
     case ExLv_NewMoon:
         if (is_new_moon)
+        {
             return LvSt_Visible;
+        }
         if (is_near_new_moon)
+        {
             return LvSt_HalfShow;
+        }
         break;
-  }
-  return LvSt_Hidden;
+    }
+    return LvSt_Hidden;
 }
 
 /**
@@ -206,8 +231,8 @@ short is_extra_level_visible(struct PlayerInfo *player, long ex_lvnum)
         return is_full_moon;
     case ExLv_NewMoon:
         return is_new_moon;
-  }
-  return false;
+    }
+    return false;
 }
 
 void update_extra_levels_visibility(void)

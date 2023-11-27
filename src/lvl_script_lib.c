@@ -31,13 +31,15 @@ extern "C" {
 struct ScriptValue *allocate_script_value(void)
 {
     if (gameadd.script.values_num >= SCRIPT_VALUES_COUNT)
+    {
         return NULL;
-    struct ScriptValue* value = &gameadd.script.values[gameadd.script.values_num];
+    }
+    struct ScriptValue *value = &gameadd.script.values[gameadd.script.values_num];
     gameadd.script.values_num++;
     return value;
 }
 
-void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id)
+void command_init_value(struct ScriptValue *value, unsigned long var_index, unsigned long plr_range_id)
 {
     set_flag_byte(&value->flags, TrgF_REUSABLE, next_command_reusable);
     set_flag_byte(&value->flags, TrgF_DISABLED, false);
@@ -48,26 +50,26 @@ void command_init_value(struct ScriptValue* value, unsigned long var_index, unsi
 
 struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, long arg, unsigned long plr_range_id)
 {
-    
+
     int tngowner = plr_range_id;
     struct Coord3d pos;
 
     const unsigned char tngclass = TCls_Object;
 
-    if(!get_coords_at_location(&pos,location))
+    if (!get_coords_at_location(&pos, location))
     {
         return INVALID_THING;
     }
 
-    struct Thing* thing = create_thing(&pos, tngclass, tngmodel, tngowner, -1);
+    struct Thing *thing = create_thing(&pos, tngclass, tngmodel, tngowner, -1);
     if (thing_is_invalid(thing))
     {
-        ERRORLOG("Couldn't create %s at location %d",thing_class_and_model_name(tngclass, tngmodel),(int)location);
+        ERRORLOG("Couldn't create %s at location %d", thing_class_and_model_name(tngclass, tngmodel), (int)location);
         return INVALID_THING;
     }
     if (thing_is_dungeon_heart(thing))
     {
-        struct DungeonAdd* dungeonadd = get_dungeonadd(tngowner);
+        struct DungeonAdd *dungeonadd = get_dungeonadd(tngowner);
         if (dungeonadd->backup_heart_idx == 0)
         {
             dungeonadd->backup_heart_idx = thing->index;
@@ -77,8 +79,9 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
     // Try to move thing out of the solid wall if it's inside one
     if (thing_in_wall_at(thing, &thing->mappos))
     {
-        if (!move_creature_to_nearest_valid_position(thing)) {
-            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
+        if (!move_creature_to_nearest_valid_position(thing))
+        {
+            ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
             delete_thing_structure(thing, 0);
             return INVALID_THING;
         }
@@ -89,11 +92,11 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
     }
     switch (tngmodel)
     {
-        case ObjMdl_GoldChest:
-        case ObjMdl_GoldPot:
-        case ObjMdl_Goldl:
-            thing->valuable.gold_stored = arg;
-            break;
+    case ObjMdl_GoldChest:
+    case ObjMdl_GoldPot:
+    case ObjMdl_Goldl:
+        thing->valuable.gold_stored = arg;
+        break;
     }
     return thing;
 }
@@ -126,7 +129,7 @@ void set_variable(int player_idx, long var_type, long var_idx, long new_val)
         dungeonadd->creature_awarded[var_idx] = new_val;
         break;
     default:
-        WARNLOG("Unexpected type:%d",(int)var_type);
+        WARNLOG("Unexpected type:%d", (int)var_type);
     }
 }
 
@@ -153,18 +156,23 @@ long parse_criteria(const char *criteria)
 }
 
 #define get_players_range_single(plr_range_id) get_players_range_single_f(plr_range_id, __func__, text_line_number)
+
 long get_players_range_single_f(long plr_range_id, const char *func_name, long ln_num)
 {
-    if (plr_range_id < 0) {
+    if (plr_range_id < 0)
+    {
         return -1;
     }
-    if (plr_range_id == ALL_PLAYERS) {
+    if (plr_range_id == ALL_PLAYERS)
+    {
         return -3;
     }
-    if (plr_range_id == PLAYER_GOOD) {
+    if (plr_range_id == PLAYER_GOOD)
+    {
         return game.hero_player_num;
     }
-    if (plr_range_id == PLAYER_NEUTRAL) {
+    if (plr_range_id == PLAYER_NEUTRAL)
+    {
         return game.neutral_player_num;
     }
     if (plr_range_id < PLAYERS_COUNT)
@@ -184,7 +192,7 @@ static long filter_criteria_loc(long desc_type)
     return desc_type >> 4;
 }
 
-struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
+struct Thing *script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
 {
     switch (filter_criteria_type(criteria))
     {
@@ -208,7 +216,7 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
         return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
     case CSelCrit_NearOwnHeart:
     {
-        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
+        const struct Coord3d *pos = dungeon_get_essential_pos(plyr_idx);
         return get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx, crmodel);
     }
     case CSelCrit_NearEnemyHeart:
@@ -222,7 +230,7 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
     case CSelCrit_NearAP:
     {
         int loc = filter_criteria_loc(criteria);
-        struct ActionPoint* apt = action_point_get(loc);
+        struct ActionPoint *apt = action_point_get(loc);
         if (!action_point_exists(apt))
         {
             WARNLOG("Action point is invalid:%d", apt->num);
@@ -245,8 +253,8 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
         param.num2 = apt->mappos.y.val;
         param.num3 = apt->range;
         return get_thing_spiral_near_map_block_with_filter(apt->mappos.x.val, apt->mappos.y.val,
-            dist,
-            filter, &param);
+                                                           dist,
+                                                           filter, &param);
     }
     default:
         ERRORLOG("Invalid level up criteria %d", (int)criteria);
@@ -254,7 +262,7 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
     }
 }
 
-char get_player_number_from_value(const char* txt)
+char get_player_number_from_value(const char *txt)
 {
     char id;
     if (strcasecmp(txt, "None") == 0)
@@ -349,17 +357,18 @@ char get_player_number_from_value(const char* txt)
 }
 
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
+
 TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num)
 {
     *plr_range_id = get_rid(player_desc, plrname);
     if (*plr_range_id == -1)
     {
-      *plr_range_id = get_rid(cmpgn_human_player_options, plrname);
-      if (*plr_range_id == -1)
-      {
-        ERRORMSG("%s(line %lu): Invalid player name, '%s'",func_name,ln_num, plrname);
-        return false;
-      }
+        *plr_range_id = get_rid(cmpgn_human_player_options, plrname);
+        if (*plr_range_id == -1)
+        {
+            ERRORMSG("%s(line %lu): Invalid player name, '%s'", func_name, ln_num, plrname);
+            return false;
+        }
     }
     return true;
 }

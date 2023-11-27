@@ -28,7 +28,7 @@ extern "C" {
 #endif
 
 #define COLOUR_TABLE_BITS_PER_VALUE 4
-#define COLOUR_TABLE_DIMENSION (1<<COLOUR_TABLE_BITS_PER_VALUE)
+#define COLOUR_TABLE_DIMENSION (1 << COLOUR_TABLE_BITS_PER_VALUE)
 
 /******************************************************************************/
 #pragma pack(1)
@@ -48,15 +48,14 @@ extern TbRGBColorTable colours;
 /******************************************************************************/
 void fade_in(void);
 void fade_out(void);
-void compute_fade_tables(struct TbColorTables *coltbl,unsigned char *spal,unsigned char *dpal);
+void compute_fade_tables(struct TbColorTables *coltbl, unsigned char *spal, unsigned char *dpal);
 void ProperFadePalette(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag flg);
 void ProperForcedFadePalette(unsigned char *pal, long n, enum TbPaletteFadeFlag flg);
 
-void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,unsigned char *dpal);
-void compute_rgb2idx_table(TbRGBColorTable ctab,unsigned char *spal);
+void compute_alpha_tables(struct TbAlphaTables *alphtbls, unsigned char *spal, unsigned char *dpal);
+void compute_rgb2idx_table(TbRGBColorTable ctab, unsigned char *spal);
 void compute_shifted_palette_table(TbPixel *ocol, const unsigned char *spal,
-    const unsigned char *dpal, int shiftR, int shiftG, int shiftB);
-
+                                   const unsigned char *dpal, int shiftR, int shiftG, int shiftB);
 
 long PaletteFadePlayer(struct PlayerInfo *player);
 void PaletteApplyPainToPlayer(struct PlayerInfo *player, long intense);

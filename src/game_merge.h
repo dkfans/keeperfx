@@ -41,12 +41,12 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define MESSAGE_TEXT_LEN           1024
-#define QUICK_MESSAGES_COUNT        256
-#define BONUS_LEVEL_STORAGE_COUNT     6
-#define PLAYERS_FOR_CAMPAIGN_FLAGS    5
-#define CAMPAIGN_FLAGS_PER_PLAYER     8
-#define TRANSFER_CREATURE_STORAGE_COUNT     255
+#define MESSAGE_TEXT_LEN 1024
+#define QUICK_MESSAGES_COUNT 256
+#define BONUS_LEVEL_STORAGE_COUNT 6
+#define PLAYERS_FOR_CAMPAIGN_FLAGS 5
+#define CAMPAIGN_FLAGS_PER_PLAYER 8
+#define TRANSFER_CREATURE_STORAGE_COUNT 255
 
 #define AROUND_MAP_LENGTH 9
 #define AROUND_SLAB_LENGTH 9
@@ -77,51 +77,52 @@ extern "C" {
     LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
 
 enum GameSystemFlags {
-    GSF_NetworkActive    = 0x0001,
-    GSF_NetGameNoSync    = 0x0002,
-    GSF_NetSeedNoSync    = 0x0004,
-    GSF_CaptureMovie     = 0x0008,
-    GSF_CaptureSShot     = 0x0010,
-    GSF_AllowOnePlayer   = 0x0040,
-    GSF_RunAfterVictory  = 0x0080,
+    GSF_NetworkActive = 0x0001,
+    GSF_NetGameNoSync = 0x0002,
+    GSF_NetSeedNoSync = 0x0004,
+    GSF_CaptureMovie = 0x0008,
+    GSF_CaptureSShot = 0x0010,
+    GSF_AllowOnePlayer = 0x0040,
+    GSF_RunAfterVictory = 0x0080,
 };
 
 enum GameGUIFlags {
-    GGUI_1Player         = 0x0001,
-    GGUI_CountdownTimer  = 0x0002,
-    GGUI_ScriptTimer     = 0x0004,
-    GGUI_Variable        = 0x0008,
+    GGUI_1Player = 0x0001,
+    GGUI_CountdownTimer = 0x0002,
+    GGUI_ScriptTimer = 0x0004,
+    GGUI_Variable = 0x0008,
     GGUI_SoloChatEnabled = 0x0080
 };
 
 enum ClassicBugFlags {
-    ClscBug_None                          = 0x0000,
-    ClscBug_ResurrectForever              = 0x0001,
-    ClscBug_Overflow8bitVal               = 0x0002,
-    ClscBug_ClaimRoomAllThings            = 0x0004,
-    ClscBug_ResurrectRemoved              = 0x0008,
-    ClscBug_NoHandPurgeOnDefeat           = 0x0010,
-    ClscBug_MustObeyKeepsNotDoJobs        = 0x0020,
-    ClscBug_BreakNeutralWalls             = 0x0040,
-    ClscBug_AlwaysTunnelToRed             = 0x0080,
-    ClscBug_FullyHappyWithGold            = 0x0100,
-    ClscBug_FaintedImmuneToBoulder        = 0x0200,
-    ClscBug_RebirthKeepsSpells            = 0x0400,
-    ClscBug_FriendlyFaint                 = 0x0800,
-    ClscBug_PassiveNeutrals               = 0x1000,
-    ClscBug_NeutralTortureConverts        = 0x2000,
-    ClscBug_ListEnd                       = 0x4000,
+    ClscBug_None = 0x0000,
+    ClscBug_ResurrectForever = 0x0001,
+    ClscBug_Overflow8bitVal = 0x0002,
+    ClscBug_ClaimRoomAllThings = 0x0004,
+    ClscBug_ResurrectRemoved = 0x0008,
+    ClscBug_NoHandPurgeOnDefeat = 0x0010,
+    ClscBug_MustObeyKeepsNotDoJobs = 0x0020,
+    ClscBug_BreakNeutralWalls = 0x0040,
+    ClscBug_AlwaysTunnelToRed = 0x0080,
+    ClscBug_FullyHappyWithGold = 0x0100,
+    ClscBug_FaintedImmuneToBoulder = 0x0200,
+    ClscBug_RebirthKeepsSpells = 0x0400,
+    ClscBug_FriendlyFaint = 0x0800,
+    ClscBug_PassiveNeutrals = 0x1000,
+    ClscBug_NeutralTortureConverts = 0x2000,
+    ClscBug_ListEnd = 0x4000,
 };
 
 enum GameFlags2 {
-    GF2_ClearPauseOnSync          = 0x0001,
-    GF2_ClearPauseOnPacket        = 0x0002,
-    GF2_Timer                     = 0x0004,
-    GF2_Server                    = 0x0008,
-    GF2_Connect                   = 0x0010,
-    GF2_ShowEventLog              = 0x00010000,
-    GF2_PERSISTENT_FLAGS          = 0xFFFF0000
+    GF2_ClearPauseOnSync = 0x0001,
+    GF2_ClearPauseOnPacket = 0x0002,
+    GF2_Timer = 0x0004,
+    GF2_Server = 0x0008,
+    GF2_Connect = 0x0010,
+    GF2_ShowEventLog = 0x00010000,
+    GF2_PERSISTENT_FLAGS = 0xFFFF0000
 };
+
 /******************************************************************************/
 #pragma pack(1)
 
@@ -169,8 +170,8 @@ struct GameAdd {
     unsigned short bag_gold_hold;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
-    long scavenge_effectiveness_evil; //unused
-    long scavenge_effectiveness_good; //unused
+    long scavenge_effectiveness_evil; // unused
+    long scavenge_effectiveness_good; // unused
     TbBool armegeddon_teleport_neutrals;
     unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;
@@ -196,14 +197,14 @@ struct GameAdd {
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
     struct TrapDoorConfig trapdoor_conf;
 
-    uint8_t               max_custom_box_kind;
-    unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
-    int                   script_current_player;
-    struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
+    uint8_t max_custom_box_kind;
+    unsigned long current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
+    int script_current_player;
+    struct Coord3d triggered_object_location; // Position of `TRIGGERED_OBJECT`
 
-    char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
-    struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
-    int                   active_fx_lines;
+    char box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
+    struct ScriptFxLine fx_lines[FX_LINES_COUNT];
+    int active_fx_lines;
 
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
@@ -226,8 +227,8 @@ struct GameAdd {
     TbBool heart_lost_quick_message;
     unsigned long heart_lost_message_id;
     long heart_lost_message_target;
-    unsigned char slab_ext_data[MAX_TILES_X*MAX_TILES_Y];
-    unsigned char slab_ext_data_initial[MAX_TILES_X*MAX_TILES_Y];
+    unsigned char slab_ext_data[MAX_TILES_X * MAX_TILES_Y];
+    unsigned char slab_ext_data_initial[MAX_TILES_X * MAX_TILES_Y];
     struct PlayerInfoAdd players[PLAYERS_COUNT];
     float delta_time;
     long double process_turn_time;

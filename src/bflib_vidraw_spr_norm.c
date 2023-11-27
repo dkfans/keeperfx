@@ -39,17 +39,18 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern long xsteps_array[2*SPRITE_SCALING_XSTEPS];
-extern long ysteps_array[2*SPRITE_SCALING_YSTEPS];
-extern long alpha_xsteps_array[2*SPRITE_SCALING_XSTEPS];
-extern long alpha_ysteps_array[2*SPRITE_SCALING_YSTEPS];
+extern long xsteps_array[2 * SPRITE_SCALING_XSTEPS];
+extern long ysteps_array[2 * SPRITE_SCALING_YSTEPS];
+extern long alpha_xsteps_array[2 * SPRITE_SCALING_XSTEPS];
+extern long alpha_ysteps_array[2 * SPRITE_SCALING_YSTEPS];
 /******************************************************************************/
-void LbPixelBlockCopyForward(TbPixel * dst, const TbPixel * src, long len);
+void LbPixelBlockCopyForward(TbPixel *dst, const TbPixel *src, long len);
 // The functions below are from colour remap version of the routine - rhey're used for shadows
 TbResult LbSpriteDrawRemapUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const TbPixel *cmap);
 TbResult LbSpriteDrawRemapUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const TbPixel *cmap);
 TbResult LbSpriteDrawRemapUsingScalingDownDataSolidRL(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const TbPixel *cmap);
 TbResult LbSpriteDrawRemapUsingScalingDownDataSolidLR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const TbPixel *cmap);
+
 /******************************************************************************/
 /**
  * Draws a scaled up sprite on given buffer, with transparency mapping, from right to left.
@@ -65,20 +66,21 @@ TbResult LbSpriteDrawRemapUsingScalingDownDataSolidLR(uchar *outbuf, int scanlin
  */
 TbResult LbSpriteDrawUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
@@ -87,8 +89,10 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline, int
             int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
-            if (ycurstep[0]+ydup > outheight)
-                ydup = outheight-ycurstep[0];
+            if (ycurstep[0] + ydup > outheight)
+            {
+                ydup = outheight - ycurstep[0];
+            }
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -96,13 +100,15 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline, int
                 xcurstep = xstep;
                 TbPixel *out_end;
                 out_end = outbuf;
-                while ( 1 )
+                while (1)
                 {
                     long pxlen;
                     pxlen = (signed char)*sprdata;
                     sprdata++;
                     if (pxlen == 0)
+                    {
                         break;
+                    }
                     if (pxlen < 0)
                     {
                         pxlen = -pxlen;
@@ -112,16 +118,18 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline, int
                     }
                     else
                     {
-                        for (;pxlen > 0; pxlen--)
+                        for (; pxlen > 0; pxlen--)
                         {
                             xdup = xcurstep[1];
-                            if (xcurstep[0]+xdup > abs(scanline))
-                                xdup = abs(scanline)-xcurstep[0];
+                            if (xcurstep[0] + xdup > abs(scanline))
+                            {
+                                xdup = abs(scanline) - xcurstep[0];
+                            }
                             if (xdup > 0)
                             {
                                 unsigned int pxmap;
                                 pxmap = ((*sprdata) << 8);
-                                for (;xdup > 0; xdup--)
+                                for (; xdup > 0; xdup--)
                                 {
                                     pxmap = (pxmap & ~0x00ff) | ((*out_end));
                                     *out_end = transmap[pxmap];
@@ -139,13 +147,15 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline, int
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -171,20 +181,21 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1RL(uchar *outbuf, int scanline, int
  */
 TbResult LbSpriteDrawUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
@@ -193,8 +204,10 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline, int
             int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
-            if (ycurstep[0]+ydup > outheight)
-                ydup = outheight-ycurstep[0];
+            if (ycurstep[0] + ydup > outheight)
+            {
+                ydup = outheight - ycurstep[0];
+            }
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -202,13 +215,15 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline, int
                 xcurstep = xstep;
                 TbPixel *out_end;
                 out_end = outbuf;
-                while ( 1 )
+                while (1)
                 {
                     long pxlen;
                     pxlen = (signed char)*sprdata;
                     sprdata++;
                     if (pxlen == 0)
+                    {
                         break;
+                    }
                     if (pxlen < 0)
                     {
                         pxlen = -pxlen;
@@ -218,16 +233,18 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline, int
                     }
                     else
                     {
-                        for (;pxlen > 0; pxlen--)
+                        for (; pxlen > 0; pxlen--)
                         {
                             xdup = xcurstep[1];
-                            if (xcurstep[0]+xdup > abs(scanline))
-                                xdup = abs(scanline)-xcurstep[0];
+                            if (xcurstep[0] + xdup > abs(scanline))
+                            {
+                                xdup = abs(scanline) - xcurstep[0];
+                            }
                             if (xdup > 0)
                             {
                                 unsigned int pxmap;
                                 pxmap = ((*sprdata) << 8);
-                                for (;xdup > 0; xdup--)
+                                for (; xdup > 0; xdup--)
                                 {
                                     pxmap = (pxmap & ~0x00ff) | ((*out_end));
                                     *out_end = transmap[pxmap];
@@ -245,13 +262,15 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline, int
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -277,20 +296,21 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans1LR(uchar *outbuf, int scanline, int
  */
 TbResult LbSpriteDrawUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
@@ -299,8 +319,10 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline, int
             int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
-            if (ycurstep[0]+ydup > outheight)
-                ydup = outheight-ycurstep[0];
+            if (ycurstep[0] + ydup > outheight)
+            {
+                ydup = outheight - ycurstep[0];
+            }
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -308,13 +330,15 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline, int
                 xcurstep = xstep;
                 TbPixel *out_end;
                 out_end = outbuf;
-                while ( 1 )
+                while (1)
                 {
                     long pxlen;
                     pxlen = (signed char)*sprdata;
                     sprdata++;
                     if (pxlen == 0)
+                    {
                         break;
+                    }
                     if (pxlen < 0)
                     {
                         pxlen = -pxlen;
@@ -324,16 +348,18 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline, int
                     }
                     else
                     {
-                        for (;pxlen > 0; pxlen--)
+                        for (; pxlen > 0; pxlen--)
                         {
                             xdup = xcurstep[1];
-                            if (xcurstep[0]+xdup > abs(scanline))
-                                xdup = abs(scanline)-xcurstep[0];
+                            if (xcurstep[0] + xdup > abs(scanline))
+                            {
+                                xdup = abs(scanline) - xcurstep[0];
+                            }
                             if (xdup > 0)
                             {
                                 unsigned int pxmap;
                                 pxmap = (*sprdata);
-                                for (;xdup > 0; xdup--)
+                                for (; xdup > 0; xdup--)
                                 {
                                     pxmap = (pxmap & ~0xff00) | ((*out_end) << 8);
                                     *out_end = transmap[pxmap];
@@ -351,13 +377,15 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline, int
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -383,20 +411,21 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2RL(uchar *outbuf, int scanline, int
  */
 TbResult LbSpriteDrawUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
@@ -405,8 +434,10 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline, int
             int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
-            if (ycurstep[0]+ydup > outheight)
-                ydup = outheight-ycurstep[0];
+            if (ycurstep[0] + ydup > outheight)
+            {
+                ydup = outheight - ycurstep[0];
+            }
             prevdata = sprdata;
             while (ydup > 0)
             {
@@ -414,13 +445,15 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline, int
                 xcurstep = xstep;
                 TbPixel *out_end;
                 out_end = outbuf;
-                while ( 1 )
+                while (1)
                 {
                     long pxlen;
                     pxlen = (signed char)*sprdata;
                     sprdata++;
                     if (pxlen == 0)
+                    {
                         break;
+                    }
                     if (pxlen < 0)
                     {
                         pxlen = -pxlen;
@@ -430,16 +463,18 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline, int
                     }
                     else
                     {
-                        for (;pxlen > 0; pxlen--)
+                        for (; pxlen > 0; pxlen--)
                         {
                             xdup = xcurstep[1];
-                            if (xcurstep[0]+xdup > abs(scanline))
-                                xdup = abs(scanline)-xcurstep[0];
+                            if (xcurstep[0] + xdup > abs(scanline))
+                            {
+                                xdup = abs(scanline) - xcurstep[0];
+                            }
                             if (xdup > 0)
                             {
                                 unsigned int pxmap;
                                 pxmap = (*sprdata);
-                                for (;xdup > 0; xdup--)
+                                for (; xdup > 0; xdup--)
                                 {
                                     pxmap = (pxmap & ~0xff00) | ((*out_end) << 8);
                                     *out_end = transmap[pxmap];
@@ -457,13 +492,15 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline, int
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -488,42 +525,47 @@ TbResult LbSpriteDrawUsingScalingUpDataTrans2LR(uchar *outbuf, int scanline, int
  */
 TbResult LbSpriteDrawUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
             int ycur;
             int solid_len;
-            TbPixel * out_line;
+            TbPixel *out_line;
             int xdup;
             int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
-            if (ycurstep[0]+ydup > outheight)
-                ydup = outheight-ycurstep[0];
+            if (ycurstep[0] + ydup > outheight)
+            {
+                ydup = outheight - ycurstep[0];
+            }
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
+                {
                     break;
+                }
                 if (pxlen < 0)
                 {
                     pxlen = -pxlen;
@@ -535,16 +577,18 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int 
                 {
                     TbPixel *out_start;
                     out_start = out_end;
-                    for(;pxlen > 0; pxlen--)
+                    for (; pxlen > 0; pxlen--)
                     {
                         xdup = xcurstep[1];
-                        if (xcurstep[0]+xdup > abs(scanline))
-                            xdup = abs(scanline)-xcurstep[0];
+                        if (xcurstep[0] + xdup > abs(scanline))
+                        {
+                            xdup = abs(scanline) - xcurstep[0];
+                        }
                         if (xdup > 0)
                         {
                             unsigned char pxval;
                             pxval = *sprdata;
-                            for (;xdup > 0; xdup--)
+                            for (; xdup > 0; xdup--)
                             {
                                 *out_end = pxval;
                                 out_end--;
@@ -560,9 +604,10 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int 
                         out_start = out_end;
                         solid_len++;
                         out_line = out_start + scanline;
-                        for (;ycur > 0; ycur--)
+                        for (; ycur > 0; ycur--)
                         {
-                            if (solid_len > 0) {
+                            if (solid_len > 0)
+                            {
                                 LbPixelBlockCopyForward(out_line, out_start, solid_len);
                             }
                             out_line += scanline;
@@ -572,20 +617,22 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int 
             }
             outbuf += scanline;
             ycur = ydup - 1;
-            for (;ycur > 0; ycur--)
+            for (; ycur > 0; ycur--)
             {
                 outbuf += scanline;
             }
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -611,42 +658,47 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidRL(uchar *outbuf, int scanline, int 
  */
 TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
             int ycur;
             int solid_len;
-            TbPixel * out_line;
+            TbPixel *out_line;
             int xdup;
             int ydup;
             long *xcurstep;
             ydup = ycurstep[1];
-            if (ycurstep[0]+ydup > outheight)
-                ydup = outheight-ycurstep[0];
+            if (ycurstep[0] + ydup > outheight)
+            {
+                ydup = outheight - ycurstep[0];
+            }
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
+                {
                     break;
+                }
                 if (pxlen < 0)
                 {
                     pxlen = -pxlen;
@@ -658,16 +710,18 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int 
                 {
                     TbPixel *out_start;
                     out_start = out_end;
-                    for(;pxlen > 0; pxlen--)
+                    for (; pxlen > 0; pxlen--)
                     {
                         xdup = xcurstep[1];
-                        if (xcurstep[0]+xdup > abs(scanline))
-                            xdup = abs(scanline)-xcurstep[0];
+                        if (xcurstep[0] + xdup > abs(scanline))
+                        {
+                            xdup = abs(scanline) - xcurstep[0];
+                        }
                         if (xdup > 0)
                         {
                             unsigned char pxval;
                             pxval = *sprdata;
-                            for (;xdup > 0; xdup--)
+                            for (; xdup > 0; xdup--)
                             {
                                 *out_end = pxval;
                                 out_end++;
@@ -681,9 +735,10 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int 
                     {
                         solid_len = out_end - out_start;
                         out_line = out_start + scanline;
-                        for (;ycur > 0; ycur--)
+                        for (; ycur > 0; ycur--)
                         {
-                            if (solid_len > 0) {
+                            if (solid_len > 0)
+                            {
                                 LbPixelBlockCopyForward(out_line, out_start, solid_len);
                             }
                             out_line += scanline;
@@ -693,20 +748,22 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int 
             }
             outbuf += scanline;
             ycur = ydup - 1;
-            for (;ycur > 0; ycur--)
+            for (; ycur > 0; ycur--)
             {
                 outbuf += scanline;
             }
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -732,20 +789,21 @@ TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int 
  */
 TbResult LbSpriteDrawUsingScalingDownDataTrans1RL(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
@@ -753,13 +811,15 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1RL(uchar *outbuf, int scanline, i
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
+                {
                     break;
+                }
                 if (pxlen < 0)
                 {
                     pxlen = -pxlen;
@@ -769,7 +829,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1RL(uchar *outbuf, int scanline, i
                 }
                 else
                 {
-                    for (;pxlen > 0; pxlen--)
+                    for (; pxlen > 0; pxlen--)
                     {
                         if (xcurstep[1] > 0)
                         {
@@ -790,13 +850,15 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1RL(uchar *outbuf, int scanline, i
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -822,20 +884,21 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1RL(uchar *outbuf, int scanline, i
  */
 TbResult LbSpriteDrawUsingScalingDownDataTrans1LR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
@@ -843,13 +906,15 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1LR(uchar *outbuf, int scanline, i
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
+                {
                     break;
+                }
                 if (pxlen < 0)
                 {
                     pxlen = -pxlen;
@@ -859,7 +924,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1LR(uchar *outbuf, int scanline, i
                 }
                 else
                 {
-                    for (;pxlen > 0; pxlen--)
+                    for (; pxlen > 0; pxlen--)
                     {
                         if (xcurstep[1] > 0)
                         {
@@ -880,13 +945,15 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1LR(uchar *outbuf, int scanline, i
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -912,20 +979,21 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans1LR(uchar *outbuf, int scanline, i
  */
 TbResult LbSpriteDrawUsingScalingDownDataTrans2RL(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
@@ -933,13 +1001,15 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2RL(uchar *outbuf, int scanline, i
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
+                {
                     break;
+                }
                 if (pxlen < 0)
                 {
                     pxlen = -pxlen;
@@ -949,7 +1019,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2RL(uchar *outbuf, int scanline, i
                 }
                 else
                 {
-                    for (;pxlen > 0; pxlen--)
+                    for (; pxlen > 0; pxlen--)
                     {
                         if (xcurstep[1] > 0)
                         {
@@ -970,13 +1040,15 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2RL(uchar *outbuf, int scanline, i
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -1002,20 +1074,21 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2RL(uchar *outbuf, int scanline, i
  */
 TbResult LbSpriteDrawUsingScalingDownDataTrans2LR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite, const unsigned char *transmap)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
@@ -1023,13 +1096,15 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2LR(uchar *outbuf, int scanline, i
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
+                {
                     break;
+                }
                 if (pxlen < 0)
                 {
                     pxlen = -pxlen;
@@ -1039,7 +1114,7 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2LR(uchar *outbuf, int scanline, i
                 }
                 else
                 {
-                    for (;pxlen > 0; pxlen--)
+                    for (; pxlen > 0; pxlen--)
                     {
                         if (xcurstep[1] > 0)
                         {
@@ -1060,13 +1135,15 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2LR(uchar *outbuf, int scanline, i
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -1091,20 +1168,21 @@ TbResult LbSpriteDrawUsingScalingDownDataTrans2LR(uchar *outbuf, int scanline, i
  */
 TbResult LbSpriteDrawUsingScalingDownDataSolidRL(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
@@ -1112,13 +1190,15 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidRL(uchar *outbuf, int scanline, in
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
+                {
                     break;
+                }
                 if (pxlen < 0)
                 {
                     pxlen = -pxlen;
@@ -1128,7 +1208,7 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidRL(uchar *outbuf, int scanline, in
                 }
                 else
                 {
-                    for (;pxlen > 0; pxlen--)
+                    for (; pxlen > 0; pxlen--)
                     {
                         if (xcurstep[1] > 0)
                         {
@@ -1148,13 +1228,15 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidRL(uchar *outbuf, int scanline, in
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -1179,20 +1261,21 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidRL(uchar *outbuf, int scanline, in
  */
 TbResult LbSpriteDrawUsingScalingDownDataSolidLR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite)
 {
-    SYNCDBG(17,"Drawing");
+    SYNCDBG(17, "Drawing");
     int ystep_delta;
     unsigned char *sprdata;
     long *ycurstep;
 
     ystep_delta = 2;
-    if (scanline < 0) {
+    if (scanline < 0)
+    {
         ystep_delta = -2;
     }
     sprdata = sprite->Data;
     ycurstep = ystep;
 
     int h;
-    for (h=sprite->SHeight; h > 0; h--)
+    for (h = sprite->SHeight; h > 0; h--)
     {
         if (ycurstep[1] != 0)
         {
@@ -1200,13 +1283,15 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidLR(uchar *outbuf, int scanline, in
             xcurstep = xstep;
             TbPixel *out_end;
             out_end = outbuf;
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
+                {
                     break;
+                }
                 if (pxlen < 0)
                 {
                     pxlen = -pxlen;
@@ -1216,7 +1301,7 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidLR(uchar *outbuf, int scanline, in
                 }
                 else
                 {
-                    for (;pxlen > 0; pxlen--)
+                    for (; pxlen > 0; pxlen--)
                     {
                         if (xcurstep[1] > 0)
                         {
@@ -1236,13 +1321,15 @@ TbResult LbSpriteDrawUsingScalingDownDataSolidLR(uchar *outbuf, int scanline, in
         }
         else
         {
-            while ( 1 )
+            while (1)
             {
                 long pxlen;
                 pxlen = (signed char)*sprdata;
                 sprdata++;
                 if (pxlen == 0)
-                  break;
+                {
+                    break;
+                }
                 if (pxlen > 0)
                 {
                     sprdata += pxlen;
@@ -1261,10 +1348,12 @@ static void setup_steps(long posx, long posy, const struct TbSprite *sprite, lon
     sposx = posx;
     sposy = posy;
     (*scanline) = lbDisplay.GraphicsScreenWidth;
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0) {
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+    {
         sposx = sprite->SWidth + posx - 1;
     }
-    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0) {
+    if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0)
+    {
         sposy = sprite->SHeight + posy - 1;
         (*scanline) = -lbDisplay.GraphicsScreenWidth;
     }
@@ -1278,10 +1367,14 @@ static void setup_outbuf(const long *xstep, const long *ystep, uchar **outbuf, i
     int gspos_y;
     gspos_y = ystep[0];
     if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0)
+    {
         gspos_y += ystep[1] - 1;
+    }
     gspos_x = xstep[0];
     if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+    {
         gspos_x += xstep[1] - 1;
+    }
     (*outbuf) = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
     (*outheight) = lbDisplay.GraphicsScreenHeight;
 }
@@ -1298,7 +1391,7 @@ static void setup_outbuf(const long *xstep, const long *ystep, uchar **outbuf, i
  */
 TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprite *sprite)
 {
-    SYNCDBG(17,"Drawing at (%ld,%ld)",posx,posy);
+    SYNCDBG(17, "Drawing at (%ld,%ld)", posx, posy);
     long *xstep;
     long *ystep;
     int scanline;
@@ -1307,102 +1400,98 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprit
     setup_steps(posx, posy, sprite, &xstep, &ystep, &scanline);
     setup_outbuf(xstep, ystep, &outbuf, &outheight);
 
-    if ( scale_up )
+    if (scale_up)
     {
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
-          {
-              return LbSpriteDrawRemapUsingScalingUpDataSolidRL(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
-          }
-          else
-          {
-              return LbSpriteDrawRemapUsingScalingUpDataSolidLR(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
-          }
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+            {
+                return LbSpriteDrawRemapUsingScalingUpDataSolidRL(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
+            }
+            else
+            {
+                return LbSpriteDrawRemapUsingScalingUpDataSolidLR(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
+            }
         }
-        else
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
+        else if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
-          {
-              return LbSpriteDrawUsingScalingUpDataTrans1RL(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
-          }
-          else
-          {
-              return LbSpriteDrawUsingScalingUpDataTrans1LR(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
-          }
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+            {
+                return LbSpriteDrawUsingScalingUpDataTrans1RL(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
+            }
+            else
+            {
+                return LbSpriteDrawUsingScalingUpDataTrans1LR(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
+            }
         }
-        else
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
+        else if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
-          {
-              return LbSpriteDrawUsingScalingUpDataTrans2RL(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
-          }
-          else
-          {
-              return LbSpriteDrawUsingScalingUpDataTrans2LR(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
-          }
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+            {
+                return LbSpriteDrawUsingScalingUpDataTrans2RL(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
+            }
+            else
+            {
+                return LbSpriteDrawUsingScalingUpDataTrans2LR(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
+            }
         }
         else
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
-          {
-              return LbSpriteDrawUsingScalingUpDataSolidRL(outbuf, scanline, outheight, xstep, ystep, sprite);
-          }
-          else
-          {
-              return LbSpriteDrawUsingScalingUpDataSolidLR(outbuf, scanline, outheight, xstep, ystep, sprite);
-          }
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+            {
+                return LbSpriteDrawUsingScalingUpDataSolidRL(outbuf, scanline, outheight, xstep, ystep, sprite);
+            }
+            else
+            {
+                return LbSpriteDrawUsingScalingUpDataSolidLR(outbuf, scanline, outheight, xstep, ystep, sprite);
+            }
         }
     }
     else
     {
         if ((lbDisplay.DrawFlags & Lb_TEXT_UNDERLNSHADOW) != 0)
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
-          {
-              return LbSpriteDrawRemapUsingScalingDownDataSolidRL(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
-          }
-          else
-          {
-              return LbSpriteDrawRemapUsingScalingDownDataSolidLR(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
-          }
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+            {
+                return LbSpriteDrawRemapUsingScalingDownDataSolidRL(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
+            }
+            else
+            {
+                return LbSpriteDrawRemapUsingScalingDownDataSolidLR(outbuf, scanline, outheight, xstep, ystep, sprite, lbSpriteReMapPtr);
+            }
         }
-        else
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
+        else if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR4) != 0)
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
-          {
-              return LbSpriteDrawUsingScalingDownDataTrans1RL(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
-          }
-          else
-          {
-              return LbSpriteDrawUsingScalingDownDataTrans1LR(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
-          }
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+            {
+                return LbSpriteDrawUsingScalingDownDataTrans1RL(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
+            }
+            else
+            {
+                return LbSpriteDrawUsingScalingDownDataTrans1LR(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
+            }
         }
-        else
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
+        else if ((lbDisplay.DrawFlags & Lb_SPRITE_TRANSPAR8) != 0)
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
-          {
-              return LbSpriteDrawUsingScalingDownDataTrans2RL(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
-          }
-          else
-          {
-              return LbSpriteDrawUsingScalingDownDataTrans2LR(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
-          }
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+            {
+                return LbSpriteDrawUsingScalingDownDataTrans2RL(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
+            }
+            else
+            {
+                return LbSpriteDrawUsingScalingDownDataTrans2LR(outbuf, scanline, outheight, xstep, ystep, sprite, render_ghost);
+            }
         }
         else
         {
-          if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
-          {
-              return LbSpriteDrawUsingScalingDownDataSolidRL(outbuf, scanline, outheight, xstep, ystep, sprite);
-          }
-          else
-          {
-              return LbSpriteDrawUsingScalingDownDataSolidLR(outbuf, scanline, outheight, xstep, ystep, sprite);
-          }
+            if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+            {
+                return LbSpriteDrawUsingScalingDownDataSolidRL(outbuf, scanline, outheight, xstep, ystep, sprite);
+            }
+            else
+            {
+                return LbSpriteDrawUsingScalingDownDataSolidLR(outbuf, scanline, outheight, xstep, ystep, sprite);
+            }
         }
     }
 }
@@ -1419,7 +1508,7 @@ TbResult LbSpriteDrawUsingScalingData(long posx, long posy, const struct TbSprit
  */
 TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *sprite)
 {
-    SYNCDBG(17,"Drawing at (%ld,%ld)",posx,posy);
+    SYNCDBG(17, "Drawing at (%ld,%ld)", posx, posy);
     assert(render_alpha != NULL);
     long *xstep;
     long *ystep;
@@ -1430,10 +1519,12 @@ TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *
         sposx = posx;
         sposy = posy;
         scanline = lbDisplay.GraphicsScreenWidth;
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0) {
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+        {
             sposx = sprite->SWidth + posx - 1;
         }
-        if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0) {
+        if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0)
+        {
             sposy = sprite->SHeight + posy - 1;
             scanline = -lbDisplay.GraphicsScreenWidth;
         }
@@ -1447,14 +1538,18 @@ TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *
         int gspos_y;
         gspos_y = ystep[0];
         if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_VERTIC) != 0)
+        {
             gspos_y += ystep[1] - 1;
+        }
         gspos_x = xstep[0];
         if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
+        {
             gspos_x += xstep[1] - 1;
+        }
         outbuf = &lbDisplay.GraphicsWindowPtr[gspos_x + lbDisplay.GraphicsScreenWidth * gspos_y];
         outheight = lbDisplay.GraphicsScreenHeight;
     }
-    if ( alpha_scale_up )
+    if (alpha_scale_up)
     {
         if ((lbDisplay.DrawFlags & Lb_SPRITE_FLIP_HORIZ) != 0)
         {
@@ -1477,6 +1572,7 @@ TbResult DrawAlphaSpriteUsingScalingData(long posx, long posy, struct TbSprite *
         }
     }
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

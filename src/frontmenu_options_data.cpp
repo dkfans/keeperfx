@@ -39,6 +39,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
+// clang-format off
 struct GuiButtonInit frontend_define_keys_buttons[] = {
   // gbtype           id_num       gbifield_3                rclick_event ptover_event       btype_value   pos_x        height                                  sprite_idx        parent_menu  maxval
   //                                  gbifield_5                                                 scr_pos_x      pos_y        draw_call                             tooltip_stridx   content                   maintain_call
@@ -87,11 +88,12 @@ struct GuiButtonInit frontend_option_buttons[] = {
   {LbBtnT_NormalBtn,  BID_DEFAULT, 0, 0, frontend_change_state,NULL,    frontend_over_button, 1, 999, 404, 999, 404,371, 46, frontend_draw_large_menu_button,   0, GUIStr_Empty,  0,       {6},            0, NULL },
   {              -1,  BID_DEFAULT, 0, 0, NULL,               NULL,        NULL,               0,   0,   0,   0,   0,  0,  0, NULL,                              0,   0,           0,       {0},            0, NULL },
 };
+// clang-format on
 
 struct GuiMenu frontend_define_keys_menu =
- {GMnu_FEDEFINE_KEYS, 0, 1, frontend_define_keys_buttons,POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    NULL,                    0, 0, 0,};
+    {GMnu_FEDEFINE_KEYS, 0, 1, frontend_define_keys_buttons, POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL, NULL, 0, 0, 0};
 struct GuiMenu frontend_option_menu =
- {     GMnu_FEOPTION, 0, 1, frontend_option_buttons,     POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL,    frontend_init_options_menu,0,0,0,};
+    {GMnu_FEOPTION, 0, 1, frontend_option_buttons, POS_SCRCTR, POS_SCRCTR, 640, 480, NULL, 0, NULL, frontend_init_options_menu, 0, 0, 0};
 
 /******************************************************************************/
 #ifdef __cplusplus

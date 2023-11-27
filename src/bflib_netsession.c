@@ -25,15 +25,16 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-void net_copy_name_string(char *dst,const char *src,long max_len)
+void net_copy_name_string(char *dst, const char *src, long max_len)
 {
-  LbMemorySet(dst, 0, max_len);
-  if (dst != NULL)
-  {
-    if (src != NULL)
+    LbMemorySet(dst, 0, max_len);
+    if (dst != NULL)
     {
-        snprintf(dst, max_len, "%s", src);
+        if (src != NULL)
+        {
+            snprintf(dst, max_len, "%s", src);
+        }
     }
-  }
 }
+
 /******************************************************************************/
