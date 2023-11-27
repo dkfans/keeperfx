@@ -202,7 +202,7 @@ TbBool light_create_light_adv(VALUE *init_data)
         light_total_dynamic_lights++;
         lgt->shadow_index = light_shadow_cache_index(shdc);
         light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
-        set_flag_byte(&lgt->flags, LgtF_Dynamic, true);
+        set_flag(lgt->flags, LgtF_Dynamic);
     }
     else
     {

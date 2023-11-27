@@ -300,7 +300,7 @@ short get_screen_capture_inputs(void)
   }
   if (is_key_pressed(KC_C,KMod_SHIFT))
   {
-      set_flag_byte(&game.system_flags,GSF_CaptureSShot,true);
+      set_flag(game.system_flags, GSF_CaptureSShot);
       clear_key_pressed(KC_C);
   }
   return false;
@@ -749,7 +749,7 @@ TbBool get_level_lost_inputs(void)
             || (lbDisplay.PhysicalScreenWidth > 320))
           {
                 if (toggle_status_menu(0))
-                  set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+                  set_flag(game.operation_flags, GOF_ShowPanel);
                 else
                   set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);

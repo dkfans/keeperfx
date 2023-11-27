@@ -310,7 +310,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         set_flag_byte(&thing->rendering_flags,TRF_AnimateOnce,eestat->rendering_flag);
     } else
     {
-        set_flag_byte(&thing->rendering_flags,TRF_Unknown01,true);
+        set_flag(thing->rendering_flags, TRF_Unknown01);
     }
 
     thing->fall_acceleration = eestat->fall_acceleration;

@@ -1014,7 +1014,7 @@ void process_check_new_creature_partys(void)
             {
                 process_party(pr_trig);
                 if ((pr_trig->flags & TrgF_REUSABLE) == 0)
-                    set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
+                    set_flag(pr_trig->flags, TrgF_DISABLED);
             }
       }
     }
@@ -1097,7 +1097,7 @@ void process_values(void)
             {
                 script_process_value(value->valtype, value->plyr_range, value->arg0, value->arg1, value->arg2, value);
                 if ((value->flags & TrgF_REUSABLE) == 0)
-                  set_flag_byte(&value->flags, TrgF_DISABLED, true);
+                  set_flag(value->flags, TrgF_DISABLED);
             }
         }
     }

@@ -394,8 +394,8 @@ static void process_condition(struct Condition *condt, int idx)
         set_flag_byte(&condt->status, 0x04,  false);
     } else
     {
-        set_flag_byte(&condt->status, 0x02,  true);
-        set_flag_byte(&condt->status, 0x04,  true);
+        set_flag(condt->status, 0x02);
+        set_flag(condt->status, 0x04);
     }
     SCRIPTDBG(19,"Finished");
 }

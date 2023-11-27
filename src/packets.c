@@ -1444,16 +1444,16 @@ void process_packets(void)
   switch (checksums_different())
   {
   case 1:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
+      set_flag(game.system_flags, GSF_NetGameNoSync);
       set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
     break;
   case 2:
       set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
+      set_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   case 3:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
+      set_flag(game.system_flags, GSF_NetGameNoSync);
+      set_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   default:
       set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
@@ -1493,9 +1493,9 @@ void process_frontend_packets(void)
     net_screen_packet[i].field_4 &= ~0x01;
   }
   struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
-  set_flag_byte(&nspckt->field_4, 0x01, true);
+  set_flag(nspckt->field_4, 0x01);
   nspckt->field_5 = frontend_alliances;
-  set_flag_byte(&nspckt->field_4, 0x01, true);
+  set_flag(nspckt->field_4, 0x01);
   nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
   nspckt->field_6 = VersionMajor;
   nspckt->field_8 = VersionMinor;

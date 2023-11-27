@@ -2803,7 +2803,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_NET_START:
           turn_on_menu(GMnu_FENET_START);
           frontnet_start_setup();
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
+          set_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_START_KPRLEVEL:

@@ -72,7 +72,7 @@ static inline void reset_scrolling_tooltip(void)
 
 void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
 {
-  set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
+  set_flag(tool_tip_box.flags, TTip_Visible);
   va_list val;
   va_start(val, format);
   vsnprintf(tool_tip_box.text, TOOLTIP_MAX_LEN, format, val);
@@ -91,7 +91,7 @@ static inline TbBool update_gui_tooltip_target(void *target)
     {
         help_tip_time = 0;
         tool_tip_box.target = target;
-        set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
+        set_flag(tool_tip_box.flags, TTip_NeedReset);
         return true;
     }
     return false;
@@ -101,7 +101,7 @@ static inline void clear_gui_tooltip_target(void)
 {
     help_tip_time = 0;
     tool_tip_box.target = NULL;
-    set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
+    set_flag(tool_tip_box.flags, TTip_NeedReset);
 }
 
 static inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)

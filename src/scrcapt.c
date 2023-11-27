@@ -130,7 +130,7 @@ TbBool movie_record_start(void)
 {
   if ( anim_record() )
   {
-      set_flag_byte(&game.system_flags,GSF_CaptureMovie,true);
+      set_flag(game.system_flags, GSF_CaptureMovie);
       return true;
   }
   return false;

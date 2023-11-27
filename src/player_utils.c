@@ -738,7 +738,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->frontview_zoom_level = settings.frontview_zoom_level;
     if (is_my_player(player))
     {
-        set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+        set_flag(game.operation_flags, GOF_ShowPanel);
         set_gui_visible(true);
         init_gui();
         turn_on_menu(GMnu_MAIN);

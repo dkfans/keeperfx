@@ -429,7 +429,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             fill_game_catalogue_slot(slot_num, pr3str);
         }
         player = get_player(plyr_idx);
-        set_flag_byte(&game.operation_flags,GOF_Paused,true); // games are saved in a paused state
+        set_flag(game.operation_flags, GOF_Paused); // games are saved in a paused state
         TbBool result = save_game(slot_num);
         if (result)
         {

@@ -217,7 +217,7 @@ void initialise_eye_lenses(void)
     return;
   }
   SYNCDBG(9,"Buffer dimensions (%d,%d)",eye_lens_width,eye_lens_height);
-  set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,true);
+  set_flag(game.flags_cd, MFlg_EyeLensReady);
 }
 
 void setup_eye_lens(long nlens)

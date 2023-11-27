@@ -910,7 +910,7 @@ void zoom_to_parchment_map(void)
     if ((game.operation_flags & GOF_ShowGui) == 0)
       set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
     else
-      set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+      set_flag(game.operation_flags, GOF_ShowPanel);
     struct PlayerInfo* player = get_my_player();
     if (((game.system_flags & GSF_NetworkActive) != 0)
         || (lbDisplay.PhysicalScreenWidth > 320))

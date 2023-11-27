@@ -1618,7 +1618,7 @@ TbBool set_default_startup_parameters(void)
     start_params.one_player = 1;
     start_params.computer_chat_flags = CChat_None;
     set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
-    set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
+    set_flag(start_params.flags_cd, MFlg_unk40);
     start_params.force_ppro_poly = 0;
     return true;
 }
@@ -3755,7 +3755,7 @@ static TbBool wait_at_frontend(void)
           startup_network_game(&loop, true);
           break;
     case FeSt_START_MPLEVEL:
-          set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
+          set_flag(game.system_flags, GSF_NetworkActive);
           game.game_kind = GKind_MultiGame;
           player = get_my_player();
           player->is_active = 1;
@@ -3980,7 +3980,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
-        set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
+        set_flag(start_params.operation_flags, GOF_SingleLevel);
         level_num = atoi(pr2str);
         narg++;
       } else
@@ -4019,11 +4019,11 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr,"q") == 0)
       {
-         set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
+         set_flag(start_params.operation_flags, GOF_SingleLevel);
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
-         set_flag_byte(&start_params.operation_flags,GOF_LightConvert,true);
+         set_flag(start_params.operation_flags, GOF_LightConvert);
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {
@@ -4051,7 +4051,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr,"alex") == 0)
       {
-         set_flag_byte(&start_params.flags_font,FFlg_AlexCheat,true);
+         set_flag(start_params.flags_font, FFlg_AlexCheat);
       } else
       if (strcasecmp(parstr,"connect") == 0)
       {
@@ -4090,17 +4090,17 @@ short process_command_line(unsigned short argc, char *argv[])
 #ifdef AUTOTESTING
       else if (strcasecmp(parstr, "exit_at_turn") == 0)
       {
-         set_flag_byte(&start_params.autotest_flags, ATF_ExitOnTurn, true);
+         set_flag(start_params.autotest_flags, ATF_ExitOnTurn);
          start_params.autotest_exit_turn = atol(pr2str);
          narg++;
       } else
       if (strcasecmp(parstr, "fixed_seed") == 0)
       {
-         set_flag_byte(&start_params.autotest_flags, ATF_FixedSeed, true);
+         set_flag(start_params.autotest_flags, ATF_FixedSeed);
       } else
       if (strcasecmp(parstr, "tests") == 0)
       {
-        set_flag_byte(&start_params.autotest_flags, ATF_TestsCampaign, true);
+        set_flag(start_params.autotest_flags, ATF_TestsCampaign);
 
         if (!change_campaign("../tests/campaign.cfg"))
         {
@@ -4110,7 +4110,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr, "ai_player") == 0)
       {
-         set_flag_byte(&start_params.autotest_flags, ATF_AI_Player, true);
+         set_flag(start_params.autotest_flags, ATF_AI_Player);
          fe_computer_players = 1;
       } else
       if (strcasecmp(parstr, "monitoring") == 0)
