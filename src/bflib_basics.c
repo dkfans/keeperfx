@@ -78,20 +78,6 @@ unsigned long lword (unsigned char *p)
 }
 
 /**
- * Toggles a masked bit in the flags field to the value.
- * This version assumes the flag field is 1 byte long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- */
-void toggle_flag_byte(unsigned char *flags,unsigned char mask)
-{
-  if ((*flags & mask) == 0)
-    *flags |= mask;
-  else
-    *flags ^= mask;
-}
-
-/**
  * Sets a masked bit in the flags field to the value.
  * This version assumes the flag field is 1 byte long.
  * @param flags Pointer to the flags byte.

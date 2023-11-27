@@ -3138,7 +3138,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
 void toggle_gui_overlay_map(void)
 {
-    toggle_flag_byte(&game.operation_flags,GOF_ShowGui);
+    toggle_flag(game.operation_flags,GOF_ShowGui);
 }
 
 void draw_menu_buttons(struct GuiMenu *gmnu)
