@@ -121,21 +121,6 @@ void toggle_flag_dword(unsigned long *flags,unsigned long mask)
 
 /**
  * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 2 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_word(unsigned short *flags,unsigned short mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
-}
-
-/**
- * Sets a masked bit in the flags field to the value.
  * This version assumes the flag field is 1 byte long.
  * @param flags Pointer to the flags byte.
  * @param mask Bitmask for the flag.

@@ -468,7 +468,7 @@ TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textn
     snprintf(centry->campaign_name, LINEMSG_SIZE, "%s", campaign.name);
     snprintf(centry->campaign_fname, DISKPATH_SIZE, "%s", campaign.fname);
     snprintf(centry->player_name, PLAYER_NAME_LENGTH, "%s", high_score_entry);
-    set_flag_word(&centry->flags, CEF_InUse, true);
+    set_flag(centry->flags, CEF_InUse);
     return true;
 }
 
@@ -493,7 +493,7 @@ TbBool game_catalogue_slot_disable(struct CatalogueEntry *game_catalg,unsigned i
 {
   if (slot_idx >= TOTAL_SAVE_SLOTS_COUNT)
     return false;
-  set_flag_word(&game_catalg[slot_idx].flags, CEF_InUse, false);
+  clear_flag(game_catalg[slot_idx].flags, CEF_InUse);
   game_save_catalogue(game_catalg,TOTAL_SAVE_SLOTS_COUNT);
   return true;
 }
@@ -510,13 +510,13 @@ TbBool save_game_save_catalogue(void)
 
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry)
 {
-    set_flag_word(&centry->flags, CEF_InUse, false);
+    clear_flag(centry->flags, CEF_InUse);
     if ((hdr->id == SGC_InfoBlock) && (hdr->len == sizeof(struct CatalogueEntry)))
     {
         if (LbFileRead(fh, centry, sizeof(struct CatalogueEntry))
           == sizeof(struct CatalogueEntry))
         {
-            set_flag_word(&centry->flags, CEF_InUse, true);
+            set_flag(centry->flags, CEF_InUse);
         }
     }
     centry->textname[SAVE_TEXTNAME_LEN-1] = '\0';
