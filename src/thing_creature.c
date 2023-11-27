@@ -6469,19 +6469,56 @@ void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, T
                 menu = GMnu_CREATURE_QUERY1;
             }
         }
-        if (zoom)
-        {
-            struct Thing *creatng = thing_get(index);
-            player->zoom_to_pos_x = creatng->mappos.x.val;
-            player->zoom_to_pos_y = creatng->mappos.y.val;
-            set_player_instance(player, PI_ZoomToPos, 0);
-        }
         turn_off_all_panel_menus();
         initialise_tab_tags_and_menu(menu);
         turn_on_menu(menu);
     }
     player->influenced_thing_idx = index;
+    if (zoom)
+    {
+        struct Thing *creatng = thing_get(index);
+        player->zoom_to_pos_x = creatng->mappos.x.val;
+        player->zoom_to_pos_y = creatng->mappos.y.val;
+        set_player_instance(player, PI_ZoomToPos, 0);
+    }
     set_player_instance(player, PI_QueryCrtr, 0);
+}
+
+TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
+{
+    switch (player->work_state)
+    {
+        case PSt_CreatrInfo:
+        case PSt_CreatrQuery:
+        {
+            if (!subtile_revealed(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, player->id_number))
+            {
+                return false;
+            }
+            if (creatng->owner != player->id_number)
+            {
+                return creature_is_kept_in_custody_by_player(creatng, player->id_number);
+            }
+            else
+            {
+                if (creature_is_kept_in_custody_by_enemy(creatng))
+                {
+                    return false;
+                }
+            }
+            break;
+        }
+        case PSt_CreatrInfoAll:
+        case PSt_QueryAll:
+        {
+            return subtile_revealed(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, player->id_number);
+        }
+        default:
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 /******************************************************************************/
