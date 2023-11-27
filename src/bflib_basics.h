@@ -167,7 +167,6 @@ unsigned long bword (unsigned char *p);
 unsigned long lword (unsigned char *p);
 void set_flag_byte(unsigned char *flags,unsigned char mask,short value);
 void toggle_flag_byte(unsigned char *flags,unsigned char mask);
-void toggle_flag_word(unsigned short *flags,unsigned short mask);
 long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
 void make_lowercase(char *);
