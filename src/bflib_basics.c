@@ -135,21 +135,6 @@ void set_flag_byte(unsigned char *flags,unsigned char mask,short value)
 }
 
 /**
- * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 4 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_dword(unsigned long *flags,unsigned long mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
-}
-
-/**
  * Returns a signed value, which is equal to val if it fits in nbits.
  * Otherwise, returns max value that can fit in nbits.
  * @param val the value to be saturated.
