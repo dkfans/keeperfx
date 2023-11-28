@@ -405,6 +405,19 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
     return true;
 }
 
+/** 
+ * Randomise the draw direction of the swipe sprite in the first-person possession view.
+ * 
+ * Sets PlayerInfo->swipe_sprite_drawLR to either TRUE or FALSE.
+ * 
+ * Draw direction is either: left-to-right (TRUE) or right-to-left (FALSE)
+ */
+void randomise_swipe_graphic_direction()
+{
+    struct PlayerInfo* myplyr = get_my_player();
+    myplyr->swipe_sprite_drawLR = UNSYNC_RANDOM(2); // equal chance to be left-to-right or right-to-left
+}
+
 void draw_swipe_graphic(void)
 {
     struct PlayerInfo* myplyr = get_my_player();
@@ -468,8 +481,8 @@ void draw_swipe_graphic(void)
             return;
         }
     }
-    // we get here when thing_is_creature(thing) == false OR (thing_is_creature(thing) == true AND instance_draws_possession_swipe(cctrl->instance_id) == false)
-    myplyr->swipe_sprite_drawLR = (((myplyr->tooltips_restore + myplyr->status_menu_restore) * UNSYNC_RANDOM(4)) & 4) == 4; // randomise between "draw left to right" (1) (18.75% chance) and "draw right to left" (0) (81.25% chance)
+    // we get here many times a second when in possession mode and not attacking: to randomise the swipe direction
+    randomise_swipe_graphic_direction();
 }
 
 long creature_available_for_combat_this_turn(struct Thing *creatng)
