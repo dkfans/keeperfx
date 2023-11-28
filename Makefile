@@ -316,9 +316,7 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
-obj/ftest.o \
-obj/ftest_list.o \
-obj/ftest_bug_imp_tp_job_attack_door.o \
+$(patsubst src/%,obj/%,$(patsubst %.c,%.o,$(wildcard src/ftest*.c))) \
 $(RES)
 
 MAIN_OBJ = obj/main.o
