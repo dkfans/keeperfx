@@ -1048,6 +1048,29 @@ short setup_game(void)
   {
       SYNCMSG("Operating System: %s %ld.%ld.%ld", (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows", v.dwMajorVersion,v.dwMinorVersion,v.dwBuildNumber);
   }
+
+  // Check for Wine
+  #ifdef _WIN32
+      HMODULE hNTDLL = GetModuleHandle("ntdll.dll");
+      if(hNTDLL)
+      {
+          PROC wine_get_version = (PROC) GetProcAddress(hNTDLL, "wine_get_version");
+          if (wine_get_version)
+          {
+              SYNCMSG("Running on Wine v%s", wine_get_version());
+          }
+          PROC wine_get_host_version = (PROC) GetProcAddress(hNTDLL, "wine_get_host_version");
+          if (wine_get_host_version)
+          {
+              const char* sys_name = NULL;
+              const char* release_name = NULL;
+              // Call wine_get_host_version with the correct arguments
+              ((void (*)(const char**, const char**))wine_get_host_version)(&sys_name, &release_name);
+              SYNCMSG("Wine Host: %s %s", sys_name, release_name);
+          }
+      }
+  #endif
+
   update_memory_constraits();
   // Enable features that require more resources
   update_features(mem_size);
