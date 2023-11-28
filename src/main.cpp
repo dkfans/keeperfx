@@ -1054,18 +1054,26 @@ short setup_game(void)
       HMODULE hNTDLL = GetModuleHandle("ntdll.dll");
       if(hNTDLL)
       {
+          // Get Wine version
           PROC wine_get_version = (PROC) GetProcAddress(hNTDLL, "wine_get_version");
           if (wine_get_version)
           {
               SYNCMSG("Running on Wine v%s", wine_get_version());
           }
-          PROC wine_get_host_version = (PROC) GetProcAddress(hNTDLL, "wine_get_host_version");
-          if (wine_get_host_version)
+
+          // Get Wine host OS
+          // We have to use a union to make sure there is no weird cast warnings
+          union
+          {
+              FARPROC func;
+              void (*wine_get_host_version)(const char**, const char**);
+          } wineHostVersionUnion;
+          wineHostVersionUnion.func = GetProcAddress(hNTDLL, "wine_get_host_version");
+          if (wineHostVersionUnion.wine_get_host_version)
           {
               const char* sys_name = NULL;
               const char* release_name = NULL;
-              // Call wine_get_host_version with the correct arguments
-              ((void (*)(const char**, const char**))wine_get_host_version)(&sys_name, &release_name);
+              wineHostVersionUnion.wine_get_host_version(&sys_name, &release_name);
               SYNCMSG("Wine Host: %s %s", sys_name, release_name);
           }
       }
