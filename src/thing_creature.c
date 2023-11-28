@@ -432,7 +432,7 @@ void draw_swipe_graphic(void)
             int scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
             struct TbSprite *spr;
             int scrpos_x;
-            if ((myplyr->field_1 & 4) != 0)
+            if (myplyr->swipe_sprite_drawLR)
             {
                 int delta_y = sprlist[1].SHeight;
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
@@ -468,7 +468,8 @@ void draw_swipe_graphic(void)
             return;
         }
     }
-    myplyr->field_1 ^= (myplyr->field_1 ^ 4 * UNSYNC_RANDOM(4)) & 4;
+    // we get here when thing_is_creature(thing) == false OR (thing_is_creature(thing) == true AND instance_draws_possession_swipe(cctrl->instance_id) == false)
+    myplyr->swipe_sprite_drawLR = (((myplyr->tooltips_restore + myplyr->status_menu_restore) * UNSYNC_RANDOM(4)) & 4) == 4; // randomise between "draw left to right" (1) (18.75% chance) and "draw right to left" (0) (81.25% chance)
 }
 
 long creature_available_for_combat_this_turn(struct Thing *creatng)
