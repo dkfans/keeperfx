@@ -170,8 +170,6 @@ unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits)
 void make_lowercase(char *);
 void make_uppercase(char *);
 
-// TODO: refactor usage of set_flag_* and toggle_flag_* functions to use the following macros instead
-
 /**
  * Converts an index number to a flag - by creating a bitmask where only the nth bit is set to 1.
  * For example: idx=0 returns 0b000001, idx=1 returns 0b000010, idx=2 returns 0b000100.
