@@ -270,7 +270,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->bigsym_sprite_idx = 0;
           trapst->medsym_sprite_idx = 0;
           trapst->pointer_sprite_idx = 0;
-          trapst->place_sound_idx = 0;
+          // Default trap placement sound, so that placement sound isn't broken if custom traps is bundled into maps
+          trapst->place_sound_idx = 117; 
           trapst->panel_tab_idx = 0;
           trapst->hidden = 0;
           trapst->slappable = 0;
