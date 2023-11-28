@@ -853,13 +853,27 @@ long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng,
     return dig_damage;
 }
 
-long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb)
+GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, const struct SlabMap *slb)
 {
-    long gold = (damage_did_to_slab * (long)game.gold_per_gold_block) / game.block_health[1];
+    GoldAmount gold;
+    if (slb->health <= 0)
+    {
+        float quantity = ((float)game.gold_per_gold_block / game.block_health[1]) * damage_did_to_slab;
+        float fraction = (quantity - (GoldAmount)quantity);
+        gold = (GoldAmount)quantity + (GoldAmount)(fraction * game.block_health[1]);
+    }
+    else
+    {
+        gold = (damage_did_to_slab * (long)game.gold_per_gold_block) / game.block_health[1];
+    }
     if (slb->kind == SlbT_GEMS)
-      gold = gold * gameadd.gem_effectiveness / 100;
-    if (gold <= 1)
-      return 1;
+    {
+        gold = gold * gameadd.gem_effectiveness / 100;
+    }
+    if (gold < 1)
+    {
+        return 1;
+    }
     return gold;
 }
 
