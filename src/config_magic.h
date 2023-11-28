@@ -84,13 +84,13 @@ enum CreatureSpellAffectedFlags {
     CSAfF_PoisonCloud  = 0x0400,
     CSAfF_CalledToArms = 0x0800,
     CSAfF_MadKilling   = 0x1000,
-    CSAfF_Bleed        = 0x10000,
     /** The creature does a free fall with magical effect, ie. it was just created with some initial velocity. */
     CSAfF_MagicFall    = 0x2000,
     CSAfF_ExpLevelUp   = 0x4000,
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
     CSAfF_Grounded     = 0x8000,
     CSAfF_Timebomb     = 0x10000,
+    CSAfF_Bleed        = 0x20000,
 };
 
 enum PowerKinds {
@@ -368,7 +368,7 @@ struct SpellConfig {
     short linked_power;
     short duration;
     short aura_effect;
-    unsigned short spell_flags;
+    unsigned long spell_flags;
 };
 
 struct MagicConfig {
