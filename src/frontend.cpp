@@ -2336,6 +2336,14 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     return mnu_num;
 }
 
+/**
+ * Sets the status menu visiblity.
+ * 
+ * Doesn't change anything if the current menu visibility is the same as the passed parameter.
+ * 
+ * @param visible If TRUE show the menu, if FALSE hide the menu
+ * @return The visibility of the menu before this function was called (used to store the user's previous setting when the menu is forcibly hidden).
+ */
 unsigned long toggle_status_menu(short visible)
 {
   static TbBool room_on = false;
