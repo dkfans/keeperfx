@@ -6569,10 +6569,38 @@ msgstr ""
 "votre sournoiserie constitueront les histoires d'horreur des prochaines "
 "générations."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Porte secrète"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Porte secrète : Cette porte reste cachée aux ennemis à moins qu'ils ne l'observent de près ou ne la voient s'ouvrir. Sélectionnez avec le bouton gauche de la souris et zoomez avec le bouton droit."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Découverte d'une porte secrète : Changez avec le bouton gauche, supprimez avec le bouton droit."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Découverte d'une porte secrète"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "L'ennemi a repéré votre porte secrète : Changez avec le bouton gauche, supprimez avec le bouton droit."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "L'ennemi a repéré votre porte secrète"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -6951,8 +6979,8 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
-msgstr "Dungeon Keeper campagne d'origine"
+msgid "Dungeon Keeper - Original Campaign"
+msgstr "Dungeon Keeper - Campagne Originale"
 
 #: guitext:1012
 msgctxt "Menu interface item""
@@ -7031,7 +7059,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
@@ -7105,3 +7133,23 @@ msgstr "Druide"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "Mage du temps"
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Formation rocheuse."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Rocher de base : Sol rocheux non réclamé. Vous ne pouvez pas le revendiquer ni construire dessus."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Veine d'or dense : Contient beaucoup de richesses que vos Lutins peuvent extraire."

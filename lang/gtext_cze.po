@@ -6328,10 +6328,37 @@ msgstr ""
 "Strážce, Tvé úspěchy jsou legendární. Povídky o tvém zlu a mazanosti se "
 "stanou děsivými příběhy po generace."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Tajné dveře"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr "Tajné dveře: Tyto dveře zůstávají nepřátelům skryté, pokud je nepozorují zblízka nebo nevidí, jak se otevírají. Zvoli se LTM, PTM zvetsi"
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Objevení tajných dveří: LTM přepnout, PTM smazat."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Objevení tajných dveří"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Nepřítel si všiml vašich tajných dveří: LTM přepnout, PTM smazat."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Nepřítel si všiml vašich tajných dveří"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -6702,7 +6729,7 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
+msgid "Dungeon Keeper - Original Campaign"
 msgstr ""
 
 #: guitext:1012
@@ -6782,7 +6809,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
@@ -6856,3 +6883,23 @@ msgstr ""
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr ""
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Skalní útvar."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Základní skála: Neupravená kamenitá podlaha. Nemůžete ji zabrat ani na ni stavět."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Hustý zlatý základ: Obsahuje mnoho bohatství, které mohou tví Skřeti těžit."

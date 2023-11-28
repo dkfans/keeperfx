@@ -347,13 +347,13 @@ void load_packets_for_turn(GameTurn nturn)
         {
             ERRORLOG("PacketSave checksum - Out of sync (GameTurn %d)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
-                show_onscreen_msg(game.num_fps, "Out of sync");
+                show_onscreen_msg(game_num_fps, "Out of sync");
         } else
         if (pckt->chksum != pckt_chksum)
         {
             ERRORLOG("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
-                show_onscreen_msg(game.num_fps, "Out of sync");
+                show_onscreen_msg(game_num_fps, "Out of sync");
         }
     }
 }

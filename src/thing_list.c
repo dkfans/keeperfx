@@ -2071,7 +2071,7 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
         max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
         max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
     }
-    MapCoordDelta distance = get_2d_box_distance(pos, &tngdst->mappos);
+    MapCoordDelta distance = get_chessboard_distance(pos, &tngdst->mappos);
     if (distance < max_dist)
     {
         if (tngdst->class_id == TCls_Creature)
@@ -4015,7 +4015,7 @@ struct Thing *get_nearest_thing_at_position(MapSubtlCoord stl_x, MapSubtlCoord s
           while (!thing_is_invalid(thing)) 
           {
             TRACE_THING(thing);
-            long NewDistance = get_2d_box_distance_xy(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
+            long NewDistance = chessboard_distance(stl_x, stl_y, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
             if ( NewDistance < OldDistance )
             {
                 OldDistance = NewDistance;
@@ -4201,17 +4201,23 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
     WARNLOG("No change performed");
 }
 
-ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel)
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player)
 {
     unsigned long k = 0;
     struct Thing* thing = current_creature;
     ThingIndex i;
+    unsigned char loops = 0;
     do
     {
         i = thing->prev_of_class;
         if (i == 0)
         {
-            return get_index_of_first_creature_of_owner_and_model(owner, crmodel);
+            loops++;
+            if (loops > 1)
+            {
+                break;
+            }
+            i = get_index_of_first_creature_of_owner_and_model(owner, crmodel);
         }
         else if (i == current_creature->index)
         {
@@ -4224,7 +4230,10 @@ ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_c
             {
                 if ( (thing->model == crmodel) || (crmodel == 0) )
                 {
-                    return thing->index;
+                    if (creature_can_be_queried(player, thing))
+                    {
+                        return thing->index;
+                    }
                 }
             }
         }
