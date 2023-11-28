@@ -218,11 +218,10 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coor
 
 TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    long gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, creatng->owner, cctrl->explevel, slb);
+    long gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, slb);
     creatng->creature.gold_carried += gold;
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.gold_mined += gold;
@@ -411,6 +410,10 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         {
             if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
             { // Valuables require counting gold
+                if (!slab_kind_is_indestructible(slb->kind))
+                {
+                    slb->health -= damage; // otherwise, we'll get the final lot of gold twice!
+                }
                 give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
                 mine_out_block(stl_x, stl_y, diggertng->owner);
                 thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
