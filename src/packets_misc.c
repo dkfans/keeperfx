@@ -351,7 +351,7 @@ void load_packets_for_turn(GameTurn nturn)
         } else
         if (pckt->chksum != pckt_chksum)
         {
-            ERRORLOG("Opps we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
+            ERRORLOG("Oops we are really Out Of Sync (GameTurn %d)", game.play_gameturn);
             if (!is_onscreen_msg_visible())
                 show_onscreen_msg(game_num_fps, "Out of sync");
         }

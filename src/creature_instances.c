@@ -397,6 +397,15 @@ void process_creature_instance(struct Thing *thing)
     SYNCDBG(19,"Starting for %s index %d instance %d",thing_model_name(thing),(int)thing->index,(int)cctrl->instance_id);
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->inst_turn > cctrl->inst_total_turns)
+    {
+        if (!cctrl->inst_repeat)
+        {
+            cctrl->instance_id = CrInst_NULL;
+            return;
+        }
+    }
+    cctrl->inst_repeat = 0;
     if (cctrl->instance_id != CrInst_NULL)
     {
         cctrl->inst_turn++;
@@ -409,17 +418,9 @@ void process_creature_instance(struct Thing *thing)
                 inst_inf->func_cb(thing, inst_inf->func_params);
             }
         }
-        if (cctrl->inst_turn >= cctrl->inst_total_turns)
+        if (cctrl->inst_repeat)
         {
-            if (cctrl->inst_repeat)
-            {
-                cctrl->inst_turn--;
-                cctrl->inst_repeat = 0;
-                return;
-            }
-            // Instances sometimes failed to reach this. More reliable to set instance_use_turn sooner
-            // cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn; // so this code has been moved to another location
-            cctrl->instance_id = CrInst_NULL;
+            cctrl->inst_turn--;
         }
         cctrl->inst_repeat = 0;
     }
