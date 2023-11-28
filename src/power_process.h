@@ -45,6 +45,8 @@ void set_chosen_power_none(void);
 
 void process_disease(struct Thing *thing);
 void process_bleed(struct Thing* thing);
+void process_timebomb(struct Thing *creatng);
+void timebomb_explode(struct Thing *creatng);
 
 TbBool player_uses_power_armageddon(PlayerNumber plyr_idx);
 void process_armageddon(void);

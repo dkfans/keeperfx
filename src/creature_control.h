@@ -138,10 +138,7 @@ enum ObjectCombatStates {
 struct CastedSpellData {
     unsigned char spkind;
     short duration;
-    unsigned char field_3;
 };
-
-#define SIZEOF_CreatureControl 776
 
 struct CreatureControl {
     unsigned char index;
@@ -412,6 +409,10 @@ unsigned char cowers_from_slap_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
     GameTurn dropped_turn;
+    unsigned long timebomb_countdown;
+    ThingIndex timebomb_countdown_id;
+    ThingIndex timebomb_target_id;
+    TbBool timebomb_death;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields

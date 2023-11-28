@@ -1208,6 +1208,10 @@ TbBool destroy_effect_thing(struct Thing *efftng)
 TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
     MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner, unsigned long shot_model_flags)
 {
+    if (thing_is_deployed_door(tngdst))
+    {
+        return explosion_affecting_door(tngsrc, tngdst, pos, max_dist, max_damage, blow_strength, damage_type, owner);
+    }
     TbBool affected = false;
     SYNCDBG(17,"Starting for %s, max damage %d, max blow %d, owner %d",thing_model_name(tngdst),(int)max_damage,(int)blow_strength,(int)owner);
     if (nowibble_line_of_sight_3d(pos, &tngdst->mappos))
@@ -1218,7 +1222,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
             max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
         }
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
-        if (distance < max_dist)
+        if (distance <= max_dist)
         {
             if (tngdst->class_id == TCls_Creature)
             {
@@ -1279,6 +1283,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     }
     return affected;
 }
+
 TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
     MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner)
 {
@@ -1515,11 +1520,11 @@ long explosion_affecting_map_block(struct Thing *tngsrc, const struct Map *mapbl
  *
  * @param tngsrc The thing which caused the effect, usually spell caster.
  * @param pos Position of the effect epicenter.
- * @param range Range of the effect, in subtiles.
+ * @param max_dist Range of the effect.
  * @param max_damage Damage at epicenter of the effect.
  * @param blow_strength The strength of hitwave blowing creatures out of affected area.
  * @param hit_targets Defines which things are affected.
- * @return Gives amount of things which were affected by the explosion.
+ * @return Gives number of things which were affected by the explosion.
  */
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
     HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type)
