@@ -145,6 +145,9 @@ int LbNetLog(const char *format, ...);
 int LbJustLog(const char *format, ...);
 int LbAiLog(const char *format, ...);
 int LbNaviLog(const char *format, ...);
+#ifdef FUNCTESTING
+int LbFTestLog(const char *format, ...);
+#endif
 int LbScriptLog(unsigned long line,const char *format, ...);
 int LbConfigLog(unsigned long line,const char *format, ...);
 void LbPrint(const char *format, ...);
