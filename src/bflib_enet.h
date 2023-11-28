@@ -16,6 +16,6 @@
 #define GIT_BFLIB_ENET_H
 
 struct NetSP;
-struct NetSP* InitEnetSP();
+struct NetSP *InitEnetSP();
 
-#endif //GIT_BFLIB_ENET_H
+#endif // GIT_BFLIB_ENET_H

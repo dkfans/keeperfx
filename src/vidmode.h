@@ -85,49 +85,50 @@ enum MousePointerGraphics {
     MousePG_Unkn48,
     MousePG_Unkn49,
     MousePG_PlaceImpRock = 144,
-    MousePG_PlaceGold    = 145,
-    MousePG_PlaceEarth   = 146,
-    MousePG_PlaceWall    = 147,
-    MousePG_PlacePath    = 148,
+    MousePG_PlaceGold = 145,
+    MousePG_PlaceEarth = 146,
+    MousePG_PlaceWall = 147,
+    MousePG_PlacePath = 148,
     MousePG_PlaceClaimed = 149,
-    MousePG_PlaceLava    = 150,
-    MousePG_PlaceWater   = 151,
-    MousePG_PlaceGems    = 152,
-    MousePG_MkDigger     = 153,
-    MousePG_MkCreature   = 154,
-    MousePG_MvCreature   = 155,
-    MousePG_Mystery      = 156,
-    MousePG_PlaceTrap07  = 157,
-    MousePG_PlaceTrap08  = 158,
-    MousePG_PlaceTrap09  = 159,
-    MousePG_PlaceTrap10  = 160,
-    MousePG_PlaceTrap11  = 161,
-    MousePG_PlaceTrap12  = 162,
-    MousePG_PlaceTrap13  = 163,
-    MousePG_PlaceTrap14  = 164,
-    MousePG_PlaceRoom15  = 165,
+    MousePG_PlaceLava = 150,
+    MousePG_PlaceWater = 151,
+    MousePG_PlaceGems = 152,
+    MousePG_MkDigger = 153,
+    MousePG_MkCreature = 154,
+    MousePG_MvCreature = 155,
+    MousePG_Mystery = 156,
+    MousePG_PlaceTrap07 = 157,
+    MousePG_PlaceTrap08 = 158,
+    MousePG_PlaceTrap09 = 159,
+    MousePG_PlaceTrap10 = 160,
+    MousePG_PlaceTrap11 = 161,
+    MousePG_PlaceTrap12 = 162,
+    MousePG_PlaceTrap13 = 163,
+    MousePG_PlaceTrap14 = 164,
+    MousePG_PlaceRoom15 = 165,
 };
+
 /******************************************************************************/
 
 struct TbColorTables {
-  unsigned char fade_tables[64*256];
-  unsigned char ghost[256*256];
-  unsigned char flat_colours_tl[2*256];
-  unsigned char flat_colours_tr[2*256];
-  unsigned char flat_colours_br[2*256];
-  unsigned char flat_colours_bl[2*256];
-  unsigned char robs_bollocks[256];
+    unsigned char fade_tables[64 * 256];
+    unsigned char ghost[256 * 256];
+    unsigned char flat_colours_tl[2 * 256];
+    unsigned char flat_colours_tr[2 * 256];
+    unsigned char flat_colours_br[2 * 256];
+    unsigned char flat_colours_bl[2 * 256];
+    unsigned char robs_bollocks[256];
 };
 
 struct TbAlphaTables {
     unsigned char black[256];
-    unsigned char grey[8*256];
-    unsigned char orange[8*256];
-    unsigned char red[8*256];
-    unsigned char blue[8*256];
-    unsigned char green[8*256];
+    unsigned char grey[8 * 256];
+    unsigned char orange[8 * 256];
+    unsigned char red[8 * 256];
+    unsigned char blue[8 * 256];
+    unsigned char green[8 * 256];
     // This is to force the array to have 256x256 size
-    //unsigned char unused[215*256];
+    // unsigned char unused[215*256];
 };
 
 /******************************************************************************/

@@ -96,8 +96,8 @@ struct PlayerInfo;
 typedef unsigned char QKind;
 
 struct BasicQ { // sizeof = 5
-  struct BasicQ *next;
-  QKind kind;
+    struct BasicQ *next;
+    QKind kind;
 };
 
 struct BucketKindPolygonStandard {
@@ -257,7 +257,7 @@ struct BucketKindBasicUnk10 {
     struct PolyPoint p3;
 };
 
-struct BucketKindJontySprite {  // BasicQ type 11,18
+struct BucketKindJontySprite { // BasicQ type 11,18
     struct BasicQ b;
     unsigned char field_5[3];
     struct Thing *thing;
@@ -299,9 +299,11 @@ struct BucketKindCreatureStatus { // sizeof = 24
 };
 
 #define SHADOW_SOURCES_MAX_COUNT 4
+
 struct NearestLights {
     struct Coord3d coord[SHADOW_SOURCES_MAX_COUNT];
 };
+
 struct BucketKindTexturedQuad { // sizeof = 46
     struct BasicQ b;
     unsigned char field_5;
@@ -333,8 +335,6 @@ struct BucketKindRoomFlag { // BasicQ type 17,19
     long y;
 };
 
-
-
 struct EngineCol {
     struct EngineCoord cors[16];
 };
@@ -348,70 +348,69 @@ struct SideOri {
 
 /******************************************************************************/
 static const struct SideOri sideoris[] = {
-    { 0,  1,  2,  3},
-    { 0,  0,  3,  2},
-    { 1,128,  2,  1},
-    { 0,  3,128,  2},
-    { 3,  0,  1,  0},
-    { 3,  2,  1,  0},
-    {128, 3,  0,  1},
-    { 2,  0,  1,  2},
-    { 3,  0,  0,  1},
-    { 0,  3,  2,128},
+    {  0,   1,   2,   3},
+    {  0,   0,   3,   2},
+    {  1, 128,   2,   1},
+    {  0,   3, 128,   2},
+    {  3,   0,   1,   0},
+    {  3,   2,   1,   0},
+    {128,   3,   0,   1},
+    {  2,   0,   1,   2},
+    {  3,   0,   0,   1},
+    {  0,   3,   2, 128},
 };
 
-long const x_offs[] =  { 0, 1, 1, 0};
-long const y_offs[] =  { 0, 0, 1, 1};
-long const x_step1[] = { 0,-1, 0, 1};
-long const y_step1[] = { 1, 0,-1, 0};
-long const x_step2[] = { 1, 0,-1, 0};
-long const y_step2[] = { 0, 1, 0,-1};
-long const orient_table_xflip[] =  {0, 0, 1, 1};
-long const orient_table_yflip[] =  {0, 1, 1, 0};
+long const x_offs[] = {0, 1, 1, 0};
+long const y_offs[] = {0, 0, 1, 1};
+long const x_step1[] = {0, -1, 0, 1};
+long const y_step1[] = {1, 0, -1, 0};
+long const x_step2[] = {1, 0, -1, 0};
+long const y_step2[] = {0, 1, 0, -1};
+long const orient_table_xflip[] = {0, 0, 1, 1};
+long const orient_table_yflip[] = {0, 1, 1, 0};
 long const orient_table_rotate[] = {0, 1, 0, 1};
-long const orient_to_mapU1[] = { 0x00, 0x1F0000, 0x1F0000, 0x00 };
-long const orient_to_mapU2[] = { 0x1F0000, 0x1F0000, 0x00, 0x00 };
-long const orient_to_mapU3[] = { 0x1F0000, 0x00, 0x00, 0x1F0000 };
-long const orient_to_mapU4[] = { 0x00, 0x00, 0x1F0000, 0x1F0000 };
-long const orient_to_mapV1[] = { 0x00, 0x00, 0x1F0000, 0x1F0000 };
-long const orient_to_mapV2[] = { 0x00, 0x1F0000, 0x1F0000, 0x00 };
-long const orient_to_mapV3[] = { 0x1F0000, 0x1F0000, 0x00, 0x00 };
-long const orient_to_mapV4[] = { 0x1F0000, 0x00, 0x00, 0x1F0000 };
+long const orient_to_mapU1[] = {0x00, 0x1F0000, 0x1F0000, 0x00};
+long const orient_to_mapU2[] = {0x1F0000, 0x1F0000, 0x00, 0x00};
+long const orient_to_mapU3[] = {0x1F0000, 0x00, 0x00, 0x1F0000};
+long const orient_to_mapU4[] = {0x00, 0x00, 0x1F0000, 0x1F0000};
+long const orient_to_mapV1[] = {0x00, 0x00, 0x1F0000, 0x1F0000};
+long const orient_to_mapV2[] = {0x00, 0x1F0000, 0x1F0000, 0x00};
+long const orient_to_mapV3[] = {0x1F0000, 0x1F0000, 0x00, 0x00};
+long const orient_to_mapV4[] = {0x1F0000, 0x00, 0x00, 0x1F0000};
 
 unsigned char const height_masks[] = {
-  0, 1, 2, 2, 3, 3, 3, 3,
-  4, 4, 4, 4, 4, 4, 4, 4,
-  5, 5, 5, 5, 5, 5, 5, 5,
-  5, 5, 5, 5, 5, 5, 5, 5,
-  6, 6, 6, 6, 6, 6, 6, 6,
-  6, 6, 6, 6, 6, 6, 6, 6,
-  6, 6, 6, 6, 6, 6, 6, 6,
-  6, 6, 6, 6, 6, 6, 6, 6,
-  7, 7, 7, 7, 7, 7, 7, 7,
-  7, 7, 7, 7, 7, 7, 7, 7,
-  7, 7, 7, 7, 7, 7, 7, 7,
-  7, 7, 7, 7, 7, 7, 7, 7,
-  7, 7, 7, 7, 7, 7, 7, 7,
-  7, 7, 7, 7, 7, 7, 7, 7,
-  7, 7, 7, 7, 7, 7, 7, 7,
-  7, 7, 7, 7, 7, 7, 7, 7,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-  8, 8, 8, 8, 8, 8, 8, 8,
-};
+    0, 1, 2, 2, 3, 3, 3, 3,
+    4, 4, 4, 4, 4, 4, 4, 4,
+    5, 5, 5, 5, 5, 5, 5, 5,
+    5, 5, 5, 5, 5, 5, 5, 5,
+    6, 6, 6, 6, 6, 6, 6, 6,
+    6, 6, 6, 6, 6, 6, 6, 6,
+    6, 6, 6, 6, 6, 6, 6, 6,
+    6, 6, 6, 6, 6, 6, 6, 6,
+    7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7,
+    7, 7, 7, 7, 7, 7, 7, 7,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8,
+    8, 8, 8, 8, 8, 8, 8, 8};
 
 // View distance related
 struct MinMax minmaxs[MINMAX_LENGTH];
@@ -421,9 +420,9 @@ unsigned char *poly_pool_end;
 struct BasicQ *buckets[BUCKETS_COUNT];
 long cells_away;
 long max_i_can_see;
-const int MAX_I_CAN_SEE_OVERHEAD = (MINMAX_LENGTH/2)-2;
-struct EngineCol ecs1[MINMAX_LENGTH-1];
-struct EngineCol ecs2[MINMAX_LENGTH-1];
+const int MAX_I_CAN_SEE_OVERHEAD = (MINMAX_LENGTH / 2) - 2;
+struct EngineCol ecs1[MINMAX_LENGTH - 1];
+struct EngineCol ecs2[MINMAX_LENGTH - 1];
 struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 float hud_scale;
@@ -500,8 +499,7 @@ static const char splittypes[64] = {
     0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 5, 5, 0, 1, 5, 5,
     0, 2, 2, 2, 3, 4, 4, 4, 3, 4, 8, 8, 3, 4, 8, 8,
     0, 2, 6, 6, 3, 4, 9, 9, 7, 10, 11, 11, 7, 10, 11, 11,
-    0, 2, 6, 6, 3, 4, 9, 9, 7, 10, 11, 11, 7, 10, 11, 11
-};
+    0, 2, 6, 6, 3, 4, 9, 9, 7, 10, 11, 11, 7, 10, 11, 11};
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -509,35 +507,41 @@ static const char splittypes[64] = {
 #endif
 /******************************************************************************/
 static void do_map_who(short tnglist_idx);
-static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos_y) = NULL;
+static void (*render_sprite_debug_fn)(struct Thing *, long scrpos_x, long scrpos_y) = NULL;
 static int render_sprite_debug_level = 0;
 static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, unsigned char field48, unsigned char *a4);
 static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
+
 /******************************************************************************/
 
-static void calculate_hud_scale(struct Camera *cam) {
+static void calculate_hud_scale(struct Camera *cam)
+{
     // hud_scale is the current camera zoom converted to a percentage that ranges between base level zoom and fully zoomed out.
     // HUD items: creature status flowers, room flags, popup gold numbers. They scale with the zoom.
     float range_input = cam->zoom;
     float range_min;
     float range_max;
-    switch (cam->view_mode) {
-        case PVM_IsoWibbleView:
-        case PVM_IsoStraightView:
-            range_min = CAMERA_ZOOM_MIN; // Fully zoomed out
-            range_max = 4100; // Base zoom level
-            break;
-        case PVM_FrontView:
-            range_min = FRONTVIEW_CAMERA_ZOOM_MIN; // Fully zoomed out
-            range_max = 32768; // Base zoom level
-            break;
-        default:
-            hud_scale = 0;
-            return;
+    switch (cam->view_mode)
+    {
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
+        range_min = CAMERA_ZOOM_MIN; // Fully zoomed out
+        range_max = 4100;            // Base zoom level
+        break;
+    case PVM_FrontView:
+        range_min = FRONTVIEW_CAMERA_ZOOM_MIN; // Fully zoomed out
+        range_max = 32768;                     // Base zoom level
+        break;
+    default:
+        hud_scale = 0;
+        return;
     }
-    if (range_input < range_min) {
+    if (range_input < range_min)
+    {
         range_input = range_min;
-    } else if (range_input > range_max) {
+    }
+    else if (range_input > range_max)
+    {
         range_input = range_max;
     }
     hud_scale = ((range_input - range_min)) / (range_max - range_min);
@@ -545,7 +549,8 @@ static void calculate_hud_scale(struct Camera *cam) {
 
 long interpolate(long variable_to_interpolate, long previous, long current)
 {
-    if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0) {
+    if (is_feature_on(Ft_DeltaTime) == false || game.frame_skip > 0)
+    {
         return current;
     }
     // future: by using the predicted future position in the interpolation calculation, we can remove input lag (or visual lag).
@@ -555,24 +560,26 @@ long interpolate(long variable_to_interpolate, long previous, long current)
     return lerp(variable_to_interpolate, desired_value, gameadd.delta_time);
 }
 
-long fix_interpolated_angle_bug(long variable_to_interpolate, long desired_value) {
+long fix_interpolated_angle_bug(long variable_to_interpolate, long desired_value)
+{
     // An ugly fix for a difficult angle interpolation bug. A proper fix would probably need rewriting all angle interpolation.
-    struct PlayerInfo* player = get_my_player();
-    struct Camera* cam = player->acamera;
+    struct PlayerInfo *player = get_my_player();
+    struct Camera *cam = player->acamera;
     switch (cam->view_mode)
     {
-        case PVM_IsoWibbleView:
-        case PVM_FrontView:
-        case PVM_IsoStraightView:
-            
-            if (desired_value == 0 || desired_value == 512 || desired_value == 1024 || desired_value == 1536)
+    case PVM_IsoWibbleView:
+    case PVM_FrontView:
+    case PVM_IsoStraightView:
+
+        if (desired_value == 0 || desired_value == 512 || desired_value == 1024 || desired_value == 1536)
+        {
+            long angle_diff = variable_to_interpolate - desired_value;
+            angle_diff = (angle_diff + LbFPMath_PI) % LbFPMath_TAU - LbFPMath_PI;
+            if (abs(angle_diff) < 8)
             {
-                long angle_diff = variable_to_interpolate - desired_value;
-                angle_diff = (angle_diff + LbFPMath_PI) % LbFPMath_TAU - LbFPMath_PI;
-                if (abs(angle_diff) < 8) {
-                    variable_to_interpolate = desired_value;
-                }
+                variable_to_interpolate = desired_value;
             }
+        }
         break;
     }
     return variable_to_interpolate;
@@ -580,7 +587,8 @@ long fix_interpolated_angle_bug(long variable_to_interpolate, long desired_value
 
 long interpolate_angle(long variable_to_interpolate, long previous, long current)
 {
-    if (is_feature_on(Ft_DeltaTime) == false) {
+    if (is_feature_on(Ft_DeltaTime) == false)
+    {
         return current;
     }
     long future = current + (current - previous);
@@ -594,33 +602,37 @@ void interpolate_thing(struct Thing *thing)
 {
     // Note: if delta_time is off the interpolated position will also reflect that
 
-    if (thing->creation_turn == game.play_gameturn-1 || game.play_gameturn - thing->last_turn_drawn > 1 ) {
+    if (thing->creation_turn == game.play_gameturn - 1 || game.play_gameturn - thing->last_turn_drawn > 1)
+    {
         // Set initial interp position when either Thing has just been created or goes off camera then comes back on camera
         thing->interp_mappos = thing->mappos;
         thing->interp_floor_height = thing->floor_height;
-        
-        if (thing->interp_mappos.z.val == 65534) { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
+
+        if (thing->interp_mappos.z.val == 65534)
+        { // Fixes an odd bug where thing->mappos.z.val is briefly 65534 (for 1 turn) in certain situations, which can mess up the interpolation and cause things to fall from the sky.
             thing->interp_mappos.z.val = thing->interp_floor_height;
         }
-    } else {
+    }
+    else
+    {
         // Interpolate position every frame
         thing->interp_mappos.x.val = interpolate(thing->interp_mappos.x.val, thing->previous_mappos.x.val, thing->mappos.x.val);
         thing->interp_mappos.z.val = interpolate(thing->interp_mappos.z.val, thing->previous_mappos.z.val, thing->mappos.z.val);
         thing->interp_mappos.y.val = interpolate(thing->interp_mappos.y.val, thing->previous_mappos.y.val, thing->mappos.y.val);
         thing->interp_floor_height = interpolate(thing->interp_floor_height, thing->previous_floor_height, thing->floor_height);
-        
+
         // Cancel interpolation if distance to interpolate is too far. This is a catch-all to solve any remaining interpolation bugs.
-        if ((abs(thing->interp_mappos.x.val-thing->mappos.x.val) >= 10000) ||
-            (abs(thing->interp_mappos.y.val-thing->mappos.y.val) >= 10000) ||
-            (abs(thing->interp_mappos.z.val-thing->mappos.z.val) >= 10000))
+        if ((abs(thing->interp_mappos.x.val - thing->mappos.x.val) >= 10000) ||
+            (abs(thing->interp_mappos.y.val - thing->mappos.y.val) >= 10000) ||
+            (abs(thing->interp_mappos.z.val - thing->mappos.z.val) >= 10000))
         {
-            ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation."
-                ,thing_model_name(thing), (int)thing->index, (int)thing->owner, thing->interp_mappos.x.stl.num, thing->interp_mappos.y.stl.num, thing->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
+            ERRORLOG("The %s index %d owned by player %d moved an unrealistic distance((%d,%d,%d) to (%d,%d,%d)), refusing interpolation.", thing_model_name(thing), (int)thing->index, (int)thing->owner, thing->interp_mappos.x.stl.num, thing->interp_mappos.y.stl.num, thing->interp_mappos.z.stl.num, thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing->mappos.z.stl.num);
             thing->interp_mappos = thing->mappos;
             thing->interp_floor_height = thing->floor_height;
         }
     }
 }
+
 void interpolate_camera(struct Camera *cam)
 {
     // Smooth zoom
@@ -649,7 +661,7 @@ static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
     long long der_vn;
     long long div_v;
     long long div_h;
-    if ( (vert_offset[1] == 0) && (hori_offset[1] == 0) )
+    if ((vert_offset[1] == 0) && (hori_offset[1] == 0))
     {
         *floor_x = 0;
         *floor_y = 0;
@@ -693,27 +705,31 @@ static long compute_cells_away(void) // For overhead view, not for 1st person vi
     player = get_my_player();
     half_width = (player->engine_window_width >> 1);
     half_height = (player->engine_window_height >> 1);
-    xcell = ((half_width<<1) + (half_width>>4))/pixel_size - player->engine_window_x/pixel_size;
-    ycell = ((8 * high_offset[1]) >> 8) - (half_width>>4)/pixel_size - player->engine_window_y/pixel_size;
+    xcell = ((half_width << 1) + (half_width >> 4)) / pixel_size - player->engine_window_x / pixel_size;
+    ycell = ((8 * high_offset[1]) >> 8) - (half_width >> 4) / pixel_size - player->engine_window_y / pixel_size;
     get_floor_pointed_at(xcell, ycell, &xmax, &ymax);
-    xcell = (half_width)/pixel_size - player->engine_window_x/pixel_size;
-    ycell = (half_height)/pixel_size - player->engine_window_y/pixel_size;
+    xcell = (half_width) / pixel_size - player->engine_window_x / pixel_size;
+    ycell = (half_height) / pixel_size - player->engine_window_y / pixel_size;
     get_floor_pointed_at(xcell, ycell, &xmin, &ymin);
     xcell = abs(ymax - ymin);
     ycell = abs(xmax - xmin);
-    if (ycell >= xcell) {
+    if (ycell >= xcell)
+    {
         ncells_a = ycell + (xcell >> 1);
-    } else {
+    }
+    else
+    {
         ncells_a = xcell + (ycell >> 1);
     }
     ncells_a += 2;
-    if (ncells_a > MAX_I_CAN_SEE_OVERHEAD) {
+    if (ncells_a > MAX_I_CAN_SEE_OVERHEAD)
+    {
         ncells_a = MAX_I_CAN_SEE_OVERHEAD;
     }
     return ncells_a;
 }
 
-static void init_coords_and_rotation(struct EngineCoord *origin,struct M33 *matx)
+static void init_coords_and_rotation(struct EngineCoord *origin, struct M33 *matx)
 {
     origin->x = 0;
     origin->y = 0;
@@ -746,13 +762,21 @@ static void update_normal_shade(struct M33 *matx)
     normal_shade_back = -matx->r[2].v[2];
     normal_shade_front = matx->r[2].v[2];
     if (normal_shade_front < 0)
-      normal_shade_front = 0;
+    {
+        normal_shade_front = 0;
+    }
     if (normal_shade_back < 0)
-      normal_shade_back = 0;
+    {
+        normal_shade_back = 0;
+    }
     if (normal_shade_left < 0)
-      normal_shade_left = 0;
+    {
+        normal_shade_left = 0;
+    }
     if (normal_shade_right < 0)
-      normal_shade_right = 0;
+    {
+        normal_shade_right = 0;
+    }
 }
 
 void update_engine_settings(struct PlayerInfo *player)
@@ -781,9 +805,13 @@ void update_engine_settings(struct PlayerInfo *player)
     me_distance = 100000000;
     max_i_can_see = get_max_i_can_see_from_settings();
     if (lens_mode != 0)
-      temp_cluedo_mode = 0;
+    {
+        temp_cluedo_mode = 0;
+    }
     else
-      temp_cluedo_mode = settings.video_cluedo_mode;
+    {
+        temp_cluedo_mode = settings.video_cluedo_mode;
+    }
     thing_pointed_at = NULL;
 }
 
@@ -794,12 +822,12 @@ void update_engine_settings(struct PlayerInfo *player)
  */
 static void poly_pool_end_reserve(int nitems)
 {
-    poly_pool_end = &poly_pool[sizeof(poly_pool)-(nitems*sizeof(struct BucketKindSlabSelector))];
+    poly_pool_end = &poly_pool[sizeof(poly_pool) - (nitems * sizeof(struct BucketKindSlabSelector))];
 }
 
 static TbBool is_free_space_in_poly_pool(int nitems)
 {
-    return (getpoly+(nitems*sizeof(struct BucketKindSlabSelector)) <= poly_pool_end);
+    return (getpoly + (nitems * sizeof(struct BucketKindSlabSelector)) <= poly_pool_end);
 }
 
 static void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long zoom)
@@ -826,16 +854,16 @@ static void rotpers_parallel_3(struct EngineCoord *epos, struct M33 *matx, long 
     if (factor_w < 0)
     {
         epos->field_8 |= 0x0008;
-    } else
-    if (vec_window_width <= factor_w)
+    }
+    else if (vec_window_width <= factor_w)
     {
         epos->field_8 |= 0x0010;
     }
     if (factor_h < 0)
     {
         epos->field_8 |= 0x0020;
-    } else
-    if (factor_h >= vec_window_height)
+    }
+    else if (factor_h >= vec_window_height)
     {
         epos->field_8 |= 0x0040;
     }
@@ -977,9 +1005,9 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
     else if (cam->view_mode == PVM_IsoStraightView)
     {
         struct SlabMap *slb = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y));
-         // additional checks needed to keep straight edges around liquid with liquid wibble mode
-        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y+1));
-        struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x-1), stl_slab_center_subtile(stl_y));
+        // additional checks needed to keep straight edges around liquid with liquid wibble mode
+        struct SlabMap *slb2 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x), stl_slab_center_subtile(stl_y + 1));
+        struct SlabMap *slb3 = get_slabmap_for_subtile(stl_slab_center_subtile(stl_x - 1), stl_slab_center_subtile(stl_y));
         if (slab_kind_is_liquid(slb3->kind) && slab_kind_is_liquid(slb2->kind) && slab_kind_is_liquid(slb->kind))
         {
             return &wibble_table[table_index];
@@ -990,22 +1018,27 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
 
 static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y - 1))
+    {
         return;
     }
     long mmin;
     long mmax;
-    mmin = min(mm[0].min,mm[1].min);
-    mmax = max(mm[0].max,mm[1].max);
+    mmin = min(mm[0].min, mm[1].min);
+    mmax = max(mm[0].max, mm[1].max);
     if (mmin + bstl_x < 1)
-      mmin = 1 - bstl_x;
+    {
+        mmin = 1 - bstl_x;
+    }
     if (mmax + bstl_x > gameadd.map_subtiles_x)
-      mmax = gameadd.map_subtiles_x - bstl_x;
+    {
+        mmax = gameadd.map_subtiles_x - bstl_x;
+    }
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     stl_y = bstl_y;
     stl_x = mmin + bstl_x;
-    apos += subtile_coord(mmin,0);
+    apos += subtile_coord(mmin, 0);
     struct EngineCol *ecol;
     ecol = &front_ec[mmin + MINMAX_ALMOST_HALF];
     unsigned long mask_unrev;
@@ -1023,13 +1056,15 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         unsigned long mask_yp;
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
-        mapblk = get_map_block_at(stl_x-1, stl_y+1);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        mapblk = get_map_block_at(stl_x - 1, stl_y + 1);
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
         }
-        mapblk = get_map_block_at(stl_x-1, stl_y);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        mapblk = get_map_block_at(stl_x - 1, stl_y);
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
         }
@@ -1042,20 +1077,22 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
     int wib_v;
     wib_y = (stl_y + 1) & 3;
     int idxx;
-    for (idxx=mmax-mmin+1; idxx > 0; idxx--)
+    for (idxx = mmax - mmin + 1; idxx > 0; idxx--)
     {
         unsigned long mask_cur;
         unsigned long mask_yp;
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
-        mapblk = get_map_block_at(stl_x, stl_y+1);
+        mapblk = get_map_block_at(stl_x, stl_y + 1);
         wib_v = get_mapblk_wibble_value(mapblk);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
         }
         mapblk = get_map_block_at(stl_x, stl_y);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
         }
@@ -1072,7 +1109,9 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
+        {
+            lightness = get_subtile_lightness(&game.lish, stl_x, stl_y + 1);
+        }
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
@@ -1080,12 +1119,12 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         struct EngineCoord *ecord;
         ecord = &ecol->cors[hmin];
         long hpos;
-        hpos = subtile_coord(hmin,0) - view_alt;
+        hpos = subtile_coord(hmin, 0) - view_alt;
         wib_x = stl_x & 3;
         struct WibbleTable *wibl;
         wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         int idxh;
-        for (idxh = hmax-hmin+1; idxh > 0; idxh--)
+        for (idxh = hmax - hmin + 1; idxh > 0; idxh--)
         {
             ecord->x = apos + wibl->field_0;
             ecord->y = hpos + wibl->field_4;
@@ -1093,9 +1132,13 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
             ecord->field_8 = 0;
             lightness += wibl->field_C;
             if (lightness < 0)
+            {
                 lightness = 0;
+            }
             if (lightness > 16128)
+            {
                 lightness = 16128;
+            }
             ecord->field_A = lightness;
             wibl += 2;
             hpos += COORD_PER_STL;
@@ -1104,9 +1147,9 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         }
         wibl -= 2;
         // Set ceiling
-        mapblk = get_map_block_at(stl_x, stl_y+1);
+        mapblk = get_map_block_at(stl_x, stl_y + 1);
         wib_v = get_mapblk_wibble_value(mapblk);
-        hpos = subtile_coord(get_mapblk_filled_subtiles(mapblk),0) - view_alt;
+        hpos = subtile_coord(get_mapblk_filled_subtiles(mapblk), 0) - view_alt;
         if (wib_v == 2)
         {
             wibl = get_wibble_from_table(cam, wib_x + 2 * (hmax + 2 * wib_y - hmin) + 32, stl_x, stl_y);
@@ -1129,20 +1172,24 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
 
 static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y - 1))
+    {
         return;
     }
     long mmin;
     long mmax;
-    mmin = min(mm[0].min,mm[1].min);
-    mmax = max(mm[0].max,mm[1].max);
-    if (mmin + bstl_x < 1) {
+    mmin = min(mm[0].min, mm[1].min);
+    mmax = max(mm[0].max, mm[1].max);
+    if (mmin + bstl_x < 1)
+    {
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > gameadd.map_subtiles_x) {
+    if (mmax + bstl_x > gameadd.map_subtiles_x)
+    {
         mmax = gameadd.map_subtiles_x - bstl_x;
     }
-    if (mmax < mmin) {
+    if (mmax < mmin)
+    {
         return;
     }
     MapSubtlCoord stl_x;
@@ -1167,19 +1214,23 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         unsigned long mask_yp;
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
-        mapblk = get_map_block_at(stl_x-1, stl_y+1);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        mapblk = get_map_block_at(stl_x - 1, stl_y + 1);
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0))
+            {
                 mask_cur &= 3;
             }
         }
-        mapblk = get_map_block_at(stl_x-1, stl_y);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        mapblk = get_map_block_at(stl_x - 1, stl_y);
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0))
+            {
                 mask_yp &= 3;
             }
         }
@@ -1194,28 +1245,16 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
     int hview_y;
     int hview_z;
     zoom = camera_zoom / pixel_size;
-    view_z = object_origin.z + (cells_away << 8)
-        + ((bpos * camera_matrix.r[2].v[2]
-         + (apos + camera_matrix.r[2].v[1]) * (camera_matrix.r[2].v[0] - view_alt)
-          - camera_matrix.r[2].v[3]
-          - apos * -view_alt) >> 14);
-    eview_w = (view_width_over_2 + (zoom
-          * (object_origin.x
-           + ((bpos * camera_matrix.r[0].v[2]
-            + (apos + camera_matrix.r[0].v[1]) * (camera_matrix.r[0].v[0] - view_alt)
-             - camera_matrix.r[0].v[3]
-             - apos * -view_alt) >> 14)) >> 16)) << 8;
-    hview_y = (view_height_over_2 - (zoom
-          * (object_origin.y
-           + ((bpos * camera_matrix.r[1].v[2]
-            + (apos + camera_matrix.r[1].v[1]) * (camera_matrix.r[1].v[0] - view_alt)
-             - camera_matrix.r[1].v[3]
-             - apos * -view_alt) >> 14)) >> 16)) << 8;
+    view_z = object_origin.z + (cells_away << 8) + ((bpos * camera_matrix.r[2].v[2] + (apos + camera_matrix.r[2].v[1]) * (camera_matrix.r[2].v[0] - view_alt) - camera_matrix.r[2].v[3] - apos * -view_alt) >> 14);
+    eview_w = (view_width_over_2 + (zoom * (object_origin.x + ((bpos * camera_matrix.r[0].v[2] + (apos + camera_matrix.r[0].v[1]) * (camera_matrix.r[0].v[0] - view_alt) - camera_matrix.r[0].v[3] - apos * -view_alt) >> 14)) >> 16)) << 8;
+    hview_y = (view_height_over_2 - (zoom * (object_origin.y + ((bpos * camera_matrix.r[1].v[2] + (apos + camera_matrix.r[1].v[1]) * (camera_matrix.r[1].v[0] - view_alt) - camera_matrix.r[1].v[3] - apos * -view_alt) >> 14)) >> 16)) << 8;
     hview_z = (abs(view_z) >> 1);
-    if (hview_z < 32) {
+    if (hview_z < 32)
+    {
         hview_z = 0;
-    } else
-    if (hview_z >= Z_DRAW_DISTANCE_MAX) {
+    }
+    else if (hview_z >= Z_DRAW_DISTANCE_MAX)
+    {
         hview_z = Z_DRAW_DISTANCE_MAX;
     }
     int dview_w;
@@ -1234,26 +1273,30 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
     int wib_v;
     wib_y = (stl_y + 1) & 3;
     int idxx;
-    for (idxx=mmax-mmin+1; idxx > 0; idxx--)
+    for (idxx = mmax - mmin + 1; idxx > 0; idxx--)
     {
         unsigned long mask_cur;
         unsigned long mask_yp;
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
-        mapblk = get_map_block_at(stl_x, stl_y+1);
+        mapblk = get_map_block_at(stl_x, stl_y + 1);
         wib_v = get_mapblk_wibble_value(mapblk);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
-            if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0))
+            {
                 mask_cur &= 3;
             }
         }
         mapblk = get_map_block_at(stl_x, stl_y);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
-            if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
+            if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0))
+            {
                 mask_yp &= 3;
             }
         }
@@ -1270,7 +1313,9 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
+        {
+            lightness = get_subtile_lightness(&game.lish, stl_x, stl_y + 1);
+        }
 
         long hmin;
         long hmax;
@@ -1286,7 +1331,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
         int idxh;
-        for (idxh = hmax-hmin+1; idxh > 0; idxh--)
+        for (idxh = hmax - hmin + 1; idxh > 0; idxh--)
         {
             ecord->view_width = (eview_w + wibl->field_10) >> 8;
             ecord->view_height = (eview_h + wibl->field_14) >> 8;
@@ -1294,26 +1339,36 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
             ecord->field_8 = 0;
             lightness += *randmis;
             if (lightness < 0)
+            {
                 lightness = 0;
+            }
             if (lightness > 16128)
+            {
                 lightness = 16128;
+            }
             ecord->field_A = lightness;
-            if (ecord->z < 32) {
+            if (ecord->z < 32)
+            {
                 ecord->z = 0;
-            } else
-            if (ecord->z >= Z_DRAW_DISTANCE_MAX) {
+            }
+            else if (ecord->z >= Z_DRAW_DISTANCE_MAX)
+            {
                 ecord->z = Z_DRAW_DISTANCE_MAX;
             }
-            if (ecord->view_width < 0) {
+            if (ecord->view_width < 0)
+            {
                 ecord->field_8 |= 0x08;
-            } else
-            if (ecord->view_width >= vec_window_width) {
+            }
+            else if (ecord->view_width >= vec_window_width)
+            {
                 ecord->field_8 |= 0x10;
             }
-            if (ecord->view_height < 0) {
+            if (ecord->view_height < 0)
+            {
                 ecord->field_8 |= 0x20;
-            } else
-            if (ecord->view_height >= vec_window_height) {
+            }
+            else if (ecord->view_height >= vec_window_height)
+            {
                 ecord->field_8 |= 0x40;
             }
 
@@ -1334,26 +1389,30 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
 
 static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
 {
-    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y-1)) {
+    if ((bstl_y < 0) || (bstl_y > gameadd.map_subtiles_y - 1))
+    {
         return;
     }
     long mmin;
     long mmax;
     TbBool clip_min;
     TbBool clip_max;
-    mmin = min(mm[0].min,mm[1].min);
-    mmax = max(mm[0].max,mm[1].max);
+    mmin = min(mm[0].min, mm[1].min);
+    mmax = max(mm[0].max, mm[1].max);
     clip_min = false;
     clip_max = false;
-    if (mmin + bstl_x < 1) {
+    if (mmin + bstl_x < 1)
+    {
         clip_min = true;
         mmin = 1 - bstl_x;
     }
-    if (mmax + bstl_x > gameadd.map_subtiles_x) {
+    if (mmax + bstl_x > gameadd.map_subtiles_x)
+    {
         clip_max = true;
         mmax = gameadd.map_subtiles_x - bstl_x;
     }
-    if (mmax < mmin) {
+    if (mmax < mmin)
+    {
         return;
     }
     MapSubtlCoord stl_x;
@@ -1363,7 +1422,7 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
     TbBool lim_min;
     TbBool lim_max;
     lim_min = (stl_y <= 0);
-    lim_max = (stl_y >= gameadd.map_subtiles_y-1);
+    lim_max = (stl_y >= gameadd.map_subtiles_y - 1);
     TbBool clip;
     clip = clip_min | clip_max | lim_max | lim_min;
     apos += (mmin << 8);
@@ -1384,22 +1443,28 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         unsigned long mask_yp;
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
-        mapblk = get_map_block_at(stl_x-1, stl_y+1);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        mapblk = get_map_block_at(stl_x - 1, stl_y + 1);
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
         }
-        mapblk = get_map_block_at(stl_x-1, stl_y);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        mapblk = get_map_block_at(stl_x - 1, stl_y);
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
         }
         if (clip)
         {
             if (clip_min || lim_min)
+            {
                 mask_cur = 0;
+            }
             if (clip_min || lim_max)
+            {
                 mask_yp = 0;
+            }
         }
         pfulmask_or = mask_cur | mask_yp;
         pfulmask_and = mask_cur & mask_yp;
@@ -1414,25 +1479,16 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
 
     zoom = camera_zoom / pixel_size;
     hpos = -view_alt * apos;
-    view_x = view_width_over_2 + (zoom
-         * (object_origin.x
-          + ((bpos * camera_matrix.r[0].v[2]
-           + (apos + camera_matrix.r[0].v[1]) * (camera_matrix.r[0].v[0] - view_alt)
-            - hpos - camera_matrix.r[0].v[3]) >> 14)) >> 16);
-    view_y = view_height_over_2 - (zoom
-         * (object_origin.y
-          + ((bpos * camera_matrix.r[1].v[2]
-           + (apos + camera_matrix.r[1].v[1]) * (camera_matrix.r[1].v[0] - view_alt)
-            - hpos - camera_matrix.r[1].v[3]) >> 14)) >> 16);
-    view_z = object_origin.z + (cells_away << 8)
-        + ((bpos * camera_matrix.r[2].v[2]
-         + (apos + camera_matrix.r[2].v[1]) * (camera_matrix.r[2].v[0] - view_alt)
-          - hpos - camera_matrix.r[2].v[3]) >> 14);
+    view_x = view_width_over_2 + (zoom * (object_origin.x + ((bpos * camera_matrix.r[0].v[2] + (apos + camera_matrix.r[0].v[1]) * (camera_matrix.r[0].v[0] - view_alt) - hpos - camera_matrix.r[0].v[3]) >> 14)) >> 16);
+    view_y = view_height_over_2 - (zoom * (object_origin.y + ((bpos * camera_matrix.r[1].v[2] + (apos + camera_matrix.r[1].v[1]) * (camera_matrix.r[1].v[0] - view_alt) - hpos - camera_matrix.r[1].v[3]) >> 14)) >> 16);
+    view_z = object_origin.z + (cells_away << 8) + ((bpos * camera_matrix.r[2].v[2] + (apos + camera_matrix.r[2].v[1]) * (camera_matrix.r[2].v[0] - view_alt) - hpos - camera_matrix.r[2].v[3]) >> 14);
     hview_z = (abs(view_z) >> 1);
-    if (hview_z < 32) {
+    if (hview_z < 32)
+    {
         hview_z = 0;
-    } else
-    if (hview_z >= Z_DRAW_DISTANCE_MAX) {
+    }
+    else if (hview_z >= Z_DRAW_DISTANCE_MAX)
+    {
         hview_z = Z_DRAW_DISTANCE_MAX;
     }
     long eview_w;
@@ -1458,33 +1514,40 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
     int wib_v;
     wib_y = (stl_y + 1) & 3;
     int idxx;
-    for (idxx=mmax-mmin+1; idxx > 0; idxx--)
+    for (idxx = mmax - mmin + 1; idxx > 0; idxx--)
     {
         unsigned long mask_cur;
         unsigned long mask_yp;
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
-        mapblk = get_map_block_at(stl_x, stl_y+1);
+        mapblk = get_map_block_at(stl_x, stl_y + 1);
         wib_v = get_mapblk_wibble_value(mapblk);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
         }
         mapblk = get_map_block_at(stl_x, stl_y);
-        if (map_block_revealed(mapblk, my_player_number)) {
+        if (map_block_revealed(mapblk, my_player_number))
+        {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
         }
         if (clip)
         {
-            if (clip_max && (idxx == 1)) {
+            if (clip_max && (idxx == 1))
+            {
                 mask_cur = 0;
                 mask_yp = 0;
             }
             if (lim_min)
+            {
                 mask_cur = 0;
+            }
             if (lim_max)
+            {
                 mask_yp = 0;
+            }
         }
         unsigned long nfulmask_or;
         unsigned long nfulmask_and;
@@ -1499,7 +1562,9 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         int lightness;
         lightness = 0;
         if ((fulmask_or & 0x10000) == 0)
-            lightness = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
+        {
+            lightness = get_subtile_lightness(&game.lish, stl_x, stl_y + 1);
+        }
         long hmin;
         long hmax;
         hmax = height_masks[fulmask_or & 0xff];
@@ -1511,9 +1576,9 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         wibl = get_wibble_from_table(cam, 32 * wib_v + wib_x + (wib_y << 2), stl_x, stl_y);
         eview_h = dview_h * hmin + hview_y;
         eview_z = dview_z * hmin + hview_z;
-        randmis = &randomisors[(stl_x + 17 * (stl_y+1)) & 0xff] + hmin;
+        randmis = &randomisors[(stl_x + 17 * (stl_y + 1)) & 0xff] + hmin;
         int idxh;
-        for (idxh = hmax-hmin+1; idxh > 0; idxh--)
+        for (idxh = hmax - hmin + 1; idxh > 0; idxh--)
         {
             ecord->view_width = (eview_w + wibl->field_10) >> 8;
             ecord->view_height = (eview_h + wibl->field_14) >> 8;
@@ -1521,26 +1586,36 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
             ecord->field_8 = 0;
             lightness += 4 * (*randmis & 0xff) - 512;
             if (lightness < 0)
+            {
                 lightness = 0;
+            }
             if (lightness > 15872)
+            {
                 lightness = 15872;
+            }
             ecord->field_A = lightness;
-            if (ecord->z < 32) {
+            if (ecord->z < 32)
+            {
                 ecord->z = 0;
-            } else
-            if (ecord->z >= Z_DRAW_DISTANCE_MAX) {
+            }
+            else if (ecord->z >= Z_DRAW_DISTANCE_MAX)
+            {
                 ecord->z = Z_DRAW_DISTANCE_MAX;
             }
-            if (ecord->view_width < 0) {
+            if (ecord->view_width < 0)
+            {
                 ecord->field_8 |= 0x08;
-            } else
-            if (ecord->view_width >= vec_window_width) {
+            }
+            else if (ecord->view_width >= vec_window_width)
+            {
                 ecord->field_8 |= 0x10;
             }
-            if (ecord->view_height < 0) {
+            if (ecord->view_height < 0)
+            {
                 ecord->field_8 |= 0x20;
-            } else
-            if (ecord->view_height >= vec_window_height) {
+            }
+            else if (ecord->view_height >= vec_window_height)
+            {
                 ecord->field_8 |= 0x40;
             }
             wibl += 2;
@@ -1592,13 +1667,10 @@ void frame_wibble_generate(void)
     zm11 = zoom * camera_matrix.r[1].v[1] >> 14;
 
     wibl = &wibble_table[32];
-    for (i=64; i > 0; i--)
+    for (i = 64; i > 0; i--)
     {
-        wibl->field_10 =   ((zm00 * wibl->field_0) >> 8)
-                         + ((zm02 * wibl->field_8) >> 8);
-        wibl->field_14 = -(((zm12 * wibl->field_8) >> 8)
-                         + ((zm10 * wibl->field_0) >> 8)
-                         + ((zm11 * wibl->field_4) >> 8));
+        wibl->field_10 = ((zm00 * wibl->field_0) >> 8) + ((zm02 * wibl->field_8) >> 8);
+        wibl->field_14 = -(((zm12 * wibl->field_8) >> 8) + ((zm10 * wibl->field_0) >> 8) + ((zm11 * wibl->field_4) >> 8));
         wibl++;
     }
 }
@@ -1634,8 +1706,8 @@ static void do_perspective_rotation(long x, long y, long z)
     long engine_w;
     long engine_h;
     zoom = camera_zoom / pixel_size;
-    engine_w = player->engine_window_width/pixel_size;
-    engine_h = player->engine_window_height/pixel_size;
+    engine_w = player->engine_window_width / pixel_size;
+    engine_h = player->engine_window_height / pixel_size;
     epos.x = -x;
     epos.y = 0;
     epos.z = y;
@@ -1668,7 +1740,7 @@ static void do_perspective_rotation(long x, long y, long z)
 
 static void find_gamut(void)
 {
-    SYNCDBG(19,"Starting");
+    SYNCDBG(19, "Starting");
     {
         long cell_cur;
         long cell_lim;
@@ -1690,7 +1762,8 @@ static void find_gamut(void)
             mml--;
         }
     }
-    if (lens_mode == 0) {
+    if (lens_mode == 0)
+    {
         return;
     }
 
@@ -1726,12 +1799,14 @@ static void find_gamut(void)
             int nlimit;
             nlimit = cells_w + (mbase >> 8);
             if (mm->max > nlimit)
+            {
                 mm->max = nlimit;
+            }
             mm++;
             mbase += delta;
         }
-    } else
-    if (scr_h1 > cells_h)
+    }
+    else if (scr_h1 > cells_h)
     {
         delta = ((scr_w1 - cells_w) << 8) / (scr_h1 - cells_h);
         mm = &minmaxs[-cells_away + MINMAX_ALMOST_HALF];
@@ -1741,11 +1816,14 @@ static void find_gamut(void)
             int nlimit;
             nlimit = cells_w + (mbase >> 8);
             if (mm->min < nlimit)
+            {
                 mm->min = nlimit;
+            }
             mm++;
             mbase += delta;
         }
-    } else
+    }
+    else
     {
         if (scr_w1 <= cells_w)
         {
@@ -1756,7 +1834,8 @@ static void find_gamut(void)
                 mm->min = 0;
                 mm--;
             }
-        } else
+        }
+        else
         {
             mm = &minmaxs[cells_h + MINMAX_ALMOST_HALF];
             for (cell_curr = cells_h; cell_curr <= cells_away; cell_curr++)
@@ -1777,13 +1856,15 @@ static void find_gamut(void)
         {
             int nlimit;
             nlimit = cells_w + (mbase >> 8);
-            if ( mm->min < nlimit )
-              mm->min = nlimit;
+            if (mm->min < nlimit)
+            {
+                mm->min = nlimit;
+            }
             mm++;
             mbase += delta;
         }
-    } else
-    if (scr_h2 > cells_h)
+    }
+    else if (scr_h2 > cells_h)
     {
         delta = ((scr_w2 - cells_w) << 8) / (scr_h2 - cells_h);
         mm = &minmaxs[-cells_away + MINMAX_ALMOST_HALF];
@@ -1793,25 +1874,29 @@ static void find_gamut(void)
             int nlimit;
             nlimit = cells_w + (mbase >> 8);
             if (mm->max > nlimit)
-              mm->max = nlimit;
+            {
+                mm->max = nlimit;
+            }
             mm++;
             mbase += delta;
         }
-    } else
+    }
+    else
     {
         if (cells_w <= scr_w2)
         {
             mm = &minmaxs[cells_h + MINMAX_ALMOST_HALF];
-            for ( ; cells_h >= -cells_away; cells_h--)
+            for (; cells_h >= -cells_away; cells_h--)
             {
                 mm->max = 0;
                 mm->min = 0;
                 mm--;
             }
-        } else
+        }
+        else
         {
             mm = &minmaxs[cells_h + MINMAX_ALMOST_HALF];
-            for ( ; cells_away >= cells_h; cells_h++)
+            for (; cells_away >= cells_h; cells_h++)
             {
                 mm->max = 0;
                 mm->min = 0;
@@ -1828,40 +1913,46 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
     long stl_xp;
     long stl_xn;
 
-    end_stl_x = start_stl_x + minmaxs[(MINMAX_LENGTH/2)].min;
-    for (stl_xc=start_stl_x; 1; stl_xc--)
+    end_stl_x = start_stl_x + minmaxs[(MINMAX_LENGTH / 2)].min;
+    for (stl_xc = start_stl_x; 1; stl_xc--)
     {
-        if (stl_xc < end_stl_x) {
+        if (stl_xc < end_stl_x)
+        {
             stl_xc = -4000;
             break;
         }
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_xc, start_stl_y);
-        if  ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+        {
             break;
         }
     }
-    for (stl_xp=start_stl_x; 1; stl_xp--)
+    for (stl_xp = start_stl_x; 1; stl_xp--)
     {
-        if (stl_xp < end_stl_x) {
+        if (stl_xp < end_stl_x)
+        {
             stl_xp = -4000;
             break;
         }
         struct Map *mapblk;
-        mapblk = get_map_block_at(stl_xp, start_stl_y-1);
-        if  ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
+        mapblk = get_map_block_at(stl_xp, start_stl_y - 1);
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+        {
             break;
         }
     }
-    for (stl_xn=start_stl_x; 1; stl_xn--)
+    for (stl_xn = start_stl_x; 1; stl_xn--)
     {
-        if (stl_xn < end_stl_x) {
+        if (stl_xn < end_stl_x)
+        {
             stl_xn = -4000;
             break;
         }
         struct Map *mapblk;
-        mapblk = get_map_block_at(stl_xn, start_stl_y-1);
-        if  ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
+        mapblk = get_map_block_at(stl_xn, start_stl_y - 1);
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+        {
             break;
         }
     }
@@ -1873,43 +1964,49 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
     {
         stl_x_min = min(min(stl_xn, stl_xp), stl_xc);
         set_x_min = true;
-        minmaxs[(MINMAX_LENGTH/2)].min = stl_x_min - start_stl_x;
+        minmaxs[(MINMAX_LENGTH / 2)].min = stl_x_min - start_stl_x;
     }
 
-    end_stl_x = start_stl_x + minmaxs[(MINMAX_LENGTH/2)].max;
-    for (stl_xc=start_stl_x; 1; stl_xc++)
+    end_stl_x = start_stl_x + minmaxs[(MINMAX_LENGTH / 2)].max;
+    for (stl_xc = start_stl_x; 1; stl_xc++)
     {
-        if (stl_xc > end_stl_x) {
+        if (stl_xc > end_stl_x)
+        {
             stl_xc = -4000;
             break;
         }
         struct Map *mapblk;
         mapblk = get_map_block_at(stl_xc, start_stl_y);
-        if  ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+        {
             break;
         }
     }
-    for (stl_xp=start_stl_x; 1; stl_xp++)
+    for (stl_xp = start_stl_x; 1; stl_xp++)
     {
-        if (stl_xp > end_stl_x) {
+        if (stl_xp > end_stl_x)
+        {
             stl_xp = -4000;
             break;
         }
         struct Map *mapblk;
-        mapblk = get_map_block_at(stl_xp, start_stl_y-1);
-        if  ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
+        mapblk = get_map_block_at(stl_xp, start_stl_y - 1);
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+        {
             break;
         }
     }
-    for (stl_xn=start_stl_x; 1; stl_xn++)
+    for (stl_xn = start_stl_x; 1; stl_xn++)
     {
-        if (stl_xn > end_stl_x) {
+        if (stl_xn > end_stl_x)
+        {
             stl_xn = -4000;
             break;
         }
         struct Map *mapblk;
-        mapblk = get_map_block_at(stl_xn, start_stl_y-1);
-        if  ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
+        mapblk = get_map_block_at(stl_xn, start_stl_y - 1);
+        if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+        {
             break;
         }
     }
@@ -1921,20 +2018,20 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
     {
         stl_x_max = max(max(stl_xn, stl_xp), stl_xc);
         set_x_max = true;
-        minmaxs[(MINMAX_LENGTH/2)].max = stl_x_max - start_stl_x + 1;
+        minmaxs[(MINMAX_LENGTH / 2)].max = stl_x_max - start_stl_x + 1;
     }
 
     struct MinMax *mm;
     long stl_y;
     stl_y = start_stl_y + step;
-    mm = &minmaxs[step + (MINMAX_LENGTH/2)];
+    mm = &minmaxs[step + (MINMAX_LENGTH / 2)];
     long n;
-    for (n=1; n < a4; n++)
+    for (n = 1; n < a4; n++)
     {
         if (mm->max <= mm->min)
         {
             long i;
-            for (i=a4-n; i > 0; i--)
+            for (i = a4 - n; i > 0; i--)
             {
                 mm->min = 0;
                 mm->max = 0;
@@ -1944,12 +2041,14 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
         }
         long stl_x_min_limit;
         stl_x_min_limit = start_stl_x + mm->min;
-        if (!set_x_min || (stl_x_min < stl_x_min_limit)) {
+        if (!set_x_min || (stl_x_min < stl_x_min_limit))
+        {
             stl_x_min = stl_x_min_limit;
         }
         long stl_x_max_limit;
         stl_x_max_limit = start_stl_x + mm->max;
-        if (!set_x_max || (stl_x_max > stl_x_max_limit)) {
+        if (!set_x_max || (stl_x_max > stl_x_max_limit))
+        {
             stl_x_max = stl_x_max_limit;
         }
 
@@ -1961,14 +2060,20 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
         long rect_factor;
 
         TbBool set_x_min_rect;
-        if (delta_y != 1) {
+        if (delta_y != 1)
+        {
             rect_factor = (stl_x_min - start_stl_x) / (delta_y - 1);
-        } else {
+        }
+        else
+        {
             rect_factor = 1;
         }
-        if (rect_factor - 1 <= 0) {
+        if (rect_factor - 1 <= 0)
+        {
             set_x_min_rect = false;
-        } else {
+        }
+        else
+        {
             set_x_min_rect = true;
             stl_x_min = rect_factor + stl_x_min - 1;
         }
@@ -1976,18 +2081,18 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
         long stl_x;
         long stl_x_lc_min;
 
-        for (stl_x=stl_x_min-1; stl_x < stl_x_max_limit; stl_x++)
+        for (stl_x = stl_x_min - 1; stl_x < stl_x_max_limit; stl_x++)
         {
             struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x+1, stl_y);
+            mapblk = get_map_block_at(stl_x + 1, stl_y);
             if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
-              break;
+            {
+                break;
+            }
         }
         stl_x_lc_min = stl_x;
 
-        if ( set_x_min_rect
-          || stl_x_lc_min > stl_x_min
-          || (get_map_block_at(stl_x_lc_min, stl_y)->flags & SlbAtFlg_Blocking) )
+        if (set_x_min_rect || stl_x_lc_min > stl_x_min || (get_map_block_at(stl_x_lc_min, stl_y)->flags & SlbAtFlg_Blocking))
         {
             long stl_tmp;
             stl_tmp = stl_x_min - start_stl_x;
@@ -1997,61 +2102,72 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
         }
         else
         {
-          if (delta_y != 1) {
-              rect_factor = (stl_x_lc_min - start_stl_x) / (delta_y - 1);
-          } else {
-              rect_factor = 1;
-          }
-          long stl_x_min_sublim;
-          if ((delta_y == 1) || (stl_x_min + rect_factor - 1 < stl_x_min_limit))
-          {
-              set_x_min = false;
-              stl_x_min_sublim = stl_x_min_limit;
-          } else
-          {
-              stl_x_min += rect_factor - 1;
-              set_x_min = true;
-              stl_x_min_sublim = stl_x_min;
-              mm->min = stl_x_min - start_stl_x - 1;
-          }
-          for (stl_x=stl_x_min; stl_x >= stl_x_min_sublim; stl_x--)
-          {
-              struct Map *mapblk;
-              mapblk = get_map_block_at(stl_x, stl_y);
-              if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
-                  stl_x_min = stl_x;
-                  set_x_min = true;
-                  mm->min = stl_x - start_stl_x - 1;
-                  break;
-              }
-          }
+            if (delta_y != 1)
+            {
+                rect_factor = (stl_x_lc_min - start_stl_x) / (delta_y - 1);
+            }
+            else
+            {
+                rect_factor = 1;
+            }
+            long stl_x_min_sublim;
+            if ((delta_y == 1) || (stl_x_min + rect_factor - 1 < stl_x_min_limit))
+            {
+                set_x_min = false;
+                stl_x_min_sublim = stl_x_min_limit;
+            }
+            else
+            {
+                stl_x_min += rect_factor - 1;
+                set_x_min = true;
+                stl_x_min_sublim = stl_x_min;
+                mm->min = stl_x_min - start_stl_x - 1;
+            }
+            for (stl_x = stl_x_min; stl_x >= stl_x_min_sublim; stl_x--)
+            {
+                struct Map *mapblk;
+                mapblk = get_map_block_at(stl_x, stl_y);
+                if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+                {
+                    stl_x_min = stl_x;
+                    set_x_min = true;
+                    mm->min = stl_x - start_stl_x - 1;
+                    break;
+                }
+            }
         }
 
         TbBool set_x_max_rect;
-        if (delta_y != 1) {
+        if (delta_y != 1)
+        {
             rect_factor = (stl_x_max - start_stl_x) / (delta_y - 1);
-        } else {
+        }
+        else
+        {
             rect_factor = 1;
         }
-        if (rect_factor + 1 >= 0) {
+        if (rect_factor + 1 >= 0)
+        {
             set_x_max_rect = false;
-        } else {
+        }
+        else
+        {
             set_x_max_rect = true;
             stl_x_max += rect_factor + 1;
         }
 
-        for (stl_x=stl_x_max+1; stl_x > stl_x_min_limit; stl_x--)
+        for (stl_x = stl_x_max + 1; stl_x > stl_x_min_limit; stl_x--)
         {
             struct Map *mapblk;
-            mapblk = get_map_block_at(stl_x-1, stl_y);
+            mapblk = get_map_block_at(stl_x - 1, stl_y);
             if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
-              break;
+            {
+                break;
+            }
         }
         stl_x_lc_min = stl_x;
 
-        if ( set_x_max_rect
-          || stl_x_lc_min < stl_x_max
-          || (get_map_block_at(stl_x_lc_min, stl_y)->flags & SlbAtFlg_Blocking) )
+        if (set_x_max_rect || stl_x_lc_min < stl_x_max || (get_map_block_at(stl_x_lc_min, stl_y)->flags & SlbAtFlg_Blocking))
         {
             long stl_tmp;
             stl_tmp = stl_x_max - start_stl_x;
@@ -2061,45 +2177,54 @@ static void fiddle_half_gamut(long start_stl_x, long start_stl_y, long step, lon
         }
         else
         {
-          set_x_max = 0;
-          if (delta_y != 1) {
-              rect_factor = (stl_x_lc_min - start_stl_x) / (delta_y - 1);
-          } else {
-              rect_factor = 1;
-          }
+            set_x_max = 0;
+            if (delta_y != 1)
+            {
+                rect_factor = (stl_x_lc_min - start_stl_x) / (delta_y - 1);
+            }
+            else
+            {
+                rect_factor = 1;
+            }
 
-          long stl_x_max_sublim;
-          if ((delta_y == 1) || (stl_x_max + rect_factor + 1 > start_stl_x + mm->max))
-          {
-              stl_x_max_sublim = start_stl_x + mm->max;
-          } else
-          {
-              stl_x_max += rect_factor + 1;
-              set_x_max = true;
-              stl_x_max_sublim = stl_x_max;
-              mm->max = stl_x_max - start_stl_x + 2;
-          }
-          for (stl_x=stl_x_max; stl_x <= stl_x_max_sublim; stl_x++)
-          {
-              struct Map *mapblk;
-              mapblk = get_map_block_at(stl_x, stl_y);
-              if ((mapblk->flags & SlbAtFlg_Blocking) != 0) {
-                  set_x_max = true;
-                  stl_x_max = stl_x;
-                  mm->max = stl_x - start_stl_x + 2;
-                  break;
-              }
-          }
+            long stl_x_max_sublim;
+            if ((delta_y == 1) || (stl_x_max + rect_factor + 1 > start_stl_x + mm->max))
+            {
+                stl_x_max_sublim = start_stl_x + mm->max;
+            }
+            else
+            {
+                stl_x_max += rect_factor + 1;
+                set_x_max = true;
+                stl_x_max_sublim = stl_x_max;
+                mm->max = stl_x_max - start_stl_x + 2;
+            }
+            for (stl_x = stl_x_max; stl_x <= stl_x_max_sublim; stl_x++)
+            {
+                struct Map *mapblk;
+                mapblk = get_map_block_at(stl_x, stl_y);
+                if ((mapblk->flags & SlbAtFlg_Blocking) != 0)
+                {
+                    set_x_max = true;
+                    stl_x_max = stl_x;
+                    mm->max = stl_x - start_stl_x + 2;
+                    break;
+                }
+            }
         }
 
         if (mm->min < -cells_away)
+        {
             mm->min = -cells_away;
+        }
         if (mm->max > cells_away)
+        {
             mm->max = cells_away;
+        }
         if (mm->min >= mm->max)
         {
             long i;
-            for (i=a4-n; i > 0; i--)
+            for (i = a4 - n; i > 0; i--)
             {
                 mm->min = 0;
                 mm->max = 0;
@@ -2126,29 +2251,29 @@ static void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth,
     get_floor_pointed_at(-ewzoom, ewheight + ewzoom, &floor_y[0], &floor_x[0]);
     get_floor_pointed_at(-ewzoom, -ewzoom, &floor_y[3], &floor_x[3]);
     // Get the value with lowest X coord into [0]
-    for (i=1; i < 4; i++)
+    for (i = 1; i < 4; i++)
     {
         tmp_y = floor_y[i];
         if (floor_y[0] > tmp_y)
         {
-          tmp_x = floor_x[i];
-          floor_x[i] = floor_x[0];
-          floor_x[0] = tmp_x;
-          floor_y[i] = floor_y[0];
-          floor_y[0] = tmp_y;
+            tmp_x = floor_x[i];
+            floor_x[i] = floor_x[0];
+            floor_x[0] = tmp_x;
+            floor_y[i] = floor_y[0];
+            floor_y[0] = tmp_y;
         }
     }
     // Get the value with highest X coord into [3]
-    for (i=0; i < 3; i++)
+    for (i = 0; i < 3; i++)
     {
         tmp_y = floor_y[i];
         if (floor_y[3] < tmp_y)
         {
-          tmp_x = floor_x[i];
-          floor_x[i] = floor_x[3];
-          floor_x[3] = tmp_x;
-          floor_y[i] = floor_y[3];
-          floor_y[3] = tmp_y;
+            tmp_x = floor_x[i];
+            floor_x[i] = floor_x[3];
+            floor_x[3] = tmp_x;
+            floor_y[i] = floor_y[3];
+            floor_y[3] = tmp_y;
         }
     }
     // Between values with medicore X, place the lowest Y first
@@ -2168,28 +2293,28 @@ static void fiddle_gamut_find_limits(long *floor_x, long *floor_y, long ewwidth,
     len_02 = abs(floor_y[2] - floor_y[0]);
     len_23 = abs(floor_y[3] - floor_y[2]);
     // Update points according to both coordinates
-    if ( (floor_x[1] > floor_x[0]) && (len_01 < len_13) )
+    if ((floor_x[1] > floor_x[0]) && (len_01 < len_13))
     {
         tmp_x = floor_x[1];
         floor_y[1] = floor_y[0];
         floor_x[1] = floor_x[0];
         floor_x[0] = tmp_x;
     }
-    if ( (floor_x[1] > floor_x[3]) && (len_13 < len_01) )
+    if ((floor_x[1] > floor_x[3]) && (len_13 < len_01))
     {
         tmp_x = floor_x[1];
         floor_y[1] = floor_y[3];
         floor_x[1] = floor_x[3];
         floor_x[3] = tmp_x;
     }
-    if ( (floor_x[2] < floor_x[0]) && (len_02 < len_23) )
+    if ((floor_x[2] < floor_x[0]) && (len_02 < len_23))
     {
         tmp_x = floor_x[2];
         floor_y[2] = floor_y[0];
         floor_x[2] = floor_x[0];
         floor_x[0] = tmp_x;
     }
-    if ( (floor_x[2] < floor_x[3]) && (len_23 < len_02) )
+    if ((floor_x[2] < floor_x[3]) && (len_23 < len_02))
     {
         tmp_x = floor_x[2];
         floor_x[2] = floor_x[3];
@@ -2202,12 +2327,12 @@ static void fiddle_gamut_set_base(long *floor_x, long *floor_y, long pos_x, long
 {
     floor_x[0] -= pos_x;
     floor_x[1] -= pos_x;
-    floor_y[0] += (MINMAX_LENGTH/2) - pos_y;
+    floor_y[0] += (MINMAX_LENGTH / 2) - pos_y;
     floor_x[2] -= pos_x;
-    floor_y[1] += (MINMAX_LENGTH/2) - pos_y;
-    floor_y[2] += (MINMAX_LENGTH/2) - pos_y;
+    floor_y[1] += (MINMAX_LENGTH / 2) - pos_y;
+    floor_y[2] += (MINMAX_LENGTH / 2) - pos_y;
     floor_x[3] -= pos_x;
-    floor_y[3] += (MINMAX_LENGTH/2) - pos_y;
+    floor_y[3] += (MINMAX_LENGTH / 2) - pos_y;
 }
 
 static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_tiles)
@@ -2221,8 +2346,10 @@ static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_til
     long midx;
     midx = 0;
     mlimit = floor_y[0];
-    if (mlimit > MINMAX_LENGTH-1)
-      mlimit = MINMAX_LENGTH-1;
+    if (mlimit > MINMAX_LENGTH - 1)
+    {
+        mlimit = MINMAX_LENGTH - 1;
+    }
     for (; midx < mlimit; midx++)
     {
         mm = &minmaxs[midx];
@@ -2230,36 +2357,53 @@ static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_til
         mm->max = 0;
     }
     if (floor_y[1] <= floor_y[0])
+    {
         borinc = floor_x[0];
+    }
     else
+    {
         borinc = ((floor_x[1] - floor_x[0]) << 16) / (floor_y[1] - floor_y[0]);
+    }
 
     bormul = (floor_x[0] << 16);
     if (floor_y[0] < 0)
+    {
         bormul -= floor_y[0] * borinc;
+    }
 
     mlimit = floor_y[1];
-    if (mlimit > MINMAX_LENGTH-1)
-      mlimit = MINMAX_LENGTH-1;
+    if (mlimit > MINMAX_LENGTH - 1)
+    {
+        mlimit = MINMAX_LENGTH - 1;
+    }
     for (; midx < mlimit; midx++)
     {
         mm = &minmaxs[midx];
         bordec = (bormul >> 16);
         if (bordec < -max_tiles)
+        {
             mm->min = -max_tiles;
+        }
         else
+        {
             mm->min = bordec;
+        }
         bormul += borinc;
     }
 
     bormul = floor_x[1] << 16;
     if (floor_y[1] < floor_y[3])
-      borinc = ((floor_x[3] - floor_x[1]) << 16) / (floor_y[3] - floor_y[1]);
+    {
+        borinc = ((floor_x[3] - floor_x[1]) << 16) / (floor_y[3] - floor_y[1]);
+    }
 
     mlimit = floor_y[3];
-    if (mlimit > MINMAX_LENGTH-1)
-      mlimit = MINMAX_LENGTH-1;
-    if (midx < 0) {
+    if (mlimit > MINMAX_LENGTH - 1)
+    {
+        mlimit = MINMAX_LENGTH - 1;
+    }
+    if (midx < 0)
+    {
         bormul -= midx * borinc;
         midx = 0;
     }
@@ -2269,19 +2413,28 @@ static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_til
         mm = &minmaxs[midx];
         bordec = (bormul >> 16);
         if (bordec < -max_tiles)
+        {
             mm->min = -max_tiles;
+        }
         else
+        {
             mm->min = bordec;
+        }
         bormul += borinc;
     }
     midx = floor_y[0];
     if (floor_y[2] > floor_y[0])
+    {
         borinc = ((floor_x[2] - floor_x[0]) << 16) / (floor_y[2] - floor_y[0]);
+    }
     mlimit = floor_y[2];
-    if (mlimit > MINMAX_LENGTH-1)
-        mlimit = MINMAX_LENGTH-1;
+    if (mlimit > MINMAX_LENGTH - 1)
+    {
+        mlimit = MINMAX_LENGTH - 1;
+    }
     bormuh = (floor_x[0] << 16);
-    if (midx < 0) {
+    if (midx < 0)
+    {
         bormuh -= floor_y[0] * borinc;
         midx = 0;
     }
@@ -2291,19 +2444,28 @@ static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_til
         mm = &minmaxs[midx];
         bordec = (bormuh >> 16) + 1;
         if (bordec > max_tiles)
+        {
             mm->max = max_tiles;
+        }
         else
+        {
             mm->max = bordec;
+        }
         bormuh += borinc;
     }
 
     bormul = floor_x[2] << 16;
     if (floor_y[2] < floor_y[3])
-      borinc = ((floor_x[3] - floor_x[2]) << 16) / (floor_y[3] - floor_y[2]);
+    {
+        borinc = ((floor_x[3] - floor_x[2]) << 16) / (floor_y[3] - floor_y[2]);
+    }
     mlimit = floor_y[3];
-    if (mlimit > MINMAX_LENGTH-1)
-      mlimit = MINMAX_LENGTH-1;
-    if ( midx < 0 ) {
+    if (mlimit > MINMAX_LENGTH - 1)
+    {
+        mlimit = MINMAX_LENGTH - 1;
+    }
+    if (midx < 0)
+    {
         bormul -= midx * borinc;
         midx = 0;
     }
@@ -2313,12 +2475,16 @@ static void fiddle_gamut_set_minmaxes(long *floor_x, long *floor_y, long max_til
         mm = &minmaxs[midx];
         bordec = (bormul >> 16) + 1;
         if (bordec > max_tiles)
+        {
             mm->max = max_tiles;
+        }
         else
+        {
             mm->max = bordec;
+        }
         bormul += borinc;
     }
-    for (; midx <= MINMAX_LENGTH-1; midx++)
+    for (; midx <= MINMAX_LENGTH - 1; midx++)
     {
         mm = &minmaxs[midx];
         mm->min = 0;
@@ -2350,7 +2516,7 @@ static void fiddle_gamut(long pos_x, long pos_y)
         // Retrieve coordinates on limiting map points
         ewwidth = player->engine_window_width / pixel_size;
         ewheight = player->engine_window_height / pixel_size - ((8 * high_offset[1]) >> 8);
-        ewzoom = (768 * (camera_zoom/pixel_size)) >> 17;
+        ewzoom = (768 * (camera_zoom / pixel_size)) >> 17;
         fiddle_gamut_find_limits(floor_x, floor_y, ewwidth, ewheight, ewzoom);
         // Place the area at proper base coords
         fiddle_gamut_set_base(floor_x, floor_y, pos_x, pos_y);
@@ -2361,9 +2527,9 @@ static void fiddle_gamut(long pos_x, long pos_y)
 
 int floor_height_for_volume_box(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) || ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0))
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabAttr *slbattr = get_slab_attrs(slb);
+    if (!subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) || ((slbattr->block_flags & (SlbAtFlg_Filled | SlbAtFlg_Digable | SlbAtFlg_Valuable)) != 0))
     {
         return (temp_cluedo_mode == 0) ? 5 : 2; // return a height of 5 for a wall, or if cluedo mode (low walls mode) is enabled, return a wall height of 2.
     }
@@ -2382,10 +2548,13 @@ static void create_line_element(long a1, long a2, long a3, long a4, long bckt_id
         return;
     }
     if (bckt_idx >= BUCKETS_COUNT)
-        bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    {
+        bckt_idx = BUCKETS_COUNT - 1;
+    }
+    else if (bckt_idx < 0)
+    {
         bckt_idx = 0;
+    }
     poly = (struct BucketKindSlabSelector *)getpoly;
     getpoly += sizeof(struct BucketKindSlabSelector);
     poly->b.next = buckets[bckt_idx];
@@ -2406,18 +2575,23 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
     struct BucketKindSlabSelector *poly;
     long bckt_idx;
     if (!is_free_space_in_poly_pool(1))
+    {
         return;
+    }
 
     // Reducing line_z will make the lines look cleaner, but the "fancy_map_volume_box" vertical lines become more visible.
     float line_z = 0.994;
-    bckt_idx = (( (start->z*line_z) + (end->z*line_z) ) / 32) - 2;
+    bckt_idx = (((start->z * line_z) + (end->z * line_z)) / 32) - 2;
     // Original calculation:  bckt_idx = (start->z+end->z)/2 / 16 - 2;
 
     if (bckt_idx >= BUCKETS_COUNT)
-        bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    {
+        bckt_idx = BUCKETS_COUNT - 1;
+    }
+    else if (bckt_idx < 0)
+    {
         bckt_idx = 0;
+    }
     // Add to bucket
     poly = (struct BucketKindSlabSelector *)getpoly;
     getpoly += sizeof(struct BucketKindSlabSelector);
@@ -2436,14 +2610,14 @@ static void create_line_segment(struct EngineCoord *start, struct EngineCoord *e
 }
 
 /**
-* Adds a line with constant Z coord to the drawlist of perspective view.
-* @param color Color index.
-* @param pos_z The Z coord, constant for whole line.
-* @param beg_x The X coord of start of the line.
-* @param end_x The X coord of end of the line.
-* @param beg_y The Y coord of start of the line.
-* @param end_y The Y coord of end of the line.
-*/
+ * Adds a line with constant Z coord to the drawlist of perspective view.
+ * @param color Color index.
+ * @param pos_z The Z coord, constant for whole line.
+ * @param beg_x The X coord of start of the line.
+ * @param end_x The X coord of end of the line.
+ * @param beg_y The Y coord of start of the line.
+ * @param end_y The Y coord of end of the line.
+ */
 static void create_line_const_z(unsigned char color, long pos_z, long beg_x, long end_x, long beg_y, long end_y)
 {
     struct EngineCoord end;
@@ -2503,19 +2677,19 @@ static void create_line_const_z(unsigned char color, long pos_z, long beg_x, lon
 }
 
 /**
-* Adds a line with constant XZ coords to the drawlist of perspective view.
-* @param pos_x The X coord, constant for whole line.
-* @param pos_z The Z coord, constant for whole line.
-* @param start_y The Y coord of start of the line.
-* @param end_y The Y coord of end of the line.
-*/
+ * Adds a line with constant XZ coords to the drawlist of perspective view.
+ * @param pos_x The X coord, constant for whole line.
+ * @param pos_z The Z coord, constant for whole line.
+ * @param start_y The Y coord of start of the line.
+ * @param end_y The Y coord of end of the line.
+ */
 static void create_line_const_xz(long pos_x, long pos_z, long start_y, long end_y)
 {
     struct EngineCoord end;
     struct EngineCoord start;
     long pos_y;
     create_box_coords(&start, pos_x, start_y, pos_z);
-    for (pos_y = start_y+256; pos_y <= end_y; pos_y+=256)
+    for (pos_y = start_y + 256; pos_y <= end_y; pos_y += 256)
     {
         create_box_coords(&end, pos_x, pos_y, pos_z);
         create_line_segment(&start, &end, map_volume_box.color);
@@ -2524,19 +2698,19 @@ static void create_line_const_xz(long pos_x, long pos_z, long start_y, long end_
 }
 
 /**
-* Adds a line with constant XY coords to the drawlist of perspective view.
-* @param pos_x The X coord, constant for whole line.
-* @param pos_y The Y coord, constant for whole line.
-* @param start_z The Z coord of start of the line.
-* @param end_z The Z coord of end of the line.
-*/
+ * Adds a line with constant XY coords to the drawlist of perspective view.
+ * @param pos_x The X coord, constant for whole line.
+ * @param pos_y The Y coord, constant for whole line.
+ * @param start_z The Z coord of start of the line.
+ * @param end_z The Z coord of end of the line.
+ */
 static void create_line_const_xy(long pos_x, long pos_y, long start_z, long end_z)
 {
     struct EngineCoord end;
     struct EngineCoord start;
     long pos_z;
     create_box_coords(&start, pos_x, pos_y, start_z);
-    for (pos_z = start_z+256; pos_z <= end_z; pos_z+=256)
+    for (pos_z = start_z + 256; pos_z <= end_z; pos_z += 256)
     {
         create_box_coords(&end, pos_x, pos_y, pos_z);
         create_line_segment(&start, &end, map_volume_box.color);
@@ -2545,19 +2719,19 @@ static void create_line_const_xy(long pos_x, long pos_y, long start_z, long end_
 }
 
 /**
-* Adds a line with constant YZ coords to the drawlist of perspective view.
-* @param pos_y The Y coord, constant for whole line.
-* @param pos_z The Z coord, constant for whole line.
-* @param start_x The X coord of start of the line.
-* @param end_x The X coord of end of the line.
-*/
+ * Adds a line with constant YZ coords to the drawlist of perspective view.
+ * @param pos_y The Y coord, constant for whole line.
+ * @param pos_z The Z coord, constant for whole line.
+ * @param start_x The X coord of start of the line.
+ * @param end_x The X coord of end of the line.
+ */
 static void create_line_const_yz(long pos_y, long pos_z, long start_x, long end_x)
 {
     struct EngineCoord end;
     struct EngineCoord start;
     long pos_x;
     create_box_coords(&start, start_x, pos_y, pos_z);
-    for (pos_x = start_x+256; pos_x <= end_x; pos_x+=256)
+    for (pos_x = start_x + 256; pos_x <= end_x; pos_x += 256)
     {
         create_box_coords(&end, pos_x, pos_y, pos_z);
         create_line_segment(&start, &end, map_volume_box.color);
@@ -2582,22 +2756,22 @@ void create_map_volume_box(long x, long y, long z, long line_color)
     box_ye = y - map_volume_box.end_y;
     box_xe = map_volume_box.end_x - x;
 
-    if ( temp_cluedo_mode )
+    if (temp_cluedo_mode)
     {
-        box_ze = 2*COORD_PER_STL - z;
+        box_ze = 2 * COORD_PER_STL - z;
     }
     else
     {
-        box_ze = 5*COORD_PER_STL - z;
+        box_ze = 5 * COORD_PER_STL - z;
     }
 
     box_zs = (map_volume_box.floor_height_z << 8) - z;
-    if ( box_zs >= box_ze )
+    if (box_zs >= box_ze)
     {
-      box_zs = box_ze;
+        box_zs = box_ze;
     }
 
-    if ( box_xe < box_xs )
+    if (box_xe < box_xs)
     {
         i = map_volume_box.beg_x;
         box_xs = map_volume_box.end_x - x;
@@ -2606,7 +2780,7 @@ void create_map_volume_box(long x, long y, long z, long line_color)
         map_volume_box.end_x = i;
     }
 
-    if ( box_ye < box_ys )
+    if (box_ye < box_ys)
     {
         i = map_volume_box.beg_y;
         box_ys = y - map_volume_box.end_y;
@@ -2654,30 +2828,30 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
     // get the 'accurate' roomspace shape instead of the outer box
     valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
     valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
-    valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
-    valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
+    valid_slabs.end_x = subtile_coord((3 * 1) + (roomspace.right * 3), 0);
+    valid_slabs.end_y = subtile_coord(((3 * 1) + roomspace.bottom * 3), 0);
 
     box_xs = valid_slabs.beg_x - x;
     box_ys = y - valid_slabs.beg_y;
     box_ye = y - valid_slabs.end_y;
     box_xe = valid_slabs.end_x - x;
 
-    if ( temp_cluedo_mode )
+    if (temp_cluedo_mode)
     {
-        box_ze = 2*COORD_PER_STL - z;
+        box_ze = 2 * COORD_PER_STL - z;
     }
     else
     {
-        box_ze = 5*COORD_PER_STL - z;
+        box_ze = 5 * COORD_PER_STL - z;
     }
 
     box_zs = 256 - z;
-    if ( box_zs >= box_ze )
+    if (box_zs >= box_ze)
     {
-      box_zs = box_ze;
+        box_zs = box_ze;
     }
 
-    if ( box_xe < box_xs )
+    if (box_xe < box_xs)
     {
         i = valid_slabs.beg_x;
         box_xs = valid_slabs.end_x - x;
@@ -2686,7 +2860,7 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
         valid_slabs.end_x = i;
     }
 
-    if ( box_ye > box_ys )
+    if (box_ye > box_ys)
     {
         i = valid_slabs.beg_y;
         box_ys = y - valid_slabs.end_y;
@@ -2705,10 +2879,10 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
             int slab_yend = box_ys - ((roomspace_y + 1) * 3 * COORD_PER_STL);
             if (is_in_roomspace)
             {
-                TbBool air_left = (roomspace_x == 0) ? true : (roomspace.slab_grid[roomspace_x-1][roomspace_y] == false);
-                TbBool air_right = (roomspace_x == roomspace.width) ? true : (roomspace.slab_grid[roomspace_x+1][roomspace_y] == false);
-                TbBool air_above = (roomspace_y == 0) ? true : (roomspace.slab_grid[roomspace_x][roomspace_y-1] == false);
-                TbBool air_below = (roomspace_y == roomspace.height) ? true : (roomspace.slab_grid[roomspace_x][roomspace_y+1] == false);
+                TbBool air_left = (roomspace_x == 0) ? true : (roomspace.slab_grid[roomspace_x - 1][roomspace_y] == false);
+                TbBool air_right = (roomspace_x == roomspace.width) ? true : (roomspace.slab_grid[roomspace_x + 1][roomspace_y] == false);
+                TbBool air_above = (roomspace_y == 0) ? true : (roomspace.slab_grid[roomspace_x][roomspace_y - 1] == false);
+                TbBool air_below = (roomspace_y == roomspace.height) ? true : (roomspace.slab_grid[roomspace_x][roomspace_y + 1] == false);
                 if (air_left)
                 {
                     // Draw top rectangle
@@ -2756,12 +2930,12 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
                     create_line_const_yz(slab_yend, box_ze, slab_xstart, slab_xend);
                 }
             }
-            else if (!is_in_roomspace) //this handles "inside corners"
+            else if (!is_in_roomspace) // this handles "inside corners"
             {
-                TbBool room_left = (roomspace_x == 0) ? false : roomspace.slab_grid[roomspace_x-1][roomspace_y];
-                TbBool room_right = (roomspace_x == roomspace.width) ? false : roomspace.slab_grid[roomspace_x+1][roomspace_y];
-                TbBool room_above = (roomspace_y == 0) ? false : roomspace.slab_grid[roomspace_x][roomspace_y-1];
-                TbBool room_below = (roomspace_y == roomspace.height) ? false : roomspace.slab_grid[roomspace_x][roomspace_y+1];
+                TbBool room_left = (roomspace_x == 0) ? false : roomspace.slab_grid[roomspace_x - 1][roomspace_y];
+                TbBool room_right = (roomspace_x == roomspace.width) ? false : roomspace.slab_grid[roomspace_x + 1][roomspace_y];
+                TbBool room_above = (roomspace_y == 0) ? false : roomspace.slab_grid[roomspace_x][roomspace_y - 1];
+                TbBool room_below = (roomspace_y == roomspace.height) ? false : roomspace.slab_grid[roomspace_x][roomspace_y + 1];
                 if (room_left)
                 {
                     // Vertical lines which connect the rectangles
@@ -2788,11 +2962,11 @@ void create_fancy_map_volume_box(struct RoomSpace roomspace, long x, long y, lon
                 }
                 if (show_outer_box) // this handles the "outer line" (only when it is not in the roomspace)
                 {
-                    //draw 2nd line, i.e. the outer line - the one around the edge of the 5x5 cursor, not the valid slabs within the cursor
+                    // draw 2nd line, i.e. the outer line - the one around the edge of the 5x5 cursor, not the valid slabs within the cursor
                     map_volume_box.color = color; // switch to the "secondary colour" (the one passed as a variable if show_outer_box is true)
-                    TbBool left_edge   = (roomspace_x == 0)                    ? true : false;
-                    TbBool right_edge  = (roomspace_x == roomspace.width - 1)  ? true : false;
-                    TbBool top_edge    = (roomspace_y == 0)                    ? true : false;
+                    TbBool left_edge = (roomspace_x == 0) ? true : false;
+                    TbBool right_edge = (roomspace_x == roomspace.width - 1) ? true : false;
+                    TbBool top_edge = (roomspace_y == 0) ? true : false;
                     TbBool bottom_edge = (roomspace_y == roomspace.height - 1) ? true : false;
                     if (left_edge)
                     {
@@ -2843,8 +3017,8 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct PlayerInfoAdd* current_playeradd = get_playeradd(plyr_idx);
+    struct PlayerInfo *current_player = get_player(plyr_idx);
+    struct PlayerInfoAdd *current_playeradd = get_playeradd(plyr_idx);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
     if ((current_playeradd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
@@ -2898,9 +3072,13 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
     {
         int choose_largest_z = engine_coordinate_1->z;
         if (engine_coordinate_2->z > choose_largest_z)
+        {
             choose_largest_z = engine_coordinate_2->z;
+        }
         if (engine_coordinate_3->z > choose_largest_z)
+        {
             choose_largest_z = engine_coordinate_3->z;
+        }
         int divided_z = choose_largest_z / 16;
         if (getpoly < poly_pool_end)
         {
@@ -2922,7 +3100,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_1_distance = engine_coordinate_1->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 int apply_lighting_to_triangle_nearby_1;
                 if (fade_min >= coordinate_1_distance)
@@ -2948,7 +3128,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_2_distance = engine_coordinate_2->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 int apply_lighting_to_triangle_nearby_2;
                 if (coordinate_2_distance <= fade_min)
@@ -2974,7 +3156,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_3_distance = engine_coordinate_3->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 int apply_lighting_to_triangle_nearby_3;
                 if (fade_min >= coordinate_3_distance)
@@ -3293,7 +3477,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_1_distance = engine_coordinate_1->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 int apply_lighting_to_triangle_far_1;
                 if (coordinate_1_distance <= fade_min)
@@ -3319,7 +3505,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_2_distance = engine_coordinate_2->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 int apply_lighting_to_triangle_far_2;
                 if (coordinate_2_distance <= fade_min)
@@ -3345,7 +3533,9 @@ static void do_a_trig_gourad_tr(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_3_distance = engine_coordinate_3->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 if (coordinate_3_distance <= fade_min)
                 {
@@ -3388,9 +3578,13 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
     {
         int choose_smallest_z = engine_coordinate_1->z;
         if (choose_smallest_z < engine_coordinate_2->z)
+        {
             choose_smallest_z = engine_coordinate_2->z;
+        }
         if (choose_smallest_z < engine_coordinate_3->z)
+        {
             choose_smallest_z = engine_coordinate_3->z;
+        }
         int divided_z = choose_smallest_z / 16;
         if (getpoly < poly_pool_end)
         {
@@ -3413,7 +3607,9 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_1_distance = engine_coordinate_1->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 int apply_lighting_to_triangle_nearby_1;
                 if (coordinate_1_distance <= fade_min)
@@ -3439,7 +3635,9 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_2_distance = engine_coordinate_2->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 int apply_lighting_to_triangle_nearby_2;
                 if (coordinate_2_distance <= fade_min)
@@ -3465,7 +3663,9 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_3_distance = engine_coordinate_3->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 int apply_lighting_to_triangle_nearby_3;
                 if (coordinate_3_distance <= fade_min)
@@ -3784,7 +3984,9 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_1_distance = engine_coordinate_1->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_1_lightness = (coordinate_1_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 int apply_lighting_to_triangle_far_1;
                 if (coordinate_1_distance <= fade_min)
@@ -3810,7 +4012,9 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_2_distance = engine_coordinate_2->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_2_lightness = (coordinate_2_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 int apply_lighting_to_triangle_far_2;
                 if (coordinate_2_distance <= fade_min)
@@ -3836,7 +4040,9 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
                 int coordinate_3_distance = engine_coordinate_3->field_C;
 
                 if (argument5 >= 0)
+                {
                     coordinate_3_lightness = (coordinate_3_lightness * (3 * argument5 + 81920)) >> 17;
+                }
 
                 if (coordinate_3_distance <= fade_min)
                 {
@@ -3855,13 +4061,13 @@ static void do_a_trig_gourad_bl(struct EngineCoord *engine_coordinate_1, struct 
     }
 }
 
-static TbBool add_light_to_nearest_list(struct NearestLights* nlgt, long* nlgt_dist, const struct Light* lgt, long dist)
+static TbBool add_light_to_nearest_list(struct NearestLights *nlgt, long *nlgt_dist, const struct Light *lgt, long dist)
 {
     int i;
-    for (i = settings.video_shadows-1; i > 0; i--)
+    for (i = settings.video_shadows - 1; i > 0; i--)
     {
-        nlgt_dist[i] = nlgt_dist[i-1];
-        nlgt->coord[i] = nlgt->coord[i-1];
+        nlgt_dist[i] = nlgt_dist[i - 1];
+        nlgt->coord[i] = nlgt->coord[i - 1];
     }
     nlgt_dist[0] = dist;
     nlgt->coord[0] = lgt->mappos;
@@ -3873,7 +4079,9 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_d
     long i;
     unsigned long k;
     if (settings.video_shadows < 1)
+    {
         return;
+    }
     i = list_start_idx;
     k = 0;
     while (i > 0)
@@ -3886,8 +4094,7 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_d
         {
             long dist;
             dist = get_chessboard_distance(pos, &lgt->mappos);
-            if ((dist < 2560) && (nlgt_dist[settings.video_shadows-1] > dist)
-                && (pos->x.val != lgt->mappos.x.val) && (pos->y.val != lgt->mappos.y.val))
+            if ((dist < 2560) && (nlgt_dist[settings.video_shadows - 1] > dist) && (pos->x.val != lgt->mappos.x.val) && (pos->y.val != lgt->mappos.y.val))
             {
                 add_light_to_nearest_list(nlgt, nlgt_dist, lgt, dist);
             }
@@ -3902,12 +4109,13 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_d
     }
 }
 
-static long find_closest_lights(const struct Coord3d* pos, struct NearestLights* nlgt)
+static long find_closest_lights(const struct Coord3d *pos, struct NearestLights *nlgt)
 {
     long count;
     long nlgt_dist[SHADOW_SOURCES_MAX_COUNT];
     long i;
-    for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++) {
+    for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++)
+    {
         nlgt_dist[i] = LONG_MAX;
     }
     i = game.thing_lists[TngList_StaticLights].index;
@@ -3915,9 +4123,12 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
     i = game.thing_lists[TngList_DynamLights].index;
     find_closest_lights_on_list(nlgt, nlgt_dist, pos, i);
     count = 0;
-    for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++) {
+    for (i = 0; i < SHADOW_SOURCES_MAX_COUNT; i++)
+    {
         if (nlgt_dist[i] == LONG_MAX)
+        {
             break;
+        }
         count++;
     }
     return count;
@@ -3938,10 +4149,12 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     sh_angle = get_angle_xy_to(pos, &thing->mappos);
     angle = (mv_angle - sh_angle) & LbFPMath_AngleMask;
     dist_sq = (get_2d_distance_squared(&thing->mappos, pos) >> 17) + 16;
-    if (dist_sq < 16) {
+    if (dist_sq < 16)
+    {
         dist_sq = 16;
-    } else
-    if (dist_sq > 31) {
+    }
+    else if (dist_sq > 31)
+    {
         dist_sq = 31;
     }
     short dim_ow;
@@ -4000,19 +4213,22 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     rotpers(&ecor3, &camera_matrix);
     rotpers(&ecor4, &camera_matrix);
     int min_cor_z;
-    min_cor_z = min(min(ecor1.z,ecor2.z),min(ecor3.z,ecor4.z));
-    if (getpoly >= poly_pool_end) {
+    min_cor_z = min(min(ecor1.z, ecor2.z), min(ecor3.z, ecor4.z));
+    if (getpoly >= poly_pool_end)
+    {
         return;
     }
     int bckt_idx;
     bckt_idx = min_cor_z / 16;
-    if (bckt_idx < 0) {
+    if (bckt_idx < 0)
+    {
         bckt_idx = 0;
-    } else
-    if (bckt_idx > BUCKETS_COUNT-2) {
-        bckt_idx = BUCKETS_COUNT-2;
     }
-    struct BucketKindCreatureShadow * kspr;
+    else if (bckt_idx > BUCKETS_COUNT - 2)
+    {
+        bckt_idx = BUCKETS_COUNT - 2;
+    }
+    struct BucketKindCreatureShadow *kspr;
     kspr = (struct BucketKindCreatureShadow *)getpoly;
     getpoly += sizeof(struct BucketKindCreatureShadow);
     kspr->b.next = buckets[bckt_idx];
@@ -4027,12 +4243,16 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     kspr->p1.Y = ecor1.view_height;
     kspr->p1.U = pdim_w;
     kspr->p1.V = pdim_h;
-    if (ecor1.field_C <= fade_min) {
+    if (ecor1.field_C <= fade_min)
+    {
         kspr->p1.S = ecor1.field_A << 8;
-    } else
-    if (ecor1.field_C >= fade_max) {
+    }
+    else if (ecor1.field_C >= fade_max)
+    {
         kspr->p1.S = 32768;
-    } else {
+    }
+    else
+    {
         kspr->p1.S = ecor1.field_A * (fade_scaler - ecor1.field_C) / fade_range + 32768;
     }
 
@@ -4045,15 +4265,17 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     if (fade_min >= ecor2.field_C)
     {
         kspr->p2.S = ecor2.field_A << 8;
-    } else
-    if (fade_max <= ecor2.field_C)
+    }
+    else if (fade_max <= ecor2.field_C)
     {
         kspr->p2.S = 32768;
-    } else {
+    }
+    else
+    {
         kspr->p2.S = ecor2.field_A * (fade_scaler - ecor2.field_C) / fade_range + 32768;
     }
 
-    pdim_w = (dim_ow - 1)  << 16;
+    pdim_w = (dim_ow - 1) << 16;
     pdim_h = 0;
     kspr->p3.X = ecor3.view_width;
     kspr->p3.Y = ecor3.view_height;
@@ -4062,11 +4284,13 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     if (ecor3.field_C <= fade_min)
     {
         kspr->p3.S = ecor3.field_A << 8;
-    } else
-    if (ecor3.field_C >= fade_max)
+    }
+    else if (ecor3.field_C >= fade_max)
     {
         kspr->p3.S = 32768;
-    } else {
+    }
+    else
+    {
         kspr->p3.S = ecor3.field_A * (fade_scaler - ecor3.field_C) / fade_range + 32768;
     }
 
@@ -4076,12 +4300,16 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     kspr->p4.Y = ecor4.view_height;
     kspr->p4.U = pdim_w;
     kspr->p4.V = pdim_h;
-    if (ecor4.field_C <= fade_min) {
+    if (ecor4.field_C <= fade_min)
+    {
         kspr->p4.S = ecor4.field_A << 8;
-    } else
-    if (ecor4.field_C >= fade_max) {
+    }
+    else if (ecor4.field_C >= fade_max)
+    {
         kspr->p4.S = 32768;
-    } else {
+    }
+    else
+    {
         kspr->p4.S = ecor4.field_A * (fade_scaler - ecor4.field_C) / fade_range + 32768;
     }
 
@@ -4095,22 +4323,32 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
 static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     struct EngineCoord coord = *ecor;
-    const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    coord.y += thing->clipbox_size_z + crstat->status_offset; 
+    const struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    coord.y += thing->clipbox_size_z + crstat->status_offset;
     rotpers(&coord, &camera_matrix);
     if (getpoly >= poly_pool_end)
+    {
         return;
+    }
     int bckt_idx = coord.z / 16;
     if (!lens_mode)
+    {
         bckt_idx = 1;
+    }
     if (bckt_idx < 0)
+    {
         bckt_idx = 0;
-    else if (bckt_idx > BUCKETS_COUNT-2)
-        bckt_idx = BUCKETS_COUNT-2;
+    }
+    else if (bckt_idx > BUCKETS_COUNT - 2)
+    {
+        bckt_idx = BUCKETS_COUNT - 2;
+    }
 
-    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)getpoly;
+    struct BucketKindCreatureStatus *poly = (struct BucketKindCreatureStatus *)getpoly;
     if (getpoly >= poly_pool_end)
+    {
         return;
+    }
     getpoly += sizeof(struct BucketKindCreatureStatus);
     poly->b.next = buckets[bckt_idx];
     poly->b.kind = QK_CreatureStatus;
@@ -4125,7 +4363,7 @@ unsigned short engine_remap_texture_blocks(long stl_x, long stl_y, unsigned shor
 {
     long slb_x = subtile_slab(stl_x);
     long slb_y = subtile_slab(stl_y);
-    return tex_id + (gameadd.slab_ext_data[get_slab_number(slb_x,slb_y)] & 0xF) * TEXTURE_BLOCKS_COUNT;
+    return tex_id + (gameadd.slab_ext_data[get_slab_number(slb_x, slb_y)] & 0xF) * TEXTURE_BLOCKS_COUNT;
 }
 
 static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, long plane_start, long plane_end)
@@ -4148,20 +4386,26 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
     long i;
     long n;
     if ((stl_y <= 0) || (stl_y >= gameadd.map_subtiles_y))
+    {
         return;
+    }
     clip_start = plane_start;
     if (stl_x + plane_start < 1)
+    {
         clip_start = 1 - stl_x;
+    }
     clip_end = plane_end;
     if (stl_x + plane_end > gameadd.map_subtiles_x)
+    {
         clip_end = gameadd.map_subtiles_x - stl_x;
+    }
     struct EngineCol *bec;
     struct EngineCol *fec;
     bec = &back_ec[clip_start + MINMAX_ALMOST_HALF];
     fec = &front_ec[clip_start + MINMAX_ALMOST_HALF];
     blank_colmn = get_column(game.unrevealed_column_idx);
-    center_block_idx = clip_start + stl_x + (stl_y * (gameadd.map_subtiles_x+1));
-    for (i = clip_end-clip_start; i > 0; i--)
+    center_block_idx = clip_start + stl_x + (stl_y * (gameadd.map_subtiles_x + 1));
+    for (i = clip_end - clip_start; i > 0; i--)
     {
         mapblk = get_map_block_at_pos(center_block_idx);
         colmn = blank_colmn;
@@ -4169,7 +4413,9 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         {
             n = get_mapwho_thing_index(mapblk);
             if (n != 0)
+            {
                 do_map_who(n);
+            }
             colmn = get_map_column(mapblk);
         }
         // Retrieve solidmasks for surrounding area
@@ -4183,23 +4429,27 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         solidmsk_right = blank_colmn->solidmask;
         solidmsk_bottom = blank_colmn->solidmask;
         solidmsk_left = blank_colmn->solidmask;
-        sib_mapblk = get_map_block_at_pos(center_block_idx-gameadd.map_subtiles_x-1);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        sib_mapblk = get_map_block_at_pos(center_block_idx - gameadd.map_subtiles_x - 1);
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_top = sib_colmn->solidmask;
         }
-        sib_mapblk = get_map_block_at_pos(center_block_idx+gameadd.map_subtiles_x+1);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        sib_mapblk = get_map_block_at_pos(center_block_idx + gameadd.map_subtiles_x + 1);
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_bottom = sib_colmn->solidmask;
         }
-        sib_mapblk = get_map_block_at_pos(center_block_idx-1);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        sib_mapblk = get_map_block_at_pos(center_block_idx - 1);
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_left = sib_colmn->solidmask;
         }
-        sib_mapblk = get_map_block_at_pos(center_block_idx+1);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        sib_mapblk = get_map_block_at_pos(center_block_idx + 1);
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_right = sib_colmn->solidmask;
         }
@@ -4212,33 +4462,34 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
             texturing = get_cube_model_stats(*cubenum_ptr);
             if ((solidmsk_center & height_bit) != 0)
             {
-              if ((solidmsk_top & height_bit) == 0)
-              {
-                  
-                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_0]);
-                  do_a_trig_gourad_tr(&bec[1].cors[bepos+1], &bec[0].cors[bepos+1], &bec[0].cors[bepos],   textr_idx, normal_shade_back);
-                  do_a_trig_gourad_bl(&bec[0].cors[bepos],   &bec[1].cors[bepos],   &bec[1].cors[bepos+1], textr_idx, normal_shade_back);
-              }
-              if ((solidmsk_bottom & height_bit) == 0)
-              {
-                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_2]);
-                  do_a_trig_gourad_tr(&fec[0].cors[fepos+1], &fec[1].cors[fepos+1], &fec[1].cors[fepos],   textr_idx, normal_shade_front);
-                  do_a_trig_gourad_bl(&fec[1].cors[fepos],   &fec[0].cors[fepos],   &fec[0].cors[fepos+1], textr_idx, normal_shade_front);
-              }
-              if ((solidmsk_left & height_bit) == 0)
-              {
-                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_3]);
-                  do_a_trig_gourad_tr(&bec[0].cors[bepos+1], &fec[0].cors[fepos+1], &fec[0].cors[fepos],   textr_idx, normal_shade_left);
-                  do_a_trig_gourad_bl(&fec[0].cors[fepos],   &bec[0].cors[bepos],   &bec[0].cors[bepos+1], textr_idx, normal_shade_left);
-              }
-              if ((solidmsk_right & height_bit) == 0)
-              {
-                  textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_1]);
-                  do_a_trig_gourad_tr(&fec[1].cors[fepos+1], &bec[1].cors[bepos+1], &bec[1].cors[bepos],   textr_idx, normal_shade_right);
-                  do_a_trig_gourad_bl(&bec[1].cors[bepos],   &fec[1].cors[fepos],   &fec[1].cors[fepos+1], textr_idx, normal_shade_right);
-              }
+                if ((solidmsk_top & height_bit) == 0)
+                {
+
+                    textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_0]);
+                    do_a_trig_gourad_tr(&bec[1].cors[bepos + 1], &bec[0].cors[bepos + 1], &bec[0].cors[bepos], textr_idx, normal_shade_back);
+                    do_a_trig_gourad_bl(&bec[0].cors[bepos], &bec[1].cors[bepos], &bec[1].cors[bepos + 1], textr_idx, normal_shade_back);
+                }
+                if ((solidmsk_bottom & height_bit) == 0)
+                {
+                    textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_2]);
+                    do_a_trig_gourad_tr(&fec[0].cors[fepos + 1], &fec[1].cors[fepos + 1], &fec[1].cors[fepos], textr_idx, normal_shade_front);
+                    do_a_trig_gourad_bl(&fec[1].cors[fepos], &fec[0].cors[fepos], &fec[0].cors[fepos + 1], textr_idx, normal_shade_front);
+                }
+                if ((solidmsk_left & height_bit) == 0)
+                {
+                    textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_3]);
+                    do_a_trig_gourad_tr(&bec[0].cors[bepos + 1], &fec[0].cors[fepos + 1], &fec[0].cors[fepos], textr_idx, normal_shade_left);
+                    do_a_trig_gourad_bl(&fec[0].cors[fepos], &bec[0].cors[bepos], &bec[0].cors[bepos + 1], textr_idx, normal_shade_left);
+                }
+                if ((solidmsk_right & height_bit) == 0)
+                {
+                    textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[sideoris[0].field_1]);
+                    do_a_trig_gourad_tr(&fec[1].cors[fepos + 1], &bec[1].cors[bepos + 1], &bec[1].cors[bepos], textr_idx, normal_shade_right);
+                    do_a_trig_gourad_bl(&bec[1].cors[bepos], &fec[1].cors[fepos], &fec[1].cors[fepos + 1], textr_idx, normal_shade_right);
+                }
             }
-            bepos++; fepos++;
+            bepos++;
+            fepos++;
             cubenum_ptr++;
             height_bit = height_bit << 1;
         }
@@ -4246,12 +4497,13 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         ecpos = floor_height_table[solidmsk_center];
         if (ecpos > 0)
         {
-            cubenum_ptr = &colmn->cubes[ecpos-1];
+            cubenum_ptr = &colmn->cubes[ecpos - 1];
             texturing = get_cube_model_stats(*cubenum_ptr);
             textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
-        } else
+        }
+        else
         {
             ecpos = 0;
             textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), colmn->floor_texture);
@@ -4262,13 +4514,13 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         ecpos = lintel_top_height[solidmsk_center];
         if (ecpos > 0)
         {
-            cubenum_ptr = &colmn->cubes[ecpos-1];
+            cubenum_ptr = &colmn->cubes[ecpos - 1];
             texturing = get_cube_model_stats(*cubenum_ptr);
             textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
 
-            ecpos =  lintel_bottom_height[solidmsk_center];
+            ecpos = lintel_bottom_height[solidmsk_center];
             textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[5]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
@@ -4288,7 +4540,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
 
 static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
+    // BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
     struct BucketKindPolygonStandard *v6;
     int v7;
@@ -4301,18 +4553,20 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
     int ec2_fieldA;
     int ec3_fieldA;
 
-    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
-        && (ec2->view_width - ec1->view_width) * (ec3->view_height - ec2->view_height)
-        + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
+    if ((ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0 && (ec2->view_width - ec1->view_width) * (ec3->view_height - ec2->view_height) + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0)
     {
         z = ec1->z;
-        if ( z < ec2->z )
-        z = ec2->z;
-        if ( z < ec3->z )
-        z = ec3->z;
+        if (z < ec2->z)
+        {
+            z = ec2->z;
+        }
+        if (z < ec3->z)
+        {
+            z = ec3->z;
+        }
         v6 = (struct BucketKindPolygonStandard *)getpoly;
         v7 = z / 16;
-        if ( getpoly < poly_pool_end )
+        if (getpoly < poly_pool_end)
         {
             v8 = (struct BucketKindPolygonStandard *)getpoly;
             v9 = buckets[v7];
@@ -4325,7 +4579,7 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
             ec1_fieldA = ec1->field_A;
             ec2_fieldA = ec2->field_A;
             ec3_fieldA = ec3->field_A;
-            if ( a5 >= 0 )
+            if (a5 >= 0)
             {
                 ec1_fieldA = (4 * ec1_fieldA * (a5 + 0x4000)) >> 17;
                 ec2_fieldA = (4 * ec2_fieldA * (a5 + 0x4000)) >> 17;
@@ -4354,25 +4608,27 @@ static void do_a_gpoly_gourad_tr(struct EngineCoord *ec1, struct EngineCoord *ec
 
 static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
+    // BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
     struct BucketKindPolygonStandard *v5;
     int v6;
     struct BucketKindPolygonStandard *v7;
     struct BasicQ *v8;
 
-    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
-        && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
-        + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
+    if ((ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0 && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height) + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0)
     {
         z = ec1->z;
-        if ( z < ec2->z )
-        z = ec2->z;
-        if ( z < ec3->z )
-        z = ec3->z;
+        if (z < ec2->z)
+        {
+            z = ec2->z;
+        }
+        if (z < ec3->z)
+        {
+            z = ec3->z;
+        }
         v5 = (struct BucketKindPolygonStandard *)getpoly;
         v6 = z / 16;
-        if ( getpoly < poly_pool_end )
+        if (getpoly < poly_pool_end)
         {
             v7 = (struct BucketKindPolygonStandard *)getpoly;
             v8 = buckets[v6];
@@ -4402,53 +4658,55 @@ static void do_a_gpoly_unlit_tr(struct EngineCoord *ec1, struct EngineCoord *ec2
 
 static void do_a_gpoly_unlit_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id)
 {
-    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
+    // BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
     struct BucketKindPolygonStandard *v5;
     int v6;
     struct BasicQ *v7;
 
-    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
-        && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height)
-        + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0 )
+    if ((ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0 && (ec3->view_width - ec2->view_width) * (ec1->view_height - ec2->view_height) + (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) > 0)
     {
         z = ec1->z;
-        if ( z < ec2->z )
-        z = ec2->z;
-        if ( z < ec3->z )
-        z = ec3->z;
+        if (z < ec2->z)
+        {
+            z = ec2->z;
+        }
+        if (z < ec3->z)
+        {
+            z = ec3->z;
+        }
         v5 = (struct BucketKindPolygonStandard *)getpoly;
         v6 = z / 16;
-        if ( getpoly < poly_pool_end )
+        if (getpoly < poly_pool_end)
         {
-        v7 = buckets[v6];
-        getpoly += sizeof(struct BucketKindPolygonStandard);
-        v5->b.next = v7;
-        v5->b.kind = 0;
-        buckets[v6] = &v5->b;
-        v5->block = textr_id;
-        v5->p1.X = ec1->view_width;
-        v5->p1.Y = ec1->view_height;
-        v5->p1.U = 0x1FFFFF;
-        v5->p1.V = 0x1FFFFF;
-        v5->p1.S = (ec1->field_A + 3072) << 8;
-        v5->p2.X = ec2->view_width;
-        v5->p2.Y = ec2->view_height;
-        v5->p2.U = 0;
-        v5->p2.V = 0x1FFFFF;
-        v5->p2.S = (ec2->field_A + 3072) << 8;
-        v5->p3.X = ec3->view_width;
-        v5->p3.Y = ec3->view_height;
-        v5->p3.U = 0;
-        v5->p3.V = 0;
-        v5->p3.S = (ec3->field_A + 3072) << 8;
+            v7 = buckets[v6];
+            getpoly += sizeof(struct BucketKindPolygonStandard);
+            v5->b.next = v7;
+            v5->b.kind = 0;
+            buckets[v6] = &v5->b;
+            v5->block = textr_id;
+            v5->p1.X = ec1->view_width;
+            v5->p1.Y = ec1->view_height;
+            v5->p1.U = 0x1FFFFF;
+            v5->p1.V = 0x1FFFFF;
+            v5->p1.S = (ec1->field_A + 3072) << 8;
+            v5->p2.X = ec2->view_width;
+            v5->p2.Y = ec2->view_height;
+            v5->p2.U = 0;
+            v5->p2.V = 0x1FFFFF;
+            v5->p2.S = (ec2->field_A + 3072) << 8;
+            v5->p3.X = ec3->view_width;
+            v5->p3.Y = ec3->view_height;
+            v5->p3.U = 0;
+            v5->p3.V = 0;
+            v5->p3.S = (ec3->field_A + 3072) << 8;
         }
     }
 }
 
 static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec2, struct EngineCoord *ec3, short textr_id, int a5)
 {
-    //BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
+    // BucketKindPolygonStandard in this function could also be BucketKindPolygonSimple or BucketKindBasicUnk10 idk all 3 pretty similar
     int z;
     struct BucketKindPolygonStandard *v6;
     int zdiv16;
@@ -4461,18 +4719,20 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
     struct PolyPoint *polypoint3;
     struct PolyPoint *polypoint1;
 
-    if ( (ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0
-        && (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width)
-        + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0 )
+    if ((ec1->field_8 & (uint16_t)(ec2->field_8 & ec3->field_8) & 0x1F8) == 0 && (ec3->view_height - ec2->view_height) * (ec2->view_width - ec1->view_width) + (ec1->view_height - ec2->view_height) * (ec3->view_width - ec2->view_width) > 0)
     {
         z = ec1->z;
-        if ( z < ec2->z )
-        z = ec2->z;
-        if ( z < ec3->z )
-        z = ec3->z;
+        if (z < ec2->z)
+        {
+            z = ec2->z;
+        }
+        if (z < ec3->z)
+        {
+            z = ec3->z;
+        }
         v6 = (struct BucketKindPolygonStandard *)getpoly;
         zdiv16 = z / 16;
-        if ( getpoly < poly_pool_end )
+        if (getpoly < poly_pool_end)
         {
             poly_ptr = (struct BucketKindPolygonStandard *)getpoly;
             v9 = buckets[zdiv16];
@@ -4485,7 +4745,7 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
             ec1_fieldA = ec1->field_A;
             ec2_fieldA = ec2->field_A;
             ec3_fieldA = ec3->field_A;
-            if ( a5 >= 0 )
+            if (a5 >= 0)
             {
                 ec1_fieldA = (4 * (a5 + 0x4000) * ec1_fieldA) >> 17;
                 ec2_fieldA = (4 * (a5 + 0x4000) * ec2_fieldA) >> 17;
@@ -4514,17 +4774,20 @@ static void do_a_gpoly_gourad_bl(struct EngineCoord *ec1, struct EngineCoord *ec
 
 static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > (gameadd.map_subtiles_y - 1))) {
+    if ((stl_y < 1) || (stl_y > (gameadd.map_subtiles_y - 1)))
+    {
         return;
     }
     long xaval;
     long xbval;
     xaval = plane_start;
-    if (stl_x + plane_start < 1) {
+    if (stl_x + plane_start < 1)
+    {
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_x) {
+    if (stl_x + plane_end > gameadd.map_subtiles_x)
+    {
         xbval = gameadd.map_subtiles_x - stl_x;
     }
     int xidx;
@@ -4532,7 +4795,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
     xdelta = xbval - xaval;
     const struct Column *unrev_colmn;
     unrev_colmn = get_column(game.unrevealed_column_idx);
-    for (xidx=0; xidx < xdelta; xidx++)
+    for (xidx = 0; xidx < xdelta; xidx++)
     {
         struct Map *cur_mapblk;
         cur_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y);
@@ -4556,64 +4819,74 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         {
             long i;
             i = get_mapwho_thing_index(cur_mapblk);
-            if (i > 0) {
-              do_map_who(i);
+            if (i > 0)
+            {
+                do_map_who(i);
             }
             cur_colmn = get_map_column(cur_mapblk);
             solidmsk_cur_raw = cur_colmn->solidmask;
             solidmsk_cur = solidmsk_cur_raw;
-            if (solidmsk_cur >= (1<<3))
+            if (solidmsk_cur >= (1 << 3))
             {
-                if (((cur_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((cur_colmn->bitfields & 0xE) == 0)) {
+                if (((cur_mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom)) == 0) && ((cur_colmn->bitfields & 0xE) == 0))
+                {
                     solidmsk_cur &= 3;
                 }
             }
         }
         struct Map *sib_mapblk;
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y - 1);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_back = colmn->solidmask;
-            if (solidmsk_back >= (1<<3))
+            if (solidmsk_back >= (1 << 3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0))
+                {
                     solidmsk_back &= 3;
                 }
             }
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y + 1);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_front = colmn->solidmask;
-            if (solidmsk_front >= (1<<3))
+            if (solidmsk_front >= (1 << 3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0))
+                {
                     solidmsk_front &= 3;
                 }
             }
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx - 1, stl_y);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_left = colmn->solidmask;
-            if (solidmsk_left >= (1<<3))
+            if (solidmsk_left >= (1 << 3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0))
+                {
                     solidmsk_left &= 3;
                 }
             }
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx + 1, stl_y);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
-            if (solidmsk_right >= (1<<3))
+            if (solidmsk_right >= (1 << 3))
             {
-                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0)) {
+                if (((sib_mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom)) == 0) && ((colmn->bitfields & 0xE) == 0))
+                {
                     solidmsk_right &= 3;
                 }
             }
@@ -4625,7 +4898,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         fec = &front_ec[xaval + MINMAX_ALMOST_HALF + xidx];
         unsigned short mask;
         int ncor;
-        for (mask=1,ncor=0; mask <= solidmsk_cur; mask*=2,ncor++)
+        for (mask = 1, ncor = 0; mask <= solidmsk_cur; mask *= 2, ncor++)
         {
             unsigned short textr_id;
             struct CubeConfigStats *cubed;
@@ -4637,26 +4910,26 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             if ((mask & solidmsk_back) == 0)
             {
                 textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_0]);
-                do_a_gpoly_gourad_tr(&bec[1].cors[ncor+1], &bec[0].cors[ncor+1], &bec[0].cors[ncor],   textr_id, normal_shade_back);
-                do_a_gpoly_gourad_bl(&bec[0].cors[ncor],   &bec[1].cors[ncor],   &bec[1].cors[ncor+1], textr_id, normal_shade_back);
+                do_a_gpoly_gourad_tr(&bec[1].cors[ncor + 1], &bec[0].cors[ncor + 1], &bec[0].cors[ncor], textr_id, normal_shade_back);
+                do_a_gpoly_gourad_bl(&bec[0].cors[ncor], &bec[1].cors[ncor], &bec[1].cors[ncor + 1], textr_id, normal_shade_back);
             }
             if ((solidmsk_front & mask) == 0)
             {
                 textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_2]);
-                do_a_gpoly_gourad_tr(&fec[0].cors[ncor+1], &fec[1].cors[ncor+1], &fec[1].cors[ncor],   textr_id, normal_shade_front);
-                do_a_gpoly_gourad_bl(&fec[1].cors[ncor],   &fec[0].cors[ncor],   &fec[0].cors[ncor+1], textr_id, normal_shade_front);
+                do_a_gpoly_gourad_tr(&fec[0].cors[ncor + 1], &fec[1].cors[ncor + 1], &fec[1].cors[ncor], textr_id, normal_shade_front);
+                do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &fec[0].cors[ncor + 1], textr_id, normal_shade_front);
             }
             if ((solidmsk_left & mask) == 0)
             {
                 textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_3]);
-                do_a_gpoly_gourad_tr(&bec[0].cors[ncor+1], &fec[0].cors[ncor+1], &fec[0].cors[ncor],   textr_id, normal_shade_left);
-                do_a_gpoly_gourad_bl(&fec[0].cors[ncor],   &bec[0].cors[ncor],   &bec[0].cors[ncor+1], textr_id, normal_shade_left);
+                do_a_gpoly_gourad_tr(&bec[0].cors[ncor + 1], &fec[0].cors[ncor + 1], &fec[0].cors[ncor], textr_id, normal_shade_left);
+                do_a_gpoly_gourad_bl(&fec[0].cors[ncor], &bec[0].cors[ncor], &bec[0].cors[ncor + 1], textr_id, normal_shade_left);
             }
             if ((solidmsk_right & mask) == 0)
             {
                 textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_1]);
-                do_a_gpoly_gourad_tr(&fec[1].cors[ncor+1], &bec[1].cors[ncor+1], &bec[1].cors[ncor],   textr_id, normal_shade_right);
-                do_a_gpoly_gourad_bl(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
+                do_a_gpoly_gourad_tr(&fec[1].cors[ncor + 1], &bec[1].cors[ncor + 1], &bec[1].cors[ncor], textr_id, normal_shade_right);
+                do_a_gpoly_gourad_bl(&bec[1].cors[ncor], &fec[1].cors[ncor], &fec[1].cors[ncor + 1], textr_id, normal_shade_right);
             }
         }
 
@@ -4665,36 +4938,39 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         {
             int ncor_raw;
             ncor_raw = floor_height_table[solidmsk_cur_raw];
-            if ( (cur_mapblk->flags & SlbAtFlg_Unexplored) != 0 )
+            if ((cur_mapblk->flags & SlbAtFlg_Unexplored) != 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
-            } else
-            if ((cur_mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+            }
+            else if ((cur_mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
-            } else
-             {
+            }
+            else
+            {
                 if ((ncor_raw > 0) && (ncor_raw <= COLUMN_STACK_HEIGHT))
                 {
-                    struct CubeConfigStats * cubed = get_cube_model_stats(cur_colmn->cubes[ncor_raw-1]);
+                    struct CubeConfigStats *cubed = get_cube_model_stats(cur_colmn->cubes[ncor_raw - 1]);
                     unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
                     // Top surface in cluedo mode
                     do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
                     do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
                 }
             }
-        } else
+        }
+        else
         {
             if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->floor_texture);
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
-            } else
+            }
+            else
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
                 do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id);
@@ -4704,8 +4980,8 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         ncor = lintel_top_height[solidmsk_cur];
         if ((ncor > 0) && (ncor <= COLUMN_STACK_HEIGHT))
         {
-            struct CubeConfigStats * cubed;
-            cubed = get_cube_model_stats(cur_colmn->cubes[ncor-1]);
+            struct CubeConfigStats *cubed;
+            cubed = get_cube_model_stats(cur_colmn->cubes[ncor - 1]);
             unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
             do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
             do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
@@ -4715,7 +4991,8 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
 
 static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long plane_start, long plane_end)
 {
-    if ((stl_y < 1) || (stl_y > gameadd.map_subtiles_y - 1)) {
+    if ((stl_y < 1) || (stl_y > gameadd.map_subtiles_y - 1))
+    {
         return;
     }
 
@@ -4726,12 +5003,14 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
     xaval = plane_start;
     xaclip = 0;
     xbclip = 0;
-    if (stl_x + plane_start < 1) {
+    if (stl_x + plane_start < 1)
+    {
         xaclip = 1;
         xaval = 1 - stl_x;
     }
     xbval = plane_end;
-    if (stl_x + plane_end > gameadd.map_subtiles_x) {
+    if (stl_x + plane_end > gameadd.map_subtiles_x)
+    {
         xbclip = 1;
         xbval = gameadd.map_subtiles_x - stl_x;
     }
@@ -4740,7 +5019,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
     xdelta = xbval - xaval;
     const struct Column *unrev_colmn;
     unrev_colmn = get_column(game.unrevealed_column_idx);
-    for (xidx=0; xidx < xdelta; xidx++)
+    for (xidx = 0; xidx < xdelta; xidx++)
     {
         struct Map *cur_mapblk;
         cur_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y);
@@ -4751,8 +5030,9 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         {
             long i;
             i = get_mapwho_thing_index(cur_mapblk);
-            if (i > 0) {
-              do_map_who(i);
+            if (i > 0)
+            {
+                do_map_who(i);
             }
             cur_colmn = get_map_column(cur_mapblk);
         }
@@ -4769,41 +5049,49 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         solidmsk_left = unrev_colmn->solidmask;
         struct Map *sib_mapblk;
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y - 1);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_back = colmn->solidmask;
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y + 1);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_front = colmn->solidmask;
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx - 1, stl_y);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_left = colmn->solidmask;
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx + 1, stl_y);
-        if (map_block_revealed(sib_mapblk, my_player_number)) {
+        if (map_block_revealed(sib_mapblk, my_player_number))
+        {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
         }
-        if ( xaclip || xbclip || (stl_y <= 1) || (stl_y >= gameadd.map_subtiles_y - 1))
+        if (xaclip || xbclip || (stl_y <= 1) || (stl_y >= gameadd.map_subtiles_y - 1))
         {
-            if (xaclip && (xidx == 0)) {
+            if (xaclip && (xidx == 0))
+            {
                 solidmsk_left = 0;
             }
-            if (xbclip && (xdelta - xidx == 1)) {
+            if (xbclip && (xdelta - xidx == 1))
+            {
                 solidmsk_right = 0;
             }
-            if (stl_y <= 1) {
+            if (stl_y <= 1)
+            {
                 solidmsk_back = 0;
             }
-            if (stl_y >= gameadd.map_subtiles_y - 1) {
+            if (stl_y >= gameadd.map_subtiles_y - 1)
+            {
                 solidmsk_front = 0;
             }
         }
@@ -4814,7 +5102,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         fec = &front_ec[xaval + MINMAX_ALMOST_HALF + xidx];
         unsigned short mask;
         int ncor;
-        for (mask=1,ncor=0; mask <= solidmsk_cur; mask*=2,ncor++)
+        for (mask = 1, ncor = 0; mask <= solidmsk_cur; mask *= 2, ncor++)
         {
             unsigned short textr_id;
             struct CubeConfigStats *cubed;
@@ -4826,26 +5114,26 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
             if ((mask & solidmsk_back) == 0)
             {
                 textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_0]);
-                do_a_gpoly_gourad_tr(&bec[1].cors[ncor+1], &bec[0].cors[ncor+1], &bec[0].cors[ncor],   textr_id, normal_shade_back);
-                do_a_gpoly_gourad_bl(&bec[0].cors[ncor],   &bec[1].cors[ncor],   &bec[1].cors[ncor+1], textr_id, normal_shade_back);
+                do_a_gpoly_gourad_tr(&bec[1].cors[ncor + 1], &bec[0].cors[ncor + 1], &bec[0].cors[ncor], textr_id, normal_shade_back);
+                do_a_gpoly_gourad_bl(&bec[0].cors[ncor], &bec[1].cors[ncor], &bec[1].cors[ncor + 1], textr_id, normal_shade_back);
             }
             if ((solidmsk_front & mask) == 0)
             {
                 textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_2]);
-                do_a_gpoly_gourad_tr(&fec[0].cors[ncor+1], &fec[1].cors[ncor+1], &fec[1].cors[ncor],   textr_id, normal_shade_front);
-                do_a_gpoly_gourad_bl(&fec[1].cors[ncor],   &fec[0].cors[ncor],   &fec[0].cors[ncor+1], textr_id, normal_shade_front);
+                do_a_gpoly_gourad_tr(&fec[0].cors[ncor + 1], &fec[1].cors[ncor + 1], &fec[1].cors[ncor], textr_id, normal_shade_front);
+                do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &fec[0].cors[ncor + 1], textr_id, normal_shade_front);
             }
             if ((solidmsk_left & mask) == 0)
             {
                 textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_3]);
-                do_a_gpoly_gourad_tr(&bec[0].cors[ncor+1], &fec[0].cors[ncor+1], &fec[0].cors[ncor],   textr_id, normal_shade_left);
-                do_a_gpoly_gourad_bl(&fec[0].cors[ncor],   &bec[0].cors[ncor],   &bec[0].cors[ncor+1], textr_id, normal_shade_left);
+                do_a_gpoly_gourad_tr(&bec[0].cors[ncor + 1], &fec[0].cors[ncor + 1], &fec[0].cors[ncor], textr_id, normal_shade_left);
+                do_a_gpoly_gourad_bl(&fec[0].cors[ncor], &bec[0].cors[ncor], &bec[0].cors[ncor + 1], textr_id, normal_shade_left);
             }
             if ((solidmsk_right & mask) == 0)
             {
                 textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[sideoris[0].field_1]);
-                do_a_gpoly_gourad_tr(&fec[1].cors[ncor+1], &bec[1].cors[ncor+1], &bec[1].cors[ncor],   textr_id, normal_shade_right);
-                do_a_gpoly_gourad_bl(&bec[1].cors[ncor],   &fec[1].cors[ncor],   &fec[1].cors[ncor+1], textr_id, normal_shade_right);
+                do_a_gpoly_gourad_tr(&fec[1].cors[ncor + 1], &bec[1].cors[ncor + 1], &bec[1].cors[ncor], textr_id, normal_shade_right);
+                do_a_gpoly_gourad_bl(&bec[1].cors[ncor], &fec[1].cors[ncor], &fec[1].cors[ncor + 1], textr_id, normal_shade_right);
             }
         }
 
@@ -4858,29 +5146,31 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
-            else if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
+            else if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable | SlbAtFlg_Unexplored)) == 0)
             {
-                struct CubeConfigStats * cubed;
+                struct CubeConfigStats *cubed;
                 cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->floor_texture + 2 * ncor + 1));
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
                 // Top surface on full iso mode
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
-            } else
-            if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
+            }
+            else if ((cur_mapblk->flags & SlbAtFlg_Valuable) != 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_GOLD);
                 do_a_gpoly_unlit_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id);
                 do_a_gpoly_unlit_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id);
             }
-        } else
+        }
+        else
         {
             if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->floor_texture);
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
-            } else
+            }
+            else
             {
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, TEXTURE_LAND_MARKED_LAND);
                 do_a_gpoly_unlit_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id);
@@ -4890,7 +5180,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         ncor = lintel_top_height[solidmsk_cur];
         if (ncor > 0)
         {
-            struct CubeConfigStats * cubed;
+            struct CubeConfigStats *cubed;
             cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->floor_texture + 2 * ncor + 1));
             unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
             do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
@@ -4910,7 +5200,8 @@ void draw_map_volume_box(long cor1_x, long cor1_y, long cor2_x, long cor2_y, lon
     map_volume_box.color = color;
 }
 
-static unsigned short get_thing_shade(struct Thing* thing);
+static unsigned short get_thing_shade(struct Thing *thing);
+
 static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *jspr)
 {
     unsigned short flg_mem;
@@ -4929,29 +5220,31 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         angle = thing->move_angle_xy;
     }
 
-    switch(thing->rendering_flags & TRF_Transpar_Alpha)
+    switch (thing->rendering_flags & TRF_Transpar_Alpha)
     {
-        case TRF_Transpar_8:
-            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-            break;
-        case TRF_Transpar_4:
-            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-            break;
-        default:
-            break;
+    case TRF_Transpar_8:
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+        break;
+    case TRF_Transpar_4:
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        break;
+    default:
+        break;
     }
     unsigned short v6 = 0x2000;
-    if ( !(thing->rendering_flags & TRF_Unshaded) )
+    if (!(thing->rendering_flags & TRF_Unshaded))
+    {
         v6 = get_thing_shade(thing);
+    }
     v6 >>= 8;
 
     int a6_2 = thing->sprite_size * ((camera_zoom << 13) / 0x10000 / pixel_size) / 0x10000;
-    if ( thing->rendering_flags & TRF_Tint_Flags )
+    if (thing->rendering_flags & TRF_Tint_Flags)
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
         lbSpriteReMapPtr = &pixmap.ghost[256 * thing->tint_colour];
     }
-    else if ( v6 == 0x2000 )
+    else if (v6 == 0x2000)
     {
         lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
     }
@@ -4964,29 +5257,28 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     EngineSpriteDrawUsingAlpha = 0;
     switch (thing->rendering_flags & (TRF_Transpar_Flags))
     {
-        case TRF_Transpar_8:
-            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
-            lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
-            break;
-        case TRF_Transpar_4:
-            lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-            lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
-            break;
-        case TRF_Transpar_Alpha:
-            EngineSpriteDrawUsingAlpha = 1;
-            break;
+    case TRF_Transpar_8:
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+        lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+        break;
+    case TRF_Transpar_4:
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
+        break;
+    case TRF_Transpar_Alpha:
+        EngineSpriteDrawUsingAlpha = 1;
+        break;
     }
 
-    if ((thing->class_id == TCls_Creature)
-        || (thing->class_id == TCls_Object)
-        || (thing->class_id == TCls_DeadCreature)
-        || (player->work_state == PSt_QueryAll))
+    if ((thing->class_id == TCls_Creature) || (thing->class_id == TCls_Object) || (thing->class_id == TCls_DeadCreature) || (player->work_state == PSt_QueryAll))
     {
         if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
         {
             lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
             lbSpriteReMapPtr = white_pal;
-        } else {
+        }
+        else
+        {
             if ((thing->rendering_flags & TRF_BeingHit) != 0)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
@@ -5001,16 +5293,15 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;
-    } else
+    }
+    else
     {
         thing_being_displayed_is_creature = 0;
         thing_being_displayed = NULL;
     }
 
     if (
-            ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
-            || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
-            )
+        ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET)) || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM))
     {
         ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
         lbDisplay.DrawFlags = flg_mem;
@@ -5024,7 +5315,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
     long v16;
     if (thing->class_id == TCls_Object)
     {
-        //TODO CONFIG object model dependency, move to config
+        // TODO CONFIG object model dependency, move to config
 
         if (thing->model == ObjMdl_Torch)
         {
@@ -5096,10 +5387,12 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         {
             is_shown = ((thing->rendering_flags & TRF_Unknown01) == 0);
         }
-        if ( is_shown ||
-                get_my_player()->id_number == thing->owner ||
-                thing->trap.revealed )
+        if (is_shown ||
+            get_my_player()->id_number == thing->owner ||
+            thing->trap.revealed)
+        {
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, a6_2);
+        }
     }
     lbDisplay.DrawFlags = flg_mem;
     EngineSpriteDrawUsingAlpha = alpha_mem;
@@ -5128,19 +5421,21 @@ static void draw_engine_number(struct BucketKindFloatingGoldText *num)
     if (
         player->acamera->view_mode == PVM_IsoWibbleView ||
         player->acamera->view_mode == PVM_FrontView ||
-        player->acamera->view_mode == PVM_IsoStraightView
-    ) {
+        player->acamera->view_mode == PVM_IsoStraightView)
+    {
         // Count digits to be displayed
-        ndigits=0;
+        ndigits = 0;
         for (val = num->lvl; val > 0; val /= 10)
+        {
             ndigits++;
+        }
         if (ndigits > 0)
         {
             // Show the digits
-            pos_x = w*(ndigits-1)/2 + num->x;
+            pos_x = w * (ndigits - 1) / 2 + num->x;
             for (val = num->lvl; val > 0; val /= 10)
             {
-                spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
+                spr = &button_sprite[(val % 10) + GBS_fontchars_number_dig0];
                 LbSpriteDrawScaled(pos_x, num->y - h, spr, w, h);
 
                 pos_x -= w;
@@ -5155,7 +5450,8 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
 
     struct Room *room = room_get(rflg->lvl);
-    if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
+    if (!room_exists(room) || !room_can_have_ensign(room->kind))
+    {
         return;
     }
     struct PlayerInfo *player = get_my_player();
@@ -5164,19 +5460,22 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
     if (
         cam->view_mode == PVM_IsoWibbleView ||
         cam->view_mode == PVM_FrontView ||
-        cam->view_mode == PVM_IsoStraightView
-    ) {
+        cam->view_mode == PVM_IsoStraightView)
+    {
         if (settings.roomflags_on)
         {
             int deltay, height, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
 
-            if (cam->view_mode == PVM_FrontView) {
-                zoom_factor = 4094*scale_by_zoom;
+            if (cam->view_mode == PVM_FrontView)
+            {
+                zoom_factor = 4094 * scale_by_zoom;
                 deltay = (zoom_factor << 7 >> 13) * units_per_pixel / 16;
                 height = ((2 * (71 * zoom_factor) >> 13) * units_per_pixel + 8) / 16;
-            } else {
+            }
+            else
+            {
                 zoom_factor = camera_zoom;
                 deltay = (zoom_factor << 7 >> 13);
                 height = (2 * (71 * zoom_factor) >> 13) + 8;
@@ -5184,12 +5483,12 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
 
             LbDrawBox(rflg->x,
                       rflg->y - deltay,
-                      ((4*scale_by_zoom) * units_per_pixel + 8) / 16,
+                      ((4 * scale_by_zoom) * units_per_pixel + 8) / 16,
                       height,
                       colours[3][1][0]);
-            LbDrawBox(rflg->x + (2*scale_by_zoom) * (units_per_pixel) / 16,
+            LbDrawBox(rflg->x + (2 * scale_by_zoom) * (units_per_pixel) / 16,
                       rflg->y - deltay,
-                      ((2*scale_by_zoom) * units_per_pixel + 8) / 16,
+                      ((2 * scale_by_zoom) * units_per_pixel + 8) / 16,
                       height,
                       colours[1][0][0]);
         }
@@ -5200,7 +5499,7 @@ static void draw_engine_room_flagpole(struct BucketKindRoomFlag *rflg)
  * Selects index of a sprite used to show creature health flower.
  * @param thing
  */
-static unsigned short choose_health_sprite(struct Thing* thing)
+static unsigned short choose_health_sprite(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
     cctrl = creature_control_get_from_thing(thing);
@@ -5210,19 +5509,21 @@ static unsigned short choose_health_sprite(struct Thing* thing)
     health = thing->health;
     maxhealth = cctrl->max_health;
     color_idx = (thing->owner % 5);
-    if (is_neutral_thing(thing)) {
+    if (is_neutral_thing(thing))
+    {
         color_idx = game.play_gameturn & 3;
     }
     if ((maxhealth <= 0) || (health <= 0))
     {
-        return GBS_creature_flower_health_r1 + (8*color_idx);
-    } else
-    if (health >= maxhealth)
+        return GBS_creature_flower_health_r1 + (8 * color_idx);
+    }
+    else if (health >= maxhealth)
     {
-        return GBS_creature_flower_health_r1 + (8*color_idx) - 7;
-    } else
+        return GBS_creature_flower_health_r1 + (8 * color_idx) - 7;
+    }
+    else
     {
-        return GBS_creature_flower_health_r1 + (8*color_idx) - (8 * health / maxhealth);
+        return GBS_creature_flower_health_r1 + (8 * color_idx) - (8 * health / maxhealth);
     }
 }
 
@@ -5235,11 +5536,15 @@ void fill_status_sprite_indexes(struct Thing *thing, struct CreatureControl *cct
         lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
         if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn == 1)
         {
-            if (cctrl->thought_bubble_display_timer < 40) {
+            if (cctrl->thought_bubble_display_timer < 40)
+            {
                 cctrl->thought_bubble_display_timer++;
             }
-        } else {
-            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1) {
+        }
+        else
+        {
+            if (game.play_gameturn - cctrl->thought_bubble_last_turn_drawn > 1)
+            {
                 cctrl->thought_bubble_display_timer = 0;
             }
         }
@@ -5323,26 +5628,28 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 {
     struct PlayerInfo *player = get_my_player();
     const struct Camera *cam = player->acamera;
-    if (cam == NULL) {
+    if (cam == NULL)
+    {
         return;
     }
 
     float scale_by_zoom;
-    int base_size = creature_status_size*256;
-    switch (cam->view_mode) {
-        case PVM_IsoWibbleView:
-        case PVM_IsoStraightView:
-            // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-            break;
-        case PVM_FrontView:
-            scale_by_zoom = lerp(0.15, 1.00, hud_scale);
-            break;
-        case PVM_ParchmentView:
-            scale_by_zoom = 1;
-            break;
-        default:
-            return; // Do not draw if camera is 1st person
+    int base_size = creature_status_size * 256;
+    switch (cam->view_mode)
+    {
+    case PVM_IsoWibbleView:
+    case PVM_IsoStraightView:
+        // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
+        scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+        break;
+    case PVM_FrontView:
+        scale_by_zoom = lerp(0.15, 1.00, hud_scale);
+        break;
+    case PVM_ParchmentView:
+        scale_by_zoom = 1;
+        break;
+    default:
+        return; // Do not draw if camera is 1st person
     }
 
     unsigned short flg_mem;
@@ -5354,12 +5661,12 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     cctrl = creature_control_get_from_thing(thing);
     if ((game.flags_cd & MFlg_NoHeroHealthFlower) != 0)
     {
-      if ( player->thing_under_hand != thing->index )
-      {
-        cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
-        return;
-      }
-      cctrl->thought_bubble_display_timer = 40;
+        if (player->thing_under_hand != thing->index)
+        {
+            cctrl->thought_bubble_last_turn_drawn = game.play_gameturn;
+            return;
+        }
+        cctrl->thought_bubble_display_timer = 40;
     }
 
     short health_spridx;
@@ -5371,7 +5678,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     state_spridx = 0;
 
     CrtrExpLevel exp;
-    exp = min(cctrl->explevel,9);
+    exp = min(cctrl->explevel, 9);
     if (cam->view_mode != PVM_ParchmentView)
     {
         fill_status_sprite_indexes(thing, cctrl, &health_spridx, &state_spridx, &anger_spridx);
@@ -5386,16 +5693,17 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     spr = &button_sprite[GBS_creature_states_cloud];
     bs_units_per_px = units_per_pixel_ui * 2 * scale_by_zoom;
 
-    if (cam->view_mode == PVM_FrontView) {
+    if (cam->view_mode == PVM_FrontView)
+    {
         float flower_distance = 1280; // Higher number means flower is further away from creature
-        scrpos_y -= (int)(  (flower_distance / spr->SHeight) * ((float)camera_zoom / FRONTVIEW_CAMERA_ZOOM_MAX)  );
+        scrpos_y -= (int)((flower_distance / spr->SHeight) * ((float)camera_zoom / FRONTVIEW_CAMERA_ZOOM_MAX));
     }
 
-    if ( state_spridx || anger_spridx )
+    if (state_spridx || anger_spridx)
     {
         spr = &button_sprite[GBS_creature_states_cloud];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
     }
 
@@ -5404,16 +5712,17 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if (((game.play_gameturn & 4) == 0) && (anger_spridx > 0))
     {
         spr = &button_sprite[anger_spridx];
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         spr = get_button_sprite(state_spridx);
-        h_add += spr->SHeight * bs_units_per_px/16;
-    } else if ( state_spridx )
+        h_add += spr->SHeight * bs_units_per_px / 16;
+    }
+    else if (state_spridx)
     {
         spr = get_button_sprite(state_spridx);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
         h_add += h;
     }
@@ -5421,35 +5730,35 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
         int flash_owner;
-        if (is_neutral_thing(thing)) {
+        if (is_neutral_thing(thing))
+        {
             flash_owner = game.play_gameturn & 3;
-        } else {
+        }
+        else
+        {
             flash_owner = thing->owner;
         }
         spr = get_button_sprite(health_spridx);
-        w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-        h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
+        w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+        h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
     }
     else
     {
-      if ( (player->thing_under_hand == thing->index)
-        || ((player->id_number != thing->owner) && !creature_is_invisible(thing))
-        || (cctrl->combat_flags != 0)
-        || (thing->lair.spr_size > 0)
-        || (cam->view_mode == PVM_ParchmentView))
-      {
-          if (health_spridx > 0) {
-              spr = get_button_sprite(health_spridx);
-              w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-              h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-              LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
-          }
-          spr = &button_sprite[GBS_creature_flower_level_01 + exp];
-          w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
-          h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-          LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
-      }
+        if ((player->thing_under_hand == thing->index) || ((player->id_number != thing->owner) && !creature_is_invisible(thing)) || (cctrl->combat_flags != 0) || (thing->lair.spr_size > 0) || (cam->view_mode == PVM_ParchmentView))
+        {
+            if (health_spridx > 0)
+            {
+                spr = get_button_sprite(health_spridx);
+                w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+                h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
+                LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
+            }
+            spr = &button_sprite[GBS_creature_flower_level_01 + exp];
+            w = (base_size * spr->SWidth * bs_units_per_px / 16) >> 13;
+            h = (base_size * spr->SHeight * bs_units_per_px / 16) >> 13;
+            LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);
+        }
     }
     lbDisplay.DrawFlags = flg_mem;
 }
@@ -5457,10 +5766,13 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 static void draw_iso_only_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprite *spr)
 {
     if (cam->view_mode == PVM_FrontView)
-      draw_fastview_mapwho(cam, spr);
+    {
+        draw_fastview_mapwho(cam, spr);
+    }
 }
 
 #define ROOM_FLAG_PROGRESS_BAR_WIDTH 10
+
 static void draw_room_flag_top(long x, long y, int units_per_px, const struct Room *room)
 {
     unsigned long flg_mem;
@@ -5470,14 +5782,14 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     struct TbSprite *spr;
     int ps_units_per_px;
     spr = &gui_panel_sprites[303];
-    ps_units_per_px = 36*units_per_px/spr->SHeight;
+    ps_units_per_px = 36 * units_per_px / spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
     roomst = &game.slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
     spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
-    LbSpriteDrawResized(x - 2*units_per_px/16, y - 4*units_per_px/16, ps_units_per_px, spr);
+    LbSpriteDrawResized(x - 2 * units_per_px / 16, y - 4 * units_per_px / 16, ps_units_per_px, spr);
     bar_fill = ROOM_FLAG_PROGRESS_BAR_WIDTH;
     bar_empty = 0;
     if (room->slabs_count > 0)
@@ -5490,7 +5802,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     bar_width = (2 * bar_empty * units_per_px + 8) / 16;
     // Compute height in a way which will assure covering whole bar area
     bar_height = (5 * units_per_px - 8) / 16;
-    LbDrawBox(barpos_x - bar_width, y +  (8 * units_per_px + 8) / 16, bar_width, bar_height, colours[0][0][0]);
+    LbDrawBox(barpos_x - bar_width, y + (8 * units_per_px + 8) / 16, bar_width, bar_height, colours[0][0][0]);
     bar_empty = 0;
     if (room->total_capacity > 0)
     {
@@ -5508,6 +5820,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     LbDrawBox(barpos_x - bar_width, y + (24 * units_per_px + 8) / 16, bar_width, bar_height, colours[0][0][0]);
     lbDisplay.DrawFlags = flg_mem;
 }
+
 #undef ROOM_FLAG_PROGRESS_BAR_WIDTH
 
 static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
@@ -5515,7 +5828,8 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
 
     struct Room *room = room_get(rflg->lvl);
-    if (!room_exists(room) || !room_can_have_ensign(room->kind)) {
+    if (!room_exists(room) || !room_can_have_ensign(room->kind))
+    {
         return;
     }
     struct PlayerInfo *player = get_my_player();
@@ -5524,29 +5838,35 @@ static void draw_engine_room_flag_top(struct BucketKindRoomFlag *rflg)
     if (
         cam->view_mode == PVM_IsoWibbleView ||
         cam->view_mode == PVM_FrontView ||
-        cam->view_mode == PVM_IsoStraightView
-    ) {
+        cam->view_mode == PVM_IsoStraightView)
+    {
         if (settings.roomflags_on)
         {
             int top_of_pole_offset, zoom_factor;
             // 1st argument: the scale when fully zoomed out. 2nd argument: the scale at base level zoom
             float scale_by_zoom = lerp(0.15, 1.00, hud_scale);
 
-            if (cam->view_mode == PVM_FrontView) {
-                zoom_factor = (4094*scale_by_zoom);
-                top_of_pole_offset = (zoom_factor << 7 >> 13) * (units_per_pixel)/16;
-            } else {
+            if (cam->view_mode == PVM_FrontView)
+            {
+                zoom_factor = (4094 * scale_by_zoom);
+                top_of_pole_offset = (zoom_factor << 7 >> 13) * (units_per_pixel) / 16;
+            }
+            else
+            {
                 zoom_factor = camera_zoom;
                 top_of_pole_offset = (zoom_factor << 7 >> 13);
             }
-            draw_room_flag_top(rflg->x, rflg->y - top_of_pole_offset, (units_per_pixel*scale_by_zoom), room);
+            draw_room_flag_top(rflg->x, rflg->y - top_of_pole_offset, (units_per_pixel * scale_by_zoom), room);
         }
     }
 }
 
-static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line_color)
+static void draw_stripey_line(long x1, long y1, long x2, long y2, unsigned char line_color)
 {
-    if ((x1 == x2) && (y1 == y2)) return; // todo if distance is 0, provide a red square
+    if ((x1 == x2) && (y1 == y2))
+    {
+        return; // todo if distance is 0, provide a red square
+    }
 
     // get the 4 least significant bits of game.play_gameturn, to loop through the starting index of the color array, using numbers 0-15.
     unsigned char color_index = game.play_gameturn & 0xf;
@@ -5627,7 +5947,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
         }
     }
 
-    long start_b_dist_from_window = 0 - b1; // For window clipping
+    long start_b_dist_from_window = 0 - b1;               // For window clipping
     long end_b_dist_from_window = b2 - relative_window_b; // For window clipping
 
     // Handle going towards 0 in B (i.e. B counts down, not up)
@@ -5641,7 +5961,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     }
 
     // Clip line within engine_window
-    remainder_limit = (distance_b+1)/2;
+    remainder_limit = (distance_b + 1) / 2;
     // Find starting A coord
     if (distance_b == 0)
     {
@@ -5654,7 +5974,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     long min_a_start = 0;
     if ((b1 < 0 || b1 > relative_window_b))
     {
-        min_a_start = a1 + ( (start_b_dist_from_window) * distance_a / distance_b );
+        min_a_start = a1 + ((start_b_dist_from_window)*distance_a / distance_b);
         if (remainder >= remainder_limit)
         {
             min_a_start++;
@@ -5674,17 +5994,16 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     long max_a_end = relative_window_a;
     if (b2 < 0 || b2 > relative_window_b)
     {
-        max_a_end = a2 - ( (end_b_dist_from_window) * distance_a / distance_b );
+        max_a_end = a2 - ((end_b_dist_from_window)*distance_a / distance_b);
         if (remainder >= remainder_limit)
         {
             max_a_end--;
         }
         max_a_end = min(max_a_end, relative_window_a);
-
     }
     long a_end = min(a2, max_a_end);
     // Find starting B coord
-    remainder_limit = (distance_a+1)/2;
+    remainder_limit = (distance_a + 1) / 2;
     if (distance_a == 0)
     {
         remainder = 0;
@@ -5693,7 +6012,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     {
         remainder = (a_start - a1) * distance_b % distance_a; // initialise remainder for loop
     }
-    long b_start =  b1 + ( b_increment * (a_start - a1) * distance_b / distance_a );
+    long b_start = b1 + (b_increment * (a_start - a1) * distance_b / distance_a);
     if (remainder >= remainder_limit)
     {
         remainder -= distance_a;
@@ -5702,7 +6021,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     b = b_start;
 
     // Draw the line
-    for (a = a_start; a <= a_end; a ++)
+    for (a = a_start; a <= a_end; a++)
     {
         if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b))
         {
@@ -5729,17 +6048,17 @@ static void draw_clipped_line(long x1, long y1, long x2, long y2, TbPixel color)
     struct PlayerInfo *player;
     if ((x1 >= 0) || (x2 >= 0))
     {
-      if ((y1 >= 0) || (y2 >= 0))
-      {
-        player = get_my_player();
-        if ((x1 < player->engine_window_width) || (x2 < player->engine_window_width))
+        if ((y1 >= 0) || (y2 >= 0))
         {
-          if ((y1 < player->engine_window_height) || (y2 < player->engine_window_height))
-          {
-            draw_stripey_line(x1, y1, x2, y2, color);
-          }
+            player = get_my_player();
+            if ((x1 < player->engine_window_width) || (x2 < player->engine_window_width))
+            {
+                if ((y1 < player->engine_window_height) || (y2 < player->engine_window_height))
+                {
+                    draw_stripey_line(x1, y1, x2, y2, color);
+                }
+            }
         }
-      }
     }
 }
 
@@ -5772,7 +6091,7 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
     {
     case 0:
         vec_mode = VM_Unknown5;
-        draw_gpoly(&unk09->p1,&unk09->p2,&unk09->p3);
+        draw_gpoly(&unk09->p1, &unk09->p2, &unk09->p3);
         break;
     case 1:
         vec_mode = VM_Unknown5;
@@ -6519,12 +6838,13 @@ static void draw_unkn09(struct BucketKindPolygonNearFP *unk09)
         render_prob_kind = unk09->b.kind;
         break;
     }
-
 }
+
 static void display_drawlist(void) // Draws isometric and 1st person view. Not frontview.
 {
     struct PlayerInfo *player;
     const struct Camera *cam;
+
     union {
         struct BasicQ *b;
         struct BucketKindPolygonStandard *polygonStandard;
@@ -6546,11 +6866,12 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
         struct BucketKindFloatingGoldText *floatingGoldText;
         struct BucketKindRoomFlag *roomFlag;
     } item;
+
     long bucket_num;
     struct PolyPoint point_a;
     struct PolyPoint point_b;
     struct PolyPoint point_c;
-    SYNCDBG(9,"Starting");
+    SYNCDBG(9, "Starting");
     // Color rendering array pointers used by draw_keepersprite()
     render_fade_tables = pixmap.fade_tables;
     render_ghost = pixmap.ghost;
@@ -6559,12 +6880,12 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
     thing_pointed_at = 0;
 
     // The bucket list is the final step in drawing something to the screen. Visuals are added to the bucket list in previous functions.
-    for (bucket_num = BUCKETS_COUNT-1; bucket_num > 0; bucket_num--)
+    for (bucket_num = BUCKETS_COUNT - 1; bucket_num > 0; bucket_num--)
     {
         for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
         {
-            //JUSTLOG("%d",(int)item.b->kind);
-            switch ( item.b->kind )
+            // JUSTLOG("%d",(int)item.b->kind);
+            switch (item.b->kind)
             {
             case QK_PolygonStandard: // All textured polygons for isometric and 'far' textures in 1st person view
                 vec_mode = VM_Unknown5;
@@ -6573,7 +6894,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 break;
             case QK_PolygonSimple: // Possibly unused
                 vec_mode = VM_Unknown7;
-                vec_colour = ((item.polygonSimple->p3.S + item.polygonSimple->p2.S + item.polygonSimple->p1.S)/3) >> 16;
+                vec_colour = ((item.polygonSimple->p3.S + item.polygonSimple->p2.S + item.polygonSimple->p1.S) / 3) >> 16;
                 vec_map = block_ptrs[item.polygonSimple->block];
                 trig(&item.polygonSimple->p1, &item.polygonSimple->p2, &item.polygonSimple->p3);
                 break;
@@ -6716,7 +7037,8 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 cam = player->acamera;
                 if (cam != NULL)
                 {
-                    if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView) {
+                    if (cam->view_mode == PVM_IsoWibbleView || cam->view_mode == PVM_IsoStraightView)
+                    {
                         draw_jonty_mapwho(item.jontySprite);
                     }
                 }
@@ -6732,7 +7054,9 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
         }
     }
     if (render_problems > 0)
-      WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
+    {
+        WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld", render_problems, render_prob_kind);
+    }
 }
 
 static void prepare_draw_plane_of_engine_columns(struct Camera *cam, long aposc, long bposc, long xcell, long ycell, struct MinMax *mm)
@@ -6744,11 +7068,12 @@ static void prepare_draw_plane_of_engine_columns(struct Camera *cam, long aposc,
     if (lens_mode != 0)
     {
         fill_in_points_perspective(cam, xcell, ycell, mm);
-    } else
-    if (settings.video_cluedo_mode)
+    }
+    else if (settings.video_cluedo_mode)
     {
         fill_in_points_cluedo(cam, xcell, ycell, mm);
-    } else
+    }
+    else
     {
         fill_in_points_isometric(cam, xcell, ycell, mm);
     }
@@ -6775,28 +7100,29 @@ static void draw_plane_of_engine_columns(struct Camera *cam, long aposc, long bp
         fill_in_points_perspective(cam, xcell, ycell, mm);
         if (mm->min < mm->max)
         {
-          apos = aposc;
-          bpos = bposc;
-          do_a_plane_of_engine_columns_perspective(xcell, ycell, mm->min, mm->max);
+            apos = aposc;
+            bpos = bposc;
+            do_a_plane_of_engine_columns_perspective(xcell, ycell, mm->min, mm->max);
         }
-    } else
-    if ( settings.video_cluedo_mode )
+    }
+    else if (settings.video_cluedo_mode)
     {
         fill_in_points_cluedo(cam, xcell, ycell, mm);
         if (mm->min < mm->max)
         {
-          apos = aposc;
-          bpos = bposc;
-          do_a_plane_of_engine_columns_cluedo(xcell, ycell, mm->min, mm->max);
+            apos = aposc;
+            bpos = bposc;
+            do_a_plane_of_engine_columns_cluedo(xcell, ycell, mm->min, mm->max);
         }
-    } else
+    }
+    else
     {
         fill_in_points_isometric(cam, xcell, ycell, mm);
         if (mm->min < mm->max)
         {
-          apos = aposc;
-          bpos = bposc;
-          do_a_plane_of_engine_columns_isometric(xcell, ycell, mm->min, mm->max);
+            apos = aposc;
+            bpos = bposc;
+            do_a_plane_of_engine_columns_isometric(xcell, ycell, mm->min, mm->max);
         }
     }
 }
@@ -6812,13 +7138,15 @@ static void draw_view_map_plane(struct Camera *cam, long aposc, long bposc, long
 {
     struct MinMax *mm;
     long i;
-    i = MINMAX_ALMOST_HALF-cells_away;
+    i = MINMAX_ALMOST_HALF - cells_away;
     if (i < 0)
+    {
         i = 0;
+    }
     mm = &minmaxs[i];
     prepare_draw_plane_of_engine_columns(cam, aposc, bposc, xcell, ycell, mm);
 
-    for (i = 2*cells_away-1; i > 0; i--)
+    for (i = 2 * cells_away - 1; i > 0; i--)
     {
         ycell++;
         bposc -= 256;
@@ -6835,11 +7163,11 @@ void draw_view(struct Camera *cam, unsigned char a2)
     long i;
     long aposc;
     long bposc;
-    SYNCDBG(9,"Starting");
+    SYNCDBG(9, "Starting");
     calculate_hud_scale(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
-    zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    zoom_mem = cam->zoom;    // TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    cam->zoom = camera_zoom; // TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     interpolate_camera(cam);
     camera_zoom = interpolated_camera_zoom;
     long x = interpolated_cam_mappos_x;
@@ -6866,7 +7194,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     perspective = perspective_routines[i];
     rotpers = rotpers_routines[i];
     update_fade_limits(cells_away);
-    init_coords_and_rotation(&object_origin,&camera_matrix);
+    init_coords_and_rotation(&object_origin, &camera_matrix);
     rotate_base_axis(&camera_matrix, interpolated_cam_orient_a, 2);
     update_normal_shade(&camera_matrix);
     rotate_base_axis(&camera_matrix, -interpolated_cam_orient_b, 1);
@@ -6887,7 +7215,7 @@ void draw_view(struct Camera *cam, unsigned char a2)
     else
     { // isometric and straight view
         fade_min = 1000000;
-        setup_rotate_stuff(x, y, z, fade_max, fade_min, camera_zoom/pixel_size, cam_map_angle, map_roll);
+        setup_rotate_stuff(x, y, z, fade_max, fade_min, camera_zoom / pixel_size, cam_map_angle, map_roll);
         do_perspective_rotation(x, y, z);
         cells_away = compute_cells_away();
     }
@@ -6895,21 +7223,21 @@ void draw_view(struct Camera *cam, unsigned char a2)
     xcell = (x >> 8);
     aposc = -(x & 0xFF);
     bposc = (cells_away << 8) + (y & 0xFF);
-    ycell = (y >> 8) - (cells_away+1);
+    ycell = (y >> 8) - (cells_away + 1);
     find_gamut();
-    fiddle_gamut(xcell, ycell + (cells_away+1));
+    fiddle_gamut(xcell, ycell + (cells_away + 1));
 
     draw_view_map_plane(cam, aposc, bposc, xcell, ycell);
 
-    if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) )
+    if ((map_volume_box.visible) && (!game_is_busy_doing_gui()))
     {
         poly_pool_end_reserve(0);
         process_isometric_map_volume_box(x, y, z, my_player_number);
     }
 
     display_drawlist();
-    cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    SYNCDBG(9,"Finished");
+    cam->zoom = zoom_mem; // TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    SYNCDBG(9, "Finished");
 }
 
 static void clear_fast_bucket_list(void)
@@ -6962,7 +7290,8 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
         point_c.S = txquad->field_26;
         draw_gpoly(&point_a, &point_d, &point_b);
         draw_gpoly(&point_a, &point_b, &point_c);
-    } else
+    }
+    else
     {
         struct GtBlock gtb;
         switch (txquad->field_2A)
@@ -7006,6 +7335,7 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
 static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. Not isometric or 1st person view.
 {
     int bucket_num;
+
     union {
         struct BasicQ *b;
         // Unused in display_fast_drawlist()
@@ -7029,6 +7359,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
         struct BucketKindFloatingGoldText *floatingGoldText;
         struct BucketKindRoomFlag *roomFlag;
     } item;
+
     // Color rendering array pointers used by draw_keepersprite()
     render_fade_tables = pixmap.fade_tables;
     render_ghost = pixmap.ghost;
@@ -7036,7 +7367,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
     render_problems = 0;
     thing_pointed_at = 0;
 
-    for (bucket_num = BUCKETS_COUNT-1; bucket_num >= 0; bucket_num--)
+    for (bucket_num = BUCKETS_COUNT - 1; bucket_num >= 0; bucket_num--)
     {
         for (item.b = buckets[bucket_num]; item.b != NULL; item.b = item.b->next)
         {
@@ -7078,8 +7409,9 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
             }
         }
     } // end for(bucket_num...
-    if (render_problems > 0) {
-        WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld",render_problems,render_prob_kind);
+    if (render_problems > 0)
+    {
+        WARNLOG("Incurred %lu rendering problems; last was with poly kind %ld", render_problems, render_prob_kind);
     }
 }
 
@@ -7094,6 +7426,7 @@ static void display_fast_drawlist(struct Camera *cam) // Draws frontview only. N
  */
 
 #define UNKNOWN_PPH_MASK 0xFFFE
+
 static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoordDelta vertical_delta, MapCoordDelta horizontal_delta, MapCoord pos_z, long *x_out, long *y_out, long *z_out)
 {
     int vertical_shift;
@@ -7122,42 +7455,42 @@ static TbBool project_point_helper(struct PlayerInfo *player, int zoom, MapCoord
  * @param z_out The z position of the object relative to the camera
  * @return true if projected point is withing player's window, false otherwise
  */
-static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d* pos, struct Camera* cam, long* x_out, long* y_out, long* z_out)
+static TbBool convert_world_coord_to_front_view_screen_coord(struct Coord3d *pos, struct Camera *cam, long *x_out, long *y_out, long *z_out)
 {
     int zoom;
     unsigned int orientation;
     int vertical_delta, horizontal_delta;
     long result = 0;
-    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
 
     zoom = 32 * camera_zoom / 256;
     orientation = ((unsigned int)(interpolated_cam_orient_a + (LbFPMath_PI / 4)) >> 9) & 3;
 
-    switch ( orientation )
+    switch (orientation)
     {
-        case 0:
-            vertical_delta = pos->y.val - interpolated_cam_mappos_y;
-            horizontal_delta = pos->x.val - interpolated_cam_mappos_x;
-            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
-            break;
+    case 0:
+        vertical_delta = pos->y.val - interpolated_cam_mappos_y;
+        horizontal_delta = pos->x.val - interpolated_cam_mappos_x;
+        result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+        break;
 
-        case 1:
-            vertical_delta = interpolated_cam_mappos_x - pos->x.val;
-            horizontal_delta = pos->y.val - interpolated_cam_mappos_y;
-            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
-            break;
+    case 1:
+        vertical_delta = interpolated_cam_mappos_x - pos->x.val;
+        horizontal_delta = pos->y.val - interpolated_cam_mappos_y;
+        result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+        break;
 
-        case 2:
-            vertical_delta = interpolated_cam_mappos_y - pos->y.val;
-            horizontal_delta = interpolated_cam_mappos_x - pos->x.val;
-            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
-            break;
+    case 2:
+        vertical_delta = interpolated_cam_mappos_y - pos->y.val;
+        horizontal_delta = interpolated_cam_mappos_x - pos->x.val;
+        result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+        break;
 
-        case 3:
-            vertical_delta = pos->x.val - interpolated_cam_mappos_x;
-            horizontal_delta = interpolated_cam_mappos_y - pos->y.val;
-            result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
-            break;
+    case 3:
+        vertical_delta = pos->x.val - interpolated_cam_mappos_x;
+        horizontal_delta = interpolated_cam_mappos_y - pos->y.val;
+        result = project_point_helper(player, zoom, vertical_delta, horizontal_delta, pos->z.val, x_out, y_out, z_out);
+        break;
     }
 
     return result;
@@ -7167,10 +7500,13 @@ static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long s
 {
     struct BucketKindJontySprite *poly;
     if (bckt_idx >= BUCKETS_COUNT)
-        bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
+    {
+        bckt_idx = BUCKETS_COUNT - 1;
+    }
+    else if (bckt_idx < 0)
+    {
         bckt_idx = 0;
+    }
     poly = (struct BucketKindJontySprite *)getpoly;
     getpoly += sizeof(struct BucketKindJontySprite);
     poly->b.next = buckets[bckt_idx];
@@ -7189,10 +7525,13 @@ static void add_spinning_key_to_polypool(struct Thing *thing, long scr_x, long s
 {
     struct BucketKindJontySprite *poly;
     if (bckt_idx >= BUCKETS_COUNT)
-      bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
-      bckt_idx = 0;
+    {
+        bckt_idx = BUCKETS_COUNT - 1;
+    }
+    else if (bckt_idx < 0)
+    {
+        bckt_idx = 0;
+    }
     poly = (struct BucketKindJontySprite *)getpoly;
     getpoly += sizeof(struct BucketKindJontySprite);
     poly->b.next = buckets[bckt_idx];
@@ -7201,8 +7540,8 @@ static void add_spinning_key_to_polypool(struct Thing *thing, long scr_x, long s
     poly->thing = thing;
     if (pixel_size > 0)
     {
-      poly->scr_x = scr_x / pixel_size;
-      poly->scr_y = scr_y / pixel_size;
+        poly->scr_x = scr_x / pixel_size;
+        poly->scr_y = scr_y / pixel_size;
     }
     poly->field_14 = a4;
 }
@@ -7211,11 +7550,13 @@ static void add_spinning_key_to_polypool(struct Thing *thing, long scr_x, long s
 static void create_status_box_element(struct Thing *thing, long a2, long a3, long a4, long bckt_idx) //
 {
     struct BucketKindCreatureStatus *poly;
-    if (bckt_idx >= BUCKETS_COUNT) {
-      bckt_idx = BUCKETS_COUNT-1;
-    } else
-    if (bckt_idx < 0) {
-      bckt_idx = 0;
+    if (bckt_idx >= BUCKETS_COUNT)
+    {
+        bckt_idx = BUCKETS_COUNT - 1;
+    }
+    else if (bckt_idx < 0)
+    {
+        bckt_idx = 0;
     }
     poly = (struct BucketKindCreatureStatus *)getpoly;
     getpoly += sizeof(struct BucketKindCreatureStatus);
@@ -7240,10 +7581,13 @@ static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long
 {
     struct BucketKindTexturedQuad *poly;
     if (bckt_idx >= BUCKETS_COUNT)
-      bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
-      bckt_idx = 0;
+    {
+        bckt_idx = BUCKETS_COUNT - 1;
+    }
+    else if (bckt_idx < 0)
+    {
+        bckt_idx = 0;
+    }
     poly = (struct BucketKindTexturedQuad *)getpoly;
     getpoly += sizeof(struct BucketKindTexturedQuad);
     poly->b.next = buckets[bckt_idx];
@@ -7267,10 +7611,13 @@ static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long
 {
     struct BucketKindTexturedQuad *poly;
     if (bckt_idx >= BUCKETS_COUNT)
-      bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
-      bckt_idx = 0;
+    {
+        bckt_idx = BUCKETS_COUNT - 1;
+    }
+    else if (bckt_idx < 0)
+    {
+        bckt_idx = 0;
+    }
     poly = (struct BucketKindTexturedQuad *)getpoly;
     getpoly += sizeof(struct BucketKindTexturedQuad);
     poly->b.next = buckets[bckt_idx];
@@ -7294,10 +7641,13 @@ static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
 {
     struct BucketKindFloatingGoldText *poly;
     if (bckt_idx >= BUCKETS_COUNT)
-      bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
-      bckt_idx = 0;
+    {
+        bckt_idx = BUCKETS_COUNT - 1;
+    }
+    else if (bckt_idx < 0)
+    {
+        bckt_idx = 0;
+    }
     poly = (struct BucketKindFloatingGoldText *)getpoly;
     getpoly += sizeof(struct BucketKindFloatingGoldText);
     poly->b.next = buckets[bckt_idx];
@@ -7305,8 +7655,8 @@ static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
     buckets[bckt_idx] = (struct BasicQ *)poly;
     if (pixel_size > 0)
     {
-      poly->x = x / pixel_size;
-      poly->y = y / pixel_size;
+        poly->x = x / pixel_size;
+        poly->y = y / pixel_size;
     }
     poly->lvl = number;
 }
@@ -7315,10 +7665,13 @@ static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long b
 {
     struct BucketKindRoomFlag *poly;
     if (bckt_idx >= BUCKETS_COUNT)
-      bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
-      bckt_idx = 0;
+    {
+        bckt_idx = BUCKETS_COUNT - 1;
+    }
+    else if (bckt_idx < 0)
+    {
+        bckt_idx = 0;
+    }
     poly = (struct BucketKindRoomFlag *)getpoly;
     getpoly += sizeof(struct BucketKindRoomFlag);
     poly->b.next = buckets[bckt_idx];
@@ -7326,8 +7679,8 @@ static void add_room_flag_pole_to_polypool(long x, long y, long room_idx, long b
     buckets[bckt_idx] = (struct BasicQ *)poly;
     if (pixel_size > 0)
     {
-      poly->x = x / pixel_size;
-      poly->y = y / pixel_size;
+        poly->x = x / pixel_size;
+        poly->y = y / pixel_size;
     }
     poly->lvl = room_idx;
 }
@@ -7336,10 +7689,13 @@ static void add_room_flag_top_to_polypool(long x, long y, long room_idx, long bc
 {
     struct BucketKindRoomFlag *poly;
     if (bckt_idx >= BUCKETS_COUNT)
-      bckt_idx = BUCKETS_COUNT-1;
-    else
-    if (bckt_idx < 0)
-      bckt_idx = 0;
+    {
+        bckt_idx = BUCKETS_COUNT - 1;
+    }
+    else if (bckt_idx < 0)
+    {
+        bckt_idx = 0;
+    }
     poly = (struct BucketKindRoomFlag *)getpoly;
     getpoly += sizeof(struct BucketKindRoomFlag);
     poly->b.next = buckets[bckt_idx];
@@ -7347,8 +7703,8 @@ static void add_room_flag_top_to_polypool(long x, long y, long room_idx, long bc
     buckets[bckt_idx] = (struct BasicQ *)poly;
     if (pixel_size > 0)
     {
-      poly->x = x / pixel_size;
-      poly->y = y / pixel_size;
+        poly->x = x / pixel_size;
+        poly->y = y / pixel_size;
     }
     poly->lvl = room_idx;
 }
@@ -7358,16 +7714,17 @@ static void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp
     long i;
     long n;
     n = 4 * stl_x + 17 * stl_y;
-    for (i=0; i < 9; i++)
+    for (i = 0; i < 9; i++)
     {
         long rndi;
         long nval;
         if ((base_lightness <= 256) || (base_lightness > 15872))
         {
             nval = base_lightness;
-        } else
+        }
+        else
         {
-            rndi = randomisors[n&RANDOMISORS_MASK];
+            rndi = randomisors[n & RANDOMISORS_MASK];
             n++;
             nval = 32 * (rndi & 0x3F) + base_lightness - 256;
         }
@@ -7396,43 +7753,59 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     bckt_idx = myplyr->engine_window_height - (pos_y >> 8) + 64;
     // Check if there's enough place to draw
     if (!is_free_space_in_poly_pool(8))
-      return;
+    {
+        return;
+    }
 
     // Prepare light intensity array
 
-    for (y=0; y < 3; y++)
-        for (x=0; x < 3; x++)
+    for (y = 0; y < 3; y++)
+    {
+        for (x = 0; x < 3; x++)
         {
-            sibrevealed[y][x] = subtile_revealed(stl_x+x-1, stl_y+y-1, myplyr->id_number);
+            sibrevealed[y][x] = subtile_revealed(stl_x + x - 1, stl_y + y - 1, myplyr->id_number);
         }
+    }
 
     i = 0;
     if (sibrevealed[0][1] && sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[0][0])
+    {
         i = lightness;
-    prepare_lightness_intensity_array(stl_x,stl_y,lightness_arr[(-a8) & 3],i);
+    }
+    prepare_lightness_intensity_array(stl_x, stl_y, lightness_arr[(-a8) & 3], i);
 
     i = 0;
     if (sibrevealed[0][1] && sibrevealed[0][2] && sibrevealed[1][2] && sibrevealed[1][1])
-        i = get_subtile_lightness(&game.lish,stl_x+1,stl_y);
-    prepare_lightness_intensity_array(stl_x+1,stl_y,lightness_arr[(1-a8) & 3],i);
+    {
+        i = get_subtile_lightness(&game.lish, stl_x + 1, stl_y);
+    }
+    prepare_lightness_intensity_array(stl_x + 1, stl_y, lightness_arr[(1 - a8) & 3], i);
 
     i = 0;
     if (sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[2][0] && sibrevealed[2][1])
-        i = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
-    prepare_lightness_intensity_array(stl_x,stl_y+1,lightness_arr[(-1-a8) & 3],i);
+    {
+        i = get_subtile_lightness(&game.lish, stl_x, stl_y + 1);
+    }
+    prepare_lightness_intensity_array(stl_x, stl_y + 1, lightness_arr[(-1 - a8) & 3], i);
 
     i = 0;
     if (sibrevealed[2][2] && sibrevealed[1][2] && sibrevealed[1][1] && sibrevealed[2][1])
-        i = get_subtile_lightness(&game.lish,stl_x+1,stl_y+1);
-    prepare_lightness_intensity_array(stl_x+1,stl_y+1,lightness_arr[(-2-a8) & 3],i);
+    {
+        i = get_subtile_lightness(&game.lish, stl_x + 1, stl_y + 1);
+    }
+    prepare_lightness_intensity_array(stl_x + 1, stl_y + 1, lightness_arr[(-2 - a8) & 3], i);
 
     // Get column to be drawn on the current subtile
 
     struct Column *col;
     if (map_block_revealed(map, my_player_number))
-      i = get_mapblk_column_index(map);
+    {
+        i = get_mapblk_column_index(map);
+    }
     else
-      i = game.unrevealed_column_idx;
+    {
+        i = game.unrevealed_column_idx;
+    }
     col = get_column(i);
     mapblk = get_map_block_at(stl_x, stl_y);
     unsigned short textr_idx;
@@ -7440,104 +7813,111 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
 
     if (*ymax > pos_y)
     {
-      if ((col->floor_texture != 0) && (col->cubes[0] == 0))
-      {
-          *ymax = pos_y;
-          textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->floor_texture);
-          if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
-          {
-              add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, a7, 0,
-                  2097152, 0, bckt_idx);
-          } else
-          {
-              add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, a7, a7, 0,
-                  lightness_arr[0][0], lightness_arr[1][0], lightness_arr[2][0], lightness_arr[3][0], bckt_idx);
-          }
-      }
+        if ((col->floor_texture != 0) && (col->cubes[0] == 0))
+        {
+            *ymax = pos_y;
+            textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->floor_texture);
+            if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
+            {
+                add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, a7, 0,
+                                              2097152, 0, bckt_idx);
+            }
+            else
+            {
+                add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, a7, a7, 0,
+                                              lightness_arr[0][0], lightness_arr[1][0], lightness_arr[2][0], lightness_arr[3][0], bckt_idx);
+            }
+        }
     }
 
     // Draw the columns cubes
 
     y = a7 + pos_y;
     unkstrcp = NULL;
-    for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
+    for (tc = 0; tc < COLUMN_STACK_HEIGHT; tc++)
     {
-      if (col->cubes[tc] == 0)
-        break;
-      y -= delta_y;
-      unkstrcp = get_cube_model_stats(col->cubes[tc]);
-      if (*ymax > y)
-      {
-        *ymax = y;
-        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
-        add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
-            lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
-      }
+        if (col->cubes[tc] == 0)
+        {
+            break;
+        }
+        y -= delta_y;
+        unkstrcp = get_cube_model_stats(col->cubes[tc]);
+        if (*ymax > y)
+        {
+            *ymax = y;
+            textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
+            add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
+                                          lightness_arr[3][tc + 1], lightness_arr[2][tc + 1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+        }
     }
 
     if (unkstrcp != NULL)
     {
-      i = y - a7;
-      if (*ymax > i)
-      {
-        *ymax = i;
-        textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
-        if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+        i = y - a7;
+        if (*ymax > i)
         {
-          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
-              2097152, 1, bckt_idx);
-        } else
-        if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
-        {
-          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
-              2097152, 0, bckt_idx);
-        } else
-        {
-          add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
-              lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+            *ymax = i;
+            textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
+            if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
+            {
+                add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
+                                              2097152, 1, bckt_idx);
+            }
+            else if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
+            {
+                add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
+                                              2097152, 0, bckt_idx);
+            }
+            else
+            {
+                add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
+                                              lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+            }
         }
-      }
     }
 
     // If there are still some solid cubes higher than tc
     if ((get_column_ceiling_filled_subtiles(col) != 0) && (col->solidmask > (1 << tc)))
     {
         // Find any top cube separated by empty space
-        for (;tc < COLUMN_STACK_HEIGHT; tc++)
+        for (; tc < COLUMN_STACK_HEIGHT; tc++)
         {
             if (col->cubes[tc] != 0)
-              break;
+            {
+                break;
+            }
             y -= delta_y;
         }
 
-        for (;tc < COLUMN_STACK_HEIGHT; tc++)
+        for (; tc < COLUMN_STACK_HEIGHT; tc++)
         {
             if (col->cubes[tc] == 0)
-              break;
+            {
+                break;
+            }
             y -= delta_y;
             unkstrcp = get_cube_model_stats(col->cubes[tc]);
             if (*ymax > y)
             {
-              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
-              add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
-                  lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+                textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
+                add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
+                                              lightness_arr[3][tc + 1], lightness_arr[2][tc + 1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
             }
         }
         if (unkstrcp != NULL)
         {
-          i = y - a7;
-          if (*ymax > i)
-          {
-              textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
-            add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
-                lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
-          }
+            i = y - a7;
+            if (*ymax > i)
+            {
+                textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
+                add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
+                                              lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
+            }
         }
     }
-
 }
 
-static unsigned short get_thing_shade(struct Thing* thing)
+static unsigned short get_thing_shade(struct Thing *thing)
 {
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
@@ -7549,24 +7929,26 @@ static unsigned short get_thing_shade(struct Thing* thing)
     stl_y = thing->mappos.y.stl.num;
     fract_x = thing->mappos.x.stl.pos;
     fract_y = thing->mappos.y.stl.pos;
-    lgh[0][0] = get_subtile_lightness(&game.lish,stl_x,  stl_y);
-    lgh[0][1] = get_subtile_lightness(&game.lish,stl_x+1,stl_y);
-    lgh[1][0] = get_subtile_lightness(&game.lish,stl_x,  stl_y+1);
-    lgh[1][1] = get_subtile_lightness(&game.lish,stl_x+1,stl_y+1);
-    shval = (fract_x
-        * (lgh[0][1] + (fract_y * (lgh[1][1] - lgh[0][1]) >> 8)
-        - (lgh[0][0] + (fract_y * (lgh[1][0] - lgh[0][0]) >> 8))) >> 8)
-        + (lgh[0][0] + (fract_y * (lgh[1][0] - lgh[0][0]) >> 8));
+    lgh[0][0] = get_subtile_lightness(&game.lish, stl_x, stl_y);
+    lgh[0][1] = get_subtile_lightness(&game.lish, stl_x + 1, stl_y);
+    lgh[1][0] = get_subtile_lightness(&game.lish, stl_x, stl_y + 1);
+    lgh[1][1] = get_subtile_lightness(&game.lish, stl_x + 1, stl_y + 1);
+    shval = (fract_x * (lgh[0][1] + (fract_y * (lgh[1][1] - lgh[0][1]) >> 8) - (lgh[0][0] + (fract_y * (lgh[1][0] - lgh[0][0]) >> 8))) >> 8) + (lgh[0][0] + (fract_y * (lgh[1][0] - lgh[0][0]) >> 8));
     if (shval < MINIMUM_LIGHTNESS)
     {
-        shval += (MINIMUM_LIGHTNESS>>2);
+        shval += (MINIMUM_LIGHTNESS >> 2);
         if (shval > MINIMUM_LIGHTNESS)
+        {
             shval = MINIMUM_LIGHTNESS;
-    } else
+        }
+    }
+    else
     {
         // Max lightness value - make sure it won't exceed our limits
-        if (shval > 64*256+255)
-            shval = 64*256+255;
+        if (shval > 64 * 256 + 255)
+        {
+            shval = 64 * 256 + 255;
+        }
     }
     return shval;
 }
@@ -7574,7 +7956,7 @@ static unsigned short get_thing_shade(struct Thing* thing)
 static long load_single_frame(TbSpriteData *data_ptr, unsigned short kspr_idx)
 {
     long nlength;
-    nlength = creature_table[kspr_idx+1].DataOffset - creature_table[kspr_idx].DataOffset;
+    nlength = creature_table[kspr_idx + 1].DataOffset - creature_table[kspr_idx].DataOffset;
     *data_ptr = he_alloc(nlength);
 
     LbFileSeek(jty_file_handle, creature_table[kspr_idx].DataOffset, 0);
@@ -7590,17 +7972,20 @@ static long load_keepersprite_if_needed(unsigned short kspr_idx)
     int frame_count;
     struct KeeperSprite *kspr_arr;
     kspr_arr = &creature_table[kspr_idx];
-    if (kspr_arr->Rotable) {
+    if (kspr_arr->Rotable)
+    {
         frame_count = 5 * kspr_arr->FramesCount;
-    } else {
+    }
+    else
+    {
         frame_count = kspr_arr->FramesCount;
     }
-    for (frame_num=0; frame_num < frame_count; frame_num++)
+    for (frame_num = 0; frame_num < frame_count; frame_num++)
     {
-        TbSpriteData *sprite_data_ptr = &sprite_heap_handle[kspr_idx+frame_num];
+        TbSpriteData *sprite_data_ptr = &sprite_heap_handle[kspr_idx + frame_num];
         if ((*sprite_data_ptr) == NULL)
         {
-            if (!load_single_frame(sprite_data_ptr, kspr_idx+frame_num))
+            if (!load_single_frame(sprite_data_ptr, kspr_idx + frame_num))
             {
                 return 0;
             }
@@ -7613,7 +7998,9 @@ static long heap_manage_keepersprite(unsigned short kspr_idx)
 {
     long result;
     if (kspr_idx >= KEEPERSPRITE_ADD_OFFSET)
+    {
         return 1;
+    }
     result = load_keepersprite_if_needed(kspr_idx);
     return result;
 }
@@ -7624,45 +8011,57 @@ static void draw_keepersprite(long x, long y, long w, long h, long kspr_idx)
     long cut_w;
     long cut_h;
     TbSpriteData *kspr_item;
-    if ((kspr_idx < 0)
-        || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET))
-        || (kspr_idx > (KEEPERSPRITE_ADD_NUM + KEEPERSPRITE_ADD_OFFSET))) {
-        WARNDBG(9,"Invalid KeeperSprite %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
+    if ((kspr_idx < 0) || ((kspr_idx >= KEEPSPRITE_LENGTH) && (kspr_idx < KEEPERSPRITE_ADD_OFFSET)) || (kspr_idx > (KEEPERSPRITE_ADD_NUM + KEEPERSPRITE_ADD_OFFSET)))
+    {
+        WARNDBG(9, "Invalid KeeperSprite %ld at (%ld,%ld) size (%ld,%ld) alpha %d", kspr_idx, x, y, w, h, (int)EngineSpriteDrawUsingAlpha);
         return;
     }
-    SYNCDBG(17,"Drawing %ld at (%ld,%ld) size (%ld,%ld) alpha %d",kspr_idx,x,y,w,h,(int)EngineSpriteDrawUsingAlpha);
+    SYNCDBG(17, "Drawing %ld at (%ld,%ld) size (%ld,%ld) alpha %d", kspr_idx, x, y, w, h, (int)EngineSpriteDrawUsingAlpha);
     cut_w = w;
     cut_h = h - water_source_cutoff;
-    if (cut_h <= 0) {
+    if (cut_h <= 0)
+    {
         return;
     }
     if (kspr_idx < KEEPERSPRITE_ADD_OFFSET)
+    {
         kspr_item = keepsprite[kspr_idx];
+    }
     else
+    {
         kspr_item = &keepersprite_add[kspr_idx - KEEPERSPRITE_ADD_OFFSET];
+    }
 
     sprite.SWidth = cut_w;
     sprite.SHeight = cut_h;
-    if (kspr_item != NULL) {
+    if (kspr_item != NULL)
+    {
         sprite.Data = *kspr_item;
-    } else {
+    }
+    else
+    {
         sprite.Data = NULL;
     }
-    if (sprite.Data == NULL) {
-        WARNDBG(9,"Unallocated KeeperSprite %ld can't be drawn at (%ld,%ld)",kspr_idx,x,y);
+    if (sprite.Data == NULL)
+    {
+        WARNDBG(9, "Unallocated KeeperSprite %ld can't be drawn at (%ld,%ld)", kspr_idx, x, y);
         return;
     }
-    if ( EngineSpriteDrawUsingAlpha ) {
+    if (EngineSpriteDrawUsingAlpha)
+    {
         DrawAlphaSpriteUsingScalingData(x, y, &sprite);
-    } else {
+    }
+    else
+    {
         LbSpriteDrawUsingScalingData(x, y, &sprite);
     }
-    SYNCDBG(18,"Finished");
+    SYNCDBG(18, "Finished");
 }
 
 static void set_thing_pointed_at(struct Thing *thing)
 {
-    if (thing_pointed_at == NULL) {
+    if (thing_pointed_at == NULL)
+    {
         thing_pointed_at = thing;
     }
 }
@@ -7677,14 +8076,15 @@ static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, stru
     src_dx = (long)kspr->FrameWidth;
     x = src_dx - (long)kspr->FrameOffsW - (long)kspr->SWidth;
     y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
+    if (EngineSpriteDrawUsingAlpha)
     {
         sp_x = kspos_x;
         sp_y = kspos_y;
         sp_dy = (src_dy * scale) >> 5;
         sp_dx = (src_dx * scale) >> 5;
         SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
+    }
+    else
     {
         sp_x = kspos_x;
         sp_y = kspos_y;
@@ -7692,15 +8092,15 @@ static void draw_single_keepersprite_omni_xflip(long kspos_x, long kspos_y, stru
         sp_dx = (src_dx * scale) >> 5;
         LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     }
-    if ( thing_being_displayed_is_creature )
+    if (thing_being_displayed_is_creature)
     {
-      if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
-      {
-          if ( (pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y) )
-          {
-              set_thing_pointed_at(thing_being_displayed);
-          }
-      }
+        if ((pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x))
+        {
+            if ((pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y))
+            {
+                set_thing_pointed_at(thing_being_displayed);
+            }
+        }
     }
     draw_keepersprite(x, y, kspr->SWidth, kspr->SHeight, kspr_idx);
 }
@@ -7715,14 +8115,15 @@ static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct Kee
     src_dx = (long)kspr->FrameWidth;
     x = kspr->FrameOffsW;
     y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
+    if (EngineSpriteDrawUsingAlpha)
     {
         sp_x = kspos_x;
         sp_y = kspos_y;
         sp_dy = (src_dy * scale) >> 5;
         sp_dx = (src_dx * scale) >> 5;
         SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
+    }
+    else
     {
         sp_x = kspos_x;
         sp_y = kspos_y;
@@ -7730,15 +8131,15 @@ static void draw_single_keepersprite_omni(long kspos_x, long kspos_y, struct Kee
         sp_dx = (src_dx * scale) >> 5;
         LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     }
-    if ( thing_being_displayed_is_creature )
+    if (thing_being_displayed_is_creature)
     {
-      if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
-      {
-          if ( (pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y) )
-          {
-              set_thing_pointed_at(thing_being_displayed);
-          }
-      }
+        if ((pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x))
+        {
+            if ((pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y))
+            {
+                set_thing_pointed_at(thing_being_displayed);
+            }
+        }
     }
     draw_keepersprite(x, y, kspr->SWidth, kspr->SHeight, kspr_idx);
 }
@@ -7749,19 +8150,20 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
     long y;
     long src_dy;
     long src_dx;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     src_dy = (long)kspr->SHeight;
     src_dx = (long)kspr->SWidth;
     x = (long)kspr->FrameWidth - (long)kspr->FrameOffsW - src_dx;
     y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
+    if (EngineSpriteDrawUsingAlpha)
     {
         sp_x = kspos_x + ((scale * x) >> 5);
         sp_y = kspos_y + ((scale * y) >> 5);
         sp_dy = (src_dy * scale) >> 5;
         sp_dx = (src_dx * scale) >> 5;
         SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
+    }
+    else
     {
         sp_x = kspos_x + ((scale * x) >> 5);
         sp_y = kspos_y + ((scale * y) >> 5);
@@ -7769,18 +8171,18 @@ static void draw_single_keepersprite_xflip(long kspos_x, long kspos_y, struct Ke
         sp_dx = (src_dx * scale) >> 5;
         LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     }
-    if ( thing_being_displayed_is_creature )
+    if (thing_being_displayed_is_creature)
     {
-      if ( (pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x) )
-      {
-          if ( (pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y) )
-          {
-              set_thing_pointed_at(thing_being_displayed);
-          }
-      }
+        if ((pointer_x >= sp_x) && (pointer_x <= sp_dx + sp_x))
+        {
+            if ((pointer_y >= sp_y) && (pointer_y <= sp_dy + sp_y))
+            {
+                set_thing_pointed_at(thing_being_displayed);
+            }
+        }
     }
     draw_keepersprite(0, 0, kspr->SWidth, kspr->SHeight, kspr_idx);
-    SYNCDBG(18,"Finished");
+    SYNCDBG(18, "Finished");
 }
 
 static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSprite *kspr, long kspr_idx, long scale)
@@ -7789,19 +8191,20 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
     long y;
     long src_dy;
     long src_dx;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     src_dy = (long)kspr->SHeight;
     src_dx = (long)kspr->SWidth;
     x = kspr->FrameOffsW;
     y = kspr->FrameOffsH;
-    if ( EngineSpriteDrawUsingAlpha )
+    if (EngineSpriteDrawUsingAlpha)
     {
         sp_x = kspos_x + ((scale * x) >> 5);
         sp_y = kspos_y + ((scale * y) >> 5);
         sp_dy = (src_dy * scale) >> 5;
         sp_dx = (src_dx * scale) >> 5;
         SetAlphaScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
-    } else
+    }
+    else
     {
         sp_x = kspos_x + ((scale * x) >> 5);
         sp_y = kspos_y + ((scale * y) >> 5);
@@ -7809,18 +8212,18 @@ static void draw_single_keepersprite(long kspos_x, long kspos_y, struct KeeperSp
         sp_dx = (src_dx * scale) >> 5;
         LbSpriteSetScalingData(sp_x, sp_y, src_dx, src_dy, sp_dx, sp_dy);
     }
-    if ( thing_being_displayed_is_creature )
+    if (thing_being_displayed_is_creature)
     {
-        if ( (pointer_x >= x) && (pointer_x <= sp_dx + x) )
+        if ((pointer_x >= x) && (pointer_x <= sp_dx + x))
         {
-            if ( (pointer_y >= y) && (pointer_y <= sp_dy + y) )
+            if ((pointer_y >= y) && (pointer_y <= sp_dy + y))
             {
                 set_thing_pointed_at(thing_being_displayed);
             }
         }
     }
     draw_keepersprite(0, 0, kspr->SWidth, kspr->SHeight, kspr_idx);
-    SYNCDBG(18,"Finished");
+    SYNCDBG(18, "Finished");
 }
 
 void process_keeper_sprite(short x, short y, unsigned short kspr_base, short kspr_angle, unsigned char sprgroup, long scale)
@@ -7845,14 +8248,22 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     SYNCDBG(17, "At (%d,%d) opts %d %d %d %d", (int)x, (int)y, (int)kspr_base, (int)kspr_angle, (int)sprgroup, (int)scale);
     player = get_my_player();
 
-    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) )
+    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919))
+    {
         needs_xflip = 0;
+    }
     else
+    {
         needs_xflip = 1;
-    if ( needs_xflip )
-      lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
+    }
+    if (needs_xflip)
+    {
+        lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
+    }
     else
-      lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+    {
+        lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
+    }
     sprite_group = sprgroup;
     lltemp = 4 - ((((long)kspr_angle + 128) & 0x7FF) >> 8);
     sprite_rot = llabs(lltemp);
@@ -7861,20 +8272,21 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     creature_sprites = keepersprite_array(kspr_base);
     scaled_x = ((scale * (long)creature_sprites->offset_x) >> 5) + (long)x;
     scaled_y = ((scale * (long)creature_sprites->offset_y) >> 5) + (long)y;
-    SYNCDBG(17,"Scaled (%d,%d)",(int)scaled_x,(int)scaled_y);
+    SYNCDBG(17, "Scaled (%d,%d)", (int)scaled_x, (int)scaled_y);
     if (thing_is_invalid(thing_being_displayed))
     {
         water_y_offset = 0;
         water_source_cutoff = 0;
-    } else
-    if ( ((thing_being_displayed->movement_flags & (TMvF_IsOnWater|TMvF_IsOnLava|TMvF_BeingSacrificed)) == 0) || (object_is_buoyant(thing_being_displayed)))
+    }
+    else if (((thing_being_displayed->movement_flags & (TMvF_IsOnWater | TMvF_IsOnLava | TMvF_BeingSacrificed)) == 0) || (object_is_buoyant(thing_being_displayed)))
     {
         water_y_offset = 0;
         water_source_cutoff = 0;
-    } else
+    }
+    else
     {
         cutoff = 6;
-        if ( (thing_being_displayed->movement_flags & TMvF_BeingSacrificed) != 0 )
+        if ((thing_being_displayed->movement_flags & TMvF_BeingSacrificed) != 0)
         {
             get_keepsprite_unscaled_dimensions(thing_being_displayed->anim_sprite, thing_being_displayed->move_angle_xy, thing_being_displayed->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
             cctrl = creature_control_get_from_thing(thing_being_displayed);
@@ -7885,7 +8297,8 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         {
             water_source_cutoff = cutoff;
             water_y_offset = (2 * scale * cutoff) >> 5;
-        } else
+        }
+        else
         {
             water_source_cutoff = 2 * cutoff;
             water_y_offset = (scale * cutoff) >> 5;
@@ -7900,15 +8313,16 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         }
         kspr = &creature_sprites[sprite_group];
         draw_idx = sprite_group + kspr_idx;
-        if ( needs_xflip )
+        if (needs_xflip)
         {
             draw_single_keepersprite_omni_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
-        } else
+        }
+        else
         {
             draw_single_keepersprite_omni(scaled_x, scaled_y, kspr, draw_idx, scale);
         }
-    } else
-    if (creature_sprites->Rotable == 2)
+    }
+    else if (creature_sprites->Rotable == 2)
     {
         if (!heap_manage_keepersprite(kspr_idx))
         {
@@ -7916,10 +8330,11 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
         }
         kspr = &creature_sprites[sprite_group + sprite_rot * (long)creature_sprites->FramesCount];
         draw_idx = sprite_group + sprite_rot * (long)kspr->FramesCount + kspr_idx;
-        if ( needs_xflip )
+        if (needs_xflip)
         {
             draw_single_keepersprite_xflip(scaled_x, scaled_y, kspr, draw_idx, scale);
-        } else
+        }
+        else
         {
             draw_single_keepersprite(scaled_x, scaled_y, kspr, draw_idx, scale);
         }
@@ -7943,12 +8358,13 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         graph_id2 = 112;
         if (player->view_type == PVT_DungeonTop)
         {
-          add_x = scale >> 3;
-          add_y = (scale >> 2) - scale;
-        } else
+            add_x = scale >> 3;
+            add_y = (scale >> 2) - scale;
+        }
+        else
         {
-          add_x = scale * LbSinL(angle) >> 20;
-          add_y = -(LbCosL(angle) * (scale + (scale >> 1))) >> 16;
+            add_x = scale * LbSinL(angle) >> 20;
+            add_y = -(LbCosL(angle) * (scale + (scale >> 1))) >> 16;
         }
         transp2 = scale / 2;
         break;
@@ -7958,7 +8374,8 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         {
             add_x = 0;
             add_y = 3 * scale >> 3;
-        } else
+        }
+        else
         {
             add_x = (scale * LbSinL(angle)) >> 20;
             add_y = (scale * LbCosL(angle)) >> 20;
@@ -7971,7 +8388,8 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
         {
             add_x = (scale >> 2) / 3;
             add_y = (scale >> 1) / 3;
-        } else
+        }
+        else
         {
             add_x = scale * LbSinL(angle) >> 20;
             add_y = (-(LbCosL(angle) * (scale + (scale >> 1))) >> 16) / 3;
@@ -7983,7 +8401,7 @@ static void process_keeper_flame_on_sprite(struct BucketKindJontySprite *jspr, l
     nframe2 = (thing->index + game.play_gameturn) % keepersprite_frames(graph_id2);
     process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
     EngineSpriteDrawUsingAlpha = 1;
-    process_keeper_sprite(jspr->scr_x+add_x, jspr->scr_y+add_y, graph_id2, angle, nframe2, transp2);
+    process_keeper_sprite(jspr->scr_x + add_x, jspr->scr_y + add_y, graph_id2, angle, nframe2, transp2);
 }
 
 static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJontySprite *jspr)
@@ -7998,45 +8416,59 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     {
         fade = 65536;
         if ((thing->rendering_flags & TRF_Unshaded) == 0)
+        {
             i = get_thing_shade(thing);
+        }
         else
+        {
             i = MINIMUM_LIGHTNESS;
+        }
         shade = i;
-    } else
-    if (jspr->field_14 <= lfade_min)
+    }
+    else if (jspr->field_14 <= lfade_min)
     {
         fade = jspr->field_14;
         if ((thing->rendering_flags & TRF_Unshaded) == 0)
+        {
             i = get_thing_shade(thing);
+        }
         else
+        {
             i = MINIMUM_LIGHTNESS;
+        }
         shade = i;
-    } else
-    if (jspr->field_14 < lfade_max)
+    }
+    else if (jspr->field_14 < lfade_max)
     {
         fade = jspr->field_14;
         if ((thing->rendering_flags & TRF_Unshaded) == 0)
+        {
             i = get_thing_shade(thing);
+        }
         else
+        {
             i = MINIMUM_LIGHTNESS;
+        }
         shade = i * (long long)(lfade_max - fade) / fade_mmm;
-    } else
+    }
+    else
     {
         fade = jspr->field_14;
         shade = 0;
     }
     shade_factor = shade >> 8;
     *scale = (thelens * (long)thing->sprite_size) / fade;
-    if ((thing->rendering_flags & (TRF_Unknown04|TRF_Unknown08)) != 0)
+    if ((thing->rendering_flags & (TRF_Unknown04 | TRF_Unknown08)) != 0)
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
         shade_factor = thing->tint_colour;
         lbSpriteReMapPtr = &pixmap.ghost[256 * shade_factor];
-    } else
-    if (shade_factor == 32)
+    }
+    else if (shade_factor == 32)
     {
         lbDisplay.DrawFlags &= ~Lb_TEXT_UNDERLNSHADOW;
-    } else
+    }
+    else
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
         lbSpriteReMapPtr = &pixmap.fade_tables[256 * shade_factor];
@@ -8049,7 +8481,9 @@ static void draw_mapwho_ariadne_path(struct Thing *thing)
     struct PlayerInfo *player;
     player = get_my_player();
     if (player->view_mode == PVM_CreatureView)
+    {
         return;
+    }
 
     struct Ariadne *arid;
     {
@@ -8057,6 +8491,7 @@ static void draw_mapwho_ariadne_path(struct Thing *thing)
         cctrl = creature_control_get_from_thing(thing);
         arid = &cctrl->arid;
     }
+
     SYNCDBG(16, "Starting for (%d,%d) to (%d,%d)", (int)arid->startpos.x.val, (int)arid->startpos.y.val, (int)arid->endpos.x.val, (int)arid->endpos.y.val);
     int i;
     struct Coord2d *wp_next;
@@ -8091,11 +8526,13 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     alpha_mem = EngineSpriteDrawUsingAlpha;
     if (keepersprite_rotable(thing->anim_sprite))
     {
-      angle = thing->move_angle_xy - spr_map_angle;
-      angle += 256 * (long)((thing->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
+        angle = thing->move_angle_xy - spr_map_angle;
+        angle += 256 * (long)((thing->flags & TAF_ROTATED_MASK) >> TAF_ROTATED_SHIFT);
     }
     else
-      angle = thing->move_angle_xy;
+    {
+        angle = thing->move_angle_xy;
+    }
     prepare_jonty_remap_and_scale(&scale, jspr);
     EngineSpriteDrawUsingAlpha = 0;
     switch (thing->rendering_flags & (TRF_Transpar_Flags))
@@ -8117,38 +8554,40 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     {
         if ((player->thing_under_hand == thing->index) && (game.play_gameturn & 2))
         {
-          if (player->acamera->view_mode == PVM_IsoWibbleView || player->acamera->view_mode == PVM_IsoStraightView)
-          {
-              lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-              lbSpriteReMapPtr = white_pal;
-          }
-          else if (player->acamera->view_mode == PVM_CreatureView)
-          {
-              struct Thing *creatng = thing_get(player->influenced_thing_idx);
-              if (thing_is_creature(creatng))
-              {
-                  struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-                  struct Thing *dragtng = thing_get(cctrl->dragtng_idx);
-                  if (thing_is_invalid(dragtng))
-                  {
-                    lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-                    lbSpriteReMapPtr = white_pal;
-                  }
-                  else if (thing_is_trap_crate(dragtng))
-                  {
-                      struct Thing *handthing = thing_get(player->thing_under_hand);
-                      if (!thing_is_invalid(handthing))
-                      {
-                          if (handthing->class_id == TCls_Trap)
-                          {
-                              lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
-                              lbSpriteReMapPtr = white_pal;
-                          }
-                      }
-                  }
-              }
-          }
-        } else {
+            if (player->acamera->view_mode == PVM_IsoWibbleView || player->acamera->view_mode == PVM_IsoStraightView)
+            {
+                lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                lbSpriteReMapPtr = white_pal;
+            }
+            else if (player->acamera->view_mode == PVM_CreatureView)
+            {
+                struct Thing *creatng = thing_get(player->influenced_thing_idx);
+                if (thing_is_creature(creatng))
+                {
+                    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+                    struct Thing *dragtng = thing_get(cctrl->dragtng_idx);
+                    if (thing_is_invalid(dragtng))
+                    {
+                        lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                        lbSpriteReMapPtr = white_pal;
+                    }
+                    else if (thing_is_trap_crate(dragtng))
+                    {
+                        struct Thing *handthing = thing_get(player->thing_under_hand);
+                        if (!thing_is_invalid(handthing))
+                        {
+                            if (handthing->class_id == TCls_Trap)
+                            {
+                                lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
+                                lbSpriteReMapPtr = white_pal;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        else
+        {
             if ((thing->rendering_flags & TRF_BeingHit) != 0)
             {
                 lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
@@ -8163,7 +8602,8 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
         }
         thing_being_displayed_is_creature = 1;
         thing_being_displayed = thing;
-    } else
+    }
+    else
     {
         thing_being_displayed_is_creature = 0;
         thing_being_displayed = NULL;
@@ -8174,19 +8614,18 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
     }
 
     if (
-        ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET))
-        || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM)
-    )
+        ((thing->anim_sprite >= CREATURE_FRAMELIST_LENGTH) && (thing->anim_sprite < KEEPERSPRITE_ADD_OFFSET)) || (thing->anim_sprite >= KEEPERSPRITE_ADD_OFFSET + KEEPERSPRITE_ADD_NUM))
     {
         ERRORLOG("Invalid graphic Id %d from model %d, class %d", (int)thing->anim_sprite, (int)thing->model, (int)thing->class_id);
-    } else
+    }
+    else
     {
         struct TrapConfigStats *trapst;
         switch (thing->class_id)
         {
         case TCls_Object:
-            //TODO CONFIG object model dependency, move to config
-            if ((thing->model == ObjMdl_Torch) || (thing->model == ObjMdl_StatueLit) || (thing->model == ObjMdl_Candlestick)) //torchflames
+            // TODO CONFIG object model dependency, move to config
+            if ((thing->model == ObjMdl_Torch) || (thing->model == ObjMdl_StatueLit) || (thing->model == ObjMdl_Candlestick)) // torchflames
             {
                 process_keeper_flame_on_sprite(jspr, angle, scale);
                 break;
@@ -8230,48 +8669,54 @@ static void sprite_to_sbuff(const TbSpriteData sprdata, unsigned char *outbuf, i
     cval = 0;
     while (lines_max > 0)
     {
-      while ( 1 )
-      {
-          // Skip transparent area
-          while ( 1 )
-          {
-              cval = *(char *)sprd;
-              sprd++;
-              if (cval >= 0)
+        while (1)
+        {
+            // Skip transparent area
+            while (1)
+            {
+                cval = *(char *)sprd;
+                sprd++;
+                if (cval >= 0)
+                {
+                    break;
+                }
+                cval = -cval;
+                out += cval;
+            }
+            if (cval == 0)
+            {
                 break;
-              cval = -cval;
-              out += cval;
-          }
-          if (cval == 0)
-            break;
-          sprd += cval;
-          // Fill area per-byte until we get 32bit-aligned position
-          while ((ptrdiff_t)out & 3)
-          {
-              *out = 0xFF;
-              out++;
-              cval--;
-              if (cval <= 0)
-                  break;
-          }
-          // Now fill the area faster - by writing 32-bit values
-          for (i = (cval >> 2); i > 0; i--)
-          {
-              *(unsigned long *)out = 0xFFFFFFFF;
-              out += 4;
-          }
-          // Fill the last unaligned bytes
-          cval &= 3;
-          while (cval > 0)
-          {
-            *out = 0xFF;
-            out++;
-            cval--;
-          }
-      }
-      out_lnstart += scanln;
-      out = out_lnstart;
-      lines_max--;
+            }
+            sprd += cval;
+            // Fill area per-byte until we get 32bit-aligned position
+            while ((ptrdiff_t)out & 3)
+            {
+                *out = 0xFF;
+                out++;
+                cval--;
+                if (cval <= 0)
+                {
+                    break;
+                }
+            }
+            // Now fill the area faster - by writing 32-bit values
+            for (i = (cval >> 2); i > 0; i--)
+            {
+                *(unsigned long *)out = 0xFFFFFFFF;
+                out += 4;
+            }
+            // Fill the last unaligned bytes
+            cval &= 3;
+            while (cval > 0)
+            {
+                *out = 0xFF;
+                out++;
+                cval--;
+            }
+        }
+        out_lnstart += scanln;
+        out = out_lnstart;
+        lines_max--;
     }
 }
 
@@ -8295,50 +8740,56 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
     cval = 0;
     while (lines_max > 0)
     {
-      while ( 1 )
-      {
-          // Skip transparent area
-          while ( 1 )
-          {
-              cval = *(char *)sprd;
-              sprd++;
-              if (cval >= 0)
-                  break;
-              cval = -cval;
-              out -= cval;
-          }
-          if (cval == 0)
-            break;
-          sprd += cval;
-          out++;
-          // Fill area per-byte until we get 32bit-aligned position
-          while ((unsigned long)out & 3)
-          {
-              out--;
-              *out = 0xFF;
-              cval--;
-              if (cval <= 0)
-                  break;
-          }
-          // Now fill the area faster - by writing 32-bit values
-          for (i = (cval >> 2); i > 0; i--)
-          {
-              out -= 4;
-              *(unsigned long *)out = 0xFFFFFFFF;
-          }
-          out--;
-          // Fill the last unaligned bytes
-          cval &= 3;
-          while (cval > 0)
-          {
-              *out = 0xFF;
-              out--;
-              cval--;
-          }
-      }
-      out_lnstart += scanln;
-      out = out_lnstart;
-      lines_max--;
+        while (1)
+        {
+            // Skip transparent area
+            while (1)
+            {
+                cval = *(char *)sprd;
+                sprd++;
+                if (cval >= 0)
+                {
+                    break;
+                }
+                cval = -cval;
+                out -= cval;
+            }
+            if (cval == 0)
+            {
+                break;
+            }
+            sprd += cval;
+            out++;
+            // Fill area per-byte until we get 32bit-aligned position
+            while ((unsigned long)out & 3)
+            {
+                out--;
+                *out = 0xFF;
+                cval--;
+                if (cval <= 0)
+                {
+                    break;
+                }
+            }
+            // Now fill the area faster - by writing 32-bit values
+            for (i = (cval >> 2); i > 0; i--)
+            {
+                out -= 4;
+                *(unsigned long *)out = 0xFFFFFFFF;
+            }
+            out--;
+            // Fill the last unaligned bytes
+            cval &= 3;
+            while (cval > 0)
+            {
+                *out = 0xFF;
+                out--;
+                cval--;
+            }
+        }
+        out_lnstart += scanln;
+        out = out_lnstart;
+        lines_max--;
     }
 }
 
@@ -8357,10 +8808,14 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
     TbBool flip_range;
     short quarter;
     int i;
-    if ( ((angle & 0x7FF) <= 1151) || ((angle & 0x7FF) >= 1919) )
+    if (((angle & 0x7FF) <= 1151) || ((angle & 0x7FF) >= 1919))
+    {
         flip_range = false;
+    }
     else
+    {
         flip_range = true;
+    }
     i = ((angle + 128) & 0x7FF);
     quarter = abs(4 - (i >> 8)); // i is restricted by "&" so (i>>8) is 0..7
     kspr_idx = keepersprite_index(kspr_n);
@@ -8389,7 +8844,7 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         kspr = &kspr_arr[field48];
         fill_w = kspr->FrameWidth;
         fill_h = kspr->FrameHeight;
-        if ( flip_range )
+        if (flip_range)
         {
             tmpbuf = outbuf;
             skip_w = kspr->FrameWidth - kspr->FrameOffsW;
@@ -8437,7 +8892,7 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             sprite_data = *keepsprite[keepsprite_id];
         }
-        if ( flip_range )
+        if (flip_range)
         {
             tmpbuf = outbuf;
             for (i = fill_h; i > 0; i--)
@@ -8476,67 +8931,68 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     long point_b;
     long delta;
     long i;
-    SYNCDBG(16,"Starting");
-    store_engine_window(&ewnd,1);
+    SYNCDBG(16, "Starting");
+    store_engine_window(&ewnd, 1);
     point_a = (((GetMouseX() - ewnd.x) << 8) - qx) << 8;
     point_b = (((GetMouseY() - ewnd.y) << 8) - qy) << 8;
     delta = (laaa << 7) / 256 << 8;
-    for (i=0; i < 8; i++)
+    for (i = 0; i < 8; i++)
     {
         pos_x = (point_a / laaa) * x_step2[qdrant] + (point_b / laaa) * x_step1[qdrant] + (w << 8);
         pos_y = (point_a / laaa) * y_step2[qdrant] + (point_b / laaa) * y_step1[qdrant] + (h << 8);
         stl_x = (pos_x >> 8) + x_offs[qdrant];
         stl_y = (pos_y >> 8) + y_offs[qdrant];
-        
-        if (stl_x < 0 || stl_x > gameadd.map_subtiles_x - 1 || stl_y < -2 || stl_y > gameadd.map_subtiles_y) {
+
+        if (stl_x < 0 || stl_x > gameadd.map_subtiles_x - 1 || stl_y < -2 || stl_y > gameadd.map_subtiles_y)
+        {
             out_of_bounds = true;
         }
 
         mapblk = get_map_block_at(stl_x, stl_y);
         if (!map_block_invalid(mapblk))
         {
-          if (i == 0)
-          {
-            floor_pointed_at_x = stl_x;
-            floor_pointed_at_y = stl_y;
-            block_pointed_at_x = stl_x;
-            block_pointed_at_y = stl_y;
-            pointed_at_frac_x = pos_x & 0xFF;
-            pointed_at_frac_y = pos_y & 0xFF;
-            me_pointed_at = mapblk;
-          } else
-          {
-            colmn = get_map_column(mapblk);
-            mask = colmn->solidmask;
-            if ( (1 << (i-1)) & mask )
+            if (i == 0)
             {
-              pointed_at_frac_x = pos_x & 0xFF;
-              pointed_at_frac_y = pos_y & 0xFF;
-              block_pointed_at_x = stl_x;
-              block_pointed_at_y = stl_y;
-              me_pointed_at = mapblk;
+                floor_pointed_at_x = stl_x;
+                floor_pointed_at_y = stl_y;
+                block_pointed_at_x = stl_x;
+                block_pointed_at_y = stl_y;
+                pointed_at_frac_x = pos_x & 0xFF;
+                pointed_at_frac_y = pos_y & 0xFF;
+                me_pointed_at = mapblk;
             }
-            if (((temp_cluedo_mode)  && (i == 2))
-             || ((!temp_cluedo_mode) && (i == 5)))
+            else
             {
-              top_pointed_at_frac_x = pos_x & 0xFF;
-              top_pointed_at_frac_y = pos_y & 0xFF;
-              top_pointed_at_x = stl_x;
-              top_pointed_at_y = stl_y;
+                colmn = get_map_column(mapblk);
+                mask = colmn->solidmask;
+                if ((1 << (i - 1)) & mask)
+                {
+                    pointed_at_frac_x = pos_x & 0xFF;
+                    pointed_at_frac_y = pos_y & 0xFF;
+                    block_pointed_at_x = stl_x;
+                    block_pointed_at_y = stl_y;
+                    me_pointed_at = mapblk;
+                }
+                if (((temp_cluedo_mode) && (i == 2)) || ((!temp_cluedo_mode) && (i == 5)))
+                {
+                    top_pointed_at_frac_x = pos_x & 0xFF;
+                    top_pointed_at_frac_y = pos_y & 0xFF;
+                    top_pointed_at_x = stl_x;
+                    top_pointed_at_y = stl_y;
+                }
             }
-          }
         }
         point_b += delta;
     }
-    
+
     struct PlayerInfo *player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    struct PlayerInfoAdd *playeradd = get_playeradd(player->id_number);
     playeradd->mouse_is_offmap = out_of_bounds;
 }
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
 {
-    unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
+    unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI / 4) >> 9) & 0x03;
     // _depth_ is "how far in to the screen" the box goes - it will be the width/height of a slab
     // _breadth_ is usually the same as the depth (a single slab), but for single subtile selection, this will be the width/height of a subtile
     // (if we are dealing with a single subtile, breadth will be a third of the depth.)
@@ -8549,7 +9005,7 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     long box_width, box_height;
     pos.y.val = map_volume_box.end_y;
     pos.x.val = map_volume_box.end_x;
-    pos.z.val = subtile_coord(5,0);
+    pos.z.val = subtile_coord(5, 0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
@@ -8560,9 +9016,9 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     box_height -= coord_y;
     box_width = abs(box_width);
     box_height = abs(box_height);
-    switch ( orient )
+    switch (orient)
     {
-    //case 0: // North
+    // case 0: // North
     case 1: // East
         coord_y -= box_height;
         coord_z += box_height;
@@ -8578,16 +9034,17 @@ void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width
     }
     coord_z -= (stl_width >> 1);
     // Draw 4 horizonal line elements
-    create_line_element(coord_x,             coord_y,                      coord_x + box_width, coord_y,                      coord_z,                          line_color);
-    create_line_element(coord_x,             coord_y + box_height,         coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
-    create_line_element(coord_x,             coord_y + depth,              coord_x + box_width, coord_y + depth,              coord_z,                          line_color);
-    create_line_element(coord_x,             coord_y + box_height + depth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height,             line_color);
+    create_line_element(coord_x, coord_y, coord_x + box_width, coord_y, coord_z, line_color);
+    create_line_element(coord_x, coord_y + box_height, coord_x + box_width, coord_y + box_height, coord_z - box_height, line_color);
+    create_line_element(coord_x, coord_y + depth, coord_x + box_width, coord_y + depth, coord_z, line_color);
+    create_line_element(coord_x, coord_y + box_height + depth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height, line_color);
     // Now the lines at left and right
-    create_line_element(coord_x,             coord_y,                      coord_x,             coord_y + box_height,         coord_z - box_height,             line_color);
-    create_line_element(coord_x + box_width, coord_y,                      coord_x + box_width, coord_y + box_height,         coord_z - box_height,             line_color);
-    create_line_element(coord_x,             coord_y + breadth,            coord_x,             coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
-    create_line_element(coord_x + box_width, coord_y + breadth,            coord_x + box_width, coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
+    create_line_element(coord_x, coord_y, coord_x, coord_y + box_height, coord_z - box_height, line_color);
+    create_line_element(coord_x + box_width, coord_y, coord_x + box_width, coord_y + box_height, coord_z - box_height, line_color);
+    create_line_element(coord_x, coord_y + breadth, coord_x, coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
+    create_line_element(coord_x + box_width, coord_y + breadth, coord_x + box_width, coord_y + box_height + depth, coord_z - box_height + stl_width, line_color);
 }
+
 void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Camera *cam, unsigned char stl_width, long color, TbBool show_outer_box)
 {
     long line_color = color;
@@ -8595,7 +9052,7 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     {
         line_color = map_volume_box.color; //  set the "inner" box color to the default colour (usually red/green)
     }
-    unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
+    unsigned char orient = ((unsigned int)(cam->orient_a + LbFPMath_PI / 4) >> 9) & 0x03;
     int floor_height_z = (map_volume_box.floor_height_z == 0) ? 1 : map_volume_box.floor_height_z; // ignore "liquid height", and force it to "floor height". All fancy rooms are on the ground, and this ensures the boundboxes are drawn correctly. A different solution will be required if this function is used to draw fancy rooms over "liquid".
     long depth = ((5 - floor_height_z) * ((long)stl_width << 7) / 256);
     struct Coord3d pos;
@@ -8607,11 +9064,11 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     // get the 'accurate' roomspace shape instead of the outer box
     valid_slabs.beg_x = subtile_coord((roomspace.left * 3), 0);
     valid_slabs.beg_y = subtile_coord((roomspace.top * 3), 0);
-    valid_slabs.end_x = subtile_coord((3*1) + (roomspace.right * 3), 0);
-    valid_slabs.end_y = subtile_coord(((3*1) + roomspace.bottom * 3), 0);
+    valid_slabs.end_x = subtile_coord((3 * 1) + (roomspace.right * 3), 0);
+    valid_slabs.end_y = subtile_coord(((3 * 1) + roomspace.bottom * 3), 0);
     pos.y.val = valid_slabs.end_y;
     pos.x.val = valid_slabs.end_x;
-    pos.z.val = subtile_coord(5,0);
+    pos.z.val = subtile_coord(5, 0);
     convert_world_coord_to_front_view_screen_coord(&pos, cam, &coord_x, &coord_y, &coord_z);
     box_width = coord_x;
     box_height = coord_y;
@@ -8630,11 +9087,11 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
         room_slab_height = roomspace.width;
     }
     TbBool rotated_roomspace[MAX_ROOMSPACE_WIDTH][MAX_ROOMSPACE_WIDTH];
-    memcpy(rotated_roomspace,roomspace.slab_grid, sizeof(rotated_roomspace));
+    memcpy(rotated_roomspace, roomspace.slab_grid, sizeof(rotated_roomspace));
     int i, j;
-    switch ( orient )
+    switch (orient)
     {
-    //case 0: // North
+    // case 0: // North
     case 1: // East
         coord_y -= box_height;
         coord_z += box_height;
@@ -8654,7 +9111,7 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
         {
             for (j = 0; j < roomspace.height; j++)
             {
-                rotated_roomspace[i][j]  = roomspace.slab_grid[roomspace.width - 1 - i][roomspace.height - 1 - j];
+                rotated_roomspace[i][j] = roomspace.slab_grid[roomspace.width - 1 - i][roomspace.height - 1 - j];
             }
         }
         break;
@@ -8672,99 +9129,99 @@ void create_fancy_frontview_map_volume_box(struct RoomSpace roomspace, struct Ca
     coord_z -= (stl_width >> 1);
     for (int roomspace_y = 0; roomspace_y < room_slab_height; roomspace_y += 1)
     {
-        int y_start = (box_height * roomspace_y       / room_slab_height) + ((((box_height * roomspace_y)       % room_slab_height) >= room_slab_height) ? 1 : 0);
-        int y_end =   (box_height * (roomspace_y + 1) / room_slab_height) + ((((box_height * (roomspace_y + 1)) % room_slab_height) >= room_slab_height) ? 1 : 0);
+        int y_start = (box_height * roomspace_y / room_slab_height) + ((((box_height * roomspace_y) % room_slab_height) >= room_slab_height) ? 1 : 0);
+        int y_end = (box_height * (roomspace_y + 1) / room_slab_height) + ((((box_height * (roomspace_y + 1)) % room_slab_height) >= room_slab_height) ? 1 : 0);
         int bckt_idx = coord_z - y_end;
         for (int roomspace_x = 0; roomspace_x < room_slab_width; roomspace_x += 1)
         {
-            int x_start = (box_width * roomspace_x       / room_slab_width) + ((((box_width * roomspace_x)       % room_slab_width) >= room_slab_width) ? 1 : 0);
-            int x_end =   (box_width * (roomspace_x + 1) / room_slab_width) + ((((box_width * (roomspace_x + 1)) % room_slab_width) >= room_slab_width) ? 1 : 0);
+            int x_start = (box_width * roomspace_x / room_slab_width) + ((((box_width * roomspace_x) % room_slab_width) >= room_slab_width) ? 1 : 0);
+            int x_end = (box_width * (roomspace_x + 1) / room_slab_width) + ((((box_width * (roomspace_x + 1)) % room_slab_width) >= room_slab_width) ? 1 : 0);
             TbBool is_in_roomspace = rotated_roomspace[roomspace_x][roomspace_y];
             if (is_in_roomspace)
             {
-                TbBool air_left =  (roomspace_x == 0)                    ? true : (rotated_roomspace[roomspace_x-1][roomspace_y] == false);
-                TbBool air_right = (roomspace_x == room_slab_width - 1)  ? true : (rotated_roomspace[roomspace_x+1][roomspace_y] == false);
-                TbBool air_above = (roomspace_y == 0)                    ? true : (rotated_roomspace[roomspace_x][roomspace_y-1] == false);
-                TbBool air_below = (roomspace_y == room_slab_height - 1) ? true : (rotated_roomspace[roomspace_x][roomspace_y+1] == false);
+                TbBool air_left = (roomspace_x == 0) ? true : (rotated_roomspace[roomspace_x - 1][roomspace_y] == false);
+                TbBool air_right = (roomspace_x == room_slab_width - 1) ? true : (rotated_roomspace[roomspace_x + 1][roomspace_y] == false);
+                TbBool air_above = (roomspace_y == 0) ? true : (rotated_roomspace[roomspace_x][roomspace_y - 1] == false);
+                TbBool air_below = (roomspace_y == room_slab_height - 1) ? true : (rotated_roomspace[roomspace_x][roomspace_y + 1] == false);
                 if (air_left)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             line_color);
+                    create_line_element(coord_x + x_start, coord_y + y_start, coord_x + x_start, coord_y + y_end, bckt_idx, line_color);
                     if (air_below)
                     {
-                        create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
+                        create_line_element(coord_x + x_start, coord_y + y_end, coord_x + x_start, coord_y + y_end + depth, bckt_idx + stl_width, line_color);
                     }
                 }
                 if (air_right)
                 {
-                    create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                    create_line_element(coord_x + x_end, coord_y + y_start, coord_x + x_end, coord_y + y_end, bckt_idx, line_color);
                     if (air_below)
                     {
-                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
+                        create_line_element(coord_x + x_end, coord_y + y_end, coord_x + x_end, coord_y + y_end + depth, bckt_idx + stl_width, line_color);
                     }
                 }
                 if (air_above)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             line_color);
-                    create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             line_color);
+                    create_line_element(coord_x + x_start, coord_y + y_start, coord_x + x_end, coord_y + y_start, bckt_idx, line_color);
+                    create_line_element(coord_x + x_start, coord_y + y_start + depth, coord_x + x_end, coord_y + y_start + depth, bckt_idx, line_color);
                 }
                 if (air_below)
                 {
-                    create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
-                    create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
+                    create_line_element(coord_x + x_start, coord_y + y_end, coord_x + x_end, coord_y + y_end, bckt_idx, line_color);
+                    create_line_element(coord_x + x_start, coord_y + y_end + depth, coord_x + x_end, coord_y + y_end + depth, bckt_idx, line_color);
                 }
             }
-            else if (!is_in_roomspace) //this handles "inside corners"
+            else if (!is_in_roomspace) // this handles "inside corners"
             {
-                TbBool room_left =  (roomspace_x == 0)                    ? false : rotated_roomspace[roomspace_x-1][roomspace_y];
-                TbBool room_right = (roomspace_x == room_slab_width - 1)  ? false : rotated_roomspace[roomspace_x+1][roomspace_y];
-                TbBool room_below = (roomspace_y == room_slab_height - 1) ? false : rotated_roomspace[roomspace_x][roomspace_y+1];
+                TbBool room_left = (roomspace_x == 0) ? false : rotated_roomspace[roomspace_x - 1][roomspace_y];
+                TbBool room_right = (roomspace_x == room_slab_width - 1) ? false : rotated_roomspace[roomspace_x + 1][roomspace_y];
+                TbBool room_below = (roomspace_y == room_slab_height - 1) ? false : rotated_roomspace[roomspace_x][roomspace_y + 1];
                 if (room_left)
                 {
                     if (room_below)
                     {
-                        create_line_element(coord_x + x_start,  coord_y + y_end,          coord_x + x_start, coord_y + y_end + depth,   bckt_idx,             line_color);
+                        create_line_element(coord_x + x_start, coord_y + y_end, coord_x + x_start, coord_y + y_end + depth, bckt_idx, line_color);
                     }
                 }
                 if (room_right)
                 {
                     if (room_below)
                     {
-                        create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
+                        create_line_element(coord_x + x_end, coord_y + y_end, coord_x + x_end, coord_y + y_end + depth, bckt_idx, line_color);
                     }
                 }
                 if (show_outer_box) // this handles the "outer line" (only when it is not in the roomspace)
                 {
-                    //draw 2nd line, i.e. the outer line - the one around the edge of the 5x5 cursor, not the valid slabs within the cursor
+                    // draw 2nd line, i.e. the outer line - the one around the edge of the 5x5 cursor, not the valid slabs within the cursor
                     line_color = color; // switch to the "secondary colour" (the one passed as a variable if show_outer_box is true)
-                    TbBool left_edge   = (roomspace_x == 0)                    ? true : false;
-                    TbBool right_edge  = (roomspace_x == room_slab_width - 1)  ? true : false;
-                    TbBool top_edge    = (roomspace_y == 0)                    ? true : false;
+                    TbBool left_edge = (roomspace_x == 0) ? true : false;
+                    TbBool right_edge = (roomspace_x == room_slab_width - 1) ? true : false;
+                    TbBool top_edge = (roomspace_y == 0) ? true : false;
                     TbBool bottom_edge = (roomspace_y == room_slab_height - 1) ? true : false;
                     if (left_edge)
                     {
-                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_start, coord_y + y_end,           bckt_idx,             line_color);
+                        create_line_element(coord_x + x_start, coord_y + y_start, coord_x + x_start, coord_y + y_end, bckt_idx, line_color);
                         if (bottom_edge)
                         {
-                            create_line_element(coord_x + x_start, coord_y + y_end,           coord_x + x_start, coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
+                            create_line_element(coord_x + x_start, coord_y + y_end, coord_x + x_start, coord_y + y_end + depth, bckt_idx + stl_width, line_color);
                         }
                     }
                     if (right_edge)
                     {
-                        create_line_element(    coord_x + x_end,   coord_y + y_start,         coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
+                        create_line_element(coord_x + x_end, coord_y + y_start, coord_x + x_end, coord_y + y_end, bckt_idx, line_color);
                         if (bottom_edge)
                         {
-                            create_line_element(coord_x + x_end,   coord_y + y_end,           coord_x + x_end,   coord_y + y_end + depth,   bckt_idx + stl_width, line_color);
+                            create_line_element(coord_x + x_end, coord_y + y_end, coord_x + x_end, coord_y + y_end + depth, bckt_idx + stl_width, line_color);
                         }
                     }
                     if (top_edge)
                     {
-                        create_line_element(    coord_x + x_start, coord_y + y_start,         coord_x + x_end,   coord_y + y_start,         bckt_idx,             line_color);
-                        create_line_element(    coord_x + x_start, coord_y + y_start + depth, coord_x + x_end,   coord_y + y_start + depth, bckt_idx,             line_color);
+                        create_line_element(coord_x + x_start, coord_y + y_start, coord_x + x_end, coord_y + y_start, bckt_idx, line_color);
+                        create_line_element(coord_x + x_start, coord_y + y_start + depth, coord_x + x_end, coord_y + y_start + depth, bckt_idx, line_color);
                     }
                     if (bottom_edge)
                     {
-                        create_line_element(    coord_x + x_start, coord_y + y_end,           coord_x + x_end,   coord_y + y_end,           bckt_idx,             line_color);
-                        create_line_element(    coord_x + x_start, coord_y + y_end + depth,   coord_x + x_end,   coord_y + y_end + depth,   bckt_idx,             line_color);
+                        create_line_element(coord_x + x_start, coord_y + y_end, coord_x + x_end, coord_y + y_end, bckt_idx, line_color);
+                        create_line_element(coord_x + x_start, coord_y + y_end + depth, coord_x + x_end, coord_y + y_end + depth, bckt_idx, line_color);
                     }
                     line_color = map_volume_box.color; // switch back to default color (red/green) for the inner line
                 }
@@ -8777,8 +9234,8 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 {
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
-    struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct PlayerInfoAdd* current_playeradd = get_playeradd(plyr_idx);
+    struct PlayerInfo *current_player = get_player(plyr_idx);
+    struct PlayerInfoAdd *current_playeradd = get_playeradd(plyr_idx);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
     if ((current_playeradd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
@@ -8790,7 +9247,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
         if (current_playeradd->render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
-             create_frontview_map_volume_box(cam, stl_width, current_playeradd->render_roomspace.is_roomspace_a_single_subtile, line_color);
+            create_frontview_map_volume_box(cam, stl_width, current_playeradd->render_roomspace.is_roomspace_a_single_subtile, line_color);
         }
         else
         {
@@ -8807,6 +9264,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     }
     map_volume_box.color = default_color;
 }
+
 static void do_map_who_for_thing(struct Thing *thing)
 {
     int bckt_idx;
@@ -8834,7 +9292,8 @@ static void do_map_who_for_thing(struct Thing *thing)
             int count;
             int i;
             count = find_closest_lights(&thing->mappos, &nearlgt);
-            for (i=0; i < count; i++) {
+            for (i = 0; i < count; i++)
+            {
                 create_shadows(thing, &ecor, &nearlgt.coord[i]);
             }
         }
@@ -8845,17 +9304,22 @@ static void do_map_who_for_thing(struct Thing *thing)
         {
             add_draw_status_box(thing, &ecor);
             // Draw path the creature is following
-            if ((start_params.debug_flags & DFlg_CreatrPaths) != 0) {
+            if ((start_params.debug_flags & DFlg_CreatrPaths) != 0)
+            {
                 draw_mapwho_ariadne_path(thing);
             }
         }
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end)
         {
-            if ( lens_mode )
-              bckt_idx = (ecor.z - 64) / 16;
+            if (lens_mode)
+            {
+                bckt_idx = (ecor.z - 64) / 16;
+            }
             else
-              bckt_idx = (ecor.z - 64) / 16 - 6;
+            {
+                bckt_idx = (ecor.z - 64) / 16 - 6;
+            }
             add_thing_sprite_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, bckt_idx);
         }
         break;
@@ -8881,7 +9345,8 @@ static void do_map_who_for_thing(struct Thing *thing)
         break;
     case ODC_RoomStatusFlag:
         // Hide status flags when full zoomed out, for atmospheric overview
-        if (hud_scale == 0) {
+        if (hud_scale == 0)
+        {
             break;
         }
 
@@ -8893,11 +9358,15 @@ static void do_map_who_for_thing(struct Thing *thing)
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 40) {
+                if (thing->roomflag2.display_timer < 40)
+                {
                     thing->roomflag2.display_timer++;
                 }
-            } else {
-                if (game.play_gameturn - thing->roomflag2.last_turn_drawn > 1) {
+            }
+            else
+            {
+                if (game.play_gameturn - thing->roomflag2.last_turn_drawn > 1)
+                {
                     thing->roomflag2.display_timer = 0;
                 }
             }
@@ -8918,7 +9387,8 @@ static void do_map_who_for_thing(struct Thing *thing)
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_pos_y - map_z_pos);
         rotpers(&ecor, &camera_matrix);
-        if (getpoly < poly_pool_end) {
+        if (getpoly < poly_pool_end)
+        {
             add_spinning_key_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, 1);
         }
         break;
@@ -8969,22 +9439,24 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     long cy;
     long cz;
     if ((thing->rendering_flags & TRF_Unknown01) != 0)
+    {
         return;
+    }
     switch (thing->draw_class)
     {
     case ODC_Default: // Things
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
-            add_thing_sprite_to_polypool(thing, cx, cy, cy, cz-3);
+            add_thing_sprite_to_polypool(thing, cx, cy, cy, cz - 3);
             if ((thing->class_id == TCls_Creature) && is_free_space_in_poly_pool(1))
             {
-              create_fast_view_status_box(thing, cx, cy);
+                create_fast_view_status_box(thing, cx, cy);
             }
         }
         break;
     case ODC_RoomPrice: // Floating gold text when buying and selling
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_number_to_polypool(cx, cy, thing->creature.gold_carried, 1);
@@ -8992,26 +9464,31 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         break;
     case ODC_RoomStatusFlag: // Room Status flags
         // Hide status flags when full zoomed out, for atmospheric overview
-        if (hud_scale == 0) {
+        if (hud_scale == 0)
+        {
             break;
         }
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 40) {
+                if (thing->roomflag2.display_timer < 40)
+                {
                     thing->roomflag2.display_timer++;
                 }
-            } else {
-                if (game.play_gameturn - thing->roomflag2.last_turn_drawn > 1) {
+            }
+            else
+            {
+                if (game.play_gameturn - thing->roomflag2.last_turn_drawn > 1)
+                {
                     thing->roomflag2.display_timer = 0;
                 }
             }
             thing->roomflag2.last_turn_drawn = game.play_gameturn;
             if (thing->roomflag2.display_timer == 40)
             {
-                add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
+                add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz - 3);
                 if (is_free_space_in_poly_pool(1))
                 {
                     add_room_flag_top_to_polypool(cx, cy, thing->roomflag.room_idx, 1);
@@ -9020,10 +9497,10 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
         break;
     case ODC_SpinningKey:
-        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
+        convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos, cam, &cx, &cy, &cz);
         if (is_free_space_in_poly_pool(1))
         {
-            add_spinning_key_to_polypool(thing, cx, cy, cy, cz-3);
+            add_spinning_key_to_polypool(thing, cx, cy, cy, cz - 3);
         }
         break;
     default:
@@ -9084,14 +9561,16 @@ void draw_frontview_engine(struct Camera *cam)
     long long zoom;
     long long lbbb;
     long i;
-    SYNCDBG(9,"Starting");
+    SYNCDBG(9, "Starting");
     player = get_my_player();
     if (cam->zoom > FRONTVIEW_CAMERA_ZOOM_MAX)
+    {
         cam->zoom = FRONTVIEW_CAMERA_ZOOM_MAX;
+    }
     calculate_hud_scale(cam);
     camera_zoom = scale_camera_zoom_to_screen(cam->zoom);
-    zoom_mem = cam->zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    cam->zoom = camera_zoom;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    zoom_mem = cam->zoom;    // TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    cam->zoom = camera_zoom; // TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
     interpolate_camera(cam);
     camera_zoom = interpolated_camera_zoom;
     cam_x = interpolated_cam_mappos_x;
@@ -9100,14 +9579,14 @@ void draw_frontview_engine(struct Camera *cam)
     pointer_y = (GetMouseY() - player->engine_window_y) / pixel_size;
     UseFastBlockDraw = (camera_zoom == FRONTVIEW_CAMERA_ZOOM_MAX);
     LbScreenStoreGraphicsWindow(&grwnd);
-    store_engine_window(&ewnd,pixel_size);
+    store_engine_window(&ewnd, pixel_size);
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
     gtblock_set_clipping_window(lbDisplay.GraphicsWindowPtr, ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, lbDisplay.GraphicsScreenWidth, ewnd.width, ewnd.height);
     clear_fast_bucket_list();
-    store_engine_window(&ewnd,1);
+    store_engine_window(&ewnd, 1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
-    qdrant = ((unsigned int)(cam->orient_a + LbFPMath_PI/4) >> 9) & 0x03;
+    qdrant = ((unsigned int)(cam->orient_a + LbFPMath_PI / 4) >> 9) & 0x03;
     zoom = camera_zoom >> 3;
     w = (ewnd.width << 16) / zoom >> 1;
     h = (ewnd.height << 16) / zoom >> 1;
@@ -9117,7 +9596,7 @@ void draw_frontview_engine(struct Camera *cam)
         px = ((cam_x - w) >> 8);
         py = ((cam_y - h) >> 8);
         lbbb = cam_x - (px << 8);
-        qx = (ewnd.width << 7)  - ((zoom * lbbb) >> 8);
+        qx = (ewnd.width << 7) - ((zoom * lbbb) >> 8);
         lbbb = cam_y - (py << 8);
         qy = (ewnd.height << 7) - ((zoom * lbbb) >> 8);
         break;
@@ -9125,7 +9604,7 @@ void draw_frontview_engine(struct Camera *cam)
         px = ((cam_x + h) >> 8);
         py = ((cam_y - w) >> 8);
         lbbb = cam_y - (py << 8);
-        qx = (ewnd.width << 7)  - ((zoom * lbbb) >> 8);
+        qx = (ewnd.width << 7) - ((zoom * lbbb) >> 8);
         lbbb = (px << 8) - cam_x;
         qy = (ewnd.height << 7) - ((zoom * lbbb) >> 8);
         px--;
@@ -9134,7 +9613,7 @@ void draw_frontview_engine(struct Camera *cam)
         px = ((cam_x + w) >> 8) + 1;
         py = ((cam_y + h) >> 8);
         lbbb = (px << 8) - cam_x;
-        qx = (ewnd.width << 7)  - ((zoom * lbbb) >> 8);
+        qx = (ewnd.width << 7) - ((zoom * lbbb) >> 8);
         lbbb = (py << 8) - cam_y;
         qy = (ewnd.height << 7) - ((zoom * lbbb) >> 8);
         px--;
@@ -9144,23 +9623,22 @@ void draw_frontview_engine(struct Camera *cam)
         px = ((cam_x - h) >> 8);
         py = ((cam_y + w) >> 8) + 1;
         lbbb = (py << 8) - cam_y;
-        qx = (ewnd.width << 7)  - ((zoom * lbbb) >> 8);
+        qx = (ewnd.width << 7) - ((zoom * lbbb) >> 8);
         lbbb = cam_x - (px << 8);
         qy = (ewnd.height << 7) - ((zoom * lbbb) >> 8);
         py--;
         break;
     default:
-        ERRORLOG("Illegal quadrant, %d.",qdrant);
+        ERRORLOG("Illegal quadrant, %d.", qdrant);
         LbScreenLoadGraphicsWindow(&grwnd);
         return;
     }
 
     update_frontview_pointed_block(zoom, qdrant, px, py, qx, qy);
-    if ( (map_volume_box.visible) && (!game_is_busy_doing_gui()) )
+    if ((map_volume_box.visible) && (!game_is_busy_doing_gui()))
     {
         process_frontview_map_volume_box(cam, ((zoom >> 8) & 0xFF), player->id_number);
     }
-
 
     h = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
     w = (8 * (zoom + 32 * ewnd.height) - qy) / zoom;
@@ -9171,16 +9649,20 @@ void draw_frontview_engine(struct Camera *cam)
     py += y_step1[qdrant] * h;
     lim_x = ewnd.width << 8;
     lim_y = -zoom;
-    SYNCDBG(19,"Range (%ld,%ld) to (%ld,%ld), quadrant %d",px,py,qx,qy,(int)qdrant);
-    for (pos_x=qx; pos_x < lim_x; pos_x += zoom)
+    SYNCDBG(19, "Range (%ld,%ld) to (%ld,%ld), quadrant %d", px, py, qx, qy, (int)qdrant);
+    for (pos_x = qx; pos_x < lim_x; pos_x += zoom)
     {
         i = (ewnd.height << 8);
         // Initialize the stl_? which will be swept by second loop
         if (x_step1[qdrant] != 0)
-          stl_x = px;
+        {
+            stl_x = px;
+        }
         else
-          stl_y = py;
-        for (pos_y=qy; pos_y > lim_y; pos_y -= zoom)
+        {
+            stl_y = py;
+        }
+        for (pos_y = qy; pos_y > lim_y; pos_y -= zoom)
         {
             struct Map *mapblk;
             mapblk = get_map_block_at(stl_x, stl_y);
@@ -9188,9 +9670,9 @@ void draw_frontview_engine(struct Camera *cam)
             {
                 if (get_mapblk_column_index(mapblk) > 0)
                 {
-                    draw_element(mapblk, get_subtile_lightness(&game.lish,stl_x,stl_y), stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
+                    draw_element(mapblk, get_subtile_lightness(&game.lish, stl_x, stl_y), stl_x, stl_y, pos_x, pos_y, zoom, qdrant, &i);
                 }
-                if ( subtile_revealed(stl_x, stl_y, player->id_number) )
+                if (subtile_revealed(stl_x, stl_y, player->id_number))
                 {
                     draw_frontview_things_on_element(mapblk, cam);
                 }
@@ -9204,16 +9686,18 @@ void draw_frontview_engine(struct Camera *cam)
 
     display_fast_drawlist(cam);
     LbScreenLoadGraphicsWindow(&grwnd);
-    cam->zoom = zoom_mem;//TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
-    SYNCDBG(9,"Finished");
+    cam->zoom = zoom_mem; // TODO [zoom] remove when all cam->zoom will be changed to camera_zoom
+    SYNCDBG(9, "Finished");
 }
 
-static void render_sprite_debug_id(struct Thing* thing, long scr_x, long scr_y)
+static void render_sprite_debug_id(struct Thing *thing, long scr_x, long scr_y)
 {
     if (render_sprite_debug_level < 2)
     {
         if (thing->class_id != TCls_Creature)
+        {
             return;
+        }
     }
     ushort flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags = Lb_TEXT_ONE_COLOR;
@@ -9224,15 +9708,17 @@ static void render_sprite_debug_id(struct Thing* thing, long scr_x, long scr_y)
     long val, value = thing->index;
 
     // Count digits to be displayed
-    int ndigits=0;
+    int ndigits = 0;
     for (val = value; val > 0; val /= 10)
+    {
         ndigits++;
+    }
     // Show the digits
     scr_y -= h;
     long pos_x = w * (ndigits - 1) / 2 + scr_x;
     for (val = value; val > 0; val /= 10)
     {
-        spr = &button_sprite[(val%10) + GBS_fontchars_number_dig0];
+        spr = &button_sprite[(val % 10) + GBS_fontchars_number_dig0];
         LbSpriteDrawScaled(pos_x, scr_y - h, spr, w, h);
 
         pos_x -= w;
@@ -9245,11 +9731,12 @@ void render_set_sprite_debug(int level)
     render_sprite_debug_level = level;
     switch (level)
     {
-        case 0:
-            render_sprite_debug_fn = NULL;
-            break;
-        default:
-            render_sprite_debug_fn = &render_sprite_debug_id;
+    case 0:
+        render_sprite_debug_fn = NULL;
+        break;
+    default:
+        render_sprite_debug_fn = &render_sprite_debug_id;
     }
 }
+
 /******************************************************************************/

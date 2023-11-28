@@ -26,14 +26,14 @@
 extern "C" {
 #endif
 
-#define ACTN_POINTS_COUNT     256
+#define ACTN_POINTS_COUNT 256
 #define ACTN_POINTS_COUNT_OLD 32
 
 /******************************************************************************/
 #pragma pack(1)
 
 enum ActionPointFlags {
-    AptF_Exists            = 0x01,
+    AptF_Exists = 0x01,
 };
 
 struct InitActionPoint { // sizeof = 8

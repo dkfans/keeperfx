@@ -51,25 +51,26 @@
 /******************************************************************************/
 struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsigned short owner)
 {
-    if ( !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots) )
+    if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
-        ERRORDBG(3,"Cannot create cave in %d for player %d. There are too many things allocated.",(int)cimodel,(int)owner);
+        ERRORDBG(3, "Cannot create cave in %d for player %d. There are too many things allocated.", (int)cimodel, (int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
-    struct Thing* thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
-    if (thing->index == 0) {
-        ERRORDBG(3,"Should be able to allocate cave in %d for player %d, but failed.",(int)cimodel,(int)owner);
+    struct Thing *thing = allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots);
+    if (thing->index == 0)
+    {
+        ERRORDBG(3, "Should be able to allocate cave in %d for player %d, but failed.", (int)cimodel, (int)owner);
         erstat_inc(ESE_NoFreeThings);
         return INVALID_THING;
     }
     thing->class_id = TCls_CaveIn;
     thing->model = 0;
     thing->parent_idx = thing->index;
-    memcpy(&thing->mappos,pos,sizeof(struct Coord3d));
+    memcpy(&thing->mappos, pos, sizeof(struct Coord3d));
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
-    struct MagicStats* pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
+    struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_CAVEIN);
     thing->cave_in.time = pwrdynst->duration;
     thing->cave_in.x = pos->x.stl.num;
     thing->cave_in.y = pos->y.stl.num;
@@ -77,7 +78,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
     thing->health = pwrdynst->duration;
     if (owner != game.neutral_player_num)
     {
-        struct Dungeon* dungeon = get_dungeon(owner);
+        struct Dungeon *dungeon = get_dungeon(owner);
         dungeon->camera_deviate_quake = thing->cave_in.time;
     }
     add_thing_to_its_class_list(thing);
@@ -87,7 +88,7 @@ struct Thing *create_cave_in(struct Coord3d *pos, unsigned short cimodel, unsign
 
 struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigned short tngmodel, unsigned short owner, long parent_idx)
 {
-    struct Thing* thing = INVALID_THING;
+    struct Thing *thing = INVALID_THING;
     switch (tngclass)
     {
     case TCls_Object:
@@ -133,8 +134,8 @@ TbBool thing_create_thing(struct InitThing *itng)
     {
         ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.hero_player_num);
         itng->owner = game.hero_player_num;
-    } else
-    if (itng->owner == 8)
+    }
+    else if (itng->owner == 8)
     {
         ERRORLOG("Invalid owning player %d, fixing to %d", (int)itng->owner, (int)game.neutral_player_num);
         itng->owner = game.neutral_player_num;
@@ -144,7 +145,7 @@ TbBool thing_create_thing(struct InitThing *itng)
         ERRORLOG("Invalid owning player %d, thing discarded", (int)itng->owner);
         return false;
     }
-    struct Thing* thing;
+    struct Thing *thing;
     switch (itng->oclass)
     {
     case TCls_Object:
@@ -166,7 +167,8 @@ TbBool thing_create_thing(struct InitThing *itng)
             check_and_asimilate_thing_by_room(thing);
             // make sure we don't have invalid pointer
             thing = INVALID_THING;
-        } else
+        }
+        else
         {
             ERRORLOG("Couldn't create object model %d (%s)", (int)itng->model, object_code_name(itng->model));
             return false;
@@ -260,161 +262,167 @@ TbBool thing_create_thing_adv(VALUE *init_data)
         ERRORLOG("Invalid owning player %d, thing discarded", owner);
         return false;
     }
-    struct Thing* thing;
+    struct Thing *thing;
     switch (oclass)
     {
-        case TCls_Object:
-            thing = create_thing(&mappos, oclass, model, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
-            if (!thing_is_invalid(thing))
+    case TCls_Object:
+        thing = create_thing(&mappos, oclass, model, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
+        if (!thing_is_invalid(thing))
+        {
+            if (object_is_hero_gate(thing))
             {
-                if (object_is_hero_gate(thing))
+                VALUE *gate = value_dict_get(init_data, "HerogateNumber");
+                if (gate != NULL)
                 {
-                    VALUE* gate = value_dict_get(init_data, "HerogateNumber");
-                    if (gate != NULL)
-                    {
-                        thing->hero_gate.number = value_int32(gate);
-                    }
+                    thing->hero_gate.number = value_int32(gate);
                 }
-                else if (thing_is_custom_special_box(thing))
+            }
+            else if (thing_is_custom_special_box(thing))
+            {
+                int box_kind = value_int32(value_dict_get(init_data, "CustomBox"));
+                if (box_kind == -1)
                 {
-                    int box_kind = value_int32(value_dict_get(init_data, "CustomBox"));
-                    if (box_kind == -1)
-                        box_kind = 0;
-                    thing->custom_box.box_kind = box_kind;
-                    if (box_kind > gameadd.max_custom_box_kind)
-                    {
-                        gameadd.max_custom_box_kind = box_kind;
-                    }
+                    box_kind = 0;
                 }
-                else if (object_is_gold_pile(thing))
+                thing->custom_box.box_kind = box_kind;
+                if (box_kind > gameadd.max_custom_box_kind)
                 {
-                    VALUE* value = value_dict_get(init_data, "GoldValue");
-                    if (value != NULL)
-                    {
-                        thing->valuable.gold_stored = value_int32(value);
-                    }
+                    gameadd.max_custom_box_kind = box_kind;
                 }
-                check_and_asimilate_thing_by_room(thing);
-                VALUE* rotation = value_dict_get(init_data, "Orientation");
-                if (rotation != NULL)
+            }
+            else if (object_is_gold_pile(thing))
+            {
+                VALUE *value = value_dict_get(init_data, "GoldValue");
+                if (value != NULL)
                 {
-                    thing->move_angle_xy = value_int32(rotation);
+                    thing->valuable.gold_stored = value_int32(value);
                 }
-                // make sure we don't have invalid pointer
-                thing = INVALID_THING;
-            } else
-            {
-                ERRORLOG("Couldn't create object model %d (%s)", (int)model, object_code_name(model));
-                return false;
             }
-            break;
-        case TCls_Creature:
-            thing = create_creature(&mappos, model, owner);
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if (thing_is_invalid(thing))
+            check_and_asimilate_thing_by_room(thing);
+            VALUE *rotation = value_dict_get(init_data, "Orientation");
+            if (rotation != NULL)
             {
-                ERRORLOG("Couldn't create creature model %d (%s)", model, creature_code_name(model));
-                return false;
+                thing->move_angle_xy = value_int32(rotation);
             }
-            {
-                int level = value_int32(value_dict_get(init_data, "CreatureLevel"));
-                if (level < 1 || level > 10)
-                {
-                    level = 0; // Default
-                    WARNLOG("invalid level in tngfx file %d", level);
-                }
-                else
-                {
-                    level --; //levels are in readable format in file, gamecode always has them 1 lower
-                }
-                init_creature_level(thing, level);
-                VALUE* creature_rotation = value_dict_get(init_data, "Orientation");
-                if (creature_rotation != NULL)
-                {
-                    thing->move_angle_xy = value_int32(creature_rotation);
-                }
-                VALUE* gold_held = value_dict_get(init_data, "CreatureGold");
-                if (gold_held != NULL)
-                {
-                    thing->creature.gold_carried = value_int32(gold_held);
-                }
-                VALUE *HealthPercentage = value_dict_get(init_data, "CreatureInitialHealth");
-                if (HealthPercentage != NULL)
-                {
-                    thing->health = value_int32(HealthPercentage) * cctrl->max_health / 100;
-                }
-                const char* creatureName = value_string(value_dict_get(init_data, "CreatureName"));
-                if(creatureName != NULL)
-                {
-                    if(strlen(creatureName) > 24)
-                    {
-                        ERRORLOG("init creature name (%s) to long max 24 chars", creatureName);
-                        break;
-                    }
-                    strcpy(cctrl->creature_name,creatureName);
-                }
-
-            }
-            break;
-        case TCls_EffectGen:
-            {
-                unsigned short range = value_read_stl_coord(value_dict_get(init_data, "EffectRange"));
-                thing = create_effect_generator(&mappos, model, range, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
-            }
-            if (thing_is_invalid(thing))
-            {
-                ERRORLOG("Couldn't create effect generator model %d", (int)model);
-                return false;
-            }
-            break;
-        case TCls_Trap:
-            thing = create_thing(&mappos, oclass, model, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
-            if (thing_is_invalid(thing))
-            {
-                ERRORLOG("Couldn't create trap model %d (%s)", (int)model, trap_code_name(model));
-                return false;
-            }
-            VALUE* trap_rotation = value_dict_get(init_data, "Orientation");
-            if (trap_rotation != NULL)
-            {
-                thing->move_angle_xy = value_int32(trap_rotation);
-            }
-            break;
-        case TCls_Door:
-            {
-                int orientation = value_int32(value_dict_get(init_data, "DoorOrientation"));
-                int is_locked = value_int32(value_dict_get(init_data, "DoorLocked"));
-                if (orientation == -1)
-                    orientation = 0;
-                if (is_locked == -1)
-                    is_locked = 0;
-                thing = create_door(&mappos, model, orientation, owner, is_locked);
-            }
-            if (thing_is_invalid(thing))
-            {
-                ERRORLOG("Couldn't create door model %d (%s)", (int)model, door_code_name(model));
-                return false;
-            }
-            break;
-        case TCls_Unkn10:
-        case TCls_Unkn11:
-            thing = create_thing(&mappos, oclass, model, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
-            if (thing_is_invalid(thing))
-            {
-                ERRORLOG("Couldn't create thing class %d model %d", (int)oclass, (int)model);
-                return false;
-            }
-            break;
-        default:
-            ERRORLOG("Invalid class %d, thing discarded", (int)oclass);
+            // make sure we don't have invalid pointer
+            thing = INVALID_THING;
+        }
+        else
+        {
+            ERRORLOG("Couldn't create object model %d (%s)", (int)model, object_code_name(model));
             return false;
+        }
+        break;
+    case TCls_Creature:
+        thing = create_creature(&mappos, model, owner);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Couldn't create creature model %d (%s)", model, creature_code_name(model));
+            return false;
+        }
+        {
+            int level = value_int32(value_dict_get(init_data, "CreatureLevel"));
+            if (level < 1 || level > 10)
+            {
+                level = 0; // Default
+                WARNLOG("invalid level in tngfx file %d", level);
+            }
+            else
+            {
+                level--; // levels are in readable format in file, gamecode always has them 1 lower
+            }
+            init_creature_level(thing, level);
+            VALUE *creature_rotation = value_dict_get(init_data, "Orientation");
+            if (creature_rotation != NULL)
+            {
+                thing->move_angle_xy = value_int32(creature_rotation);
+            }
+            VALUE *gold_held = value_dict_get(init_data, "CreatureGold");
+            if (gold_held != NULL)
+            {
+                thing->creature.gold_carried = value_int32(gold_held);
+            }
+            VALUE *HealthPercentage = value_dict_get(init_data, "CreatureInitialHealth");
+            if (HealthPercentage != NULL)
+            {
+                thing->health = value_int32(HealthPercentage) * cctrl->max_health / 100;
+            }
+            const char *creatureName = value_string(value_dict_get(init_data, "CreatureName"));
+            if (creatureName != NULL)
+            {
+                if (strlen(creatureName) > 24)
+                {
+                    ERRORLOG("init creature name (%s) to long max 24 chars", creatureName);
+                    break;
+                }
+                strcpy(cctrl->creature_name, creatureName);
+            }
+        }
+        break;
+    case TCls_EffectGen:
+    {
+        unsigned short range = value_read_stl_coord(value_dict_get(init_data, "EffectRange"));
+        thing = create_effect_generator(&mappos, model, range, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
+    }
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Couldn't create effect generator model %d", (int)model);
+            return false;
+        }
+        break;
+    case TCls_Trap:
+        thing = create_thing(&mappos, oclass, model, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Couldn't create trap model %d (%s)", (int)model, trap_code_name(model));
+            return false;
+        }
+        VALUE *trap_rotation = value_dict_get(init_data, "Orientation");
+        if (trap_rotation != NULL)
+        {
+            thing->move_angle_xy = value_int32(trap_rotation);
+        }
+        break;
+    case TCls_Door:
+    {
+        int orientation = value_int32(value_dict_get(init_data, "DoorOrientation"));
+        int is_locked = value_int32(value_dict_get(init_data, "DoorLocked"));
+        if (orientation == -1)
+        {
+            orientation = 0;
+        }
+        if (is_locked == -1)
+        {
+            is_locked = 0;
+        }
+        thing = create_door(&mappos, model, orientation, owner, is_locked);
+    }
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Couldn't create door model %d (%s)", (int)model, door_code_name(model));
+            return false;
+        }
+        break;
+    case TCls_Unkn10:
+    case TCls_Unkn11:
+        thing = create_thing(&mappos, oclass, model, owner, (unsigned short)value_int32(value_dict_get(init_data, "ParentTile")));
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Couldn't create thing class %d model %d", (int)oclass, (int)model);
+            return false;
+        }
+        break;
+    default:
+        ERRORLOG("Invalid class %d, thing discarded", (int)oclass);
+        return false;
     }
     return true;
 }
 
 struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct Coord3d *pos, unsigned char tngclass, unsigned char tngmodel, unsigned char tngowner)
 {
-    struct Thing* thing = create_thing(pos, tngclass, tngmodel, tngowner, -1);
+    struct Thing *thing = create_thing(pos, tngclass, tngmodel, tngowner, -1);
     if (thing_is_invalid(thing))
     {
         return INVALID_THING;
@@ -423,8 +431,9 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
     // Try to move thing out of the solid wall if it's inside one
     if (thing_in_wall_at(thing, &thing->mappos))
     {
-        if (!move_creature_to_nearest_valid_position(thing)) {
-            ERRORLOG("The %s was created in wall, removing",thing_model_name(thing));
+        if (!move_creature_to_nearest_valid_position(thing))
+        {
+            ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
             delete_thing_structure(thing, 0);
             return INVALID_THING;
         }
@@ -432,7 +441,7 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
 
     if (thing_is_creature(thing))
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         cctrl->flee_pos.x.val = thing->mappos.x.val;
         cctrl->flee_pos.y.val = thing->mappos.y.val;
         cctrl->flee_pos.z.val = thing->mappos.z.val;
@@ -452,7 +461,8 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         {
             ilght.intensity = 48;
             ilght.field_3 = 5;
-        } else
+        }
+        else
         {
             ilght.intensity = 36;
             ilght.field_3 = 1;
@@ -460,12 +470,16 @@ struct Thing *create_thing_at_position_then_move_to_valid_and_add_light(struct C
         ilght.is_dynamic = 1;
         ilght.radius = 2560;
         thing->light_id = light_create_light(&ilght);
-        if (thing->light_id != 0) {
+        if (thing->light_id != 0)
+        {
             light_set_light_never_cache(thing->light_id);
-        } else {
+        }
+        else
+        {
             ERRORLOG("Cannot allocate light to new hero");
         }
     }
     return thing;
 }
+
 /******************************************************************************/

@@ -36,10 +36,10 @@ struct Dungeon;
 #pragma pack()
 /******************************************************************************/
 void process_entrance_generation(void);
-struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crtr_kind);
+struct Thing *create_creature_at_entrance(struct Room *room, ThingModel crtr_kind);
 
 TbBool remove_creature_from_generate_pool(ThingModel crtr_kind);
-TbBool creature_will_generate_for_dungeon(const struct Dungeon * dungeon, ThingModel crtr_kind);
+TbBool creature_will_generate_for_dungeon(const struct Dungeon *dungeon, ThingModel crtr_kind);
 /******************************************************************************/
 TbBool update_creature_pool_state(void);
 /******************************************************************************/

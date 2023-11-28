@@ -72,46 +72,52 @@ enum RenderingVectorMode {
 };
 
 struct TrigLocals {
-    unsigned long zero0;// dummy, to make no offset 0
-    unsigned char var_24;// 4+
+    unsigned long zero0;  // dummy, to make no offset 0
+    unsigned char var_24; // 4+
     unsigned char var_25; // 5+
+
     union {
         unsigned short flag_26; // 6+
-    struct {
-        unsigned char byte_26a;
-        unsigned char byte_26b;
+
+        struct {
+            unsigned char byte_26a;
+            unsigned char byte_26b;
+        };
     };
-    };
+
     unsigned long var_28; // 8+
     unsigned long var_2C; // unused
     // These are DWORDs
-    unsigned long var_30; // 0x10+
-    unsigned long var_34; // 0x14
-    long var_38; // -0x18
-    unsigned long var_3C; // 0x1C
-    unsigned long var_40; // 0x20
-    unsigned long var_44; // 0x24
-    unsigned long var_48; // 0x28
+    unsigned long var_30;  // 0x10+
+    unsigned long var_34;  // 0x14
+    long var_38;           // -0x18
+    unsigned long var_3C;  // 0x1C
+    unsigned long var_40;  // 0x20
+    unsigned long var_44;  // 0x24
+    unsigned long var_48;  // 0x28
     unsigned long delta_e; // 0x2C
+
     union {
-    unsigned long var_50; // 0x30
-    struct {
-        unsigned short word_50a;
-        unsigned short word_50b;
+        unsigned long var_50; // 0x30
+
+        struct {
+            unsigned short word_50a;
+            unsigned short word_50b;
+        };
     };
-    };
-    unsigned long var_54; // 0x34
+
+    unsigned long var_54;  // 0x34
     unsigned long delta_d; // 0x38
-    unsigned long var_5C; // 0x3C
-    unsigned long var_60; // 0x40
+    unsigned long var_5C;  // 0x3C
+    unsigned long var_60;  // 0x40
     unsigned long delta_c; // 0x44
-    unsigned long var_68; // 0x48
-    unsigned long var_6C; // 0x4C
-    unsigned long var_70; // 0x50
-    unsigned long var_74; // 0x54
-    unsigned long var_78; // 0x58
-    unsigned long var_7C; // 0x5C
-    unsigned long var_80; // 0x60
+    unsigned long var_68;  // 0x48
+    unsigned long var_6C;  // 0x4C
+    unsigned long var_70;  // 0x50
+    unsigned long var_74;  // 0x54
+    unsigned long var_78;  // 0x58
+    unsigned long var_7C;  // 0x5C
+    unsigned long var_80;  // 0x60
     unsigned long delta_b; // 0x64
     unsigned long delta_a; // 0x68
     unsigned char *var_8C; // 0x6C
@@ -147,6 +153,7 @@ struct TrigLocalRend {
 };
 
 #pragma pack()
+
 /******************************************************************************/
 
 /**
@@ -154,11 +161,11 @@ struct TrigLocalRend {
  */
 static inline unsigned char __OFSUBL__(long x, long y)
 {
-    return ((x < 0) ^ (y < 0)) & ((x < 0) ^ (x-y < 0));
+    return ((x < 0) ^ (y < 0)) & ((x < 0) ^ (x - y < 0));
 }
 
 unsigned char trig_reorder_input_points(struct PolyPoint **opt_a,
-  struct PolyPoint **opt_b, struct PolyPoint **opt_c)
+                                        struct PolyPoint **opt_b, struct PolyPoint **opt_c)
 {
     struct PolyPoint *ordpt_a;
     struct PolyPoint *ordpt_b;
@@ -171,17 +178,26 @@ unsigned char trig_reorder_input_points(struct PolyPoint **opt_a,
     if (ordpt_a->Y == ordpt_b->Y)
     {
         if (ordpt_a->Y == ordpt_c->Y)
+        {
             return RendStart_NO;
-        if (ordpt_a->Y >= ordpt_c->Y) {
+        }
+        if (ordpt_a->Y >= ordpt_c->Y)
+        {
             if (ordpt_a->X <= ordpt_b->X)
+            {
                 return RendStart_NO;
+            }
             ordpt_a = *opt_c;
             ordpt_b = *opt_a;
             ordpt_c = *opt_b;
             start_type = RendStart_FB;
-        } else {
+        }
+        else
+        {
             if (ordpt_b->X <= ordpt_a->X)
+            {
                 return RendStart_NO;
+            }
             start_type = RendStart_FT;
         }
     }
@@ -190,7 +206,9 @@ unsigned char trig_reorder_input_points(struct PolyPoint **opt_a,
         if (ordpt_a->Y == ordpt_c->Y)
         {
             if (ordpt_c->X <= ordpt_a->X)
+            {
                 return RendStart_NO;
+            }
             ordpt_a = *opt_b;
             ordpt_b = *opt_c;
             ordpt_c = *opt_a;
@@ -206,7 +224,9 @@ unsigned char trig_reorder_input_points(struct PolyPoint **opt_a,
         else if (ordpt_b->Y == ordpt_c->Y)
         {
             if (ordpt_c->X <= ordpt_b->X)
+            {
                 return RendStart_NO;
+            }
             ordpt_a = *opt_b;
             ordpt_b = *opt_c;
             ordpt_c = *opt_a;
@@ -232,7 +252,9 @@ unsigned char trig_reorder_input_points(struct PolyPoint **opt_a,
         if (ordpt_a->Y == ordpt_c->Y)
         {
             if (ordpt_a->X <= ordpt_c->X)
+            {
                 return RendStart_NO;
+            }
             ordpt_a = *opt_c;
             ordpt_b = *opt_a;
             ordpt_c = *opt_b;
@@ -248,7 +270,9 @@ unsigned char trig_reorder_input_points(struct PolyPoint **opt_a,
         else if (ordpt_b->Y == ordpt_c->Y)
         {
             if (ordpt_b->X <= ordpt_c->X)
+            {
                 return RendStart_NO;
+            }
             start_type = RendStart_FB;
         }
         else if (ordpt_b->Y <= ordpt_c->Y)
@@ -268,7 +292,7 @@ unsigned char trig_reorder_input_points(struct PolyPoint **opt_a,
 }
 
 static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pX, pYa, pYb;
     struct PolyPoint *pp;
@@ -283,7 +307,8 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         // whether the addition (tlr->var_44 + tlp->var_78) would overflow
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -310,9 +335,12 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->hide_bottom_part) {
+                if (tlp->hide_bottom_part)
+                {
                     tlp->var_38 = vec_window_height;
-                } else {
+                }
+                else
+                {
                     tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
                     tlp->trig_height_bottom = vec_window_height - tlp->var_38;
                 }
@@ -329,9 +357,12 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->hide_bottom_part) {
+            if (tlp->hide_bottom_part)
+            {
                 tlp->var_38 = dH;
-            } else {
+            }
+            else
+            {
                 // whether the subtraction (dH - tlp->var_38) would overflow
                 eH_overflow = __OFSUBL__(dH, tlp->var_38);
                 eH = dH - tlp->var_38;
@@ -365,7 +396,7 @@ static inline int trig_ll_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     struct PolyPoint *pp;
     long pX, pYa, pYb;
@@ -384,11 +415,13 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         // whether the addition (wX + dX) would overflow
         eX_overflow = __OFSUBL__(wX, -dX);
         eX = wX + dX;
-        if ((eX < 0) ^ eX_overflow) {
+        if ((eX < 0) ^ eX_overflow)
+        {
             NOLOG("skip due to sum %ld %ld", (long)wX, (long)dX);
             return 0;
         }
-        if (eX != 0) {
+        if (eX != 0)
+        {
             long long dS, wS;
             dS = opt_a->S - opt_c->S;
             wS = (ratio_var_34 * dS) >> 16;
@@ -406,7 +439,8 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -421,8 +455,8 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pS += tlp->var_6C * tlp->var_64 + tlp->var_38 * tlp->var_64;
             if (tlp->var_8C)
             {
-              tlp->trig_height_bottom = vec_window_height;
-              tlr->var_44 = vec_window_height;
+                tlp->trig_height_bottom = vec_window_height;
+                tlr->var_44 = vec_window_height;
             }
             tlp->var_38 = 0;
         }
@@ -435,9 +469,12 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->hide_bottom_part) {
+                if (tlp->hide_bottom_part)
+                {
                     tlp->var_38 = vec_window_height;
-                } else {
+                }
+                else
+                {
                     tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
                     tlp->trig_height_bottom = vec_window_height - tlp->var_38;
                 }
@@ -454,9 +491,12 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->hide_bottom_part) {
+            if (tlp->hide_bottom_part)
+            {
                 tlp->var_38 = dH;
-            } else {
+            }
+            else
+            {
                 eH_overflow = __OFSUBL__(dH, tlp->var_38);
                 eH = dH - tlp->var_38;
                 tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
@@ -478,22 +518,22 @@ static inline int trig_ll_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     }
     if (!tlp->hide_bottom_part)
     {
-      for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
-      {
-          pp->X = pX;
-          pX += tlp->var_28;
-          pp->Y = pYb;
-          pYb += tlp->var_30;
-          pp->S = pS;
-          pS += tlp->var_64;
-          ++pp;
-      }
+        for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
+        {
+            pp->X = pX;
+            pX += tlp->var_28;
+            pp->Y = pYb;
+            pYb += tlp->var_30;
+            pp->S = pS;
+            pS += tlp->var_64;
+            ++pp;
+        }
     }
     return 1;
 }
 
 static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pX, pYa, pYb;
     long pU, pV;
@@ -511,11 +551,13 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         dX = opt_b->X - opt_a->X;
         eX_overflow = __OFSUBL__(wX, -dX);
         eX = wX + dX;
-        if ((eX < 0) ^ eX_overflow) {
+        if ((eX < 0) ^ eX_overflow)
+        {
             NOLOG("skip due to sum %ld %ld", (long)wX, (long)dX);
             return 0;
         }
-        if (eX != 0) {
+        if (eX != 0)
+        {
             long long dS, wS;
             dS = opt_a->U - opt_c->U;
             wS = (ratio_var_34 * dS) >> 16;
@@ -538,13 +580,14 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
         tlr->var_44 = eH;
         tlp->var_6C = -tlp->var_78;
-        if (tlp->var_6C - tlp->var_38 >= 0 )
+        if (tlp->var_6C - tlp->var_38 >= 0)
         {
             tlp->trig_height_bottom -= tlp->var_6C - tlp->var_38;
             tlp->var_6C -= tlp->var_38;
@@ -552,7 +595,7 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pYb = tlp->var_30 * tlp->var_6C + tlp->var_40;
             pU += tlp->var_6C * tlp->var_4C + tlp->var_38 * tlp->var_4C;
             pV += tlp->var_6C * tlp->var_58 + tlp->var_38 * tlp->var_58;
-            if ( tlp->var_8C )
+            if (tlp->var_8C)
             {
                 tlp->trig_height_bottom = vec_window_height;
                 tlr->var_44 = vec_window_height;
@@ -566,14 +609,17 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pYa += tlp->var_6C * tlp->var_2C;
             pU += tlp->var_6C * tlp->var_4C;
             pV += tlp->var_6C * tlp->var_58;
-            if ( tlp->var_8C )
+            if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->hide_bottom_part) {
-                  tlp->var_38 = vec_window_height;
-                } else {
-                  tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
-                  tlp->trig_height_bottom = vec_window_height - tlp->var_38;
+                if (tlp->hide_bottom_part)
+                {
+                    tlp->var_38 = vec_window_height;
+                }
+                else
+                {
+                    tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
+                    tlp->trig_height_bottom = vec_window_height - tlp->var_38;
                 }
             }
             pYb = tlp->var_40;
@@ -588,9 +634,12 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->hide_bottom_part) {
+            if (tlp->hide_bottom_part)
+            {
                 tlp->var_38 = dH;
-            } else {
+            }
+            else
+            {
                 eH_overflow = __OFSUBL__(dH, tlp->var_38);
                 eH = dH - tlp->var_38;
                 tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
@@ -631,7 +680,7 @@ static inline int trig_ll_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pX, pYa, pYb;
     long pU, pV, pS;
@@ -649,7 +698,8 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         dX = opt_b->X - opt_a->X;
         eX_overflow = __OFSUBL__(wX, -dX);
         eX = wX + dX;
-        if ((eX < 0) ^ eX_overflow) {
+        if ((eX < 0) ^ eX_overflow)
+        {
             NOLOG("skip due to sum %ld %ld", (long)wX, (long)dX);
             return 0;
         }
@@ -683,7 +733,8 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -698,9 +749,10 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pU += tlp->var_6C * tlp->var_4C + tlp->var_38 * tlp->var_4C;
             pV += tlp->var_6C * tlp->var_58 + tlp->var_38 * tlp->var_58;
             pS += tlp->var_6C * tlp->var_64 + tlp->var_38 * tlp->var_64;
-            if (tlp->var_8C) {
-              tlp->trig_height_bottom = vec_window_height;
-              tlr->var_44 = vec_window_height;
+            if (tlp->var_8C)
+            {
+                tlp->trig_height_bottom = vec_window_height;
+                tlr->var_44 = vec_window_height;
             }
             tlp->var_38 = 0;
         }
@@ -715,9 +767,12 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->hide_bottom_part) {
+                if (tlp->hide_bottom_part)
+                {
                     tlp->var_38 = vec_window_height;
-                } else {
+                }
+                else
+                {
                     tlp->hide_bottom_part = vec_window_height <= tlp->var_38;
                     tlp->trig_height_bottom = vec_window_height - tlp->var_38;
                 }
@@ -734,9 +789,12 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = vec_window_height - tlp->var_78;
-            if (tlp->hide_bottom_part) {
+            if (tlp->hide_bottom_part)
+            {
                 tlp->var_38 = vec_window_height - tlp->var_78;
-            } else {
+            }
+            else
+            {
                 eH_overflow = __OFSUBL__(dH, tlp->var_38);
                 eH = dH - tlp->var_38;
                 tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
@@ -760,40 +818,45 @@ static inline int trig_ll_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pS += tlp->var_64;
         ++pp;
     }
-    if ( !tlp->hide_bottom_part )
+    if (!tlp->hide_bottom_part)
     {
         for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
-          pp->X = pX;
-          pX += tlp->var_28;
-          pp->Y = pYb;
-          pYb += tlp->var_30;
-          pp->U = pU;
-          pU += tlp->var_4C;
-          pp->V = pV;
-          pV += tlp->var_58;
-          pp->S = pS;
-          pS += tlp->var_64;
-          ++pp;
+            pp->X = pX;
+            pX += tlp->var_28;
+            pp->Y = pYb;
+            pYb += tlp->var_30;
+            pp->U = pU;
+            pU += tlp->var_4C;
+            pp->V = pV;
+            pV += tlp->var_58;
+            pp->S = pS;
+            pS += tlp->var_64;
+            ++pp;
         }
     }
     return 1;
 }
 
 int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
     long dX, dY;
 
     tlp->var_78 = opt_a->Y;
-    if (opt_a->Y < 0) {
-      tlr->var_24 = poly_screen;
-      tlp->var_8A = 1;
-    } else if (opt_a->Y < vec_window_height) {
-      tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
-      tlp->var_8A = 0;
-    } else {
+    if (opt_a->Y < 0)
+    {
+        tlr->var_24 = poly_screen;
+        tlp->var_8A = 1;
+    }
+    else if (opt_a->Y < vec_window_height)
+    {
+        tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
+        tlp->var_8A = 0;
+    }
+    else
+    {
         NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
@@ -809,7 +872,8 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
     dX = opt_c->X - opt_a->X;
     tlp->var_28 = (dX << 16) / tlp->trig_height_top;
     dX = opt_b->X - opt_a->X;
-    if ((dX << 16) / dY <= tlp->var_28) {
+    if ((dX << 16) / dY <= tlp->var_28)
+    {
         NOLOG("value (%ld << 16) / %ld below min %ld", (long)dX, (long)dY, (long)tlp->var_28);
         return 0;
     }
@@ -868,7 +932,7 @@ int trig_ll_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
 }
 
 static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     ulong pXa, pXb, pY;
     struct PolyPoint *pp;
@@ -882,7 +946,8 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -894,9 +959,10 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             tlp->trig_height_bottom -= tlp->var_6C;
             pXb = tlp->var_30 * tlp->var_6C + tlp->var_40;
             pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
-            if (tlp->var_8C) {
-              tlp->trig_height_bottom = vec_window_height;
-              tlr->var_44 = vec_window_height;
+            if (tlp->var_8C)
+            {
+                tlp->trig_height_bottom = vec_window_height;
+                tlr->var_44 = vec_window_height;
             }
             tlp->trig_height_top = 0;
         }
@@ -908,9 +974,12 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->hide_bottom_part) {
+                if (tlp->hide_bottom_part)
+                {
                     tlp->trig_height_top = vec_window_height;
-                } else {
+                }
+                else
+                {
                     tlp->hide_bottom_part = vec_window_height <= tlp->trig_height_top;
                     tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
@@ -927,9 +996,12 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->hide_bottom_part) {
+            if (tlp->hide_bottom_part)
+            {
                 tlp->trig_height_top = dH;
-            } else {
+            }
+            else
+            {
                 eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
                 eH = dH - tlp->trig_height_top;
                 tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
@@ -962,7 +1034,7 @@ static inline int trig_rl_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pXa, pXb, pY;
     long pS;
@@ -979,11 +1051,13 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         dXa = opt_a->X - opt_c->X;
         eX_overflow = __OFSUBL__(wXb, -dXa);
         eX = wXb + dXa;
-        if ((eX < 0) ^ eX_overflow) {
+        if ((eX < 0) ^ eX_overflow)
+        {
             NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
             return 0;
         }
-        if (eX != 0) {
+        if (eX != 0)
+        {
             long long dS, wS;
             dS = opt_b->S - opt_a->S;
             wS = (ratio_var_34 * dS) >> 16;
@@ -1002,7 +1076,8 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1015,7 +1090,8 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pXb = tlp->var_30 * tlp->var_6C + tlp->var_40;
             pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
             pS += tlp->var_6C * tlp->var_68 + tlp->trig_height_top * tlp->var_64;
-            if (tlp->var_8C) {
+            if (tlp->var_8C)
+            {
                 tlp->trig_height_bottom = vec_window_height;
                 tlr->var_44 = vec_window_height;
             }
@@ -1027,17 +1103,17 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pXa += tlp->var_28 * tlp->var_6C;
             pY += tlp->var_6C * tlp->var_2C;
             pS += tlp->var_6C * tlp->var_64;
-            if ( tlp->var_8C )
+            if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if ( tlp->hide_bottom_part )
+                if (tlp->hide_bottom_part)
                 {
-                  tlp->trig_height_top = vec_window_height;
+                    tlp->trig_height_top = vec_window_height;
                 }
                 else
                 {
-                  tlp->hide_bottom_part = vec_window_height <= tlp->trig_height_top;
-                  tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
+                    tlp->hide_bottom_part = vec_window_height <= tlp->trig_height_top;
+                    tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
             }
             pXb = tlp->var_40;
@@ -1052,9 +1128,12 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = vec_window_height - tlp->var_78;
-            if (tlp->hide_bottom_part) {
+            if (tlp->hide_bottom_part)
+            {
                 tlp->trig_height_top = vec_window_height - tlp->var_78;
-            } else {
+            }
+            else
+            {
                 eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
                 eH = dH - tlp->trig_height_top;
                 tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
@@ -1091,7 +1170,7 @@ static inline int trig_rl_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pXa, pXb, pY;
     long pU, pV;
@@ -1108,11 +1187,13 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         dXa = opt_a->X - opt_c->X;
         eX_overflow = __OFSUBL__(wXb, -dXa);
         eX = wXb + dXa;
-        if ((eX < 0) ^ eX_overflow) {
+        if ((eX < 0) ^ eX_overflow)
+        {
             NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
             return 0;
         }
-        if (eX != 0) {
+        if (eX != 0)
+        {
             long long dS, wS;
 
             dS = opt_b->U - opt_a->U;
@@ -1138,7 +1219,8 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1152,7 +1234,8 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pY += tlp->var_6C * tlp->var_2C + tlp->trig_height_top * tlp->var_2C;
             pU += tlp->var_6C * tlp->var_50 + tlp->trig_height_top * tlp->var_4C;
             pV += tlp->var_6C * tlp->var_5C + tlp->trig_height_top * tlp->var_58;
-            if (tlp->var_8C) {
+            if (tlp->var_8C)
+            {
                 tlp->trig_height_bottom = vec_window_height;
                 tlr->var_44 = vec_window_height;
             }
@@ -1165,12 +1248,15 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pY += tlp->var_6C * tlp->var_2C;
             pU += tlp->var_6C * tlp->var_4C;
             pV += tlp->var_6C * tlp->var_58;
-            if ( tlp->var_8C )
+            if (tlp->var_8C)
             {
                 tlr->var_44 = vec_window_height;
-                if (tlp->hide_bottom_part) {
+                if (tlp->hide_bottom_part)
+                {
                     tlp->trig_height_top = vec_window_height;
-                } else {
+                }
+                else
+                {
                     tlp->hide_bottom_part = vec_window_height <= tlp->trig_height_top;
                     tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
@@ -1187,9 +1273,12 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->hide_bottom_part) {
+            if (tlp->hide_bottom_part)
+            {
                 tlp->trig_height_top = dH;
-            } else {
+            }
+            else
+            {
                 eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
                 eH = dH - tlp->trig_height_top;
                 tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
@@ -1231,7 +1320,7 @@ static inline int trig_rl_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pXa, pXb, pY;
     long pU, pV, pS;
@@ -1248,12 +1337,14 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         dXa = opt_a->X - opt_c->X;
         eX_overflow = __OFSUBL__(wXb, -dXa);
         eX = wXb + dXa;
-        if ((eX < 0) ^ eX_overflow) {
+        if ((eX < 0) ^ eX_overflow)
+        {
             NOLOG("skip due to sum %ld %ld", (long)wXb, (long)dXa);
             return 0;
         }
         tlr->var_60 = wXb;
-        if (eX != 0) {
+        if (eX != 0)
+        {
             long long dS, wS;
 
             dS = opt_b->U - opt_a->U;
@@ -1285,7 +1376,8 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1300,7 +1392,8 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pU += tlp->var_6C * tlp->var_50 + tlp->trig_height_top * tlp->var_4C;
             pV += tlp->var_6C * tlp->var_5C + tlp->trig_height_top * tlp->var_58;
             pS += tlp->var_6C * tlp->var_68 + tlp->trig_height_top * tlp->var_64;
-            if (tlp->var_8C) {
+            if (tlp->var_8C)
+            {
                 tlp->trig_height_bottom = vec_window_height;
                 tlr->var_44 = vec_window_height;
             }
@@ -1314,11 +1407,15 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
             pU += tlp->var_6C * tlp->var_4C;
             pV += tlp->var_6C * tlp->var_58;
             pS += tlp->var_6C * tlp->var_64;
-            if (tlp->var_8C) {
+            if (tlp->var_8C)
+            {
                 tlr->var_44 = vec_window_height;
-                if (tlp->hide_bottom_part) {
+                if (tlp->hide_bottom_part)
+                {
                     tlp->trig_height_top = vec_window_height;
-                } else {
+                }
+                else
+                {
                     tlp->hide_bottom_part = vec_window_height <= tlp->trig_height_top;
                     tlp->trig_height_bottom = vec_window_height - tlp->trig_height_top;
                 }
@@ -1335,9 +1432,12 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 
             dH = vec_window_height - tlp->var_78;
             tlr->var_44 = dH;
-            if (tlp->hide_bottom_part) {
+            if (tlp->hide_bottom_part)
+            {
                 tlp->trig_height_top = dH;
-            } else {
+            }
+            else
+            {
                 eH_overflow = __OFSUBL__(dH, tlp->trig_height_top);
                 eH = dH - tlp->trig_height_top;
                 tlp->hide_bottom_part = ((eH < 0) ^ eH_overflow) | (eH == 0);
@@ -1365,36 +1465,41 @@ static inline int trig_rl_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
     {
         for (; tlp->trig_height_bottom; tlp->trig_height_bottom--)
         {
-          pp->X = pXb;
-          pXb += tlp->var_30;
-          pp->Y = pY;
-          pY += tlp->var_2C;
-          pp->U = pU;
-          pU += tlp->var_50;
-          pp->V = pV;
-          pV += tlp->var_5C;
-          pp->S = pS;
-          pS += tlp->var_68;
-          ++pp;
+            pp->X = pXb;
+            pXb += tlp->var_30;
+            pp->Y = pY;
+            pY += tlp->var_2C;
+            pp->U = pU;
+            pU += tlp->var_50;
+            pp->V = pV;
+            pV += tlp->var_5C;
+            pp->S = pS;
+            pS += tlp->var_68;
+            ++pp;
         }
     }
     return 1;
 }
 
 int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
     long dX, dY;
 
     tlp->var_78 = opt_a->Y;
-    if (opt_a->Y < 0) {
-      tlr->var_24 = poly_screen;
-      tlp->var_8A = 1;
-    } else if (opt_a->Y < vec_window_height) {
-      tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
-      tlp->var_8A = 0;
-    } else  {
+    if (opt_a->Y < 0)
+    {
+        tlr->var_24 = poly_screen;
+        tlp->var_8A = 1;
+    }
+    else if (opt_a->Y < vec_window_height)
+    {
+        tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
+        tlp->var_8A = 0;
+    }
+    else
+    {
         NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
@@ -1410,7 +1515,8 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
     dX = opt_c->X - opt_a->X;
     tlp->var_28 = (dX << 16) / tlp->trig_height_top;
     dX = opt_b->X - opt_a->X;
-    if ((dX << 16) / dY <= tlp->var_28) {
+    if ((dX << 16) / dY <= tlp->var_28)
+    {
         NOLOG("value (%ld << 16) / %ld below min %ld", (long)dX, (long)dY, (long)tlp->var_28);
         return 0;
     }
@@ -1466,7 +1572,7 @@ int trig_rl_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
 }
 
 static inline int trig_fb_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pX, pY;
     struct PolyPoint *pp;
@@ -1481,7 +1587,8 @@ static inline int trig_fb_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1489,14 +1596,16 @@ static inline int trig_fb_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_6C = -tlp->var_78;
         pX += tlp->var_28 * (-tlp->var_78);
         pY += (-tlp->var_78) * tlp->var_2C;
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height - tlp->var_78;
             tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
@@ -1514,10 +1623,11 @@ static inline int trig_fb_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int pX, pY;
     int pS;
+
     struct PolyPoint *pp;
 
     {
@@ -1526,6 +1636,7 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlr->var_60 = (opt_b->S - opt_c->S) / dX;
         tlp->var_64 = (opt_c->S - opt_a->S) / tlr->var_44;
     }
+
     pX = opt_a->X << 16;
     pY = opt_a->X << 16;
     pS = opt_a->S;
@@ -1537,7 +1648,8 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1546,14 +1658,16 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pX += tlp->var_28 * (-tlp->var_78);
         pY += (-tlp->var_78) * tlp->var_2C;
         pS += (-tlp->var_78) * tlp->var_64;
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height - tlp->var_78;
             tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
@@ -1573,10 +1687,11 @@ static inline int trig_fb_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pX, pY;
     long pU, pV;
+
     struct PolyPoint *pp;
 
     {
@@ -1587,6 +1702,7 @@ static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_4C = (opt_c->U - opt_a->U) / tlr->var_44;
         tlp->var_58 = (opt_c->V - opt_a->V) / tlr->var_44;
     }
+
     pX = opt_a->X << 16;
     pY = opt_a->X << 16;
     pU = opt_a->U;
@@ -1599,7 +1715,8 @@ static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1609,14 +1726,16 @@ static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pY += (-tlp->var_78) * tlp->var_2C;
         pU += (-tlp->var_78) * tlp->var_4C;
         pV += (-tlp->var_78) * tlp->var_58;
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height - tlp->var_78;
             tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
@@ -1638,10 +1757,11 @@ static inline int trig_fb_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pX, pY;
     long pU, pV, pS;
+
     struct PolyPoint *pp;
 
     {
@@ -1654,6 +1774,7 @@ static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_58 = (opt_c->V - opt_a->V) / tlr->var_44;
         tlp->var_64 = (opt_c->S - opt_a->S) / tlr->var_44;
     }
+
     pX = opt_a->X << 16;
     pY = opt_a->X << 16;
     pU = opt_a->U;
@@ -1667,7 +1788,8 @@ static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1678,14 +1800,16 @@ static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pU += (-tlp->var_78) * tlp->var_4C;
         pV += (-tlp->var_78) * tlp->var_58;
         pS += (-tlp->var_78) * tlp->var_64;
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height - tlp->var_78;
             tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
@@ -1709,19 +1833,24 @@ static inline int trig_fb_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 int trig_fb_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
     long dX, dY;
 
     tlp->var_78 = opt_a->Y;
-    if (opt_a->Y < 0) {
+    if (opt_a->Y < 0)
+    {
         tlr->var_24 = poly_screen;
         tlp->var_8A = 1;
-    } else if (opt_a->Y < vec_window_height) {
+    }
+    else if (opt_a->Y < vec_window_height)
+    {
         tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
         tlp->var_8A = 0;
-    } else {
+    }
+    else
+    {
         NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
@@ -1778,7 +1907,7 @@ int trig_fb_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
 }
 
 static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pX, pY;
     struct PolyPoint *pp;
@@ -1793,7 +1922,8 @@ static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1801,14 +1931,16 @@ static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_6C = -tlp->var_78;
         pX += tlp->var_28 * (-tlp->var_78);
         pY += (-tlp->var_78) * tlp->var_2C;
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height - tlp->var_78;
             tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
@@ -1826,10 +1958,11 @@ static inline int trig_ft_md00(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pX, pY;
     long pS;
+
     struct PolyPoint *pp;
 
     {
@@ -1838,6 +1971,7 @@ static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlr->var_60 = (opt_b->S - opt_a->S) / dX;
         tlp->var_64 = (opt_c->S - opt_a->S) / tlr->var_44;
     }
+
     pX = opt_a->X << 16;
     pY = opt_b->X << 16;
     pS = opt_a->S;
@@ -1849,7 +1983,8 @@ static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1858,14 +1993,16 @@ static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pX += tlp->var_28 * (-tlp->var_78);
         pY += (-tlp->var_78) * tlp->var_2C;
         pS += (-tlp->var_78) * tlp->var_64;
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height - tlp->var_78;
             tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
@@ -1885,10 +2022,11 @@ static inline int trig_ft_md01(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pX, pY;
     long pU, pV;
+
     struct PolyPoint *pp;
     {
         long dX;
@@ -1898,6 +2036,7 @@ static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_4C = (opt_c->U - opt_a->U) / tlr->var_44;
         tlp->var_58 = (opt_c->V - opt_a->V) / tlr->var_44;
     }
+
     pX = opt_a->X << 16;
     pY = opt_b->X << 16;
     pU = opt_a->U;
@@ -1910,7 +2049,8 @@ static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1920,14 +2060,16 @@ static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pY += (-tlp->var_78) * tlp->var_2C;
         pU += (-tlp->var_78) * tlp->var_4C;
         pV += (-tlp->var_78) * tlp->var_58;
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height - tlp->var_78;
             tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
@@ -1949,10 +2091,11 @@ static inline int trig_ft_md02(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                               const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     long pX, pY;
     long pU, pV, pS;
+
     struct PolyPoint *pp;
 
     {
@@ -1965,6 +2108,7 @@ static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->var_58 = (opt_c->V - opt_a->V) / tlr->var_44;
         tlp->var_64 = (opt_c->S - opt_a->S) / tlr->var_44;
     }
+
     pX = opt_a->X << 16;
     pY = opt_b->X << 16;
     pU = opt_a->U;
@@ -1978,7 +2122,8 @@ static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         tlp->trig_height_top += tlp->var_78;
         eH_overflow = __OFSUBL__(tlr->var_44, -tlp->var_78);
         eH = tlr->var_44 + tlp->var_78;
-        if (((eH < 0) ^ eH_overflow) | (eH == 0)) {
+        if (((eH < 0) ^ eH_overflow) | (eH == 0))
+        {
             NOLOG("skip due to sum %ld %ld", (long)tlr->var_44, (long)tlp->var_78);
             return 0;
         }
@@ -1989,14 +2134,16 @@ static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
         pU += (-tlp->var_78) * tlp->var_4C;
         pV += (-tlp->var_78) * tlp->var_58;
         pS += (-tlp->var_78) * tlp->var_64;
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height;
             tlp->trig_height_top = vec_window_height;
         }
     }
     else
     {
-        if (tlp->hide_bottom_part) {
+        if (tlp->hide_bottom_part)
+        {
             tlr->var_44 = vec_window_height - tlp->var_78;
             tlp->trig_height_top = vec_window_height - tlp->var_78;
         }
@@ -2020,19 +2167,24 @@ static inline int trig_ft_md05(struct TrigLocalPrep *tlp, struct TrigLocalRend *
 }
 
 int trig_ft_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const struct PolyPoint *opt_a,
-  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
+                  const struct PolyPoint *opt_b, const struct PolyPoint *opt_c)
 {
     int ret;
     long dX, dY;
 
     tlp->var_78 = opt_a->Y;
-    if (opt_a->Y < 0) {
-      tlr->var_24 = poly_screen;
-      tlp->var_8A = 1;
-    } else if (opt_a->Y < vec_window_height) {
-      tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
-      tlp->var_8A = 0;
-    } else {
+    if (opt_a->Y < 0)
+    {
+        tlr->var_24 = poly_screen;
+        tlp->var_8A = 1;
+    }
+    else if (opt_a->Y < vec_window_height)
+    {
+        tlr->var_24 = poly_screen + vec_screen_width * opt_a->Y;
+        tlp->var_8A = 0;
+    }
+    else
+    {
         NOLOG("height %ld exceeded by opt_a Y %ld", (long)vec_window_height, (long)opt_a->Y);
         return 0;
     }
@@ -2093,7 +2245,7 @@ int trig_ft_start(struct TrigLocalPrep *tlp, struct TrigLocalRend *tlr, const st
  */
 static inline unsigned char __OFSUBS__(short x, short y)
 {
-    return ((x < 0) ^ (y < 0)) & ((x < 0) ^ (x-y < 0));
+    return ((x < 0) ^ (y < 0)) & ((x < 0) ^ (x - y < 0));
 }
 
 /**
@@ -2101,7 +2253,7 @@ static inline unsigned char __OFSUBS__(short x, short y)
  */
 static inline unsigned char __CFADDS__(short x, short y)
 {
-    return (ushort)(x) > (ushort)(x+y);
+    return (ushort)(x) > (ushort)(x + y);
 }
 
 /**
@@ -2109,7 +2261,7 @@ static inline unsigned char __CFADDS__(short x, short y)
  */
 static inline unsigned char __CFADDL__(long x, long y)
 {
-    return (ulong)(x) > (ulong)(x+y);
+    return (ulong)(x) > (ulong)(x + y);
 }
 
 /**
@@ -2119,12 +2271,15 @@ static inline ulong __ROL4__(ulong value, int count)
 {
     const uint nbits = 4 * 8;
 
-    if (count > 0) {
+    if (count > 0)
+    {
         count %= nbits;
         ulong high = value >> (nbits - count);
         value <<= count;
         value |= high;
-    } else {
+    }
+    else
+    {
         count = -count % nbits;
         ulong low = value << (nbits - count);
         value >>= count;
@@ -2140,7 +2295,8 @@ void trig_render_md00(struct TrigLocalRend *tlr)
     unsigned char col;
 
     pp = polyscans;
-    if (pp == NULL) {
+    if (pp == NULL)
+    {
         ERRORLOG("global array not set: 0x%p", pp);
         return;
     }
@@ -2158,20 +2314,28 @@ void trig_render_md00(struct TrigLocalRend *tlr)
         if (pX < 0)
         {
             if (pY <= 0)
+            {
                 continue;
+            }
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
             o = &o_ln[0];
         }
         else
         {
             TbBool pY_overflow;
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
             pY_overflow = __OFSUBL__(pY, pX);
             pY = pY - pX;
             if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            {
                 continue;
+            }
             o = &o_ln[pX];
         }
         memset(o, col, pY);
@@ -2183,7 +2347,8 @@ void trig_render_md01(struct TrigLocalRend *tlr)
     struct PolyPoint *pp;
     TbBool pS_carry;
     pp = polyscans;
-    if (pp == NULL) {
+    if (pp == NULL)
+    {
         ERRORLOG("global array not set: 0x%p", pp);
         return;
     }
@@ -2200,20 +2365,24 @@ void trig_render_md01(struct TrigLocalRend *tlr)
         o = &tlr->var_24[vec_screen_width];
         tlr->var_24 += vec_screen_width;
 
-        if (pX  < 0)
+        if (pX < 0)
         {
             long mX;
             short colH;
 
             if (pY <= 0)
+            {
                 continue;
+            }
             mX = tlr->var_60 * (ushort)(-pX);
             pS_carry = __CFADDS__(pp->S, mX);
             pS = pp->S + mX;
             // Delcate code - if we add before shifting, the result is different
             colH = (mX >> 16) + (pp->S >> 16) + pS_carry;
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
 
             colS = ((colH & 0xFF) << 8) + vec_colour;
         }
@@ -2223,11 +2392,15 @@ void trig_render_md01(struct TrigLocalRend *tlr)
             short colH;
 
             if (pY > vec_window_width)
-              pY = vec_window_width;
+            {
+                pY = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pY, pX);
             pY = pY - pX;
             if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            {
                 continue;
+            }
             o += pX;
             colH = pp->S >> 16;
             pS = pp->S;
@@ -2235,7 +2408,7 @@ void trig_render_md01(struct TrigLocalRend *tlr)
             colS = ((colH & 0xFF) << 8) + vec_colour;
         }
 
-        for (;pY > 0; pY--, o++)
+        for (; pY > 0; pY--, o++)
         {
             short colH, colL;
             *o = colS >> 8;
@@ -2258,7 +2431,8 @@ void trig_render_md02(struct TrigLocalRend *tlr)
 
     m = vec_map;
     pp = polyscans;
-    if ((m == NULL) || (pp == NULL)) {
+    if ((m == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p", m, pp);
         return;
     }
@@ -2283,7 +2457,9 @@ void trig_render_md02(struct TrigLocalRend *tlr)
             long mX;
 
             if (pY <= 0)
+            {
                 continue;
+            }
             mX = tlr->var_54 * (-pX);
             factorA = __ROL4__(pp->V + mX, 16);
             colH = factorA;
@@ -2291,7 +2467,9 @@ void trig_render_md02(struct TrigLocalRend *tlr)
             pU = (factorA & 0xFFFF0000) | ((pp->U + mX) & 0xFFFF);
             colL = (pp->U + mX) >> 16;
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
             pX = (pp->U + mX) >> 8;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -2302,11 +2480,15 @@ void trig_render_md02(struct TrigLocalRend *tlr)
             TbBool pY_overflow;
 
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pY, pX);
             pY = pY - pX;
             if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            {
                 continue;
+            }
             o += pX;
             pU = __ROL4__(pp->V, 16);
             colH = pU;
@@ -2344,7 +2526,8 @@ void trig_render_md03(struct TrigLocalRend *tlr)
 
     m = vec_map;
     pp = polyscans;
-    if ((m == NULL) || (pp == NULL)) {
+    if ((m == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p", m, pp);
         return;
     }
@@ -2369,7 +2552,9 @@ void trig_render_md03(struct TrigLocalRend *tlr)
             long mX;
 
             if (pY <= 0)
+            {
                 continue;
+            }
             mX = tlr->var_54 * (-pX);
             factorA = __ROL4__(pp->V + mX, 16);
             colH = factorA;
@@ -2377,7 +2562,9 @@ void trig_render_md03(struct TrigLocalRend *tlr)
             pU = (factorA & 0xFFFF0000) | ((pp->U + mX) & 0xFFFF);
             colL = (pp->U + mX) >> 16;
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2387,11 +2574,15 @@ void trig_render_md03(struct TrigLocalRend *tlr)
             TbBool pY_overflow;
 
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pY, pX);
             pY = pY - pX;
             if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            {
                 continue;
+            }
             o += pX;
             pU = __ROL4__(pp->V, 16);
             colH = pU;
@@ -2407,7 +2598,9 @@ void trig_render_md03(struct TrigLocalRend *tlr)
             TbBool pU_carry;
 
             if (m[colS] != 0)
+            {
                 *o = m[colS];
+            }
 
             pU_carry = __CFADDS__(tlr->var_48, pU);
             pU = (pU & 0xFFFF0000) | ((tlr->var_48 + pU) & 0xFFFF);
@@ -2434,7 +2627,8 @@ void trig_render_md04(struct TrigLocalRend *tlr)
 
     f = pixmap.fade_tables;
     pp = polyscans;
-    if ((f == NULL) || (pp == NULL)) {
+    if ((f == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p", f, pp);
         return;
     }
@@ -2457,13 +2651,17 @@ void trig_render_md04(struct TrigLocalRend *tlr)
             long mX;
 
             if (pY <= 0)
+            {
                 continue;
+            }
             mX = tlr->var_60 * (-pX);
             pU_carry = __CFADDS__(pp->S, mX);
             pU = pp->S + mX;
             colH = (pp->S >> 16) + pU_carry + (mX >> 16);
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
             colL = vec_colour;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -2474,11 +2672,15 @@ void trig_render_md04(struct TrigLocalRend *tlr)
             TbBool pY_overflow;
 
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pY, pX);
             pY = pY - pX;
             if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            {
                 continue;
+            }
             o += pX;
             colL = vec_colour;
             pU = pp->S;
@@ -2487,7 +2689,7 @@ void trig_render_md04(struct TrigLocalRend *tlr)
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
 
-        for (;pY > 0; pY--, o++)
+        for (; pY > 0; pY--, o++)
         {
             ushort colL, colH;
             TbBool pU_carry;
@@ -2515,7 +2717,8 @@ void trig_render_md05(struct TrigLocalRend *tlr)
     m = vec_map;
     f = pixmap.fade_tables;
     pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
+    if ((m == NULL) || (f == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
         return;
     }
@@ -2524,7 +2727,7 @@ void trig_render_md05(struct TrigLocalRend *tlr)
         ulong factorA, factorB, factorC;
         factorC = tlr->var_48;
         // original code used unsigned compare here, making the condition always false
-        //if (tlr->var_60 < 0) factorC--;
+        // if (tlr->var_60 < 0) factorC--;
         factorC = __ROL4__(factorC, 16);
         factorA = __ROL4__(tlr->var_54, 16);
         factorB = ((ulong)tlr->var_60) >> 8;
@@ -2553,7 +2756,9 @@ void trig_render_md05(struct TrigLocalRend *tlr)
             long mX;
 
             if (pY <= 0)
+            {
                 continue;
+            }
             mX = tlr->var_48 * (-pX);
             factorA = __ROL4__(pp->U + mX, 16);
             mX = tlr->var_54 * (-pX);
@@ -2564,7 +2769,9 @@ void trig_render_md05(struct TrigLocalRend *tlr)
             rfactB = (factorB & 0xFFFF0000) | (factorA & 0xFF);
             rfactA = (factorA & 0xFFFF0000) | (colL & 0xFFFF);
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -2575,11 +2782,15 @@ void trig_render_md05(struct TrigLocalRend *tlr)
             TbBool pY_overflow;
 
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pY, pX);
             pY = pY - pX;
             if (((pY < 0) ^ pY_overflow) | (pY == 0))
+            {
                 continue;
+            }
             o_ln += pX;
             factorA = __ROL4__(pp->U, 16);
             factorB = __ROL4__(pp->V, 16);
@@ -2635,7 +2846,8 @@ void trig_render_md06(struct TrigLocalRend *tlr)
     m = vec_map;
     f = pixmap.fade_tables;
     pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
+    if ((m == NULL) || (f == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
         return;
     }
@@ -2664,7 +2876,9 @@ void trig_render_md06(struct TrigLocalRend *tlr)
             ulong mX;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             pXMa = (ushort)-pXa;
             pXMb = pXMa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXMa, 16);
@@ -2682,7 +2896,9 @@ void trig_render_md06(struct TrigLocalRend *tlr)
             pXa = (pXa & 0xFFFF);
             pY = factorB & 0xFFFF;
             if (pY > vec_window_width)
+            {
                 pY = vec_window_width;
+            }
         }
         else
         {
@@ -2691,11 +2907,15 @@ void trig_render_md06(struct TrigLocalRend *tlr)
             short pLa;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pLa_overflow = __OFSUBS__(pYa, pXa);
             pLa = pYa - pXa;
             if (((pLa < 0) ^ pLa_overflow) | (pLa == 0))
+            {
                 continue;
+            }
 
             o += pXa;
             colL = (pp->U >> 16);
@@ -2716,7 +2936,9 @@ void trig_render_md06(struct TrigLocalRend *tlr)
 
             pXa = (pXa & 0xFF00) | (m[colM] & 0xFF);
             if (pXa & 0xFF)
+            {
                 *o = f[pXa];
+            }
 
             fct_carry = __CFADDS__(tlr->var_48, factorA);
             factorA = (factorA & 0xFFFF0000) | ((tlr->var_48 + factorA) & 0xFFFF);
@@ -2746,7 +2968,8 @@ void trig_render_md07(struct TrigLocalRend *tlr)
     m = vec_map;
     f = pixmap.fade_tables;
     pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
+    if ((m == NULL) || (f == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
         return;
     }
@@ -2765,14 +2988,16 @@ void trig_render_md07(struct TrigLocalRend *tlr)
         pYa = (pp->Y >> 16);
         o = &tlr->var_24[vec_screen_width];
         tlr->var_24 += vec_screen_width;
-        if ( (pXa & 0x8000u) != 0 )
+        if ((pXa & 0x8000u) != 0)
         {
             ushort colL, colH;
             ulong factorB, factorC;
 
-            if ( (short)pYa <= 0 )
+            if ((short)pYa <= 0)
+            {
                 continue;
-            pXm = (ushort)-(short)pXa;
+            }
+            pXm = (ushort) - (short)pXa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
             colH = factorA;
             factorC = pp->U + tlr->var_48 * pXm;
@@ -2780,7 +3005,9 @@ void trig_render_md07(struct TrigLocalRend *tlr)
             factorB = factorC >> 8;
             colL = ((factorB >> 8) & 0xFF);
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             pXa = (ushort)factorB;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -2791,11 +3018,15 @@ void trig_render_md07(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( (unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0) )
+            if ((unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -2835,7 +3066,8 @@ void trig_render_md08(struct TrigLocalRend *tlr)
     m = vec_map;
     f = pixmap.fade_tables;
     pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
+    if ((m == NULL) || (f == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
         return;
     }
@@ -2853,15 +3085,17 @@ void trig_render_md08(struct TrigLocalRend *tlr)
         pYa = (pp->Y >> 16);
         o = &tlr->var_24[vec_screen_width];
         tlr->var_24 += vec_screen_width;
-        if ( (pXa & 0x8000u) != 0 )
+        if ((pXa & 0x8000u) != 0)
         {
             ushort colL, colH;
             ulong factorB, factorC;
             long pXm;
 
-            if ( (short)pYa <= 0 )
+            if ((short)pYa <= 0)
+            {
                 continue;
-            pXm = (ushort)-(short)pXa;
+            }
+            pXm = (ushort) - (short)pXa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
             colH = factorA;
             factorB = pp->U + tlr->var_48 * pXm;
@@ -2869,7 +3103,9 @@ void trig_render_md08(struct TrigLocalRend *tlr)
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             pXa = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -2880,11 +3116,15 @@ void trig_render_md08(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( (unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0) )
+            if ((unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -2905,7 +3145,9 @@ void trig_render_md08(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
             colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
             if (colS & 0xFF)
+            {
                 *o = f[colS];
+            }
             factorA_carry = __CFADDL__(lsh_var_54, factorA);
             factorA += lsh_var_54;
             colH = (colM >> 8) + ((tlr->var_54 >> 16) & 0xFF) + factorA_carry;
@@ -2925,7 +3167,8 @@ void trig_render_md09(struct TrigLocalRend *tlr)
     m = vec_map;
     f = pixmap.fade_tables;
     pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
+    if ((m == NULL) || (f == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
         return;
     }
@@ -2949,7 +3192,9 @@ void trig_render_md09(struct TrigLocalRend *tlr)
             ulong factorB, factorC;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             pXm = (ushort)-pXa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
             colH = factorA;
@@ -2958,7 +3203,9 @@ void trig_render_md09(struct TrigLocalRend *tlr)
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             pXa = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -2969,11 +3216,15 @@ void trig_render_md09(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
             if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -2993,7 +3244,8 @@ void trig_render_md09(struct TrigLocalRend *tlr)
             factorA_carry = __CFADDS__(tlr->var_48, factorA);
             factorA = (factorA & 0xFFFF0000) + ((tlr->var_48 + factorA) & 0xFFFF);
             colL = ((tlr->var_48 >> 16) & 0xFF) + factorA_carry + colM;
-            if ((colS >> 8) & 0xFF) {
+            if ((colS >> 8) & 0xFF)
+            {
                 colS = (colS & 0xFF00) | (*o);
                 *o = f[colS];
             }
@@ -3016,7 +3268,8 @@ void trig_render_md10(struct TrigLocalRend *tlr)
     m = vec_map;
     f = pixmap.fade_tables;
     pp = polyscans;
-    if ((m == NULL) || (f == NULL) || (pp == NULL)) {
+    if ((m == NULL) || (f == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, f, pp);
         return;
     }
@@ -3042,8 +3295,10 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             long pXm;
 
             if (pYa <= 0)
+            {
                 continue;
-            pXm = (ushort)-(short)pXa;
+            }
+            pXm = (ushort) - (short)pXa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
             colH = factorA;
             factorB = pp->U + tlr->var_48 * pXm;
@@ -3051,7 +3306,9 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             pXa = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3062,11 +3319,15 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( (unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0) )
+            if ((unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -3082,7 +3343,8 @@ void trig_render_md10(struct TrigLocalRend *tlr)
             ushort colS;
             unsigned char factorA_carry;
 
-            if (m[colM]) {
+            if (m[colM])
+            {
                 colS = (vec_colour << 8) | (*o);
                 *o = f[colS];
             }
@@ -3108,7 +3370,8 @@ void trig_render_md12(struct TrigLocalRend *tlr)
     m = vec_map;
     g = pixmap.ghost;
     pp = polyscans;
-    if ((m == NULL) || (g == NULL) || (pp == NULL)) {
+    if ((m == NULL) || (g == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, g, pp);
         return;
     }
@@ -3127,14 +3390,16 @@ void trig_render_md12(struct TrigLocalRend *tlr)
         pYa = (pp->Y >> 16);
         o = &tlr->var_24[vec_screen_width];
         tlr->var_24 += vec_screen_width;
-        if ( (pXa & 0x8000u) != 0 )
+        if ((pXa & 0x8000u) != 0)
         {
             ushort colL, colH;
             ulong factorB, factorC;
 
-            if ( (short)pYa <= 0 )
+            if ((short)pYa <= 0)
+            {
                 continue;
-            pXm = (ushort)-(short)pXa;
+            }
+            pXm = (ushort) - (short)pXa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
             colH = factorA;
             factorC = pp->U + tlr->var_48 * pXm;
@@ -3142,7 +3407,9 @@ void trig_render_md12(struct TrigLocalRend *tlr)
             factorB = factorC >> 8;
             colL = ((factorB >> 8) & 0xFF);
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             pXa = (ushort)factorB;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3153,11 +3420,15 @@ void trig_render_md12(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( (unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0) )
+            if ((unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -3197,7 +3468,8 @@ void trig_render_md13(struct TrigLocalRend *tlr)
     m = vec_map;
     g = pixmap.ghost;
     pp = polyscans;
-    if ((m == NULL) || (g == NULL) || (pp == NULL)) {
+    if ((m == NULL) || (g == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p 0x%p", m, g, pp);
         return;
     }
@@ -3220,9 +3492,11 @@ void trig_render_md13(struct TrigLocalRend *tlr)
             ushort colL, colH;
             ulong factorB, factorC;
 
-            if ( (short)pYa <= 0 )
+            if ((short)pYa <= 0)
+            {
                 continue;
-            pXm = (ushort)-(short)pXa;
+            }
+            pXm = (ushort) - (short)pXa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
             colH = factorA;
             factorB = pp->U + tlr->var_48 * pXm;
@@ -3230,7 +3504,9 @@ void trig_render_md13(struct TrigLocalRend *tlr)
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             pXa = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3241,11 +3517,15 @@ void trig_render_md13(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( (unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0) )
+            if ((unsigned char)(((pYa & 0x8000u) != 0) ^ pY_overflow) | ((ushort)pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -3284,7 +3564,8 @@ void trig_render_md14(struct TrigLocalRend *tlr)
 
     g = pixmap.ghost;
     pp = polyscans;
-    if ((g == NULL) || (pp == NULL)) {
+    if ((g == NULL) || (pp == NULL))
+    {
         ERRORLOG("global arrays not set: 0x%p 0x%p", g, pp);
         return;
     }
@@ -3303,9 +3584,13 @@ void trig_render_md14(struct TrigLocalRend *tlr)
         if (pXa < 0)
         {
             if (pYa <= 0)
+            {
                 continue;
+            }
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             o = o_ln;
         }
         else
@@ -3313,18 +3598,22 @@ void trig_render_md14(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o = &o_ln[pXa];
         }
 
         for (; pYa > 0; pYa--, o++)
         {
-              colM = (colM & 0xFF00) | *o;
-              *o = g[colM];
+            colM = (colM & 0xFF00) | *o;
+            *o = g[colM];
         }
     }
 }
@@ -3352,9 +3641,13 @@ void trig_render_md15(struct TrigLocalRend *tlr)
         if (pXa < 0)
         {
             if (pYa <= 0)
+            {
                 continue;
+            }
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             o = o_ln;
         }
         else
@@ -3362,18 +3655,22 @@ void trig_render_md15(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o = &o_ln[pXa];
         }
 
         for (; pYa > 0; pYa--, o++)
         {
-              colM = (*o << 8) | (colM & 0xFF);
-              *o = g[colM];
+            colM = (*o << 8) | (colM & 0xFF);
+            *o = g[colM];
         }
     }
 }
@@ -3408,7 +3705,9 @@ void trig_render_md16(struct TrigLocalRend *tlr)
             short pXMb;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             pXMa = tlr->var_60 * (ushort)-pXa;
             pXMb = pXMa;
             pXa = pXMa >> 8;
@@ -3416,7 +3715,9 @@ void trig_render_md16(struct TrigLocalRend *tlr)
             factorA = (pp->S) + pXMb;
             colH = (pXa >> 8) + (pp->S >> 16) + factorA_carry;
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             colL = vec_colour;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3427,11 +3728,15 @@ void trig_render_md16(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             colL = vec_colour;
             factorA = pp->S;
@@ -3488,7 +3793,9 @@ void trig_render_md17(struct TrigLocalRend *tlr)
             short pXMb;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             pXMa = tlr->var_60 * (ushort)-pXa;
             pXMb = pXMa;
             pXa = pXMa >> 8;
@@ -3496,7 +3803,9 @@ void trig_render_md17(struct TrigLocalRend *tlr)
             factorA = pp->S + pXMb;
             colH = (pXa >> 8) + (pp->S >> 16) + factorA_carry;
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             colL = vec_colour;
 
             colS = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3507,11 +3816,15 @@ void trig_render_md17(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
             if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
 
             o += pXa;
             colL = vec_colour;
@@ -3569,7 +3882,9 @@ void trig_render_md18(struct TrigLocalRend *tlr)
             ulong factorB, factorC;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             pXm = (ushort)-pXa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
             colH = factorA;
@@ -3578,7 +3893,9 @@ void trig_render_md18(struct TrigLocalRend *tlr)
             factorC = factorB >> 8;
             colL = (factorC >> 8);
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             pXa = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3589,11 +3906,15 @@ void trig_render_md18(struct TrigLocalRend *tlr)
             unsigned char pY_carry;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_carry = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_carry) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_carry) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -3655,7 +3976,9 @@ void trig_render_md19(struct TrigLocalRend *tlr)
             ulong factorB, factorC;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             pXm = (ushort)-pXa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
             colH = factorA;
@@ -3664,7 +3987,9 @@ void trig_render_md19(struct TrigLocalRend *tlr)
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
         }
@@ -3674,11 +3999,15 @@ void trig_render_md19(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -3744,9 +4073,13 @@ void trig_render_md20(struct TrigLocalRend *tlr)
             ulong factorB;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pXMa = (ushort)-pXa;
             pXMb = pXMa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXMa, 16);
@@ -3765,11 +4098,15 @@ void trig_render_md20(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -3839,9 +4176,13 @@ void trig_render_md21(struct TrigLocalRend *tlr)
             ulong factorB;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             pXMa = (ushort)-pXa;
             pXMb = pXMa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXMa, 16);
@@ -3861,11 +4202,15 @@ void trig_render_md21(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -3931,7 +4276,9 @@ void trig_render_md22(struct TrigLocalRend *tlr)
             ulong factorB, factorC;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             pXm = (ushort)-pXa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
             colH = factorA;
@@ -3940,7 +4287,9 @@ void trig_render_md22(struct TrigLocalRend *tlr)
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             pXa = factorC & 0xFFFF;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -3951,11 +4300,15 @@ void trig_render_md22(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if ( ((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -3971,7 +4324,8 @@ void trig_render_md22(struct TrigLocalRend *tlr)
             ushort colS;
             unsigned char factorA_carry;
 
-            if (m[colM]) {
+            if (m[colM])
+            {
                 colS = ((m[colM] & 0xFF) << 8) + *o;
                 *o = g[colS];
             }
@@ -4013,13 +4367,15 @@ void trig_render_md23(struct TrigLocalRend *tlr)
         pYa = (pp->Y >> 16);
         o = &tlr->var_24[vec_screen_width];
         tlr->var_24 += vec_screen_width;
-        if ( (pXa & 0x8000u) != 0 )
+        if ((pXa & 0x8000u) != 0)
         {
             ushort colL, colH;
             ulong factorB, factorC;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             pXm = (ushort)-pXa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXm, 16);
             colH = factorA;
@@ -4028,7 +4384,9 @@ void trig_render_md23(struct TrigLocalRend *tlr)
             factorC = factorB >> 8;
             colL = ((factorC >> 8) & 0xFF);
             if (pYa > vec_window_width)
-              pYa = vec_window_width;
+            {
+                pYa = vec_window_width;
+            }
             pXa = (ushort)factorC;
 
             colM = ((colH & 0xFF) << 8) + (colL & 0xFF);
@@ -4039,11 +4397,15 @@ void trig_render_md23(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if (((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -4058,7 +4420,8 @@ void trig_render_md23(struct TrigLocalRend *tlr)
             ushort colL, colH;
             ushort colS;
 
-            if (m[colM]) {
+            if (m[colM])
+            {
                 colS = (((*o) & 0xFF) << 8) + m[colM];
                 *o = g[colS];
             }
@@ -4111,9 +4474,13 @@ void trig_render_md24(struct TrigLocalRend *tlr)
             ulong factorB;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pXMa = (ushort)-pXa;
             pXMb = pXMa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXMa, 16);
@@ -4133,11 +4500,15 @@ void trig_render_md24(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if (((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -4153,7 +4524,8 @@ void trig_render_md24(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char factorA_carry;
 
-            if (m[colM]) {
+            if (m[colM])
+            {
                 ushort colS;
 
                 colS = ((factorC & 0xFF) << 8) + m[colM];
@@ -4212,9 +4584,13 @@ void trig_render_md25(struct TrigLocalRend *tlr)
             ulong factorB;
 
             if (pYa <= 0)
+            {
                 continue;
+            }
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pXMa = (ushort)-pXa;
             pXMb = pXMa;
             factorA = __ROL4__(pp->V + tlr->var_54 * pXMa, 16);
@@ -4234,11 +4610,15 @@ void trig_render_md25(struct TrigLocalRend *tlr)
             unsigned char pY_overflow;
 
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa = pYa - pXa;
-            if (((pYa < 0) ^ pY_overflow) | (pYa == 0) )
+            if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->V, 16);
             colH = factorA;
@@ -4254,7 +4634,8 @@ void trig_render_md25(struct TrigLocalRend *tlr)
             ushort colL, colH;
             unsigned char factorA_carry;
 
-            if (m[colM]) {
+            if (m[colM])
+            {
                 ushort colS;
 
                 colS = ((factorC & 0xFF) << 8) + m[colM];
@@ -4325,7 +4706,9 @@ void trig_render_md26(struct TrigLocalRend *tlr)
         if (pXa < 0)
         {
             if (pYa <= 0)
+            {
                 continue;
+            }
             pXa = -pXa;
             factorA = __ROL4__(pp->U + pXa * tlr->var_48, 16);
             factorB = __ROL4__(pp->V + pXa * tlr->var_54, 16);
@@ -4334,18 +4717,24 @@ void trig_render_md26(struct TrigLocalRend *tlr)
             factorA = (factorA & 0xFFFF0000) | (factorC & 0xFFFF);
             factorD = __ROL4__(pp->V + pXa * tlr->var_54, 16);
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
 
             colM = (factorC & 0xFF) + ((factorD & 0xFF) << 8);
         }
         else
         {
             if (pYa > vec_window_width)
+            {
                 pYa = vec_window_width;
+            }
             pY_overflow = __OFSUBS__(pYa, pXa);
             pYa -= pXa;
             if (((pYa < 0) ^ pY_overflow) | (pYa == 0))
+            {
                 continue;
+            }
             o += pXa;
             factorA = __ROL4__(pp->U, 16);
             factorB = __ROL4__(pp->V, 16);
@@ -4372,10 +4761,13 @@ void trig_render_md26(struct TrigLocalRend *tlr)
             factorB = lsh_var_60 + factorB + factorA_carry;
             colM = (colM & 0xFF) + ((((colM >> 8) + lvr_var_54 + factorB_carry) & 0xFF) << 8);
 
-            if ((colS & 0xFF) <= 0xCu) {
+            if ((colS & 0xFF) <= 0xCu)
+            {
                 colS = ((*o) << 8) | f[colS];
                 *o = g[colS];
-            } else {
+            }
+            else
+            {
                 *o = f[colS];
             }
         }
@@ -4406,27 +4798,31 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
     opt_c = point_c;
     start_type = trig_reorder_input_points(&opt_a, &opt_b, &opt_c);
 
-    NOLOG("start type %d",(int)start_type);
+    NOLOG("start type %d", (int)start_type);
 
     switch (start_type)
     {
     case RendStart_LL:
-        if (!trig_ll_start(&tlp, &tlr, opt_a, opt_b, opt_c)) {
+        if (!trig_ll_start(&tlp, &tlr, opt_a, opt_b, opt_c))
+        {
             return;
         }
         break;
     case RendStart_RL:
-        if (!trig_rl_start(&tlp, &tlr, opt_a, opt_b, opt_c)) {
+        if (!trig_rl_start(&tlp, &tlr, opt_a, opt_b, opt_c))
+        {
             return;
         }
         break;
     case RendStart_FB:
-        if (!trig_fb_start(&tlp, &tlr, opt_a, opt_b, opt_c)) {
+        if (!trig_fb_start(&tlp, &tlr, opt_a, opt_b, opt_c))
+        {
             return;
         }
         break;
     case RendStart_FT:
-        if (!trig_ft_start(&tlp, &tlr, opt_a, opt_b, opt_c)) {
+        if (!trig_ft_start(&tlp, &tlr, opt_a, opt_b, opt_c))
+        {
             return;
         }
         break;
@@ -4434,7 +4830,7 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
         return;
     }
 
-    NOLOG("render mode %d",(int)vec_mode);
+    NOLOG("render mode %d", (int)vec_mode);
 
     switch (vec_mode)
     {
@@ -4469,9 +4865,13 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
     case RendVec_mode07:
     case RendVec_mode11:
         if (vec_colour == 0x20)
+        {
             trig_render_md02(&tlr);
+        }
         else
+        {
             trig_render_md07(&tlr);
+        }
         break;
 
     case RendVec_mode08:
@@ -4549,4 +4949,5 @@ void trig(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint
 
     NOLOG("end");
 }
+
 /******************************************************************************/

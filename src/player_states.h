@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PLAYER_STATES_COUNT    PSt_ListEnd
+#define PLAYER_STATES_COUNT PSt_ListEnd
 /******************************************************************************/
 #pragma pack(1)
 

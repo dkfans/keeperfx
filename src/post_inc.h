@@ -9,4 +9,4 @@
 #include "post_file.h"
 #endif
 
-#endif //GIT_POST_INC_H
+#endif // GIT_POST_INC_H

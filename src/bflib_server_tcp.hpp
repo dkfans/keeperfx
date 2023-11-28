@@ -26,36 +26,36 @@
 
 class TCP_NetServer : public TCP_NetBase
 {
-	TCPsocket mySocket;
-	struct
-	{
-		TCPsocket socket;
-		int playerId;
-		SDL_Thread * recvThread;
-	} remote[NETSP_PLAYERS_COUNT]; //could really be NETSP_PLAYERS_COUNT-1 but it doesn't matter
+    TCPsocket mySocket;
 
-	SDL_mutex * const remoteMutex;
+    struct
+    {
+        TCPsocket socket;
+        int playerId;
+        SDL_Thread *recvThread;
+    } remote[NETSP_PLAYERS_COUNT]; // could really be NETSP_PLAYERS_COUNT-1 but it doesn't matter
 
-	struct RecvThreadArg
-	{
-		TCP_NetServer * svr;
-		int remoteIndex;
-	};
+    SDL_mutex *const remoteMutex;
 
-	static void recvThreadFunc(RecvThreadArg * arg);
-	void haltRecvThreads();
+    struct RecvThreadArg {
+        TCP_NetServer *svr;
+        int remoteIndex;
+    };
 
-	void addRemoteSocket(int index, TCPsocket);
-	TCPsocket getRemoteSocketByIndex(int index, ulong & playerId);
-	TCPsocket getRemoteSocketByPlayer(int playerId);
-	void removeRemoteSocket(TCPsocket sock);
+    static void recvThreadFunc(RecvThreadArg *arg);
+    void haltRecvThreads();
 
-public:
-	explicit TCP_NetServer(ushort port);
-	virtual ~TCP_NetServer();
+    void addRemoteSocket(int index, TCPsocket);
+    TCPsocket getRemoteSocketByIndex(int index, ulong &playerId);
+    TCPsocket getRemoteSocketByPlayer(int playerId);
+    void removeRemoteSocket(TCPsocket sock);
 
-	virtual void update();
-	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen);
+  public:
+    explicit TCP_NetServer(ushort port);
+    virtual ~TCP_NetServer();
+
+    virtual void update();
+    virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen);
 };
 
-#endif //!BFLIB_SERVER_TCP_HPP
+#endif //! BFLIB_SERVER_TCP_HPP

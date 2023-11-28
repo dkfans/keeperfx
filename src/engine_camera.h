@@ -39,10 +39,10 @@ struct PlayerInfo;
 #define CAMERA_ZOOM_MIN 520 // Originally 4100, adjusted for view distance
 #define FRONTVIEW_CAMERA_ZOOM_MAX 65536
 #define FRONTVIEW_CAMERA_ZOOM_MIN 3000 // Originally 16384, adjusted for view distance
-#define MINMAX_LENGTH 512 // Originally 64, adjusted for view distance
-#define MINMAX_ALMOST_HALF ((MINMAX_LENGTH/2)-1)
+#define MINMAX_LENGTH 512              // Originally 64, adjusted for view distance
+#define MINMAX_ALMOST_HALF ((MINMAX_LENGTH / 2) - 1)
 
-extern long zoom_distance_setting; // CFG setting
+extern long zoom_distance_setting;           // CFG setting
 extern long frontview_zoom_distance_setting; // CFG setting
 
 enum CameraIndexValues {
@@ -117,7 +117,7 @@ void set_camera_zoom(struct Camera *cam, long val);
 void view_zoom_camera_out(struct Camera *cam, long limit_max, long limit_min);
 long get_camera_zoom(struct Camera *cam);
 unsigned long scale_camera_zoom_to_screen(unsigned long zoom_lvl);
-void update_camera_zoom_bounds(struct Camera *cam,unsigned long zoom_max,unsigned long zoom_min);
+void update_camera_zoom_bounds(struct Camera *cam, unsigned long zoom_max, unsigned long zoom_min);
 
 void view_set_camera_y_inertia(struct Camera *cam, long a2, long a3);
 void view_set_camera_x_inertia(struct Camera *cam, long a2, long a3);
@@ -125,9 +125,9 @@ void view_set_camera_rotation_inertia(struct Camera *cam, long a2, long a3);
 
 void update_all_players_cameras(void);
 void init_player_cameras(struct PlayerInfo *player);
-void set_previous_camera_values(struct PlayerInfo* player);
-void reset_interpolation_of_camera(struct PlayerInfo* player);
-void reset_interpolation_for_parchment_view(struct PlayerInfo* player);
+void set_previous_camera_values(struct PlayerInfo *player);
+void reset_interpolation_of_camera(struct PlayerInfo *player);
+void reset_interpolation_for_parchment_view(struct PlayerInfo *player);
 
 /******************************************************************************/
 #ifdef __cplusplus

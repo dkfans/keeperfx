@@ -56,7 +56,7 @@ enum GameKeys {
     Gkey_ZoomRoom13,
     Gkey_ZoomRoom14,
     Gkey_ZoomRoom15, // 25
-    Gkey_ZoomToFight, 
+    Gkey_ZoomToFight,
     Gkey_ZoomCrAnnoyed,
     Gkey_CrtrContrlMod,
     Gkey_CrtrQueryMod,
@@ -74,8 +74,8 @@ enum GameKeys {
 
 enum TbButtonFrontendFlags {
     LbBFeF_IntValueMask = 0x3fff,
-    LbBFeF_NoMouseOver  = 0x4000,
-    LbBFeF_NoTooltip    = 0x8000,
+    LbBFeF_NoMouseOver = 0x4000,
+    LbBFeF_NoTooltip = 0x8000,
 };
 
 // Rudimentary GUI Layer support
@@ -83,7 +83,7 @@ enum TbButtonFrontendFlags {
 // This allows conflicting use of the same input to be resolved sensibly
 // e.g. `GuiLayer_OneClick` is supposed to signify that the user is in "one-click mode"
 enum GuiLayers {
-    GuiLayer_Default  = 0,
+    GuiLayer_Default = 0,
     GuiLayer_OneClick,
     GuiLayer_OneClickBridgeBuild,
 };

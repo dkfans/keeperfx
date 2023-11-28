@@ -31,7 +31,7 @@ extern "C" {
 /**
  * Type which contains buffer of a sprite, with RLE-encoded alpha channel.
  */
-typedef unsigned char * TbSpriteData;
+typedef unsigned char *TbSpriteData;
 
 struct TbSprite {
     TbSpriteData Data;
@@ -51,8 +51,8 @@ struct TbSetupSprite {
 };
 
 struct TbHugeSprite {
-    TbSpriteData Data;  //**< Raw sprite data, with RLE coded transparency.
-    long * Lines;  //**< Index of line starts in the sprite data.
+    TbSpriteData Data; //**< Raw sprite data, with RLE coded transparency.
+    long *Lines;       //**< Index of line starts in the sprite data.
     unsigned long SWidth;
     unsigned long SHeight;
 };
@@ -73,7 +73,7 @@ extern char lang_selection;
 /******************************************************************************/
 int LbSpriteSetupAll(struct TbSetupSprite t_setup[]);
 int LbSpriteClearAll(struct TbSetupSprite t_setup[]);
-short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char * data);
+short LbSpriteSetup(struct TbSprite *start, const struct TbSprite *end, const unsigned char *data);
 
 /******************************************************************************/
 #ifdef __cplusplus

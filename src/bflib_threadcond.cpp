@@ -23,54 +23,55 @@
 #include <cassert>
 #include "post_inc.h"
 
-ThreadCond::ThreadCond() :
-		mutex(SDL_CreateMutex()),
-		cond(SDL_CreateCond()),
-		exit(false),
-		locked(false)
+ThreadCond::ThreadCond()
+    : mutex(SDL_CreateMutex()),
+      cond(SDL_CreateCond()),
+      exit(false),
+      locked(false)
 {
 }
 
 ThreadCond::~ThreadCond()
 {
-	SDL_DestroyCond(cond);
-	SDL_DestroyMutex(mutex);
+    SDL_DestroyCond(cond);
+    SDL_DestroyMutex(mutex);
 }
 
 void ThreadCond::reset()
 {
-	assert(!locked);
-	exit = false;
+    assert(!locked);
+    exit = false;
 }
 
 void ThreadCond::signalExit()
 {
-	SDL_LockMutex(mutex);
-	exit = true;
-	SDL_UnlockMutex(mutex);
+    SDL_LockMutex(mutex);
+    exit = true;
+    SDL_UnlockMutex(mutex);
 }
+
 void ThreadCond::waitMs(unsigned long ms)
 {
-	assert(locked);
-	SDL_CondWaitTimeout(cond, mutex, ms);
+    assert(locked);
+    SDL_CondWaitTimeout(cond, mutex, ms);
 }
 
 void ThreadCond::lock()
 {
-	assert(!locked);
-	locked = true;
-	SDL_LockMutex(mutex);
+    assert(!locked);
+    locked = true;
+    SDL_LockMutex(mutex);
 }
 
 void ThreadCond::unlock()
 {
-	assert(locked);
-	locked = false;
-	SDL_UnlockMutex(mutex);
+    assert(locked);
+    locked = false;
+    SDL_UnlockMutex(mutex);
 }
 
 bool ThreadCond::shouldExit()
 {
-	assert(locked);
-	return exit;
+    assert(locked);
+    return exit;
 }

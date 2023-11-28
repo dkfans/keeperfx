@@ -30,7 +30,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define OBJECT_TYPES_MAX  256
+#define OBJECT_TYPES_MAX 256
 
 enum ObjectCategoryIndex {
     OCtg_Unknown = 0,
@@ -48,15 +48,14 @@ enum ObjectCategoryIndex {
 };
 
 enum ObjectModelFlags {
-    OMF_ExistsOnlyInRoom     = 0x0001, // Some objects, ie. gold hoards, are strictly bound to room
+    OMF_ExistsOnlyInRoom = 0x0001,     // Some objects, ie. gold hoards, are strictly bound to room
     OMF_DestroyedOnRoomClaim = 0x0002, // Some objects should be destroyed if they're in a room which is changing owner
-    OMF_ChOwnedOnRoomClaim   = 0x0004, // Most objects should change their owner with the room
+    OMF_ChOwnedOnRoomClaim = 0x0004,   // Most objects should change their owner with the room
     OMF_DestroyedOnRoomPlace = 0x0008, // Some objects should be destroyed when a new room/trap/door is placed on a slab
-    OMF_Buoyant              = 0x0010, // Some objects do not get their sprite cut off when on water/lava
-    OMF_Beating              = 0x0020, // If the object is a heart, do the flashing, beating, back and forth animation that imitates a heartbeat
-    OMF_Heart                = 0x0040, // Functions as the heart of the dungeon
+    OMF_Buoyant = 0x0010,              // Some objects do not get their sprite cut off when on water/lava
+    OMF_Beating = 0x0020,              // If the object is a heart, do the flashing, beating, back and forth animation that imitates a heartbeat
+    OMF_Heart = 0x0040,                // Functions as the heart of the dungeon
 };
-
 
 /******************************************************************************/
 struct ObjectConfigStats {
@@ -80,16 +79,17 @@ struct ObjectsConfig {
     ThingModel object_to_special_artifact[OBJECT_TYPES_MAX];
     ThingClass workshop_object_class[OBJECT_TYPES_MAX];
 };
+
 /******************************************************************************/
 extern const char keeper_objects_file[];
 extern struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 extern const struct NamedCommand objects_genres_desc[];
 extern const struct NamedCommand objects_object_commands[];
 /******************************************************************************/
-TbBool load_objects_config(const char *conf_fname,unsigned short flags);
+TbBool load_objects_config(const char *conf_fname, unsigned short flags);
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel);
 const char *object_code_name(ThingModel tngmodel);
-ThingModel object_model_id(const char * code_name);
+ThingModel object_model_id(const char *code_name);
 ThingClass crate_to_workshop_item_class(ThingModel tngmodel);
 ThingModel crate_to_workshop_item_model(ThingModel tngmodel);
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing);

@@ -27,15 +27,17 @@
 #include "bflib_video.h"
 
 /******************************************************************************/
-#define CURSOR_SCALING_XSTEPS MAX_SUPPORTED_SCREEN_WIDTH/10
-#define CURSOR_SCALING_YSTEPS MAX_SUPPORTED_SCREEN_HEIGHT/10
-extern long cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
-extern long cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
+#define CURSOR_SCALING_XSTEPS MAX_SUPPORTED_SCREEN_WIDTH / 10
+#define CURSOR_SCALING_YSTEPS MAX_SUPPORTED_SCREEN_HEIGHT / 10
+extern long cursor_xsteps_array[2 * CURSOR_SCALING_XSTEPS];
+extern long cursor_ysteps_array[2 * CURSOR_SCALING_YSTEPS];
+
 /******************************************************************************/
 
 // Exported class
-class LbI_PointerHandler {
- public:
+class LbI_PointerHandler
+{
+  public:
     LbI_PointerHandler(void);
     ~LbI_PointerHandler(void);
     void SetHotspot(long x, long y);
@@ -49,7 +51,8 @@ class LbI_PointerHandler {
     void OnEndSwap(void);
     void OnBeginFlip(void);
     void OnEndFlip(void);
- protected:
+
+  protected:
     void ClipHotspot(void);
     void Draw(bool);
     void Undraw(bool);
@@ -57,7 +60,7 @@ class LbI_PointerHandler {
     // Properties
     struct SSurface surf1;
     struct SSurface surf2;
-    //unsigned char sprite_data[4096];
+    // unsigned char sprite_data[4096];
     struct TbPoint *position;
     struct TbPoint *spr_offset;
     struct TbRect rect_1038;
@@ -67,7 +70,7 @@ class LbI_PointerHandler {
     bool field_1054;
     const struct TbSprite *sprite;
     LbSemaphore sema_rel;
-    };
+};
 
 /******************************************************************************/
 

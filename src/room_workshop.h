@@ -65,13 +65,13 @@ TbBool remove_workshop_item_from_amount_placeable_f(PlayerNumber plyr_idx, Thing
 TbBool placing_offmap_workshop_item(PlayerNumber plyr_idx, ThingClass tngclass, ThingModel tngmodel);
 TbBool check_workshop_item_limit_reached(PlayerNumber owner, ThingClass tngclass, ThingModel tngmodel);
 
-TbBool add_workshop_object_to_workshop(struct Room *room,struct Thing *cratetng);
-TbBool remove_workshop_object_from_workshop(struct Room *room,struct Thing *cratetng);
+TbBool add_workshop_object_to_workshop(struct Room *room, struct Thing *cratetng);
+TbBool remove_workshop_object_from_workshop(struct Room *room, struct Thing *cratetng);
 TbBool create_workshop_object_in_workshop_room(PlayerNumber plyr_idx, ThingClass tng_class, ThingModel tng_kind);
 struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmodel);
-long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int * mnfctr_class, int * mnfctr_kind);
+long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *dungeon, int *mnfctr_class, int *mnfctr_kind);
 TbBool get_next_manufacture(struct Dungeon *dungeon);
 short process_player_manufacturing(PlayerNumber plyr_idx);
 EventIndex update_workshop_object_pickup_event(struct Thing *creatng, struct Thing *picktng);

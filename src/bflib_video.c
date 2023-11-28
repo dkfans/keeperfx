@@ -68,20 +68,19 @@ SDL_Window *lbWindow = NULL;
 
 TbDisplayStruct lbDisplay;
 
-
 unsigned short MyScreenWidth;
 unsigned short MyScreenHeight;
 unsigned short pixel_size;
 unsigned short pixels_per_block;
 unsigned short units_per_pixel;
 
-/** 
-  * The id number of the current display that the game renders to, defaults to 0.
-  * id 0 is the first (or only) screen, id 1 is the second screen, etc.
-  * 
-  * The display number can be set in cfg file (as DISPLAY_NUMBER), display number = display id + 1.
-  * Screen number 1 is the first (or only screen), etc.
-  */
+/**
+ * The id number of the current display that the game renders to, defaults to 0.
+ * id 0 is the first (or only) screen, id 1 is the second screen, etc.
+ *
+ * The display number can be set in cfg file (as DISPLAY_NUMBER), display number = display id + 1.
+ * Screen number 1 is the first (or only screen), etc.
+ */
 unsigned short display_id = 0;
 
 static unsigned char fade_started;
@@ -92,7 +91,7 @@ static long fade_count;
 /******************************************************************************/
 void *LbExeReferenceNumber(void)
 {
-  return NULL;
+    return NULL;
 }
 
 /** Locks the graphics screen.
@@ -107,28 +106,33 @@ void *LbExeReferenceNumber(void)
  */
 TbResult LbScreenLock(void)
 {
-    SYNCDBG(12,"Starting");
+    SYNCDBG(12, "Starting");
     if (!lbScreenInitialised)
+    {
         return Lb_FAIL;
+    }
 
-    if (SDL_LockSurface(lbDrawSurface) < 0) {
+    if (SDL_LockSurface(lbDrawSurface) < 0)
+    {
         lbDisplay.GraphicsWindowPtr = NULL;
         lbDisplay.WScreen = NULL;
         return Lb_FAIL;
     }
 
-    lbDisplay.WScreen = (unsigned char *) lbDrawSurface->pixels;
+    lbDisplay.WScreen = (unsigned char *)lbDrawSurface->pixels;
     lbDisplay.GraphicsScreenWidth = lbDrawSurface->pitch;
     lbDisplay.GraphicsWindowPtr = &lbDisplay.WScreen[lbDisplay.GraphicsWindowX +
-        lbDisplay.GraphicsScreenWidth * lbDisplay.GraphicsWindowY];
+                                                     lbDisplay.GraphicsScreenWidth * lbDisplay.GraphicsWindowY];
     return Lb_SUCCESS;
 }
 
 TbResult LbScreenUnlock(void)
 {
-    SYNCDBG(12,"Starting");
+    SYNCDBG(12, "Starting");
     if (!lbScreenInitialised)
+    {
         return Lb_FAIL;
+    }
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;
     SDL_UnlockSurface(lbDrawSurface);
@@ -138,26 +142,30 @@ TbResult LbScreenUnlock(void)
 TbResult LbScreenSwap(void)
 {
     int blresult;
-    SYNCDBG(12,"Starting");
+    SYNCDBG(12, "Starting");
     TbResult ret = LbMouseOnBeginSwap();
     // Put the data from Draw Surface onto Screen Surface
-    if ((ret == Lb_SUCCESS) && (lbHasSecondSurface)) {
+    if ((ret == Lb_SUCCESS) && (lbHasSecondSurface))
+    {
         // Update pointer to window surface on every frame
         // to avoid problems with alt tab
         lbScreenSurface = SDL_GetWindowSurface(lbWindow);
         blresult = SDL_BlitSurface(lbDrawSurface, NULL, lbScreenSurface, NULL);
-        if (blresult < 0) {
-            ERRORLOG("Blit failed: %s",SDL_GetError());
+        if (blresult < 0)
+        {
+            ERRORLOG("Blit failed: %s", SDL_GetError());
             ret = Lb_FAIL;
         }
     }
     // Flip the image displayed on Screen Surface
-    if (ret == Lb_SUCCESS) {
+    if (ret == Lb_SUCCESS)
+    {
         // calls SDL_UpdateRect for entire screen if not double buffered
         blresult = SDL_UpdateWindowSurface(lbWindow);
-        if (blresult < 0) {
+        if (blresult < 0)
+        {
             // In some cases this situation seems to be quite common
-            ERRORDBG(11,"Flip failed: %s",SDL_GetError());
+            ERRORDBG(11, "Flip failed: %s", SDL_GetError());
             ret = Lb_FAIL;
         }
     }
@@ -167,14 +175,17 @@ TbResult LbScreenSwap(void)
 
 TbResult LbScreenClear(TbPixel colour)
 {
-    SYNCDBG(12,"Starting");
+    SYNCDBG(12, "Starting");
     if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
-      return Lb_FAIL;
-    if (SDL_FillRect(lbDrawSurface, NULL, colour) < 0) {
+    {
+        return Lb_FAIL;
+    }
+    if (SDL_FillRect(lbDrawSurface, NULL, colour) < 0)
+    {
         ERRORLOG("Error while clearing screen.");
         return Lb_FAIL;
     }
-  return Lb_SUCCESS;
+    return Lb_SUCCESS;
 }
 
 /** Returns the currently active screen mode.
@@ -194,7 +205,8 @@ TbScreenMode LbScreenActiveMode(void)
  */
 unsigned short LbGraphicsScreenBPP(void)
 {
-    if (lbDrawSurface != NULL) {
+    if (lbDrawSurface != NULL)
+    {
         return lbDrawSurface->format->BitsPerPixel;
     }
     // On error, return 0
@@ -233,25 +245,27 @@ TbScreenCoord LbScreenHeight(void)
     return lbDisplay.PhysicalScreenHeight;
 }
 
-TbResult LbPaletteFadeStep(unsigned char *from_palette,unsigned char *to_palette,long fade_steps)
+TbResult LbPaletteFadeStep(unsigned char *from_palette, unsigned char *to_palette, long fade_steps)
 {
     unsigned char palette[PALETTE_SIZE];
     for (int i = 0; i < 3 * PALETTE_COLORS; i += 3)
     {
         int c1 = to_palette[i + 0];
         int c2 = from_palette[i + 0];
-        palette[i+0] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_palette[i+1];
-        c2 = from_palette[i+1];
-        palette[i+1] = fade_count * (c1 - c2) / fade_steps + c2;
-        c1 =   to_palette[i+2];
-        c2 = from_palette[i+2];
-        palette[i+2] = fade_count * (c1 - c2) / fade_steps + c2;
+        palette[i + 0] = fade_count * (c1 - c2) / fade_steps + c2;
+        c1 = to_palette[i + 1];
+        c2 = from_palette[i + 1];
+        palette[i + 1] = fade_count * (c1 - c2) / fade_steps + c2;
+        c1 = to_palette[i + 2];
+        c2 = from_palette[i + 2];
+        palette[i + 2] = fade_count * (c1 - c2) / fade_steps + c2;
     }
     LbScreenWaitVbi();
     TbResult ret = LbPaletteSet(palette);
     if (lbHasSecondSurface)
+    {
         LbScreenSwap();
+    }
     return ret;
 }
 
@@ -270,17 +284,18 @@ long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag f
         LbPaletteGet(from_pal);
         if (pal == NULL)
         {
-          pal = to_pal;
-          LbPaletteDataFillBlack(to_pal);
+            pal = to_pal;
+            LbPaletteDataFillBlack(to_pal);
         }
         fade_count = 0;
         do
         {
-            if (LbPaletteFadeStep(from_pal,pal,fade_steps) == Lb_FAIL)
+            if (LbPaletteFadeStep(from_pal, pal, fade_steps) == Lb_FAIL)
+            {
                 errors_num++;
+            }
             fade_count++;
-        }
-        while (fade_count <= fade_steps);
+        } while (fade_count <= fade_steps);
         fade_started = false;
         return fade_count;
     }
@@ -288,10 +303,15 @@ long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag f
     {
         fade_count++;
         if (fade_count >= fade_steps)
-          fade_started = false;
+        {
+            fade_started = false;
+        }
         if (pal == NULL)
-          pal = to_pal;
-    } else
+        {
+            pal = to_pal;
+        }
+    }
+    else
     {
         fade_count = 0;
         fade_started = true;
@@ -302,11 +322,14 @@ long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag f
             pal = to_pal;
         }
     }
-    if (LbPaletteFadeStep(from_pal,pal,fade_steps) == Lb_FAIL)
+    if (LbPaletteFadeStep(from_pal, pal, fade_steps) == Lb_FAIL)
+    {
         errors_num++;
-    if (errors_num > 0) {
+    }
+    if (errors_num > 0)
+    {
 #ifdef __DEBUG
-        LbWarnLog("%s: There were errors while fading\n",__func__);
+        LbWarnLog("%s: There were errors while fading\n", __func__);
 #endif
     }
     return fade_count;
@@ -318,7 +341,7 @@ long LbPaletteFade(unsigned char *pal, long fade_steps, enum TbPaletteFadeFlag f
  */
 TbResult LbScreenWaitVbi(void)
 {
-  return Lb_SUCCESS;
+    return Lb_SUCCESS;
 }
 
 /** Get the display id that the game is currently rendering to, or the default if there is no game window. Uses SDL2. */
@@ -343,7 +366,7 @@ unsigned short LbGetCurrentDisplayIndex()
 /** Check if a given mode is available on the current display, and set its Available field to TRUE if it is. */
 static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode, unsigned short display)
 {
-    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
+    TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(mode);
     mdinfo->Available = false;
     mdinfo->window_pos_x = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
     mdinfo->window_pos_y = SDL_WINDOWPOS_CENTERED_DISPLAY(display);
@@ -367,7 +390,7 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode, unsigned short display
         int left = 0;
         int bottom = 0;
         int right = 0;
-        //int screenArray[columnCount*rowCount] = {1, 0, 2};
+        // int screenArray[columnCount*rowCount] = {1, 0, 2};
         mdinfo->Width = mdinfo->Height = mdinfo->window_pos_x = mdinfo->window_pos_y = 0;
         // Get the total number of displays
         int numDisplays = SDL_GetNumVideoDisplays();
@@ -384,7 +407,7 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode, unsigned short display
                 ERRORLOG("SDL_GetDisplayBounds failed: %s", SDL_GetError());
                 return false; // for some reason we can't get the current display bounds!
             }
-            left = min(left, rect.x); 
+            left = min(left, rect.x);
             top = min(top, rect.y);
             right = max(right, rect.x + rect.w);
             bottom = max(bottom, rect.y + rect.h);
@@ -444,34 +467,34 @@ static TbBool LbHwCheckIsModeAvailable(TbScreenMode mode, unsigned short display
 static void LbRegisterStandardVideoModes(void)
 {
     lbScreenModeInfoNum = 0;
-    LbRegisterVideoMode("INVALID",       0,    0,  0, Lb_VF_DEFAULT);
-    LbRegisterVideoMode("320x200x8",   320,  200,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("320x200x16",  320,  200, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("320x200x24",  320,  200, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("320x240x8",   320,  240,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("320x240x16",  320,  240, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("320x240x24",  320,  240, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("512x384x8",   512,  384,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("512x384x16",  512,  384, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("512x384x24",  512,  384, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("640x400x8",   640,  400,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("640x400x16",  640,  400, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("640x400x24",  640,  400, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("640x480x8",   640,  480,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("640x480x16",  640,  480, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("640x480x24",  640,  480, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("800x600x8",   800,  600,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("800x600x16",  800,  600, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("800x600x24",  800,  600, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("1024x768x8", 1024,  768,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("1024x768x16",1024,  768, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("1024x768x24",1024,  768, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("1280x1024x8", 1280,1024,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("1280x1024x16",1280,1024, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("1280x1024x24",1280,1024, 24, Lb_VF_RGBCOLOR);
-    LbRegisterVideoMode("1600x1200x8", 1600,1200,  8, Lb_VF_PALETTE);
-    LbRegisterVideoMode("1600x1200x16",1600,1200, 16, Lb_VF_TRUCOLOR);
-    LbRegisterVideoMode("1600x1200x24",1600,1200, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("INVALID", 0, 0, 0, Lb_VF_DEFAULT);
+    LbRegisterVideoMode("320x200x8", 320, 200, 8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("320x200x16", 320, 200, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("320x200x24", 320, 200, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("320x240x8", 320, 240, 8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("320x240x16", 320, 240, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("320x240x24", 320, 240, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("512x384x8", 512, 384, 8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("512x384x16", 512, 384, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("512x384x24", 512, 384, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("640x400x8", 640, 400, 8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("640x400x16", 640, 400, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("640x400x24", 640, 400, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("640x480x8", 640, 480, 8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("640x480x16", 640, 480, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("640x480x24", 640, 480, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("800x600x8", 800, 600, 8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("800x600x16", 800, 600, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("800x600x24", 800, 600, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("1024x768x8", 1024, 768, 8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("1024x768x16", 1024, 768, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("1024x768x24", 1024, 768, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("1280x1024x8", 1280, 1024, 8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("1280x1024x16", 1280, 1024, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("1280x1024x24", 1280, 1024, 24, Lb_VF_RGBCOLOR);
+    LbRegisterVideoMode("1600x1200x8", 1600, 1200, 8, Lb_VF_PALETTE);
+    LbRegisterVideoMode("1600x1200x16", 1600, 1200, 16, Lb_VF_TRUCOLOR);
+    LbRegisterVideoMode("1600x1200x24", 1600, 1200, 24, Lb_VF_RGBCOLOR);
 }
 
 /**
@@ -481,11 +504,11 @@ static void LbRegisterStandardVideoModes(void)
  */
 static void LbRegisterModernVideoModes(void)
 {
-    LbRegisterVideoMode("DESKTOP",      0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_BORDERLESS|Lb_VF_DESKTOP); // borderless fullscreen window mode
-    LbRegisterVideoMode("DESKTOP_FULL", 0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_DESKTOP); // normal fullscreen mode (at desktop resolution)
-    //LbRegisterVideoMode("WINDOW",       0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_WINDOWED); // normal bordered window at any resolution, remebers previous set size (defaults to 640x480?)
-    //LbRegisterVideoMode("BORDERLESS",   0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_BORDERLESS|Lb_VF_WINDOWED); // borderless window at any resolution
-    LbRegisterVideoMode("ALL",          0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_FILLALL); // span all displays with a borderless window
+    LbRegisterVideoMode("DESKTOP", 0, 0, 32, Lb_VF_RGBCOLOR | Lb_VF_BORDERLESS | Lb_VF_DESKTOP); // borderless fullscreen window mode
+    LbRegisterVideoMode("DESKTOP_FULL", 0, 0, 32, Lb_VF_RGBCOLOR | Lb_VF_DESKTOP);               // normal fullscreen mode (at desktop resolution)
+    // LbRegisterVideoMode("WINDOW",       0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_WINDOWED); // normal bordered window at any resolution, remebers previous set size (defaults to 640x480?)
+    // LbRegisterVideoMode("BORDERLESS",   0, 0, 32, Lb_VF_RGBCOLOR|Lb_VF_BORDERLESS|Lb_VF_WINDOWED); // borderless window at any resolution
+    LbRegisterVideoMode("ALL", 0, 0, 32, Lb_VF_RGBCOLOR | Lb_VF_FILLALL); // span all displays with a borderless window
 }
 
 TbResult LbScreenInitialize(void)
@@ -499,13 +522,15 @@ TbResult LbScreenInitialize(void)
     lbAppActive = true;
     LbMouseChangeMoveRatio(256, 256);
     // Register default video modes
-    if (lbScreenModeInfoNum == 0) {
+    if (lbScreenModeInfoNum == 0)
+    {
         LbRegisterStandardVideoModes();
         LbRegisterModernVideoModes(); // register modern and flexible custom modes
     }
     // Initialize SDL library
-    if (SDL_Init(SDL_INIT_VIDEO|SDL_INIT_NOPARACHUTE) < 0) {
-        ERRORLOG("SDL init: %s",SDL_GetError());
+    if (SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) < 0)
+    {
+        ERRORLOG("SDL init: %s", SDL_GetError());
         return Lb_FAIL;
     }
     // Setup the atexit() call to un-initialize
@@ -515,30 +540,32 @@ TbResult LbScreenInitialize(void)
 
 /** Set up the window, render surface, etc. Called when we want to change the screen setup. Uses SDL2. */
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
-    unsigned char *palette, short buffers_count, TbBool wscreen_vid)
+                       unsigned char *palette, short buffers_count, TbBool wscreen_vid)
 {
     long hot_x;
     long hot_y;
-    const struct TbSprite* msspr = NULL;
+    const struct TbSprite *msspr = NULL;
     LbExeReferenceNumber();
     if (lbDisplay.MouseSprite != NULL)
     {
         msspr = lbDisplay.MouseSprite;
-        GetPointerHotspot(&hot_x,&hot_y);
+        GetPointerHotspot(&hot_x, &hot_y);
     }
-    SDL_Surface* prevScreenSurf = lbScreenSurface;
+    SDL_Surface *prevScreenSurf = lbScreenSurface;
     LbMouseChangeSprite(NULL);
 
-    if (lbHasSecondSurface) {
+    if (lbHasSecondSurface)
+    {
         SDL_FreeSurface(lbDrawSurface);
     }
     lbDrawSurface = NULL;
     lbScreenInitialised = false;
 
-    if (prevScreenSurf != NULL) {
+    if (prevScreenSurf != NULL)
+    {
     }
 
-    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode); // The desired mode has already been checked
+    TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(mode); // The desired mode has already been checked
     // Note:
     // We set the window's fullscreen state (either Window, Fullscreen, or Fake Fullscreen)
     // We set the DisplayMode for real fullscreen mode
@@ -551,14 +578,14 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         // If the new mode is a real fullscreen mode, then set the new mode
         if (new_fullscreen_flags == SDL_WINDOW_FULLSCREEN)
         {
-            SDL_DisplayMode dm = { SDL_PIXELFORMAT_UNKNOWN, (int)mdinfo->Width, (int)mdinfo->Height, 0, 0}; // this works in a modern setting (we get WxH at 32 bpp), but I'm not sure if this provides true 8-bit color mode (e.g. if we request 320x200x8 mode)
-            if (SDL_SetWindowDisplayMode(lbWindow, &dm) != 0) // set display mode for fullscreen
+            SDL_DisplayMode dm = {SDL_PIXELFORMAT_UNKNOWN, (int)mdinfo->Width, (int)mdinfo->Height, 0, 0}; // this works in a modern setting (we get WxH at 32 bpp), but I'm not sure if this provides true 8-bit color mode (e.g. if we request 320x200x8 mode)
+            if (SDL_SetWindowDisplayMode(lbWindow, &dm) != 0)                                              // set display mode for fullscreen
             {
                 ERRORLOG("SDL_SetWindowDisplayMode failed for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
                 return Lb_FAIL;
             }
-            // If we change to a fullscreen mode that is a higher res than the previous fullscreen mode (after having already changed 
-            // to a normal window/fake fullscreen window at some point in the past), then the result is a small window in the 
+            // If we change to a fullscreen mode that is a higher res than the previous fullscreen mode (after having already changed
+            // to a normal window/fake fullscreen window at some point in the past), then the result is a small window in the
             // top left of the screen, or potentially the buffer does not fill the whole mode's width/height (I don't know these things).
             // The above seems to be this SDL issue: https://github.com/libsdl-org/SDL/issues/3869
             // said issue was supposedly fixed in https://github.com/libsdl-org/SDL/pull/4392
@@ -584,15 +611,18 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
         }
     }
     // If the game window doesn't yet exists
-    if (lbWindow == NULL) {
+    if (lbWindow == NULL)
+    {
         lbWindow = SDL_CreateWindow(lbDrawAreaTitle, mdinfo->window_pos_x, mdinfo->window_pos_y, mdinfo->Width, mdinfo->Height, mdinfo->sdlFlags);
     }
-    if (lbWindow == NULL) {
+    if (lbWindow == NULL)
+    {
         ERRORLOG("SDL_CreateWindow failed for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
         return Lb_FAIL;
     }
-    lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface( lbWindow );
-    if (lbScreenSurface == NULL) {
+    lbScreenSurface = lbDrawSurface = SDL_GetWindowSurface(lbWindow);
+    if (lbScreenSurface == NULL)
+    {
         ERRORLOG("Failed to initialize mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
         return Lb_FAIL;
     }
@@ -601,7 +631,8 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     if (mdinfo->BitsPerPixel != lbEngineBPP)
     {
         lbDrawSurface = SDL_CreateRGBSurface(0, mdinfo->Width, mdinfo->Height, lbEngineBPP, 0, 0, 0, 0);
-        if (lbDrawSurface == NULL) {
+        if (lbDrawSurface == NULL)
+        {
             ERRORLOG("Can't create secondary surface for mode %d (%s): %s", (int)mode, mdinfo->Desc, SDL_GetError());
             LbScreenReset();
             return Lb_FAIL;
@@ -622,20 +653,20 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     lbDisplay.WScreen = NULL;
     lbDisplay.GraphicsWindowPtr = NULL;
     lbScreenInitialised = true;
-    SYNCLOG("Mode %dx%dx%d setup succeeded",(int)lbScreenSurface->w,(int)lbScreenSurface->h,(int)lbScreenSurface->format->BitsPerPixel);
+    SYNCLOG("Mode %dx%dx%d setup succeeded", (int)lbScreenSurface->w, (int)lbScreenSurface->h, (int)lbScreenSurface->format->BitsPerPixel);
     if (palette != NULL)
     {
         LbPaletteSet(palette);
     }
     LbScreenSetGraphicsWindow(0, 0, mdinfo->Width, mdinfo->Height);
     LbTextSetWindow(0, 0, mdinfo->Width, mdinfo->Height);
-    SYNCDBG(8,"Done filling display properties struct");
-    if ( LbMouseIsInstalled() )
+    SYNCDBG(8, "Done filling display properties struct");
+    if (LbMouseIsInstalled())
     {
         LbMouseSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
         if (msspr != NULL)
         {
-          LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
+            LbMouseChangeSpriteAndHotspot(msspr, hot_x, hot_y);
         }
         if (!IsMouseInsideWindow())
         {
@@ -644,7 +675,7 @@ TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord hei
     }
 
     setup_bflib_render(lbDisplay.GraphicsScreenWidth, lbDisplay.GraphicsScreenHeight);
-    SYNCDBG(8,"Finished");
+    SYNCDBG(8, "Finished");
     return Lb_SUCCESS;
 }
 
@@ -678,15 +709,19 @@ TbResult LbPaletteDataFillWhite(unsigned char *palette)
  */
 TbResult LbPaletteSet(unsigned char *palette)
 {
-    SYNCDBG(12,"Starting");
+    SYNCDBG(12, "Starting");
     if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
-      return Lb_FAIL;
-    //destColors = (SDL_Color *) malloc(sizeof(SDL_Color) * PALETTE_COLORS);
-    SDL_Color* destColors = lbPaletteColors;
-    const unsigned char* srcColors = palette;
-    unsigned char* bufColors = lbPalette;
+    {
+        return Lb_FAIL;
+    }
+    // destColors = (SDL_Color *) malloc(sizeof(SDL_Color) * PALETTE_COLORS);
+    SDL_Color *destColors = lbPaletteColors;
+    const unsigned char *srcColors = palette;
+    unsigned char *bufColors = lbPalette;
     if ((destColors == NULL) || (srcColors == NULL))
-      return Lb_FAIL;
+    {
+        return Lb_FAIL;
+    }
     TbResult ret = Lb_SUCCESS;
     for (unsigned long i = 0; i < PALETTE_COLORS; i++)
     {
@@ -700,9 +735,9 @@ TbResult LbPaletteSet(unsigned char *palette)
         srcColors += 3;
         bufColors += 3;
     }
-    //if (SDL_SetPalette(lbDrawSurface, SDL_LOGPAL | SDL_PHYSPAL,
+    // if (SDL_SetPalette(lbDrawSurface, SDL_LOGPAL | SDL_PHYSPAL,
     SDL_SetPaletteColors(lbDrawSurface->format->palette, lbPaletteColors, 0, PALETTE_COLORS);
-    //free(destColors);
+    // free(destColors);
     lbDisplay.Palette = lbPalette;
     return ret;
 }
@@ -714,34 +749,38 @@ TbResult LbPaletteSet(unsigned char *palette)
  */
 TbResult LbPaletteGet(unsigned char *palette)
 {
-    SYNCDBG(12,"Starting");
+    SYNCDBG(12, "Starting");
     if ((!lbScreenInitialised) || (lbDrawSurface == NULL))
-      return Lb_FAIL;
-    if (lbDisplay.Palette == NULL)
+    {
         return Lb_FAIL;
-    memcpy(palette,lbDisplay.Palette,PALETTE_SIZE);
-/*  // Getting the palette in SDL way may sometimes lead to problems.
-    // Instead, we will remember palette which was set the last time.
-    //
-    const SDL_Color * srcColors;
-    unsigned char * destColors;
-    unsigned long i;
-    unsigned long colours_num;
-    colours_num = lbDrawSurface->format->palette->ncolors;
-    if (colours_num > PALETTE_COLORS) {
-        colours_num = PALETTE_COLORS;
-    } else
-    if (colours_num < PALETTE_COLORS) {
-        memset(palette,0,PALETTE_SIZE);
     }
-    srcColors = lbDrawSurface->format->palette->colors;
-    destColors = palette;
-    for (i = 0; i < colours_num; i++) {
-        destColors[0] = (srcColors[i].r >> 2);
-        destColors[1] = (srcColors[i].g >> 2);
-        destColors[2] = (srcColors[i].b >> 2);
-        destColors += 3;
-    }*/
+    if (lbDisplay.Palette == NULL)
+    {
+        return Lb_FAIL;
+    }
+    memcpy(palette, lbDisplay.Palette, PALETTE_SIZE);
+    /*  // Getting the palette in SDL way may sometimes lead to problems.
+        // Instead, we will remember palette which was set the last time.
+        //
+        const SDL_Color * srcColors;
+        unsigned char * destColors;
+        unsigned long i;
+        unsigned long colours_num;
+        colours_num = lbDrawSurface->format->palette->ncolors;
+        if (colours_num > PALETTE_COLORS) {
+            colours_num = PALETTE_COLORS;
+        } else
+        if (colours_num < PALETTE_COLORS) {
+            memset(palette,0,PALETTE_SIZE);
+        }
+        srcColors = lbDrawSurface->format->palette->colors;
+        destColors = palette;
+        for (i = 0; i < colours_num; i++) {
+            destColors[0] = (srcColors[i].r >> 2);
+            destColors[1] = (srcColors[i].g >> 2);
+            destColors[2] = (srcColors[i].b >> 2);
+            destColors += 3;
+        }*/
     return Lb_SUCCESS;
 }
 
@@ -760,7 +799,9 @@ TbResult LbSetIcon(unsigned short nicon)
 TbScreenModeInfo *LbScreenGetModeInfo(TbScreenMode mode)
 {
     if (mode < lbScreenModeInfoNum)
+    {
         return &lbScreenModeInfo[mode];
+    }
     return &lbScreenModeInfo[0];
 }
 
@@ -772,12 +813,15 @@ TbBool LbScreenIsLocked(void)
 TbResult LbScreenReset(void)
 {
     if (!lbScreenInitialised)
-      return Lb_FAIL;
+    {
+        return Lb_FAIL;
+    }
     LbMouseChangeSprite(NULL);
-    if (lbHasSecondSurface) {
+    if (lbHasSecondSurface)
+    {
         SDL_FreeSurface(lbDrawSurface);
     }
-    //do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
+    // do not free screen surface, it is freed automatically on SDL_Quit or next call to set video mode
     finish_bflib_render();
     lbHasSecondSurface = false;
     lbDrawSurface = NULL;
@@ -794,12 +838,12 @@ TbResult LbScreenReset(void)
  */
 TbResult LbScreenStoreGraphicsWindow(TbGraphicsWindow *grwnd)
 {
-  grwnd->x = lbDisplay.GraphicsWindowX;
-  grwnd->y = lbDisplay.GraphicsWindowY;
-  grwnd->width = lbDisplay.GraphicsWindowWidth;
-  grwnd->height = lbDisplay.GraphicsWindowHeight;
-  grwnd->ptr = NULL;
-  return Lb_SUCCESS;
+    grwnd->x = lbDisplay.GraphicsWindowX;
+    grwnd->y = lbDisplay.GraphicsWindowY;
+    grwnd->width = lbDisplay.GraphicsWindowWidth;
+    grwnd->height = lbDisplay.GraphicsWindowHeight;
+    grwnd->ptr = NULL;
+    return Lb_SUCCESS;
 }
 
 /**
@@ -810,19 +854,19 @@ TbResult LbScreenStoreGraphicsWindow(TbGraphicsWindow *grwnd)
  */
 TbResult LbScreenLoadGraphicsWindow(TbGraphicsWindow *grwnd)
 {
-  lbDisplay.GraphicsWindowX = grwnd->x;
-  lbDisplay.GraphicsWindowY = grwnd->y;
-  lbDisplay.GraphicsWindowWidth = grwnd->width;
-  lbDisplay.GraphicsWindowHeight = grwnd->height;
-  if (lbDisplay.WScreen != NULL)
-  {
-      lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen
-        + lbDisplay.GraphicsScreenWidth*lbDisplay.GraphicsWindowY + lbDisplay.GraphicsWindowX;
-  } else
-  {
-      lbDisplay.GraphicsWindowPtr = NULL;
-  }
-  return Lb_SUCCESS;
+    lbDisplay.GraphicsWindowX = grwnd->x;
+    lbDisplay.GraphicsWindowY = grwnd->y;
+    lbDisplay.GraphicsWindowWidth = grwnd->width;
+    lbDisplay.GraphicsWindowHeight = grwnd->height;
+    if (lbDisplay.WScreen != NULL)
+    {
+        lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth * lbDisplay.GraphicsWindowY + lbDisplay.GraphicsWindowX;
+    }
+    else
+    {
+        lbDisplay.GraphicsWindowPtr = NULL;
+    }
+    return Lb_SUCCESS;
 }
 
 TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
@@ -830,63 +874,80 @@ TbResult LbScreenSetGraphicsWindow(long x, long y, long width, long height)
     long i;
     long x2 = x + width;
     long y2 = y + height;
-    if (x2 < x)  //Alarm! Voodoo magic detected!
+    if (x2 < x) // Alarm! Voodoo magic detected!
     {
         i = (x ^ x2);
         x = x ^ i;
         x2 = x ^ i ^ i;
-  }
-  if (y2 < y)
-  {
-    i = (y^y2);
-    y = y^i;
-    y2 = y^i^i;
-  }
-  if (x < 0)
-    x = 0;
-  if (x2 < 0)
-    x2 = 0;
-  if (y < 0)
-    y = 0;
-  if (y2 < 0)
-    y2 = 0;
-  if (x > lbDisplay.GraphicsScreenWidth)
-    x = lbDisplay.GraphicsScreenWidth;
-  if (x2 > lbDisplay.GraphicsScreenWidth)
-    x2 = lbDisplay.GraphicsScreenWidth;
-  if (y > lbDisplay.GraphicsScreenHeight)
-    y = lbDisplay.GraphicsScreenHeight;
-  if (y2 > lbDisplay.GraphicsScreenHeight)
-    y2 = lbDisplay.GraphicsScreenHeight;
-  lbDisplay.GraphicsWindowX = x;
-  lbDisplay.GraphicsWindowY = y;
-  lbDisplay.GraphicsWindowWidth = x2 - x;
-  lbDisplay.GraphicsWindowHeight = y2 - y;
-  if (lbDisplay.WScreen != NULL)
-  {
-    lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth*y + x;
-  } else
-  {
-    lbDisplay.GraphicsWindowPtr = NULL;
-  }
-  return Lb_SUCCESS;
+    }
+    if (y2 < y)
+    {
+        i = (y ^ y2);
+        y = y ^ i;
+        y2 = y ^ i ^ i;
+    }
+    if (x < 0)
+    {
+        x = 0;
+    }
+    if (x2 < 0)
+    {
+        x2 = 0;
+    }
+    if (y < 0)
+    {
+        y = 0;
+    }
+    if (y2 < 0)
+    {
+        y2 = 0;
+    }
+    if (x > lbDisplay.GraphicsScreenWidth)
+    {
+        x = lbDisplay.GraphicsScreenWidth;
+    }
+    if (x2 > lbDisplay.GraphicsScreenWidth)
+    {
+        x2 = lbDisplay.GraphicsScreenWidth;
+    }
+    if (y > lbDisplay.GraphicsScreenHeight)
+    {
+        y = lbDisplay.GraphicsScreenHeight;
+    }
+    if (y2 > lbDisplay.GraphicsScreenHeight)
+    {
+        y2 = lbDisplay.GraphicsScreenHeight;
+    }
+    lbDisplay.GraphicsWindowX = x;
+    lbDisplay.GraphicsWindowY = y;
+    lbDisplay.GraphicsWindowWidth = x2 - x;
+    lbDisplay.GraphicsWindowHeight = y2 - y;
+    if (lbDisplay.WScreen != NULL)
+    {
+        lbDisplay.GraphicsWindowPtr = lbDisplay.WScreen + lbDisplay.GraphicsScreenWidth * y + x;
+    }
+    else
+    {
+        lbDisplay.GraphicsWindowPtr = NULL;
+    }
+    return Lb_SUCCESS;
 }
 
 TbBool LbScreenIsModeAvailable(TbScreenMode mode, unsigned short display)
 {
-  if (mode == Lb_SCREEN_MODE_INVALID)
-  {
-    return false;
-  } 
-  if (!LbHwCheckIsModeAvailable(mode, display))
-  {
-    TbScreenModeInfo* mdinfo = LbScreenGetModeInfo(mode);
-    ERRORLOG("%s resolution %dx%d (mode %d) not available",
-            (mdinfo->VideoFlags&Lb_VF_WINDOWED)?"Windowed":"Full screen",
-            (int)mdinfo->Width,(int)mdinfo->Height,(int)mode);
-    return false;
-  }
-  return true;
+    if (mode == Lb_SCREEN_MODE_INVALID)
+    {
+        return false;
+    }
+    if (!LbHwCheckIsModeAvailable(mode, display))
+    {
+        TbScreenModeInfo *mdinfo = LbScreenGetModeInfo(mode);
+        ERRORLOG("%s resolution %dx%d (mode %d) not available",
+                 (mdinfo->VideoFlags & Lb_VF_WINDOWED) ? "Windowed" : "Full screen",
+                 (int)mdinfo->Width, (int)mdinfo->Height, (int)mode);
+        return false;
+    }
+    return true;
 }
 
 /** Allows to change recommended state of double buffering function.
@@ -921,14 +982,16 @@ TbScreenMode LbRecogniseVideoModeString(const char *desc)
 {
     for (int mode = 0; mode < lbScreenModeInfoNum; mode++)
     {
-      if (strcasecmp(lbScreenModeInfo[mode].Desc,desc) == 0)
-        return (TbScreenMode)mode;
+        if (strcasecmp(lbScreenModeInfo[mode].Desc, desc) == 0)
+        {
+            return (TbScreenMode)mode;
+        }
     }
     return Lb_SCREEN_MODE_INVALID;
 }
 
 TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreenCoord height,
-    unsigned short bpp, unsigned long flags)
+                                 unsigned short bpp, unsigned long flags)
 {
     TbScreenModeInfo *mdinfo;
     TbScreenMode mode = LbRecogniseVideoModeString(desc);
@@ -942,11 +1005,11 @@ TbScreenMode LbRegisterVideoMode(const char *desc, TbScreenCoord width, TbScreen
         }
         // Mode with same name but different params is registered
 #ifdef __DEBUG
-        LbWarnLog("%s: Mode with same name but different params is registered, cannot register %dx%dx%d\n",__func__, (int)width, (int)height, (int)bpp);
+        LbWarnLog("%s: Mode with same name but different params is registered, cannot register %dx%dx%d\n", __func__, (int)width, (int)height, (int)bpp);
 #endif
         return Lb_SCREEN_MODE_INVALID;
     }
-    if (lbScreenModeInfoNum >= sizeof(lbScreenModeInfo)/sizeof(lbScreenModeInfo[0]))
+    if (lbScreenModeInfoNum >= sizeof(lbScreenModeInfo) / sizeof(lbScreenModeInfo[0]))
     {
         // No free mode slots
         return Lb_SCREEN_MODE_INVALID;
@@ -1023,29 +1086,38 @@ TbScreenMode LbRegisterVideoModeString(const char *desc)
         return LbRecogniseVideoModeString("DESKTOP");
     }
     // modern patterns not matched - maybe it's fullscreen mode
-    width = 0; height = 0; bpp = 0; flags = Lb_VF_DEFAULT;
-    ret = sscanf(desc," %d x %d x %d", &width, &height, &bpp);
+    width = 0;
+    height = 0;
+    bpp = 0;
+    flags = Lb_VF_DEFAULT;
+    ret = sscanf(desc, " %d x %d x %d", &width, &height, &bpp);
     if (ret != 3)
     {
         // pattern not matched - maybe it's windowed mode
-        width = 0; height = 0; bpp = 0; flags = Lb_VF_DEFAULT;
-        ret = sscanf(desc," %d x %d w %d", &width, &height, &bpp);
+        width = 0;
+        height = 0;
+        bpp = 0;
+        flags = Lb_VF_DEFAULT;
+        ret = sscanf(desc, " %d x %d w %d", &width, &height, &bpp);
         flags |= Lb_VF_WINDOWED;
     }
     if (ret != 3)
     {
         // Cannot recognize parameters in mode
 #ifdef __DEBUG
-        LbWarnLog("%s: Cannot recognize parameters in mode, got %dx%dx%d\n",__func__, width, height, bpp);
+        LbWarnLog("%s: Cannot recognize parameters in mode, got %dx%dx%d\n", __func__, width, height, bpp);
 #endif
         return Lb_SCREEN_MODE_INVALID;
     }
-    if (bpp < 9) {
+    if (bpp < 9)
+    {
         flags |= Lb_VF_PALETTE;
-    } else
-    if ((bpp == 24) || (bpp = 32)) {
+    }
+    else if ((bpp == 24) || (bpp = 32))
+    {
         flags |= Lb_VF_RGBCOLOR;
-    } else
+    }
+    else
     {
         flags |= Lb_VF_TRUCOLOR;
     }
@@ -1057,16 +1129,17 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
     int i;
     // Compute minimal square difference in color; return exact match if found
     int min_delta = 999999;
-    const unsigned char* c = pal;
+    const unsigned char *c = pal;
     for (i = 0; i < 256; i++)
     {
         int dr = (r - c[0]) * (r - c[0]);
         int dg = (g - c[1]) * (g - c[1]);
         int db = (b - c[2]) * (b - c[2]);
-        if (min_delta > dr+dg+db)
+        if (min_delta > dr + dg + db)
         {
-            min_delta = dr+dg+db;
-            if (min_delta == 0) {
+            min_delta = dr + dg + db;
+            if (min_delta == 0)
+            {
                 return i;
             }
         }
@@ -1075,14 +1148,14 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
     // Gather all the colors with minimal square difference
     int n = 0;
     unsigned char tmcol[256];
-    unsigned char* o = tmcol;
+    unsigned char *o = tmcol;
     c = pal;
     for (i = 0; i < 256; i++)
     {
         int dr = (r - c[0]) * (r - c[0]);
         int dg = (g - c[1]) * (g - c[1]);
         int db = (b - c[2]) * (b - c[2]);
-        if (min_delta == dr+dg+db)
+        if (min_delta == dr + dg + db)
         {
             n += 1;
             *o = i;
@@ -1091,7 +1164,8 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
         c += 3;
     }
     // If there's only one left on list - return it
-    if (n == 1) {
+    if (n == 1)
+    {
         return tmcol[0];
     }
     // Get minimal linear difference out of remaining colors
@@ -1102,8 +1176,9 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
         int dr = abs(r - c[0]);
         int dg = abs(g - c[1]);
         int db = abs(b - c[2]);
-        if (min_delta > dr+dg+db) {
-            min_delta = dr+dg+db;
+        if (min_delta > dr + dg + db)
+        {
+            min_delta = dr + dg + db;
         }
     }
     // Gather all the colors with minimal linear difference
@@ -1116,7 +1191,7 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
         int dr = abs(r - c[0]);
         int dg = abs(g - c[1]);
         int db = abs(b - c[2]);
-        if (min_delta == dr+dg+db)
+        if (min_delta == dr + dg + db)
         {
             m += 1;
             *o = tmcol[i];
@@ -1124,7 +1199,8 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
         }
     }
     // If there's only one left on list - return it
-    if (m == 1) {
+    if (m == 1)
+    {
         return tmcol[0];
     }
     // It's hard to select best color out of the left ones - use darker one with wages
@@ -1136,10 +1212,10 @@ TbPixel LbPaletteFindColour(const unsigned char *pal, unsigned char r, unsigned 
         int dr = (c[0] * c[0]);
         int dg = (c[1] * c[1]);
         int db = (c[2] * c[2]);
-        if (min_delta > db+2*(dg+dr))
+        if (min_delta > db + 2 * (dg + dr))
         {
-          min_delta = db+2*(dg+dr);
-          o = &tmcol[i];
+            min_delta = db + 2 * (dg + dr);
+            o = &tmcol[i];
         }
     }
     return *o;
@@ -1163,7 +1239,7 @@ long scale_value_for_resolution(long base_value)
 {
     // return value is equivalent to: round(base_value * units_per_pixel /16)
     long value = ((((units_per_pixel * base_value) >> 3) + (((units_per_pixel * base_value) >> 3) & 1)) >> 1);
-    return max(1,value);
+    return max(1, value);
 }
 
 /**
@@ -1177,7 +1253,7 @@ long scale_value_for_resolution_with_upp(long base_value, long units_per_px)
 {
     long value = ((((units_per_px * base_value) >> 3) + (((units_per_px * base_value) >> 3) & 1)) >> 1);
     // return value is equivalent to: round(base_value * units_per_px /16)
-    return max(1,value);
+    return max(1, value);
 }
 
 /**
@@ -1267,7 +1343,7 @@ TbBool is_ar_wider_than_original(long width, long height)
 
 /**
  * Calculate a units_per_px value relative to a given 640x400 base length,
-*  a current reference length, and a current reference units_per_pixel
+ *  a current reference length, and a current reference units_per_pixel
  *
  * @param base_length a given length/size for DK 640x400 mode
  * @param reference_upp a reference units_per_pixel value, that is relative to the current window resolution
@@ -1276,7 +1352,7 @@ TbBool is_ar_wider_than_original(long width, long height)
 long calculate_relative_upp(long base_length, long reference_upp, long reference_length)
 {
     long value = ((((base_length * reference_upp) << 2) / reference_length) >> 2); // bitshifts to round up
-    return max(1,value);
+    return max(1, value);
 }
 
 /**
@@ -1288,7 +1364,7 @@ long calculate_relative_upp(long base_length, long reference_upp, long reference
 long resize_ui(long units_per_px, long ui_scale)
 {
     long value = (units_per_px * ui_scale / DEFAULT_UI_SCALE);
-    return max(1,value);
+    return max(1, value);
 }
 
 void calculate_aspect_ratio_factor(long width, long height)
@@ -1313,7 +1389,7 @@ long scale_fixed_DK_value_by_ar(long base_value, TbBool scale_up, TbBool vert_pl
 
 long convert_vertical_FOV_to_horizontal(long vert_fov)
 {
-    double horizontal_fov = (2.0 * atan(tan((vert_fov * M_PI /180.0) / 2.0) * 16.0 / 10.0 )) * 180.0 / M_PI;
+    double horizontal_fov = (2.0 * atan(tan((vert_fov * M_PI / 180.0) / 2.0) * 16.0 / 10.0)) * 180.0 / M_PI;
     long value = lround(horizontal_fov);
     return value;
 }
@@ -1323,6 +1399,7 @@ long FOV_based_on_aspect_ratio(void)
     long value = scale_fixed_DK_value_by_ar(convert_vertical_FOV_to_horizontal(first_person_vertical_fov), false, false);
     return value;
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

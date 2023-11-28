@@ -63,14 +63,14 @@
 
 #ifdef __cplusplus
 #include <algorithm>
-using std::min;
 using std::max;
+using std::min;
 extern "C" {
 #endif
 
 // Basic Definitions
 
-#if defined(unix) && !defined (GO32)
+#if defined(unix) && !defined(GO32)
 #define SEPARATOR "/"
 #else
 #define SEPARATOR "\\"
@@ -88,23 +88,23 @@ extern "C" {
 
 #ifndef __cplusplus
 #ifndef max
-#define max(a,b) ((a)>(b)?(a):(b))
+#define max(a, b) ((a) > (b) ? (a) : (b))
 #endif
 #ifndef min
-#define min(a,b) ((a)<(b)?(a):(b))
+#define min(a, b) ((a) < (b) ? (a) : (b))
 #endif
 #endif
 
 // Return values for verification functions
-#define VERIF_ERROR   0
-#define VERIF_OK      1
-#define VERIF_WARN    2
+#define VERIF_ERROR 0
+#define VERIF_OK 1
+#define VERIF_WARN 2
 
 // Return values for all other functions
-#define ERR_NONE           0
+#define ERR_NONE 0
 // Note: error codes -1..-79 are reserved standard C library errors with sign reverted.
 //    these are defined in errno.h
-#define ERR_BASE_RNC      -90
+#define ERR_BASE_RNC -90
 
 // Debug fuction-like macros - for free messages
 #define ERRORMSG(format, ...) LbErrorLog(format "\n", ##__VA_ARGS__)
@@ -116,67 +116,81 @@ extern "C" {
 #define NOMSG(format, ...)
 
 // Debug function-like macros - for code logging (with function name)
-#define ERRORLOG(format, ...) LbErrorLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define WARNLOG(format, ...) LbWarnLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define SYNCLOG(format, ...) LbSyncLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define JUSTLOG(format, ...) LbJustLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
-#define SCRPTLOG(format, ...) LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
-#define SCRPTERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define SCRPTWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define CONFLOG(format, ...) LbConfigLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__)
-#define CONFERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define CONFWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__ , text_line_number, ##__VA_ARGS__)
-#define NETLOG(format, ...) LbNetLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
+#define ERRORLOG(format, ...) LbErrorLog("[%d] %s: " format "\n", get_gameturn(), __func__, ##__VA_ARGS__)
+#define WARNLOG(format, ...) LbWarnLog("[%d] %s: " format "\n", get_gameturn(), __func__, ##__VA_ARGS__)
+#define SYNCLOG(format, ...) LbSyncLog("[%d] %s: " format "\n", get_gameturn(), __func__, ##__VA_ARGS__)
+#define JUSTLOG(format, ...) LbJustLog("[%d] %s: " format "\n", get_gameturn(), __func__, ##__VA_ARGS__)
+#define SCRPTLOG(format, ...) LbScriptLog(text_line_number, "%s: " format "\n", __func__, ##__VA_ARGS__)
+#define SCRPTERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__, text_line_number, ##__VA_ARGS__)
+#define SCRPTWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__, text_line_number, ##__VA_ARGS__)
+#define CONFLOG(format, ...) LbConfigLog(text_line_number, "%s: " format "\n", __func__, ##__VA_ARGS__)
+#define CONFERRLOG(format, ...) LbErrorLog("%s(line %lu): " format "\n", __func__, text_line_number, ##__VA_ARGS__)
+#define CONFWRNLOG(format, ...) LbWarnLog("%s(line %lu): " format "\n", __func__, text_line_number, ##__VA_ARGS__)
+#define NETLOG(format, ...) LbNetLog("[%d] %s: " format "\n", get_gameturn(), __func__, ##__VA_ARGS__)
 #define NOLOG(format, ...)
 
 // Debug function-like macros - for debug code logging
 #if (BFDEBUG_LEVEL > 0)
-  #define SYNCDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbSyncLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define WARNDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbWarnLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define ERRORDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbErrorLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define NAVIDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbNaviLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define NETDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbNetLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define SCRIPTDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbScriptLog(text_line_number,"%s: " format "\n", __func__ , ##__VA_ARGS__); }
-  #define AIDBG(dblv,format, ...) {\
-    if (BFDEBUG_LEVEL > dblv)\
-      LbAiLog("%s: " format "\n", __func__ , ##__VA_ARGS__); }
+#define SYNCDBG(dblv, format, ...)                                  \
+    {                                                               \
+        if (BFDEBUG_LEVEL > dblv)                                   \
+            LbSyncLog("%s: " format "\n", __func__, ##__VA_ARGS__); \
+    }
+#define WARNDBG(dblv, format, ...)                                  \
+    {                                                               \
+        if (BFDEBUG_LEVEL > dblv)                                   \
+            LbWarnLog("%s: " format "\n", __func__, ##__VA_ARGS__); \
+    }
+#define ERRORDBG(dblv, format, ...)                                  \
+    {                                                                \
+        if (BFDEBUG_LEVEL > dblv)                                    \
+            LbErrorLog("%s: " format "\n", __func__, ##__VA_ARGS__); \
+    }
+#define NAVIDBG(dblv, format, ...)                                  \
+    {                                                               \
+        if (BFDEBUG_LEVEL > dblv)                                   \
+            LbNaviLog("%s: " format "\n", __func__, ##__VA_ARGS__); \
+    }
+#define NETDBG(dblv, format, ...)                                  \
+    {                                                              \
+        if (BFDEBUG_LEVEL > dblv)                                  \
+            LbNetLog("%s: " format "\n", __func__, ##__VA_ARGS__); \
+    }
+#define SCRIPTDBG(dblv, format, ...)                                                    \
+    {                                                                                   \
+        if (BFDEBUG_LEVEL > dblv)                                                       \
+            LbScriptLog(text_line_number, "%s: " format "\n", __func__, ##__VA_ARGS__); \
+    }
+#define AIDBG(dblv, format, ...)                                  \
+    {                                                             \
+        if (BFDEBUG_LEVEL > dblv)                                 \
+            LbAiLog("%s: " format "\n", __func__, ##__VA_ARGS__); \
+    }
 #else
-  #define SYNCDBG(dblv,format, ...)
-  #define WARNDBG(dblv,format, ...)
-  #define ERRORDBG(dblv,format, ...)
-  #define NAVIDBG(dblv,format, ...)
-  #define NETDBG(dblv,format, ...)
-  #define SCRIPTDBG(dblv,format, ...)
-  #define AIDBG(dblv,format, ...)
+#define SYNCDBG(dblv, format, ...)
+#define WARNDBG(dblv, format, ...)
+#define ERRORDBG(dblv, format, ...)
+#define NAVIDBG(dblv, format, ...)
+#define NETDBG(dblv, format, ...)
+#define SCRIPTDBG(dblv, format, ...)
+#define AIDBG(dblv, format, ...)
 #endif
 
 #if AUTOTESTING
-  #include "event_monitoring.h"
-  #define EVM_CREATURE_EVENT(event_name, plyr_id, thing) \
+#include "event_monitoring.h"
+#define EVM_CREATURE_EVENT(event_name, plyr_id, thing) \
     evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id)
-  #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val) \
+#define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val) \
     evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1,targ=%d", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id, targ_val)
-  #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt) \
-    evm_stat(0, "map.%s,x=%d,y=%d,plyr=%d,opt=%s cnt=1,x=%d,y=%d", event_name, x, y, plyr_idx, opt, x,y)
-  #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val) \
+#define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt) \
+    evm_stat(0, "map.%s,x=%d,y=%d,plyr=%d,opt=%s cnt=1,x=%d,y=%d", event_name, x, y, plyr_idx, opt, x, y)
+#define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val) \
     evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d %s=%d", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id, stat_name, stat_val)
 #else
-  #define EVM_CREATURE_EVENT(event_name, plyr_id, thing)
-  #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val)
-  #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val)
-  #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
+#define EVM_CREATURE_EVENT(event_name, plyr_id, thing)
+#define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val)
+#define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val)
+#define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
 #endif
 
 #define MAX_TILES_X 170
@@ -295,8 +309,6 @@ typedef unsigned char NaviRouteFlags;
 /** data used for navigating contains floor height, locked doors per player, unsafe surfaces */
 typedef unsigned short NavColour;
 
-
-
 /* Stores a 2d coordinate (x,y).
 
 Members:
@@ -305,18 +317,21 @@ Members:
 .stl.num - subtile position (relative to whole map)
 */
 struct Coord2d {
-    union { // x position
-      unsigned long val; // x.val - coord x position (relative to whole map)
-      struct { // subtile
-        unsigned char pos; // x.stl.pos - coord x position (relative to subtile)
-        unsigned short num; // x.stl.num - subtile x position (relative to whole map)
+    union {                // x position
+        unsigned long val; // x.val - coord x position (relative to whole map)
+
+        struct {                // subtile
+            unsigned char pos;  // x.stl.pos - coord x position (relative to subtile)
+            unsigned short num; // x.stl.num - subtile x position (relative to whole map)
         } stl;
-    } x; 
-    union { // y position
-      unsigned long val; // y.val - coord y position (relative to whole map)
-      struct { // subtile
-        unsigned char pos; // y.stl.pos - coord y position (relative to subtile)
-        unsigned short num; // y.stl.num - subtile y position (relative to whole map)
+    } x;
+
+    union {                // y position
+        unsigned long val; // y.val - coord y position (relative to whole map)
+
+        struct {                // subtile
+            unsigned char pos;  // y.stl.pos - coord y position (relative to subtile)
+            unsigned short num; // y.stl.num - subtile y position (relative to whole map)
         } stl;
     } y;
 };
@@ -329,61 +344,71 @@ Members:
 .stl.num - subtile position (relative to whole map)
 */
 struct Coord3d {
-    union { // x position
-      long val; // x.val - coord x position (relative to whole map)
-      struct { // subtile
-        unsigned char pos; // x.stl.pos - coord x position (relative to subtile)
-        unsigned short num; // x.stl.num - subtile x position (relative to whole map)
+    union {       // x position
+        long val; // x.val - coord x position (relative to whole map)
+
+        struct {                // subtile
+            unsigned char pos;  // x.stl.pos - coord x position (relative to subtile)
+            unsigned short num; // x.stl.num - subtile x position (relative to whole map)
         } stl;
     } x;
-    union { // y position
-      long val; // y.val - coord y position (relative to whole map)
-      struct { // subtile
-        unsigned char pos; // y.stl.pos - coord y position (relative to subtile)
-        unsigned short num; // y.stl.num - subtile y position (relative to whole map)
+
+    union {       // y position
+        long val; // y.val - coord y position (relative to whole map)
+
+        struct {                // subtile
+            unsigned char pos;  // y.stl.pos - coord y position (relative to subtile)
+            unsigned short num; // y.stl.num - subtile y position (relative to whole map)
         } stl;
     } y;
-    union { // z position
-      long val; // z.val - coord z position (relative to whole map)
-      struct { // subtile
-        unsigned char pos; // z.stl.pos - coord z position (relative to subtile)
-        unsigned short num; // z.stl.num - subtile z position (relative to whole map)
+
+    union {       // z position
+        long val; // z.val - coord z position (relative to whole map)
+
+        struct {                // subtile
+            unsigned char pos;  // z.stl.pos - coord z position (relative to subtile)
+            unsigned short num; // z.stl.num - subtile z position (relative to whole map)
         } stl;
     } z;
 };
 
 struct CoordDelta3d {
     union {
-      long val;
-      struct {
-        unsigned char pos;
-        short num;
+        long val;
+
+        struct {
+            unsigned char pos;
+            short num;
         } stl;
     } x;
+
     union {
-      long val;
-      struct {
-        unsigned char pos;
-        short num;
+        long val;
+
+        struct {
+            unsigned char pos;
+            short num;
         } stl;
     } y;
+
     union {
-      long val;
-      struct {
-        unsigned char pos;
-        short num;
+        long val;
+
+        struct {
+            unsigned char pos;
+            short num;
         } stl;
     } z;
 };
 
 struct Around { // sizeof = 2
-  signed char delta_x;
-  signed char delta_y;
+    signed char delta_x;
+    signed char delta_y;
 };
 
 struct AroundLByte {
-  signed short delta_x;
-  signed short delta_y;
+    signed short delta_x;
+    signed short delta_y;
 };
 
 #pragma pack()

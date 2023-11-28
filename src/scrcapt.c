@@ -60,21 +60,21 @@ TbBool take_screenshot(char *fname)
     TbBool success;
     switch (screenshot_format)
     {
-        case 1:
-        {
-            success = (IMG_SavePNG(lbDrawSurface, fname) == 0);
-            break;
-        }
-        case 2:
-        {
-            success = (SDL_SaveBMP(lbDrawSurface, fname) == 0);
-            break;
-        }
-        default:
-        {
-            success = false;
-            break;
-        }
+    case 1:
+    {
+        success = (IMG_SavePNG(lbDrawSurface, fname) == 0);
+        break;
+    }
+    case 2:
+    {
+        success = (SDL_SaveBMP(lbDrawSurface, fname) == 0);
+        break;
+    }
+    default:
+    {
+        success = false;
+        break;
+    }
     }
     if (!success)
     {
@@ -93,13 +93,13 @@ TbBool cumulative_screen_shot(void)
     const char *fext;
     switch (screenshot_format)
     {
-        case 1:
+    case 1:
         fext = "png";
         break;
-      case 2:
+    case 2:
         fext = "bmp";
         break;
-      default:
+    default:
         ERRORLOG("Screenshot format incorrectly set.");
         return false;
     }
@@ -107,7 +107,10 @@ TbBool cumulative_screen_shot(void)
     for (i = 0; i < 10000; i++)
     {
         sprintf(fname, "scrshots/scr%05lu.%s", i, fext);
-        if (!LbFileExists(fname)) break;
+        if (!LbFileExists(fname))
+        {
+            break;
+        }
     }
     if (i >= 10000)
     {
@@ -128,17 +131,17 @@ TbBool cumulative_screen_shot(void)
 
 TbBool movie_record_start(void)
 {
-  if ( anim_record() )
-  {
-      set_flag_byte(&game.system_flags,GSF_CaptureMovie,true);
-      return true;
-  }
-  return false;
+    if (anim_record())
+    {
+        set_flag_byte(&game.system_flags, GSF_CaptureMovie, true);
+        return true;
+    }
+    return false;
 }
 
 TbBool movie_record_stop(void)
 {
-    set_flag_byte(&game.system_flags,GSF_CaptureMovie,false);
+    set_flag_byte(&game.system_flags, GSF_CaptureMovie, false);
     anim_stop();
     return true;
 }
@@ -149,13 +152,17 @@ TbBool movie_record_frame(void)
     if (!lock_mem)
     {
         if (LbScreenLock() != Lb_SUCCESS)
+        {
             return false;
-  }
-  LbPaletteGet(cap_palette);
-  short result = anim_record_frame(lbDisplay.WScreen, cap_palette);
-  if (!lock_mem)
-    LbScreenUnlock();
-  return result;
+        }
+    }
+    LbPaletteGet(cap_palette);
+    short result = anim_record_frame(lbDisplay.WScreen, cap_palette);
+    if (!lock_mem)
+    {
+        LbScreenUnlock();
+    }
+    return result;
 }
 
 /**
@@ -164,21 +171,22 @@ TbBool movie_record_frame(void)
  */
 TbBool perform_any_screen_capturing(void)
 {
-    TbBool captured=0;
+    TbBool captured = 0;
     if ((game.system_flags & GSF_CaptureSShot) != 0)
     {
-      captured |= cumulative_screen_shot();
-      set_flag_byte(&game.system_flags,GSF_CaptureSShot,false);
+        captured |= cumulative_screen_shot();
+        set_flag_byte(&game.system_flags, GSF_CaptureSShot, false);
     }
     if ((game.system_flags & GSF_CaptureMovie) != 0)
     {
-      captured |= movie_record_frame();
+        captured |= movie_record_frame();
     }
     // Draw a text with bitmap font
-    if (captured) {
-        //Set font; if winfont isn't loaded, it should be NULL, so text will just be invisible
+    if (captured)
+    {
+        // Set font; if winfont isn't loaded, it should be NULL, so text will just be invisible
         LbTextSetFont(winfont);
-        LbTextDraw(600*units_per_pixel/16, 4*units_per_pixel/16, "REC");
+        LbTextDraw(600 * units_per_pixel / 16, 4 * units_per_pixel / 16, "REC");
     }
     return captured;
 }

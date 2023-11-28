@@ -67,42 +67,42 @@ char tmp_net_player_name[24];
 /******************************************************************************/
 void process_network_error(long errcode)
 {
-  const char *text;
-  switch (errcode)
-  {
-  case 4:
-      text = get_string(GUIStr_NetLineEngaged);
-      break;
-  case 5:
-      text = get_string(GUIStr_NetUnknownError);
-      break;
-  case 6:
-      text = get_string(GUIStr_NetNoCarrier);
-      break;
-  case 7:
-      text = get_string(GUIStr_NetNoDialTone);
-      break;
-  case -1:
-      text = get_string(GUIStr_NetNoResponse);
-      break;
-  case -2:
-      text = get_string(GUIStr_NetNoServer);
-      break;
-  case -800:
-      text = get_string(GUIStr_NetUnableToInit);
-      break;
-  case -801:
-      text = get_string(GUIStr_NetUnableToCrGame);
-      break;
-  case -802:
-      text = get_string(GUIStr_NetUnableToJoin);
-      break;
-  default:
-      ERRORLOG("Unknown modem error code %ld",errcode);
-      return;
-  }
-  //display_centered_message(3000, text);
-  create_frontend_error_box(3000, text);
+    const char *text;
+    switch (errcode)
+    {
+    case 4:
+        text = get_string(GUIStr_NetLineEngaged);
+        break;
+    case 5:
+        text = get_string(GUIStr_NetUnknownError);
+        break;
+    case 6:
+        text = get_string(GUIStr_NetNoCarrier);
+        break;
+    case 7:
+        text = get_string(GUIStr_NetNoDialTone);
+        break;
+    case -1:
+        text = get_string(GUIStr_NetNoResponse);
+        break;
+    case -2:
+        text = get_string(GUIStr_NetNoServer);
+        break;
+    case -800:
+        text = get_string(GUIStr_NetUnableToInit);
+        break;
+    case -801:
+        text = get_string(GUIStr_NetUnableToCrGame);
+        break;
+    case -802:
+        text = get_string(GUIStr_NetUnableToJoin);
+        break;
+    default:
+        ERRORLOG("Unknown modem error code %ld", errcode);
+        return;
+    }
+    // display_centered_message(3000, text);
+    create_frontend_error_box(3000, text);
 }
 
 void draw_out_of_sync_box(long a1, long a2, long box_width)
@@ -132,9 +132,9 @@ void draw_out_of_sync_box(long a1, long a2, long box_width)
         long text_h = LbTextLineHeight() * tx_units_per_px / 16;
         long text_x = x + 100 * units_per_px / 16 - max_width;
         long text_y = y + 58 * units_per_px / 16;
-        LbTextDrawResized(0, 50*units_per_px/16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
-        LbDrawBox(text_x, text_y, 2*max_width, 16*units_per_px/16, 0);
-        LbDrawBox(text_x, text_y, 2*min_width, 16*units_per_px/16, 133);
+        LbTextDrawResized(0, 50 * units_per_px / 16 - text_h, tx_units_per_px, get_string(GUIStr_NetResyncing));
+        LbDrawBox(text_x, text_y, 2 * max_width, 16 * units_per_px / 16, 0);
+        LbDrawBox(text_x, text_y, 2 * min_width, 16 * units_per_px / 16, 133);
         LbScreenUnlock();
         LbScreenSwap();
     }
@@ -144,7 +144,7 @@ CoroutineLoopState setup_alliances(CoroutineLoop *loop)
 {
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        struct PlayerInfo* player = get_player(i);
+        struct PlayerInfo *player = get_player(i);
         if (!is_my_player_number(i) && player_exists(player))
         {
             if (frontend_is_player_allied(my_player_number, i))
@@ -162,12 +162,12 @@ void frontnet_service_update(void)
     if (net_number_of_services < 1)
     {
         net_service_scroll_offset = 0;
-    } else
-    if (net_service_scroll_offset < 0)
+    }
+    else if (net_service_scroll_offset < 0)
     {
         net_service_scroll_offset = 0;
-    } else
-    if (net_service_scroll_offset > net_number_of_services - 1)
+    }
+    else if (net_service_scroll_offset > net_number_of_services - 1)
     {
         net_service_scroll_offset = net_number_of_services - 1;
     }
@@ -195,11 +195,11 @@ void enum_sessions_callback(struct TbNetworkCallbackData *netcdat, void *ptr)
     {
         net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
         net_number_of_sessions++;
-    } else
-    if (net_number_of_sessions == 0)
+    }
+    else if (net_number_of_sessions == 0)
     {
         net_session[net_number_of_sessions] = (struct TbNetworkSessionNameEntry *)netcdat;
-        strcpy(&netcdat->svc_name[8],get_string(GUIStr_NetModem));
+        strcpy(&netcdat->svc_name[8], get_string(GUIStr_NetModem));
         net_number_of_sessions++;
     }
 }
@@ -209,19 +209,20 @@ static void enum_services_callback(struct TbNetworkCallbackData *netcdat, void *
 {
     if (net_number_of_services >= NET_SERVICES_COUNT)
     {
-      ERRORLOG("Too many services in enumeration");
-      return;
+        ERRORLOG("Too many services in enumeration");
+        return;
     }
     if (strcasecmp("TCP", netcdat->svc_name) == 0)
     {
-        LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
+        LbStringCopy(net_service[net_number_of_services], "TCP/IP", NET_MESSAGE_LEN); // TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
     }
     else if (strcasecmp("ENET/UDP", netcdat->svc_name) == 0)
     {
-        LbStringCopy(net_service[net_number_of_services], netcdat->svc_name, NET_MESSAGE_LEN);//TODO TRANSLATION put this in GUI strings
+        LbStringCopy(net_service[net_number_of_services], netcdat->svc_name, NET_MESSAGE_LEN); // TODO TRANSLATION put this in GUI strings
         net_number_of_services++;
-    } else
+    }
+    else
     {
         ERRORLOG("Unrecognized Network Service");
     }
@@ -234,74 +235,77 @@ void frontnet_session_update(void)
 
     if (LbTimerClock() >= last_enum_sessions)
     {
-      net_number_of_sessions = 0;
-      LbMemorySet(net_session, 0, sizeof(net_session));
-      if ( LbNetwork_EnumerateSessions(enum_sessions_callback, 0) )
-        ERRORLOG("LbNetwork_EnumerateSessions() failed");
-      last_enum_sessions = LbTimerClock();
+        net_number_of_sessions = 0;
+        LbMemorySet(net_session, 0, sizeof(net_session));
+        if (LbNetwork_EnumerateSessions(enum_sessions_callback, 0))
+        {
+            ERRORLOG("LbNetwork_EnumerateSessions() failed");
+        }
+        last_enum_sessions = LbTimerClock();
 
-      if (net_number_of_sessions == 0)
-      {
-        net_session_index_active = -1;
-        net_session_index_active_id = -1;
-      } else
-      if (net_session_index_active != -1)
-      {
-          if ((net_session_index_active >= net_number_of_sessions)
-            || (!net_session[net_session_index_active]->joinable))
-          {
+        if (net_number_of_sessions == 0)
+        {
             net_session_index_active = -1;
-            for (long i = 0; i < net_number_of_sessions; i++)
-            {
-              if (net_session[i]->joinable)
-              {
-                net_session_index_active = i;
-                break;
-              }
-            }
-          }
-          if (net_session_index_active == -1)
             net_session_index_active_id = -1;
-      }
+        }
+        else if (net_session_index_active != -1)
+        {
+            if ((net_session_index_active >= net_number_of_sessions) || (!net_session[net_session_index_active]->joinable))
+            {
+                net_session_index_active = -1;
+                for (long i = 0; i < net_number_of_sessions; i++)
+                {
+                    if (net_session[i]->joinable)
+                    {
+                        net_session_index_active = i;
+                        break;
+                    }
+                }
+            }
+            if (net_session_index_active == -1)
+            {
+                net_session_index_active_id = -1;
+            }
+        }
     }
 
     if ((net_number_of_sessions == 0) || (net_session_scroll_offset < 0))
     {
-      net_session_scroll_offset = 0;
-    } else
-    if (net_session_scroll_offset > net_number_of_sessions-1)
+        net_session_scroll_offset = 0;
+    }
+    else if (net_session_scroll_offset > net_number_of_sessions - 1)
     {
-      net_session_scroll_offset = net_number_of_sessions-1;
+        net_session_scroll_offset = net_number_of_sessions - 1;
     }
 
     if (net_session_index_active == -1)
     {
-      net_number_of_enum_players = 0;
-    } else
-    if (LbTimerClock() >= last_enum_players)
+        net_number_of_enum_players = 0;
+    }
+    else if (LbTimerClock() >= last_enum_players)
     {
-      net_number_of_enum_players = 0;
-      LbMemorySet(net_player, 0, sizeof(net_player));
-      if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
-      {
-        net_session_index_active = -1;
-        net_session_index_active_id = -1;
-        return;
-      }
-      last_enum_players = LbTimerClock();
+        net_number_of_enum_players = 0;
+        LbMemorySet(net_player, 0, sizeof(net_player));
+        if (LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0))
+        {
+            net_session_index_active = -1;
+            net_session_index_active_id = -1;
+            return;
+        }
+        last_enum_players = LbTimerClock();
     }
 
     if (net_number_of_enum_players == 0)
     {
-      net_player_scroll_offset = 0;
-    } else
-    if (net_player_scroll_offset < 0)
+        net_player_scroll_offset = 0;
+    }
+    else if (net_player_scroll_offset < 0)
     {
-      net_player_scroll_offset = 0;
-    } else
-    if (net_player_scroll_offset > net_number_of_enum_players-1)
+        net_player_scroll_offset = 0;
+    }
+    else if (net_player_scroll_offset > net_number_of_enum_players - 1)
     {
-      net_player_scroll_offset = net_number_of_enum_players-1;
+        net_player_scroll_offset = net_number_of_enum_players - 1;
     }
 }
 
@@ -310,44 +314,48 @@ void frontnet_rewite_net_messages(void)
     struct NetMessage lmsg[NET_MESSAGES_COUNT];
     long k = 0;
     long i = net_number_of_messages;
-    for (i=0; i < NET_MESSAGES_COUNT; i++)
-      LbMemorySet(&lmsg[i], 0, sizeof(struct NetMessage));
-    for (i=0; i < net_number_of_messages; i++)
+    for (i = 0; i < NET_MESSAGES_COUNT; i++)
     {
-        struct NetMessage* nmsg = &net_message[i];
+        LbMemorySet(&lmsg[i], 0, sizeof(struct NetMessage));
+    }
+    for (i = 0; i < net_number_of_messages; i++)
+    {
+        struct NetMessage *nmsg = &net_message[i];
         if (network_player_active(nmsg->plyr_idx))
         {
             memcpy(&lmsg[k], nmsg, sizeof(struct NetMessage));
             k++;
-      }
+        }
     }
     net_number_of_messages = k;
-    for (i=0; i < NET_MESSAGES_COUNT; i++)
-      memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
+    for (i = 0; i < NET_MESSAGES_COUNT; i++)
+    {
+        memcpy(&net_message[i], &lmsg[i], sizeof(struct NetMessage));
+    }
 }
 
 void frontnet_start_update(void)
 {
     static TbClockMSec player_last_time = 0;
-    SYNCDBG(18,"Starting");
-    if (LbTimerClock() >= player_last_time+200)
+    SYNCDBG(18, "Starting");
+    if (LbTimerClock() >= player_last_time + 200)
     {
-      net_number_of_enum_players = 0;
-      LbMemorySet(net_player, 0, sizeof(net_player));
-      if ( LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0) )
-      {
-        ERRORLOG("LbNetwork_EnumeratePlayers() failed");
-        return;
-      }
-      player_last_time = LbTimerClock();
+        net_number_of_enum_players = 0;
+        LbMemorySet(net_player, 0, sizeof(net_player));
+        if (LbNetwork_EnumeratePlayers(net_session[net_session_index_active], enum_players_callback, 0))
+        {
+            ERRORLOG("LbNetwork_EnumeratePlayers() failed");
+            return;
+        }
+        player_last_time = LbTimerClock();
     }
     if ((net_number_of_messages <= 0) || (net_message_scroll_offset < 0))
     {
-      net_message_scroll_offset = 0;
+        net_message_scroll_offset = 0;
     }
-    else if (net_message_scroll_offset > net_number_of_messages-1)
+    else if (net_message_scroll_offset > net_number_of_messages - 1)
     {
-      net_message_scroll_offset = net_number_of_messages-1;
+        net_message_scroll_offset = net_number_of_messages - 1;
     }
     process_frontend_packets();
     frontnet_rewite_net_messages();
@@ -355,27 +363,27 @@ void frontnet_start_update(void)
 
 void display_attempting_to_join_message(void)
 {
-  if (LbScreenLock() == Lb_SUCCESS)
-  {
-    draw_text_box(get_string(GUIStr_NetAttemptingToJoin));
-    LbScreenUnlock();
-  }
-  LbScreenSwap();
+    if (LbScreenLock() == Lb_SUCCESS)
+    {
+        draw_text_box(get_string(GUIStr_NetAttemptingToJoin));
+        LbScreenUnlock();
+    }
+    LbScreenSwap();
 }
 
 void net_load_config_file(void)
 {
     // Try to load the config file
-    char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
+    char *fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
     if (handle != -1)
     {
-      if (LbFileRead(handle, &net_config_info, sizeof(net_config_info)) == sizeof(net_config_info))
-      {
+        if (LbFileRead(handle, &net_config_info, sizeof(net_config_info)) == sizeof(net_config_info))
+        {
+            LbFileClose(handle);
+            return;
+        }
         LbFileClose(handle);
-        return;
-      }
-      LbFileClose(handle);
     }
     // If can't load, then use default config
     LbMemoryCopy(&net_config_info, &default_net_config_info, sizeof(net_config_info));
@@ -385,7 +393,7 @@ void net_load_config_file(void)
 void net_write_config_file(void)
 {
     // Try to load the config file
-    char* fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
+    char *fname = prepare_file_path(FGrp_Save, keeper_netconf_file);
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_NEW);
     if (handle != -1)
     {
@@ -399,7 +407,8 @@ void frontnet_service_setup(void)
     net_number_of_services = 0;
     LbMemorySet(net_service, 0, sizeof(net_service));
     // Create list of available services
-    if (LbNetwork_EnumerateServices(enum_services_callback, NULL)) {
+    if (LbNetwork_EnumerateServices(enum_services_callback, NULL))
+    {
         ERRORLOG("LbNetwork_EnumerateServices() failed");
     }
     // Create skirmish option if it should be enabled
@@ -430,11 +439,11 @@ void frontnet_start_setup(void)
     net_number_of_messages = 0;
     net_player_scroll_offset = 0;
     net_message_scroll_offset = 0;
-    //net_old_number_of_players = 0;
+    // net_old_number_of_players = 0;
     players_currently_in_session = 0;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        struct PlayerInfo* player = get_player(i);
+        struct PlayerInfo *player = get_player(i);
         player->mp_message_text[0] = '\0';
     }
 }

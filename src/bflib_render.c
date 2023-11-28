@@ -37,6 +37,7 @@ unsigned long LOC_vec_screen_width;
 unsigned long LOC_vec_window_width;
 unsigned long LOC_vec_window_height;
 struct PolyPoint *polyscans = NULL;
+
 /******************************************************************************/
 void draw_triangle(struct PolyPoint *point_a, struct PolyPoint *point_b, struct PolyPoint *point_c)
 {
@@ -66,4 +67,5 @@ void finish_bflib_render()
         polyscans = NULL;
     }
 }
+
 /******************************************************************************/

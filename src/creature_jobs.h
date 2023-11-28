@@ -30,9 +30,9 @@ extern "C" {
  * Flags for selecting creature_can_do_job_near_position() behavior.
  */
 enum CreatureJobCheckFlagValues {
-    JobChk_None = 0x0000,          //**< Do not make any changes
-    JobChk_SetStateOnFail = 0x0001,//**< If check fails, update the creature state accordingly
-    JobChk_PlayMsgOnFail = 0x0002, //**< If check fails, prepare corresponding message for the player
+    JobChk_None = 0x0000,           //**< Do not make any changes
+    JobChk_SetStateOnFail = 0x0001, //**< If check fails, update the creature state accordingly
+    JobChk_PlayMsgOnFail = 0x0002,  //**< If check fails, prepare corresponding message for the player
 };
 
 /******************************************************************************/

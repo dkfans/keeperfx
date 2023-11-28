@@ -29,11 +29,11 @@ extern "C" {
 
 /******************************************************************************/
 // Limits for GUI arrays
-#define ACTIVE_BUTTONS_COUNT        86
-#define MENU_LIST_ITEMS_COUNT       49
+#define ACTIVE_BUTTONS_COUNT 86
+#define MENU_LIST_ITEMS_COUNT 49
 #define FRONTEND_BUTTON_INFO_COUNT 119
-#define NET_MESSAGES_COUNT           8
-#define NET_MESSAGE_LEN             64
+#define NET_MESSAGES_COUNT 8
+#define NET_MESSAGE_LEN 64
 // Sprite limits
 #define PANEL_SPRITES_COUNT 514
 #define FRONTEND_FONTS_COUNT 4
@@ -50,57 +50,57 @@ enum DemoItem_Kind {
 };
 
 enum FrontendMenuStates {
-  FeSt_INITIAL = 0,
-  FeSt_MAIN_MENU,
-  FeSt_FELOAD_GAME,
-  FeSt_LAND_VIEW,
-  FeSt_NET_SERVICE, /**< Network service selection, wgere player can select Serial/Modem/IPX/TCP IP/1 player. */
-  FeSt_NET_SESSION, /**< Network session selection screen, where list of games is displayed, with possibility to join or create own game. */
-  FeSt_NET_START, /**< Network game start screen (the menu with chat), when created new session or joined existing session. */
-  FeSt_START_KPRLEVEL,
-  FeSt_START_MPLEVEL,
-  FeSt_UNKNOWN09,
-  FeSt_LOAD_GAME, // 10
-  FeSt_INTRO,
-  FeSt_STORY_POEM,
-  FeSt_CREDITS,
-  FeSt_DEMO,
-  FeSt_UNUSED1,
-  FeSt_UNUSED2,
-  FeSt_LEVEL_STATS,
-  FeSt_HIGH_SCORES,
-  FeSt_TORTURE,
-  FeSt_UNKNOWN20, // 20
-  FeSt_OUTRO,
-  FeSt_UNKNOWN22,
-  FeSt_UNKNOWN23,
-  FeSt_NETLAND_VIEW,
-  FeSt_PACKET_DEMO,
-  FeSt_FEDEFINE_KEYS,
-  FeSt_FEOPTIONS,
-  FeSt_UNKNOWN28,
-  FeSt_STORY_BIRTHDAY,
-  FeSt_LEVEL_SELECT, //30
-  FeSt_CAMPAIGN_SELECT,
-  FeSt_DRAG,
-  FeSt_CAMPAIGN_INTRO,
-  FeSt_MAPPACK_SELECT,
-  // Special testing states
-  FeSt_FONT_TEST          = 255,
+    FeSt_INITIAL = 0,
+    FeSt_MAIN_MENU,
+    FeSt_FELOAD_GAME,
+    FeSt_LAND_VIEW,
+    FeSt_NET_SERVICE, /**< Network service selection, wgere player can select Serial/Modem/IPX/TCP IP/1 player. */
+    FeSt_NET_SESSION, /**< Network session selection screen, where list of games is displayed, with possibility to join or create own game. */
+    FeSt_NET_START,   /**< Network game start screen (the menu with chat), when created new session or joined existing session. */
+    FeSt_START_KPRLEVEL,
+    FeSt_START_MPLEVEL,
+    FeSt_UNKNOWN09,
+    FeSt_LOAD_GAME, // 10
+    FeSt_INTRO,
+    FeSt_STORY_POEM,
+    FeSt_CREDITS,
+    FeSt_DEMO,
+    FeSt_UNUSED1,
+    FeSt_UNUSED2,
+    FeSt_LEVEL_STATS,
+    FeSt_HIGH_SCORES,
+    FeSt_TORTURE,
+    FeSt_UNKNOWN20, // 20
+    FeSt_OUTRO,
+    FeSt_UNKNOWN22,
+    FeSt_UNKNOWN23,
+    FeSt_NETLAND_VIEW,
+    FeSt_PACKET_DEMO,
+    FeSt_FEDEFINE_KEYS,
+    FeSt_FEOPTIONS,
+    FeSt_UNKNOWN28,
+    FeSt_STORY_BIRTHDAY,
+    FeSt_LEVEL_SELECT, // 30
+    FeSt_CAMPAIGN_SELECT,
+    FeSt_DRAG,
+    FeSt_CAMPAIGN_INTRO,
+    FeSt_MAPPACK_SELECT,
+    // Special testing states
+    FeSt_FONT_TEST = 255,
 };
 
 struct GuiMenu;
 struct GuiButton;
 struct TbLoadFiles;
 
-struct DemoItem { //sizeof = 5
+struct DemoItem { // sizeof = 5
     unsigned char numfield_0;
     const char *fname;
 };
 
 struct NetMessage { // sizeof = 0x41
-  unsigned char plyr_idx;
-  char text[NET_MESSAGE_LEN];
+    unsigned char plyr_idx;
+    char text[NET_MESSAGE_LEN];
 };
 
 /******************************************************************************/
@@ -137,25 +137,25 @@ extern MenuID vid_change_query_menu;
 // *** SPRITES ***
 extern struct TbSprite *font_sprites;
 extern struct TbSprite *end_font_sprites;
-extern unsigned char * font_data;
+extern unsigned char *font_data;
 extern struct TbSprite *frontend_font[FRONTEND_FONTS_COUNT];
 extern struct TbSprite *frontend_end_font[FRONTEND_FONTS_COUNT];
-extern unsigned char * frontend_font_data[FRONTEND_FONTS_COUNT];
-extern unsigned char * frontend_end_font_data[FRONTEND_FONTS_COUNT];
+extern unsigned char *frontend_font_data[FRONTEND_FONTS_COUNT];
+extern unsigned char *frontend_end_font_data[FRONTEND_FONTS_COUNT];
 extern struct TbSprite *button_sprite;
 extern struct TbSprite *end_button_sprites;
-extern unsigned char * button_sprite_data;
+extern unsigned char *button_sprite_data;
 extern unsigned long end_button_sprite_data;
 extern struct TbSprite *winfont;
 extern struct TbSprite *end_winfonts;
-extern unsigned char * winfont_data;
-extern unsigned char * end_winfont_data;
+extern unsigned char *winfont_data;
+extern unsigned char *end_winfont_data;
 extern struct TbSprite *edit_icon_sprites;
 extern struct TbSprite *end_edit_icon_sprites;
-extern unsigned char * edit_icon_data;
+extern unsigned char *edit_icon_data;
 extern struct TbSprite *port_sprite;
 extern struct TbSprite *end_port_sprites;
-extern unsigned char * port_sprite_data;
+extern unsigned char *port_sprite_data;
 extern unsigned long playing_bad_descriptive_speech;
 extern unsigned long playing_good_descriptive_speech;
 extern long scrolling_index;
@@ -188,18 +188,18 @@ extern const unsigned long alliance_grid[4][4];
 #define TESTFONTS_COUNT 12
 extern struct TbSprite *testfont[TESTFONTS_COUNT];
 extern struct TbSprite *testfont_end[TESTFONTS_COUNT];
-extern unsigned char * testfont_data[TESTFONTS_COUNT];
+extern unsigned char *testfont_data[TESTFONTS_COUNT];
 extern unsigned char *testfont_palette[3];
 #endif
 /******************************************************************************/
 extern char *mdlf_default(struct TbLoadFiles *);
 /******************************************************************************/
-int frontend_font_char_width(int fnt_idx,char c);
+int frontend_font_char_width(int fnt_idx, char c);
 int frontend_font_string_width(int fnt_idx, const char *str);
 TbBool frontend_font_string_draw(int scr_x, int scr_y, int dst_width, int dst_height, int fnt_idx, const char *str, unsigned short fdflags);
 
 void create_error_box(TextStringId msg_idx);
-void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4, const char* line5);
+void create_message_box(const char *title, const char *line1, const char *line2, const char *line3, const char *line4, const char *line5);
 void gui_area_text(struct GuiButton *gbtn);
 TbBool get_button_area_input(struct GuiButton *gbtn, int a2);
 const char *frontend_button_caption_text(const struct GuiButton *gbtn);
@@ -284,7 +284,7 @@ FrontendMenuState get_menu_state_when_back_from_substate(FrontendMenuState subst
 void frontend_input(void);
 void frontend_update(short *finish_menu);
 short frontend_draw(void);
-void create_frontend_error_box(long showTime, const char * text);
+void create_frontend_error_box(long showTime, const char *text);
 void try_restore_frontend_error_box(); // Restore error box if frontend state was switched
 
 short menu_is_active(short idx);
@@ -302,7 +302,7 @@ void toggle_gui_overlay_map(void);
 
 void update_player_objectives(PlayerNumber plyr_idx);
 void set_level_objective(const char *msg_text);
-void display_objectives(PlayerNumber plyr_idx,long x,long y);
+void display_objectives(PlayerNumber plyr_idx, long x, long y);
 
 short toggle_main_cheat_menu(void);
 TbBool close_main_cheat_menu(void);

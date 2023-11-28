@@ -30,22 +30,22 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define COMPUTER_TASKS_COUNT        100
-#define COMPUTER_PROCESSES_COUNT     20
-#define COMPUTER_CHECKS_COUNT        32
-#define COMPUTER_CHECKS_COUNT_OLD    15
-#define COMPUTER_EVENTS_COUNT        33
-#define COMPUTER_EVENTS_COUNT_OLD    12
+#define COMPUTER_TASKS_COUNT 100
+#define COMPUTER_PROCESSES_COUNT 20
+#define COMPUTER_CHECKS_COUNT 32
+#define COMPUTER_CHECKS_COUNT_OLD 15
+#define COMPUTER_EVENTS_COUNT 33
+#define COMPUTER_EVENTS_COUNT_OLD 12
 // To add additional computer players update the folowing number. Update ComputerCount in keepcompp.cfg to match.
 // Must match the actual number of consecutive computers listed in that file (don't forget to count computer0).
-#define COMPUTER_MODELS_COUNT        17 // renamed from COMPUTER_PROCESS_LISTS_COUNT, for clarity
-#define COMPUTER_TRAP_LOC_COUNT      20
+#define COMPUTER_MODELS_COUNT 17 // renamed from COMPUTER_PROCESS_LISTS_COUNT, for clarity
+#define COMPUTER_TRAP_LOC_COUNT 20
 
 #define COMPUTER_PROCESS_TYPES_COUNT 26
-#define COMPUTER_CHECKS_TYPES_COUNT  51
-#define COMPUTER_EVENTS_TYPES_COUNT  31
+#define COMPUTER_CHECKS_TYPES_COUNT 51
+#define COMPUTER_EVENTS_TYPES_COUNT 31
 #define COMPUTER_SPARK_POSITIONS_COUNT 64
-#define COMPUTER_SOE_GRID_SIZE        8
+#define COMPUTER_SOE_GRID_SIZE 8
 
 /** How strong should be the preference to dig gold from treasure room and not other rooms. Originally was 22 subtiles. */
 #define TREASURE_ROOM_PREFERENCE_WHILE_DIGGING_GOLD 16
@@ -125,8 +125,8 @@ enum GameActionTypes {
 };
 
 enum ToolDigFlags {
-    ToolDig_BasicOnly = 0x00, /**< Allows to dig only through basic earth slabs. */
-    ToolDig_AllowValuable = 0x01, /**< Allows to dig through valuable slabs. */
+    ToolDig_BasicOnly = 0x00,          /**< Allows to dig only through basic earth slabs. */
+    ToolDig_AllowValuable = 0x01,      /**< Allows to dig through valuable slabs. */
     ToolDig_AllowLiquidWBridge = 0x02, /**< Allows to dig through liquid slabs, if only player has ability to build bridges through them.
                                             Also allows to dig through valuable slabs(which should be later changed)). */
 };
@@ -174,8 +174,8 @@ enum CompTaskFlags {
 
 enum CompTaskStates {
     CTaskSt_None = 0,
-    CTaskSt_Wait, /**< Waiting some game turns before starting a new task. */
-    CTaskSt_Select, /**< Choosing a task to be performed. */
+    CTaskSt_Wait,    /**< Waiting some game turns before starting a new task. */
+    CTaskSt_Select,  /**< Choosing a task to be performed. */
     CTaskSt_Perform, /**< Performing the task. */
 };
 
@@ -198,18 +198,18 @@ enum CompProcRet {
 };
 
 enum ItemAvailabilityRet {
-    IAvail_Never         = 0,
-    IAvail_Now           = 1,
-    IAvail_NeedResearch  = 4,
+    IAvail_Never = 0,
+    IAvail_Now = 1,
+    IAvail_NeedResearch = 4,
 };
 
 enum CompChatFlags {
-    CChat_None          = 0x00,
-    CChat_TasksScarce   = 0x01,
+    CChat_None = 0x00,
+    CChat_TasksScarce = 0x01,
     CChat_TasksFrequent = 0x02,
 };
 
-//TODO COMPUTER This returns NULL, which is unsafe
+// TODO COMPUTER This returns NULL, which is unsafe
 #define INVALID_COMPUTER_PLAYER NULL
 #define INVALID_COMPUTER_PROCESS NULL
 #define INVALID_COMPUTER_TASK &game.computer_task[0]
@@ -233,88 +233,88 @@ typedef char ComputerName[LINEMSG_SIZE];
 
 typedef long (*Comp_Process_Func)(struct Computer2 *, struct ComputerProcess *);
 typedef long (*Comp_Check_Func)(struct Computer2 *, struct ComputerCheck *);
-typedef long (*Comp_Event_Func)(struct Computer2 *, struct ComputerEvent *,struct Event *);
+typedef long (*Comp_Event_Func)(struct Computer2 *, struct ComputerEvent *, struct Event *);
 typedef long (*Comp_EvntTest_Func)(struct Computer2 *, struct ComputerEvent *);
 typedef long (*Comp_Task_Func)(struct Computer2 *, struct ComputerTask *);
 typedef TbBool (*Comp_HateTest_Func)(const struct Computer2 *, const struct ComputerProcess *, const struct THate *);
 
 struct Comp_Check_Func_ListItem {
-  const char *name;
-  Comp_Check_Func func;
+    const char *name;
+    Comp_Check_Func func;
 };
 
 struct TaskFunctions {
-  const char *name;
-  Comp_Task_Func func;
+    const char *name;
+    Comp_Task_Func func;
 };
 
 struct ComputerProcess { // sizeof = 72
-  char *name;
-  long priority;
-  // Signed process config values
-  long confval_2;
-  long confval_3;
-  long confval_4;
-  long confval_5;
-  Comp_Process_Func func_check;
-  Comp_Process_Func func_setup;
-  Comp_Process_Func func_task;
-  Comp_Process_Func func_complete;
-  Comp_Process_Func func_pause;
-  struct ComputerProcess *parent;
-  // Unsigned process parameters storage (stores gameturns)
-  unsigned long param_1;
-  unsigned long param_2;
-  unsigned long param_3;
-  unsigned long last_run_turn;
-  // Signed process parameters storage
-  long param_5;
-  unsigned long flags; /**< Values from ComProc_* enumeration. */
+    char *name;
+    long priority;
+    // Signed process config values
+    long confval_2;
+    long confval_3;
+    long confval_4;
+    long confval_5;
+    Comp_Process_Func func_check;
+    Comp_Process_Func func_setup;
+    Comp_Process_Func func_task;
+    Comp_Process_Func func_complete;
+    Comp_Process_Func func_pause;
+    struct ComputerProcess *parent;
+    // Unsigned process parameters storage (stores gameturns)
+    unsigned long param_1;
+    unsigned long param_2;
+    unsigned long param_3;
+    unsigned long last_run_turn;
+    // Signed process parameters storage
+    long param_5;
+    unsigned long flags; /**< Values from ComProc_* enumeration. */
 };
 
 struct ComputerCheck { // sizeof = 32
-  char *name;
-  unsigned long flags;
-  long turns_interval;
-  Comp_Check_Func func;
-  long param1;
-  long param2;
-  long param3;
-  long last_run_turn;
+    char *name;
+    unsigned long flags;
+    long turns_interval;
+    Comp_Check_Func func;
+    long param1;
+    long param2;
+    long param3;
+    long last_run_turn;
 };
 
 struct ComputerEvent { // sizeof = 44
-  char *name;
-  unsigned long cetype;
-  unsigned long mevent_kind;
-  Comp_Event_Func func_event;
-  Comp_EvntTest_Func func_test;
-  long test_interval;
-  struct ComputerProcess *process;
-  long param1;
-  long param2;
-  long param3;
-  long last_test_gameturn; // event last checked time
+    char *name;
+    unsigned long cetype;
+    unsigned long mevent_kind;
+    Comp_Event_Func func_event;
+    Comp_EvntTest_Func func_test;
+    long test_interval;
+    struct ComputerProcess *process;
+    long param1;
+    long param2;
+    long param3;
+    long last_test_gameturn; // event last checked time
 };
 
 struct ValidRooms { // sizeof = 8
-  long rkind;
-  struct ComputerProcess *process;
+    long rkind;
+    struct ComputerProcess *process;
 };
 
 struct ComputerProcessMnemonic {
-  char name[16];
-  struct ComputerProcess *process;
+    char name[16];
+    struct ComputerProcess *process;
 };
 
 struct ComputerCheckMnemonic {
-  char name[16];
-  struct ComputerCheck *check;
+    char name[16];
+    struct ComputerCheck *check;
 };
 
 struct ComputerEventMnemonic {
-  char name[16];
-  struct ComputerEvent *event;
+    char name[16];
+    struct ComputerEvent *event;
 };
 
 struct ComputerDig { // sizeof = 78
@@ -348,8 +348,10 @@ struct ComputerTask { // sizeof = 148
     unsigned char rkind;
     unsigned char field_5[5];
     long created_turn;
+
     union {
         struct ComputerDig dig;
+
         struct {
             unsigned char field_E[21];
             unsigned char field_23[32];
@@ -357,151 +359,165 @@ struct ComputerTask { // sizeof = 148
             unsigned char field_49[19];
         };
     };
+
     long lastrun_turn;
     long delay;
     struct Coord3d new_room_pos;
     struct Coord3d pos_6A;
+
     union {
-    struct {
-        /** Amount of items to be sold; task is removed when it reaches zero. */
-        long items_amount;
-        short field_74;
-        /** Sum of gold generated by selling. */
-        long gold_gain;
-        short field_7A;
-        /** Limit of gold generated by selling; task is removed when it is exceeded. */
-        long gold_gain_limit;
-        /** Limit of total gold owned by player; task is removed when it is exceeded. */
-        long total_money_limit;
-        /** Whether deployed traps and doors are considered while selling. */
-        short allow_deployed; // can be converted to flags
-        /** Index of the item currently being checked in list of sellable things. */
-        long sell_idx;
-        unsigned char field_8A[2];
-    } sell_traps_doors;
-    struct {
-        /* Amount of gold piles/pots to move */
-        long items_amount;
-        short room_idx;
-        long gold_gain;
-        short field_7A;
-        long gold_gain_limit;
-        long total_money_limit;
-        short field_84;
-        long field_86;
-        unsigned char field_8A[2];
-    } move_gold;
-    struct {
-        struct Coord3d pos_70;
-        struct Coord3d target_pos;
-        long repeat_num;
-        long long_80;
-        short field_84;
-        short word_86;
-        long field_88;
-    } magic_cta;
-    struct {
-        long splevel;
-        short field_74;
-        short target_thing_idx;
-        short word_78;
-        short field_7A;
-        long repeat_num;
-        long gaction;
-        short field_84;
-        long pwkind;
-        unsigned char field_8A[2];
-    } attack_magic;
-    struct {
-        short room_idx1;
-        short word_72;
-        short field_74;
-        short word_76;
-        short word_78;
-        short field_7Ac;
-        long repeat_num;
-        short room_idx2;
-        short word_82;
-        unsigned char field_84[2];
-        struct Coord3d pos_86;
-    } move_to_room;
-    struct {
-        long field_70;
-        short field_74;
-        struct Coord3d target_pos;
-        long repeat_num;
-        short word_80;
-        short word_82;
-        unsigned char field_84[2];
-        struct Coord3d pos_86;
-    } move_to_defend;
-    struct {
-        long field_70;
-        short field_74;
-        short target_thing_idx;
-        short word_78;
-        short field_7Ac;
-        long repeat_num;
-        short target_state;
-        short word_82;
-        unsigned char field_84[2];
-        struct Coord3d pos_86;
-    } move_to_pos;
-    struct {
-        long field_70;
-        short field_74;
-        struct Coord3d target_pos;
-        long repeat_num;
-        short word_80;
-        short word_82;
-        unsigned char field_84[2];
-        long long_86;
-        short word_8A;
-    } pickup_for_attack;
-    struct {
-        struct Coord3d startpos;
-        struct Coord3d endpos;
-        long field_7C;
-        /** Target room index. */
-        short target_room_idx;
-        short word_82;
-        short word_84;
-        short target_plyr_idx;
-        long field_88;
-    } dig_to_room;
-    struct {
-        struct Coord3d startpos;
-        struct Coord3d endpos;
-        long field_7C;
-        /** Target gold lookup index. */
-        short target_lookup_idx;
-        short word_82;
-        short word_84;
-        long slabs_dig_count;
-        short word_8A;
-    } dig_to_gold;
-    struct {
-        struct Coord3d startpos;
-        struct Coord3d endpos;
-        long field_7C;
-        unsigned char byte_80;
-        unsigned char byte_81;
-        short word_82;
-        short word_84;
-        short target_plyr_idx;
-        long field_88;
-    } dig_somewhere;
-    struct {
-        struct Coord3d startpos;
-        struct Coord3d endpos;
-        short width;
-        short height;
-        long long_80;
-        short word_84;
-        long area;
-        short word_8A;
-    } create_room;
+        struct {
+            /** Amount of items to be sold; task is removed when it reaches zero. */
+            long items_amount;
+            short field_74;
+            /** Sum of gold generated by selling. */
+            long gold_gain;
+            short field_7A;
+            /** Limit of gold generated by selling; task is removed when it is exceeded. */
+            long gold_gain_limit;
+            /** Limit of total gold owned by player; task is removed when it is exceeded. */
+            long total_money_limit;
+            /** Whether deployed traps and doors are considered while selling. */
+            short allow_deployed; // can be converted to flags
+            /** Index of the item currently being checked in list of sellable things. */
+            long sell_idx;
+            unsigned char field_8A[2];
+        } sell_traps_doors;
+
+        struct {
+            /* Amount of gold piles/pots to move */
+            long items_amount;
+            short room_idx;
+            long gold_gain;
+            short field_7A;
+            long gold_gain_limit;
+            long total_money_limit;
+            short field_84;
+            long field_86;
+            unsigned char field_8A[2];
+        } move_gold;
+
+        struct {
+            struct Coord3d pos_70;
+            struct Coord3d target_pos;
+            long repeat_num;
+            long long_80;
+            short field_84;
+            short word_86;
+            long field_88;
+        } magic_cta;
+
+        struct {
+            long splevel;
+            short field_74;
+            short target_thing_idx;
+            short word_78;
+            short field_7A;
+            long repeat_num;
+            long gaction;
+            short field_84;
+            long pwkind;
+            unsigned char field_8A[2];
+        } attack_magic;
+
+        struct {
+            short room_idx1;
+            short word_72;
+            short field_74;
+            short word_76;
+            short word_78;
+            short field_7Ac;
+            long repeat_num;
+            short room_idx2;
+            short word_82;
+            unsigned char field_84[2];
+            struct Coord3d pos_86;
+        } move_to_room;
+
+        struct {
+            long field_70;
+            short field_74;
+            struct Coord3d target_pos;
+            long repeat_num;
+            short word_80;
+            short word_82;
+            unsigned char field_84[2];
+            struct Coord3d pos_86;
+        } move_to_defend;
+
+        struct {
+            long field_70;
+            short field_74;
+            short target_thing_idx;
+            short word_78;
+            short field_7Ac;
+            long repeat_num;
+            short target_state;
+            short word_82;
+            unsigned char field_84[2];
+            struct Coord3d pos_86;
+        } move_to_pos;
+
+        struct {
+            long field_70;
+            short field_74;
+            struct Coord3d target_pos;
+            long repeat_num;
+            short word_80;
+            short word_82;
+            unsigned char field_84[2];
+            long long_86;
+            short word_8A;
+        } pickup_for_attack;
+
+        struct {
+            struct Coord3d startpos;
+            struct Coord3d endpos;
+            long field_7C;
+            /** Target room index. */
+            short target_room_idx;
+            short word_82;
+            short word_84;
+            short target_plyr_idx;
+            long field_88;
+        } dig_to_room;
+
+        struct {
+            struct Coord3d startpos;
+            struct Coord3d endpos;
+            long field_7C;
+            /** Target gold lookup index. */
+            short target_lookup_idx;
+            short word_82;
+            short word_84;
+            long slabs_dig_count;
+            short word_8A;
+        } dig_to_gold;
+
+        struct {
+            struct Coord3d startpos;
+            struct Coord3d endpos;
+            long field_7C;
+            unsigned char byte_80;
+            unsigned char byte_81;
+            short word_82;
+            short word_84;
+            short target_plyr_idx;
+            long field_88;
+        } dig_somewhere;
+
+        struct {
+            struct Coord3d startpos;
+            struct Coord3d endpos;
+            short width;
+            short height;
+            long long_80;
+            short word_84;
+            long area;
+            short word_8A;
+        } create_room;
     };
+
     unsigned short field_8C; /* CProcessId */
     long field_8E;
     unsigned short next_task;
@@ -515,49 +531,51 @@ struct OpponentRelation { // sizeof = 394
 };
 
 struct Computer2 { // sizeof = 5322
-  long task_state;
-  unsigned long gameturn_delay;
-  unsigned long gameturn_wait;
-  unsigned long field_C;
-  unsigned long tasks_did;
-  unsigned long processes_time;
-  unsigned long click_rate;
-  unsigned long dig_stack_size; // seems to be signed long
-  unsigned long sim_before_dig;
-  struct Dungeon *dungeon;
-  unsigned long model;
-  unsigned long turn_begin;
-  unsigned long max_room_build_tasks;
-  unsigned long task_delay;
-  struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
-  union
-  {
-      struct ComputerCheck checks_OLD[COMPUTER_CHECKS_COUNT_OLD];
-      struct
-      {
-          struct ComputerCheck checks_guard[2];
-          struct ComputerCheck *checks;
-      };
-  };
-  union
-  {
-      struct ComputerEvent events_OLD[COMPUTER_EVENTS_COUNT_OLD];
-      struct
-      {
-          struct ComputerEvent event_guard[2]; // Set to invalid event if some would like to list events
-          struct ComputerEvent *events;
-      };
-  };
-  struct OpponentRelation opponent_relations[PLAYERS_EXT_COUNT];
-  // TODO we could use coord2d for trap locations
-  struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
-  /** Stores Sight Of Evil target points data. */
-  unsigned long soe_targets[COMPUTER_SOE_GRID_SIZE];
-  /* seem unused */
-  unsigned char field_13E4[224];
-  short ongoing_process;
-  short task_idx;
-  short held_thing_idx;
+    long task_state;
+    unsigned long gameturn_delay;
+    unsigned long gameturn_wait;
+    unsigned long field_C;
+    unsigned long tasks_did;
+    unsigned long processes_time;
+    unsigned long click_rate;
+    unsigned long dig_stack_size; // seems to be signed long
+    unsigned long sim_before_dig;
+    struct Dungeon *dungeon;
+    unsigned long model;
+    unsigned long turn_begin;
+    unsigned long max_room_build_tasks;
+    unsigned long task_delay;
+    struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT + 1];
+
+    union {
+        struct ComputerCheck checks_OLD[COMPUTER_CHECKS_COUNT_OLD];
+
+        struct
+        {
+            struct ComputerCheck checks_guard[2];
+            struct ComputerCheck *checks;
+        };
+    };
+
+    union {
+        struct ComputerEvent events_OLD[COMPUTER_EVENTS_COUNT_OLD];
+
+        struct
+        {
+            struct ComputerEvent event_guard[2]; // Set to invalid event if some would like to list events
+            struct ComputerEvent *events;
+        };
+    };
+    struct OpponentRelation opponent_relations[PLAYERS_EXT_COUNT];
+    // TODO we could use coord2d for trap locations
+    struct Coord3d trap_locations[COMPUTER_TRAP_LOC_COUNT];
+    /** Stores Sight Of Evil target points data. */
+    unsigned long soe_targets[COMPUTER_SOE_GRID_SIZE];
+    /* seem unused */
+    unsigned char field_13E4[224];
+    short ongoing_process;
+    short task_idx;
+    short held_thing_idx;
 };
 
 /**
@@ -578,6 +596,7 @@ struct ExpandRooms {
 /******************************************************************************/
 
 #pragma pack()
+
 /******************************************************************************/
 struct ComputerPlayerConfig {
     int processes_count;
@@ -585,8 +604,9 @@ struct ComputerPlayerConfig {
     int events_count;
     int computers_count;
     int skirmish_first; /*new*/
-    int skirmish_last; /*new*/
+    int skirmish_last;  /*new*/
 };
+
 /******************************************************************************/
 extern unsigned short computer_types_tooltip_stridx[];
 extern struct ValidRooms valid_rooms_to_build[];
@@ -604,8 +624,8 @@ extern Comp_EvntTest_Func computer_event_test_func_list[];
 extern const struct NamedCommand computer_check_func_type[];
 extern Comp_Check_Func computer_check_func_list[];
 /******************************************************************************/
-struct Computer2 *get_computer_player_f(long plyr_idx,const char *func_name);
-#define get_computer_player(plyr_idx) get_computer_player_f(plyr_idx,__func__)
+struct Computer2 *get_computer_player_f(long plyr_idx, const char *func_name);
+#define get_computer_player(plyr_idx) get_computer_player_f(plyr_idx, __func__)
 TbBool computer_player_invalid(const struct Computer2 *comp);
 long set_autopilot_type(PlayerNumber plridx, long aptype);
 /******************************************************************************/
@@ -618,8 +638,8 @@ struct ComputerProcess *get_computer_process(struct Computer2 *comp, int cproc_i
 TbBool computer_player_in_emergency_state(const struct Computer2 *comp);
 TbBool is_there_an_attack_task(const struct Computer2 *comp);
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long a5);
-struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind,
-    long width_slabs, long height_slabs, long a6, long a7);
+struct ComputerTask *able_to_build_room(struct Computer2 *comp, struct Coord3d *pos, RoomKind rkind,
+                                        long width_slabs, long height_slabs, long a6, long a7);
 long computer_finds_nearest_room_to_gold(struct Computer2 *comp, struct Coord3d *pos, struct GoldLookup **gldlookref);
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos);
 long move_imp_to_dig_here(struct Computer2 *comp, struct Coord3d *pos, long max_amount);
@@ -668,19 +688,19 @@ long computer_get_room_role_total_capacity(struct Computer2 *comp, RoomRole rrol
 long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_kind);
 TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos);
 long process_tasks(struct Computer2 *comp);
-long computer_check_any_room(struct Computer2* comp, struct ComputerProcess* cproc);
+long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cproc);
 TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
-    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
+                     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
-    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
-short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name);
-#define tool_dig_to_pos2(comp,cdig,simulation,digflags) tool_dig_to_pos2_f(comp,cdig,simulation,digflags,__func__)
+                         MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
+short tool_dig_to_pos2_f(struct Computer2 *comp, struct ComputerDig *cdig, TbBool simulation, unsigned short digflags, const char *func_name);
+#define tool_dig_to_pos2(comp, cdig, simulation, digflags) tool_dig_to_pos2_f(comp, cdig, simulation, digflags, __func__)
 #define search_spiral(pos, owner, area_total, cb) search_spiral_f(pos, owner, area_total, cb, __func__)
 int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, long (*cb)(MapSubtlCoord, MapSubtlCoord, long), const char *func_name);
 /******************************************************************************/
-ItemAvailability computer_check_room_available(const struct Computer2 * comp, RoomKind rkind);
+ItemAvailability computer_check_room_available(const struct Computer2 *comp, RoomKind rkind);
 TbBool computer_find_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos);
-TbBool computer_find_safe_non_solid_block(const struct Computer2* comp, struct Coord3d* pos);
+TbBool computer_find_safe_non_solid_block(const struct Computer2 *comp, struct Coord3d *pos);
 
 long count_creatures_in_dungeon(const struct Dungeon *dungeon);
 long count_entrances(const struct Computer2 *comp, PlayerNumber plyr_idx);
@@ -700,7 +720,7 @@ void restore_computer_player_after_load(void);
 TbBool computer_force_dump_held_things_on_map(struct Computer2 *comp, const struct Coord3d *pos);
 TbBool computer_force_dump_specific_held_thing(struct Computer2 *comp, struct Thing *thing, const struct Coord3d *pos);
 TbBool thing_is_in_computer_power_hand_list(const struct Thing *thing, PlayerNumber plyr_idx);
-struct Thing* find_creature_for_defend_pickup(struct Computer2* comp);
+struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp);
 
 TbBool script_support_setup_player_as_computer_keeper(PlayerNumber plyridx, long comp_model);
 /******************************************************************************/

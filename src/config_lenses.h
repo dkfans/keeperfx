@@ -32,9 +32,9 @@ extern "C" {
 #define LENS_ITEMS_MAX 32
 
 enum LensConfigFlags {
-    LCF_HasMist     = 0x01,
+    LCF_HasMist = 0x01,
     LCF_HasDisplace = 0x02,
-    LCF_HasPalette  = 0x04,
+    LCF_HasPalette = 0x04,
 };
 
 struct LensConfig {
@@ -53,12 +53,13 @@ struct LensesConfig {
     long lenses_count;
     struct LensConfig lenses[LENS_ITEMS_MAX];
 };
+
 /******************************************************************************/
 extern const char keeper_lenses_file[];
 extern struct LensesConfig lenses_conf;
 extern struct NamedCommand lenses_desc[LENS_ITEMS_MAX];
 /******************************************************************************/
-TbBool load_lenses_config(const char *conf_fname,unsigned short flags);
+TbBool load_lenses_config(const char *conf_fname, unsigned short flags);
 struct LensConfig *get_lens_config(long lens_idx);
 /******************************************************************************/
 #ifdef __cplusplus

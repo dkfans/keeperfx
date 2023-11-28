@@ -37,18 +37,17 @@ extern "C" {
 
 #define MAX_N_USERS 4
 #define MAX_N_PEERS (MAX_N_USERS - 1)
-#define SERVER_ID   0
+#define SERVER_ID 0
 
 typedef int NetUserId;
 
-enum NetDropReason
-{
+enum NetDropReason {
     NETDROP_MANUAL, // via drop_user()
-    NETDROP_ERROR // connection error
+    NETDROP_ERROR   // connection error
 };
 
-typedef TbBool  (*NetNewUserCallback)(NetUserId * assigned_id);
-typedef void    (*NetDropCallback)(NetUserId id, enum NetDropReason reason);
+typedef TbBool (*NetNewUserCallback)(NetUserId *assigned_id);
+typedef void (*NetDropCallback)(NetUserId id, enum NetDropReason reason);
 
 struct NetSP // new version
 {
@@ -61,7 +60,7 @@ struct NetSP // new version
     /**
      * Closes down all activities and cleans up this service provider.
      */
-    void    (*exit)();
+    void (*exit)();
 
     /**
      * Sets this service provider up as a host for a new network game.
@@ -70,7 +69,7 @@ struct NetSP // new version
      * @param options
      * @return Lb_FAIL or Lb_OK
      */
-    TbError (*host)(const char * session, void * options); //leaving void * for now, analyze meaning later
+    TbError (*host)(const char *session, void *options); // leaving void * for now, analyze meaning later
 
     /**
      * Sets this service provider as a client for an existing network game.
@@ -79,13 +78,13 @@ struct NetSP // new version
      * @param options
      * @return Lb_FAIL or Lb_OK
      */
-    TbError (*join)(const char * session, void * options);
+    TbError (*join)(const char *session, void *options);
 
     /**
      * Checks for new connections.
      * @param new_user Call back if a new user has connected.
      */
-    void    (*update)(NetNewUserCallback new_user);
+    void (*update)(NetNewUserCallback new_user);
 
     /**
      * Sends a message buffer to a certain user.
@@ -93,14 +92,14 @@ struct NetSP // new version
      * @param buffer
      * @param size Must be > 0
      */
-    void    (*sendmsg_single)(NetUserId destination, const char * buffer, size_t size);
+    void (*sendmsg_single)(NetUserId destination, const char *buffer, size_t size);
 
     /**
      * Sends a message buffer to all remote users.
      * @param buffer
      * @param size Must be > 0
      */
-    void    (*sendmsg_all)(const char * buffer, size_t size);
+    void (*sendmsg_all)(const char *buffer, size_t size);
 
     /**
      * Asks if a message has finished reception and get be read through readmsg.
@@ -113,7 +112,7 @@ struct NetSP // new version
      *  for a message to arrive before returning.
      * @return The size of the message waiting if there is a message, otherwise 0.
      */
-    size_t  (*msgready)(NetUserId source, unsigned timeout);
+    size_t (*msgready)(NetUserId source, unsigned timeout);
 
     /**
      * Completely reads a message. Blocks until entire message has been read.
@@ -124,7 +123,7 @@ struct NetSP // new version
      * @return The actual size of the message received, <= max_size. If 0, an
      *  error occurred.
      */
-    size_t  (*readmsg)(NetUserId source, char * buffer, size_t max_size);
+    size_t (*readmsg)(NetUserId source, char *buffer, size_t max_size);
 
     /**
      * Disconnects a user.
@@ -147,10 +146,10 @@ enum TbNetworkService {
 };
 
 struct ClientDataEntry {
-  unsigned long plyrid;
-  unsigned long isactive;
-  unsigned long field_8;
-  char name[32];
+    unsigned long plyrid;
+    unsigned long isactive;
+    unsigned long field_8;
+    char name[32];
 };
 
 struct ConfigInfo {
@@ -159,58 +158,58 @@ struct ConfigInfo {
 };
 
 struct TbNetworkPlayerInfo {
-char name[32];
-long active;
+    char name[32];
+    long active;
 };
 
 struct TbNetworkCallbackData {
-  char svc_name[12];
-  char plyr_name[20];
-  char field_20[32];
+    char svc_name[12];
+    char plyr_name[20];
+    char field_20[32];
 };
 
 struct TbNetworkPlayerName {
-  char name[20];
+    char name[20];
 };
 
 struct TbNetworkPlayerNameEntry {
-  unsigned char id;
-  unsigned long islocal;
-  unsigned long ishost;
-  unsigned long field_9;
-  char name[19];
-  unsigned char field_20[20];
-  unsigned char field_34[4];
+    unsigned char id;
+    unsigned long islocal;
+    unsigned long ishost;
+    unsigned long field_9;
+    char name[19];
+    unsigned char field_20[20];
+    unsigned char field_34[4];
 };
 
-//TODO: find out what this struct really is, and how long is it
+// TODO: find out what this struct really is, and how long is it
 struct SystemUserMsg {
-  unsigned char type;
-  struct ClientDataEntry client_data_table[CLIENT_TABLE_LEN];
+    unsigned char type;
+    struct ClientDataEntry client_data_table[CLIENT_TABLE_LEN];
 };
 
 struct UnidirectionalDataMessage {
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned char field_14[492];
-  unsigned char field_200[12];
+    unsigned long field_0;
+    unsigned long field_4;
+    unsigned long field_8;
+    unsigned long field_C;
+    unsigned long field_10;
+    unsigned char field_14[492];
+    unsigned char field_200[12];
 };
 
 struct UnidirectionalRTSMessage {
-  unsigned long field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
+    unsigned long field_0;
+    unsigned long field_4;
+    unsigned long field_8;
+    unsigned long field_C;
+    unsigned long field_10;
 };
 
 /** Structure for storing network service configuration. Used to pass information about configuration into LbNetwork_Init().
  */
 struct ServiceInitData {
-long field_0;
+    long field_0;
     long numfield_4;
     long field_8;
     long field_C;
@@ -220,15 +219,15 @@ long field_0;
 
 #pragma pack()
 /******************************************************************************/
-void    LbNetwork_InitSessionsFromCmdLine(const char * str);
+void LbNetwork_InitSessionsFromCmdLine(const char *str);
 TbError LbNetwork_Init(unsigned long srvcindex, unsigned long maxplayrs, struct TbNetworkPlayerInfo *locplayr, struct ServiceInitData *init_data);
 TbError LbNetwork_Join(struct TbNetworkSessionNameEntry *nsname, char *playr_name, long *playr_num, void *optns);
 TbError LbNetwork_Create(char *nsname_str, char *plyr_name, unsigned long *plyr_num, void *optns);
 TbError LbNetwork_ExchangeServer(void *server_buf, size_t buf_size);
 TbError LbNetwork_ExchangeClient(void *send_buf, void *server_buf, size_t buf_size);
 TbError LbNetwork_Exchange(void *send_buf, void *server_buf, size_t buf_size);
-TbBool  LbNetwork_Resync(void * buf, size_t len);
-void    LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
+TbBool LbNetwork_Resync(void *buf, size_t len);
+void LbNetwork_ChangeExchangeTimeout(unsigned long tmout);
 TbError LbNetwork_EnableNewPlayers(TbBool allow);
 TbError LbNetwork_EnumerateServices(TbNetworkCallbackFunc callback, void *a2);
 TbError LbNetwork_EnumeratePlayers(struct TbNetworkSessionNameEntry *sesn, TbNetworkCallbackFunc callback, void *a2);

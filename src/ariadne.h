@@ -43,32 +43,32 @@ typedef unsigned char AriadneReturn;
 typedef unsigned char AriadneRouteFlags;
 
 enum AriadneReturnValues {
-    AridRet_OK    = 0,
+    AridRet_OK = 0,
     AridRet_FinalOK,
     AridRet_Val2,
     AridRet_PartOK,
 };
 
 enum AriadneRouteFlagValues {
-    AridRtF_Default   = 0x00,
-    AridRtF_NoOwner   = 0x01,
+    AridRtF_Default = 0x00,
+    AridRtF_NoOwner = 0x01,
 };
 
 enum AriadneUpdateStateValues {
-    AridUpSt_Unset   = 0,
+    AridUpSt_Unset = 0,
     AridUpSt_OnLine,
     AridUpSt_Wallhug,
     AridUpSt_Manoeuvre,
 };
 
 enum AriadneUpdateSubStateManoeuvreValues {
-    AridUpSStM_Unset   = 0,
+    AridUpSStM_Unset = 0,
     AridUpSStM_Unkn1,
     AridUpSStM_Unkn2,
 };
 
 enum NavigationStateValues {
-    NavS_Unkn0   = 0,
+    NavS_Unkn0 = 0,
     NavS_Unkn1,
     NavS_Unkn2,
     NavS_Unkn3,
@@ -78,11 +78,11 @@ enum NavigationStateValues {
     NavS_Unkn7,
 };
 
-#define NAVMAP_FLOORHEIGHT_BIT  0
-#define NAVMAP_FLOORHEIGHT_MAX  0x0f
+#define NAVMAP_FLOORHEIGHT_BIT 0
+#define NAVMAP_FLOORHEIGHT_MAX 0x0f
 #define NAVMAP_FLOORHEIGHT_MASK 0x0f
-#define NAVMAP_UNSAFE_SURFACE   0x10
-#define NAVMAP_OWNERSELECT_BIT  6
+#define NAVMAP_UNSAFE_SURFACE 0x10
+#define NAVMAP_OWNERSELECT_BIT 6
 #define NAVMAP_OWNERSELECT_MASK 0x7E0
 
 struct Ariadne { // sizeof = 102
@@ -92,16 +92,16 @@ struct Ariadne { // sizeof = 102
     struct Coord3d endpos;
     /** Position of the last reached waypoint. */
     struct Coord3d current_waypoint_pos;
-  struct Coord3d pos_12;
-  struct Coord3d pos_18;
-  unsigned char route_flags;
-  unsigned char field_1F;
-  unsigned char hug_side;
-  unsigned char update_state;
-  unsigned char field_22;
-  unsigned char may_need_reroute;
-  short field_24;
-  unsigned short move_speed;
+    struct Coord3d pos_12;
+    struct Coord3d pos_18;
+    unsigned char route_flags;
+    unsigned char field_1F;
+    unsigned char hug_side;
+    unsigned char update_state;
+    unsigned char field_22;
+    unsigned char may_need_reroute;
+    short field_24;
+    unsigned short move_speed;
     /** Index of the current waypoint in list of nearest waypoints stored. */
     unsigned char current_waypoint;
     /** List of nearest waypoints in the way towards destination, stored in an array. */
@@ -110,11 +110,11 @@ struct Ariadne { // sizeof = 102
     unsigned char stored_waypoints; // offs = 0x51
     /** Total amount of waypoints planned on the way towards endpos. */
     unsigned int total_waypoints;
-  struct Coord3d pos_53;
-  struct Coord3d pos_59;
-  unsigned char manoeuvre_state;
-  short wallhug_angle;
-  long field_62;
+    struct Coord3d pos_53;
+    struct Coord3d pos_59;
+    unsigned char manoeuvre_state;
+    short wallhug_angle;
+    long field_62;
 };
 
 struct PathWayPoint { // sizeof = 8
@@ -130,48 +130,48 @@ struct Path { // sizeof = 2068
 };
 
 struct Gate { // sizeof = 28
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
-  long field_10;
-  long field_14;
-  long field_18;
+    long field_0;
+    long field_4;
+    long field_8;
+    long field_C;
+    long field_10;
+    long field_14;
+    long field_18;
 };
 
 struct Pathway { // sizeof = 7192
-  long field_0;
-  long field_4;
-  long field_8;
-  long field_C;
-  struct Gate points[256];
-  long points_num;
-  long field_1C14;
+    long field_0;
+    long field_4;
+    long field_8;
+    long field_C;
+    struct Gate points[256];
+    long points_num;
+    long field_1C14;
 };
 
 struct WayPoints {
-  long wpfield_0;
-  long wpfield_4;
-  long wpfield_8;
-  long wpfield_C;
-  long wpfield_10[ARID_PATH_WAYPOINTS_COUNT];
+    long wpfield_0;
+    long wpfield_4;
+    long wpfield_8;
+    long wpfield_C;
+    long wpfield_10[ARID_PATH_WAYPOINTS_COUNT];
 };
 
 struct Navigation { // sizeof = 0x27
-  unsigned char navstate;
-  unsigned char side;
-  unsigned char field_2;
-  unsigned char field_3;
-  unsigned char field_4;
-  long dist_to_final_pos;
-  long distance_to_next_pos;
-  long angle;
-  unsigned char field_11[4];
-  SubtlCodedCoords first_colliding_block;
-  SubtlCodedCoords field_17;
-  PlayerBitFlags field_19[2];
-  struct Coord3d pos_next;
-  struct Coord3d pos_final;
+    unsigned char navstate;
+    unsigned char side;
+    unsigned char field_2;
+    unsigned char field_3;
+    unsigned char field_4;
+    long dist_to_final_pos;
+    long distance_to_next_pos;
+    long angle;
+    unsigned char field_11[4];
+    SubtlCodedCoords first_colliding_block;
+    SubtlCodedCoords field_17;
+    PlayerBitFlags field_19[2];
+    struct Coord3d pos_next;
+    struct Coord3d pos_final;
 };
 
 struct FOV { // sizeof=0x18
@@ -193,7 +193,6 @@ extern const struct HugStart blocked_xy_hug_start[][2][2];
 
 /******************************************************************************/
 
-
 #pragma pack()
 /******************************************************************************/
 long init_navigation(void);
@@ -205,9 +204,9 @@ AriadneReturn ariadne_initialise_creature_route_f(struct Thing *thing, const str
 AriadneReturn creature_follow_route_to_using_gates(struct Thing *thing, struct Coord3d *finalpos, struct Coord3d *nextpos, long speed, AriadneRouteFlags flags);
 #define ariadne_prepare_creature_route_to_target(thing, arid, srcpos, dstpos, speed, flags) ariadne_prepare_creature_route_to_target_f(thing, arid, srcpos, dstpos, speed, flags, __func__)
 AriadneReturn ariadne_prepare_creature_route_to_target_f(const struct Thing *thing, struct Ariadne *arid,
-    const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, AriadneRouteFlags flags, const char *func_name);
+                                                         const struct Coord3d *srcpos, const struct Coord3d *dstpos, long speed, AriadneRouteFlags flags, const char *func_name);
 long ariadne_count_waypoints_on_creature_route_to_target_f(const struct Thing *thing,
-    const struct Coord3d *srcpos, const struct Coord3d *dstpos, AriadneRouteFlags flags, const char *func_name);
+                                                           const struct Coord3d *srcpos, const struct Coord3d *dstpos, AriadneRouteFlags flags, const char *func_name);
 AriadneReturn ariadne_invalidate_creature_route(struct Thing *thing);
 
 TbBool navigation_points_connected(struct Coord3d *pt1, struct Coord3d *pt2);

@@ -38,44 +38,53 @@ struct SSurface;
 /******************************************************************************/
 // Global variables
 volatile TbBool lbPointerAdvancedDraw;
-long cursor_xsteps_array[2*CURSOR_SCALING_XSTEPS];
-long cursor_ysteps_array[2*CURSOR_SCALING_YSTEPS];
+long cursor_xsteps_array[2 * CURSOR_SCALING_XSTEPS];
+long cursor_ysteps_array[2 * CURSOR_SCALING_YSTEPS];
 /******************************************************************************/
 // function used for actual drawing
 extern "C" {
 TbResult LbSpriteDrawUsingScalingUpDataSolidLR(uchar *outbuf, int scanline, int outheight, long *xstep, long *ystep, const struct TbSprite *sprite);
 }
+
 /******************************************************************************/
 
 void LbCursorSpriteSetScalingWidthClipped(long x, long swidth, long dwidth, long gwidth)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)swidth, (int)dwidth, (int)x);
     if (swidth > CURSOR_SCALING_XSTEPS)
+    {
         swidth = CURSOR_SCALING_XSTEPS;
+    }
     LbSpriteSetScalingWidthClippedArray(cursor_xsteps_array, x, swidth, dwidth, gwidth);
 }
 
 void LbCursorSpriteSetScalingWidthSimple(long x, long swidth, long dwidth)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)swidth,(int)dwidth,(int)x);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)swidth, (int)dwidth, (int)x);
     if (swidth > CURSOR_SCALING_XSTEPS)
+    {
         swidth = CURSOR_SCALING_XSTEPS;
+    }
     LbSpriteSetScalingWidthSimpleArray(cursor_xsteps_array, x, swidth, dwidth);
 }
 
 void LbCursorSpriteSetScalingHeightClipped(long y, long sheight, long dheight, long gheight)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)sheight, (int)dheight, (int)y);
     if (sheight > CURSOR_SCALING_YSTEPS)
+    {
         sheight = CURSOR_SCALING_YSTEPS;
+    }
     LbSpriteSetScalingHeightClippedArray(cursor_ysteps_array, y, sheight, dheight, gheight);
 }
 
 void LbCursorSpriteSetScalingHeightSimple(long y, long sheight, long dheight)
 {
-    SYNCDBG(17,"Starting %d -> %d at %d",(int)sheight,(int)dheight,(int)y);
+    SYNCDBG(17, "Starting %d -> %d at %d", (int)sheight, (int)dheight, (int)y);
     if (sheight > CURSOR_SCALING_YSTEPS)
+    {
         sheight = CURSOR_SCALING_YSTEPS;
+    }
     LbSpriteSetScalingHeightSimpleArray(cursor_ysteps_array, y, sheight, dheight);
 }
 
@@ -89,22 +98,30 @@ static long PointerDraw(long x, long y, const struct TbSprite *spr, TbPixel *out
     // Prepare bounds
     dwidth = scale_ui_value_lofi(spr->SWidth);
     dheight = scale_ui_value_lofi(spr->SHeight);
-    if ( (dwidth <= 0) || (dheight <= 0) )
+    if ((dwidth <= 0) || (dheight <= 0))
+    {
         return 1;
-    if ( (lbDisplay.MouseWindowWidth <= 0) || (lbDisplay.MouseWindowHeight <= 0) )
+    }
+    if ((lbDisplay.MouseWindowWidth <= 0) || (lbDisplay.MouseWindowHeight <= 0))
+    {
         return 1;
+    }
     // Normally it would be enough to check if ((dwidth+x) >= gwidth), but due to rounding we need to add swidth
     if ((x < 0) || ((dwidth + spr->SWidth + x) >= lbDisplay.MouseWindowWidth))
     {
         LbCursorSpriteSetScalingWidthClipped(x, spr->SWidth, dwidth, lbDisplay.MouseWindowWidth);
-    } else {
+    }
+    else
+    {
         LbCursorSpriteSetScalingWidthSimple(x, spr->SWidth, dwidth);
     }
     // Normally it would be enough to check if ((dheight+y) >= gheight), but our simple rounding may enlarge the image
     if ((y < 0) || ((dheight + spr->SHeight + y) >= lbDisplay.MouseWindowHeight))
     {
         LbCursorSpriteSetScalingHeightClipped(y, spr->SHeight, dheight, lbDisplay.MouseWindowHeight);
-    } else {
+    }
+    else
+    {
         LbCursorSpriteSetScalingHeightSimple(y, spr->SHeight, dheight);
     }
     long *xstep;
@@ -141,7 +158,7 @@ void LbI_PointerHandler::SetHotspot(long x, long y)
 {
     long prev_x;
     long prev_y;
-    LbSemaLock semlock(&sema_rel,0);
+    LbSemaLock semlock(&sema_rel, 0);
     semlock.Lock(true);
     if (this->field_1050)
     {
@@ -165,24 +182,26 @@ void LbI_PointerHandler::SetHotspot(long x, long y)
 void LbI_PointerHandler::ClipHotspot(void)
 {
     if (!this->field_1050)
+    {
         return;
+    }
     if ((sprite != NULL) && (spr_offset != NULL))
     {
         if (spr_offset->x < 0)
         {
-          spr_offset->x = 0;
-        } else
-        if (sprite->SWidth <= spr_offset->x)
+            spr_offset->x = 0;
+        }
+        else if (sprite->SWidth <= spr_offset->x)
         {
-          spr_offset->x = sprite->SWidth - 1;
+            spr_offset->x = sprite->SWidth - 1;
         }
         if (spr_offset->y < 0)
         {
-          spr_offset->y = 0;
-        } else
-        if (spr_offset->y >= sprite->SHeight)
+            spr_offset->y = 0;
+        }
+        else if (spr_offset->y >= sprite->SHeight)
         {
-          spr_offset->y = sprite->SHeight - 1;
+            spr_offset->y = sprite->SHeight - 1;
         }
     }
 }
@@ -195,7 +214,7 @@ void LbI_PointerHandler::Initialise(const struct TbSprite *spr, struct TbPoint *
     int dstwidth;
     int dstheight;
     Release();
-    LbSemaLock semlock(&sema_rel,0);
+    LbSemaLock semlock(&sema_rel, 0);
     semlock.Lock(true);
     sprite = spr;
     dstwidth = scale_ui_value_lofi(sprite->SWidth + 1);
@@ -211,7 +230,7 @@ void LbI_PointerHandler::Initialise(const struct TbSprite *spr, struct TbPoint *
         return;
     }
     buf = (TbPixel *)surfbuf;
-    for (i=0; i < dstheight; i++)
+    for (i = 0; i < dstheight; i++)
     {
         memset(buf, 255, surf1.pitch);
         buf += surf1.pitch;
@@ -224,15 +243,17 @@ void LbI_PointerHandler::Initialise(const struct TbSprite *spr, struct TbPoint *
     this->field_1050 = true;
     NewMousePos();
     this->field_1054 = false;
-    LbScreenSurfaceBlit(&surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, 0x10|0x02);
+    LbScreenSurfaceBlit(&surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, 0x10 | 0x02);
 }
 
 void LbI_PointerHandler::Draw(bool a1)
 {
     unsigned long flags;
     flags = 0x10 | 0x08 | 0x04;
-    if ( a1 )
-      flags |= 0x02;
+    if (a1)
+    {
+        flags |= 0x02;
+    }
     LbScreenSurfaceBlit(&this->surf1, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
 }
 
@@ -240,8 +261,10 @@ void LbI_PointerHandler::Backup(bool a1)
 {
     unsigned long flags;
     flags = 0x10;
-    if ( a1 )
-      flags |= 0x02;
+    if (a1)
+    {
+        flags |= 0x02;
+    }
     this->field_1054 = false;
     LbScreenSurfaceBlit(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
 }
@@ -250,19 +273,23 @@ void LbI_PointerHandler::Undraw(bool a1)
 {
     unsigned long flags;
     flags = 0x10 | 0x08;
-    if ( a1 )
-      flags |= 0x02;
+    if (a1)
+    {
+        flags |= 0x02;
+    }
     LbScreenSurfaceBlit(&this->surf2, this->draw_pos_x, this->draw_pos_y, &rect_1038, flags);
 }
 
 void LbI_PointerHandler::Release(void)
 {
-    LbSemaLock semlock(&sema_rel,0);
+    LbSemaLock semlock(&sema_rel, 0);
     semlock.Lock(true);
-    if ( this->field_1050 )
+    if (this->field_1050)
     {
-        if ( lbInteruptMouse )
+        if (lbInteruptMouse)
+        {
             Undraw(true);
+        }
         this->field_1050 = false;
         this->field_1054 = false;
         position = NULL;
@@ -286,17 +313,17 @@ void LbI_PointerHandler::NewMousePos(void)
     {
         rect_1038.left -= this->draw_pos_x;
         this->draw_pos_x = 0;
-    } else
-    if (this->draw_pos_x+dstwidth > lbDisplay.PhysicalScreenWidth)
+    }
+    else if (this->draw_pos_x + dstwidth > lbDisplay.PhysicalScreenWidth)
     {
-        rect_1038.right += lbDisplay.PhysicalScreenWidth-dstwidth-this->draw_pos_x;
+        rect_1038.right += lbDisplay.PhysicalScreenWidth - dstwidth - this->draw_pos_x;
     }
     if (this->draw_pos_y < 0)
     {
         rect_1038.top -= this->draw_pos_y;
         this->draw_pos_y = 0;
-    } else
-    if (this->draw_pos_y+dstheight > lbDisplay.PhysicalScreenHeight)
+    }
+    else if (this->draw_pos_y + dstheight > lbDisplay.PhysicalScreenHeight)
     {
         rect_1038.bottom += lbDisplay.PhysicalScreenHeight - dstheight - this->draw_pos_y;
     }
@@ -304,16 +331,19 @@ void LbI_PointerHandler::NewMousePos(void)
 
 bool LbI_PointerHandler::OnMove(void)
 {
-    LbSemaLock semlock(&sema_rel,0);
+    LbSemaLock semlock(&sema_rel, 0);
     if (!semlock.Lock(true))
+    {
         return false;
+    }
     if (lbPointerAdvancedDraw && lbInteruptMouse)
     {
         Undraw(true);
         NewMousePos();
         Backup(true);
         Draw(true);
-    } else
+    }
+    else
     {
         NewMousePos();
     }
@@ -322,16 +352,18 @@ bool LbI_PointerHandler::OnMove(void)
 
 void LbI_PointerHandler::OnBeginPartialUpdate(void)
 {
-    LbSemaLock semlock(&sema_rel,0);
+    LbSemaLock semlock(&sema_rel, 0);
     if (!semlock.Lock(true))
+    {
         return;
+    }
     Backup(false);
     Draw(false);
 }
 
 void LbI_PointerHandler::OnEndPartialUpdate(void)
 {
-    LbSemaLock semlock(&sema_rel,1);
+    LbSemaLock semlock(&sema_rel, 1);
     Undraw(false);
     this->field_1054 = true;
     semlock.Release();
@@ -339,26 +371,28 @@ void LbI_PointerHandler::OnEndPartialUpdate(void)
 
 void LbI_PointerHandler::OnBeginSwap(void)
 {
-    LbSemaLock semlock(&sema_rel,0);
+    LbSemaLock semlock(&sema_rel, 0);
     if (!semlock.Lock(true))
-      return;
-    if ( lbPointerAdvancedDraw )
+    {
+        return;
+    }
+    if (lbPointerAdvancedDraw)
     {
         Backup(false);
         Draw(false);
-    } else
-    if (LbScreenLock() == Lb_SUCCESS)
+    }
+    else if (LbScreenLock() == Lb_SUCCESS)
     {
-      PointerDraw(position->x - scale_ui_value_lofi(spr_offset->x), position->y - scale_ui_value_lofi(spr_offset->y),
-          sprite, lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth);
-      LbScreenUnlock();
+        PointerDraw(position->x - scale_ui_value_lofi(spr_offset->x), position->y - scale_ui_value_lofi(spr_offset->y),
+                    sprite, lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth);
+        LbScreenUnlock();
     }
 }
 
 void LbI_PointerHandler::OnEndSwap(void)
 {
-    LbSemaLock semlock(&sema_rel,1);
-    if ( lbPointerAdvancedDraw )
+    LbSemaLock semlock(&sema_rel, 1);
+    if (lbPointerAdvancedDraw)
     {
         Undraw(false);
         this->field_1054 = true;
@@ -368,16 +402,18 @@ void LbI_PointerHandler::OnEndSwap(void)
 
 void LbI_PointerHandler::OnBeginFlip(void)
 {
-    LbSemaLock semlock(&sema_rel,0);
+    LbSemaLock semlock(&sema_rel, 0);
     if (!semlock.Lock(true))
+    {
         return;
+    }
     Backup(false);
     Draw(false);
 }
 
 void LbI_PointerHandler::OnEndFlip(void)
 {
-    LbSemaLock semlock(&sema_rel,1);
+    LbSemaLock semlock(&sema_rel, 1);
     semlock.Release();
 }
 

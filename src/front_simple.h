@@ -30,31 +30,31 @@ extern "C" {
 /******************************************************************************/
 
 enum RawBitmaps {
-    RBmp_None               =  0x00,
-    RBmp_WaitLoading        =  0x01,
-    RBmp_WaitNoCD           =  0x02,
-    RBmp_SplashLegal        =  0x03,
-    RBmp_SplashFx           =  0x04,
+    RBmp_None = 0x00,
+    RBmp_WaitLoading = 0x01,
+    RBmp_WaitNoCD = 0x02,
+    RBmp_SplashLegal = 0x03,
+    RBmp_SplashFx = 0x04,
 };
 
 struct RawBitmap {
-  const char *name;
-  int width;
-  int height;
-  int bpp;
-  short fgroup;
-  const char *raw_fname;
-  const char *pal_fname;
+    const char *name;
+    int width;
+    int height;
+    int bpp;
+    short fgroup;
+    const char *raw_fname;
+    const char *pal_fname;
 };
 
 struct ActiveBitmap {
-  const char *name;
-  int width;
-  int height;
-  int bpp;
-  TbClockMSec start_tm;
-  TbPixel *raw_data;
-  unsigned char *pal_data;
+    const char *name;
+    int width;
+    int height;
+    int bpp;
+    TbClockMSec start_tm;
+    TbPixel *raw_data;
+    unsigned char *pal_data;
 };
 
 /******************************************************************************/
@@ -65,10 +65,10 @@ extern unsigned char *scratch;
 
 extern unsigned char *big_scratch; // 16 Mb
 /******************************************************************************/
-TbBool copy_raw8_image_buffer(unsigned char *dst_buf,const int scanline,const int nlines,const int dst_width,const int dst_height,
-    const int spw,const int sph,const unsigned char *src_buf,const int src_width,const int src_height);
-TbBool copy_raw8_image_to_screen_center(const unsigned char *buf,const int img_width,const int img_height);
-TbBool show_rawimage_screen(unsigned char *raw,unsigned char *pal,int width,int height,TbClockMSec tmdelay);
+TbBool copy_raw8_image_buffer(unsigned char *dst_buf, const int scanline, const int nlines, const int dst_width, const int dst_height,
+                              const int spw, const int sph, const unsigned char *src_buf, const int src_width, const int src_height);
+TbBool copy_raw8_image_to_screen_center(const unsigned char *buf, const int img_width, const int img_height);
+TbBool show_rawimage_screen(unsigned char *raw, unsigned char *pal, int width, int height, TbClockMSec tmdelay);
 /******************************************************************************/
 TbBool draw_clear_screen(void);
 TbBool init_actv_bitmap_screen(int stype);

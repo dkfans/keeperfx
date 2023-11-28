@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define SOUNDS_MAX_COUNT  16
+#define SOUNDS_MAX_COUNT 16
 #define SOUND_EMITTERS_MAX 128
 /******************************************************************************/
 #pragma pack(1)
@@ -38,14 +38,14 @@ struct HeapMgrHandle;
 // Type definitions
 
 enum SoundEmitterFlags {
-    Emi_IsAllocated  = 0x01,
-    Emi_UnknownPlay  = 0x02,
-    Emi_IsMoving     = 0x04,
+    Emi_IsAllocated = 0x01,
+    Emi_UnknownPlay = 0x02,
+    Emi_IsMoving = 0x04,
 };
 
 enum SoundSampleFlags {
-    Smp_Unknown01  = 0x01,
-    Smp_Unknown02  = 0x02,
+    Smp_Unknown01 = 0x01,
+    Smp_Unknown02 = 0x02,
 };
 
 typedef void *SndData;
@@ -78,28 +78,28 @@ struct SoundReceiver { // sizeof = 17
 };
 
 struct S3DSample { // sizeof = 37
-  unsigned long priority;
-  unsigned long time_turn;
-  unsigned short smptbl_id;
-  unsigned char bank_id;
-  unsigned short base_pitch;
-  unsigned short pan;
-  unsigned short volume;
-  struct SampleInfo *smpinfo;
-  struct SoundEmitter *emit_ptr;
-  long emit_idx;
-  char field_1D; // signed
-  unsigned char flags;
-  unsigned char is_playing;
-  unsigned char sfxid;
-  unsigned long base_volume;
+    unsigned long priority;
+    unsigned long time_turn;
+    unsigned short smptbl_id;
+    unsigned char bank_id;
+    unsigned short base_pitch;
+    unsigned short pan;
+    unsigned short volume;
+    struct SampleInfo *smpinfo;
+    struct SoundEmitter *emit_ptr;
+    long emit_idx;
+    char field_1D; // signed
+    unsigned char flags;
+    unsigned char is_playing;
+    unsigned char sfxid;
+    unsigned long base_volume;
 };
 
 struct SampleTable { // sizeof = 16
-  unsigned long file_pos;
-  unsigned long data_size;
-  unsigned long sfxid;
-  SndData *snd_buf;
+    unsigned long file_pos;
+    unsigned long data_size;
+    unsigned long sfxid;
+    SndData *snd_buf;
 };
 
 /** Sound bank ID. */
@@ -172,7 +172,7 @@ TbBool process_sound_emitters(void);
 void increment_sample_times(void);
 TbBool process_sound_samples(void);
 
-struct SoundEmitter* S3DGetSoundEmitter(SoundEmitterID eidx);
+struct SoundEmitter *S3DGetSoundEmitter(SoundEmitterID eidx);
 SoundEmitterID get_emitter_id(struct SoundEmitter *emit);
 void kick_out_sample(short smpl_id);
 

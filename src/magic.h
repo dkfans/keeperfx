@@ -36,14 +36,14 @@ struct Thing;
 extern const long power_sight_close_instance_time[];
 
 enum CastCheckFlags {
-    CastChk_Default = 0, /*< Default all flags. */
-    CastChk_Final = 0x0001, /*< Final check - should be only a formality, as there were checks before. */
-    CastChk_SkipThing = 0x0002, /*< While checking, skip the conditions related to specific thing. */
+    CastChk_Default = 0,               /*< Default all flags. */
+    CastChk_Final = 0x0001,            /*< Final check - should be only a formality, as there were checks before. */
+    CastChk_SkipThing = 0x0002,        /*< While checking, skip the conditions related to specific thing. */
     CastChk_SkipAvailiabilty = 0x0004, /*< While checking, skip check if spell is availiable */
 };
 
 enum PowerModFlags {
-    PwMod_Default = 0, /*< Default all flags. */
+    PwMod_Default = 0,          /*< Default all flags. */
     PwMod_CastForFree = 0x0001, /*< Do not require player to pay for the spell. */
 };
 
@@ -52,7 +52,7 @@ enum PowerModFlags {
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwmodel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name);
 #define can_cast_spell(plyr_idx, pwmodel, stl_x, stl_y, thing, flags) can_cast_spell_f(plyr_idx, pwmodel, stl_x, stl_y, thing, flags, __func__)
 TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwmodel,
-    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
+                            MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
 TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwkind);
 
 GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel);
@@ -85,16 +85,16 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
 TbResult magic_use_power_obey(PlayerNumber plyr_idx, unsigned long mod_flags);
 
 TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
+                                            unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
+                                              unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
 TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel, unsigned long allow_flags);
 void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, ThingIndex thing_idx, long splevel);
 
 TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
+                                  unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags);
 TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
+                                    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags);
 TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx, unsigned short splevel, unsigned long allow_flags);
 
 void slap_creature(struct PlayerInfo *player, struct Thing *thing);

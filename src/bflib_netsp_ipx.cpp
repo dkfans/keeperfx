@@ -30,88 +30,88 @@
 
 IPXServiceProvider::IPXServiceProvider()
 {
-  //TODO NET
+    // TODO NET
 }
 
 IPXServiceProvider::~IPXServiceProvider()
 {
-  //TODO NET
+    // TODO NET
 }
 
 TbError IPXServiceProvider::Start(struct TbNetworkSessionNameEntry *nsname, char *a2, void *a3)
 {
-  //TODO NET
-  return Lb_FAIL;
+    // TODO NET
+    return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Start(char *, char *, unsigned long, void *)
 {
-  //TODO NET
-  return Lb_FAIL;
+    // TODO NET
+    return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Stop(void)
 {
-  //TODO NET
-  return Lb_FAIL;
+    // TODO NET
+    return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Enumerate(TbNetworkCallbackFunc callback, void *buf)
 {
-  //TODO NET
-  return Lb_FAIL;
+    // TODO NET
+    return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Enumerate(struct TbNetworkSessionNameEntry *nsname, TbNetworkCallbackFunc callback, void *buf)
 {
-  //TODO NET
-  return Lb_FAIL;
+    // TODO NET
+    return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Init(struct ReceiveCallbacks *recv_cb, void *buf)
 {
-  //TODO NET
-  return Lb_FAIL;
+    // TODO NET
+    return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::Release(void)
 {
-  //TODO NET
-  return Lb_FAIL;
+    // TODO NET
+    return Lb_FAIL;
 }
 
 TbError IPXServiceProvider::ChangeSettings(unsigned long, void *)
 {
-  return Lb_OK;
+    return Lb_OK;
 }
 
 TbError IPXServiceProvider::EnableNewPlayers(TbBool allow)
 {
-  //TODO NET
-  return Lb_FAIL;
+    // TODO NET
+    return Lb_FAIL;
 }
 
 bool IPXServiceProvider::ReadMessage(unsigned long *, void *, unsigned long *)
 {
-  //TODO NET
-  return false; // was Lb_FAIL;
+    // TODO NET
+    return false; // was Lb_FAIL;
 }
 
 bool IPXServiceProvider::PeekMessage(unsigned long *, void *, unsigned long *)
 {
-  //TODO NET
-  return false; // was Lb_FAIL;
+    // TODO NET
+    return false; // was Lb_FAIL;
 }
 
 TbError IPXServiceProvider::SendMessage(unsigned long, void *, unsigned char)
 {
-  //TODO NET
-  return Lb_FAIL;
+    // TODO NET
+    return Lb_FAIL;
 }
 
 void IPXServiceProvider::update()
 {
-  return;
+    return;
 }
 
 /******************************************************************************/

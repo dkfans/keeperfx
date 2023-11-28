@@ -27,30 +27,31 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define CAMPAIGN_SAVE_SLOTS_COUNT 8
-#define TOTAL_SAVE_SLOTS_COUNT    8
-#define SAVE_TEXTNAME_LEN        15
-#define PLAYER_NAME_LENGTH       64
+#define TOTAL_SAVE_SLOTS_COUNT 8
+#define SAVE_TEXTNAME_LEN 15
+#define PLAYER_NAME_LENGTH 64
 
 enum SaveGameChunks {
-     SGC_InfoBlock      = 0x4F464E49, //"INFO"
-     SGC_GameOrig       = 0x53444C4F, //"OLDS"
-     SGC_GameAdd        = 0x44444147, //"GADD"
-     SGC_PacketHeader   = 0x52444850, //"PHDR"
-     SGC_PacketData     = 0x544B4350, //"PCKT"
-     SGC_IntralevelData = 0x4C564C49, //"ILVL"
+    SGC_InfoBlock = 0x4F464E49,      //"INFO"
+    SGC_GameOrig = 0x53444C4F,       //"OLDS"
+    SGC_GameAdd = 0x44444147,        //"GADD"
+    SGC_PacketHeader = 0x52444850,   //"PHDR"
+    SGC_PacketData = 0x544B4350,     //"PCKT"
+    SGC_IntralevelData = 0x4C564C49, //"ILVL"
 };
 
 enum SaveGameChunkFlags {
-     SGF_InfoBlock      = 0x0001,
-     SGF_GameOrig       = 0x0002,
-     SGF_GameAdd        = 0x0004,
-     SGF_PacketHeader   = 0x0100,
-     SGF_PacketData     = 0x0200,
-     SGF_IntralevelData = 0x0400,
+    SGF_InfoBlock = 0x0001,
+    SGF_GameOrig = 0x0002,
+    SGF_GameAdd = 0x0004,
+    SGF_PacketHeader = 0x0100,
+    SGF_PacketData = 0x0200,
+    SGF_IntralevelData = 0x0400,
 };
-#define SGF_SavedGame      (SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd|SGF_IntralevelData)
-#define SGF_PacketStart    (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock)
-#define SGF_PacketContinue (SGF_PacketHeader|SGF_PacketData|SGF_InfoBlock|SGF_GameOrig|SGF_GameAdd)
+
+#define SGF_SavedGame (SGF_InfoBlock | SGF_GameOrig | SGF_GameAdd | SGF_IntralevelData)
+#define SGF_PacketStart (SGF_PacketHeader | SGF_PacketData | SGF_InfoBlock)
+#define SGF_PacketContinue (SGF_PacketHeader | SGF_PacketData | SGF_InfoBlock | SGF_GameOrig | SGF_GameAdd)
 
 enum GameLoadStatus {
     GLoad_Failed = 0,
@@ -59,13 +60,14 @@ enum GameLoadStatus {
     GLoad_PacketStart,
     GLoad_PacketContinue,
 };
+
 /******************************************************************************/
 #pragma pack(1)
 
 struct Game;
 
 enum CatalogueEntryFlags {
-    CEF_InUse       = 0x0001,
+    CEF_InUse = 0x0001,
 };
 
 struct CatalogueEntry {
@@ -86,7 +88,7 @@ struct FileChunkHeader {
 
 /******************************************************************************/
 extern int number_of_saved_games;
-extern const char* continue_game_filename;
+extern const char *continue_game_filename;
 
 #pragma pack()
 /******************************************************************************/
@@ -94,10 +96,10 @@ extern long const VersionMajor;
 extern long const VersionMinor;
 extern struct CatalogueEntry save_game_catalogue[];
 /******************************************************************************/
-int load_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);
-TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textname);
-TbBool save_game_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);
-TbBool save_packet_chunks(TbFileHandle fhandle,struct CatalogueEntry *centry);
+int load_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry);
+TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry, const char *textname);
+TbBool save_game_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry);
+TbBool save_packet_chunks(TbFileHandle fhandle, struct CatalogueEntry *centry);
 /******************************************************************************/
 TbBool load_game(long slot_idx);
 TbBool save_game(long slot_idx);
@@ -108,7 +110,7 @@ TbBool is_save_game_loadable(long slot_num);
 TbBool save_catalogue_slot_disable(unsigned int slot_idx);
 TbBool save_game_save_catalogue(void);
 TbBool load_game_save_catalogue(void);
-TbBool fill_game_catalogue_slot(long slot_num,const char *textname);
+TbBool fill_game_catalogue_slot(long slot_num, const char *textname);
 /******************************************************************************/
 TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel);
 void clear_transfered_creatures(void);
@@ -119,7 +121,7 @@ LevelNumber move_campaign_to_prev_level(void);
 TbBool continue_game_available(void);
 short load_continue_game(void);
 short save_continue_game(LevelNumber lv_num);
-short read_continue_game_part(unsigned char *buf,long pos,long buf_len);
+short read_continue_game_part(unsigned char *buf, long pos, long buf_len);
 /******************************************************************************/
 #ifdef __cplusplus
 }

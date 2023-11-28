@@ -49,12 +49,12 @@ TbBool add_body_to_graveyard(struct Thing *deadtng, struct Room *room)
 {
     if (room->total_capacity <= room->used_capacity)
     {
-        ERRORLOG("The %s has no space for another corpse",room_code_name(room->kind));
+        ERRORLOG("The %s has no space for another corpse", room_code_name(room->kind));
         return false;
     }
     if (corpse_laid_to_rest(deadtng))
     {
-        ERRORLOG("The %s is already decomposing in %s",thing_model_name(deadtng),room_role_code_name(RoRoF_DeadStorage));
+        ERRORLOG("The %s is already decomposing in %s", thing_model_name(deadtng), room_role_code_name(RoRoF_DeadStorage));
         return false;
     }
     room->used_capacity++;

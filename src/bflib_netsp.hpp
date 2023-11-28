@@ -25,21 +25,24 @@
 #include "bflib_netsession.h"
 
 #include "globals.h"
+
 /******************************************************************************/
-class ServiceProvider {
-private:
+class ServiceProvider
+{
+  private:
     unsigned long nextSessionId;
-protected:
-    //see if these can be moved to private later
+
+  protected:
+    // see if these can be moved to private later
     bool started;
     unsigned long players_count;
     struct TbNetworkPlayerEntry players[NETSP_PLAYERS_COUNT];
     unsigned long nextPlayerId;
-    unsigned long localPlayerId; //local player ID
+    unsigned long localPlayerId; // local player ID
 
     TbError Initialise(struct ReceiveCallbacks *nCallbacks, void *a2);
 
-    //session management
+    // session management
     struct TbNetworkSessionNameEntry *AddSession(unsigned long sess_id, const char *namestr);
     void ClearSessions(void);
     long SessionIndex(unsigned long sess_id);
@@ -58,12 +61,12 @@ protected:
      * modified to contain the actual length of the message (including header).
      * @return True if a message was read (which implies there may be more to read).
      */
-    virtual bool ReadMessage(unsigned long * playerId, void * msgBuffer, unsigned long * len) = 0;
+    virtual bool ReadMessage(unsigned long *playerId, void *msgBuffer, unsigned long *len) = 0;
 
     /**
      * Same as ReadMessage but does not remove the received message (if any), which means it can still be Read.
      */
-    virtual bool PeekMessage(unsigned long * playerId, void * msgBuffer, unsigned long * len) = 0;
+    virtual bool PeekMessage(unsigned long *playerId, void *msgBuffer, unsigned long *len) = 0;
 
     /**
      * Sends a message to a specific player.
@@ -72,8 +75,9 @@ protected:
      * @param Not sure... Anyway, it can be deduced from message type.
      * @return Whether operation was a success or a failure.
      */
-    virtual TbError SendMessage(unsigned long playerId, void * msgBuffer, unsigned char) = 0;
-public:
+    virtual TbError SendMessage(unsigned long playerId, void *msgBuffer, unsigned char) = 0;
+
+  public:
     ServiceProvider();
     virtual ~ServiceProvider();
     static unsigned long GetRequestCompositeExchangeDataMsgSize(void);
@@ -98,12 +102,12 @@ public:
     virtual TbError Start(struct TbNetworkSessionNameEntry *, char *, void *) = 0;
     virtual TbError Start(char *, char *, unsigned long, void *) = 0;
     virtual TbError Stop(void) = 0;
-    virtual TbError Enumerate(TbNetworkCallbackFunc sessionCb, void * ptr) = 0;
-    virtual TbError Enumerate(struct TbNetworkSessionNameEntry * sessionEntry, TbNetworkCallbackFunc playerCb, void * ptr) = 0;
+    virtual TbError Enumerate(TbNetworkCallbackFunc sessionCb, void *ptr) = 0;
+    virtual TbError Enumerate(struct TbNetworkSessionNameEntry *sessionEntry, TbNetworkCallbackFunc playerCb, void *ptr) = 0;
     virtual TbError Init(struct ReceiveCallbacks *, void *) = 0;
     virtual TbError Release(void);
     virtual TbError ChangeSettings(unsigned long, void *) = 0;
-    virtual void update() = 0; //in case SP needs execution time once per frame
+    virtual void update() = 0; // in case SP needs execution time once per frame
 
     struct TbNetworkSessionNameEntry nsnames[SESSION_ENTRIES_COUNT];
     unsigned long field_7A4;

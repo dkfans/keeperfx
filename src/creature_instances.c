@@ -73,40 +73,40 @@ long instf_tortured(struct Thing *creatng, long *param);
 long instf_tunnel(struct Thing *creatng, long *param);
 
 const struct NamedCommand creature_instances_func_type[] = {
-  {"attack_room_slab",         1},
-  {"creature_cast_spell",      2},
-  {"creature_fire_shot",       3},
-  {"creature_damage_wall",     4},
-  {"creature_destroy",         5},
-  {"creature_dig",             6},
-  {"creature_eat",             7},
-  {"creature_fart",            8},
-  {"first_person_do_imp_task", 9},
-  {"creature_pretty_path",     10},
-  {"creature_reinforce",       11},
-  {"creature_tortured",        12},
-  {"creature_tunnel",          13},
-  {"none",                     14},
-  {NULL,                       0},
+    {        "attack_room_slab",  1},
+    {     "creature_cast_spell",  2},
+    {      "creature_fire_shot",  3},
+    {    "creature_damage_wall",  4},
+    {        "creature_destroy",  5},
+    {            "creature_dig",  6},
+    {            "creature_eat",  7},
+    {           "creature_fart",  8},
+    {"first_person_do_imp_task",  9},
+    {    "creature_pretty_path", 10},
+    {      "creature_reinforce", 11},
+    {       "creature_tortured", 12},
+    {         "creature_tunnel", 13},
+    {                    "none", 14},
+    {                      NULL,  0},
 };
 
 Creature_Instf_Func creature_instances_func_list[] = {
-  NULL,
-  instf_attack_room_slab,
-  instf_creature_cast_spell,
-  instf_creature_fire_shot,
-  instf_damage_wall,
-  instf_destroy,
-  instf_dig,
-  instf_eat,
-  instf_fart,
-  instf_first_person_do_imp_task,
-  instf_pretty_path, //[10]
-  instf_reinforce,
-  instf_tortured,
-  instf_tunnel,
-  NULL,
-  NULL,
+    NULL,
+    instf_attack_room_slab,
+    instf_creature_cast_spell,
+    instf_creature_fire_shot,
+    instf_damage_wall,
+    instf_destroy,
+    instf_dig,
+    instf_eat,
+    instf_fart,
+    instf_first_person_do_imp_task,
+    instf_pretty_path, //[10]
+    instf_reinforce,
+    instf_tortured,
+    instf_tunnel,
+    NULL,
+    NULL,
 };
 
 /******************************************************************************/
@@ -120,11 +120,11 @@ Creature_Instf_Func creature_instances_func_list[] = {
  * @param func_name Name of the caller function, for logging purposes.
  * @return Instance Info struct is returned.
  */
-struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char *func_name)
+struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx, const char *func_name)
 {
     if ((inst_idx < 0) || (inst_idx >= gameadd.crtr_conf.instances_count))
     {
-        ERRORMSG("%s: Tried to get invalid instance info %d!",func_name,(int)inst_idx);
+        ERRORMSG("%s: Tried to get invalid instance info %d!", func_name, (int)inst_idx);
         return &magic_conf.instance_info[0];
     }
     return &magic_conf.instance_info[inst_idx];
@@ -138,22 +138,25 @@ TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf)
 TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inst_id)
 {
     TRACE_THING(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     if (creature_control_invalid(cctrl))
+    {
         return false;
+    }
     return cctrl->instance_available[inst_id];
 }
 
 TbBool creature_choose_first_available_instance(struct Thing *thing)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     for (long i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
         long k = crstat->learned_instance_id[i];
         if (k > 0)
         {
-            if (cctrl->instance_available[k]) {
+            if (cctrl->instance_available[k])
+            {
                 cctrl->active_instance_id = k;
                 return true;
             }
@@ -165,19 +168,20 @@ TbBool creature_choose_first_available_instance(struct Thing *thing)
 
 void creature_increase_available_instances(struct Thing *thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
     for (int i = 0; i < LEARNED_INSTANCES_COUNT; i++)
     {
         int k = crstat->learned_instance_id[i];
         if (k > 0)
         {
-            if (crstat->learned_instance_level[i] <= cctrl->explevel+1) {
+            if (crstat->learned_instance_level[i] <= cctrl->explevel + 1)
+            {
                 cctrl->instance_available[k] = true;
             }
-            else if ( (crstat->learned_instance_level[i] > cctrl->explevel+1) && !(gameadd.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            else if ((crstat->learned_instance_level[i] > cctrl->explevel + 1) && !(gameadd.classic_bugs_flags & ClscBug_RebirthKeepsSpells))
             {
-                cctrl->instance_available[k] = false;   
+                cctrl->instance_available[k] = false;
             }
         }
     }
@@ -192,14 +196,15 @@ void creature_increase_available_instances(struct Thing *thing)
  */
 int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance req_inst_id)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
         CrInstance inst_id = crstat->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
-            if (inst_id == req_inst_id) {
+            if (inst_id == req_inst_id)
+            {
                 return avail_pos;
             }
             avail_pos++;
@@ -217,14 +222,15 @@ int creature_instance_get_available_pos_for_id(struct Thing *thing, CrInstance r
  */
 int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_avail_pos)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
         CrInstance inst_id = crstat->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
-            if (avail_pos == req_avail_pos) {
+            if (avail_pos == req_avail_pos)
+            {
                 return avail_num;
             }
             avail_pos++;
@@ -242,14 +248,15 @@ int creature_instance_get_available_number_for_pos(struct Thing *thing, int req_
  */
 CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int req_avail_pos)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureStats *crstat = creature_stats_get_from_thing(thing);
     int avail_pos = 0;
     for (int avail_num = 0; avail_num < LEARNED_INSTANCES_COUNT; avail_num++)
     {
         CrInstance inst_id = crstat->learned_instance_id[avail_num];
         if (creature_instance_is_available(thing, inst_id))
         {
-            if (avail_pos == req_avail_pos) {
+            if (avail_pos == req_avail_pos)
+            {
                 return inst_id;
             }
             avail_pos++;
@@ -260,7 +267,7 @@ CrInstance creature_instance_get_available_id_for_pos(struct Thing *thing, int r
 
 TbBool instance_is_disarming_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
+    struct InstanceInfo *inst_inf;
     inst_inf = creature_instance_info_get(inum);
     if (inst_inf->flags & InstPF_Disarming)
     {
@@ -271,7 +278,7 @@ TbBool instance_is_disarming_weapon(CrInstance inum)
 
 TbBool instance_draws_possession_swipe(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
+    struct InstanceInfo *inst_inf;
     inst_inf = creature_instance_info_get(inum);
     if (inst_inf->flags & InstPF_UsesSwipe)
     {
@@ -282,7 +289,7 @@ TbBool instance_draws_possession_swipe(CrInstance inum)
 
 TbBool instance_is_ranged_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
+    struct InstanceInfo *inst_inf;
     inst_inf = creature_instance_info_get(inum);
     if (inst_inf->flags & InstPF_RangedAttack)
     {
@@ -293,7 +300,7 @@ TbBool instance_is_ranged_weapon(CrInstance inum)
 
 TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
+    struct InstanceInfo *inst_inf;
     inst_inf = creature_instance_info_get(inum);
     if ((inst_inf->flags & InstPF_RangedAttack) && (inst_inf->flags & InstPF_Destructive) && !(inst_inf->flags & InstPF_Dangerous))
     {
@@ -304,7 +311,7 @@ TbBool instance_is_ranged_weapon_vs_objects(CrInstance inum)
 
 TbBool instance_is_quick_range_weapon(CrInstance inum)
 {
-    struct InstanceInfo* inst_inf;
+    struct InstanceInfo *inst_inf;
     inst_inf = creature_instance_info_get(inum);
     if ((inst_inf->flags & InstPF_RangedAttack) && (inst_inf->flags & InstPF_Quick))
     {
@@ -322,13 +329,15 @@ TbBool instance_is_quick_range_weapon(CrInstance inum)
 TbBool creature_has_ranged_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    const struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     for (long inum = 1; inum < gameadd.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum] > 0)
         {
             if (instance_is_ranged_weapon(inum))
+            {
                 return true;
+            }
         }
     }
     return false;
@@ -340,16 +349,18 @@ TbBool creature_has_ranged_weapon(const struct Thing *creatng)
  * @param creatng The creature to be checked.
  * @return True if the creature has ranged weapon, false otherwise.
  */
-TbBool creature_has_disarming_weapon(const struct Thing* creatng)
+TbBool creature_has_disarming_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    const struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     for (long inum = 1; inum < gameadd.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum] > 0)
         {
             if (instance_is_disarming_weapon(inum))
+            {
                 return true;
+            }
         }
     }
     return false;
@@ -364,13 +375,15 @@ TbBool creature_has_disarming_weapon(const struct Thing* creatng)
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    const struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     for (long inum = 1; inum < gameadd.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum])
         {
             if (instance_is_ranged_weapon_vs_objects(inum))
+            {
                 return true;
+            }
         }
     }
     return false;
@@ -379,13 +392,15 @@ TbBool creature_has_ranged_object_weapon(const struct Thing *creatng)
 TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    const struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     for (long inum = 1; inum < gameadd.crtr_conf.instances_count; inum++)
     {
         if (cctrl->instance_available[inum])
         {
             if (instance_is_quick_range_weapon(inum))
+            {
                 return true;
+            }
         }
     }
     return false;
@@ -394,7 +409,7 @@ TbBool creature_has_quick_range_weapon(const struct Thing *creatng)
 void process_creature_instance(struct Thing *thing)
 {
     struct CreatureControl *cctrl;
-    SYNCDBG(19,"Starting for %s index %d instance %d",thing_model_name(thing),(int)thing->index,(int)cctrl->instance_id);
+    SYNCDBG(19, "Starting for %s index %d instance %d", thing_model_name(thing), (int)thing->index, (int)cctrl->instance_id);
     TRACE_THING(thing);
     cctrl = creature_control_get_from_thing(thing);
     if (cctrl->instance_id != CrInst_NULL)
@@ -402,10 +417,10 @@ void process_creature_instance(struct Thing *thing)
         cctrl->inst_turn++;
         if (cctrl->inst_turn == cctrl->inst_action_turns)
         {
-            struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
+            struct InstanceInfo *inst_inf = creature_instance_info_get(cctrl->instance_id);
             if (inst_inf->func_cb != NULL)
             {
-                SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
+                SYNCDBG(18, "Executing %s for %s index %d.", creature_instance_code_name(cctrl->instance_id), thing_model_name(thing), (int)thing->index);
                 inst_inf->func_cb(thing, inst_inf->func_params);
             }
         }
@@ -430,49 +445,70 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
     struct Thing *target;
     int hittype;
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->targtng_idx == 0)
     {
         if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+        {
             hittype = THit_CrtrsOnlyNotOwn;
+        }
         else
+        {
             hittype = THit_CrtrsNObjcts;
+        }
     }
     else if ((creatng->alloc_flags & TAlF_IsControlled) != 0)
     {
         target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
+        {
             hittype = THit_CrtrsNObjcts;
+        }
         else if (target->class_id == TCls_Trap)
+        {
             hittype = THit_TrapsAll;
+        }
         else
+        {
             hittype = THit_CrtrsOnly;
+        }
     }
     else
     {
         target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
+        {
             hittype = THit_CrtrsNObjcts;
+        }
         else if (thing_is_destructible_trap(target) > 0)
+        {
             hittype = THit_CrtrsNObjcts;
+        }
         else if (target->class_id == TCls_Trap)
+        {
             hittype = THit_TrapsAll;
+        }
         else if (target->owner == creatng->owner)
+        {
             hittype = THit_CrtrsOnly;
+        }
         else
+        {
             hittype = THit_CrtrsOnlyNotOwn;
+        }
     }
     if (cctrl->targtng_idx > 0)
     {
         target = thing_get(cctrl->targtng_idx);
-        SYNCDBG(8,"The %s index %d fires %s at %s index %d",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param),thing_model_name(target),(int)target->index);
+        SYNCDBG(8, "The %s index %d fires %s at %s index %d", thing_model_name(creatng), (int)creatng->index, shot_code_name(*param), thing_model_name(target), (int)target->index);
         TRACE_THING(target);
-    } else
+    }
+    else
     {
         target = NULL;
-        SYNCDBG(8,"The %s index %d fires %s",thing_model_name(creatng),(int)creatng->index,shot_code_name(*param));
+        SYNCDBG(8, "The %s index %d fires %s", thing_model_name(creatng), (int)creatng->index, shot_code_name(*param));
     }
     thing_fire_shot(creatng, target, *param, 1, hittype);
     // Start cooldown after shot is fired
@@ -483,13 +519,13 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
 long instf_creature_cast_spell(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     long spl_idx = param[0];
-    struct SpellConfig* spconf = get_spell_config(spl_idx);
-    SYNCDBG(8,"The %s index %d casts %s",thing_model_name(creatng),(int)creatng->index,spell_code_name(spl_idx));
+    struct SpellConfig *spconf = get_spell_config(spl_idx);
+    SYNCDBG(8, "The %s index %d casts %s", thing_model_name(creatng), (int)creatng->index, spell_code_name(spl_idx));
     if (spconf->cast_at_thing)
     {
-        struct Thing* trthing = thing_get(cctrl->targtng_idx);
+        struct Thing *trthing = thing_get(cctrl->targtng_idx);
         if (!thing_is_invalid(trthing))
         {
             creature_cast_spell_at_thing(creatng, trthing, spl_idx, cctrl->explevel);
@@ -504,25 +540,26 @@ long instf_creature_cast_spell(struct Thing *creatng, long *param)
     return 0;
 }
 
-
-long process_creature_self_spell_casting(struct Thing* creatng)
+long process_creature_self_spell_casting(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (((creatng->alloc_flags & TAlF_IsControlled) != 0)
-        || (cctrl->conscious_back_turns != 0)
-        || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    if (((creatng->alloc_flags & TAlF_IsControlled) != 0) || (cctrl->conscious_back_turns != 0) || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0))
+    {
         return 0;
     }
-    if (cctrl->instance_id != CrInst_NULL) {
+    if (cctrl->instance_id != CrInst_NULL)
+    {
         return 0;
     }
-    if (cctrl->combat_flags != 0) {
+    if (cctrl->combat_flags != 0)
+    {
         return 0;
     }
 
     long inst_idx = get_self_spell_casting(creatng);
-    if (inst_idx <= 0) {
+    if (inst_idx <= 0)
+    {
         return 0;
     }
     set_creature_instance(creatng, inst_idx, creatng->index, 0);
@@ -535,31 +572,34 @@ long instf_dig(struct Thing *creatng, long *param)
     long stl_y;
     long taskkind;
     long gold;
-    SYNCDBG(16,"Starting");
+    SYNCDBG(16, "Starting");
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct Dungeon *dungeon = get_dungeon(creatng->owner);
     long task_idx = cctrl->digger.task_idx;
     {
-        struct MapTask* task = get_dungeon_task_list_entry(dungeon, task_idx);
+        struct MapTask *task = get_dungeon_task_list_entry(dungeon, task_idx);
         taskkind = task->kind;
         if (task->coords != cctrl->digger.task_stl)
         {
             return 0;
-      }
-      stl_x = stl_num_decode_x(cctrl->digger.task_stl);
-      stl_y = stl_num_decode_y(cctrl->digger.task_stl);
+        }
+        stl_x = stl_num_decode_x(cctrl->digger.task_stl);
+        stl_y = stl_num_decode_y(cctrl->digger.task_stl);
     }
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (slabmap_block_invalid(slb)) {
+    struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_block_invalid(slb))
+    {
         return 0;
     }
     long dig_damage = calculate_damage_did_to_slab_with_single_hit(creatng, slb);
     if ((slb->health > dig_damage) || slab_kind_is_indestructible(slb->kind))
     {
         if (!slab_kind_is_indestructible(slb->kind))
+        {
             slb->health -= dig_damage;
-        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+        }
+        struct ShotConfigStats *shotst = get_shot_model_stats(ShM_Dig);
         thing_play_sample(creatng, shotst->dig.sndsample_idx + UNSYNC_RANDOM(shotst->dig.sndsample_range), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         create_effect(&creatng->mappos, shotst->dig.effect_model, creatng->owner);
         if (taskkind == SDDigTask_MineGold)
@@ -587,10 +627,12 @@ long instf_dig(struct Thing *creatng, long *param)
                 subtile_coord_center(stl_x), subtile_coord_center(stl_y),
                 EvKind_AreaDiscovered, creatng->owner, 0);
             if ((evidx > 0) && is_my_player_number(creatng->owner))
+            {
                 output_message(SMsg_DugIntoNewArea, 0, true);
+            }
         }
-    } else
-    if (taskkind == SDDigTask_DigEarth)
+    }
+    else if (taskkind == SDDigTask_DigEarth)
     {
         dig_out_block(stl_x, stl_y, creatng->owner);
         EVM_MAP_EVENT("dig", creatng->owner, stl_x, stl_y, "");
@@ -601,7 +643,9 @@ long instf_dig(struct Thing *creatng, long *param)
                 subtile_coord_center(stl_x), subtile_coord_center(stl_y),
                 EvKind_AreaDiscovered, creatng->owner, 0);
             if ((evidx > 0) && is_my_player_number(creatng->owner))
+            {
                 output_message(SMsg_DugIntoNewArea, 0, true);
+            }
         }
     }
     check_map_explored(creatng, stl_x, stl_y);
@@ -614,15 +658,15 @@ long instf_destroy(struct Thing *creatng, long *param)
     TRACE_THING(creatng);
     MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
-    struct Dungeon* dungeon = get_dungeon(creatng->owner);
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-    struct Room* room = room_get(slb->room_index);
+    struct Dungeon *dungeon = get_dungeon(creatng->owner);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+    struct Room *room = room_get(slb->room_index);
     long prev_owner = slabmap_owner(slb);
-    struct PlayerInfo* player;
+    struct PlayerInfo *player;
     player = get_my_player();
     int volume = 32;
 
-    if ( !room_is_invalid(room) && (prev_owner != creatng->owner) )
+    if (!room_is_invalid(room) && (prev_owner != creatng->owner))
     {
         if (room->health > 1)
         {
@@ -638,7 +682,8 @@ long instf_destroy(struct Thing *creatng, long *param)
         if (room->owner == game.neutral_player_num)
         {
             claim_room(room, creatng);
-        } else
+        }
+        else
         {
             MapCoord ccor_x = subtile_coord_center(room->central_stl_x);
             MapCoord ccor_y = subtile_coord_center(room->central_stl_y);
@@ -659,8 +704,9 @@ long instf_destroy(struct Thing *creatng, long *param)
         thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), 200, 0, 3, 0, 2, volume);
         return 0;
     }
-    if (prev_owner != game.neutral_player_num) {
-        struct Dungeon* prev_dungeon = get_dungeon(prev_owner);
+    if (prev_owner != game.neutral_player_num)
+    {
+        struct Dungeon *prev_dungeon = get_dungeon(prev_owner);
         prev_dungeon->lvstats.territory_lost++;
     }
     if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
@@ -679,24 +725,24 @@ long instf_destroy(struct Thing *creatng, long *param)
 long instf_attack_room_slab(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    struct Room* room = get_room_thing_is_on(creatng);
+    struct Room *room = get_room_thing_is_on(creatng);
     if (room_is_invalid(room))
     {
-        ERRORLOG("The %s index %d is not on room",thing_model_name(creatng),(int)creatng->index);
+        ERRORLOG("The %s index %d is not on room", thing_model_name(creatng), (int)creatng->index);
         return 0;
     }
-    SYNCDBG(8,"Executing for %s index %d",thing_model_name(creatng),(int)creatng->index);
-    struct SlabMap* slb = get_slabmap_thing_is_on(creatng);
+    SYNCDBG(8, "Executing for %s index %d", thing_model_name(creatng), (int)creatng->index);
+    struct SlabMap *slb = get_slabmap_thing_is_on(creatng);
     if (slb->health > 2)
     {
-        //TODO CONFIG damage made to room slabs is constant - doesn't look good
+        // TODO CONFIG damage made to room slabs is constant - doesn't look good
         slb->health -= 2;
         thing_play_sample(creatng, 128 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         return 1;
     }
     if (room->owner != game.neutral_player_num)
     {
-        struct Dungeon* dungeon = get_dungeon(room->owner);
+        struct Dungeon *dungeon = get_dungeon(room->owner);
         dungeon->rooms_destroyed++;
     }
     if (count_slabs_of_room_type(room->owner, room->kind) <= 1)
@@ -715,22 +761,23 @@ long instf_attack_room_slab(struct Thing *creatng, long *param)
 
 long instf_damage_wall(struct Thing *creatng, long *param)
 {
-    SYNCDBG(16,"Starting");
+    SYNCDBG(16, "Starting");
     TRACE_THING(creatng);
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
         stl_x = stl_num_decode_x(cctrl->damage_wall_coords);
         stl_y = stl_num_decode_y(cctrl->damage_wall_coords);
     }
     struct Coord3d pos = creatng->mappos;
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slb->health > 2)
     {
         create_effect(&pos, TngEff_RockChips, creatng->owner);
         slb->health -= 2;
-    } else
+    }
+    else
     {
         MapSlabCoord slb_x = subtile_slab(stl_x);
         MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -739,16 +786,18 @@ long instf_damage_wall(struct Thing *creatng, long *param)
         create_dirt_rubble_for_dug_slab(slb_x, slb_y);
         thing_play_sample(creatng, 73, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     }
-    thing_play_sample(creatng, 63+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    thing_play_sample(creatng, 63 + UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     return 1;
 }
 
 long instf_eat(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
+    {
         cctrl->hunger_amount--;
+    }
     apply_health_to_thing_and_display_health(creatng, game.food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
@@ -757,22 +806,24 @@ long instf_eat(struct Thing *creatng, long *param)
 long instf_fart(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    struct Thing* efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
+    struct Thing *efftng = create_effect(&creatng->mappos, TngEff_Gas3, creatng->owner);
     if (!thing_is_invalid(efftng))
+    {
         efftng->shot_effect.hit_type = THit_CrtrsOnlyNotOwn;
-    thing_play_sample(creatng,94+UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+    }
+    thing_play_sample(creatng, 94 + UNSYNC_RANDOM(6), NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     // Start cooldown after fart created
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     cctrl->instance_use_turn[cctrl->instance_id] = game.play_gameturn;
     return 1;
 }
 
 long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct PlayerInfo* player = get_player(get_appropriate_player_for_creature(creatng));
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
+    struct PlayerInfo *player = get_player(get_appropriate_player_for_creature(creatng));
     TRACE_THING(creatng);
-    struct SlabMap* slb;
+    struct SlabMap *slb;
     MapSubtlCoord ahead_stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord ahead_stl_y = creatng->mappos.y.stl.num;
     MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
@@ -787,33 +838,33 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     }
     MapSlabCoord ahead_slb_x = slb_x;
     MapSlabCoord ahead_slb_y = slb_y;
-    if ( (creatng->move_angle_xy >= ANGLE_NORTHWEST) || (creatng->move_angle_xy < ANGLE_NORTHEAST) )
+    if ((creatng->move_angle_xy >= ANGLE_NORTHWEST) || (creatng->move_angle_xy < ANGLE_NORTHEAST))
     {
         ahead_stl_y--;
         ahead_slb_y--;
     }
-    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHWEST) )
+    else if ((creatng->move_angle_xy >= ANGLE_SOUTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHWEST))
     {
         ahead_stl_y++;
         ahead_slb_y++;
     }
-    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHWEST) && (creatng->move_angle_xy <= ANGLE_NORTHWEST) )
+    else if ((creatng->move_angle_xy >= ANGLE_SOUTHWEST) && (creatng->move_angle_xy <= ANGLE_NORTHWEST))
     {
         ahead_stl_x--;
         ahead_slb_x--;
     }
-    else if ( (creatng->move_angle_xy >= ANGLE_NORTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHEAST) )
+    else if ((creatng->move_angle_xy >= ANGLE_NORTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHEAST))
     {
         ahead_stl_x++;
         ahead_slb_x++;
     }
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    if ( (playeradd->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
+    struct PlayerInfoAdd *playeradd = get_playeradd(player->id_number);
+    if ((playeradd->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0))
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
         return 1;
     }
-    struct Room* room;
+    struct Room *room;
     TbBool subtile_diggable = subtile_is_diggable_for_player(creatng->owner, ahead_stl_x, ahead_stl_y, true);
     if (!subtile_diggable)
     {
@@ -825,7 +876,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                 if (room->owner == creatng->owner)
                 {
                     TbBool slab_diggable = subtile_is_diggable_for_player(creatng->owner, slab_subtile_center(ahead_slb_x), slab_subtile_center(ahead_slb_y), true);
-                    if (!slab_diggable) 
+                    if (!slab_diggable)
                     {
                         if (creatng->creature.gold_carried > 0)
                         {
@@ -839,11 +890,11 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     }
     TbBool dig = true;
     slb = get_slabmap_block(slb_x, slb_y);
-    if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
+    if (check_place_to_convert_excluding(creatng, slb_x, slb_y))
     {
         if (!playeradd->first_person_dig_claim_mode)
         {
-            struct SlabAttr* slbattr = get_slab_attrs(slb);
+            struct SlabAttr *slbattr = get_slab_attrs(slb);
             instf_destroy(creatng, NULL);
             if (slbattr->block_flags & SlbAtFlg_IsRoom)
             {
@@ -856,7 +907,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         MapCoord coord_x = subtile_coord_center(room->central_stl_x);
                         MapCoord coord_y = subtile_coord_center(room->central_stl_y);
                         event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
-                            EvKind_RoomUnderAttack, room->owner, 0);
+                                                                           EvKind_RoomUnderAttack, room->owner, 0);
                         if (is_my_player_number(room->owner))
                         {
                             output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
@@ -888,7 +939,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             MapSlabCoord ahead_sslb_y = subtile_slab(ahead_stl_y);
             if (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y))
             {
-                struct ShotConfigStats* shotst = get_shot_model_stats(ShM_Dig);
+                struct ShotConfigStats *shotst = get_shot_model_stats(ShM_Dig);
                 unsigned char subtiles = 0;
                 do
                 {
@@ -898,26 +949,25 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
                         reinforce = false;
                         break;
                     }
-                    if ( (creatng->move_angle_xy >= ANGLE_NORTHWEST) || (creatng->move_angle_xy < ANGLE_NORTHEAST) )
+                    if ((creatng->move_angle_xy >= ANGLE_NORTHWEST) || (creatng->move_angle_xy < ANGLE_NORTHEAST))
                     {
                         ahead_stl_y--;
                     }
-                    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHWEST) )
+                    else if ((creatng->move_angle_xy >= ANGLE_SOUTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHWEST))
                     {
                         ahead_stl_y++;
                     }
-                    else if ( (creatng->move_angle_xy >= ANGLE_SOUTHWEST) && (creatng->move_angle_xy <= ANGLE_NORTHWEST) )
+                    else if ((creatng->move_angle_xy >= ANGLE_SOUTHWEST) && (creatng->move_angle_xy <= ANGLE_NORTHWEST))
                     {
                         ahead_stl_x--;
                     }
-                    else if ( (creatng->move_angle_xy >= ANGLE_NORTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHEAST) )
+                    else if ((creatng->move_angle_xy >= ANGLE_NORTHEAST) && (creatng->move_angle_xy <= ANGLE_SOUTHEAST))
                     {
                         ahead_stl_x++;
                     }
                     ahead_sslb_x = subtile_slab(ahead_stl_x);
                     ahead_sslb_y = subtile_slab(ahead_stl_y);
-                }
-                while (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y));
+                } while (!check_place_to_reinforce(creatng, ahead_sslb_x, ahead_sslb_y));
             }
             if (reinforce)
             {
@@ -930,7 +980,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     }
     if (dig)
     {
-        //TODO CONFIG shot model dependency
+        // TODO CONFIG shot model dependency
         long locparam = ShM_Dig;
         instf_creature_fire_shot(creatng, &locparam);
     }
@@ -940,8 +990,8 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
 long instf_pretty_path(struct Thing *creatng, long *param)
 {
     TRACE_THING(creatng);
-    SYNCDBG(16,"Starting");
-    struct Dungeon* dungeon = get_dungeon(creatng->owner);
+    SYNCDBG(16, "Starting");
+    struct Dungeon *dungeon = get_dungeon(creatng->owner);
     MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
     create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
@@ -957,14 +1007,15 @@ long instf_pretty_path(struct Thing *creatng, long *param)
 
 long instf_reinforce(struct Thing *creatng, long *param)
 {
-    SYNCDBG(16,"Starting");
+    SYNCDBG(16, "Starting");
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->digger.working_stl);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->digger.working_stl);
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
-    if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0) {
+    if (check_place_to_reinforce(creatng, slb_x, slb_y) <= 0)
+    {
         return 0;
     }
     if (cctrl->digger.consecutive_reinforcements <= 25)
@@ -972,7 +1023,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
         cctrl->digger.consecutive_reinforcements++;
         if (!S3DEmitterIsPlayingSample(creatng->snd_emitter_id, 63, 0))
         {
-            struct PlayerInfo* player;
+            struct PlayerInfo *player;
             player = get_my_player();
             int volume = 32;
             if ((player->view_type == PVT_CreatureContrl) || (player->view_type == PVT_CreaturePasngr))
@@ -990,7 +1041,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
     {
         pos.x.val = subtile_coord_center(stl_x + 2 * small_around[n].delta_x);
         pos.y.val = subtile_coord_center(stl_y + 2 * small_around[n].delta_y);
-        struct Map* mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
+        struct Map *mapblk = get_map_block_at(pos.x.stl.num, pos.y.stl.num);
         if (map_block_revealed(mapblk, creatng->owner) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {
             pos.z.val = get_floor_height_at(&pos);
@@ -1009,21 +1060,25 @@ long instf_tortured(struct Thing *creatng, long *param)
 
 long instf_tunnel(struct Thing *creatng, long *param)
 {
-    SYNCDBG(16,"Starting");
+    SYNCDBG(16, "Starting");
     TRACE_THING(creatng);
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     MapSubtlCoord stl_x = stl_num_decode_x(cctrl->navi.first_colliding_block);
     MapSubtlCoord stl_y = stl_num_decode_y(cctrl->navi.first_colliding_block);
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (slabmap_block_invalid(slb)) {
+    struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_block_invalid(slb))
+    {
         return 0;
     }
-    thing_play_sample(creatng, 69+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        if (slb->health > 1) {
+    thing_play_sample(creatng, 69 + UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    if (slb->health > 1)
+    {
         slb->health--;
-        } else {
+    }
+    else
+    {
         dig_out_block(stl_x, stl_y, creatng->owner);
-        }
+    }
     return 1;
 }
 
@@ -1033,13 +1088,14 @@ long instf_tunnel(struct Thing *creatng, long *param)
  */
 void delay_teleport(struct Thing *creatng)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     cctrl->instance_use_turn[CrInst_TELEPORT] = game.play_gameturn + 100;
 }
 
 void delay_heal_sleep(struct Thing *creatng)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
     cctrl->healing_sleep_check_turn = game.play_gameturn + 600;
 }
+
 /******************************************************************************/

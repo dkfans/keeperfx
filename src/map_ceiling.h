@@ -19,7 +19,6 @@
 #ifndef DK_MAP_CEILING_H
 #define DK_MAP_CEILING_H
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif

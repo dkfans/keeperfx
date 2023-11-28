@@ -33,9 +33,9 @@ struct Thing;
 struct PlayerInfo;
 
 struct Armageddon { // sizeof = 14
-  unsigned long count_down;
-  unsigned long duration;
-  struct Coord3d mappos;
+    unsigned long count_down;
+    unsigned long duration;
+    struct Coord3d mappos;
 };
 
 #pragma pack()

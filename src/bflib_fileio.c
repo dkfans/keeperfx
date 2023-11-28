@@ -36,7 +36,7 @@
 #include "bflib_basics.h"
 #include "bflib_datetm.h"
 
-#if defined(_WIN32)||defined(DOS)||defined(GO32)
+#if defined(_WIN32) || defined(DOS) || defined(GO32)
 #include <dos.h>
 #include <direct.h>
 #endif
@@ -46,8 +46,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-//Selected declarations frow Win32 API - I don't want to use whole API
-// since it influences everything
+// Selected declarations frow Win32 API - I don't want to use whole API
+//  since it influences everything
 #ifndef WINBASEAPI
 #ifdef __W32API_USE_DLLIMPORT__
 #define WINBASEAPI DECLSPEC_IMPORT
@@ -57,16 +57,16 @@ extern "C" {
 #endif
 #define F_OK 0
 #define WINAPI __stdcall
-typedef char *PCHAR,*LPCH,*PCH,*NPSTR,*LPSTR,*PSTR;
-typedef const char *LPCCH,*PCSTR,*LPCSTR;
+typedef char *PCHAR, *LPCH, *PCH, *NPSTR, *LPSTR, *PSTR;
+typedef const char *LPCCH, *PCSTR, *LPCSTR;
 typedef unsigned long DWORD;
-typedef int WINBOOL,*PWINBOOL,*LPWINBOOL;
+typedef int WINBOOL, *PWINBOOL, *LPWINBOOL;
 #define BOOL WINBOOL
-typedef void *PVOID,*LPVOID;
+typedef void *PVOID, *LPVOID;
 typedef PVOID HANDLE;
 #define DECLARE_HANDLE(n) typedef HANDLE n
-typedef HANDLE *PHANDLE,*LPHANDLE;
-WINBASEAPI DWORD WINAPI GetShortPathNameA(LPCSTR,LPSTR,DWORD);
+typedef HANDLE *PHANDLE, *LPHANDLE;
+WINBASEAPI DWORD WINAPI GetShortPathNameA(LPCSTR, LPSTR, DWORD);
 #define GetShortPathName GetShortPathNameA
 WINBASEAPI BOOL WINAPI FlushFileBuffers(HANDLE);
 WINBASEAPI DWORD WINAPI GetLastError(void);
@@ -75,107 +75,123 @@ WINBASEAPI DWORD WINAPI GetLastError(void);
 #endif
 #endif
 /******************************************************************************/
-//Internal declarations
+// Internal declarations
 void convert_find_info(struct TbFileFind *ffind);
+
 /******************************************************************************/
 
 short LbFileExists(const char *fname)
 {
-  return access(fname,F_OK) == 0;
+    return access(fname, F_OK) == 0;
 }
 
 int LbFilePosition(TbFileHandle handle)
 {
-  int result = tell(handle);
-  return result;
+    int result = tell(handle);
+    return result;
 }
 
-int create_directory_for_file(const char * fname)
+int create_directory_for_file(const char *fname)
 {
-  const int size = strlen(fname) + 1;
-  char * tmp = (char *) malloc(size);
-  char * separator = strchr(fname, '/');
+    const int size = strlen(fname) + 1;
+    char *tmp = (char *)malloc(size);
+    char *separator = strchr(fname, '/');
 
-  while (separator != NULL) {
-    memcpy(tmp, fname, separator - fname);
-    tmp[separator - fname] = 0;
-    if (_mkdir(tmp) != 0) {
-      if (errno != EEXIST) {
-        free(tmp);
-        return 0;
-      }
+    while (separator != NULL)
+    {
+        memcpy(tmp, fname, separator - fname);
+        tmp[separator - fname] = 0;
+        if (_mkdir(tmp) != 0)
+        {
+            if (errno != EEXIST)
+            {
+                free(tmp);
+                return 0;
+            }
+        }
+        separator = strchr(++separator, '/');
     }
-    separator = strchr(++separator, '/');
-  }
-  free(tmp);
-  return 1;
+    free(tmp);
+    return 1;
 }
 
 TbFileHandle LbFileOpen(const char *fname, const unsigned char accmode)
 {
-  unsigned char mode = accmode;
+    unsigned char mode = accmode;
 
-  if ( !LbFileExists(fname) )
-  {
-#ifdef __DEBUG
-    LbSyncLog("LbFileOpen: file doesn't exist\n");
-#endif
-    if ( mode == Lb_FILE_MODE_READ_ONLY )
-      return -1;
-    if ( mode == Lb_FILE_MODE_OLD )
-      mode = Lb_FILE_MODE_NEW;
-  }
-/* DISABLED - NOT NEEDED
-  if ( mode == Lb_FILE_MODE_NEW )
-  {
-#ifdef __DEBUG
-    LbSyncLog("LbFileOpen: creating file\n");
-#endif
-    rc = _sopen(fname, _O_WRONLY|_O_CREAT|_O_TRUNC|_O_BINARY, _SH_DENYNO);
-    //setmode(rc,_O_TRUNC);
-    close(rc);
-  }
-*/
-  TbFileHandle rc = -1;
-  switch (mode)
-  {
-  case Lb_FILE_MODE_NEW:
+    if (!LbFileExists(fname))
     {
 #ifdef __DEBUG
-      LbSyncLog("LbFileOpen: LBO_CREAT mode\n");
+        LbSyncLog("LbFileOpen: file doesn't exist\n");
 #endif
-        if (create_directory_for_file(fname)) {
-          rc = _sopen(fname, O_RDWR|O_CREAT|O_BINARY, SH_DENYNO, S_IREAD|S_IWRITE);
+        if (mode == Lb_FILE_MODE_READ_ONLY)
+        {
+            return -1;
         }
-    };break;
-  case Lb_FILE_MODE_OLD:
+        if (mode == Lb_FILE_MODE_OLD)
+        {
+            mode = Lb_FILE_MODE_NEW;
+        }
+    }
+    /* DISABLED - NOT NEEDED
+      if ( mode == Lb_FILE_MODE_NEW )
+      {
+    #ifdef __DEBUG
+        LbSyncLog("LbFileOpen: creating file\n");
+    #endif
+        rc = _sopen(fname, _O_WRONLY|_O_CREAT|_O_TRUNC|_O_BINARY, _SH_DENYNO);
+        //setmode(rc,_O_TRUNC);
+        close(rc);
+      }
+    */
+    TbFileHandle rc = -1;
+    switch (mode)
+    {
+    case Lb_FILE_MODE_NEW:
+    {
+#ifdef __DEBUG
+        LbSyncLog("LbFileOpen: LBO_CREAT mode\n");
+#endif
+        if (create_directory_for_file(fname))
+        {
+            rc = _sopen(fname, O_RDWR | O_CREAT | O_BINARY, SH_DENYNO, S_IREAD | S_IWRITE);
+        }
+    };
+    break;
+    case Lb_FILE_MODE_OLD:
     {
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDWR mode\n");
 #endif
-        rc = _sopen(fname, O_RDWR|O_BINARY, SH_DENYNO);
-    };break;
-  case Lb_FILE_MODE_READ_ONLY:
+        rc = _sopen(fname, O_RDWR | O_BINARY, SH_DENYNO);
+    };
+    break;
+    case Lb_FILE_MODE_READ_ONLY:
     {
 #ifdef __DEBUG
         LbSyncLog("LbFileOpen: LBO_RDONLY mode\n");
 #endif
-        rc = _sopen(fname, O_RDONLY|O_BINARY, SH_DENYNO);
-    };break;
-  }
+        rc = _sopen(fname, O_RDONLY | O_BINARY, SH_DENYNO);
+    };
+    break;
+    }
 #ifdef __DEBUG
-  LbSyncLog("LbFileOpen: out handle = %ld, errno = %d\n",rc,errno);
+    LbSyncLog("LbFileOpen: out handle = %ld, errno = %d\n", rc, errno);
 #endif
-  return rc;
+    return rc;
 }
 
-//Closes a file
+// Closes a file
 int LbFileClose(TbFileHandle handle)
 {
-  if ( close(handle) )
-    return -1;
-  else
-    return 1;
+    if (close(handle))
+    {
+        return -1;
+    }
+    else
+    {
+        return 1;
+    }
 }
 
 /*
@@ -183,9 +199,11 @@ int LbFileClose(TbFileHandle handle)
  */
 TbBool LbFileEof(TbFileHandle handle)
 {
-  if (LbFilePosition(handle) >= LbFileLengthHandle(handle))
-    return 1;
-  return 0;
+    if (LbFilePosition(handle) >= LbFileLengthHandle(handle))
+    {
+        return 1;
+    }
+    return 0;
 }
 
 /** Changes position in opened file.
@@ -197,23 +215,23 @@ TbBool LbFileEof(TbFileHandle handle)
  */
 int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
 {
-  int rc;
-  switch (origin)
-  {
-  case Lb_FILE_SEEK_BEGINNING:
-      rc = lseek(handle, offset, SEEK_SET);
-      break;
-  case Lb_FILE_SEEK_CURRENT:
-      rc = lseek(handle, offset, SEEK_CUR);
-      break;
-  case Lb_FILE_SEEK_END:
-      rc = lseek(handle, offset, SEEK_END);
-      break;
-  default:
-      rc = -1;
-      break;
-  }
-  return rc;
+    int rc;
+    switch (origin)
+    {
+    case Lb_FILE_SEEK_BEGINNING:
+        rc = lseek(handle, offset, SEEK_SET);
+        break;
+    case Lb_FILE_SEEK_CURRENT:
+        rc = lseek(handle, offset, SEEK_CUR);
+        break;
+    case Lb_FILE_SEEK_END:
+        rc = lseek(handle, offset, SEEK_END);
+        break;
+    default:
+        rc = -1;
+        break;
+    }
+    return rc;
 }
 
 /**
@@ -226,9 +244,9 @@ int LbFileSeek(TbFileHandle handle, long offset, unsigned char origin)
  */
 int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
 {
-  //'read' returns (-1) on error
-  int result = read(handle, buffer, len);
-  return result;
+    //'read' returns (-1) on error
+    int result = read(handle, buffer, len);
+    return result;
 }
 
 /**
@@ -237,7 +255,7 @@ int LbFileRead(TbFileHandle handle, void *buffer, unsigned long len)
  * to be transmitted is located at the address specified by buffer.
  * @return Returns the number of bytes (does not include any extra carriage-return
  * characters transmitted) of data transmitted to the file.
-*/
+ */
 long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long len)
 {
     long result = write(handle, buffer, len);
@@ -247,28 +265,29 @@ long LbFileWrite(TbFileHandle handle, const void *buffer, const unsigned long le
 /**
  * Flushes the file buffers, writing all data immediately.
  * @return Returns 1 on success, 0 on error.
-*/
+ */
 short LbFileFlush(TbFileHandle handle)
 {
 #if defined(_WIN32)
-  // Crappy Windows has its own
-  int result = FlushFileBuffers((HANDLE)handle);
-  // It returns 'invalid handle' error sometimes for no reason.. so disabling this error
-  if (result != 0)
-      return 1;
-  result = GetLastError();
-  return ((result == 0) || (result == 6));
+    // Crappy Windows has its own
+    int result = FlushFileBuffers((HANDLE)handle);
+    // It returns 'invalid handle' error sometimes for no reason.. so disabling this error
+    if (result != 0)
+    {
+        return 1;
+    }
+    result = GetLastError();
+    return ((result == 0) || (result == 6));
 #else
-#if defined(DOS)||defined(GO32)
-  // No idea how to do this on old systems
-  return 1;
+#if defined(DOS) || defined(GO32)
+    // No idea how to do this on old systems
+    return 1;
 #else
-  // For normal POSIX systems
-  // (should also work on Win, as its IEEE standard... but it currently isn't)
-  return (ioctl(handle,I_FLUSH,FLUSHRW) != -1);
+    // For normal POSIX systems
+    // (should also work on Win, as its IEEE standard... but it currently isn't)
+    return (ioctl(handle, I_FLUSH, FLUSHRW) != -1);
 #endif
 #endif
-
 }
 
 long LbFileLengthHandle(TbFileHandle handle)
@@ -277,7 +296,7 @@ long LbFileLengthHandle(TbFileHandle handle)
     return result;
 }
 
-//Returns disk size of file
+// Returns disk size of file
 long LbFileLength(const char *fname)
 {
     TbFileHandle handle = LbFileOpen(fname, Lb_FILE_MODE_READ_ONLY);
@@ -286,47 +305,52 @@ long LbFileLength(const char *fname)
     {
         result = filelength(handle);
         LbFileClose(handle);
-  }
-  return result;
+    }
+    return result;
 }
 
-//Converts file search information from platform-specific into independent form
-//Yeah, right...
+// Converts file search information from platform-specific into independent form
+// Yeah, right...
 void convert_find_info(struct TbFileFind *ffind)
 {
-  struct _finddata_t *fdata=&(ffind->Reserved);
-  snprintf(ffind->Filename,144, "%s", fdata->name);
+    struct _finddata_t *fdata = &(ffind->Reserved);
+    snprintf(ffind->Filename, 144, "%s", fdata->name);
 #if defined(_WIN32)
-  GetShortPathName(fdata->name,ffind->AlternateFilename,14);
+    GetShortPathName(fdata->name, ffind->AlternateFilename, 14);
 #else
-  strncpy(ffind->AlternateFilename,fdata->name,14);
+    strncpy(ffind->AlternateFilename, fdata->name, 14);
 #endif
-  ffind->AlternateFilename[13]='\0';
-  if (fdata->size>ULONG_MAX)
-    ffind->Length=ULONG_MAX;
-  else
-    ffind->Length = fdata->size;
-  ffind->Attributes = fdata->attrib;
-  LbDateTimeDecode(&fdata->time_create,&ffind->CreationDate,&ffind->CreationTime);
-  LbDateTimeDecode(&fdata->time_write,&ffind->LastWriteDate,&ffind->LastWriteTime);
+    ffind->AlternateFilename[13] = '\0';
+    if (fdata->size > ULONG_MAX)
+    {
+        ffind->Length = ULONG_MAX;
+    }
+    else
+    {
+        ffind->Length = fdata->size;
+    }
+    ffind->Attributes = fdata->attrib;
+    LbDateTimeDecode(&fdata->time_create, &ffind->CreationDate, &ffind->CreationTime);
+    LbDateTimeDecode(&fdata->time_write, &ffind->LastWriteDate, &ffind->LastWriteTime);
 }
 
 // returns -1 if no match is found. Otherwise returns 1 and stores a handle
 // to be used in _findnext and _findclose calls inside TbFileFind struct.
-int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int attributes)
+int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind, unsigned int attributes)
 {
     // original Watcom code was
-    //dos_findfirst_(path, attributes,&(ffind->Reserved))
-    //The new code skips 'attributes' as Win32 prototypes seem not to use them
-    ffind->ReservedHandle = _findfirst(filespec,&(ffind->Reserved));
+    // dos_findfirst_(path, attributes,&(ffind->Reserved))
+    // The new code skips 'attributes' as Win32 prototypes seem not to use them
+    ffind->ReservedHandle = _findfirst(filespec, &(ffind->Reserved));
     int result;
     if (ffind->ReservedHandle == -1)
     {
-      result = -1;
-    } else
+        result = -1;
+    }
+    else
     {
-      convert_find_info(ffind);
-      result = 1;
+        convert_find_info(ffind);
+        result = 1;
     }
     return result;
 }
@@ -335,12 +359,13 @@ int LbFileFindFirst(const char *filespec, struct TbFileFind *ffind,unsigned int 
 int LbFileFindNext(struct TbFileFind *ffind)
 {
     int result;
-    if ( _findnext(ffind->ReservedHandle,&(ffind->Reserved)) < 0 )
+    if (_findnext(ffind->ReservedHandle, &(ffind->Reserved)) < 0)
     {
         _findclose(ffind->ReservedHandle);
         ffind->ReservedHandle = -1;
         result = -1;
-    } else
+    }
+    else
     {
         convert_find_info(ffind);
         result = 1;
@@ -348,7 +373,7 @@ int LbFileFindNext(struct TbFileFind *ffind)
     return result;
 }
 
-//Ends file searching sequence
+// Ends file searching sequence
 int LbFileFindEnd(struct TbFileFind *ffind)
 {
     if (ffind->ReservedHandle != -1)
@@ -358,92 +383,115 @@ int LbFileFindEnd(struct TbFileFind *ffind)
     return 1;
 }
 
-//Removes a disk file
+// Removes a disk file
 int LbFileDelete(const char *filename)
 {
-  int result;
-  if ( remove(filename) )
-    result = -1;
-  else
-    result = 1;
-  return result;
+    int result;
+    if (remove(filename))
+    {
+        result = -1;
+    }
+    else
+    {
+        result = 1;
+    }
+    return result;
 }
 
 int LbDirectoryCurrent(char *buf, unsigned long buflen)
 {
-//  if ( GetCurrentDirectoryA(buflen, buf) )
-  if ( getcwd(buf,buflen) != NULL )
-  {
-    if ( buf[1] == ':' )
-      strcpy(buf, buf+2);
-    int len = strlen(buf);
-    if ( len>1 )
+    //  if ( GetCurrentDirectoryA(buflen, buf) )
+    if (getcwd(buf, buflen) != NULL)
     {
-      if ( buf[len-2] == '\\' )
-        buf[len-2] = '\0';
+        if (buf[1] == ':')
+        {
+            strcpy(buf, buf + 2);
+        }
+        int len = strlen(buf);
+        if (len > 1)
+        {
+            if (buf[len - 2] == '\\')
+            {
+                buf[len - 2] = '\0';
+            }
+        }
+        return 1;
     }
-    return 1;
-  }
-  return -1;
+    return -1;
 }
 
 int LbFileMakeFullPath(const short append_cur_dir,
-  const char *directory, const char *filename, char *buf, const unsigned long len)
+                       const char *directory, const char *filename, char *buf, const unsigned long len)
 {
-  if (filename==NULL)
-    { buf[0]='\0'; return -1; }
-  unsigned long namestart;
-  if ( append_cur_dir )
-  {
-    if ( LbDirectoryCurrent(buf, len-2) == -1 )
-    { buf[0]='\0'; return -1; }
-    namestart = strlen(buf);
-    if ( (namestart>0) && (buf[namestart-1]!='\\') && (buf[namestart-1]!='/'))
+    if (filename == NULL)
     {
-      buf[namestart] = '/';
-      namestart++;
+        buf[0] = '\0';
+        return -1;
     }
-  } else
-  {
-    namestart = 0;
-  }
-  buf[namestart] = '\0';
-
-  if ( directory != NULL )
-  {
-      int copy_len = strlen(directory);
-      if (len - 2 <= namestart + copy_len - 1)
-          return -1;
-      memcpy(buf + namestart, directory, copy_len);
-      namestart += copy_len - 1;
-      if ((namestart > 0) && (buf[namestart - 1] != '\\') && (buf[namestart - 1] != '/'))
-      {
-          buf[namestart] = '/';
-          namestart++;
+    unsigned long namestart;
+    if (append_cur_dir)
+    {
+        if (LbDirectoryCurrent(buf, len - 2) == -1)
+        {
+            buf[0] = '\0';
+            return -1;
+        }
+        namestart = strlen(buf);
+        if ((namestart > 0) && (buf[namestart - 1] != '\\') && (buf[namestart - 1] != '/'))
+        {
+            buf[namestart] = '/';
+            namestart++;
+        }
+    }
+    else
+    {
+        namestart = 0;
     }
     buf[namestart] = '\0';
-  }
-  if ( strlen(filename)+namestart-1 < len )
-  {
-    const char *ptr = filename;
-    int invlen;
-    for (invlen=-1;invlen!=0;invlen--)
+
+    if (directory != NULL)
     {
-     if (*ptr++ == 0)
-       {invlen--;break;}
+        int copy_len = strlen(directory);
+        if (len - 2 <= namestart + copy_len - 1)
+        {
+            return -1;
+        }
+        memcpy(buf + namestart, directory, copy_len);
+        namestart += copy_len - 1;
+        if ((namestart > 0) && (buf[namestart - 1] != '\\') && (buf[namestart - 1] != '/'))
+        {
+            buf[namestart] = '/';
+            namestart++;
+        }
+        buf[namestart] = '\0';
     }
-    int copy_len = ~invlen;
-    const char* copy_src = &ptr[-copy_len];
-    char* copy_dst = buf;
-    for (invlen=-1;invlen!=0;invlen--)
+    if (strlen(filename) + namestart - 1 < len)
     {
-     if (*copy_dst++ == 0)
-       {invlen--;break;}
+        const char *ptr = filename;
+        int invlen;
+        for (invlen = -1; invlen != 0; invlen--)
+        {
+            if (*ptr++ == 0)
+            {
+                invlen--;
+                break;
+            }
+        }
+        int copy_len = ~invlen;
+        const char *copy_src = &ptr[-copy_len];
+        char *copy_dst = buf;
+        for (invlen = -1; invlen != 0; invlen--)
+        {
+            if (*copy_dst++ == 0)
+            {
+                invlen--;
+                break;
+            }
+        }
+        memcpy(copy_dst - 1, copy_src, copy_len);
+        return 1;
     }
-    memcpy(copy_dst-1, copy_src, copy_len);
-    return 1;
-  }
-  return -1;
+    return -1;
 }
 
 /******************************************************************************/

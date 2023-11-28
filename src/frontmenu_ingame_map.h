@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PANNEL_MAP_RADIUS       58
+#define PANNEL_MAP_RADIUS 58
 /******************************************************************************/
 extern long MapDiagonalLength;
 extern TbBool reset_all_minimap_interpolation;

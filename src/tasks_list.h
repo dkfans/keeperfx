@@ -22,7 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
-#define MAPTASKS_COUNT        300
+#define MAPTASKS_COUNT 300
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,8 +34,8 @@ extern "C" {
 struct Dungeon;
 
 struct MapTask {
-  unsigned char kind;
-  SubtlCodedCoords coords;
+    unsigned char kind;
+    SubtlCodedCoords coords;
 };
 
 #pragma pack()

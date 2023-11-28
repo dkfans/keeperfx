@@ -23,92 +23,101 @@
 #include "globals.h"
 #include "post_inc.h"
 
-TCP_NetClient::TCP_NetClient(const char hostname[], ushort port) : TCP_NetBase()
+TCP_NetClient::TCP_NetClient(const char hostname[], ushort port)
+    : TCP_NetBase()
 {
-	IPaddress addr;
-	SDLNet_ResolveHost(&addr, hostname, port); //TODO NET change from local host to real session later
-	mySocket = SDLNet_TCP_Open(&addr);
-	if (mySocket == NULL) {
-		NETMSG("Failed to initialize TCP client socket");
-		setErrorFlag();
-		return;
-	}
+    IPaddress addr;
+    SDLNet_ResolveHost(&addr, hostname, port); // TODO NET change from local host to real session later
+    mySocket = SDLNet_TCP_Open(&addr);
+    if (mySocket == NULL)
+    {
+        NETMSG("Failed to initialize TCP client socket");
+        setErrorFlag();
+        return;
+    }
 
-	recvThread = SDL_CreateThread(recvThreadFunc, "TCP_NetClient", this);
-	if (recvThread == NULL) {
-		NETMSG("Failed to initialize TCP client receive thread");
-		setErrorFlag();
-		return;
-	}
+    recvThread = SDL_CreateThread(recvThreadFunc, "TCP_NetClient", this);
+    if (recvThread == NULL)
+    {
+        NETMSG("Failed to initialize TCP client receive thread");
+        setErrorFlag();
+        return;
+    }
 }
 
 TCP_NetClient::~TCP_NetClient()
 {
-	haltRecvThread();
+    haltRecvThread();
 }
 
-int TCP_NetClient::recvThreadFunc(void * ptr)
+int TCP_NetClient::recvThreadFunc(void *ptr)
 {
-	auto cli = static_cast<TCP_NetClient *>(ptr);
+    auto cli = static_cast<TCP_NetClient *>(ptr);
 
-	for (;;) {
-		char header[TCP_HEADER_SIZE];
-		if (!receiveOnSocket(cli->mySocket, header, sizeof(header))) {
-			break;
-		}
+    for (;;)
+    {
+        char header[TCP_HEADER_SIZE];
+        if (!receiveOnSocket(cli->mySocket, header, sizeof(header)))
+        {
+            break;
+        }
 
-		ulong playerId = SDLNet_Read32(header);
-		ulong msgDataLen = SDLNet_Read32(header + 4);
-		InternalMsg * msg = new InternalMsg(msgDataLen, playerId);
-		if (msg == NULL || msg->buffer == NULL) {
-			ERRORLOG("Failure to allocate memory for message");
-			break;
-		}
+        ulong playerId = SDLNet_Read32(header);
+        ulong msgDataLen = SDLNet_Read32(header + 4);
+        InternalMsg *msg = new InternalMsg(msgDataLen, playerId);
+        if (msg == NULL || msg->buffer == NULL)
+        {
+            ERRORLOG("Failure to allocate memory for message");
+            break;
+        }
 
-		if (!receiveOnSocket(cli->mySocket, msg->buffer, msgDataLen)) {
-			delete msg;
-			break;
-		}
+        if (!receiveOnSocket(cli->mySocket, msg->buffer, msgDataLen))
+        {
+            delete msg;
+            break;
+        }
 
-		cli->addIntMessage(msg);
-	}
-	return 0;
+        cli->addIntMessage(msg);
+    }
+    return 0;
 }
 
 void TCP_NetClient::haltRecvThread()
 {
-	SYNCDBG(7, "Starting");
+    SYNCDBG(7, "Starting");
 
-	//necessary to close socket because receive thread may be waiting for messages
-	SDLNet_TCP_Close(mySocket);
-	mySocket = NULL;
+    // necessary to close socket because receive thread may be waiting for messages
+    SDLNet_TCP_Close(mySocket);
+    mySocket = NULL;
 
-	if (recvThread != NULL) {
-		SDL_WaitThread(recvThread, NULL);
-		recvThread = NULL;
-	}
+    if (recvThread != NULL)
+    {
+        SDL_WaitThread(recvThread, NULL);
+        recvThread = NULL;
+    }
 }
 
 void TCP_NetClient::update()
 {
-	//nothing needed for client yet
-	return;
+    // nothing needed for client yet
+    return;
 }
 
 bool TCP_NetClient::sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen)
 {
-	bool retval = true;
+    bool retval = true;
 
-	size_t len = bufferLen;
-	char * msg = buildTCPMessageBuffer(playerId, buffer, len);
+    size_t len = bufferLen;
+    char *msg = buildTCPMessageBuffer(playerId, buffer, len);
 
-	if (SDLNet_TCP_Send(mySocket, msg, len) < len) {
-		haltRecvThread();
-		NETMSG("Remote server closed");
-		retval = false;
-	}
+    if (SDLNet_TCP_Send(mySocket, msg, len) < len)
+    {
+        haltRecvThread();
+        NETMSG("Remote server closed");
+        retval = false;
+    }
 
-	free(msg);
+    free(msg);
 
-	return retval;
+    return retval;
 }

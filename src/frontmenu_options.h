@@ -28,10 +28,10 @@ extern "C" {
 /******************************************************************************/
 #pragma pack(1)
 
-#define GAMMA_LEVELS_COUNT      5
+#define GAMMA_LEVELS_COUNT 5
 
 enum OptionsButtonDesignationIDs {
-    BID_SOUND_VOL = BID_DEFAULT+75,
+    BID_SOUND_VOL = BID_DEFAULT + 75,
 };
 
 struct GuiMenu;
@@ -50,7 +50,7 @@ extern long mentor_level_slider; // This is not the mentor_volume you are lookin
 #pragma pack()
 /******************************************************************************/
 extern struct GuiMenu frontend_define_keys_menu;
-#define frontend_define_keys_menu_items_visible  10
+#define frontend_define_keys_menu_items_visible 10
 extern struct GuiMenu frontend_option_menu;
 /******************************************************************************/
 void frontend_define_key_up(struct GuiButton *gbtn);

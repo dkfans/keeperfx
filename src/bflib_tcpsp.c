@@ -26,73 +26,72 @@
 #include <SDL2/SDL_net.h>
 #include "post_inc.h"
 
-enum MsgReadState
-{
+enum MsgReadState {
     READ_HEADER,
     READ_BODY,
     READ_FINISHED
 };
 
-struct Msg
-{
+struct Msg {
     enum MsgReadState state;
     size_t msg_size;
-    //size_t bytes_left; //not necessary with SDL_net
-    char * buffer;
+    // size_t bytes_left; //not necessary with SDL_net
+    char *buffer;
     size_t buffer_size;
 };
 
-struct Peer
-{
-    TCPsocket   socket;
-    NetUserId   id; //corresponding user
-    struct Msg  msg; //last msg received
+struct Peer {
+    TCPsocket socket;
+    NetUserId id;   // corresponding user
+    struct Msg msg; // last msg received
 };
 
-struct SPState
-{
-    TbBool              ishost;
-    struct Msg          servermsg; //message from server
-    TCPsocket           socket; //server socket or client peer
-    SDLNet_SocketSet    socketset;
-    struct Peer         peers[MAX_N_PEERS];
-    NetDropCallback     drop_callback;
+struct SPState {
+    TbBool ishost;
+    struct Msg servermsg; // message from server
+    TCPsocket socket;     // server socket or client peer
+    SDLNet_SocketSet socketset;
+    struct Peer peers[MAX_N_PEERS];
+    NetDropCallback drop_callback;
 };
 
 static struct SPState spstate;
 
-static TbError  tcpSP_init(NetDropCallback drop_callback);
-static void     tcpSP_exit(void);
-static TbError  tcpSP_host(const char * session, void * options);
-static TbError  tcpSP_join(const char * session, void * options);
-static void     tcpSP_update(NetNewUserCallback new_user);
-static void     tcpSP_sendmsg_single(NetUserId destination, const char * buffer, size_t size);
-static void     tcpSP_sendmsg_all(const char * buffer, size_t size);
-static size_t   tcpSP_msgready(NetUserId source, unsigned timeout);
-static size_t   tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size);
-static void     tcpSP_drop_user(NetUserId id);
+static TbError tcpSP_init(NetDropCallback drop_callback);
+static void tcpSP_exit(void);
+static TbError tcpSP_host(const char *session, void *options);
+static TbError tcpSP_join(const char *session, void *options);
+static void tcpSP_update(NetNewUserCallback new_user);
+static void tcpSP_sendmsg_single(NetUserId destination, const char *buffer, size_t size);
+static void tcpSP_sendmsg_all(const char *buffer, size_t size);
+static size_t tcpSP_msgready(NetUserId source, unsigned timeout);
+static size_t tcpSP_readmsg(NetUserId source, char *buffer, size_t max_size);
+static void tcpSP_drop_user(NetUserId id);
 
 const struct NetSP tcpSP =
-{
-    tcpSP_init,
-    tcpSP_exit,
-    tcpSP_host,
-    tcpSP_join,
-    tcpSP_update,
-    tcpSP_sendmsg_single,
-    tcpSP_sendmsg_all,
-    tcpSP_msgready,
-    tcpSP_readmsg,
-    tcpSP_drop_user,
+    {
+        tcpSP_init,
+        tcpSP_exit,
+        tcpSP_host,
+        tcpSP_join,
+        tcpSP_update,
+        tcpSP_sendmsg_single,
+        tcpSP_sendmsg_all,
+        tcpSP_msgready,
+        tcpSP_readmsg,
+        tcpSP_drop_user,
 };
 
 static TbBool clear_peer(NetUserId id)
 {
-    if (spstate.ishost) {
+    if (spstate.ishost)
+    {
         for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
         {
-            if (spstate.peers[i].id == id) {
-                if (spstate.peers[i].socket != NULL) {
+            if (spstate.peers[i].id == id)
+            {
+                if (spstate.peers[i].socket != NULL)
+                {
                     SDLNet_TCP_DelSocket(spstate.socketset, spstate.peers[i].socket);
                     SDLNet_TCP_Close(spstate.peers[i].socket);
                 }
@@ -106,10 +105,12 @@ static TbBool clear_peer(NetUserId id)
 
         return 0;
     }
-    else {
-        if (spstate.socket != NULL) {
+    else
+    {
+        if (spstate.socket != NULL)
+        {
             SDLNet_TCP_Close(spstate.socket);
-            spstate.socket = NULL; //assume disconnected
+            spstate.socket = NULL; // assume disconnected
         }
 
         LbMemoryFree(spstate.servermsg.buffer);
@@ -121,15 +122,18 @@ static TbBool clear_peer(NetUserId id)
 
 static TCPsocket find_peer_socket(NetUserId id)
 {
-    if (spstate.ishost) {
+    if (spstate.ishost)
+    {
         for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
         {
-            if (spstate.peers[i].id == id) {
+            if (spstate.peers[i].id == id)
+            {
                 return spstate.peers[i].socket;
             }
         }
     }
-    else {
+    else
+    {
         assert(id == SERVER_ID);
 
         return spstate.socket;
@@ -139,17 +143,20 @@ static TCPsocket find_peer_socket(NetUserId id)
     return NULL;
 }
 
-static struct Msg * find_peer_message(NetUserId id)
+static struct Msg *find_peer_message(NetUserId id)
 {
-    if (spstate.ishost) {
+    if (spstate.ishost)
+    {
         for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
         {
-            if (spstate.peers[i].id == id) {
+            if (spstate.peers[i].id == id)
+            {
                 return &spstate.peers[i].msg;
             }
         }
     }
-    else {
+    else
+    {
         assert(id == SERVER_ID);
 
         return &spstate.servermsg;
@@ -159,19 +166,21 @@ static struct Msg * find_peer_message(NetUserId id)
     return NULL;
 }
 
-static TbError send_buffer(TCPsocket socket, const char * buffer, size_t size)
+static TbError send_buffer(TCPsocket socket, const char *buffer, size_t size)
 {
     int retval;
 
     assert(buffer);
 
-    if (socket == NULL) {
+    if (socket == NULL)
+    {
         return Lb_OK;
     }
 
     NETDBG(9, "Trying to send %u bytes", size);
 
-    if ((retval = SDLNet_TCP_Send(socket, buffer, size)) != size) {
+    if ((retval = SDLNet_TCP_Send(socket, buffer, size)) != size)
+    {
         NETMSG("Failure to send to socket: %d", retval);
         return Lb_FAIL;
     }
@@ -179,26 +188,27 @@ static TbError send_buffer(TCPsocket socket, const char * buffer, size_t size)
     return Lb_OK;
 }
 
-static void reset_msg(struct Msg * msg)
+static void reset_msg(struct Msg *msg)
 {
     NETDBG(9, "Starting");
     msg->state = READ_HEADER;
     msg->msg_size = 0;
 }
 
-static void inflate_msg(struct Msg * msg)
+static void inflate_msg(struct Msg *msg)
 {
     NETDBG(9, "Inflating to %u bytes", msg->msg_size);
 
     msg->state = READ_BODY;
 
-    if (msg->msg_size > msg->buffer_size) {
+    if (msg->msg_size > msg->buffer_size)
+    {
         msg->buffer_size = msg->msg_size;
-        msg->buffer = (char*) LbMemoryGrow(msg->buffer, msg->buffer_size);
+        msg->buffer = (char *)LbMemoryGrow(msg->buffer, msg->buffer_size);
     }
 }
 
-static TbError read_stage(TCPsocket socket, char * buffer, size_t size)
+static TbError read_stage(TCPsocket socket, char *buffer, size_t size)
 {
     int retval;
 
@@ -207,7 +217,8 @@ static TbError read_stage(TCPsocket socket, char * buffer, size_t size)
 
     NETDBG(9, "Trying to read %u bytes", size);
 
-    if ((retval = SDLNet_TCP_Recv(socket, buffer, size)) != size) {
+    if ((retval = SDLNet_TCP_Recv(socket, buffer, size)) != size)
+    {
         NETMSG("Failure to read from socket: %d", retval);
         return Lb_FAIL;
     }
@@ -215,30 +226,36 @@ static TbError read_stage(TCPsocket socket, char * buffer, size_t size)
     return Lb_OK;
 }
 
-static TbError read_full(TCPsocket socket, struct Msg * msg)
+static TbError read_full(TCPsocket socket, struct Msg *msg)
 {
     NETDBG(8, "Starting");
 
     assert(msg);
 
-    if (socket == NULL) {
+    if (socket == NULL)
+    {
         return Lb_OK;
     }
 
-    if (msg->state == READ_FINISHED) {
+    if (msg->state == READ_FINISHED)
+    {
         reset_msg(msg);
     }
 
-    if (msg->state == READ_HEADER) {
-        if (read_stage(socket, (char*) &msg->msg_size, 4) == Lb_FAIL) {
+    if (msg->state == READ_HEADER)
+    {
+        if (read_stage(socket, (char *)&msg->msg_size, 4) == Lb_FAIL)
+        {
             return Lb_FAIL;
         }
 
         inflate_msg(msg);
     }
 
-    if (msg->state == READ_BODY) {
-        if (read_stage(socket, msg->buffer, msg->msg_size) == Lb_FAIL) {
+    if (msg->state == READ_BODY)
+    {
+        if (read_stage(socket, msg->buffer, msg->msg_size) == Lb_FAIL)
+        {
             return Lb_FAIL;
         }
     }
@@ -251,40 +268,48 @@ static TbError read_full(TCPsocket socket, struct Msg * msg)
     return Lb_OK;
 }
 
-static TbError read_partial(TCPsocket socket, struct Msg * msg, unsigned timeout)
+static TbError read_partial(TCPsocket socket, struct Msg *msg, unsigned timeout)
 {
     NETDBG(8, "Starting");
 
     assert(msg);
 
-    if (socket == NULL) {
+    if (socket == NULL)
+    {
         return Lb_OK;
     }
 
-    if (msg->state == READ_FINISHED) {
+    if (msg->state == READ_FINISHED)
+    {
         reset_msg(msg);
     }
 
-    if (msg->state == READ_HEADER) {
+    if (msg->state == READ_HEADER)
+    {
         SDLNet_CheckSockets(spstate.socketset, timeout);
-        if (!SDLNet_SocketReady(socket)) {
+        if (!SDLNet_SocketReady(socket))
+        {
             return Lb_OK;
         }
 
-        if (read_stage(socket, (char*) &msg->msg_size, 4) == Lb_FAIL) {
+        if (read_stage(socket, (char *)&msg->msg_size, 4) == Lb_FAIL)
+        {
             return Lb_FAIL;
         }
 
         inflate_msg(msg);
     }
 
-    if (msg->state == READ_BODY) {
+    if (msg->state == READ_BODY)
+    {
         SDLNet_CheckSockets(spstate.socketset, timeout);
-        if (!SDLNet_SocketReady(socket)) {
+        if (!SDLNet_SocketReady(socket))
+        {
             return Lb_OK;
         }
 
-        if (read_stage(socket, msg->buffer, msg->msg_size) == Lb_FAIL) {
+        if (read_stage(socket, msg->buffer, msg->msg_size) == Lb_FAIL)
+        {
             return Lb_FAIL;
         }
     }
@@ -303,7 +328,8 @@ static TbError tcpSP_init(NetDropCallback drop_callback)
 
     LbMemorySet(&spstate, 0, sizeof(spstate));
 
-    if (SDLNet_Init() < 0) {
+    if (SDLNet_Init() < 0)
+    {
         return Lb_FAIL;
     }
 
@@ -314,7 +340,8 @@ static TbError tcpSP_init(NetDropCallback drop_callback)
 
 static void tcpSP_exit(void)
 {
-    if (spstate.ishost) {
+    if (spstate.ishost)
+    {
         for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
         {
             SDLNet_TCP_Close(spstate.peers[i].socket);
@@ -332,16 +359,18 @@ static void tcpSP_exit(void)
     LbMemorySet(&spstate, 0, sizeof(spstate));
 }
 
-static TbError tcpSP_host(const char * session, void * options)
+static TbError tcpSP_host(const char *session, void *options)
 {
     assert(session);
     NETDBG(4, "Creating TCP server SP for session %s", session);
 
-    const char* portstr = session;
-    while (*portstr != 0 && *portstr != ':') {
+    const char *portstr = session;
+    while (*portstr != 0 && *portstr != ':')
+    {
         ++portstr;
     }
-    if (*portstr == ':') {
+    if (*portstr == ':')
+    {
         ++portstr;
     }
 
@@ -350,7 +379,8 @@ static TbError tcpSP_host(const char * session, void * options)
     SDLNet_Write16(atoi(portstr), &addr.port);
 
     spstate.socket = SDLNet_TCP_Open(&addr);
-    if (spstate.socket == NULL) {
+    if (spstate.socket == NULL)
+    {
         ERRORLOG("Failed to initialize TCP server socket to port %s", portstr);
         return Lb_FAIL;
     }
@@ -361,20 +391,22 @@ static TbError tcpSP_host(const char * session, void * options)
     return Lb_OK;
 }
 
-static TbError tcpSP_join(const char * session, void * options)
+static TbError tcpSP_join(const char *session, void *options)
 {
     assert(session);
     NETDBG(4, "Creating TCP client SP for session %s", session);
 
     size_t size = LbStringLength(session) + 1;
-    char* hostname = (char*)LbMemoryAlloc(size);
+    char *hostname = (char *)LbMemoryAlloc(size);
     LbStringCopy(hostname, session, size);
 
-    char* portstr = hostname;
-    while (*portstr != 0 && *portstr != ':') {
+    char *portstr = hostname;
+    while (*portstr != 0 && *portstr != ':')
+    {
         ++portstr;
     }
-    if (*portstr == ':') {
+    if (*portstr == ':')
+    {
         *portstr = 0;
         ++portstr;
     }
@@ -383,7 +415,8 @@ static TbError tcpSP_join(const char * session, void * options)
     SDLNet_ResolveHost(&addr, hostname, atoi(portstr));
 
     spstate.socket = SDLNet_TCP_Open(&addr);
-    if (spstate.socket == NULL) {
+    if (spstate.socket == NULL)
+    {
         LbMemoryFree(hostname);
         NETMSG("Failed to initialize TCP client socket to host %s and port %s", hostname, portstr);
         return Lb_FAIL;
@@ -403,17 +436,19 @@ static void tcpSP_update(NetNewUserCallback new_user)
     assert(new_user);
     NETDBG(8, "Starting");
 
-    if (!spstate.ishost) {
-        return; //clients don't need to do anything here
+    if (!spstate.ishost)
+    {
+        return; // clients don't need to do anything here
     }
 
     TCPsocket new_socket;
     while ((new_socket = SDLNet_TCP_Accept(spstate.socket)) != NULL)
-    { //does not block
+    { // does not block
         unsigned index;
         for (index = 0; index < MAX_N_PEERS; ++index)
         {
-            if (spstate.peers[index].socket == NULL) {
+            if (spstate.peers[index].socket == NULL)
+            {
                 break;
             }
         }
@@ -426,14 +461,15 @@ static void tcpSP_update(NetNewUserCallback new_user)
             SDLNet_TCP_AddSocket(spstate.socketset, new_socket);
             reset_msg(&spstate.peers[index].msg);
         }
-        else {
+        else
+        {
             SDLNet_TCP_Close(new_socket);
             NETMSG("Socket dropped because server is full");
         }
     }
 }
 
-static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, size_t size)
+static void tcpSP_sendmsg_single(NetUserId destination, const char *buffer, size_t size)
 {
     assert(buffer);
     assert(size > 0);
@@ -441,43 +477,52 @@ static void tcpSP_sendmsg_single(NetUserId destination, const char * buffer, siz
 
     NETDBG(9, "Starting for buffer of %u bytes to user %u", size, destination);
 
-    if (    send_buffer(find_peer_socket(destination), (const char*) &size, 4) == Lb_FAIL ||
-            send_buffer(find_peer_socket(destination), buffer, size) == Lb_FAIL) {
+    if (send_buffer(find_peer_socket(destination), (const char *)&size, 4) == Lb_FAIL ||
+        send_buffer(find_peer_socket(destination), buffer, size) == Lb_FAIL)
+    {
         clear_peer(destination);
-        if (spstate.drop_callback) {
+        if (spstate.drop_callback)
+        {
             spstate.drop_callback(destination, NETDROP_ERROR);
         }
     }
 }
 
-static void tcpSP_sendmsg_all(const char * buffer, size_t size)
+static void tcpSP_sendmsg_all(const char *buffer, size_t size)
 {
     assert(buffer);
     assert(size > 0);
     NETDBG(9, "Starting for buffer of %u bytes", size);
 
-    if (spstate.ishost) {
+    if (spstate.ishost)
+    {
         for (unsigned int i = 0; i < MAX_N_PEERS; ++i)
         {
-            if (spstate.peers[i].socket == NULL) {
+            if (spstate.peers[i].socket == NULL)
+            {
                 continue;
             }
 
-            if (    send_buffer(spstate.peers[i].socket, (const char*) &size, 4) == Lb_FAIL ||
-                    send_buffer(spstate.peers[i].socket, buffer, size) == Lb_FAIL) {
+            if (send_buffer(spstate.peers[i].socket, (const char *)&size, 4) == Lb_FAIL ||
+                send_buffer(spstate.peers[i].socket, buffer, size) == Lb_FAIL)
+            {
                 NetUserId id = spstate.peers[i].id;
                 clear_peer(id);
-                if (spstate.drop_callback) {
+                if (spstate.drop_callback)
+                {
                     spstate.drop_callback(id, NETDROP_ERROR);
                 }
             }
         }
     }
-    else {
-        if (    send_buffer(spstate.socket, (const char*) &size, 4) == Lb_FAIL ||
-                send_buffer(spstate.socket, buffer, size) == Lb_FAIL) {
+    else
+    {
+        if (send_buffer(spstate.socket, (const char *)&size, 4) == Lb_FAIL ||
+            send_buffer(spstate.socket, buffer, size) == Lb_FAIL)
+        {
             clear_peer(SERVER_ID);
-            if (spstate.drop_callback) {
+            if (spstate.drop_callback)
+            {
                 spstate.drop_callback(SERVER_ID, NETDROP_ERROR);
             }
         }
@@ -488,32 +533,37 @@ static size_t tcpSP_msgready(NetUserId source, unsigned timeout)
 {
     NETDBG(9, "Starting message ready check for user %u", source);
 
-    struct Msg* msg = find_peer_message(source);
-    if (!msg) {
+    struct Msg *msg = find_peer_message(source);
+    if (!msg)
+    {
         return 0;
     }
 
-    if (msg->state == READ_FINISHED) {
+    if (msg->state == READ_FINISHED)
+    {
         return msg->msg_size;
     }
 
-    if (read_partial(find_peer_socket(source), msg, timeout) == Lb_FAIL) {
+    if (read_partial(find_peer_socket(source), msg, timeout) == Lb_FAIL)
+    {
         clear_peer(source);
-        if (spstate.drop_callback) {
+        if (spstate.drop_callback)
+        {
             spstate.drop_callback(source, NETDROP_ERROR);
         }
 
         return 0;
     }
 
-    if (msg->state == READ_FINISHED) {
+    if (msg->state == READ_FINISHED)
+    {
         return msg->msg_size;
     }
 
     return 0;
 }
 
-static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
+static size_t tcpSP_readmsg(NetUserId source, char *buffer, size_t max_size)
 {
     size_t size;
 
@@ -521,21 +571,25 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
     assert(max_size > 0);
     NETDBG(9, "Starting read from user %u", source);
 
-    struct Msg* msg = find_peer_message(source);
-    if (!msg) {
+    struct Msg *msg = find_peer_message(source);
+    if (!msg)
+    {
         return 0;
     }
 
-    if (msg->state == READ_FINISHED) {
+    if (msg->state == READ_FINISHED)
+    {
         size = min(msg->msg_size, max_size);
         LbMemoryCopy(buffer, msg->buffer, size);
         reset_msg(msg);
         return size;
     }
 
-    if (read_full(find_peer_socket(source), msg) == Lb_FAIL) {
+    if (read_full(find_peer_socket(source), msg) == Lb_FAIL)
+    {
         clear_peer(source);
-        if (spstate.drop_callback) {
+        if (spstate.drop_callback)
+        {
             spstate.drop_callback(source, NETDROP_ERROR);
         }
 
@@ -552,7 +606,8 @@ static size_t tcpSP_readmsg(NetUserId source, char * buffer, size_t max_size)
 
 static void tcpSP_drop_user(NetUserId id)
 {
-    if (clear_peer(id) && spstate.drop_callback) {
+    if (clear_peer(id) && spstate.drop_callback)
+    {
         spstate.drop_callback(id, NETDROP_MANUAL);
     }
 }

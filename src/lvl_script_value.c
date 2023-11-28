@@ -47,7 +47,6 @@ extern "C" {
 extern const struct CommandDesc command_desc[];
 extern const struct CommandDesc dk1_command_desc[];
 
-
 /******************************************************************************/
 /**
  * Reads word from 'line' into 'param'. Sets if 'line_end' was reached.
@@ -56,11 +55,10 @@ extern const struct CommandDesc dk1_command_desc[];
  * @param parth_level Paraenesis level within the line, set to -1 on EOLN.
  */
 
-
 static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w, long h)
 {
-  SYNCDBG(0,"Revealing around (%d,%d)",x,y);
-  reveal_map_area(plyr_idx, x-(w>>1), x+(w>>1)+(w%1), y-(h>>1), y+(h>>1)+(h%1));
+    SYNCDBG(0, "Revealing around (%d,%d)", x, y);
+    reveal_map_area(plyr_idx, x - (w >> 1), x + (w >> 1) + (w % 1), y - (h >> 1), y + (h >> 1) + (h % 1));
 }
 
 /**
@@ -73,13 +71,15 @@ static void player_reveal_map_area(PlayerNumber plyr_idx, long x, long y, long w
 TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, long criteria)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to kill", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return false;
     }
     kill_creature(thing, INVALID_THING, -1, CrDed_NoUnconscious);
     return true;
 }
+
 /**
  * Changes owner of a creature which meets given criteria.
  * @param origin_plyr_idx The player whose creature will be affected.
@@ -91,8 +91,9 @@ TbBool script_kill_creature_with_criteria(PlayerNumber plyr_idx, long crmodel, l
 TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, long crmodel, long criteria, PlayerNumber dest_plyr_idx)
 {
     struct Thing *thing = script_get_creature_by_criteria(origin_plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to kill",(int)origin_plyr_idx,(int)crmodel, creature_code_name(crmodel));
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to kill", (int)origin_plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return false;
     }
     change_creature_owner(thing, dest_plyr_idx);
@@ -101,7 +102,7 @@ TbBool script_change_creature_owner_with_criteria(PlayerNumber origin_plyr_idx, 
 
 void script_kill_creatures(PlayerNumber plyr_idx, long crmodel, long criteria, long copies_num)
 {
-    SYNCDBG(3,"Killing %d of %s owned by player %d.",(int)copies_num,creature_code_name(crmodel),(int)plyr_idx);
+    SYNCDBG(3, "Killing %d of %s owned by player %d.", (int)copies_num, creature_code_name(crmodel), (int)plyr_idx);
     for (long i = 0; i < copies_num; i++)
     {
         script_kill_creature_with_criteria(plyr_idx, crmodel, criteria);
@@ -118,11 +119,12 @@ void script_kill_creatures(PlayerNumber plyr_idx, long crmodel, long criteria, l
 TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criteria, int count)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to level up",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to level up", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return false;
     }
-    creature_change_multiple_levels(thing,count);
+    creature_change_multiple_levels(thing, count);
     return true;
 }
 
@@ -137,14 +139,15 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
 TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use power on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use power on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
 
     char is_free = (fmcl_bytes >> 24) != 0;
     PowerKind pwkind = (fmcl_bytes >> 16) & 255;
-    PlayerNumber caster =  (fmcl_bytes >> 8) & 255;
+    PlayerNumber caster = (fmcl_bytes >> 8) & 255;
     long splevel = fmcl_bytes & 255;
 
     if (thing_is_in_power_hand_list(thing, plyr_idx))
@@ -157,8 +160,8 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         block |= pwkind == PwrK_SIGHT;
         if (block)
         {
-          SYNCDBG(5,"Found creature to use power on but it is being held.");
-          return Lb_FAIL;
+            SYNCDBG(5, "Found creature to use power on but it is being held.");
+            return Lb_FAIL;
         }
     }
 
@@ -168,33 +171,33 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 
     switch (pwkind)
     {
-      case PwrK_HEALCRTR:
+    case PwrK_HEALCRTR:
         return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_SPEEDCRTR:
+    case PwrK_SPEEDCRTR:
         return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_PROTECT:
+    case PwrK_PROTECT:
         return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_CONCEAL:
+    case PwrK_CONCEAL:
         return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_DISEASE:
+    case PwrK_DISEASE:
         return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_CHICKEN:
+    case PwrK_CHICKEN:
         return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_SLAP:
+    case PwrK_SLAP:
         return magic_use_power_slap_thing(caster, thing, spell_flags);
-      case PwrK_CALL2ARMS:
+    case PwrK_CALL2ARMS:
         return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_LIGHTNING:
+    case PwrK_LIGHTNING:
         return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_CAVEIN:
+    case PwrK_CAVEIN:
         return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_MKDIGGER:
+    case PwrK_MKDIGGER:
         return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
-      case PwrK_SIGHT:
+    case PwrK_SIGHT:
         return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_TIMEBOMB:
+    case PwrK_TIMEBOMB:
         return magic_use_power_time_bomb(caster, thing, splevel, spell_flags);
-      default:
+    default:
         SCRPTERRLOG("Power not supported for this command: %s", power_code_name(pwkind));
         return Lb_FAIL;
     }
@@ -203,21 +206,22 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
 TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use spell on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
+    if (thing_is_invalid(thing))
+    {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use spell on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
         return Lb_FAIL;
     }
     SpellKind spkind = (fmcl_bytes >> 8) & 255;
-    const struct SpellConfig* spconf = get_spell_config(spkind);
+    const struct SpellConfig *spconf = get_spell_config(spkind);
 
     if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These four should be also marked at configs somehow
-            ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
-            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
+        (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These four should be also marked at configs somehow
+        ((spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)) ||
+        ((spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0)))
     {
         if (thing_is_picked_up(thing))
         {
-            SYNCDBG(5,"Found creature to cast the spell on but it is being held.");
+            SYNCDBG(5, "Found creature to cast the spell on but it is being held.");
             return Lb_FAIL;
         }
         unsigned short sound;
@@ -225,7 +229,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         {
             sound = spconf->caster_affect_sound;
         }
-        else if ( (spkind == SplK_Freeze) || (spkind == SplK_Slow) )
+        else if ((spkind == SplK_Freeze) || (spkind == SplK_Slow))
         {
             sound = 50;
         }
@@ -268,11 +272,11 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
  */
 TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destination)
 {
-    struct Computer2* comp = get_computer_player(plyr_idx);
+    struct Computer2 *comp = get_computer_player(plyr_idx);
     long orig_x, orig_y = 0;
     long dest_x, dest_y = 0;
 
-    //dig origin
+    // dig origin
     find_map_location_coords(origin, &orig_x, &orig_y, plyr_idx, __func__);
     if ((orig_x == 0) && (orig_y == 0))
     {
@@ -284,7 +288,7 @@ TbResult script_computer_dig_to_location(long plyr_idx, long origin, long destin
     startpos.y.val = subtile_coord_center(stl_slab_center_subtile(orig_y));
     startpos.z.val = subtile_coord(1, 0);
 
-    //dig destination
+    // dig destination
     find_map_location_coords(destination, &dest_x, &dest_y, plyr_idx, __func__);
     if ((dest_x == 0) && (dest_y == 0))
     {
@@ -319,7 +323,9 @@ TbResult script_use_power_at_pos(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
 
     unsigned long spell_flags = PwCast_AllGround | PwCast_Unrevealed;
     if (is_free)
+    {
         spell_flags |= PwMod_CastForFree;
+    }
 
     return magic_use_power_on_subtile(plyr_idx, powerKind, splevel, stl_x, stl_y, spell_flags);
 }
@@ -400,491 +406,529 @@ TbBool script_use_special_locate_hidden_world()
  */
 void script_process_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4, struct ScriptValue *value)
 {
-  struct CreatureStats *crstat;
-  struct CreatureModelConfig *crconf;
-  struct PlayerInfo *player;
-  struct Dungeon *dungeon;
-  int plr_start;
-  int plr_end;
-  long i;
-  if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
-  {
-      WARNLOG("Invalid player range %d in VALUE command %d.",(int)plr_range_id,(int)var_index);
-      return;
-  }
-  //TODO: split and make indexed by var_index
-  const struct CommandDesc *desc;
-  for (desc = command_desc; desc->textptr != NULL; desc++)
-      if (desc-> index == var_index)
-          break;
-  if (desc == NULL)
-  {
-      WARNLOG("Unexpected index:%d", var_index);
-      return;
-  }
-  if (desc->process_fn)
-  {
-      // TODO: move two functions up
-      struct ScriptContext context;
-      context.plr_start = plr_start;
-      context.plr_end = plr_end;
-      // TODO: this should be checked for sanity
-      for (i=plr_start; i < plr_end; i++)
-      {
-          context.player_idx = i;
-          context.value = value;
-          desc->process_fn(&context);
-      }
-      return;
-  }
+    struct CreatureStats *crstat;
+    struct CreatureModelConfig *crconf;
+    struct PlayerInfo *player;
+    struct Dungeon *dungeon;
+    int plr_start;
+    int plr_end;
+    long i;
+    if (get_players_range(plr_range_id, &plr_start, &plr_end) < 0)
+    {
+        WARNLOG("Invalid player range %d in VALUE command %d.", (int)plr_range_id, (int)var_index);
+        return;
+    }
+    // TODO: split and make indexed by var_index
+    const struct CommandDesc *desc;
+    for (desc = command_desc; desc->textptr != NULL; desc++)
+    {
+        if (desc->index == var_index)
+        {
+            break;
+        }
+    }
+    if (desc == NULL)
+    {
+        WARNLOG("Unexpected index:%d", var_index);
+        return;
+    }
+    if (desc->process_fn)
+    {
+        // TODO: move two functions up
+        struct ScriptContext context;
+        context.plr_start = plr_start;
+        context.plr_end = plr_end;
+        // TODO: this should be checked for sanity
+        for (i = plr_start; i < plr_end; i++)
+        {
+            context.player_idx = i;
+            context.value = value;
+            desc->process_fn(&context);
+        }
+        return;
+    }
 
-  switch (var_index)
-  {
-  case Cmd_SET_HATE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-        dungeon = get_dungeon(i);
-        if (dungeon_invalid(dungeon))
-            continue;
-        dungeon->hates_player[val2%DUNGEONS_COUNT] = val3;
-      }
-      break;
-  case Cmd_SET_GENERATE_SPEED:
-      game.generate_speed = saturate_set_unsigned(val2, 16);
-      update_dungeon_generation_speeds();
-      break;
-  case Cmd_ROOM_AVAILABLE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-        set_room_available(i, val2, val3, val4);
-      }
-      break;
-  case Cmd_CREATURE_AVAILABLE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          if (!set_creature_available(i,val2,val3,val4)) {
-              WARNLOG("Setting creature %s availability for player %d failed.",creature_code_name(val2),(int)i);
-          }
-      }
-      break;
-  case Cmd_MAGIC_AVAILABLE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          if (!set_power_available(i,val2,val3,val4)) {
-              WARNLOG("Setting power %s availability for player %d failed.",power_code_name(val2),(int)i);
-          }
-      }
-      break;
-  case Cmd_TRAP_AVAILABLE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          if (!set_trap_buildable_and_add_to_amount(i, val2, val3, val4)) {
-              WARNLOG("Setting trap %s availability for player %d failed.",trap_code_name(val2),(int)i);
-          }
-      }
-      break;
-  case Cmd_RESEARCH:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          if (!update_or_add_players_research_amount(i, val2, val3, val4)) {
-              WARNLOG("Updating research points for type %d kind %d of player %d failed.",(int)val2,(int)val3,(int)i);
-          }
-      }
-      break;
-  case Cmd_RESEARCH_ORDER:
-      for (i=plr_start; i < plr_end; i++)
-      {
-        if (!research_overriden_for_player(i))
-          remove_all_research_from_player(i);
-        add_research_to_player(i, val2, val3, val4);
-      }
-      break;
-  case Cmd_SET_TIMER:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          restart_script_timer(i,val2);
-      }
-      break;
-  case Cmd_SET_FLAG:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          set_variable(i, val4, val2, val3);
-      }
-      break;
-  case Cmd_ADD_TO_FLAG:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          set_variable(i, val4, val2, get_condition_value(i, val4, val2) + val3);
-      }
-      break;
-  case Cmd_MAX_CREATURES:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          SYNCDBG(4,"Setting player %d max attracted creatures to %d.",(int)i,(int)val2);
-          dungeon = get_dungeon(i);
-          if (dungeon_invalid(dungeon))
-              continue;
-          dungeon->max_creatures_attracted = val2;
-      }
-      break;
-  case Cmd_DOOR_AVAILABLE:
-      for (i=plr_start; i < plr_end; i++) {
-          set_door_buildable_and_add_to_amount(i, val2, val3, val4);
-      }
-      break;
-  case Cmd_DISPLAY_INFORMATION:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end)) {
-          set_general_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
-      }
-      break;
-  case Cmd_ADD_CREATURE_TO_POOL:
-      add_creature_to_pool(val2, val3, 0);
-      break;
-  case Cmd_RESET_ACTION_POINT:
-      action_point_reset_idx(val2);
-      break;
-  case Cmd_TUTORIAL_FLASH_BUTTON:
-      gui_set_button_flashing(val2, val3);
-      break;
-  case Cmd_SET_CREATURE_MAX_LEVEL:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          dungeon = get_dungeon(i);
-          if (dungeon_invalid(dungeon))
-              continue;
-          if (val3 == -1)
-              val3 = CREATURE_MAX_LEVEL + 1;
-          dungeon->creature_max_level[val2%gameadd.crtr_conf.model_count] = val3;
-      }
-      break;
-  case Cmd_SET_CREATURE_HEALTH:
-      change_max_health_of_creature_kind(val2, val3);
-      break;
-  case Cmd_SET_CREATURE_STRENGTH:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
-          break;
-      crstat->strength = saturate_set_unsigned(val3, 8);
-      break;
-  case Cmd_SET_CREATURE_ARMOUR:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
-          break;
-      crstat->armour = saturate_set_unsigned(val3, 8);
-      break;
-  case Cmd_SET_CREATURE_FEAR_WOUNDED:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
-          break;
-      crstat->fear_wounded = saturate_set_unsigned(val3, 8);
-      break;
-  case Cmd_SET_CREATURE_FEAR_STRONGER:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
-          break;
-      crstat->fear_stronger = saturate_set_unsigned(val3, 16);
-      break;
-  case Cmd_SET_CREATURE_FEARSOME_FACTOR:
-      crstat = creature_stats_get(val2);
-      if (creature_stats_invalid(crstat))
-          break;
-      crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
-      break;
-  case Cmd_SET_CREATURE_PROPERTY:
-      crconf = &gameadd.crtr_conf.model[val2];
-      crstat = creature_stats_get(val2);
-      switch (val3)
-      {
-      case 1: // BLEEDS
-          crstat->bleeds = val4;
-          break;
-      case 2: // UNAFFECTED_BY_WIND
-          if (val4)
-          {
-              crstat->affected_by_wind = 0;
-          }
-          else
-          {
-              crstat->affected_by_wind = 1;
-          }
-          break;
-      case 3: // IMMUNE_TO_GAS
-          crstat->immune_to_gas = val4;
-          break;
-      case 4: // HUMANOID_SKELETON
-          crstat->humanoid_creature = val4;
-          break;
-      case 5: // PISS_ON_DEAD
-          crstat->piss_on_dead = val4;
-          break;
-      case 7: // FLYING
-          crstat->flying = val4;
-          break;
-      case 8: // SEE_INVISIBLE
-          crstat->can_see_invisible = val4;
-          break;
-      case 9: // PASS_LOCKED_DOORS
-          crstat->can_go_locked_doors = val4;
-          break;
-      case 10: // SPECIAL_DIGGER
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_IsSpecDigger;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_IsSpecDigger;
-          }
-          break;
-      case 11: // ARACHNID
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_IsArachnid;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_IsArachnid;
-          }
-          break;
-      case 12: // DIPTERA
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_IsDiptera;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_IsDiptera;
-          }
-          break;
-      case 13: // LORD
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_IsLordOTLand;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_IsLordOTLand;
-          }
-          break;
-      case 14: // SPECTATOR
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_IsSpectator;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_IsSpectator;
-          }
-          break;
-      case 15: // EVIL
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_IsEvil;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_IsEvil;
-          }
-          break;
-      case 16: // NEVER_CHICKENS
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_NeverChickens;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_NeverChickens;
-          }
-          break;
-      case 17: // IMMUNE_TO_BOULDER
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_ImmuneToBoulder;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_ImmuneToBoulder;
-          }
-          break;
-      case 18: // NO_CORPSE_ROTTING
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_NoCorpseRotting;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_NoCorpseRotting;
-          }
-          break;
-      case 19: // NO_ENMHEART_ATTCK
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_NoEnmHeartAttack;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_NoEnmHeartAttack;
-          }
-          break;
-      case 20: // TREMBLING_FAT
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_TremblingFat;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_TremblingFat;
-          }
-          break;
-      case 21: // FEMALE
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_Female;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_Female;
-          }
-          break;
-      case 22: // INSECT
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_Insect;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_Insect;
-          }
-          break;
-      case 23: // ONE_OF_KIND
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_OneOfKind;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_OneOfKind;
-          }
-          break;
-      case 24: // NO_IMPRISONMENT
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_NoImprisonment;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_NoImprisonment;
-          }
-          break;
-      case 25: // NEVER_SICK
-          if (val4 >= 1)
-          {
-              crconf->model_flags |= CMF_NeverSick;
-          }
-          else
-          {
-              crconf->model_flags ^= CMF_NeverSick;
-          }
-          break;
-      case 26: // ILLUMINATED
-          crstat->illuminated = val4;
-          break;
-      case 27: // ALLURING_SCVNGR
-          crstat->entrance_force = val4;
-          break;
-      default:
-          SCRPTERRLOG("Unknown creature property '%d'", val3);
-          break;
-      }
-      break;
-  case Cmd_ALLY_PLAYERS:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          set_ally_with_player(i, val2, (val3 & 1) ? true : false);
-          set_ally_with_player(val2, i, (val3 & 1) ? true : false);
-          set_player_ally_locked(i, val2, (val3 & 2) ? true : false);
-          set_player_ally_locked(val2, i, (val3 & 2) ? true : false);
-      }
-      break;
-      break;
-  case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
-      set_flag_byte(&game.flags_cd, MFlg_DeadBackToPool, val2);
-      break;
-  case Cmd_BONUS_LEVEL_TIME:
-      if (val2 > 0) {
-          game.bonus_time = game.play_gameturn + val2;
-          game.flags_gui |= GGUI_CountdownTimer;
-      } else {
-          game.bonus_time = 0;
-          game.flags_gui &= ~GGUI_CountdownTimer;
-      }
-      if (level_file_version > 0)
-      {
-          gameadd.timer_real = (TbBool)val3;
-      }
-      else
-      {
-          gameadd.timer_real = false;
-      }
-      break;
-  case Cmd_QUICK_OBJECTIVE:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-          process_objective(gameadd.quick_messages[val2%QUICK_MESSAGES_COUNT], val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
-      break;
-  case Cmd_QUICK_INFORMATION:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-          set_quick_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
-      break;
-  case Cmd_ADD_GOLD_TO_PLAYER:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          if (val2 > SENSIBLE_GOLD)
-          {
-              val2 = SENSIBLE_GOLD;
-              SCRPTWRNLOG("Gold added to player %d reduced to %d", (int)plr_range_id, SENSIBLE_GOLD);
-          }
-          player_add_offmap_gold(i, val2);
-      }
-      break;
-  case Cmd_SET_CREATURE_TENDENCIES:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          player = get_player(i);
-          set_creature_tendencies(player, val2, val3);
-          if (is_my_player(player)) {
-              dungeon = get_players_dungeon(player);
-              game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
-              game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
-          }
-      }
-      break;
-  case Cmd_REVEAL_MAP_RECT:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          player_reveal_map_area(i, val2, val3, (val4)&0xffff, (val4>>16)&0xffff);
-      }
-      break;
-  case Cmd_KILL_CREATURE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_kill_creatures(i, val2, val3, val4);
-      }
-      break;
+    switch (var_index)
+    {
+    case Cmd_SET_HATE:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            dungeon = get_dungeon(i);
+            if (dungeon_invalid(dungeon))
+            {
+                continue;
+            }
+            dungeon->hates_player[val2 % DUNGEONS_COUNT] = val3;
+        }
+        break;
+    case Cmd_SET_GENERATE_SPEED:
+        game.generate_speed = saturate_set_unsigned(val2, 16);
+        update_dungeon_generation_speeds();
+        break;
+    case Cmd_ROOM_AVAILABLE:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            set_room_available(i, val2, val3, val4);
+        }
+        break;
+    case Cmd_CREATURE_AVAILABLE:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            if (!set_creature_available(i, val2, val3, val4))
+            {
+                WARNLOG("Setting creature %s availability for player %d failed.", creature_code_name(val2), (int)i);
+            }
+        }
+        break;
+    case Cmd_MAGIC_AVAILABLE:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            if (!set_power_available(i, val2, val3, val4))
+            {
+                WARNLOG("Setting power %s availability for player %d failed.", power_code_name(val2), (int)i);
+            }
+        }
+        break;
+    case Cmd_TRAP_AVAILABLE:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            if (!set_trap_buildable_and_add_to_amount(i, val2, val3, val4))
+            {
+                WARNLOG("Setting trap %s availability for player %d failed.", trap_code_name(val2), (int)i);
+            }
+        }
+        break;
+    case Cmd_RESEARCH:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            if (!update_or_add_players_research_amount(i, val2, val3, val4))
+            {
+                WARNLOG("Updating research points for type %d kind %d of player %d failed.", (int)val2, (int)val3, (int)i);
+            }
+        }
+        break;
+    case Cmd_RESEARCH_ORDER:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            if (!research_overriden_for_player(i))
+            {
+                remove_all_research_from_player(i);
+            }
+            add_research_to_player(i, val2, val3, val4);
+        }
+        break;
+    case Cmd_SET_TIMER:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            restart_script_timer(i, val2);
+        }
+        break;
+    case Cmd_SET_FLAG:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            set_variable(i, val4, val2, val3);
+        }
+        break;
+    case Cmd_ADD_TO_FLAG:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            set_variable(i, val4, val2, get_condition_value(i, val4, val2) + val3);
+        }
+        break;
+    case Cmd_MAX_CREATURES:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            SYNCDBG(4, "Setting player %d max attracted creatures to %d.", (int)i, (int)val2);
+            dungeon = get_dungeon(i);
+            if (dungeon_invalid(dungeon))
+            {
+                continue;
+            }
+            dungeon->max_creatures_attracted = val2;
+        }
+        break;
+    case Cmd_DOOR_AVAILABLE:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            set_door_buildable_and_add_to_amount(i, val2, val3, val4);
+        }
+        break;
+    case Cmd_DISPLAY_INFORMATION:
+        if ((my_player_number >= plr_start) && (my_player_number < plr_end))
+        {
+            set_general_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+        }
+        break;
+    case Cmd_ADD_CREATURE_TO_POOL:
+        add_creature_to_pool(val2, val3, 0);
+        break;
+    case Cmd_RESET_ACTION_POINT:
+        action_point_reset_idx(val2);
+        break;
+    case Cmd_TUTORIAL_FLASH_BUTTON:
+        gui_set_button_flashing(val2, val3);
+        break;
+    case Cmd_SET_CREATURE_MAX_LEVEL:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            dungeon = get_dungeon(i);
+            if (dungeon_invalid(dungeon))
+            {
+                continue;
+            }
+            if (val3 == -1)
+            {
+                val3 = CREATURE_MAX_LEVEL + 1;
+            }
+            dungeon->creature_max_level[val2 % gameadd.crtr_conf.model_count] = val3;
+        }
+        break;
+    case Cmd_SET_CREATURE_HEALTH:
+        change_max_health_of_creature_kind(val2, val3);
+        break;
+    case Cmd_SET_CREATURE_STRENGTH:
+        crstat = creature_stats_get(val2);
+        if (creature_stats_invalid(crstat))
+        {
+            break;
+        }
+        crstat->strength = saturate_set_unsigned(val3, 8);
+        break;
+    case Cmd_SET_CREATURE_ARMOUR:
+        crstat = creature_stats_get(val2);
+        if (creature_stats_invalid(crstat))
+        {
+            break;
+        }
+        crstat->armour = saturate_set_unsigned(val3, 8);
+        break;
+    case Cmd_SET_CREATURE_FEAR_WOUNDED:
+        crstat = creature_stats_get(val2);
+        if (creature_stats_invalid(crstat))
+        {
+            break;
+        }
+        crstat->fear_wounded = saturate_set_unsigned(val3, 8);
+        break;
+    case Cmd_SET_CREATURE_FEAR_STRONGER:
+        crstat = creature_stats_get(val2);
+        if (creature_stats_invalid(crstat))
+        {
+            break;
+        }
+        crstat->fear_stronger = saturate_set_unsigned(val3, 16);
+        break;
+    case Cmd_SET_CREATURE_FEARSOME_FACTOR:
+        crstat = creature_stats_get(val2);
+        if (creature_stats_invalid(crstat))
+        {
+            break;
+        }
+        crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
+        break;
+    case Cmd_SET_CREATURE_PROPERTY:
+        crconf = &gameadd.crtr_conf.model[val2];
+        crstat = creature_stats_get(val2);
+        switch (val3)
+        {
+        case 1: // BLEEDS
+            crstat->bleeds = val4;
+            break;
+        case 2: // UNAFFECTED_BY_WIND
+            if (val4)
+            {
+                crstat->affected_by_wind = 0;
+            }
+            else
+            {
+                crstat->affected_by_wind = 1;
+            }
+            break;
+        case 3: // IMMUNE_TO_GAS
+            crstat->immune_to_gas = val4;
+            break;
+        case 4: // HUMANOID_SKELETON
+            crstat->humanoid_creature = val4;
+            break;
+        case 5: // PISS_ON_DEAD
+            crstat->piss_on_dead = val4;
+            break;
+        case 7: // FLYING
+            crstat->flying = val4;
+            break;
+        case 8: // SEE_INVISIBLE
+            crstat->can_see_invisible = val4;
+            break;
+        case 9: // PASS_LOCKED_DOORS
+            crstat->can_go_locked_doors = val4;
+            break;
+        case 10: // SPECIAL_DIGGER
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_IsSpecDigger;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_IsSpecDigger;
+            }
+            break;
+        case 11: // ARACHNID
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_IsArachnid;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_IsArachnid;
+            }
+            break;
+        case 12: // DIPTERA
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_IsDiptera;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_IsDiptera;
+            }
+            break;
+        case 13: // LORD
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_IsLordOTLand;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_IsLordOTLand;
+            }
+            break;
+        case 14: // SPECTATOR
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_IsSpectator;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_IsSpectator;
+            }
+            break;
+        case 15: // EVIL
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_IsEvil;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_IsEvil;
+            }
+            break;
+        case 16: // NEVER_CHICKENS
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_NeverChickens;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_NeverChickens;
+            }
+            break;
+        case 17: // IMMUNE_TO_BOULDER
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_ImmuneToBoulder;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_ImmuneToBoulder;
+            }
+            break;
+        case 18: // NO_CORPSE_ROTTING
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_NoCorpseRotting;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_NoCorpseRotting;
+            }
+            break;
+        case 19: // NO_ENMHEART_ATTCK
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_NoEnmHeartAttack;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_NoEnmHeartAttack;
+            }
+            break;
+        case 20: // TREMBLING_FAT
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_TremblingFat;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_TremblingFat;
+            }
+            break;
+        case 21: // FEMALE
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_Female;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_Female;
+            }
+            break;
+        case 22: // INSECT
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_Insect;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_Insect;
+            }
+            break;
+        case 23: // ONE_OF_KIND
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_OneOfKind;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_OneOfKind;
+            }
+            break;
+        case 24: // NO_IMPRISONMENT
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_NoImprisonment;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_NoImprisonment;
+            }
+            break;
+        case 25: // NEVER_SICK
+            if (val4 >= 1)
+            {
+                crconf->model_flags |= CMF_NeverSick;
+            }
+            else
+            {
+                crconf->model_flags ^= CMF_NeverSick;
+            }
+            break;
+        case 26: // ILLUMINATED
+            crstat->illuminated = val4;
+            break;
+        case 27: // ALLURING_SCVNGR
+            crstat->entrance_force = val4;
+            break;
+        default:
+            SCRPTERRLOG("Unknown creature property '%d'", val3);
+            break;
+        }
+        break;
+    case Cmd_ALLY_PLAYERS:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            set_ally_with_player(i, val2, (val3 & 1) ? true : false);
+            set_ally_with_player(val2, i, (val3 & 1) ? true : false);
+            set_player_ally_locked(i, val2, (val3 & 2) ? true : false);
+            set_player_ally_locked(val2, i, (val3 & 2) ? true : false);
+        }
+        break;
+        break;
+    case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
+        set_flag_byte(&game.flags_cd, MFlg_DeadBackToPool, val2);
+        break;
+    case Cmd_BONUS_LEVEL_TIME:
+        if (val2 > 0)
+        {
+            game.bonus_time = game.play_gameturn + val2;
+            game.flags_gui |= GGUI_CountdownTimer;
+        }
+        else
+        {
+            game.bonus_time = 0;
+            game.flags_gui &= ~GGUI_CountdownTimer;
+        }
+        if (level_file_version > 0)
+        {
+            gameadd.timer_real = (TbBool)val3;
+        }
+        else
+        {
+            gameadd.timer_real = false;
+        }
+        break;
+    case Cmd_QUICK_OBJECTIVE:
+        if ((my_player_number >= plr_start) && (my_player_number < plr_end))
+        {
+            process_objective(gameadd.quick_messages[val2 % QUICK_MESSAGES_COUNT], val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+        }
+        break;
+    case Cmd_QUICK_INFORMATION:
+        if ((my_player_number >= plr_start) && (my_player_number < plr_end))
+        {
+            set_quick_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
+        }
+        break;
+    case Cmd_ADD_GOLD_TO_PLAYER:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            if (val2 > SENSIBLE_GOLD)
+            {
+                val2 = SENSIBLE_GOLD;
+                SCRPTWRNLOG("Gold added to player %d reduced to %d", (int)plr_range_id, SENSIBLE_GOLD);
+            }
+            player_add_offmap_gold(i, val2);
+        }
+        break;
+    case Cmd_SET_CREATURE_TENDENCIES:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            player = get_player(i);
+            set_creature_tendencies(player, val2, val3);
+            if (is_my_player(player))
+            {
+                dungeon = get_players_dungeon(player);
+                game.creatures_tend_imprison = ((dungeon->creature_tendencies & 0x01) != 0);
+                game.creatures_tend_flee = ((dungeon->creature_tendencies & 0x02) != 0);
+            }
+        }
+        break;
+    case Cmd_REVEAL_MAP_RECT:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            player_reveal_map_area(i, val2, val3, (val4) & 0xffff, (val4 >> 16) & 0xffff);
+        }
+        break;
+    case Cmd_KILL_CREATURE:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_kill_creatures(i, val2, val3, val4);
+        }
+        break;
     case Cmd_LEVEL_UP_CREATURE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_level_up_creature(i, val2, val3, val4);
-      }
-      break;
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_level_up_creature(i, val2, val3, val4);
+        }
+        break;
     case Cmd_USE_POWER_ON_CREATURE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_use_power_on_creature(i, val2, val3, val4);
-      }
-      break;
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_use_power_on_creature(i, val2, val3, val4);
+        }
+        break;
     case Cmd_USE_SPELL_ON_CREATURE:
-      script_use_spell_on_creature(plr_range_id, val2, val3, val4);
-      break;
+        script_use_spell_on_creature(plr_range_id, val2, val3, val4);
+        break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         for (i = plr_start; i < plr_end; i++)
         {
@@ -892,118 +936,118 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         }
         break;
     case Cmd_USE_POWER_AT_POS:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_use_power_at_pos(i, val2, val3, val4);
-      }
-      break;
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_use_power_at_pos(i, val2, val3, val4);
+        }
+        break;
     case Cmd_USE_POWER_AT_LOCATION:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_use_power_at_location(i, val2, val3);
-      }
-      break;
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_use_power_at_location(i, val2, val3);
+        }
+        break;
     case Cmd_USE_POWER:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_use_power(i, val2, val3);
-      }
-      break;
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_use_power(i, val2, val3);
+        }
+        break;
     case Cmd_USE_SPECIAL_INCREASE_LEVEL:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_use_special_increase_level(i, val2);
-      }
-      break;
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_use_special_increase_level(i, val2);
+        }
+        break;
     case Cmd_USE_SPECIAL_MULTIPLY_CREATURES:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          for (int count = 0; count < val2; count++)
-          {
-            script_use_special_multiply_creatures(i);
-          }
-      }
-      break;
+        for (i = plr_start; i < plr_end; i++)
+        {
+            for (int count = 0; count < val2; count++)
+            {
+                script_use_special_multiply_creatures(i);
+            }
+        }
+        break;
     case Cmd_USE_SPECIAL_MAKE_SAFE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_use_special_make_safe(i);
-      }
-      break;
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_use_special_make_safe(i);
+        }
+        break;
     case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
-      script_use_special_locate_hidden_world();
-      break;
+        script_use_special_locate_hidden_world();
+        break;
     case Cmd_CHANGE_CREATURE_OWNER:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_change_creature_owner_with_criteria(i, val2, val3, val4);
-      }
-      break;
-  case Cmd_SET_CAMPAIGN_FLAG:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          intralvl.campaign_flags[i][val2] = saturate_set_signed(val3, 32);
-      }
-      break;
-  case Cmd_ADD_TO_CAMPAIGN_FLAG:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            script_change_creature_owner_with_criteria(i, val2, val3, val4);
+        }
+        break;
+    case Cmd_SET_CAMPAIGN_FLAG:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            intralvl.campaign_flags[i][val2] = saturate_set_signed(val3, 32);
+        }
+        break;
+    case Cmd_ADD_TO_CAMPAIGN_FLAG:
 
-      for (i=plr_start; i < plr_end; i++)
-      {
-          intralvl.campaign_flags[i][val2] = saturate_set_signed(intralvl.campaign_flags[i][val2] + val3, 32);
-      }
-      break;
-  case Cmd_EXPORT_VARIABLE:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          SYNCDBG(8, "Setting campaign flag[%ld][%ld] to %ld.", i, val4, get_condition_value(i, val2, val3));
-          intralvl.campaign_flags[i][val4] = get_condition_value(i, val2, val3);
-      }
-      break;
-  case Cmd_QUICK_MESSAGE:
-  {
-      message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
-      break;
-  }
-  case Cmd_DISPLAY_MESSAGE:
-  {
+        for (i = plr_start; i < plr_end; i++)
+        {
+            intralvl.campaign_flags[i][val2] = saturate_set_signed(intralvl.campaign_flags[i][val2] + val3, 32);
+        }
+        break;
+    case Cmd_EXPORT_VARIABLE:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            SYNCDBG(8, "Setting campaign flag[%ld][%ld] to %ld.", i, val4, get_condition_value(i, val2, val3));
+            intralvl.campaign_flags[i][val4] = get_condition_value(i, val2, val3);
+        }
+        break;
+    case Cmd_QUICK_MESSAGE:
+    {
+        message_add_fmt(val2, "%s", gameadd.quick_messages[val3]);
+        break;
+    }
+    case Cmd_DISPLAY_MESSAGE:
+    {
         message_add_fmt(val2, "%s", get_string(val3));
         break;
-  }
-  case Cmd_CREATURE_ENTRANCE_LEVEL:
-  {
-    if (val2 > 0)
+    }
+    case Cmd_CREATURE_ENTRANCE_LEVEL:
     {
-        struct DungeonAdd* dungeonadd;
-        if (plr_range_id == ALL_PLAYERS)
+        if (val2 > 0)
         {
-            for (i = PLAYER3; i >= PLAYER0; i--)
+            struct DungeonAdd *dungeonadd;
+            if (plr_range_id == ALL_PLAYERS)
             {
-                dungeonadd = get_dungeonadd(i);
+                for (i = PLAYER3; i >= PLAYER0; i--)
+                {
+                    dungeonadd = get_dungeonadd(i);
+                    if (!dungeonadd_invalid(dungeonadd))
+                    {
+                        dungeonadd->creature_entrance_level = (val2 - 1);
+                    }
+                }
+            }
+            else
+            {
+                dungeonadd = get_dungeonadd(plr_range_id);
                 if (!dungeonadd_invalid(dungeonadd))
                 {
                     dungeonadd->creature_entrance_level = (val2 - 1);
                 }
             }
         }
-        else
-        {
-            dungeonadd = get_dungeonadd(plr_range_id);
-            if (!dungeonadd_invalid(dungeonadd))
-            {
-                dungeonadd->creature_entrance_level = (val2 - 1);
-            }
-        }
+        break;
     }
-    break;
-  }
-  case Cmd_RANDOMISE_FLAG:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          set_variable(i, val4, val2, GAME_RANDOM(val3) + 1);
-      }
-      break;
-  case Cmd_COMPUTE_FLAG:
-      {
+    case Cmd_RANDOMISE_FLAG:
+        for (i = plr_start; i < plr_end; i++)
+        {
+            set_variable(i, val4, val2, GAME_RANDOM(val3) + 1);
+        }
+        break;
+    case Cmd_COMPUTE_FLAG:
+    {
         long src_plr_range = (val2 >> 24) & 255;
         long operation = (val2 >> 16) & 255;
         unsigned char flag_type = (val2 >> 8) & 255;
@@ -1011,276 +1055,285 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
         int src_plr_start, src_plr_end;
         if (get_players_range(src_plr_range, &src_plr_start, &src_plr_end) < 0)
         {
-            WARNLOG("Invalid player range %d in VALUE command %d.",(int)src_plr_range,(int)var_index);
+            WARNLOG("Invalid player range %d in VALUE command %d.", (int)src_plr_range, (int)var_index);
             return;
         }
         long sum = 0;
-        for (i=src_plr_start; i < src_plr_end; i++)
+        for (i = src_plr_start; i < src_plr_end; i++)
         {
             sum += get_condition_value(i, src_flag_type, val4);
         }
-        for (i=plr_start; i < plr_end; i++)
+        for (i = plr_start; i < plr_end; i++)
         {
             long current_flag_val = get_condition_value(i, flag_type, val3);
             long computed = sum;
-            if (operation == SOpr_INCREASE) computed = current_flag_val + sum;
-            if (operation == SOpr_DECREASE) computed = current_flag_val - sum;
-            if (operation == SOpr_MULTIPLY) computed = current_flag_val * sum;
-            SCRIPTDBG(7,"Changing player%d's %d flag from %d to %d based on flag of type %d.", i, val3, current_flag_val, computed, src_flag_type);
+            if (operation == SOpr_INCREASE)
+            {
+                computed = current_flag_val + sum;
+            }
+            if (operation == SOpr_DECREASE)
+            {
+                computed = current_flag_val - sum;
+            }
+            if (operation == SOpr_MULTIPLY)
+            {
+                computed = current_flag_val * sum;
+            }
+            SCRIPTDBG(7, "Changing player%d's %d flag from %d to %d based on flag of type %d.", i, val3, current_flag_val, computed, src_flag_type);
             set_variable(i, flag_type, val3, computed);
         }
-      }
-      break;
-  case Cmd_SET_GAME_RULE:
-      switch (val2)
-      {
-      case 1: //BodiesForVampire
-          if ((val3 >= 0) && (val3 <= UCHAR_MAX))
-          {
-              SCRIPTDBG(7,"Changing rule %d from %d to %d", val2, game.bodies_for_vampire, val3);
-              game.bodies_for_vampire = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 2: //PrisonSkeletonChance
-          if (val3 >= 0 && val3 <= 100)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.prison_skeleton_chance, val3);
-              game.prison_skeleton_chance = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 3: //GhostConvertChance
-          if (val3 >= 0 && val3 <= 100)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.ghost_convert_chance, val3);
-              game.ghost_convert_chance = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 4: //TortureConvertChance
-          if (val3 >= 0 && val3 <= 100)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.torture_convert_chance, val3);
-              gameadd.torture_convert_chance = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 5: //TortureDeathChance
-          if (val3 >= 0 && val3 <= 100)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.torture_death_chance, val3);
-              gameadd.torture_death_chance = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 6: //FoodGenerationSpeed
-          if (val3 >= 0)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.food_generation_speed, val3);
-              game.food_generation_speed = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 7: //StunEvilEnemyChance
-          if (val3 >= 0 && val3 <= 100)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.stun_enemy_chance_evil, val3);
-              gameadd.stun_enemy_chance_evil = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 8: //StunGoodEnemyChance
-          if (val3 >= 0 && val3 <= 100)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.stun_enemy_chance_good, val3);
-              gameadd.stun_enemy_chance_good = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 9: //BodyRemainsFor
-          if (val3 >= 0)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.body_remains_for, val3);
-              game.body_remains_for = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 10: //FightHateKillValue
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.fight_hate_kill_value, val3);
-          game.fight_hate_kill_value = val3;
-          break;
-      case 11: //PreserveClassicBugs
-          if (val3 >= 0 && val3 < ClscBug_ListEnd)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.classic_bugs_flags, val3);
-              gameadd.classic_bugs_flags = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 12: //DungeonHeartHealHealth
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_heal_health, val3);
-          game.dungeon_heart_heal_health = val3;
-          break;
-      case 13: //ImpWorkExperience
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.digger_work_experience, val3);
-          gameadd.digger_work_experience = val3;
-          break;
-      case 14: //GemEffectiveness
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.gem_effectiveness, val3);
-          gameadd.gem_effectiveness = val3;
-          break;
-      case 15: //RoomSellGoldBackPercent
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.room_sale_percent, val3);
-          gameadd.room_sale_percent = val3;
-          break;
-      case 16: //DoorSellGoldBackPercent
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.door_sale_percent, val3);
-          gameadd.door_sale_percent = val3;
-          break;
-      case 17: //TrapSellGoldBackPercent
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.trap_sale_percent, val3);
-          gameadd.trap_sale_percent = val3;
-          break;
-      case 18: //PayDayGap
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
-          game.pay_day_gap = val3;
-          break;
-      case 19: //PayDaySpeed
-          if (val3 >= 0)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.pay_day_speed, val3);
-              gameadd.pay_day_speed = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 20: //PayDayProgress
-          if (val3 >= 0)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_progress, val3);
-              game.pay_day_progress = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 21: //PlaceTrapsOnSubtiles
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.place_traps_on_subtiles, val3);
-          gameadd.place_traps_on_subtiles = (TbBool)val3;
-          break;
-      case 22: //DiseaseHPTemplePercentage
-          if (val3 >= 0 && val3 <= 100)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
-              gameadd.disease_to_temple_pct = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 24: //HungerHealthLoss
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.hunger_health_loss, val3);
-          game.hunger_health_loss = val3;
-          break;
-      case 25: //GameTurnsPerHungerHealthLoss
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_hunger_health_loss, val3);
-          game.turns_per_hunger_health_loss = val3;
-          break;
-      case 26: //FoodHealthGain
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.food_health_gain, val3);
-          game.food_health_gain = val3;
-          break;
-      case 27: //TortureHealthLoss
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.torture_health_loss, val3);
-          game.torture_health_loss = val3;
-          break;
-      case 28: //GameTurnsPerTortureHealthLoss
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_torture_health_loss, val3);
-          game.turns_per_torture_health_loss = val3;
-          break;
-      case 29: //AlliesShareVision
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_vision, val3);
-          gameadd.allies_share_vision = (TbBool)val3;
-          break;
-      case 30: //AlliesShareDrop
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_drop, val3);
-          gameadd.allies_share_drop = (TbBool)val3;
-          break;
-      case 31: //AlliesShareCta
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
-          gameadd.allies_share_cta = (TbBool)val3;
-          break; 
-      case 32: //BarrackMaxPartySize
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
-          game.barrack_max_party_size = (TbBool)val3;
-          break;
-      case 33: //MaxThingsInHand
-          if (val3 <= MAX_THINGS_IN_HAND)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.max_things_in_hand, val3);
-              gameadd.max_things_in_hand = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
-          }
-          break;
-      case 34: //TrainingRoomMaxLevel
-          if (val3 >= 0 && val3 <= SHRT_MAX)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.training_room_max_level, val3);
-              game.training_room_max_level = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
-          }
-          break;
-      case 23:  //DungeonHeartHealth
-      default:
-          WARNMSG("Unsupported Game RULE, command %d.", val2);
-          break;
-      }
-      break;
-  default:
-      WARNMSG("Unsupported Game VALUE, command %d.",var_index);
-      break;
-  }
+    }
+    break;
+    case Cmd_SET_GAME_RULE:
+        switch (val2)
+        {
+        case 1: // BodiesForVampire
+            if ((val3 >= 0) && (val3 <= UCHAR_MAX))
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.bodies_for_vampire, val3);
+                game.bodies_for_vampire = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 2: // PrisonSkeletonChance
+            if (val3 >= 0 && val3 <= 100)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.prison_skeleton_chance, val3);
+                game.prison_skeleton_chance = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 3: // GhostConvertChance
+            if (val3 >= 0 && val3 <= 100)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.ghost_convert_chance, val3);
+                game.ghost_convert_chance = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 4: // TortureConvertChance
+            if (val3 >= 0 && val3 <= 100)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.torture_convert_chance, val3);
+                gameadd.torture_convert_chance = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 5: // TortureDeathChance
+            if (val3 >= 0 && val3 <= 100)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.torture_death_chance, val3);
+                gameadd.torture_death_chance = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 6: // FoodGenerationSpeed
+            if (val3 >= 0)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.food_generation_speed, val3);
+                game.food_generation_speed = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 7: // StunEvilEnemyChance
+            if (val3 >= 0 && val3 <= 100)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.stun_enemy_chance_evil, val3);
+                gameadd.stun_enemy_chance_evil = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 8: // StunGoodEnemyChance
+            if (val3 >= 0 && val3 <= 100)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.stun_enemy_chance_good, val3);
+                gameadd.stun_enemy_chance_good = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 9: // BodyRemainsFor
+            if (val3 >= 0)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.body_remains_for, val3);
+                game.body_remains_for = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 10: // FightHateKillValue
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.fight_hate_kill_value, val3);
+            game.fight_hate_kill_value = val3;
+            break;
+        case 11: // PreserveClassicBugs
+            if (val3 >= 0 && val3 < ClscBug_ListEnd)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.classic_bugs_flags, val3);
+                gameadd.classic_bugs_flags = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 12: // DungeonHeartHealHealth
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_heal_health, val3);
+            game.dungeon_heart_heal_health = val3;
+            break;
+        case 13: // ImpWorkExperience
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.digger_work_experience, val3);
+            gameadd.digger_work_experience = val3;
+            break;
+        case 14: // GemEffectiveness
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.gem_effectiveness, val3);
+            gameadd.gem_effectiveness = val3;
+            break;
+        case 15: // RoomSellGoldBackPercent
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.room_sale_percent, val3);
+            gameadd.room_sale_percent = val3;
+            break;
+        case 16: // DoorSellGoldBackPercent
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.door_sale_percent, val3);
+            gameadd.door_sale_percent = val3;
+            break;
+        case 17: // TrapSellGoldBackPercent
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.trap_sale_percent, val3);
+            gameadd.trap_sale_percent = val3;
+            break;
+        case 18: // PayDayGap
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
+            game.pay_day_gap = val3;
+            break;
+        case 19: // PayDaySpeed
+            if (val3 >= 0)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.pay_day_speed, val3);
+                gameadd.pay_day_speed = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 20: // PayDayProgress
+            if (val3 >= 0)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_progress, val3);
+                game.pay_day_progress = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 21: // PlaceTrapsOnSubtiles
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.place_traps_on_subtiles, val3);
+            gameadd.place_traps_on_subtiles = (TbBool)val3;
+            break;
+        case 22: // DiseaseHPTemplePercentage
+            if (val3 >= 0 && val3 <= 100)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
+                gameadd.disease_to_temple_pct = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 24: // HungerHealthLoss
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.hunger_health_loss, val3);
+            game.hunger_health_loss = val3;
+            break;
+        case 25: // GameTurnsPerHungerHealthLoss
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_hunger_health_loss, val3);
+            game.turns_per_hunger_health_loss = val3;
+            break;
+        case 26: // FoodHealthGain
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.food_health_gain, val3);
+            game.food_health_gain = val3;
+            break;
+        case 27: // TortureHealthLoss
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.torture_health_loss, val3);
+            game.torture_health_loss = val3;
+            break;
+        case 28: // GameTurnsPerTortureHealthLoss
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_torture_health_loss, val3);
+            game.turns_per_torture_health_loss = val3;
+            break;
+        case 29: // AlliesShareVision
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_vision, val3);
+            gameadd.allies_share_vision = (TbBool)val3;
+            break;
+        case 30: // AlliesShareDrop
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_drop, val3);
+            gameadd.allies_share_drop = (TbBool)val3;
+            break;
+        case 31: // AlliesShareCta
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
+            gameadd.allies_share_cta = (TbBool)val3;
+            break;
+        case 32: // BarrackMaxPartySize
+            SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
+            game.barrack_max_party_size = (TbBool)val3;
+            break;
+        case 33: // MaxThingsInHand
+            if (val3 <= MAX_THINGS_IN_HAND)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.max_things_in_hand, val3);
+                gameadd.max_things_in_hand = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
+            }
+            break;
+        case 34: // TrainingRoomMaxLevel
+            if (val3 >= 0 && val3 <= SHRT_MAX)
+            {
+                SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.training_room_max_level, val3);
+                game.training_room_max_level = val3;
+            }
+            else
+            {
+                SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+            }
+            break;
+        case 23: // DungeonHeartHealth
+        default:
+            WARNMSG("Unsupported Game RULE, command %d.", val2);
+            break;
+        }
+        break;
+    default:
+        WARNMSG("Unsupported Game VALUE, command %d.", var_index);
+        break;
+    }
 }
 
 /******************************************************************************/

@@ -28,8 +28,9 @@
 /******************************************************************************/
 
 // Exported class
-class MouseStateHandler {
- public:
+class MouseStateHandler
+{
+  public:
     MouseStateHandler(void);
     virtual ~MouseStateHandler(void);
     bool Install(void);
@@ -43,11 +44,12 @@ class MouseStateHandler {
     bool SetMousePointer(const struct TbSprite *mouseSprite);
     bool SetPointerOffset(long x, long y);
     struct TbPoint *GetPointerOffset(void);
-    bool SetMouseWindow(long x, long y,long width, long height);
+    bool SetMouseWindow(long x, long y, long width, long height);
     bool GetMouseWindow(struct TbRect *windowRect);
     bool PointerBeginSwap(void);
     bool PointerEndSwap(void);
- protected:
+
+  protected:
     bool SetPointer(const struct TbSprite *spr, struct TbPoint *pt);
     // Properties
     LbSemaphore semaphore;
@@ -57,7 +59,7 @@ class MouseStateHandler {
     struct TbPoint hotspot;
     class LbI_PointerHandler pointer;
     bool swap;
-    };
+};
 
 /******************************************************************************/
 extern class MouseStateHandler pointerHandler;

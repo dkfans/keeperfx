@@ -28,8 +28,7 @@ extern "C" {
 /******************************************************************************/
 extern const char keeper_textureanim_file[];
 
-
-TbBool load_textureanim_config(const char *conf_fname,unsigned short flags);
+TbBool load_textureanim_config(const char *conf_fname, unsigned short flags);
 
 /******************************************************************************/
 #ifdef __cplusplus

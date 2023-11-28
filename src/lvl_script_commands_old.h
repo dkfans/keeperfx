@@ -3,7 +3,7 @@
 /******************************************************************************/
 /** @file lvl_script_commands.h
  *     Header file for lvl_script_commands.c.
- * @par  This file is the old way of working 
+ * @par  This file is the old way of working
  * DON'T ADD NEW LOGIC HERE
  * see lvl_script_commands.c on how new commands should be added
  * @par Comment:
@@ -27,7 +27,6 @@ extern "C" {
 #include "lvl_script_commands.h"
 
 void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptLine *scline);
-
 
 #ifdef __cplusplus
 }

@@ -41,6 +41,7 @@ static long count_RegionQ;
 static long RegionQueue[REGION_QUEUE_LEN];
 /******************************************************************************/
 struct RegionT bad_region;
+
 /******************************************************************************/
 /**
  * Allocates region ID.
@@ -50,29 +51,32 @@ static unsigned long region_alloc(void)
 {
     long i;
 
-    NAVIDBG(19,"Starting");
+    NAVIDBG(19, "Starting");
     long reg_id = -1;
     int min_f0 = 2147483647;
-    for (i=1; i < REGIONS_COUNT; i++)
+    for (i = 1; i < REGIONS_COUNT; i++)
     {
-        struct RegionT* rgn = &Regions[i];
+        struct RegionT *rgn = &Regions[i];
         if (min_f0 > rgn->num_triangles)
         {
-            if (rgn->num_triangles == 0) {
+            if (rgn->num_triangles == 0)
+            {
                 return i;
             }
-            if (rgn->field_2 == 0) {
+            if (rgn->field_2 == 0)
+            {
                 reg_id = i;
                 min_f0 = rgn->num_triangles;
             }
         }
     }
-    if (reg_id == -1) {
+    if (reg_id == -1)
+    {
         ERRORLOG("regions overflow");
         return 0;
     }
-    NAVIDBG(19,"removing triangles from region %ld",reg_id);
-    for (i=0; i < ix_Triangles; i++)
+    NAVIDBG(19, "removing triangles from region %ld", reg_id);
+    for (i = 0; i < ix_Triangles; i++)
     {
         long sreg_id = get_triangle_region_id(i);
         if (sreg_id >= REGIONS_COUNT)
@@ -90,8 +94,10 @@ static unsigned long region_alloc(void)
                 Regions[0].num_triangles++;
             }
             if (Regions[reg_id].num_triangles == 0)
+            {
                 break;
-        }      
+            }
+        }
     }
     return reg_id;
 }
@@ -117,45 +123,52 @@ void region_lnk(int nreg)
                 notfound = 1;
                 break;
             }
-          ccor_id = link_find(ntri_id, ctri_id);
-          if (ccor_id < 0) {
-              ERRORLOG("no tri link");
-              notfound = 1;
-              break;
-          }
-          ccor_id = MOD3[ccor_id+1];
-          ctri_id = ntri_id;
-          if (nreg == ntri_id) {
-              notfound = 0;
-              break;
-          }
-          k++;
-          if (k > TRIANLGLES_COUNT) {
-              ERRORLOG("Infinite loop detected");
-              notfound = 1;
-              break;
-          }
-      }
-      if (notfound) {
-          continue;
-      }
-      ctri_id = nreg;
-      ccor_id = ncor;
-      while ( 1 )
-      {
-          set_triangle_edgelen(ctri_id, get_triangle_edgelen(ctri_id) | (3 << 2 * ccor_id));
-          int ntri_id = Triangles[ctri_id].tags[ccor_id];
-          if (ntri_id == -1)
-              break;
-          ccor_id = link_find(ntri_id, ctri_id);
-          ctri_id = ntri_id;
-          set_triangle_edgelen(ctri_id, get_triangle_edgelen(ctri_id) | (3 << 2 * ccor_id));
-          ccor_id = MOD3[ccor_id+1];
-          if (nreg == ntri_id) {
-              break;
-          }
-      }
-  }
+            ccor_id = link_find(ntri_id, ctri_id);
+            if (ccor_id < 0)
+            {
+                ERRORLOG("no tri link");
+                notfound = 1;
+                break;
+            }
+            ccor_id = MOD3[ccor_id + 1];
+            ctri_id = ntri_id;
+            if (nreg == ntri_id)
+            {
+                notfound = 0;
+                break;
+            }
+            k++;
+            if (k > TRIANLGLES_COUNT)
+            {
+                ERRORLOG("Infinite loop detected");
+                notfound = 1;
+                break;
+            }
+        }
+        if (notfound)
+        {
+            continue;
+        }
+        ctri_id = nreg;
+        ccor_id = ncor;
+        while (1)
+        {
+            set_triangle_edgelen(ctri_id, get_triangle_edgelen(ctri_id) | (3 << 2 * ccor_id));
+            int ntri_id = Triangles[ctri_id].tags[ccor_id];
+            if (ntri_id == -1)
+            {
+                break;
+            }
+            ccor_id = link_find(ntri_id, ctri_id);
+            ctri_id = ntri_id;
+            set_triangle_edgelen(ctri_id, get_triangle_edgelen(ctri_id) | (3 << 2 * ccor_id));
+            ccor_id = MOD3[ccor_id + 1];
+            if (nreg == ntri_id)
+            {
+                break;
+            }
+        }
+    }
 }
 
 static void region_connect(unsigned long tree_reg)
@@ -166,26 +179,28 @@ static void region_connect(unsigned long tree_reg)
     region_set(tree_reg, nreg_id);
     region_put(tree_reg);
     region_lnk(tree_reg);
-    while ( 1 )
+    while (1)
     {
         long creg_id = region_get();
         if (creg_id == -1)
-          break;
+        {
+            break;
+        }
         for (unsigned int ncor1 = 0; ncor1 < 3; ncor1++)
         {
             int ntri_id = Triangles[creg_id].tags[ncor1];
             if (ntri_id != -1)
             {
-              if ((Triangles[ntri_id].tree_alt & 0xF) != 15)
-              {
-                  long preg_id = get_triangle_region_id(ntri_id);
-                  if (preg_id != nreg_id)
-                  {
-                      region_lnk(creg_id);
-                      region_set(ntri_id, nreg_id);
-                      region_put(ntri_id);
-                  }
-              }
+                if ((Triangles[ntri_id].tree_alt & 0xF) != 15)
+                {
+                    long preg_id = get_triangle_region_id(ntri_id);
+                    if (preg_id != nreg_id)
+                    {
+                        region_lnk(creg_id);
+                        region_set(ntri_id, nreg_id);
+                        region_put(ntri_id);
+                    }
+                }
             }
         }
     }
@@ -193,13 +208,15 @@ static void region_connect(unsigned long tree_reg)
 
 void triangulation_init_regions(void)
 {
-    memset(Regions, 0, REGIONS_COUNT*sizeof(struct RegionT));
+    memset(Regions, 0, REGIONS_COUNT * sizeof(struct RegionT));
 }
 
 struct RegionT *get_region(long reg_id)
 {
     if ((reg_id < 0) || (reg_id >= REGIONS_COUNT))
+    {
         return INVALID_REGION;
+    }
     return &Regions[reg_id];
 }
 
@@ -212,18 +229,27 @@ struct RegionT *get_region(long reg_id)
 TbBool regions_connected(long tree_reg1, long tree_reg2)
 {
     if ((tree_reg1 < 0) || (tree_reg1 >= TRIANLGLES_COUNT))
+    {
         return false;
+    }
     if ((tree_reg2 < 0) || (tree_reg2 >= TRIANLGLES_COUNT))
+    {
         return false;
-    if (((get_triangle_tree_alt(tree_reg1) & 0x0F) == 0x0F)
-    ||  ((get_triangle_tree_alt(tree_reg2) & 0x0F) == 0x0F))
+    }
+    if (((get_triangle_tree_alt(tree_reg1) & 0x0F) == 0x0F) || ((get_triangle_tree_alt(tree_reg2) & 0x0F) == 0x0F))
+    {
         return false;
+    }
     long reg_id1 = get_triangle_region_id(tree_reg1);
     long reg_id2 = get_triangle_region_id(tree_reg2);
     if (Regions[reg_id1].field_2 == 1)
+    {
         return (reg_id2 == reg_id1);
+    }
     if (Regions[reg_id2].field_2 == 1)
+    {
         return (reg_id2 == reg_id1);
+    }
     region_connect(tree_reg1);
     // Fast version of comparing region id values
     unsigned long intersect = (Triangles[tree_reg2].field_E ^ Triangles[tree_reg1].field_E);
@@ -246,9 +272,12 @@ long region_get(void)
     {
         qget = ix_RegionQget + 1;
         if (qget >= REGION_QUEUE_LEN)
+        {
             qget = 0;
+        }
         regn = RegionQueue[ix_RegionQget];
-    } else
+    }
+    else
     {
         regn = -1;
     }
@@ -260,15 +289,18 @@ void region_put(long nreg)
 {
     long qpos = ix_RegionQput;
     ix_RegionQput++;
-    if (ix_RegionQput >= REGION_QUEUE_LEN) {
+    if (ix_RegionQput >= REGION_QUEUE_LEN)
+    {
         ix_RegionQput = 0;
     }
-    if (ix_RegionQput == ix_RegionQget) {
+    if (ix_RegionQput == ix_RegionQget)
+    {
         ERRORLOG("Q overflow");
     }
     RegionQueue[qpos] = nreg;
     count_RegionQ++;
-    if (max_RegionStore < count_RegionQ) {
+    if (max_RegionStore < count_RegionQ)
+    {
         max_RegionStore = count_RegionQ;
     }
 }
@@ -277,7 +309,7 @@ void region_set_f(long ntri, unsigned long nreg, const char *func_name)
 {
     if ((ntri < 0) || (ntri >= TRIANLGLES_COUNT) || (nreg >= REGIONS_COUNT))
     {
-        ERRORMSG("%s: can't set triangle %ld region %lu",func_name,ntri,nreg);
+        ERRORMSG("%s: can't set triangle %ld region %lu", func_name, ntri, nreg);
         return;
     }
     // Get old region

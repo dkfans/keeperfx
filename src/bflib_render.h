@@ -61,7 +61,6 @@ enum VecModes {
     VM_Unknown27,
 };
 
-
 // These are used "per screen row"
 struct PolyPoint {
     long X; // Horizontal coordinate within screen buffer
@@ -72,18 +71,18 @@ struct PolyPoint {
 };
 
 struct GtBlock { // sizeof = 48
-  unsigned char *field_0;
-  unsigned long field_4;
-  unsigned long field_8;
-  unsigned long field_C;
-  unsigned long field_10;
-  unsigned long field_14;
-  unsigned long field_18;
-  unsigned long field_1C;
-  unsigned long field_20;
-  unsigned long field_24;
-  unsigned long field_28;
-  unsigned long field_2C;
+    unsigned char *field_0;
+    unsigned long field_4;
+    unsigned long field_8;
+    unsigned long field_C;
+    unsigned long field_10;
+    unsigned long field_14;
+    unsigned long field_18;
+    unsigned long field_1C;
+    unsigned long field_20;
+    unsigned long field_24;
+    unsigned long field_28;
+    unsigned long field_2C;
 };
 
 /******************************************************************************/

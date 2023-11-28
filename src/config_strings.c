@@ -37,25 +37,26 @@ extern "C" {
 /******************************************************************************/
 char *gui_strings_data;
 char *gui_strings[GUI_STRINGS_COUNT];
+
 /******************************************************************************/
 TbBool reset_strings(char **strings, int max)
 {
-    char** text_arr = strings;
+    char **text_arr = strings;
     int text_idx = max;
     while (text_idx >= 0)
     {
         *text_arr = lbEmptyString;
         text_arr++;
         text_idx--;
-  }
-  return true;
+    }
+    return true;
 }
 
-TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_end, int max)
+TbBool create_strings_list(char **strings, char *strings_data, char *strings_data_end, int max)
 {
-    char** text_arr = strings;
+    char **text_arr = strings;
     int text_idx = max;
-    char* text_ptr = strings_data;
+    char *text_ptr = strings_data;
     while (text_idx >= 0)
     {
         if (text_ptr >= strings_data_end)
@@ -69,10 +70,10 @@ TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_
         {
             chr_prev = *text_ptr;
             text_ptr++;
-    } while ((chr_prev != '\0') && (text_ptr < strings_data_end));
-    text_idx--;
-  }
-  return (text_idx < max);
+        } while ((chr_prev != '\0') && (text_ptr < strings_data_end));
+        text_idx--;
+    }
+    return (text_idx < max);
 }
 
 /**
@@ -80,46 +81,46 @@ TbBool create_strings_list(char **strings,char *strings_data,char *strings_data_
  */
 TbBool setup_gui_strings_data(void)
 {
-  SYNCDBG(8,"Starting");
+    SYNCDBG(8, "Starting");
 
-  char* fname = prepare_file_fmtpath(FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
-  long filelen = LbFileLengthRnc(fname);
-  if (filelen <= 0)
-  {
-    ERRORLOG("GUI Strings file does not exist or can't be opened");
-    SYNCLOG("Strings file name is \"%s\"",fname);
-    return false;
-  }
-  gui_strings_data = (char *)LbMemoryAlloc(filelen + 256);
-  if (gui_strings_data == NULL)
-  {
-    ERRORLOG("Can't allocate memory for GUI Strings data");
-    SYNCLOG("Strings file name is \"%s\"",fname);
-    return false;
-  }
-  char* strings_data_end = gui_strings_data + filelen + 255;
-  long loaded_size = LbFileLoadAt(fname, gui_strings_data);
-  if (loaded_size < 16)
-  {
-    ERRORLOG("GUI Strings file couldn't be loaded or is too small");
-    return false;
-  }
-  // Resetting all values to empty strings
-  reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
-  // Analyzing strings data and filling correct values
-  short result = create_strings_list(gui_strings, gui_strings_data, strings_data_end, GUI_STRINGS_COUNT-1);
-  SYNCDBG(19,"Finished");
-  return result;
+    char *fname = prepare_file_fmtpath(FGrp_FxData, "gtext_%s.dat", get_language_lwrstr(install_info.lang_id));
+    long filelen = LbFileLengthRnc(fname);
+    if (filelen <= 0)
+    {
+        ERRORLOG("GUI Strings file does not exist or can't be opened");
+        SYNCLOG("Strings file name is \"%s\"", fname);
+        return false;
+    }
+    gui_strings_data = (char *)LbMemoryAlloc(filelen + 256);
+    if (gui_strings_data == NULL)
+    {
+        ERRORLOG("Can't allocate memory for GUI Strings data");
+        SYNCLOG("Strings file name is \"%s\"", fname);
+        return false;
+    }
+    char *strings_data_end = gui_strings_data + filelen + 255;
+    long loaded_size = LbFileLoadAt(fname, gui_strings_data);
+    if (loaded_size < 16)
+    {
+        ERRORLOG("GUI Strings file couldn't be loaded or is too small");
+        return false;
+    }
+    // Resetting all values to empty strings
+    reset_strings(gui_strings, GUI_STRINGS_COUNT - 1);
+    // Analyzing strings data and filling correct values
+    short result = create_strings_list(gui_strings, gui_strings_data, strings_data_end, GUI_STRINGS_COUNT - 1);
+    SYNCDBG(19, "Finished");
+    return result;
 }
 
 TbBool free_gui_strings_data(void)
 {
-  // Resetting all values to empty strings
-  reset_strings(gui_strings, GUI_STRINGS_COUNT-1);
-  // Freeing memory
-  LbMemoryFree(gui_strings_data);
-  gui_strings_data = NULL;
-  return true;
+    // Resetting all values to empty strings
+    reset_strings(gui_strings, GUI_STRINGS_COUNT - 1);
+    // Freeing memory
+    LbMemoryFree(gui_strings_data);
+    gui_strings_data = NULL;
+    return true;
 }
 
 /**
@@ -127,36 +128,36 @@ TbBool free_gui_strings_data(void)
  */
 TbBool setup_campaign_strings_data(struct GameCampaign *campgn)
 {
-  SYNCDBG(18,"Starting");
-  char* fname = prepare_file_path(FGrp_Main, campgn->strings_fname);
-  long filelen = LbFileLengthRnc(fname);
-  if (filelen <= 0)
-  {
-    ERRORLOG("Campaign Strings file does not exist or can't be opened");
-    return false;
-  }
-  campgn->strings_data = (char *)LbMemoryAlloc(filelen + 256);
-  if (campgn->strings_data == NULL)
-  {
-    ERRORLOG("Can't allocate memory for Campaign Strings data");
-    return false;
-  }
-  char* strings_data_end = campgn->strings_data + filelen + 255;
-  long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
-  if (loaded_size < 16)
-  {
-    ERRORLOG("Campaign Strings file couldn't be loaded or is too small");
-    return false;
-  }
-  // Resetting all values to empty strings
-  reset_strings(campgn->strings, STRINGS_MAX);
-  // Analyzing strings data and filling correct values
-  short result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
-  SYNCDBG(19,"Finished");
-  return result;
+    SYNCDBG(18, "Starting");
+    char *fname = prepare_file_path(FGrp_Main, campgn->strings_fname);
+    long filelen = LbFileLengthRnc(fname);
+    if (filelen <= 0)
+    {
+        ERRORLOG("Campaign Strings file does not exist or can't be opened");
+        return false;
+    }
+    campgn->strings_data = (char *)LbMemoryAlloc(filelen + 256);
+    if (campgn->strings_data == NULL)
+    {
+        ERRORLOG("Can't allocate memory for Campaign Strings data");
+        return false;
+    }
+    char *strings_data_end = campgn->strings_data + filelen + 255;
+    long loaded_size = LbFileLoadAt(fname, campgn->strings_data);
+    if (loaded_size < 16)
+    {
+        ERRORLOG("Campaign Strings file couldn't be loaded or is too small");
+        return false;
+    }
+    // Resetting all values to empty strings
+    reset_strings(campgn->strings, STRINGS_MAX);
+    // Analyzing strings data and filling correct values
+    short result = create_strings_list(campgn->strings, campgn->strings_data, strings_data_end, STRINGS_MAX);
+    SYNCDBG(19, "Finished");
+    return result;
 }
 
-const char * gui_string(unsigned int index)
+const char *gui_string(unsigned int index)
 {
     static char string_invalid[64];
 
@@ -167,7 +168,8 @@ const char * gui_string(unsigned int index)
     }
     return gui_strings[index];
 }
-const char * cmpgn_string(unsigned int index)
+
+const char *cmpgn_string(unsigned int index)
 {
     if ((campaign.strings == NULL) || (index >= STRINGS_MAX))
     {
@@ -180,13 +182,18 @@ const char * cmpgn_string(unsigned int index)
     return gui_string(index);
 }
 
-const char * get_string(TextStringId stridx)
+const char *get_string(TextStringId stridx)
 {
     if (stridx <= STRINGS_MAX)
+    {
         return cmpgn_string(stridx);
+    }
     else
-        return gui_string(stridx-STRINGS_MAX);
+    {
+        return gui_string(stridx - STRINGS_MAX);
+    }
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

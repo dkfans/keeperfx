@@ -29,23 +29,23 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define SHADOW_LIMITS_COUNT  2048
-#define SHADOW_CACHE_COUNT     40
+#define SHADOW_LIMITS_COUNT 2048
+#define SHADOW_CACHE_COUNT 40
 
 /******************************************************************************/
 #pragma pack(1)
 
 struct LightingTable { // sizeof = 8
-  TbBool is_populated;
-  unsigned char distance; // 2 - 15
-  char delta_x; // signed
-  char delta_y; // signed
-  unsigned long diagonal_length;
+    TbBool is_populated;
+    unsigned char distance; // 2 - 15
+    char delta_x;           // signed
+    char delta_y;           // signed
+    unsigned long diagonal_length;
 };
 
 struct ShadowCache { // sizeof = 129
-  unsigned char flags;
-  unsigned int field_1[32];
+    unsigned char flags;
+    unsigned int field_1[32];
 };
 
 /**
@@ -56,24 +56,24 @@ struct LightsShadows {
     unsigned char shadow_limits[SHADOW_LIMITS_COUNT];
     struct Light lights[LIGHTS_COUNT];
     struct ShadowCache shadow_cache[SHADOW_CACHE_COUNT];
-    unsigned short stat_light_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+    unsigned short stat_light_map[MAX_SUBTILES_X * MAX_SUBTILES_Y];
     long global_ambient_light;
     TbBool light_enabled;
     TbBool lighting_tables_initialised;
     unsigned long light_rand_seed;
     int lighting_tables_count; // number of entries in lighting_tables
-    unsigned short subtile_lightness[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+    unsigned short subtile_lightness[MAX_SUBTILES_X * MAX_SUBTILES_Y];
 };
 
 #pragma pack()
 /******************************************************************************/
-long get_subtile_lightness(const struct LightsShadows * lish, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-void clear_subtiles_lightness(struct LightsShadows * lish);
+long get_subtile_lightness(const struct LightsShadows *lish, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
+void clear_subtiles_lightness(struct LightsShadows *lish);
 
-void create_shadow_limits(struct LightsShadows * lish, long start, long end);
-void clear_shadow_limits(struct LightsShadows * lish);
+void create_shadow_limits(struct LightsShadows *lish, long start, long end);
+void clear_shadow_limits(struct LightsShadows *lish);
 
-void clear_light_system(struct LightsShadows * lish);
+void clear_light_system(struct LightsShadows *lish);
 /******************************************************************************/
 #ifdef __cplusplus
 }

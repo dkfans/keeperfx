@@ -22,14 +22,14 @@
 #ifndef BFLIB_IPCONFIG_HPP
 #define BFLIB_IPCONFIG_HPP
 
-//C++ constants - internal linkage by default
+// C++ constants - internal linkage by default
 
-const int LISTENER_PORT_NUMBER = 17777; //UDP listener
-const int HOST_PORT_NUMBER = 17778; //UDP host and TCP server
-const int SESSION_HOST_PERIOD = 4000; //4 s
+const int LISTENER_PORT_NUMBER = 17777; // UDP listener
+const int HOST_PORT_NUMBER = 17778;     // UDP host and TCP server
+const int SESSION_HOST_PERIOD = 4000;   // 4 s
 const int SESSION_LISTENER_PERIOD = 2000;
 
-const char MSG_PREFIX[] = { 'K', 'F', 'X' };
+const char MSG_PREFIX[] = {'K', 'F', 'X'};
 const char BROADCAST_PREFIX = 'B';
 const char UPDATE_PREFIX = 'U';
 

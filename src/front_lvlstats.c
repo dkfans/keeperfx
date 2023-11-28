@@ -69,14 +69,14 @@ long calculate_efficiency(PlayerNumber plyr_idx)
 {
     long count = 0;
     long efficiency = 0;
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         long i = dungeonadd->room_kind[rkind];
         unsigned long k = 0;
         while (i != 0)
         {
-            struct Room* room = room_get(i);
+            struct Room *room = room_get(i);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Jump to invalid room detected");
@@ -96,26 +96,28 @@ long calculate_efficiency(PlayerNumber plyr_idx)
         }
     }
     if (count < 1)
+    {
         return 0;
+    }
     return 100 * efficiency / (count * ROOM_EFFICIENCY_MAX);
 }
 
 long calculate_style(long plyr_idx)
 {
     long area = 0;
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         long i = dungeonadd->room_kind[rkind];
         unsigned long k = 0;
         while (i != 0)
         {
-            struct Room* room = room_get(i);
+            struct Room *room = room_get(i);
             if (room_is_invalid(room))
             {
-              ERRORLOG("Jump to invalid room detected");
-              break;
+                ERRORLOG("Jump to invalid room detected");
+                break;
             }
             i = room->next_of_owner;
             // Per-room code
@@ -124,16 +126,20 @@ long calculate_style(long plyr_idx)
             k++;
             if (k > ROOMS_COUNT)
             {
-              ERRORLOG("Infinite loop detected when sweeping rooms list");
-              break;
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
             }
         }
     }
     long half_area = (dungeon->total_area >> 1);
     if ((area < half_area) && (half_area > 0))
+    {
         return 100 * area / half_area;
+    }
     else
+    {
         return 100;
+    }
 }
 
 /** Calculates rating, a level summary statistic parameter.
@@ -144,19 +150,21 @@ long calculate_style(long plyr_idx)
 long calculate_rating(PlayerNumber plyr_idx)
 {
     long rating = calculate_style(plyr_idx) * calculate_efficiency(plyr_idx) / 100;
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
     rating += 100 * dungeon->lvstats.player_score / 800;
     long btlost = dungeon->lvstats.battles_lost;
     long btwon = dungeon->lvstats.battles_won;
     // Find scoring ratio
     long ratio = 100;
-    if ( (btlost < btwon) && (btlost > 0) )
+    if ((btlost < btwon) && (btlost > 0))
     {
         ratio = btwon / btlost;
-        if (ratio < 10) {
-          ratio = 10;
-        } else
-        if (ratio > 100) {
+        if (ratio < 10)
+        {
+            ratio = 10;
+        }
+        else if (ratio > 100)
+        {
             ratio = 100;
         }
     }
@@ -166,22 +174,22 @@ long calculate_rating(PlayerNumber plyr_idx)
 
 long calculate_doors_unused(PlayerNumber plyr_idx)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     long count = 0;
     for (long i = 1; i < gameadd.trapdoor_conf.door_types_count; i++)
     {
-      count += dungeonadd->mnfct_info.door_amount_stored[i];
+        count += dungeonadd->mnfct_info.door_amount_stored[i];
     }
     return count;
 }
 
 long calculate_traps_unused(PlayerNumber plyr_idx)
 {
-    struct DungeonAdd* dungeon = get_dungeonadd(plyr_idx);
+    struct DungeonAdd *dungeon = get_dungeonadd(plyr_idx);
     long count = 0;
     for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
     {
-      count += dungeon->mnfct_info.trap_amount_stored[i];
+        count += dungeon->mnfct_info.trap_amount_stored[i];
     }
     return count;
 }
@@ -189,7 +197,7 @@ long calculate_traps_unused(PlayerNumber plyr_idx)
 void frontstats_initialise(void)
 {
     // Initialize stats in dungeon
-    struct Dungeon* dungeon = get_my_dungeon();
+    struct Dungeon *dungeon = get_my_dungeon();
     dungeon->lvstats.end_time = LbTimerClock();
     dungeon->lvstats.num_creatures = dungeon->num_active_creatrs;
     dungeon->lvstats.imps_deployed = dungeon->num_active_diggers;
@@ -205,7 +213,7 @@ void frontstats_initialise(void)
     dungeon->lvstats.creatures_summoned = dungeon->creatures_scavenge_lost;
     dungeon->lvstats.spells_stolen = dungeon->spells_stolen;
     dungeon->lvstats.gold_pots_stolen = dungeon->gold_pots_stolen;
-    dungeon->lvstats.average_room_efficiency  = calculate_efficiency(my_player_number);
+    dungeon->lvstats.average_room_efficiency = calculate_efficiency(my_player_number);
     dungeon->lvstats.player_rating = calculate_rating(my_player_number);
     dungeon->lvstats.player_style = calculate_style(my_player_number);
     dungeon->lvstats.doors_unused = calculate_doors_unused(my_player_number);
@@ -227,11 +235,11 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
     int ln_height = LbTextLineHeight() * tx_units_per_px / 16;
     int pos_x = gbtn->scr_pos_x;
     int pos_y = gbtn->scr_pos_y + ln_height / 2;
-    for (struct StatsData* stat = main_stats_data; stat->name_stridx > 0; stat++)
+    for (struct StatsData *stat = main_stats_data; stat->name_stridx > 0; stat++)
     {
         int border;
         {
-            struct TbSprite* spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+            struct TbSprite *spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
             border = spr->SWidth * fs_units_per_px / 16;
         }
         LbTextSetWindow(pos_x + border, pos_y, gbtn->width - 2 * border, ln_height);
@@ -247,7 +255,7 @@ void frontstats_draw_main_stats(struct GuiButton *gbtn)
         {
             stat_val = -1;
         }
-        if ( (timer_enabled()) && (stat->name_stridx == 1746) && (!TimerGame) )
+        if ((timer_enabled()) && (stat->name_stridx == 1746) && (!TimerGame))
         {
             LbTextDrawResizedFmt(0, 0, tx_units_per_px, "%02ld:%02ld:%02ld:%03ld", Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
@@ -265,16 +273,16 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
     draw_scroll_box(gbtn, fs_units_per_px, 5);
     LbTextSetFont(frontend_font[1]);
     {
-        struct TbSprite* spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
-        LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + (spr->SHeight-7) * fs_units_per_px / 16,
-          gbtn->width - 2 * (spr->SWidth * fs_units_per_px / 16), gbtn->height + 2 * (8 - spr->SHeight) * fs_units_per_px / 16);
+        struct TbSprite *spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
+        LbTextSetWindow(gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16, gbtn->scr_pos_y + (spr->SHeight - 7) * fs_units_per_px / 16,
+                        gbtn->width - 2 * (spr->SWidth * fs_units_per_px / 16), gbtn->height + 2 * (8 - spr->SHeight) * fs_units_per_px / 16);
     }
     // The GUI item height should be 5 lines of text
     int tx_units_per_px = gbtn->height * 16 / (5 * (LbTextLineHeight() + 1));
     int ln_height = LbTextLineHeight() * tx_units_per_px / 16;
     int pos_x = 0;
     int pos_y = -scrolling_offset * tx_units_per_px / 16;
-    for (struct StatsData* stat = &scrolling_stats_data[scrolling_index]; pos_y < gbtn->height; pos_y += ln_height + 4 * units_per_pixel / 16)
+    for (struct StatsData *stat = &scrolling_stats_data[scrolling_index]; pos_y < gbtn->height; pos_y += ln_height + 4 * units_per_pixel / 16)
     {
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         LbTextDrawResized(pos_x, pos_y, tx_units_per_px, get_string(stat->name_stridx));
@@ -291,7 +299,9 @@ void frontstats_draw_scrolling_stats(struct GuiButton *gbtn)
         LbTextDrawResizedFmt(pos_x, pos_y, tx_units_per_px, "%d", stat_val);
         stat++;
         if (!stat->name_stridx)
-          stat = scrolling_stats_data;
+        {
+            stat = scrolling_stats_data;
+        }
     }
 }
 
@@ -301,7 +311,8 @@ void init_menu_state_on_net_stats_exit(void)
     if (nstate == FeSt_NET_SESSION)
     {
         // If the parent state is network session state, try to stay in net service
-        if (!setup_old_network_service()) {
+        if (!setup_old_network_service())
+        {
             nstate = get_menu_state_when_back_from_substate(nstate);
         }
     }
@@ -328,19 +339,21 @@ void frontstats_update(void)
     scrolling_offset++;
     LbTextSetFont(frontend_font[1]);
     int h = LbTextLineHeight();
-    if (h+4 < scrolling_offset)
+    if (h + 4 < scrolling_offset)
     {
-        scrolling_offset -= h+4;
+        scrolling_offset -= h + 4;
         scrolling_index++;
         if (!scrolling_stats_data[scrolling_index].name_stridx)
+        {
             scrolling_index = 0;
+        }
     }
     if (frontstats_timer != 0)
     {
         LevelNumber lvnum = get_loaded_level_number();
         if (LbTimerClock() > frontstats_timer)
         {
-            play_description_speech(lvnum,0);
+            play_description_speech(lvnum, 0);
             frontstats_timer = 0;
         }
     }

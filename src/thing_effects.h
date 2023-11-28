@@ -32,17 +32,17 @@ extern "C" {
 /******************************************************************************/
 enum ThingHitTypes {
     THit_None = 0,
-    THit_CrtrsNObjcts, // Affect all creatures and all objects
-    THit_CrtrsOnly, // Affect only creatures
-    THit_CrtrsNObjctsNotOwn, // Affect not own creatures and objects
-    THit_CrtrsOnlyNotOwn, // Affect not own creatures
+    THit_CrtrsNObjcts,         // Affect all creatures and all objects
+    THit_CrtrsOnly,            // Affect only creatures
+    THit_CrtrsNObjctsNotOwn,   // Affect not own creatures and objects
+    THit_CrtrsOnlyNotOwn,      // Affect not own creatures
     THit_CrtrsNotArmourNotOwn, // Affect not own creatures which are not protected by Armour spell
-    THit_All, // Affect all things
-    THit_HeartOnly, // Affect only dungeon hearts
-    THit_HeartOnlyNotOwn, // Affect only not own dungeon hearts
-    THit_CrtrsNObjctsNShot, // Affect all creatures and all objects, also allow colliding with other shots
-    THit_TrapsAll, // Affect all traps, not just the ones that are destructable
-    THit_TypesCount, // Last item in enumeration, allows checking amount of valid types
+    THit_All,                  // Affect all things
+    THit_HeartOnly,            // Affect only dungeon hearts
+    THit_HeartOnlyNotOwn,      // Affect only not own dungeon hearts
+    THit_CrtrsNObjctsNShot,    // Affect all creatures and all objects, also allow colliding with other shots
+    THit_TrapsAll,             // Affect all traps, not just the ones that are destructable
+    THit_TypesCount,           // Last item in enumeration, allows checking amount of valid types
 };
 
 enum AreaAffectTypes {
@@ -67,15 +67,15 @@ enum ThingEffectKind {
     TngEff_Blood3,
     TngEff_Blood4,
     TngEff_Blood5, // blood big
-    TngEff_Gas1, // fart
-    TngEff_Gas2, // fart
-    TngEff_Gas3, // fart
+    TngEff_Gas1,   // fart
+    TngEff_Gas2,   // fart
+    TngEff_Gas3,   // fart
     TngEff_WoPExplosion,
-    TngEff_IceShard, // Ice shard
+    TngEff_IceShard,     // Ice shard
     TngEff_HarmlessGas1, // fart without damage
     TngEff_HarmlessGas2, // fart without damage
     TngEff_HarmlessGas3, // fart without damage
-    TngEff_Drip1, // water drip
+    TngEff_Drip1,        // water drip
     TngEff_Drip2,
     TngEff_Drip3,
     TngEff_HitFrozenUnit,
@@ -85,17 +85,17 @@ enum ThingEffectKind {
     TngEff_DirtRubble,
     TngEff_Unknown27, // more dirt
     TngEff_ImpSpangleRed,
-    TngEff_Drip4, // ice drip?
-    TngEff_Cloud, // super long cloud?
+    TngEff_Drip4,        // ice drip?
+    TngEff_Cloud,        // super long cloud?
     TngEff_HarmlessGas4, // super wide cloud?
-    TngEff_GoldRubble1, // small gold coins
+    TngEff_GoldRubble1,  // small gold coins
     TngEff_GoldRubble2,
     TngEff_GoldRubble3, // big gold chunks
     TngEff_TempleSplash,
     TngEff_CeilingBreach,
-    TngEff_StrangeGas1, // strange gas
-    TngEff_StrangeGas2, // strange gas
-    TngEff_StrangeGas3, // strange gas
+    TngEff_StrangeGas1,      // strange gas
+    TngEff_StrangeGas2,      // strange gas
+    TngEff_StrangeGas3,      // strange gas
     TngEff_DecelerationGas1, // fart slow
     TngEff_DecelerationGas2,
     TngEff_DecelerationGas3,
@@ -104,7 +104,7 @@ enum ThingEffectKind {
     TngEff_Explosion6, // claim with sound???
     TngEff_SpangleRedBig,
     TngEff_ColouredRingOfFire, // spiral fx
-    TngEff_Flash, // flash with whiteout
+    TngEff_Flash,              // flash with whiteout
     TngEff_DamageBlood,
     TngEff_Explosion7, // temple? explosion with sound
     TngEff_FeatherPuff,
@@ -120,7 +120,7 @@ enum ThingEffectKind {
     TngEff_BallPuffBlue,
     TngEff_BallPuffGreen,
     TngEff_BallPuffYellow, // teleport puff yellow
-    TngEff_BallPuffWhite, // teleport puff white
+    TngEff_BallPuffWhite,  // teleport puff white
     TngEff_BloodyFootstep,
     TngEff_Blood7, // blood splat
     TngEff_SpecialBox,
@@ -252,66 +252,66 @@ struct EffectGeneratorStats { // sizeof = 57
     long sound_sample_sec;
 };
 
-struct EffectElementStats { // sizeof = 79
-  unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
-  unsigned char move_type;
-  unsigned char unanimated;
-  short lifespan;
-  short lifespan_random;
-  short sprite_idx;
-  short sprite_size_min;
-  short sprite_size_max;
-  unsigned char rendering_flag;
-  unsigned short sprite_speed_min;
-  unsigned short sprite_speed_max;
-  TbBool animate_on_floor;
-  unsigned char unshaded;
-  unsigned char transparant;  // transparency flags in bits 4-5
-  unsigned char field_15;
-  unsigned char movement_flags;
-  unsigned char size_change; /**< See enum ThingSizeChange. */
-  unsigned char fall_acceleration;
-  unsigned char field_19_unused;
-  short inertia_floor;
-  short inertia_air;
-  unsigned short subeffect_model;
-  unsigned short subeffect_delay;
-  unsigned char field_22;
-  unsigned short effmodel_23;
-  unsigned short solidgnd_snd_smpid;
-  unsigned short solidgnd_loudness;
-  unsigned char solidgnd_destroy_on_impact;
-  unsigned short water_effmodel;
-  unsigned short water_snd_smpid;
-  unsigned short water_loudness;
-  unsigned char water_destroy_on_impact;
-  unsigned short lava_effmodel;
-  unsigned short lava_snd_smpid;
-  unsigned short lava_loudness;
-  unsigned char lava_destroy_on_impact;
-  unsigned short transform_model;
-  unsigned short light_radius;
-  unsigned char light_intensity;
-  long light_field_3D;
-  unsigned char affected_by_wind;
+struct EffectElementStats {   // sizeof = 79
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
+    unsigned char move_type;
+    unsigned char unanimated;
+    short lifespan;
+    short lifespan_random;
+    short sprite_idx;
+    short sprite_size_min;
+    short sprite_size_max;
+    unsigned char rendering_flag;
+    unsigned short sprite_speed_min;
+    unsigned short sprite_speed_max;
+    TbBool animate_on_floor;
+    unsigned char unshaded;
+    unsigned char transparant; // transparency flags in bits 4-5
+    unsigned char field_15;
+    unsigned char movement_flags;
+    unsigned char size_change; /**< See enum ThingSizeChange. */
+    unsigned char fall_acceleration;
+    unsigned char field_19_unused;
+    short inertia_floor;
+    short inertia_air;
+    unsigned short subeffect_model;
+    unsigned short subeffect_delay;
+    unsigned char field_22;
+    unsigned short effmodel_23;
+    unsigned short solidgnd_snd_smpid;
+    unsigned short solidgnd_loudness;
+    unsigned char solidgnd_destroy_on_impact;
+    unsigned short water_effmodel;
+    unsigned short water_snd_smpid;
+    unsigned short water_loudness;
+    unsigned char water_destroy_on_impact;
+    unsigned short lava_effmodel;
+    unsigned short lava_snd_smpid;
+    unsigned short lava_loudness;
+    unsigned char lava_destroy_on_impact;
+    unsigned short transform_model;
+    unsigned short light_radius;
+    unsigned char light_intensity;
+    long light_field_3D;
+    unsigned char affected_by_wind;
 };
 
 struct InitEffect { // sizeof = 39
-    /** Health; decreases by 1 on every turn, so it works also as lifespan. */
-  short start_health;
-  unsigned char generation_type;
-  short accel_xy_min;
-  short accel_xy_max;
-  short accel_z_min;
-  short accel_z_max;
-  unsigned char field_B;
-  short effect_sound;
-  unsigned char kind_min;
-  unsigned char kind_max;
-  unsigned char area_affect_type;
-  unsigned char field_11;
-  struct InitLight ilght;
-  unsigned char affected_by_wind;
+                    /** Health; decreases by 1 on every turn, so it works also as lifespan. */
+    short start_health;
+    unsigned char generation_type;
+    short accel_xy_min;
+    short accel_xy_max;
+    short accel_z_min;
+    short accel_z_max;
+    unsigned char field_B;
+    short effect_sound;
+    unsigned char kind_min;
+    unsigned char kind_max;
+    unsigned char area_affect_type;
+    unsigned char field_11;
+    struct InitLight ilght;
+    unsigned char affected_by_wind;
 };
 
 #pragma pack()
@@ -326,7 +326,7 @@ TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx);
 struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner);
-struct Thing* create_used_effect_or_element(const struct Coord3d* pos, short effect_id, long plyr_idx);
+struct Thing *create_used_effect_or_element(const struct Coord3d *pos, short effect_id, long plyr_idx);
 TngUpdateRet update_effect_element(struct Thing *thing);
 TngUpdateRet update_effect(struct Thing *thing);
 TngUpdateRet process_effect_generator(struct Thing *thing);
@@ -336,10 +336,10 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
 
 TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hit_targets, PlayerNumber shot_owner);
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
-    HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type);
-    
+                              HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type);
+
 TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
-    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner);    
+                                MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner);
 /******************************************************************************/
 #ifdef __cplusplus
 }

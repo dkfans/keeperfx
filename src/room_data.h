@@ -28,35 +28,36 @@
 extern "C" {
 #endif
 
-#define ROOM_TYPES_COUNT_OLD      17
-#define SLAB_AROUND_COUNT      4
-#define ROOMS_COUNT          150
+#define ROOM_TYPES_COUNT_OLD 17
+#define SLAB_AROUND_COUNT 4
+#define ROOMS_COUNT 150
+
 /******************************************************************************/
 enum RoomFlags {
-    RoF_Allocated           = 0x01,
+    RoF_Allocated = 0x01,
 };
 
-//don't use any of these in new code, everything should be done trough config
+// don't use any of these in new code, everything should be done trough config
 enum RoomKinds {
-    RoK_NONE                =   0,
-    RoK_ENTRANCE            =   1,
-    RoK_TREASURE            =   2,
-    RoK_LIBRARY             =   3,
-    RoK_PRISON              =   4,
-    RoK_TORTURE             =   5,
-    RoK_TRAINING            =   6,
-    RoK_DUNGHEART           =   7,
-    RoK_WORKSHOP            =   8,
-    RoK_SCAVENGER           =   9,
-    RoK_TEMPLE              =  10,
-    RoK_GRAVEYARD           =  11,
-    RoK_BARRACKS            =  12,
-    RoK_GARDEN              =  13,
-    RoK_LAIR                =  14,
-    RoK_BRIDGE              =  15,
-    RoK_GUARDPOST           =  16,
-    RoK_TYPES_COUNT         =  17,
-    RoK_SELL                = 255,
+    RoK_NONE = 0,
+    RoK_ENTRANCE = 1,
+    RoK_TREASURE = 2,
+    RoK_LIBRARY = 3,
+    RoK_PRISON = 4,
+    RoK_TORTURE = 5,
+    RoK_TRAINING = 6,
+    RoK_DUNGHEART = 7,
+    RoK_WORKSHOP = 8,
+    RoK_SCAVENGER = 9,
+    RoK_TEMPLE = 10,
+    RoK_GRAVEYARD = 11,
+    RoK_BARRACKS = 12,
+    RoK_GARDEN = 13,
+    RoK_LAIR = 14,
+    RoK_BRIDGE = 15,
+    RoK_GUARDPOST = 16,
+    RoK_TYPES_COUNT = 17,
+    RoK_SELL = 255,
 };
 
 enum RoomAreaChoose {
@@ -78,9 +79,9 @@ struct DungeonAdd;
 typedef void (*Room_Update_Func)(struct Room *);
 
 struct RoomInfo { // sizeof = 6
-  unsigned short field_0;
-  unsigned short field_2;
-  unsigned short ambient_snd_smp_id;
+    unsigned short field_0;
+    unsigned short field_2;
+    unsigned short ambient_snd_smp_id;
 };
 
 struct Room {
@@ -98,29 +99,34 @@ struct Room {
     /* Informs whether players are interested in that room.
      * Usually used for neutral rooms, set if a player is starting to dig to that room. */
     unsigned char player_interested[5];
+
     union {
-    /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
-     *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
-    struct {
-      unsigned long capacity_used_for_storage;
-      ThingIndex hatchfield_1B;
+        /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
+         *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
+        struct {
+            unsigned long capacity_used_for_storage;
+            ThingIndex hatchfield_1B;
+        };
+
+        /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
+         *  Rooms which have such list are entrances (only?). */
+        struct {
+            RoomIndex prev_of_kind;
+            RoomIndex next_of_kind;
+        };
+
+        struct {
+            /** For rooms which store creatures, amount of each model.
+             * Rooms which have such lists are lairs. */
+            unsigned char content_per_model[CREATURE_TYPES_MAX];
+        };
+
+        /* For hatchery; integrate with something else, if possible */
+        struct {
+            long hatch_gameturn;
+        };
     };
-    /** For rooms which are often browsed for various reasons, list of all rooms of given kind.
-     *  Rooms which have such list are entrances (only?). */
-    struct {
-      RoomIndex prev_of_kind;
-      RoomIndex next_of_kind;
-    };
-    struct {
-      /** For rooms which store creatures, amount of each model.
-       * Rooms which have such lists are lairs. */
-      unsigned char content_per_model[CREATURE_TYPES_MAX];
-    };
-    /* For hatchery; integrate with something else, if possible */
-    struct {
-      long hatch_gameturn;
-    };
-    };
+
     SlabCodedCoords slabs_list;
     SlabCodedCoords slabs_list_tail;
     unsigned short slabs_count;
@@ -130,7 +136,6 @@ struct Room {
     unsigned char flames_around_idx;
     unsigned char flame_stl;
 };
-
 
 /** Max. amount of items to be repositioned in a room */
 #define ROOM_REPOSITION_COUNT 16
@@ -162,9 +167,9 @@ TbBool room_is_invalid(const struct Room *room);
 TbBool room_exists(const struct Room *room);
 
 long get_room_look_through(RoomKind rkind);
-unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency);
+unsigned long compute_room_max_health(unsigned short slabs_count, unsigned short efficiency);
 void set_room_efficiency(struct Room *room);
-void do_room_recalculation(struct Room* room);
+void do_room_recalculation(struct Room *room);
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind);
 long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole);
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind);
@@ -188,7 +193,7 @@ struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_i
 struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long room_idx, long n, long spare);
 struct Room *find_room_of_role_with_spare_capacity(PlayerNumber owner, RoomRole rrole, long spare);
 struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_idx, long n, long spare);
-struct Room *find_room_of_role_with_most_spare_capacity(const struct DungeonAdd *dungeonadd,RoomRole rrole, long *total_spare_cap);
+struct Room *find_room_of_role_with_most_spare_capacity(const struct DungeonAdd *dungeonadd, RoomRole rrole, long *total_spare_cap);
 struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance);
 // Finding a navigable room for a thing
 struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, long min_used_cap);
@@ -230,9 +235,9 @@ TbBool add_item_to_room_capacity(struct Room *room, TbBool force);
 TbBool room_has_enough_free_capacity_for_creature_job(const struct Room *room, const struct Thing *creatng, CreatureJob jobpref);
 
 long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind);
-long claim_enemy_room(struct Room *room,struct Thing *claimtng);
-long claim_room(struct Room *room,struct Thing *claimtng);
-long take_over_room(struct Room* room, PlayerNumber newowner);
+long claim_enemy_room(struct Room *room, struct Thing *claimtng);
+long claim_room(struct Room *room, struct Thing *claimtng);
+long take_over_room(struct Room *room, PlayerNumber newowner);
 void destroy_room_leaving_unclaimed_ground(struct Room *room);
 TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long effrange, PlayerNumber effowner);
 TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx);

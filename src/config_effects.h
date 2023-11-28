@@ -41,6 +41,7 @@ struct EffectsConfig {
     long effect_types_count;
     struct EffectConfigStats effect_cfgstats[EFFECTS_TYPES_MAX];
 };
+
 /******************************************************************************/
 extern const char keeper_effects_file[];
 extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
@@ -48,10 +49,10 @@ extern long const imp_spangle_effects[];
 extern long const ball_puff_effects[];
 extern struct EffectsConfig effects_conf;
 /******************************************************************************/
-TbBool load_effects_config(const char *conf_fname,unsigned short flags);
+TbBool load_effects_config(const char *conf_fname, unsigned short flags);
 struct EffectConfigStats *get_effect_model_stats(int tngmodel);
 const char *effect_code_name(int tngmodel);
-int effect_model_id(const char * code_name);
+int effect_model_id(const char *code_name);
 /******************************************************************************/
 #ifdef __cplusplus
 }

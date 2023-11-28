@@ -27,8 +27,8 @@ extern "C" {
 #endif
 
 /** Max amount of battles supported on any map. */
-#define BATTLES_COUNT          48
-#define MESSAGE_BATTLERS_COUNT  8
+#define BATTLES_COUNT 48
+#define MESSAGE_BATTLERS_COUNT 8
 /******************************************************************************/
 #pragma pack(1)
 
@@ -36,18 +36,18 @@ struct Thing;
 struct PlayerInfo;
 
 struct CreatureBattle { // sizeof = 17
-  unsigned long fighters_num;
-  unsigned char field_4[9];
-  unsigned short first_creatr;
-  unsigned short last_creatr;
+    unsigned long fighters_num;
+    unsigned char field_4[9];
+    unsigned short first_creatr;
+    unsigned short last_creatr;
 };
 
 #pragma pack()
 /******************************************************************************/
 #define INVALID_CRTR_BATTLE (&game.battles[0])
 /******************************************************************************/
-extern unsigned short friendly_battler_list[3*MESSAGE_BATTLERS_COUNT];
-extern unsigned short enemy_battler_list[3*MESSAGE_BATTLERS_COUNT];
+extern unsigned short friendly_battler_list[3 * MESSAGE_BATTLERS_COUNT];
+extern unsigned short enemy_battler_list[3 * MESSAGE_BATTLERS_COUNT];
 /******************************************************************************/
 
 struct CreatureBattle *creature_battle_get(BattleIndex battle_id);

@@ -31,7 +31,7 @@ extern "C" {
 extern const char creature_states_file[];
 extern struct NamedCommand creatrstate_desc[];
 /******************************************************************************/
-TbBool load_creaturestates_config(const char *conf_fname,unsigned short flags);
+TbBool load_creaturestates_config(const char *conf_fname, unsigned short flags);
 const char *creature_state_code_name(long crstate);
 /******************************************************************************/
 #ifdef __cplusplus

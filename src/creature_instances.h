@@ -71,7 +71,7 @@ enum CreatureInstances {
     CrInst_DAMAGE_WALL,
     CrInst_FIRST_PERSON_DIG,
     CrInst_LIZARD, // 40
-    //CrInst_CAST_SPELL_GROUP,
+    // CrInst_CAST_SPELL_GROUP,
     CrInst_CAST_SPELL_DISEASE, // 41
     CrInst_CAST_SPELL_CHICKEN,
     CrInst_CAST_SPELL_TIME_BOMB,
@@ -117,10 +117,10 @@ extern const struct NamedCommand creature_instances_func_type[];
 extern Creature_Instf_Func creature_instances_func_list[];
 /******************************************************************************/
 /** Returns creature instance info structure for given instance index. */
-#define creature_instance_info_get(inst_idx) creature_instance_info_get_f(inst_idx,__func__)
-struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx,const char *func_name);
+#define creature_instance_info_get(inst_idx) creature_instance_info_get_f(inst_idx, __func__)
+struct InstanceInfo *creature_instance_info_get_f(CrInstance inst_idx, const char *func_name);
 void process_creature_instance(struct Thing *thing);
-long process_creature_self_spell_casting(struct Thing* thing);
+long process_creature_self_spell_casting(struct Thing *thing);
 
 TbBool creature_instance_info_invalid(const struct InstanceInfo *inst_inf);
 TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum);
@@ -128,7 +128,7 @@ TbBool creature_instance_is_available(const struct Thing *thing, CrInstance inum
 TbBool creature_choose_first_available_instance(struct Thing *thing);
 void creature_increase_available_instances(struct Thing *thing);
 TbBool creature_has_ranged_weapon(const struct Thing *thing);
-TbBool creature_has_disarming_weapon(const struct Thing* creatng);
+TbBool creature_has_disarming_weapon(const struct Thing *creatng);
 TbBool creature_has_ranged_object_weapon(const struct Thing *creatng);
 TbBool creature_has_quick_range_weapon(const struct Thing *creatng);
 

@@ -56,7 +56,7 @@
 #include "game_merge.h"
 #include "engine_textures.h"
 
-#define BOOKMARKS_COUNT               5
+#define BOOKMARKS_COUNT 5
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,14 +72,14 @@ enum GameKinds {
 };
 
 enum GameOperationFlags {
-    GOF_Paused           = 0x01,
-    GOF_SingleLevel      = 0x02, /**< Play single level and then exit. */
-    GOF_Unkn04           = 0x04,
-    GOF_ColumnConvert    = 0x08, /**< Converts old column format to current. Deprecated, does nothing. */
-    GOF_LightConvert     = 0x10, /**< Converts old lights format to current. */
-    GOF_ShowGui          = 0x20, /**< Showing main Gui. */
-    GOF_ShowPanel        = 0x40, /**< Showing the tabbed panel. */
-    GOF_WorldInfluence   = 0x80, /**< Input to the in-game world is allowed. */
+    GOF_Paused = 0x01,
+    GOF_SingleLevel = 0x02, /**< Play single level and then exit. */
+    GOF_Unkn04 = 0x04,
+    GOF_ColumnConvert = 0x08,  /**< Converts old column format to current. Deprecated, does nothing. */
+    GOF_LightConvert = 0x10,   /**< Converts old lights format to current. */
+    GOF_ShowGui = 0x20,        /**< Showing main Gui. */
+    GOF_ShowPanel = 0x40,      /**< Showing the tabbed panel. */
+    GOF_WorldInfluence = 0x80, /**< Input to the in-game world is allowed. */
 };
 
 enum GameNumfieldDFlags {
@@ -92,25 +92,25 @@ enum GameNumfieldDFlags {
     GNFldD_Unkn40 = 0x40,
     GNFldD_Unkn80 = 0x80,
 };
+
 /******************************************************************************/
 #pragma pack(1)
 
 struct CreaturePool {
-  long crtr_kind[CREATURE_TYPES_MAX];
-  unsigned char is_empty;
+    long crtr_kind[CREATURE_TYPES_MAX];
+    unsigned char is_empty;
 };
 
 struct PerExpLevelValues {
-  unsigned char value[10];
+    unsigned char value[10];
 };
-
 
 struct Game {
     LevelNumber continue_level_number;
     unsigned char system_flags;
     /** Flags which control how the game operates, mostly defined by command line. */
     unsigned char operation_flags;
-    unsigned char numfield_D; //flags in enum GameNumfieldDFlags
+    unsigned char numfield_D; // flags in enum GameNumfieldDFlags
     unsigned char flags_font;
     unsigned char flags_gui;
     unsigned char eastegg01_cntr;
@@ -118,9 +118,9 @@ struct Game {
     unsigned char eastegg02_cntr;
     char audiotrack;
     char last_audiotrack;
-char numfield_15;
+    char numfield_15;
     LevelNumber selected_level_number;
-char numfield_1A;
+    char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
@@ -136,11 +136,11 @@ char numfield_1A;
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
-    NavColour navigation_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
-    struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+    NavColour navigation_map[MAX_SUBTILES_X * MAX_SUBTILES_Y];
+    struct Map map[MAX_SUBTILES_X * MAX_SUBTILES_Y];
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
-    struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
+    struct SlabMap slabmap[MAX_TILES_X * MAX_TILES_Y];
     struct SlabsConfig slab_conf;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
@@ -151,7 +151,7 @@ char numfield_1A;
     char packet_fname[150];
     char packet_fopened;
     TbFileHandle packet_save_fp;
-unsigned int packet_file_pos;
+    unsigned int packet_file_pos;
     struct PacketSaveHead packet_save_head;
     unsigned long turns_stored;
     unsigned long turns_fastforward;
@@ -162,7 +162,7 @@ unsigned int packet_file_pos;
     unsigned long turns_packetoff;
     PlayerNumber local_plyr_idx;
     unsigned char numfield_149F47; // something with packetload
-// Originally, save_catalogue was here.
+                                   // Originally, save_catalogue was here.
     char campaign_fname[CAMPAIGN_FNAME_LEN];
     struct Event event[EVENTS_COUNT];
     unsigned long ceiling_height_max;
@@ -171,12 +171,12 @@ unsigned int packet_file_pos;
     unsigned long ceiling_search_dist;
     unsigned long ceiling_step;
     short col_static_entries[18];
-    //unsigned char level_file_number; // merged with level_number to get maps > 255
+    // unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
-    short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
+    short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES * TEXTURE_BLOCKS_ANIM_COUNT];
     unsigned short columns_used;
     unsigned char texture_id;
-    unsigned short free_things[THINGS_COUNT-1];
+    unsigned short free_things[THINGS_COUNT - 1];
     /** Index of the first used element in free things array. All elements BEYOND this index are free. If all things are free, it is set to 0. */
     ThingIndex free_things_start_index;
     GameTurn play_gameturn;
@@ -188,7 +188,7 @@ unsigned int packet_file_pos;
     int something_light_x;
     int something_light_y;
     unsigned long time_delta;
-    short top_cube[TEXTURE_BLOCKS_COUNT];// if you ask for top cube on a column without cubes, it'll return the first cube it finds with said texture at the top
+    short top_cube[TEXTURE_BLOCKS_COUNT]; // if you ask for top cube on a column without cubes, it'll return the first cube it finds with said texture at the top
     unsigned char small_map_state;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
@@ -220,7 +220,7 @@ unsigned int packet_file_pos;
     unsigned char recovery_frequency;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     GameTurnDelta food_generation_speed;
-    enum GameKinds game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
+    enum GameKinds game_kind;          /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
     TbBool map_changed_for_nagivation; // something with navigation
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
     unsigned long default_max_crtrs_gen_entrance;

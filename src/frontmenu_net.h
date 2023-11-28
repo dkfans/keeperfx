@@ -27,7 +27,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define frontend_services_menu_items_visible  6
+#define frontend_services_menu_items_visible 6
 
 #pragma pack(1)
 

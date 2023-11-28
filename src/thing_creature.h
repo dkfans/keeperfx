@@ -31,11 +31,11 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define CREATURE_TYPES_COUNT  32
+#define CREATURE_TYPES_COUNT 32
 #define DEAD_CREATURES_MAX_COUNT 64
 /** The standard altitude at which a creature is flying.
  * Should be over one tile, to allow flying creatures leave water areas. */
-#define NORMAL_FLYING_ALTITUDE (256+16)
+#define NORMAL_FLYING_ALTITUDE (256 + 16)
 
 #define SWIPE_SPRITES_X 3
 #define SWIPE_SPRITES_Y 2
@@ -51,24 +51,24 @@ extern "C" {
 struct Thing;
 
 enum ThingPickFlags {
-    TPF_PickableCheck    = 0x01,
-    TPF_OrderedPick      = 0x02,
-    TPF_ReverseOrder     = 0x04,
+    TPF_PickableCheck = 0x01,
+    TPF_OrderedPick = 0x02,
+    TPF_ReverseOrder = 0x04,
 };
 
 enum CreatureDeathFlags {
-    CrDed_Default        = 0x00, /**< Default value if no flags are needed. */
-    CrDed_NoEffects      = 0x01, /**< Set if no special effects should accompany the creature death. */
-    CrDed_DiedInBattle   = 0x02, /**< Set if the creature died during a battle. */
-    CrDed_NoUnconscious  = 0x04, /**< Set if the creature isn't allowed to become unconscious. */
+    CrDed_Default = 0x00,        /**< Default value if no flags are needed. */
+    CrDed_NoEffects = 0x01,      /**< Set if no special effects should accompany the creature death. */
+    CrDed_DiedInBattle = 0x02,   /**< Set if the creature died during a battle. */
+    CrDed_NoUnconscious = 0x04,  /**< Set if the creature isn't allowed to become unconscious. */
     CrDed_NotReallyDying = 0x08, /**< Set if it's not really death, it either transforms or leaves. */
-    CrDed_NoRebirth      = 0x10, /**< Set if the death blocks it from resurrecting */
+    CrDed_NoRebirth = 0x10,      /**< Set if the death blocks it from resurrecting */
 };
 
 struct CreatureStorage {
-  unsigned char model;
-  unsigned char explevel : 4;
-  unsigned char count : 4;
+    unsigned char model;
+    unsigned char explevel : 4;
+    unsigned char count : 4;
 };
 
 static_assert(sizeof(struct CreatureStorage) == 2, "");
@@ -82,8 +82,8 @@ extern unsigned long creature_create_errors;
 /******************************************************************************/
 struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumber owner);
 long move_creature(struct Thing *thing);
-struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
-    PlayerNumber killer_plyr_idx, CrDeathFlags flags);
+struct Thing *kill_creature(struct Thing *creatng, struct Thing *killertng,
+                            PlayerNumber killer_plyr_idx, CrDeathFlags flags);
 void update_creature_count(struct Thing *thing);
 TngUpdateRet process_creature_state(struct Thing *thing);
 
@@ -109,9 +109,9 @@ void draw_swipe_graphic(void);
 
 long creature_available_for_combat_this_turn(struct Thing *thing);
 TbBool set_creature_object_combat(struct Thing *crthing, struct Thing *obthing);
-TbBool set_creature_object_snipe(struct Thing* crthing, struct Thing* obthing);
+TbBool set_creature_object_snipe(struct Thing *crthing, struct Thing *obthing);
 TbBool set_creature_door_combat(struct Thing *crthing, struct Thing *obthing);
-void thing_fire_shot(struct Thing *firing,struct  Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
+void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type);
 void creature_cast_spell_at_thing(struct Thing *caster, struct Thing *target, long a3, long a4);
 void creature_cast_spell(struct Thing *caster, long trg_x, long trg_y, long a4, long a5);
 unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *newpos);
@@ -119,7 +119,7 @@ unsigned int get_creature_blocked_flags_at(struct Thing *thing, struct Coord3d *
 struct Thing *get_enemy_soul_container_creature_can_see(struct Thing *thing);
 TbBool thing_can_be_eaten(struct Thing *thing);
 void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng);
-short creature_take_wage_from_gold_pile(struct Thing *crthing,struct Thing *obthing);
+short creature_take_wage_from_gold_pile(struct Thing *crthing, struct Thing *obthing);
 void anger_apply_anger_to_creature_f(struct Thing *thing, long anger, AnnoyMotive reason, long a3, const char *func_name);
 #define anger_apply_anger_to_creature(thing, anger, reason, a3) anger_apply_anger_to_creature_f(thing, anger, reason, a3, __func__)
 HitPoints apply_damage_to_thing_and_display_health(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber inflicting_plyr_idx);

@@ -1,0 +1,27 @@
+files: "^(src/|tests/)"
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      # basic checks
+      - id: check-added-large-files
+        args: [--maxkb=8192]
+      - id: check-merge-conflict
+        args: [--assume-in-merge]
+      - id: end-of-file-fixer
+      - id: fix-byte-order-marker
+      - id: mixed-line-ending
+        args: [--fix=lf]
+      - id: trailing-whitespace
+      # data serialization formats
+      - id: check-json
+      - id: pretty-format-json
+        args: [ --autofix, --no-sort-keys ]
+      - id: check-xml
+      - id: check-yaml
+        args: [--allow-multiple-documents]
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v17.0.5
+    hooks:
+      - id: clang-format
+        args: [--fcolor-diagnostics]

@@ -29,62 +29,62 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define PLAYERS_COUNT           5
-#define PLAYERS_EXT_COUNT       6
+#define PLAYERS_COUNT 5
+#define PLAYERS_EXT_COUNT 6
 /** This acts as default value for neutral_player_number */
-#define NEUTRAL_PLAYER          5
+#define NEUTRAL_PLAYER 5
 /** This acts as default value for hero_player_number */
-#define HERO_PLAYER             4
+#define HERO_PLAYER 4
 
 #define INVALID_PLAYER (&bad_player)
 #define INVALID_PLAYER_ADD (&bad_playeradd)
 
-#define PLAYER_MP_MESSAGE_LEN  64
+#define PLAYER_MP_MESSAGE_LEN 64
 
-#define WANDER_POINTS_COUNT    200
+#define WANDER_POINTS_COUNT 200
 
 enum PlayerInitFlags {
-    PlaF_Allocated               = 0x01,
-    PlaF_Unknown2                = 0x02,
-    PlaF_NewMPMessage            = 0x04,
-    PlaF_Unknown8                = 0x08,
-    PlaF_KeyboardInputDisabled   = 0x10,
+    PlaF_Allocated = 0x01,
+    PlaF_Unknown2 = 0x02,
+    PlaF_NewMPMessage = 0x04,
+    PlaF_Unknown8 = 0x08,
+    PlaF_KeyboardInputDisabled = 0x10,
     PlaF_ChosenSlabHasActiveTask = 0x20, // Enabled when there are active tasks for the current slab. Used to determine if a high slab is tagged for digging (or not).
-    PlaF_CompCtrl                = 0x40,
-    PlaF_MouseInputDisabled      = 0x80,
+    PlaF_CompCtrl = 0x40,
+    PlaF_MouseInputDisabled = 0x80,
 };
 
 enum PlayerField6Flags {
-    PlaF6_Unknown01         = 0x01,
-    PlaF6_PlyrHasQuit       = 0x02,
+    PlaF6_Unknown01 = 0x01,
+    PlaF6_PlyrHasQuit = 0x02,
     // The below are unused
-    PlaF6_Unknown04         = 0x04,
-    PlaF6_Unknown08         = 0x08,
-    PlaF6_Unknown10         = 0x10,
-    PlaF6_Unknown20         = 0x20,
-    PlaF6_Unknown40         = 0x40,
-    PlaF6_Unknown80         = 0x80,
+    PlaF6_Unknown04 = 0x04,
+    PlaF6_Unknown08 = 0x08,
+    PlaF6_Unknown10 = 0x10,
+    PlaF6_Unknown20 = 0x20,
+    PlaF6_Unknown40 = 0x40,
+    PlaF6_Unknown80 = 0x80,
 };
 
 enum PlayerViewModes {
     PVM_EmptyView = 0,
-    PVM_CreatureView, /**< View from a creature perspective, first person. */
+    PVM_CreatureView,  /**< View from a creature perspective, first person. */
     PVM_IsoWibbleView, /**< Dungeon overview from isometric front perspective, simplified version - only 4 angles. */
     PVM_ParchmentView, /**< Full screen parchment map view, showing dungeon schematic from top. */
     PVM_Unknown4,
-    PVM_FrontView, /**< Dungeon overview from isometric front perspective, advanced version - fluent rotation. */
-    PVM_ParchFadeIn, /**< Transitional view when fading from Isometric view to Parchment map. */
-    PVM_ParchFadeOut, /**< Transitional view when fading from Parchment map back to Isometric view. */
+    PVM_FrontView,       /**< Dungeon overview from isometric front perspective, advanced version - fluent rotation. */
+    PVM_ParchFadeIn,     /**< Transitional view when fading from Isometric view to Parchment map. */
+    PVM_ParchFadeOut,    /**< Transitional view when fading from Parchment map back to Isometric view. */
     PVM_IsoStraightView, /**< Same as PVM_IsoWibbleView, but without wibble. */
 };
 
 enum PlayerViewType {
     PVT_None = 0,
-    PVT_DungeonTop, /**< Normal map view. */
+    PVT_DungeonTop,     /**< Normal map view. */
     PVT_CreatureContrl, /**< First person creature control mode. */
     PVT_CreaturePasngr, /**< First person creature view mode without controlling it. */
     PVT_MapScreen,      /**< Parchment map screen. */
-    PVT_MapFadeIn, // 5
+    PVT_MapFadeIn,      // 5
     PVT_MapFadeOut,
 };
 
@@ -96,23 +96,23 @@ enum PlayerVictoryState {
 };
 
 enum PlayerCursorStates {
-    CSt_DefaultArrow  = 0, // Default - Arrow Cursor
-    CSt_PickAxe       = 1, // Dig - Pickake cursor
-    CSt_DoorKey       = 2, // Lock/Unlock Door - Key cursor
-    CSt_PowerHand     = 3, // Power Hand cursor
+    CSt_DefaultArrow = 0, // Default - Arrow Cursor
+    CSt_PickAxe = 1,      // Dig - Pickake cursor
+    CSt_DoorKey = 2,      // Lock/Unlock Door - Key cursor
+    CSt_PowerHand = 3,    // Power Hand cursor
 };
 
 enum PlayerAdditionalFlags {
-    PlaAF_None                      = 0x00,
-    PlaAF_NoThingUnderPowerHand     = 0x01, // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
-    PlaAF_ChosenSubTileIsHigh       = 0x02, // Chosen subtile is at ceiling height (dirt/rock/wall etc)
-    PlaAF_FreezePaletteIsActive     = 0x04, // blue_palette is being used during Freeze Spell
-    PlaAF_LightningPaletteIsActive  = 0x08, // lightning_palette is being used during Lightning Spell
-    PlaAF_UnlockedLordTorture       = 0x10, // if this flag is set, the player will be sent to the Lord Torture Mini-game
+    PlaAF_None = 0x00,
+    PlaAF_NoThingUnderPowerHand = 0x01,    // Chosen subtile has nothing to interact with with the Power Hand (no creature to slap etc) (But the power hand is active)
+    PlaAF_ChosenSubTileIsHigh = 0x02,      // Chosen subtile is at ceiling height (dirt/rock/wall etc)
+    PlaAF_FreezePaletteIsActive = 0x04,    // blue_palette is being used during Freeze Spell
+    PlaAF_LightningPaletteIsActive = 0x08, // lightning_palette is being used during Lightning Spell
+    PlaAF_UnlockedLordTorture = 0x10,      // if this flag is set, the player will be sent to the Lord Torture Mini-game
     // The below are unused in KFX
-    PlaAF_Unkn20                    = 0x20,
-    PlaAF_Unkn40                    = 0x40,
-    PlaAF_Unkn80                    = 0x80,
+    PlaAF_Unkn20 = 0x20,
+    PlaAF_Unkn40 = 0x40,
+    PlaAF_Unkn80 = 0x80,
 };
 
 /******************************************************************************/
@@ -123,29 +123,28 @@ struct SubtileXY {
     MapSubtlCoord stl_y;
 };
 
-struct Wander
-{
-  unsigned long points_count;
-  /** Index at which the search function inserts (or replaces) points. */
-  unsigned long point_insert_idx;
-  /** Slab last checked by the search function. */
-  unsigned long last_checked_slb_num;
-  /** Amount of slabs to be checked in one run of the search function. */
-  unsigned long num_check_per_run;
-  /** Max amount of points added in one run of the search function. */
-  unsigned long max_found_per_check;
-  unsigned char wdrfield_14;
-  unsigned char wandr_slot;
-  unsigned char plyr_idx;
-  PlayerBitFlags plyr_bit; // unused?
-  /** Array of points where the creatures could go wander. */
-  struct SubtileXY points[WANDER_POINTS_COUNT];
+struct Wander {
+    unsigned long points_count;
+    /** Index at which the search function inserts (or replaces) points. */
+    unsigned long point_insert_idx;
+    /** Slab last checked by the search function. */
+    unsigned long last_checked_slb_num;
+    /** Amount of slabs to be checked in one run of the search function. */
+    unsigned long num_check_per_run;
+    /** Max amount of points added in one run of the search function. */
+    unsigned long max_found_per_check;
+    unsigned char wdrfield_14;
+    unsigned char wandr_slot;
+    unsigned char plyr_idx;
+    PlayerBitFlags plyr_bit; // unused?
+    /** Array of points where the creatures could go wander. */
+    struct SubtileXY points[WANDER_POINTS_COUNT];
 };
 
 struct PlayerInfo {
     unsigned char allocflags;
     unsigned char field_1;
-    unsigned char boxsize; //field_2 seems to be used in DK, so now renamed and used in KeeperFX
+    unsigned char boxsize;          // field_2 seems to be used in DK, so now renamed and used in KeeperFX
     unsigned char additional_flags; // Uses PlayerAdditionalFlags
     unsigned char input_crtr_control;
     unsigned char input_crtr_query;
@@ -155,7 +154,7 @@ struct PlayerInfo {
     unsigned char packet_num;
     long hand_animationId;
     unsigned int hand_busy_until_turn;
-unsigned char field_14;
+    unsigned char field_14;
     char player_name[20];
     unsigned char victory_state;
     PlayerBitFlags allied_players;
@@ -189,8 +188,8 @@ unsigned char field_14;
     unsigned char primary_cursor_state;
     unsigned char secondary_cursor_state;
     unsigned char continue_work_state;
-char field_45F;
-short cursor_light_idx;
+    char field_45F;
+    short cursor_light_idx;
     char mp_message_text[PLAYER_MP_MESSAGE_LEN];
     unsigned char chosen_room_kind;
     unsigned char full_slab_cursor; // 0 for subtile sized cursor, 1 for slab sized cursor
@@ -198,7 +197,7 @@ short cursor_light_idx;
     char chosen_door_kind;
     MapSubtlCoord cursor_clicked_subtile_x; // x coord of subtile clicked by mouse cursor
     MapSubtlCoord cursor_clicked_subtile_y; // y coord of subtile clicked by mouse cursor
-    unsigned char cursor_button_down; // left or right button down (whilst using the bounding box cursor)
+    unsigned char cursor_button_down;       // left or right button down (whilst using the bounding box cursor)
     /** Player instance, from PlayerInstanceNum enum. */
     unsigned char instance_num;
     unsigned long instance_remain_rurns;
@@ -222,10 +221,9 @@ short cursor_light_idx;
     GameTurn display_objective_turn;
     unsigned long isometric_view_zoom_level;
     unsigned long frontview_zoom_level;
-    };
+};
 
-struct CheatSelection
-{
+struct CheatSelection {
     SlabKind chosen_terrain_kind;
     PlayerNumber chosen_player;
     unsigned char chosen_creature_kind;
@@ -282,12 +280,12 @@ extern long hero_player_number;
 extern struct PlayerInfo bad_player;
 extern struct PlayerInfoAdd bad_playeradd;
 /******************************************************************************/
-struct PlayerInfo *get_player_f(long plyr_idx,const char *func_name);
-struct PlayerInfoAdd *get_playeradd_f(long plyr_idx,const char *func_name);
-#define get_player(plyr_idx) get_player_f(plyr_idx,__func__)
-#define get_my_player() get_player_f(my_player_number,__func__)
-#define get_playeradd(plyr_idx) get_playeradd_f(plyr_idx,__func__)
-#define get_my_playeradd() get_playeradd_f(my_player_number,__func__)
+struct PlayerInfo *get_player_f(long plyr_idx, const char *func_name);
+struct PlayerInfoAdd *get_playeradd_f(long plyr_idx, const char *func_name);
+#define get_player(plyr_idx) get_player_f(plyr_idx, __func__)
+#define get_my_player() get_player_f(my_player_number, __func__)
+#define get_playeradd(plyr_idx) get_playeradd_f(plyr_idx, __func__)
+#define get_my_playeradd() get_playeradd_f(my_player_number, __func__)
 TbBool player_invalid(const struct PlayerInfo *player);
 TbBool player_exists(const struct PlayerInfo *player);
 TbBool is_my_player(const struct PlayerInfo *player);

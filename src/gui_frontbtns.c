@@ -43,16 +43,18 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
 {
     struct GuiButton *gbtn;
     int gidx;
-    for (gidx=0;gidx<ACTIVE_BUTTONS_COUNT;gidx++)
+    for (gidx = 0; gidx < ACTIVE_BUTTONS_COUNT; gidx++)
     {
-      gbtn = &active_buttons[gidx];
-      if (gbtn->flags & LbBtnF_Active)
-        if ( ((gmbtn_mouseover_idx == -1) || (gmbtn_mouseover_idx != gidx)) &&
-             (gbtn->gbtype != LbBtnT_RadioBtn) && (gbtn != input_button) )
+        gbtn = &active_buttons[gidx];
+        if (gbtn->flags & LbBtnF_Active)
         {
-          gbtn->flags &= ~LbBtnF_Unknown10;
-          gbtn->gbactn_1 = 0;
-          gbtn->gbactn_2 = 0;
+            if (((gmbtn_mouseover_idx == -1) || (gmbtn_mouseover_idx != gidx)) &&
+                (gbtn->gbtype != LbBtnT_RadioBtn) && (gbtn != input_button))
+            {
+                gbtn->flags &= ~LbBtnF_Unknown10;
+                gbtn->gbactn_1 = 0;
+                gbtn->gbactn_2 = 0;
+            }
         }
     }
 }
@@ -60,7 +62,7 @@ void gui_clear_buttons_not_over_mouse(int gmbtn_mouseover_idx)
 void fake_button_click(int gmbtn_idx)
 {
     int i;
-    for (i=0; i < ACTIVE_BUTTONS_COUNT; i++)
+    for (i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
         struct GuiButton *gbtn;
         gbtn = &active_buttons[i];
@@ -68,10 +70,12 @@ void fake_button_click(int gmbtn_idx)
         gmnu = &active_menus[(unsigned)gbtn->gmenu_idx];
         if (((gbtn->flags & LbBtnF_Active) != 0) && (gmnu->is_turned_on != 0) && (gbtn->id_num == gmbtn_idx))
         {
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
+            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
+            {
                 do_button_press_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
             }
-            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn)) {
+            if ((gbtn->click_event != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) || (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
+            {
                 do_button_click_actions(gbtn, &gbtn->gbactn_1, gbtn->click_event);
             }
         }
@@ -81,11 +85,13 @@ void fake_button_click(int gmbtn_idx)
 TbBool gui_button_release_inputs(int gmbtn_idx)
 {
     struct GuiButton *gbtn;
-    SYNCDBG(17,"Starting");
+    SYNCDBG(17, "Starting");
     if (gmbtn_idx < 0)
-      return false;
+    {
+        return false;
+    }
     Gf_Btn_Callback callback;
-    gbtn = &active_buttons[gmbtn_idx%ACTIVE_BUTTONS_COUNT];
+    gbtn = &active_buttons[gmbtn_idx % ACTIVE_BUTTONS_COUNT];
     if ((gbtn->gbactn_1) && (left_button_released))
     {
         callback = gbtn->click_event;
@@ -102,8 +108,8 @@ TbBool gui_button_release_inputs(int gmbtn_idx)
         callback = gbtn->rclick_event;
         if (callback != NULL)
         {
-          right_button_released = 0;
-          do_button_release_actions(gbtn, &gbtn->gbactn_2, callback);
+            right_button_released = 0;
+            do_button_release_actions(gbtn, &gbtn->gbactn_2, callback);
         }
         return true;
     }
@@ -118,33 +124,38 @@ TbBool gui_slider_button_inputs(int gbtn_idx)
     int slide_end;
     struct GuiButton *gbtn;
     if (gbtn_idx < 0)
-      return false;
+    {
+        return false;
+    }
     gbtn = &active_buttons[gbtn_idx];
     mouse_x = GetMouseX();
     gbtn->gbactn_1 = 1;
     int bs_units_per_px;
     bs_units_per_px = simple_button_sprite_height_units_per_px(gbtn, GBS_frontend_button_std_c, 44);
-    slide_start = gbtn->pos_x + 32*bs_units_per_px/16;
-    slide_end = gbtn->pos_x + gbtn->width - 32*bs_units_per_px/16;
+    slide_start = gbtn->pos_x + 32 * bs_units_per_px / 16;
+    slide_end = gbtn->pos_x + gbtn->width - 32 * bs_units_per_px / 16;
     if (mouse_x < slide_start)
     {
         gbtn->slide_val = 0;
-    } else
-    if (mouse_x >= slide_end)
+    }
+    else if (mouse_x >= slide_end)
     {
         gbtn->slide_val = 255;
-    } else
-    if (gbtn->width > 64*bs_units_per_px/16)
-    {
-        gbtn->slide_val = ((mouse_x-slide_start) << 8) / (gbtn->width-64*bs_units_per_px/16);
-    } else
-    {
-        gbtn->slide_val = ((mouse_x-gbtn->pos_x) << 8) / (gbtn->width+1);
     }
-    *gbtn->content = (gbtn->slide_val) * (((long)gbtn->maxval)+1) >> 8;
+    else if (gbtn->width > 64 * bs_units_per_px / 16)
+    {
+        gbtn->slide_val = ((mouse_x - slide_start) << 8) / (gbtn->width - 64 * bs_units_per_px / 16);
+    }
+    else
+    {
+        gbtn->slide_val = ((mouse_x - gbtn->pos_x) << 8) / (gbtn->width + 1);
+    }
+    *gbtn->content = (gbtn->slide_val) * (((long)gbtn->maxval) + 1) >> 8;
     callback = gbtn->click_event;
     if (callback != NULL)
-      callback(gbtn);
+    {
+        callback(gbtn);
+    }
     return true;
 }
 
@@ -152,20 +163,23 @@ TbBool gui_slider_button_mouse_over_slider_tracker(int gbtn_idx)
 {
     struct GuiButton *gbtn;
     if (gbtn_idx < 0)
-      return false;
+    {
+        return false;
+    }
     gbtn = &active_buttons[gbtn_idx];
     int bs_units_per_px;
     bs_units_per_px = gbtn->height * 16 / 22;
     int slider_pos_x;
-    slider_pos_x = gbtn->scr_pos_x + 32*bs_units_per_px/16 + ((gbtn->slide_val)*(gbtn->width-64*bs_units_per_px/16) >> 8);
+    slider_pos_x = gbtn->scr_pos_x + 32 * bs_units_per_px / 16 + ((gbtn->slide_val) * (gbtn->width - 64 * bs_units_per_px / 16) >> 8);
 
     int mouse_x;
     int mouse_y;
     mouse_x = GetMouseX();
-    if ((mouse_x >= (slider_pos_x-11*bs_units_per_px/16)) && (mouse_x <= (slider_pos_x+11*bs_units_per_px/16)))
+    if ((mouse_x >= (slider_pos_x - 11 * bs_units_per_px / 16)) && (mouse_x <= (slider_pos_x + 11 * bs_units_per_px / 16)))
     {
         mouse_y = GetMouseY();
-        if ((mouse_y >= gbtn->pos_y) && (mouse_y <= (gbtn->pos_y+gbtn->height))) {
+        if ((mouse_y >= gbtn->pos_y) && (mouse_y <= (gbtn->pos_y + gbtn->height)))
+        {
             return true;
         }
     }
@@ -176,13 +190,15 @@ void clear_radio_buttons(struct GuiMenu *gmnu)
 {
     struct GuiButton *gbtn;
     int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    for (i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
         if (gbtn->gbtype == LbBtnT_RadioBtn)
         {
             if (gmnu->number == gbtn->gmenu_idx)
+            {
                 gbtn->gbactn_1 = 0;
+            }
         }
     }
 }
@@ -192,19 +208,23 @@ void update_radio_button_data(struct GuiMenu *gmnu)
     struct GuiButton *gbtn;
     unsigned char *rbstate;
     int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    for (i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
         rbstate = (unsigned char *)gbtn->content;
         if ((rbstate != NULL) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if (gbtn->gbtype == LbBtnT_RadioBtn)
-          {
-              if (gbtn->gbactn_1)
-                *rbstate = 1;
-              else
-                *rbstate = 0;
-          }
+            if (gbtn->gbtype == LbBtnT_RadioBtn)
+            {
+                if (gbtn->gbactn_1)
+                {
+                    *rbstate = 1;
+                }
+                else
+                {
+                    *rbstate = 0;
+                }
+            }
         }
     }
 }
@@ -214,97 +234,111 @@ TbBool gui_button_click_inputs(int gmbtn_idx)
     TbBool result;
     struct GuiButton *gbtn;
     if (gmbtn_idx < 0)
-      return false;
+    {
+        return false;
+    }
     result = false;
     gbtn = &active_buttons[gmbtn_idx];
     Gf_Btn_Callback callback;
     if (lbDisplay.MLeftButton)
     {
-        SYNCDBG(8,"Left down for button %d",(int)gmbtn_idx);
+        SYNCDBG(8, "Left down for button %d", (int)gmbtn_idx);
         result = true;
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-           (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
+            (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
             if ((gbtn->flags & LbBtnF_Enabled) != 0)
             {
-                SYNCDBG(18,"Left down action for type %d",(int)gbtn->gbtype);
+                SYNCDBG(18, "Left down action for type %d", (int)gbtn->gbtype);
                 switch (gbtn->gbtype)
                 {
                 case LbBtnT_HoldableBtn:
-                  if ((gbtn->gbactn_1 > 5) && (callback != NULL)) {
-                      callback(gbtn);
-                  } else {
-                      gbtn->gbactn_1++;
-                  }
-                  break;
+                    if ((gbtn->gbactn_1 > 5) && (callback != NULL))
+                    {
+                        callback(gbtn);
+                    }
+                    else
+                    {
+                        gbtn->gbactn_1++;
+                    }
+                    break;
                 case LbBtnT_Unknown6:
-                  if (callback != NULL) {
-                      callback(gbtn);
-                  }
-                  break;
+                    if (callback != NULL)
+                    {
+                        callback(gbtn);
+                    }
+                    break;
                 }
             }
         }
-    } else
-    if (lbDisplay.MRightButton)
+    }
+    else if (lbDisplay.MRightButton)
     {
-        SYNCDBG(8,"Right down for button %d",(int)gmbtn_idx);
+        SYNCDBG(8, "Right down for button %d", (int)gmbtn_idx);
         result = true;
         callback = gbtn->rclick_event;
         if ((callback != NULL) && ((gbtn->flags & LbBtnF_Enabled) != 0))
         {
-            SYNCDBG(18,"Right down action for type %d",(int)gbtn->gbtype);
+            SYNCDBG(18, "Right down action for type %d", (int)gbtn->gbtype);
             switch (gbtn->gbtype)
             {
             case LbBtnT_HoldableBtn:
-              if ((gbtn->gbactn_2 > 5) && (callback != NULL)) {
-                  callback(gbtn);
-              } else {
-                  gbtn->gbactn_2++;
-              }
-              break;
+                if ((gbtn->gbactn_2 > 5) && (callback != NULL))
+                {
+                    callback(gbtn);
+                }
+                else
+                {
+                    gbtn->gbactn_2++;
+                }
+                break;
             case LbBtnT_Unknown6:
-              if (callback != NULL) {
-                  callback(gbtn);
-              }
-              break;
+                if (callback != NULL)
+                {
+                    callback(gbtn);
+                }
+                break;
             }
         }
     }
-    if ( left_button_clicked )
+    if (left_button_clicked)
     {
-        SYNCDBG(8,"Left click for button %d",(int)gmbtn_idx);
+        SYNCDBG(8, "Left click for button %d", (int)gmbtn_idx);
         result = true;
         if (game.flash_button_index != 0)
         {
-          if (gbtn->id_num == game.flash_button_index)
-            game.flash_button_index = 0;
+            if (gbtn->id_num == game.flash_button_index)
+            {
+                game.flash_button_index = 0;
+            }
         }
         callback = gbtn->click_event;
         if ((callback != NULL) || ((gbtn->flags & LbBtnF_Unknown02) != 0) ||
-           (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
+            (gbtn->parent_menu != NULL) || (gbtn->gbtype == LbBtnT_RadioBtn))
         {
-          left_button_clicked = 0;
-          gui_last_left_button_pressed_id = gbtn->id_num;
-          do_button_click_actions(gbtn, &gbtn->gbactn_1, callback);
+            left_button_clicked = 0;
+            gui_last_left_button_pressed_id = gbtn->id_num;
+            do_button_click_actions(gbtn, &gbtn->gbactn_1, callback);
         }
-    } else
-    if ( right_button_clicked )
+    }
+    else if (right_button_clicked)
     {
-        SYNCDBG(8,"Right click for button %d",(int)gmbtn_idx);
+        SYNCDBG(8, "Right click for button %d", (int)gmbtn_idx);
         result = true;
         if (game.flash_button_index != 0)
         {
-          if (gbtn->id_num == game.flash_button_index)
-            game.flash_button_index = 0;
+            if (gbtn->id_num == game.flash_button_index)
+            {
+                game.flash_button_index = 0;
+            }
         }
         callback = gbtn->rclick_event;
         if ((callback != NULL))
         {
-          right_button_clicked = 0;
-          gui_last_right_button_pressed_id = gbtn->id_num;
-          do_button_click_actions(gbtn, &gbtn->gbactn_2, callback);
+            right_button_clicked = 0;
+            gui_last_right_button_pressed_id = gbtn->id_num;
+            do_button_click_actions(gbtn, &gbtn->gbactn_2, callback);
         }
     }
     return result;
@@ -318,10 +352,11 @@ int guibutton_get_unused_slot(void)
 {
     struct GuiButton *gbtn;
     int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    for (i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
-        if ((gbtn->flags & LbBtnF_Active) == 0) {
+        if ((gbtn->flags & LbBtnF_Active) == 0)
+        {
             return i;
         }
     }
@@ -333,21 +368,24 @@ void init_slider_bars(struct GuiMenu *gmnu)
     struct GuiButton *gbtn;
     long sldpos;
     int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    for (i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
         if ((gbtn->content) && (gbtn->gmenu_idx == gmnu->number))
         {
-          if (gbtn->gbtype == LbBtnT_HorizSlider)
-          {
-              sldpos = *(long *)gbtn->content;
-              if (sldpos < 0)
-                sldpos = 0;
-              else
-              if (sldpos > gbtn->maxval)
-                sldpos = gbtn->maxval;
-              gbtn->slide_val = (sldpos << 8) / (gbtn->maxval + 1);
-          }
+            if (gbtn->gbtype == LbBtnT_HorizSlider)
+            {
+                sldpos = *(long *)gbtn->content;
+                if (sldpos < 0)
+                {
+                    sldpos = 0;
+                }
+                else if (sldpos > gbtn->maxval)
+                {
+                    sldpos = gbtn->maxval;
+                }
+                gbtn->slide_val = (sldpos << 8) / (gbtn->maxval + 1);
+            }
         }
     }
 }
@@ -357,44 +395,53 @@ void init_menu_buttons(struct GuiMenu *gmnu)
     struct GuiButton *gbtn;
     Gf_Btn_Callback callback;
     int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    for (i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
-      gbtn = &active_buttons[i];
-      callback = gbtn->maintain_call;
-      if ((callback != NULL) && (gbtn->gmenu_idx == gmnu->number))
-        callback(gbtn);
+        gbtn = &active_buttons[i];
+        callback = gbtn->maintain_call;
+        if ((callback != NULL) && (gbtn->gmenu_idx == gmnu->number))
+        {
+            callback(gbtn);
+        }
     }
 }
 
 void kill_button(struct GuiButton *gbtn)
 {
-    if (gbtn != NULL) {
+    if (gbtn != NULL)
+    {
         gbtn->flags &= ~LbBtnF_Active;
     }
 }
 
 void kill_button_area_input(void)
 {
-  if (input_button != NULL)
-    strcpy((char *)input_button->content, backup_input_field);
-  input_button = NULL;
+    if (input_button != NULL)
+    {
+        strcpy((char *)input_button->content, backup_input_field);
+    }
+    input_button = NULL;
 }
 
 void setup_radio_buttons(struct GuiMenu *gmnu)
 {
     struct GuiButton *gbtn;
     int i;
-    for (i=0; i<ACTIVE_BUTTONS_COUNT; i++)
+    for (i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
         gbtn = &active_buttons[i];
         if ((gbtn->content) && (gmnu->number == gbtn->gmenu_idx))
         {
             if (gbtn->gbtype == LbBtnT_RadioBtn)
             {
-                if ( *(unsigned char *)gbtn->content )
-                  gbtn->gbactn_1 = 1;
+                if (*(unsigned char *)gbtn->content)
+                {
+                    gbtn->gbactn_1 = 1;
+                }
                 else
-                  gbtn->gbactn_1 = 0;
+                {
+                    gbtn->gbactn_1 = 0;
+                }
             }
         }
     }
@@ -402,37 +449,43 @@ void setup_radio_buttons(struct GuiMenu *gmnu)
 
 void frontend_copy_mnu_background(struct GuiMenu *gmnu)
 {
-    SYNCDBG(9,"Starting");
+    SYNCDBG(9, "Starting");
     draw_frontmenu_background(gmnu->pos_x, gmnu->pos_y, gmnu->width, gmnu->height);
 }
 
 void frontend_copy_background(void)
 {
-    draw_frontmenu_background(0,0,POS_AUTO,POS_AUTO);
+    draw_frontmenu_background(0, 0, POS_AUTO, POS_AUTO);
 }
 
 void gui_round_glass_background(struct GuiMenu *gmnu)
 {
-    SYNCDBG(19,"Starting");
+    SYNCDBG(19, "Starting");
     int fade_h;
     int i;
     fade_h = 0;
     if (game.time_delta < 12)
     {
-      if (gmnu->visual_state == 1) {
-          gmnu->fade_time = 1;
-          gmnu->visual_state = 2;
-      }
-    } else
+        if (gmnu->visual_state == 1)
+        {
+            gmnu->fade_time = 1;
+            gmnu->visual_state = 2;
+        }
+    }
+    else
     {
         i = gmnu->menu_init->fade_time;
         if (i <= 0)
         {
             gmnu->visual_state = 2;
-        } else {
+        }
+        else
+        {
             fade_h = ((int)MyScreenHeight - (int)gmnu->pos_y) / i;
             if (fade_h < 0)
+            {
                 fade_h = 0;
+            }
         }
     }
     long px;
@@ -459,7 +512,7 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
 
 void gui_pretty_background(struct GuiMenu *gmnu)
 {
-    SYNCDBG(9,"Starting");
+    SYNCDBG(9, "Starting");
     int fade_w;
     int fade_h;
     int i;
@@ -467,23 +520,31 @@ void gui_pretty_background(struct GuiMenu *gmnu)
     fade_h = 0;
     if (game.time_delta < 12)
     {
-      if (gmnu->visual_state == 1) {
-          gmnu->fade_time = 1;
-          gmnu->visual_state = 2;
-      }
-    } else
+        if (gmnu->visual_state == 1)
+        {
+            gmnu->fade_time = 1;
+            gmnu->visual_state = 2;
+        }
+    }
+    else
     {
         i = gmnu->menu_init->fade_time;
         if (i <= 0)
         {
             gmnu->visual_state = 2;
-        } else {
-            fade_w = (gmnu->width - 86*units_per_pixel/16) / i;
+        }
+        else
+        {
+            fade_w = (gmnu->width - 86 * units_per_pixel / 16) / i;
             if (fade_w < 0)
+            {
                 fade_w = 0;
-            fade_h = (gmnu->height - 64*units_per_pixel/16) / i;
+            }
+            fade_h = (gmnu->height - 64 * units_per_pixel / 16) / i;
             if (fade_h < 0)
+            {
                 fade_h = 0;
+            }
         }
     }
     long px;
@@ -493,17 +554,17 @@ void gui_pretty_background(struct GuiMenu *gmnu)
     switch (gmnu->visual_state)
     {
     case 1:
-        width = fade_w * (gmnu->menu_init->fade_time - gmnu->fade_time) + 86*units_per_pixel/16;
-        height = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + 64*units_per_pixel/16;
-        px = gmnu->pos_x + gmnu->width/2 - width/2;
-        py = gmnu->pos_y + gmnu->height/2 - height/2;
+        width = fade_w * (gmnu->menu_init->fade_time - gmnu->fade_time) + 86 * units_per_pixel / 16;
+        height = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + 64 * units_per_pixel / 16;
+        px = gmnu->pos_x + gmnu->width / 2 - width / 2;
+        py = gmnu->pos_y + gmnu->height / 2 - height / 2;
         draw_ornate_slab_outline64k(px, py, units_per_pixel, width, height);
         break;
     case 3:
         width = gmnu->width;
         height = gmnu->height;
-        px = gmnu->pos_x + gmnu->width/2 - width/2;
-        py = gmnu->pos_y + gmnu->height/2 - (gmnu->height - fade_h)/2;
+        px = gmnu->pos_x + gmnu->width / 2 - width / 2;
+        py = gmnu->pos_y + gmnu->height / 2 - (gmnu->height - fade_h) / 2;
         draw_ornate_slab_outline64k(px, py, units_per_pixel, width, height);
         break;
     default:
@@ -514,53 +575,62 @@ void gui_pretty_background(struct GuiMenu *gmnu)
 
 void gui_area_new_normal_button(struct GuiButton *gbtn)
 {
-    SYNCDBG(10,"Starting");
+    SYNCDBG(10, "Starting");
     int i;
     int ps_units_per_px;
-    ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx+1, 100);
+    ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, gbtn->sprite_idx + 1, 100);
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
         i = 0;
         if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
+        {
             i = 1;
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+i);
-    } else
-    {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+1, 12);
+        }
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx + i);
     }
-    SYNCDBG(12,"Finished");
+    else
+    {
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx + 1, 12);
+    }
+    SYNCDBG(12, "Finished");
 }
 
 void gui_area_new_vertical_button(struct GuiButton *gbtn)
 {
-    SYNCDBG(10,"Starting");
+    SYNCDBG(10, "Starting");
     int i;
     int ps_units_per_px;
-    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, gbtn->sprite_idx+1, 100);
+    ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, gbtn->sprite_idx + 1, 100);
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
         i = 0;
         if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
+        {
             i = 1;
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+i);
-    } else
-    {
-        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx+1, 12);
+        }
+        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx + i);
     }
-    SYNCDBG(12,"Finished");
+    else
+    {
+        draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx + 1, 12);
+    }
+    SYNCDBG(12, "Finished");
 }
 
 void gui_draw_tab(struct GuiButton *gbtn)
 {
     int i;
     i = gbtn->sprite_idx;
-    if (gbtn->gbtype == LbBtnT_ToggleBtn) {
+    if (gbtn->gbtype == LbBtnT_ToggleBtn)
+    {
         ERRORLOG("Cycle button cannot use this draw function!");
     }
     int ps_units_per_px;
     ps_units_per_px = simple_gui_panel_sprite_width_units_per_px(gbtn, i, 100);
     if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
+    {
         i++;
+    }
     draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, i);
 }
 
@@ -573,17 +643,21 @@ void gui_area_new_null_button(struct GuiButton *gbtn)
 
 void gui_area_compsetting_button(struct GuiButton *gbtn)
 {
-    SYNCDBG(10,"Starting");
+    SYNCDBG(10, "Starting");
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
-        if (gbtn->content != NULL) {
+        if (gbtn->content != NULL)
+        {
             spr_idx += *(unsigned char *)gbtn->content;
-        } else {
+        }
+        else
+        {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
-        if (gbtn->maxval == 0) {
+        if (gbtn->maxval == 0)
+        {
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
@@ -592,30 +666,35 @@ void gui_area_compsetting_button(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
-    } else
-    if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+    }
+    else if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
-    } else
+    }
+    else
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     }
-    SYNCDBG(12,"Finished");
+    SYNCDBG(12, "Finished");
 }
 
 void gui_area_creatrmodel_button(struct GuiButton *gbtn)
 {
-    SYNCDBG(10,"Starting");
+    SYNCDBG(10, "Starting");
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
-        if (gbtn->content != NULL) {
+        if (gbtn->content != NULL)
+        {
             spr_idx += *(unsigned char *)gbtn->content;
-        } else {
+        }
+        else
+        {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
-        if (gbtn->maxval == 0) {
+        if (gbtn->maxval == 0)
+        {
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
@@ -624,30 +703,35 @@ void gui_area_creatrmodel_button(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
-    } else
-    if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+    }
+    else if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
-    } else
+    }
+    else
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     }
-    SYNCDBG(12,"Finished");
+    SYNCDBG(12, "Finished");
 }
 
 void gui_area_new_no_anim_button(struct GuiButton *gbtn)
 {
-    SYNCDBG(10,"Starting");
+    SYNCDBG(10, "Starting");
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
     if (gbtn->gbtype == LbBtnT_ToggleBtn)
     {
-        if (gbtn->content != NULL) {
+        if (gbtn->content != NULL)
+        {
             spr_idx += *(unsigned char *)gbtn->content;
-        } else {
+        }
+        else
+        {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
-        if (gbtn->maxval == 0) {
+        if (gbtn->maxval == 0)
+        {
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
@@ -656,15 +740,16 @@ void gui_area_new_no_anim_button(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
-    } else
-    if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+    }
+    else if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
-    } else
+    }
+    else
     {
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
     }
-    SYNCDBG(12,"Finished");
+    SYNCDBG(12, "Finished");
 }
 
 void gui_area_no_anim_button(struct GuiButton *gbtn)
@@ -675,12 +760,16 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
     {
         unsigned char *ctptr;
         ctptr = (unsigned char *)gbtn->content;
-        if (ctptr != NULL) {
+        if (ctptr != NULL)
+        {
             spr_idx += *ctptr;
-        } else {
+        }
+        else
+        {
             ERRORLOG("Cycle button must have a non-null UBYTE Data pointer!");
         }
-        if (gbtn->maxval == 0) {
+        if (gbtn->maxval == 0)
+        {
             ERRORLOG("Cycle button must have a non-zero MaxVal!");
         }
     }
@@ -689,11 +778,12 @@ void gui_area_no_anim_button(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {
         draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx, 12);
-    } else
-    if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
+    }
+    else if ((gbtn->gbactn_1) || (gbtn->gbactn_2))
     {
         draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx, 44);
-    } else
+    }
+    else
     {
         draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx);
     }
@@ -711,10 +801,13 @@ void gui_area_normal_button(struct GuiButton *gbtn)
     bs_units_per_px = simple_button_sprite_width_units_per_px(gbtn, spr_idx, 114);
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
-        if ( (gbtn->gbactn_1 != 0) || (gbtn->gbactn_2 != 0) )
+        if ((gbtn->gbactn_1 != 0) || (gbtn->gbactn_2 != 0))
+        {
             spr_idx++;
+        }
         draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx);
-    } else
+    }
+    else
     {
         draw_button_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, spr_idx, 12);
     }
@@ -725,11 +818,17 @@ void frontend_over_button(struct GuiButton *gbtn)
     int i;
 
     if (gbtn->gbtype == LbBtnT_EditBox)
-      i = gbtn->btype_value & LbBFeF_IntValueMask;
+    {
+        i = gbtn->btype_value & LbBFeF_IntValueMask;
+    }
     else
-      i = (long)gbtn->content;
+    {
+        i = (long)gbtn->content;
+    }
     if (old_mouse_over_button != i)
-      frontend_mouse_over_button_start_time = LbTimerClock_1000();
+    {
+        frontend_mouse_over_button_start_time = LbTimerClock_1000();
+    }
     frontend_mouse_over_button = i;
 }
 
@@ -751,18 +850,22 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     long x;
     long y;
     int h;
-    SYNCDBG(9,"Drawing type %d, text \"%s\"",(int)btntype,text);
+    SYNCDBG(9, "Drawing type %d, text \"%s\"", (int)btntype, text);
     febtn_idx = (unsigned int)gbtn->content;
     if ((gbtn->flags & LbBtnF_Enabled) == 0)
     {
         fntidx = 3;
         spridx = GFS_hugebutton_a05l;
-    } else
+    }
+    else
     {
         fntidx = frontend_button_caption_font(gbtn, frontend_mouse_over_button);
-        if ((febtn_idx > 0) && (frontend_mouse_over_button == febtn_idx)) {
-            spridx = large_button_sprite_anims[((LbTimerClock_1000()-frontend_mouse_over_button_start_time)/100) & 7];
-        } else {
+        if ((febtn_idx > 0) && (frontend_mouse_over_button == febtn_idx))
+        {
+            spridx = large_button_sprite_anims[((LbTimerClock_1000() - frontend_mouse_over_button_start_time) / 100) & 7];
+        }
+        else
+        {
             spridx = GFS_hugebutton_a05l;
         }
     }
@@ -774,19 +877,19 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
     y = gbtn->scr_pos_y;
     switch (btntype)
     {
-     case 1:
-         spr = &frontend_sprite[spridx];
-         LbSpriteDrawResized(x, y, units_per_px, spr);
-         x += spr->SWidth * units_per_px / 16;
-         spr = &frontend_sprite[spridx+1];
-         LbSpriteDrawResized(x, y, units_per_px, spr);
-         x += spr->SWidth * units_per_px / 16;
-         break;
+    case 1:
+        spr = &frontend_sprite[spridx];
+        LbSpriteDrawResized(x, y, units_per_px, spr);
+        x += spr->SWidth * units_per_px / 16;
+        spr = &frontend_sprite[spridx + 1];
+        LbSpriteDrawResized(x, y, units_per_px, spr);
+        x += spr->SWidth * units_per_px / 16;
+        break;
     case 2:
         spr = &frontend_sprite[spridx];
         LbSpriteDrawResized(x, y, units_per_px, spr);
         x += spr->SWidth * units_per_px / 16;
-        spr = &frontend_sprite[spridx+1];
+        spr = &frontend_sprite[spridx + 1];
         LbSpriteDrawResized(x, y, units_per_px, spr);
         x += spr->SWidth * units_per_px / 16;
         LbSpriteDrawResized(x, y, units_per_px, spr);
@@ -798,7 +901,7 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         x += spr->SWidth * units_per_px / 16;
         break;
     }
-    spr = &frontend_sprite[spridx+2];
+    spr = &frontend_sprite[spridx + 2];
     LbSpriteDrawResized(x, y, units_per_px, spr);
     if (text != NULL)
     {
@@ -806,9 +909,9 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         LbTextSetFont(frontend_font[fntidx]);
         spr = &frontend_sprite[spridx];
         h = LbTextHeight(text) * units_per_px / 16;
-        x = gbtn->scr_pos_x + ((40*units_per_px/16) >> 1);
-        y = gbtn->scr_pos_y + ((spr->SHeight*units_per_px/16 - h) >> 1);
-        LbTextSetWindow(x, y, gbtn->width-40*units_per_px/16, h);
+        x = gbtn->scr_pos_x + ((40 * units_per_px / 16) >> 1);
+        y = gbtn->scr_pos_y + ((spr->SHeight * units_per_px / 16 - h) >> 1);
+        LbTextSetWindow(x, y, gbtn->width - 40 * units_per_px / 16, h);
         LbTextDrawResized(0, 0, units_per_px, text);
     }
 }
@@ -863,37 +966,37 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
     long i;
     long delta;
     pos_y = gbtn->scr_pos_y;
-    switch ( (long)gbtn->content )
+    switch ((long)gbtn->content)
     {
-      case 24:
+    case 24:
         height_lines = 2;
         draw_scrollbar = 1;
         break;
-      case 25:
+    case 25:
         height_lines = 3;
         draw_scrollbar = 1;
         break;
-      case 26:
+    case 26:
         height_lines = 7;
         draw_scrollbar = 1;
         break;
-      case 89:
+    case 89:
         height_lines = 3;
         draw_scrollbar = 0;
         break;
-      case 90:
+    case 90:
         height_lines = 4;
         draw_scrollbar = 0;
         break;
-      case 91:
+    case 91:
         height_lines = 4;
         draw_scrollbar = 1;
         break;
-      case 94:
+    case 94:
         height_lines = 10;
         draw_scrollbar = 1;
         break;
-      default:
+    default:
         height_lines = 0;
         draw_scrollbar = 0;
         break;
@@ -904,70 +1007,82 @@ void frontend_draw_scroll_box(struct GuiButton *gbtn)
         int orig_size;
         orig_size = 0;
         spr = &frontend_sprite[GFS_hugearea_thn_cor_ml];
-        for (i=0; i < 6; i++)
+        for (i = 0; i < 6; i++)
         {
             orig_size += spr->SWidth;
             spr++;
         }
-        units_per_px = (gbtn->width * 16 + orig_size/2) / orig_size;
+        units_per_px = (gbtn->width * 16 + orig_size / 2) / orig_size;
     }
     // Draw top border
     spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
     pos_x = gbtn->scr_pos_x;
-    for (i=0; i < 6; i++)
+    for (i = 0; i < 6; i++)
     {
         LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
         spr++;
     }
-    if ( draw_scrollbar )
+    if (draw_scrollbar)
     {
         pos_x = gbtn->scr_pos_x + gbtn->width;
-        draw_frontend_sprite_left(pos_x, pos_y - units_per_px/16, units_per_px, GFS_scrollbar_toparrow_std);
+        draw_frontend_sprite_left(pos_x, pos_y - units_per_px / 16, units_per_px, GFS_scrollbar_toparrow_std);
     }
     // Draw inside
     spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
     pos_y += spr->SHeight * units_per_px / 16;
-    for (; height_lines > 0; height_lines -= delta )
+    for (; height_lines > 0; height_lines -= delta)
     {
-      if (height_lines < 3)
-          spr_idx = GFS_hugearea_thn_cor_ml;
-      else
-          spr_idx = GFS_hugearea_thc_cor_ml;
-      spr = &frontend_sprite[spr_idx];
-      pos_x = gbtn->scr_pos_x;
-      for (i=0; i < 6; i++)
-      {
-          LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
-          pos_x += spr->SWidth * units_per_px / 16;
-          spr++;
-      }
-      if ( draw_scrollbar )
-      {
-        if ( height_lines < 3 )
-            secspr_idx = GFS_scrollbar_vert_ct_short;
+        if (height_lines < 3)
+        {
+            spr_idx = GFS_hugearea_thn_cor_ml;
+        }
         else
-            secspr_idx = GFS_scrollbar_vert_ct_long;
-        pos_x = gbtn->scr_pos_x + gbtn->width;
-        draw_frontend_sprite_left(pos_x, pos_y, units_per_px, secspr_idx);
-      }
-      spr = &frontend_sprite[spr_idx];
-      pos_y += spr->SHeight * units_per_px / 16;
-      if (height_lines < 3)
-          delta = 1;
-      else
-          delta = 3;
+        {
+            spr_idx = GFS_hugearea_thc_cor_ml;
+        }
+        spr = &frontend_sprite[spr_idx];
+        pos_x = gbtn->scr_pos_x;
+        for (i = 0; i < 6; i++)
+        {
+            LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
+            pos_x += spr->SWidth * units_per_px / 16;
+            spr++;
+        }
+        if (draw_scrollbar)
+        {
+            if (height_lines < 3)
+            {
+                secspr_idx = GFS_scrollbar_vert_ct_short;
+            }
+            else
+            {
+                secspr_idx = GFS_scrollbar_vert_ct_long;
+            }
+            pos_x = gbtn->scr_pos_x + gbtn->width;
+            draw_frontend_sprite_left(pos_x, pos_y, units_per_px, secspr_idx);
+        }
+        spr = &frontend_sprite[spr_idx];
+        pos_y += spr->SHeight * units_per_px / 16;
+        if (height_lines < 3)
+        {
+            delta = 1;
+        }
+        else
+        {
+            delta = 3;
+        }
     }
     // Draw bottom border
     spr = &frontend_sprite[GFS_hugearea_thn_cor_bl];
     pos_x = gbtn->scr_pos_x;
-    for (i=0; i < 6; i++)
+    for (i = 0; i < 6; i++)
     {
         LbSpriteDrawResized(pos_x, pos_y, units_per_px, spr);
         pos_x += spr->SWidth * units_per_px / 16;
         spr++;
     }
-    if ( draw_scrollbar )
+    if (draw_scrollbar)
     {
         pos_x = gbtn->scr_pos_x + gbtn->width;
         draw_frontend_sprite_left(pos_x, pos_y, units_per_px, GFS_scrollbar_btmarrow_std);
@@ -981,24 +1096,32 @@ void frontend_draw_slider_button(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
         btn_id = (long)gbtn->content;
-        if ( (btn_id != 0) && (frontend_mouse_over_button == btn_id) )
+        if ((btn_id != 0) && (frontend_mouse_over_button == btn_id))
         {
-            if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
+            if ((btn_id == 17) || (btn_id == 36) || (btn_id == 38))
+            {
                 spr_idx = GFS_scrollbar_toparrow_act;
-            } else {
+            }
+            else
+            {
                 spr_idx = GFS_scrollbar_btmarrow_act;
             }
-        } else
+        }
+        else
         {
-            if ( (btn_id == 17) || (btn_id == 36) || (btn_id == 38) ) {
+            if ((btn_id == 17) || (btn_id == 36) || (btn_id == 38))
+            {
                 spr_idx = GFS_scrollbar_toparrow_std;
-            } else {
+            }
+            else
+            {
                 spr_idx = GFS_scrollbar_btmarrow_std;
             }
         }
-    } else
+    }
+    else
     {
-      spr_idx = 0;
+        spr_idx = 0;
     }
     if (spr_idx > 0)
     {
@@ -1016,7 +1139,8 @@ void gui_area_null(struct GuiButton *gbtn)
     if ((gbtn->flags & LbBtnF_Enabled) != 0)
     {
         draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->sprite_idx);
-    } else
+    }
+    else
     {
         draw_button_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, bs_units_per_px, gbtn->sprite_idx);
     }
@@ -1045,7 +1169,7 @@ void gui_set_menu_mode(struct GuiButton *gbtn)
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)
 {
-    SYNCDBG(10,"Starting");
+    SYNCDBG(10, "Starting");
     int spr_idx;
     spr_idx = gbtn->sprite_idx;
     int ps_units_per_px;
@@ -1059,25 +1183,28 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
             ctptr = (unsigned char *)gbtn->content;
             if ((ctptr != NULL) && (*ctptr > 0))
             {
-                if (game.play_gameturn & 1) {
+                if (game.play_gameturn & 1)
+                {
                     spr_idx += 2;
                 }
             }
         }
-        if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2)) {
+        if ((!gbtn->gbactn_1) && (!gbtn->gbactn_2))
+        {
             spr_idx++;
         }
         draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
-    } else
+    }
+    else
     {
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
     }
-    SYNCDBG(12,"Finished");
+    SYNCDBG(12, "Finished");
 }
 
-struct GuiButton* get_gui_button(int btn_idx)
+struct GuiButton *get_gui_button(int btn_idx)
 {
-    for (int i=0; i < ACTIVE_BUTTONS_COUNT; i++)
+    for (int i = 0; i < ACTIVE_BUTTONS_COUNT; i++)
     {
         struct GuiButton *gbtn = &active_buttons[i];
         if (gbtn->id_num == btn_idx)

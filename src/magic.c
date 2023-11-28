@@ -69,15 +69,15 @@ extern "C" {
 const long power_sight_close_instance_time[] = {4, 4, 5, 5, 6, 6, 7, 7, 8};
 
 unsigned char destroy_effect[][9] = {
-    {88, 88, 88, 88, 79, 88, 88, 88, 88,},//splevel=0
-    {88, 88, 88, 88, 32, 88, 88, 88, 88,},
-    {88, 88, 88, 79, 32, 79, 88, 88, 88,},
-    {88, 79, 88, 79, 32, 79, 88, 79, 88,},
-    {88, 79, 88, 79, 32, 79, 88, 79, 88,},
-    {88, 88, 88, 32, 32, 32, 88, 88, 88,},
-    {88, 32, 88, 32, 32, 32, 88, 32, 88,},
-    {79, 32, 79, 32, 32, 32, 79, 32, 79,},
-    {32, 32, 32, 32, 32, 32, 32, 32, 32,},//splevel=8
+    {88, 88, 88, 88, 79, 88, 88, 88, 88}, //  splevel=0
+    {88, 88, 88, 88, 32, 88, 88, 88, 88},
+    {88, 88, 88, 79, 32, 79, 88, 88, 88},
+    {88, 79, 88, 79, 32, 79, 88, 79, 88},
+    {88, 79, 88, 79, 32, 79, 88, 79, 88},
+    {88, 88, 88, 32, 32, 32, 88, 88, 88},
+    {88, 32, 88, 32, 32, 32, 88, 32, 88},
+    {79, 32, 79, 32, 32, 32, 79, 32, 79},
+    {32, 32, 32, 32, 32, 32, 32, 32, 32}, //  splevel=8
 };
 
 /******************************************************************************/
@@ -95,19 +95,20 @@ unsigned char destroy_effect[][9] = {
  */
 TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y, const struct Thing *thing, unsigned long flags, const char *func_name)
 {
-    struct PlayerInfo* player = get_player(plyr_idx);
+    struct PlayerInfo *player = get_player(plyr_idx);
     if (player->work_state == PSt_FreeDestroyWalls)
     {
         struct SlabAttr *slbattr = get_slab_attrs(get_slabmap_for_subtile(stl_x, stl_y));
-        return ( (slbattr->category == SlbAtCtg_FortifiedWall) || (slbattr->category == SlbAtCtg_FriableDirt) );
+        return ((slbattr->category == SlbAtCtg_FortifiedWall) || (slbattr->category == SlbAtCtg_FriableDirt));
     }
-    else if ( (player->work_state == PSt_FreeCastDisease) || (player->work_state == PSt_FreeTurnChicken) )
+    else if ((player->work_state == PSt_FreeCastDisease) || (player->work_state == PSt_FreeTurnChicken))
     {
         return (slab_is_wall(subtile_slab(stl_x), subtile_slab(stl_y)) == false);
     }
     if ((flags & CastChk_SkipAvailiabilty) == 0)
     {
-        if (!is_power_available(plyr_idx, pwkind)) {
+        if (!is_power_available(plyr_idx, pwkind))
+        {
             return false;
         }
     }
@@ -125,29 +126,39 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
         cast_on_tng = true;
         if (((powerst->can_cast_flags & PwCast_AllThings) != 0) && ((flags & CastChk_SkipThing) == 0))
         {
-            if (thing_exists(thing)) {
+            if (thing_exists(thing))
+            {
                 cast_on_tng = can_cast_power_on_thing(plyr_idx, thing, pwkind);
-            } else {
+            }
+            else
+            {
                 cast_on_tng = false;
             }
         }
         if ((powerst->can_cast_flags & PwCast_ThingOrMap) != 0)
         {
             // Fail only if both functions have failed - one is enough
-            if (!cast_at_xy && !cast_on_tng) {
-                if ((flags & CastChk_Final) != 0) {
-                    WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                        power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+            if (!cast_at_xy && !cast_on_tng)
+            {
+                if ((flags & CastChk_Final) != 0)
+                {
+                    WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted", func_name, (int)plyr_idx,
+                            power_code_name(pwkind), (!cast_on_tng) ? "a thing" : (!cast_at_xy) ? "a subtile"
+                                                                                                : "thing or subtile");
                 }
                 return false;
             }
-        } else
+        }
+        else
         {
             // Fail if any of the functions has failed - we need both
-            if (!cast_at_xy || !cast_on_tng) {
-                if ((flags & CastChk_Final) != 0) {
-                    WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted",func_name,(int)plyr_idx,
-                        power_code_name(pwkind), (!cast_on_tng)?"a thing":(!cast_at_xy)?"a subtile":"thing or subtile");
+            if (!cast_at_xy || !cast_on_tng)
+            {
+                if ((flags & CastChk_Final) != 0)
+                {
+                    WARNLOG("%s: Player %d tried to cast %s on %s which can't be targeted", func_name, (int)plyr_idx,
+                            power_code_name(pwkind), (!cast_on_tng) ? "a thing" : (!cast_at_xy) ? "a subtile"
+                                                                                                : "thing or subtile");
                 }
                 return false;
             }
@@ -164,20 +175,24 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
                 child_powerst = get_power_model_stats(i);
                 if (child_powerst->parent_power == pwkind)
                 {
-                    if (can_cast_spell_f(plyr_idx, i, stl_x, stl_y, thing, flags&(~CastChk_Final), func_name)) {
-                        if ((flags & CastChk_Final) != 0) {
-                            SYNCDBG(7,"%s: Player %d can cast %s; child power %s allows that",func_name,(int)plyr_idx,
-                                power_code_name(pwkind),power_code_name(i));
+                    if (can_cast_spell_f(plyr_idx, i, stl_x, stl_y, thing, flags & (~CastChk_Final), func_name))
+                    {
+                        if ((flags & CastChk_Final) != 0)
+                        {
+                            SYNCDBG(7, "%s: Player %d can cast %s; child power %s allows that", func_name, (int)plyr_idx,
+                                    power_code_name(pwkind), power_code_name(i));
                         }
                         can_cast_child = true;
                         break;
                     }
                 }
             }
-            if (!can_cast_child) {
-                if ((flags & CastChk_Final) != 0) {
-                    WARNLOG("%s: Player %d tried to cast %s; child powers do not allow that",func_name,(int)plyr_idx,
-                        power_code_name(pwkind));
+            if (!can_cast_child)
+            {
+                if ((flags & CastChk_Final) != 0)
+                {
+                    WARNLOG("%s: Player %d tried to cast %s; child powers do not allow that", func_name, (int)plyr_idx,
+                            power_code_name(pwkind));
                 }
                 return false;
             }
@@ -196,20 +211,24 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
  */
 TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing, PowerKind pwkind)
 {
-    SYNCDBG(18,"Starting for %s on %s index %d",power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+    SYNCDBG(18, "Starting for %s on %s index %d", power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
     // Picked up things are immune to spells
-    if (thing_is_picked_up(thing)) {
+    if (thing_is_picked_up(thing))
+    {
         return false;
     }
     struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
     if (power_model_stats_invalid(powerst))
+    {
         return false;
+    }
     if ((powerst->can_cast_flags & PwCast_NeedsDelay) != 0)
     {
-        struct PlayerInfo* player;
+        struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (game.play_gameturn <= player->power_of_cooldown_turn) {
+        if (game.play_gameturn <= player->power_of_cooldown_turn)
+        {
             return false;
         }
     }
@@ -217,56 +236,70 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     {
         if ((powerst->can_cast_flags & PwCast_OwnedFood) != 0)
         {
-            if (thing->owner == plyr_idx) {
-                if (object_is_mature_food(thing))  {
+            if (thing->owner == plyr_idx)
+            {
+                if (object_is_mature_food(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_NeutrlFood) != 0)
         {
-            if (is_neutral_thing(thing)) {
-                if (object_is_mature_food(thing))  {
+            if (is_neutral_thing(thing))
+            {
+                if (object_is_mature_food(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_EnemyFood) != 0)
         {
-            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
-                if (object_is_mature_food(thing))  {
+            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing))
+            {
+                if (object_is_mature_food(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_OwnedGold) != 0)
         {
-            if (thing->owner == plyr_idx) {
-                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
+            if (thing->owner == plyr_idx)
+            {
+                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_NeutrlGold) != 0)
         {
-            if (is_neutral_thing(thing)) {
-                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
+            if (is_neutral_thing(thing))
+            {
+                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_EnemyGold) != 0)
         {
-            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing)) {
-                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing)) {
+            if ((thing->owner != plyr_idx) && !is_neutral_thing(thing))
+            {
+                if (object_is_gold_pile(thing) || object_is_gold_hoard(thing))
+                {
                     return true;
                 }
             }
         }
         if ((powerst->can_cast_flags & PwCast_OwnedSpell) != 0)
         {
-            if (thing->owner == plyr_idx) {
-                if (thing_is_spellbook(thing))  {
+            if (thing->owner == plyr_idx)
+            {
+                if (thing_is_spellbook(thing))
+                {
                     return true;
                 }
             }
@@ -276,8 +309,10 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
     {
         if ((powerst->can_cast_flags & PwCast_OwnedBoulders) != 0)
         {
-            if (thing->owner == plyr_idx) {
-                if (shot_is_slappable(thing, plyr_idx))  {
+            if (thing->owner == plyr_idx)
+            {
+                if (shot_is_slappable(thing, plyr_idx))
+                {
                     return true;
                 }
             }
@@ -288,10 +323,12 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         // Allow the boulder trap
         if ((powerst->can_cast_flags & PwCast_OwnedBoulders) != 0)
         {
-            if (thing->owner == plyr_idx) {
+            if (thing->owner == plyr_idx)
+            {
                 struct TrapConfigStats *trapst;
                 trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
-                if ((trapst->slappable == 1) && trap_is_active(thing)) {
+                if ((trapst->slappable == 1) && trap_is_active(thing))
+                {
                     return true;
                 }
             }
@@ -316,7 +353,8 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         // Don't allow casting on own creatures kept by enemy - they're out of our control
         if (thing->owner == plyr_idx)
         {
-            if (creature_is_kept_in_custody_by_enemy(thing)) {
+            if (creature_is_kept_in_custody_by_enemy(thing))
+            {
                 return false;
             }
         }
@@ -326,70 +364,81 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         }
         if ((powerst->can_cast_flags & PwCast_NConscCrtrs) == 0)
         {
-            if (creature_is_being_unconscious(thing) || creature_is_dying(thing)) {
-                SYNCDBG(8,"Player %d cannot cast %s on unconscious %s index %d",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (creature_is_being_unconscious(thing) || creature_is_dying(thing))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s on unconscious %s index %d", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
         }
         if ((powerst->can_cast_flags & PwCast_BoundCrtrs) == 0)
         {
-            if (armageddon_blocks_creature_pickup(thing, plyr_idx)) {
-                SYNCDBG(8,"Player %d cannot cast %s while armageddon blocks %s index %d",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (armageddon_blocks_creature_pickup(thing, plyr_idx))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s while armageddon blocks %s index %d", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
-            if (creature_is_dragging_something(thing)) {
-                SYNCDBG(8,"Player %d cannot cast %s while %s index %d is dragging something",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (creature_is_dragging_something(thing))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s while %s index %d is dragging something", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
-            if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing)) {
-                SYNCDBG(8,"Player %d cannot cast %s on %s index %d while entering/leaving",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (creature_is_being_sacrificed(thing) || creature_is_being_summoned(thing))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s on %s index %d while entering/leaving", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
-            if (creature_affected_by_spell(thing, SplK_Teleport)) {
-                SYNCDBG(8,"Player %d cannot cast %s on %s index %d while teleporting",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (creature_affected_by_spell(thing, SplK_Teleport))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s on %s index %d while teleporting", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
-            if (creature_affected_by_spell(thing, SplK_TimeBomb)) {
-                SYNCDBG(8,"Player %d cannot cast %s on %s index %d because TimeBomb blocks it",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+            if (creature_affected_by_spell(thing, SplK_TimeBomb))
+            {
+                SYNCDBG(8, "Player %d cannot cast %s on %s index %d because TimeBomb blocks it", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
                 return false;
             }
         }
         // If allowed custody creatures - allow some enemies
         if ((powerst->can_cast_flags & PwCast_CustodyCrtrs) != 0)
         {
-            if (creature_is_kept_in_custody_by_player(thing, plyr_idx)) {
+            if (creature_is_kept_in_custody_by_player(thing, plyr_idx))
+            {
                 return true;
             }
         }
         if ((powerst->can_cast_flags & PwCast_OwnedCrtrs) != 0)
         {
-            if (thing->owner == plyr_idx) {
+            if (thing->owner == plyr_idx)
+            {
                 return true;
             }
         }
         if ((powerst->can_cast_flags & PwCast_AlliedCrtrs) != 0)
         {
-            if (players_are_mutual_allies(plyr_idx, thing->owner)) {
+            if (players_are_mutual_allies(plyr_idx, thing->owner))
+            {
                 return true;
             }
         }
         if ((powerst->can_cast_flags & PwCast_EnemyCrtrs) != 0)
         {
-            if (players_are_enemies(plyr_idx, thing->owner)) {
+            if (players_are_enemies(plyr_idx, thing->owner))
+            {
                 return true;
             }
         }
     }
-    SYNCDBG(18,"Player %d cannot cast %s on %s index %d, no condition met",(int)plyr_idx,power_code_name(pwkind),thing_model_name(thing),(int)thing->index);
+    SYNCDBG(18, "Player %d cannot cast %s on %s index %d, no condition met", (int)plyr_idx, power_code_name(pwkind), thing_model_name(thing), (int)thing->index);
     return false;
 }
 
 void update_power_sight_explored(struct PlayerInfo *player)
 {
-    SYNCDBG(16,"Starting");
+    SYNCDBG(16, "Starting");
     struct Dungeon *dungeon;
     dungeon = get_players_dungeon(player);
-    if (dungeon->sight_casted_thing_idx == 0) {
+    if (dungeon->sight_casted_thing_idx == 0)
+    {
         return;
     }
     struct Thing *thing;
@@ -404,135 +453,156 @@ void update_power_sight_explored(struct PlayerInfo *player)
     int stl_x;
     int stl_y;
 
-    for (shift_y=0; shift_y < 2*MAX_SOE_RADIUS; shift_y++)
+    for (shift_y = 0; shift_y < 2 * MAX_SOE_RADIUS; shift_y++)
     {
         stl_y = thing->mappos.y.stl.num - MAX_SOE_RADIUS + shift_y;
-        if ((stl_y < 0) || (stl_y > gameadd.map_subtiles_y)) {
+        if ((stl_y < 0) || (stl_y > gameadd.map_subtiles_y))
+        {
             continue;
         }
 
         stl_x = thing->mappos.x.stl.num - MAX_SOE_RADIUS;
         for (shift_x = 0; shift_x <= MAX_SOE_RADIUS; shift_x++)
         {
-          if (dungeon->soe_explored_flags[shift_y][shift_x])
-          {
-            revealed = 0;
-            i = 1;
-            shift_x++;
-            for (; shift_x < 2*MAX_SOE_RADIUS; shift_x++)
+            if (dungeon->soe_explored_flags[shift_y][shift_x])
             {
-              if (dungeon->soe_explored_flags[shift_y][shift_x])
-                revealed = i;
-              ++i;
-            }
-
-            int stl_x_beg;
-            int stl_x_end;
-            stl_x_beg = stl_x;
-            stl_x_end = stl_x + revealed;
-            if (stl_x_beg < 0) {
-                stl_x_beg = 0;
-            } else
-            if (stl_x_beg > gameadd.map_subtiles_x-1) {
-                stl_x_beg = gameadd.map_subtiles_x-1;
-            }
-            if (stl_x_end < 0) {
-                stl_x_end = 0;
-            } else
-            if (stl_x_end > gameadd.map_subtiles_x-1) {
-                stl_x_end = gameadd.map_subtiles_x-1;
-            }
-            if (stl_x_end >= stl_x_beg)
-            {
-                revealed = stl_x_end - stl_x_beg + 1;
-                stl_x += revealed;
-                subshift_x = stl_x_beg - thing->mappos.x.stl.num + MAX_SOE_RADIUS;
-                for (;revealed > 0; revealed--)
+                revealed = 0;
+                i = 1;
+                shift_x++;
+                for (; shift_x < 2 * MAX_SOE_RADIUS; shift_x++)
                 {
-                    if (!dungeon->soe_explored_flags[shift_y][subshift_x])
-                        dungeon->soe_explored_flags[shift_y][subshift_x] = 1;
-                    subshift_x++;
+                    if (dungeon->soe_explored_flags[shift_y][shift_x])
+                    {
+                        revealed = i;
+                    }
+                    ++i;
+                }
+
+                int stl_x_beg;
+                int stl_x_end;
+                stl_x_beg = stl_x;
+                stl_x_end = stl_x + revealed;
+                if (stl_x_beg < 0)
+                {
+                    stl_x_beg = 0;
+                }
+                else if (stl_x_beg > gameadd.map_subtiles_x - 1)
+                {
+                    stl_x_beg = gameadd.map_subtiles_x - 1;
+                }
+                if (stl_x_end < 0)
+                {
+                    stl_x_end = 0;
+                }
+                else if (stl_x_end > gameadd.map_subtiles_x - 1)
+                {
+                    stl_x_end = gameadd.map_subtiles_x - 1;
+                }
+                if (stl_x_end >= stl_x_beg)
+                {
+                    revealed = stl_x_end - stl_x_beg + 1;
+                    stl_x += revealed;
+                    subshift_x = stl_x_beg - thing->mappos.x.stl.num + MAX_SOE_RADIUS;
+                    for (; revealed > 0; revealed--)
+                    {
+                        if (!dungeon->soe_explored_flags[shift_y][subshift_x])
+                        {
+                            dungeon->soe_explored_flags[shift_y][subshift_x] = 1;
+                        }
+                        subshift_x++;
+                    }
                 }
             }
-          }
-          stl_x++;
+            stl_x++;
         }
     }
 
-    for (shift_x = 0; shift_x < 2*MAX_SOE_RADIUS; shift_x++)
+    for (shift_x = 0; shift_x < 2 * MAX_SOE_RADIUS; shift_x++)
     {
-      stl_x = thing->mappos.x.stl.num - MAX_SOE_RADIUS + shift_x;
-      if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x)) {
-          continue;
-      }
-      stl_y = thing->mappos.y.stl.num - MAX_SOE_RADIUS;
-      for (shift_y = 0; shift_y <= MAX_SOE_RADIUS; shift_y++)
-      {
-        if (dungeon->soe_explored_flags[shift_y][shift_x])
+        stl_x = thing->mappos.x.stl.num - MAX_SOE_RADIUS + shift_x;
+        if ((stl_x < 0) || (stl_x > gameadd.map_subtiles_x))
         {
-            revealed = 0;
-            i = 1;
-            shift_y++;
-            for (; shift_y < 2*MAX_SOE_RADIUS; shift_y++)
+            continue;
+        }
+        stl_y = thing->mappos.y.stl.num - MAX_SOE_RADIUS;
+        for (shift_y = 0; shift_y <= MAX_SOE_RADIUS; shift_y++)
+        {
+            if (dungeon->soe_explored_flags[shift_y][shift_x])
             {
-              if (dungeon->soe_explored_flags[shift_y][shift_x])
-                revealed = i;
-              ++i;
-            }
-
-            int stl_y_beg;
-            int stl_y_end;
-            stl_y_beg = stl_y;
-            stl_y_end = stl_y + revealed;
-            if (stl_y_end < 0) {
-                stl_y_end = 0;
-            } else
-            if (stl_y_end > gameadd.map_subtiles_y-1) {
-                stl_y_end = gameadd.map_subtiles_y-1;
-            }
-            if (stl_y_beg < 0) {
-                stl_y_beg = 0;
-            } else
-            if (stl_y_beg > gameadd.map_subtiles_y-1) {
-                stl_y_beg = gameadd.map_subtiles_y-1;
-            }
-            if (stl_y_beg <= stl_y_end)
-            {
-                revealed = stl_y_end - stl_y_beg + 1;
-                stl_y += revealed;
-                subshift_y = stl_y_beg - thing->mappos.y.stl.num + MAX_SOE_RADIUS;
-                for (; revealed > 0; revealed--)
+                revealed = 0;
+                i = 1;
+                shift_y++;
+                for (; shift_y < 2 * MAX_SOE_RADIUS; shift_y++)
                 {
-                    if (!dungeon->soe_explored_flags[subshift_y][shift_x])
-                        dungeon->soe_explored_flags[subshift_y][shift_x] = 1;
-                    subshift_y++;
+                    if (dungeon->soe_explored_flags[shift_y][shift_x])
+                    {
+                        revealed = i;
+                    }
+                    ++i;
+                }
+
+                int stl_y_beg;
+                int stl_y_end;
+                stl_y_beg = stl_y;
+                stl_y_end = stl_y + revealed;
+                if (stl_y_end < 0)
+                {
+                    stl_y_end = 0;
+                }
+                else if (stl_y_end > gameadd.map_subtiles_y - 1)
+                {
+                    stl_y_end = gameadd.map_subtiles_y - 1;
+                }
+                if (stl_y_beg < 0)
+                {
+                    stl_y_beg = 0;
+                }
+                else if (stl_y_beg > gameadd.map_subtiles_y - 1)
+                {
+                    stl_y_beg = gameadd.map_subtiles_y - 1;
+                }
+                if (stl_y_beg <= stl_y_end)
+                {
+                    revealed = stl_y_end - stl_y_beg + 1;
+                    stl_y += revealed;
+                    subshift_y = stl_y_beg - thing->mappos.y.stl.num + MAX_SOE_RADIUS;
+                    for (; revealed > 0; revealed--)
+                    {
+                        if (!dungeon->soe_explored_flags[subshift_y][shift_x])
+                        {
+                            dungeon->soe_explored_flags[subshift_y][shift_x] = 1;
+                        }
+                        subshift_y++;
+                    }
                 }
             }
+            stl_y++;
         }
-        stl_y++;
-      }
     }
-
 }
 
 TbBool power_sight_explored(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon->sight_casted_thing_idx <= 0) {
+    if (dungeon->sight_casted_thing_idx <= 0)
+    {
         return false;
     }
     struct Thing *thing;
     thing = thing_get(dungeon->sight_casted_thing_idx);
-    if (thing_is_invalid(thing)) {
+    if (thing_is_invalid(thing))
+    {
         return false;
     }
     long soe_x;
     long soe_y;
     soe_x = stl_x - thing->mappos.x.stl.num + MAX_SOE_RADIUS;
     soe_y = stl_y - thing->mappos.y.stl.num + MAX_SOE_RADIUS;
-    if ((soe_x < 0) || (soe_x >= 2*MAX_SOE_RADIUS) || (soe_y < 0)  || (soe_y >= 2*MAX_SOE_RADIUS))
-      return false;
+    if ((soe_x < 0) || (soe_x >= 2 * MAX_SOE_RADIUS) || (soe_y < 0) || (soe_y >= 2 * MAX_SOE_RADIUS))
+    {
+        return false;
+    }
     return dungeon->soe_explored_flags[soe_y][soe_x];
 }
 
@@ -548,14 +618,16 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     anger_apply_anger_to_creature(thing, crstat->annoy_slapped, AngR_Other, 1);
     if (crstat->slaps_to_kill > 0)
     {
-      i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
-      apply_damage_to_thing_and_display_health(thing, i, DmgT_Physical, player->id_number);
+        i = compute_creature_max_health(crstat->health, cctrl->explevel) / crstat->slaps_to_kill;
+        apply_damage_to_thing_and_display_health(thing, i, DmgT_Physical, player->id_number);
     }
     pwrdynst = get_power_dynamic_stats(PwrK_SLAP);
     i = cctrl->slap_turns;
     cctrl->slap_turns = pwrdynst->duration;
     if (i == 0)
-      cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    {
+        cctrl->max_speed = calculate_correct_creature_maxspeed(thing);
+    }
     if (thing->active_state != CrSt_CreatureSlapCowers)
     {
         clear_creature_instance(thing);
@@ -570,7 +642,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
 }
 
 TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
-    MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
+                            MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
 {
     struct Map *mapblk;
     struct SlabMap *slb;
@@ -582,7 +654,9 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     const struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(pwkind);
     if (power_model_stats_invalid(powerst))
+    {
         return false;
+    }
     can_cast = powerst->can_cast_flags | allow_flags;
     // Allow casting only on revealed tiles (unless the spell overrides this)
     if ((can_cast & PwCast_Unrevealed) == 0)
@@ -590,10 +664,12 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
         if (!map_block_revealed(mapblk, plyr_idx))
         {
             // If it's not revealed, we may still accept revealing by SOE spell
-            if ((can_cast & PwCast_RevealedTemp) == 0) {
+            if ((can_cast & PwCast_RevealedTemp) == 0)
+            {
                 return false;
-            } else
-            if (!power_sight_explored(stl_x, stl_y, plyr_idx)) {
+            }
+            else if (!power_sight_explored(stl_x, stl_y, plyr_idx))
+            {
                 return false;
             }
         }
@@ -607,20 +683,21 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
     {
         struct PlayerInfo *player;
         player = get_player(plyr_idx);
-        if (game.play_gameturn <= player->power_of_cooldown_turn) {
+        if (game.play_gameturn <= player->power_of_cooldown_turn)
+        {
             return false;
         }
     }
     PlayerNumber slb_owner;
     slb_owner = slabmap_owner(slb);
-    TbBool subtile_is_liquid_or_path = ( (subtile_is_liquid(stl_x, stl_y)) || (subtile_is_unclaimed_path(stl_x, stl_y)) );
-    if ( ((mapblk->flags & SlbAtFlg_Blocking) != 0) && (!subtile_is_liquid_or_path) )
+    TbBool subtile_is_liquid_or_path = ((subtile_is_liquid(stl_x, stl_y)) || (subtile_is_unclaimed_path(stl_x, stl_y)));
+    if (((mapblk->flags & SlbAtFlg_Blocking) != 0) && (!subtile_is_liquid_or_path))
     {
         if ((can_cast & PwCast_Claimable) != 0)
         {
-            if (((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_ROCK))
+            if (((mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom | SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_ROCK))
             {
-                  return false;
+                return false;
             }
         }
         if ((can_cast & PwCast_AllTall) == PwCast_AllTall)
@@ -630,35 +707,40 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
         }
         if ((can_cast & PwCast_NeutrlTall) != 0)
         {
-            if (slb_owner == game.neutral_player_num) {
+            if (slb_owner == game.neutral_player_num)
+            {
                 return true;
             }
         }
         if ((can_cast & PwCast_OwnedTall) != 0)
         {
-            if (slb_owner == plyr_idx) {
+            if (slb_owner == plyr_idx)
+            {
                 return true;
             }
         }
         if ((can_cast & PwCast_AlliedTall) != 0)
         {
-            if ((slb_owner != plyr_idx) && players_are_mutual_allies(plyr_idx,slb_owner)) {
+            if ((slb_owner != plyr_idx) && players_are_mutual_allies(plyr_idx, slb_owner))
+            {
                 return true;
             }
         }
         if ((can_cast & PwCast_EnemyTall) != 0)
         {
-            if (players_are_enemies(plyr_idx,slb_owner)) {
+            if (players_are_enemies(plyr_idx, slb_owner))
+            {
                 return true;
             }
         }
-    } else
+    }
+    else
     {
         if ((can_cast & PwCast_Claimable) != 0)
         {
             if (subtile_is_liquid(stl_x, stl_y))
             {
-                  return false;
+                return false;
             }
         }
         if ((can_cast & PwCast_AllGround) == PwCast_AllGround)
@@ -668,7 +750,8 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
         }
         if ((can_cast & PwCast_UnclmdGround) != 0)
         {
-            if (slbattr->category == SlbAtCtg_Unclaimed) {
+            if (slbattr->category == SlbAtCtg_Unclaimed)
+            {
                 return true;
             }
             if (subtile_is_liquid_or_path)
@@ -678,25 +761,29 @@ TbBool can_cast_power_at_xy(PlayerNumber plyr_idx, PowerKind pwkind,
         }
         if ((can_cast & PwCast_NeutrlGround) != 0)
         {
-            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner == game.neutral_player_num)) {
+            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner == game.neutral_player_num))
+            {
                 return true;
             }
         }
         if ((can_cast & PwCast_OwnedGround) != 0)
         {
-            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner == plyr_idx)) {
+            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner == plyr_idx))
+            {
                 return true;
             }
         }
         if ((can_cast & PwCast_AlliedGround) != 0)
         {
-            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner != plyr_idx) && players_are_mutual_allies(plyr_idx,slb_owner)) {
+            if ((slbattr->category != SlbAtCtg_Unclaimed) && (slb_owner != plyr_idx) && players_are_mutual_allies(plyr_idx, slb_owner))
+            {
                 return true;
             }
         }
         if ((can_cast & PwCast_EnemyGround) != 0)
         {
-            if ((slbattr->category != SlbAtCtg_Unclaimed) && players_are_enemies(plyr_idx,slb_owner)) {
+            if ((slbattr->category != SlbAtCtg_Unclaimed) && players_are_enemies(plyr_idx, slb_owner))
+            {
                 return true;
             }
         }
@@ -719,8 +806,10 @@ GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKi
     // Increase price by given amount
     i = amount + 1;
     if (i < 1)
-      i = 1;
-    return pwrdynst->cost[pwlevel]*i/2;
+    {
+        i = 1;
+    }
+    return pwrdynst->cost[pwlevel] * i / 2;
 }
 
 /**
@@ -732,7 +821,7 @@ GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKi
 GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     struct Dungeon *dungeon;
-    struct DungeonAdd* dungeonadd;
+    struct DungeonAdd *dungeonadd;
     const struct MagicStats *pwrdynst;
     long price;
     switch (pwkind)
@@ -774,12 +863,13 @@ GoldAmount compute_lowest_power_price(PlayerNumber plyr_idx, PowerKind pwkind, l
     }
     return price;
 }
+
 long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
 {
     struct Dungeon *dungeon;
     const struct MagicStats *pwrdynst;
     pwrdynst = get_power_dynamic_stats(pwkind);
-    struct Thing * thing;
+    struct Thing *thing;
     thing = INVALID_THING;
     unsigned long curr;
     unsigned long total;
@@ -790,8 +880,11 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
     case PwrK_SIGHT:
         dungeon = get_players_num_dungeon(plyr_idx);
         if (dungeon->sight_casted_thing_idx > 0)
+        {
             thing = thing_get(dungeon->sight_casted_thing_idx);
-        if (thing_exists(thing)) {
+        }
+        if (thing_exists(thing))
+        {
             curr = game.play_gameturn - thing->creation_turn;
             total = pwrdynst->strength[dungeon->sight_casted_splevel] + 8;
         }
@@ -808,7 +901,9 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
         break;
     }
     if (total > 0)
+    {
         return (curr << 8) / total;
+    }
     return -1;
 }
 
@@ -816,11 +911,17 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     long price;
     if (pwkind >= magic_conf.power_types_count)
+    {
         return false;
+    }
     if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
+    {
         pwlevel = MAGIC_OVERCHARGE_LEVELS;
+    }
     if (pwlevel < 0)
+    {
         pwlevel = 0;
+    }
     price = compute_power_price(plyr_idx, pwkind, pwlevel);
     // Try to take money
     if (take_money_from_dungeon(plyr_idx, price, 1) >= 0)
@@ -829,7 +930,9 @@ TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
     }
     // If failed, say "you do not have enough gold"
     if (is_my_player_number(plyr_idx))
+    {
         output_message(SMsg_GoldNotEnough, 0, true);
+    }
     return false;
 }
 
@@ -855,7 +958,7 @@ TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coo
         {
             pos->x.val = subtile_coord_center(dungeon->cta_stl_x);
             pos->y.val = subtile_coord_center(dungeon->cta_stl_y);
-            pos->z.val = subtile_coord(1,0);
+            pos->z.val = subtile_coord(1, 0);
             return true;
         }
         break;
@@ -865,20 +968,24 @@ TbBool find_power_cast_place(PlayerNumber plyr_idx, PowerKind pwkind, struct Coo
 
 TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_flags)
 {
-    SYNCDBG(6,"Starting");
+    SYNCDBG(6, "Starting");
     unsigned long your_time_gap;
     unsigned long enemy_time_gap;
     your_time_gap = game.armageddon.count_down + game.play_gameturn;
     enemy_time_gap = game.armageddon.count_down + game.play_gameturn;
-    if (game.armageddon_cast_turn != 0) {
+    if (game.armageddon_cast_turn != 0)
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_ARMAGEDDON, 0)) {
+        if (!pay_for_spell(plyr_idx, PwrK_ARMAGEDDON, 0))
+        {
             if (is_my_player_number(plyr_idx))
+            {
                 output_message(SMsg_GoldNotEnough, 0, true);
+            }
             return Lb_OK;
         }
     }
@@ -902,8 +1009,8 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
         thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
-          ERRORLOG("Jump to invalid thing detected");
-          break;
+            ERRORLOG("Jump to invalid thing detected");
+            break;
         }
         i = thing->next_of_class;
         // Per-thing code
@@ -913,31 +1020,38 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
         if (is_neutral_thing(thing) && !gameadd.armegeddon_teleport_neutrals)
         {
             cctrl->armageddon_teleport_turn = 0;
-        } else
-        // Creatures killed by Armageddon
-        if (creature_affected_by_spell(thing, SplK_Chicken))
-        {
-            kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
-        } else
-        // Creatures teleported by Armageddon
-        {
-            cctrl->armageddon_teleport_turn = your_time_gap;
-            if (thing->owner == plyr_idx) {
-                your_time_gap += game.armagedon_teleport_your_time_gap;
-            } else {
-                enemy_time_gap += game.armagedon_teleport_enemy_time_gap;
-            }
         }
+        else
+            // Creatures killed by Armageddon
+            if (creature_affected_by_spell(thing, SplK_Chicken))
+            {
+                kill_creature(thing, heartng, plyr_idx, CrDed_DiedInBattle);
+            }
+            else
+            // Creatures teleported by Armageddon
+            {
+                cctrl->armageddon_teleport_turn = your_time_gap;
+                if (thing->owner == plyr_idx)
+                {
+                    your_time_gap += game.armagedon_teleport_your_time_gap;
+                }
+                else
+                {
+                    enemy_time_gap += game.armagedon_teleport_enemy_time_gap;
+                }
+            }
         // Per-thing code ends
         k++;
         if (k > THINGS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping things list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
         }
     }
     if (enemy_time_gap <= your_time_gap)
+    {
         enemy_time_gap = your_time_gap;
+    }
     game.armageddon_over_turn = game.armageddon.duration + enemy_time_gap;
     if (plyr_idx == my_player_number)
     {
@@ -961,9 +1075,12 @@ TbResult magic_use_power_obey(PlayerNumber plyr_idx, unsigned long mod_flags)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     // Toggle the spell
-    if (dungeon->must_obey_turn != 0) {
+    if (dungeon->must_obey_turn != 0)
+    {
         dungeon->must_obey_turn = 0;
-    } else {
+    }
+    else
+    {
         dungeon->must_obey_turn = game.play_gameturn;
         if (plyr_idx == my_player_number)
         {
@@ -997,32 +1114,43 @@ void turn_off_power_sight_of_evil(PlayerNumber plyr_idx)
     pwrdynst = get_power_dynamic_stats(PwrK_SIGHT);
     spl_lev = dungeon->sight_casted_splevel;
     if (spl_lev > SPELL_MAX_LEVEL)
+    {
         spl_lev = SPELL_MAX_LEVEL;
+    }
     i = game.play_gameturn - dungeon->sight_casted_gameturn;
-    imax = abs(pwrdynst->strength[spl_lev]/4) >> 2;
+    imax = abs(pwrdynst->strength[spl_lev] / 4) >> 2;
     if (i > imax)
+    {
         i = imax;
+    }
     if (i < 0)
+    {
         i = 0;
+    }
     n = game.play_gameturn - pwrdynst->strength[spl_lev];
     cit = power_sight_close_instance_time[spl_lev];
     k = imax / cit;
-    if (k < 1) k = 1;
-    dungeon->sight_casted_gameturn = n + i/k - cit;
+    if (k < 1)
+    {
+        k = 1;
+    }
+    dungeon->sight_casted_gameturn = n + i / k - cit;
 }
 
 TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_flags)
 {
-    SYNCDBG(8,"Starting");
+    SYNCDBG(8, "Starting");
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon->hold_audience_cast_turn != 0) {
+    if (dungeon->hold_audience_cast_turn != 0)
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_HOLDAUDNC, 0)) {
+        if (!pay_for_spell(plyr_idx, PwrK_HOLDAUDNC, 0))
+        {
             return Lb_FAIL;
         }
     }
@@ -1068,20 +1196,22 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
         struct PowerConfigStats *powerst = get_power_model_stats(PwrK_HOLDAUDNC);
         play_non_3d_sample(powerst->select_sound_idx);
     }
-    SYNCDBG(19,"Finished");
+    SYNCDBG(19, "Finished");
     return Lb_SUCCESS;
 }
 
 TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_Chicken)) {
+    if (thing_affected_by_spell(thing, SplK_Chicken))
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_CHICKEN, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_CHICKEN, splevel))
+        {
             return Lb_FAIL;
         }
     }
@@ -1101,13 +1231,15 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
 TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_Disease)) {
+    if (thing_affected_by_spell(thing, SplK_Disease))
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_DISEASE, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_DISEASE, splevel))
+        {
             return Lb_FAIL;
         }
     }
@@ -1132,11 +1264,12 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
 TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     // If we can't afford the spell, fail
-    SYNCDBG(16,"Starting");
+    SYNCDBG(16, "Starting");
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_DESTRWALLS, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_DESTRWALLS, splevel))
+        {
             return Lb_FAIL;
         }
     }
@@ -1152,18 +1285,22 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
     i = 0;
     MapSlabCoord slb_x;
     MapSlabCoord slb_y;
-    for (slb_y=slb_y_start; slb_y < slb_y_end ; slb_y++)
+    for (slb_y = slb_y_start; slb_y < slb_y_end; slb_y++)
     {
-        for (slb_x=slb_x_start; slb_x < slb_x_end ; slb_x++,i++)
+        for (slb_x = slb_x_start; slb_x < slb_x_end; slb_x++, i++)
         {
             struct SlabMap *slb;
             slb = get_slabmap_block(slb_x, slb_y);
             if (slabmap_block_invalid(slb))
+            {
                 continue;
+            }
             struct Map *mapblk;
-            mapblk = get_map_block_at(slab_subtile_center(slb_x),slab_subtile_center(slb_y));
-            if (!(mapblk->flags & SlbAtFlg_Blocking) || (mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom|SlbAtFlg_Valuable)) || (slb->kind == SlbT_ROCK) )
-              continue;
+            mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+            if (!(mapblk->flags & SlbAtFlg_Blocking) || (mapblk->flags & (SlbAtFlg_IsDoor | SlbAtFlg_IsRoom | SlbAtFlg_Valuable)) || (slb->kind == SlbT_ROCK))
+            {
+                continue;
+            }
             TbBool is_revealed;
             is_revealed = subtile_revealed(stl_x, stl_y, plyr_idx);
             unsigned char destreff;
@@ -1174,23 +1311,25 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
                 slbattr = get_slab_attrs(slb);
                 if (slbattr->category == SlbAtCtg_FortifiedWall)
                 {
-                    place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx, 0);
+                    place_slab_type_on_map(SlbT_EARTH, slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx, 0);
                     create_dirt_rubble_for_dug_slab(slb_x, slb_y);
                     do_slab_efficiency_alteration(slb_x, slb_y);
-                } else
-                if (slab_kind_is_friable_dirt(slb->kind))
+                }
+                else if (slab_kind_is_friable_dirt(slb->kind))
                 {
-                    dig_out_block(slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx);
-                    if (is_revealed) {
+                    dig_out_block(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx);
+                    if (is_revealed)
+                    {
                         set_slab_explored(plyr_idx, slb_x, slb_y);
                     }
                     clear_slab_dig(slb_x, slb_y, plyr_idx);
                 }
-            } else
-            if (destreff == 32)
+            }
+            else if (destreff == 32)
             {
-                dig_out_block(slab_subtile_center(slb_x),slab_subtile_center(slb_y), plyr_idx);
-                if (is_revealed) {
+                dig_out_block(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx);
+                if (is_revealed)
+                {
                     set_slab_explored(plyr_idx, slb_x, slb_y);
                 }
                 clear_slab_dig(slb_x, slb_y, plyr_idx);
@@ -1208,13 +1347,15 @@ TbResult magic_use_power_destroy_walls(PlayerNumber plyr_idx, MapSubtlCoord stl_
 
 TbResult magic_use_power_time_bomb(PlayerNumber plyr_idx, struct Thing *thing, long splevel, unsigned long mod_flags)
 {
-    if (thing_affected_by_spell(thing, SplK_TimeBomb)) {
+    if (thing_affected_by_spell(thing, SplK_TimeBomb))
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_TIMEBOMB, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_TIMEBOMB, splevel))
+        {
             return Lb_FAIL;
         }
     }
@@ -1231,14 +1372,15 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
     struct Thing *heartng;
     struct Coord3d pos;
     struct PowerConfigStats *powerst;
-    if (!i_can_allocate_free_control_structure()
-     || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
+    if (!i_can_allocate_free_control_structure() || !i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
+    {
         return Lb_FAIL;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_MKDIGGER, 0)) {
+        if (!pay_for_spell(plyr_idx, PwrK_MKDIGGER, 0))
+        {
             return Lb_FAIL;
         }
     }
@@ -1268,19 +1410,22 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
 TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     // If the creature has full health, do nothing
-    if (!thing_is_creature(thing)) {
+    if (!thing_is_creature(thing))
+    {
         ERRORLOG("Tried to apply spell to invalid creature.");
         return Lb_FAIL;
     }
-    if (get_creature_health_permil(thing) >= 1000) {
-        SYNCDBG(7,"Full health, can't heal %s.",thing_model_name(thing));
+    if (get_creature_health_permil(thing) >= 1000)
+    {
+        SYNCDBG(7, "Full health, can't heal %s.", thing_model_name(thing));
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_HEALCRTR, splevel)) {
-            ERRORLOG("No gold to heal %s.",thing_model_name(thing));
+        if (!pay_for_spell(plyr_idx, PwrK_HEALCRTR, splevel))
+        {
+            ERRORLOG("No gold to heal %s.", thing_model_name(thing));
             return Lb_FAIL;
         }
     }
@@ -1294,18 +1439,21 @@ TbResult magic_use_power_heal(PlayerNumber plyr_idx, struct Thing *thing, MapSub
 
 TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    if (!thing_is_creature(thing)) {
+    if (!thing_is_creature(thing))
+    {
         ERRORLOG("Tried to apply spell to invalid creature.");
         return Lb_FAIL;
     }
     // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_Invisibility)) {
+    if (thing_affected_by_spell(thing, SplK_Invisibility))
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_CONCEAL, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_CONCEAL, splevel))
+        {
             return Lb_FAIL;
         }
     }
@@ -1318,18 +1466,21 @@ TbResult magic_use_power_conceal(PlayerNumber plyr_idx, struct Thing *thing, Map
 
 TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    if (!thing_is_creature(thing)) {
+    if (!thing_is_creature(thing))
+    {
         ERRORLOG("Tried to apply spell to invalid creature.");
         return Lb_FAIL;
     }
     // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_Armour)) {
+    if (thing_affected_by_spell(thing, SplK_Armour))
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_PROTECT, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_PROTECT, splevel))
+        {
             return Lb_FAIL;
         }
     }
@@ -1342,17 +1493,20 @@ TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapS
 
 TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    if (!thing_is_creature(thing)) {
+    if (!thing_is_creature(thing))
+    {
         ERRORLOG("Tried to apply spell to invalid creature.");
         return Lb_FAIL;
     }
-    if (thing_affected_by_spell(thing, SplK_Speed)) {
+    if (thing_affected_by_spell(thing, SplK_Speed))
+    {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_SPEEDCRTR, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_SPEEDCRTR, splevel))
+        {
             return Lb_FAIL;
         }
     }
@@ -1383,13 +1537,18 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     pos.z.val = 0;
     // make sure the spell level is correct
     if (splevel >= MAGIC_OVERCHARGE_LEVELS)
-        splevel = MAGIC_OVERCHARGE_LEVELS-1;
+    {
+        splevel = MAGIC_OVERCHARGE_LEVELS - 1;
+    }
     if (splevel < 0)
+    {
         splevel = 0;
+    }
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_LIGHTNING, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_LIGHTNING, splevel))
+        {
             return Lb_FAIL;
         }
     }
@@ -1397,7 +1556,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     shtng = create_shot(&pos, ShM_GodLightning, plyr_idx);
     if (!thing_is_invalid(shtng))
     {
-        shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL/2;
+        shtng->mappos.z.val = get_thing_height_at(shtng, &shtng->mappos) + COORD_PER_STL / 2;
         shtng->shot.hit_type = THit_CrtrsOnly;
         shtng->shot.spell_level = splevel;
     }
@@ -1408,7 +1567,9 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     max_damage = i * shotst->damage;
     range = (i << 8) / 2;
     if (power_sight_explored(stl_x, stl_y, plyr_idx))
+    {
         max_damage /= 4;
+    }
     struct Coord3d objpos;
     // Compensate for effect element position offset
     objpos.x.val = pos.x.val + 128;
@@ -1421,7 +1582,7 @@ TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         obtng->rendering_flags |= TRF_Unknown01;
     }
     i = electricity_affecting_area(&pos, plyr_idx, range, max_damage);
-    SYNCDBG(9,"Affected %ld targets within range %ld, damage %ld",i,range,max_damage);
+    SYNCDBG(9, "Affected %ld targets within range %ld, damage %ld", i, range, max_damage);
     if (!thing_is_invalid(shtng))
     {
         efftng = create_effect(&shtng->mappos, TngEff_DamageBlood, shtng->owner);
@@ -1452,18 +1613,23 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     {
         cdt = game.play_gameturn - dungeon->sight_casted_gameturn;
         cdlimit = pwrdynst->strength[dungeon->sight_casted_splevel] >> 4;
-        if (cdt < 0) {
+        if (cdt < 0)
+        {
             cdt = 0;
-        } else
-        if (cdt > cdlimit) {
+        }
+        else if (cdt > cdlimit)
+        {
             cdt = cdlimit;
         }
         cit = power_sight_close_instance_time[dungeon->sight_casted_splevel];
         cgt = game.play_gameturn - pwrdynst->strength[dungeon->sight_casted_splevel];
         i = cdlimit / cit;
-        if (i > 0) {
-            dungeon->sight_casted_gameturn = cgt + cdt/i - cit;
-        } else {
+        if (i > 0)
+        {
+            dungeon->sight_casted_gameturn = cgt + cdt / i - cit;
+        }
+        else
+        {
             dungeon->sight_casted_gameturn = cgt;
         }
         thing = thing_get(dungeon->sight_casted_thing_idx);
@@ -1478,9 +1644,12 @@ TbResult magic_use_power_sight(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     if ((mod_flags & PwMod_CastForFree) == 0)
     {
         // If we can't afford the spell, fail
-        if (!pay_for_spell(plyr_idx, PwrK_SIGHT, splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_SIGHT, splevel))
+        {
             if (is_my_player_number(plyr_idx))
+            {
                 output_message(SMsg_GoldNotEnough, 0, true);
+            }
             return Lb_FAIL;
         }
     }
@@ -1527,7 +1696,8 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if ((thing->class_id == TCls_EffectElem) && (thing->model == 46)) {
+        if ((thing->class_id == TCls_EffectElem) && (thing->model == 46))
+        {
             break;
         }
         // Per thing code end
@@ -1547,7 +1717,8 @@ TbResult magic_use_power_cave_in(PlayerNumber plyr_idx, MapSubtlCoord stl_x, Map
             if ((mod_flags & PwMod_CastForFree) == 0)
             {
                 // If we can't afford the spell, fail
-                if (!pay_for_spell(plyr_idx, PwrK_CAVEIN, splevel)) {
+                if (!pay_for_spell(plyr_idx, PwrK_CAVEIN, splevel))
+                {
                     return Lb_FAIL;
                 }
             }
@@ -1593,8 +1764,9 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
     setup_person_move_to_coord(creatng, cta_pos, NavRtF_Default);
     creatng->continue_state = CrSt_ArriveAtCallToArms;
     cctrl->spell_flags |= CSAfF_CalledToArms;
-    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0) {
-        WARNLOG("The %s index %d is called to arms with no comp control, fixing",thing_model_name(creatng),(int)creatng->index);
+    if ((cctrl->flgfield_1 & CCFlg_NoCompControl) != 0)
+    {
+        WARNLOG("The %s index %d is called to arms with no comp control, fixing", thing_model_name(creatng), (int)creatng->index);
         cctrl->flgfield_1 &= ~CCFlg_NoCompControl;
     }
     return true;
@@ -1603,7 +1775,7 @@ TbBool update_creature_influenced_by_call_to_arms_at_pos(struct Thing *creatng, 
 long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(8, "Starting");
     dungeon = get_players_num_dungeon(plyr_idx);
     struct Coord3d cta_pos;
     cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
@@ -1637,9 +1809,12 @@ long update_creatures_influenced_by_call_to_arms(PlayerNumber plyr_idx)
                 stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
                 if (stati->react_to_cta || creature_is_called_to_arms(thing))
                 {
-                    if (update_creature_influenced_by_call_to_arms_at_pos(thing, &cta_pos)) {
+                    if (update_creature_influenced_by_call_to_arms_at_pos(thing, &cta_pos))
+                    {
                         count++;
-                    } else {
+                    }
+                    else
+                    {
                         set_start_state(thing);
                     }
                 }
@@ -1672,7 +1847,7 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
 {
     struct Dungeon *dungeon;
     struct PlayerInfo *player;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(8, "Starting");
     player = get_player(plyr_idx);
     dungeon = get_players_dungeon(player);
     struct Coord3d pos;
@@ -1683,27 +1858,28 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     objtng = thing_get(player->field_43C);
     if ((dungeon->cta_start_turn == 0) || !thing_is_object(objtng))
     {
-          objtng = create_object(&pos, ObjMdl_CTAEnsign, plyr_idx, -1);
-          if (thing_is_invalid(objtng)) {
-              ERRORLOG("Cannot create call to arms");
-              return 0;
-          }
-          dungeon->cta_start_turn = game.play_gameturn;
-          dungeon->cta_splevel = splevel;
-          dungeon->cta_stl_x = stl_x;
-          dungeon->cta_stl_y = stl_y;
-          player->field_43C = objtng->index;
-          objtng->mappos.z.val = get_thing_height_at(objtng, &objtng->mappos);
-          set_call_to_arms_as_birthing(objtng);
-          SYNCDBG(9,"Created birthing CTA");
-          return 1;
+        objtng = create_object(&pos, ObjMdl_CTAEnsign, plyr_idx, -1);
+        if (thing_is_invalid(objtng))
+        {
+            ERRORLOG("Cannot create call to arms");
+            return 0;
+        }
+        dungeon->cta_start_turn = game.play_gameturn;
+        dungeon->cta_splevel = splevel;
+        dungeon->cta_stl_x = stl_x;
+        dungeon->cta_stl_y = stl_y;
+        player->field_43C = objtng->index;
+        objtng->mappos.z.val = get_thing_height_at(objtng, &objtng->mappos);
+        set_call_to_arms_as_birthing(objtng);
+        SYNCDBG(9, "Created birthing CTA");
+        return 1;
     }
     dungeon->cta_start_turn = game.play_gameturn;
     dungeon->cta_stl_x = stl_x;
     dungeon->cta_stl_y = stl_y;
     set_call_to_arms_as_rebirthing(objtng);
     update_creatures_influenced_by_call_to_arms(plyr_idx);
-    SYNCDBG(19,"Finished");
+    SYNCDBG(19, "Finished");
     return 1;
 }
 
@@ -1711,12 +1887,14 @@ TbResult magic_use_power_slap_thing(PlayerNumber plyr_idx, struct Thing *thing, 
 {
     struct PlayerInfo *player;
     struct Dungeon *dungeon;
-    if (!thing_exists(thing)) {
+    if (!thing_exists(thing))
+    {
         return Lb_FAIL;
     }
     player = get_player(plyr_idx);
     dungeon = get_dungeon(player->id_number);
-    if ((player->instance_num == PI_Whip) || (game.play_gameturn - dungeon->last_creature_dropped_gameturn <= 10)) {
+    if ((player->instance_num == PI_Whip) || (game.play_gameturn - dungeon->last_creature_dropped_gameturn <= 10))
+    {
         return Lb_OK;
     }
     EVM_CREATURE_EVENT("slap", plyr_idx, thing);
@@ -1745,19 +1923,21 @@ TbResult magic_use_power_slap(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thing, unsigned long mod_flags)
 {
     struct PlayerInfo *player;
-    if (!thing_exists(thing)) {
+    if (!thing_exists(thing))
+    {
         return Lb_FAIL;
     }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    struct PlayerInfoAdd *playeradd = get_playeradd(player->id_number);
     playeradd->first_person_dig_claim_mode = false;
     playeradd->teleport_destination = 18; // reset to default behaviour
     playeradd->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
-    if (is_my_player(player)) {
-        set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+    if (is_my_player(player))
+    {
+        set_flag_byte(&tool_tip_box.flags, TTip_Visible, false);
     }
     return Lb_SUCCESS;
 }
@@ -1766,8 +1946,9 @@ void magic_power_hold_audience_update(PlayerNumber plyr_idx)
 {
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
-    SYNCDBG(8,"Starting");
-    if ( game.play_gameturn - dungeon->hold_audience_cast_turn <= game.hold_audience_time) {
+    SYNCDBG(8, "Starting");
+    if (game.play_gameturn - dungeon->hold_audience_cast_turn <= game.hold_audience_time)
+    {
         return;
     }
     // Dispose hold audience effect
@@ -1791,7 +1972,8 @@ void magic_power_hold_audience_update(PlayerNumber plyr_idx)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureInHoldAudience) {
+        if (get_creature_state_besides_interruptions(thing) == CrSt_CreatureInHoldAudience)
+        {
             set_start_state(thing);
         }
         // Thing list loop body ends
@@ -1802,7 +1984,7 @@ void magic_power_hold_audience_update(PlayerNumber plyr_idx)
             break;
         }
     }
-    SYNCDBG(19,"Finished");
+    SYNCDBG(19, "Finished");
 }
 
 TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, const struct Coord3d *cta_pos)
@@ -1813,11 +1995,11 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
     stati = get_thing_state_info_num(nstat);
     if (!creature_affected_by_call_to_arms(creatng) || stati->react_to_cta)
     {
-        if (stati->react_to_cta
-          && (creature_affected_by_call_to_arms(creatng) || get_chessboard_distance(&creatng->mappos, cta_pos) < range))
+        if (stati->react_to_cta && (creature_affected_by_call_to_arms(creatng) || get_chessboard_distance(&creatng->mappos, cta_pos) < range))
         {
             creature_mark_if_woken_up(creatng);
-            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos)) {
+            if (update_creature_influenced_by_call_to_arms_at_pos(creatng, cta_pos))
+            {
                 return true;
             }
         }
@@ -1825,13 +2007,13 @@ TbBool affect_creature_by_power_call_to_arms(struct Thing *creatng, long range, 
     return false;
 }
 
-int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long range, const struct Coord3d * pos)
+int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long range, const struct Coord3d *pos)
 {
     struct Dungeon *dungeon;
     unsigned long k;
     int i;
     int n;
-    SYNCDBG(8,"Starting");
+    SYNCDBG(8, "Starting");
     dungeon = get_players_num_dungeon(plyr_idx);
     n = 0;
     k = 0;
@@ -1853,7 +2035,8 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
         if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) &&
             !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
         {
-            if (affect_creature_by_power_call_to_arms(thing, range, pos)) {
+            if (affect_creature_by_power_call_to_arms(thing, range, pos))
+            {
                 n++;
             }
         }
@@ -1865,7 +2048,7 @@ int affect_nearby_creatures_by_power_call_to_arms(PlayerNumber plyr_idx, long ra
             break;
         }
     }
-    SYNCDBG(19,"Finished");
+    SYNCDBG(19, "Finished");
     return n;
 }
 
@@ -1892,20 +2075,23 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     }
     if (((pwrdynst->duration < 1) || ((duration % pwrdynst->duration) == 0)) && pay_land)
     {
-        if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
+        if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel))
+        {
             if (is_my_player_number(plyr_idx))
+            {
                 output_message(SMsg_GoldNotEnough, 0, true);
+            }
             turn_off_power_call_to_arms(plyr_idx);
             return;
         }
     }
     if ((duration % 16) == 0)
     {
-        long range = subtile_coord(pwrdynst->strength[dungeon->cta_splevel],0);
+        long range = subtile_coord(pwrdynst->strength[dungeon->cta_splevel], 0);
         struct Coord3d cta_pos;
         cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
         cta_pos.y.val = subtile_coord_center(dungeon->cta_stl_y);
-        cta_pos.z.val = subtile_coord(1,0);
+        cta_pos.z.val = subtile_coord(1, 0);
         affect_nearby_creatures_by_power_call_to_arms(plyr_idx, range, &cta_pos);
     }
 }
@@ -1920,7 +2106,8 @@ void process_magic_power_must_obey(PlayerNumber plyr_idx)
     pwrdynst = get_power_dynamic_stats(PwrK_OBEY);
     if ((delta % pwrdynst->duration) == 0)
     {
-        if (!pay_for_spell(plyr_idx, PwrK_OBEY, 0)) {
+        if (!pay_for_spell(plyr_idx, PwrK_OBEY, 0))
+        {
             magic_use_power_obey(plyr_idx, PwMod_Default);
         }
     }
@@ -1928,7 +2115,7 @@ void process_magic_power_must_obey(PlayerNumber plyr_idx)
 
 void process_dungeon_power_magic(void)
 {
-    SYNCDBG(8,"Starting");
+    SYNCDBG(8, "Starting");
     long i;
     for (i = 0; i < PLAYERS_COUNT; i++)
     {
@@ -1952,8 +2139,8 @@ void process_dungeon_power_magic(void)
             {
                 if (game.play_gameturn > game.armageddon_over_turn)
                 {
-                  game.armageddon_cast_turn = 0;
-                  game.armageddon_over_turn = 0;
+                    game.armageddon_cast_turn = 0;
+                    game.armageddon_over_turn = 0;
                 }
             }
         }
@@ -1971,19 +2158,21 @@ void process_dungeon_power_magic(void)
  * @param stl_y The casting subtile, Y coord.
  */
 TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
+                                            unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
     TbResult ret;
-    if (!is_power_available(plyr_idx, pwkind)) {
+    if (!is_power_available(plyr_idx, pwkind))
+    {
         // It shouldn't be possible to select unavailable spell
-        WARNLOG("Player %d tried to cast %s which is unavailable",(int)plyr_idx,power_code_name(pwkind));
+        WARNLOG("Player %d tried to cast %s which is unavailable", (int)plyr_idx, power_code_name(pwkind));
         ret = Lb_FAIL;
     }
     else
     {
         ret = magic_use_power_on_thing(plyr_idx, pwkind, splevel, stl_x, stl_y, thing, allow_flags);
     }
-    if (ret == Lb_FAIL) {
+    if (ret == Lb_FAIL)
+    {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
         {
@@ -2004,33 +2193,37 @@ TbResult magic_use_available_power_on_thing(PlayerNumber plyr_idx, PowerKind pwk
  * @param stl_y The casting subtile, Y coord.
  */
 TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
+                                  unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing *thing, unsigned long allow_flags)
 {
-    const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
+    const struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
 
     TbResult ret;
     ret = Lb_OK;
-    if (!thing_exists(thing)) {
-        WARNLOG("Player %d tried to cast %s on non-existing thing",(int)plyr_idx,power_code_name(pwkind));
+    if (!thing_exists(thing))
+    {
+        WARNLOG("Player %d tried to cast %s on non-existing thing", (int)plyr_idx, power_code_name(pwkind));
         ret = Lb_FAIL;
     }
     if (ret == Lb_OK)
-    {// Zero coords mean we should take real ones from the thing. But even if they're not zero, we might want to fix them sometimes
-        if (((stl_x == 0) && (stl_y == 0)) || ((powerst->can_cast_flags & PwCast_AllThings) != 0)) {
+    { // Zero coords mean we should take real ones from the thing. But even if they're not zero, we might want to fix them sometimes
+        if (((stl_x == 0) && (stl_y == 0)) || ((powerst->can_cast_flags & PwCast_AllThings) != 0))
+        {
             stl_x = thing->mappos.x.stl.num;
             stl_y = thing->mappos.y.stl.num;
         }
     }
     if (ret == Lb_OK)
     {
-        if (!can_cast_spell(plyr_idx, pwkind, stl_x, stl_y, thing, CastChk_Final | CastChk_SkipAvailiabilty)) {
+        if (!can_cast_spell(plyr_idx, pwkind, stl_x, stl_y, thing, CastChk_Final | CastChk_SkipAvailiabilty))
+        {
             ret = Lb_FAIL;
         }
     }
     if (ret == Lb_OK)
     {
-        if (splevel > MAGIC_OVERCHARGE_LEVELS) {
-            WARNLOG("Overcharge level %d out of range, adjusting",(int)splevel);
+        if (splevel > MAGIC_OVERCHARGE_LEVELS)
+        {
+            WARNLOG("Overcharge level %d out of range, adjusting", (int)splevel);
             splevel = MAGIC_OVERCHARGE_LEVELS;
         }
     }
@@ -2039,14 +2232,19 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
         switch (pwkind)
         {
         case PwrK_HAND:
-            //Note that we shouldn't use magic_use_power_hand(), that function is for interpreting input
+            // Note that we shouldn't use magic_use_power_hand(), that function is for interpreting input
             if (power_hand_is_full(get_player(plyr_idx)))
+            {
                 ret = Lb_FAIL;
-            else
-            if (place_thing_in_power_hand(thing, plyr_idx))
+            }
+            else if (place_thing_in_power_hand(thing, plyr_idx))
+            {
                 ret = Lb_SUCCESS;
+            }
             else
+            {
                 ret = Lb_FAIL;
+            }
             break;
         case PwrK_HEALCRTR:
             ret = magic_use_power_heal(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
@@ -2106,51 +2304,57 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
  * @return
  */
 TbResult magic_use_available_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
+                                              unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
 {
     TbResult ret;
     ret = Lb_OK;
-    if (!is_power_available(plyr_idx, pwkind)) {
+    if (!is_power_available(plyr_idx, pwkind))
+    {
         // It shouldn't be possible to select unavailable spell
-        WARNLOG("Player %d tried to cast %s which is unavailable",(int)plyr_idx,power_code_name(pwkind));
+        WARNLOG("Player %d tried to cast %s which is unavailable", (int)plyr_idx, power_code_name(pwkind));
         ret = Lb_FAIL;
     }
     if (ret == Lb_OK)
     {
         ret = magic_use_power_on_subtile(plyr_idx, pwkind, splevel, stl_x, stl_y, allow_flags);
     }
-    if (ret == Lb_FAIL) {
+    if (ret == Lb_FAIL)
+    {
         // Make a rejection sound
         if (is_my_player_number(plyr_idx))
+        {
             play_non_3d_sample(119);
+        }
     }
     return ret;
 }
 
 TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
-    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
+                                    unsigned short splevel, MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned long allow_flags)
 {
     TbResult ret;
     ret = Lb_OK;
     TbBool cast_at_xy;
     cast_at_xy = can_cast_power_at_xy(plyr_idx, pwkind, stl_x, stl_y, allow_flags);
     // Fail if the function has failed
-    if (!cast_at_xy) {
-        SYNCDBG(7,"Player %d tried to cast %s on %s which can't be targeted now",
-            (int)plyr_idx,power_code_name(pwkind),"a subtile");
+    if (!cast_at_xy)
+    {
+        SYNCDBG(7, "Player %d tried to cast %s on %s which can't be targeted now",
+                (int)plyr_idx, power_code_name(pwkind), "a subtile");
         ret = Lb_FAIL;
     }
 
     if (ret == Lb_OK)
     {
-        if (splevel > MAGIC_OVERCHARGE_LEVELS) {
-            WARNLOG("Overcharge level %d out of range, adjusting",(int)splevel);
+        if (splevel > MAGIC_OVERCHARGE_LEVELS)
+        {
+            WARNLOG("Overcharge level %d out of range, adjusting", (int)splevel);
             splevel = MAGIC_OVERCHARGE_LEVELS;
         }
     }
     if (ret == Lb_OK)
     {
-        SYNCDBG(7,"Player %d is casting %s level %d",(int)plyr_idx,power_code_name(pwkind),(int)splevel);
+        SYNCDBG(7, "Player %d is casting %s level %d", (int)plyr_idx, power_code_name(pwkind), (int)splevel);
         switch (pwkind)
         {
         case PwrK_MKDIGGER:
@@ -2179,7 +2383,7 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
     }
     if (ret == Lb_SUCCESS)
     {
-        const struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
+        const struct PowerConfigStats *powerst = get_power_model_stats(pwkind);
         get_player(plyr_idx)->power_of_cooldown_turn = game.play_gameturn + powerst->cast_cooldown;
     }
     return ret;
@@ -2194,20 +2398,22 @@ TbResult magic_use_power_on_subtile(PlayerNumber plyr_idx, PowerKind pwkind,
  * @return
  */
 TbResult magic_use_available_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, unsigned long allow_flags)
+                                            unsigned short splevel, unsigned long allow_flags)
 {
-    if (!is_power_available(plyr_idx, spl_idx)) {
+    if (!is_power_available(plyr_idx, spl_idx))
+    {
         // It shouldn't be possible to select unavailable spell
-        WARNLOG("Player %d tried to cast unavailable spell %d",(int)plyr_idx,(int)spl_idx);
+        WARNLOG("Player %d tried to cast unavailable spell %d", (int)plyr_idx, (int)spl_idx);
         return Lb_FAIL;
     }
     return magic_use_power_on_level(plyr_idx, spl_idx, splevel, allow_flags);
 }
 
 TbResult magic_use_power_on_level(PlayerNumber plyr_idx, PowerKind spl_idx,
-    unsigned short splevel, unsigned long allow_flags)
+                                  unsigned short splevel, unsigned long allow_flags)
 {
-    if (splevel > MAGIC_OVERCHARGE_LEVELS) {
+    if (splevel > MAGIC_OVERCHARGE_LEVELS)
+    {
         splevel = MAGIC_OVERCHARGE_LEVELS;
     }
     switch (spl_idx)
@@ -2230,7 +2436,7 @@ void directly_cast_spell_on_thing(PlayerNumber plyr_idx, PowerKind spl_idx, Thin
     struct Thing *thing;
     thing = thing_get(thing_idx);
     magic_use_available_power_on_thing(plyr_idx, spl_idx, splevel,
-        thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
+                                       thing->mappos.x.stl.num, thing->mappos.y.stl.num, thing, PwMod_Default);
 }
 
 int get_power_overcharge_level(struct PlayerInfo *player)
@@ -2238,41 +2444,56 @@ int get_power_overcharge_level(struct PlayerInfo *player)
     int i;
     i = (player->cast_expand_level >> 2);
     if (i > SPELL_MAX_LEVEL)
+    {
         return SPELL_MAX_LEVEL;
+    }
     return i;
 }
 
 TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
 {
-  struct Dungeon *dungeon;
-  int i;
-  if (pwkind >= magic_conf.power_types_count)
-      return false;
-  dungeon = get_dungeon(player->id_number);
-  const struct MagicStats *pwrdynst;
-  pwrdynst = get_power_dynamic_stats(pwkind);
-  i = (player->cast_expand_level+1) >> 2;
-  if (i > SPELL_MAX_LEVEL)
-    i = SPELL_MAX_LEVEL;
-  if (pwrdynst->cost[i] <= dungeon->total_money_owned)
-  {
-    // If we have more money, increase overcharge
-    player->cast_expand_level++;
-  } else
-  {
-    // If we don't have money, decrease the charge
-    while (pwrdynst->cost[i] > dungeon->total_money_owned)
+    struct Dungeon *dungeon;
+    int i;
+    if (pwkind >= magic_conf.power_types_count)
     {
-      i--;
-      if (i < 0) break;
+        return false;
     }
-    if (i >= 0)
-      player->cast_expand_level = (i << 2) + 1;
+    dungeon = get_dungeon(player->id_number);
+    const struct MagicStats *pwrdynst;
+    pwrdynst = get_power_dynamic_stats(pwkind);
+    i = (player->cast_expand_level + 1) >> 2;
+    if (i > SPELL_MAX_LEVEL)
+    {
+        i = SPELL_MAX_LEVEL;
+    }
+    if (pwrdynst->cost[i] <= dungeon->total_money_owned)
+    {
+        // If we have more money, increase overcharge
+        player->cast_expand_level++;
+    }
     else
-      player->cast_expand_level = 0;
-  }
-  return (i < SPELL_MAX_LEVEL);
+    {
+        // If we don't have money, decrease the charge
+        while (pwrdynst->cost[i] > dungeon->total_money_owned)
+        {
+            i--;
+            if (i < 0)
+            {
+                break;
+            }
+        }
+        if (i >= 0)
+        {
+            player->cast_expand_level = (i << 2) + 1;
+        }
+        else
+        {
+            player->cast_expand_level = 0;
+        }
+    }
+    return (i < SPELL_MAX_LEVEL);
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

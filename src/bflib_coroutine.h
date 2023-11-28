@@ -33,8 +33,7 @@ extern "C" {
  */
 struct CoroutineLoopS;
 
-typedef enum CoroutineLoopStateS
-{
+typedef enum CoroutineLoopStateS {
     CLS_ABORT,
     CLS_REPEAT,
     CLS_CONTINUE,
@@ -43,14 +42,13 @@ typedef enum CoroutineLoopStateS
 
 typedef CoroutineLoopState (*CoroutineFn)(struct CoroutineLoopS *loop_context);
 
-typedef struct CoroutineLoopS
-{
-    void        *context;
-    int         read_idx;
-    int         write_idx;
+typedef struct CoroutineLoopS {
+    void *context;
+    int read_idx;
+    int write_idx;
     CoroutineFn fns[COROUTINE_MAX_NUM];
-    int         args[COROUTINE_MAX_NUM * COROUTINE_ARGS];
-    TbBool      error;
+    int args[COROUTINE_MAX_NUM * COROUTINE_ARGS];
+    TbBool error;
 } CoroutineLoop;
 
 // add a new coroutine to the list

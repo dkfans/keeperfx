@@ -4,7 +4,7 @@
 /** @file roomspace_detection.h
  *     Header file for roomspace_detection.c.
  * @par Purpose:
- *     Function for finding the best "room space" based on the player's 
+ *     Function for finding the best "room space" based on the player's
  *     current cursor position.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
@@ -56,8 +56,8 @@ struct RoomQuery {
 };
 /******************************************************************************/
 struct RoomSpace get_biggest_roomspace(PlayerNumber plyr_idx, RoomKind rkind,
-    MapSlabCoord cursor_x, MapSlabCoord cursor_y, short rkind_cost, 
-    int total_player_money, int mode, int roomspace_discovery_looseness);
+                                       MapSlabCoord cursor_x, MapSlabCoord cursor_y, short rkind_cost,
+                                       int total_player_money, int mode, int roomspace_discovery_looseness);
 /******************************************************************************/
 #ifdef __cplusplus
 }

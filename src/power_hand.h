@@ -64,7 +64,7 @@ TbBool thing_is_picked_up(const struct Thing *thing);
 TbBool thing_is_picked_up_by_owner(const struct Thing *thing);
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing);
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx);
-long get_thing_in_hand_id(const struct Thing* thing, PlayerNumber plyr_idx);
+long get_thing_in_hand_id(const struct Thing *thing, PlayerNumber plyr_idx);
 
 TbBool slap_object(struct Thing *thing);
 TbBool object_is_slappable(const struct Thing *thing, long plyr_idx);
@@ -72,7 +72,7 @@ TbBool thing_slappable(const struct Thing *thing, long plyr_idx);
 
 struct Thing *create_power_hand(PlayerNumber owner);
 void delete_power_hand(PlayerNumber owner);
-void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x,  MapSubtlCoord stl_y);
+void stop_creatures_around_hand(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 TbBool place_thing_in_power_hand(struct Thing *thing, PlayerNumber plyr_idx);
 TbBool remove_creature_from_power_hand(struct Thing *thing, PlayerNumber plyr_idx);

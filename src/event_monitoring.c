@@ -24,10 +24,10 @@
 #define MAX_PACKET_SIZE 1024
 #define SUFFIX_SIZE 4
 
-static char evm_suffix[SUFFIX_SIZE+1] = {0};
+static char evm_suffix[SUFFIX_SIZE + 1] = {0};
 
 static UDPsocket evm_socket = 0;
-static UDPpacket * evm_packet = NULL;
+static UDPpacket *evm_packet = NULL;
 
 void evm_init(char *hostport, int client_no)
 {
@@ -101,7 +101,7 @@ void evm_stat(int force_new, const char *event_fmt, ...)
     }
 
     char packet_data[MAX_PACKET_SIZE];
-    packet_data[MAX_PACKET_SIZE-1] = 0;
+    packet_data[MAX_PACKET_SIZE - 1] = 0;
 
     if (force_new && (evm_packet->len > 0))
     {

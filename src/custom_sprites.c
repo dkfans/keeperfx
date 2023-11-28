@@ -53,23 +53,20 @@ short iso_td_add[KEEPERSPRITE_ADD_NUM];
 short td_iso_add[KEEPERSPRITE_ADD_NUM];
 
 TbSpriteData keepersprite_add[KEEPERSPRITE_ADD_NUM] = {
-        0
-};
+    0};
 
 struct KeeperSprite creature_table_add[KEEPERSPRITE_ADD_NUM] = {
-        {0}
-};
+    {0}};
 
 struct KeeperSpriteExt creatures_table_ext[KEEPERSPRITE_ADD_NUM] = {{0}};
 
-struct SpriteContext
-{
+struct SpriteContext {
     struct TbHugeSprite sprite;
 
     unsigned long x, y;
     struct KeeperSprite *ksp_first;
 
-    short *id_ptr; // First person / Top down
+    short *id_ptr;    // First person / Top down
     short *id_sz_ptr; // First person / Top down
 
     short td_id, td_sz;
@@ -78,20 +75,18 @@ struct SpriteContext
     TbBool rotatable;
 };
 
-struct PaletteRecord
-{
+struct PaletteRecord {
     uint32_t color;
     unsigned char color_idx;
 };
 
-struct PaletteNode
-{
+struct PaletteNode {
     struct PaletteRecord *rec;
     int size;
 };
 
 static struct PaletteRecord pal_records[PALETTE_COLORS]; // for each color of a palette
-static struct PaletteNode pal_tree[MAX_COLOR_VALUE]; // For each component of a palette
+static struct PaletteNode pal_tree[MAX_COLOR_VALUE];     // For each component of a palette
 static struct NamedCommand added_sprites[KEEPERSPRITE_ADD_NUM];
 static struct NamedCommand added_icons[GUI_PANEL_SPRITES_NEW];
 static int num_added_sprite = 0;
@@ -99,7 +94,7 @@ static int num_added_icons = 0;
 int num_icons_total = GUI_PANEL_SPRITES_COUNT;
 unsigned char base_pal[PALETTE_SIZE];
 
-static unsigned char big_scratch_data[1024*1024*16] = {0};
+static unsigned char big_scratch_data[1024 * 1024 * 16] = {0};
 unsigned char *big_scratch = big_scratch_data;
 
 static void init_pal_conversion();
@@ -116,24 +111,23 @@ static TbBool process_icon(const char *path, unzFile zip, VALUE *root);
 static int cmp_named_command(const void *a, const void *b);
 
 static const unsigned char bad_icon_data[] = // 16x16
-        {
-                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
-                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
-                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
-                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
-                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
-                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
-                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
-                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
-                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
-                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
-                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
-                16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
-                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
-                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
-                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
-                16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
-        };
+    {
+        16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+        16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+        16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+        16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+        16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+        16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+        16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+        16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+        16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+        16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+        16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+        16, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 0,
+        16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+        16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+        16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0,
+        16, 17, 17, 17, 17, 255, 255, 255, 255, 17, 17, 17, 17, 255, 255, 255, 255, 0};
 
 short bad_icon_id = GUI_PANEL_SPRITES_COUNT;
 
@@ -146,17 +140,18 @@ static VALUE *zip_cache = &zip_cache_v;
 
 static int fastUnzLocateFile(unzFile zip, const char *szFileName, int iCaseSensitivity)
 {
-    //return unzLocateFile(file, szFileName, iCaseSensitivity);
+    // return unzLocateFile(file, szFileName, iCaseSensitivity);
     char seek_for[PATH_MAX];
     strncpy(seek_for, szFileName, PATH_MAX - 1);
     make_lowercase(seek_for);
     VALUE *rec = value_dict_get(zip_cache, seek_for);
     if (rec == NULL)
+    {
         return UNZ_END_OF_LIST_OF_FILE;
+    }
     unz64_file_pos file_pos = {
-            .pos_in_zip_directory = value_int64(value_array_get(rec, 0)),
-            .num_of_file = value_int64(value_array_get(rec, 1))
-    };
+        .pos_in_zip_directory = value_int64(value_array_get(rec, 0)),
+        .num_of_file = value_int64(value_array_get(rec, 1))};
     return unzGoToFilePos64(zip, &file_pos);
 }
 
@@ -179,8 +174,7 @@ static int fastUnzConstructCache(unzFile zip)
     {
         if (UNZ_OK != unzGetCurrentFileInfo64(zip, NULL,
                                               szCurrentFileName, sizeof(szCurrentFileName) - 1,
-                                              NULL, 0, NULL, 0)
-                )
+                                              NULL, 0, NULL, 0))
         {
             continue;
         }
@@ -211,11 +205,15 @@ static int pal_compare_fn(const void *a, const void *b)
     const struct PaletteRecord *rec_b = b;
     // FYI: minimal density is G axis (15)
     long delta = (rec_a->color & 0x00FF00) - (rec_b->color & 0x00FF00);
-    if (delta != 0)  //G first
+    if (delta != 0) // G first
+    {
         return delta;
+    }
     delta = (rec_a->color & 0xFF0000) - (rec_b->color & 0xFF0000);
     if (delta != 0)
+    {
         return delta;
+    }
     return (rec_a->color & 0x0000FF) - (rec_b->color & 0x0000FF);
 }
 
@@ -234,7 +232,9 @@ static void load_system_sprites(short fgroup)
     char *fname = prepare_file_path(fgroup, "*.zip");
     const char *path;
     if (0 == *fname) // No campaign
+    {
         return;
+    }
     for (int rc = LbFileFindFirst(fname, &fileinfo, 0x21u);
          rc != -1;
          rc = LbFileFindNext(&fileinfo))
@@ -289,7 +289,7 @@ void init_custom_sprites(LevelNumber lvnum)
     {
         if (added_sprites[i].name != NULL)
         {
-            free((char *) added_sprites[i].name);
+            free((char *)added_sprites[i].name);
         }
     }
     num_added_sprite = 0;
@@ -300,15 +300,15 @@ void init_custom_sprites(LevelNumber lvnum)
     {
         if (added_icons[i].name != NULL)
         {
-            free((char *) added_icons[i].name);
-            free((char *) gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data);
+            free((char *)added_icons[i].name);
+            free((char *)gui_panel_sprites[GUI_PANEL_SPRITES_COUNT + i].Data);
         }
     }
     num_added_icons = 0;
     memset(added_icons, 0, sizeof(added_icons));
     memset(&gui_panel_sprites[GUI_PANEL_SPRITES_COUNT], 0, sizeof(gui_panel_sprites[0]) * GUI_PANEL_SPRITES_NEW);
 
-    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].Data = (unsigned char *) bad_icon_data;
+    gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].Data = (unsigned char *)bad_icon_data;
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SWidth = 16;
     gui_panel_sprites[GUI_PANEL_SPRITES_COUNT].SHeight = 16;
     next_free_icon = 1;
@@ -355,7 +355,7 @@ static void init_pal_conversion()
     memset(pal_records, 0, sizeof(pal_records));
 
     struct PaletteNode pal_tree_tmp[MAX_COLOR_VALUE] = {0}; // one color
-    char* fname;
+    char *fname;
     TbBool result = true;
     fname = prepare_file_fmtpath(FGrp_StdData, "pal%05d.dat", 0);
     if (!LbFileExists(fname))
@@ -375,10 +375,7 @@ static void init_pal_conversion()
     unsigned char *pal = base_pal;
     for (int i = 0; i < PALETTE_COLORS; i++)
     {
-        if ((pal[i * 3 + 0] > MAX_COLOR_VALUE)
-            || (pal[i * 3 + 1] > MAX_COLOR_VALUE)
-            || (pal[i * 3 + 2] > MAX_COLOR_VALUE)
-                )
+        if ((pal[i * 3 + 0] > MAX_COLOR_VALUE) || (pal[i * 3 + 1] > MAX_COLOR_VALUE) || (pal[i * 3 + 2] > MAX_COLOR_VALUE))
         {
             WARNLOG("Unexpected: palette file records is out of range");
         }
@@ -408,7 +405,9 @@ static void init_pal_conversion()
         {
             int k = i + j - NEAREST_DEPTH / 2;
             if ((k < 0) || (k >= MAX_COLOR_VALUE))
+            {
                 continue;
+            }
             if (pal_tree[i].rec == NULL)
             {
                 pal_tree[i].rec = pal_tree_tmp[k].rec;
@@ -442,17 +441,29 @@ static int zip_read_fn(spng_ctx *ctx, void *user, void *dst_src, size_t length)
 static int dir_from_camera_name(const char *camera_name)
 {
     if (camera_name[2] == 0)
+    {
         return 0;
+    }
     if (0 == strcasecmp(camera_name + 2, "rff"))
+    {
         return 0;
+    }
     if (0 == strcasecmp(camera_name + 2, "rf"))
+    {
         return 1;
+    }
     if (0 == strcasecmp(camera_name + 2, "r"))
+    {
         return 2;
+    }
     if (0 == strcasecmp(camera_name + 2, "br"))
+    {
         return 3;
+    }
     if (0 == strcasecmp(camera_name + 2, "b"))
+    {
         return 4;
+    }
     return -1;
 }
 
@@ -482,7 +493,7 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
     size_t limit = 1024 * 1024 * 2;
     spng_set_chunk_limits(ctx, limit, limit);
 
-    spng_set_png_stream(ctx, zip_read_fn, (void *) zip);
+    spng_set_png_stream(ctx, zip_read_fn, (void *)zip);
     struct spng_ihdr ihdr;
     int r = spng_get_ihdr(ctx, &ihdr);
 
@@ -593,39 +604,39 @@ static int read_png_info(unzFile zip, const char *path, struct SpriteContext *co
         VALUE *rotated = value_dict_get_or_add(node, "rotatable");
         switch (value_type(rotated))
         {
-            case VALUE_NULL:
-                value_init_bool(rotated, true);
-                break;
-            case VALUE_BOOL:
-                if (!value_bool(rotated))
-                {
-                    WARNLOG("Too many frames and Rotated is false");
-                    free(text);
-                    spng_ctx_free(ctx);
-                    return 1;
-                }
-                break;
-            case VALUE_INT32:
-            case VALUE_UINT32:
-            case VALUE_INT64:
-            case VALUE_UINT64:
-            case VALUE_FLOAT:
-            case VALUE_DOUBLE:
-                if (!value_int32(rotated))
-                {
-                    WARNLOG("Too many frames and Rotated is false");
-                    free(text);
-                    spng_ctx_free(ctx);
-                    return 1;
-                }
-                break;
-            default:
+        case VALUE_NULL:
+            value_init_bool(rotated, true);
+            break;
+        case VALUE_BOOL:
+            if (!value_bool(rotated))
             {
-                WARNLOG("'rotatable' has unexpected value");
+                WARNLOG("Too many frames and Rotated is false");
                 free(text);
                 spng_ctx_free(ctx);
                 return 1;
             }
+            break;
+        case VALUE_INT32:
+        case VALUE_UINT32:
+        case VALUE_INT64:
+        case VALUE_UINT64:
+        case VALUE_FLOAT:
+        case VALUE_DOUBLE:
+            if (!value_int32(rotated))
+            {
+                WARNLOG("Too many frames and Rotated is false");
+                free(text);
+                spng_ctx_free(ctx);
+                return 1;
+            }
+            break;
+        default:
+        {
+            WARNLOG("'rotatable' has unexpected value");
+            free(text);
+            spng_ctx_free(ctx);
+            return 1;
+        }
         }
         context->rotatable = true;
     }
@@ -684,7 +695,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
     size_t limit = 1024 * 1024 * 2;
     spng_set_chunk_limits(ctx, limit, limit);
 
-    spng_set_png_stream(ctx, zip_read_fn, (void *) zip);
+    spng_set_png_stream(ctx, zip_read_fn, (void *)zip);
     struct spng_ihdr ihdr;
     int r = spng_get_ihdr(ctx, &ihdr);
 
@@ -750,6 +761,7 @@ static int read_png_icon(unzFile zip, const char *path, const char *subpath, int
 
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "bugprone-branch-clone"
+
 static int read_png_data(unzFile zip, const char *path, struct SpriteContext *context, const char *subpath,
                          int fp, VALUE *def, VALUE *itm)
 {
@@ -765,7 +777,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     size_t limit = 1024 * 1024 * 2;
     spng_set_chunk_limits(ctx, limit, limit);
 
-    spng_set_png_stream(ctx, zip_read_fn, (void *) zip);
+    spng_set_png_stream(ctx, zip_read_fn, (void *)zip);
     struct spng_ihdr ihdr;
     int r = spng_get_ihdr(ctx, &ihdr);
 
@@ -808,8 +820,8 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     }
 
     // This should be enough except rare cases like transparent checkerboard
-    int dst_w = (int) context->sprite.SWidth;
-    int dst_h = (int) context->sprite.SHeight;
+    int dst_w = (int)context->sprite.SWidth;
+    int dst_h = (int)context->sprite.SHeight;
 
     if (dst_w >= 255 || dst_h >= 255)
     {
@@ -825,7 +837,9 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     short sprite_idx = next_free_sprite;
     next_free_sprite++;
     if (*context->id_ptr == 0) // First sprite for current view (FP/TD)
+    {
         *context->id_ptr = sprite_idx + KEEPERSPRITE_ADD_OFFSET;
+    }
     (*context->id_sz_ptr)++; // Add new sprite for current view (FP/TD)
 
     size_t sz = (dst_w + 2) * (dst_h + 3);
@@ -853,20 +867,19 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     VALUE *val;
 
 #define READ_WITH_DEFAULT(dst, field, fp_def, td_def, def_val, fn) \
-    val = value_dict_get(itm, field); \
-    if (value_type(val) != VALUE_NULL) \
-    { \
-        ksprite-> dst = fn(val); \
-    } \
-    else if (val = value_dict_get(def, fp ? fp_def : td_def), \
-            value_type(val) != VALUE_NULL \
-            ) \
+    val = value_dict_get(itm, field);                              \
+    if (value_type(val) != VALUE_NULL)                             \
     {                                                              \
-        ksprite-> dst = fn(val); \
-    } \
-    else \
-    { \
-        ksprite-> dst = def_val; \
+        ksprite->dst = fn(val);                                    \
+    }                                                              \
+    else if (val = value_dict_get(def, fp ? fp_def : td_def),      \
+             value_type(val) != VALUE_NULL)                        \
+    {                                                              \
+        ksprite->dst = fn(val);                                    \
+    }                                                              \
+    else                                                           \
+    {                                                              \
+        ksprite->dst = def_val;                                    \
     }
 
     READ_WITH_DEFAULT(FrameWidth, "frame_w", "fp_frame_w", "td_frame_w", dst_w, value_uint32)
@@ -881,6 +894,7 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     spng_ctx_free(ctx);
     return 1;
 }
+
 #pragma clang diagnostic pop
 
 static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
@@ -915,7 +929,7 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, in
 #define TEST_TRANSP(x) ((x & 0xFF000000u) < 0x40000000u)
 
     unsigned char *buf = sprite->Data;
-    uint32_t *src_buf = (uint32_t *) inp_buf;
+    uint32_t *src_buf = (uint32_t *)inp_buf;
     TbBool is_transp;
     int len;
     int tail = sprite->SWidth - w;
@@ -976,8 +990,7 @@ static void compress_raw(struct TbHugeSprite *sprite, unsigned char *inp_buf, in
 }
 
 #if BFDEBUG_LEVEL > 0
-struct StrBuf
-{
+struct StrBuf {
     char *ptr;
     size_t size;
 };
@@ -1010,16 +1023,19 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
         {
             if (UNZ_OK != unzGetCurrentFileInfo64(zip, NULL,
                                                   szCurrentFileName, sizeof(szCurrentFileName) - 1,
-                                                  NULL, 0, NULL, 0)
-                    )
+                                                  NULL, 0, NULL, 0))
             {
                 continue;
             }
             char *term = strrchr(szCurrentFileName, '.');
             if (term == NULL)
+            {
                 continue;
+            }
             if (strcasecmp(term, ".png") != 0)
+            {
                 continue;
+            }
             if (UNZ_OK != unzOpenCurrentFile(zip))
             {
                 return 1;
@@ -1100,7 +1116,9 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                 struct KeeperSprite *store_ksp = context->ksp_first;
                 unsigned char store_ksp_fc = 0;
                 if (store_ksp)
+                {
                     store_ksp_fc = context->ksp_first->FramesCount;
+                }
 #ifdef INNER
                 fprintf(stderr, "F:%s/%s\n", path, name);
                 fprintf(stderr, "A:%d\n", SDL_GetTicks());
@@ -1112,7 +1130,9 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                     *context->id_sz_ptr = store_sz;
                     context->ksp_first = store_ksp;
                     if (store_ksp)
+                    {
                         context->ksp_first->FramesCount = store_ksp_fc;
+                    }
 
                     unzCloseCurrentFile(zip);
                     WARNLOG("Unable to read '%s/%s'", path, name);
@@ -1219,7 +1239,9 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
     unzFile zip = unzOpen(path);
 
     if (zip == NULL)
+    {
         return 0;
+    }
 
     if (UNZ_OK != fastUnzConstructCache(zip))
     {
@@ -1231,8 +1253,7 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
         goto end;
     }
 
-    if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0)
-            )
+    if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0))
     {
         goto end;
     }
@@ -1260,7 +1281,7 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
         goto end;
     }
 
-    int ret = json_dom_parse((char *) big_scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
+    int ret = json_dom_parse((char *)big_scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
     if (ret)
     {
 
@@ -1308,7 +1329,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
     if ((file_value == NULL) && (is_lowres))
     {
         WARNLOG("No lowres icons for '%s' in '%s'", name, path);
-        //no lowres -> use hires
+        // no lowres -> use hires
         file_value = value_dict_get(root, "file");
     }
 
@@ -1332,7 +1353,6 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
     {
         const char *file = value_string(value_array_get(file_value, i));
 
-
         if (fastUnzLocateFile(zip, file, 0))
         {
             WARNLOG("Png '%s' not found in '%s'", file, path);
@@ -1350,7 +1370,9 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
             return 0;
         }
         if (first_icon == 0)
+        {
             first_icon = icon;
+        }
 
         if (UNZ_OK != unzCloseCurrentFile(zip))
         {
@@ -1428,15 +1450,21 @@ short get_icon_id(const char *name)
     struct NamedCommand key = {name, 0};
 
     if (ret != 0)
+    {
         return ret;
+    }
 
     struct NamedCommand *val = bsearch(&key, added_icons, num_added_icons, sizeof(added_icons[0]),
                                        &cmp_named_command);
     if (val)
-        return (short) val->num;
+    {
+        return (short)val->num;
+    }
 
     if (0 == strcmp(name, "0"))
+    {
         return 0;
+    }
 
     return -2; // -1 is used by SPELLBOOK_POSS etc
 }
@@ -1447,15 +1475,21 @@ short get_anim_id(const char *name, struct Objects *objdat)
     struct NamedCommand key = {name, 0};
 
     if (ret > 0)
+    {
         return ret;
+    }
 
     struct NamedCommand *val = bsearch(&key, added_sprites, num_added_sprite, sizeof(added_sprites[0]),
                                        &cmp_named_command);
     if (val)
-        return (short) val->num;
+    {
+        return (short)val->num;
+    }
 
     if (0 == strcmp(name, "0"))
+    {
         return 0;
+    }
 
     char *P = strrchr(name, ':');
     if (P != NULL)
@@ -1512,7 +1546,7 @@ short get_anim_id(const char *name, struct Objects *objdat)
         }
 
         free(name2);
-        return (short) val->num;
+        return (short)val->num;
     }
     return 0;
 }
@@ -1520,27 +1554,41 @@ short get_anim_id(const char *name, struct Objects *objdat)
 const struct TbSprite *get_button_sprite(short sprite_idx)
 {
     if (sprite_idx < GUI_BUTTON_SPRITES_COUNT)
+    {
         return &button_sprite[sprite_idx];
+    }
     else if (sprite_idx < num_icons_total)
+    {
         return &gui_panel_sprites[sprite_idx];
+    }
     else
+    {
         return &button_sprite[0];
+    }
 }
 
 const struct TbSprite *get_frontend_sprite(short sprite_idx)
 {
     if (sprite_idx < GUI_PANEL_SPRITES_COUNT)
+    {
         return &frontend_sprite[sprite_idx];
+    }
     else if (sprite_idx < num_icons_total)
+    {
         return &gui_panel_sprites[sprite_idx];
+    }
     else
+    {
         return &frontend_sprite[0];
+    }
 }
 
 const struct TbSprite *get_new_icon_sprite(short sprite_idx)
 {
     if ((sprite_idx < GUI_PANEL_SPRITES_COUNT) || (sprite_idx > num_icons_total))
+    {
         return NULL;
+    }
     return &gui_panel_sprites[sprite_idx];
 }
 

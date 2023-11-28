@@ -42,56 +42,70 @@ const size_t TCP_HEADER_SIZE = 8;
  */
 class TCP_NetBase
 {
-protected:
-	class InternalMsg
-	{
-	public:
-		struct InternalMsg * next; //I would have preferred std::list... again, compilation error
-		ulong playerId;
-		size_t len;
-		char * buffer;
+  protected:
+    class InternalMsg
+    {
+      public:
+        struct InternalMsg *next; // I would have preferred std::list... again, compilation error
+        ulong playerId;
+        size_t len;
+        char *buffer;
 
-		InternalMsg(size_t size, ulong player) : next(NULL), playerId(player), len(size),
-				buffer((char *)calloc(1, size)) { }
-		~InternalMsg() { free(buffer); }
-	};
+        InternalMsg(size_t size, ulong player)
+            : next(NULL),
+              playerId(player),
+              len(size),
+              buffer((char *)calloc(1, size)) {}
 
-private:
-	//message queue
-	InternalMsg * msgHead;
-	InternalMsg * msgTail;
-	SDL_mutex * const msgMutex;
+        ~InternalMsg()
+        {
+            free(buffer);
+        }
+    };
 
-	bool errorFlag; //indicates constructor error, we don't have exception handling
+  private:
+    // message queue
+    InternalMsg *msgHead;
+    InternalMsg *msgTail;
+    SDL_mutex *const msgMutex;
 
-protected:
-	/**
-	 * Constructs a TCP message from a DK message.
-	 * @param playerId ID of player to be recipent of message.
-	 * @param msg The DK message buffer.
-	 * @param msgLen Initially, size of DK message buffer (including header). Contains size of returned
-	 * buffer after function exits.
-	 * @return The TCP message buffer. This must be free'd by caller.
-	 */
-	char * buildTCPMessageBuffer(ulong playerId, const char msg[], size_t & msgLen);
-	static bool receiveOnSocket(TCPsocket sock, char buffer[], size_t count);
+    bool errorFlag; // indicates constructor error, we don't have exception handling
 
-	//synchronized message queue
-	void addIntMessage(InternalMsg * msg);
-	InternalMsg * getIntMessage();
-	InternalMsg * peekIntMessage();
-	void clearIntMessages();
+  protected:
+    /**
+     * Constructs a TCP message from a DK message.
+     * @param playerId ID of player to be recipent of message.
+     * @param msg The DK message buffer.
+     * @param msgLen Initially, size of DK message buffer (including header). Contains size of returned
+     * buffer after function exits.
+     * @return The TCP message buffer. This must be free'd by caller.
+     */
+    char *buildTCPMessageBuffer(ulong playerId, const char msg[], size_t &msgLen);
+    static bool receiveOnSocket(TCPsocket sock, char buffer[], size_t count);
 
-	void setErrorFlag() { errorFlag = true; }
+    // synchronized message queue
+    void addIntMessage(InternalMsg *msg);
+    InternalMsg *getIntMessage();
+    InternalMsg *peekIntMessage();
+    void clearIntMessages();
 
-public:
-	TCP_NetBase();
-	virtual ~TCP_NetBase();
-	bool hadError() { return errorFlag; }
+    void setErrorFlag()
+    {
+        errorFlag = true;
+    }
 
-	virtual void update() = 0;
-	bool fetchDKMessage(ulong & playerId, char buffer[], size_t & bufferLen, bool peek);
-	virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen) = 0;
+  public:
+    TCP_NetBase();
+    virtual ~TCP_NetBase();
+
+    bool hadError()
+    {
+        return errorFlag;
+    }
+
+    virtual void update() = 0;
+    bool fetchDKMessage(ulong &playerId, char buffer[], size_t &bufferLen, bool peek);
+    virtual bool sendDKMessage(unsigned long playerId, const char buffer[], size_t bufferLen) = 0;
 };
 
-#endif //!BFLIB_BASE_TCP_HPP
+#endif //! BFLIB_BASE_TCP_HPP

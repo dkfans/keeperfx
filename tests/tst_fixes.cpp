@@ -16,7 +16,7 @@ TbBool TimerNoReset = false;
 struct TimerTime Timer;
 
 struct StartupParameters start_params;
-TbClockMSec last_loop_time=0;
+TbClockMSec last_loop_time = 0;
 
 void affect_nearby_enemy_creatures_with_wind(struct Thing *shotng)
 {
@@ -237,6 +237,7 @@ void reset_gui_based_on_player_mode(void)
 }
 
 extern TbPixel player_path_colours[];
+
 TbPixel get_player_path_colour(unsigned short owner)
 {
     return player_path_colours[0];
@@ -273,4 +274,4 @@ void clear_game(void)
 TbBool force_player_num = 0;
 short default_loc_player = 0;
 
-} //extern "C"
+} // extern "C"

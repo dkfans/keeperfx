@@ -29,7 +29,7 @@ extern "C" {
 
 #define FIRST_TRACK 2
 #define MUSIC_TRACKS_COUNT 51
-extern Mix_Music* tracks[];
+extern Mix_Music *tracks[];
 extern int max_track;
 
 TbBool IsRedbookMusicActive(void);

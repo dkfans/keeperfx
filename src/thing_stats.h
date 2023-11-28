@@ -26,7 +26,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define CREATURE_MAX_LEVEL     10
+#define CREATURE_MAX_LEVEL 10
 #define LEARNED_INSTANCES_COUNT 10
 
 enum CreatureLiveStatistics {
@@ -67,7 +67,7 @@ typedef short CreatureLiveStatId;
 
 #pragma pack()
 /******************************************************************************/
-#define BLOOD_TYPES_COUNT (sizeof(blood_types)/sizeof(blood_types[0]))
+#define BLOOD_TYPES_COUNT (sizeof(blood_types) / sizeof(blood_types[0]))
 extern const char *blood_types[15];
 /******************************************************************************/
 const char *thing_model_name(const struct Thing *thing);
@@ -79,21 +79,21 @@ TbBool things_stats_debug_dump(void);
 TbBool is_neutral_thing(const struct Thing *thing);
 TbBool is_hero_thing(const struct Thing *thing);
 /******************************************************************************/
-long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel);
-long compute_creature_max_pay(long base_pay,unsigned short crlevel);
-long compute_creature_max_health(long base_health,unsigned short crlevel);
-long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing);
-long compute_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
-long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel);
-long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel);
-long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
-long compute_creature_work_value(long base_param,long efficiency,unsigned short crlevel);
-long compute_creature_max_dexterity(long base_param,unsigned short crlevel);
-long compute_creature_max_defense(long base_param,unsigned short crlevel);
-long compute_creature_max_strength(long base_param,unsigned short crlevel);
-long compute_creature_max_loyalty(long base_param,unsigned short crlevel);
+long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel);
+long compute_creature_max_pay(long base_pay, unsigned short crlevel);
+long compute_creature_max_health(long base_health, unsigned short crlevel);
+long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing *thing);
+long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, struct Thing *thing);
+long project_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel);
+long project_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel);
+long compute_creature_attack_range(long base_param, long luck, unsigned short crlevel);
+long compute_creature_work_value(long base_param, long efficiency, unsigned short crlevel);
+long compute_creature_max_dexterity(long base_param, unsigned short crlevel);
+long compute_creature_max_defense(long base_param, unsigned short crlevel);
+long compute_creature_max_strength(long base_param, unsigned short crlevel);
+long compute_creature_max_loyalty(long base_param, unsigned short crlevel);
 long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool armour_spell);
-long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
+long compute_creature_max_unaffected(long base_param, unsigned short crlevel);
 #define compute_creature_max_luck compute_creature_max_unaffected
 long compute_controlled_speed_increase(long prev_speed, long speed_limit);
 long compute_controlled_speed_decrease(long prev_speed, long speed_limit);
@@ -103,7 +103,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing);
 long calculate_correct_creature_pay(const struct Thing *thing);
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx);
 long compute_creature_work_value_for_room_role(const struct Thing *creatng, RoomRole rrole, long efficiency);
-long compute_creature_weight(const struct Thing* creatng);
+long compute_creature_weight(const struct Thing *creatng);
 
 const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveStatId cstat_id);
 
@@ -111,7 +111,7 @@ long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng,
 long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb);
 HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const struct Thing *shotng);
 
-long get_radially_decaying_value(long magnitude,long decay_start,long decay_length,long distance);
+long get_radially_decaying_value(long magnitude, long decay_start, long decay_length, long distance);
 long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long acceleration);
 
 TbBool update_creature_health_to_max(struct Thing *thing);

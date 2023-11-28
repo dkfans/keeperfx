@@ -71,41 +71,53 @@ void count_workers_in_room(struct Room *room);
 void count_bodies_in_room(struct Room *room);
 void count_food_in_room(struct Room *room);
 void count_lair_occupants(struct Room *room);
-long find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing* thing, struct Room* skip_room, struct Coord3d* pos);
+long find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing *thing, struct Room *skip_room, struct Coord3d *pos);
 /******************************************************************************/
 
 RoomKind look_through_rooms[] = {
-    RoK_DUNGHEART, RoK_LAIR,      RoK_GARDEN,    RoK_TREASURE,
-    RoK_TRAINING,  RoK_WORKSHOP,  RoK_SCAVENGER, RoK_BARRACKS,
-    RoK_PRISON,    RoK_TORTURE,   RoK_GRAVEYARD, RoK_TEMPLE,
-    RoK_LIBRARY,   RoK_BRIDGE,    RoK_GUARDPOST, RoK_ENTRANCE,
-    RoK_TYPES_COUNT,};
+    RoK_DUNGHEART,
+    RoK_LAIR,
+    RoK_GARDEN,
+    RoK_TREASURE,
+    RoK_TRAINING,
+    RoK_WORKSHOP,
+    RoK_SCAVENGER,
+    RoK_BARRACKS,
+    RoK_PRISON,
+    RoK_TORTURE,
+    RoK_GRAVEYARD,
+    RoK_TEMPLE,
+    RoK_LIBRARY,
+    RoK_BRIDGE,
+    RoK_GUARDPOST,
+    RoK_ENTRANCE,
+    RoK_TYPES_COUNT,
+};
 
 struct AroundLByte const room_spark_offset[] = {
-  {-256,  256},
-  {-256,    0},
-  {-256, -256},
-  {-256, -256},
-  {   0, -256},
-  { 256, -256},
-  { 256, -256},
-  { 256,    0},
-  { 256,  256},
-  { 256,  256},
-  {   0,  256},
-  {-256,  256},
+    {-256,  256},
+    {-256,    0},
+    {-256, -256},
+    {-256, -256},
+    {   0, -256},
+    { 256, -256},
+    { 256, -256},
+    { 256,    0},
+    { 256,  256},
+    { 256,  256},
+    {   0,  256},
+    {-256,  256},
 };
 
 unsigned char const slabs_to_centre_pieces[] = {
-  0,  0,  0,  0,  0,  0,  0,  0,  0,
-  1,  1,  1,  2,  2,  2,  3,  4,  4,
-  4,  5,  6,  6,  6,  7,  8,  9,  9,
-  9, 10, 11, 12, 12, 12, 13, 14, 15,
- 16, 16, 16, 17, 18, 19, 20, 20, 20,
- 21, 22, 23, 24, 25,
-};
+    0, 0, 0, 0, 0, 0, 0, 0, 0,
+    1, 1, 1, 2, 2, 2, 3, 4, 4,
+    4, 5, 6, 6, 6, 7, 8, 9, 9,
+    9, 10, 11, 12, 12, 12, 13, 14, 15,
+    16, 16, 16, 17, 18, 19, 20, 20, 20,
+    21, 22, 23, 24, 25};
 
-unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None };
+unsigned short const room_effect_elements[] = {TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_None, TngEffElm_None};
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -113,24 +125,30 @@ unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_Bl
 /******************************************************************************/
 struct Room *room_get(long room_idx)
 {
-  if ((room_idx < 1) || (room_idx > ROOMS_COUNT))
-    return &game.rooms[0];
-  return &game.rooms[room_idx];
+    if ((room_idx < 1) || (room_idx > ROOMS_COUNT))
+    {
+        return &game.rooms[0];
+    }
+    return &game.rooms[room_idx];
 }
 
 struct Room *subtile_room_get(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_block_invalid(slb))
+    {
         return INVALID_ROOM;
+    }
     return room_get(slb->room_index);
 }
 
 struct Room *slab_room_get(long slb_x, long slb_y)
 {
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     if (slabmap_block_invalid(slb))
+    {
         return INVALID_ROOM;
+    }
     return room_get(slb->room_index);
 }
 
@@ -143,29 +161,37 @@ struct Room *slab_number_room_get(SlabCodedCoords slab_num)
 
 TbBool room_is_invalid(const struct Room *room)
 {
-  if (room == NULL)
-    return true;
-  if (room == INVALID_ROOM)
-    return true;
-  return (room <= &game.rooms[0]);
+    if (room == NULL)
+    {
+        return true;
+    }
+    if (room == INVALID_ROOM)
+    {
+        return true;
+    }
+    return (room <= &game.rooms[0]);
 }
 
 TbBool room_exists(const struct Room *room)
 {
-  if (room_is_invalid(room))
-    return false;
-  return ((room->alloc_flags & 0x01) != 0);
+    if (room_is_invalid(room))
+    {
+        return false;
+    }
+    return ((room->alloc_flags & 0x01) != 0);
 }
 
 long get_room_look_through(RoomKind rkind)
 {
-  const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
-  for (long i = 0; i < arr_length; i++)
-  {
-    if (look_through_rooms[i] == rkind)
-      return i;
-  }
-  return -1;
+    const long arr_length = sizeof(look_through_rooms) / sizeof(look_through_rooms[0]);
+    for (long i = 0; i < arr_length; i++)
+    {
+        if (look_through_rooms[i] == rkind)
+        {
+            return i;
+        }
+    }
+    return -1;
 }
 
 /**
@@ -175,13 +201,13 @@ long get_room_look_through(RoomKind rkind)
  */
 long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     long count = 0;
     long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -209,13 +235,15 @@ long get_room_slabs_count(PlayerNumber plyr_idx, RoomKind rkind)
 long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole)
 {
     if (plyr_idx == game.neutral_player_num)
+    {
         return -1;
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    }
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     long count = 0;
 
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(!room_role_matches(rkind,rrole))
+        if (!room_role_matches(rkind, rrole))
         {
             continue;
         }
@@ -223,7 +251,7 @@ long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole)
         unsigned long k = 0;
         while (i != 0)
         {
-            struct Room* room = room_get(i);
+            struct Room *room = room_get(i);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Jump to invalid room detected");
@@ -247,14 +275,16 @@ long get_room_of_role_slabs_count(PlayerNumber plyr_idx, RoomRole rrole)
 long count_slabs_of_room_type(PlayerNumber plyr_idx, RoomKind rkind)
 {
     if (plyr_idx == game.neutral_player_num)
+    {
         return -1;
+    }
     long nslabs = 0;
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -278,12 +308,12 @@ void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rki
 {
     unsigned int total_capacity = 0;
     unsigned int used_capacity = 0;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
+    struct DungeonAdd *dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -297,8 +327,8 @@ void get_room_kind_total_and_used_capacity(struct Dungeon *dungeon, RoomKind rki
         k++;
         if (k > ROOMS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
         }
     }
     *total_cap = total_capacity;
@@ -310,12 +340,12 @@ void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, Room
     unsigned int total_capacity = 0;
     unsigned int used_capacity = 0;
     int storaged_capacity = 0;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
+    struct DungeonAdd *dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -330,8 +360,8 @@ void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, Room
         k++;
         if (k > ROOMS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
         }
     }
     *total_cap = total_capacity;
@@ -341,17 +371,16 @@ void get_room_kind_total_used_and_storage_capacity(struct Dungeon *dungeon, Room
 
 long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_kind)
 {
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
     long used_capacity;
     long total_capacity;
     get_room_kind_total_and_used_capacity(dungeon, room_kind, &total_capacity, &used_capacity);
-    if (total_capacity <= 0) {
+    if (total_capacity <= 0)
+    {
         return 0;
     }
     return (used_capacity * 256) / total_capacity;
 }
-
-
 
 void set_room_efficiency(struct Room *room)
 {
@@ -360,12 +389,12 @@ void set_room_efficiency(struct Room *room)
 
 struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
@@ -390,9 +419,10 @@ struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
     return INVALID_THING;
 }
 
-struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_x,  MapSlabCoord slb_y, struct Thing *hoardtng)
+struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, struct Thing *hoardtng)
 {
-    if (room->owner == game.neutral_player_num) {
+    if (room->owner == game.neutral_player_num)
+    {
         return hoardtng;
     }
     GoldAmount gold_gathered = 0;
@@ -401,15 +431,15 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
     {
         MapSubtlCoord stl_x = slab_subtile(slb_x, around[k].delta_x + 1);
         MapSubtlCoord stl_y = slab_subtile(slb_y, around[k].delta_y + 1);
-        struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+        struct Map *mapblk = get_map_block_at(stl_x, stl_y);
         unsigned long j = 0;
         for (int i = get_mapwho_thing_index(mapblk); i != 0;)
         {
-            struct Thing* gldtng = thing_get(i);
+            struct Thing *gldtng = thing_get(i);
             i = gldtng->next_on_mapblk;
             if (!thing_is_invalid(gldtng) && object_is_gold_pile(gldtng))
             {
-                gold_gathered += gldtng->valuable.gold_stored; 
+                gold_gathered += gldtng->valuable.gold_stored;
                 delete_thing_structure(gldtng, 0);
             }
             j++;
@@ -421,7 +451,8 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
             }
         }
     }
-    if (gold_gathered <= 0) {
+    if (gold_gathered <= 0)
+    {
         return hoardtng;
     }
     struct Coord3d pos;
@@ -432,10 +463,12 @@ struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_
     if (!thing_is_invalid(hoardtng))
     {
         gold_gathered -= add_gold_to_hoarde(hoardtng, room, gold_gathered);
-    } else
+    }
+    else
     {
         hoardtng = create_gold_hoarde(room, &pos, gold_gathered);
-        if (!thing_is_invalid(hoardtng)) {
+        if (!thing_is_invalid(hoardtng))
+        {
             gold_gathered -= hoardtng->valuable.gold_stored;
         }
     }
@@ -462,7 +495,7 @@ void count_gold_hoardes_in_room(struct Room *room)
     {
         MapSlabCoord slb_x = slb_num_decode_x(i);
         MapSlabCoord slb_y = slb_num_decode_y(i);
-        struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        struct Thing *gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         GoldAmount gold_amount;
         if (!thing_is_invalid(gldtng) && (gldtng->valuable.gold_stored > max_hoard_size_in_room))
         {
@@ -473,17 +506,21 @@ void count_gold_hoardes_in_room(struct Room *room)
             long drop_amount = remove_gold_from_hoarde(gldtng, room, gldtng->valuable.gold_stored - max_hoard_size_in_room);
             drop_gold_pile(drop_amount, &pos);
             gold_amount = gldtng->valuable.gold_stored;
-        } else
+        }
+        else
         {
             gldtng = treasure_room_eats_gold_piles(room, slb_x, slb_y, gldtng);
             if (!thing_is_invalid(gldtng))
             {
                 gold_amount = gldtng->valuable.gold_stored;
-            } else {
+            }
+            else
+            {
                 gold_amount = 0;
             }
         }
-        if (gold_amount > 0) {
+        if (gold_amount > 0)
+        {
             all_gold_amount += gold_amount;
             all_wealth_size += get_wealth_size_of_gold_amount(gold_amount);
         }
@@ -500,7 +537,7 @@ void count_gold_hoardes_in_room(struct Room *room)
     room->used_capacity = all_wealth_size;
 }
 
-void init_reposition_struct(struct RoomReposition * rrepos)
+void init_reposition_struct(struct RoomReposition *rrepos)
 {
     rrepos->used = 0;
     for (long i = 0; i < ROOM_REPOSITION_COUNT; i++)
@@ -510,25 +547,27 @@ void init_reposition_struct(struct RoomReposition * rrepos)
     }
 }
 
-TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel)
+TbBool store_reposition_entry(struct RoomReposition *rrepos, ThingModel tngmodel)
 {
     int ri;
     // Don't store the same entry two times
     for (ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
     {
-        if (rrepos->models[ri] == tngmodel) {
+        if (rrepos->models[ri] == tngmodel)
+        {
             return true;
         }
     }
     if (rrepos->used > ROOM_REPOSITION_COUNT)
     {
-        ERRORLOG("Reposition entries to store (%d) exceed maximum %d", rrepos->used,ROOM_REPOSITION_COUNT);
+        ERRORLOG("Reposition entries to store (%d) exceed maximum %d", rrepos->used, ROOM_REPOSITION_COUNT);
         rrepos->used = ROOM_REPOSITION_COUNT;
         return false;
     }
     for (ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
     {
-        if (rrepos->models[ri] == 0) {
+        if (rrepos->models[ri] == 0)
+        {
             rrepos->models[ri] = tngmodel;
             rrepos->used++;
             break;
@@ -537,7 +576,7 @@ TbBool store_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmode
     return true;
 }
 
-TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingModel tngmodel, CrtrExpLevel explevel)
+TbBool store_creature_reposition_entry(struct RoomReposition *rrepos, ThingModel tngmodel, CrtrExpLevel explevel)
 {
     rrepos->used++;
     if (rrepos->used > ROOM_REPOSITION_COUNT)
@@ -548,7 +587,8 @@ TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingMode
     }
     for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
     {
-        if (rrepos->models[ri] == 0) {
+        if (rrepos->models[ri] == 0)
+        {
             rrepos->models[ri] = tngmodel;
             rrepos->explevels[ri] = explevel;
             break;
@@ -557,17 +597,19 @@ TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingMode
     return true;
 }
 
-void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
-    struct Dungeon* dungeon;
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Dungeon *dungeon;
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
+    {
         return;
+    }
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");
@@ -581,12 +623,13 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
             PowerKind spl_idx = book_thing_to_power_kind(thing);
             if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
             {
-                if (game.play_gameturn > 10) //Function is used to place books in rooms before dungeons are intialized
+                if (game.play_gameturn > 10) // Function is used to place books in rooms before dungeons are intialized
                 {
                     dungeon = get_players_num_dungeon(room->owner);
                     if (dungeon->magic_level[spl_idx] < 2)
                     {
-                        if (!store_reposition_entry(rrepos, objkind)) {
+                        if (!store_reposition_entry(rrepos, objkind))
+                        {
                             WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
                         }
                     }
@@ -622,16 +665,17 @@ void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord st
     }
 }
 
-TbBool recreate_repositioned_book_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+TbBool recreate_repositioned_book_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
-    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
+    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity))
+    {
         return false;
     }
     for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
     {
         if (rrepos->models[ri] != 0)
         {
-            struct Thing* objtng = create_spell_in_library(room, rrepos->models[ri], stl_x, stl_y);
+            struct Thing *objtng = create_spell_in_library(room, rrepos->models[ri], stl_x, stl_y);
             if (!thing_is_invalid(objtng))
             {
                 rrepos->used--;
@@ -643,12 +687,12 @@ TbBool recreate_repositioned_book_in_room_on_subtile(struct Room *room, MapSubtl
     return false;
 }
 
-TbBool move_thing_to_different_room(struct Thing* thing, struct Coord3d* pos)
+TbBool move_thing_to_different_room(struct Thing *thing, struct Coord3d *pos)
 {
     pos->z.val = get_thing_height_at(thing, pos);
     move_thing_in_map(thing, pos);
     create_effect(pos, TngEff_RoomSparkeLarge, thing->owner);
-    struct Room* nxroom;
+    struct Room *nxroom;
     nxroom = get_room_thing_is_on(thing);
     if (room_exists(nxroom))
     {
@@ -658,9 +702,9 @@ TbBool move_thing_to_different_room(struct Thing* thing, struct Coord3d* pos)
     return false;
 }
 
-int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, struct RoomReposition* rrepos)
+int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, struct RoomReposition *rrepos)
 {
-    struct Room* room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
+    struct Room *room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
     struct Coord3d pos;
     unsigned long k = 0;
     int i = room->index;
@@ -681,7 +725,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
         {
             if (rrepos->models[ri] != 0)
             {
-                struct Thing* spelltng = create_spell_in_library(room, rrepos->models[ri], room->central_stl_x, room->central_stl_y);
+                struct Thing *spelltng = create_spell_in_library(room, rrepos->models[ri], room->central_stl_x, room->central_stl_y);
                 if (!thing_is_invalid(spelltng))
                 {
                     if (!find_random_valid_position_for_thing_in_room_avoiding_object(spelltng, room, &pos))
@@ -707,7 +751,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
         }
         if (rrepos->used <= 0)
         {
-            SYNCDBG(7,"Nothing left to reposition")
+            SYNCDBG(7, "Nothing left to reposition")
             break;
         }
         room = find_room_of_role_with_spare_room_item_capacity(plyr_idx, RoRoF_PowersStorage);
@@ -731,11 +775,14 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
 
 int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
+    {
         return -2; // do nothing
-    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    if ((roomst->storage_height >= 0) && (get_floor_filled_subtiles_at(stl_x, stl_y) != roomst->storage_height)) {
+    }
+    struct RoomConfigStats *roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_floor_filled_subtiles_at(stl_x, stl_y) != roomst->storage_height))
+    {
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
@@ -743,7 +790,7 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");
@@ -754,15 +801,15 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         if (thing_is_spellbook(thing))
         {
             PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
+            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10)) // Function is used to integrate preplaced books at map startup too.
             {
                 // If exceeded capacity of the library
                 if (room->used_capacity > room->total_capacity)
                 {
-                    SYNCDBG(7,"Room %d type %s capacity %d exceeded; space used is %d", room->index, room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
-                    struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
+                    SYNCDBG(7, "Room %d type %s capacity %d exceeded; space used is %d", room->index, room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
+                    struct Dungeon *dungeon = get_players_num_dungeon(room->owner);
                     if (dungeon->magic_level[spl_idx] <= 1)
-                    { 
+                    {
                         // We have a single copy, but nowhere to place it. -1 will handle the rest.
                         return -1;
                     }
@@ -775,22 +822,23 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
                         SYNCLOG("Deleting from %s of player %d duplicate object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
                         delete_thing_structure(thing, 0);
                     }
-
-                } else // we have capacity to spare, so it can stay unless it's stuck
-                if (thing_in_wall_at(thing, &thing->mappos)) 
-                {
-                    if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
+                }
+                else // we have capacity to spare, so it can stay unless it's stuck
+                    if (thing_in_wall_at(thing, &thing->mappos))
                     {
-                        matching_things_at_subtile++; 
+                        if (position_over_floor_level(thing, &thing->mappos)) // If it's inside the floors, simply move it up and count it.
+                        {
+                            matching_things_at_subtile++;
+                        }
+                        else
+                        {
+                            return -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                        }
                     }
                     else
                     {
-                        return -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                        matching_things_at_subtile++;
                     }
-                } else
-                {
-                    matching_things_at_subtile++;
-                }
             }
         }
         // Per thing code ends
@@ -812,14 +860,16 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
     return matching_things_at_subtile; // Increase used capacity
 }
 
-void count_and_reposition_books_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+void count_and_reposition_books_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
     int matching_things_at_subtile = check_books_on_subtile_for_reposition_in_room(room, stl_x, stl_y);
-    if (matching_things_at_subtile > 0) {
+    if (matching_things_at_subtile > 0)
+    {
         // This subtile contains spells
-        SYNCDBG(19,"Got %d matching things at (%d,%d)",(int)matching_things_at_subtile,(int)stl_x,(int)stl_y);
+        SYNCDBG(19, "Got %d matching things at (%d,%d)", (int)matching_things_at_subtile, (int)stl_x, (int)stl_y);
         room->used_capacity += matching_things_at_subtile;
-    } else
+    }
+    else
     {
         switch (matching_things_at_subtile)
         {
@@ -848,7 +898,7 @@ void count_and_reposition_books_in_room_on_subtile(struct Room *room, MapSubtlCo
  */
 void count_books_in_room(struct Room *room)
 {
-    SYNCDBG(17,"Starting for %s",room_code_name(room->kind));
+    SYNCDBG(17, "Starting for %s", room_code_name(room->kind));
     struct RoomReposition rrepos;
     init_reposition_struct(&rrepos);
     // Making two loops guarantees that no rrepos things will be lost
@@ -868,7 +918,7 @@ void count_books_in_room(struct Room *room)
             {
                 for (long dx = 0; dx < STL_PER_SLB; dx++)
                 {
-                    count_and_reposition_books_in_room_on_subtile(room, slab_subtile(slb_x,dx), slab_subtile(slb_y,dy), &rrepos);
+                    count_and_reposition_books_in_room_on_subtile(room, slab_subtile(slb_x, dx), slab_subtile(slb_y, dy), &rrepos);
                 }
             }
             // Per-slab code ends
@@ -881,7 +931,7 @@ void count_books_in_room(struct Room *room)
             }
         }
     }
-    if (rrepos.used > 0) 
+    if (rrepos.used > 0)
     {
         int move_count = position_books_in_room_with_capacity(room->owner, room->kind, &rrepos);
         if (move_count > 0)
@@ -889,19 +939,19 @@ void count_books_in_room(struct Room *room)
             if (rrepos.used > 0)
             {
                 SYNCLOG("The %s capacity wasn't enough, %d moved, but %d items belonging to player %d dropped",
-                    room_code_name(room->kind), move_count, (int)rrepos.used, (int)room->owner);
+                        room_code_name(room->kind), move_count, (int)rrepos.used, (int)room->owner);
             }
             else
             {
-                SYNCDBG(7,"Moved %d items belonging to player %d to different %s",
-                    move_count, (int)room->owner, room_code_name(room->kind));
+                SYNCDBG(7, "Moved %d items belonging to player %d to different %s",
+                        move_count, (int)room->owner, room_code_name(room->kind));
             }
         }
         else
         {
             SYNCLOG("No %s capacity available to move, %d items belonging to player %d dropped",
-                room_code_name(room->kind), (int)rrepos.used, (int)room->owner);
-        }      
+                    room_code_name(room->kind), (int)rrepos.used, (int)room->owner);
+        }
     }
     room->capacity_used_for_storage = room->used_capacity;
 }
@@ -913,12 +963,12 @@ void count_workers_in_room(struct Room *room)
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_exists(cctrl))
         {
-            ERRORLOG("Jump to invalid creature %d detected",(int)i);
+            ERRORLOG("Jump to invalid creature %d detected", (int)i);
             break;
         }
         i = cctrl->next_in_room;
@@ -928,8 +978,8 @@ void count_workers_in_room(struct Room *room)
         k++;
         if (k > THINGS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping creatures list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
         }
     }
     room->used_capacity += count;
@@ -943,18 +993,22 @@ void count_slabs_all_only(struct Room *room)
 void count_slabs_all_wth_effcncy(struct Room *room)
 {
     unsigned long count = room->slabs_count * ((long)room->efficiency);
-    count = (count/ROOM_EFFICIENCY_MAX);
+    count = (count / ROOM_EFFICIENCY_MAX);
     if (count <= 1)
-      count = 1;
+    {
+        count = 1;
+    }
     room->total_capacity = count;
 }
 
 void count_slabs_div2_wth_effcncy(struct Room *room)
 {
     unsigned long count = room->slabs_count * ((long)room->efficiency);
-    count = ((count/ROOM_EFFICIENCY_MAX) >> 1);
+    count = ((count / ROOM_EFFICIENCY_MAX) >> 1);
     if (count <= 1)
+    {
         count = 1;
+    }
     room->total_capacity = count;
 }
 
@@ -964,23 +1018,28 @@ void count_gold_slabs_wth_effcncy(struct Room *room)
     long subefficiency = (get_wealth_size_types_count() * (long)room->efficiency) / ROOM_EFFICIENCY_MAX;
     // Every slab is always capable of storing at least smallest hoard
     if (subefficiency < 1)
+    {
         subefficiency = 1;
+    }
     unsigned long count = room->slabs_count * subefficiency;
     if (count < 1)
+    {
         count = 1;
+    }
     room->total_capacity = count;
 }
 
-TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
-    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
+    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity))
+    {
         return false;
     }
     for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
     {
         if (rrepos->models[ri] != 0)
         {
-            struct Thing* objtng = create_crate_in_workshop(room, rrepos->models[ri], stl_x, stl_y);
+            struct Thing *objtng = create_crate_in_workshop(room, rrepos->models[ri], stl_x, stl_y);
             if (!thing_is_invalid(objtng))
             {
                 rrepos->used--;
@@ -994,11 +1053,14 @@ TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubt
 
 int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
+    {
         return -2; // do nothing
-    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height)) {
+    }
+    struct RoomConfigStats *roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height))
+    {
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
@@ -1006,7 +1068,7 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");
@@ -1019,24 +1081,26 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
             // If exceeded capacity of the library
             if (room->used_capacity >= room->total_capacity)
             {
-                WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                WARNLOG("The %s capacity %d exceeded; space used is %d", room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
                 return -1; // re-create all (this could save the object if there are duplicates)
-            } else
-            // If the thing is in wall, remove it but store to re-create later
-            if (thing_in_wall_at(thing, &thing->mappos))
-            {
-                if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
+            }
+            else
+                // If the thing is in wall, remove it but store to re-create later
+                if (thing_in_wall_at(thing, &thing->mappos))
                 {
-                    matching_things_at_subtile++;
+                    if (position_over_floor_level(thing, &thing->mappos)) // If it's inside the floors, simply move it up and count it.
+                    {
+                        matching_things_at_subtile++;
+                    }
+                    else
+                    {
+                        return -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                    }
                 }
                 else
                 {
-                    return -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                    matching_things_at_subtile++;
                 }
-            } else
-            {
-                matching_things_at_subtile++;
-            }
         }
         // Per thing code ends
         k++;
@@ -1050,16 +1114,18 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
     return matching_things_at_subtile; // Increase used capacity
 }
 
-void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
+    {
         return;
+    }
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");
@@ -1072,12 +1138,14 @@ void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord s
             ThingModel objkind = thing->model;
             ThingClass tngclass = crate_thing_to_workshop_item_class(thing);
             ThingModel tngmodel = crate_thing_to_workshop_item_model(thing);
-            if (!store_reposition_entry(rrepos, objkind)) {
-                WARNLOG("Too many things to reposition in %s index %d",room_code_name(room->kind),(int)room->index);
+            if (!store_reposition_entry(rrepos, objkind))
+            {
+                WARNLOG("Too many things to reposition in %s index %d", room_code_name(room->kind), (int)room->index);
             }
             if (!is_neutral_thing(thing) && player_exists(get_player(thing->owner)))
             {
-                if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None) {
+                if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None)
+                {
                     remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
                 }
             }
@@ -1094,14 +1162,16 @@ void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord s
     }
 }
 
-void count_and_reposition_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+void count_and_reposition_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
     int matching_things_at_subtile = check_crates_on_subtile_for_reposition_in_room(room, stl_x, stl_y);
-    if (matching_things_at_subtile > 0) {
+    if (matching_things_at_subtile > 0)
+    {
         // This subtile contains matching things
-        SYNCDBG(19,"Got %d matching things at (%d,%d)",(int)matching_things_at_subtile,(int)stl_x,(int)stl_y);
+        SYNCDBG(19, "Got %d matching things at (%d,%d)", (int)matching_things_at_subtile, (int)stl_x, (int)stl_y);
         room->used_capacity += matching_things_at_subtile;
-    } else
+    }
+    else
     {
         switch (matching_things_at_subtile)
         {
@@ -1130,7 +1200,7 @@ void count_and_reposition_crates_in_room_on_subtile(struct Room *room, MapSubtlC
  */
 void count_crates_in_room(struct Room *room)
 {
-    SYNCDBG(17,"Starting for %s",room_code_name(room->kind));
+    SYNCDBG(17, "Starting for %s", room_code_name(room->kind));
     struct RoomReposition rrepos;
     init_reposition_struct(&rrepos);
     // Making two loops guarantees that no rrepos things will be lost
@@ -1150,7 +1220,7 @@ void count_crates_in_room(struct Room *room)
             {
                 for (long dx = 0; dx < STL_PER_SLB; dx++)
                 {
-                    count_and_reposition_crates_in_room_on_subtile(room, STL_PER_SLB*slb_x+dx, STL_PER_SLB*slb_y+dy, &rrepos);
+                    count_and_reposition_crates_in_room_on_subtile(room, STL_PER_SLB * slb_x + dx, STL_PER_SLB * slb_y + dy, &rrepos);
                 }
             }
             // Per-slab code ends
@@ -1163,23 +1233,26 @@ void count_crates_in_room(struct Room *room)
             }
         }
     }
-    if (rrepos.used > 0) {
+    if (rrepos.used > 0)
+    {
         ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
-          room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);
+                 room_code_name(room->kind), (int)room->index, (int)room->total_capacity, (int)rrepos.used, (int)room->owner);
     }
     room->capacity_used_for_storage = room->used_capacity;
 }
 
-void reposition_all_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+void reposition_all_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
+    {
         return;
+    }
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");
@@ -1190,9 +1263,10 @@ void reposition_all_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord s
         if (corpse_laid_to_rest(thing))
         {
             ThingModel crkind = thing->model;
-            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-            if (!store_creature_reposition_entry(rrepos, crkind, cctrl->explevel)) {
-                WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
+            struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+            if (!store_creature_reposition_entry(rrepos, crkind, cctrl->explevel))
+            {
+                WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
             }
             delete_thing_structure(thing, 0);
         }
@@ -1207,9 +1281,10 @@ void reposition_all_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord s
     }
 }
 
-TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
-    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
+    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity))
+    {
         return false;
     }
     for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
@@ -1220,7 +1295,7 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
             pos.x.val = subtile_coord_center(stl_x);
             pos.y.val = subtile_coord_center(stl_y);
             pos.z.val = 0;
-            struct Thing* bodytng = create_dead_creature(&pos, rrepos->models[ri], 0, room->owner, rrepos->explevels[ri]);
+            struct Thing *bodytng = create_dead_creature(&pos, rrepos->models[ri], 0, room->owner, rrepos->explevels[ri]);
             if (!thing_is_invalid(bodytng))
             {
                 bodytng->corpse.laid_to_rest = 1;
@@ -1237,11 +1312,14 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
 
 int check_bodies_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
+    {
         return -2; // do nothing
-    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height)) {
+    }
+    struct RoomConfigStats *roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height))
+    {
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
@@ -1249,7 +1327,7 @@ int check_bodies_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");
@@ -1262,17 +1340,19 @@ int check_bodies_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
             // If exceeded capacity of the room
             if (room->used_capacity >= room->total_capacity)
             {
-                WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                WARNLOG("The %s capacity %d exceeded; space used is %d", room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
                 return -1; // re-create all (this could save the object if there are duplicates)
-            } else
-            // If the thing is in wall, remove it but store to re-create later
-            if (thing_in_wall_at(thing, &thing->mappos))
-            {
-                return -1; // re-create all
-            } else
-            {
-                matching_things_at_subtile++;
             }
+            else
+                // If the thing is in wall, remove it but store to re-create later
+                if (thing_in_wall_at(thing, &thing->mappos))
+                {
+                    return -1; // re-create all
+                }
+                else
+                {
+                    matching_things_at_subtile++;
+                }
         }
         // Per thing code ends
         k++;
@@ -1286,14 +1366,16 @@ int check_bodies_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
     return matching_things_at_subtile; // Increase used capacity
 }
 
-void count_and_reposition_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+void count_and_reposition_bodies_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
     int matching_things_at_subtile = check_bodies_on_subtile_for_reposition_in_room(room, stl_x, stl_y);
-    if (matching_things_at_subtile > 0) {
+    if (matching_things_at_subtile > 0)
+    {
         // This subtile contains bodies
-        SYNCDBG(19,"Got %d matching things at (%d,%d)",(int)matching_things_at_subtile,(int)stl_x,(int)stl_y);
+        SYNCDBG(19, "Got %d matching things at (%d,%d)", (int)matching_things_at_subtile, (int)stl_x, (int)stl_y);
         room->used_capacity += matching_things_at_subtile;
-    } else
+    }
+    else
     {
         switch (matching_things_at_subtile)
         {
@@ -1317,7 +1399,7 @@ void count_and_reposition_bodies_in_room_on_subtile(struct Room *room, MapSubtlC
 
 void count_bodies_in_room(struct Room *room)
 {
-    SYNCDBG(17,"Starting for %s",room_code_name(room->kind));
+    SYNCDBG(17, "Starting for %s", room_code_name(room->kind));
     struct RoomReposition rrepos;
     init_reposition_struct(&rrepos);
     // Making two loops guarantees that no rrepos things will be lost
@@ -1325,7 +1407,7 @@ void count_bodies_in_room(struct Room *room)
     {
         // The correct count should be taken from last sweep
         room->used_capacity = 0;
-        //room->capacity_used_for_storage = 0;
+        // room->capacity_used_for_storage = 0;
         unsigned long k = 0;
         unsigned long i = room->slabs_list;
         while (i > 0)
@@ -1337,7 +1419,7 @@ void count_bodies_in_room(struct Room *room)
             {
                 for (long dx = 0; dx < STL_PER_SLB; dx++)
                 {
-                    count_and_reposition_bodies_in_room_on_subtile(room, slab_subtile(slb_x,dx), slab_subtile(slb_y,dy), &rrepos);
+                    count_and_reposition_bodies_in_room_on_subtile(room, slab_subtile(slb_x, dx), slab_subtile(slb_y, dy), &rrepos);
                 }
             }
             // Per-slab code ends
@@ -1350,19 +1432,25 @@ void count_bodies_in_room(struct Room *room)
             }
         }
         if (rrepos.used <= 0)
+        {
             break;
+        }
         if (room->used_capacity >= room->total_capacity)
+        {
             break;
+        }
     }
-    if (rrepos.used > 0) {
+    if (rrepos.used > 0)
+    {
         ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
-          room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);
+                 room_code_name(room->kind), (int)room->index, (int)room->total_capacity, (int)rrepos.used, (int)room->owner);
     }
 }
 
-TbBool rectreate_repositioned_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+TbBool rectreate_repositioned_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
-    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity)) {
+    if ((rrepos->used < 0) || (room->used_capacity >= room->total_capacity))
+    {
         return false;
     }
     for (int ri = 0; ri < ROOM_REPOSITION_COUNT; ri++)
@@ -1373,7 +1461,7 @@ TbBool rectreate_repositioned_food_in_room_on_subtile(struct Room *room, MapSubt
             pos.x.val = subtile_coord_center(stl_x);
             pos.y.val = subtile_coord_center(stl_y);
             pos.z.val = 0;
-            struct Thing* foodtng = create_object(&pos, rrepos->models[ri], room->owner, -1);
+            struct Thing *foodtng = create_object(&pos, rrepos->models[ri], room->owner, -1);
             if (!thing_is_invalid(foodtng))
             {
                 rrepos->used--;
@@ -1386,16 +1474,18 @@ TbBool rectreate_repositioned_food_in_room_on_subtile(struct Room *room, MapSubt
     return false;
 }
 
-void reposition_all_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+void reposition_all_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
+    {
         return;
+    }
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");
@@ -1408,8 +1498,9 @@ void reposition_all_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl
             ThingModel objkind = thing->model;
             if (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing))
             {
-                if (!store_reposition_entry(rrepos, objkind)) {
-                    WARNLOG("Too many things to reposition in %s.",room_code_name(room->kind));
+                if (!store_reposition_entry(rrepos, objkind))
+                {
+                    WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
                 }
                 delete_thing_structure(thing, 0);
             }
@@ -1427,11 +1518,14 @@ void reposition_all_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl
 
 int check_food_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     if (map_block_invalid(mapblk))
+    {
         return -2; // do nothing
-    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height)) {
+    }
+    struct RoomConfigStats *roomst = get_room_kind_stats(room->kind);
+    if ((roomst->storage_height >= 0) && (get_map_floor_filled_subtiles(mapblk) != roomst->storage_height))
+    {
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
@@ -1439,7 +1533,7 @@ int check_food_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoor
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             WARNLOG("Jump out of things array");
@@ -1454,17 +1548,19 @@ int check_food_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoor
                 // If exceeded capacity of the room
                 if (room->used_capacity >= room->total_capacity)
                 {
-                    WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
+                    WARNLOG("The %s capacity %d exceeded; space used is %d", room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
                     return -1; // re-create all (this could save the object if there are duplicates)
-                } else
-                // If the thing is in wall, remove it but store to re-create later
-                if (thing_in_wall_at(thing, &thing->mappos))
-                {
-                    return -1; // re-create all
-                } else
-                {
-                    matching_things_at_subtile++;
                 }
+                else
+                    // If the thing is in wall, remove it but store to re-create later
+                    if (thing_in_wall_at(thing, &thing->mappos))
+                    {
+                        return -1; // re-create all
+                    }
+                    else
+                    {
+                        matching_things_at_subtile++;
+                    }
             }
         }
         // Per thing code ends
@@ -1479,14 +1575,16 @@ int check_food_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoor
     return matching_things_at_subtile; // Increase used capacity
 }
 
-void count_and_reposition_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+void count_and_reposition_food_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition *rrepos)
 {
     int matching_things_at_subtile = check_food_on_subtile_for_reposition_in_room(room, stl_x, stl_y);
-    if (matching_things_at_subtile > 0) {
+    if (matching_things_at_subtile > 0)
+    {
         // This subtile contains bodies
-        SYNCDBG(19,"Got %d matching things at (%d,%d)",(int)matching_things_at_subtile,(int)stl_x,(int)stl_y);
+        SYNCDBG(19, "Got %d matching things at (%d,%d)", (int)matching_things_at_subtile, (int)stl_x, (int)stl_y);
         room->used_capacity += matching_things_at_subtile;
-    } else
+    }
+    else
     {
         switch (matching_things_at_subtile)
         {
@@ -1510,7 +1608,7 @@ void count_and_reposition_food_in_room_on_subtile(struct Room *room, MapSubtlCoo
 
 void count_food_in_room(struct Room *room)
 {
-    SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
+    SYNCDBG(17, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
     struct RoomReposition rrepos;
     init_reposition_struct(&rrepos);
     // Making two loops guarantees that no rrepos things will be lost
@@ -1530,7 +1628,7 @@ void count_food_in_room(struct Room *room)
             {
                 for (long dx = 0; dx < STL_PER_SLB; dx++)
                 {
-                    count_and_reposition_food_in_room_on_subtile(room, slab_subtile(slb_x,dx), slab_subtile(slb_y,dy), &rrepos);
+                    count_and_reposition_food_in_room_on_subtile(room, slab_subtile(slb_x, dx), slab_subtile(slb_y, dy), &rrepos);
                 }
             }
             // Per-slab code ends
@@ -1543,33 +1641,35 @@ void count_food_in_room(struct Room *room)
             }
         }
     }
-    SYNCDBG(7,"The %s index %d contains %d food",room_code_name(room->kind),(int)room->index,(int)room->used_capacity);
-    if (rrepos.used > 0) {
+    SYNCDBG(7, "The %s index %d contains %d food", room_code_name(room->kind), (int)room->index, (int)room->used_capacity);
+    if (rrepos.used > 0)
+    {
         ERRORLOG("The %s index %d capacity %d wasn't enough; %d items belonging to player %d dropped",
-          room_code_name(room->kind),(int)room->index,(int)room->total_capacity,(int)rrepos.used,(int)room->owner);
+                 room_code_name(room->kind), (int)room->index, (int)room->total_capacity, (int)rrepos.used, (int)room->owner);
     }
     room->capacity_used_for_storage = room->used_capacity;
 }
 
-void count_lair_occupants_on_slab(struct Room *room,MapSlabCoord slb_x, MapSlabCoord slb_y)
+void count_lair_occupants_on_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    SYNCDBG(17,"Starting for %s index %d at %d,%d",room_code_name(room->kind),(int)room->index,(int)slb_x,(int)slb_y);
+    SYNCDBG(17, "Starting for %s index %d at %d,%d", room_code_name(room->kind), (int)room->index, (int)slb_x, (int)slb_y);
     for (int n = 0; n < MID_AROUND_LENGTH; n++)
     {
         MapSubtlDelta ssub_x = 1 + start_at_around[n].delta_x;
         MapSubtlDelta ssub_y = 1 + start_at_around[n].delta_y;
-        struct Thing* lairtng = find_lair_totem_at(slab_subtile(slb_x, ssub_x), slab_subtile(slb_y, ssub_y));
+        struct Thing *lairtng = find_lair_totem_at(slab_subtile(slb_x, ssub_x), slab_subtile(slb_y, ssub_y));
         if (!thing_is_invalid(lairtng))
         {
-            struct Thing* creatng = thing_get(lairtng->lair.belongs_to);
+            struct Thing *creatng = thing_get(lairtng->lair.belongs_to);
             int required_cap = get_required_room_capacity_for_object(RoRoF_LairStorage, 0, creatng->model);
             if (room->used_capacity + required_cap > room->total_capacity)
             {
                 create_effect(&lairtng->mappos, imp_spangle_effects[lairtng->owner], lairtng->owner);
                 delete_lair_totem(lairtng);
-            } else
+            }
+            else
             {
-                struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+                struct CreatureControl *cctrl = creature_control_get_from_thing(creatng);
                 cctrl->lair_room_id = room->index;
                 room->content_per_model[creatng->model]++;
                 room->used_capacity += required_cap;
@@ -1588,7 +1688,7 @@ void count_lair_occupants(struct Room *room)
     {
         MapSubtlCoord slb_x = slb_num_decode_x(i);
         MapSubtlCoord slb_y = slb_num_decode_y(i);
-        struct SlabMap* slb = get_slabmap_direct(i);
+        struct SlabMap *slb = get_slabmap_direct(i);
         if (slabmap_block_invalid(slb))
         {
             ERRORLOG("Jump to invalid room slab detected");
@@ -1607,7 +1707,6 @@ void count_lair_occupants(struct Room *room)
     }
 }
 
-
 void delete_room_structure(struct Room *room)
 {
     if (room_is_invalid(room))
@@ -1617,30 +1716,37 @@ void delete_room_structure(struct Room *room)
     }
     if ((room->alloc_flags & 0x01) != 0)
     {
-      // This is almost remove_room_from_players_list(room, room->owner);
-      // but it doesn't change room_slabs_count and is less careful - better not use too much
-      if (room->owner != game.neutral_player_num)
-      {
-          struct DungeonAdd* dungeonadd = get_dungeonadd(room->owner);
-          unsigned short* wptr = &dungeonadd->room_kind[room->kind];
-          struct Room* secroom;
-          if (room->index == *wptr)
-          {
-              *wptr = room->next_of_owner;
-              secroom = room_get(room->next_of_owner);
-              if (!room_is_invalid(secroom))
-                  secroom->prev_of_owner = 0;
-          } else
-          {
-              secroom = room_get(room->next_of_owner);
-              if (!room_is_invalid(secroom))
-                  secroom->prev_of_owner = room->prev_of_owner;
-              secroom = room_get(room->prev_of_owner);
-              if (!room_is_invalid(secroom))
-                  secroom->next_of_owner = room->next_of_owner;
-          }
-      }
-      LbMemorySet(room, 0, sizeof(struct Room));
+        // This is almost remove_room_from_players_list(room, room->owner);
+        // but it doesn't change room_slabs_count and is less careful - better not use too much
+        if (room->owner != game.neutral_player_num)
+        {
+            struct DungeonAdd *dungeonadd = get_dungeonadd(room->owner);
+            unsigned short *wptr = &dungeonadd->room_kind[room->kind];
+            struct Room *secroom;
+            if (room->index == *wptr)
+            {
+                *wptr = room->next_of_owner;
+                secroom = room_get(room->next_of_owner);
+                if (!room_is_invalid(secroom))
+                {
+                    secroom->prev_of_owner = 0;
+                }
+            }
+            else
+            {
+                secroom = room_get(room->next_of_owner);
+                if (!room_is_invalid(secroom))
+                {
+                    secroom->prev_of_owner = room->prev_of_owner;
+                }
+                secroom = room_get(room->prev_of_owner);
+                if (!room_is_invalid(secroom))
+                {
+                    secroom->next_of_owner = room->next_of_owner;
+                }
+            }
+        }
+        LbMemorySet(room, 0, sizeof(struct Room));
     }
 }
 
@@ -1648,7 +1754,7 @@ void delete_all_room_structures(void)
 {
     for (long i = 1; i < ROOMS_COUNT; i++)
     {
-        struct Room* room = &game.rooms[i];
+        struct Room *room = &game.rooms[i];
         delete_room_structure(room);
     }
 }
@@ -1664,10 +1770,10 @@ void change_work_room_of_creatures_working_in_room(struct Room *wrkroom, struct 
     unsigned long k = 0;
     while (wrkroom->creatures_list != 0)
     {
-        struct Thing* thing = thing_get(wrkroom->creatures_list);
+        struct Thing *thing = thing_get(wrkroom->creatures_list);
         if (thing_is_invalid(thing))
         {
-            ERRORLOG("Jump to invalid creature %d detected",(int)wrkroom->creatures_list);
+            ERRORLOG("Jump to invalid creature %d detected", (int)wrkroom->creatures_list);
             break;
         }
         // Per creature code
@@ -1695,41 +1801,46 @@ void reset_state_of_creatures_working_in_room(struct Room *wrkroom)
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (!creature_control_exists(cctrl))
         {
-            ERRORLOG("Jump to invalid creature %d detected",(int)i);
+            ERRORLOG("Jump to invalid creature %d detected", (int)i);
             break;
         }
         i = cctrl->next_in_room;
         // Per creature code
-        if (thing_is_creature(thing)) {
+        if (thing_is_creature(thing))
+        {
             set_start_state(thing);
-        } else {
+        }
+        else
+        {
             non_creature++;
         }
         // Per creature code ends
         k++;
         if (k > THINGS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping creatures list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
         }
     }
-    if (non_creature > 0) {
+    if (non_creature > 0)
+    {
         // For some reasons, gravestones are also on this list; we should check whether this makes sense or it's just a mistake
-        WARNLOG("The %s contained %d things which were not creatures",room_code_name(wrkroom->kind),(int)non_creature);
+        WARNLOG("The %s contained %d things which were not creatures", room_code_name(wrkroom->kind), (int)non_creature);
     }
 }
 
 void update_room_total_capacity(struct Room *room)
 {
     SYNCDBG(7, "Starting for %s index %d owned by player %d", room_code_name(room->kind), (int)room->index, (int)room->owner);
-    const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    const struct RoomConfigStats *roomst = get_room_kind_stats(room->kind);
     Room_Update_Func cb = roomst->update_total_capacity;
-    if (cb != NULL) {
+    if (cb != NULL)
+    {
         cb(room);
     }
     SYNCDBG(7, "Finished");
@@ -1748,7 +1859,7 @@ void recount_and_reassociate_room_slabs(struct Room *room)
     long i = room->slabs_list;
     while (i > 0)
     {
-        struct SlabMap* slb = get_slabmap_direct(i);
+        struct SlabMap *slb = get_slabmap_direct(i);
         if (slabmap_block_invalid(slb))
         {
             ERRORLOG("Jump to invalid item when sweeping Slabs.");
@@ -1760,7 +1871,7 @@ void recount_and_reassociate_room_slabs(struct Room *room)
         slb->room_index = room->index;
         // Per room tile code ends
         k++;
-        if (k >= gameadd.map_tiles_x*gameadd.map_tiles_y)
+        if (k >= gameadd.map_tiles_x * gameadd.map_tiles_y)
         {
             ERRORLOG("Room slabs list length exceeded when sweeping");
             break;
@@ -1787,10 +1898,10 @@ void get_room_mass_centre_coords(long *mass_x, long *mass_y, const struct Room *
         long slb_x = slb_num_decode_x(i);
         long slb_y = slb_num_decode_y(i);
         i = get_next_slab_number_in_room(i);
-        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+        struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
         if (slabmap_block_invalid(slb))
         {
-            ERRORLOG("Jump to invalid item when sweeping room %s index %d Slabs.",room_code_name(room->kind),(int)room->index);
+            ERRORLOG("Jump to invalid item when sweeping room %s index %d Slabs.", room_code_name(room->kind), (int)room->index);
             break;
         }
         // Per room tile code
@@ -1800,24 +1911,27 @@ void get_room_mass_centre_coords(long *mass_x, long *mass_y, const struct Room *
         k++;
         if (k > room->slabs_count)
         {
-            ERRORLOG("Room %s index %d slabs list length exceeded when sweeping.",room_code_name(room->kind),(int)room->index);
+            ERRORLOG("Room %s index %d slabs list length exceeded when sweeping.", room_code_name(room->kind), (int)room->index);
             break;
         }
     }
-    if (room->slabs_count > 1) {
+    if (room->slabs_count > 1)
+    {
         *mass_x = tot_x / room->slabs_count;
         *mass_y = tot_y / room->slabs_count;
-    } else
-    if (room->slabs_count > 0) {
+    }
+    else if (room->slabs_count > 0)
+    {
         *mass_x = tot_x;
         *mass_y = tot_y;
-    } else {
-        ERRORLOG("Room %s index %d has no slabs.",room_code_name(room->kind),(int)room->index);
+    }
+    else
+    {
+        ERRORLOG("Room %s index %d has no slabs.", room_code_name(room->kind), (int)room->index);
         *mass_x = gameadd.map_tiles_x / 2;
         *mass_y = gameadd.map_tiles_y / 2;
     }
 }
-
 
 void update_room_central_tile_position(struct Room *room)
 {
@@ -1826,12 +1940,14 @@ void update_room_central_tile_position(struct Room *room)
     get_room_mass_centre_coords(&mass_x, &mass_y, room);
     for (long i = 0; i < 16 * 16; i++)
     {
-        struct MapOffset* sstep = &spiral_step[i];
+        struct MapOffset *sstep = &spiral_step[i];
         MapSubtlCoord cx = slab_subtile_center(mass_x + sstep->h);
         MapSubtlCoord cy = slab_subtile_center(mass_y + sstep->v);
-        struct SlabMap* slb = get_slabmap_for_subtile(cx, cy);
+        struct SlabMap *slb = get_slabmap_for_subtile(cx, cy);
         if (slabmap_block_invalid(slb))
+        {
             continue;
+        }
         if (slb->room_index == room->index)
         {
             room->central_stl_x = cx;
@@ -1841,7 +1957,7 @@ void update_room_central_tile_position(struct Room *room)
     }
     room->central_stl_x = mass_x;
     room->central_stl_y = mass_y;
-    WARNLOG("Cannot find position in %s index %d to place an ensign.",room_code_name(room->kind),(int)room->index);
+    WARNLOG("Cannot find position in %s index %d to place an ensign.", room_code_name(room->kind), (int)room->index);
 }
 
 void add_room_to_global_list(struct Room *room)
@@ -1849,72 +1965,83 @@ void add_room_to_global_list(struct Room *room)
     // There is only one global list of rooms - the list of entrances
     if (room->kind == RoK_ENTRANCE)
     {
-      if ((game.entrance_room_id > 0) && (game.entrance_room_id < ROOMS_COUNT))
-      {
-        room->next_of_kind = game.entrance_room_id;
-        struct Room* nxroom = room_get(game.entrance_room_id);
-        nxroom->prev_of_kind = room->index;
-      }
-      game.entrance_room_id = room->index;
-      game.entrances_count++;
+        if ((game.entrance_room_id > 0) && (game.entrance_room_id < ROOMS_COUNT))
+        {
+            room->next_of_kind = game.entrance_room_id;
+            struct Room *nxroom = room_get(game.entrance_room_id);
+            nxroom->prev_of_kind = room->index;
+        }
+        game.entrance_room_id = room->index;
+        game.entrances_count++;
     }
 }
 
 TbBool add_room_to_players_list(struct Room *room, PlayerNumber plyr_idx)
 {
-    if (plyr_idx == game.neutral_player_num) {
+    if (plyr_idx == game.neutral_player_num)
+    {
         return false;
     }
-    if (room->kind >= game.slab_conf.room_types_count) {
-        ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
+    if (room->kind >= game.slab_conf.room_types_count)
+    {
+        ERRORLOG("Room index %d has invalid kind %d", (int)room->index, (int)room->kind);
         return false;
     }
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    if (dungeonadd_invalid(dungeonadd)) {
-        ERRORLOG("Player %d has no dungeon",(int)plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
+    if (dungeonadd_invalid(dungeonadd))
+    {
+        ERRORLOG("Player %d has no dungeon", (int)plyr_idx);
         return false;
     }
     long nxroom_id = dungeonadd->room_kind[room->kind];
-    struct Room* nxroom = room_get(nxroom_id);
+    struct Room *nxroom = room_get(nxroom_id);
     if (room_is_invalid(nxroom))
     {
         room->next_of_owner = 0;
-    } else
+    }
+    else
     {
         room->next_of_owner = nxroom_id;
         nxroom->prev_of_owner = room->index;
     }
-    dungeonadd->room_kind[room->kind] = room->index; 
+    dungeonadd->room_kind[room->kind] = room->index;
     dungeonadd->room_slabs_count[room->kind]++;
     return true;
 }
 
 TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
 {
-    if (plyr_idx == game.neutral_player_num) {
+    if (plyr_idx == game.neutral_player_num)
+    {
         return false;
     }
-    if (room->kind >= game.slab_conf.room_types_count) {
-        ERRORLOG("Room index %d has invalid kind %d",(int)room->index,(int)room->kind);
+    if (room->kind >= game.slab_conf.room_types_count)
+    {
+        ERRORLOG("Room index %d has invalid kind %d", (int)room->index, (int)room->kind);
         return false;
     }
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    if (dungeonadd_invalid(dungeonadd)) {
-        ERRORLOG("Player %d has no dungeon",(int)plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
+    if (dungeonadd_invalid(dungeonadd))
+    {
+        ERRORLOG("Player %d has no dungeon", (int)plyr_idx);
         room->next_of_owner = 0;
         room->prev_of_owner = 0;
         return false;
     }
-    struct Room* pvroom = room_get(room->prev_of_owner);
-    struct Room* nxroom = room_get(room->next_of_owner);
-    if (!room_is_invalid(pvroom)) {
+    struct Room *pvroom = room_get(room->prev_of_owner);
+    struct Room *nxroom = room_get(room->next_of_owner);
+    if (!room_is_invalid(pvroom))
+    {
         pvroom->next_of_owner = room->next_of_owner;
-    } else {
+    }
+    else
+    {
         dungeonadd->room_kind[room->kind] = room->next_of_owner;
     }
-    if (!room_is_invalid(nxroom)) {
+    if (!room_is_invalid(nxroom))
+    {
         nxroom->prev_of_owner = room->prev_of_owner;
     }
     room->next_of_owner = 0;
@@ -1926,14 +2053,17 @@ TbBool remove_room_from_players_list(struct Room *room, PlayerNumber plyr_idx)
 void add_slab_to_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
-    if (room->slabs_list == 0) {
+    if (room->slabs_list == 0)
+    {
         room->slabs_list = slb_num;
-    } else {
-        struct SlabMap* pvslb = get_slabmap_direct(room->slabs_list_tail);
+    }
+    else
+    {
+        struct SlabMap *pvslb = get_slabmap_direct(room->slabs_list_tail);
         pvslb->next_in_room = slb_num;
     }
     {
-        struct SlabMap* nxslb = get_slabmap_direct(slb_num);
+        struct SlabMap *nxslb = get_slabmap_direct(slb_num);
         nxslb->room_index = room->index;
         room->slabs_count++;
         nxslb->next_in_room = 0;
@@ -1949,19 +2079,23 @@ void add_slab_to_room_tiles_list(struct Room *room, MapSlabCoord slb_x, MapSlabC
  */
 void add_slab_list_to_room_tiles_list(struct Room *room, SlabCodedCoords slb_num)
 {
-    if (room->slabs_list == 0) {
+    if (room->slabs_list == 0)
+    {
         room->slabs_list = slb_num;
-    } else {
-        struct SlabMap* pvslb = get_slabmap_direct(room->slabs_list_tail);
+    }
+    else
+    {
+        struct SlabMap *pvslb = get_slabmap_direct(room->slabs_list_tail);
         pvslb->next_in_room = slb_num;
     }
     SlabCodedCoords tail_slb_num = slb_num;
     while (1)
     {
-        struct SlabMap* nxslb = get_slabmap_direct(tail_slb_num);
+        struct SlabMap *nxslb = get_slabmap_direct(tail_slb_num);
         nxslb->room_index = room->index;
         room->slabs_count++;
-        if (nxslb->next_in_room == 0) {
+        if (nxslb->next_in_room == 0)
+        {
             break;
         }
         tail_slb_num = nxslb->next_in_room;
@@ -1973,10 +2107,10 @@ void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, Map
 {
     SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
 
-    struct SlabMap* rmslb = get_slabmap_direct(slb_num);
+    struct SlabMap *rmslb = get_slabmap_direct(slb_num);
     if (slabmap_block_invalid(rmslb))
     {
-        ERRORLOG("Non-existing slab (%d,%d).",(int)slb_x,(int)slb_y);
+        ERRORLOG("Non-existing slab (%d,%d).", (int)slb_x, (int)slb_y);
         return;
     }
     // If the slab to remove is first in room slabs list - it's simple
@@ -1996,11 +2130,11 @@ void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, Map
     long i = room->slabs_list;
     while (i > 0)
     {
-        struct SlabMap* slb = get_slabmap_direct(i);
+        struct SlabMap *slb = get_slabmap_direct(i);
         if (slabmap_block_invalid(slb))
         {
-          ERRORLOG("Jump to invalid item when sweeping Slabs.");
-          break;
+            ERRORLOG("Jump to invalid item when sweeping Slabs.");
+            break;
         }
         i = get_next_slab_number_in_room(i);
         // Per room tile code
@@ -2021,7 +2155,7 @@ void remove_slab_from_room_tiles_list(struct Room *room, MapSlabCoord slb_x, Map
             break;
         }
     }
-    WARNLOG("Slab %ld couldn't be found in room tiles list.",slb_num);
+    WARNLOG("Slab %ld couldn't be found in room tiles list.", slb_num);
     rmslb->next_in_room = 0;
     rmslb->room_index = 0;
 }
@@ -2033,13 +2167,13 @@ struct Room *prepare_new_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord 
         ERRORLOG("Attempt to create room on invalid coordinates.");
         return INVALID_ROOM;
     }
-    if ( !i_can_allocate_free_room_structure() )
+    if (!i_can_allocate_free_room_structure())
     {
-        ERRORDBG(2,"Cannot allocate any more rooms.");
+        ERRORDBG(2, "Cannot allocate any more rooms.");
         erstat_inc(ESE_NoFreeRooms);
         return INVALID_ROOM;
     }
-    struct Room* room = allocate_free_room_structure();
+    struct Room *room = allocate_free_room_structure();
     room->owner = owner;
     room->kind = rkind;
     add_room_to_global_list(room);
@@ -2052,24 +2186,26 @@ struct Room *prepare_new_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord 
 
 struct Room *create_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    SYNCDBG(7,"Starting to make %s (%d) at (%d,%d)",room_code_name(rkind), rkind,(int)stl_x,(int)stl_y);
+    SYNCDBG(7, "Starting to make %s (%d) at (%d,%d)", room_code_name(rkind), rkind, (int)stl_x, (int)stl_y);
     // Try linking the new room slab to existing room
-    struct Room* room = link_adjacent_rooms_of_type(owner, stl_x, stl_y, rkind);
+    struct Room *room = link_adjacent_rooms_of_type(owner, stl_x, stl_y, rkind);
     if (room_is_invalid(room))
     {
         room = prepare_new_room(owner, rkind, stl_x, stl_y);
-        if (room_is_invalid(room)) {
+        if (room_is_invalid(room))
+        {
             return INVALID_ROOM;
         }
         recount_and_reassociate_room_slabs(room);
         update_room_central_tile_position(room);
         create_room_flag(room);
-    } else
+    }
+    else
     {
         recount_and_reassociate_room_slabs(room);
         update_room_central_tile_position(room);
     }
-    SYNCDBG(7,"Done");
+    SYNCDBG(7, "Done");
     return room;
 }
 
@@ -2077,14 +2213,14 @@ void create_room_flag(struct Room *room)
 {
     MapSubtlCoord stl_x = slab_subtile_center(slb_num_decode_x(room->slabs_list));
     MapSubtlCoord stl_y = slab_subtile_center(slb_num_decode_y(room->slabs_list));
-    SYNCDBG(7,"Starting for %s (%d) at (%d,%d)",room_code_name(room->kind), room->kind,(int)stl_x,(int)stl_y);
+    SYNCDBG(7, "Starting for %s (%d) at (%d,%d)", room_code_name(room->kind), room->kind, (int)stl_x, (int)stl_y);
     if (room_can_have_ensign(room->kind))
     {
         struct Coord3d pos;
         pos.z.val = subtile_coord(2, 0);
-        pos.x.val = subtile_coord(stl_x,0);
-        pos.y.val = subtile_coord(stl_y,0);
-        struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_RoomFlag, stl_x, stl_y);
+        pos.x.val = subtile_coord(stl_x, 0);
+        pos.y.val = subtile_coord(stl_y, 0);
+        struct Thing *thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_RoomFlag, stl_x, stl_y);
         if (thing_is_invalid(thing))
         {
             thing = create_object(&pos, ObjMdl_RoomFlag, room->owner, -1);
@@ -2104,8 +2240,9 @@ void delete_room_flag(struct Room *room)
     MapSubtlCoord stl_y = slab_subtile_center(slb_num_decode_y(room->slabs_list));
     if (room_can_have_ensign(room->kind))
     {
-        struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_RoomFlag, stl_x, stl_y);
-        if (!thing_is_invalid(thing)) {
+        struct Thing *thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_RoomFlag, stl_x, stl_y);
+        if (!thing_is_invalid(thing))
+        {
             delete_thing_structure(thing, 0);
         }
     }
@@ -2115,7 +2252,7 @@ struct Room *allocate_free_room_structure(void)
 {
     for (int i = 1; i < ROOMS_COUNT; i++)
     {
-        struct Room* room = &game.rooms[i];
+        struct Room *room = &game.rooms[i];
         if ((room->alloc_flags & 0x01) == 0)
         {
             LbMemorySet(room, 0, sizeof(struct Room));
@@ -2129,18 +2266,17 @@ struct Room *allocate_free_room_structure(void)
 
 unsigned short i_can_allocate_free_room_structure(void)
 {
-    for ( int i = 1; i < ROOMS_COUNT; ++i )
+    for (int i = 1; i < ROOMS_COUNT; ++i)
     {
-        struct Room* room = &game.rooms[i];
+        struct Room *room = &game.rooms[i];
         if ((room->alloc_flags & 0x01) == 0)
         {
             return i;
         }
     }
-    SYNCDBG(3,"No slot for next room");
+    SYNCDBG(3, "No slot for next room");
     return 0;
 }
-
 
 /**
  * Re-initializes all players rooms of specific kind.
@@ -2153,15 +2289,15 @@ long reinitialise_rooms_of_kind(RoomKind rkind)
     unsigned int k = 0;
     for (unsigned int n = 0; n < DUNGEONS_COUNT; n++)
     {
-        struct DungeonAdd* dungeonadd = get_dungeonadd(n);
+        struct DungeonAdd *dungeonadd = get_dungeonadd(n);
         unsigned int i = dungeonadd->room_kind[rkind];
         while (i != 0)
         {
-            struct Room* room = room_get(i);
+            struct Room *room = room_get(i);
             if (room_is_invalid(room))
             {
-              ERRORLOG("Jump to invalid room detected");
-              break;
+                ERRORLOG("Jump to invalid room detected");
+                break;
             }
             i = room->next_of_owner;
             // Per-room code starts
@@ -2170,8 +2306,8 @@ long reinitialise_rooms_of_kind(RoomKind rkind)
             k++;
             if (k > ROOMS_COUNT)
             {
-              ERRORLOG("Infinite loop detected when sweeping rooms list");
-              break;
+                ERRORLOG("Infinite loop detected when sweeping rooms list");
+                break;
             }
         }
     }
@@ -2199,18 +2335,22 @@ void reinitialise_map_rooms(void)
  */
 TbBool initialise_map_rooms(void)
 {
-    SYNCDBG(7,"Starting");
+    SYNCDBG(7, "Starting");
     for (unsigned long slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
         for (unsigned long slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
         {
-            struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+            struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
             RoomKind rkind = slab_corresponding_room(slb->kind);
-            struct Room* room;
+            struct Room *room;
             if (rkind > 0)
+            {
                 room = create_room(slabmap_owner(slb), rkind, slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+            }
             else
+            {
                 room = INVALID_ROOM;
+            }
             if (!room_is_invalid(room))
             {
                 do_room_integration(room);
@@ -2226,14 +2366,15 @@ TbBool room_create_new_food_at(struct Room *room, MapSubtlCoord stl_x, MapSubtlC
     pos.x.val = subtile_coord_center(stl_x);
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = 0;
-    struct Thing* foodtng = create_object(&pos, ObjMdl_ChickenGrowing, room->owner, -1);
+    struct Thing *foodtng = create_object(&pos, ObjMdl_ChickenGrowing, room->owner, -1);
     if (thing_is_invalid(foodtng))
     {
         ERRORLOG("Cannot Create Food!");
         return false;
     }
     foodtng->mappos.z.val = get_thing_height_at(foodtng, &foodtng->mappos);
-    if (thing_in_wall_at(foodtng, &foodtng->mappos)) {
+    if (thing_in_wall_at(foodtng, &foodtng->mappos))
+    {
         ERRORLOG("Created chicken in a wall");
     }
     int required_cap = get_required_room_capacity_for_object(RoRoF_FoodStorage, foodtng->model, 0);
@@ -2246,7 +2387,7 @@ short room_grow_food(struct Room *room)
 {
     if (room->slabs_count < 1)
     {
-        ERRORLOG("Room %s index %d has no slabs",room_code_name(room->kind),(int)room->index);
+        ERRORLOG("Room %s index %d has no slabs", room_code_name(room->kind), (int)room->index);
         return 0;
     }
     if (room->used_capacity > room->total_capacity)
@@ -2254,23 +2395,25 @@ short room_grow_food(struct Room *room)
         ERRORLOG("Room %s index %d has too much used capacity: %d/%d", room_code_name(room->kind), (int)room->index, room->used_capacity, room->total_capacity);
         count_food_in_room(room);
     }
-    if ((room->used_capacity >= room->total_capacity)
-      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1))
+    if ((room->used_capacity >= room->total_capacity) || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1))
     {
         return 0;
     }
-    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    struct RoomConfigStats *roomst = get_room_kind_stats(room->kind);
     unsigned long k;
     long n = PLAYER_RANDOM(room->owner, room->slabs_count);
     SlabCodedCoords slbnum = room->slabs_list;
     for (k = n; k > 0; k--)
     {
         if (slbnum == 0)
+        {
             break;
+        }
         slbnum = get_next_slab_number_in_room(slbnum);
     }
-    if (slbnum == 0) {
-        ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency",(int)n,(int)room->slabs_count,room_code_name(room->kind),(int)room->index);
+    if (slbnum == 0)
+    {
+        ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency", (int)n, (int)room->slabs_count, room_code_name(room->kind), (int)room->index);
         slbnum = room->slabs_list;
     }
     for (k = 0; k < room->slabs_count; k++)
@@ -2284,8 +2427,9 @@ short room_grow_food(struct Room *room)
             MapSubtlCoord stl_x = slab_subtile(slb_x, m % STL_PER_SLB);
             MapSubtlCoord stl_y = slab_subtile(slb_y, m / STL_PER_SLB);
             // Check if there is a food object already
-            struct Thing* thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_ChickenGrowing, stl_x, stl_y);
-            if (thing_is_invalid(thing)) {
+            struct Thing *thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_ChickenGrowing, stl_x, stl_y);
+            if (thing_is_invalid(thing))
+            {
                 thing = find_base_thing_on_mapwho(TCls_Object, ObjMdl_StatueLit, stl_x, stl_y);
             }
             if (thing_is_invalid(thing))
@@ -2295,15 +2439,16 @@ short room_grow_food(struct Room *room)
                     return room_create_new_food_at(room, stl_x, stl_y);
                 }
             }
-            m = (m + 1) % (STL_PER_SLB*STL_PER_SLB);
+            m = (m + 1) % (STL_PER_SLB * STL_PER_SLB);
         }
 
         slbnum = get_next_slab_number_in_room(slbnum);
-        if (slbnum == 0) {
+        if (slbnum == 0)
+        {
             slbnum = room->slabs_list;
         }
     }
-    ERRORLOG("Could not find valid RANDOM point in room %s index %d",room_code_name(room->kind),(int)room->index);
+    ERRORLOG("Could not find valid RANDOM point in room %s index %d", room_code_name(room->kind), (int)room->index);
     return false;
 }
 
@@ -2311,7 +2456,7 @@ MapCoordDelta get_distance_to_room(const struct Coord3d *pos, const struct Room 
 {
     MapCoordDelta dist_x = abs(pos->x.val - subtile_coord_center(room->central_stl_x));
     MapCoordDelta dist_y = abs(pos->y.val - subtile_coord_center(room->central_stl_y));
-    return max(dist_x,dist_y);
+    return max(dist_x, dist_y);
 }
 
 /** Calculates shape-based efficiency score from all slabs in room.
@@ -2324,8 +2469,10 @@ long calculate_room_widespread_factor(const struct Room *room)
     SYNCDBG(7, "Starting for %s index %d owned by player %d", room_code_name(room->kind), (int)room->index, (int)room->owner);
     long nslabs = room->slabs_count;
     long i = nslabs;
-    if (i >= sizeof(slabs_to_centre_pieces)/sizeof(slabs_to_centre_pieces[0]))
-        i = sizeof(slabs_to_centre_pieces)/sizeof(slabs_to_centre_pieces[0]) - 1;
+    if (i >= sizeof(slabs_to_centre_pieces) / sizeof(slabs_to_centre_pieces[0]))
+    {
+        i = sizeof(slabs_to_centre_pieces) / sizeof(slabs_to_centre_pieces[0]) - 1;
+    }
     long npieces = slabs_to_centre_pieces[i];
     return 2 * (npieces + 4 * nslabs);
 }
@@ -2350,8 +2497,8 @@ long calculate_cummulative_room_slabs_effeciency(const struct Room *room)
         k++;
         if (k > room->slabs_count)
         {
-          ERRORLOG("Room slabs list length exceeded when sweeping");
-          break;
+            ERRORLOG("Room slabs list length exceeded when sweeping");
+            break;
         }
     }
     SYNCDBG(7, "Finished");
@@ -2366,27 +2513,35 @@ long calculate_room_efficiency(const struct Room *room)
     long nslabs = room->slabs_count;
     if (nslabs <= 0)
     {
-        ERRORLOG("Room %s index %d seems to have no slabs.",room_code_name(room->kind),(int)room->index);
+        ERRORLOG("Room %s index %d seems to have no slabs.", room_code_name(room->kind), (int)room->index);
         return 0;
     }
-    if (nslabs == 1) {
+    if (nslabs == 1)
+    {
         expected_base = 0;
-    } else {
+    }
+    else
+    {
         expected_base = 4 * (nslabs - 1);
     }
     long widespread = calculate_room_widespread_factor(room);
     long score = calculate_cummulative_room_slabs_effeciency(room);
-    if (score <= expected_base) {
+    if (score <= expected_base)
+    {
         effic = 0;
-    } else
-    if (widespread <= expected_base) {
+    }
+    else if (widespread <= expected_base)
+    {
         effic = ROOM_EFFICIENCY_MAX;
-    } else
+    }
+    else
     {
         effic = ((score - expected_base) << 8) / (widespread - expected_base);
     }
     if (effic > ROOM_EFFICIENCY_MAX)
+    {
         effic = ROOM_EFFICIENCY_MAX;
+    }
     return effic;
     SYNCDBG(7, "Finished");
 }
@@ -2394,20 +2549,20 @@ long calculate_room_efficiency(const struct Room *room)
 /**
  * Computes max health of a room of given size.
  */
-unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency)
+unsigned long compute_room_max_health(unsigned short slabs_count, unsigned short efficiency)
 {
-  unsigned long max_health = game.hits_per_slab * slabs_count;
-  return saturate_set_unsigned(max_health, 16);
+    unsigned long max_health = game.hits_per_slab * slabs_count;
+    return saturate_set_unsigned(max_health, 16);
 }
 
 TbBool update_room_total_health(struct Room *room)
 {
-    SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
+    SYNCDBG(17, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
     room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     return true;
 }
 
-TbBool link_room_health(struct Room* linkroom, struct Room* oldroom)
+TbBool link_room_health(struct Room *linkroom, struct Room *oldroom)
 {
     int newhealth = linkroom->health + oldroom->health;
     int maxhealth = compute_room_max_health(linkroom->slabs_count, linkroom->efficiency);
@@ -2420,12 +2575,12 @@ TbBool link_room_health(struct Room* linkroom, struct Room* oldroom)
     return false;
 }
 
-TbBool recalculate_room_health(struct Room* room)
+TbBool recalculate_room_health(struct Room *room)
 {
     SYNCDBG(7, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
     int newhealth = (room->health + game.hits_per_slab);
     int maxhealth = compute_room_max_health(room->slabs_count, room->efficiency);
-    
+
     if ((newhealth <= maxhealth) && (newhealth >= 0))
     {
         room->health = newhealth;
@@ -2437,19 +2592,20 @@ TbBool recalculate_room_health(struct Room* room)
 
 TbBool update_room_contents(struct Room *room)
 {
-    const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    SYNCDBG(17,"Starting for %s index %d",room_code_name(room->kind),(int)room->index);
+    const struct RoomConfigStats *roomst = get_room_kind_stats(room->kind);
+    SYNCDBG(17, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
     Room_Update_Func cb = roomst->update_storage_in_room;
-    if (cb != NULL) {
+    if (cb != NULL)
+    {
         cb(room);
     }
     cb = roomst->update_workers_in_room;
-    if (cb != NULL) {
+    if (cb != NULL)
+    {
         cb(room);
     }
     return true;
 }
-
 
 /**
  * Checks if a room slab of given kind at given subtile could link to any of rooms at adjacent slabs.
@@ -2459,9 +2615,9 @@ TbBool update_room_contents(struct Room *room)
  * @param rkind  Kind of the new room slab.
  * @return
  */
-struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, MapSubtlCoord y, RoomKind rkind)
+struct Room *link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, MapSubtlCoord y, RoomKind rkind)
 {
-    struct Room* room;
+    struct Room *room;
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     long n;
@@ -2469,7 +2625,7 @@ struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
     MapSlabCoord central_slb_x = subtile_slab(x);
     MapSlabCoord central_slb_y = subtile_slab(y);
     // Localize the room to be merged with other rooms
-    struct Room* linkroom = INVALID_ROOM;
+    struct Room *linkroom = INVALID_ROOM;
     for (n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
         stl_x = x + STL_PER_SLB * (long)small_around[n].delta_x;
@@ -2507,7 +2663,7 @@ struct Room* link_adjacent_rooms_of_type(PlayerNumber owner, MapSubtlCoord x, Ma
                     // Update slabs in the new list
                     recount_and_reassociate_room_slabs(linkroom);
                     update_room_total_capacity(linkroom);
-                    link_room_health(linkroom,room);
+                    link_room_health(linkroom, room);
                     // Make sure creatures working in the room won't leave
                     change_work_room_of_creatures_working_in_room(room, linkroom);
                     // Get rid of the old room ensign
@@ -2542,12 +2698,13 @@ struct Room *get_room_thing_is_on(const struct Thing *thing)
 
 struct Room *get_room_at_pos(struct Coord3d *pos)
 {
-     return subtile_room_get(pos->x.stl.num, pos->y.stl.num);
+    return subtile_room_get(pos->x.stl.num, pos->y.stl.num);
 }
 
 void init_room_sparks(struct Room *room)
 {
-    if (room->kind == RoK_DUNGHEART) {
+    if (room->kind == RoK_DUNGHEART)
+    {
         return;
     }
     unsigned long k = 0;
@@ -2557,8 +2714,8 @@ void init_room_sparks(struct Room *room)
         long slb_x = slb_num_decode_x(i);
         long slb_y = slb_num_decode_y(i);
         // Per room tile code
-        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-        struct SlabMap* sibslb = get_slabmap_block(slb_x, slb_y - 1);
+        struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
+        struct SlabMap *sibslb = get_slabmap_block(slb_x, slb_y - 1);
         if (sibslb->room_index != slb->room_index)
         {
             room->flames_around_idx = 1;
@@ -2593,7 +2750,9 @@ TbBool create_effects_on_room_slabs(struct Room *room, ThingModel effkind, long 
         pos.z.val = subtile_coord_center(1);
         long effect_kind = effkind;
         if (effrange > 0) // TODO: always zero?
+        {
             effect_kind += UNSYNC_RANDOM(effrange);
+        }
         create_effect(&pos, effect_kind, effowner);
         // Per room tile code ends
         k++;
@@ -2636,23 +2795,28 @@ TbBool clear_dig_on_room_slabs(struct Room *room, PlayerNumber plyr_idx)
 
 TbBool room_has_enough_free_capacity_for_creature_job(const struct Room *room, const struct Thing *creatng, CreatureJob jobpref)
 {
-    if (!room_role_matches(room->kind,get_room_role_for_job(jobpref))) {
+    if (!room_role_matches(room->kind, get_room_role_for_job(jobpref)))
+    {
         return false;
     }
     int required_cap = get_required_room_capacity_for_job(jobpref, creatng->model);
     if (room->used_capacity + required_cap <= room->total_capacity)
+    {
         return true;
+    }
     return false;
 }
 
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos)
 {
-    if (!room_exists(room)) {
+    if (!room_exists(room))
+    {
         ERRORLOG("Received nonexisting room for creature");
         return false;
     }
-    if (room->slabs_count < 1) {
-        ERRORLOG("Number of slabs %d for %s is not positive",(int)room->slabs_count,room_code_name(room->kind));
+    if (room->slabs_count < 1)
+    {
+        ERRORLOG("Number of slabs %d for %s is not positive", (int)room->slabs_count, room_code_name(room->kind));
         return false;
     }
     int navi_radius = abs(thing_nav_block_sizexy(thing) << 8) >> 1;
@@ -2662,11 +2826,14 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
     for (k = n; k > 0; k--)
     {
         if (slbnum == 0)
+        {
             break;
+        }
         slbnum = get_next_slab_number_in_room(slbnum);
     }
-    if (slbnum == 0) {
-        ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency.",(int)n,(int)room->slabs_count,room_code_name(room->kind),(int)room->index);
+    if (slbnum == 0)
+    {
+        ERRORLOG("Taking random slab (%d/%d) in %s index %d failed - internal inconsistency.", (int)n, (int)room->slabs_count, room_code_name(room->kind), (int)room->index);
         slbnum = room->slabs_list;
     }
     for (k = 0; k < room->slabs_count; k++)
@@ -2678,15 +2845,16 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
         {
             MapSubtlCoord stl_x = slab_subtile(slb_x, ssub % 3);
             MapSubtlCoord stl_y = slab_subtile(slb_y, ssub / 3);
-            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
+            struct Map *mapblk = get_map_block_at(stl_x, stl_y);
+            if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_navigation_map_floor_height(stl_x, stl_y) < 4))
             {
                 if (!terrain_toxic_for_creature_at_position(thing, stl_x, stl_y) && !subtile_has_sacrificial_on_top(stl_x, stl_y))
                 {
                     pos->x.val = subtile_coord_center(stl_x);
                     pos->y.val = subtile_coord_center(stl_y);
                     pos->z.val = get_thing_height_at_with_radius(thing, pos, navi_radius);
-                    if (!thing_in_wall_at_with_radius(thing, pos, navi_radius)) {
+                    if (!thing_in_wall_at_with_radius(thing, pos, navi_radius))
+                    {
                         return true;
                     }
                 }
@@ -2694,11 +2862,12 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
             ssub = (ssub + 1) % AROUND_TILES_COUNT;
         }
         slbnum = get_next_slab_number_in_room(slbnum);
-        if (slbnum == 0) {
+        if (slbnum == 0)
+        {
             slbnum = room->slabs_list;
         }
     }
-    ERRORLOG("Could not find valid RANDOM point in %s for creature",room_code_name(room->kind));
+    ERRORLOG("Could not find valid RANDOM point in %s for creature", room_code_name(room->kind));
     return false;
 }
 
@@ -2712,15 +2881,16 @@ TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct 
 TbBool slab_is_area_outer_border(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     // Store kind and owner of the slab
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     SlabKind slbkind = slb->kind;
     PlayerNumber plyr_idx = slabmap_owner(slb);
     for (long n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
         long aslb_x = slb_x + (long)small_around[n].delta_x;
         long aslb_y = slb_y + (long)small_around[n].delta_y;
-        slb = get_slabmap_block(aslb_x,aslb_y);
-        if ((slb->kind != slbkind) || (slabmap_owner(slb) != plyr_idx)) {
+        slb = get_slabmap_block(aslb_x, aslb_y);
+        if ((slb->kind != slbkind) || (slabmap_owner(slb) != plyr_idx))
+        {
             return true;
         }
     }
@@ -2737,15 +2907,16 @@ TbBool slab_is_area_outer_border(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool slab_is_area_inner_fill(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     // Store kind and owner of the slab
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     SlabKind slbkind = slb->kind;
     PlayerNumber plyr_idx = slabmap_owner(slb);
     for (long n = 0; n < AROUND_EIGHT_LENGTH; n++)
     {
         long aslb_x = slb_x + (long)my_around_eight[n].delta_x;
         long aslb_y = slb_y + (long)my_around_eight[n].delta_y;
-        struct SlabMap* aslb = get_slabmap_block(aslb_x, aslb_y);
-        if ((aslb->kind != slbkind) || (slabmap_owner(aslb) != plyr_idx)) {
+        struct SlabMap *aslb = get_slabmap_block(aslb_x, aslb_y);
+        if ((aslb->kind != slbkind) || (slabmap_owner(aslb) != plyr_idx))
+        {
             return false;
         }
     }
@@ -2753,7 +2924,7 @@ TbBool slab_is_area_inner_fill(MapSlabCoord slb_x, MapSlabCoord slb_y)
 }
 
 TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Room *room, unsigned char room_area,
-        struct Thing *thing)
+                                            struct Thing *thing)
 {
     // Find a random slab in the room to be used as our starting point
     long i = CREATURE_RANDOM(thing, room->slabs_count);
@@ -2768,24 +2939,23 @@ TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Ro
     while (i > 0)
     {
         // Loop the slabs list
-        if (n <= 0) {
+        if (n <= 0)
+        {
             n = room->slabs_list;
         }
         MapSlabCoord slb_x = slb_num_decode_x(n);
         MapSlabCoord slb_y = slb_num_decode_y(n);
-        if  ((room_area == RoArC_ANY)
-         || ((room_area == RoArC_BORDER) && slab_is_area_outer_border(slb_x, slb_y))
-         || ((room_area == RoArC_CENTER) && slab_is_area_inner_fill(slb_x, slb_y)))
+        if ((room_area == RoArC_ANY) || ((room_area == RoArC_BORDER) && slab_is_area_outer_border(slb_x, slb_y)) || ((room_area == RoArC_CENTER) && slab_is_area_inner_fill(slb_x, slb_y)))
         {
             // In case we will select a column on that subtile, do 3 tries
             for (int k = 0; k < 3; k++)
             {
-                pos->x.val = subtile_coord(slab_subtile(slb_x,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
-                pos->y.val = subtile_coord(slab_subtile(slb_y,0),CREATURE_RANDOM(thing, STL_PER_SLB*COORD_PER_STL));
-                pos->z.val = subtile_coord(1,0);
-                struct Map* mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
-                if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0)
-                    && (get_navigation_map_floor_height(pos->x.stl.num, pos->y.stl.num) < 4)) {
+                pos->x.val = subtile_coord(slab_subtile(slb_x, 0), CREATURE_RANDOM(thing, STL_PER_SLB * COORD_PER_STL));
+                pos->y.val = subtile_coord(slab_subtile(slb_y, 0), CREATURE_RANDOM(thing, STL_PER_SLB * COORD_PER_STL));
+                pos->z.val = subtile_coord(1, 0);
+                struct Map *mapblk = get_map_block_at(pos->x.stl.num, pos->y.stl.num);
+                if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && ((mapblk->flags & SlbAtFlg_IsDoor) == 0) && (get_navigation_map_floor_height(pos->x.stl.num, pos->y.stl.num) < 4))
+                {
                     return true;
                 }
             }
@@ -2806,16 +2976,19 @@ TbBool find_random_position_at_area_of_room(struct Coord3d *pos, const struct Ro
  */
 struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_idx, RoomRole rrole)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    struct Room* room;
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
+    struct Room *room;
     if (dungeonadd_invalid(dungeonadd))
+    {
         return INVALID_ROOM;
+    }
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_role_matches(rkind, rrole))
         {
             room = find_nth_room_of_owner_with_spare_item_capacity_starting_with(dungeonadd->room_kind[rkind], 0, 1);
-            if(room != INVALID_ROOM){
+            if (room != INVALID_ROOM)
+            {
                 return room;
             }
         }
@@ -2825,19 +2998,19 @@ struct Room *find_room_of_role_with_spare_room_item_capacity(PlayerNumber plyr_i
 
 struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *creatng, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags, long min_used_cap)
 {
-    SYNCDBG(18,"Starting");
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    SYNCDBG(18, "Starting");
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     unsigned long k = 0;
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(!room_role_matches(rkind,rrole))
+        if (!room_role_matches(rkind, rrole))
         {
             continue;
         }
         long i = dungeonadd->room_kind[rkind];
         while (i != 0)
         {
-            struct Room* room = room_get(i);
+            struct Room *room = room_get(i);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Jump to invalid room detected");
@@ -2850,10 +3023,12 @@ struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *
             {
                 if (thing_is_creature(creatng))
                 {
-                    if (creature_can_navigate_to(creatng, &pos, nav_flags)) {
+                    if (creature_can_navigate_to(creatng, &pos, nav_flags))
+                    {
                         return room;
                     }
-                } else
+                }
+                else
                 {
                     return room;
                 }
@@ -2880,18 +3055,22 @@ struct Room *find_room_of_role_for_thing_with_used_capacity(const struct Thing *
  * @note Function find_room_with_spare_room_capacity() should also redirect to this one.
  */
 struct Room *find_room_of_role_with_spare_capacity(PlayerNumber owner, RoomRole rrole, long spare)
-{   
+{
     struct Room *room;
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     if (dungeonadd_invalid(dungeonadd))
+    {
         return INVALID_ROOM;
+    }
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_role_matches(rkind, rrole))
         {
             room = find_nth_room_of_owner_with_spare_capacity_starting_with(dungeonadd->room_kind[rkind], 0, spare);
-            if(room != INVALID_ROOM)
+            if (room != INVALID_ROOM)
+            {
                 return room;
+            }
         }
     }
     return INVALID_ROOM;
@@ -2899,12 +3078,12 @@ struct Room *find_room_of_role_with_spare_capacity(PlayerNumber owner, RoomRole 
 
 struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_idx, long n, long spare)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     unsigned long k = 0;
     int i = room_idx;
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -2914,9 +3093,12 @@ struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_
         // Per-room code
         if (room->used_capacity + spare <= room->total_capacity)
         {
-            if (n > 0) {
+            if (n > 0)
+            {
                 n--;
-            } else {
+            }
+            else
+            {
                 return room;
             }
         }
@@ -2924,8 +3106,8 @@ struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_
         k++;
         if (k > ROOMS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
         }
     }
     return INVALID_ROOM;
@@ -2933,12 +3115,12 @@ struct Room *find_nth_room_of_owner_with_spare_capacity_starting_with(long room_
 
 struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long room_idx, long n, long spare)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     unsigned long k = 0;
     int i = room_idx;
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -2948,9 +3130,12 @@ struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long 
         // Per-room code
         if (room->capacity_used_for_storage + spare <= room->total_capacity)
         {
-            if (n > 0) {
+            if (n > 0)
+            {
                 n--;
-            } else {
+            }
+            else
+            {
                 return room;
             }
         }
@@ -2958,29 +3143,29 @@ struct Room *find_nth_room_of_owner_with_spare_item_capacity_starting_with(long 
         k++;
         if (k > ROOMS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
         }
     }
     return INVALID_ROOM;
 }
 
-struct Room *find_room_of_role_with_most_spare_capacity(const struct DungeonAdd *dungeonadd,RoomRole rrole, long *total_spare_cap)
+struct Room *find_room_of_role_with_most_spare_capacity(const struct DungeonAdd *dungeonadd, RoomRole rrole, long *total_spare_cap)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     long loc_total_spare_cap = 0;
-    struct Room* max_spare_room = INVALID_ROOM;
+    struct Room *max_spare_room = INVALID_ROOM;
     long max_spare_cap = 0;
     unsigned long k = 0;
 
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_role_matches(rkind, rrole))
         {
             int i = dungeonadd->room_kind[rkind];
             while (i != 0)
             {
-                struct Room* room = room_get(i);
+                struct Room *room = room_get(i);
                 if (room_is_invalid(room))
                 {
                     ERRORLOG("Jump to invalid room detected");
@@ -3002,16 +3187,17 @@ struct Room *find_room_of_role_with_most_spare_capacity(const struct DungeonAdd 
                 k++;
                 if (k > ROOMS_COUNT)
                 {
-                ERRORLOG("Infinite loop detected when sweeping rooms list");
-                break;
+                    ERRORLOG("Infinite loop detected when sweeping rooms list");
+                    break;
                 }
             }
         }
     }
 
-
     if (total_spare_cap != NULL)
-    (*total_spare_cap) = loc_total_spare_cap;
+    {
+        (*total_spare_cap) = loc_total_spare_cap;
+    }
     return max_spare_room;
 }
 
@@ -3030,9 +3216,9 @@ TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *
     if (!room_exists(room))
     {
         ERRORLOG("Tried to find position in non-existing room");
-        pos->x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-        pos->y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
-        pos->z.val = subtile_coord(1,0);
+        pos->x.val = subtile_coord_center(gameadd.map_subtiles_x / 2);
+        pos->y.val = subtile_coord_center(gameadd.map_subtiles_y / 2);
+        pos->z.val = subtile_coord(1, 0);
         return false;
     }
     long block_radius = subtile_coord(thing_nav_block_sizexy(thing), 0) / 2;
@@ -3050,17 +3236,18 @@ TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *
             {
                 MapSubtlCoord stl_x = 3 * slb_x + dx;
                 MapSubtlCoord stl_y = 3 * slb_y + dy;
-                struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+                struct Map *mapblk = get_map_block_at(stl_x, stl_y);
                 // Check if the position isn't filled with solid block
-                if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_navigation_map_floor_height(stl_x,stl_y) < 4))
+                if (((mapblk->flags & SlbAtFlg_Blocking) == 0) && (get_navigation_map_floor_height(stl_x, stl_y) < 4))
                 {
                     if (!terrain_toxic_for_creature_at_position(thing, stl_x, stl_y) && !subtile_has_sacrificial_on_top(stl_x, stl_y))
                     {
                         pos->x.val = subtile_coord_center(stl_x);
                         pos->y.val = subtile_coord_center(stl_y);
                         pos->z.val = get_thing_height_at_with_radius(thing, pos, block_radius);
-                        if ( !thing_in_wall_at_with_radius(thing, pos, block_radius) ) {
-                          return true;
+                        if (!thing_in_wall_at_with_radius(thing, pos, block_radius))
+                        {
+                            return true;
                         }
                     }
                 }
@@ -3075,29 +3262,29 @@ TbBool find_first_valid_position_for_thing_anywhere_in_room(const struct Thing *
             break;
         }
     }
-    ERRORLOG("Could not find valid FIRST point in %s for %s",room_code_name(room->kind),thing_model_name(thing));
-    pos->x.val = subtile_coord_center(gameadd.map_subtiles_x/2);
-    pos->y.val = subtile_coord_center(gameadd.map_subtiles_y/2);
-    pos->z.val = subtile_coord(1,0);
+    ERRORLOG("Could not find valid FIRST point in %s for %s", room_code_name(room->kind), thing_model_name(thing));
+    pos->x.val = subtile_coord_center(gameadd.map_subtiles_x / 2);
+    pos->y.val = subtile_coord_center(gameadd.map_subtiles_y / 2);
+    pos->z.val = subtile_coord(1, 0);
     return false;
 }
 
 struct Room *find_nearest_room_of_role_for_thing_with_spare_capacity(struct Thing *thing, signed char owner, RoomRole rrole, unsigned char nav_flags, long spare)
 {
-    SYNCDBG(18,"Searching for %s with capacity for %s index %d",room_role_code_name(rrole),thing_model_name(thing),(int)thing->index);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
-    struct Room* nearoom = INVALID_ROOM;
+    SYNCDBG(18, "Searching for %s with capacity for %s index %d", room_role_code_name(rrole), thing_model_name(thing), (int)thing->index);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
+    struct Room *nearoom = INVALID_ROOM;
     long neardistance = LONG_MAX;
 
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_role_matches(rkind, rrole))
         {
             unsigned long k = 0;
             int i = dungeonadd->room_kind[rkind];
             while (i != 0)
             {
-                struct Room* room = room_get(i);
+                struct Room *room = room_get(i);
                 if (room_is_invalid(room))
                 {
                     ERRORLOG("Jump to invalid room detected");
@@ -3112,8 +3299,7 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_capacity(struct Thin
                     struct Coord3d pos;
                     if (find_first_valid_position_for_thing_anywhere_in_room(thing, room, &pos))
                     {
-                        if ((thing->class_id != TCls_Creature)
-                        || creature_can_navigate_to(thing, &pos, nav_flags))
+                        if ((thing->class_id != TCls_Creature) || creature_can_navigate_to(thing, &pos, nav_flags))
                         {
                             neardistance = distance;
                             nearoom = room;
@@ -3124,8 +3310,8 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_capacity(struct Thin
                 k++;
                 if (k > ROOMS_COUNT)
                 {
-                ERRORLOG("Infinite loop detected when sweeping rooms list");
-                break;
+                    ERRORLOG("Infinite loop detected when sweeping rooms list");
+                    break;
                 }
             }
         }
@@ -3144,18 +3330,18 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_capacity(struct Thin
  */
 static long count_rooms_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomKind rrole, unsigned char nav_flags)
 {
-    SYNCDBG(18,"Starting");
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    SYNCDBG(18, "Starting");
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     long count = 0;
     unsigned long k = 0;
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_role_matches(rkind, rrole))
         {
             int i = dungeonadd->room_kind[rkind];
             while (i != 0)
             {
-                struct Room* room = room_get(i);
+                struct Room *room = room_get(i);
                 if (room_is_invalid(room))
                 {
                     ERRORLOG("Jump to invalid room detected");
@@ -3181,7 +3367,7 @@ static long count_rooms_with_used_capacity_creature_can_navigate_to(struct Thing
             }
         }
     }
-        
+
     return count;
 }
 
@@ -3194,15 +3380,15 @@ static long count_rooms_with_used_capacity_creature_can_navigate_to(struct Thing
  * @param n
  * @return
  */
-struct Room* find_room_of_kind_creature_can_navigate_to(struct Thing* thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
+struct Room *find_room_of_kind_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     unsigned long k = 0;
 
     int i = dungeonadd->room_kind[rkind];
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -3238,15 +3424,15 @@ struct Room* find_room_of_kind_creature_can_navigate_to(struct Thing* thing, Pla
  * @param n
  * @return
  */
-struct Room* find_nth_room_of_kind_with_used_capacity_creature_can_navigate_to(struct Thing* thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long n)
+struct Room *find_nth_room_of_kind_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long n)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     unsigned long k = 0;
 
     int i = dungeonadd->room_kind[rkind];
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -3259,10 +3445,12 @@ struct Room* find_nth_room_of_kind_with_used_capacity_creature_can_navigate_to(s
         {
             if (creature_can_navigate_to(thing, &pos, nav_flags))
             {
-                if (n > 0) {
+                if (n > 0)
+                {
                     n--;
                 }
-                else {
+                else
+                {
                     return room;
                 }
             }
@@ -3277,7 +3465,6 @@ struct Room* find_nth_room_of_kind_with_used_capacity_creature_can_navigate_to(s
     }
 
     return INVALID_ROOM;
-
 }
 
 /**
@@ -3291,16 +3478,16 @@ struct Room* find_nth_room_of_kind_with_used_capacity_creature_can_navigate_to(s
  */
 struct Room *find_nth_room_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, long n)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     unsigned long k = 0;
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_role_matches(rkind, rrole))
         {
             int i = dungeonadd->room_kind[rkind];
             while (i != 0)
             {
-                struct Room* room = room_get(i);
+                struct Room *room = room_get(i);
                 if (room_is_invalid(room))
                 {
                     ERRORLOG("Jump to invalid room detected");
@@ -3313,9 +3500,12 @@ struct Room *find_nth_room_with_used_capacity_creature_can_navigate_to(struct Th
                 {
                     if (creature_can_navigate_to(thing, &pos, nav_flags))
                     {
-                        if (n > 0) {
+                        if (n > 0)
+                        {
                             n--;
-                        } else {
+                        }
+                        else
+                        {
                             return room;
                         }
                     }
@@ -3345,9 +3535,11 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
 {
     for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        struct Room* room = find_room_of_kind_creature_can_navigate_to(thing, owner, rkind, NavRtF_NoOwner);
+        struct Room *room = find_room_of_kind_creature_can_navigate_to(thing, owner, rkind, NavRtF_NoOwner);
         if (!room_is_invalid(room))
+        {
             return true;
+        }
     }
     return false;
 }
@@ -3363,10 +3555,12 @@ TbBool creature_can_get_to_any_of_players_rooms(struct Thing *thing, PlayerNumbe
  */
 struct Room *find_random_room_of_role_with_used_capacity_creature_can_navigate_to(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     long count = count_rooms_with_used_capacity_creature_can_navigate_to(thing, owner, rrole, nav_flags);
     if (count < 1)
+    {
         return INVALID_ROOM;
+    }
     long selected = CREATURE_RANDOM(thing, count);
     return find_nth_room_with_used_capacity_creature_can_navigate_to(thing, owner, rrole, nav_flags, selected);
 }
@@ -3383,14 +3577,14 @@ struct Room *find_random_room_of_role_with_used_capacity_creature_can_navigate_t
  */
 struct Room *find_room_nearest_to_position(PlayerNumber plyr_idx, RoomKind rkind, const struct Coord3d *pos, long *room_distance)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     long near_distance = LONG_MAX;
-    struct Room* near_room = INVALID_ROOM;
+    struct Room *near_room = INVALID_ROOM;
     long i = dungeonadd->room_kind[rkind];
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -3425,52 +3619,65 @@ long get_room_attractiveness_for_thing(const struct Dungeon *dungeon, const stru
     if ((rrole & RoRoF_GoldStorage) != 0)
     {
         long salary = calculate_correct_creature_pay(thing);
-        if (room->capacity_used_for_storage + dungeon->offmap_money_owned < salary) {
+        if (room->capacity_used_for_storage + dungeon->offmap_money_owned < salary)
+        {
             // This room isn't attractive at all - creature won't get salary there
             attractiveness = 0;
-        } else {
-            attractiveness += 2 * min(room->capacity_used_for_storage/(salary+1),16);
+        }
+        else
+        {
+            attractiveness += 2 * min(room->capacity_used_for_storage / (salary + 1), 16);
         }
     }
-    if ((rrole & (RoRoF_CrHealSleep|RoRoF_LairStorage)) != 0)
+    if ((rrole & (RoRoF_CrHealSleep | RoRoF_LairStorage)) != 0)
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (room->index == cctrl->lairtng_idx) {
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (room->index == cctrl->lairtng_idx)
+        {
             // A room where we already have a lair is a few times more attractive
             attractiveness += 64;
-        } else {
-            attractiveness += 2 * min(max(room->total_capacity - (int)room->used_capacity,0),16);
+        }
+        else
+        {
+            attractiveness += 2 * min(max(room->total_capacity - (int)room->used_capacity, 0), 16);
         }
     }
     if ((rrole & RoRoF_FoodStorage) != 0)
     {
-        attractiveness += min(room->used_capacity,16);
+        attractiveness += min(room->used_capacity, 16);
     }
-    if ((rrole & (RoRoF_CratesStorage|RoRoF_PowersStorage|RoRoF_DeadStorage|RoRoF_Prison|RoRoF_Torture|RoRoF_CrHappyPray|RoRoF_CrMakeGroup|RoRoF_CrPurifySpell)) != 0)
+    if ((rrole & (RoRoF_CratesStorage | RoRoF_PowersStorage | RoRoF_DeadStorage | RoRoF_Prison | RoRoF_Torture | RoRoF_CrHappyPray | RoRoF_CrMakeGroup | RoRoF_CrPurifySpell)) != 0)
     {
-        if (room->used_capacity+needed_capacity > room->total_capacity) {
+        if (room->used_capacity + needed_capacity > room->total_capacity)
+        {
             // This room isn't attractive at all - creature won't get job there
             attractiveness = 0;
-        } else {
-            attractiveness += min(max(room->total_capacity - (int)room->used_capacity,0),16);
+        }
+        else
+        {
+            attractiveness += min(max(room->total_capacity - (int)room->used_capacity, 0), 16);
         }
     }
-    if ((rrole & (RoRoF_CrScavenge|RoRoF_CrTrainExp|RoRoF_Research|RoRoF_CratesManufctr|RoRoF_CrGuard)) != 0)
+    if ((rrole & (RoRoF_CrScavenge | RoRoF_CrTrainExp | RoRoF_Research | RoRoF_CratesManufctr | RoRoF_CrGuard)) != 0)
     {
-        if (room->used_capacity+needed_capacity > room->total_capacity) {
+        if (room->used_capacity + needed_capacity > room->total_capacity)
+        {
             // This room isn't attractive at all - creature won't get job there
             attractiveness = 0;
-        } else {
+        }
+        else
+        {
             // There is no need to consider work value of the creature, as creature and room role are already chosen
-            attractiveness += min(max(room->total_capacity - (int)room->used_capacity,0),16);
+            attractiveness += min(max(room->total_capacity - (int)room->used_capacity, 0), 16);
             // But specific room is still to be selected, so efficiency might help; allow it to increase attractiveness
-            attractiveness += room->efficiency / (ROOM_EFFICIENCY_MAX/16);
+            attractiveness += room->efficiency / (ROOM_EFFICIENCY_MAX / 16);
         }
     }
     if (attractiveness > 0)
     {
-        struct Thing* enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(thing->mappos.x.val, thing->mappos.y.val, 10, thing->owner);
-        if (!thing_is_invalid(enmtng)) {
+        struct Thing *enmtng = get_creature_in_range_who_is_enemy_of_able_to_attack_and_not_specdigger(thing->mappos.x.val, thing->mappos.y.val, 10, thing->owner);
+        if (!thing_is_invalid(enmtng))
+        {
             // A room with enemies inside is very unattractive, but still possible to select
             attractiveness = 1;
         }
@@ -3481,18 +3688,19 @@ long get_room_attractiveness_for_thing(const struct Dungeon *dungeon, const stru
 struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const struct Dungeon *dungeon, RoomRole rrole, int needed_capacity)
 {
     long retdist = LONG_MAX;
-    struct Room* retroom = INVALID_ROOM;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
+    struct Room *retroom = INVALID_ROOM;
+    struct DungeonAdd *dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if (!room_role_matches(rkind, rrole)) {
+        if (!room_role_matches(rkind, rrole))
+        {
             continue;
         }
         long i = dungeonadd->room_kind[rkind];
         unsigned long k = 0;
         while (i != 0)
         {
-            struct Room* room = room_get(i);
+            struct Room *room = room_get(i);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Jump to invalid room detected");
@@ -3504,7 +3712,7 @@ struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const s
             if (attractiveness > 0)
             {
                 long dist = grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, room->central_stl_x, room->central_stl_y);
-                dist = (dist*128)/attractiveness;
+                dist = (dist * 128) / attractiveness;
                 if (retdist > dist)
                 {
                     retdist = dist;
@@ -3534,14 +3742,14 @@ struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const s
  */
 long count_rooms_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags)
 {
-    SYNCDBG(18,"Starting");
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    SYNCDBG(18, "Starting");
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     long count = 0;
     unsigned long k = 0;
     int i = dungeonadd->room_kind[rkind];
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -3582,7 +3790,7 @@ long count_rooms_of_role_for_thing(struct Thing *thing, PlayerNumber owner, Room
     long result = 0;
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_role_matches(rkind, rrole))
         {
             result += count_rooms_for_thing(thing, owner, rkind, nav_flags);
         }
@@ -3601,12 +3809,12 @@ long count_rooms_of_role_for_thing(struct Thing *thing, PlayerNumber owner, Room
  */
 struct Room *find_nth_room_for_thing(struct Thing *thing, PlayerNumber owner, RoomKind rkind, unsigned char nav_flags, long n)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     unsigned long k = 0;
     int i = dungeonadd->room_kind[rkind];
     while (i != 0)
     {
-        struct Room* room = room_get(i);
+        struct Room *room = room_get(i);
         if (room_is_invalid(room))
         {
             ERRORLOG("Jump to invalid room detected");
@@ -3619,9 +3827,12 @@ struct Room *find_nth_room_for_thing(struct Thing *thing, PlayerNumber owner, Ro
         {
             if (!thing_is_creature(thing) || creature_can_navigate_to(thing, &pos, nav_flags))
             {
-                if (n > 0) {
+                if (n > 0)
+                {
                     n--;
-                } else {
+                }
+                else
+                {
                     return room;
                 }
             }
@@ -3637,9 +3848,9 @@ struct Room *find_nth_room_for_thing(struct Thing *thing, PlayerNumber owner, Ro
     return INVALID_ROOM;
 }
 
-struct Room* find_first_room_of_role(PlayerNumber owner, RoomRole rrole)
+struct Room *find_first_room_of_role(PlayerNumber owner, RoomRole rrole)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
@@ -3665,16 +3876,16 @@ struct Room* find_first_room_of_role(PlayerNumber owner, RoomRole rrole)
  */
 struct Room *find_nth_room_of_role_for_thing(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, long n)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     unsigned long k = 0;
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_role_matches(rkind, rrole))
         {
             int i = dungeonadd->room_kind[rkind];
             while (i != 0)
             {
-                struct Room* room = room_get(i);
+                struct Room *room = room_get(i);
                 if (room_is_invalid(room))
                 {
                     ERRORLOG("Jump to invalid room detected");
@@ -3687,9 +3898,12 @@ struct Room *find_nth_room_of_role_for_thing(struct Thing *thing, PlayerNumber o
                 {
                     if (!thing_is_creature(thing) || creature_can_navigate_to(thing, &pos, nav_flags))
                     {
-                        if (n > 0) {
+                        if (n > 0)
+                        {
                             n--;
-                        } else {
+                        }
+                        else
+                        {
                             return room;
                         }
                     }
@@ -3709,10 +3923,12 @@ struct Room *find_nth_room_of_role_for_thing(struct Thing *thing, PlayerNumber o
 
 struct Room *find_random_room_of_role_for_thing(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     long count = count_rooms_of_role_for_thing(thing, owner, rrole, nav_flags);
     if (count < 1)
+    {
         return INVALID_ROOM;
+    }
     long selected = CREATURE_RANDOM(thing, count);
     return find_nth_room_of_role_for_thing(thing, owner, rrole, nav_flags, selected);
 }
@@ -3728,20 +3944,20 @@ struct Room *find_random_room_of_role_for_thing(struct Thing *thing, PlayerNumbe
  */
 static long count_rooms_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags)
 {
-    SYNCDBG(18,"Starting");
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    SYNCDBG(18, "Starting");
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     long count = 0;
     unsigned long k = 0;
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(!room_role_matches(rkind,rrole))
+        if (!room_role_matches(rkind, rrole))
         {
             continue;
         }
         int i = dungeonadd->room_kind[rkind];
         while (i != 0)
         {
-            struct Room* room = room_get(i);
+            struct Room *room = room_get(i);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Jump to invalid room detected");
@@ -3781,18 +3997,18 @@ static long count_rooms_of_role_for_thing_with_spare_room_item_capacity(struct T
  */
 static struct Room *find_nth_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags, long n)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
     unsigned long k = 0;
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(!room_role_matches(rkind,rrole))
+        if (!room_role_matches(rkind, rrole))
         {
             continue;
         }
         int i = dungeonadd->room_kind[rkind];
         while (i != 0)
         {
-            struct Room* room = room_get(i);
+            struct Room *room = room_get(i);
             if (room_is_invalid(room))
             {
                 ERRORLOG("Jump to invalid room detected");
@@ -3805,9 +4021,12 @@ static struct Room *find_nth_room_of_role_for_thing_with_spare_room_item_capacit
             {
                 if (!thing_is_creature(thing) || creature_can_navigate_to(thing, &pos, nav_flags))
                 {
-                    if (n > 0) {
+                    if (n > 0)
+                    {
                         n--;
-                    } else {
+                    }
+                    else
+                    {
                         return room;
                     }
                 }
@@ -3824,32 +4043,31 @@ static struct Room *find_nth_room_of_role_for_thing_with_spare_room_item_capacit
     return INVALID_ROOM;
 }
 
-struct Room * find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags)
+struct Room *find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags)
 {
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     long count = count_rooms_of_role_for_thing_with_spare_room_item_capacity(thing, owner, rrole, nav_flags);
     if (count < 1)
+    {
         return INVALID_ROOM;
+    }
     long selected = CREATURE_RANDOM(thing, count);
     return find_nth_room_of_role_for_thing_with_spare_room_item_capacity(thing, owner, rrole, nav_flags, selected);
 }
 
-
-
 void delete_room_slab_when_no_free_room_structures(MapCoord slb_x, MapCoord slb_y, unsigned char gnd_slab)
 {
-    SYNCDBG(8,"Starting");
+    SYNCDBG(8, "Starting");
 
     struct Room *room;
     SlabCodedCoords room_slab;
-
 
     struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     room = room_get(slb->room_index);
 
     SlabCodedCoords slb_num = get_slab_number(slb_x, slb_y);
 
-    if ( room_is_invalid(room) )
+    if (room_is_invalid(room))
     {
         ERRORLOG("This is not a room slab");
         return;
@@ -3857,23 +4075,22 @@ void delete_room_slab_when_no_free_room_structures(MapCoord slb_x, MapCoord slb_
 
     decrease_room_area(room->owner, 1);
     kill_room_slab_and_contents(room->owner, slb_x, slb_y);
-    if ( room->slabs_count == 1 )
+    if (room->slabs_count == 1)
     {
         delete_room_flag(room);
         replace_room_slab(room, slb_x, slb_y, room->owner, gnd_slab);
         room_slab = room->slabs_list;
-        if ( room_slab )
+        if (room_slab)
         {
             do
             {
                 MapCoord roomslb_x = slb_num_decode_x(room_slab);
                 MapCoord roomslb_y = slb_num_decode_y(room_slab);
-                struct SlabMap* roomslb = get_slabmap_block(roomslb_x, roomslb_y);    
+                struct SlabMap *roomslb = get_slabmap_block(roomslb_x, roomslb_y);
                 room_slab = roomslb->next_in_room;
                 kill_room_slab_and_contents(room->owner, roomslb_x, roomslb_y);
                 roomslb->next_in_room = 0;
-            }
-            while ( room_slab );
+            } while (room_slab);
         }
         delete_room_flag(room);
         free_room_structure(room);
@@ -3882,28 +4099,29 @@ void delete_room_slab_when_no_free_room_structures(MapCoord slb_x, MapCoord slb_
     else
     {
         room_slab = room->slabs_list;
-        if ( slb_num == room_slab )
+        if (slb_num == room_slab)
         {
             delete_room_flag(room);
             room->slabs_list = get_next_slab_number_in_room(slb_num);
             create_room_flag(room);
         }
-        else if ( room->slabs_list )
+        else if (room->slabs_list)
         {
             MapCoord roomslb_x = slb_num_decode_x(room_slab);
             MapCoord roomslb_y = slb_num_decode_y(room_slab);
-            struct SlabMap* roomslb = get_slabmap_block(roomslb_x, roomslb_y);
+            struct SlabMap *roomslb = get_slabmap_block(roomslb_x, roomslb_y);
             do
             {
                 roomslb_x = slb_num_decode_x(room_slab);
                 roomslb_y = slb_num_decode_y(room_slab);
                 roomslb = get_slabmap_block(roomslb_x, roomslb_y);
                 room_slab = roomslb->next_in_room;
-                if ( roomslb->next_in_room == slb_num )
+                if (roomslb->next_in_room == slb_num)
+                {
                     roomslb->next_in_room = slb->next_in_room;
+                }
                 room_slab = roomslb->next_in_room;
-            }
-            while ( roomslb->next_in_room != 0 );
+            } while (roomslb->next_in_room != 0);
         }
         replace_room_slab(room, slb_x, slb_y, room->owner, gnd_slab);
         slb->next_in_room = 0;
@@ -3913,12 +4131,13 @@ void delete_room_slab_when_no_free_room_structures(MapCoord slb_x, MapCoord slb_
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *thing, struct Room *room, struct Coord3d *pos, long slbnum)
 {
     int nav_sizexy = subtile_coord(thing_nav_block_sizexy(thing), 0);
-    if (room_is_invalid(room) || (room->slabs_count <= 0)) {
+    if (room_is_invalid(room) || (room->slabs_count <= 0))
+    {
         ERRORLOG("Invalid room or number of slabs is zero");
         return false;
     }
-    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
-    long selected = CREATURE_RANDOM(thing, room->slabs_count);  
+    struct RoomConfigStats *roomst = get_room_kind_stats(room->kind);
+    long selected = CREATURE_RANDOM(thing, room->slabs_count);
     unsigned long n = 0;
     long i = room->slabs_list;
     // Get the selected index
@@ -3933,15 +4152,14 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
         do
         {
             i = get_next_slab_number_in_room(i);
-        }
-        while (i == slbnum);
+        } while (i == slbnum);
         n++;
     }
-    if (i == 0) 
+    if (i == 0)
     {
         if (n < room->slabs_count)
         {
-            WARNLOG("Number of slabs in %s (%d) is smaller than count (%d)",room_code_name(room->kind), n, room->slabs_count);
+            WARNLOG("Number of slabs in %s (%d) is smaller than count (%d)", room_code_name(room->kind), n, room->slabs_count);
         }
         n = 0;
         i = room->slabs_list;
@@ -3969,13 +4187,14 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
                 MapSubtlCoord y = start_stl / 3 + stl_y;
                 if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(x, y) == roomst->storage_height))
                 {
-                    struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
+                    struct Thing *objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
                     if (thing_is_invalid(objtng))
                     {
                         pos->x.val = subtile_coord_center(x);
                         pos->y.val = subtile_coord_center(y);
                         pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
-                        if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
+                        if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy))
+                        {
                             return true;
                         }
                     }
@@ -3984,7 +4203,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
             }
         }
         // Per room tile code ends
-        if (n+1 >= room->slabs_count)
+        if (n + 1 >= room->slabs_count)
         {
             n = 0;
             i = room->slabs_list;
@@ -3992,16 +4211,18 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
             {
                 i = get_next_slab_number_in_room(i);
             }
-        } else {
+        }
+        else
+        {
             n++;
             do
             {
                 i = get_next_slab_number_in_room(i);
-            }
-            while (i == slbnum);
+            } while (i == slbnum);
         }
         k++;
-        if (k > room->slabs_count) {
+        if (k > room->slabs_count)
+        {
             ERRORLOG("Infinite loop detected when sweeping room slabs list");
             break;
         }
@@ -4009,7 +4230,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
     // if the above fails, do a more thorough check
     if (room->used_capacity <= room->total_capacity)
     {
-        SYNCLOG("Could not find valid random point in %s %d for %s. Attempting thorough check.",room_code_name(room->kind),room->index,thing_model_name(thing));
+        SYNCLOG("Could not find valid random point in %s %d for %s. Attempting thorough check.", room_code_name(room->kind), room->index, thing_model_name(thing));
         k = 0;
         for (i = room->slabs_list; (i != 0); i = get_next_slab_number_in_room(i))
         {
@@ -4023,13 +4244,14 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
                     MapSubtlCoord astl_y = stl_y + around[nround].delta_y;
                     if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(astl_x, astl_y) == roomst->storage_height))
                     {
-                        struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, astl_x, astl_y);
+                        struct Thing *objtng = find_base_thing_on_mapwho(TCls_Object, 0, astl_x, astl_y);
                         if (thing_is_invalid(objtng))
                         {
                             pos->x.val = subtile_coord_center(astl_x);
                             pos->y.val = subtile_coord_center(astl_y);
                             pos->z.val = get_thing_height_at_with_radius(thing, pos, nav_sizexy);
-                            if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy)) {
+                            if (!thing_in_wall_at_with_radius(thing, pos, nav_sizexy))
+                            {
                                 SYNCLOG("Thorough check succeeded where random check failed.");
                                 return true;
                             }
@@ -4045,30 +4267,30 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_ro
             }
         }
     }
-    SYNCLOG("Could not find any valid point in %s %d for %s",room_code_name(room->kind),room->index,thing_model_name(thing));
+    SYNCLOG("Could not find any valid point in %s %d for %s", room_code_name(room->kind), room->index, thing_model_name(thing));
     return false;
 }
 
 long find_random_valid_position_for_item_in_different_room_avoiding_object(struct Thing *thing, struct Room *skip_room, struct Coord3d *pos)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(skip_room->owner);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(skip_room->owner);
     unsigned int matching_rooms = 0;
     long i;
     unsigned long k = 0;
-    struct Room* room;
+    struct Room *room;
     for (i = dungeonadd->room_kind[skip_room->kind]; (i != 0); i = room->next_of_owner)
     {
         k++;
         if (k > ROOMS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
         }
         room = room_get(i);
         if (room_is_invalid(room))
         {
-          ERRORLOG("Jump to invalid room detected");
-          break;
+            ERRORLOG("Jump to invalid room detected");
+            break;
         }
         if (room->index == skip_room->index)
         {
@@ -4093,14 +4315,14 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
         k++;
         if (k > ROOMS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping rooms list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping rooms list");
+            break;
         }
         room = room_get(i);
         if (room_is_invalid(room))
         {
-          ERRORLOG("Jump to invalid room detected");
-          break;
+            ERRORLOG("Jump to invalid room detected");
+            break;
         }
         if (room->index == skip_room->index)
         {
@@ -4110,29 +4332,31 @@ long find_random_valid_position_for_item_in_different_room_avoiding_object(struc
         {
             if (curr_match_idx >= chosen_match_idx)
             {
-                if (find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, pos)) {
+                if (find_random_valid_position_for_thing_in_room_avoiding_object(thing, room, pos))
+                {
                     return 1;
                 }
             }
             curr_match_idx++;
-            if (curr_match_idx >= matching_rooms) {
+            if (curr_match_idx >= matching_rooms)
+            {
                 // All rooms which were matched are checked
                 break;
-            }            
+            }
         }
     }
-    ERRORLOG("Found %d matching rooms but couldn't find position within any",(int)matching_rooms);
+    ERRORLOG("Found %d matching rooms but couldn't find position within any", (int)matching_rooms);
     return 0;
 }
 
 struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
@@ -4141,7 +4365,8 @@ struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         }
         i = thing->next_on_mapblk;
         // Per thing code start
-        if (thing_is_lair_totem(thing)) {
+        if (thing_is_lair_totem(thing))
+        {
             return thing;
         }
         // Per thing code end
@@ -4159,9 +4384,9 @@ struct Thing *find_lair_totem_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, SlabCodedCoords slbnum)
 {
     struct Thing *thing;
-    struct Dungeon* dungeon;
-    struct RoomConfigStats* roomst;
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Dungeon *dungeon;
+    struct RoomConfigStats *roomst;
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
@@ -4180,8 +4405,8 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             if (creature_is_being_sacrificed(thing))
             {
                 kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects);
-            } else
-            if (creature_is_working_in_room(thing, room))
+            }
+            else if (creature_is_working_in_room(thing, room))
             {
                 set_start_state(thing);
             }
@@ -4196,7 +4421,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
         }
     }
 
-    if(room_role_matches(room->kind, RoRoF_GoldStorage))
+    if (room_role_matches(room->kind, RoRoF_GoldStorage))
     {
         roomst = get_room_kind_stats(room->kind);
         if ((roomst->storage_height < 0) || (get_map_floor_filled_subtiles(mapblk) == roomst->storage_height))
@@ -4207,7 +4432,8 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             {
                 room->capacity_used_for_storage -= gldtng->valuable.gold_stored;
                 dungeon = get_dungeon(plyr_idx);
-                if (!dungeon_invalid(dungeon)) {
+                if (!dungeon_invalid(dungeon))
+                {
                     dungeon->total_money_owned -= gldtng->valuable.gold_stored;
                 }
                 drop_gold_pile(gldtng->valuable.gold_stored, &gldtng->mappos);
@@ -4215,7 +4441,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             }
         }
     }
-    if(room_role_matches(room->kind, RoRoF_PowersStorage))
+    if (room_role_matches(room->kind, RoRoF_PowersStorage))
     {
         k = 0;
         i = get_mapwho_thing_index(mapblk);
@@ -4243,29 +4469,31 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                         pos.z.val = get_thing_height_at(thing, &pos);
                         move_thing_in_map(thing, &pos);
                         create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
-                    } else
-                    // Try to move spellbook to another library, if it's the only copy
-                    if ((dungeon->magic_level[spl_idx] < 2) && (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos)))
-                    {
-                        move_thing_to_different_room(thing, &pos);
-                    } else
-                    // Cannot store the spellbook anywhere - remove the spell
-                    {
-                        if (!is_neutral_thing(thing)) 
-                        {
-                            if (dungeon->magic_level[spl_idx] >= 2)
-                            {
-                                SYNCLOG("Deleting duplicate object %s from %s of player %d ", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
-                            }
-                            else
-                            {
-                                SYNCLOG("Found no new location for object %s in %s for player %d, deleting object", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
-                                dungeon->magic_resrchable[spl_idx] = 1;
-                            }
-                            remove_power_from_player(spl_idx, thing->owner);
-                        }
-                        delete_thing_structure(thing, 0);
                     }
+                    else
+                        // Try to move spellbook to another library, if it's the only copy
+                        if ((dungeon->magic_level[spl_idx] < 2) && (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos)))
+                        {
+                            move_thing_to_different_room(thing, &pos);
+                        }
+                        else
+                        // Cannot store the spellbook anywhere - remove the spell
+                        {
+                            if (!is_neutral_thing(thing))
+                            {
+                                if (dungeon->magic_level[spl_idx] >= 2)
+                                {
+                                    SYNCLOG("Deleting duplicate object %s from %s of player %d ", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
+                                }
+                                else
+                                {
+                                    SYNCLOG("Found no new location for object %s in %s for player %d, deleting object", object_code_name(thing->model), room_code_name(room->kind), (int)thing->owner);
+                                    dungeon->magic_resrchable[spl_idx] = 1;
+                                }
+                                remove_power_from_player(spl_idx, thing->owner);
+                            }
+                            delete_thing_structure(thing, 0);
+                        }
                 }
             }
             // Per thing code end
@@ -4278,7 +4506,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             }
         }
     }
-    if(room_role_matches(room->kind, RoRoF_CratesStorage))
+    if (room_role_matches(room->kind, RoRoF_CratesStorage))
     {
         k = 0;
         i = get_mapwho_thing_index(mapblk);
@@ -4302,28 +4530,31 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                     pos.z.val = get_thing_height_at(thing, &pos);
                     move_thing_in_map(thing, &pos);
                     create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
-                } else
-                // Try to move crate to another workshop
-                if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
-                {
-                    pos.z.val = get_thing_height_at(thing, &pos);
-                    move_thing_in_map(thing, &pos);
-                    create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
-                    struct Room *nxroom;
-                    nxroom = get_room_thing_is_on(thing);
-                    update_room_contents(nxroom);
-                } else
-                // Cannot store the crate anywhere - remove it
-                {
-                    ThingClass tngclass;
-                    ThingModel tngmodel;
-                    tngclass = crate_thing_to_workshop_item_class(thing);
-                    tngmodel = crate_thing_to_workshop_item_model(thing);
-                    if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None) {
-                        remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
-                    }
-                    delete_thing_structure(thing, 0);
                 }
+                else
+                    // Try to move crate to another workshop
+                    if (find_random_valid_position_for_item_in_different_room_avoiding_object(thing, room, &pos))
+                    {
+                        pos.z.val = get_thing_height_at(thing, &pos);
+                        move_thing_in_map(thing, &pos);
+                        create_effect(&pos, TngEff_RoomSparkeLarge, thing->owner);
+                        struct Room *nxroom;
+                        nxroom = get_room_thing_is_on(thing);
+                        update_room_contents(nxroom);
+                    }
+                    else
+                    // Cannot store the crate anywhere - remove it
+                    {
+                        ThingClass tngclass;
+                        ThingModel tngmodel;
+                        tngclass = crate_thing_to_workshop_item_class(thing);
+                        tngmodel = crate_thing_to_workshop_item_model(thing);
+                        if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None)
+                        {
+                            remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
+                        }
+                        delete_thing_structure(thing, 0);
+                    }
             }
             // Per thing code end
             k++;
@@ -4335,7 +4566,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             }
         }
     }
-    if(room_role_matches(room->kind, RoRoF_FoodStorage))
+    if (room_role_matches(room->kind, RoRoF_FoodStorage))
     {
         k = 0;
         i = get_mapwho_thing_index(mapblk);
@@ -4352,7 +4583,8 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             // Per thing code start
             if (thing_is_object(thing))
             {
-                if (object_is_infant_food(thing) || object_is_mature_food(thing) || object_is_growing_food(thing)) {
+                if (object_is_infant_food(thing) || object_is_mature_food(thing) || object_is_growing_food(thing))
+                {
                     delete_thing_structure(thing, 0);
                 }
             }
@@ -4366,7 +4598,7 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
             }
         }
     }
-    if(room_role_matches(room->kind, RoRoF_LairStorage))
+    if (room_role_matches(room->kind, RoRoF_LairStorage))
     {
         thing = find_lair_totem_at(stl_x, stl_y);
         if (!thing_is_invalid(thing))
@@ -4377,14 +4609,18 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
                 struct CreatureControl *cctrl;
                 tmptng = thing_get(thing->lair.belongs_to);
                 cctrl = creature_control_get_from_thing(tmptng);
-                if (cctrl->lairtng_idx == thing->index) {
+                if (cctrl->lairtng_idx == thing->index)
+                {
                     creature_remove_lair_totem_from_room(tmptng, room);
-                } else {
+                }
+                else
+                {
                     ERRORLOG("Lair thing thinks it belongs to a creature, but the creature disagrees.");
                 }
-            } else
+            }
+            else
             {
-                ERRORLOG("Lair thing %d has no owner!",(int)thing->index);
+                ERRORLOG("Lair thing %d has no owner!", (int)thing->index);
             }
         }
     }
@@ -4392,9 +4628,9 @@ void kill_room_contents_at_subtile(struct Room *room, PlayerNumber plyr_idx, Map
 
 void kill_room_slab_and_contents(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     // Get the room, and clear room index
-    struct Room* room = room_get(slb->room_index);
+    struct Room *room = room_get(slb->room_index);
     slb->room_index = 0;
     SlabCodedCoords slbnum = get_slab_number(slb_x, slb_y);
     for (MapSubtlCoord sstl_y = slab_subtile(slb_y, 0); sstl_y <= slab_subtile(slb_y, 2); sstl_y++)
@@ -4409,11 +4645,11 @@ void kill_room_slab_and_contents(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapS
 void free_room_structure(struct Room *room)
 {
     PlayerNumber owner = room->owner;
-    if ( game.neutral_player_num != owner )
+    if (game.neutral_player_num != owner)
     {
         struct DungeonAdd *dungeonadd = get_dungeonadd(owner);
 
-        if ( room->index == dungeonadd->room_kind[room->kind] )
+        if (room->index == dungeonadd->room_kind[room->kind])
         {
             dungeonadd->room_kind[room->kind] = room->next_of_owner;
             struct Room *next_room = room_get(room->next_of_owner);
@@ -4433,8 +4669,9 @@ void free_room_structure(struct Room *room)
 
 void reset_creatures_rooms(struct Room *room)
 {
-    SYNCDBG(18,"Starting");
-    if (room->owner == game.neutral_player_num) {
+    SYNCDBG(18, "Starting");
+    if (room->owner == game.neutral_player_num)
+    {
         return;
     }
     // Clear work room id for all creatures, so that they won't be stored as last_work_room_id
@@ -4442,11 +4679,12 @@ void reset_creatures_rooms(struct Room *room)
     unsigned long k = 0;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        if (!creature_control_exists(cctrl)) {
-            ERRORLOG("Jump to invalid creature %d detected",(int)i);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        if (!creature_control_exists(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature %d detected", (int)i);
             break;
         }
         i = cctrl->next_in_room;
@@ -4456,17 +4694,17 @@ void reset_creatures_rooms(struct Room *room)
         k++;
         if (k > THINGS_COUNT)
         {
-          ERRORLOG("Infinite loop detected when sweeping creatures list");
-          break;
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
         }
     }
     // Switch the room for all creatures
-    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    const struct StructureList *slist = get_list_for_thing_class(TCls_Creature);
     k = 0;
     i = slist->index;
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         if (thing_is_invalid(thing))
         {
             ERRORLOG("Jump to invalid thing detected");
@@ -4474,16 +4712,17 @@ void reset_creatures_rooms(struct Room *room)
         }
         i = thing->next_of_class;
         // Per-thing code
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
         if (cctrl->work_room_id == -1)
         {
-            struct Room* nroom = get_room_thing_is_on(thing);
+            struct Room *nroom = get_room_thing_is_on(thing);
             if (room_is_invalid(nroom))
             {
                 cctrl->flgfield_1 &= ~CCFlg_IsInRoomList;
                 cctrl->work_room_id = 0;
                 set_start_state(thing);
-            } else
+            }
+            else
             {
                 CreatureJob jobpref = get_job_for_creature_state(get_creature_state_besides_interruptions(thing));
                 remove_creature_from_specific_room(thing, room, jobpref);
@@ -4502,30 +4741,32 @@ void reset_creatures_rooms(struct Room *room)
 
 void replace_room_slab(struct Room *room, MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char owner, unsigned char is_destroyed)
 {
-    if (room_role_matches(room->kind,RoRoF_PassWater|RoRoF_PassLava))
+    if (room_role_matches(room->kind, RoRoF_PassWater | RoRoF_PassLava))
     {
-        struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+        struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
         switch (slabmap_wlb(slb))
         {
         case 1:
-            place_slab_type_on_map(SlbT_LAVA,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+            place_slab_type_on_map(SlbT_LAVA, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), game.neutral_player_num, 0);
             break;
         case 2:
-            place_slab_type_on_map(SlbT_WATER, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+            place_slab_type_on_map(SlbT_WATER, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), game.neutral_player_num, 0);
             break;
         default:
-            ERRORLOG("WLB flags seem damaged for slab (%ld,%ld).",(long)slb_x,(long)slb_y);
-            place_slab_type_on_map(SlbT_PATH,  slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
+            ERRORLOG("WLB flags seem damaged for slab (%ld,%ld).", (long)slb_x, (long)slb_y);
+            place_slab_type_on_map(SlbT_PATH, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), game.neutral_player_num, 0);
             break;
         }
-    } else
+    }
+    else
     {
-        if ( is_destroyed )
+        if (is_destroyed)
         {
-            place_slab_type_on_map(SlbT_PATH, slab_subtile(slb_x,0), slab_subtile(slb_y,0), game.neutral_player_num, 0);
-        } else
+            place_slab_type_on_map(SlbT_PATH, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), game.neutral_player_num, 0);
+        }
+        else
         {
-            place_slab_type_on_map(SlbT_CLAIMED, slab_subtile(slb_x,0), slab_subtile(slb_y,0), owner, 0);
+            place_slab_type_on_map(SlbT_CLAIMED, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), owner, 0);
             increase_dungeon_area(owner, 1);
         }
     }
@@ -4535,43 +4776,49 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
 {
     game.map_changed_for_nagivation = 1;
     if (subtile_coords_invalid(stl_x, stl_y))
+    {
         return INVALID_ROOM;
+    }
     long slb_x = subtile_slab(stl_x);
     long slb_y = subtile_slab(stl_y);
-    struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+    struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     // If there already was a room, delete it; also, update area statistics
     if (slb->room_index > 0)
     {
         delete_room_slab(slb_x, slb_y, 0);
-    } else
+    }
+    else
     {
         decrease_dungeon_area(owner, 1);
         increase_room_area(owner, 1);
     }
     // Create the new room; possibly merge adjacent rooms
-    struct Room* room = create_room(owner, rkind, stl_x, stl_y);
+    struct Room *room = create_room(owner, rkind, stl_x, stl_y);
     if (room_is_invalid(room))
+    {
         return INVALID_ROOM;
+    }
     // Make sure we have first subtile
     stl_x = stl_slab_starting_subtile(stl_x);
     stl_y = stl_slab_starting_subtile(stl_y);
     // Update slab type on map
-    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    struct RoomConfigStats *roomst = get_room_kind_stats(room->kind);
     SlabCodedCoords i = get_slab_number(slb_x, slb_y);
     delete_room_slabbed_objects(i);
-    if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE)) //todo Make configurable
+    if ((rkind == RoK_GUARDPOST) || (rkind == RoK_BRIDGE)) // todo Make configurable
     {
         place_animating_slab_type_on_map(roomst->assigned_slab, 0, stl_x, stl_y, owner);
-    } else
+    }
+    else
     {
         place_slab_type_on_map(roomst->assigned_slab, stl_x, stl_y, owner, 0);
     }
-    SYNCDBG(7,"Updating efficiency");
+    SYNCDBG(7, "Updating efficiency");
     do_slab_efficiency_alteration(slb_x, slb_y);
     do_room_recalculation(room);
     if (owner != game.neutral_player_num)
     {
-        struct Dungeon* dungeon = get_dungeon(owner);
+        struct Dungeon *dungeon = get_dungeon(owner);
         dungeon->lvstats.rooms_constructed++;
     }
     pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
@@ -4581,18 +4828,18 @@ struct Room *place_room(PlayerNumber owner, RoomKind rkind, MapSubtlCoord stl_x,
 struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags)
 {
     long retdist = LONG_MAX;
-    struct Room* retroom = INVALID_ROOM;
+    struct Room *retroom = INVALID_ROOM;
 
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,rrole))
+        if (room_role_matches(rkind, rrole))
         {
             long i = dungeonadd->room_kind[rkind];
             unsigned long k = 0;
             while (i != 0)
             {
-                struct Room* room = room_get(i);
+                struct Room *room = room_get(i);
                 if (room_is_invalid(room))
                 {
                     ERRORLOG("Jump to invalid room detected");
@@ -4626,14 +4873,15 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct
     return retroom;
 }
 
-struct Room * pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
+struct Room *pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
     struct Room *room = INVALID_ROOM;
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
 
-
-    if ( !player_has_room_of_role(plyr_idx,rrole) )
+    if (!player_has_room_of_role(plyr_idx, rrole))
+    {
         return INVALID_ROOM;
+    }
 
     int rand = PLAYER_RANDOM(plyr_idx, count_player_slabs_of_rooms_with_role(plyr_idx, rrole));
 
@@ -4643,17 +4891,19 @@ struct Room * pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
         {
 
             room = room_get(dungeonadd->room_kind[rkind]);
-            while ( !room_is_invalid(room) )
+            while (!room_is_invalid(room))
             {
-                if ( rand == 0 )
+                if (rand == 0)
+                {
                     return room;
+                }
                 --rand;
                 room = room_get(room->next_of_owner);
             }
         }
     }
 
-    if ( room_is_invalid(room) )
+    if (room_is_invalid(room))
     {
         ERRORLOG("Room not found");
         return INVALID_ROOM;
@@ -4665,7 +4915,7 @@ TbBool remove_item_from_room_capacity(struct Room *room)
 {
     if ((room->used_capacity == 0) || (room->capacity_used_for_storage == 0))
     {
-        ERRORLOG("Room %s index %d does not contain item to remove",room_code_name(room->kind),(int)room->index);
+        ERRORLOG("Room %s index %d does not contain item to remove", room_code_name(room->kind), (int)room->index);
         return false;
     }
     room->used_capacity--;
@@ -4680,12 +4930,15 @@ TbBool add_item_to_room_capacity(struct Room *room, TbBool force)
 {
     if (!force)
     {
-        if (room->used_capacity >= room->total_capacity) {
+        if (room->used_capacity >= room->total_capacity)
+        {
             return false;
         }
-    } else
+    }
+    else
     {
-        if (room->capacity_used_for_storage >= room->total_capacity) {
+        if (room->capacity_used_for_storage >= room->total_capacity)
+        {
             return false;
         }
     }
@@ -4703,10 +4956,11 @@ TbBool add_item_to_room_capacity(struct Room *room, TbBool force)
  */
 static void change_ownership_or_delete_object_thing_in_room(struct Room *room, struct Thing *thing, long parent_idx, PlayerNumber newowner)
 {
-    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-    struct Objects* objdat = get_objects_data_for_thing(thing);
+    struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
+    struct Objects *objdat = get_objects_data_for_thing(thing);
     // If thing is only dragged through the room, do not interrupt
-    if (thing_is_dragged_or_pulled(thing)) {
+    if (thing_is_dragged_or_pulled(thing))
+    {
         return;
     }
     // Handle specific things in rooms for which we have a special re-creation code
@@ -4719,22 +4973,23 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
         delete_thing_structure(thing, 0);
         return;
     }
-    else if(room_role_matches(room->kind,RoRoF_PowersStorage) && thing_is_spellbook(thing) )
+    else if (room_role_matches(room->kind, RoRoF_PowersStorage) && thing_is_spellbook(thing))
     {
         // Library owns books, specials and candles; only spellbooks require additional code
 
         oldowner = thing->owner;
         thing->owner = newowner;
-        if (oldowner != game.neutral_player_num) {
+        if (oldowner != game.neutral_player_num)
+        {
             remove_power_from_player(book_thing_to_power_kind(thing), oldowner);
         }
-        if (newowner != game.neutral_player_num) {
+        if (newowner != game.neutral_player_num)
+        {
             add_power_to_player(book_thing_to_power_kind(thing), newowner);
         }
         return;
-        
     }
-    else if(room_role_matches(room->kind,RoRoF_CratesStorage) && thing_is_workshop_crate(thing))
+    else if (room_role_matches(room->kind, RoRoF_CratesStorage) && thing_is_workshop_crate(thing))
     {
         // Workshop owns trap boxes, machines and anvils; special code for boxes only
         ThingClass tngclass;
@@ -4747,28 +5002,30 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
         remove_workshop_item_from_amount_placeable(oldowner, tngclass, tngmodel);
         add_workshop_item_to_amounts(newowner, tngclass, tngmodel);
         return;
-     }
-     else if(room_role_matches(room->kind,RoRoF_GoldStorage) && object_is_gold_hoard(thing))
-     {
-         oldowner = thing->owner;
-         struct Dungeon *dungeon;
-         {
-             dungeon = get_dungeon(newowner);
-             dungeon->total_money_owned += thing->valuable.gold_stored;
-         }
-         if (oldowner != game.neutral_player_num)
-         {
-             dungeon = get_dungeon(oldowner);
-             dungeon->total_money_owned -= thing->valuable.gold_stored;
-         }
-         thing->owner = newowner;
-         return;
     }
-    else if(room_role_matches(room->kind,RoRoF_FoodStorage) && (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing)))
+    else if (room_role_matches(room->kind, RoRoF_GoldStorage) && object_is_gold_hoard(thing))
+    {
+        oldowner = thing->owner;
+
+        struct Dungeon *dungeon;
+        {
+            dungeon = get_dungeon(newowner);
+            dungeon->total_money_owned += thing->valuable.gold_stored;
+        }
+
+        if (oldowner != game.neutral_player_num)
+        {
+            dungeon = get_dungeon(oldowner);
+            dungeon->total_money_owned -= thing->valuable.gold_stored;
+        }
+        thing->owner = newowner;
+        return;
+    }
+    else if (room_role_matches(room->kind, RoRoF_FoodStorage) && (object_is_infant_food(thing) || object_is_growing_food(thing) || object_is_mature_food(thing)))
     {
         thing->parent_idx = -1; // All chickens escape
     }
-    else if(room_role_matches(room->kind,RoRoF_LairStorage) && thing_is_lair_totem(thing))
+    else if (room_role_matches(room->kind, RoRoF_LairStorage) && thing_is_lair_totem(thing))
     {
         // Lair - owns creature lairs
         if (objdat->related_creatr_model)
@@ -4779,44 +5036,52 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
                 struct CreatureControl *cctrl;
                 tmptng = thing_get(thing->lair.belongs_to);
                 cctrl = creature_control_get_from_thing(tmptng);
-                if (cctrl->lairtng_idx == thing->index) {
+                if (cctrl->lairtng_idx == thing->index)
+                {
                     creature_remove_lair_totem_from_room(tmptng, room);
-                } else {
+                }
+                else
+                {
                     ERRORLOG("Lair totem thinks it belongs to a creature, but the creature disagrees.");
                 }
-            } else
+            }
+            else
             {
-                ERRORLOG("Lair totem %d has no owner!",(int)thing->index);
+                ERRORLOG("Lair totem %d has no owner!", (int)thing->index);
             }
             return;
         }
     }
 
-
     // If an object has parent slab, then it should change owner with that slab
     if (thing->parent_idx != -1)
     {
-        if (parent_idx == thing->parent_idx) {
+        if (parent_idx == thing->parent_idx)
+        {
             thing->owner = newowner;
         }
         return;
     }
     // If the object is marked to be destroyed, do it
-    if ((objst->model_flags & OMF_DestroyedOnRoomClaim) != 0) {
+    if ((objst->model_flags & OMF_DestroyedOnRoomClaim) != 0)
+    {
         destroy_object(thing);
         return;
     }
-    if ((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
+    if ((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0)
+    {
         // Preserve classic bug - object is claimed with the room
         thing->owner = newowner;
         return;
     }
     // For some object types we've already executed code before; being here means they're on wrong room kind
-    if (thing_is_workshop_crate(thing) || thing_is_gold_hoard(thing) || thing_is_spellbook(thing)) {
+    if (thing_is_workshop_crate(thing) || thing_is_gold_hoard(thing) || thing_is_spellbook(thing))
+    {
         return;
     }
     // Otherwise, changing owner depends on object properties
-    if ((objst->model_flags & OMF_ChOwnedOnRoomClaim) != 0) {
+    if ((objst->model_flags & OMF_ChOwnedOnRoomClaim) != 0)
+    {
         thing->owner = newowner;
         return;
     }
@@ -4825,7 +5090,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
 
 void delete_room_slabbed_objects(SlabCodedCoords slb_num)
 {
-    SYNCDBG(17,"Starting");
+    SYNCDBG(17, "Starting");
 
     MapSubtlCoord slb_x = slb_num_decode_x(slb_num);
     MapSubtlCoord slb_y = slb_num_decode_y(slb_num);
@@ -4835,12 +5100,12 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num)
         {
             MapSubtlCoord stl_x = slab_subtile(slb_x, ssub_x);
             MapSubtlCoord stl_y = slab_subtile(slb_y, ssub_y);
-            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+            struct Map *mapblk = get_map_block_at(stl_x, stl_y);
             unsigned long k = 0;
             long i = get_mapwho_thing_index(mapblk);
             while (i != 0)
             {
-                struct Thing* thing = thing_get(i);
+                struct Thing *thing = thing_get(i);
                 TRACE_THING(thing);
                 if (thing_is_invalid(thing))
                 {
@@ -4851,8 +5116,9 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num)
                 // Per-thing code start
                 if ((thing->parent_idx != slb_num) && (thing->class_id == TCls_Object))
                 {
-                    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-                    if ((objst->model_flags & OMF_DestroyedOnRoomPlace) != 0) {
+                    struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
+                    if ((objst->model_flags & OMF_DestroyedOnRoomPlace) != 0)
+                    {
                         destroy_object(thing);
                     }
                 }
@@ -4879,13 +5145,13 @@ void delete_room_slabbed_objects(SlabCodedCoords slb_num)
  */
 static TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    struct Map *mapblk = get_map_block_at(stl_x, stl_y);
     long parent_idx = get_slab_number(subtile_slab(stl_x), subtile_slab(stl_y));
     unsigned long k = 0;
     long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        struct Thing* thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
@@ -4924,15 +5190,17 @@ static TbBool change_room_subtile_things_ownership(struct Room *room, MapSubtlCo
  */
 static void change_room_map_element_ownership(struct Room *room, PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    struct Dungeon *dungeon = get_dungeon(plyr_idx);
     {
-        struct SlabMap* slb = get_slabmap_direct(room->slabs_list);
+        struct SlabMap *slb = get_slabmap_direct(room->slabs_list);
         PlayerNumber owner = slabmap_owner(slb);
-        if (owner != game.neutral_player_num) {
+        if (owner != game.neutral_player_num)
+        {
             decrease_room_area(owner, room->slabs_count);
         }
         increase_room_area(dungeon->owner, room->slabs_count);
     }
+
     unsigned long k = 0;
     unsigned long i = room->slabs_list;
     while (i > 0)
@@ -4942,7 +5210,7 @@ static void change_room_map_element_ownership(struct Room *room, PlayerNumber pl
         i = get_next_slab_number_in_room(i);
         // Per-slab code
         set_slab_explored(plyr_idx, slb_x, slb_y);
-        set_slab_owner(slb_x,slb_y, plyr_idx);
+        set_slab_owner(slb_x, slb_y, plyr_idx);
         MapSubtlCoord start_stl_x = slab_subtile(slb_x, 0);
         MapSubtlCoord start_stl_y = slab_subtile(slb_y, 0);
         MapSubtlCoord end_stl_x = slab_subtile(slb_x + 1, 0);
@@ -4978,7 +5246,7 @@ void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y)
     {
         for (MapSubtlCoord stl_x = start_stl_x; stl_x < end_stl_x; stl_x++)
         {
-            struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+            struct Map *mapblk = get_map_block_at(stl_x, stl_y);
             if (!map_block_invalid(mapblk))
             {
                 copy_block_with_cube_groups(-get_mapblk_column_index(mapblk), stl_x, stl_y);
@@ -5000,7 +5268,7 @@ void redraw_room_map_elements(struct Room *room)
         redraw_slab_map_elements(slb_x, slb_y);
         // Per-slab code end
         k++;
-        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y)
+        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -5021,7 +5289,7 @@ void do_room_unprettying(struct Room *room, PlayerNumber plyr_idx)
         do_unprettying(plyr_idx, slb_x, slb_y);
         // Per-slab code end
         k++;
-        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y)
+        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y)
         {
             ERRORLOG("Infinite loop detected when sweeping room slabs");
             break;
@@ -5031,7 +5299,7 @@ void do_room_unprettying(struct Room *room, PlayerNumber plyr_idx)
 
 void do_room_integration(struct Room *room)
 {
-    SYNCDBG(7,"Starting for %s index %d owned by player %d",room_code_name(room->kind),(int)room->index,(int)room->owner);
+    SYNCDBG(7, "Starting for %s index %d owned by player %d", room_code_name(room->kind), (int)room->index, (int)room->owner);
     set_room_efficiency(room);
     update_room_total_health(room);
     update_room_total_capacity(room);
@@ -5039,7 +5307,7 @@ void do_room_integration(struct Room *room)
     init_room_sparks(room);
 }
 
-void do_room_recalculation(struct Room* room)
+void do_room_recalculation(struct Room *room)
 {
     SYNCDBG(7, "Starting for %s index %d owned by player %d", room_code_name(room->kind), (int)room->index, (int)room->owner);
     set_room_efficiency(room);
@@ -5053,19 +5321,23 @@ void output_room_takeover_message(struct Room *room, PlayerNumber oldowner, Play
 {
     if (room->kind == RoK_ENTRANCE)
     {
-        if (is_my_player_number(oldowner)) {
+        if (is_my_player_number(oldowner))
+        {
             output_message(SMsg_EntranceLost, 0, 1);
-        } else
-        if (is_my_player_number(newowner))
+        }
+        else if (is_my_player_number(newowner))
         {
             output_message(SMsg_EntranceClaimed, 0, 1);
         }
-    } else
-    if (is_my_player_number(newowner))
+    }
+    else if (is_my_player_number(newowner))
     {
-        if (oldowner == game.neutral_player_num) {
+        if (oldowner == game.neutral_player_num)
+        {
             output_message(SMsg_NewRoomTakenOver, 0, 1);
-        } else {
+        }
+        else
+        {
             output_message(SMsg_EnemyRoomTakeOver, 0, 1);
         }
     }
@@ -5079,7 +5351,7 @@ void output_room_takeover_message(struct Room *room, PlayerNumber oldowner, Play
  */
 long claim_room(struct Room *room, struct Thing *claimtng)
 {
-    SYNCDBG(7,"Starting for %s index %d claimed by player %d",room_code_name(room->kind),(int)room->index,(int)claimtng->owner);
+    SYNCDBG(7, "Starting for %s index %d claimed by player %d", room_code_name(room->kind), (int)room->index, (int)claimtng->owner);
     PlayerNumber oldowner = room->owner;
     if ((oldowner != game.neutral_player_num) || (claimtng->owner == game.neutral_player_num))
     {
@@ -5093,7 +5365,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
     redraw_room_map_elements(room);
     do_room_unprettying(room, claimtng->owner);
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
-        EvKind_RoomTakenOver, claimtng->owner, room->kind);
+                       EvKind_RoomTakenOver, claimtng->owner, room->kind);
     do_room_integration(room);
     thing_play_sample(claimtng, 116, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
     output_room_takeover_message(room, oldowner, claimtng->owner);
@@ -5108,7 +5380,7 @@ long claim_room(struct Room *room, struct Thing *claimtng)
  */
 long claim_enemy_room(struct Room *room, struct Thing *claimtng)
 {
-    SYNCDBG(7,"Starting for %s index %d claimed by player %d",room_code_name(room->kind),(int)room->index,(int)claimtng->owner);
+    SYNCDBG(7, "Starting for %s index %d claimed by player %d", room_code_name(room->kind), (int)room->index, (int)claimtng->owner);
     PlayerNumber oldowner = room->owner;
     if ((oldowner == claimtng->owner) || (claimtng->owner == game.neutral_player_num))
     {
@@ -5116,7 +5388,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     }
     research_found_room(claimtng->owner, room->kind);
     reset_state_of_creatures_working_in_room(room);
-    remove_room_from_players_list(room,oldowner);
+    remove_room_from_players_list(room, oldowner);
     room->owner = claimtng->owner;
     room->health = compute_room_max_health(room->slabs_count, room->efficiency);
     add_room_to_players_list(room, claimtng->owner);
@@ -5124,7 +5396,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
     redraw_room_map_elements(room);
     do_room_unprettying(room, claimtng->owner);
     event_create_event(subtile_coord_center(room->central_stl_x), subtile_coord_center(room->central_stl_y),
-        EvKind_RoomTakenOver, claimtng->owner, room->kind);
+                       EvKind_RoomTakenOver, claimtng->owner, room->kind);
     do_room_integration(room);
     output_room_takeover_message(room, oldowner, claimtng->owner);
     return 1;
@@ -5136,7 +5408,7 @@ long claim_enemy_room(struct Room *room, struct Thing *claimtng)
  * @param newowner The player which will receive the room.
  * @return
  */
-long take_over_room(struct Room* room, PlayerNumber newowner)
+long take_over_room(struct Room *room, PlayerNumber newowner)
 {
     SYNCDBG(7, "Starting for %s index %d claimed by player %d", room_code_name(room->kind), (int)room->index, newowner);
     PlayerNumber oldowner = room->owner;
@@ -5154,8 +5426,8 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
         do_room_unprettying(room, newowner);
         do_room_integration(room);
         return 1;
-    } else
-    if (oldowner != newowner)
+    }
+    else if (oldowner != newowner)
     {
         reset_state_of_creatures_working_in_room(room);
         remove_room_from_players_list(room, oldowner);
@@ -5194,14 +5466,14 @@ void destroy_room_leaving_unclaimed_ground(struct Room *room)
         // Per room tile code
         if (room->owner != game.neutral_player_num)
         {
-            struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
+            struct Dungeon *dungeon = get_players_num_dungeon(room->owner);
             dungeon->rooms_destroyed++;
         }
         delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room
         create_dirt_rubble_for_dug_slab(slb_x, slb_y);
         // Per room tile code ends
         k++;
-        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y) // we can't use room->slabs_count as room may be deleted
+        if (k > gameadd.map_tiles_x * gameadd.map_tiles_y) // we can't use room->slabs_count as room may be deleted
         {
             ERRORLOG("Room slabs list length exceeded when sweeping");
             break;
@@ -5211,9 +5483,9 @@ void destroy_room_leaving_unclaimed_ground(struct Room *room)
 
 void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    struct Room* room = get_room_thing_is_on(heartng);
-    if (room_is_invalid(room) || (!room_role_matches(room->kind,RoRoF_KeeperStorage)))
+    struct DungeonAdd *dungeonadd = get_dungeonadd(plyr_idx);
+    struct Room *room = get_room_thing_is_on(heartng);
+    if (room_is_invalid(room) || (!room_role_matches(room->kind, RoRoF_KeeperStorage)))
     {
         WARNLOG("The heart thing is not in heart room");
         if (dungeonadd->backup_heart_idx == 0)
@@ -5229,4 +5501,5 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
     remove_room_from_players_list(room, plyr_idx);
     destroy_room_leaving_unclaimed_ground(room);
 }
+
 /******************************************************************************/

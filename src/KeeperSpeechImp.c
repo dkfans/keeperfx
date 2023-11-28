@@ -34,16 +34,17 @@ static HINSTANCE ks_lib;
 
 static struct
 {
-    fpKeeperSpeechErrorMessage  error_message;
-    fpKeeperSpeechExit          exit;
-    fpKeeperSpeechPopEvent      pop_event;
-    fpKeeperSpeechClearEvents   clear_events;
+    fpKeeperSpeechErrorMessage error_message;
+    fpKeeperSpeechExit exit;
+    fpKeeperSpeechPopEvent pop_event;
+    fpKeeperSpeechClearEvents clear_events;
 } ks_fn;
 
 static void clean_up()
 {
 #ifdef _WIN32
-    if (ks_lib) {
+    if (ks_lib)
+    {
         FreeLibrary(ks_lib);
         ks_lib = NULL;
     }
@@ -57,47 +58,53 @@ KEEPERSPEECH_REASON KeeperSpeechInit(void)
     fpKeeperSpeechInit init = NULL;
 
 #ifdef _WIN32
-    if (ks_lib) {
+    if (ks_lib)
+    {
         return KSR_ALREADY_INIT;
     }
 
     ks_lib = LoadLibrary("KeeperSpeech.dll");
-    if (!ks_lib) {
+    if (!ks_lib)
+    {
         return KSR_NO_LIB_INSTALLED;
     }
 
-    init = (fpKeeperSpeechInit) GetProcAddress(ks_lib, "KeeperSpeechInit");
-    ks_fn.error_message = (fpKeeperSpeechErrorMessage)(void *) GetProcAddress(ks_lib, "KeeperSpeechErrorMessage");
-    ks_fn.exit = (fpKeeperSpeechExit) GetProcAddress(ks_lib, "KeeperSpeechExit");
-    ks_fn.pop_event = (fpKeeperSpeechPopEvent) GetProcAddress(ks_lib, "KeeperSpeechPopEvent");
-    ks_fn.clear_events = (fpKeeperSpeechClearEvents) GetProcAddress(ks_lib, "KeeperSpeechClearEvents");
+    init = (fpKeeperSpeechInit)GetProcAddress(ks_lib, "KeeperSpeechInit");
+    ks_fn.error_message = (fpKeeperSpeechErrorMessage)(void *)GetProcAddress(ks_lib, "KeeperSpeechErrorMessage");
+    ks_fn.exit = (fpKeeperSpeechExit)GetProcAddress(ks_lib, "KeeperSpeechExit");
+    ks_fn.pop_event = (fpKeeperSpeechPopEvent)GetProcAddress(ks_lib, "KeeperSpeechPopEvent");
+    ks_fn.clear_events = (fpKeeperSpeechClearEvents)GetProcAddress(ks_lib, "KeeperSpeechClearEvents");
 
-    //check for critical functions
+    // check for critical functions
     if (!init ||
         !ks_fn.error_message ||
-        !ks_fn.exit) {
+        !ks_fn.exit)
+    {
 
         clean_up();
         return KSR_NO_LIB_INSTALLED;
     }
 #endif
 
-    //check in case of unimplemented platform
-    if (!init) {
+    // check in case of unimplemented platform
+    if (!init)
+    {
         return KSR_NO_LIB_INSTALLED;
     }
 
     KEEPERSPEECH_REASON reason = init();
-    if (reason != KSR_OK) {
+    if (reason != KSR_OK)
+    {
         clean_up();
     }
 
     return reason;
 }
 
-const char * KeeperSpeechErrorMessage(KEEPERSPEECH_REASON reason)
+const char *KeeperSpeechErrorMessage(KEEPERSPEECH_REASON reason)
 {
-    if (ks_fn.error_message) {
+    if (ks_fn.error_message)
+    {
         return ks_fn.error_message(reason);
     }
 
@@ -106,16 +113,18 @@ const char * KeeperSpeechErrorMessage(KEEPERSPEECH_REASON reason)
 
 void KeeperSpeechExit(void)
 {
-    if (ks_fn.exit) {
+    if (ks_fn.exit)
+    {
         ks_fn.exit();
     }
 
     clean_up();
 }
 
-KEEPERSPEECH_REASON KeeperSpeechPopEvent(KEEPERSPEECH_EVENT * ev)
+KEEPERSPEECH_REASON KeeperSpeechPopEvent(KEEPERSPEECH_EVENT *ev)
 {
-    if (ks_fn.pop_event) {
+    if (ks_fn.pop_event)
+    {
         return ks_fn.pop_event(ev);
     }
 
@@ -124,7 +133,8 @@ KEEPERSPEECH_REASON KeeperSpeechPopEvent(KEEPERSPEECH_EVENT * ev)
 
 void KeeperSpeechClearEvents(void)
 {
-    if (ks_fn.clear_events) {
+    if (ks_fn.clear_events)
+    {
         ks_fn.clear_events();
     }
 }

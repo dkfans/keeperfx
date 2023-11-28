@@ -41,56 +41,59 @@ extern "C" {
 #endif
 /******************************************************************************/
 struct Boing {
-  unsigned char field_0;
-  unsigned char comp_player_aggressive;
-  unsigned char comp_player_defensive;
-  unsigned char comp_player_construct;
-  unsigned char comp_player_creatrsonly;
-  unsigned char creatures_tend_imprison;
-  unsigned char creatures_tend_flee;
-  unsigned short hand_over_subtile_x;
-  unsigned short hand_over_subtile_y;
-  unsigned long chosen_room_kind;
-  unsigned long chosen_room_spridx;
-  unsigned long chosen_room_tooltip;
-  unsigned long chosen_spell_type;
-  unsigned long chosen_spell_spridx;
-  unsigned long chosen_spell_tooltip;
-  unsigned long manufactr_element;
-  unsigned long manufactr_spridx;
-  unsigned long manufactr_tooltip;
+    unsigned char field_0;
+    unsigned char comp_player_aggressive;
+    unsigned char comp_player_defensive;
+    unsigned char comp_player_construct;
+    unsigned char comp_player_creatrsonly;
+    unsigned char creatures_tend_imprison;
+    unsigned char creatures_tend_flee;
+    unsigned short hand_over_subtile_x;
+    unsigned short hand_over_subtile_y;
+    unsigned long chosen_room_kind;
+    unsigned long chosen_room_spridx;
+    unsigned long chosen_room_tooltip;
+    unsigned long chosen_spell_type;
+    unsigned long chosen_spell_spridx;
+    unsigned long chosen_spell_tooltip;
+    unsigned long manufactr_element;
+    unsigned long manufactr_spridx;
+    unsigned long manufactr_tooltip;
 };
 /******************************************************************************/
 /** Structure used for storing 'localised parameters' when resyncing net game. */
 struct Boing boing;
+
 /******************************************************************************/
 long get_resync_sender(void)
 {
     for (int i = 0; i < NET_PLAYERS_COUNT; i++)
     {
-        struct PlayerInfo* player = get_player(i);
+        struct PlayerInfo *player = get_player(i);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
+        {
             return i;
-  }
-  return -1;
+        }
+    }
+    return -1;
 }
 
 TbBool send_resync_game(void)
 {
-  //TODO NET see if it is necessary to dump to file... probably superfluous
-  char* fname = prepare_file_path(FGrp_Save, "resync.dat");
-  TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
-  if (fh == -1)
-  {
-    ERRORLOG("Can't open resync file.");
-    return false;
-  }
+    // TODO NET see if it is necessary to dump to file... probably superfluous
+    char *fname = prepare_file_path(FGrp_Save, "resync.dat");
+    TbFileHandle fh = LbFileOpen(fname, Lb_FILE_MODE_NEW);
+    if (fh == -1)
+    {
+        ERRORLOG("Can't open resync file.");
+        return false;
+    }
 
-  LbFileWrite(fh, &game, sizeof(game));
-  LbFileClose(fh);
+    LbFileWrite(fh, &game, sizeof(game));
+    LbFileClose(fh);
 
-  NETLOG("Initiating re-synchronization of network game");
-  return LbNetwork_Resync(&game, sizeof(game));
+    NETLOG("Initiating re-synchronization of network game");
+    return LbNetwork_Resync(&game, sizeof(game));
 }
 
 TbBool receive_resync_game(void)
@@ -145,23 +148,24 @@ void recall_localised_game_structure(void)
 
 void resync_game(void)
 {
-    SYNCDBG(2,"Starting");
-    struct PlayerInfo* player = get_my_player();
-    draw_out_of_sync_box(0, 32*units_per_pixel/16, player->engine_window_x);
+    SYNCDBG(2, "Starting");
+    struct PlayerInfo *player = get_my_player();
+    draw_out_of_sync_box(0, 32 * units_per_pixel / 16, player->engine_window_x);
     reset_eye_lenses();
     store_localised_game_structure();
     int i = get_resync_sender();
     if (is_my_player_number(i))
     {
         send_resync_game();
-    } else
+    }
+    else
     {
         receive_resync_game();
     }
     recall_localised_game_structure();
     reinit_level_after_load();
-    set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-    set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+    set_flag_byte(&game.system_flags, GSF_NetGameNoSync, false);
+    set_flag_byte(&game.system_flags, GSF_NetSeedNoSync, false);
 }
 
 /**
@@ -174,13 +178,14 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
     unsigned long checksum_mem = 0;
     for (int i = 1; i < THINGS_COUNT; i++)
     {
-        struct Thing* thing = thing_get(i);
-        if (thing_exists(thing)) {
+        struct Thing *thing = thing_get(i);
+        if (thing_exists(thing))
+        {
             checksum_mem += thing->mappos.z.val + thing->mappos.y.val + thing->mappos.x.val;
         }
     }
     clear_packets();
-    struct Packet* pckt = get_packet(my_player_number);
+    struct Packet *pckt = get_packet(my_player_number);
     set_packet_action(pckt, PckA_LevelExactCheck, 0, 0, 0, 0);
     pckt->chksum = checksum_mem + game.action_rand_seed;
     if (LbNetwork_Exchange(pckt, game.packets, sizeof(struct Packet)))
@@ -193,7 +198,7 @@ CoroutineLoopState perform_checksum_verification(CoroutineLoop *con)
         // Wait for message from other side
         return CLS_REPEAT;
     }
-    if ( checksums_different() )
+    if (checksums_different())
     {
         ERRORLOG("Level checksums different for network players");
         result = false;
@@ -214,7 +219,7 @@ TbBigChecksum compute_player_checksum(struct PlayerInfo *player)
     TbBigChecksum sum = 0;
     if (((player->allocflags & PlaF_CompCtrl) == 0) && (player->acamera != NULL))
     {
-        struct Coord3d* mappos = &(player->acamera->mappos);
+        struct Coord3d *mappos = &(player->acamera->mappos);
         sum += (TbBigChecksum)player->instance_remain_rurns + (TbBigChecksum)player->instance_num;
         sum += (TbBigChecksum)mappos->x.val + (TbBigChecksum)mappos->z.val + (TbBigChecksum)mappos->y.val;
     }
@@ -230,7 +235,7 @@ TbBigChecksum compute_players_checksum(void)
     TbBigChecksum sum = 0;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        struct PlayerInfo* player = get_player(i);
+        struct PlayerInfo *player = get_player(i);
         if (player_exists(player))
         {
             sum += compute_player_checksum(player);
@@ -248,9 +253,9 @@ TbBigChecksum compute_players_checksum(void)
  */
 void player_packet_checksum_add(PlayerNumber plyr_idx, TbBigChecksum sum, const char *area_name)
 {
-    struct Packet* pckt = get_packet(plyr_idx);
+    struct Packet *pckt = get_packet(plyr_idx);
     pckt->chksum += sum;
-    SYNCDBG(9,"Checksum increase from %s is %06lX",area_name,(unsigned long)sum);
+    SYNCDBG(9, "Checksum increase from %s is %06lX", area_name, (unsigned long)sum);
 }
 
 /**
@@ -264,10 +269,10 @@ short checksums_different()
     int plyr = -1;
     for (int i = 0; i < PLAYERS_COUNT; i++)
     {
-        struct PlayerInfo* player = get_player(i);
+        struct PlayerInfo *player = get_player(i);
         if (player_exists(player) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
-            struct Packet* pckt = get_packet_direct(player->packet_num);
+            struct Packet *pckt = get_packet_direct(player->packet_num);
             if (!is_set)
             {
                 checksum = pckt->chksum;
@@ -285,17 +290,18 @@ short checksums_different()
     return false;
 }
 
-TbBigChecksum get_thing_checksum(const struct Thing* thing)
+TbBigChecksum get_thing_checksum(const struct Thing *thing)
 {
     SYNCDBG(18, "Starting");
     if (!thing_exists(thing))
+    {
         return 0;
+    }
     TbBigChecksum csum = (ulong)thing->class_id + ((ulong)thing->model << 4) + (ulong)thing->owner;
     if (thing->class_id == TCls_Creature)
     {
-        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id
-            + (ulong)thing->max_frames + (ulong)thing->current_frame;
+        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+        csum += (ulong)cctrl->inst_turn + (ulong)cctrl->instance_id + (ulong)thing->max_frames + (ulong)thing->current_frame;
     }
     else if ((thing->class_id == TCls_EffectElem) || (thing->class_id == TCls_AmbientSnd))
     {
@@ -303,25 +309,26 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
     }
     else if (thing->class_id == TCls_Effect)
     {
-        const struct InitEffect* effnfo = get_effect_info_for_thing(thing);
+        const struct InitEffect *effnfo = get_effect_info_for_thing(thing);
         if (effnfo->area_affect_type != AAffT_None)
         {
             csum += (ulong)thing->mappos.z.val +
-                (ulong)thing->mappos.x.val +
-                (ulong)thing->mappos.y.val +
-                (ulong)thing->health;
+                    (ulong)thing->mappos.x.val +
+                    (ulong)thing->mappos.y.val +
+                    (ulong)thing->health;
         }
-        //else: No syncing on Effects that do not affect the area around them
+        // else: No syncing on Effects that do not affect the area around them
     }
     else
     {
         csum += (ulong)thing->mappos.z.val +
-            (ulong)thing->mappos.x.val +
-            (ulong)thing->mappos.y.val +
-            (ulong)thing->health;
+                (ulong)thing->mappos.x.val +
+                (ulong)thing->mappos.y.val +
+                (ulong)thing->health;
     }
     return csum * thing->index;
 }
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

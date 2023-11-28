@@ -10,7 +10,7 @@
 class TestRegistryWrapper
 {
 
-public:
+  public:
     TestRegistryWrapper(const char *fn_name, void (*test_fn)())
     {
         if (!CU_registry_initialized())
@@ -26,12 +26,11 @@ public:
     }
 };
 
-#define TEST_OBJ_NAME(fn_name) fn_name ##__LINE__
+#define TEST_OBJ_NAME(fn_name) fn_name##__LINE__
 
-#define ADD_TEST(X) \
-   static void X(); \
-   static TestRegistryWrapper TEST_OBJ_NAME(X) (#X, &X); \
-   static void X()
+#define ADD_TEST(X)                                      \
+    static void X();                                     \
+    static TestRegistryWrapper TEST_OBJ_NAME(X)(#X, &X); \
+    static void X()
 
-
-#endif //GIT_TST_MAIN_H
+#endif // GIT_TST_MAIN_H

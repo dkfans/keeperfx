@@ -27,20 +27,20 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-long read_int32_le_buf (const unsigned char *buff);
-unsigned short read_int16_le_buf (const unsigned char *buff);
+long read_int32_le_buf(const unsigned char *buff);
+unsigned short read_int16_le_buf(const unsigned char *buff);
 
-void write_int16_le_buf (unsigned char *buff, unsigned short x);
-void write_int32_le_buf (unsigned char *buff, unsigned long x);
+void write_int16_le_buf(unsigned char *buff, unsigned short x);
+void write_int32_le_buf(unsigned char *buff, unsigned long x);
 
-long read_int32_be_buf (const unsigned char *buff);
-unsigned short read_int16_be_buf (const unsigned char *buff);
+long read_int32_be_buf(const unsigned char *buff);
+unsigned short read_int16_be_buf(const unsigned char *buff);
 
-void write_int16_be_buf (unsigned char *buff, unsigned short x);
-void write_int32_be_buf (unsigned char *buff, unsigned long x);
+void write_int16_be_buf(unsigned char *buff, unsigned short x);
+void write_int32_be_buf(unsigned char *buff, unsigned long x);
 
-unsigned char read_int8_buf (const unsigned char *buff);
-void write_int8_buf (unsigned char *buff, unsigned char x);
+unsigned char read_int8_buf(const unsigned char *buff);
+void write_int8_buf(unsigned char *buff, unsigned char x);
 
 /******************************************************************************/
 #ifdef __cplusplus

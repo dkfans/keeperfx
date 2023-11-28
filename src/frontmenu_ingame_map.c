@@ -51,14 +51,14 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-struct InterpMinimap
-{
+struct InterpMinimap {
     long x;
     long y;
     long previous_x;
     long previous_y;
     long get_previous;
 };
+
 /******************************************************************************/
 /**
  * Background behind the map area.
@@ -75,13 +75,14 @@ static unsigned char MapBackColours[256];
 static unsigned char PannelColours[4096];
 static long PrevRoomHighlight;
 static long PrevDoorHighlight;
-static unsigned char PannelMap[MAX_SUBTILES_X*MAX_SUBTILES_Y];//map subtiles x*y
+static unsigned char PannelMap[MAX_SUBTILES_X * MAX_SUBTILES_Y]; // map subtiles x*y
 static struct InterpMinimap interp_minimap;
 
 long clicked_on_small_map;
 unsigned char grabbed_small_map;
 long MapDiagonalLength = 0;
 TbBool reset_all_minimap_interpolation = false;
+
 /******************************************************************************/
 
 void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
@@ -111,20 +112,23 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(owner);
     int units_per_px;
-    units_per_px = (16*status_panel_width + 140/2) / 140;
+    units_per_px = (16 * status_panel_width + 140 / 2) / 140;
     TbPixel col;
     col = player_room_colours[owner];
     int i;
-    i = 2*(PANNEL_MAP_RADIUS*units_per_px/16) / 2;
+    i = 2 * (PANNEL_MAP_RADIUS * units_per_px / 16) / 2;
     long center_x;
     long center_y;
     center_x = i + x2;
     center_y = i + y2;
     long long cscale;
     float circle_time;
-    if ((game.operation_flags & GOF_Paused) == 0) {
+    if ((game.operation_flags & GOF_Paused) == 0)
+    {
         circle_time = ((game.play_gameturn + owner) & 7) + gameadd.process_turn_time;
-    } else {
+    }
+    else
+    {
         circle_time = ((game.play_gameturn + owner) & 7);
     }
     cscale = circle_time * pwrdynst->strength[dungeon->cta_splevel];
@@ -141,75 +145,79 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     int sy;
     long base_y;
     base_y = ((cscale >> 3) << 8) / zoom;
-    if ( base_y > 1 )
+    if (base_y > 1)
     {
-      sy = base_y;
-      i = 3 - 2 * base_y;
-      for (sx=0; sx < sy; sx++)
-      {
-          dxq1 = center_x - sx;
-          dyq1 = center_y - sy;
-          pannel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
-          dxq2 = center_x + sx;
-          pannel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
-          dyq2 = sy + center_y;
-          pannel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
-          pannel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
-          dxq3 = center_x - sy;
-          dyq3 = center_y - sx;
-          pannel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
-          dxq4 = center_x + sy;
-          pannel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
-          dyq4 = sx + center_y;
-          pannel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
-          pannel_map_draw_pixel(x1 + dxq4, y1 + dyq4, col);
-          if (i >= 0)
-          {
-              i += 4 * (sx - sy) + 10*units_per_px/16;
-              sy--;
-          } else
-          {
-              i += 4 * (sx - 1) + 10*units_per_px/16;
-          }
-      }
+        sy = base_y;
+        i = 3 - 2 * base_y;
+        for (sx = 0; sx < sy; sx++)
+        {
+            dxq1 = center_x - sx;
+            dyq1 = center_y - sy;
+            pannel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
+            dxq2 = center_x + sx;
+            pannel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
+            dyq2 = sy + center_y;
+            pannel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
+            pannel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
+            dxq3 = center_x - sy;
+            dyq3 = center_y - sx;
+            pannel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
+            dxq4 = center_x + sy;
+            pannel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
+            dyq4 = sx + center_y;
+            pannel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
+            pannel_map_draw_pixel(x1 + dxq4, y1 + dyq4, col);
+            if (i >= 0)
+            {
+                i += 4 * (sx - sy) + 10 * units_per_px / 16;
+                sy--;
+            }
+            else
+            {
+                i += 4 * (sx - 1) + 10 * units_per_px / 16;
+            }
+        }
 
-      if (sy == sx)
-      {
-        dxq1 = center_x - sx;
-        dyq1 = center_y - sy;
-        pannel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
-        dxq2 = center_x + sx;
-        pannel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
-        dyq2 = sy + center_y;
-        pannel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
-        pannel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
-        dxq3 = center_x - sy;
-        dyq3 = center_y - sx;
-        pannel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
-        dxq4 = center_x + sy;
-        pannel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
-        dyq4 = sx + center_y;
-        pannel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
-        pannel_map_draw_pixel(dxq4 + x1, dyq4 + y1, col);
-      }
+        if (sy == sx)
+        {
+            dxq1 = center_x - sx;
+            dyq1 = center_y - sy;
+            pannel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
+            dxq2 = center_x + sx;
+            pannel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
+            dyq2 = sy + center_y;
+            pannel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
+            pannel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
+            dxq3 = center_x - sy;
+            dyq3 = center_y - sx;
+            pannel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
+            dxq4 = center_x + sy;
+            pannel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
+            dyq4 = sx + center_y;
+            pannel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
+            pannel_map_draw_pixel(dxq4 + x1, dyq4 + y1, col);
+        }
     }
 }
 
 void interpolate_minimap_thing(struct Thing *thing, struct Camera *cam)
 {
-    long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num,0));
-    long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num,0));
+    long current_minimap_x = (thing->mappos.x.val - (MapCoordDelta)subtile_coord(cam->mappos.x.stl.num, 0));
+    long current_minimap_y = (thing->mappos.y.val - (MapCoordDelta)subtile_coord(cam->mappos.y.stl.num, 0));
     if ((reset_all_minimap_interpolation == true) || (thing->previous_minimap_pos_x == 0 && thing->previous_minimap_pos_y == 0))
     {
         thing->interp_minimap_pos_x = current_minimap_x;
         thing->interp_minimap_pos_y = current_minimap_y;
         thing->previous_minimap_pos_x = current_minimap_x;
         thing->previous_minimap_pos_y = current_minimap_y;
-    } else {
+    }
+    else
+    {
         thing->interp_minimap_pos_x = interpolate(thing->interp_minimap_pos_x, thing->previous_minimap_pos_x, current_minimap_x);
         thing->interp_minimap_pos_y = interpolate(thing->interp_minimap_pos_y, thing->previous_minimap_pos_y, current_minimap_y);
     }
-    if ((thing->interp_minimap_update_turn != game.play_gameturn) || (game.operation_flags & GOF_Paused) != 0) {
+    if ((thing->interp_minimap_update_turn != game.play_gameturn) || (game.operation_flags & GOF_Paused) != 0)
+    {
         thing->interp_minimap_update_turn = game.play_gameturn;
         thing->previous_minimap_pos_x = current_minimap_x;
         thing->previous_minimap_pos_y = current_minimap_y;
@@ -227,9 +235,11 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
     unsigned long k;
     int i;
     int n;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     if (player->acamera == NULL)
+    {
         return 0;
+    }
     struct Camera *cam = player->acamera;
     n = 0;
     const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
@@ -247,7 +257,7 @@ int draw_overlay_call_to_arms(struct PlayerInfo *player, long units_per_px, long
         // Per-thing code
         if (!thing_is_picked_up(thing))
         {
-            if (thing->model == ObjMdl_CTAEnsign)//TODO CONFIG object model dependency, move to config
+            if (thing->model == ObjMdl_CTAEnsign) // TODO CONFIG object model dependency, move to config
             {
                 // Position of the thing on unrotated map
                 // for camera, coordinates within subtile are skipped; the thing uses full resolution coordinates
@@ -286,9 +296,11 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
     unsigned long k;
     int i;
     int n;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     if (player->acamera == NULL)
+    {
         return 0;
+    }
     struct Camera *cam = player->acamera;
     n = 0;
     k = 0;
@@ -311,25 +323,28 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
             interpolate_minimap_thing(thing, cam);
             long zmpos_x = thing->interp_minimap_pos_x / scaled_zoom;
             long zmpos_y = thing->interp_minimap_pos_y / scaled_zoom;
-            
+
             // Now rotate the coordinates to receive minimap points
             RealScreenCoord mapos_x;
             RealScreenCoord mapos_y;
             mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
             mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
             RealScreenCoord basepos;
-            basepos = MapDiagonalLength/2;
+            basepos = MapDiagonalLength / 2;
             // Do the drawing
             if ((thing->trap.revealed) || (player->id_number == thing->owner))
             {
                 TbPixel col;
-                if ((thing->model == gui_trap_type_highlighted) && (game.play_gameturn & 1)) {
+                if ((thing->model == gui_trap_type_highlighted) && (game.play_gameturn & 1))
+                {
                     col = player_highlight_colours[thing->owner];
-                } else {
+                }
+                else
+                {
                     col = 60;
                 }
-                short pixels_amount = scale_pixel(basic_zoom*2);
-                short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom*2);
+                short pixels_amount = scale_pixel(basic_zoom * 2);
+                short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom * 2);
                 for (int p = 0; p < pixel_end; p++)
                 {
                     // Draw a cross
@@ -364,9 +379,11 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
     unsigned long k;
     int i;
     int n;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     if (player->acamera == NULL)
+    {
         return 0;
+    }
     struct Camera *cam = player->acamera;
     n = 0;
     const struct StructureList *slist = get_list_for_thing_class(TCls_Object);
@@ -391,17 +408,18 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                 interpolate_minimap_thing(thing, cam);
                 long zmpos_x = thing->interp_minimap_pos_x / scaled_zoom;
                 long zmpos_y = thing->interp_minimap_pos_y / scaled_zoom;
-                
+
                 long mapos_x;
                 long mapos_y;
                 // Now rotate the coordinates to receive minimap points
                 mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
                 mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
                 RealScreenCoord basepos;
-                basepos = MapDiagonalLength/2;
-                
+                basepos = MapDiagonalLength / 2;
+
                 // Do the drawing
-                if ((game.play_gameturn & 3) == 1) {
+                if ((game.play_gameturn & 3) == 1)
+                {
                     if (thing_is_special_box(thing) || thing_is_spellbook(thing))
                     {
                         short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
@@ -434,21 +452,25 @@ void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord ba
         pannel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
         return;
     }
-    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);     
+    short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);
     for (int i = 0; i < pixel_end; i++)
     {
         pannel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
     }
 }
 
-int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
+int draw_overlay_possessed_thing(struct PlayerInfo *player, long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
 {
-    const struct Camera* cam;
+    const struct Camera *cam;
     cam = player->acamera;
     if (cam == NULL)
+    {
         return 0;
+    }
     if (cam->view_mode != PVM_CreatureView)
+    {
         return 0;
+    }
     if (game.play_gameturn & 4)
     {
         col = colours[15][15][15];
@@ -477,15 +499,17 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
     TbBool isLowRes = 0;
     if (units_per_px < 16)
     {
-       isLowRes = 1;
+        isLowRes = 1;
     }
 
     unsigned long k;
     int i;
     int n;
-    SYNCDBG(18,"Starting");
+    SYNCDBG(18, "Starting");
     if (player->acamera == NULL)
+    {
         return 0;
+    }
     struct Camera *cam = player->acamera;
     n = 0;
     k = 0;
@@ -527,7 +551,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                 mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
                 mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
                 RealScreenCoord basepos;
-                basepos = MapDiagonalLength/2;
+                basepos = MapDiagonalLength / 2;
                 // Do the drawing
                 if (thing->owner == player->id_number)
                 {
@@ -539,7 +563,8 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                         pannel_map_draw_creature_dot(mapos_x, mapos_y + pixels_amount, basepos, col2, basic_zoom, isLowRes);
                         pannel_map_draw_creature_dot(mapos_x, mapos_y - pixels_amount, basepos, col2, basic_zoom, isLowRes);
                         pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, 31, basic_zoom, isLowRes);
-                    } else
+                    }
+                    else
                     {
                         if ((is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)))
                         {
@@ -550,55 +575,65 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                             pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col2, basic_zoom, isLowRes);
                         }
                     }
-                } else
-                {
-                    if (thing->owner == game.neutral_player_num) {
-                        col = player_room_colours[(game.play_gameturn + 1) & 3];
-                    } else {
-                        col = col1;
-                    }
-                    pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom, isLowRes);
                 }
-            } else
-            // Hero tunnelers may be visible on unrevealed terrain too (if on revealed, then they're already drawn)
-            if (is_hero_tunnelling_to_attack(thing))
-            {
-                struct CreatureControl *cctrl;
-                cctrl = creature_control_get_from_thing(thing);
-                int m;
-                for (m=0; m < 5; m++)
+                else
                 {
-                    long memberpos;
-                    memberpos = cctrl->party.member_pos_stl[m];
-                    if (memberpos == 0)
-                        break;
-                    if ((game.play_gameturn & 4) == 0)
+                    if (thing->owner == game.neutral_player_num)
                     {
-                        col1 = player_room_colours[(uchar)cctrl->party.target_plyr_idx];
-                        col2 = player_room_colours[thing->owner];
+                        col = player_room_colours[(game.play_gameturn + 1) & 3];
                     }
-                    long zmpos_x = ((stl_num_decode_x(memberpos) - (MapSubtlDelta)cam->mappos.x.stl.num) << 8);
-                    long zmpos_y = ((stl_num_decode_y(memberpos) - (MapSubtlDelta)cam->mappos.y.stl.num) << 8);
-                    zmpos_x += (interp_minimap.previous_x-interp_minimap.x) >> 8;
-                    zmpos_y += (interp_minimap.previous_y-interp_minimap.y) >> 8;
-                    zmpos_x /= zoom;
-                    zmpos_y /= zoom;
-
-                    long mapos_x;
-                    long mapos_y;
-                    mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
-                    mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
-                    RealScreenCoord basepos;
-                    basepos = MapDiagonalLength/2;
-                    // Do the drawing
-                    if (thing->owner == player->id_number) {
-                        col = col2;
-                    } else {
+                    else
+                    {
                         col = col1;
                     }
                     pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom, isLowRes);
                 }
             }
+            else
+                // Hero tunnelers may be visible on unrevealed terrain too (if on revealed, then they're already drawn)
+                if (is_hero_tunnelling_to_attack(thing))
+                {
+                    struct CreatureControl *cctrl;
+                    cctrl = creature_control_get_from_thing(thing);
+                    int m;
+                    for (m = 0; m < 5; m++)
+                    {
+                        long memberpos;
+                        memberpos = cctrl->party.member_pos_stl[m];
+                        if (memberpos == 0)
+                        {
+                            break;
+                        }
+                        if ((game.play_gameturn & 4) == 0)
+                        {
+                            col1 = player_room_colours[(uchar)cctrl->party.target_plyr_idx];
+                            col2 = player_room_colours[thing->owner];
+                        }
+                        long zmpos_x = ((stl_num_decode_x(memberpos) - (MapSubtlDelta)cam->mappos.x.stl.num) << 8);
+                        long zmpos_y = ((stl_num_decode_y(memberpos) - (MapSubtlDelta)cam->mappos.y.stl.num) << 8);
+                        zmpos_x += (interp_minimap.previous_x - interp_minimap.x) >> 8;
+                        zmpos_y += (interp_minimap.previous_y - interp_minimap.y) >> 8;
+                        zmpos_x /= zoom;
+                        zmpos_y /= zoom;
+
+                        long mapos_x;
+                        long mapos_y;
+                        mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
+                        mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
+                        RealScreenCoord basepos;
+                        basepos = MapDiagonalLength / 2;
+                        // Do the drawing
+                        if (thing->owner == player->id_number)
+                        {
+                            col = col2;
+                        }
+                        else
+                        {
+                            col = col1;
+                        }
+                        pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom, isLowRes);
+                    }
+                }
         }
         // Per-thing code ends
         k++;
@@ -620,11 +655,14 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
 int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
 {
     if (player->acamera == NULL)
+    {
         return 0;
+    }
     struct Camera *cam = player->acamera;
     struct Thing *thing = get_player_soul_container(player->id_number);
 
-    if (thing_is_invalid(thing)) {
+    if (thing_is_invalid(thing))
+    {
         return 0;
     }
     lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
@@ -640,7 +678,7 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     mapos_x = (zmpos_x * LbCosL(interpolated_cam_orient_a) + zmpos_y * LbSinL(interpolated_cam_orient_a)) >> 16;
     mapos_y = (zmpos_y * LbCosL(interpolated_cam_orient_a) - zmpos_x * LbSinL(interpolated_cam_orient_a)) >> 16;
     RealScreenCoord basepos;
-    basepos = MapDiagonalLength/2;
+    basepos = MapDiagonalLength / 2;
     // Do the drawing
     long dist;
     long angle;
@@ -660,9 +698,13 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
     for (i = dist - 4; i > 0; i -= 4)
     {
         if ((draw_x < 0) || (draw_x >> 8 >= MapDiagonalLength))
+        {
             break;
+        }
         if ((draw_y < 0) || (draw_y >> 8 >= MapDiagonalLength))
+        {
             break;
+        }
         draw_x += delta_x;
         draw_y += delta_y;
         short pixel_end = get_pixels_scaled_and_zoomed(zoom * 2);
@@ -678,13 +720,14 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
 
 void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long basic_zoom)
 {
-    SYNCDBG(7,"Starting");
-    if (scaled_zoom < 1) {
+    SYNCDBG(7, "Starting");
+    if (scaled_zoom < 1)
+    {
         return;
     }
     struct PlayerInfo *player = get_my_player();
     draw_overlay_call_to_arms(player, units_per_px, scaled_zoom);
-    draw_overlay_traps(player, units_per_px, scaled_zoom,basic_zoom);
+    draw_overlay_traps(player, units_per_px, scaled_zoom, basic_zoom);
     draw_overlay_creatures(player, units_per_px, scaled_zoom, basic_zoom);
     draw_overlay_spells_and_boxes(player, units_per_px, scaled_zoom, basic_zoom);
     draw_line_to_heart(player, units_per_px, basic_zoom);
@@ -699,7 +742,8 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
     struct SlabMap *slb = get_slabmap_block(slb_x, slb_y);
     int col = 0;
     int owner_col = slabmap_owner(slb);
-    if (owner_col > 6) {
+    if (owner_col > 6)
+    {
         owner_col -= 3;
     }
     if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
@@ -715,8 +759,8 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
             {
                 col--;
             }
-        } else
-        if (slb->kind == SlbT_GEMS)
+        }
+        else if (slb->kind == SlbT_GEMS)
         {
             col = 178;
             if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
@@ -724,72 +768,82 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
                 col--;
             }
         }
-        else
-        if ((mapblk->flags & SlbAtFlg_IsRoom) != 0)
+        else if ((mapblk->flags & SlbAtFlg_IsRoom) != 0)
         {
             struct Room *room;
             room = room_get(slb->room_index);
 
-            //TODO support roomkinds over 16
+            // TODO support roomkinds over 16
             RoomKind rkind;
-            if(room->kind > 16)
+            if (room->kind > 16)
+            {
                 rkind = 0;
+            }
             else
+            {
                 rkind = room->kind;
+            }
 
             col = owner_col + 6 * rkind + 8;
-        } else
-        if (slb->kind == SlbT_ROCK)
-        {
-            col = 2;
-        } else
-        if (slb->kind == SlbT_ROCK_FLOOR)
+        }
+        else if (slb->kind == SlbT_ROCK)
         {
             col = 2;
         }
-        else
-        if ((mapblk->flags & SlbAtFlg_Filled) != 0)
+        else if (slb->kind == SlbT_ROCK_FLOOR)
+        {
+            col = 2;
+        }
+        else if ((mapblk->flags & SlbAtFlg_Filled) != 0)
         {
             col = 1;
-        } else
-        if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
+        }
+        else if ((mapblk->flags & SlbAtFlg_IsDoor) != 0)
         {
             struct Thing *doortng;
             doortng = get_door_for_position(stl_x, stl_y);
-            if (!thing_is_invalid(doortng)) {
-                if(door_is_hidden_to_player(doortng,plyr_idx))
+            if (!thing_is_invalid(doortng))
+            {
+                if (door_is_hidden_to_player(doortng, plyr_idx))
                 {
                     col = 1;
                 }
                 else
                 {
-                    //TODO support doors over 4
+                    // TODO support doors over 4
                     int model;
-                    if(doortng->model>4)
+                    if (doortng->model > 4)
+                    {
                         model = 0;
+                    }
                     else
+                    {
                         model = doortng->model;
+                    }
 
-                    col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * model ) + 110;
+                    col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * model) + 110;
                 }
             }
-        } else
-        if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
+        }
+        else if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
         {
-            if (slb->kind == SlbT_LAVA) {
+            if (slb->kind == SlbT_LAVA)
+            {
                 col = 6;
-            } else
-            if (slb->kind == SlbT_WATER) {
+            }
+            else if (slb->kind == SlbT_WATER)
+            {
                 col = 7;
-            }  else
-            if (slb->kind == SlbT_PURPLE)
+            }
+            else if (slb->kind == SlbT_PURPLE)
             {
                 col = 176;
-            } else {
+            }
+            else
+            {
                 col = owner_col + 170;
             }
         }
-
     }
     TbPixel *mapptr = &PannelMap[stl_num];
     *mapptr = col;
@@ -797,7 +851,7 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
 
 void pannel_map_update(long x, long y, long w, long h)
 {
-    SYNCDBG(17,"Starting for rect (%ld,%ld) at (%ld,%ld)",w,h,x,y);
+    SYNCDBG(17, "Starting for rect (%ld,%ld) at (%ld,%ld)", w, h, x, y);
     struct PlayerInfo *player;
     player = get_my_player();
     MapSubtlCoord stl_x;
@@ -805,11 +859,15 @@ void pannel_map_update(long x, long y, long w, long h)
     for (stl_y = y; stl_y < y + h; stl_y++)
     {
         if (stl_y > gameadd.map_subtiles_y)
+        {
             break;
+        }
         for (stl_x = x; stl_x < x + w; stl_x++)
         {
             if (stl_x > gameadd.map_subtiles_x)
+            {
                 break;
+            }
             if (subtile_has_slab(stl_x, stl_y))
             {
                 pannel_map_update_subtile(player->id_number, stl_x, stl_y);
@@ -838,75 +896,78 @@ static void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long 
 
 short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, long zoom)
 {
-  SYNCDBG(17,"Starting");
-  struct PlayerInfo *player;
-  long x;
-  long y;
-  if (!clicked_on_small_map)
-  {
-    grabbed_small_map = 0;
-    return 0;
-  }
-  x = (curr_x - (MyScreenWidth >> 1)) / 2;
-  y = (curr_y - (MyScreenHeight >> 1)) / 2;
-  if ((abs(curr_x - old_mx) < 2) && (abs(curr_y - old_my) < 2))
-    return 0;
-  if (!grabbed_small_map)
-  {
-    grabbed_small_map = 1;
-    x = 0;
-    y = 0;
-  }
-  do_map_rotate_stuff(x, y, &curr_x, &curr_y, zoom);
-  player = get_my_player();
-  game.hand_over_subtile_x = curr_x;
-  game.hand_over_subtile_y = curr_y;
-  if (subtile_has_slab(curr_x, curr_y))
-  {
-    set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
-  }
-  return 1;
+    SYNCDBG(17, "Starting");
+    struct PlayerInfo *player;
+    long x;
+    long y;
+    if (!clicked_on_small_map)
+    {
+        grabbed_small_map = 0;
+        return 0;
+    }
+    x = (curr_x - (MyScreenWidth >> 1)) / 2;
+    y = (curr_y - (MyScreenHeight >> 1)) / 2;
+    if ((abs(curr_x - old_mx) < 2) && (abs(curr_y - old_my) < 2))
+    {
+        return 0;
+    }
+    if (!grabbed_small_map)
+    {
+        grabbed_small_map = 1;
+        x = 0;
+        y = 0;
+    }
+    do_map_rotate_stuff(x, y, &curr_x, &curr_y, zoom);
+    player = get_my_player();
+    game.hand_over_subtile_x = curr_x;
+    game.hand_over_subtile_y = curr_y;
+    if (subtile_has_slab(curr_x, curr_y))
+    {
+        set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
+    }
+    return 1;
 }
 
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom)
 {
-  SYNCDBG(17,"Starting");
-  struct PlayerInfo *player;
-  short result;
-  result = 0;
-  player = get_my_player();
-  if ((left_button_released) && (clicked_on_small_map))
-  {
-      if (grabbed_small_map)
-      {
-        game.small_map_state = 2;
-        LbMouseSetPosition(begin_x + MapDiagonalLength/2, begin_y + MapDiagonalLength/2);
-      } else
-      {
-        do_map_rotate_stuff(curr_x - begin_x - MapDiagonalLength/2, curr_y - begin_y - MapDiagonalLength/2, &curr_x, &curr_y, zoom);
-        game.hand_over_subtile_x = curr_x;
-        game.hand_over_subtile_y = curr_y;
-        if (subtile_has_slab(curr_x, curr_y))
+    SYNCDBG(17, "Starting");
+    struct PlayerInfo *player;
+    short result;
+    result = 0;
+    player = get_my_player();
+    if ((left_button_released) && (clicked_on_small_map))
+    {
+        if (grabbed_small_map)
         {
-          result = 1;
-          set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
+            game.small_map_state = 2;
+            LbMouseSetPosition(begin_x + MapDiagonalLength / 2, begin_y + MapDiagonalLength / 2);
         }
-      }
-    grabbed_small_map = 0;
-    clicked_on_small_map = 0;
-    left_button_released = 0;
-  }
-  return result;
+        else
+        {
+            do_map_rotate_stuff(curr_x - begin_x - MapDiagonalLength / 2, curr_y - begin_y - MapDiagonalLength / 2, &curr_x, &curr_y, zoom);
+            game.hand_over_subtile_x = curr_x;
+            game.hand_over_subtile_y = curr_y;
+            if (subtile_has_slab(curr_x, curr_y))
+            {
+                result = 1;
+                set_players_packet_action(player, PckA_BookmarkLoad, curr_x, curr_y, 0, 0);
+            }
+        }
+        grabbed_small_map = 0;
+        clicked_on_small_map = 0;
+        left_button_released = 0;
+    }
+    return result;
 }
 
 short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my, long zoom)
 {
     long x;
     long y;
-    SYNCDBG(17,"Starting");
+    SYNCDBG(17, "Starting");
     struct PlayerInfo *player;
     struct Thing *thing;
-    do_map_rotate_stuff(curr_mx - start_x - MapDiagonalLength/2, curr_my - start_y - MapDiagonalLength/2, &x, &y, zoom);
+    do_map_rotate_stuff(curr_mx - start_x - MapDiagonalLength / 2, curr_my - start_y - MapDiagonalLength / 2, &x, &y, zoom);
     game.hand_over_subtile_x = x;
     game.hand_over_subtile_y = y;
     player = get_my_player();
@@ -914,10 +975,14 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
     if (!thing_is_invalid(thing))
     {
         if (can_place_thing_here(thing, x, y, player->id_number))
-          game.small_map_state = 1;
+        {
+            game.small_map_state = 1;
+        }
     }
     if (right_button_clicked)
-      right_button_clicked = 0;
+    {
+        right_button_clicked = 0;
+    }
     if (right_button_released)
     {
         right_button_released = 0;
@@ -932,17 +997,18 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
 
 void setup_background(long units_per_px)
 {
-    if (MapDiagonalLength != 2*(PANNEL_MAP_RADIUS*units_per_px/16))
+    if (MapDiagonalLength != 2 * (PANNEL_MAP_RADIUS * units_per_px / 16))
     {
-        MapDiagonalLength = 2*(PANNEL_MAP_RADIUS*units_per_px/16);
+        MapDiagonalLength = 2 * (PANNEL_MAP_RADIUS * units_per_px / 16);
         LbMemoryFree(MapBackground);
-        MapBackground = LbMemoryAlloc(MapDiagonalLength*MapDiagonalLength*sizeof(TbPixel));
+        MapBackground = LbMemoryAlloc(MapDiagonalLength * MapDiagonalLength * sizeof(TbPixel));
         LbMemoryFree(MapShapeStart);
-        MapShapeStart = (long *)LbMemoryAlloc(MapDiagonalLength*sizeof(long));
+        MapShapeStart = (long *)LbMemoryAlloc(MapDiagonalLength * sizeof(long));
         LbMemoryFree(MapShapeEnd);
-        MapShapeEnd = (long *)LbMemoryAlloc(MapDiagonalLength*sizeof(long));
+        MapShapeEnd = (long *)LbMemoryAlloc(MapDiagonalLength * sizeof(long));
     }
-    if ((MapBackground == NULL) || (MapShapeStart == NULL) || (MapShapeEnd == NULL)) {
+    if ((MapBackground == NULL) || (MapShapeStart == NULL) || (MapShapeEnd == NULL))
+    {
         MapDiagonalLength = 0;
         return;
     }
@@ -951,7 +1017,7 @@ void setup_background(long units_per_px)
     long quarter_area;
     quarter_area = radius * radius;
     int i;
-    for (i=0; i < MapDiagonalLength; i++)
+    for (i = 0; i < MapDiagonalLength; i++)
     {
         long n;
         n = (radius - i - 1) * (i - radius + 1) + quarter_area;
@@ -969,7 +1035,7 @@ void setup_background(long units_per_px)
     out = &lbDisplay.WScreen[PannelMapX + out_scanline * PannelMapY];
     int w;
     int h;
-    for (h=0; h < MapDiagonalLength; h++)
+    for (h = 0; h < MapDiagonalLength; h++)
     {
         for (w = MapShapeStart[h]; w < MapShapeEnd[h]; w++)
         {
@@ -977,9 +1043,10 @@ void setup_background(long units_per_px)
             orig = out[w];
             out[w] = 255;
             int colour;
-            for (colour=0; colour < num_colours; colour++)
+            for (colour = 0; colour < num_colours; colour++)
             {
-                if (MapBackColours[colour] == orig) {
+                if (MapBackColours[colour] == orig)
+                {
                     break;
                 }
             }
@@ -988,7 +1055,7 @@ void setup_background(long units_per_px)
                 MapBackColours[num_colours] = orig;
                 num_colours++;
             }
-            MapBackground[bkgnd_pos+w] = colour;
+            MapBackground[bkgnd_pos + w] = colour;
         }
         bkgnd_pos += MapDiagonalLength;
         out += out_scanline;
@@ -1005,7 +1072,7 @@ void setup_pannel_colours(void)
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
-    for (bkcol_idx=0; bkcol_idx < NoBackColours; bkcol_idx++)
+    for (bkcol_idx = 0; bkcol_idx < NoBackColours; bkcol_idx++)
     {
         unsigned int bkcol;
         bkcol = MapBackColours[bkcol_idx];
@@ -1013,19 +1080,20 @@ void setup_pannel_colours(void)
         n = pncol_idx;
         if (frame != 0)
         {
-            PannelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
-            PannelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
+            PannelColours[n + 3] = pixmap.ghost[bkcol + 26 * 256];
+            PannelColours[n + 4] = pixmap.ghost[bkcol + 140 * 256];
             PannelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
-        } else //as this is during setup at gameturn 1, the else looks like it is never used.
+        }
+        else // as this is during setup at gameturn 1, the else looks like it is never used.
         {
             PannelColours[n + 3] = bkcol;
             PannelColours[n + 4] = bkcol;
             PannelColours[n + 177] = 104 + (pixmap.ghost[bkcol] >> 6);
         }
         PannelColours[n + 0] = bkcol;
-        PannelColours[n + 1] = pixmap.ghost[bkcol + 16*256];
+        PannelColours[n + 1] = pixmap.ghost[bkcol + 16 * 256];
         PannelColours[n + 2] = 0;
-        PannelColours[n + 5] = pixmap.ghost[bkcol + 140*256];
+        PannelColours[n + 5] = pixmap.ghost[bkcol + 140 * 256];
         PannelColours[n + 6] = 146;
         PannelColours[n + 7] = 85;
         PannelColours[n + 176] = 255;
@@ -1033,7 +1101,7 @@ void setup_pannel_colours(void)
         n = pncol_idx + 8;
         int i;
         int k;
-        for (i=17; i > 0; i--)
+        for (i = 17; i > 0; i--)
         {
             PannelColours[n + 0] = 132;
             PannelColours[n + 1] = 92;
@@ -1043,7 +1111,7 @@ void setup_pannel_colours(void)
             PannelColours[n + 5] = frcol;
             n += 6;
         }
-        n = pncol_idx + 8 + 17*6 + 12*5;
+        n = pncol_idx + 8 + 17 * 6 + 12 * 5;
         {
             PannelColours[n + 0] = 131;
             PannelColours[n + 1] = 90;
@@ -1052,17 +1120,17 @@ void setup_pannel_colours(void)
             PannelColours[n + 4] = 20;
             PannelColours[n + 5] = 4;
         }
-        n = pncol_idx + 8 + 17*6;
-        for (i=5; i > 0; i--)
+        n = pncol_idx + 8 + 17 * 6;
+        for (i = 5; i > 0; i--)
         {
-            for (k=0; k < 6; k++)
+            for (k = 0; k < 6; k++)
             {
-              PannelColours[n + k] = 60;
+                PannelColours[n + k] = 60;
             }
             n += 6;
-            for (k=0; k < 6; k++)
+            for (k = 0; k < 6; k++)
             {
-              PannelColours[n + k] = 79;
+                PannelColours[n + k] = 79;
             }
             n += 6;
         }
@@ -1079,7 +1147,7 @@ void update_pannel_colours(void)
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
-    for (bkcol_idx=0; bkcol_idx < NoBackColours; bkcol_idx++)
+    for (bkcol_idx = 0; bkcol_idx < NoBackColours; bkcol_idx++)
     {
         unsigned int bkcol;
         bkcol = MapBackColours[bkcol_idx];
@@ -1087,10 +1155,11 @@ void update_pannel_colours(void)
         n = pncol_idx;
         if (frame != 0)
         {
-            PannelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
-            PannelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
+            PannelColours[n + 3] = pixmap.ghost[bkcol + 26 * 256];
+            PannelColours[n + 4] = pixmap.ghost[bkcol + 140 * 256];
             PannelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
-        } else
+        }
+        else
         {
             PannelColours[n + 3] = bkcol;
             PannelColours[n + 4] = bkcol;
@@ -1098,7 +1167,7 @@ void update_pannel_colours(void)
         }
         n = pncol_idx + 8;
         int i;
-        for (i=17; i > 0; i--)
+        for (i = 17; i > 0; i--)
         {
             PannelColours[n + 5] = frcol;
             n += 6;
@@ -1110,7 +1179,9 @@ void update_pannel_colours(void)
     highlight = gui_room_type_highlighted;
     frame = game.play_gameturn & 1;
     if (frame != 0)
+    {
         highlight = -1;
+    }
     if (PrevRoomHighlight != highlight)
     {
         if ((PrevRoomHighlight >= 0) && (NoBackColours > 0))
@@ -1118,7 +1189,7 @@ void update_pannel_colours(void)
             int i;
             int n;
             n = 6 * PrevRoomHighlight + 8;
-            for (i=NoBackColours; i > 0; i--)
+            for (i = NoBackColours; i > 0; i--)
             {
                 PannelColours[n + 0] = RoomColours[0];
                 PannelColours[n + 1] = RoomColours[1];
@@ -1134,7 +1205,7 @@ void update_pannel_colours(void)
             int i;
             int n;
             n = 6 * highlight + 8;
-            for (i=NoBackColours; i > 0; i--)
+            for (i = NoBackColours; i > 0; i--)
             {
                 PannelColours[n + 0] = 31;
                 PannelColours[n + 1] = 31;
@@ -1150,7 +1221,9 @@ void update_pannel_colours(void)
 
     highlight = gui_door_type_highlighted;
     if (frame != 0)
+    {
         highlight = -1;
+    }
     if (highlight != PrevDoorHighlight)
     {
         if ((PrevDoorHighlight >= 0) && (PrevDoorHighlight != 5) && (NoBackColours > 0))
@@ -1158,13 +1231,13 @@ void update_pannel_colours(void)
             int i;
             int n;
             n = 12 * PrevDoorHighlight;
-            for (i=NoBackColours; i > 0; i--)
+            for (i = NoBackColours; i > 0; i--)
             {
                 int k;
-                for (k=0; k < 6; k+=2)
+                for (k = 0; k < 6; k += 2)
                 {
-                  PannelColours[n + 110 + k] = 60;
-                  PannelColours[n + 116 + k] = 79;
+                    PannelColours[n + 110 + k] = 60;
+                    PannelColours[n + 116 + k] = 79;
                 }
                 n += 256;
             }
@@ -1177,10 +1250,10 @@ void update_pannel_colours(void)
             for (i = NoBackColours; i > 0; i--)
             {
                 int k;
-                for (k=0; k < 6; k+=2)
+                for (k = 0; k < 6; k += 2)
                 {
-                  PannelColours[n + 110 + k] = 31;
-                  PannelColours[n + 116 + k] = 31;
+                    PannelColours[n + 110 + k] = 31;
+                    PannelColours[n + 116 + k] = 31;
                 }
                 n += 256;
             }
@@ -1201,24 +1274,29 @@ void auto_gen_tables(long units_per_px)
 
 void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 {
-    PannelMapX = scale_value_for_resolution_with_upp(x,units_per_px);
-    PannelMapY = scale_value_for_resolution_with_upp(y,units_per_px);
+    PannelMapX = scale_value_for_resolution_with_upp(x, units_per_px);
+    PannelMapY = scale_value_for_resolution_with_upp(y, units_per_px);
     auto_gen_tables(units_per_px);
     update_pannel_colours();
     struct PlayerInfo *player = get_my_player();
     struct Camera *cam = player->acamera;
-    
+
     if ((cam == NULL) || (MapDiagonalLength < 1))
+    {
         return;
-    if (game.play_gameturn <= 1) {reset_all_minimap_interpolation = true;} //Fixes initial minimap frame being purple
-    
+    }
+    if (game.play_gameturn <= 1)
+    {
+        reset_all_minimap_interpolation = true;
+    } // Fixes initial minimap frame being purple
+
     long shift_x;
     long shift_y;
     long shift_stl_x;
     long shift_stl_y;
     {
         int angle;
-        angle = interpolated_cam_orient_a & 0x1FFC; //cam->orient_a
+        angle = interpolated_cam_orient_a & 0x1FFC; // cam->orient_a
         shift_x = -LbSinL(angle) * zoom / 256;
         shift_y = LbCosL(angle) * zoom / 256;
         long current_minimap_x = (cam->mappos.x.stl.num << 16);
@@ -1229,11 +1307,14 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
             interp_minimap.y = current_minimap_y;
             interp_minimap.previous_x = current_minimap_x;
             interp_minimap.previous_y = current_minimap_y;
-        } else {
+        }
+        else
+        {
             interp_minimap.x = interpolate(interp_minimap.x, interp_minimap.previous_x, current_minimap_x);
             interp_minimap.y = interpolate(interp_minimap.y, interp_minimap.previous_y, current_minimap_y);
         }
-        if ((interp_minimap.get_previous != game.play_gameturn) || (game.operation_flags & GOF_Paused) != 0) {
+        if ((interp_minimap.get_previous != game.play_gameturn) || (game.operation_flags & GOF_Paused) != 0)
+        {
             interp_minimap.get_previous = game.play_gameturn;
             interp_minimap.previous_x = current_minimap_x;
             interp_minimap.previous_y = current_minimap_y;
@@ -1259,7 +1340,8 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         subpos_x = shift_stl_y - shift_x * (end_w - 1);
         for (; end_w > start_w; end_w--)
         {
-            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (1<<16)*gameadd.map_subtiles_x) && (subpos_x < (1<<16)*gameadd.map_subtiles_y)) {
+            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (1 << 16) * gameadd.map_subtiles_x) && (subpos_x < (1 << 16) * gameadd.map_subtiles_y))
+            {
                 break;
             }
             subpos_y -= shift_y;
@@ -1269,7 +1351,8 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         subpos_x = shift_stl_y - shift_x * start_w;
         for (; start_w < end_w; start_w++)
         {
-            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (1<<16)*gameadd.map_subtiles_x) && (subpos_x < (1<<16)*gameadd.map_subtiles_y)) {
+            if ((subpos_y >= 0) && (subpos_x >= 0) && (subpos_y < (1 << 16) * gameadd.map_subtiles_x) && (subpos_x < (1 << 16) * gameadd.map_subtiles_y))
+            {
                 break;
             }
             subpos_y += shift_y;
@@ -1284,11 +1367,11 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         precor_x = subpos_y;
         precor_y = subpos_x;
         int w;
-        for (w = end_w-start_w; w > 0; w--)
+        for (w = end_w - start_w; w > 0; w--)
         {
             int pnmap_idx;
-            //formula will have to be redone if maps bigger then 256, but works for smallerAD
-            pnmap_idx = ((precor_x>>16)) + (((precor_y>>16)) * (gameadd.map_subtiles_x + 1) );
+            // formula will have to be redone if maps bigger then 256, but works for smallerAD
+            pnmap_idx = ((precor_x >> 16)) + (((precor_y >> 16)) * (gameadd.map_subtiles_x + 1));
             int pncol_idx;
             pncol_idx = PannelMap[pnmap_idx] | (*bkgnd << 8);
             *out = PannelColours[pncol_idx];
@@ -1303,4 +1386,5 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
         shift_stl_y += shift_y;
     }
 }
+
 /******************************************************************************/

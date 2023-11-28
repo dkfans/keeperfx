@@ -31,17 +31,17 @@ extern "C" {
 #pragma pack(1)
 
 enum MapCoordClipFlags {
-    MapCoord_None     = 0x00,
-    MapCoord_ClipX    = 0x01,
-    MapCoord_ClipY    = 0x02,
-    MapCoord_ClipZ    = 0x04,
+    MapCoord_None = 0x00,
+    MapCoord_ClipX = 0x01,
+    MapCoord_ClipY = 0x02,
+    MapCoord_ClipZ = 0x04,
 };
 
 struct Map {
-      unsigned char flags; // flags in enum SlabAttrFlags
-      unsigned long data; // 4b unused 4b filled_subtiles 2b wibble_value 11b unused 11b column
-      ThingIndex mapwho;
-      PlayerBitFlags revealed;
+    unsigned char flags; // flags in enum SlabAttrFlags
+    unsigned long data;  // 4b unused 4b filled_subtiles 2b wibble_value 11b unused 11b column
+    ThingIndex mapwho;
+    PlayerBitFlags revealed;
 };
 
 #define INVALID_MAP_BLOCK (&bad_map_block)
@@ -59,17 +59,17 @@ extern NavColour *IanMap;
 extern long nav_map_initialised;
 /******************************************************************************/
 /** Convert subtile to slab. */
-#define subtile_slab(stl) ((stl)/STL_PER_SLB)
+#define subtile_slab(stl) ((stl) / STL_PER_SLB)
 /** Converts slab to a subtile. Second parameter selects a specific subtile. */
-#define slab_subtile(slb,subnum) ((MapSubtlCoord)(slb)*STL_PER_SLB+(MapSubtlCoord)(subnum))
+#define slab_subtile(slb, subnum) ((MapSubtlCoord)(slb) * STL_PER_SLB + (MapSubtlCoord)(subnum))
 /** Converts slab to its central subtile. */
-#define slab_subtile_center(slb) ((MapSubtlCoord)(slb)*STL_PER_SLB+(MapSubtlCoord)1)
+#define slab_subtile_center(slb) ((MapSubtlCoord)(slb) * STL_PER_SLB + (MapSubtlCoord)1)
 /******************************************************************************/
-#define coord_subtile(coord) ((coord)/COORD_PER_STL)
-#define coord_slab(coord) ((coord)/(COORD_PER_STL*STL_PER_SLB))
-#define subtile_coord(stl,spos) ((stl)*COORD_PER_STL+(spos))
-#define subtile_coord_center(stl) ((stl)*COORD_PER_STL+COORD_PER_STL/2)
-#define navmap_tile_number(stl_x,stl_y) ((stl_y)*gameadd.navigation_map_size_x+(stl_x))
+#define coord_subtile(coord) ((coord) / COORD_PER_STL)
+#define coord_slab(coord) ((coord) / (COORD_PER_STL * STL_PER_SLB))
+#define subtile_coord(stl, spos) ((stl) * COORD_PER_STL + (spos))
+#define subtile_coord_center(stl) ((stl) * COORD_PER_STL + COORD_PER_STL / 2)
+#define navmap_tile_number(stl_x, stl_y) ((stl_y) * gameadd.navigation_map_size_x + (stl_x))
 /******************************************************************************/
 struct Map *get_map_block_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Map *get_map_block_at_pos(long stl_num);
@@ -128,16 +128,16 @@ TbBool subtile_is_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 #define can_dig_here(stl_x, stl_y, plyr_idx, enemy_wall_diggable) subtile_is_diggable_for_player(plyr_idx, stl_x, stl_y, enemy_wall_diggable)
 TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, TbBool enemy_wall_diggable);
 
-void clear_dig_for_map_rect(long plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
+void clear_dig_for_map_rect(long plyr_idx, MapSubtlCoord start_x, MapSubtlCoord end_x, MapSubtlCoord start_y, MapSubtlCoord end_y);
 void clear_slab_dig(long a1, long a2, char a3);
 
-void reveal_map_rect(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
-void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y);
-void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all);
+void reveal_map_rect(PlayerNumber plyr_idx, MapSubtlCoord start_x, MapSubtlCoord end_x, MapSubtlCoord start_y, MapSubtlCoord end_y);
+void reveal_map_area(PlayerNumber plyr_idx, MapSubtlCoord start_x, MapSubtlCoord end_x, MapSubtlCoord start_y, MapSubtlCoord end_y);
+void conceal_map_area(PlayerNumber plyr_idx, MapSubtlCoord start_x, MapSubtlCoord end_x, MapSubtlCoord start_y, MapSubtlCoord end_y, TbBool all);
 void clear_mapwho(void);
 void clear_mapmap(void);
 
-void set_map_size(MapSlabCoord x,MapSlabCoord y);
+void set_map_size(MapSlabCoord x, MapSlabCoord y);
 void init_map_size(LevelNumber lvnum);
 /******************************************************************************/
 #ifdef __cplusplus

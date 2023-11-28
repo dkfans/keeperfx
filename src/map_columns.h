@@ -26,9 +26,9 @@
 extern "C" {
 #endif
 /******************************************************************************/
-#define COLUMNS_COUNT        2048
-#define COLUMN_STACK_HEIGHT     8
-#define COLUMN_WALL_HEIGHT      5
+#define COLUMNS_COUNT 2048
+#define COLUMN_STACK_HEIGHT 8
+#define COLUMN_WALL_HEIGHT 5
 /******************************************************************************/
 #pragma pack(1)
 
@@ -48,8 +48,7 @@ struct Columns {
     struct Column *end;
 };
 
-enum ColumnFlags
-{
+enum ColumnFlags {
     CLF_ACTIVE = 0x01,
     // Height of ceiling cube layer (IF ANY)
     CLF_CEILING_MASK = 0x0E,
@@ -86,7 +85,6 @@ long get_ceiling_filled_subtiles_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 void set_column_ceiling_filled_subtiles(struct Column *col, MapSubtlCoord n);
 void set_map_ceiling_filled_subtiles(struct Map *mapblk, MapSubtlCoord n);
 TbBool map_pos_solid_at_ceiling(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-
 
 long get_top_cube_at_pos(SubtlCodedCoords mpos);
 long get_top_cube_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long *cube_pos);

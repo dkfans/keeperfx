@@ -23,12 +23,11 @@
 #include "globals.h"
 #include "thing_effects.h"
 
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 /******************************************************************************/
-void process_dungeon_destroy(struct Thing* heartng);
+void process_dungeon_destroy(struct Thing *heartng);
 void update_manufacturing(void);
 void update_research(void);
 /******************************************************************************/

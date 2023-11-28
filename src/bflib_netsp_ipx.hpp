@@ -25,25 +25,27 @@
 
 #include "globals.h"
 #include "bflib_netsp.hpp"
+
 /******************************************************************************/
 
-class IPXServiceProvider : public ServiceProvider {
-public:
-  IPXServiceProvider();
-  virtual ~IPXServiceProvider();
-  virtual TbError Start(struct TbNetworkSessionNameEntry *, char *, void *);
-  virtual TbError Start(char *, char *, unsigned long, void *);
-  virtual TbError Stop(void);
-  virtual TbError Enumerate(TbNetworkCallbackFunc, void *);
-  virtual TbError Enumerate(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc, void *);
-  virtual TbError Init(struct ReceiveCallbacks *, void *);
-  virtual TbError Release(void);
-  virtual TbError ChangeSettings(unsigned long, void *);
-  virtual TbError EnableNewPlayers(TbBool allow);
-  virtual bool ReadMessage(unsigned long *, void *, unsigned long *);
-  virtual bool PeekMessage(unsigned long *, void *, unsigned long *);
-  virtual TbError SendMessage(unsigned long, void *, unsigned char);
-  virtual void update();
+class IPXServiceProvider : public ServiceProvider
+{
+  public:
+    IPXServiceProvider();
+    virtual ~IPXServiceProvider();
+    virtual TbError Start(struct TbNetworkSessionNameEntry *, char *, void *);
+    virtual TbError Start(char *, char *, unsigned long, void *);
+    virtual TbError Stop(void);
+    virtual TbError Enumerate(TbNetworkCallbackFunc, void *);
+    virtual TbError Enumerate(struct TbNetworkSessionNameEntry *, TbNetworkCallbackFunc, void *);
+    virtual TbError Init(struct ReceiveCallbacks *, void *);
+    virtual TbError Release(void);
+    virtual TbError ChangeSettings(unsigned long, void *);
+    virtual TbError EnableNewPlayers(TbBool allow);
+    virtual bool ReadMessage(unsigned long *, void *, unsigned long *);
+    virtual bool PeekMessage(unsigned long *, void *, unsigned long *);
+    virtual TbError SendMessage(unsigned long, void *, unsigned char);
+    virtual void update();
 };
 
 /******************************************************************************/

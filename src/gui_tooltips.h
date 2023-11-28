@@ -32,8 +32,8 @@ extern "C" {
 struct GuiButton;
 
 enum TooltipFlags {
-  TTip_Visible   = 0x01,
-  TTip_NeedReset = 0x02,
+    TTip_Visible = 0x01,
+    TTip_NeedReset = 0x02,
 };
 
 /******************************************************************************/

@@ -41,17 +41,21 @@ long edge_point_add(long pt_x, long pt_y)
 {
     long ept_id = ix_EdgePoints;
     if (ept_id >= EDGE_POINTS_COUNT)
+    {
         return -1;
+    }
     EdgePoints[ept_id].field_0 = pt_x;
     EdgePoints[ept_id].field_4 = pt_y;
-    ix_EdgePoints = ept_id+1;
+    ix_EdgePoints = ept_id + 1;
     return ept_id;
 }
 
 struct EdgePoint *edge_point_get(long ept_id)
 {
     if ((ept_id < 0) || (ept_id >= EDGE_POINTS_COUNT))
+    {
         return &EdgePoints[0];
+    }
     return &EdgePoints[ept_id];
 }
 

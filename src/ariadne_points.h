@@ -34,8 +34,8 @@ extern "C" {
 typedef long AridPointId;
 
 struct Point { // sizeof = 4
-  short x;
-  short y;
+    short x;
+    short y;
 };
 
 /******************************************************************************/

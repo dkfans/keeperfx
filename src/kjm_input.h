@@ -31,8 +31,8 @@ extern "C" {
 #pragma pack(1)
 
 struct KeyToStringInit { // sizeof = 5
-  unsigned char chr;
-  long str_idx;
+    unsigned char chr;
+    long str_idx;
 };
 
 /******************************************************************************/
@@ -74,7 +74,6 @@ extern long key_to_string[256];
 extern TbBool defined_keys_that_have_been_swapped[];
 extern TbBool wheel_scrolled_up;
 extern TbBool wheel_scrolled_down;
-
 
 long GetMouseX(void);
 long GetMouseY(void);
