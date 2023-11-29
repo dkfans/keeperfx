@@ -49,6 +49,10 @@
 #include "net_game.h"
 #include "sounds.h"
 
+#ifdef FUNCTESTING
+#include "ftest.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -148,7 +152,7 @@ struct StartupParameters {
 #endif
 #ifdef FUNCTESTING
     unsigned char functest_flags;
-    unsigned short functest_index;
+    char functest_name[FTEST_MAX_NAME_LENGTH];
 #endif
 };
 

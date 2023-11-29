@@ -241,7 +241,7 @@ static void post_init_level(void)
     SYNCDBG(9,"Finished");
 
 #ifdef FUNCTESTING
-    ftest_init(start_params.functest_index);
+    ftest_init();
 #endif
 }
 

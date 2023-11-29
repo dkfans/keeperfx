@@ -29,8 +29,9 @@ extern "C" {
     FTESTLOG(format, ##__VA_ARGS__); \
 }
 
-#define FTEST_TESTS_MAX 128
-#define FTEST_ACTIONS_MAX 100
+#define FTEST_MAX_NAME_LENGTH 128
+#define FTEST_MAX_TESTS 128
+#define FTEST_MAX_ACTIONS_PER_TEST 100
 
 typedef unsigned char TbBool; //redefine rather than include extraneus header info
 
@@ -47,7 +48,12 @@ typedef TbBool (*FTest_Init_Func)(void);
  */
 typedef TbBool (*FTest_Action_Func)(GameTurn);
 
-extern FTest_Init_Func ftest_init_func_list[FTEST_TESTS_MAX];
+struct FTestConfig {
+    char name[FTEST_MAX_NAME_LENGTH];
+    FTest_Init_Func init_func;
+};
+
+extern struct FTestConfig ftest_tests_list[FTEST_MAX_TESTS];
 
 extern unsigned long ftest_total_actions;
 extern unsigned long ftest_current_action;
@@ -64,7 +70,7 @@ extern GameTurn ftest_actions_func_turn_list[];
  */
 TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay);
 
-TbBool ftest_init(unsigned short test_index);
+TbBool ftest_init();
 TbBool ftest_update(const GameTurn game_turn);
 
 // helpers
