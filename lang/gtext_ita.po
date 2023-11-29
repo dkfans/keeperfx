@@ -1072,7 +1072,7 @@ msgstr ""
 #: guitext:90
 msgctxt "In-game message"
 msgid ""
-"You have a manufactured a Boulder Trap. Place it in a corridor and howl "
+"You have manufactured a Boulder Trap. Place it in a corridor and howl "
 "deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr ""
 "Ora hai a disposizione una trappola macigno. Piazzala in un corridoio e "
@@ -6434,10 +6434,39 @@ msgstr ""
 "I tuoi successi sono leggendari, Keeper. I racconti delle tue malvage "
 "imprese semineranno il terrore per molte generazioni."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Porta segreta"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Porta segreta: Questa porta rimane nascosta ai nemici, a meno che non la osservino da vicino "
+"o la vedano aprirsi. TDM: Visona."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Scoperta una porta segreta TSM: attiva - disattiva. TDM: cancella."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Scoperta una porta segreta"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "Il nemico ha individuato la vostra porta segreta TSM: attiva - disattiva. TDM: cancella."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "Il nemico ha individuato la vostra porta segreta"
 
 #: guitext:941
 #, fuzzy
@@ -6806,8 +6835,8 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
-msgstr ""
+msgid "Dungeon Keeper - Original Campaign"
+msgstr "Dungeon Keeper - Campagna Originale"
 
 #: guitext:1012
 msgctxt "Menu interface item""
@@ -6886,7 +6915,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
@@ -6960,3 +6989,23 @@ msgstr ""
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr ""
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Formazione rocciosa."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Roccia madre: Pavimento roccioso non reclamato. Non puoi reclamarlo o costruire sopra."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Vena d'oro densa: Contiene molta ricchezza che i tuoi Folletti possono estrarre."

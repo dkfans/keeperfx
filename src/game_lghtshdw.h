@@ -36,11 +36,11 @@ extern "C" {
 #pragma pack(1)
 
 struct LightingTable { // sizeof = 8
-  unsigned char is_populated;
+  TbBool is_populated;
   unsigned char distance; // 2 - 15
   char delta_x; // signed
   char delta_y; // signed
-  unsigned long field_4; // strength? decay?
+  unsigned long diagonal_length;
 };
 
 struct ShadowCache { // sizeof = 129
@@ -51,7 +51,7 @@ struct ShadowCache { // sizeof = 129
 /**
  * Structure which stores data of lights and shadows system.
  */
-struct LightsShadows { // sizeof = 164886
+struct LightsShadows {
     struct LightingTable lighting_tables[1024]; // only the first 700 elements are populated
     unsigned char shadow_limits[SHADOW_LIMITS_COUNT];
     struct Light lights[LIGHTS_COUNT];

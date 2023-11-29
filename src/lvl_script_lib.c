@@ -83,11 +83,12 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
             return INVALID_THING;
         }
     }
+    if (thing_is_special_box(thing) && !thing_is_hardcoded_special_box(thing))
+    {
+        thing->custom_box.box_kind = (unsigned char)arg;
+    }
     switch (tngmodel)
     {
-        case ObjMdl_SpecboxCustom: // Custom box from SPECBOX_HIDNWRL
-            thing->custom_box.box_kind = (unsigned char)arg;
-            break;
         case ObjMdl_GoldChest:
         case ObjMdl_GoldPot:
         case ObjMdl_Goldl:

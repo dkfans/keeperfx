@@ -266,6 +266,7 @@ struct Thing *get_random_trap_of_model_owned_by_and_armed(ThingModel tngmodel, P
 struct Thing *get_random_door_of_model_owned_by_and_locked(ThingModel tngmodel, PlayerNumber plyr_idx, TbBool locked);
 struct Thing *find_gold_laying_in_dungeon(const struct Dungeon *dungeon);
 struct Thing *get_nearest_enemy_creature_possible_to_attack_by(struct Thing *creatng);
+struct Thing* get_nearest_enemy_creature_in_sight_and_range_of_trap(struct Thing* traptng);
 #define find_nearest_enemy_creature(creatng) get_nearest_enemy_creature_possible_to_attack_by(creatng);
 struct Thing *get_highest_score_enemy_creature_within_distance_possible_to_attack_by(struct Thing *creatng, MapCoordDelta dist, long move_on_ground);
 struct Thing *get_nth_creature_owned_by_and_matching_bool_filter(PlayerNumber plyr_idx, Thing_Bool_Filter matcher_cb, long n);
@@ -287,6 +288,7 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev);
 void setup_computer_players(void);
 void setup_zombie_players(void);
 void init_all_creature_states(void);
+TbBool update_creature_speed(struct Thing *thing);
 
 TbBool perform_action_on_all_creatures_in_group(struct Thing *thing, Thing_Bool_Modifier action);
 
@@ -328,8 +330,12 @@ TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short update_thing_sound(struct Thing *thing);
 struct Thing* find_players_dungeon_heart(PlayerNumber plyridx);
+struct Thing* find_players_backup_dungeon_heart(PlayerNumber plyridx);
 
 struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel,struct Room *room);
+
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player);
+ThingIndex get_index_of_first_creature_of_owner_and_model(PlayerNumber owner, ThingModel crmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }

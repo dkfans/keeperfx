@@ -138,7 +138,7 @@ void delete_all_control_structures(void)
 
 struct Thing *create_and_control_creature_as_controller(struct PlayerInfo *player, long crmodel, struct Coord3d *pos)
 {
-    SYNCDBG(6,"Request for model %ld at (%d,%d,%d)",crmodel,(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
+    SYNCDBG(6,"Request for model %ld (%s) at (%d,%d,%d)",crmodel, creature_code_name(crmodel),(int)pos->x.val,(int)pos->y.val,(int)pos->z.val);
     struct Thing* thing = create_creature(pos, crmodel, player->id_number);
     if (thing_is_invalid(thing))
       return INVALID_THING;

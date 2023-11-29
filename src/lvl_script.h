@@ -33,14 +33,16 @@ extern "C" {
 /******************************************************************************/
 #define PARTY_TRIGGERS_COUNT     256
 #define CREATURE_PARTYS_COUNT    256
-#define CONDITIONS_COUNT         255
+#define CONDITIONS_COUNT         512
 #define TUNNELLER_TRIGGERS_COUNT 256
-#define SCRIPT_VALUES_COUNT      1024
-#define WIN_CONDITIONS_COUNT      4
+#define SCRIPT_VALUES_COUNT      2048
+#define WIN_CONDITIONS_COUNT      12
 
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
 
 #define SENSIBLE_GOLD 99999999
+
+#define EXTERNAL_SOUNDS_COUNT 8
 
 enum ScriptOperator {
     SOpr_SET = 1,
@@ -117,8 +119,16 @@ struct ScriptValue { // sizeof = 16
   {
     struct
     {
-      long arg0;
-      long arg1;
+      union
+      {
+          long arg0;
+          char* str0;
+      };
+      union
+      {
+          long arg1;
+          char* str1;
+      };
       union
       {
           long arg2;
@@ -127,8 +137,16 @@ struct ScriptValue { // sizeof = 16
     };
     struct
     {
-      unsigned long uarg0;
-      unsigned long uarg1;
+      union
+      {
+          unsigned long uarg0;
+          unsigned char* ustr0;
+      };
+      union
+      {
+          unsigned long uarg1;
+          unsigned char* ustr1;
+      };
       union
       {
           unsigned long uarg2;

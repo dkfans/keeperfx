@@ -21,6 +21,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "thing_list.h"
 #include "creature_control.h"
 #include "creature_instances.h"
@@ -148,6 +149,7 @@ short state_cleanup_unconscious(struct Thing *creatng);
 short state_cleanup_wait_at_door(struct Thing* creatng);
 short creature_search_for_spell_to_steal_in_room(struct Thing *creatng);
 short creature_pick_up_spell_to_steal(struct Thing *creatng);
+short creature_timebomb(struct Thing *creatng);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -209,7 +211,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {person_sulk_at_lair, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_OwnNeeds, 0, 0, 1, 0, 55, 1, 0, 1},
   {creature_going_home_to_sleep, NULL, NULL, NULL,
-    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
+    0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
   {creature_sleep, cleanup_sleep, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 2, 0, 54, 1, 0, 1},
   {NULL, NULL, NULL, NULL,
@@ -329,7 +331,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {NULL, NULL, NULL, NULL,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,  CrStTyp_Idle, 0, 0, 0, 0,  0, 0, 0, 1},
   {creature_follow_leader, NULL, NULL, NULL,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Follow, 0, 0, 0, 0,  0, 0, 0, 0},
+    0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_Follow, 0, 0, 0, 0,  0, 0, 0, 0},
   {creature_door_combat, cleanup_door_combat, NULL, NULL,
     1, 1, 0, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 1, CrStTyp_FightDoor, 0, 0, 3, 0, 51, 1, 0, 0},
   {creature_combat_flee, NULL, NULL, NULL,
@@ -456,6 +458,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, 55, 1, 0, 1},
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, 54, 1, 0, 1},
+  {creature_timebomb, cleanup_hold_audience, NULL, NULL,
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Idle, 1, 1, 1, 0, 0, 1, 0, 0},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -811,10 +815,16 @@ TbBool creature_is_kept_in_custody_by_enemy(const struct Thing *thing)
         creature_is_being_dropped(thing))
     {
         struct Room* room = get_room_thing_is_on(thing);
-        if (room_is_invalid(room)) {
-            // This must mean we're being dropped outside of room, or sold/destroyed the room
-            // so not kept in custody - freed
-            return false;
+        if (room_is_invalid(room)) 
+        {
+            //If the creature is not inside a room, or moving 
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            room = get_room_at_pos(&cctrl->moveto_pos);
+            if (room_is_invalid(room))
+            {
+                // This must mean we're being dropped outside of room, or sold/destroyed the room so not kept in custody - freed
+                return false;
+            }
         }
         if (thing->owner != room->owner) {
             // We're in a room, and it's not our own - must be enemy
@@ -842,9 +852,13 @@ TbBool creature_is_kept_in_custody_by_player(const struct Thing *thing, PlayerNu
     {
         struct Room* room = get_room_thing_is_on(thing);
         if (room_is_invalid(room)) {
-            // This must mean we're being dropped outside of room, or sold/destroyed the room
-            // so not kept in custody - freed
-            return false;
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            room = get_room_at_pos(&cctrl->moveto_pos);
+            if (room_is_invalid(room))
+            {
+                // This must mean we're being dropped outside of room, or sold/destroyed the room so not kept in custody - freed
+                return false;
+            }
         }
         if (room->owner == plyr_idx) {
             // We're in a room, and it's the player we asked for
@@ -878,9 +892,13 @@ short player_keeping_creature_in_custody(const struct Thing* thing)
     {
         struct Room* room = get_room_thing_is_on(thing);
         if (room_is_invalid(room)) {
-            // This must mean we're being dropped outside of room, or sold/destroyed the room
-            // so not kept in custody - freed
-            return -1;
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            room = get_room_at_pos(&cctrl->moveto_pos);
+            if (room_is_invalid(room))
+            {
+                // This must mean we're being dropped outside of room, or sold/destroyed the room so not kept in custody - freed
+                return -1;
+            }
         }
         if (room->owner != thing->owner) {
             // We're in a room, and it's not the unit owner
@@ -1377,12 +1395,6 @@ short cleanup_seek_the_enemy(struct Thing *creatng)
     return 1;
 }
 
-void set_flee_delay(struct Thing* creatng)
-{
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    cctrl->wait_to_turn = game.play_gameturn + FIGHT_FEAR_DELAY;
-}
-
 short creature_being_dropped(struct Thing *creatng)
 {
     TRACE_THING(creatng);
@@ -1392,7 +1404,7 @@ short creature_being_dropped(struct Thing *creatng)
     cctrl->flgfield_1 |= CCFlg_NoCompControl;
     // Cannot teleport for a few turns after being dropped
     delay_teleport(creatng);
-    set_flee_delay(creatng);
+    cctrl->dropped_turn = game.play_gameturn;
     MapSubtlCoord stl_x = creatng->mappos.x.stl.num;
     MapSubtlCoord stl_y = creatng->mappos.y.stl.num;
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -1410,9 +1422,8 @@ short creature_being_dropped(struct Thing *creatng)
     set_start_state(creatng);
     // Check job which we can do after dropping at these coordinates
     CreatureJob new_job;
-    struct ThingAdd* creatngadd = get_thingadd(creatng->index);
     struct Room* room = room_get(slb->room_index);
-    if ((!room_is_invalid(room)) && (room->owner != creatngadd->holding_player))
+    if ((!room_is_invalid(room)) && (room->owner != creatng->holding_player))
     {
         new_job = Job_NULL;
     }
@@ -1454,7 +1465,7 @@ short creature_being_dropped(struct Thing *creatng)
             {
                 if (!thing_is_picked_up(leadtng))
                 {
-                    if (get_2d_box_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(9,0)) {
+                    if (get_chessboard_distance(&creatng->mappos, &leadtng->mappos) > subtile_coord(9,0)) {
                         SYNCDBG(3,"Removing %s index %d owned by player %d from group",
                             thing_model_name(creatng),(int)creatng->index,(int)creatng->owner);
                         remove_creature_from_group(creatng);
@@ -1563,7 +1574,7 @@ short creature_cannot_find_anything_to_do(struct Thing *creatng)
 		return 0;
 	}
 	if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-		creatng->continue_state = 123;
+		creatng->continue_state = CrSt_CreatureCannotFindAnythingToDo;
 	return 1;
 }
 
@@ -1589,13 +1600,13 @@ short creature_change_from_chicken(struct Thing *creatng)
     if (cctrl->countdown_282 > 0)
     { // Changing under way - gradually modify size of the creature
         creatng->rendering_flags |= TRF_Unknown01;
-        creatng->field_50 |= 0x01;
+        creatng->size_change |= TSC_ChangeSize;
         struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
             long n = (10 - cctrl->countdown_282) * (gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
-            set_thing_draw(efftng, k, 256, n, -1, 0, 2);
+            set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
             efftng->rendering_flags &= ~TRF_Transpar_Flags;
             efftng->rendering_flags |= TRF_Transpar_8;
         }
@@ -1620,13 +1631,13 @@ short creature_change_to_chicken(struct Thing *creatng)
         cctrl->countdown_282--;
     if (cctrl->countdown_282 > 0)
     {
-      creatng->field_50 |= 0x01;
+      creatng->size_change |= TSC_ChangeSize;
       creatng->rendering_flags |= TRF_Unknown01;
       struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + gameadd.crtr_conf.sprite_size, -1, 0, 2);
+          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + gameadd.crtr_conf.sprite_size, -1, 0, ODC_Default);
           efftng->rendering_flags &= ~TRF_Transpar_Flags;
           efftng->rendering_flags |= TRF_Transpar_8;
       }
@@ -1814,7 +1825,7 @@ TbBool slab_is_valid_for_creature_choose_move(const struct Thing *thing, MapSlab
     struct Thing* doortng = get_door_for_position(stl_x, stl_y);
     if (!thing_is_invalid(doortng))
     {
-      if ((doortng->owner == thing->owner) && (!doortng->door.is_locked))
+      if (door_will_open_for_thing(doortng,thing))
           return true;
     }
     return false;
@@ -1841,7 +1852,7 @@ TbBool creature_choose_random_destination_on_valid_adjacent_slab(struct Thing *t
             {
                 if (setup_person_move_to_coord(thing, &locpos, NavRtF_Default))
                 {
-                    SYNCDBG(8,"Moving thing %s from (%d,%d) to (%d,%d)", thing_model_name(thing),
+                    SYNCDBG(8,"Moving thing %s index %d from (%d,%d) to (%d,%d)", thing_model_name(thing),
                         (int)thing->index, (int)thing->mappos.x.stl.num, (int)thing->mappos.y.stl.num,
                         (int)locpos.x.stl.num, (int)locpos.y.stl.num);
                     return true;
@@ -2072,7 +2083,7 @@ short creature_follow_leader(struct Thing *creatng)
         return 0;
     }
     cctrl->following_leader_since = game.play_gameturn;
-    MapCoordDelta distance_to_follower_pos = get_2d_box_distance(&creatng->mappos, &follwr_pos);
+    MapCoordDelta distance_to_follower_pos = get_chessboard_distance(&creatng->mappos, &follwr_pos);
     TbBool cannot_reach_leader = creature_cannot_move_directly_to(creatng, &leadtng->mappos);
     int speed = get_creature_speed(leadtng);
     // If we're too far from the designated position, do a speed run
@@ -2422,13 +2433,15 @@ void creature_drop_dragged_object(struct Thing *creatng, struct Thing *dragtng)
 
 TbBool creature_is_dragging_something(const struct Thing *creatng)
 {
-    const struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->dragtng_idx == 0) {
         return false;
     }
     const struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    if (!thing_exists(dragtng)) {
-        ERRORLOG("The %s is dragging non-existing thing",thing_model_name(creatng));
+    if (!thing_exists(dragtng))
+    {
+        ERRORLOG("The %s is dragging non-existing thing with ID %d",thing_model_name(creatng), cctrl->dragtng_idx);
+        cctrl->dragtng_idx = 0;
         return false;
     }
     return true;
@@ -2458,6 +2471,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         ERRORLOG("Invalid room or number of slabs is zero");
         return false;
     }
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
     long selected = CREATURE_RANDOM(thing, room->slabs_count);
     unsigned long n = 0;
     long i = room->slabs_list;
@@ -2520,7 +2534,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
         {
             MapSubtlCoord x = start_stl % 3 + stl_x;
             MapSubtlCoord y = start_stl / 3 + stl_y;
-            if (get_floor_filled_subtiles_at(x, y) == 1)
+            if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(x, y) == roomst->storage_height))
             {
                 struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, x, y);
                 if (thing_is_invalid(objtng))
@@ -2562,7 +2576,8 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
             {
                 MapSubtlCoord astl_x = stl_x + around[nround].delta_x;
                 MapSubtlCoord astl_y = stl_y + around[nround].delta_y;
-                if (get_floor_filled_subtiles_at(astl_x, astl_y) == 1)
+
+                if ((roomst->storage_height < 0) || (get_floor_filled_subtiles_at(astl_x, astl_y) == roomst->storage_height))
                 {
                     struct Thing* objtng = find_base_thing_on_mapwho(TCls_Object, 0, astl_x, astl_y);
                     if (thing_is_invalid(objtng))
@@ -2880,7 +2895,7 @@ short creature_pick_up_spell_to_steal(struct Thing *creatng)
     struct Thing* picktng = thing_get(cctrl->pickup_object_id);
     TRACE_THING(picktng);
     if ( thing_is_invalid(picktng) || ((picktng->state_flags & TF1_IsDragged1) != 0)
-      || (get_2d_box_distance(&creatng->mappos, &picktng->mappos) >= 512))
+      || (get_chessboard_distance(&creatng->mappos, &picktng->mappos) >= 512))
     {
         set_start_state(creatng);
         return 0;
@@ -2976,6 +2991,7 @@ void make_creature_unconscious(struct Thing *creatng)
     TRACE_THING(creatng);
     SYNCDBG(18,"Starting");
     clear_creature_instance(creatng);
+    set_creature_size_stuff(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved)
     {
@@ -3653,7 +3669,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
             continue;
 
         // Player dungeon already broken into
-        if (cctrl->party.player_broken_into_flags & (1 << i))
+        if (flag_is_set(cctrl->party.player_broken_into_flags, to_flag(i)))
             continue;
 
         if (!subtile_revealed(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num, i))
@@ -3668,7 +3684,7 @@ char new_slab_tunneller_check_for_breaches(struct Thing *creatng)
         if (!creature_can_navigate_to(creatng, &game.things.lookup[dgn->dnheart_idx]->mappos, NavRtF_Default))
             continue;
 
-        cctrl->party.player_broken_into_flags |= 1 << i;
+        set_flag(cctrl->party.player_broken_into_flags, to_flag(i));
         ++dgn->times_broken_into;
         event_create_event_or_update_nearby_existing_event(creatng->mappos.x.val, creatng->mappos.y.val, EvKind_Breach, i, 0);
         if (is_my_player_number(i))
@@ -3933,7 +3949,7 @@ void create_effect_around_thing(struct Thing *thing, long eff_kind)
     MapCoord coord_z_beg = (MapCoord)thing->mappos.z.val;
     if (coord_z_beg < 0)
         coord_z_beg = 0;
-    MapCoord coord_z_end = (MapCoord)thing->mappos.z.val + thing->clipbox_size_yz;
+    MapCoord coord_z_end = (MapCoord)thing->mappos.z.val + thing->clipbox_size_z;
     if (coord_z_end >= subtile_coord(map_subtiles_z, 0) - 1)
         coord_z_end = subtile_coord(map_subtiles_z, 0) - 1;
     struct Coord3d pos;
@@ -4167,7 +4183,7 @@ static TbBool wander_point_get_random_pos(const struct Wander *wandr, const stru
           long irnd = CREATURE_RANDOM(thing, wandr->points_count);
           MapSubtlCoord stl_x = wandr->points[irnd].stl_x;
           MapSubtlCoord stl_y = wandr->points[irnd].stl_y;
-          MapSubtlCoord dist = get_2d_box_distance_xy(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
+          MapSubtlCoord dist = chessboard_distance(stl_x, stl_y, prevpos->x.stl.num, prevpos->y.stl.num);
           // Move at least 2 slabs, and prefer distance around 7 slabs
           // If previously selected selected_dist is too low, allow any place
           if (((dist > 6) && (abs(dist-21) < abs(selected_dist-21))) || (selected_dist <= 6))
@@ -4263,8 +4279,8 @@ long get_thing_navigation_distance(struct Thing* creatng, struct Coord3d* pos, u
     for (int i = 0; i < path.waypoints_num; ++i)
     {
         struct Coord3d pos2;
-        pos2.x.val = (uint16_t)path.waypoints[i].x;
-        pos2.y.val = (uint16_t)path.waypoints[i].y;
+        pos2.x.val = path.waypoints[i].x;
+        pos2.y.val = path.waypoints[i].y;
         distance += get_2d_distance(&pos1, (struct Coord3d*)&pos2);
         pos1 = pos2;
     }
@@ -4284,7 +4300,7 @@ short seek_the_enemy(struct Thing *creatng)
     struct Thing* enemytng = thing_update_enemy_to_fight_with(creatng);
     if (!thing_is_invalid(enemytng))
     {
-        MapCoordDelta dist = get_2d_box_distance(&enemytng->mappos, &creatng->mappos);
+        MapCoordDelta dist = get_chessboard_distance(&enemytng->mappos, &creatng->mappos);
         if (creature_can_hear_within_distance(creatng, dist))
         {
             if (cctrl->instance_id == CrInst_NULL)
@@ -4598,6 +4614,12 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         initialise_thing_state(thing, CrSt_CreaturePretendChickenSetupMove);
         return thing->active_state;
     }
+    if (creature_affected_by_spell(thing, SplK_TimeBomb))
+    {
+        cleanup_current_thing_state(thing);
+        initialise_thing_state(thing, CrSt_Timebomb);
+        return thing->active_state;
+    }
     if (is_neutral_thing(thing))
     {
         cleanup_current_thing_state(thing);
@@ -4804,6 +4826,7 @@ char creature_free_for_lunchtime(struct Thing *creatng)
 long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureStats *crstat)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    RoomKind rkind;
     if ((crstat->hunger_rate == 0) || (cctrl->hunger_level <= (long)crstat->hunger_rate)) {
         return 0;
     }
@@ -4822,7 +4845,8 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
 
     if (!player_has_room_of_role(creatng->owner, RoRoF_FoodStorage))
     {
-        output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNeeded);
+        rkind = find_first_roomkind_with_role(RoRoF_FoodStorage);
+        output_message_room_related_from_computer_or_player_action(creatng->owner, rkind, OMsg_RoomNeeded);
         anger_apply_anger_to_creature(creatng, crstat->annoy_no_hatchery, AngR_Hungry, 1);
         return 0;
     }
@@ -4839,11 +4863,12 @@ long process_creature_needs_to_eat(struct Thing *creatng, const struct CreatureS
         if (room_is_invalid(nroom))
         {
             // There seem to be a correct room, but we can't reach it
-            output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomNoRoute);
+            rkind = find_first_roomkind_with_role(RoRoF_FoodStorage);
+            output_message_room_related_from_computer_or_player_action(creatng->owner, rkind, OMsg_RoomNoRoute);
         } else
         {
             // The room is reachable, so it probably has just no food
-            output_message_room_related_from_computer_or_player_action(creatng->owner, RoK_GARDEN, OMsg_RoomTooSmall);
+            output_message_room_related_from_computer_or_player_action(creatng->owner, nroom->kind, OMsg_RoomTooSmall);
         }
     }
     if (room_is_invalid(nroom)) {
@@ -5259,6 +5284,39 @@ TbBool setup_move_out_of_cave_in(struct Thing* thing)
         }
     }
     return false;
+}
+
+short creature_timebomb(struct Thing *creatng)
+{
+    SYNCDBG(18,"Starting");
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    if (creature_control_invalid(cctrl))
+    {
+        ERRORLOG("Invalid creature control; no action");
+        return CrStRet_Unchanged;
+    }
+    if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
+    {
+        struct Thing* trgtng = find_nearest_enemy_creature(creatng);
+        if ( (!thing_is_invalid(trgtng)) && (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default)) )
+        {
+            cctrl->timebomb_target_id = trgtng->index;
+            cctrl->moveto_pos.x.val = trgtng->mappos.x.val;
+            cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
+            cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
+            cctrl->move_flags = NavRtF_Default;
+            creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
+        }
+        else
+        {
+            cctrl->timebomb_target_id = 0;
+            creature_choose_random_destination_on_valid_adjacent_slab(creatng);
+        }
+        creatng->continue_state = CrSt_Timebomb;
+        return CrStRet_Modified;
+    }
+    return CrStRet_Unchanged;
 }
 
 /******************************************************************************/

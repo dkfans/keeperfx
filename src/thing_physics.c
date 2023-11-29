@@ -130,7 +130,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       pos->y.val = y_thing;
       break;
     case SlbBloF_WalledZ:
-      pos->z.val = get_slide_z_coord(thing, pos);
+      pos->z.val = push_thingz_against_wall_at(thing, pos);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledX:
       x_thing = thing->mappos.x.val;
@@ -144,7 +144,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
           x_thing = (((sizexy + x_pos) & 0xFFFFFF00) - sizexy - 1);
       }
       pos->x.val = x_thing;
-      pos->z.val = get_slide_z_coord(thing, pos);
+      pos->z.val = push_thingz_against_wall_at(thing, pos);
       break;
     case SlbBloF_WalledZ|SlbBloF_WalledY:
       y_thing = thing->mappos.y.val;
@@ -158,7 +158,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
           y_thing = (((y_pos + sizexy) & 0xFFFFFF00) - sizexy - 1);
       }
       pos->y.val = y_thing;
-      pos->z.val = get_slide_z_coord(thing, pos);
+      pos->z.val = push_thingz_against_wall_at(thing, pos);
       break;
     case SlbBloF_WalledX|SlbBloF_WalledY|SlbBloF_WalledZ:
       x_thing = thing->mappos.x.val;
@@ -182,7 +182,7 @@ void slide_thing_against_wall_at(struct Thing *thing, struct Coord3d *pos, long 
       }
       pos->x.val = x_thing;
       pos->y.val = y_thing;
-      pos->z.val = get_slide_z_coord(thing, pos);
+      pos->z.val = push_thingz_against_wall_at(thing, pos);
       break;
     default:
       return;
@@ -562,7 +562,7 @@ long get_thing_height_at_with_radius(const struct Thing *thing, const struct Coo
         coord_subtile(pos_x_end), coord_subtile(pos_y_end), &floor_height, &ceiling_height);
     MapCoord pos_z_ceiling = subtile_coord(ceiling_height, 0);
     MapCoord pos_z_floor = subtile_coord(floor_height, 0);
-    if (pos_z_floor + thing->clipbox_size_yz >= pos_z_ceiling)
+    if (pos_z_floor + thing->clipbox_size_z >= pos_z_ceiling)
         return  pos->z.val;
     else
         return pos_z_floor;
@@ -600,7 +600,7 @@ TbBool creature_can_pass_through_wall_at(const struct Thing *creatng, const stru
         int radius = i / 2;
         // Base on the radius, determine bounds of the object
         MapCoord height_beg = pos->z.val;
-        MapCoord height_end = height_beg + creatng->clipbox_size_yz;
+        MapCoord height_end = height_beg + creatng->clipbox_size_z;
         MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
         MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
         MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
@@ -634,7 +634,7 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
     int radius = i / 2;
     // Base on the radius, determine bounds of the object
     MapCoord height_beg = pos->z.val;
-    MapCoord height_end = height_beg + thing->clipbox_size_yz;
+    MapCoord height_end = height_beg + thing->clipbox_size_z;
     MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
@@ -654,7 +654,7 @@ long thing_in_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 long thing_in_wall_at_with_radius(const struct Thing *thing, const struct Coord3d *pos, unsigned long radius)
 {
     MapCoord z_beg = pos->z.val;
-    MapCoord z_end = z_beg + thing->clipbox_size_yz;
+    MapCoord z_end = z_beg + thing->clipbox_size_z;
     MapSubtlCoord stl_x_beg = coord_subtile(pos->x.val - radius);
     MapSubtlCoord stl_x_end = coord_subtile(pos->x.val + radius);
     MapSubtlCoord stl_y_beg = coord_subtile(pos->y.val - radius);
@@ -800,8 +800,8 @@ TbBool thing_on_thing_at(const struct Thing *firstng, const struct Coord3d *pos,
     if ((abs(dist_x) >= dist_collide) || (abs(dist_y) >= dist_collide)) {
         return false;
     }
-    dist_collide = (sectng->solid_size_yz + firstng->solid_size_yz) / 2;
-    MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->solid_size_yz >> 1) + (firstng->solid_size_yz >> 1);
+    dist_collide = (sectng->solid_size_z + firstng->solid_size_z) / 2;
+    MapCoordDelta dist_z = pos->z.val - (MapCoordDelta)sectng->mappos.z.val - (sectng->solid_size_z >> 1) + (firstng->solid_size_z >> 1);
     if (abs(dist_z) >= dist_collide) {
         return false;
     }
@@ -857,10 +857,9 @@ TbBool thing_is_exempt_from_z_axis_clipping(const struct Thing *thing)
     return false;
 }
 
-unsigned short get_slide_z_coord(const struct Thing *thing, const struct Coord3d *pos)
-// function at 451700. Original name unknown.
+unsigned short push_thingz_against_wall_at(const struct Thing *thing, const struct Coord3d *pos)
 {
-  unsigned short clipbox_size = thing->clipbox_size_yz;
+  unsigned short clipbox_size = thing->clipbox_size_z;
   long height = get_ceiling_height_above_thing_at(thing, pos);
   short z_thing = (short)thing->mappos.z.val;
   short z_pos = (short)pos->z.val;

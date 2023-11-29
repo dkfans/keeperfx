@@ -490,9 +490,12 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    if (room->owner == game.neutral_player_num || is_neutral_thing(creatng))
+    if ((gameadd.classic_bugs_flags & ClscBug_NeutralTortureConverts) == 0)
     {
-        return CrCkRet_Available;
+        if (room->owner == game.neutral_player_num || is_neutral_thing(creatng))
+        {
+            return CrCkRet_Available;
+        }
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);

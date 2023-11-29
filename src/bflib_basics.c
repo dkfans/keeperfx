@@ -25,11 +25,7 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include <ctype.h>
-#define NOMINMAX
-#define WIN32_LEAN_AND_MEAN
-#include <windows.h>
-#include <wingdi.h>
-#include <winuser.h>
+#include <SDL2/SDL.h>
 
 #include "bflib_datetm.h"
 #include "bflib_memory.h"
@@ -222,7 +218,7 @@ void error(const char *codefile,const int ecode,const char *message)
 short error_dialog(const char *codefile,const int ecode,const char *message)
 {
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
-  MessageBox(NULL, message, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, message, NULL);
   return 0;
 }
 
@@ -231,8 +227,7 @@ short error_dialog_fatal(const char *codefile,const int ecode,const char *messag
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
   static char msg_text[2048];
   sprintf(msg_text, "%s This error in '%s' makes the program unable to continue. See '%s' for details.", message, codefile, log_file_name);
-  HWND whandle = GetDesktopWindow();
-  MessageBox(whandle, msg_text, PROGRAM_FULL_NAME, MB_OK | MB_ICONERROR);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_ERROR, PROGRAM_FULL_NAME, msg_text, NULL);
   return 0;
 }
 
@@ -494,7 +489,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
             curr_time.Hour,curr_time.Minute,curr_time.Second);
     }
     if (log->prefix[0] != '\0')
-      fprintf(file, log->prefix);
+      fputs(log->prefix, file);
   vfprintf(file, fmt_str, arg);
   log->position = ftell(file);
   // fclose is slow and automatically happens on normal program exit.

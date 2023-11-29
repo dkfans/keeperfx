@@ -73,6 +73,17 @@ enum ThingRenderingFlags {
     TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
 };
 
+ /**
+  * Used for EffectElementStats->size_change and Thing->size_change.
+  * 
+  * See effect_element_stats[] for setting of size_change.
+  */
+enum ThingSizeChange {
+  TSC_DontChangeSize         = 0x00, /**< Default behaviour. */
+  TSC_ChangeSize             = 0x01, /**< Used when creature changing to/from chicken, and by TngEffElm_Cloud3. */
+  TSC_ChangeSizeContinuously = 0x02, /**< Used by TngEffElm_IceShard. */
+};
+
 enum FreeThingAllocFlags {
     FTAF_Default             = 0x00,
     FTAF_FreeEffectIfNoSlots = 0x01,
@@ -215,6 +226,7 @@ struct Thing {
       unsigned char opening_counter;
       short closing_counter;
       unsigned char is_locked;
+      PlayerBitFlags revealed;
       } door;
 //TCls_Unkn10
 //TCls_Unkn11
@@ -237,8 +249,8 @@ struct Thing {
     unsigned char class_id;
     unsigned char fall_acceleration;
     unsigned char bounce_angle;
-    unsigned char inertia_floor;
-    unsigned char inertia_air;
+    short inertia_floor;
+    short inertia_air;
     unsigned char movement_flags;
     struct CoordDelta3d veloc_push_once;
     struct CoordDelta3d veloc_base;
@@ -256,14 +268,15 @@ unsigned char max_frames;
 unsigned short sprite_size_min;
 unsigned short sprite_size_max;
     unsigned char rendering_flags;
-    unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses for valid values. */
+    unsigned char size_change; /**< See enum ThingSizeChange for valid values. */
 unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;
-    unsigned short clipbox_size_yz;
+    unsigned short clipbox_size_z;
     unsigned short solid_size_xy;
-    unsigned short solid_size_yz;
+    unsigned short solid_size_z;
     long health;
 unsigned short floor_height;
     unsigned short light_id;
@@ -271,6 +284,19 @@ unsigned short floor_height;
     unsigned char snd_emitter_id;
     short next_of_class;
     short prev_of_class;
+    unsigned long flags; //ThingAddFlags
+    long last_turn_drawn;
+    float time_spent_displaying_hurt_colour; // Used for delta time interpolated render position
+    unsigned short previous_floor_height;
+    unsigned short interp_floor_height;
+    struct Coord3d previous_mappos;
+    struct Coord3d interp_mappos;
+    long interp_minimap_pos_x;
+    long interp_minimap_pos_y;
+    long previous_minimap_pos_x;
+    long previous_minimap_pos_y;
+    long interp_minimap_update_turn;
+    PlayerNumber holding_player;
 };
 
 #define INVALID_THING (game.things.lookup[0])
@@ -281,29 +307,10 @@ unsigned short floor_height;
  */
 #define TRACE_THING(thing)
 
-enum ThingAddFlags
+enum ThingAddFlags //named this way because they were part of the ThingAdd structure
 {
     TAF_ROTATED_SHIFT = 16,
     TAF_ROTATED_MASK = 0x070000,
-};
-
-struct ThingAdd // Additional thing data
-{
-    unsigned long flags; //ThingAddFlags
-    long last_turn_drawn;
-    float time_spent_displaying_hurt_colour;
-    // Used for delta time interpolated render position
-    unsigned short previous_floor_height;
-    unsigned short interp_floor_height;
-    struct Coord3d previous_mappos;
-    struct Coord3d interp_mappos;
-    
-    long interp_minimap_pos_x;
-    long interp_minimap_pos_y;
-    long previous_minimap_pos_x;
-    long previous_minimap_pos_y;
-    long interp_minimap_update_turn;
-    PlayerNumber holding_player;
 };
 
 #pragma pack()

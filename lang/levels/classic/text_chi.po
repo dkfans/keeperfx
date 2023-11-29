@@ -1,7 +1,7 @@
 # ******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # ******************************************************************************
-#   @file gtext_chi.po
+#   @file classic/text_chi.po
 #      KeeperFX GUI Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
@@ -324,25 +324,25 @@ msgstr "这些英雄忠于他们的使命，他们要夺走属于你的东西。
 #. Return to Skybird Trill (lv416)
 #: guitext:50
 msgctxt "In-game message"
-msgid "Correct me if I'm wrong, which I doubt, but wasn't there a third way in? "
+msgid "Correct me if I'm wrong, which I doubt, but wasn't there a third way in?"
 msgstr "也许我说错了，但我不相信，难道就没有其他方法进入这里吗？"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:51
 msgctxt "In-game message"
-msgid "Where does the Monk of Cowardice hide?. Use your instinct to make the right choice "
+msgid "Where does the Monk of Cowardice hide? Use your instinct to make the right choice."
 msgstr "这个懦弱的僧侣藏在哪里了？用你的直觉做出正确的判断吧。"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:52
 msgctxt "In-game message"
-msgid "Looks like this worthless Dwarf has been hiding behind locked doors creating boulder traps? He was stupid enough not to use them all which you can use to your advantage! "
+msgid "Looks like this worthless Dwarf has been hiding behind locked doors creating boulder traps? He was stupid enough not to use them all which you can use to your advantage!"
 msgstr "看来这个没用的矮人一直把自己锁在里面制造圆石陷阱？他真是愚蠢，没有把这些陷阱都装上，现在反倒可以为你所用！"
 
 #. Return to Skybird Trill (lv416)
 #: guitext:53
 msgctxt "In-game message"
-msgid "Such holy actions by such a holy Monk? Now take his holiness and corrupt it with your dark ways. This should be fun, right my lord? "
+msgid "Such holy actions by such a holy Monk? Now take his holiness and corrupt it with your dark ways. This should be fun, right my lord?"
 msgstr "这就是一名神圣的僧侣所做的神圣的事情？现在用你邪恶的手段玷污他的神圣吧。这一定很有趣，对吧，主人？"
 
 #. Return to Skybird Trill (lv416)
@@ -491,11 +491,6 @@ msgstr "圣者又一次回来了，还带领着一支强大的军队！为最后
 msgid ""
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Syndika"
-msgstr "辛迪加"
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Kzelbatu"
@@ -540,3 +535,8 @@ msgstr "英雄的入侵"
 msgctxt "Level name"
 msgid "Skybird's Other Side"
 msgstr "太阳鸟鸣反向对战"
+
+#: guitext:211
+msgctxt "Level name"
+msgid "Syndika"
+msgstr "辛迪加"

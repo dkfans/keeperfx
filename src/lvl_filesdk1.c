@@ -30,6 +30,7 @@
 #include "front_simple.h"
 #include "config.h"
 #include "config_campaigns.h"
+#include "config_slabsets.h"
 #include "config_terrain.h"
 #include "light_data.h"
 #include "map_ceiling.h"
@@ -46,9 +47,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char slabclm_fname[] = "slabs.clm";
-const char slabdat_fname[] = "slabs.dat";
-
 /** Global storage for level file version number.
  * Note that the version number is not stored anywhere on load/save.
  * It is only valid while the level is being loaded, and cannot be used
@@ -403,7 +401,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                 n++;
               }
             }
-            if (n < 1)
+            if ((n < 1) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" number in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -428,7 +426,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                   n++;
                 }
             }
-            if (n < 2)
+            if ((n < 2) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" coordinates in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -453,7 +451,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                   n++;
                 }
             }
-            if (n < 2)
+            if ((n < 2) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" coordinates in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -469,7 +467,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                 n++;
               }
             }
-            if (n < 1)
+            if ((n < 1) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" number in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -496,7 +494,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
             {
               n++;
             }
-            if (n < 2)
+            if ((n < 2) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" file names in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -511,7 +509,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
             {
               n++;
             }
-            if (n < 2)
+            if ((n < 2) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" file names in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -578,6 +576,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
         case 10: // AUTHOR
         case 11: // DESCRIPTION
         case 12: // DATE
+        case 14: // MAP_FORMAT_VERSION
             // As for now, ignore these
             break;
         case 13: // MAPSIZE
@@ -599,7 +598,7 @@ TbBool level_lof_file_parse(char *fname, char *buf, long len)
                   n++;
                 }
             }
-            if (n < 2)
+            if ((n < 2) && (strlen(word_buf) != 0))
             {
               WARNMSG("Couldn't recognize \"%s\" mapsize in LOF file '%s'.",
                   COMMAND_TEXT(cmd_num),fname);
@@ -661,19 +660,8 @@ TbBool find_and_load_lof_files(void)
     return result;
 }
 
-long convert_old_column_file(LevelNumber lv_num)
-{
-    ERRORLOG("Converting old column format no longer supported.");
-    return 0;
-}
-
 TbBool load_column_file(LevelNumber lv_num)
 {
-    if ((game.operation_flags & GOF_ColumnConvert) != 0)
-    {
-        convert_old_column_file(lv_num);
-        game.operation_flags &= ~GOF_ColumnConvert;
-    }
     long fsize = 8;
     unsigned char* buf = load_single_map_file_to_buffer(lv_num, "clm", &fsize, LMFF_None);
     if (buf == NULL)
@@ -932,40 +920,6 @@ TbBool load_aptfx_file(LevelNumber lv_num)
                               &actnpoint_create_actnpoint_adv);
 }
 
-TbBool load_slabdat_file(struct SlabSet *slbset, long *scount)
-{
-  long k;
-  long n;
-  SYNCDBG(5,"Starting");
-  long fsize = 2;
-  unsigned char* buf = load_data_file_to_buffer(&fsize, FGrp_StdData, "slabs.dat");
-  if (buf == NULL)
-    return false;
-  long i = 0;
-  long total = lword(&buf[i]);
-  i += 2;
-  // Validate total amount of indices
-  if ((total < 0) || (total > (fsize-2)/(9*sizeof(short))))
-  {
-    total = (fsize-2)/(9*sizeof(short));
-    WARNMSG("Bad amount of indices in Slab Set file; corrected to %ld.",total);
-  }
-  if (total > *scount)
-  {
-    WARNMSG("Only %d slabs supported, Slab Set file has %ld.",SLABSET_COUNT,total);
-    total = *scount;
-  }
-  for (n=0; n < total; n++)
-    for (k=0; k < 9; k++)
-    {
-      slbset[n].col_idx[k] = lword(&buf[i]);
-      i += 2;
-    }
-  *scount = total;
-  LbMemoryFree(buf);
-  return true;
-}
-
 /**
  * Updates "use" property of given columns set, using given SlabSet entries.
  */
@@ -977,15 +931,15 @@ TbBool update_columns_use(struct Column *cols,long ccount,struct SlabSet *sset,l
     for (i = 0; i < ccount; i++)
     {
         cols[i].use = 0;
-  }
-  for (i=0; i < scount; i++)
-    for (k=0; k < 9; k++)
-    {
-      ncol = -sset[i].col_idx[k];
-      if ((ncol >= 0) && (ncol < ccount))
-        cols[ncol].use++;
     }
-  return true;
+    for (i=0; i < scount; i++)
+        for (k=0; k < 9; k++)
+        {
+            ncol = -sset[i].col_idx[k];
+            if ((ncol >= 0) && (ncol < ccount))
+                cols[ncol].use++;
+        }
+    return true;
 }
 
 TbBool load_slabclm_file(struct Column *cols, long *ccount)
@@ -1031,7 +985,7 @@ TbBool columns_add_static_entries(void)
     for (long i=0; i < 3; i++)
     {
         LbMemorySet(&lcolmn, 0, sizeof(struct Column));
-        lcolmn.baseblock = c[i];
+        lcolmn.floor_texture = c[i];
         for (long k = 0; k < 6; k++)
         {
           lcolmn.cubes[0] = player_cubes[k];
@@ -1061,7 +1015,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
             long ncol;
             if (n >= 0)
             {
-                lcolmn.baseblock = n;
+                lcolmn.floor_texture = n;
                 ncol = find_column(&lcolmn);
                 if (ncol == 0)
                 {
@@ -1070,19 +1024,19 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
                     colmn->bitfields |= CLF_ACTIVE;
                 }
             } else
-          {
-            if (-n < ccount)
-              ncol = find_column(&cols[-n]);
-            else
-              ncol = 0;
-            if (ncol == 0)
             {
-              ERRORLOG("E14R432Q#222564-3; I should be able to find a column here");
-              continue;
+                if (-n < ccount)
+                    ncol = find_column(&cols[-n]);
+                else
+                    ncol = 0;
+                if (ncol == 0)
+                {
+                    ERRORLOG("column:%d referenced in slabset.cfg but not present in columns.cfg",-n);
+                    continue;
+                }
             }
-          }
-          sset->col_idx[k] = -ncol;
-      }
+            sset->col_idx[k] = -ncol;
+        }
     }
     return true;
 }
@@ -1107,56 +1061,24 @@ TbBool load_slab_datclm_files(void)
 {
     SYNCDBG(5,"Starting");
     // Load Column Set
-    long cols_tot = COLUMNS_COUNT;
-    struct Column* cols = (struct Column*)LbMemoryAlloc(cols_tot * sizeof(struct Column));
+    long cols_tot = 0;
+    struct Column* cols = (struct Column*)LbMemoryAlloc(COLUMNS_COUNT * sizeof(struct Column));
     if (cols == NULL)
     {
-      WARNMSG("Can't allocate memory for %d column sets.",cols_tot);
+      WARNMSG("Can't allocate memory for %d column sets.",COLUMNS_COUNT);
       return false;
     }
-    if (!load_slabclm_file(cols, &cols_tot))
+    if (!load_columns_config(keeper_columns_file,CnfLd_Standard,cols,&cols_tot))
     {
       LbMemoryFree(cols);
       return false;
     }
-    // Load Slab Set
-    long slbset_tot = SLABSET_COUNT;
-    struct SlabSet* slbset = (struct SlabSet*)LbMemoryAlloc(slbset_tot * sizeof(struct SlabSet));
-    if (slbset == NULL)
-    {
-      WARNMSG("Can't allocate memory for %d slab sets.",slbset_tot);
-      return false;
-    }
-    if (!load_slabdat_file(slbset, &slbset_tot))
-    {
-      LbMemoryFree(cols);
-      LbMemoryFree(slbset);
-      return false;
-    }
-    // Update the structure
-    for (long i = 0; i < slbset_tot; i++)
-    {
-        struct SlabSet* sset = &game.slabset[i];
-        LbMemoryCopy(sset, &slbset[i], sizeof(struct SlabSet));
-    }
+    long slbset_tot = game.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
     game.slabset_num = slbset_tot;
-    update_columns_use(cols,cols_tot,slbset,slbset_tot);
-    LbMemoryFree(slbset);
+    update_columns_use(cols,cols_tot,game.slabset,slbset_tot);
     create_columns_from_list(cols,cols_tot);
     update_slabset_column_indices(cols,cols_tot);
     LbMemoryFree(cols);
-    return true;
-}
-
-TbBool load_slab_tng_file(void)
-{
-    SYNCDBG(5,"Starting");
-    char* fname = prepare_file_fmtpath(FGrp_StdData, "slabs.tng");
-    wait_for_cd_to_be_available();
-    if ( LbFileExists(fname) )
-      LbFileLoadAt(fname, &game.slabobjs_num);
-    else
-      ERRORLOG("Could not load slab object set");
     return true;
 }
 
@@ -1166,8 +1088,6 @@ TbBool load_slab_file(void)
     if (!load_slab_datclm_files())
         result = false;
     if (!columns_add_static_entries())
-        result = false;
-    if (!load_slab_tng_file())
         result = false;
     return result;
 }
@@ -1326,9 +1246,9 @@ short load_map_slab_file(unsigned long lv_num)
       {
         slb = get_slabmap_block(x,y);
         n = lword(&buf[i]);
-        if (n > SLAB_TYPES_COUNT)
+        if (n > game.slab_conf.slab_types_count)
         {
-          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,SLAB_TYPES_COUNT);
+          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,game.slab_conf.slab_types_count);
           n = SlbT_ROCK;
         }
         slb->kind = n;
@@ -1401,7 +1321,7 @@ static TbBool load_static_light_file(unsigned long lv_num)
         ilght.mappos.x.val = legilght.mappos.x.val;
         ilght.mappos.y.val = legilght.mappos.y.val;
         ilght.mappos.z.val = legilght.mappos.z.val;
-        
+
         if (light_create_light(&ilght) == 0)
         {
             WARNLOG("Couldn't allocate static light %d",(int)k);
@@ -1485,7 +1405,7 @@ static TbBool load_level_file(LevelNumber lvnum)
           result = false;
         load_map_wibble_file(lvnum);
         load_and_setup_map_info(lvnum);
-        load_texture_map_file(game.texture_id, 2);
+        load_texture_map_file(game.texture_id);
         if (new_format)
         {
             load_aptfx_file(lvnum);
@@ -1517,7 +1437,7 @@ static TbBool load_level_file(LevelNumber lvnum)
         load_slab_file();
         init_columns();
         game.texture_id = 0;
-        load_texture_map_file(game.texture_id, 2);
+        load_texture_map_file(game.texture_id);
         init_top_texture_to_cube_table();
         result = false;
     }

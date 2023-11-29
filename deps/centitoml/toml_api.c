@@ -376,7 +376,7 @@ static int e_badkey(context_t *ctx, int lineno)
 
 static int e_keyexists(context_t *ctx, int lineno)
 {
-    snprintf(ctx->errbuf, ctx->errbufsz, "line %d: key exists", lineno);
+    snprintf(ctx->errbuf, ctx->errbufsz, "line %d: duplicate key", lineno);
     return -1;
 }
 

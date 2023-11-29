@@ -1,7 +1,7 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file text_eng.pot
+#   @file revlord/text_eng.pot
 #      KeeperFX Campaign Strings translation template
 #  @par Purpose:
 #      Allows to create .po files used for translating the game.
@@ -360,8 +360,7 @@ msgstr ""
 #. Widerwilds (lv4)
 #: guitext:45
 msgctxt "In-game message"
-msgid ""
-"Treachery! The Barbarian who challenged you has turned out to have been a Demon all along! Put him and his remaining minions down, quickly!"
+msgid "Treachery! Turns out the Barbarian who challenged you was a demon all along! Put him and his remaining minions down, quickly!"
 msgstr ""
 
 #. Widerwilds (lv4) victory message
@@ -375,7 +374,7 @@ msgstr ""
 #: guitext:47
 msgctxt "In-game message"
 msgid ""
-"The vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires "
+"A vile Necromancer holds this realm in his deathgrip. Rally the locals to vanquish the Undead and enact your revenge against the vampires "
 "who have brought the Knightly Order of Dominus to ruin!"
 msgstr ""
 
@@ -431,24 +430,20 @@ msgstr ""
 #. Misty Bog (lv5)
 #: guitext:55
 msgctxt "In-game message"
-msgid "The heart of one evil Necromancer is destroyed, but there is another! Find and destroy his second phylactery, and then proceed to "
-" stake all surviving vampires in the bog."
+msgid "The heart of the evil Necromancer is destroyed, but he has another! Find and destroy his second phylactery, and then proceed to "
+"stake all surviving vampires in the bog."
 msgstr ""
 
 #. Misty Bog (lv5)
 #: guitext:56
 msgctxt "In-game message"
-msgid ""
-"The last Necromancer is defeated. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
+msgid "The Necromancer is defeated at last. Now, you must stake all surviving Vampires in the bog, who have belatedly arrived seeking vengeance "
 "on your heroes."
 msgstr ""
 
-#. Misty Bog (lv5)
 #: guitext:57
 msgctxt "In-game message"
-msgid ""
-"The heart of an evil Necromancer is destroyed, but another remains. Find and destroy his second phylactery, and then proceed to stake "
-"all surviving vampires in the bog."
+msgid "Moo"
 msgstr ""
 
 #. Misty Bog (lv5) victory message
@@ -458,12 +453,12 @@ msgid "Glorious victory, my Liege! The Undead are defeated and Misty Bog is safe
 "fell into disrepair after the Vampires settled here."
 msgstr ""
 
-#. Widerwilds (lv3)
+#. Widerwilds (lv4)
 #: guitext:59
 msgctxt "In-game message"
 msgid ""
-"Treachery! The Barbarian who challenged you has turned out to have been a demon all along! You now must breach his fortress and destroy "
-"both the dungeon heart and the monster himself!"
+"Treachery! Turns out the Barbarian who challenged you was a demon all along! You now must breach his fortress and destroy both the dungeon "
+"heart and the monster himself!"
 msgstr ""
 
 #. Knight's castle (lv6)
@@ -761,11 +756,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Revenge of the Lord"
-msgstr ""
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Dwarfton"
@@ -819,4 +809,9 @@ msgstr ""
 #: guitext:212
 msgctxt "Level name"
 msgid "Coldamned"
+msgstr ""
+
+#: guitext:213
+msgctxt "Level name"
+msgid "Revenge of the Lord"
 msgstr ""

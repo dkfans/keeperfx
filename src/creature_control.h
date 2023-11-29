@@ -48,6 +48,7 @@ extern "C" {
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
 #define INSTANCE_TYPES_MAX 64
+#define LAIR_ENEMY_MAX 5
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -137,10 +138,7 @@ enum ObjectCombatStates {
 struct CastedSpellData {
     unsigned char spkind;
     short duration;
-    unsigned char field_3;
 };
-
-#define SIZEOF_CreatureControl 776
 
 struct CreatureControl {
     unsigned char index;
@@ -182,7 +180,7 @@ unsigned char sound_flag;
     unsigned short lair_room_id;
     /** Lair object thing index. */
     unsigned short lairtng_idx;
-    short field_6C;
+    short view_angle;
     /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
      *  Specific case is determined by flags. */
     short dragtng_idx;
@@ -204,7 +202,7 @@ unsigned char sound_flag;
   union {
   struct {
     char target_plyr_idx;
-    unsigned char player_broken_into_flags;
+    PlayerBitFlags player_broken_into_flags;
     long long_8B;
     unsigned char byte_8F;
     SubtlCodedCoords member_pos_stl[5];
@@ -326,7 +324,7 @@ unsigned char sound_flag;
     unsigned char fight_til_death;
     TbBool field_AA;
     unsigned char stateblock_flags;
-    unsigned short spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
+    unsigned long spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
     unsigned char field_AE;
     short force_visible;
     unsigned char frozen_on_hit;
@@ -375,19 +373,20 @@ unsigned char cowers_from_slap_turns;
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
+    char creature_name[25];
     struct Coord3d flee_pos;
     long flee_start_turn;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
     unsigned short next_in_room;
-    unsigned short prev_in_room;//field_2AC
-short field_2AE;
-    unsigned char field_2B0; // 7 == heal
+    unsigned short prev_in_room;
+    short spell_aura;
+    short spell_aura_duration;
     unsigned short job_assigned;
     unsigned short spell_tngidx_armour[3];
     unsigned short spell_tngidx_disease[3];
-unsigned short shot_shift_x;
-unsigned short shot_shift_y;
-unsigned short shot_shift_z;
+    unsigned short shot_shift_x;
+    unsigned short shot_shift_y;
+    unsigned short shot_shift_z;
     unsigned long tasks_check_turn;
     unsigned long wander_around_check_turn;
     unsigned long job_primary_check_turn;
@@ -409,6 +408,11 @@ unsigned short shot_shift_z;
     unsigned char stopped_for_hand_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
+    GameTurn dropped_turn;
+    unsigned long timebomb_countdown;
+    ThingIndex timebomb_countdown_id;
+    ThingIndex timebomb_target_id;
+    TbBool timebomb_death;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -449,7 +453,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
   short field_57[14];
   short field_73;
     unsigned short size_xy;
-    unsigned short size_yz;
+    unsigned short size_z;
     unsigned short walking_anim_speed;
     TbBool flying;
     TbBool immune_to_gas;
@@ -499,7 +503,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     unsigned short jobs_anger;
     short annoy_others_leaving;
     unsigned char slaps_to_kill;
-    short lair_enemy;
+    short lair_enemy[LAIR_ENEMY_MAX];
     short hero_vs_keeper_cost;
     unsigned char rebirth;
     TbBool can_see_invisible;
@@ -507,7 +511,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool bleeds;
     TbBool affected_by_wind;
     unsigned short thing_size_xy;
-    unsigned short thing_size_yz;
+    unsigned short thing_size_z;
     short annoy_eat_food;
     short annoy_in_hand;
     short damage_to_boulder;

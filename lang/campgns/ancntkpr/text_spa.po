@@ -159,8 +159,7 @@ msgctxt "In-game message"
 msgid ""
 "Excellent work, Keeper. You have pleased T'Kaan (though not his wife!) and "
 "your name is being mentioned by the Ancients!"
-msgstr ""
-Excelente trabajo, Guardián. Has complacido a Tukan (¡aunque no a su esposa!) "
+msgstr "Excelente trabajo, Guardián. Has complacido a Tukan (¡aunque no a su esposa!) "
 "y ¡tu nombre está siendo mencionado por los Antiguos!"
 
 #: guitext:16
@@ -236,9 +235,8 @@ msgctxt "In-game message"
 msgid ""
 "I trust any further hero interference will be treated with the contempt it "
 "deserves?"
-msgstr ""
-"Confío en que cualquier otra interferencia de los héroes ¿será tratada con "
-"el desprecio que se merece?
+msgstr "Confío en que cualquier otra interferencia de los héroes ¿será tratada con "
+"el desprecio que se merece?"
 
 #: guitext:26
 msgctxt "In-game message"
@@ -969,7 +967,7 @@ msgid ""
 "Thor! You have truly shown that you are worthy. Mind you, L'Cyfre & T'Kaan "
 "look uneasy; are they your next victims, oh Omnipotent One?"
 msgstr ""
-"¡Magnífico, Guardián! ¡Tienes un asiento entre los Antiguos, entre Salar y 
+"¡Magnífico, Guardián! ¡Tienes un asiento entre los Antiguos, entre Salar y "
 "Thor! Realmente has demostrado que eres digno. Eso sí, Lucifrado y Tukan "
 "parecen inquietos. ¿Son ellas tus próximas víctimas, oh Omnipotente?"
 
@@ -1137,8 +1135,8 @@ msgstr ""
 #: guitext:163 guitext:164 guitext:165 guitext:166 guitext:167 guitext:168
 #: guitext:169 guitext:170 guitext:171 guitext:172
 msgctxt "In-game message"
-msgid "Moo"
-msgstr "Muu"
+msgid ""
+msgstr ""
 
 #: guitext:173
 msgctxt "In-game message"
@@ -1245,8 +1243,8 @@ msgstr "¡Bien hecho, Guardián! Has complacido a Salar. ¡Eres un digno sucesor
 #: guitext:191 guitext:192 guitext:193 guitext:194 guitext:195 guitext:196
 #: guitext:197 guitext:198 guitext:199 guitext:200
 msgctxt "In-game message"
-msgid "Moo2"
-msgstr "Muu2"
+msgid ""
+msgstr ""
 
 #: guitext:202
 msgctxt "Level name"
@@ -1391,8 +1389,8 @@ msgstr "Desafío de Lucifrado"
 #: guitext:420 guitext:421 guitext:422 guitext:423 guitext:424
 #: guitext:425 guitext:426
 msgctxt "Unused"
-msgid "Moo3"
-msgstr "Muu3"
+msgid ""
+msgstr ""
 
 #: guitext:427
 msgctxt "Dungeon special description"
@@ -1405,8 +1403,8 @@ msgstr ""
 
 #: guitext:428 guitext:429
 msgctxt "Unused"
-msgid "Moo4"
-msgstr "Muu4"
+msgid ""
+msgstr ""
 
 #: guitext:430
 msgctxt "Menu interface item"

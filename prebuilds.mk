@@ -3,7 +3,7 @@ ifneq (,$(findstring Windows,$(OS)))
   PERESEC_DOWNLOAD=https://github.com/dkfans/peresec/releases/download/1.1.0/peresec-1_1_0_16-devel-win.zip
   PNGTOICO_DOWNLOAD=https://github.com/dkfans/png2ico/releases/download/2003-01-14/png2ico-win-2003-01-14.zip
   PNGTORAW_DOWNLOAD=https://github.com/dkfans/pngpal2raw/releases/download/v1.0.2/pngpal2raw-1_0_2_35-devel-win.zip
-  PNGTOBSPAL_DOWNLOAD=https://github.com/dkfans/png2bestpal/releases/download/v1.0.2/png2bestpal-1_0_2_20-devel-win.zip
+  PNGTOBSPAL_DOWNLOAD=https://github.com/dkfans/png2bestpal/releases/download/v1.0.3/png2bestpal-1_0_3_21-devel-win.zip
   POTONGDAT_DOWNLOAD=https://github.com/dkfans/po2ngdat/releases/download/v1.0.2.31/po2ngdat-1_0_2_31-devel-win.zip
   SNDBANKER_DOWNLOAD=https://github.com/dkfans/sndbanker/releases/download/v1.0.1/sndbanker-1_0_1_13-devel-win.zip
   RNCTOOLS_DOWNLOAD=https://github.com/dkfans/rnctools/releases/download/v1.0.2/rnctools-1_0_2_5-devel-win.zip
@@ -14,7 +14,7 @@ ifeq ($(UNAME_S),Linux)
   PERESEC_DOWNLOAD=https://github.com/dkfans/peresec/releases/download/1.1.0/peresec-1_1_0_16-devel-lin.tar.gz
   PNGTOICO_DOWNLOAD=https://github.com/dkfans/png2ico/releases/download/2003-01-14/png2ico-lin-2003-01-14.tar.gz
   PNGTORAW_DOWNLOAD=https://github.com/dkfans/pngpal2raw/releases/download/v1.0.2/pngpal2raw-1_0_2_35-devel-lin.tar.gz
-  PNGTOBSPAL_DOWNLOAD=https://github.com/dkfans/png2bestpal/releases/download/v1.0.2/png2bestpal-1_0_2_20-devel-lin.tar.gz
+  PNGTOBSPAL_DOWNLOAD=https://github.com/dkfans/png2bestpal/releases/download/v1.0.3/png2bestpal-1_0_3_21-devel-lin.tar.gz
   POTONGDAT_DOWNLOAD=https://github.com/dkfans/po2ngdat/releases/download/v1.0.2.31/po2ngdat-1_0_2_31-devel-lin.tar.gz
   SNDBANKER_DOWNLOAD=https://github.com/dkfans/sndbanker/releases/download/v1.0.1/sndbanker-1_0_1_13-devel-lin.tar.gz
   RNCTOOLS_DOWNLOAD=https://github.com/dkfans/rnctools/releases/download/v1.0.2/rnctools-1_0_2_5-devel-lin.tar.gz
@@ -41,11 +41,14 @@ DKILLCONV_PACKAGE=$(notdir $(DKILLCONV_DOWNLOAD))
 
 # Tools and libraries to be used for the target system
 # Currently, the target is always windows-mingw32
-SDL_DOWNLOAD=http://www.libsdl.org/release/SDL2-devel-2.0.12-mingw.tar.gz
-#SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL2_net-devel-2.0.1-VC.zip
-SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL2_net-devel-2.0.1-mingw.tar.gz
-#SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-VC.zip
-SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.0.4-mingw.tar.gz
+SDL_DOWNLOAD=http://www.libsdl.org/release/SDL2-devel-2.28.1-mingw.tar.gz
+#SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL2_net-devel-2.2.0-VC.zip
+SDL_NET_DOWNLOAD=https://www.libsdl.org/projects/SDL_net/release/SDL2_net-devel-2.2.0-mingw.tar.gz
+#SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.6.3-VC.zip
+SDL_MIXER_DOWNLOAD=https://www.libsdl.org/projects/SDL_mixer/release/SDL2_mixer-devel-2.6.3-mingw.tar.gz
+#SDL_IMAGE_DONLOAD=https://github.com/libsdl-org/SDL_image/releases/download/release-2.6.3/SDL2_image-devel-2.6.3-VC.zip
+SDL_IMAGE_DOWNLOAD=https://github.com/libsdl-org/SDL_image/releases/download/release-2.6.3/SDL2_image-devel-2.6.3-mingw.tar.gz
 SDL_PACKAGE=$(notdir $(SDL_DOWNLOAD))
 SDL_NET_PACKAGE=$(notdir $(SDL_NET_DOWNLOAD))
 SDL_MIXER_PACKAGE=$(notdir $(SDL_MIXER_DOWNLOAD))
+SDL_IMAGE_PACKAGE=$(notdir $(SDL_IMAGE_DOWNLOAD))

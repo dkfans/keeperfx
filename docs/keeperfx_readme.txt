@@ -152,5 +152,4 @@ Changelog:
   A summary can be read on keeperklan:
   https://keeperklan.com/threads/627-Releases-and-news
 
-Part of the code closed into DLL and some data files
- are copyrighted by Bullfrog Productions.
+Some data files are copyrighted by Bullfrog Productions.

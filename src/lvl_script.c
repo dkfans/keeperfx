@@ -210,6 +210,10 @@ TbBool script_is_preloaded_command(long cmnd_index)
   {
   case Cmd_SWAP_CREATURE:
   case Cmd_LEVEL_VERSION:
+  case Cmd_NEW_TRAP_TYPE:
+  case Cmd_NEW_OBJECT_TYPE:
+  case Cmd_NEW_ROOM_TYPE:
+  case Cmd_NEW_CREATURE_TYPE:
       return true;
   default:
       return false;
@@ -326,7 +330,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
         }
         break;
     }
-    case 'P': 
+    case 'P':
     {
         long plr_range_id;
         if (!get_player_id(scline->tp[idx], &plr_range_id))
@@ -398,7 +402,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
     return true;
 }
 
-static TbBool is_condition_met(unsigned char cond_idx)
+static TbBool is_condition_met(unsigned short cond_idx)
 {
     if (cond_idx >= CONDITIONS_COUNT)
     {
@@ -429,6 +433,9 @@ TbBool script_command_param_to_text(char type_chr, struct ScriptLine *scline, in
         break;
     case 'L':
         get_map_location_code_name(scline->np[idx], scline->tp[idx]);
+        break;
+    case 'S':
+        strcpy(scline->tp[idx], slab_code_name(scline->np[idx]));
         break;
     case 'A':
         break;
@@ -626,7 +633,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     break;
                 }
                 // DRAWFROM support - select random index now
-                long range_index = rand() % range_total;
+                long range_index = GAME_RANDOM(range_total);
                 // Get value from ranges array
                 range_total = 0;
                 for (fi=0; fi < COMMANDDESC_ARGS_COUNT; fi++)
@@ -637,7 +644,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                             if (is_if_statement)
                             {
                                 scline->np[dst] = ranges[fi].min + range_index - range_total;
-                                ltoa(scline->np[dst], scline->tp[dst], 10);
+                                snprintf(scline->tp[dst], sizeof(scline->tp[dst]), "%ld", scline->np[dst]);
                             }
                             else
                             {
@@ -885,11 +892,6 @@ short load_script(long lvnum)
     reset_creature_max_levels();
     reset_script_timers_and_flags();
     reset_hand_rules();
-    if ((game.operation_flags & GOF_ColumnConvert) != 0)
-    {
-        convert_old_column_file(lvnum);
-        game.operation_flags &= ~GOF_ColumnConvert;
-    }
     // Load the file
     long script_len = 1;
     char* script_data = (char*)load_single_map_file_to_buffer(lvnum, "txt", &script_len, LMFF_None);
@@ -1065,8 +1067,6 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
     long i;
     long k;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ((game.system_flags & GSF_NetworkActive) != 0)
-      return;
     for (i=0; i < gameadd.script.win_conditions_num; i++)
     {
       k = gameadd.script.win_conditions[i];

@@ -1,7 +1,7 @@
 # ******************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # ******************************************************************************
-#   @file gtext_spa.po
+#   @file text_spa.po
 #      KeeperFX GUI Strings translation file
 #  @par Purpose:
 #      Contains translation of the national strings in the game.
@@ -881,7 +881,7 @@ msgstr "Has enfadado a los dioses y has perdido toda esperanza de victoria."
 msgctxt "In-game message"
 msgid ""
 "Barbarians have started to attack. They will only increase in number. Kill "
-"them and you can use their ghosts in this ream. "
+"them and you can use their ghosts in this realm. "
 msgstr ""
 "Los bárbaros han comenzado a atacar. Sólo aumentarán en número. Mátalos y "
 "podrás usar sus fantasmas en este resma."
@@ -1191,11 +1191,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr "Muu"
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Tymnath Herez"
-msgstr "Tymnath Herez"
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Yami"
@@ -1255,3 +1250,8 @@ msgstr "Fantasmas en la Maquina"
 msgctxt "Level name"
 msgid "The Death Clock"
 msgstr "El Reloj de la Muerte"
+
+#: guitext:214
+msgctxt "Level name"
+msgid "Tymnath Herez"
+msgstr "Tymnath Herez"

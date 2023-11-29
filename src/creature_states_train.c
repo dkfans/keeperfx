@@ -54,8 +54,11 @@
 TbBool creature_can_be_trained(const struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     // Creatures without training value can't be trained
     if (crstat->training_value <= 0)
+        return false;
+    if ((cctrl->explevel >= game.training_room_max_level-1) &! (game.training_room_max_level == 0))
         return false;
     // If its model can train, check if this one can gain more experience
     return creature_can_gain_experience(thing);

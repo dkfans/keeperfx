@@ -834,7 +834,7 @@ msgstr ""
 #. Level Nevergrim information
 #: guitext:90
 msgctxt "In-game message"
-msgid "You have a manufactured a Boulder Trap. Place it in a corridor and howl deliriously as it rumbles inexorably towards unwary trespassers."
+msgid "You have manufactured a Boulder Trap. Place it in a corridor and howl deliriously as it rumbles inexorably towards unwary trespassers."
 msgstr "Has fabricado una trampa, Roca. Colócala en un pasillo y aúlla de placer mientras rueda inexorablemente hacia intrusos desprevenidos."
 
 #. Level Nevergrim information
@@ -5527,10 +5527,39 @@ msgctxt "In-game message"
 msgid "Your achievements are legendary Keeper. Tales of your evil and cunning will become the horror stories of generations."
 msgstr "Tus logros son legendarios, guardián. Los relatos sobre tu maldad y tu astucia serán los cuentos de horror de muchas generaciones."
 
-#: guitext:935 guitext:936 guitext:937 guitext:938 guitext:939 guitext:940
-msgctxt "Unused"
-msgid "Moo2"
-msgstr "Moo2"
+#: guitext:935 
+msgctxt "Door name"
+msgid "Secret Door"
+msgstr "Puerta Secreta"
+
+#: guitext:936
+msgctxt "Door description"
+msgid ""
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"opening. RMB zoom."
+msgstr ""
+"Puerta secreta: Esta puerta permanece oculta para los enemigos a menos que la observen de cerca o la vean abrirse. Centrar la "
+"cámara en ella con BDR."
+
+#: guitext:937
+msgctxt "Game event description"
+msgid "Secret Door discovered: LMB toggle. RMB delete."
+msgstr "Secreto por descubierto: Abre con BIR. Borra con BDR."
+
+#: guitext:938
+msgctxt "Game event name"
+msgid "Secret Door discovered"
+msgstr "Secreto por descubierto"
+
+#: guitext:939
+msgctxt "Game event description"
+msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
+msgstr "El enemigo descubrió tu puerta secreta: Abre con BIR. Borra con BDR."
+
+#: guitext:940
+msgctxt "Game event name"
+msgid "Enemy spotted your secret door"
+msgstr "El enemigo descubrió tu puerta secreta"
 
 #: guitext:941
 msgctxt "Menu interface, Main Menu item"
@@ -5871,8 +5900,8 @@ msgstr "Moo4"
 
 #: guitext:1011
 msgctxt "Menu interface item"
-msgid "Dungeon Keeper original campaign"
-msgstr "Dungeon Keeper Original"
+msgid "Dungeon Keeper - Original Campaign"
+msgstr "Dungeon Keeper - Campaña Original"
 
 #: guitext:1012
 msgctxt "Menu interface item"
@@ -5951,7 +5980,7 @@ msgstr "El Castillo de Nikolai"
 
 #: guitext:1027
 msgctxt "Menu interface item"
-msgid "A Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr "Dungeon Keeper - Nuevo Juego+"
 
 #: guitext:1028
@@ -6025,3 +6054,23 @@ msgstr ""
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr ""
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Formación rocosa."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Roca madre: Suelo de roca no reclamado. No puedes reclamarlo ni construir sobre él."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Veta de oro densa: Contiene mucha riqueza para que tus Duendes la extraigan."

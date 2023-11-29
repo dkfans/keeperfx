@@ -41,7 +41,7 @@ struct Map bad_map_block;
  */
 MapSubtlCoord map_subtiles_z = 8;
 
-unsigned char *IanMap = NULL;
+NavColour *IanMap = NULL;
 long nav_map_initialised = 0;
 /******************************************************************************/
 /**
@@ -193,9 +193,8 @@ void set_mapblk_filled_subtiles(struct Map *mapblk, long height)
 
 void reveal_map_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
-    PlayerBitFlag nflag = (1 << plyr_idx);
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    mapblk->revealed |= nflag;
+    reveal_map_block(mapblk, plyr_idx);
 }
 
 TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
@@ -206,8 +205,12 @@ TbBool subtile_revealed(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber p
 
 void reveal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
 {
-    PlayerBitFlag nflag = (1 << plyr_idx);
-    mapblk->revealed |= nflag;
+    set_flag(mapblk->revealed, to_flag(plyr_idx));
+}
+
+void conceal_map_block(struct Map *mapblk, PlayerNumber plyr_idx)
+{
+    clear_flag(mapblk->revealed, to_flag(plyr_idx));
 }
 
 TbBool slabs_reveal_slab_and_corners(MapSlabCoord slab_x, MapSlabCoord slab_y, MaxCoordFilterParam param)
@@ -303,52 +306,21 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (map_block_invalid(mapblk))
         return false;
-    PlayerBitFlag plyr_bit;
     if (gameadd.allies_share_vision)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {
             if (players_are_mutual_allies(plyr_idx, i))
             {
-                plyr_bit = (1 << i);
-                if ((mapblk->revealed) & plyr_bit)
-                return true;
+                if (flag_is_set(mapblk->revealed, to_flag(i)))
+                    return true;
             }
         }
     }
     else
     {
-        plyr_bit = (1 << plyr_idx);
-        if ((mapblk->revealed) & plyr_bit)
-        return true;
-    }
-    return false;
-}
-
-TbBool map_block_revealed_bit(const struct Map *mapblk, long plyr_bit)
-{
-    if (map_block_invalid(mapblk))
-    {
-        return false;
-    }
-    if (gameadd.allies_share_vision)
-    {
-        PlayerNumber plyr_idx = player_bit_to_player_number(plyr_bit);
-        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
-        {
-            if (players_are_mutual_allies(plyr_idx, i))
-            {
-                if ((mapblk->revealed) & (1 << i))
-                return true;
-            }
-        }
-    }
-    else
-    {
-        if ((mapblk->revealed) & plyr_bit)
-        {
+        if (flag_is_set(mapblk->revealed, to_flag(plyr_idx)))
             return true;
-        }
     }
     return false;
 }
@@ -386,11 +358,20 @@ TbBool set_coords_with_range_check(struct Coord3d *pos, MapCoord cor_x, MapCoord
     }
     MapSubtlCoord stl_x = coord_subtile(cor_x);
     MapSubtlCoord stl_y = coord_subtile(cor_y);
-    MapCoord height = get_ceiling_height_at_subtile(stl_x, stl_y);
-    if (cor_z > height)
+    MapCoord height;
+    if (cor_z < -1)
     {
-        if (flags & MapCoord_ClipZ) cor_z = height;
+        if (flags & MapCoord_ClipZ) cor_z = -1;
         corrected = true;
+    }
+    else
+    {
+        height = get_ceiling_height_at_subtile(stl_x, stl_y);
+        if (cor_z > height)
+        {
+            if (flags & MapCoord_ClipZ) cor_z = height;
+            corrected = true;
+        }
     }
     if (cor_x < subtile_coord(0,0)) {
         if (flags & MapCoord_ClipX) cor_x = subtile_coord(0,0);
@@ -566,7 +547,7 @@ void clear_mapmap(void)
         for (unsigned long x = 0; x < (gameadd.map_subtiles_x + 1); x++)
         {
             struct Map* mapblk = get_map_block_at(x, y);
-            unsigned char* flg = &game.navigation_map[get_subtile_number(x, y)];
+            unsigned short* flg = &game.navigation_map[get_subtile_number(x, y)];
             LbMemorySet(mapblk, 0, sizeof(struct Map));
             *flg = 0;
         }
@@ -678,7 +659,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
                         break;
                 }
             }
-            mapblk->revealed &= ~(1 << plyr_idx);
+            conceal_map_block(mapblk, plyr_idx);
         }
     }
     pannel_map_update(start_x,start_y,end_x,end_y);
@@ -746,8 +727,12 @@ TbBool subtile_is_sellable_room(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapS
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
         return false;
-    if ((slb->kind == SlbT_ENTRANCE) || (slb->kind == SlbT_DUNGHEART))
+    struct Room* room = subtile_room_get(stl_x, stl_y);
+    struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
+    if ((roomst->flags & RoCFlg_CannotBeSold) != 0)
+    {
         return false;
+    }
     return true;
 }
 
@@ -798,8 +783,7 @@ TbBool subtile_is_diggable_for_player(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     {
         return true;
     }
-    //TODO DOOR Why magic door id different? This doesn't seem to be intended.
-    if (slab_kind_is_nonmagic_door(slb->kind))
+    if (slab_kind_is_door(slb->kind))
     {
         if (slabmap_owner(slb) == plyr_idx)
         {
@@ -842,7 +826,7 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
     gameadd.around_slab[2] = -gameadd.map_tiles_x  + 1;
     gameadd.around_slab[3] = -1;
     gameadd.around_slab[4] = 0;
-    gameadd.around_slab[4] = 1;
+    gameadd.around_slab[5] = 1;
     gameadd.around_slab[6] = gameadd.map_tiles_x - 1;
     gameadd.around_slab[7] = gameadd.map_tiles_x;
     gameadd.around_slab[8] = gameadd.map_tiles_x + 1;
@@ -871,7 +855,10 @@ void set_map_size(MapSlabCoord x,MapSlabCoord y)
 void init_map_size(LevelNumber lvnum)
 {
     struct LevelInformation* lvinfo = get_level_info(lvnum);
-    set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
+    if (lvinfo == NULL)
+        set_map_size(DEFAULT_MAP_SIZE, DEFAULT_MAP_SIZE);
+    else
+        set_map_size(lvinfo->mapsize_x,lvinfo->mapsize_y);
 }
 
 /******************************************************************************/

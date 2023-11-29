@@ -255,7 +255,7 @@ void gui_area_friendly_battlers(struct GuiButton *gbtn)
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
         gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT; battlr_id++)
+    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT-1; battlr_id++)
     {
         int i = friendly_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
         struct Thing* thing = thing_get(i);
@@ -318,7 +318,7 @@ void gui_area_enemy_battlers(struct GuiButton *gbtn)
     LbDrawBox(gbtn->scr_pos_x, gbtn->scr_pos_y,
         gbtn->width, gbtn->height, colours[0][0][0]);
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
-    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT; battlr_id++)
+    for (int battlr_id = 0; battlr_id < MESSAGE_BATTLERS_COUNT-1; battlr_id++)
     {
         int i = enemy_battler_list[MESSAGE_BATTLERS_COUNT * visbtl_id + battlr_id];
         struct Thing* thing = thing_get(i);
@@ -360,7 +360,7 @@ void draw_bonus_timer(void)
     char* text;
     if (gameadd.timer_real)
     {
-        unsigned long total_seconds = ((nturns) / game.num_fps) + 1;
+        unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
         unsigned char seconds = total_seconds % 60;
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;
@@ -525,7 +525,7 @@ void draw_script_timer(PlayerNumber plyr_idx, unsigned char timer_id, unsigned l
     char* text;
     if (real)
     {
-        unsigned long total_seconds = ((nturns) / game.num_fps) + 1;
+        unsigned long total_seconds = ((nturns) / game_num_fps) + 1;
         unsigned char seconds = total_seconds % 60;
         unsigned long total_minutes = total_seconds / 60;
         unsigned char minutes = total_minutes % 60;

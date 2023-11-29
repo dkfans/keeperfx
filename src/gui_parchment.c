@@ -257,6 +257,11 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
       {
           pixval = 0;
       } else
+      if (slb->kind == SlbT_ROCK_FLOOR)
+      {
+          pixval = 0; //todo make it distinct from rock, preferably by showing a pattern like on walls
+      }
+      else
       if ((mapblk->flags & SlbAtFlg_Filled) != 0)
       {
           pixval = pixmap.ghost[background + 0x1000];
@@ -272,6 +277,10 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
           {
             pixval = player_highlight_colours[owner];
           } else
+          if(door_is_hidden_to_player(thing,plyr_idx))
+          {
+            pixval = pixmap.ghost[background + 0x1000];
+          }else
           if (thing->door.is_locked)
           {
             pixval = 79;
@@ -345,7 +354,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
         struct TbSprite* spr = &gui_panel_sprites[57];
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
-    long rkind_select = (game.play_gameturn >> 1) % slab_conf.room_types_count;
+    long rkind_select = (game.play_gameturn >> 1) % game.slab_conf.room_types_count;
     for (struct Room* room = start_rooms; room < end_rooms; room++)
     {
       if (room_exists(room))

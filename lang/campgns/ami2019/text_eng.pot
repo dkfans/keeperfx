@@ -1,7 +1,7 @@
 # *****************************************************************************
 #  Free implementation of Bullfrog's Dungeon Keeper strategy game.
 # *****************************************************************************
-#   @file text_eng.pot
+#   @file ami2019/text_eng.pot
 #      KeeperFX Campaign Strings translation template
 #  @par Purpose:
 #      Allows to create .po files used for translating the game.

@@ -582,7 +582,7 @@ msgstr "你把神惹怒了，已经失去了胜利的希望。"
 #. Ghost in the Machine (lv458)
 #: guitext:93
 msgctxt "In-game message"
-msgid "Barbarians have started to attack. They will only increase in number. Kill them and you can use their ghosts in this ream. "
+msgid "Barbarians have started to attack. They will only increase in number. Kill them and you can use their ghosts in this realm. "
 msgstr "野蛮人开始进攻了。他们的数量会不断增加。杀死他们，你就可以将他们的灵魂为你所用。"
 
 #. Ghost in the Machine (lv458)
@@ -777,11 +777,6 @@ msgctxt "In-game message"
 msgid "Moo"
 msgstr ""
 
-#: guitext:201
-msgctxt "Level name"
-msgid "Tymnath Herez"
-msgstr "提姆纳斯·赫瑞兹"
-
 #: guitext:202
 msgctxt "Level name"
 msgid "Yami"
@@ -841,3 +836,8 @@ msgstr "鬼魂制造机"
 msgctxt "Level name"
 msgid "The Death Clock"
 msgstr "死亡时钟"
+
+#: guitext:214
+msgctxt "Level name"
+msgid "Tymnath Herez"
+msgstr "提姆纳斯·赫瑞兹"

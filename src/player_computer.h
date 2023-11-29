@@ -57,6 +57,8 @@ extern "C" {
 #define COMPUTER_URGENT_BRIDGE_TIMEOUT 1200
 #define COMPUTER_TOOL_DIG_LIMIT 356
 
+#define COMPUTER_REDROP_DELAY 80
+
 enum ComputerTaskTypes {
     CTT_None = 0,
     CTT_DigRoomPassage,
@@ -356,7 +358,7 @@ struct ComputerTask { // sizeof = 148
         };
     };
     long lastrun_turn;
-    long field_60;
+    long delay;
     struct Coord3d new_room_pos;
     struct Coord3d pos_6A;
     union {
@@ -440,7 +442,7 @@ struct ComputerTask { // sizeof = 148
         short word_78;
         short field_7Ac;
         long repeat_num;
-        short word_80;
+        short target_state;
         short word_82;
         unsigned char field_84[2];
         struct Coord3d pos_86;
@@ -526,7 +528,7 @@ struct Computer2 { // sizeof = 5322
   unsigned long model;
   unsigned long turn_begin;
   unsigned long max_room_build_tasks;
-  unsigned long field_34;
+  unsigned long task_delay;
   struct ComputerProcess processes[COMPUTER_PROCESSES_COUNT+1];
   union
   {

@@ -64,7 +64,7 @@ msgstr ""
 "principal de héroes se mantiene en reserva. ¡Tus preparaciones serán "
 "probadas a fondo, Maestro!"
 
-#. Level Swedish spirit outside hero heart"
+#. Level Swedish spirit outside hero heart
 #: guitext:4
 msgctxt "In-game message"
 msgid ""
@@ -319,7 +319,7 @@ msgstr ""
 "amistosos, han roto su alianza, por lo que puedes ver el espectáculo de las "
 "implicaciones de tu incompetencia."
 
-#. Level Tub vulnerabilities opening message
+#. Level Okehazama opening message
 #: guitext:27
 msgctxt "In-game message"
 msgid ""
@@ -330,7 +330,7 @@ msgstr ""
 "los Guardianes Gemelos. Aquí hay otros tres guardianes, ¿y adivina qué? "
 "¡Ninguno de ellos como tú!"
 
-#. Level Tub Vulnerabilities victory message
+#. Level Okehazama victory message
 #: guitext:28
 msgctxt "In-game message"
 msgid ""
@@ -342,7 +342,7 @@ msgstr ""
 "a los infames Guardianes Gemelos en batalla. ¡Saborea este momento por un "
 "rato y luego prepárate para la prueba final!"
 
-#. Level Tub Vulnerabilities Hero Knight death message
+#. Level Okehazama Hero Knight death message
 #: guitext:29
 msgctxt "In-game message"
 msgid ""
@@ -354,13 +354,13 @@ msgstr ""
 "muerte y atacarán, en cada oportunidad, Maestro. ¡Lo mejor es recompensar su "
 "valentía de la única manera que sabes!"
 
-#. Level Tub Vulnerabilities hero onslaught message
+#. Level Okehazama hero onslaught message
 #: guitext:30
 msgctxt "In-game message"
 msgid ""
 "You have unleashed waves of hero raiding parties Master, as these heroes "
-"make their last stand in this realm. Your defences need to be extensive and "
-"well placed if you are to triumph here."
+"make their last stand in this realm. Your defenses need to be extensive and "
+"well-placed if you are to triumph here."
 msgstr ""
 "Has desatado oleadas de grupos de héroes, Maestro, ya que estos héroes "
 "comienzan su última resistencia en este reino. Tus defensas deben ser "
@@ -408,7 +408,7 @@ msgstr ""
 #: guitext:34
 msgctxt "In-game message"
 msgid ""
-"A good start kepper, but beware. The remaining keepers grow stronger by "
+"A good start keeper, but beware. The remaining keepers grow stronger by "
 "pilfering the remnants of this dead kingdom, and therefore attract more "
 "creatures anxious to share the spoils!"
 msgstr ""
@@ -469,7 +469,7 @@ msgstr "La Formación Asediada"
 
 #: guitext:206
 msgctxt "Level name"
-msgid "Tub vulnerabilities"
+msgid "Okehazama"
 msgstr "Vulnerabilidades de la tinaja"
 
 #: guitext:207

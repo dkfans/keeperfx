@@ -347,18 +347,19 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     if (strcasecmp(parstr, "stats") == 0)
     {
       targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
-      targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d",clock(),game.num_fps);
+      targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d",clock(),game_num_fps);
       return true;
     }
     else if (strcasecmp(parstr, "fps") == 0)
     {
         if (pr2str == NULL)
         {
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate is %d fps", game.num_fps);
+            game_num_fps = start_params.num_fps;
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate is %d fps", game_num_fps);
         }
         else
         {
-            game.num_fps = atoi(pr2str);
+            game_num_fps = atoi(pr2str);
         }
         return true;
     }
@@ -389,7 +390,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     else if (strcasecmp(parstr, "time") == 0)
     {
         unsigned long turn = (pr2str != NULL) ? atoi(pr2str) : game.play_gameturn;
-        unsigned char frames = (pr3str != NULL) ? atoi(pr3str) : game.num_fps;
+        unsigned char frames = (pr3str != NULL) ? atoi(pr3str) : game_num_fps;
         show_game_time_taken(frames, turn);
         return true;
     }
@@ -791,7 +792,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         crmodel = atoi(pr2str);
                     }
                 }
-                if ((crmodel > 0) && (crmodel <= 31))
+                if ((crmodel > 0) && (crmodel < gameadd.crtr_conf.model_count))
                 {
                     player = get_player(plyr_idx);
                     pckt = get_packet_direct(player->packet_num);
@@ -949,7 +950,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                             }
                         }
                     }
-                    if ((slbkind >= 0) && (slbkind <= slab_conf.slab_types_count))
+                    if ((slbkind >= 0) && (slbkind <= game.slab_conf.slab_types_count))
                     {
                         if (subtile_is_room(stl_x, stl_y))
                         {
@@ -1038,9 +1039,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = get_player_soul_container(id);
             if (thing_is_dungeon_heart(thing))
             {
+                struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
                 if (pr3str == NULL)
                 {
-                    float percent = ((float) thing->health / (float) game.dungeon_heart_health) * 100;
+                    float percent = ((float) thing->health / (float)objst->health) * 100;
                     targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,
                                          "Player %d heart health: %ld (%.2f per cent)", id, thing->health, percent);
                     return true;
