@@ -981,7 +981,9 @@ struct StrBuf
     char *ptr;
     size_t size;
 };
+#endif
 
+#if BFDEBUG_LEVEL > 10
 static int dump_callback(const char *str, size_t size, void *user_data)
 {
     struct StrBuf *buf = user_data;
