@@ -856,7 +856,7 @@ long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng,
 GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, const struct SlabMap *slb)
 {
     struct SlabAttr *slbattr = get_slab_attrs(slb);
-    GoldAmount gold = (damage_did_to_slab * (long)game.gold_per_gold_block) / game.block_health[slbattr->block_health_index];
+    GoldAmount gold = (damage_did_to_slab * game.gold_per_gold_block) / game.block_health[slbattr->block_health_index];
     // Returns gold-per-hit as an integer
     if (slb->kind == SlbT_GEMS)
     {
@@ -864,7 +864,7 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
     }
     else if (slb->health <= 0)
     {
-        gold += ((long)game.gold_per_gold_block % gold);
+        gold += (game.gold_per_gold_block % gold);
     // on the last hit, also drops any remaining gold in the block
     }
     if (gold < 1)
