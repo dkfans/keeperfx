@@ -412,7 +412,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
             { // Valuables require counting gold
                 if (!slab_kind_is_indestructible(slb->kind))
                 {
-                    slb->health -= damage; // otherwise, we'll get the final lot of gold twice!
+                    slb->health -= damage; // otherwise, we won't get the final lot of gold
                 }
                 give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
                 mine_out_block(stl_x, stl_y, diggertng->owner);
