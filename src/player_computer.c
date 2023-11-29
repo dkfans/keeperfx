@@ -1621,7 +1621,11 @@ void setup_computer_players2(void)
 
   // Using a seed for rand() based on the current time, so that the same
   // random results aren't used in the same order every time.
+#if AUTOTESTING || FUNCTESTING
+  srand(1);
+#else
   srand((unsigned) time(NULL));
+#endif
 
   for (i=0; i < PLAYERS_COUNT; i++)
   {

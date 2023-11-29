@@ -310,6 +310,20 @@ int LbNaviLog(const char *format, ...)
     return result;
 }
 
+#ifdef FUNCTESTING
+int LbFTestLog(const char *format, ...)
+{
+    if (!error_log_initialised)
+        return -1;
+    LbLogSetPrefix(&error_log, "FTest: ");
+    va_list val;
+    va_start(val, format);
+    int result=LbLog(&error_log, format, val);
+    va_end(val);
+    return result;
+}
+#endif
+
 /*
  * Logs script-related message.
  */

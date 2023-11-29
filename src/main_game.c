@@ -46,6 +46,11 @@
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
 #include "sounds.h"
+
+#ifdef FUNCTESTING
+  #include "ftest.h"
+#endif
+
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -234,6 +239,10 @@ static void post_init_level(void)
     init_all_creature_states();
     init_keepers_map_exploration();
     SYNCDBG(9,"Finished");
+
+#ifdef FUNCTESTING
+    ftest_init();
+#endif
 }
 
 /******************************************************************************/
@@ -430,14 +439,18 @@ void clear_complete_game(void)
 
 void init_seeds()
 {
-    #ifdef AUTOTESTING
+#if AUTOTESTING || FUNCTESTING
+    #if AUTOTESTING
     if (start_params.autotest_flags & ATF_FixedSeed)
+    #endif
     {
       game.action_rand_seed = 1;
       game.unsync_rand_seed = 1;
       srand(1);
     }
+    #if AUTOTESTING
     else
+    #endif
 #endif
     {
         // Initialize random seeds (the value may be different

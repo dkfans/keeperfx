@@ -49,6 +49,10 @@
 #include "net_game.h"
 #include "sounds.h"
 
+#ifdef FUNCTESTING
+#include "ftest.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -105,6 +109,11 @@ enum AutotestFlags {
     ATF_TestsCampaign       = 0x08  // Switch to testing levels
 };
 #endif
+#ifdef FUNCTESTING
+enum FunctestFlags {
+    FTF_Failed              = 0x01, // Test failed, causes exit code -1 for cmd line automation
+};
+#endif
 
 #pragma pack(1)
 
@@ -140,6 +149,10 @@ struct StartupParameters {
 #ifdef AUTOTESTING
     unsigned char autotest_flags;
     unsigned long autotest_exit_turn;
+#endif
+#ifdef FUNCTESTING
+    unsigned char functest_flags;
+    char functest_name[FTEST_MAX_NAME_LENGTH];
 #endif
 };
 

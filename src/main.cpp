@@ -123,6 +123,9 @@
 #ifdef AUTOTESTING
 #include "event_monitoring.h"
 #endif
+#ifdef FUNCTESTING
+  #include "ftest.h"
+#endif
 #include "post_inc.h"
 
 #ifdef _MSC_VER
@@ -1101,6 +1104,11 @@ short setup_game(void)
       ERRORLOG("Configuration load error.");
       return 0;
   }
+
+  #ifdef FUNCTESTING
+    features_enabled |= Ft_SkipSplashScreens;
+    features_enabled |= Ft_SkipHeartZoom;
+  #endif
 
   // Process CmdLine overrides
   process_cmdline_overrides();
@@ -3418,7 +3426,8 @@ void gameplay_loop_logic()
         if (game.play_gameturn == 4)
             LbNetwork_ChangeExchangeTimeout(0);
     }
-#ifdef AUTOTESTING
+#if AUTOTESTING || FUNCTESTING
+    #ifdef AUTOTESTING
     if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
     {
         quit_game = true;
@@ -3427,12 +3436,21 @@ void gameplay_loop_logic()
     }
     evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
     if (start_params.autotest_flags & ATF_FixedSeed)
+    #endif // AUTOTESTING
     {
         game.action_rand_seed = game.play_gameturn;
         game.unsync_rand_seed = game.play_gameturn;
         srand(game.play_gameturn);
     }
-#endif
+#endif // AUTOTESTING || FUNCTESTING
+#ifdef FUNCTESTING
+    if(ftest_update(game.play_gameturn))
+    {
+        quit_game = true;
+        exit_keeper = true;
+        return;
+    }
+#endif // FUNCTESTING
     do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
     LbWindowsControl();
     input_eastegg();
@@ -4153,6 +4171,29 @@ short process_command_line(unsigned short argc, char *argv[])
               narg++;
       }
 #endif
+#ifdef FUNCTESTING
+      else if (strcasecmp(parstr, "ftests") == 0)
+      {
+        strcpy(start_params.selected_campaign, "../ftests/campaign");
+
+        set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
+
+        if(strlen(pr2str) > 0 && pr2str[0] != '-')
+        {
+            snprintf(start_params.functest_name, sizeof(start_params.functest_name), "%s", pr2str);
+            narg++;
+        }
+
+        level_num = 1; //always use level 1 template map, each test overrides their own game content
+
+        start_params.no_intro = 1;
+
+        if(start_params.frame_skip == 0)
+        {
+            start_params.frame_skip = 8; //default to x8 speed for fast tests
+        }
+      }
+#endif
       else
       {
         WARNMSG("Unrecognized command line parameter '%s'.",parstr);
@@ -4203,15 +4244,24 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
-#ifdef AUTOTESTING
+
+#if AUTOTESTING || FUNCTESTING
+    #if AUTOTESTING
     if (start_params.autotest_flags & ATF_FixedSeed)
+    #endif
     {
       srand(1);
     }
+    #if AUTOTESTING
     else
+    {
+      srand(LbTimerClock());
+    }
+    #endif
 #else
     srand(LbTimerClock());
 #endif
+
     if (!retval)
     {
         static const char *msg_text="Basic engine initialization failed.\n";
@@ -4253,8 +4303,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         game_loop();
     }
-#ifdef AUTO_TESTING
-    ev_done();
+#ifdef AUTOTESTING
+    evm_done();
 #endif
     reset_game();
     LbScreenReset();
@@ -4262,7 +4312,8 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         static const char *msg_text="Setting up game failed.\n";
         error_dialog_fatal(__func__, 2, msg_text);
-    } else
+    }
+    else
     {
         SYNCDBG(0,"finished properly");
     }
@@ -4340,6 +4391,13 @@ int main(int argc, char *argv[])
       error_dialog(__func__, 1, text);
       return 1;
   }
+
+#ifdef FUNCTESTING
+  if(start_params.functest_flags & FTF_Failed)
+  {
+      return -1;
+  }
+#endif
 
   return 0;
 }
