@@ -576,7 +576,7 @@ long instf_dig(struct Thing *creatng, long *param)
     if (taskkind == SDDigTask_MineGold)
     {
         if (!slab_kind_is_indestructible(slb->kind))
-            slb->health -= dig_damage; // otherwise, we'll get the final lot of gold twice!
+            slb->health -= dig_damage; // otherwise, we won't get the final lot of gold
         gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, slb);
         creatng->creature.gold_carried += gold;
         dungeon->lvstats.gold_mined += gold;
