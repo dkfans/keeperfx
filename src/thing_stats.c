@@ -857,13 +857,15 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
 {
     struct SlabAttr *slbattr = get_slab_attrs(slb);
     GoldAmount gold = (damage_did_to_slab * (long)game.gold_per_gold_block) / game.block_health[slbattr->block_health_index];
+    // Returns gold-per-hit as an integer
     if (slb->kind == SlbT_GEMS)
     {
         gold = gold * gameadd.gem_effectiveness / 100;
     }
     else if (slb->health <= 0)
     {
-        gold += game.gold_per_gold_block - (gold * game.block_health[slbattr->block_health_index]);
+        gold += ((long)game.gold_per_gold_block % gold);
+    // on the last hit, also drops any remaining gold in the block
     }
     if (gold < 1)
     {
