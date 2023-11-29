@@ -1463,8 +1463,12 @@ TngUpdateRet move_shot(struct Thing *shotng)
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     if (!(shotst->model_flags & ShMF_NoHit))
     {
-        if (shot_hit_something_while_moving(shotng, &pos)) {
-            return TUFRet_Deleted;
+        if (shot_hit_something_while_moving(shotng, &pos))
+        {
+            if (!(shotst->model_flags & ShMF_Penetrating))
+            {
+                return TUFRet_Deleted;
+            }
         }
     }
     if ((shotng->movement_flags & TMvF_Unknown10) != 0)
