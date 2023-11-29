@@ -75,6 +75,16 @@ obj/centitoml/toml_api.o \
 obj/unzip.o \
 obj/ioapi.o
 
+# functional test debugging flags/objs
+FTEST_DEBUG ?= 0
+ifeq ($(FTEST_DEBUG), 1)
+  FTEST_DBGFLAGS = -DFUNCTESTING=1
+  FTEST_OBJS = $(patsubst src/%,obj/%,$(patsubst %.c,%.o,$(wildcard src/ftest*.c)))
+else
+  FTEST_DBGFLAGS =
+  FTEST_OBJS =
+endif
+
 OBJS = \
 $(DEPS) \
 obj/actionpt.o \
@@ -316,7 +326,7 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
-$(patsubst src/%,obj/%,$(patsubst %.c,%.o,$(wildcard src/ftest*.c))) \
+$(FTEST_OBJS) \
 $(RES)
 
 MAIN_OBJ = obj/main.o
@@ -379,9 +389,9 @@ HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DAUTOTESTING=1
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
 # disabled warnings: -Wextra -Wtype-limits
-CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
-CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
-LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
+CXXFLAGS = $(CXXINCS) -c -std=gnu++1y -fmessage-length=0 $(WARNFLAGS) $(DEPFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(INCFLAGS)
+CFLAGS = $(INCS) -c -std=gnu11 -fmessage-length=0 $(WARNFLAGS) -Werror=implicit $(DEPFLAGS) $(FTEST_DBGFLAGS) $(OPTFLAGS) $(DBGFLAGS) $(INCFLAGS)
+LDFLAGS = $(LINKLIB) $(OPTFLAGS) $(DBGFLAGS) $(FTEST_DBGFLAGS) $(LINKFLAGS) -Wl,-Map,"$(@:%.exe=%.map)"
 
 ifeq ($(USE_PRE_FILE), 1)
 CXXFLAGS += -DUSE_PRE_FILE=1

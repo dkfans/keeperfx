@@ -7,7 +7,9 @@
 			"description": "Choose the debug option:",
 			"options": [
 				"DEBUG=1",
-				"DEBUG=0"
+				"DEBUG=0",
+				"FTEST_DEBUG=1",
+				"FTEST_DEBUG=0"
 			],
 			"default": "DEBUG=0"
 		}
@@ -20,11 +22,20 @@
 				"command": [
 					"Set-Content -LiteralPath \\\"${workspaceFolder}\\.vscode\\compile_settings.cfg\\\" -Value '${input:debugChoice}';",
 					"Write-Host ('Wrote ${input:debugChoice}' + ' to /.vscode/compile_settings.cfg') -ForegroundColor White;",
-					"if ('${input:debugChoice}' -eq 'DEBUG=1') {",
+					"if ('${input:debugChoice}' -like '*DEBUG=1') {",
 					"    Write-Host 'Debug symbols will be included in the next executable you compile. Crash reports will have more information.' -ForegroundColor Yellow;",
 					"} else {",
 					"    Write-Host 'Debug symbols will not be included in the next executable you compile. Crash reports will be have less information.' -ForegroundColor Green;",
+					"}",
+					"if ('${input:debugChoice}' -like 'FTEST_DEBUG=*') {",
+					"    Write-Host 'Functional Tests will be enabled in the next executable you compile. DO NOT USE THIS EXECUTABLE FOR PUBLICLY RELEASE BUILDS!' -ForegroundColor Magenta;",
+					"}",
+					"$objDir = '${workspaceFolder}\\obj\\';",
+					"if (Test-Path $objDir) {",
+					"    Write-Host \"Wiping outdated files in ${objDir}\";",
+					"    Remove-Item -Path \"$objDir\\*\" -Force -Recurse;",
 					"}"
+					
 				]
 			},
 			"linux": {
@@ -59,10 +70,14 @@
 					"}",
 					"Write-Host ('Game directory: ' + $gameDir) -ForegroundColor White;",
 					"$debugFlag = '';",
+					"$debugFlagFTest = '';",
 					"if (Test-Path '${workspaceFolder}\\.vscode\\compile_settings.cfg') {",
 					"    $content = (Get-Content '${workspaceFolder}\\.vscode\\compile_settings.cfg' -Raw).Trim();",
-					"    if ($content -eq 'DEBUG=1') {",
+					"    if ($content -like '*DEBUG=1') {",
 					"        $debugFlag = 'DEBUG=1';",
+					"    }",
+					"    if ($content -like 'FTEST_DEBUG=*') {",
+					"        $debugFlagFTest = 'FTEST_DEBUG=1';",
 					"    }",
 					"}",
 					"if ($debugFlag -eq 'DEBUG=1') {",
@@ -70,7 +85,10 @@
 					"} else {",
 					"    Write-Host 'Compiling with DEBUG=0' -ForegroundColor Green;",
 					"}",
-					"wsl make all -j`nproc` $debugFlag;",
+					"if ($debugFlagFTest -eq 'FTEST_DEBUG=1') {",
+					"    Write-Host 'Compiling with FTEST_DEBUG=1' -ForegroundColor Magenta;",
+					"}",
+					"wsl make all -j`nproc` $debugFlag $debugFlagFTest;",
 					"if ($?) {",
 					"    Write-Host 'Compilation successful!' -ForegroundColor Green;",
 					"} else {",

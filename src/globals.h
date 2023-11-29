@@ -19,8 +19,6 @@
 #ifndef KEEPFX_GLOBALS_H
 #define KEEPFX_GLOBALS_H
 
-#define FUNCTESTING 1
-
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
