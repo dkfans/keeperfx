@@ -862,7 +862,7 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
     }
     else if (slb->health <= 0)
     {
-        gold += game.gold_per_gold_block - (((game.gold_per_gold_block / game.block_health[1]) * damage_did_to_slab) * game.block_health[1]);
+        gold += game.gold_per_gold_block - (gold * game.block_health[1]);
     }
     if (gold < 1)
     {
