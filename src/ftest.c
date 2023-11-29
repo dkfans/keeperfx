@@ -135,7 +135,7 @@ TbBool ftest_update(const GameTurn game_turn)
         {
             if(game_turn >= testActionTurn)
             {
-                if(testAction(game_turn))
+                if(testAction())
                 {
                     //action completed, skip to next
                     ++ftest_current_action;
