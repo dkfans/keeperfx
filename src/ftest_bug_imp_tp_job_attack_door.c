@@ -39,9 +39,9 @@ const unsigned char ENEMY_PLAYER = PLAYER_GOOD;
 struct Thing* new_imp = NULL;
 
 // forward declarations - tests
-TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(GameTurn game_turn);
-TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(GameTurn game_turn);
-TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(GameTurn game_turn);
+TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map();
+TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero();
+TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test();
 
 TbBool ftest_bug_imp_tp_attack_door_init()
 {
@@ -54,7 +54,7 @@ TbBool ftest_bug_imp_tp_attack_door_init()
     return true;
 }
 
-TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(GameTurn game_turn)
+TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map()
 {
     struct Thing* heartng = get_player_soul_container(HUMAN_PLAYER);
     if (!thing_exists(heartng))
@@ -86,7 +86,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(GameTurn game_turn)
     ftest_replace_slabs(slb_x_door, slb_y_door, slb_x_door, slb_y_door, SlbT_CLAIMED, ENEMY_PLAYER);
 
     // carve out empty room (ownership will be checked at end of test)
-    ftest_replace_slabs(slb_x_room_start, slb_y_room_start, slb_x_room_end, slb_y_room_end, SlbT_PATH, -1);
+    ftest_replace_slabs(slb_x_room_start, slb_y_room_start, slb_x_room_end, slb_y_room_end, SlbT_PATH, PLAYER_NEUTRAL);
 
     // create enemy wooden door with low health
     struct Coord3d doorPos;
@@ -159,7 +159,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(GameTurn game_turn)
     return true;
 }
 
-TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(GameTurn game_turn)
+TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero()
 {
     // create an enemy hero in front of the door, cripple them
     struct Coord3d heroPos;
@@ -191,7 +191,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(GameTurn 
     return true;
 }
 
-TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(GameTurn game_turn)
+TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test()
 {
     // check ownership of tiles in room (if player0 owns any at end of test, it means failure, imp broke door)
     if(ftest_does_player_own_any_slabs(slb_x_room_start, slb_y_room_start, slb_x_room_end, slb_y_room_end, HUMAN_PLAYER))
