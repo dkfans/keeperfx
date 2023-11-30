@@ -36,7 +36,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 const char keeper_slabset_file[]="slabset.cfg";
-const char keeper_columns_file[]="columns.cfg";
+const char keeper_columns_file[]="columnset.cfg";
 /******************************************************************************/
 typedef struct VALUE VALUE;
 const struct NamedCommand slab_styles_commands[] = {
@@ -104,7 +104,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
                 
                 for (size_t col_no = 0; col_no < 9; col_no++)
                 {
-                    VALUE *col_arr = value_dict_get(section, "columns");
+                    VALUE *col_arr = value_dict_get(section, "Columns");
                     ColumnIndex col_idx = value_int32(value_array_get(col_arr, col_no));
                     game.slabset[slabset_no].col_idx[col_no] = -col_idx;
                 }
@@ -124,9 +124,11 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
                     game.slabobjs[game.slabobjs_num].class_id = class_id;
                     game.slabobjs[game.slabobjs_num].isLight  = value_int32(value_dict_get(object, "IsLight"));
                     game.slabobjs[game.slabobjs_num].model    = value_parse_model(class_id,value_dict_get(object, "Subtype"));
-                    game.slabobjs[game.slabobjs_num].offset_x = COORD_PER_STL * value_double(value_dict_get(object, "RelativeX"));
-                    game.slabobjs[game.slabobjs_num].offset_y = COORD_PER_STL * value_double(value_dict_get(object, "RelativeY"));
-                    game.slabobjs[game.slabobjs_num].offset_z = COORD_PER_STL * value_double(value_dict_get(object, "RelativeZ"));
+
+                    VALUE *RelativePosition_arr = value_dict_get(section, "RelativePosition");
+                    game.slabobjs[game.slabobjs_num].offset_x = value_int32(value_array_get(RelativePosition_arr, 0));
+                    game.slabobjs[game.slabobjs_num].offset_y = value_int32(value_array_get(RelativePosition_arr, 1));
+                    game.slabobjs[game.slabobjs_num].offset_z = value_int32(value_array_get(RelativePosition_arr, 2));
                     game.slabobjs[game.slabobjs_num].range    = value_int32(value_dict_get(object, "EffectRange"));
                     game.slabobjs[game.slabobjs_num].stl_id   = value_int32(value_dict_get(object, "Subtile"));
                     game.slabobjs[game.slabobjs_num].slabset_id = slabset_no;
@@ -190,12 +192,7 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
         else
         {
             unsigned char bitfields = 0;
-            TbBool permanent = value_int32(value_dict_get(section, "Permanent"));
-            if (permanent > 1)
-            {
-                ERRORLOG("invalid Utilized (%d) for column %d",permanent,col_no);
-                continue;
-            }
+            TbBool permanent = true;
             bitfields |= permanent;
 
             char Lintel = value_int32(value_dict_get(section, "Lintel"));
@@ -216,7 +213,6 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
             floorHeight <<= 4;
             bitfields |= floorHeight;
 
-            cols[col_no].use = value_int32(value_dict_get(section, "Utilized"));
             cols[col_no].bitfields = bitfields;
             cols[col_no].solidmask = value_int32(value_dict_get(section, "SolidMask"));
             cols[col_no].floor_texture = value_int32(value_dict_get(section, "FloorTexture"));
