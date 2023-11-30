@@ -862,7 +862,7 @@ GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_
     {
         gold = gold * gameadd.gem_effectiveness / 100;
     }
-    else if (slb->health = 0)
+    else if (slb->health == 0)
     // if the last hit deals the damage exactly, just drop a pile and the remainder
     {
         gold += (game.gold_per_gold_block % gold);
