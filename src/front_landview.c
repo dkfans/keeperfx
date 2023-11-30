@@ -1377,53 +1377,52 @@ void draw_map_level_descriptions(void)
 {
     struct LevelInformation* lvinfo;
     const char* lv_name;
-    ScreenCoord w, x, y, h;
-    if ((fe_net_level_selected > 0) || (net_level_hilighted > 0))
+    int textWidth, textX, textY, boxX, boxY, boxWidth, boxHeight, borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight, xOffset = 0, yOffset = -78, padding = 2, border = 1;
+    int boxColour = 0, borderColour = 35;
+    if ((fe_net_level_selected > 0) || (net_level_hilighted > 0) || (mouse_over_lvnum > 0))
     {
-        lbDisplay.DrawFlags = 0;
-        LevelNumber lvnum = fe_net_level_selected;
-        if (lvnum <= 0)
-          lvnum = net_level_hilighted;
-        lvinfo = get_level_info(lvnum);
-        if (lvinfo == NULL)
-          return;
-        if (lvinfo->name_stridx > 0)
-            lv_name = get_string(lvinfo->name_stridx);
-        else
-          lv_name = lvinfo->name;
-        if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
-          snprintf(level_name, sizeof(level_name), "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
-        } else {
-          snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
-        }
-        w = LbTextStringWidth(level_name);
-        x = lvinfo->ensign_x - map_info.screen_shift_x;
-        y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
-        h = LbTextHeight(level_name);
-        LbDrawBox((x-4)*units_per_pixel/16, y*units_per_pixel/16, (w+8)*units_per_pixel/16, h*units_per_pixel/16, 0);
-        LbTextDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, level_name);
-    }
-    else if (mouse_over_lvnum > 0)
-    {
-        lbDisplay.DrawFlags = 0;
-        lvinfo = get_level_info(mouse_over_lvnum);
-        if (lvinfo == NULL)
-          return;
-        if (lvinfo->name_stridx > 0)
-            lv_name = get_string(lvinfo->name_stridx);
-        else
-          lv_name = lvinfo->name;
-        if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
-          snprintf(level_name, sizeof(level_name), "%s", lv_name);
-        } else {
-          snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
-        }
-        w = LbTextStringWidth(level_name);
-        x = lvinfo->ensign_x - map_info.screen_shift_x;
-        y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
-        h = LbTextHeight(level_name);
-        LbDrawBox((x-4)*units_per_pixel/16, y*units_per_pixel/16, (w+8)*units_per_pixel/16, h*units_per_pixel/16, 0);
-        LbTextDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, level_name);
+      lbDisplay.DrawFlags = 0;
+      LevelNumber lvnum = (fe_net_level_selected > 0) ? fe_net_level_selected : ((net_level_hilighted > 0) ? net_level_hilighted : mouse_over_lvnum);
+      lvinfo = get_level_info(lvnum);
+      if (lvinfo == NULL)
+      {
+        return;
+      }
+
+      if (lvinfo->name_stridx > 0)
+      {
+        lv_name = get_string(lvinfo->name_stridx);
+      }
+      else
+      {
+        lv_name = lvinfo->name;
+      }
+
+      if ((lv_name != NULL) && (strlen(lv_name) > 0))
+      {
+        snprintf(level_name, sizeof(level_name), "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
+      }
+      else
+      {
+        snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
+      }
+
+      textWidth = LbTextStringWidth(level_name);
+      boxWidth = textWidth + padding + padding;
+      boxHeight = (LbTextHeight(level_name) - 2) + padding + padding; // -2 because LbTextHeight seems to come back a little too wide
+      borderBoxWidth = boxWidth + border + border;
+      borderBoxHeight = boxHeight + border + border;
+
+      textX = lvinfo->ensign_x - map_info.screen_shift_x - (textWidth / 2) + xOffset;
+      boxX = textX - padding;
+      borderBoxX = boxX - border;
+      textY = lvinfo->ensign_y - map_info.screen_shift_y + yOffset;
+      boxY = textY - padding;
+      borderBoxY = boxY + border;
+
+      LbDrawBox(scale_value_for_resolution(borderBoxX), scale_value_for_resolution(borderBoxY), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), borderColour);
+      LbDrawBox(scale_value_for_resolution(boxX), scale_value_for_resolution(textY), scale_value_for_resolution(boxWidth), scale_value_for_resolution(boxHeight), boxColour);
+      LbTextDrawResized(scale_value_for_resolution(textX), scale_value_for_resolution(textY), units_per_pixel, level_name);
     }
 }
 
