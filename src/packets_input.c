@@ -817,14 +817,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                     {
                         if (player->controlled_thing_idx != player->thing_under_hand)
                         {
-                            if (is_my_player(player))
-                            {
-                                turn_off_all_panel_menus();
-                                initialise_tab_tags_and_menu(GMnu_CREATURE_QUERY1);
-                                turn_on_menu(GMnu_CREATURE_QUERY1);
-                            }
-                            player->influenced_thing_idx = player->thing_under_hand;
-                            set_player_instance(player, PI_QueryCrtr, 0);
+                            query_creature(player, player->thing_under_hand, true, false);
                         }
                     }
                     else
@@ -897,6 +890,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Armour:
         case PSt_Conceal:
         case PSt_Heal:
+        case PSt_TimeBomb:
             influence_own_creatures = true;
             pwkind = player_state_to_power_kind[player->work_state];
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);

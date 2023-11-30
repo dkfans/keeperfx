@@ -360,7 +360,7 @@ void gui_switch_video_mode(struct GuiButton *gbtn)
 
 void gui_display_current_resolution(struct GuiButton *gbtn)
 {
-    char* mode = get_vidmode_name(lbDisplay.ScreenMode);
+    char* mode = get_vidmode_name(LbScreenActiveMode());
     show_onscreen_msg(40, "%s", mode);
 }
 

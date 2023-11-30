@@ -82,7 +82,7 @@ void tri_dispose(long tri_idx)
     long pfree_idx = free_Triangles;
     free_Triangles = tri_idx;
     Triangles[tri_idx].tags[0] = pfree_idx;
-    Triangles[tri_idx].tree_alt = 255;
+    Triangles[tri_idx].tree_alt = NAV_COL_UNSET;
     count_Triangles--;
 }
 
@@ -118,14 +118,11 @@ TbBool set_triangle_edgelen(long tri_id, long edgelen)
     return true;
 }
 
-long get_triangle_tree_alt(long tri_id)
+NavColour get_triangle_tree_alt(long tri_id)
 {
     if ((tri_id < 0) || (tri_id >= TRIANLGLES_COUNT))
         return -1;
-    long tree_alt = Triangles[tri_id].tree_alt;
-    if (tree_alt == 255)
-        return -1;
-    return tree_alt;
+    return Triangles[tri_id].tree_alt;
 }
 
 struct Triangle *get_triangle(long tri_id)
@@ -365,7 +362,7 @@ long triangle_find_first_used(void)
     for (long tri_idx = 0; tri_idx < ix_Triangles; tri_idx++)
     {
         struct Triangle* tri = &Triangles[tri_idx];
-        if (tri->tree_alt != 255) {
+        if (tri->tree_alt != NAV_COL_UNSET) {
             return tri_idx;
         }
     }
