@@ -104,7 +104,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
                 
                 for (size_t col_no = 0; col_no < 9; col_no++)
                 {
-                    VALUE *col_arr = value_dict_get(section, "columns");
+                    VALUE *col_arr = value_dict_get(section, "Columns");
                     ColumnIndex col_idx = value_int32(value_array_get(col_arr, col_no));
                     game.slabset[slabset_no].col_idx[col_no] = -col_idx;
                 }
