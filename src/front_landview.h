@@ -116,6 +116,7 @@ long frontmap_update(void);
 void frontzoom_to_point(long a1, long a2, long a3);
 void compressed_window_draw(void);
 void frontnet_init_level_descriptions(void);
+void draw_map_level_descriptions(void);
 
 TbBool initialize_description_speech(void);
 TbBool play_current_description_speech(short play_good);

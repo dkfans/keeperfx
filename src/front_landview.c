@@ -1228,6 +1228,7 @@ void frontmap_draw(void)
         draw_map_screen();
         draw_map_level_ensigns();
         set_pointer_graphic_spland(0);
+        draw_map_level_descriptions();
         compressed_window_draw();
     }
 }
@@ -1374,32 +1375,56 @@ void draw_netmap_players_hands(void)
  */
 void draw_map_level_descriptions(void)
 {
-  if ((fe_net_level_selected > 0) || (net_level_hilighted > 0))
-  {
-    lbDisplay.DrawFlags = 0;
-    LevelNumber lvnum = fe_net_level_selected;
-    if (lvnum <= 0)
-      lvnum = net_level_hilighted;
-    struct LevelInformation* lvinfo = get_level_info(lvnum);
-    if (lvinfo == NULL)
-      return;
+    struct LevelInformation* lvinfo;
     const char* lv_name;
-    if (lvinfo->name_stridx > 0)
-        lv_name = get_string(lvinfo->name_stridx);
-    else
-      lv_name = lvinfo->name;
-    if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
-      snprintf(level_name, sizeof(level_name), "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
-    } else {
-      snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
+    ScreenCoord w, x, y, h;
+    if ((fe_net_level_selected > 0) || (net_level_hilighted > 0))
+    {
+        lbDisplay.DrawFlags = 0;
+        LevelNumber lvnum = fe_net_level_selected;
+        if (lvnum <= 0)
+          lvnum = net_level_hilighted;
+        lvinfo = get_level_info(lvnum);
+        if (lvinfo == NULL)
+          return;
+        if (lvinfo->name_stridx > 0)
+            lv_name = get_string(lvinfo->name_stridx);
+        else
+          lv_name = lvinfo->name;
+        if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
+          snprintf(level_name, sizeof(level_name), "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
+        } else {
+          snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
+        }
+        w = LbTextStringWidth(level_name);
+        x = lvinfo->ensign_x - map_info.screen_shift_x;
+        y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
+        h = LbTextHeight(level_name);
+        LbDrawBox((x-4)*units_per_pixel/16, y*units_per_pixel/16, (w+8)*units_per_pixel/16, h*units_per_pixel/16, 0);
+        LbTextDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, level_name);
     }
-    long w = LbTextStringWidth(level_name);
-    long x = lvinfo->ensign_x - map_info.screen_shift_x;
-    long y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
-    long h = LbTextHeight(level_name);
-    LbDrawBox((x-4)*units_per_pixel/16, y*units_per_pixel/16, (w+8)*units_per_pixel/16, h*units_per_pixel/16, 0);
-    LbTextDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, level_name);
-  }
+    else if (mouse_over_lvnum > 0)
+    {
+        lbDisplay.DrawFlags = 0;
+        lvinfo = get_level_info(mouse_over_lvnum);
+        if (lvinfo == NULL)
+          return;
+        if (lvinfo->name_stridx > 0)
+            lv_name = get_string(lvinfo->name_stridx);
+        else
+          lv_name = lvinfo->name;
+        if ((lv_name != NULL) && (strlen(lv_name) > 0)) {
+          snprintf(level_name, sizeof(level_name), "%s", lv_name);
+        } else {
+          snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
+        }
+        w = LbTextStringWidth(level_name);
+        x = lvinfo->ensign_x - map_info.screen_shift_x;
+        y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
+        h = LbTextHeight(level_name);
+        LbDrawBox((x-4)*units_per_pixel/16, y*units_per_pixel/16, (w+8)*units_per_pixel/16, h*units_per_pixel/16, 0);
+        LbTextDrawResized(x*units_per_pixel/16, y*units_per_pixel/16, units_per_pixel, level_name);
+    }
 }
 
 void frontnetmap_draw(void)
