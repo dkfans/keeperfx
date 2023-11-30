@@ -5,11 +5,11 @@
 #include "pre_inc.h"
 
 #include "ftest.h"
+#include "ftest_util.h"
+
 #include "game_legacy.h"
 #include "keeperfx.hpp"
-#include "room_util.h"
 #include "player_instances.h"
-//#include "thing_data.h"
 
 #include "post_inc.h"
 
@@ -77,16 +77,16 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map()
         return true;
     }
 
-    ftest_reveal_map(HUMAN_PLAYER); // we might want to see the entire map for testing purposes
+    ftest_util_reveal_map(HUMAN_PLAYER); // we might want to see the entire map for testing purposes
 
     // carve long tunnel to spawn imp at the end (imp will prefer to teleport to job site)
-    ftest_replace_slabs(slb_x_tunnel_start, slb_y_tunnel_start, slb_x_tunnel_end, slb_y_tunnel_end, SlbT_CLAIMED, HUMAN_PLAYER);
+    ftest_util_replace_slabs(slb_x_tunnel_start, slb_y_tunnel_start, slb_x_tunnel_end, slb_y_tunnel_end, SlbT_CLAIMED, HUMAN_PLAYER);
 
     // carve door frame for enemy player
-    ftest_replace_slabs(slb_x_door, slb_y_door, slb_x_door, slb_y_door, SlbT_CLAIMED, ENEMY_PLAYER);
+    ftest_util_replace_slabs(slb_x_door, slb_y_door, slb_x_door, slb_y_door, SlbT_CLAIMED, ENEMY_PLAYER);
 
     // carve out empty room (ownership will be checked at end of test)
-    ftest_replace_slabs(slb_x_room_start, slb_y_room_start, slb_x_room_end, slb_y_room_end, SlbT_PATH, PLAYER_NEUTRAL);
+    ftest_util_replace_slabs(slb_x_room_start, slb_y_room_start, slb_x_room_end, slb_y_room_end, SlbT_PATH, PLAYER_NEUTRAL);
 
     // create enemy wooden door with low health
     struct Coord3d doorPos;
@@ -109,7 +109,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map()
     new_door->health = 10;
 
     // create prison tile at end of tunnel
-    ftest_replace_slabs(slb_x_tunnel_end, slb_y_tunnel_end, slb_x_tunnel_end, slb_y_tunnel_end, SlbT_PRISON, HUMAN_PLAYER);
+    ftest_util_replace_slabs(slb_x_tunnel_end, slb_y_tunnel_end, slb_x_tunnel_end, slb_y_tunnel_end, SlbT_PRISON, HUMAN_PLAYER);
 
     // create imps at end of tunnel and max-level them
     struct Coord3d impPos;
@@ -194,7 +194,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero()
 TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test()
 {
     // check ownership of tiles in room (if player0 owns any at end of test, it means failure, imp broke door)
-    if(ftest_does_player_own_any_slabs(slb_x_room_start, slb_y_room_start, slb_x_room_end, slb_y_room_end, HUMAN_PLAYER))
+    if(ftest_util_does_player_own_any_slabs(slb_x_room_start, slb_y_room_start, slb_x_room_end, slb_y_room_end, HUMAN_PLAYER))
     {
         FTEST_FAIL_TEST("Failed because human player should not own any slabs in the area (%u,%d,%d,%d)", slb_x_room_start, slb_y_room_start, slb_x_room_end, slb_y_room_end);
     }

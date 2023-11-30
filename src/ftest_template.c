@@ -5,11 +5,11 @@
 #include "pre_inc.h"
 
 #include "ftest.h"
+#include "ftest_util.h"
+
 #include "game_legacy.h"
 #include "keeperfx.hpp"
-#include "room_util.h"
 #include "player_instances.h"
-//#include "thing_data.h"
 
 #include "post_inc.h"
 
@@ -42,7 +42,7 @@ TbBool ftest_template_init()
 
 TbBool ftest_template_action001__spawn_imp()
 {
-    ftest_reveal_map(PLAYER0); // we might want to see the entire map for testing purposes
+    ftest_util_reveal_map(PLAYER0); // we might want to see the entire map for testing purposes
 
     // create an imp
     struct Coord3d impPos;

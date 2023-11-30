@@ -2,8 +2,7 @@
  * @file ftest.h
  * @author demonds1
  * @brief To add new functional tests you must add your init function inside ftest_list.c
- * See ftest_bug_imp_tp_job_attack_door.h for an example.
- * DO NOT FORGET TO ADD YOUR object file to the makefile, eg: obj/ftest_<test_name>.o
+ * See ftest_template.h for an example.
  * @version 0.1
  * @date 2023-11-24
  * 
@@ -71,42 +70,6 @@ TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay);
 
 TbBool ftest_init();
 TbBool ftest_update(const GameTurn game_turn);
-
-// helpers
-
-/**
- * @brief Replaces slabs in the given area.
- * If the owner exists, it will claim the slab first.
- * 
- * @param slb_x_from 
- * @param slb_y_from 
- * @param slb_x_to 
- * @param slb_y_to 
- * @param slab_kind 
- * @param owner
- * @return true, false if any slab replacements failed
- */
-TbBool ftest_replace_slabs(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, SlabKind slab_kind, PlayerNumber owner);
-
-/**
- * @brief Checks if the player owns any slabs in the given area.
- * 
- * @param slb_x_from 
- * @param slb_y_from 
- * @param slb_x_to 
- * @param slb_y_to 
- * @param owner 
- * @return true if any slabs owned, false otherwise
- */
-TbBool ftest_does_player_own_any_slabs(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, PlayerNumber owner);
-
-/**
- * @brief Reveals the map for the given player
- * 
- * @param plyr_idx 
- * @return
- */
-TbBool ftest_reveal_map(PlayerNumber plyr_idx);
 
 
 #ifdef __cplusplus
