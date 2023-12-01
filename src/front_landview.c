@@ -1646,6 +1646,8 @@ void frontmap_unload(void)
 long frontmap_update(void)
 {
   SYNCDBG(8,"Starting");
+  fe_net_level_selected = 0;
+  net_level_hilighted = 0;
   if ((mouse_over_lvnum > 0) && (playing_speech_lvnum != mouse_over_lvnum))
   {
       play_desc_speech_time = 0;
@@ -1799,6 +1801,7 @@ TbBool frontnetmap_update(void)
 {
     long i;
     SYNCDBG(8,"Starting");
+    mouse_over_lvnum = 0;
     if (map_sound_fade > 0)
     {
         i = map_sound_fade * ((long)settings.redbook_volume) / 256;
