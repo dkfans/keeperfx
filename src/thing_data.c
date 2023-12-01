@@ -114,7 +114,7 @@ TbBool i_can_allocate_free_thing_structure(unsigned char allocflags)
     }
     if ((game.free_things_start_index > THINGS_COUNT - 2) && ((allocflags & FTAF_FreeEffectIfNoSlots) != 0))
     {
-        show_onscreen_msg(2 * game.num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
+        show_onscreen_msg(2 * game_num_fps, "Warning: Cannot create thing, %d/%d thing slots used.", game.free_things_start_index + 1, THINGS_COUNT);
     }
     return false;
 }
@@ -247,8 +247,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
 {
     unsigned long i;
     thing->anim_sprite = convert_td_iso(anim);
-    thing->field_50 &= 0x03;
-    thing->field_50 |= (draw_class << 2);
+    thing->draw_class = draw_class;
     thing->max_frames = keepersprite_frames(thing->anim_sprite);
     if (speed != -1) {
         thing->anim_speed = speed;
@@ -311,12 +310,12 @@ void query_thing(struct Thing *thing)
         {
             if (querytng->class_id == TCls_Object)
             {
-                struct ObjectConfig* objconf = get_object_model_stats2(querytng->model);
+                struct ObjectConfigStats* objst = get_object_model_stats(querytng->model);
                 if (object_is_gold(querytng))
                 {
                     sprintf((char*)amount, "Amount: %ld", querytng->valuable.gold_stored);   
                 }
-                sprintf((char*)health, "Health: %ld/%ld", querytng->health, objconf->health);
+                sprintf((char*)health, "Health: %ld/%ld", querytng->health, objst->health);
             }  
             else 
             if (querytng->class_id == TCls_Door)

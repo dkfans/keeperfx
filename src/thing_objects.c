@@ -278,20 +278,6 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
 };
 
 /******************************************************************************/
-void define_custom_object(int obj_id, short anim_idx)
-{
-    if (obj_id < OBJECT_TYPES_COUNT_ORIGINAL)
-    {
-        WARNLOG("Default object redefined obj_id:%d", obj_id);
-    }
-
-    struct Objects *obj_dst = &gameadd.thing_objects_data[obj_id];
-
-    obj_dst->draw_class = 2; // Default
-    obj_dst->sprite_anim_idx = anim_idx;
-
-}
-/******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
     long i;
@@ -316,7 +302,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     else
       thing->parent_idx = parent_idx;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
-    struct ObjectConfig* objconf = get_object_model_stats2(model);
+    struct ObjectConfigStats* objst = get_object_model_stats(model);
     struct Objects* objdat = get_objects_data(model);
     thing->clipbox_size_xy = objdat->size_xy;
     thing->clipbox_size_z = objdat->size_z;
@@ -324,14 +310,14 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->solid_size_z = objdat->size_z;
     thing->anim_speed = objdat->anim_speed;
     thing->anim_sprite = objdat->sprite_anim_idx;
-    thing->health = saturate_set_signed(objconf->health,32);
-    thing->fall_acceleration = objconf->fall_acceleration;
+    thing->health = saturate_set_signed(objst->health,32);
+    thing->fall_acceleration = objst->fall_acceleration;
     thing->inertia_floor = 204;
     thing->inertia_air = 51;
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
-    set_flag_byte(&thing->movement_flags, TMvF_Immobile, objconf->movement_flag);
+    set_flag_byte(&thing->movement_flags, TMvF_Immobile, objst->immobile);
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
 
@@ -345,22 +331,22 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       k = -1;
     }
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
-    set_flag_byte(&thing->rendering_flags, TRF_Unshaded, objconf->light_unaffected);
+    set_flag_byte(&thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
     set_flag_byte(&thing->rendering_flags, TRF_Unknown01, objdat->not_drawn & 0x01);
 
     set_flag_byte(&thing->rendering_flags, TRF_Transpar_4, objdat->field_F & 0x01);
     set_flag_byte(&thing->rendering_flags, TRF_Transpar_8, objdat->field_F & 0x02);
 
     thing->active_state = objdat->initial_state;
-    if (objconf->ilght.radius != 0)
+    if (objst->ilght.radius != 0)
     {
         struct InitLight ilight;
         LbMemorySet(&ilight, 0, sizeof(struct InitLight));
         LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
-        ilight.radius = objconf->ilght.radius;
-        ilight.intensity = objconf->ilght.intensity;
-        ilight.field_3 = objconf->ilght.field_3;
-        ilight.is_dynamic = objconf->ilght.is_dynamic;
+        ilight.radius = objst->ilght.radius;
+        ilight.intensity = objst->ilght.intensity;
+        ilight.field_3 = objst->ilght.field_3;
+        ilight.is_dynamic = objst->ilght.is_dynamic;
         thing->light_id = light_create_light(&ilight);
         if (thing->light_id == 0) {
             SYNCDBG(8,"Cannot allocate light to %s",thing_model_name(thing));
@@ -961,7 +947,7 @@ static long food_moves(struct Thing *objtng)
             if (!thing_is_invalid(near_creatng))
                 room->hatchfield_1B = near_creatng->index;
         }
-        has_near_creature = (thing_exists(near_creatng) && (get_2d_box_distance(&objtng->mappos, &near_creatng->mappos) < 768));
+        has_near_creature = (thing_exists(near_creatng) && (get_chessboard_distance(&objtng->mappos, &near_creatng->mappos) < 768));
         if (has_near_creature)
         {
             objtng->food.angle = get_angle_xy_to(&near_creatng->mappos, &pos);
@@ -978,7 +964,7 @@ static long food_moves(struct Thing *objtng)
         if (objtng->food.byte_15 == 0)
         {
             objtng->food.byte_15 = -1;
-            set_thing_draw(objtng, 820, -1, -1, -1, 0, 2);
+            set_thing_draw(objtng, 820, -1, -1, -1, 0, ODC_Default);
             if (dirct_ctrl) {
                 objtng->food.byte_16 = 6;
             } else {
@@ -987,7 +973,7 @@ static long food_moves(struct Thing *objtng)
         }
         if ((has_near_creature && (objtng->food.byte_16 < 5)) || (objtng->food.byte_16 == 0))
         {
-            set_thing_draw(objtng, 819, -1, -1, -1, 0, 2);
+            set_thing_draw(objtng, 819, -1, -1, -1, 0, ODC_Default);
             objtng->food.byte_15 = CREATURE_RANDOM(objtng, 0x39);
             objtng->food.angle = CREATURE_RANDOM(objtng, 0x7FF);
             objtng->food.byte_16 = 0;
@@ -1365,11 +1351,11 @@ void update_dungeon_heart_beat(struct Thing *heartng)
         long i = (char)heartng->heart.beat_direction;
         heartng->anim_speed = 0;
 
-        struct ObjectConfig* objconf = get_object_model_stats2(heartng->model);
+        struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
         long long k = 1;
-        if (objconf->health != 0)
+        if (objst->health != 0)
         {
-            k = 384 * (long)(objconf->health - heartng->health) / objconf->health;
+            k = 384 * (long)(objst->health - heartng->health) / objst->health;
         }
         if ((k + 128) > 0)
         {
@@ -1420,8 +1406,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 {
     SYNCDBG(18,"Starting");
     struct Dungeon* dungeon = INVALID_DUNGEON;
-    struct ObjectConfig* objconf;
-    struct ObjectConfigStats* objst;
+    struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
     struct DungeonAdd* dungeonadd;
 
     if (heartng->owner != game.neutral_player_num)
@@ -1431,7 +1416,6 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
 
     if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
     {
-        objconf = get_object_model_stats2(heartng->model);
         if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
         {
             heartng->health += game.dungeon_heart_heal_health;
@@ -1439,14 +1423,14 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             {
               heartng->health = 0;
             } else
-            if (heartng->health > objconf->health)
+            if (heartng->health > objst->health)
             {
-              heartng->health = objconf->health;
+              heartng->health = objst->health;
             }
         }
-        if (objconf->health > 0) //prevent divide by 0 crash
+        if (objst->health > 0) //prevent divide by 0 crash
         {
-            long long k = ((heartng->health << 8) / objconf->health) << 7;
+            long long k = ((heartng->health << 8) / objst->health) << 7;
             long i = (saturate_set_signed(k, 32) >> 8) + 128;
             struct Objects* objdat = get_objects_data_for_thing(heartng);
             heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
@@ -1511,7 +1495,6 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     SYNCDBG(18,"Beat update");
     if ((heartng->alloc_flags & TAlF_Exists) == 0)
       return TUFRet_Modified;
-    objst = get_object_model_stats(heartng->model);
     if (objst->model_flags & OMF_Beating)
     {
         update_dungeon_heart_beat(heartng);
@@ -1541,7 +1524,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
     }
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[get_player_color_idx(objtng->owner)];
     struct Objects* objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
+    set_thing_draw(objtng, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, frame, ODC_Default);
     objtng->call_to_arms_flag.state = CTAOL_Birthing;
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_CALL2ARMS);
     stop_thing_playing_sample(objtng, powerst->select_sound_idx);
@@ -1570,7 +1553,7 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
     }
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[get_player_color_idx(objtng->owner)];
     struct Objects* objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
+    set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, ODC_Default);
     objtng->call_to_arms_flag.state = CTAOL_Dying;
 }
 
@@ -1596,7 +1579,7 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
     }
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[get_player_color_idx(objtng->owner)];
     struct Objects* objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, 2);
+    set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, ODC_Default);
     objtng->call_to_arms_flag.state = CTAOL_Rebirthing;
 }
 
@@ -1618,7 +1601,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
         if (thing->max_frames - 1 <= thing->current_frame)
         {
             thing->call_to_arms_flag.state = CTAOL_Alive;
-            set_thing_draw(thing, ctagfx->alive_anim_idx, 256, objdat->sprite_size_max, 0, 0, 2);
+            set_thing_draw(thing, ctagfx->alive_anim_idx, 256, objdat->sprite_size_max, 0, 0, ODC_Default);
             return 1;
         }
         break;
@@ -1643,7 +1626,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             pos.z.val = get_thing_height_at(thing, &pos);
             move_thing_in_map(thing, &pos);
             reset_interpolation_of_thing(thing);
-            set_thing_draw(thing, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, 0, 2);
+            set_thing_draw(thing, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, 0, ODC_Default);
             thing->call_to_arms_flag.state = CTAOL_Birthing;
             stop_thing_playing_sample(thing, powerst->select_sound_idx);
             thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);

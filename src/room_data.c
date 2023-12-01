@@ -22,6 +22,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_memory.h"
 #include "config_creature.h"
 #include "power_specials.h"
@@ -3105,7 +3106,7 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_capacity(struct Thin
                 i = room->next_of_owner;
                 // Per-room code
                 // Compute simplified distance - without use of mul or div
-                long distance = abs(thing->mappos.x.stl.num - room->central_stl_x) + abs(thing->mappos.y.stl.num - room->central_stl_y);
+                long distance = grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, room->central_stl_x, room->central_stl_y);
                 if ((neardistance > distance) && (room->used_capacity + spare <= room->total_capacity))
                 {
                     struct Coord3d pos;
@@ -3502,8 +3503,7 @@ struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const s
             long attractiveness = get_room_attractiveness_for_thing(dungeon, room, thing, rrole & get_room_roles(room->kind), needed_capacity);
             if (attractiveness > 0)
             {
-                long dist = abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
-                dist += abs(thing->mappos.x.stl.num - (int)room->central_stl_x);
+                long dist = grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, room->central_stl_x, room->central_stl_y);
                 dist = (dist*128)/attractiveness;
                 if (retdist > dist)
                 {
@@ -4600,7 +4600,7 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct
                 }
                 i = room->next_of_owner;
                 // Per-room code
-                long dist = abs(thing->mappos.x.stl.num - room->central_stl_x) + abs(thing->mappos.y.stl.num - room->central_stl_y);
+                long dist = grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, room->central_stl_x, room->central_stl_y);
                 if ((dist < retdist) && (room->total_capacity > room->capacity_used_for_storage))
                 {
                     struct Coord3d pos;

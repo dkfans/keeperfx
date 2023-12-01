@@ -124,7 +124,6 @@ char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
-    struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
     struct Things things;
     struct Persons persons;
     struct Columns columns;
@@ -258,7 +257,6 @@ unsigned int packet_file_pos;
     long collapse_dungeon_damage;
     GameTurnDelta turns_per_collapse_dngn_dmg;
     struct SoundSettings sound_settings;
-    long num_fps;
     GameTurnDelta train_cost_frequency;
     GameTurnDelta scavenge_cost_frequency;
     unsigned long temple_scavenge_protection_turns;
@@ -306,6 +304,7 @@ unsigned int packet_file_pos;
 #pragma pack()
 /******************************************************************************/
 extern struct Game game;
+extern long game_num_fps;
 /******************************************************************************/
 #ifdef __cplusplus
 }
