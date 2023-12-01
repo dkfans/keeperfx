@@ -191,6 +191,7 @@ void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSu
 short get_creature_eye_height(const struct Thing *creatng);
 
 void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom);
+TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

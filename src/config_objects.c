@@ -269,6 +269,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
 
         objst = &gameadd.object_conf.object_cfgstats[tmodel];
         struct Objects* objdat = get_objects_data(tmodel);
+        objdat->draw_class = ODC_Default;    
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
@@ -683,13 +684,16 @@ void update_all_object_stats()
         thing->flags = 0;
         thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
 
-        dungeon = get_dungeon(thing->owner);
-        if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
+        if (thing->owner != game.neutral_player_num)
         {
-            dungeonadd = get_dungeonadd(thing->owner);
-            if (dungeonadd->backup_heart_idx == 0)
+            dungeon = get_dungeon(thing->owner);
+            if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
             {
-                dungeonadd->backup_heart_idx = thing->index;
+                dungeonadd = get_dungeonadd(thing->owner);
+                if (dungeonadd->backup_heart_idx == 0)
+                {
+                    dungeonadd->backup_heart_idx = thing->index;
+                }
             }
         }
 
