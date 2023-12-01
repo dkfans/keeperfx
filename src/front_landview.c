@@ -30,6 +30,7 @@
 #include "bflib_filelst.h"
 #include "bflib_sprite.h"
 #include "bflib_sprfnt.h"
+#include "bflib_string.h"
 #include "bflib_mouse.h"
 #include "bflib_math.h"
 #include "bflib_sndlib.h"
@@ -1479,7 +1480,22 @@ void draw_map_level_descriptions(void)
 
       // optional dropshadow
       // LbDrawBox(scale_value_for_resolution(borderBoxX+1), scale_value_for_resolution(borderBoxY+1), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), 0);
-      int units_per_px = ( (dbc_language > 0) && (MyScreenWidth >= 1280) ) ? scale_ui_value(16 + ((8 * MyScreenWidth / 1280) + 1)) : units_per_pixel;
+      int units_per_px;
+      if ( (dbc_language > 0) && (MyScreenWidth >= 1280) )
+      {
+          if (StringHasWideChar(level_description))
+          {
+              units_per_px = 32;
+          }
+          else
+          {
+              units_per_px = scale_value_by_horizontal_resolution(24);
+          }
+      }
+      else
+      {
+          units_per_px = units_per_pixel;
+      }
       LbDrawBox(scale_value_for_resolution(borderBoxX), scale_value_for_resolution(borderBoxY), scale_value_for_resolution_with_upp(borderBoxWidth, units_per_px), scale_value_for_resolution(borderBoxHeight), borderColour);
       LbDrawBox(scale_value_for_resolution(boxX), scale_value_for_resolution(textY), scale_value_for_resolution_with_upp(boxWidth, units_per_px), scale_value_for_resolution(boxHeight), boxColour);
       LbTextDrawResized(scale_value_for_resolution(textX), scale_value_for_resolution(textY), units_per_pixel, level_description);

@@ -40,6 +40,7 @@ TbSize LbLocTextPosToLength(const TbLocChar *s, TbCharCount pos);
 TbLocChar *LbLocTextStringConcat(TbLocChar *str, const TbLocChar *catstr, TbSize maxlen);
 TbLocChar *LbLocTextStringInsert(TbLocChar *str, const TbLocChar *catstr, TbCharCount pos, TbSize maxlen);
 TbLocChar *LbLocTextStringDelete(TbLocChar *str, TbCharCount pos, TbCharCount count);
+TbBool StringHasWideChar(const char *s);
 /******************************************************************************/
 #ifdef __cplusplus
 }

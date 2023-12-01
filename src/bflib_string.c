@@ -19,6 +19,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "bflib_string.h"
+#include "bflib_sprfnt.h"
 
 #include <string.h>
 #include <stdarg.h>
@@ -138,6 +139,22 @@ TbLocChar *LbLocTextStringDelete(TbLocChar *str, TbCharCount pos, TbCharCount co
     }
     str[slen-clen] = '\0';
     return str;
+}
+
+TbBool StringHasWideChar(const char *s)
+{
+    if (s[0] == 0)
+    {
+        return false;
+    }
+    for (int i = LbLocTextStringSize(s); i > 0; i--)
+    {
+        if (is_wide_charcode(s[i]))
+        {
+            return true;
+        }
+    }
+    return false;
 }
 /******************************************************************************/
 #ifdef __cplusplus

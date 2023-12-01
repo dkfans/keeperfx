@@ -138,6 +138,8 @@ long text_string_height(int units_per_px, const char *text);
 void dbc_set_language(short ilng);
 short dbc_initialize(const char *fpath);
 
+TbBool is_wide_charcode(unsigned long chr);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
