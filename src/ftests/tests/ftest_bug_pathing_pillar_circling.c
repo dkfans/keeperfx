@@ -53,7 +53,7 @@ struct ftest_bug_pathing_pillar_circling__variables ftest_bug_pathing_pillar_cir
     .is_tunneler_setup = false,
     .tunneler = NULL,
 
-    .pillar_base_slab_type = SlbT_ROCK_FLOOR
+    .pillar_base_slab_type = SlbT_EARTH
 };
 
 
