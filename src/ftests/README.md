@@ -15,10 +15,17 @@ They also skip the trademark/cutscene by default for super fast launch.
 
 # Quickstart
 
+## Available Test Names
+
+- `example_template_test`
+- `bug_imp_teleport_attack_door`
+- `bug_pathing_pillar_circling`
+- `bug_imp_goldseam_dig`
+
 ## Run Existing Test
 
 1. Enable Functional Testing
-    - <b>CTRL+SHIFT+B</b>
+    - <b>CTRL+SHIFT+B</b> (VSCode shortcut for switching debug option)
     - select one of the FTEST_DEBUG options
         - FTEST_DEBUG=1 for debugging info
         - FTEST_DEBUG=0 for without
@@ -42,17 +49,17 @@ They also skip the trademark/cutscene by default for super fast launch.
 ## Create New Test
 
 1. Copy example test files and rename them to reflect your test
-    - [ftest_template.h](./ftest_template.h) example: `ftest_bug_warlock_cooks_chicken.h`
-    - [ftest_template.c](./ftest_template.c) example: `ftest_bug_warlock_cooks_chicken.c`
+    - [ftest_template.h](./tests/ftest_template.h) example: `ftest_bug_warlock_cooks_chicken.h`
+    - [ftest_template.c](./tests/ftest_template.c) example: `ftest_bug_warlock_cooks_chicken.c`
 2. Update the name of the init function inside your new files to also reflect the name of your test.
-    - [ftest_template_init](./ftest_template.h#L17) example: `ftest_bug_warlock_cooks_chicken_init`
+    - [ftest_template_init](./tests/ftest_template.h#L17) example: `ftest_bug_warlock_cooks_chicken_init`
 3. Implement test actions in your .c file.
     - follow the naming convention provided `ftest_<test_name>__action###__<action_name>`
     - this is not required, but doing so prevents naming collisions from occuring
 4. Update your tests init function
     - for example, inside `ftest_bug_warlock_cooks_chicken.c` make sure all your actions are appended
-        - `ftest_append_action( ftest_template_action001__spawn_warlock );`
-        - `ftest_append_action( ftest_template_action002__drop_chicken_on_warlock );`
+        - `ftest_append_action( ftest_template_action001__spawn_warlock,            100, NULL );`
+        - `ftest_append_action( ftest_template_action002__drop_chicken_on_warlock,  100, NULL );`
     - actions are executed:
         - sequentially: `action002` will not execute until the previous action `returns true`
         - after the `game turn delay` provided to `ftest_append_action(<test_action>, <game_turn_delay>)`
@@ -60,8 +67,8 @@ They also skip the trademark/cutscene by default for super fast launch.
      
 5. Add your test to the test list [ftest_list.c](./ftest_list.c)
     - add the include for your tests header file
-        - example: `#include "ftest_bug_warlock_cooks_chicken.h"`
-    - update [ftest_tests_list](./ftest_list.c#L28)
+        - example: `#include "tests/ftest_bug_warlock_cooks_chicken.h"`
+    - update [tests_list](./ftest_list.c#L29)
         - add the `name` of your test and then your tests `init function`
         - example: `{ "bug_warlock_cooks_chicken", ftest_bug_warlock_cooks_chicken_init }`
         - this `name` is what you pass to the `ftests` arg in [launch.json](../../.vscode/launch.json)
@@ -71,9 +78,20 @@ They also skip the trademark/cutscene by default for super fast launch.
 
 | .h | .c |
 |----------------------------------------|----------------------------------------|
-| [ftest_template.h](./ftest_template.h) | [ftest_template.c](./ftest_template.c) |
-| [ftest_bug_imp_tp_job_attack_door.h](./ftest_bug_imp_tp_job_attack_door.h) | [ftest_bug_imp_tp_job_attack_door.c](./ftest_bug_imp_tp_job_attack_door.c) |
-| [ftest_bug_imp_goldseam_dig.h](./ftest_bug_imp_goldseam_dig.h) | [ftest_bug_imp_goldseam_dig.c](./ftest_bug_imp_goldseam_dig.c) |
+| [ftest_template.h](./tests/ftest_template.h) | [ftest_template.c](./tests/ftest_template.c) |
+| [ftest_bug_imp_tp_job_attack_door.h](./tests/ftest_bug_imp_tp_job_attack_door.h) | [ftest_bug_imp_tp_job_attack_door.c](./tests/ftest_bug_imp_tp_job_attack_door.c) |
+| [ftest_bug_imp_goldseam_dig.h](./tests/ftest_bug_imp_goldseam_dig.h) | [ftest_bug_imp_goldseam_dig.c](./tests/ftest_bug_imp_goldseam_dig.c) |
+
+### See Advanced Example Tests:
+
+| .h | .c |
+|----------------------------------------|----------------------------------------|
+| [ftest_bug_pathing_pillar_circling.h](./tests/ftest_bug_pathing_pillar_circling.h) | [ftest_bug_pathing_pillar_circling.c](./tests/ftest_bug_pathing_pillar_circling.c) |
+
+- This advanced test showcases using a single action to perform multiple stages, using custom data via void*
+- It allows for re-usable test actions that can be shared between tests. (Think of a setup function that creates a base with different rooms and doors, then fills them with different creatures for each test)
+- In the example itself `ftest_bug_pathing_pillar_circling` you can see that it creates a tunneler that digs towards the dungeon heart.
+- The second test action does the same thing, but from different map coordinates and with a different base block type, showcasing the differences of data passed to the action.
 
 ### Explanation / Flow
 
