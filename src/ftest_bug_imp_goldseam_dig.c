@@ -18,17 +18,20 @@
 extern "C" {
 #endif
 
+GoldAmount ftest_bug_imp_goldseam__game_gold_amount = 0;
 
 // forward declarations - tests
 TbBool ftest_bug_imp_goldseam_dig_action001__map_setup();
 TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp();
-TbBool ftest_bug_imp_goldseam_dig_action003__end_test();
+TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig();
+TbBool ftest_bug_imp_goldseam_dig_action004__end_test();
 
 TbBool ftest_bug_imp_goldseam_dig_init()
 {
-    ftest_append_action(ftest_bug_imp_goldseam_dig_action001__map_setup, 20);
-    ftest_append_action(ftest_bug_imp_goldseam_dig_action002__spawn_imp, 40);
-    ftest_append_action(ftest_bug_imp_goldseam_dig_action003__end_test, 500);
+    ftest_append_action(ftest_bug_imp_goldseam_dig_action001__map_setup, 10);
+    ftest_append_action(ftest_bug_imp_goldseam_dig_action002__spawn_imp, 20);
+    ftest_append_action(ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig, 30);
+    ftest_append_action(ftest_bug_imp_goldseam_dig_action004__end_test, 600);
 
     return true;
 }
@@ -46,25 +49,24 @@ TbBool ftest_bug_imp_goldseam_dig_action001__map_setup()
     }
     take_money_from_dungeon(PLAYER0, dungeon->total_money_owned, false);
 
-    //place gold room below dungeon heart
+    // place gold room below dungeon heart
     ftest_util_replace_slabs(3, 6, 3, 6, SlbT_CLAIMED, PLAYER0);
     ftest_util_replace_slabs(1, 7, 6, 12, SlbT_WALLDRAPE, PLAYER0);
     ftest_util_replace_slabs(1, 7, 5, 11, SlbT_TREASURE, PLAYER0);
 
-    //spawn gold
+    // spawn gold
     ftest_util_replace_slabs(6, 1, 7, 5, SlbT_PATH, PLAYER_NEUTRAL);
     ftest_util_replace_slabs(6, 1, 7, 5, SlbT_GOLD, PLAYER_NEUTRAL);
 
-    //mark gold tile for dig
-    
+    // store/broadcast the gold stored in a single tile
+    ftest_bug_imp_goldseam__game_gold_amount = game.gold_per_gold_block;
+    message_add_fmt(PLAYER0, "Game gold per gold block: %ld", ftest_bug_imp_goldseam__game_gold_amount);
 
     return true;
 }
 
 TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp()
 {
-    
-
     // create an imp
     struct Coord3d impPos;
     impPos.x.val = 0; // setting to 0 for x/y is required before setting stl.num/pos, otherwise val will be incorrect...
@@ -91,14 +93,52 @@ TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp()
     return true; //proceed to next test action
 }
 
-TbBool ftest_bug_imp_goldseam_dig_action003__end_test()
+TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig()
 {
-    if(game.play_gameturn < 1000)
+    // select one of the gold slabmap blocks
+    const MapSlabCoord slb_x_gold_block = 6;
+    const MapSlabCoord slb_y_gold_block = 3;
+
+    struct SlabMap* slabMapBlock = get_slabmap_block(slb_x_gold_block, slb_y_gold_block);
+    if(slabmap_block_invalid(slabMapBlock))
     {
-        return false;
+        FTEST_FAIL_TEST("Failed to find gold slabmap block");
+        return true;
     }
 
-    // count gold acquired by imp
+    // store/report the blocks health to user
+    struct SlabAttr *slbattr = get_slab_attrs(slabMapBlock);
+    unsigned short goldBlockHealth = game.block_health[slbattr->block_health_index];
+    message_add_fmt(PLAYER0, "Gold block at (%d,%d) has %d health", slb_x_gold_block, slb_y_gold_block, goldBlockHealth);
+
+    // mark the block for digging
+    TbResult markForDigResult = game_action(PLAYER0, GA_MarkDig, 0, slab_subtile_center(slb_x_gold_block), slab_subtile_center(slb_y_gold_block), 1, 1);
+    if (markForDigResult != Lb_OK && markForDigResult != Lb_SUCCESS)
+    {
+        FTEST_FAIL_TEST("Failed to mark the gold block for digging");
+        return true;
+    }
+
+    return true; //proceed to next test action
+}
+
+TbBool ftest_bug_imp_goldseam_dig_action004__end_test()
+{
+    // count gold acquired by imp and stored in the treasure room
+    struct Dungeon* dungeon = get_players_num_dungeon(PLAYER0);
+    if(dungeon_invalid(dungeon))
+    {
+        FTEST_FAIL_TEST("Failed to find dungeon");
+        return true;
+    }
+    
+    // report total gold
+    message_add_fmt(PLAYER0, "Imp returned %d gold", dungeon->total_money_owned);
+    if(dungeon->total_money_owned != ftest_bug_imp_goldseam__game_gold_amount)
+    {
+        FTEST_FAIL_TEST("Goldseams have %ld gold, but imp returned %d gold!", ftest_bug_imp_goldseam__game_gold_amount, dungeon->total_money_owned);
+        return true;
+    }
 
     return true;
 }
