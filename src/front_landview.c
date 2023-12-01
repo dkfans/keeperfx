@@ -1467,9 +1467,9 @@ void draw_map_level_descriptions(void)
 
       // optional dropshadow
       // LbDrawBox(scale_value_for_resolution(borderBoxX+1), scale_value_for_resolution(borderBoxY+1), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), 0);
-
-      LbDrawBox(scale_value_for_resolution(borderBoxX), scale_value_for_resolution(borderBoxY), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), borderColour);
-      LbDrawBox(scale_value_for_resolution(boxX), scale_value_for_resolution(textY), scale_value_for_resolution(boxWidth), scale_value_for_resolution(boxHeight), boxColour);
+      int units_per_px = ( (dbc_language > 0) && (MyScreenWidth > 640) ) ? scale_ui_value(32) : units_per_pixel;
+      LbDrawBox(scale_value_for_resolution(borderBoxX), scale_value_for_resolution(borderBoxY), scale_value_for_resolution_with_upp(borderBoxWidth, units_per_px), scale_value_for_resolution(borderBoxHeight), borderColour);
+      LbDrawBox(scale_value_for_resolution(boxX), scale_value_for_resolution(textY), scale_value_for_resolution_with_upp(boxWidth, units_per_px), scale_value_for_resolution(boxHeight), boxColour);
       LbTextDrawResized(scale_value_for_resolution(textX), scale_value_for_resolution(textY), units_per_pixel, level_description);
     }
 }
