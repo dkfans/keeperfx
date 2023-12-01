@@ -1402,13 +1402,7 @@ const char* get_level_description(struct LevelInformation *lvinfo)
     return NULL;
   }
 
-  if (lvinfo->options & LvOp_Tutorial)
-  {
-    // TODO: Implement translation / get_string
-    return "Tutorial";
-  }
-
-  if (lvinfo->options & LvOp_IsSingle || lvinfo->options & LvOp_IsMulti)
+  if (lvinfo->options & LvOp_IsSingle || lvinfo->options & LvOp_IsMulti|| lvinfo->options & LvOp_Tutorial)
   {
       if (lvinfo->name_stridx > 0)
       {
