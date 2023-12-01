@@ -44,7 +44,7 @@ typedef TbBool (*FTest_Init_Func)(void);
  * @brief Function Test Action Func -
  * Your test will be comprised of these actions, append them inside your init func using ftest_append_action
  */
-typedef TbBool (*FTest_Action_Func)(void);
+typedef TbBool (*FTest_Action_Func)(const GameTurn action_start_turn);
 
 struct FTestConfig {
     char name[FTEST_MAX_NAME_LENGTH];

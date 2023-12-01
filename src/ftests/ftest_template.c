@@ -49,7 +49,7 @@ TbBool ftest_template_action001__spawn_imp()
     impPos.x.val = 0; // setting to 0 for x/y is required before setting stl.num/pos, otherwise val will be incorrect...
     impPos.y.val = 0;
     impPos.x.stl.num = slab_subtile_center(5);
-    impPos.x.stl.pos = 128; //128 == 50% - center of tile
+    impPos.x.stl.pos = COORD_PER_STL / 2; //128 == 50% - center of tile
     impPos.y.stl.num = slab_subtile_center(3);
     impPos.y.stl.pos = 128; 
     

@@ -21,7 +21,11 @@ extern "C" {
 
 unsigned long ftest_total_actions = 0;
 unsigned long ftest_current_action = 0;
+unsigned long ftest_previous_action = ULONG_MAX;
+
 GameTurn ftest_current_turn_counter = 0;
+GameTurn ftest_current_action_start_turn = 0;
+
 FTest_Action_Func ftest_actions_func_list[FTEST_MAX_ACTIONS_PER_TEST];
 GameTurn ftest_actions_func_turn_list[FTEST_MAX_ACTIONS_PER_TEST];
 
@@ -39,11 +43,11 @@ TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay)
         return false;
     }
 
-    ++ftest_total_actions;
     ftest_current_turn_counter += turn_delay;
 
     ftest_actions_func_list[ftest_total_actions] = func;
     ftest_actions_func_turn_list[ftest_total_actions] = ftest_current_turn_counter;
+    ++ftest_total_actions;
     return true;
 }
 
@@ -129,13 +133,18 @@ TbBool ftest_update(const GameTurn game_turn)
                 ++ftest_current_action;
             }
         } while (testAction == NULL && ftest_current_action < ftest_actions_length);
-        
          
         if(testAction)
         {
             if(game_turn >= testActionTurn)
             {
-                if(testAction())
+                if(ftest_current_action != ftest_previous_action)
+                {
+                    ftest_previous_action = ftest_current_action;
+                    ftest_current_action_start_turn = game_turn;
+                }
+
+                if(testAction(ftest_current_action_start_turn))
                 {
                     //action completed, skip to next
                     ++ftest_current_action;
