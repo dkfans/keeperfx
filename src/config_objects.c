@@ -684,13 +684,16 @@ void update_all_object_stats()
         thing->flags = 0;
         thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
 
-        dungeon = get_dungeon(thing->owner);
-        if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
+        if (thing->owner != game.neutral_player_num)
         {
-            dungeonadd = get_dungeonadd(thing->owner);
-            if (dungeonadd->backup_heart_idx == 0)
+            dungeon = get_dungeon(thing->owner);
+            if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
             {
-                dungeonadd->backup_heart_idx = thing->index;
+                dungeonadd = get_dungeonadd(thing->owner);
+                if (dungeonadd->backup_heart_idx == 0)
+                {
+                    dungeonadd->backup_heart_idx = thing->index;
+                }
             }
         }
 
