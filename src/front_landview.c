@@ -1227,8 +1227,8 @@ void frontmap_draw(void)
     {
         draw_map_screen();
         draw_map_level_ensigns();
-        set_pointer_graphic_spland(0);
         draw_map_level_descriptions();
+        set_pointer_graphic_spland(0);
         compressed_window_draw();
     }
 }
@@ -1443,7 +1443,7 @@ void draw_map_level_descriptions(void)
     if ((fe_net_level_selected > 0) || (net_level_hilighted > 0) || (mouse_over_lvnum > 0))
     {
       lbDisplay.DrawFlags = 0;
-      LevelNumber lvnum = (fe_net_level_selected > 0) ? fe_net_level_selected : ((net_level_hilighted > 0) ? net_level_hilighted : mouse_over_lvnum);
+      LevelNumber lvnum = (mouse_over_lvnum > 0) ? mouse_over_lvnum : (fe_net_level_selected > 0) ? fe_net_level_selected : net_level_hilighted;
       lvinfo = get_level_info(lvnum);
       if (lvinfo == NULL)
       {
@@ -1488,8 +1488,8 @@ void frontnetmap_draw(void)
     {
         draw_map_screen();
         draw_map_level_ensigns();
-        draw_netmap_players_hands();
         draw_map_level_descriptions();
+        draw_netmap_players_hands();
         compressed_window_draw();
     }
 }
