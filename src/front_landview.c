@@ -1456,7 +1456,15 @@ void draw_map_level_descriptions(void)
 
       const char* level_description = get_level_description(lvinfo);
 
-      textWidth = LbTextStringWidth(level_description);
+      if (dbc_language > 0)
+      {
+          int tx_units_per_px = (MyScreenWidth >= 1280) ? units_per_pixel / 2 : units_per_pixel;
+          textWidth = LbTextStringWidthM(level_description, tx_units_per_px);
+      }
+      else
+      {
+          textWidth = LbTextStringWidth(level_description);
+      }
       boxWidth = textWidth + padding + padding;
       boxHeight = (LbTextHeight(level_description) - 2) + padding + padding; // -2 because LbTextHeight seems to come back a little too wide
       borderBoxWidth = boxWidth + border + border;
