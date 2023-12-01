@@ -50,7 +50,7 @@
 #include "sounds.h"
 
 #ifdef FUNCTESTING
-#include "ftest.h"
+#include "ftests/ftest.h"
 #endif
 
 #ifdef __cplusplus

@@ -2,16 +2,16 @@
 
 #ifdef FUNCTESTING
 
-#include "pre_inc.h"
+#include "../pre_inc.h"
 
-#include "game_legacy.h"
-#include "bflib_memory.h"
-#include "keeperfx.hpp"
-#include "lvl_filesdk1.h"
-#include "slab_data.h"
-#include "room_util.h"
+#include "../game_legacy.h"
+#include "../bflib_memory.h"
+#include "../keeperfx.hpp"
+#include "../lvl_filesdk1.h"
+#include "../slab_data.h"
+#include "../room_util.h"
 
-#include "post_inc.h"
+#include "../post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

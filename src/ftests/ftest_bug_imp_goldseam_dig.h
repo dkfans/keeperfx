@@ -1,6 +1,6 @@
 #pragma once
 
-#include "globals.h"
+#include "../globals.h"
 
 #ifdef FUNCTESTING
 
@@ -14,7 +14,7 @@ typedef unsigned char TbBool;
  * @brief Rename this init function to reflect the name of your test, eg: ftest_myexampletest_init
  * 
  */
-TbBool ftest_template_init();
+TbBool ftest_bug_imp_goldseam_dig_init();
 
 
 #ifdef __cplusplus

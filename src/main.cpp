@@ -124,7 +124,7 @@
 #include "event_monitoring.h"
 #endif
 #ifdef FUNCTESTING
-  #include "ftest.h"
+  #include "ftests/ftest.h"
 #endif
 #include "post_inc.h"
 

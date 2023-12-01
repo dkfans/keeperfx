@@ -11,7 +11,7 @@
 
 #pragma once
 
-#include "globals.h"
+#include "../globals.h"
 
 #ifdef FUNCTESTING
 

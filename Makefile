@@ -79,7 +79,7 @@ obj/ioapi.o
 FTEST_DEBUG ?= 0
 ifeq ($(FTEST_DEBUG), 1)
   FTEST_DBGFLAGS = -DFUNCTESTING=1
-  FTEST_OBJS = $(patsubst src/%,obj/%,$(patsubst %.c,%.o,$(wildcard src/ftest*.c)))
+  FTEST_OBJS = $(patsubst src/ftests/%,obj/ftests/%,$(patsubst %.c,%.o,$(wildcard src/ftests/ftest*.c)))
 else
   FTEST_DBGFLAGS =
   FTEST_OBJS =
@@ -450,6 +450,7 @@ heavylog: hvlog-before $(HVLOGBIN) hvlog-after
 
 # not nice but necessary for make -j to work
 FOLDERS = bin obj/std obj/hvlog \
+obj/std/ftests \
 obj/tests obj/cu \
 obj/std/json obj/hvlog/json \
 obj/std/centitoml obj/hvlog/centitoml \
@@ -560,15 +561,15 @@ obj/cu/%.o: $(CU_DIR)/Sources/Basic/%.c
 
 obj/std/%.o obj/hvlog/%.o: src/%.cpp libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
-	@grep -E "#include \"pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
-	@grep -E "#include \"post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
+	@grep -E "#include \"(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
+	@grep -E "#include \"(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CPP) $(CXXFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
 obj/std/%.o obj/hvlog/%.o: src/%.c libexterns $(GENSRC)
 	-$(ECHO) 'Building file: $<'
-	@grep -E "#include \"pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
-	@grep -E "#include \"post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
+	@grep -E "#include \"(\.\./)?pre_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"pre_inc.h\" as first include\n\n" >&2 | false
+	@grep -E "#include \"(\.\./)?post_inc.h\"" "$<" >/dev/null || echo "\n\nAll files should have #include \"post_inc.h\" as last include\n\n" >&2 | false
 	$(CC) $(CFLAGS) -o"$@" "$<"
 	-$(ECHO) ' '
 
