@@ -75,21 +75,20 @@ struct ScriptContext
     };
 };
 
-struct TunnellerTrigger { // sizeof = 18
+struct TunnellerTrigger {
   unsigned char flags;
-  unsigned char condit_idx;
+  unsigned short condit_idx;
   unsigned char plyr_idx;
   unsigned long location;
-  unsigned char heading_OLD;//no longer used
   unsigned long heading; // originally was 'target'
   long carried_gold;
   unsigned char crtr_level;
   char party_id;
 };
 
-struct PartyTrigger { // sizeof = 13
+struct PartyTrigger {
   unsigned char flags;
-  unsigned char condit_idx;
+  unsigned short condit_idx;
   char creatr_id;
   union
   {
@@ -110,9 +109,9 @@ struct PartyTrigger { // sizeof = 13
   };
 };
 
-struct ScriptValue { // sizeof = 16
+struct ScriptValue {
   unsigned char flags;
-  unsigned char condit_idx;
+  unsigned short condit_idx;
   unsigned char valtype;
   unsigned char plyr_range;
   union
