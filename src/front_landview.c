@@ -1437,8 +1437,12 @@ const char* get_level_description(struct LevelInformation *lvinfo)
 void draw_map_level_descriptions(void)
 {
     struct LevelInformation* lvinfo;
-    int boxColour = 0, borderColour = 1;
-    int xOffset = 0, yOffset = -78, padding = 2, border = 1;
+    #define padding 2
+    #define border 1
+    #define xOffset 0
+    #define yOffset -78
+    #define borderColour 1
+    #define boxColour 0
     int textWidth, textX, textY, boxX, boxY, boxWidth, boxHeight, borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight;
     if ((fe_net_level_selected > 0) || (net_level_hilighted > 0) || (mouse_over_lvnum > 0))
     {
