@@ -2,16 +2,16 @@
 
 #ifdef FUNCTESTING
 
-#include "../pre_inc.h"
+#include "../../pre_inc.h"
 
-#include "ftest.h"
-#include "ftest_util.h"
+#include "../ftest.h"
+#include "../ftest_util.h"
 
-#include "../game_legacy.h"
-#include "../keeperfx.hpp"
-#include "../player_instances.h"
+#include "../../game_legacy.h"
+#include "../../keeperfx.hpp"
+#include "../../player_instances.h"
 
-#include "../post_inc.h"
+#include "../../post_inc.h"
 
 #ifdef __cplusplus
 extern "C" {

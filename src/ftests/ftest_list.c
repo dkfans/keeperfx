@@ -9,11 +9,11 @@
 /**
  * Add the header files for your tests here
  */
-#include "ftest_template.h"
-#include "ftest_bug_imp_tp_job_attack_door.h"
-#include "ftest_bug_pathing_pillar_circling.h"
-#include "ftest_bug_imp_goldseam_dig.h"
-//#include "ftest_your_test_header.h"
+#include "tests/ftest_template.h"
+#include "tests/ftest_bug_imp_tp_job_attack_door.h"
+#include "tests/ftest_bug_pathing_pillar_circling.h"
+#include "tests/ftest_bug_imp_goldseam_dig.h"
+//#include "tests/ftest_your_test_header.h"
 
 #include "../post_inc.h"
 
