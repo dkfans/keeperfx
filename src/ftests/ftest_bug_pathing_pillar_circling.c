@@ -17,16 +17,54 @@
 extern "C" {
 #endif
 
+// example of test variables wraped in a struct, this prevents variable name collisions with other tests, allowing you to name your variables how you like!
+struct ftest_bug_pathing_pillar_circling__variables
+{
+    const MapSlabCoord slb_x_tunneler_start;
+    const MapSlabCoord slb_y_tunneler_start;
+
+    const MapSlabCoord slb_x_pillar;
+    const MapSlabCoord slb_y_pillar;
+
+    struct Thing* tunneler;
+
+    unsigned char pillar_base_slab_type;
+};
+struct ftest_bug_pathing_pillar_circling__variables ftest_bug_pathing_pillar_circling__vars = {
+    .slb_x_tunneler_start = 25,
+    .slb_y_tunneler_start = 3,
+
+    .slb_x_pillar = 15,
+    .slb_y_pillar = 3,
+
+    .tunneler = NULL,
+
+    .pillar_base_slab_type = SlbT_ROCK_FLOOR
+};
+struct ftest_bug_pathing_pillar_circling__variables ftest_bug_pathing_pillar_circling__vars2 = {
+    .slb_x_tunneler_start = 3,
+    .slb_y_tunneler_start = 25,
+
+    .slb_x_pillar = 3,
+    .slb_y_pillar = 15,
+
+    .tunneler = NULL,
+
+    .pillar_base_slab_type = SlbT_ROCK_FLOOR
+};
+
+
 
 // forward declarations - tests
-TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test();
+TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test(const GameTurn action_start_turn, void* data);
 
 TbBool ftest_bug_pathing_pillar_circling_init()
 {
     // this test will showcase multiple sub-tests, one sub-test per action
     // use of static variables allows some flexibility here
 
-    ftest_append_action(ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test, 20);
+    ftest_append_action(ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test, 20, &ftest_bug_pathing_pillar_circling__vars);
+    ftest_append_action(ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test, 20, &ftest_bug_pathing_pillar_circling__vars2);
 
     return true;
 }
@@ -34,90 +72,54 @@ TbBool ftest_bug_pathing_pillar_circling_init()
 /**
  * @brief This action will be a sub-test, it will setup the situation of a single tunneler digging towards you, and replicate getting stuck on a pillar (portal?)
  */
-TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test()
+TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test(const GameTurn action_start_turn, void* data)
 {
+    // to make the test variable names shorter, use a pointer!
+    struct ftest_bug_pathing_pillar_circling__variables* const vars = &ftest_bug_pathing_pillar_circling__vars;
+
+    const MapSubtlCoord stl_x_pillar = slab_subtile_center(vars->slb_x_pillar);
+    const MapSubtlCoord stl_y_pillar = slab_subtile_center(vars->slb_y_pillar);
+
     ftest_util_reveal_map(PLAYER0);
 
-    const MapSlabCoord slb_x_tunneler_start = 25;
-    const MapSlabCoord slb_y_tunneler_start = 3;
-
-    const MapSlabCoord slb_x_pillar = 15;
-    const MapSlabCoord slb_y_pillar = 3;
-    const MapSubtlCoord stl_x_pillar = slab_subtile_center(slb_x_pillar);
-    const MapSubtlCoord stl_y_pillar = slab_subtile_center(slb_y_pillar);
-
-    struct Thing* tunneler = INVALID_THING;
-
+    // example stage001 of using a local static variable to support multiple test stages inside of a single test action
     static TbBool isTunnelerTestSetup = false;
     if(!isTunnelerTestSetup)
     {
         // clear starting position for tunneler
-        ftest_util_replace_slabs(slb_x_tunneler_start, slb_y_tunneler_start, slb_x_tunneler_start, slb_y_tunneler_start, SlbT_PATH, PLAYER_NEUTRAL);
+        ftest_util_replace_slabs(vars->slb_x_tunneler_start, vars->slb_y_tunneler_start, vars->slb_x_tunneler_start, vars->slb_y_tunneler_start, SlbT_PATH, PLAYER_NEUTRAL);
 
         // place pillar/column in the way
         {
-            ftest_util_replace_slab_columns(slb_x_pillar, slb_y_pillar, PLAYER_NEUTRAL, SlbT_EARTH, 30, 30, 30
-                                                                                                  , 30, 02, 30
-                                                                                                  , 30, 30, 30); // 01 - impenetrable rock, 02 <-> 10 - dirt, 30 - path
+            ftest_util_replace_slab_columns(vars->slb_x_pillar, vars->slb_y_pillar, PLAYER_NEUTRAL, vars->pillar_base_slab_type, 30, 30, 30
+                                                                                                                               , 30, 02, 30
+                                                                                                                               , 30, 30, 30); // 01 - impenetrable rock, 02 <-> 10 - dirt, 30 - path
         }
 
         struct Coord3d tunneler_pos;
-        //tunneler_pos.x.val = 0;
-        //tunneler_pos.y.val = 0;
-        set_coords_to_slab_center(&tunneler_pos, slb_x_tunneler_start, slb_y_tunneler_start);
+        set_coords_to_slab_center(&tunneler_pos, vars->slb_x_tunneler_start, vars->slb_y_tunneler_start);
 
         // create tunneler
-        tunneler = create_owned_special_digger(tunneler_pos.x.val, tunneler_pos.y.val, PLAYER_GOOD);
-        if(thing_is_invalid(tunneler))
+        vars->tunneler = create_owned_special_digger(tunneler_pos.x.val, tunneler_pos.y.val, PLAYER_GOOD);
+        if(thing_is_invalid(vars->tunneler))
         {
             FTEST_FAIL_TEST("Failed to create tunneler");
             return true;
         }
 
-
-
-        
-        //todo
-        // finish test with tunneler...
-
-        
-
-        // for(int i = 1; i < COLUMNS_COUNT && i < 85; ++i)
-        // {
-        //     ftest_util_replace_slabs(8+i, 1, 8+i, 1, SlbT_PATH, PLAYER_NEUTRAL);
-
-            
-        // }
-        
-        
-        //    return game.columns.lookup[get_mapblk_column_index(mapblk)];
-        
-        // struct Column* column = get_column_at(slab_subtile(3, 1), slab_subtile(1, 1));
-
-        // column->use = 1;
-        // column->bitfields = 81;
-        // column->solidmask = 31;
-        // column->floor_texture = 22;
-        // column->orient = 0;
-        // column->cubes[0] = 10;
-        // column->cubes[1] = 1;
-        // column->cubes[2] = 1;
-        // column->cubes[3] = 1;
-        // column->cubes[4] = 5;
-        // column->cubes[5] = 0;
-        // column->cubes[6] = 0;
-
-        //init_columns();
-
-        //reinitialise_map_rooms();
-        //ceiling_init(0, 1);
-
         isTunnelerTestSetup = true;
         return false;
     }
 
+    // // example stage001 of using a local static variable to support multiple test stages inside of a single test action
+    // static TbBool isTunnelerTestSetup = false;
+    // if(!isTunnelerTestSetup)
+    // {
+    //     //
+    // }
+
     // delay for a while so we can watch what's going on
-    //if(game.play_gameturn < 1000)
+    if(game.play_gameturn < action_start_turn + 1000)
     {
         return false;
     }

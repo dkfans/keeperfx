@@ -25,11 +25,13 @@ extern "C" {
 /**
  * @brief Append the name/init function of your test here so it can be found/executed.
  */
-struct FTestConfig ftest_tests_list[FTEST_MAX_TESTS] = {
-    { "example_template_test", ftest_template_init },
-    { "bug_imp_teleport_attack_door", ftest_bug_imp_tp_attack_door_init },
-    { "bug_pathing_pillar_circling", ftest_bug_pathing_pillar_circling_init },
-    { "bug_imp_goldseam_dig", ftest_bug_imp_goldseam_dig_init }
+struct ftest_onlyappendtests__config ftest_onlyappendtests__conf = {
+    .tests_list = {
+        { "example_template_test", ftest_template_init },
+        { "bug_imp_teleport_attack_door", ftest_bug_imp_tp_attack_door_init },
+        { "bug_pathing_pillar_circling", ftest_bug_pathing_pillar_circling_init },
+        { "bug_imp_goldseam_dig", ftest_bug_imp_goldseam_dig_init }
+    }
 };
 
 

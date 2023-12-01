@@ -33,9 +33,9 @@ TbBool ftest_template_init()
     //here we can see that for each action we want to implement, we append the FTest_Action_Func and the game turn offset
     //note: you can add the same action multiple times
     //note: you can add existing actions from other tests as well!
-    ftest_append_action(ftest_template_action001__spawn_imp, 20); //spawn imp after 20 game turns
-    ftest_append_action(ftest_template_action002__slap_imp_to_death, 40); //start slapping the imp to death after 40 game turns
-    ftest_append_action(ftest_template_action003__end_test, 500); //end the test after 20+40+500 game turns
+    ftest_append_action(ftest_template_action001__spawn_imp, 20, NULL); //spawn imp after 20 game turns
+    ftest_append_action(ftest_template_action002__slap_imp_to_death, 40, NULL); //start slapping the imp to death after 40 game turns
+    ftest_append_action(ftest_template_action003__end_test, 500, NULL); //end the test after 20+40+500 game turns
 
     return true;
 }

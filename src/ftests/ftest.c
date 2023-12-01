@@ -19,49 +19,55 @@ extern "C" {
 #endif
 
 
-unsigned long ftest_total_actions = 0;
-unsigned long ftest_current_action = 0;
-unsigned long ftest_previous_action = ULONG_MAX;
+// example of test variables wraped in a struct, this prevents variable name collisions with other tests, allowing you to name your variables how you like!
+struct ftest_donottouch__variables ftest_donottouch__vars = {
+    .total_actions = 0,
+    .current_action = 0,
+    .previous_action = ULONG_MAX,
+    .current_turn_counter = 0,
+    .current_action_start_turn = 0
+};
 
-GameTurn ftest_current_turn_counter = 0;
-GameTurn ftest_current_action_start_turn = 0;
-
-FTest_Action_Func ftest_actions_func_list[FTEST_MAX_ACTIONS_PER_TEST];
-GameTurn ftest_actions_func_turn_list[FTEST_MAX_ACTIONS_PER_TEST];
-
-TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay)
+TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay, void* data)
 {
+    // to make the test variable names shorter, use a pointer!
+    struct ftest_donottouch__variables* const vars = &ftest_donottouch__vars;
+
     if(!func)
     {
         FTEST_FAIL_TEST("Invalid FTest_Action_Func function");
         return false;
     }
 
-    if(ftest_total_actions + 1 >= FTEST_MAX_ACTIONS_PER_TEST)
+    if(vars->total_actions + 1 >= FTEST_MAX_ACTIONS_PER_TEST)
     {
         FTEST_FAIL_TEST("Too many actions, increase FTEST_MAX_ACTIONS_PER_TEST(%d)", FTEST_MAX_ACTIONS_PER_TEST);
         return false;
     }
 
-    ftest_current_turn_counter += turn_delay;
+    vars->current_turn_counter += turn_delay;
 
-    ftest_actions_func_list[ftest_total_actions] = func;
-    ftest_actions_func_turn_list[ftest_total_actions] = ftest_current_turn_counter;
-    ++ftest_total_actions;
+    vars->actions_func_list[vars->total_actions] = func;
+    vars->actions_func_turn_list[vars->total_actions] = vars->current_turn_counter;
+    vars->actions_data_list[vars->total_actions] = data;
+    ++vars->total_actions;
     return true;
 }
 
 TbBool ftest_init()
 {
+    // to make the test variable names shorter, use a pointer!
+    struct ftest_onlyappendtests__config* const conf = &ftest_onlyappendtests__conf;
+
     struct FTestConfig* pTestConfig = NULL;
     if(strnlen(start_params.functest_name, FTEST_MAX_NAME_LENGTH) > 0)
     {
         //find matching test by name
         for(unsigned short i = 0; i < FTEST_MAX_TESTS; ++i)
         {
-            if(strcmpi(start_params.functest_name, ftest_tests_list[i].name) == 0)
+            if(strcmpi(start_params.functest_name, conf->tests_list[i].name) == 0)
             {
-                pTestConfig = &ftest_tests_list[i];
+                pTestConfig = &conf->tests_list[i];
                 break;
             }
         }
@@ -71,9 +77,9 @@ TbBool ftest_init()
         //fallback to first available test
         for(unsigned short i = 0; i < FTEST_MAX_TESTS; ++i)
         {
-            if(strnlen(ftest_tests_list[i].name, FTEST_MAX_NAME_LENGTH) > 0)
+            if(strnlen(conf->tests_list[i].name, FTEST_MAX_NAME_LENGTH) > 0)
             {
-                pTestConfig = &ftest_tests_list[i];
+                pTestConfig = &conf->tests_list[i];
                 break;
             }
         }
@@ -108,52 +114,57 @@ TbBool ftest_init()
     return true;
 }
 
-TbBool ftest_update(const GameTurn game_turn)
+TbBool ftest_update()
 {
+    // to make the test variable names shorter, use a pointer!
+    struct ftest_donottouch__variables* const vars = &ftest_donottouch__vars;
+
     //if there was a test error, exit
     if (start_params.functest_flags & FTF_Failed)
     {
         return true;
     }
 
-    const unsigned long ftest_actions_length = sizeof(ftest_actions_func_list) / sizeof(ftest_actions_func_list[0]);
+    const unsigned long ftest_actions_length = sizeof(vars->actions_func_list) / sizeof(vars->actions_func_list[0]);
 
-    if(ftest_current_action < ftest_actions_length)
+    if(vars->current_action < ftest_actions_length)
     {
         //get next valid test action
         FTest_Action_Func testAction = NULL;
         GameTurn testActionTurn = 0;
+        void* testData = NULL;
         do
         {
-            testAction = ftest_actions_func_list[ftest_current_action];
-            testActionTurn = ftest_actions_func_turn_list[ftest_current_action];
+            testAction = vars->actions_func_list[vars->current_action];
+            testActionTurn = vars->actions_func_turn_list[vars->current_action];
+            testData = vars->actions_data_list[vars->current_action];
             if(testAction == NULL)
             {
                 //empty, skip to next
-                ++ftest_current_action;
+                ++vars->current_action;
             }
-        } while (testAction == NULL && ftest_current_action < ftest_actions_length);
+        } while (testAction == NULL && vars->current_action < ftest_actions_length);
          
         if(testAction)
         {
-            if(game_turn >= testActionTurn)
+            if(game.play_gameturn >= testActionTurn)
             {
-                if(ftest_current_action != ftest_previous_action)
+                if(vars->current_action != vars->previous_action)
                 {
-                    ftest_previous_action = ftest_current_action;
-                    ftest_current_action_start_turn = game_turn;
+                    vars->previous_action = vars->current_action;
+                    vars->current_action_start_turn = game.play_gameturn;
                 }
 
-                if(testAction(ftest_current_action_start_turn))
+                if(testAction(vars->current_action_start_turn, testData))
                 {
                     //action completed, skip to next
-                    ++ftest_current_action;
+                    ++vars->current_action;
                 }
             }
         }
     }
 
-    TbBool isDoneTests = ftest_current_action >= ftest_actions_length;
+    TbBool isDoneTests = vars->current_action >= ftest_actions_length;
     return isDoneTests;
 }
 

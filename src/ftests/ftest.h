@@ -36,28 +36,40 @@ typedef unsigned char TbBool; //redefine rather than include extraneus header in
 /**
  * @brief Functional Test Init Func -
  * Your test should implement this function and add it to the list inside ftest_list.c
- * NOTE: DO NOT FORGET TO ADD YOUR object file to the makefile, eg: obj/ftest_<test_name>.o
  */
-typedef TbBool (*FTest_Init_Func)(void);
+typedef TbBool (*FTest_Init_Func)();
 
 /**
  * @brief Function Test Action Func -
  * Your test will be comprised of these actions, append them inside your init func using ftest_append_action
  */
-typedef TbBool (*FTest_Action_Func)(const GameTurn action_start_turn);
+typedef TbBool (*FTest_Action_Func)(const GameTurn action_start_turn, void* data);
 
 struct FTestConfig {
     char name[FTEST_MAX_NAME_LENGTH];
     FTest_Init_Func init_func;
 };
 
-extern struct FTestConfig ftest_tests_list[FTEST_MAX_TESTS];
+struct ftest_onlyappendtests__config
+{
+    struct FTestConfig tests_list[FTEST_MAX_TESTS];
+};
+extern struct ftest_onlyappendtests__config ftest_onlyappendtests__conf;
 
-extern unsigned long ftest_total_actions;
-extern unsigned long ftest_current_action;
-extern GameTurn ftest_current_turn_counter;
-extern FTest_Action_Func ftest_actions_func_list[];
-extern GameTurn ftest_actions_func_turn_list[];
+struct ftest_donottouch__variables
+{
+    unsigned long total_actions;
+    unsigned long current_action;
+    unsigned long previous_action;
+
+    GameTurn current_turn_counter;
+    GameTurn current_action_start_turn;
+
+    FTest_Action_Func    actions_func_list[FTEST_MAX_ACTIONS_PER_TEST];
+    GameTurn             actions_func_turn_list[FTEST_MAX_ACTIONS_PER_TEST];
+    void*                actions_data_list[FTEST_MAX_ACTIONS_PER_TEST];
+};
+extern struct ftest_donottouch__variables ftest_donottouch__vars;
 
 /**
  * @brief Add the given FTest_Action_Func to the test action list, it will be called at turn_delay, the turns are accumulated for each action
@@ -66,10 +78,10 @@ extern GameTurn ftest_actions_func_turn_list[];
  * @param turn_delay 
  * @return TbBool 
  */
-TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay);
+TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay, void* data);
 
 TbBool ftest_init();
-TbBool ftest_update(const GameTurn game_turn);
+TbBool ftest_update();
 
 
 #ifdef __cplusplus

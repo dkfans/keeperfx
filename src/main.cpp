@@ -3444,7 +3444,7 @@ void gameplay_loop_logic()
     }
 #endif // AUTOTESTING || FUNCTESTING
 #ifdef FUNCTESTING
-    if(ftest_update(game.play_gameturn))
+    if(ftest_update())
     {
         quit_game = true;
         exit_keeper = true;

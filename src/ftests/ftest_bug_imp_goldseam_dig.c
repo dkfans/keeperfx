@@ -18,26 +18,36 @@
 extern "C" {
 #endif
 
-GoldAmount ftest_bug_imp_goldseam__game_gold_amount = 0;
+// example of test variables wraped in a struct, this prevents variable name collisions with other tests, allowing you to name your variables how you like!
+struct ftest_bug_imp_goldseam_dig__variables
+{
+    GoldAmount game_gold_amount;
+};
+struct ftest_bug_imp_goldseam_dig__variables ftest_bug_imp_goldseam_dig__vars = {
+    .game_gold_amount = 0
+};
 
 // forward declarations - tests
-TbBool ftest_bug_imp_goldseam_dig_action001__map_setup();
-TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp();
-TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig();
-TbBool ftest_bug_imp_goldseam_dig_action004__end_test();
+TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(const GameTurn action_start_turn, void* data);
+TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(const GameTurn action_start_turn, void* data);
+TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig(const GameTurn action_start_turn, void* data);
+TbBool ftest_bug_imp_goldseam_dig_action004__end_test(const GameTurn action_start_turn, void* data);
 
 TbBool ftest_bug_imp_goldseam_dig_init()
 {
-    ftest_append_action(ftest_bug_imp_goldseam_dig_action001__map_setup, 10);
-    ftest_append_action(ftest_bug_imp_goldseam_dig_action002__spawn_imp, 20);
-    ftest_append_action(ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig, 30);
-    ftest_append_action(ftest_bug_imp_goldseam_dig_action004__end_test, 600);
+    ftest_append_action(ftest_bug_imp_goldseam_dig_action001__map_setup,        10,     NULL);
+    ftest_append_action(ftest_bug_imp_goldseam_dig_action002__spawn_imp,        20,     NULL);
+    ftest_append_action(ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig,  30,     NULL);
+    ftest_append_action(ftest_bug_imp_goldseam_dig_action004__end_test,         600,    NULL);
 
     return true;
 }
 
-TbBool ftest_bug_imp_goldseam_dig_action001__map_setup()
+TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(const GameTurn action_start_turn, void* data)
 {
+    // to make the test variable names shorter, use a pointer!
+    struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
+
     ftest_util_reveal_map(PLAYER0); // we might want to see the entire map for testing purposes
 
     //set player gold to 0 for this test
@@ -59,22 +69,20 @@ TbBool ftest_bug_imp_goldseam_dig_action001__map_setup()
     ftest_util_replace_slabs(6, 1, 7, 5, SlbT_GOLD, PLAYER_NEUTRAL);
 
     // store/broadcast the gold stored in a single tile
-    ftest_bug_imp_goldseam__game_gold_amount = game.gold_per_gold_block;
-    message_add_fmt(PLAYER0, "Game gold per gold block: %ld", ftest_bug_imp_goldseam__game_gold_amount);
+    vars->game_gold_amount = game.gold_per_gold_block;
+    message_add_fmt(PLAYER0, "Game gold per gold block: %ld", vars->game_gold_amount);
 
     return true;
 }
 
-TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp()
+TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(const GameTurn action_start_turn, void* data)
 {
+    // to make the test variable names shorter, use a pointer!
+    //struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
+
     // create an imp
     struct Coord3d impPos;
-    impPos.x.val = 0; // setting to 0 for x/y is required before setting stl.num/pos, otherwise val will be incorrect...
-    impPos.y.val = 0;
-    impPos.x.stl.num = slab_subtile_center(1);
-    impPos.x.stl.pos = 128; //128 == 50% - center of tile
-    impPos.y.stl.num = slab_subtile_center(1);
-    impPos.y.stl.pos = 128;
+    set_coords_to_slab_center(&impPos, 1, 1);
     
     struct Thing* ftest_template_target_imp = create_owned_special_digger(impPos.x.val, impPos.y.val, PLAYER0);
     if(thing_is_invalid(ftest_template_target_imp))
@@ -93,8 +101,11 @@ TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp()
     return true; //proceed to next test action
 }
 
-TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig()
+TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig(const GameTurn action_start_turn, void* data)
 {
+    // to make the test variable names shorter, use a pointer!
+    //struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
+
     // select one of the gold slabmap blocks
     const MapSlabCoord slb_x_gold_block = 6;
     const MapSlabCoord slb_y_gold_block = 3;
@@ -122,8 +133,11 @@ TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig()
     return true; //proceed to next test action
 }
 
-TbBool ftest_bug_imp_goldseam_dig_action004__end_test()
+TbBool ftest_bug_imp_goldseam_dig_action004__end_test(const GameTurn action_start_turn, void* data)
 {
+    // to make the test variable names shorter, use a pointer!
+    struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
+
     // count gold acquired by imp and stored in the treasure room
     struct Dungeon* dungeon = get_players_num_dungeon(PLAYER0);
     if(dungeon_invalid(dungeon))
@@ -134,9 +148,9 @@ TbBool ftest_bug_imp_goldseam_dig_action004__end_test()
     
     // report total gold
     message_add_fmt(PLAYER0, "Imp returned %d gold", dungeon->total_money_owned);
-    if(dungeon->total_money_owned != ftest_bug_imp_goldseam__game_gold_amount)
+    if(dungeon->total_money_owned != vars->game_gold_amount)
     {
-        FTEST_FAIL_TEST("Goldseams have %ld gold, but imp returned %d gold!", ftest_bug_imp_goldseam__game_gold_amount, dungeon->total_money_owned);
+        FTEST_FAIL_TEST("Goldseams have %ld gold, but imp returned %d gold!", vars->game_gold_amount, dungeon->total_money_owned);
         return true;
     }
 
