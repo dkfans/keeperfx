@@ -24,9 +24,9 @@ GameTurn ftest_template_turn_delay_counter = 0;
 unsigned short ftest_template_turn_slap_counter = 0;
 
 // forward declarations - tests
-TbBool ftest_template_action001__spawn_imp();
-TbBool ftest_template_action002__slap_imp_to_death();
-TbBool ftest_template_action003__end_test();
+TbBool ftest_template_action001__spawn_imp(struct FTestActionArgs* const args);
+TbBool ftest_template_action002__slap_imp_to_death(struct FTestActionArgs* const args);
+TbBool ftest_template_action003__end_test(struct FTestActionArgs* const args);
 
 TbBool ftest_template_init()
 {
@@ -40,7 +40,7 @@ TbBool ftest_template_init()
     return true;
 }
 
-TbBool ftest_template_action001__spawn_imp()
+TbBool ftest_template_action001__spawn_imp(struct FTestActionArgs* const args)
 {
     ftest_util_reveal_map(PLAYER0); // we might want to see the entire map for testing purposes
 
@@ -71,7 +71,7 @@ TbBool ftest_template_action001__spawn_imp()
     return true; //proceed to next test action
 }
 
-TbBool ftest_template_action002__slap_imp_to_death()
+TbBool ftest_template_action002__slap_imp_to_death(struct FTestActionArgs* const args)
 {
     // delay the test for a bit as an example
     if(game.play_gameturn < 100)
@@ -103,7 +103,7 @@ TbBool ftest_template_action002__slap_imp_to_death()
     return true;
 }
 
-TbBool ftest_template_action003__end_test()
+TbBool ftest_template_action003__end_test(struct FTestActionArgs* const args)
 {
     if(ftest_template_turn_slap_counter != 26)
     {

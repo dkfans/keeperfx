@@ -39,11 +39,20 @@ typedef unsigned char TbBool; //redefine rather than include extraneus header in
  */
 typedef TbBool (*FTest_Init_Func)();
 
+struct FTestActionArgs
+{
+    GameTurn intended_start_at_game_turn;
+    GameTurn actual_started_at_game_turn;
+    unsigned long action_index;
+    unsigned long times_executed;
+    void* data;
+};
+
 /**
  * @brief Function Test Action Func -
  * Your test will be comprised of these actions, append them inside your init func using ftest_append_action
  */
-typedef TbBool (*FTest_Action_Func)(const GameTurn action_start_turn, void* data);
+typedef TbBool (*FTest_Action_Func)(struct FTestActionArgs* const args);
 
 struct FTestConfig {
     char name[FTEST_MAX_NAME_LENGTH];
@@ -63,11 +72,11 @@ struct ftest_donottouch__variables
     unsigned long previous_action;
 
     GameTurn current_turn_counter;
-    GameTurn current_action_start_turn;
 
-    FTest_Action_Func    actions_func_list[FTEST_MAX_ACTIONS_PER_TEST];
-    GameTurn             actions_func_turn_list[FTEST_MAX_ACTIONS_PER_TEST];
-    void*                actions_data_list[FTEST_MAX_ACTIONS_PER_TEST];
+    FTest_Action_Func           actions_func_list[FTEST_MAX_ACTIONS_PER_TEST];
+    GameTurn                    actions_func_turn_list[FTEST_MAX_ACTIONS_PER_TEST];
+
+    struct FTestActionArgs      actions_func_arguments[FTEST_MAX_ACTIONS_PER_TEST];
 };
 extern struct ftest_donottouch__variables ftest_donottouch__vars;
 

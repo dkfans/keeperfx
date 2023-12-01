@@ -26,6 +26,7 @@ struct ftest_bug_pathing_pillar_circling__variables
     const MapSlabCoord slb_x_pillar;
     const MapSlabCoord slb_y_pillar;
 
+    TbBool is_tunneler_setup;
     struct Thing* tunneler;
 
     unsigned char pillar_base_slab_type;
@@ -37,6 +38,7 @@ struct ftest_bug_pathing_pillar_circling__variables ftest_bug_pathing_pillar_cir
     .slb_x_pillar = 15,
     .slb_y_pillar = 3,
 
+    .is_tunneler_setup = false,
     .tunneler = NULL,
 
     .pillar_base_slab_type = SlbT_ROCK_FLOOR
@@ -48,6 +50,7 @@ struct ftest_bug_pathing_pillar_circling__variables ftest_bug_pathing_pillar_cir
     .slb_x_pillar = 3,
     .slb_y_pillar = 15,
 
+    .is_tunneler_setup = false,
     .tunneler = NULL,
 
     .pillar_base_slab_type = SlbT_ROCK_FLOOR
@@ -56,7 +59,7 @@ struct ftest_bug_pathing_pillar_circling__variables ftest_bug_pathing_pillar_cir
 
 
 // forward declarations - tests
-TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test(const GameTurn action_start_turn, void* data);
+TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test(struct FTestActionArgs* const args);
 
 TbBool ftest_bug_pathing_pillar_circling_init()
 {
@@ -72,19 +75,19 @@ TbBool ftest_bug_pathing_pillar_circling_init()
 /**
  * @brief This action will be a sub-test, it will setup the situation of a single tunneler digging towards you, and replicate getting stuck on a pillar (portal?)
  */
-TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test(const GameTurn action_start_turn, void* data)
+TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
-    struct ftest_bug_pathing_pillar_circling__variables* const vars = &ftest_bug_pathing_pillar_circling__vars;
+    // in this case we are grabbing the data from the argument, allowing different action setups!
+    struct ftest_bug_pathing_pillar_circling__variables* const vars = args->data;
 
     const MapSubtlCoord stl_x_pillar = slab_subtile_center(vars->slb_x_pillar);
     const MapSubtlCoord stl_y_pillar = slab_subtile_center(vars->slb_y_pillar);
 
     ftest_util_reveal_map(PLAYER0);
 
-    // example stage001 of using a local static variable to support multiple test stages inside of a single test action
-    static TbBool isTunnelerTestSetup = false;
-    if(!isTunnelerTestSetup)
+    // example stage001 of using an argument variable to support multiple test stages inside of a single test action
+    if(!vars->is_tunneler_setup)
     {
         // clear starting position for tunneler
         ftest_util_replace_slabs(vars->slb_x_tunneler_start, vars->slb_y_tunneler_start, vars->slb_x_tunneler_start, vars->slb_y_tunneler_start, SlbT_PATH, PLAYER_NEUTRAL);
@@ -107,21 +110,30 @@ TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_
             return true;
         }
 
-        isTunnelerTestSetup = true;
+        vars->is_tunneler_setup = true;
         return false;
     }
 
-    // // example stage001 of using a local static variable to support multiple test stages inside of a single test action
-    // static TbBool isTunnelerTestSetup = false;
-    // if(!isTunnelerTestSetup)
-    // {
-    //     //
-    // }
-
     // delay for a while so we can watch what's going on
-    if(game.play_gameturn < action_start_turn + 1000)
+    if(game.play_gameturn < args->actual_started_at_game_turn + 1000)
     {
         return false;
+    }
+
+    // example stage002 of using an argument variable to support multiple test stages inside of a single test action
+    if(thing_is_invalid(vars->tunneler))
+    {
+        FTEST_FAIL_TEST("Expected tunneler but it didn't exist?");
+        return true;
+    }
+    else
+    {
+        vars->tunneler = kill_creature(vars->tunneler, INVALID_THING, PLAYER0, CrDed_Default);
+        if(thing_is_invalid(vars->tunneler))
+        {
+            FTEST_FAIL_TEST("Failed to cleanup tunneler on map");
+            return true;
+        }
     }
 
     return true; //proceed to next test action

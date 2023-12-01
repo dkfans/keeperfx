@@ -63,9 +63,9 @@ struct ftest_bug_imp_tp_job_attack_door__variables ftest_bug_imp_tp_job_attack_d
 };
 
 // forward declarations - tests
-TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(const GameTurn action_start_turn, void* data);
-TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(const GameTurn action_start_turn, void* data);
-TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(const GameTurn action_start_turn, void* data);
+TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionArgs* const args);
+TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FTestActionArgs* const args);
+TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(struct FTestActionArgs* const args);
 
 TbBool ftest_bug_imp_tp_attack_door_init()
 {
@@ -78,7 +78,7 @@ TbBool ftest_bug_imp_tp_attack_door_init()
     return true;
 }
 
-TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(const GameTurn action_start_turn, void* data)
+TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     struct ftest_bug_imp_tp_job_attack_door__variables* const vars = &ftest_bug_imp_tp_job_attack_door__vars;
@@ -176,7 +176,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(const GameTurn acti
     return true;
 }
 
-TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(const GameTurn action_start_turn, void* data)
+TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     struct ftest_bug_imp_tp_job_attack_door__variables* const vars = &ftest_bug_imp_tp_job_attack_door__vars;
@@ -206,7 +206,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(const Gam
     return true;
 }
 
-TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(const GameTurn action_start_turn, void* data)
+TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     struct ftest_bug_imp_tp_job_attack_door__variables* const vars = &ftest_bug_imp_tp_job_attack_door__vars;

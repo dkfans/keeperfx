@@ -24,8 +24,7 @@ struct ftest_donottouch__variables ftest_donottouch__vars = {
     .total_actions = 0,
     .current_action = 0,
     .previous_action = ULONG_MAX,
-    .current_turn_counter = 0,
-    .current_action_start_turn = 0
+    .current_turn_counter = 0
 };
 
 TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay, void* data)
@@ -49,7 +48,22 @@ TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay, void* da
 
     vars->actions_func_list[vars->total_actions] = func;
     vars->actions_func_turn_list[vars->total_actions] = vars->current_turn_counter;
-    vars->actions_data_list[vars->total_actions] = data;
+
+    struct FTestActionArgs* action_args = &vars->actions_func_arguments[vars->total_actions];
+    if(action_args != NULL)
+    {
+        action_args->intended_start_at_game_turn = vars->current_turn_counter;
+        action_args->actual_started_at_game_turn = ULONG_MAX;
+        action_args->action_index = vars->total_actions;
+        action_args->times_executed = 0;
+        action_args->data = data;
+    }
+    else
+    {
+        FTEST_FAIL_TEST("Current action function arguments should never be null, something has gone wrong!");
+        return true;
+    }
+
     ++vars->total_actions;
     return true;
 }
@@ -131,35 +145,42 @@ TbBool ftest_update()
     {
         //get next valid test action
         FTest_Action_Func testAction = NULL;
-        GameTurn testActionTurn = 0;
-        void* testData = NULL;
+        //GameTurn current_test_action_activation_turn = 0;
+        struct FTestActionArgs* current_test_action_args = NULL;
         do
         {
             testAction = vars->actions_func_list[vars->current_action];
-            testActionTurn = vars->actions_func_turn_list[vars->current_action];
-            testData = vars->actions_data_list[vars->current_action];
+            current_test_action_args = &vars->actions_func_arguments[vars->current_action];
+            //current_test_action_activation_turn = vars->actions_func_turn_list[vars->current_action];
+            
             if(testAction == NULL)
             {
                 //empty, skip to next
                 ++vars->current_action;
             }
+            if(current_test_action_args == NULL)
+            {
+                FTEST_FAIL_TEST("Current action function arguments should never be null, something has gone wrong!");
+                return true;
+            }
         } while (testAction == NULL && vars->current_action < ftest_actions_length);
          
         if(testAction)
         {
-            if(game.play_gameturn >= testActionTurn)
+            if(game.play_gameturn >= current_test_action_args->intended_start_at_game_turn)
             {
                 if(vars->current_action != vars->previous_action)
                 {
                     vars->previous_action = vars->current_action;
-                    vars->current_action_start_turn = game.play_gameturn;
+                    current_test_action_args->actual_started_at_game_turn = game.play_gameturn;
                 }
 
-                if(testAction(vars->current_action_start_turn, testData))
+                if(testAction(current_test_action_args))
                 {
                     //action completed, skip to next
                     ++vars->current_action;
                 }
+                ++current_test_action_args->times_executed;
             }
         }
     }

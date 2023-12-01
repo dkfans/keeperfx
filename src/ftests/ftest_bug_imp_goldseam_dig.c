@@ -28,10 +28,10 @@ struct ftest_bug_imp_goldseam_dig__variables ftest_bug_imp_goldseam_dig__vars = 
 };
 
 // forward declarations - tests
-TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(const GameTurn action_start_turn, void* data);
-TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(const GameTurn action_start_turn, void* data);
-TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig(const GameTurn action_start_turn, void* data);
-TbBool ftest_bug_imp_goldseam_dig_action004__end_test(const GameTurn action_start_turn, void* data);
+TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(struct FTestActionArgs* const args);
+TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(struct FTestActionArgs* const args);
+TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig(struct FTestActionArgs* const args);
+TbBool ftest_bug_imp_goldseam_dig_action004__end_test(struct FTestActionArgs* const args);
 
 TbBool ftest_bug_imp_goldseam_dig_init()
 {
@@ -43,7 +43,7 @@ TbBool ftest_bug_imp_goldseam_dig_init()
     return true;
 }
 
-TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(const GameTurn action_start_turn, void* data)
+TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
@@ -75,7 +75,7 @@ TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(const GameTurn action_sta
     return true;
 }
 
-TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(const GameTurn action_start_turn, void* data)
+TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     //struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
@@ -101,7 +101,7 @@ TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(const GameTurn action_sta
     return true; //proceed to next test action
 }
 
-TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig(const GameTurn action_start_turn, void* data)
+TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     //struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
@@ -133,7 +133,7 @@ TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig(const GameTurn acti
     return true; //proceed to next test action
 }
 
-TbBool ftest_bug_imp_goldseam_dig_action004__end_test(const GameTurn action_start_turn, void* data)
+TbBool ftest_bug_imp_goldseam_dig_action004__end_test(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
