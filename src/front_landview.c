@@ -1371,14 +1371,81 @@ void draw_netmap_players_hands(void)
 }
 
 /**
+ * Returns order number (starting at 1) for Campaign->bonus_levels associated with given bonus level.
+ * If the level is not found, returns -1.
+ */
+int order_number_for_bonus_level(LevelNumber bn_lvnum)
+{
+  int orderNum = 1;
+  if (bn_lvnum < 1) return -1;
+  for (int i = 0; i < CAMPAIGN_LEVELS_COUNT; i++)
+  {
+    if (campaign.bonus_levels[i] == bn_lvnum)
+    {
+      return orderNum;
+    }
+    else if (campaign.bonus_levels[i] != 0)
+    {
+      orderNum++;
+    }
+  }
+  return -1;
+}
+
+/**
+ * Get text description of level.
+ */
+const char* get_level_description(struct LevelInformation *lvinfo)
+{
+  if (lvinfo == NULL)
+  {
+    return NULL;
+  }
+
+  if (lvinfo->options & LvOp_Tutorial)
+  {
+    // TODO: Implement translation / get_string
+    return "Tutorial";
+  }
+
+  if (lvinfo->options & LvOp_IsSingle || lvinfo->options & LvOp_IsMulti)
+  {
+      if (lvinfo->name_stridx > 0)
+      {
+        return get_string(lvinfo->name_stridx);
+      }
+      else
+      {
+        return lvinfo->name;
+      }
+  }
+
+  if (lvinfo->options & LvOp_IsBonus)
+  {
+    // TODO: Implement translation / get_string
+    static char name_and_num[32];
+    snprintf(name_and_num, sizeof(name_and_num), "%s %d", "Bonus", (int)order_number_for_bonus_level(lvinfo->lvnum));
+    return name_and_num;
+  }
+
+  if (lvinfo->options & LvOp_IsExtra)
+  {
+    // TODO: Implement translation / get_string
+    return "Full Moon";
+  }
+
+  return "";
+}
+
+/**
  * Draws text description of active level.
  */
 void draw_map_level_descriptions(void)
 {
     struct LevelInformation* lvinfo;
-    const char* lv_name;
-    int textWidth, textX, textY, boxX, boxY, boxWidth, boxHeight, borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight, xOffset = 0, yOffset = -78, padding = 2, border = 1;
-    int boxColour = 0, borderColour = 35;
+    int boxColour = 0, borderColour = 1;
+    int xOffset = 0, yOffset = -78, padding = 2, border = 1;
+    int textWidth, textX, textY, boxX, boxY, boxWidth, boxHeight, borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight;
     if ((fe_net_level_selected > 0) || (net_level_hilighted > 0) || (mouse_over_lvnum > 0))
     {
       lbDisplay.DrawFlags = 0;
@@ -1389,27 +1456,11 @@ void draw_map_level_descriptions(void)
         return;
       }
 
-      if (lvinfo->name_stridx > 0)
-      {
-        lv_name = get_string(lvinfo->name_stridx);
-      }
-      else
-      {
-        lv_name = lvinfo->name;
-      }
+      const char* level_description = get_level_description(lvinfo);
 
-      if ((lv_name != NULL) && (strlen(lv_name) > 0))
-      {
-        snprintf(level_name, sizeof(level_name), "%s %d: %s", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum, lv_name);
-      }
-      else
-      {
-        snprintf(level_name, sizeof(level_name), "%s %d", get_string(GUIStr_MnuLevel), (int)lvinfo->lvnum);
-      }
-
-      textWidth = LbTextStringWidth(level_name);
+      textWidth = LbTextStringWidth(level_description);
       boxWidth = textWidth + padding + padding;
-      boxHeight = (LbTextHeight(level_name) - 2) + padding + padding; // -2 because LbTextHeight seems to come back a little too wide
+      boxHeight = (LbTextHeight(level_description) - 2) + padding + padding; // -2 because LbTextHeight seems to come back a little too wide
       borderBoxWidth = boxWidth + border + border;
       borderBoxHeight = boxHeight + border + border;
 
@@ -1420,9 +1471,12 @@ void draw_map_level_descriptions(void)
       boxY = textY - padding;
       borderBoxY = boxY + border;
 
+      // optional dropshadow
+      // LbDrawBox(scale_value_for_resolution(borderBoxX+1), scale_value_for_resolution(borderBoxY+1), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), 0);
+
       LbDrawBox(scale_value_for_resolution(borderBoxX), scale_value_for_resolution(borderBoxY), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), borderColour);
       LbDrawBox(scale_value_for_resolution(boxX), scale_value_for_resolution(textY), scale_value_for_resolution(boxWidth), scale_value_for_resolution(boxHeight), boxColour);
-      LbTextDrawResized(scale_value_for_resolution(textX), scale_value_for_resolution(textY), units_per_pixel, level_name);
+      LbTextDrawResized(scale_value_for_resolution(textX), scale_value_for_resolution(textY), units_per_pixel, level_description);
     }
 }
 
@@ -1431,6 +1485,7 @@ void frontnetmap_draw(void)
     SYNCDBG(8,"Starting");
     LbTextSetFont(map_font);
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
