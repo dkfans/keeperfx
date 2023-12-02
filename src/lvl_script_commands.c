@@ -232,6 +232,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"Unsellable",          34},
   {"PlaceOnBridge",       35},
   {"ShotOrigin",          36},
+  {"PlaceSound",          37},
   {NULL,                   0},
 };
 
@@ -1744,6 +1745,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             gameadd.trap_stats[trap_type].shot_shift_x = value;
             gameadd.trap_stats[trap_type].shot_shift_y = value2;
             gameadd.trap_stats[trap_type].shot_shift_z = value3;
+            break;
+        case 37: // PlaceSound
+            trapst->place_sound_idx = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
