@@ -61,9 +61,10 @@ They also skip the trademark/cutscene by default for super fast launch.
         - `ftest_append_action( ftest_template_action001__spawn_warlock,            100, NULL );`
         - `ftest_append_action( ftest_template_action002__drop_chicken_on_warlock,  100, NULL );`
     - actions are executed:
-        - sequentially: `action002` will not execute until the previous action `returns true`
-        - after the `game turn delay` provided to `ftest_append_action(<test_action>, <game_turn_delay>)`
-        - this means if an action always `returns false` it will never finish and the `test will run forever`
+        - *sequentially*: `action002` will not execute until the previous action `returns true`
+        - *after the `game turn delay`*: provided to `ftest_append_action(<test_action>, <game_turn_delay>)`
+        
+         this means if an action always `returns false` it will never finish and the `test will run forever`
      
 5. Add your test to the test list [ftest_list.c](./ftest_list.c)
     - add the include for your tests header file

@@ -64,7 +64,7 @@ TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_
 TbBool ftest_bug_pathing_pillar_circling_init()
 {
     // this test will showcase multiple sub-tests, one sub-test per action
-    // use of static variables allows some flexibility here
+    // passing of variables to actions through void* (ftest_bug_pathing_pillar_circling__vars) allows some flexibility here
 
     ftest_append_action(ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test, 20, &ftest_bug_pathing_pillar_circling__vars);
     ftest_append_action(ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test, 20, &ftest_bug_pathing_pillar_circling__vars2);
@@ -80,9 +80,6 @@ TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_
     // to make the test variable names shorter, use a pointer!
     // in this case we are grabbing the data from the argument, allowing different action setups!
     struct ftest_bug_pathing_pillar_circling__variables* const vars = args->data;
-
-    const MapSubtlCoord stl_x_pillar = slab_subtile_center(vars->slb_x_pillar);
-    const MapSubtlCoord stl_y_pillar = slab_subtile_center(vars->slb_y_pillar);
 
     ftest_util_reveal_map(PLAYER0);
 
@@ -119,6 +116,9 @@ TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_
     {
         return false;
     }
+
+    // todo - insert check stage here to verify if tunneler made it past the column or not
+    // another variable can be added to ftest_bug_pathing_pillar_circling__variables (eg: should_tunneler_pass_column) for the test condition
 
     // example stage002 of using an argument variable to support multiple test stages inside of a single test action
     if(thing_is_invalid(vars->tunneler))
