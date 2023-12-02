@@ -151,6 +151,8 @@ obj/config_slabsets.o \
 obj/config_strings.o \
 obj/config_terrain.o \
 obj/config_cubes.o \
+obj/config_effects.o \
+obj/config_effectgenerators.o \
 obj/config_textures.o \
 obj/config_trapdoor.o \
 obj/console_cmd.o \
@@ -237,7 +239,6 @@ obj/gui_tooltips.o \
 obj/gui_topmsg.o \
 obj/kjm_input.o \
 obj/lens_api.o \
-obj/config_effects.o \
 obj/lens_flyeye.o \
 obj/lens_mist.o \
 obj/light_data.o \

@@ -234,24 +234,6 @@ enum ThingEffectElements {
 struct InitEffect;
 struct Thing;
 
-struct EffectGeneratorStats { // sizeof = 57
-    long genation_delay_min;
-    long genation_delay_max;
-    long genation_amount;
-    long effect_element_model;
-    unsigned char ignore_terrain;
-    long spawn_height;
-    long acc_x_min;
-    long acc_x_max;
-    long acc_y_min;
-    long acc_y_max;
-    long acc_z_min;
-    long acc_z_max;
-    long sound_sample_idx;
-    long sound_sample_rng;
-    long sound_sample_sec;
-};
-
 struct EffectElementStats { // sizeof = 79
   unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
   unsigned char move_type;

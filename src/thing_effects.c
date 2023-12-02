@@ -36,6 +36,7 @@
 #include "creature_senses.h"
 #include "config_creature.h"
 #include "config_effects.h"
+#include "config_effectgenerators.h"
 #include "front_simple.h"
 #include "map_data.h"
 #include "map_blocks.h"
@@ -52,15 +53,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-/******************************************************************************/
-struct EffectGeneratorStats effect_generator_stats[] = {
-    { 0,  0,  0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0},
-    {10, 20,  1, 30, 1,  0,-40, 40,-40, 40, 80,150,147,  3, 0},
-    {10, 20,  1, 31, 0, -1,  0,  0,  0,  0,  0,  0,  0,  0, 0},
-    { 0,  0,  5, 33, 0, -1,  0,  0,  0,  0,  0,  0,  0,  0, 0},
-    { 0,  2,  1, 37, 0,256,-15, 15,-15, 15,  0,  0,  0,  0, 0},
-    { 2,  5,  1, 37, 0,  0,-15, 15,-15, 15,  0,  0,  0,  0, 0}
-};
 
 //start_health;generation_type;accel_xy_min;accel_xy_max;accel_z_min;accel_z_max;size_z;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
 struct InitEffect effect_info[] = {
@@ -1005,7 +997,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
     {
         return TUFRet_Modified;
     }
-    struct EffectGeneratorStats* egenstat = &effect_generator_stats[thing->model];
+    struct EffectGeneratorConfigStats* egenstat = get_effectgenerator_model_stats(thing->model);
     for (long i = 0; i < egenstat->genation_amount; i++)
     {
         long deviation_angle = EFFECT_RANDOM(thing, 0x800);
@@ -1054,9 +1046,6 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
                 if (!thing_is_invalid(sectng)) {
                     thing_play_sample(sectng, egenstat->sound_sample_idx + EFFECT_RANDOM(thing, egenstat->sound_sample_rng), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 }
-            }
-            if (egenstat->sound_sample_sec > 0) {
-                thing_play_sample(elemtng, egenstat->sound_sample_sec, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
             }
         }
     }

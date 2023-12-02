@@ -68,7 +68,7 @@ struct EffectsConfig effects_conf;
 struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 extern struct InitEffect effect_info[];
 /******************************************************************************/
-struct EffectConfigStats *get_effect_model_stats(int tngmodel)
+struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
 {
     if (tngmodel >= effects_conf.effect_types_count)
         return &effects_conf.effect_cfgstats[0];
@@ -426,7 +426,7 @@ TbBool load_effects_config(const char *conf_fname, unsigned short flags)
 /**
  * Returns Code Name (name to use in script file) of given effect model.
  */
-const char *effect_code_name(int tngmodel)
+const char *effect_code_name(ThingModel tngmodel)
 {
     const char* name = get_conf_parameter_text(effect_desc, tngmodel);
     if (name[0] != '\0')
