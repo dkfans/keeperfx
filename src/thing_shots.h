@@ -84,7 +84,7 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
 TbBool shot_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool shot_model_is_navigable(long tngmodel);
 TbBool shot_model_makes_flesh_explosion(long shot_model);
-TbBool detonate_shot(struct Thing *shotng);
+TbBool detonate_shot(struct Thing *shotng, TbBool destroy);
 TbBool shot_is_boulder(const struct Thing *shotng);
 
 struct Thing *get_thing_collided_with_at_satisfying_filter(struct Thing *thing, struct Coord3d *pos, Thing_Collide_Func filter, HitTargetFlags a4, long a5);
