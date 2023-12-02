@@ -793,24 +793,31 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
     {
         if (((flags & CnfLd_AcceptPartial) == 0) || ((room_desc[i].name) == NULL))
         {
-            roomst = &game.slab_conf.room_cfgstats[i];
-            LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
-            roomst->name_stridx = GUIStr_Empty;
-            roomst->tooltip_stridx = GUIStr_Empty;
-            roomst->creature_creation_model = 0;
-            roomst->bigsym_sprite_idx = 0;
-            roomst->medsym_sprite_idx = 0;
-            roomst->pointer_sprite_idx = 0;
-            roomst->panel_tab_idx = 0;
-            roomst->ambient_snd_smp_id = 0;
-            roomst->msg_needed = 0;
-            roomst->msg_too_small = 0;
-            roomst->msg_no_route = 0;
-            roomst->roles = RoRoF_None;
-            roomst->cost = 0;
-            roomst->health = 0;
-            room_desc[i].name = roomst->code_name;
-            room_desc[i].num = i;
+            if (i < game.slab_conf.room_types_count)
+            {
+                roomst = &game.slab_conf.room_cfgstats[i];
+                LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
+                roomst->name_stridx = GUIStr_Empty;
+                roomst->tooltip_stridx = GUIStr_Empty;
+                roomst->creature_creation_model = 0;
+                roomst->bigsym_sprite_idx = 0;
+                roomst->medsym_sprite_idx = 0;
+                roomst->pointer_sprite_idx = 0;
+                roomst->panel_tab_idx = 0;
+                roomst->ambient_snd_smp_id = 0;
+                roomst->msg_needed = 0;
+                roomst->msg_too_small = 0;
+                roomst->msg_no_route = 0;
+                roomst->roles = RoRoF_None;
+                roomst->cost = 0;
+                roomst->health = 0;
+                room_desc[i].name = roomst->code_name;
+                room_desc[i].num = i;
+            } else
+            {
+                room_desc[i].name = NULL;
+                room_desc[i].num = 0;
+            }
         }
     }
     // Parse every numbered block within range
