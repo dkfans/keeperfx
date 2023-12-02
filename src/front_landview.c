@@ -1456,14 +1456,15 @@ void draw_map_level_descriptions(void)
       }
 
       const char* level_description = get_level_description(lvinfo);
-
+      int tx_units_per_px;
       if (dbc_language > 0)
       {
-          int tx_units_per_px = (MyScreenWidth >= 1280) ? units_per_pixel / 2 : units_per_pixel;
+          tx_units_per_px = scale_ui_value(16);
           textWidth = LbTextStringWidthM(level_description, tx_units_per_px);
       }
       else
       {
+          tx_units_per_px = units_per_pixel;
           textWidth = LbTextStringWidth(level_description);
       }
       boxWidth = textWidth + padding + padding;
@@ -1480,25 +1481,9 @@ void draw_map_level_descriptions(void)
 
       // optional dropshadow
       // LbDrawBox(scale_value_for_resolution(borderBoxX+1), scale_value_for_resolution(borderBoxY+1), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), 0);
-      int units_per_px;
-      if ( (dbc_language > 0) && (MyScreenWidth >= 1280) )
-      {
-          if (StringHasWideChar(level_description))
-          {
-              units_per_px = 32;
-          }
-          else
-          {
-              units_per_px = scale_value_by_horizontal_resolution(24);
-          }
-      }
-      else
-      {
-          units_per_px = units_per_pixel;
-      }
-      LbDrawBox(scale_value_for_resolution(borderBoxX), scale_value_for_resolution(borderBoxY), scale_value_for_resolution_with_upp(borderBoxWidth, units_per_px), scale_value_for_resolution(borderBoxHeight), borderColour);
-      LbDrawBox(scale_value_for_resolution(boxX), scale_value_for_resolution(textY), scale_value_for_resolution_with_upp(boxWidth, units_per_px), scale_value_for_resolution(boxHeight), boxColour);
-      LbTextDrawResized(scale_value_for_resolution(textX), scale_value_for_resolution(textY), units_per_pixel, level_description);
+      LbDrawBox(scale_value_for_resolution(borderBoxX), scale_value_for_resolution(borderBoxY), scale_value_for_resolution_with_upp(borderBoxWidth, tx_units_per_px), scale_value_for_resolution_with_upp(borderBoxHeight, tx_units_per_px), borderColour);
+      LbDrawBox(scale_value_for_resolution(boxX), scale_value_for_resolution(textY), scale_value_for_resolution_with_upp(boxWidth, tx_units_per_px), scale_value_for_resolution_with_upp(boxHeight, tx_units_per_px), boxColour);
+      LbTextDrawResized(scale_value_for_resolution(textX), scale_value_for_resolution(textY), tx_units_per_px, level_description);
     }
 }
 
