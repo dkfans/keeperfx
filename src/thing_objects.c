@@ -102,7 +102,8 @@ static Thing_Class_Func object_update_functions[] = {
  * Originally was named objects[].
  */
 
-/*  initial_state;field_1;field_2;field_3;field_4;sprite_anim_idx;anim_speed;size_xy;size_z;sprite_size_max;field_F;fp_smpl_idx;
+
+/*  initial_state;start_frame_to_minus1;not_drawn;sprite_anim_idx;anim_speed;size_xy;size_z;sprite_size_max;field_F;fp_smpl_idx;
 draw_class;destroy_on_lava;related_creatr_model;persistence;destroy_on_liquid;rotation_flag;*/
 struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
   {0, 0, 0,   0, 0x0100,    0,    0, 300, 0, 0, 2, 0,  0, ObPer_Unset, 0, 0, 0}, //0
@@ -281,7 +282,7 @@ struct CallToArmsGraphics call_to_arms_graphics[] = {
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
     long i;
-    long k;
+    long start_frame;
 
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
@@ -324,13 +325,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     if (!objdat->start_frame_to_minus1)
     {
       i = convert_td_iso(objdat->sprite_anim_idx);
-      k = 0;
+      start_frame = 0;
     } else
     {
       i = convert_td_iso(objdat->sprite_anim_idx);
-      k = -1;
+      start_frame = -1;
     }
-    set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
+    set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, start_frame, objdat->draw_class);
     set_flag_byte(&thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
     set_flag_byte(&thing->rendering_flags, TRF_Unknown01, objdat->not_drawn & 0x01);
 
