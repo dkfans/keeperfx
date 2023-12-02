@@ -387,7 +387,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             slabst = &game.slab_conf.slab_cfgstats[i];
             LbMemorySet(slabst->code_name, 0, COMMAND_WORD_LEN);
             slabst->tooltip_stridx = GUIStr_Empty;
-            if (i < game.slab_conf.slab_types_count)
+            if (i < TERRAIN_ITEMS_MAX)
             {
                 slab_desc[i].name = slabst->code_name;
                 slab_desc[i].num = i;
