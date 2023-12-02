@@ -719,7 +719,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             for (k = num_per_step; k > 0; k--)
             {
                 struct Coord3d tngpos;
-                tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange); // I hope it is only visual
+                tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange);
                 tngpos.y.val = curpos.y.val + deviat - UNSYNC_RANDOM(devrange);
                 tngpos.z.val = curpos.z.val + deviat - UNSYNC_RANDOM(devrange);
                 if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
