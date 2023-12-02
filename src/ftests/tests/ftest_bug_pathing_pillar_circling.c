@@ -111,6 +111,9 @@ TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_
         return false;
     }
 
+    // snap camera to tunneler
+    ftest_util_move_camera_to_thing(vars->tunneler, PLAYER0);
+
     // delay for a while so we can watch what's going on
     if(game.play_gameturn < args->actual_started_at_game_turn + 1000)
     {

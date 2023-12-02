@@ -155,6 +155,51 @@ TbBool ftest_util_replace_slab_columns(MapSlabCoord slb_x, MapSlabCoord slb_y, P
     return true;
 }
 
+TbBool ftest_util_move_camera(long x, long y, PlayerNumber plyr_idx)
+{
+    struct PlayerInfo* player = get_player(plyr_idx);
+    if(player_invalid(player))
+    {
+        LbErrorLog("Player %d not found", plyr_idx);
+        return false;
+    }
+
+    struct Camera* camera = &player->cameras[CamIV_Isometric];
+    if(camera == NULL)
+    {
+        LbErrorLog("Could not find camera %d", CamIV_Isometric);
+        return false;
+    }
+
+    camera->mappos.x.val = x;
+    camera->mappos.y.val = y;
+
+    return true;
+}
+
+TbBool ftest_util_move_camera_to_thing(struct Thing* const thing, PlayerNumber plyr_idx)
+{
+    if(thing_is_invalid(thing))
+    {
+        LbErrorLog("Must provide a valid thing!");
+        return false;
+    }
+
+    return ftest_util_move_camera(thing->mappos.x.val, thing->mappos.y.val, plyr_idx);
+}
+
+TbBool ftest_util_move_camera_to_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    struct Coord3d target;
+    if(!set_coords_to_slab_center(&target, slb_x, slb_y))
+    {
+        LbErrorLog("Must provide a valid thing!");
+        return false;
+    }
+
+    return ftest_util_move_camera(target.x.val, target.y.val, plyr_idx);
+}
+
 
 #ifdef __cplusplus
 }

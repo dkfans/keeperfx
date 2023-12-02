@@ -107,6 +107,7 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionA
     ftest_util_reveal_map(vars->HUMAN_PLAYER); // we might want to see the entire map for testing purposes
 
     // carve long tunnel to spawn imp at the end (imp will prefer to teleport to job site)
+    ftest_util_replace_slabs(vars->slb_x_tunnel_start-1, vars->slb_y_tunnel_start, vars->slb_x_tunnel_end+1, vars->slb_y_tunnel_end+1, SlbT_WALLDRAPE, vars->HUMAN_PLAYER); // then carve tunnel
     ftest_util_replace_slabs(vars->slb_x_tunnel_start, vars->slb_y_tunnel_start, vars->slb_x_tunnel_end, vars->slb_y_tunnel_end, SlbT_CLAIMED, vars->HUMAN_PLAYER); // then carve tunnel
 
     // carve door frame for enemy player
@@ -193,6 +194,9 @@ TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FT
         FTEST_FAIL_TEST("Failed to create hero");
         return true;
     }
+
+    // move camera to hero
+    //ftest_util_move_camera_to_thing(new_hero, PLAYER0);
     
     if(!kill_creature(new_hero, vars->new_imp, vars->HUMAN_PLAYER, CrDed_Default))
     {

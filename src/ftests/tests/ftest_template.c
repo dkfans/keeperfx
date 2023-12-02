@@ -68,6 +68,8 @@ TbBool ftest_template_action001__spawn_imp(struct FTestActionArgs* const args)
         return true;
     }
 
+    ftest_util_move_camera_to_slab(5, 3, PLAYER0);
+
     return true; //proceed to next test action
 }
 
@@ -84,6 +86,8 @@ TbBool ftest_template_action002__slap_imp_to_death(struct FTestActionArgs* const
     {
         return false;
     }
+
+    ftest_util_move_camera_to_thing(ftest_template_target_imp, PLAYER0);
 
     // slap hehehe
     if(game_action(PLAYER0, GA_UsePwrSlap, 0, 0, 0, ftest_template_target_imp->index, 0) > Lb_OK)

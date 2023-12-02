@@ -16,6 +16,8 @@
 
 #include "ftest.h"
 
+#include "../thing_data.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -66,6 +68,34 @@ TbBool ftest_util_reveal_map(PlayerNumber plyr_idx);
  */
 TbBool ftest_util_replace_slab_columns(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner, SlabKind slab_base_type, ColumnIndex column0_type, ColumnIndex column1_type, ColumnIndex column2_type, ColumnIndex column3_type, ColumnIndex column4_type, ColumnIndex column5_type, ColumnIndex column6_type, ColumnIndex column7_type, ColumnIndex column8_type);
 
+/**
+ * @brief 
+ * 
+ * @param x mappos.x.val
+ * @param y mappos.y.val
+ * @param plyr_idx 
+ * @return bool
+ */
+TbBool ftest_util_move_camera(long x, long y, PlayerNumber plyr_idx);
+
+/**
+ * @brief 
+ * 
+ * @param thing 
+ * @param plyr_idx 
+ * @return bool 
+ */
+TbBool ftest_util_move_camera_to_thing(struct Thing* const thing, PlayerNumber plyr_idx);
+
+/**
+ * @brief 
+ * 
+ * @param slb_x 
+ * @param slb_y 
+ * @param plyr_idx 
+ * @return bool 
+ */
+TbBool ftest_util_move_camera_to_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 
 #ifdef __cplusplus
 }
