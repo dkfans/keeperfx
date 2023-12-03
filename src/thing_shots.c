@@ -87,7 +87,7 @@ TbBool shot_is_boulder(const struct Thing *shotng)
     return ((shotst->model_flags & ShMF_Boulder) != 0);
 }
 
-TbBool detonate_shot(struct Thing *shotng)
+TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
@@ -144,7 +144,10 @@ TbBool detonate_shot(struct Thing *shotng)
     default:
         break;
     }
-    delete_thing_structure(shotng, 0);
+    if (destroy)
+    {
+        delete_thing_structure(shotng, 0);
+    }
     return true;
 }
 
@@ -549,7 +552,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     target_pos.y.val = shotng->shot_lizard.posint * gameadd.crtr_conf.sprite_size;
                     target_pos.z.val = pos->z.val;
                     const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
-                    if (dist <= 800) return detonate_shot(shotng);
+                    if (dist <= 800) return detonate_shot(shotng, true);
                 }
             }
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
@@ -589,15 +592,18 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     }
     if ( destroy_shot )
     {
-        return detonate_shot(shotng);
+        return detonate_shot(shotng, true);
     }
-    if (shotng->bounce_angle <= 0)
+    if (!(shotst->model_flags & ShMF_Penetrating))
     {
-        slide_thing_against_wall_at(shotng, pos, blocked_flags);
-    }
-    else
-    {
-        bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        if (shotng->bounce_angle <= 0)
+        {
+            slide_thing_against_wall_at(shotng, pos, blocked_flags);
+        }
+        else
+        {
+            bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        }
     }
     return false;
 }
@@ -657,7 +663,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     }
     if ( shot_explodes )
     {
-        return detonate_shot(shotng);
+        return detonate_shot(shotng, true);
     }
     if (shotng->bounce_angle <= 0)
     {
@@ -840,7 +846,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     }
     if (shotst->area_range != 0)
     {
-        return detonate_shot(shotng);
+        return detonate_shot(shotng, shotst->destroy_on_first_hit);
     }
     if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
@@ -1309,7 +1315,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 
     if (shotst->area_range != 0)
     {
-        detonate_shot(shotng);
+        detonate_shot(shotng, shotst->destroy_on_first_hit);
     }
 
 
@@ -1463,8 +1469,12 @@ TngUpdateRet move_shot(struct Thing *shotng)
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     if (!(shotst->model_flags & ShMF_NoHit))
     {
-        if (shot_hit_something_while_moving(shotng, &pos)) {
-            return TUFRet_Deleted;
+        if (shot_hit_something_while_moving(shotng, &pos))
+        {
+            if (!(shotst->model_flags & ShMF_Penetrating))
+            {
+                return TUFRet_Deleted;
+            }
         }
     }
     if ((shotng->movement_flags & TMvF_Unknown10) != 0)
@@ -1663,7 +1673,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         return TUFRet_Deleted;
     }
     if (hit) {
-        detonate_shot(thing);
+        detonate_shot(thing, true);
         return TUFRet_Deleted;
     }
     return move_shot(thing);

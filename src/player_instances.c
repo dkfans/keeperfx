@@ -247,7 +247,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           }
       } else
       {
-          detonate_shot(thing);
+          detonate_shot(thing,true);
       }
       break;
   case TCls_Trap:
