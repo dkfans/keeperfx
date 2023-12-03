@@ -1689,6 +1689,10 @@ PlayerNumber get_player_number_for_command(char *msg)
 
 TbBool parameter_is_number(const char* parstr)
 {
+    if (parstr == NULL)
+    {
+        return false;
+    }
     for (int i = 0; parstr[i] != '\0'; i++)
     {
         TbBool digit = (i == 0) ? ( (parstr[i] == 0x2D) || (isdigit(parstr[i])) ) : (isdigit(parstr[i]));
