@@ -39,7 +39,7 @@ const char keeper_textureanim_file[]="textureanim.cfg";
 TbBool load_textureanim_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     VALUE file_root;
-    if (!load_toml_file(textname, fname,&file_root))
+    if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
 
     char key[64];
