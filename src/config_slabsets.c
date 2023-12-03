@@ -74,7 +74,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
 {
     VALUE file_root;
     
-    if (!load_toml_file(textname, fname,&file_root))
+    if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
     
     char key[64];
@@ -125,7 +125,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
                     game.slabobjs[game.slabobjs_num].isLight  = value_int32(value_dict_get(object, "IsLight"));
                     game.slabobjs[game.slabobjs_num].model    = value_parse_model(class_id,value_dict_get(object, "Subtype"));
 
-                    VALUE *RelativePosition_arr = value_dict_get(section, "RelativePosition");
+                    VALUE *RelativePosition_arr = value_dict_get(object, "RelativePosition");
                     game.slabobjs[game.slabobjs_num].offset_x = value_int32(value_array_get(RelativePosition_arr, 0));
                     game.slabobjs[game.slabobjs_num].offset_y = value_int32(value_array_get(RelativePosition_arr, 1));
                     game.slabobjs[game.slabobjs_num].offset_z = value_int32(value_array_get(RelativePosition_arr, 2));
@@ -150,7 +150,7 @@ TbBool load_columns_config_file(const char *textname, const char *fname, unsigne
 {
     VALUE file_root;
     
-    if (!load_toml_file(textname, fname,&file_root))
+    if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
 
     VALUE *common_section = value_dict_get(&file_root, "common");

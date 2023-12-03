@@ -145,6 +145,7 @@ obj/config_magic.o \
 obj/config_magic_data.o \
 obj/config_objects.o \
 obj/config_players.o \
+obj/config_powerhands.o \
 obj/config_rules.o \
 obj/config_settings.o \
 obj/config_slabsets.o \
