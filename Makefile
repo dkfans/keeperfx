@@ -79,7 +79,10 @@ obj/ioapi.o
 FTEST_DEBUG ?= 0
 ifeq ($(FTEST_DEBUG), 1)
   FTEST_DBGFLAGS = -DFUNCTESTING=1
-  FTEST_OBJS = $(patsubst src/ftests/tests/%,obj/ftests/tests/%,$(patsubst %.c,%.o,$(wildcard src/ftests/tests/ftest*.c)))
+  FTEST_OBJS = obj/ftests/ftest.o \
+  			   obj/ftests/ftest_util.o \
+			   obj/ftests/ftest_list.o
+  FTEST_OBJS += $(patsubst src/ftests/tests/%,obj/ftests/tests/%,$(patsubst %.c,%.o,$(wildcard src/ftests/tests/ftest*.c)))
 else
   FTEST_DBGFLAGS =
   FTEST_OBJS =
@@ -326,9 +329,6 @@ obj/vidfade.o \
 obj/vidmode_data.o \
 obj/vidmode.o \
 obj/KeeperSpeechImp.o \
-obj/ftests/ftest.o \
-obj/ftests/ftest_util.o \
-obj/ftests/ftest_list.o \
 $(FTEST_OBJS) \
 $(RES)
 
