@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 
 #include "config_players.h"
+#include "config_powerhands.h"
 #include "player_instances.h"
 #include "player_states.h"
 #include "game_legacy.h"
@@ -330,7 +331,7 @@ void set_player_state(struct PlayerInfo *player, short nwrk_state, long chosen_k
               break;
           }
           player->hand_thing_idx = thing->index;
-          set_power_hand_graphic(player->id_number, thing->anim_sprite, thing->anim_speed);
+          set_power_hand_graphic(player->id_number, HndA_SideHover);
           place_thing_in_limbo(thing);
           break;
       }

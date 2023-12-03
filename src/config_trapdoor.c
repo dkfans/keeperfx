@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "bflib_sound.h"
 
 #include "config.h"
 #include "config_strings.h"
@@ -103,6 +104,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"UNSELLABLE",           35},
   {"PLACEONBRIDGE",        36},
   {"SHOTORIGIN",           37},
+  {"PLACESOUND",           38},
   {NULL,                    0},
 };
 
@@ -268,6 +270,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->bigsym_sprite_idx = 0;
           trapst->medsym_sprite_idx = 0;
           trapst->pointer_sprite_idx = 0;
+          // Default trap placement sound, so that placement sound isn't broken if custom traps is bundled into maps
+          trapst->place_sound_idx = 117; 
           trapst->panel_tab_idx = 0;
           trapst->hidden = 0;
           trapst->slappable = 0;
@@ -982,6 +986,21 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 38: // PLACESOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              n = atoi(word_buf);
+              if ( n < 0 || n > samples_in_bank - 1 )
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              }
+              else
+              {
+                  trapst->place_sound_idx = n;
+              }
           }
           break;
       case 0: // comment

@@ -102,7 +102,7 @@ struct SlabMap {
       SlabKind kind;
       SlabCodedCoords next_in_room;
       unsigned char room_index;
-      unsigned char health;
+      short health;
       unsigned char flags;
 };
 
