@@ -70,6 +70,7 @@ struct ftest_donottouch__variables
     unsigned long total_actions;
     unsigned long current_action;
     unsigned long previous_action;
+    TbBool is_restarting_actions_queue;
 
     GameTurn current_turn_counter;
 
@@ -91,6 +92,12 @@ TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay, void* da
 
 TbBool ftest_init();
 TbBool ftest_update();
+
+/**
+ * @brief Resets the current action to action 0 of the actions list (allowing repeat test logic)
+ * 
+ */
+void ftest_restart_actions();
 
 
 #ifdef __cplusplus

@@ -24,6 +24,7 @@ struct ftest_donottouch__variables ftest_donottouch__vars = {
     .total_actions = 0,
     .current_action = 0,
     .previous_action = ULONG_MAX,
+    .is_restarting_actions_queue = false,
     .current_turn_counter = 0
 };
 
@@ -151,7 +152,6 @@ TbBool ftest_update()
         {
             testAction = vars->actions_func_list[vars->current_action];
             current_test_action_args = &vars->actions_func_arguments[vars->current_action];
-            //current_test_action_activation_turn = vars->actions_func_turn_list[vars->current_action];
             
             if(testAction == NULL)
             {
@@ -177,8 +177,15 @@ TbBool ftest_update()
 
                 if(testAction(current_test_action_args))
                 {
-                    //action completed, skip to next
-                    ++vars->current_action;
+                    if(!vars->is_restarting_actions_queue)
+                    {
+                        //action completed, skip to next
+                        ++vars->current_action;
+                    }
+                    else
+                    {
+                        vars->is_restarting_actions_queue = false;
+                    }
                 }
                 ++current_test_action_args->times_executed;
             }
@@ -187,6 +194,32 @@ TbBool ftest_update()
 
     TbBool isDoneTests = vars->current_action >= ftest_actions_length;
     return isDoneTests;
+}
+
+void ftest_restart_actions()
+{
+    const unsigned long ftest_actions_length = sizeof(ftest_donottouch__vars.actions_func_list) / sizeof(ftest_donottouch__vars.actions_func_list[0]);
+
+    ftest_donottouch__vars.is_restarting_actions_queue = true;
+    
+    for(unsigned long i = 0; i < ftest_actions_length; ++i)
+    {
+        if(ftest_donottouch__vars.actions_func_list[i] == NULL)
+        {
+            continue;
+        }
+
+        //struct FTestActionArgs* prev_action_args = i == 0 ? NULL : &ftest_donottouch__vars.actions_func_arguments[i-1];
+
+        struct FTestActionArgs* current_action_args = &ftest_donottouch__vars.actions_func_arguments[i];
+        if(current_action_args != NULL)
+        {
+            current_action_args->intended_start_at_game_turn = game.play_gameturn + ftest_donottouch__vars.actions_func_turn_list[i];
+            current_action_args->actual_started_at_game_turn = ULONG_MAX;
+        }
+    }
+
+    ftest_donottouch__vars.current_action = 0;
 }
 
 

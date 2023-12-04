@@ -97,6 +97,23 @@ TbBool ftest_util_move_camera_to_thing(struct Thing* const thing, PlayerNumber p
  */
 TbBool ftest_util_move_camera_to_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
 
+/**
+ * Creates creature of random kind, and with random experience level.
+ * @param x
+ * @param y
+ * @param owner
+ * @param max_lv
+ * @return
+ */
+struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv);
+
+/**
+ * @brief Centers the players cursor over the dungeon view (useful for picking up creatures by moving camera to/near unit pos)
+ * 
+ */
+void ftest_util_center_cursor_over_dungeon_view();
+
+
 #ifdef __cplusplus
 }
 #endif

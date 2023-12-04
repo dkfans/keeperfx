@@ -6,10 +6,16 @@
 
 #include "../game_legacy.h"
 #include "../bflib_memory.h"
+#include "../bflib_math.h"
 #include "../keeperfx.hpp"
 #include "../lvl_filesdk1.h"
 #include "../slab_data.h"
 #include "../room_util.h"
+#include "../thing_physics.h"
+#include "../creature_states.h"
+#include "../frontend.h"
+#include "../bflib_mouse.h"
+#include "../bflib_planar.h"
 
 #include "../post_inc.h"
 
@@ -198,6 +204,66 @@ TbBool ftest_util_move_camera_to_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, Pl
     }
 
     return ftest_util_move_camera(target.x.val, target.y.val, plyr_idx);
+}
+
+struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv)
+{
+    ThingModel crmodel;
+    while (1) {
+        crmodel = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
+        // Accept any non-spectator creatures
+        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+        if ((crconf->model_flags & CMF_IsSpectator) != 0) {
+            continue;
+        }
+        break;
+    }
+    struct Coord3d pos;
+    pos.x.val = x;
+    pos.y.val = y;
+    pos.z.val = 0;
+    struct Thing* thing = create_creature(&pos, crmodel, owner);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Cannot create creature %s at (%ld,%ld)",creature_code_name(crmodel),x,y);
+        return false;
+    }
+    pos.z.val = get_thing_height_at(thing, &pos);
+    if (thing_in_wall_at(thing, &pos))
+    {
+        delete_thing_structure(thing, 0);
+        ERRORLOG("Creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(crmodel),x,y);
+        return false;
+    }
+    thing->mappos.x.val = pos.x.val;
+    thing->mappos.y.val = pos.y.val;
+    thing->mappos.z.val = pos.z.val;
+    remove_first_creature(thing);
+    set_first_creature(thing);
+    set_start_state(thing);
+    CrtrExpLevel lv = GAME_RANDOM(max_lv);
+    set_creature_level(thing, lv);
+    return thing;
+}
+
+void ftest_util_center_cursor_over_dungeon_view()
+{
+    struct PlayerInfo *player = get_my_player();
+    if(player_invalid(player))
+    {
+        FTEST_FAIL_TEST("Failed to find player, this shouldn't happen!");
+        return;
+    }
+
+    struct TbPoint point;
+    point.x = player->engine_window_width/2;
+    point.y = player->engine_window_height/2;
+    if ((game.operation_flags & GOF_ShowGui) != 0)
+    {
+        point.x += status_panel_width;
+    }
+
+    LbMouseSetPosition(point.x, point.y);
 }
 
 
