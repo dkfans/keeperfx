@@ -90,6 +90,7 @@ TbBool load_effects_config(const char *conf_fname,unsigned short flags);
 struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel);
 struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel);
 const char *effect_code_name(ThingModel tngmodel);
+const char *effectgenerator_code_name(ThingModel tngmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }
