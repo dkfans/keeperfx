@@ -2683,7 +2683,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->pay = value;
             break;
         case 22: // HEROVSKEEPERCOST
-            crstat->hero_vs_keeper_cost = value;
             break;
         case 23: // SLAPSTOKILL
             crstat->slaps_to_kill = value;
