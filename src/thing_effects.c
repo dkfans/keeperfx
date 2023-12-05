@@ -36,7 +36,6 @@
 #include "creature_senses.h"
 #include "config_creature.h"
 #include "config_effects.h"
-#include "config_effectgenerators.h"
 #include "front_simple.h"
 #include "map_data.h"
 #include "map_blocks.h"
@@ -796,7 +795,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
     case 1:
     {
         unsigned long argZ;
-        for (long i = 0; i < effcst->number_of_elements; i++)
+        for (long i = 0; i < effcst->elements_count; i++)
         {
             if (effcst->kind_min <= 0)
                 continue;
@@ -826,11 +825,11 @@ void effect_generate_effect_elements(const struct Thing *thing)
     {
         long k = 0;
         struct Coord3d pos;
-        for (long i=0; i < effcst->number_of_elements; i++)
+        for (long i=0; i < effcst->elements_count; i++)
         {
             long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
             long mag = effcst->start_health - thing->health;
-            arg = (mag << 7) + k/effcst->number_of_elements;
+            arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
             TRACE_THING(elemtng);
@@ -843,11 +842,11 @@ void effect_generate_effect_elements(const struct Thing *thing)
     {
         long k = 0;
         struct Coord3d pos;
-        for (long i=0; i < effcst->number_of_elements; i++)
+        for (long i=0; i < effcst->elements_count; i++)
         {
             long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
             long mag = thing->health;
-            arg = (mag << 7) + k/effcst->number_of_elements;
+            arg = (mag << 7) + k/effcst->elements_count;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
             TRACE_THING(elemtng);

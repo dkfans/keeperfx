@@ -25,6 +25,8 @@
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 
+#include "value_util.h"
+#include <toml.h>
 #include "config.h"
 #include "config_strings.h"
 #include "thing_effects.h"
@@ -37,24 +39,6 @@ extern "C" {
 /******************************************************************************/
 const char keeper_effects_file[]="effects.cfg";
 
-const struct NamedCommand effects_common_commands[] = {
-  {"EFFECTSCOUNT",    1},
-  {NULL,              0},
-  };
-
-const struct NamedCommand effects_effect_commands[] = {
-  {"NAME",                    1},
-  {"HEALTH",                  2},
-  {"GENERATIONTYPE",          3},
-  {"GENERATIONACCELXYRANGE",  4},
-  {"GENERATIONACCELZRANGE",   5},
-  {"GENERATIONKINDRANGE",     6},
-  {"AREAAFFECTTYPE",          7},
-  {"SOUND",                   8},
-  {"AFFECTEDBYWIND",          9},
-  {NULL,                      0},
-  };
-
 long const imp_spangle_effects[] = {
     TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_None, TngEff_None,
 };
@@ -64,329 +48,137 @@ long const ball_puff_effects[] = {
 };
 
 /******************************************************************************/
-struct EffectsConfig effects_conf;
 struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
+struct NamedCommand effectgen_desc[EFFECTSGEN_TYPES_MAX];
 /******************************************************************************/
-struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
+
+static void load_effects(VALUE *value, unsigned short flags)
 {
-    if (tngmodel >= effects_conf.effect_types_count)
-        return &effects_conf.effect_cfgstats[0];
-    return &effects_conf.effect_cfgstats[tngmodel];
+    char key[64];
+    VALUE *section;
+    for (int id = 0; id < EFFECTS_TYPES_MAX; id++)
+    {
+        {
+            sprintf(key, "effect%d", id);
+            section = value_dict_get(value, key);
+        }
+        if (value_type(section) == VALUE_DICT)
+        {
+            struct EffectConfigStats *effcst = &gameadd.effects_conf.effect_cfgstats[id];
+
+            const char* name = value_string(value_dict_get(section, "Name"));
+            if(name != NULL)
+            {
+                if(strlen(name) > COMMAND_WORD_LEN - 1 )
+                {
+                    ERRORLOG("PowerHand name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);
+                    break;
+                }
+
+                strcpy(effcst->code_name,name);
+                effect_desc[id].name = effcst->code_name;
+                effect_desc[id].num = id;
+            }
+            if ((flags & CnfLd_ListOnly) != 0)
+            {
+                continue;
+            }
+
+            effcst->start_health   = value_int32(value_dict_get(section,"Health"));
+            effcst->generation_type   = value_int32(value_dict_get(section,"GenerationType"));
+
+            VALUE *generationAccelXYRange_arr = value_dict_get(section, "GenerationAccelXYRange");
+            effcst->accel_xy_min = value_int32(value_array_get(generationAccelXYRange_arr, 0));
+            effcst->accel_xy_max = value_int32(value_array_get(generationAccelXYRange_arr, 1));
+
+            VALUE *generationAccelZRange_arr = value_dict_get(section, "GenerationAccelzRange");
+            effcst->accel_z_min = value_int32(value_array_get(generationAccelZRange_arr, 0));
+            effcst->accel_z_max = value_int32(value_array_get(generationAccelZRange_arr, 1));
+
+            VALUE *generationKindRange_arr = value_dict_get(section, "GenerationKindRange");
+            effcst->kind_min = value_int32(value_array_get(generationKindRange_arr, 0));
+            effcst->kind_max = value_int32(value_array_get(generationKindRange_arr, 1));
+
+            effcst->area_affect_type  = value_int32(value_dict_get(section,"AreaAffectType"));
+            effcst->effect_sound      = value_int32(value_dict_get(section,"Sound"));
+            effcst->affected_by_wind  = value_int32(value_dict_get(section,"AffectedByWind"));
+            effcst->ilght.radius      = value_int32(value_dict_get(section,"LightRadius"));
+            effcst->ilght.intensity   = value_int32(value_dict_get(section,"LightIntensity"));
+            effcst->ilght.field_3     = value_int32(value_dict_get(section,"LightFlags"));
+            effcst->elements_count    = value_int32(value_dict_get(section,"ElementsCount"));
+            effcst->always_generate   = value_int32(value_dict_get(section,"AlwaysGenerate"));
+
+        }
+    }
 }
 
-TbBool parse_effects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+static void load_effectsgenerators(VALUE *value, unsigned short flags)
 {
-    // Block name and parameter word store variables
-    SYNCDBG(19,"Starting");
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    char key[64];
+    VALUE *section;
+    for (int id = 0; id < EFFECTSGEN_TYPES_MAX; id++)
     {
-        effects_conf.effect_types_count = 1;
+        {
+            sprintf(key, "effectGenerator%d", id);
+            section = value_dict_get(value, key);
+        }
+        if (value_type(section) == VALUE_DICT)
+        {
+            struct EffectGeneratorConfigStats *effgencst = &gameadd.effects_conf.effectgen_cfgstats[id];
+
+            const char* name = value_string(value_dict_get(section, "Name"));
+            if(name != NULL)
+            {
+                if(strlen(name) > COMMAND_WORD_LEN - 1 )
+                {
+                    ERRORLOG("PowerHand name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);
+                    break;
+                }
+
+                strcpy(effgencst->code_name,name);
+                effectgen_desc[id].name = effgencst->code_name;
+                effectgen_desc[id].num = id;
+            }
+            if ((flags & CnfLd_ListOnly) != 0)
+            {
+                continue;
+            }
+
+            effgencst->genation_delay_min   = value_int32(value_dict_get(section,"GenationDelayMin"));
+            effgencst->genation_delay_max   = value_int32(value_dict_get(section,"GenationDelayMax"));
+            effgencst->genation_amount      = value_int32(value_dict_get(section,"GenationAmount"));
+            effgencst->effect_element_model = value_int32(value_dict_get(section,"EffectElementModel"));
+            effgencst->ignore_terrain       = value_int32(value_dict_get(section,"IgnoreTerrain"));
+            effgencst->spawn_height         = value_int32(value_dict_get(section,"SpawnHeight"));
+
+            VALUE *accelerationMin_arr = value_dict_get(section, "AccelerationMin");
+            effgencst->acc_x_min = value_int32(value_array_get(accelerationMin_arr, 0));
+            effgencst->acc_y_min = value_int32(value_array_get(accelerationMin_arr, 1));
+            effgencst->acc_z_min = value_int32(value_array_get(accelerationMin_arr, 2));
+
+            VALUE *accelerationMax_arr = value_dict_get(section, "AccelerationMax");
+            effgencst->acc_x_max = value_int32(value_array_get(accelerationMax_arr, 0));
+            effgencst->acc_y_max = value_int32(value_array_get(accelerationMax_arr, 1));
+            effgencst->acc_z_max = value_int32(value_array_get(accelerationMax_arr, 2));
+
+            VALUE *sound_arr = value_dict_get(section, "Sound");
+            effgencst->sound_sample_idx = value_int32(value_array_get(sound_arr, 0));
+            effgencst->sound_sample_rng = value_int32(value_array_get(sound_arr, 1));
+        }
     }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "common");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+}
+
+static TbBool load_effects_config_file(const char *textname, const char *fname, unsigned short flags)
+{
+    VALUE file_root;
+    if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(effects_common_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, effects_common_commands);
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        int n = 0;
-        switch (cmd_num)
-        {
-        case 1: // EFFECTSCOUNT
-        {
-            char word_buf[COMMAND_WORD_LEN];
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-              k = atoi(word_buf);
-              if ((k > 0) && (k <= EFFECTS_TYPES_MAX))
-              {
-                effects_conf.effect_types_count = k;
-                n++;
-              }
-            }
-            if (n < 1)
-            {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-            }
-            break;
-        }
-        case 0: // comment
-            break;
-        case -1: // end of buffer
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
+    load_effects(&file_root,flags);
+    load_effectsgenerators(&file_root,flags);
+
+    value_fini(&file_root);
+    
     return true;
-}
-
-TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  struct EffectConfigStats *effcst;
-  int i;
-  // Block name and parameter word store variables
-  SYNCDBG(19,"Starting");
-  // Initialize the effects array
-  int arr_size;
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      arr_size = sizeof(effects_conf.effect_cfgstats)/sizeof(effects_conf.effect_cfgstats[0]);
-      for (i=0; i < arr_size; i++)
-      {
-          effcst = &effects_conf.effect_cfgstats[i];
-          LbMemorySet(effcst->code_name, 0, COMMAND_WORD_LEN);
-          if (i < effects_conf.effect_types_count)
-          {
-              effect_desc[i].name = effcst->code_name;
-              effect_desc[i].num = i;
-          } else
-          {
-              effect_desc[i].name = NULL;
-              effect_desc[i].num = 0;
-          }
-      }
-  }
-  // Parse every numbered block within range
-  arr_size = effects_conf.effect_types_count;
-  for (i=0; i < arr_size; i++)
-  {
-      char block_buf[COMMAND_WORD_LEN];
-      sprintf(block_buf, "effect%d", i);
-      SYNCDBG(19, "Block [%s]", block_buf);
-      long pos = 0;
-      int k = find_conf_block(buf, &pos, len, block_buf);
-      if (k < 0)
-      {
-          if ((flags & CnfLd_AcceptPartial) == 0)
-          {
-              WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
-              return false;
-          }
-          continue;
-    }
-    effcst = &effects_conf.effect_cfgstats[i];
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(effects_effect_commands,cmd_num)
-    while (pos<len)
-    {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, effects_effect_commands);
-      SYNCDBG(19,"Command %s",COMMAND_TEXT(cmd_num));
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      if ((flags & CnfLd_ListOnly) != 0) {
-          // In "List only" mode, accept only name command
-          if (cmd_num > 1) {
-              cmd_num = 0;
-          }
-      }
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // NAME
-          if (get_conf_parameter_single(buf,&pos,len,effcst->code_name,COMMAND_WORD_LEN) <= 0)
-          {
-              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-              break;
-          }
-          break;
-      case 2: // HEALTH
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->start_health = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // GENERATIONTYPE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->generation_type = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // GENERATIONACCELXYRANGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->accel_xy_min = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->accel_xy_max = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read all values of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 5: // GENERATIONACCELZRANGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->accel_z_min = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->accel_z_max = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read all values of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 6: // GENERATIONKINDRANGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->kind_min = k;
-              n++;
-          }
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->kind_max = k;
-              n++;
-          }
-          if (n < 2)
-          {
-              CONFWRNLOG("Couldn't read all values of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-          break;
-      case 7: // AREAAFFECTTYPE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->area_affect_type = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 8: // SOUND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->effect_sound = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 9: // AFFECTEDBYWIND
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              effcst->affected_by_wind = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-      //write_effects_effect_to_log(effcst, i);
-    }
-#undef COMMAND_TEXT
-  }
-  return true;
-}
-
-
-TbBool load_effects_config_file(const char *textname, const char *fname, unsigned short flags)
-{
-    SYNCDBG(0,"%s %s file \"%s\".",((flags & CnfLd_ListOnly) == 0)?"Reading":"Parsing",textname,fname);
-    long len = LbFileLengthRnc(fname);
-    if (len < MIN_CONFIG_FILE_SIZE)
-    {
-        if ((flags & CnfLd_IgnoreErrors) == 0)
-            WARNMSG("The %s file \"%s\" doesn't exist or is too small.",textname,fname);
-        return false;
-    }
-    char* buf = (char*)LbMemoryAlloc(len + 256);
-    if (buf == NULL)
-        return false;
-    // Loading file data
-    len = LbFileLoadAt(fname, buf);
-    TbBool result = (len > 0);
-    // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_effects_common_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" common blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_effects_effect_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" effect blocks failed.",textname,fname);
-    }
-    //Freeing and exiting
-    LbMemoryFree(buf);
-    SYNCDBG(19,"Done");
-    return result;
 }
 
 TbBool load_effects_config(const char *conf_fname, unsigned short flags)
@@ -421,17 +213,31 @@ const char *effect_code_name(ThingModel tngmodel)
  * @param code_name
  * @return A positive integer for the effect model if found, otherwise -1
  */
-int effect_model_id(const char * code_name)
+ThingModel effect_model_id(const char * code_name)
 {
-    for (int i = 0; i < effects_conf.effect_types_count; ++i)
+    for (int i = 0; i < gameadd.effects_conf.effect_types_count; ++i)
     {
-        if (strncasecmp(effects_conf.effect_cfgstats[i].code_name, code_name,
+        if (strncasecmp(gameadd.effects_conf.effect_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
         }
     }
 
     return -1;
+}
+
+struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel)
+{
+    if (tngmodel >= EFFECTSGEN_TYPES_MAX)
+        return &gameadd.effects_conf.effectgen_cfgstats[0];
+    return &gameadd.effects_conf.effectgen_cfgstats[tngmodel];
+}
+
+struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
+{
+    if (tngmodel >= gameadd.effects_conf.effect_types_count)
+        return &gameadd.effects_conf.effect_cfgstats[0];
+    return &gameadd.effects_conf.effect_cfgstats[tngmodel];
 }
 
 /******************************************************************************/
