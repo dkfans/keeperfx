@@ -376,7 +376,7 @@ struct TbSprite *get_ensign_sprite_for_level(struct LevelInformation *lvinfo, in
               i = 5;
               break;
           }
-          if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_hilighted == lvinfo->lvnum))
+          if ((fe_net_level_selected == lvinfo->lvnum) || (net_level_highlighted == lvinfo->lvnum))
             i++;
       } else
       {
@@ -986,7 +986,7 @@ TbBool frontnetmap_load(void)
     frontnet_init_level_descriptions();
     frontmap_zoom_skip_init(SINGLEPLAYER_NOTSTARTED);
     fe_net_level_selected = SINGLEPLAYER_NOTSTARTED;
-    net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
+    net_level_highlighted = SINGLEPLAYER_NOTSTARTED;
     set_pointer_graphic_none();
     LbMouseSetPosition(lbDisplay.PhysicalScreenWidth/2, lbDisplay.PhysicalScreenHeight/2);
     map_sound_fade = 256;
@@ -1445,10 +1445,10 @@ void draw_map_level_descriptions(void)
     #define borderColour 1
     #define boxColour 0
     int textWidth, textX, textY, boxX, boxY, boxWidth, boxHeight, borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight;
-    if ((fe_net_level_selected > 0) || (net_level_hilighted > 0) || (mouse_over_lvnum > 0))
+    if ((fe_net_level_selected > 0) || (net_level_highlighted > 0) || (mouse_over_lvnum > 0))
     {
       lbDisplay.DrawFlags = 0;
-      LevelNumber lvnum = (mouse_over_lvnum > 0) ? mouse_over_lvnum : (fe_net_level_selected > 0) ? fe_net_level_selected : net_level_hilighted;
+      LevelNumber lvnum = (mouse_over_lvnum > 0) ? mouse_over_lvnum : (fe_net_level_selected > 0) ? fe_net_level_selected : net_level_highlighted;
       lvinfo = get_level_info(lvnum);
       if (lvinfo == NULL)
       {
@@ -1616,17 +1616,17 @@ void frontnetmap_input(void)
 
     if (fe_net_level_selected == SINGLEPLAYER_NOTSTARTED)
     {
-      net_level_hilighted = SINGLEPLAYER_NOTSTARTED;
+      net_level_highlighted = SINGLEPLAYER_NOTSTARTED;
       frontmap_input_active_ensign(GetMouseX(), GetMouseY());
       if (mouse_over_lvnum > 0)
-        net_level_hilighted = mouse_over_lvnum;
-      if (net_level_hilighted > 0)
+        net_level_highlighted = mouse_over_lvnum;
+      if (net_level_highlighted > 0)
       {
         if ((net_map_slap_frame == 0) && (net_map_limp_time == 0))
         {
           if (left_button_clicked)
           {
-              fe_net_level_selected = net_level_hilighted;
+              fe_net_level_selected = net_level_highlighted;
               left_button_clicked = 0;
               lvinfo = get_level_info(fe_net_level_selected);
               if (lvinfo != NULL) {
@@ -1660,7 +1660,7 @@ long frontmap_update(void)
 {
   SYNCDBG(8,"Starting");
   fe_net_level_selected = 0;
-  net_level_hilighted = 0;
+  net_level_highlighted = 0;
   if ((mouse_over_lvnum > 0) && (playing_speech_lvnum != mouse_over_lvnum))
   {
       play_desc_speech_time = 0;
