@@ -24,6 +24,7 @@
 
 #include "config.h"
 #include "config_effectgenerators.h"
+#include "light_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,9 +35,25 @@ extern "C" {
 #define EFFECTSGEN_TYPES_MAX 64
 
 /******************************************************************************/
+
+
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    struct InitEffect *old;
+    /** Health; decreases by 1 on every turn, so it works also as lifespan. */
+    short start_health;
+    unsigned char generation_type;
+    short accel_xy_min;
+    short accel_xy_max;
+    short accel_z_min;
+    short accel_z_max;
+    unsigned char number_of_elements;
+    short effect_sound;
+    unsigned char kind_min;
+    unsigned char kind_max;
+    unsigned char area_affect_type;
+    unsigned char always_generate;
+    struct InitLight ilght;
+    unsigned char affected_by_wind;
 };
 
 struct EffectsConfig {

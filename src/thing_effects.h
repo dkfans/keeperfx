@@ -231,7 +231,7 @@ enum ThingEffectElements {
 /******************************************************************************/
 #pragma pack(1)
 
-struct InitEffect;
+struct EffectConfigStats;
 struct Thing;
 
 struct EffectElementStats { // sizeof = 79
@@ -278,30 +278,11 @@ struct EffectElementStats { // sizeof = 79
   unsigned char affected_by_wind;
 };
 
-struct InitEffect { // sizeof = 39
-    /** Health; decreases by 1 on every turn, so it works also as lifespan. */
-  short start_health;
-  unsigned char generation_type;
-  short accel_xy_min;
-  short accel_xy_max;
-  short accel_z_min;
-  short accel_z_max;
-  unsigned char field_B;
-  short effect_sound;
-  unsigned char kind_min;
-  unsigned char kind_max;
-  unsigned char area_affect_type;
-  unsigned char field_11;
-  struct InitLight ilght;
-  unsigned char affected_by_wind;
-};
 
 #pragma pack()
 /******************************************************************************/
 extern const int birth_effect_element[];
 /******************************************************************************/
-struct InitEffect *get_effect_info(ThingModel effmodel);
-struct InitEffect *get_effect_info_for_thing(const struct Thing *thing);
 struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel);
 
 TbBool thing_is_effect(const struct Thing *thing);

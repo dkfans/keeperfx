@@ -66,27 +66,12 @@ long const ball_puff_effects[] = {
 /******************************************************************************/
 struct EffectsConfig effects_conf;
 struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
-extern struct InitEffect effect_info[];
 /******************************************************************************/
 struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
 {
     if (tngmodel >= effects_conf.effect_types_count)
         return &effects_conf.effect_cfgstats[0];
     return &effects_conf.effect_cfgstats[tngmodel];
-}
-
-short write_effects_effect_to_log(const struct EffectConfigStats *effcst, int num)
-{
-  JUSTMSG("[effect%d]",(int)num);
-  JUSTMSG("Name = %s",effcst->code_name);
-  JUSTMSG("Health = %d",(int)effcst->old->start_health);
-  JUSTMSG("GenerationType = %d",(int)effcst->old->generation_type);
-  JUSTMSG("GenerationAccelXYRange = %d %d",(int)effcst->old->accel_xy_min,(int)effcst->old->accel_xy_max);
-  JUSTMSG("GenerationAccelZRange = %d %d",(int)effcst->old->accel_z_min,(int)effcst->old->accel_z_max);
-  JUSTMSG("GenerationKindRange = %d %d",(int)effcst->old->kind_min,(int)effcst->old->kind_max);
-  JUSTMSG("AreaAffectType = %d",(int)effcst->old->area_affect_type);
-  JUSTMSG("");
-  return true;
 }
 
 TbBool parse_effects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -168,10 +153,6 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
       {
           effcst = &effects_conf.effect_cfgstats[i];
           LbMemorySet(effcst->code_name, 0, COMMAND_WORD_LEN);
-          if (i < 69)
-              effcst->old = &effect_info[i];
-          else
-              effcst->old = &effect_info[0];
           if (i < effects_conf.effect_types_count)
           {
               effect_desc[i].name = effcst->code_name;
@@ -232,7 +213,7 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->start_health = k;
+              effcst->start_health = k;
               n++;
           }
           if (n < 1)
@@ -245,7 +226,7 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->generation_type = k;
+              effcst->generation_type = k;
               n++;
           }
           if (n < 1)
@@ -258,13 +239,13 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->accel_xy_min = k;
+              effcst->accel_xy_min = k;
               n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->accel_xy_max = k;
+              effcst->accel_xy_max = k;
               n++;
           }
           if (n < 2)
@@ -277,13 +258,13 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->accel_z_min = k;
+              effcst->accel_z_min = k;
               n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->accel_z_max = k;
+              effcst->accel_z_max = k;
               n++;
           }
           if (n < 2)
@@ -296,13 +277,13 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->kind_min = k;
+              effcst->kind_min = k;
               n++;
           }
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->kind_max = k;
+              effcst->kind_max = k;
               n++;
           }
           if (n < 2)
@@ -316,7 +297,7 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->area_affect_type = k;
+              effcst->area_affect_type = k;
               n++;
           }
           if (n < 1)
@@ -329,7 +310,7 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->effect_sound = k;
+              effcst->effect_sound = k;
               n++;
           }
           if (n < 1)
@@ -342,7 +323,7 @@ TbBool parse_effects_effect_blocks(char *buf, long len, const char *config_textn
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              effcst->old->affected_by_wind = k;
+              effcst->affected_by_wind = k;
               n++;
           }
           if (n < 1)

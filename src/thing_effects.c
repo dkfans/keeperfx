@@ -54,80 +54,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 
-//start_health;generation_type;accel_xy_min;accel_xy_max;accel_z_min;accel_z_max;size_z;effect_sound;kind_min;kind_max;area_affect_type;field_11;struct InitLight ilght;affected_by_wind;
-struct InitEffect effect_info[] = {
-    { 0, 1,   0,   0,  0,    0,  0,   0,  0,  0,  AAffT_None, 0, {0}, 0},
-    { 1, 1,  32,  32, -32,  32,  1,  47,  1,  1,  AAffT_None, 1, { 512, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
-    { 5, 1,  32,  32, -64,  64,  5,  47,  1,  1,  AAffT_None, 1, {1024, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
-    {10, 1, 128, 128,-128, 128, 10,  47,  1,  1,  AAffT_None, 1, {2048, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
-    {10, 1, 172, 172,-172, 172,  6,  47,  1,  1,  AAffT_None, 1, {2560, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
-    {20, 1, 256, 256,-256, 256, 10,  47,  1,  1,  AAffT_None, 1, {2560, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
-    { 1, 1,  32,  32, -96,  96,  2,   0, 84, 84,  AAffT_None, 1, {0}, 1},
-    { 2, 1,  32,  32, -96,  96,  2,   0, 84, 84,  AAffT_None, 1, {0}, 1},
-    { 2, 1,  64,  64, -96,  96,  4,   0, 84, 84,  AAffT_None, 1, {0}, 1},
-    { 3, 1,  96,  96, -96,  96,  4,   0, 84, 84,  AAffT_None, 1, {0}, 1},
-    { 4, 1,  96,  96, -96,  96,  5,   0, 84, 84,  AAffT_None, 1, {0}, 1}, // [10]
-    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasDamage, 1, {0}, 1},
-    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasDamage, 1, {0}, 1},
-    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasDamage, 1, {0}, 1},
-    {10, 1, 100, 100,   1,   1, 20, 178, 10, 10,  AAffT_WOPDamage, 1, {2560, 52, 0, {{0},{0},{0}}, 0, 0}, 1},
-    { 1, 1,   1,   1,   1,   1,  1,   0, 11, 11,  AAffT_None, 1, {0}, 1},
-    {40, 1,  64,  64, -64,  64,  2,  52, 21, 21,  AAffT_None, 1, {0}, 1},
-    {40, 1,  64,  64, -64,  64,  2,  52, 21, 21,  AAffT_None, 1, {0}, 1},
-    {40, 1,  64,  64, -64,  64,  2,  52, 21, 21,  AAffT_None, 1, {0}, 1},
-    { 1, 1,   1,   1,   1,   1,  1,   0, 22, 22,  AAffT_None, 1, {0}, 1},
-    { 1, 1,   1,   1,   1,   1,  1,   0, 22, 22,  AAffT_None, 1, {0}, 1}, // [20]
-    { 1, 1,   1,   1,   1,   1,  1,   0, 22, 22,  AAffT_None, 1, {0}, 1},
-    { 1, 1,  32,  32, -96,  96,  1,   0, 24, 24,  AAffT_None, 1, {0}, 1},
-    { 2, 1,  64,  64, -96,  96,  4,   0, 24, 24,  AAffT_None, 1, {0}, 1},
-    { 3, 1, 128, 128, -96,  96,  4,   0, 24, 24,  AAffT_None, 1, {0}, 1},
-    { 2, 1,  64,  64, -96,  96,  2,   0, 26, 26,  AAffT_None, 1, {0}, 1},
-    { 2, 1,  64,  64, -96,  96,  1,   0, 27, 28,  AAffT_None, 1, {0}, 1},
-    { 3, 1,  64,  64, -96,  96, 10,   0, 26, 28,  AAffT_None, 1, {0}, 1},
-    { 4, 1,  16,  16, -32,  64,  3,   0, 75, 75,  AAffT_None, 1, {0}, 1},
-    { 1, 1,   1,   1,   1,   1,  1,   0, 40, 40,  AAffT_None, 1, {0}, 1},
-    {80, 2,   1,   1,   1,   1,  1,   0, 21, 21,  AAffT_None, 0, {0}, 1}, // [30]
-    { 8, 1,  64,  64, -64,  64,  1,   0, 47, 47,  AAffT_None, 1, {0}, 1},
-    { 2, 1,  64,  64, -96,  96,  2,   0, 49, 49,  AAffT_None, 1, {0}, 1},
-    { 2, 1,  64,  64, -96,  96,  1,   0, 49, 51,  AAffT_None, 1, {0}, 1},
-    { 3, 1,  64,  64, -96,  96, 10,   0, 50, 51,  AAffT_None, 1, {0}, 1},
-    { 8, 1,  16,  16, -16,  16,  1,   0, 29, 29,  AAffT_None, 1, {0}, 0},
-    {32, 1,  32,  32, -32,  32,  2,   0, 26, 28,  AAffT_None, 1, {0}, 0},
-    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_Unkn2, 1, {0}, 1},
-    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_Unkn2, 1, {0}, 1},
-    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_Unkn2, 1, {0}, 1},
-    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasSlow, 1, {0}, 0}, // [40]
-    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasSlow, 1, {0}, 0},
-    {40, 1,  44,  44, -32,  32,  2,  52,  7,  7,  AAffT_GasSlow, 1, {0}, 0},
-    {16, 1, 128, 128,-128, 128,  2,  47, 26, 32,  AAffT_None, 1, {2560, 45, 1, {{0},{0},{0}}, 0, 0}, 0},
-    { 1, 1,  64,  64,-128, 128,  4,   0, 53, 53,  AAffT_None, 1, {0}, 0},
-    {16, 1,  96,  96, -96,  96,  4,  47, 39, 39,  AAffT_GasDamage, 1, {2560, 45, 1, {{0},{0},{0}}, 0, 0}, 1},
-    { 5, 1,  64,  64, -64,  64,  4,  39, 75, 75,  AAffT_None, 1, { 768, 20, 1, {{0},{0},{0}}, 0, 0}, 1},
-    {60, 3,   1,   1,   1,   1,  2,  54, 55, 58,  AAffT_None, 1, {0}, 1},
-    {20, 4,   1,   1,   1,   1,  1,  47,  0,  0,  AAffT_None, 1, {0}, 1},
-    {50, 4,   1,   1,   1,   1,  1,   0,  0,  0,  AAffT_None, 0, {0}, 0}, // Unknown Damage effect
-    {10, 1, 128, 128,-128, 128, 10,  47,  1,  1,  AAffT_None, 1, {4096, 50, 1, {{0},{0},{0}}, 0, 0}, 1}, // [50]
-    { 1, 1,   1,   1,   1,   1,  1, 112, 61, 61,  AAffT_None, 1, {0}, 1},
-    { 5, 1, 128, 128,-128, 128,  5,  47,  1,  1,  AAffT_None, 1, {2048, 45, 1,  {{0},{0},{0}}, 0, 0}, 1},
-    {96, 1, 256, 256,-256, 256,  1, 160, 63, 74,  AAffT_None, 1, {0}, 0},
-    { 8, 1,  64,  64, -64,  64,  1, 159, 63, 66,  AAffT_None, 1, {0}, 0},
-    { 8, 1,  64,  64, -64,  64,  1, 159, 67, 70,  AAffT_None, 1, {0}, 0},
-    { 8, 1,  64,  64, -64,  64,  1, 159, 71, 74,  AAffT_None, 1, {0}, 0},
-    { 4, 1,  16,  16, -32,  64,  3,   0, 76, 76,  AAffT_None, 1, {0}, 1},
-    { 4, 1,  16,  16, -32,  64,  3,   0, 77, 77,  AAffT_None, 1, {0}, 1},
-    { 4, 1,  16,  16, -32,  64,  3,   0, 78, 78,  AAffT_None, 1, {0}, 1},
-    { 4, 1,  16,  16, -32,  64,  3,   0, 54, 54,  AAffT_None, 1, {0}, 1}, // [60]
-    { 4, 1,  16,  16, -32,  64,  3,   0, 79, 79,  AAffT_None, 1, {0}, 1},
-    { 4, 1,  16,  16, -32,  64,  3,   0, 80, 80,  AAffT_None, 1, {0}, 1},
-    { 4, 1,  16,  16, -32,  64,  3,   0, 81, 81,  AAffT_None, 1, {0}, 1},
-    { 4, 1,  16,  16, -32,  64,  3,   0, 82, 82,  AAffT_None, 1, {0}, 1},
-    { 1, 1,  32,  32, 100, 100,  2,   0, 84, 84,  AAffT_None, 1, {0}, 1},
-    { 1, 1,   1,   1,   1,   1,  2,   0, 85, 85,  AAffT_None, 1, {0}, 1},
-    { 4, 1,  16,  16, -32,  64,  3,   0, 75, 78,  AAffT_None, 1, {0}, 1},
-    {10, 1,  20, 150, -80,  80, 20,  36, 27, 29,  AAffT_None, 1, {2560, 52, 0, {{0},{0},{0}}, 0, 0}, 1}, // [68]
-    { 0, 0,   0,   0,   0,   0,  0,   0,  0,  0,  0,          0, {0}, 0},
-};
-
 /** See enum ThingEffectElements for the labels of the "rows" of this table. */
 struct EffectElementStats effect_element_stats[] = {
  //draw_class,	move_type,	unanimated,	lifespan,	lifespan_random,	sprite_idx,	sprite_size_min,	sprite_size_max,	rendering_flag,	sprite_speed_min,	sprite_speed_max,	animate_on_floor,	unshaded,	transparant,	
@@ -243,16 +169,6 @@ TbBool thing_is_effect(const struct Thing *thing)
   if (thing->class_id != TCls_Effect)
     return false;
   return true;
-}
-
-struct InitEffect *get_effect_info(ThingModel effmodel)
-{
-    return &effect_info[effmodel];
-}
-
-struct InitEffect *get_effect_info_for_thing(const struct Thing *thing)
-{
-    return &effect_info[thing->model];
 }
 
 struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel)
@@ -871,20 +787,20 @@ void update_effect_light_intensity(struct Thing *thing)
 
 void effect_generate_effect_elements(const struct Thing *thing)
 {
-    const struct InitEffect* effnfo = get_effect_info_for_thing(thing);
-    SYNCDBG(18,"Preparing Effect, Generation Type %d",(int)effnfo->generation_type);
+    const struct EffectConfigStats* effcst = get_effect_model_stats(thing->model);
+    SYNCDBG(18,"Preparing Effect, Generation Type %d",(int)effcst->generation_type);
     unsigned long arg;
     struct Thing* elemtng;
-    switch (effnfo->generation_type)
+    switch (effcst->generation_type)
     {
     case 1:
     {
         unsigned long argZ;
-        for (long i = 0; i < effnfo->field_B; i++)
+        for (long i = 0; i < effcst->number_of_elements; i++)
         {
-            if (effnfo->kind_min <= 0)
+            if (effcst->kind_min <= 0)
                 continue;
-            long n = effnfo->kind_min + EFFECT_RANDOM(thing, effnfo->kind_max - effnfo->kind_min + 1);
+            long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
             elemtng = create_effect_element(&thing->mappos, n, thing->owner);
             TRACE_THING(elemtng);
             if (thing_is_invalid(elemtng))
@@ -892,15 +808,15 @@ void effect_generate_effect_elements(const struct Thing *thing)
             arg = EFFECT_RANDOM(thing, 0x800);
             argZ = EFFECT_RANDOM(thing, 0x400);
             // Setting XY acceleration
-            long k = abs(effnfo->accel_xy_max - effnfo->accel_xy_min);
+            long k = abs(effcst->accel_xy_max - effcst->accel_xy_min);
             if (k <= 1) k = 1;
-            long mag = effnfo->accel_xy_min + EFFECT_RANDOM(thing, k);
+            long mag = effcst->accel_xy_min + EFFECT_RANDOM(thing, k);
             elemtng->veloc_push_add.x.val += distance_with_angle_to_coord_x(mag,arg);
             elemtng->veloc_push_add.y.val += distance_with_angle_to_coord_y(mag,arg);
             // Setting Z acceleration
-            k = abs(effnfo->accel_z_max - effnfo->accel_z_min);
+            k = abs(effcst->accel_z_max - effcst->accel_z_min);
             if (k <= 1) k = 1;
-            mag = effnfo->accel_z_min + EFFECT_RANDOM(thing, k);
+            mag = effcst->accel_z_min + EFFECT_RANDOM(thing, k);
             elemtng->veloc_push_add.z.val += distance_with_angle_to_coord_z(mag,argZ);
             elemtng->state_flags |= TF1_PushAdd;
         }
@@ -910,11 +826,11 @@ void effect_generate_effect_elements(const struct Thing *thing)
     {
         long k = 0;
         struct Coord3d pos;
-        for (long i=0; i < effnfo->field_B; i++)
+        for (long i=0; i < effcst->number_of_elements; i++)
         {
-            long n = effnfo->kind_min + EFFECT_RANDOM(thing, effnfo->kind_max - effnfo->kind_min + 1);
-            long mag = effnfo->start_health - thing->health;
-            arg = (mag << 7) + k/effnfo->field_B;
+            long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
+            long mag = effcst->start_health - thing->health;
+            arg = (mag << 7) + k/effcst->number_of_elements;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
             TRACE_THING(elemtng);
@@ -927,11 +843,11 @@ void effect_generate_effect_elements(const struct Thing *thing)
     {
         long k = 0;
         struct Coord3d pos;
-        for (long i=0; i < effnfo->field_B; i++)
+        for (long i=0; i < effcst->number_of_elements; i++)
         {
-            long n = effnfo->kind_min + EFFECT_RANDOM(thing, effnfo->kind_max - effnfo->kind_min + 1);
+            long n = effcst->kind_min + EFFECT_RANDOM(thing, effcst->kind_max - effcst->kind_min + 1);
             long mag = thing->health;
-            arg = (mag << 7) + k/effnfo->field_B;
+            arg = (mag << 7) + k/effcst->number_of_elements;
             set_coords_to_cylindric_shift(&pos, &thing->mappos, 16*mag, arg, 0);
             elemtng = create_effect_element(&pos, n, thing->owner);
             TRACE_THING(elemtng);
@@ -943,9 +859,9 @@ void effect_generate_effect_elements(const struct Thing *thing)
     {
         if (thing->model != 48) // CaveIn only
             break;
-        long i = effnfo->start_health / 2;
+        long i = effcst->start_health / 2;
         struct PlayerInfo* player;
-        if (thing->health == effnfo->start_health)
+        if (thing->health == effcst->start_health)
         {
             LbMemorySet(temp_pal, 63, PALETTE_SIZE);
         } else
@@ -970,7 +886,7 @@ void effect_generate_effect_elements(const struct Thing *thing)
         break;
     }
     default:
-        ERRORLOG("Unknown Effect Generation Type %d",(int)effnfo->generation_type);
+        ERRORLOG("Unknown Effect Generation Type %d",(int)effcst->generation_type);
         break;
     }
 }
@@ -1055,7 +971,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
 
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner)
 {
-    struct InitEffect* ieffect = &effect_info[effmodel];
+    struct EffectConfigStats* effcst = get_effect_model_stats(effmodel);
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         return INVALID_THING;
     }
@@ -1077,11 +993,11 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     thing->inertia_floor = 0;
     thing->inertia_air = 0;
     thing->rendering_flags |= TRF_Unknown01;
-    thing->health = ieffect->start_health;
-    if (ieffect->ilght.radius != 0)
+    thing->health = effcst->start_health;
+    if (effcst->ilght.radius != 0)
     {
         struct InitLight ilght;
-        memcpy(&ilght, &ieffect->ilght, sizeof(struct InitLight));
+        memcpy(&ilght, &effcst->ilght, sizeof(struct InitLight));
         ilght.is_dynamic = 1;
         ilght.mappos.x.val = thing->mappos.x.val;
         ilght.mappos.y.val = thing->mappos.y.val;
@@ -1094,9 +1010,9 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     }
     add_thing_to_its_class_list(thing);
     place_thing_in_mapwho(thing);
-    if (ieffect->effect_sound != 0)
+    if (effcst->effect_sound != 0)
     {
-        thing_play_sample(thing, ieffect->effect_sound, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+        thing_play_sample(thing, effcst->effect_sound, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
     }
     return thing;
 }
@@ -1639,8 +1555,8 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
 {
     int dmg_divider = 10;
     if (thing_is_effect(tngsrc)) {
-        const struct InitEffect* effnfo = get_effect_info_for_thing(tngsrc);
-        dmg_divider = max(effnfo->start_health,1);
+        const struct EffectConfigStats* effcst = get_effect_model_stats(tngsrc->model);
+        dmg_divider = max(effcst->start_health,1);
     }
     MapSubtlCoord start_x = coord_subtile(pos->x.val - max_dist);
     MapSubtlCoord start_y = coord_subtile(pos->y.val - max_dist);
@@ -1688,7 +1604,7 @@ TngUpdateRet update_effect(struct Thing *efftng)
     SYNCDBG(18,"Starting for %s",thing_model_name(efftng));
     TRACE_THING(efftng);
     struct Thing* subtng = NULL;
-    const struct InitEffect* effnfo = get_effect_info_for_thing(efftng);
+    const struct EffectConfigStats* effcst = get_effect_model_stats(efftng->model);
     if (efftng->parent_idx > 0) {
         subtng = thing_get(efftng->parent_idx);
         TRACE_THING(subtng);
@@ -1699,18 +1615,18 @@ TngUpdateRet update_effect(struct Thing *efftng)
     }
     update_effect_light_intensity(efftng);
     // Effect generators can be used to generate effect elements
-    if ( (effnfo->field_11 == 0) || any_player_close_enough_to_see(&efftng->mappos) )
+    if ( (effcst->always_generate) || any_player_close_enough_to_see(&efftng->mappos) )
     {
         effect_generate_effect_elements(efftng);
     }
     // Let the effect affect area
-    switch (effnfo->area_affect_type)
+    switch (effcst->area_affect_type)
     {
     case AAffT_GasDamage:
     case AAffT_GasSlow:
     case AAffT_GasSlowDamage:
     case AAffT_GasDisease:
-        poison_cloud_affecting_area(efftng, &efftng->mappos, 5*COORD_PER_STL, 120, effnfo->area_affect_type);
+        poison_cloud_affecting_area(efftng, &efftng->mappos, 5*COORD_PER_STL, 120, effcst->area_affect_type);
         break;
     case AAffT_WOPDamage:
         word_of_power_affecting_area(efftng, subtng, &efftng->mappos);

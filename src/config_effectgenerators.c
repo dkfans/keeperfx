@@ -53,10 +53,31 @@ TbBool load_effectgenerator_config_file(const char *textname, const char *fname,
         }
         if (value_type(section) == VALUE_DICT)
         {
+/*
+Name = "Lava"
+GenationDelayMin = 10
+GenationDelayMax = 20
+GenationAmount = 1
+EffectElementModel = 30
+IgnoreTerrain = 1
+SpawnHeight = 0
+AccelerationMin = [-40,-40,80]
+AccelerationMax = [40,40,150]
+Sound = [147,3]
 
-                //TODO
+                    EffectGeneratorConfigStats effgenstat = ;
 
+                    game.slabobjs[game.slabobjs_num].range    = value_int32(value_dict_get(object, "EffectRange"));
+                    game.slabobjs[game.slabobjs_num].range    = value_int32(value_dict_get(object, "EffectRange"));
+                    game.slabobjs[game.slabobjs_num].range    = value_int32(value_dict_get(object, "EffectRange"));
+                    game.slabobjs[game.slabobjs_num].range    = value_int32(value_dict_get(object, "EffectRange"));
+                    VALUE *accelerationMin_arr = value_dict_get(object, "AccelerationMin");
+                    game.slabobjs[game.slabobjs_num].offset_x = value_int32(value_array_get(accelerationMin_arr, 0));
+                    game.slabobjs[game.slabobjs_num].offset_y = value_int32(value_array_get(accelerationMin_arr, 1));
 
+                    game.slabobjs[game.slabobjs_num].range    = value_int32(value_dict_get(object, "EffectRange"));
+
+*/
 
         }
     }
