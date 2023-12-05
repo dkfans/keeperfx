@@ -71,7 +71,7 @@ static void load_effects(VALUE *value, unsigned short flags)
             {
                 if(strlen(name) > COMMAND_WORD_LEN - 1 )
                 {
-                    ERRORLOG("PowerHand name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);
+                    ERRORLOG("effect name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);
                     break;
                 }
 
@@ -131,7 +131,7 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
             {
                 if(strlen(name) > COMMAND_WORD_LEN - 1 )
                 {
-                    ERRORLOG("PowerHand name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);
+                    ERRORLOG("effectgenerator name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);
                     break;
                 }
 
@@ -207,23 +207,12 @@ const char *effect_code_name(ThingModel tngmodel)
     return "INVALID";
 }
 
-/**
- * Returns the effect model identifier for a given code name (found in script file).
- * Linear running time.
- * @param code_name
- * @return A positive integer for the effect model if found, otherwise -1
- */
-ThingModel effect_model_id(const char * code_name)
+const char *effectgenerator_code_name(ThingModel tngmodel)
 {
-    for (int i = 0; i < gameadd.effects_conf.effect_types_count; ++i)
-    {
-        if (strncasecmp(gameadd.effects_conf.effect_cfgstats[i].code_name, code_name,
-                COMMAND_WORD_LEN) == 0) {
-            return i;
-        }
-    }
-
-    return -1;
+    const char* name = get_conf_parameter_text(effectgen_desc, tngmodel);
+    if (name[0] != '\0')
+        return name;
+    return "INVALID";
 }
 
 struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel)
@@ -235,7 +224,7 @@ struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tn
 
 struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
 {
-    if (tngmodel >= gameadd.effects_conf.effect_types_count)
+    if (tngmodel >= EFFECTS_TYPES_MAX)
         return &gameadd.effects_conf.effect_cfgstats[0];
     return &gameadd.effects_conf.effect_cfgstats[tngmodel];
 }

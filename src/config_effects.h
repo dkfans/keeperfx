@@ -74,7 +74,6 @@ struct EffectGeneratorConfigStats {
 };
 
 struct EffectsConfig {
-    long effect_types_count;
     struct EffectConfigStats effect_cfgstats[EFFECTS_TYPES_MAX];
     struct EffectGeneratorConfigStats effectgen_cfgstats[EFFECTSGEN_TYPES_MAX];
 };
@@ -83,12 +82,14 @@ extern const char keeper_effects_file[];
 extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 extern long const imp_spangle_effects[];
 extern long const ball_puff_effects[];
+
+extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
+extern struct NamedCommand effectgen_desc[EFFECTSGEN_TYPES_MAX];
 /******************************************************************************/
 TbBool load_effects_config(const char *conf_fname,unsigned short flags);
 struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel);
 struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel);
 const char *effect_code_name(ThingModel tngmodel);
-ThingModel effect_model_id(const char * code_name);
 /******************************************************************************/
 #ifdef __cplusplus
 }
