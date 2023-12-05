@@ -112,8 +112,8 @@ extern struct TbSetupSprite netmap_flag_setup_sprites[];
 void draw_map_screen(void)
 {
     copy_raw8_image_buffer(lbDisplay.WScreen,LbGraphicsScreenWidth(),LbGraphicsScreenHeight(),
-        LANDVIEW_MAP_WIDTH*units_per_pixel/16,LANDVIEW_MAP_HEIGHT*units_per_pixel/16,
-        -map_info.screen_shift_x*units_per_pixel/16,-map_info.screen_shift_y*units_per_pixel/16,
+        scale_value_by_vertical_resolution(LANDVIEW_MAP_WIDTH), scale_value_by_vertical_resolution(LANDVIEW_MAP_HEIGHT),
+        scale_value_by_vertical_resolution(-map_info.screen_shift_x), scale_value_by_vertical_resolution(-map_info.screen_shift_y),
         map_screen,LANDVIEW_MAP_WIDTH,LANDVIEW_MAP_HEIGHT);
 }
 
