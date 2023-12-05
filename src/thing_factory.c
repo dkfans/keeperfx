@@ -291,7 +291,7 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                     VALUE* value = value_dict_get(init_data, "GoldValue");
                     if (value != NULL)
                     {
-                        thing->valuable.gold_stored = value_int32(value);
+                        add_gold_to_pile(thing, value_int32(value));
                     }
                 }
                 check_and_asimilate_thing_by_room(thing);

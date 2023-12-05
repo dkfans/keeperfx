@@ -252,8 +252,13 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     if (speed != -1) {
         thing->anim_speed = speed;
     }
-    if (scale != -1) {
+    if (scale != -1)
+    {
         thing->sprite_size = scale;
+        if (object_is_gold_pile(thing))
+        {
+            add_gold_to_pile(thing, 0); //makes sure scale is correct based on gold value
+        }
     }
     if (animate_once != -1) {
         set_flag_byte(&thing->rendering_flags, TRF_AnimateOnce, animate_once);
