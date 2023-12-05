@@ -6835,8 +6835,8 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
-msgstr ""
+msgid "Dungeon Keeper - Original Campaign"
+msgstr "Dungeon Keeper - Campagna Originale"
 
 #: guitext:1012
 msgctxt "Menu interface item""
@@ -6915,7 +6915,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
@@ -6989,3 +6989,23 @@ msgstr ""
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr ""
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Formazione rocciosa."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Roccia madre: Pavimento roccioso non reclamato. Non puoi reclamarlo o costruire sopra."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Vena d'oro densa: Contiene molta ricchezza che i tuoi Folletti possono estrarre."

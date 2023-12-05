@@ -52,6 +52,7 @@ struct DoorConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
+    long place_sound_idx;
     unsigned short slbkind[2];
     long health;
     unsigned short open_speed;
@@ -74,6 +75,7 @@ struct TrapConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
+    long place_sound_idx;
     short hidden;
     short slappable;
     short destructible;

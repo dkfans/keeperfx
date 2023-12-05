@@ -195,6 +195,9 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       case PSt_Heal:
           update_power_overcharge(player, PwrK_HEALCRTR);
           break;
+      case PSt_TimeBomb:
+          update_power_overcharge(player, PwrK_TIMEBOMB);
+          break;
       default:
           player->cast_expand_level++;
           break;
@@ -328,8 +331,15 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     struct Camera* cam = player->acamera;
+    if (cam == NULL)
+    {
+        ERRORLOG("No active camera");
+        return;
+    }
     long inter_val;
     int scroll_speed = cam->zoom;
+    if (scroll_speed <= 0)
+        scroll_speed = 1;
     switch (cam->view_mode)
     {
     case PVM_IsoWibbleView:

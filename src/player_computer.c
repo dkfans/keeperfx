@@ -28,6 +28,7 @@
 #include "bflib_dernc.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 
 #include "config.h"
 #include "config_compp.h"
@@ -551,7 +552,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
                     pos->x.val = 0;
                 } else
                 {
-                    long dist = abs((MapSubtlCoord)pos->x.stl.num - dnstl_x) + abs((MapSubtlCoord)pos->y.stl.num - dnstl_y);
+                    long dist = grid_distance(pos->x.stl.num, pos->y.stl.num, dnstl_x, dnstl_y);
                     if (hate->distance_near >= dist)
                     {
                         hate->distance_near = dist;
@@ -1096,9 +1097,12 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     ( crtr_state != CrSt_CreatureBeingDropped ))
                 {
                     struct CreatureStats* crstat = creature_stats_get_from_thing(i);
-                    if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20 )
+                    if (crstat->health > 0)
                     {
-                        ++count;
+                        if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20)
+                        {
+                            ++count;
+                        }
                     }
                 }
             }

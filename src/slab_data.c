@@ -741,8 +741,8 @@ void do_unprettying(PlayerNumber keep_plyr_idx, MapSlabCoord slb_x, MapSlabCoord
 
 TbBool slab_kind_has_no_ownership(SlabKind slbkind)
 {
-    return ( (slbkind == SlbT_ROCK) || (slbkind == SlbT_ROCK_FLOOR) || (slbkind == SlbT_GOLD) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_EARTH) || (slbkind == SlbT_TORCHDIRT)
-            || (slbkind == SlbT_PATH) || (slab_kind_is_liquid(slbkind)) );
+    struct SlabAttr* attributes = get_slab_kind_attrs(slbkind);
+    return (attributes->is_ownable == 0);
 }
 
 TbBool players_land_by_slab_kind(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y, SlabKind slbkind)

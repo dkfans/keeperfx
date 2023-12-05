@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "light_data.h"
+#include "map_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -127,6 +128,7 @@ enum ThingEffectKind {
     TngEff_Unknown69,
 };
 
+/** See struct EffectElementStats effect_element_stats for use. */
 enum ThingEffectElements {
     TngEffElm_None = 0,
     TngEffElm_Blast1,
@@ -251,7 +253,7 @@ struct EffectGeneratorStats { // sizeof = 57
 };
 
 struct EffectElementStats { // sizeof = 79
-  unsigned char draw_class;
+  unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
   unsigned char move_type;
   unsigned char unanimated;
   short lifespan;
@@ -267,7 +269,7 @@ struct EffectElementStats { // sizeof = 79
   unsigned char transparant;  // transparency flags in bits 4-5
   unsigned char field_15;
   unsigned char movement_flags;
-  unsigned char size_change;
+  unsigned char size_change; /**< See enum ThingSizeChange. */
   unsigned char fall_acceleration;
   unsigned char field_19_unused;
   short inertia_floor;
@@ -335,7 +337,9 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
 TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hit_targets, PlayerNumber shot_owner);
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
     HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type);
-
+    
+TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner);    
 /******************************************************************************/
 #ifdef __cplusplus
 }

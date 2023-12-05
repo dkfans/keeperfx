@@ -396,7 +396,7 @@ TbBool creature_can_head_for_room(struct Thing *thing, struct Room *room, int fl
 long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
 {
     //TODO enable when issue in pathfinding is solved
-    /*if (get_2d_box_distance(&thing->mappos, pos) <= 0)
+    /*if (get_chessboard_distance(&thing->mappos, pos) <= 0)
         return -1;*/
     long angle = get_angle_xy_to(&thing->mappos, pos);
 
@@ -406,7 +406,7 @@ long creature_turn_to_face(struct Thing *thing, const struct Coord3d *pos)
 long creature_turn_to_face_backwards(struct Thing *thing, struct Coord3d *pos)
 {
     //TODO enable when issue in pathfinding is solved
-    /*if (get_2d_box_distance(&thing->mappos, pos) <= 0)
+    /*if (get_chessboard_distance(&thing->mappos, pos) <= 0)
         return -1;*/
 
     long angle = (get_angle_xy_to(&thing->mappos, pos)
@@ -476,7 +476,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         {
             creature_set_speed(thing, -speed);
             cctrl->flgfield_2 |= TF2_Unkn01;
-            if (get_2d_box_distance(&thing->mappos, &nextpos) > -2*cctrl->move_speed)
+            if (get_chessboard_distance(&thing->mappos, &nextpos) > -2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive backward speed",
                     thing_model_name(thing),(int)thing->index,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,
@@ -502,7 +502,7 @@ long creature_move_to_using_gates(struct Thing *thing, struct Coord3d *pos, Move
         {
             creature_set_speed(thing, speed);
             cctrl->flgfield_2 |= TF2_Unkn01;
-            if (get_2d_box_distance(&thing->mappos, &nextpos) > 2*cctrl->move_speed)
+            if (get_chessboard_distance(&thing->mappos, &nextpos) > 2*cctrl->move_speed)
             {
                 ERRORDBG(3,"The %s index %d tried to reach (%d,%d) from (%d,%d) with excessive forward speed",
                     thing_model_name(thing),(int)thing->index,(int)nextpos.x.stl.num,(int)nextpos.y.stl.num,
@@ -543,7 +543,7 @@ TbBool creature_move_to_using_teleport(struct Thing *thing, struct Coord3d *pos,
         if (destination_valid)
          {
              // Use teleport only over large enough distances
-             if (get_2d_box_distance(&thing->mappos, pos) > COORD_PER_STL*game.min_distance_for_teleport)
+             if (get_chessboard_distance(&thing->mappos, pos) > COORD_PER_STL*game.min_distance_for_teleport)
              {
                  set_creature_instance(thing, CrInst_TELEPORT, 0, pos);
                  return true;

@@ -589,7 +589,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long speed = crstat->base_speed;
-    if (creature_affected_by_slap(thing))
+    if ( (creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)) )
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Speed))
         speed *= 2;
@@ -853,13 +853,31 @@ long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng,
     return dig_damage;
 }
 
-long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb)
+GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, const struct SlabMap *slb)
 {
-    long gold = (damage_did_to_slab * (long)game.gold_per_gold_block) / game.block_health[1];
+    struct SlabAttr *slbattr = get_slab_attrs(slb);
+    GoldAmount gold = (damage_did_to_slab * game.gold_per_gold_block) / game.block_health[slbattr->block_health_index];
+    // Returns gold-per-hit as an integer
     if (slb->kind == SlbT_GEMS)
-      gold = gold * gameadd.gem_effectiveness / 100;
-    if (gold <= 1)
-      return 1;
+    {
+        gold = gold * gameadd.gem_effectiveness / 100;
+    }
+    else if (slb->health == 0)
+    // if the last hit deals the damage exactly, just drop a pile and the remainder
+    {
+        gold += (game.gold_per_gold_block % gold);
+    }
+    else if (slb->health < 0)
+    // If the damage dealt is more than the remaining health, then health is not divisible by damage, so this 
+    // should return whatever is left, as this is less than the gold given for a full hit.
+    {
+        gold = game.gold_per_gold_block - (game.block_health[slbattr->block_health_index] / damage_did_to_slab) * gold;
+    // subtract all of the "full hits" and return what's left.
+    }
+    if (gold < 1)
+    {
+        return 1;
+    }
     return gold;
 }
 

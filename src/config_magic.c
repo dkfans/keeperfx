@@ -180,6 +180,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"HIDDEN_PROJECTILE",   17},
   {"DISARMING",           18},
   {"BLOCKS_REBIRTH",      19},
+  {"PENETRATING",         20},
   {NULL,                   0},
   };
 
@@ -1067,6 +1068,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_BlocksRebirth;
                 n++;
                 break;
+            case 20: // Penetrating
+                shotst->model_flags |= ShMF_Penetrating;
+                n++;
+                break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -1610,7 +1615,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->light_radius = k << 8;
+              shotst->light_radius = k * COORD_PER_STL;
               n++;
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)

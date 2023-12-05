@@ -87,7 +87,7 @@ TbBool shot_is_boulder(const struct Thing *shotng)
     return ((shotst->model_flags & ShMF_Boulder) != 0);
 }
 
-TbBool detonate_shot(struct Thing *shotng)
+TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
@@ -144,7 +144,10 @@ TbBool detonate_shot(struct Thing *shotng)
     default:
         break;
     }
-    delete_thing_structure(shotng, 0);
+    if (destroy)
+    {
+        delete_thing_structure(shotng, 0);
+    }
     return true;
 }
 
@@ -218,11 +221,10 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coor
 
 TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    long gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, creatng->owner, cctrl->explevel, slb);
+    long gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, slb);
     creatng->creature.gold_carried += gold;
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.gold_mined += gold;
@@ -411,6 +413,10 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         {
             if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
             { // Valuables require counting gold
+                if (!slab_kind_is_indestructible(slb->kind))
+                {
+                    slb->health -= damage; // otherwise, we won't get the final lot of gold
+                }
                 give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
                 mine_out_block(stl_x, stl_y, diggertng->owner);
                 thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -549,7 +555,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     target_pos.y.val = shotng->shot_lizard.posint * gameadd.crtr_conf.sprite_size;
                     target_pos.z.val = pos->z.val;
                     const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
-                    if (dist <= 800) return detonate_shot(shotng);
+                    if (dist <= 800) return detonate_shot(shotng, true);
                 }
             }
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
@@ -589,15 +595,18 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     }
     if ( destroy_shot )
     {
-        return detonate_shot(shotng);
+        return detonate_shot(shotng, true);
     }
-    if (shotng->bounce_angle <= 0)
+    if (!(shotst->model_flags & ShMF_Penetrating))
     {
-        slide_thing_against_wall_at(shotng, pos, blocked_flags);
-    }
-    else
-    {
-        bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        if (shotng->bounce_angle <= 0)
+        {
+            slide_thing_against_wall_at(shotng, pos, blocked_flags);
+        }
+        else
+        {
+            bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        }
     }
     return false;
 }
@@ -657,7 +666,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     }
     if ( shot_explodes )
     {
-        return detonate_shot(shotng);
+        return detonate_shot(shotng, true);
     }
     if (shotng->bounce_angle <= 0)
     {
@@ -840,7 +849,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     }
     if (shotst->area_range != 0)
     {
-        return detonate_shot(shotng);
+        return detonate_shot(shotng, shotst->destroy_on_first_hit);
     }
     if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
@@ -967,10 +976,9 @@ long check_hit_when_attacking_door(struct Thing *thing)
  * Kills a creature with given shot.
  * @param shotng The shot which is killing the victim creature.
  * @param creatng The victim creature thing.
- * @return True if the creature is being killed, false if something have failed.
  * @note sometimes named shot_kills_creature().
  */
-TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
+void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     creatng->health = -1;
@@ -990,7 +998,7 @@ TbBool shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
     {
         dieflags |= CrDed_NoUnconscious;
     }
-    return kill_creature(creatng, killertng, shotng->owner, dieflags);
+    kill_creature(creatng, killertng, shotng->owner, dieflags);
 }
 
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
@@ -1310,7 +1318,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 
     if (shotst->area_range != 0)
     {
-        detonate_shot(shotng);
+        detonate_shot(shotng, shotst->destroy_on_first_hit);
     }
 
 
@@ -1464,8 +1472,12 @@ TngUpdateRet move_shot(struct Thing *shotng)
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     if (!(shotst->model_flags & ShMF_NoHit))
     {
-        if (shot_hit_something_while_moving(shotng, &pos)) {
-            return TUFRet_Deleted;
+        if (shot_hit_something_while_moving(shotng, &pos))
+        {
+            if (!(shotst->model_flags & ShMF_Penetrating))
+            {
+                return TUFRet_Deleted;
+            }
         }
     }
     if ((shotng->movement_flags & TMvF_Unknown10) != 0)
@@ -1664,7 +1676,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         return TUFRet_Deleted;
     }
     if (hit) {
-        detonate_shot(thing);
+        detonate_shot(thing, true);
         return TUFRet_Deleted;
     }
     return move_shot(thing);
@@ -1696,7 +1708,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
     thing->inertia_floor = shotst->inertia_floor;
     thing->inertia_air = shotst->inertia_air;
     thing->movement_flags ^= (thing->movement_flags ^ TMvF_Unknown08 * shotst->soft_landing) & TMvF_Unknown08;
-    set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, 2);
+    set_thing_draw(thing, shotst->sprite_anim_idx, 256, shotst->sprite_size_max, 0, 0, ODC_Default);
     thing->rendering_flags ^= (thing->rendering_flags ^ TRF_Unshaded * shotst->unshaded) & TRF_Unshaded;
     thing->rendering_flags ^= thing->rendering_flags ^ ((thing->rendering_flags ^ TRF_Transpar_8 * shotst->animation_transparency) & (TRF_Transpar_Flags));
     thing->rendering_flags ^= (thing->rendering_flags ^ shotst->hidden_projectile) & TRF_Unknown01;

@@ -18,6 +18,7 @@
 /******************************************************************************/
 #include "pre_inc.h"
 #include "config_players.h"
+#include "config_powerhands.h"
 #include "packets.h"
 #include "player_data.h"
 #include "map_data.h"
@@ -199,7 +200,6 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
     MapCoord y = pckt->pos_y;
     MapSubtlCoord stl_x = coord_subtile(x);
     MapSubtlCoord stl_y = coord_subtile(y);
-    struct Objects* objdat;
 
     player->additional_flags &= ~PlaAF_ChosenSubTileIsHigh;
     if ((player->secondary_cursor_state != CSt_DefaultArrow) && (player->secondary_cursor_state != CSt_PowerHand))
@@ -247,20 +247,17 @@ TbBool process_dungeon_power_hand_state(long plyr_idx)
             thing = get_first_thing_in_power_hand(player);
             if ((player->thing_under_hand != 0) || thing_is_invalid(thing))
             {
-                objdat = get_objects_data(ObjMdl_PowerHand);
-                set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
+                set_power_hand_graphic(plyr_idx, HndA_Hover);
                 if (!thing_is_invalid(thing))
                     thing->rendering_flags |= TRF_Unknown01;
             } else
             if ((thing->class_id == TCls_Object) && object_is_gold_pile(thing))
             {
-                objdat = get_objects_data(ObjMdl_PowerHandWithGold);
-                set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx, objdat->anim_speed);
+                set_power_hand_graphic(plyr_idx, HndA_HoldGold);
                 thing->rendering_flags &= ~TRF_Unknown01;
             } else
             {
-                objdat = get_objects_data(ObjMdl_PowerHandGrab);
-                set_power_hand_graphic(plyr_idx, objdat->sprite_anim_idx + 1, objdat->anim_speed);
+                set_power_hand_graphic(plyr_idx, HndA_Hold);
                 thing->rendering_flags &= ~TRF_Unknown01;
             }
         }
@@ -890,6 +887,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Armour:
         case PSt_Conceal:
         case PSt_Heal:
+        case PSt_TimeBomb:
             influence_own_creatures = true;
             pwkind = player_state_to_power_kind[player->work_state];
             thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);

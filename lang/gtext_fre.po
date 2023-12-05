@@ -6979,8 +6979,8 @@ msgstr ""
 
 #: guitext:1011
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper original campaign"
-msgstr "Dungeon Keeper campagne d'origine"
+msgid "Dungeon Keeper - Original Campaign"
+msgstr "Dungeon Keeper - Campagne Originale"
 
 #: guitext:1012
 msgctxt "Menu interface item""
@@ -7059,7 +7059,7 @@ msgstr ""
 
 #: guitext:1027
 msgctxt "Menu interface item""
-msgid "Dungeon Keeper - New Game+"
+msgid "Dungeon Keeper - NG+"
 msgstr ""
 
 #: guitext:1028
@@ -7133,3 +7133,23 @@ msgstr "Druide"
 msgctxt "Creature name"
 msgid "Time Mage"
 msgstr "Mage du temps"
+
+#: guitext:1044 guitext:1045 guitext:1046 guitext:1047 guitext:1048 guitext:1049
+msgctxt "Unused"
+msgid "Moo7"
+msgstr ""
+
+#: guitext:1050
+msgctxt "Slab description"
+msgid "Rock Formation."
+msgstr "Formation rocheuse."
+
+#: guitext:1051
+msgctxt "Slab description"
+msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
+msgstr "Rocher de base : Sol rocheux non réclamé. Vous ne pouvez pas le revendiquer ni construire dessus."
+
+#: guitext:1052
+msgctxt "Slab description"
+msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
+msgstr "Veine d'or dense : Contient beaucoup de richesses que vos Lutins peuvent extraire."
