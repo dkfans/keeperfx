@@ -63,6 +63,7 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"PANELTABINDEX",        12},
   {"OPENSPEED",            13},
   {"PROPERTIES",           14},
+  {"PLACESOUND",           15},
   {NULL,                    0},
 };
 
@@ -1039,6 +1040,8 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           doorst->bigsym_sprite_idx = 0;
           doorst->medsym_sprite_idx = 0;
           doorst->pointer_sprite_idx = 0;
+          // Default door placement sound, so that placement sound isn't broken if custom doors is bundled into maps
+          doorst->place_sound_idx = 117;
           doorst->panel_tab_idx = 0;
           if (i < gameadd.trapdoor_conf.door_types_count)
           {
@@ -1330,7 +1333,21 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
             }
           }
           break;
-
+      case 15: // PLACESOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              n = atoi(word_buf);
+              if (n < 0 || n > samples_in_bank - 1)
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              }
+              else
+              {
+                  doorst->place_sound_idx = n;
+              }
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer

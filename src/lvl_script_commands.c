@@ -2140,6 +2140,12 @@ static void set_door_configuration_process(struct ScriptContext *context)
                 doorst->open_speed = value;
             }
             break;
+        case 15: // PlaceSound
+            if (door_type < gameadd.trapdoor_conf.door_types_count)
+            {
+                doorst->place_sound_idx = value;
+            }
+            break;
         default:
             WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
             break;
@@ -2677,7 +2683,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->pay = value;
             break;
         case 22: // HEROVSKEEPERCOST
-            crstat->hero_vs_keeper_cost = value;
             break;
         case 23: // SLAPSTOKILL
             crstat->slaps_to_kill = value;
