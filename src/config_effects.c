@@ -91,7 +91,7 @@ static void load_effects(VALUE *value, unsigned short flags)
             effcst->accel_xy_min = value_int32(value_array_get(generationAccelXYRange_arr, 0));
             effcst->accel_xy_max = value_int32(value_array_get(generationAccelXYRange_arr, 1));
 
-            VALUE *generationAccelZRange_arr = value_dict_get(section, "GenerationAccelzRange");
+            VALUE *generationAccelZRange_arr = value_dict_get(section, "GenerationAccelZRange");
             effcst->accel_z_min = value_int32(value_array_get(generationAccelZRange_arr, 0));
             effcst->accel_z_max = value_int32(value_array_get(generationAccelZRange_arr, 1));
 
