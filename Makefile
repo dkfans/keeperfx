@@ -145,6 +145,7 @@ obj/config_magic.o \
 obj/config_magic_data.o \
 obj/config_objects.o \
 obj/config_players.o \
+obj/config_powerhands.o \
 obj/config_rules.o \
 obj/config_settings.o \
 obj/config_slabsets.o \
@@ -338,7 +339,7 @@ CU_OBJS = \
 # include and library directories
 LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
 	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
-	-L"deps/zlib" -lz -lws2_32
+	-L"deps/zlib" -lz -lws2_32 -ldbghelp
 INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml"
 CXXINCS =  $(INCS)
 
@@ -359,11 +360,11 @@ INCFLAGS =
 CV2PDB := $(shell PATH=`pwd`:$$PATH command -v cv2pdb.exe 2> /dev/null)
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
-  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O0
+  OPTFLAGS = -march=x86-64 -fno-omit-frame-pointer -O0
   DBGFLAGS = -g -DDEBUG
 else
   # frame pointer is required for ASM code to work
-  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O3
+  OPTFLAGS = -march=x86-64 -fno-omit-frame-pointer -O3
   # if we can create a separate debug info file then do it
   ifdef CV2PDB
     DBGFLAGS = -g

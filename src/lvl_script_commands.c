@@ -28,6 +28,7 @@
 #include "config_settings.h"
 #include "config_effects.h"
 #include "config_trapdoor.h"
+#include "config_powerhands.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
@@ -232,6 +233,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"Unsellable",          34},
   {"PlaceOnBridge",       35},
   {"ShotOrigin",          36},
+  {"PlaceSound",          37},
   {NULL,                   0},
 };
 
@@ -1712,7 +1714,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             gameadd.trap_stats[trap_type].hit_type = value;
             break;
         case 27: // LightRadius
-            gameadd.trap_stats[trap_type].light_radius = value;
+            gameadd.trap_stats[trap_type].light_radius = value * COORD_PER_STL;
             break;
         case 28: // LightIntensity
             gameadd.trap_stats[trap_type].light_intensity = value;
@@ -1744,6 +1746,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             gameadd.trap_stats[trap_type].shot_shift_x = value;
             gameadd.trap_stats[trap_type].shot_shift_y = value2;
             gameadd.trap_stats[trap_type].shot_shift_z = value3;
+            break;
+        case 37: // PlaceSound
+            trapst->place_sound_idx = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -2133,6 +2138,12 @@ static void set_door_configuration_process(struct ScriptContext *context)
             if (door_type < gameadd.trapdoor_conf.door_types_count)
             {
                 doorst->open_speed = value;
+            }
+            break;
+        case 15: // PlaceSound
+            if (door_type < gameadd.trapdoor_conf.door_types_count)
+            {
+                doorst->place_sound_idx = value;
             }
             break;
         default:
@@ -2672,7 +2683,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
             crstat->pay = value;
             break;
         case 22: // HEROVSKEEPERCOST
-            crstat->hero_vs_keeper_cost = value;
             break;
         case 23: // SLAPSTOKILL
             crstat->slaps_to_kill = value;
@@ -2815,7 +2825,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->ilght.intensity = context->value->arg2;
             break;
         case 16: // LIGHTRADIUS
-            objst->ilght.radius = context->value->arg2 << 8; //Mystery bit shift. Remove it to get divide by 0 errors.
+            objst->ilght.radius = context->value->arg2 * COORD_PER_STL;
             break;
         case 17: // LIGHTISDYNAMIC
             objst->ilght.is_dynamic = context->value->arg2;
@@ -3931,9 +3941,14 @@ static void set_music_process(struct ScriptContext *context)
             game.audiotrack = track_number;
         }
     }
+    else if (track_number == 0)
+    {
+        game.audiotrack = track_number;
+        SCRPTLOG("Setting music track to %d: No Music", track_number);
+    }
     else
     {
-        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
+        SCRPTERRLOG("Invalid music track: %d. Track must be between %d and %d or 0 to disable.", track_number,FIRST_TRACK,MUSIC_TRACKS_COUNT);
     }
 }
 
@@ -4033,6 +4048,38 @@ static void play_message_process(struct ScriptContext *context)
                 }
             }
         }
+    }
+}
+
+static void set_power_hand_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    long hand_idx = get_rid(powerhand_desc, scline->tp[1]);
+    if (hand_idx == -1)
+    {
+        if (parameter_is_number(scline->tp[1]))
+        {
+            hand_idx = atoi(scline->tp[1]);
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid hand_idx: '%s'", scline->tp[1]);
+            return;
+        }
+    }
+    value->shorts[0] = hand_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_power_hand_process(struct ScriptContext *context)
+{
+    long hand_idx = context->value->shorts[0];
+    struct PlayerInfo * player;
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        player = get_player(i);
+        player->hand_idx = hand_idx;
     }
 }
 
@@ -4178,6 +4225,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
   {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process },
+  {"SET_POWER_HAND",                    "PA      ", Cmd_SET_POWER_HAND, &set_power_hand_check, &set_power_hand_process },
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
