@@ -231,7 +231,6 @@ enum ThingEffectElements {
 /******************************************************************************/
 #pragma pack(1)
 
-struct EffectConfigStats;
 struct Thing;
 
 struct EffectElementStats { // sizeof = 79
