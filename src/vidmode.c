@@ -73,6 +73,7 @@ unsigned short units_per_pixel_min;
 unsigned short units_per_pixel_width;
 unsigned short units_per_pixel_height;
 unsigned short units_per_pixel_best;
+unsigned short units_per_pixel_menu;
 unsigned short units_per_pixel_ui;
 unsigned long aspect_ratio_factor_HOR_PLUS;
 unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
@@ -733,6 +734,7 @@ TbBool update_screen_mode_data(long width, long height)
   units_per_pixel_width = width/40; // 8 for low res, 16 is "kfx default"
   units_per_pixel_height = height/25; // 8 for low res, 16 is "kfx default"
   units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // 8 for low res, 16 is "kfx default"
+  units_per_pixel_menu = ((is_menu_ar_wider_than_original(width, height)) ? units_per_pixel_width : units_per_pixel_height);// 16 is "kfx default" for 640x480
   long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
   units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
   calculate_aspect_ratio_factor(width, height);

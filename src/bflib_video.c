@@ -1241,6 +1241,7 @@ long scale_ui_value_lofi(long base_value)
 
 /**
  * Takes a fixed value tuned for original DK at 640x400 and scales it for the game's current resolution.
+ * If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
  * Uses units_per_pixel_best (which is 16 at 640x400)
  *
  * @param base_value The fixed value tuned for original DK 640x400 mode
@@ -1253,6 +1254,20 @@ long scale_fixed_DK_value(long base_value)
 }
 
 /**
+ * Takes a fixed value tuned for original DK main menu at 640x480 and scales it for the game's current resolution.
+ * If the screen is wider than 4:3 the width is used; if the screen is narrower than 4:3 the height is used.
+ * Uses units_per_pixel_menu (which is 16 at 640x480)
+ *
+ * @param base_value The fixed value tuned for original DK menu in 640x480 mode
+ */
+long scale_value_menu(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_menu /16)
+    long value = ((((units_per_pixel_menu * base_value) >> 3) + (((units_per_pixel_menu * base_value) >> 3) & 1)) >> 1);
+    return value;
+}
+
+/**
  * Determine whether the current window aspect ratio is wider than the original (16/10)
  *
  * @param width current window width
@@ -1261,6 +1276,18 @@ long scale_fixed_DK_value(long base_value)
 TbBool is_ar_wider_than_original(long width, long height)
 {
     long original_aspect_ratio = (320 << 8) / 200;
+    long current_aspect_ratio = (width << 8) / height;
+    return (current_aspect_ratio > original_aspect_ratio);
+}
+/**
+ * Determine whether the current window aspect ratio is wider than the original main menu (4/3)
+ *
+ * @param width current window width
+ * @param height current window height
+ */
+TbBool is_menu_ar_wider_than_original(long width, long height)
+{
+    long original_aspect_ratio = (640 << 8) / 480;
     long current_aspect_ratio = (width << 8) / height;
     return (current_aspect_ratio > original_aspect_ratio);
 }

@@ -262,6 +262,7 @@ enum UIScaleSettings {
 extern unsigned short units_per_pixel_width;
 extern unsigned short units_per_pixel_height;
 extern unsigned short units_per_pixel_best;
+extern unsigned short units_per_pixel_menu;
 extern unsigned short units_per_pixel_ui;
 extern unsigned long aspect_ratio_factor_HOR_PLUS;
 extern unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
@@ -332,7 +333,9 @@ long scale_value_by_vertical_resolution(long base_value);
 long scale_ui_value_lofi(long base_value);
 long scale_ui_value(long base_value);
 long scale_fixed_DK_value(long base_value);
+long scale_value_menu(long base_value);
 TbBool is_ar_wider_than_original(long width, long height);
+TbBool is_menu_ar_wider_than_original(long width, long height);
 long calculate_relative_upp(long base_length, long reference_upp, long reference_length);
 long resize_ui(long units_per_px, long ui_scale);
 void calculate_aspect_ratio_factor(long width, long height);
