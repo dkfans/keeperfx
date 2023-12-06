@@ -2228,9 +2228,11 @@ TbResult LbHugeSpriteDrawUsingScalingUpData(uchar *outbuf, int scanline, int out
  * @return
  */
 TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
-    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px)
+    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift)
 {
-    LbSpriteSetScalingData(-scale_value_for_resolution(xshift), -scale_value_for_resolution(yshift), spr->SWidth, spr->SHeight, scale_value_for_resolution(spr->SWidth), scale_value_for_resolution(spr->SHeight));
+    // works for normal and narrower
+    LbSpriteSetScalingData(-xshift*units_per_pixel_menu/16, -yshift*units_per_pixel_landview/16, spr->SWidth, spr->SHeight, scale_value_for_resolution(spr->SWidth), scale_value_for_resolution(spr->SHeight));
+    //LbSpriteSetScalingData(-xshift*units_per_pixel_menu/16, -yshift*units_per_pixel_best/16, spr->SWidth, spr->SHeight, scale_value_for_resolution(spr->SWidth), scale_value_for_resolution(spr->SHeight));
     return LbHugeSpriteDrawUsingScalingUpData(r, r_row_delta, r_height, xsteps_array, ysteps_array, spr);
 }
 

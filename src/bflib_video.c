@@ -1254,8 +1254,11 @@ long scale_fixed_DK_value(long base_value)
 }
 
 /**
- * Takes a fixed value tuned for original DK main menu at 640x480 and scales it for the game's current resolution.
- * If the screen is wider than 4:3 the width is used; if the screen is narrower than 4:3 the height is used.
+ * The menu is currently always scaled so that the graphics FILL the screen on wider ARs than 4/3.
+ * TODO: make a config setting to choose FIT or FILL for the menu (background image only really, buttons should always FIT the screen, but they currently FILL (so ultrawide is borked)).
+ * 
+ * Takes a fixed value tuned for original DK main menu at 640x480 and scales it to FILL the game's current resolution.
+ * 
  * Uses units_per_pixel_menu (which is 16 at 640x480)
  *
  * @param base_value The fixed value tuned for original DK menu in 640x480 mode
@@ -1265,6 +1268,58 @@ long scale_value_menu(long base_value)
     // return value is equivalent to: round(base_value * units_per_pixel_menu /16)
     long value = ((((units_per_pixel_menu * base_value) >> 3) + (((units_per_pixel_menu * base_value) >> 3) & 1)) >> 1);
     return value;
+}
+
+/** Scale the landview objects. */
+long scale_value_landview(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_landview /16)
+    long value = ((((units_per_pixel_landview * base_value) >> 3) + (((units_per_pixel_landview * base_value) >> 3) & 1)) >> 1);
+    return value;
+}
+
+/** Scale the landview frame. */
+long scale_value_landview_frame(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_landview /16)
+    long value = ((((units_per_pixel_landview_frame * base_value) >> 3) + (((units_per_pixel_landview_frame * base_value) >> 3) & 1)) >> 1);
+    return value;
+}
+
+/**
+ * Calculate the landview units per pixel value for scaling (DK 640x480 was upp = 16)
+ * 
+ * @param width the current window width
+ * @param height  the current window height
+ * @param landview_width the current landview background image width (passed LANDVIEW_MAP_WIDTH)
+ * @param landview_height the current landview background image height (passed LANDVIEW_MAP_HEIGHT)
+ * @return the units per pixel to use for scaling the landview .
+ */
+long calculate_landview_upp(long width, long height, long landview_width, long landview_height)
+{
+    // original DK relative value: 
+    // View Width: 640 / 1280 - 66.667%
+    // View Height: 480 / 960 - 50% 
+    long dk_view_width_amount = 1024 * 640 / 1280; // 50% * 1024
+    long dk_view_height_amount = 1024 * 480 / 960; // 50% * 1024
+    long h_ar = 1024 * width / height;
+    long v_ar = 1024 * height / width;
+    if (is_menu_ar_wider_than_original(width, height))  // Get FIT upp
+    {
+        // HOR+
+        long temp_width = 480 * h_ar; 
+        temp_width = min(temp_width, 1024 * landview_width); // clamp ultra-wide
+        long temp_height = temp_width * v_ar / 1024;
+        return (16 * height * 1024 / temp_height);
+    }
+    else
+    {
+        // VERT+
+        long temp_height = 640 * v_ar;
+        temp_height = min(temp_height, 1024 * landview_height); // clamp ultra-tall
+        long temp_width = temp_height * h_ar / 1024;
+        return (16 * width * 1024 / temp_width);
+    }   
 }
 
 /**

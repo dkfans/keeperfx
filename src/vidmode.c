@@ -72,8 +72,11 @@ static TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 unsigned short units_per_pixel_min;
 unsigned short units_per_pixel_width;
 unsigned short units_per_pixel_height;
+unsigned short units_per_pixel_menu_height;
 unsigned short units_per_pixel_best;
 unsigned short units_per_pixel_menu;
+unsigned short units_per_pixel_landview;
+unsigned short units_per_pixel_landview_frame;
 unsigned short units_per_pixel_ui;
 unsigned long aspect_ratio_factor_HOR_PLUS;
 unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
@@ -733,8 +736,11 @@ TbBool update_screen_mode_data(long width, long height)
   units_per_pixel_min = (width>height?height:width)/40;// originally 10 for hires
   units_per_pixel_width = width/40; // 8 for low res, 16 is "kfx default"
   units_per_pixel_height = height/25; // 8 for low res, 16 is "kfx default"
-  units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // 8 for low res, 16 is "kfx default"
-  units_per_pixel_menu = ((is_menu_ar_wider_than_original(width, height)) ? units_per_pixel_width : units_per_pixel_height);// 16 is "kfx default" for 640x480
+  units_per_pixel_menu_height = height/30; // 16 is "kfx default" (640x480)
+  units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
+  units_per_pixel_menu = ((is_menu_ar_wider_than_original(width, height)) ? units_per_pixel_width : units_per_pixel_menu_height); // If the screen is wider than 4:3 the width is used; if the screen is narrower than 4:3 the height is used.
+  units_per_pixel_landview = calculate_landview_upp(width, height, LANDVIEW_MAP_WIDTH, LANDVIEW_MAP_HEIGHT); // 16 is "kfx default" for 640x480 window and a 1280x960 landview
+  units_per_pixel_landview_frame = ((is_menu_ar_wider_than_original(width, height)) ? units_per_pixel_menu_height : units_per_pixel_width); // If the screen is wider than 4:3 the height is used; if the screen is narrower than 4:3 the width is used.
   long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
   units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
   calculate_aspect_ratio_factor(width, height);

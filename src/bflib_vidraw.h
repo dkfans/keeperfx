@@ -198,7 +198,7 @@ int LbSpriteDrawScaledRemap(long xpos, long ypos, const struct TbSprite *sprite,
 #define LbSpriteDrawResizedRemap(xpos, ypos, un_per_px, sprite, cmap) LbSpriteDrawScaledRemap(xpos, ypos, sprite, ((sprite)->SWidth * un_per_px + 8) / 16, ((sprite)->SHeight * un_per_px + 8) / 16, cmap)
 
 TbResult LbHugeSpriteDraw(const struct TbHugeSprite * spr, long sp_len,
-    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift, int units_per_px);
+    unsigned char *r, int r_row_delta, int r_height, short xshift, short yshift);
 void LbTiledSpriteDraw(long x, long y, long units_per_px, struct TiledSprite *bigspr, struct TbSprite *sprite);
 int LbTiledSpriteHeight(struct TiledSprite *bigspr, struct TbSprite *sprite);
 
