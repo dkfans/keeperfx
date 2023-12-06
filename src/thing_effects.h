@@ -248,7 +248,7 @@ struct EffectElementStats { // sizeof = 79
   TbBool animate_on_floor;
   unsigned char unshaded;
   unsigned char transparant;  // transparency flags in bits 4-5
-  unsigned char field_15;
+  unsigned char collision_field1;
   unsigned char movement_flags;
   unsigned char size_change; /**< See enum ThingSizeChange. */
   unsigned char fall_acceleration;
@@ -257,8 +257,8 @@ struct EffectElementStats { // sizeof = 79
   short inertia_air;
   unsigned short subeffect_model;
   unsigned short subeffect_delay;
-  unsigned char field_22;
-  unsigned short effmodel_23;
+  unsigned char collision_field2;
+  unsigned short solidgnd_effmodel;
   unsigned short solidgnd_snd_smpid;
   unsigned short solidgnd_loudness;
   unsigned char solidgnd_destroy_on_impact;

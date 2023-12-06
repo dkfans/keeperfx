@@ -56,7 +56,7 @@ extern "C" {
 /** See enum ThingEffectElements for the labels of the "rows" of this table. */
 struct EffectElementStats effect_element_stats[] = {
  //draw_class,	move_type,	unanimated,	lifespan,	lifespan_random,	sprite_idx,	sprite_size_min,	sprite_size_max,	rendering_flag,	sprite_speed_min,	sprite_speed_max,	animate_on_floor,	unshaded,	transparant,	
-    // field_15,	movement_flags,	size_change,	fall_acceleration,	field_19_unused,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	field_22,	effmodel_23,	solidgnd_snd_smpid,	solidgnd_loudness,
+    // collision_field1,	movement_flags,	size_change,	fall_acceleration,	field_19_unused,	inertia_floor,	inertia_air,	subeffect_model,	subeffect_delay,	collision_field2,	solidgnd_effmodel,	solidgnd_snd_smpid,	solidgnd_loudness,
         // solidgnd_destroy_on_impact,	water_effmodel,	water_snd_smpid,	water_loudness,	water_destroy_on_impact,	
             // lava_effmodel,	lava_snd_smpid,	lava_loudness,	lava_destroy_on_impact,	transform_model,	field_3A,	field_3C,	field_3D,	affected_by_wind
  {2,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	0,	256,	0,	0,	0,	256,	0,	0,	0,	256,	0,	0,	0,	0,	0,	0},
@@ -175,6 +175,160 @@ struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel)
     if (tngmodel >= sizeof(effect_element_stats)/sizeof(effect_element_stats[0]))
         return &effect_element_stats[0];
     return &effect_element_stats[tngmodel];
+}
+
+
+void printeffel()
+{
+
+    static const char* elnames[] =
+{
+    "EFFECTELEMENT_NULL",
+    "EFFECTELEMENT_BLAST1",
+    "EFFECTELEMENT_BLOOD1",
+    "EFFECTELEMENT_BLOOD2",
+    "EFFECTELEMENT_BLOOD3",
+    "EFFECTELEMENT_UNKNOWN05",
+    "EFFECTELEMENT_SPIKED_BALL",
+    "EFFECTELEMENT_CLOUD1",
+    "EFFECTELEMENT_SMALL_SPARKLES",
+    "EFFECTELEMENT_BALL_OF_LIGHT",
+    "EFFECTELEMENT_RED_FLAME_BIG",
+    "EFFECTELEMENT_ICE_SHARD",
+    "EFFECTELEMENT_LEAVES1",
+    "EFFECTELEMENT_THINGY2",
+    "EFFECTELEMENT_THINGY3",
+    "EFFECTELEMENT_TINY_FLASH1",
+    "EFFECTELEMENT_FLASH_BALL1",
+    "EFFECTELEMENT_RED_FLASH",
+    "EFFECTELEMENT_FLASH_BALL2",
+    "EFFECTELEMENT_TINY_FLASH2",
+    "EFFECTELEMENT_PURPLE_STARS", // 20
+    "EFFECTELEMENT_CLOUD2",
+    "EFFECTELEMENT_DRIP1",
+    "EFFECTELEMENT_BLOOD4",
+    "EFFECTELEMENT_ICE_MELT1",
+    "EFFECTELEMENT_ICE_MELT2",
+    "EFFECTELEMENT_TINY_ROCK",
+    "EFFECTELEMENT_MED_ROCK",
+    "EFFECTELEMENT_LARGE_ROCK1",
+    "EFFECTELEMENT_DRIP2",
+    "EFFECTELEMENT_LAVA_FLAME_STATIONARY", // 30
+    "EFFECTELEMENT_UNKNOWN31",
+    "EFFECTELEMENT_LAVA_FLAME_MOVING",
+    "EFFECTELEMENT_LARGE_ROCK2",
+    "EFFECTELEMENT_UNKNOWN34",
+    "EFFECTELEMENT_UNKNOWN35",
+    "EFFECTELEMENT_UNKNOWN36",
+    "EFFECTELEMENT_ENTRANCE_MIST",
+    "EFFECTELEMENT_SPLASH",
+    "EFFECTELEMENT_BLAST2",
+    "EFFECTELEMENT_DRIP3", // 40
+    "EFFECTELEMENT_PRICE",
+    "EFFECTELEMENT_ELECTRIC_BALL1",
+    "EFFECTELEMENT_RED_TWINKLE",
+    "EFFECTELEMENT_RED_TWINKLE2",
+    "EFFECTELEMENT_HEAL",
+    "EFFECTELEMENT_UNKNOWN46",
+    "EFFECTELEMENT_CLOUD3",
+    "EFFECTELEMENT_LARGE_ROCK3",
+    "EFFECTELEMENT_GOLD1",
+    "EFFECTELEMENT_GOLD2", // 50
+    "EFFECTELEMENT_GOLD3",
+    "EFFECTELEMENT_FLASH",
+    "EFFECTELEMENT_ELECTRIC_BALL2",
+    "EFFECTELEMENT_RED_PUFF",
+    "EFFECTELEMENT_RED_FLAME",
+    "EFFECTELEMENT_BLUE_FLAME",
+    "EFFECTELEMENT_GREEN_FLAME",
+    "EFFECTELEMENT_YELLOW_FLAME",
+    "EFFECTELEMENT_CHICKEN",
+    "EFFECTELEMENT_ELECTRIC_BALL3", // 60
+    "EFFECTELEMENT_FEATHERS",
+    "EFFECTELEMENT_UNKNOWN62",
+    "EFFECTELEMENT_WHITE_SPARKLES_SMALL",
+    "EFFECTELEMENT_GREEN_SPARKLES_SMALL",
+    "EFFECTELEMENT_RED_SPARKLES_SMALL",
+    "EFFECTELEMENT_BLUE_SPARKLES_SMALL",
+    "EFFECTELEMENT_WHITE_SPARKLES_MED",
+    "EFFECTELEMENT_GREEN_SPARKLES_MED",
+    "EFFECTELEMENT_RED_SPARKLES_MED",
+    "EFFECTELEMENT_BLUE_SPARKLES_MED", // 70
+    "EFFECTELEMENT_WHITE_SPARKLES_LARGE",
+    "EFFECTELEMENT_GREEN_SPARKLES_LARGE",
+    "EFFECTELEMENT_RED_SPARKLES_LARGE",
+    "EFFECTELEMENT_BLUE_SPARKLES_LARGE",
+    "EFFECTELEMENT_RED_SMOKE_PUFF",
+    "EFFECTELEMENT_BLUE_SMOKE_PUFF",
+    "EFFECTELEMENT_GREEN_SMOKE_PUFF",
+    "EFFECTELEMENT_YELLOW_SMOKE_PUFF",
+    "EFFECTELEMENT_BLUE_PUFF",
+    "EFFECTELEMENT_GREEN_PUFF", // 80
+    "EFFECTELEMENT_YELLOW_PUFF",
+    "EFFECTELEMENT_WHITE_PUFF",
+    "EFFECTELEMENT_RED_TWINKLE3",
+    "EFFECTELEMENT_THINGY4",
+    "EFFECTELEMENT_BLOOD_SPLAT",
+    "EFFECTELEMENT_BLUE_TWINKLE",
+    "EFFECTELEMENT_GREEN_TWINKLE",
+    "EFFECTELEMENT_YELLOW_TWINKLE",
+    "EFFECTELEMENT_CLOUD_DISPERSE",
+    "EFFECTELEMENT_BLUE_TWINKE2", // 90
+    "EFFECTELEMENT_GREEN_TWINKLE2",
+    "EFFECTELEMENT_YELLOW_TWINKLE2",
+    "EFFECTELEMENT_RED_DOT",
+    "EFFECTELEMENT_ICE_MELT3",
+    "EFFECTELEMENT_DISEASE_FLY"
+};
+
+    for (size_t i = 0; i < 96; i++)
+    {
+        JUSTMSG("[effectElement%d]",i);
+        JUSTMSG("Name = \"%s\"",elnames[i]);
+        JUSTMSG("DrawClass = %d",effect_element_stats[i].draw_class);
+        JUSTMSG("MoveType = %d",effect_element_stats[i].move_type);
+        JUSTMSG("Unanimated = %d",effect_element_stats[i].unanimated);
+        JUSTMSG("Lifespan = [%d,%d]",effect_element_stats[i].lifespan,effect_element_stats[i].lifespan_random);
+        JUSTMSG("SpriteIndex = %d",effect_element_stats[i].sprite_idx);
+        JUSTMSG("SpriteSize = [%d,%d]",effect_element_stats[i].sprite_size_min,effect_element_stats[i].sprite_size_max);
+        JUSTMSG("RenderFlags = %d",effect_element_stats[i].rendering_flag);
+        JUSTMSG("SpriteSpeed = [%d,%d]",effect_element_stats[i].sprite_speed_min,effect_element_stats[i].sprite_speed_max);
+        JUSTMSG("AnimateOnFloor = %d",effect_element_stats[i].animate_on_floor);
+        JUSTMSG("Unshaded = %d",effect_element_stats[i].unshaded);
+        JUSTMSG("Transparant = %d",effect_element_stats[i].transparant);
+        JUSTMSG("MovementFlags = %d",effect_element_stats[i].movement_flags);
+        JUSTMSG("SizeChange = %d",effect_element_stats[i].size_change);
+        JUSTMSG("fallAcceleration = %d",effect_element_stats[i].fall_acceleration);
+        JUSTMSG("InertiaFloor = %d",effect_element_stats[i].inertia_floor);
+        JUSTMSG("InertiaAir = %d",effect_element_stats[i].inertia_air);
+        JUSTMSG("SubeffectModel = %d",effect_element_stats[i].subeffect_model);
+        JUSTMSG("SubeffectDelay = %d",effect_element_stats[i].subeffect_delay);
+        JUSTMSG("CollisionField1 = %d",effect_element_stats[i].collision_field1);
+        JUSTMSG("CollisionField2 = %d",effect_element_stats[i].collision_field2);
+
+        if (i==0 || (effect_element_stats[i].collision_field2))
+        {
+            JUSTMSG("SolidGroundEffmodel = %d",effect_element_stats[i].solidgnd_effmodel);
+            JUSTMSG("SolidGroundSoundId = %d",effect_element_stats[i].solidgnd_snd_smpid);
+            JUSTMSG("SolidGroundLoudness = %d",effect_element_stats[i].solidgnd_loudness);
+            JUSTMSG("SolidGroundDestroyOnIimpact = %d",effect_element_stats[i].solidgnd_destroy_on_impact);
+            JUSTMSG("WaterEffmodel = %d",effect_element_stats[i].water_effmodel);
+            JUSTMSG("WaterSoundId = %d",effect_element_stats[i].water_snd_smpid);
+            JUSTMSG("WaterLoudness = %d",effect_element_stats[i].water_loudness);
+            JUSTMSG("WaterDestroyOnImpact = %d",effect_element_stats[i].water_destroy_on_impact);
+            JUSTMSG("LavaEffmodel = %d",effect_element_stats[i].lava_effmodel);
+            JUSTMSG("LavaSoundId = %d",effect_element_stats[i].lava_snd_smpid);
+            JUSTMSG("LavaLoudness = %d",effect_element_stats[i].lava_loudness);
+            JUSTMSG("LavaDestroyOnImpact = %d",effect_element_stats[i].lava_destroy_on_impact);
+        }
+
+        JUSTMSG("TransformModel = %d",effect_element_stats[i].transform_model);
+        JUSTMSG("LightRadius = %d",effect_element_stats[i].light_radius);
+        JUSTMSG("LightIntensity = %d",effect_element_stats[i].light_intensity);
+        JUSTMSG("LightFlags = %d",effect_element_stats[i].light_field_3D);
+        JUSTMSG("AffectedByWind = %d",effect_element_stats[i].affected_by_wind);
+        JUSTMSG("");        
+    }
 }
 
 struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner)
@@ -435,7 +589,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
     struct EffectElementStats* eestat = get_effect_element_model_stats(thing->model);
     long blocked_flags = get_thing_blocked_flags_at(thing, next_pos);
     slide_thing_against_wall_at(thing, next_pos, blocked_flags);
-    if ( ((blocked_flags & SlbBloF_WalledZ) != 0) && eestat->field_15 && eestat->field_22 )
+    if ( ((blocked_flags & SlbBloF_WalledZ) != 0) && eestat->collision_field1 && eestat->collision_field2 )
     {
         struct Thing* efftng = thing;
         long cube_id = get_top_cube_at(next_pos->x.stl.num, next_pos->y.stl.num, NULL);
@@ -469,7 +623,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
                 thing->health = 0;
         } else
         {
-            effmodel = eestat->effmodel_23;
+            effmodel = eestat->solidgnd_effmodel;
             if (effmodel > 0) {
                 efftng = create_effect(prev_pos, effmodel, thing->owner);
                 TRACE_THING(efftng);
@@ -559,7 +713,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
         if (elemtng->floor_height >= (int)elemtng->mappos.z.val)
           elemtng->anim_speed = 0;
     }
-    if (eestats->field_15)
+    if (eestats->collision_field1)
     {
         elemtng->movement_flags &= ~TMvF_IsOnWater;
         elemtng->movement_flags &= ~TMvF_IsOnLava;
@@ -1600,6 +1754,10 @@ long poison_cloud_affecting_area(struct Thing *tngsrc, struct Coord3d *pos, long
 
 TngUpdateRet update_effect(struct Thing *efftng)
 {
+    printeffel();
+
+    int i = 5/0;
+    JUSTLOG("%d",i);
     SYNCDBG(18,"Starting for %s",thing_model_name(efftng));
     TRACE_THING(efftng);
     struct Thing* subtng = NULL;
