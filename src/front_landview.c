@@ -1441,10 +1441,10 @@ void draw_map_level_descriptions(void)
     #define padding 2
     #define border 1
     #define xOffset 0
-    #define yOffset -78
+    #define yOffset 64
     #define borderColour 1
     #define boxColour 0
-    int textWidth, textX, textY, boxX, boxY, boxWidth, boxHeight, borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight;
+    int textWidth, textHeight, textX, textY, boxX, boxY, boxWidth, boxHeight, borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight;
     if ((fe_net_level_selected > 0) || (net_level_highlighted > 0) || (mouse_over_lvnum > 0))
     {
       lbDisplay.DrawFlags = 0;
@@ -1456,34 +1456,25 @@ void draw_map_level_descriptions(void)
       }
 
       const char* level_description = get_level_description(lvinfo);
-      int tx_units_per_px;
-      if (dbc_language > 0)
-      {
-          tx_units_per_px = scale_ui_value(16);
-          textWidth = LbTextStringWidthM(level_description, tx_units_per_px);
-      }
-      else
-      {
-          tx_units_per_px = units_per_pixel;
-          textWidth = LbTextStringWidth(level_description);
-      }
-      boxWidth = textWidth + padding + padding;
-      boxHeight = (LbTextHeight(level_description) - 2) + padding + padding; // -2 because LbTextHeight seems to come back a little too wide
-      borderBoxWidth = boxWidth + border + border;
-      borderBoxHeight = boxHeight + border + border;
+      textWidth = LbTextStringWidthM(level_description, units_per_pixel_ui);
+      textHeight = scale_ui_value((LbTextHeight(level_description) - 2)); // -2 because LbTextHeight seems to come back a little too wide
+      boxWidth = textWidth + scale_ui_value(padding * 2);
+      boxHeight = textHeight + scale_ui_value(padding * 2);
+      borderBoxWidth = boxWidth + scale_ui_value(border * 2);
+      borderBoxHeight = boxHeight + scale_ui_value(border * 2);
 
-      textX = lvinfo->ensign_x - map_info.screen_shift_x - (textWidth / 2) + xOffset;
-      boxX = textX - padding;
-      borderBoxX = boxX - border;
-      textY = lvinfo->ensign_y - map_info.screen_shift_y + yOffset;
-      boxY = textY - padding;
-      borderBoxY = boxY + border;
+      textX = scale_value_for_resolution(lvinfo->ensign_x - map_info.screen_shift_x) - (textWidth / 2) + scale_value_for_resolution(xOffset);
+      boxX = textX - scale_ui_value(padding);
+      borderBoxX = boxX - scale_ui_value(border);
+      textY = scale_value_for_resolution(lvinfo->ensign_y - map_info.screen_shift_y) - textHeight - scale_value_for_resolution(yOffset);
+      boxY = textY - scale_ui_value(padding);
+      borderBoxY = boxY + scale_ui_value(border);
 
       // optional dropshadow
       // LbDrawBox(scale_value_for_resolution(borderBoxX+1), scale_value_for_resolution(borderBoxY+1), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), 0);
-      LbDrawBox(scale_value_for_resolution(borderBoxX), scale_value_for_resolution(borderBoxY), scale_value_for_resolution_with_upp(borderBoxWidth, tx_units_per_px), scale_value_for_resolution_with_upp(borderBoxHeight, tx_units_per_px), borderColour);
-      LbDrawBox(scale_value_for_resolution(boxX), scale_value_for_resolution(textY), scale_value_for_resolution_with_upp(boxWidth, tx_units_per_px), scale_value_for_resolution_with_upp(boxHeight, tx_units_per_px), boxColour);
-      LbTextDrawResized(scale_value_for_resolution(textX), scale_value_for_resolution(textY), tx_units_per_px, level_description);
+      LbDrawBox(borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight, borderColour);
+      LbDrawBox(boxX, textY, boxWidth, boxHeight, boxColour);
+      LbTextDrawResized(textX, textY, units_per_pixel_ui, level_description);
     }
 }
 
