@@ -74,7 +74,7 @@ enum ThingRenderingFlags {
 };
 
  /**
-  * Used for EffectElementStats->size_change and Thing->size_change.
+  * Used for EffectElementConfigStats->size_change and Thing->size_change.
   * 
   * See effect_element_stats[] for setting of size_change.
   */
