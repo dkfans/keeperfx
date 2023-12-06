@@ -117,21 +117,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     int pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
     // The GUI item height should be 11 lines of text
     int tx_units_per_px;
-    if (dbc_language > 0)
-    {
-        if ((MyScreenWidth % 800) == 0)
-        {
-            tx_units_per_px = scale_ui_value(24);
-        }
-        else
-        {
-            tx_units_per_px = scale_ui_value(16);
-        }
-    }
-    else
-    {
-        tx_units_per_px = gbtn->height * 16 / (11 * (LbTextLineHeight()));
-    }    
+    tx_units_per_px = gbtn->height * 16 / (11 * (LbTextLineHeight()));
     long col1_width = LbTextStringWidthM("99", tx_units_per_px);
     long col2_width = LbTextStringWidthM(" 99999", tx_units_per_px);
     long col3_width = col2_width + (col2_width / 4);
@@ -140,27 +126,9 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     visible_entries = 0;
     for (k=highscore_scroll_offset; k < (highscore_scroll_offset+VISIBLE_HIGH_SCORES_COUNT)-1; k++)
     {
-        if (dbc_language > 0)
-        {
-            int new_pos_y = pos_y + 26 * (MyScreenHeight / 400);
-            if (new_pos_y < (gbtn->scr_pos_y + gbtn->height))
-            {
-                draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
-                visible_entries++;
-                pos_y = new_pos_y;
-            }
-            else
-            {
-                pos_y = new_pos_y;
-                break;
-            }
-        }
-        else
-        {
-            draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
-            visible_entries++;
-            pos_y += LbTextLineHeight() * tx_units_per_px / 16;
-        }
+        draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
+        visible_entries++;
+        pos_y += LbTextLineHeight() * tx_units_per_px / 16;
     }
     if (high_score_entry_input_active > k)
     {
