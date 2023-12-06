@@ -208,7 +208,7 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             effelcst->lifespan        = value_int32(value_array_get(lifespan_arr, 0));
             effelcst->lifespan_random = value_int32(value_array_get(lifespan_arr, 1));
 
-            effelcst->sprite_idx                 = value_int32(value_dict_get(section,"SpriteIndex"));
+            effelcst->sprite_idx                 = value_parse_anim(value_dict_get(section,"AnimationId"));
 
             VALUE *spriteSize_arr = value_dict_get(section, "SpriteSize");
             effelcst->sprite_size_min = value_int32(value_array_get(spriteSize_arr, 0));
