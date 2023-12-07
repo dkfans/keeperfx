@@ -360,11 +360,11 @@ INCFLAGS =
 CV2PDB := $(shell PATH=`pwd`:$$PATH command -v cv2pdb.exe 2> /dev/null)
 DEBUG ?= 0
 ifeq ($(DEBUG), 1)
-  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O0
+  OPTFLAGS = -march=x86-64 -fno-omit-frame-pointer -O0
   DBGFLAGS = -g -DDEBUG
 else
   # frame pointer is required for ASM code to work
-  OPTFLAGS = -march=i686 -fno-omit-frame-pointer -O3
+  OPTFLAGS = -march=x86-64 -fno-omit-frame-pointer -O3
   # if we can create a separate debug info file then do it
   ifdef CV2PDB
     DBGFLAGS = -g
@@ -527,12 +527,12 @@ obj/std/ioapi.o obj/hvlog/ioapi.o: deps/zlib/contrib/minizip/ioapi.c
 	$(CC) $(CFLAGS) -I"deps/zlib" -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/lvl_filesdk1.o obj/hvlog/lvl_filesdk1.o: src/lvl_filesdk1.c deps/zlib/contrib/minizip/unzip.c
+obj/std/lvl_filesdk1.o obj/hvlog/lvl_filesdk1.o: src/lvl_filesdk1.c deps/zlib/contrib/minizip/unzip.c $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) ' '
 
-obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c
+obj/std/custom_sprites.o obj/hvlog/custom_sprites.o: src/custom_sprites.c deps/zlib/contrib/minizip/unzip.c $(GENSRC)
 	-$(ECHO) 'Building file: $<'
 	$(CC) $(CFLAGS) -I"deps/libspng/spng" -I"deps/zlib" -I"deps/zlib/contrib/minizip" -o"$@" "$<"
 	-$(ECHO) ' '
