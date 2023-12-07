@@ -90,7 +90,7 @@ struct EffectElementConfigStats {
     TbBool animate_on_floor;
     unsigned char unshaded;
     unsigned char transparant;  // transparency flags in bits 4-5
-    unsigned char collision_field1;
+    unsigned char movable;
     unsigned char movement_flags;
     unsigned char size_change; /**< See enum ThingSizeChange. */
     unsigned char fall_acceleration;
@@ -98,7 +98,7 @@ struct EffectElementConfigStats {
     short inertia_air;
     unsigned short subeffect_model;
     unsigned short subeffect_delay;
-    unsigned char collision_field2;
+    unsigned char impacts;
     unsigned short solidgnd_effmodel;
     unsigned short solidgnd_snd_smpid;
     unsigned short solidgnd_loudness;

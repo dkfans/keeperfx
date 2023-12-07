@@ -230,9 +230,9 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             effelcst->inertia_air                = value_int32(value_dict_get(section,"InertiaAir"));
             effelcst->subeffect_model            = value_int32(value_dict_get(section,"SubeffectModel"));
             effelcst->subeffect_delay            = value_int32(value_dict_get(section,"SubeffectDelay"));
-            effelcst->collision_field1           = value_int32(value_dict_get(section,"CollisionField1"));
-            effelcst->collision_field2           = value_int32(value_dict_get(section,"CollisionField2"));
-            if(effelcst->collision_field2)
+            effelcst->movable                    = value_int32(value_dict_get(section,"Movable"));
+            effelcst->impacts                    = value_int32(value_dict_get(section,"Impacts"));
+            if(effelcst->impacts)
             {
                 effelcst->solidgnd_effmodel          = value_int32(value_dict_get(section,"SolidGroundEffmodel"));
                 effelcst->solidgnd_snd_smpid         = value_int32(value_dict_get(section,"SolidGroundSoundId"));

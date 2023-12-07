@@ -331,7 +331,7 @@ void move_effect_blocked(struct Thing *thing, struct Coord3d *prev_pos, struct C
     struct EffectElementConfigStats* eestat = get_effect_element_model_stats(thing->model);
     long blocked_flags = get_thing_blocked_flags_at(thing, next_pos);
     slide_thing_against_wall_at(thing, next_pos, blocked_flags);
-    if ( ((blocked_flags & SlbBloF_WalledZ) != 0) && eestat->collision_field1 && eestat->collision_field2 )
+    if ( ((blocked_flags & SlbBloF_WalledZ) != 0) && eestat->movable && eestat->impacts )
     {
         struct Thing* efftng = thing;
         long cube_id = get_top_cube_at(next_pos->x.stl.num, next_pos->y.stl.num, NULL);
@@ -455,7 +455,7 @@ TngUpdateRet update_effect_element(struct Thing *elemtng)
         if (elemtng->floor_height >= (int)elemtng->mappos.z.val)
           elemtng->anim_speed = 0;
     }
-    if (eestats->collision_field1)
+    if (eestats->movable)
     {
         elemtng->movement_flags &= ~TMvF_IsOnWater;
         elemtng->movement_flags &= ~TMvF_IsOnLava;
