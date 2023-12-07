@@ -63,8 +63,6 @@ struct CreaturePickedUpOffset
 {
   short delta_x;
   short delta_y;
-  short field_4;
-  short field_6;
 };
 
 /**
