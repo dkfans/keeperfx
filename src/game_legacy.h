@@ -41,6 +41,7 @@
 #include "config_trapdoor.h"
 #include "config_objects.h"
 #include "config_cubes.h"
+#include "config_powerhands.h"
 #include "map_columns.h"
 #include "map_events.h"
 #include "music_player.h"
@@ -142,6 +143,7 @@ char numfield_1A;
     struct Computer2 computer[PLAYERS_COUNT];
     struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
     struct SlabsConfig slab_conf;
+    struct PowerHandConfig power_hand_conf;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];

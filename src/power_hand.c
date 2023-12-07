@@ -48,6 +48,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_effects.h"
+#include "config_powerhands.h"
 #include "player_instances.h"
 #include "player_states.h"
 #include "kjm_input.h"
@@ -309,28 +310,32 @@ struct Thing *process_object_being_picked_up(struct Thing *thing, long plyr_idx)
   return picktng;
 }
 
-void set_power_hand_graphic(unsigned char plyr_idx, long AnimationID, long AnimationSpeed)
+void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
 {
   struct PlayerInfo *player;
   struct Thing *thing;
   player = get_player(plyr_idx);
+
+  short anim_idx   = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
+  short anim_speed = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
+
   if (player->hand_busy_until_turn >= game.play_gameturn)
   {
-    if ((AnimationID == 786) || (AnimationID == 787))
+    if ((HandAnimationID == HndA_Slap) || (HandAnimationID == HndA_SideSlap))
       player->hand_busy_until_turn = 0;
   }
   if (player->hand_busy_until_turn < game.play_gameturn)
   {
-    if (player->hand_animationId != AnimationID)
+    if (player->hand_animationId != HandAnimationID)
     {
-      player->hand_animationId = AnimationID;
+      player->hand_animationId = HandAnimationID;
       thing = thing_get(player->hand_thing_idx);
-      if ((AnimationID == 782) || (AnimationID == 781))
+      if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
       {
-        set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
+        set_thing_draw(thing, anim_idx, anim_speed, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
       } else
       {
-        set_thing_draw(thing, AnimationID, AnimationSpeed, gameadd.crtr_conf.sprite_size, 1, 0, ODC_Default);
+        set_thing_draw(thing, anim_idx, anim_speed, gameadd.crtr_conf.sprite_size, 1, 0, ODC_Default);
       }
     }
   }
@@ -651,7 +656,7 @@ void draw_power_hand(void)
             break;
         }
     }
-    if (player->hand_animationId == 784)
+    if (player->hand_animationId == HndA_Hold)
     {
         inputpos_x = GetMouseX() + scale_ui_value(58);
         inputpos_y = GetMouseY() +  scale_ui_value(6);
@@ -798,7 +803,7 @@ void drop_gold_coins(const struct Coord3d *pos, long value, long plyr_idx)
     struct PlayerInfo *player;
     player = get_player(plyr_idx);
     if (player_exists(player)) {
-        set_power_hand_graphic(plyr_idx, 782, 256);
+        set_power_hand_graphic(plyr_idx, HndA_Hover);
         player->hand_busy_until_turn = game.play_gameturn + 16;
     }
 }
@@ -1175,7 +1180,6 @@ struct Thing *create_power_hand(PlayerNumber owner)
     struct PlayerInfo *player;
     struct Thing *thing;
     struct Thing *grabtng;
-    struct Objects* objdat;
     struct Coord3d pos;
     pos.x.val = 0;
     pos.y.val = 0;
@@ -1191,17 +1195,14 @@ struct Thing *create_power_hand(PlayerNumber owner)
     grabtng = get_first_thing_in_power_hand(player);
     if (thing_is_invalid(thing))
     {
-      objdat = get_objects_data(ObjMdl_PowerHand);
-      set_power_hand_graphic(owner, objdat->sprite_anim_idx, objdat->anim_speed);
+      set_power_hand_graphic(owner, HndA_Hover);
     } else
     if ((grabtng->class_id == TCls_Object) && object_is_gold_pile(grabtng))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandWithGold);
-        set_power_hand_graphic(owner, objdat->sprite_anim_idx, objdat->anim_speed);
+        set_power_hand_graphic(owner, HndA_HoldGold);
     } else
     {
-        objdat = get_objects_data(ObjMdl_PowerHandGrab);
-        set_power_hand_graphic(owner, objdat->sprite_anim_idx, objdat->anim_speed);
+        set_power_hand_graphic(owner, HndA_Pickup);
     }
     place_thing_in_limbo(thing);
     return thing;

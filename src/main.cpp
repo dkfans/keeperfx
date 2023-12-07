@@ -385,7 +385,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
             struct EffectConfigStats *effcst;
             effcst = get_effect_model_stats(thing->model);
             dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && effcst->old->affected_by_wind)
+            if ((dist < param->num1) && effcst->affected_by_wind)
             {
                 apply_velocity = true;
             }
