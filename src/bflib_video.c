@@ -1293,10 +1293,12 @@ long scale_value_landview_frame(long base_value)
  * @param height  the current window height
  * @param landview_width the current landview background image width (passed LANDVIEW_MAP_WIDTH)
  * @param landview_height the current landview background image height (passed LANDVIEW_MAP_HEIGHT)
- * @return the units per pixel to use for scaling the landview .
  */
-long calculate_landview_upp(long width, long height, long landview_width, long landview_height)
+void calculate_landview_upp(long width, long height, long landview_width, long landview_height)
 {
+    //landview_width = 1280;
+    //landview_height = 960;
+    long upp;
     // original DK relative value: 
     // View Width: 640 / 1280 - 66.667%
     // View Height: 480 / 960 - 50% 
@@ -1306,20 +1308,63 @@ long calculate_landview_upp(long width, long height, long landview_width, long l
     long v_ar = 1024 * height / width;
     if (is_menu_ar_wider_than_original(width, height))  // Get FIT upp
     {
-        // HOR+
+        // HOR+ land view
         long temp_width = 480 * h_ar; 
         temp_width = min(temp_width, 1024 * landview_width); // clamp ultra-wide
         long temp_height = temp_width * v_ar / 1024;
-        return (16 * height * 1024 / temp_height);
+        units_per_pixel_landview = (16 * width * 1024 / temp_width);
+        //upp = (16 * height * 1024 / temp_height);
+
+        // setup window frame movement speed (in land view)
+        //landview_frame_movement_scale_x = 1024 * 4 / 3 * height / width; // 576 = 1024 * 3 / 4 * 480/640
+        //landview_frame_movement_scale_y = 1024; // 1024 = 576 * 4 / 3 * 640/480
+        //landview_frame_movement_scale_x = 1024 * (1024 * 320) / ((1024 * 640 - (temp_width - (1024 * 640))) / 1);
+        landview_frame_movement_scale_x = (1024 * (1024 * 640 - (temp_width - (1024 * 640))) / 640) / (h_ar / (640 / 480));
+        landview_frame_movement_scale_y = 1024;
     }
     else
     {
-        // VERT+
+        // VERT+ land view
         long temp_height = 640 * v_ar;
         temp_height = min(temp_height, 1024 * landview_height); // clamp ultra-tall
         long temp_width = temp_height * h_ar / 1024;
-        return (16 * width * 1024 / temp_width);
-    }   
+        units_per_pixel_landview = (16 * height * 1024 / temp_height);
+        //upp = (16 * width * 1024 / temp_width);
+
+        // setup window frame movement speed (in land view)
+        //landview_frame_movement_scale_x = 1024; // 576 = 1024 * 3 / 4 * 480/640
+        //landview_frame_movement_scale_y = 576 * 4 / 3 * width / height; // 1024 = 576 * 4 / 3 * 640/480
+        landview_frame_movement_scale_x = 1024;
+        //landview_frame_movement_scale_y = 1024 + temp_height - (1024 * 480);
+        landview_frame_movement_scale_y = (1024 * (1024 * 480 - (temp_height - (1024 * 480))) / 480) / (1024 * v_ar / (1024 * 480 / 640));
+    }
+    calculate_landview_frame_upp(width, height, landview_width, landview_height, units_per_pixel_landview);
+    //units_per_pixel_landview_frame = calculate_landview_frame_upp(width, height);//units_per_pixel_landview; //((is_menu_ar_wider_than_original(width, height)) ? units_per_pixel_menu_height : units_per_pixel_width); // If the screen is wider than 4:3 the height is used; if the screen is narrower than 4:3 the width is used.
+}
+
+void calculate_landview_frame_upp(long width, long height, long landview_width, long landview_height, long landview_upp)
+{
+    long scaled_landview_width = landview_width * landview_upp / 16;
+    long scaled_landview_height = landview_height * landview_upp / 16;
+    long landview_frame_width_ideal = width + ((scaled_landview_width - width) / 2);
+    long landview_frame_height_ideal = height + ((scaled_landview_height - height) / 2);
+    if(is_ar_wider_than_original(landview_frame_width_ideal, landview_frame_height_ideal))
+    {
+        units_per_pixel_landview_frame = landview_frame_width_ideal * 1024 * 2 / 3 / 40 / 1024;
+        //units_per_pixel_landview_frame = landview_frame_height_ideal * 1024 * 2 / 3 / 30 / 1024;
+    }
+    else
+    {
+        //units_per_pixel_landview_frame = landview_frame_width_ideal * 1024 * 2 / 3 / 40 / 1024;
+        units_per_pixel_landview_frame = landview_frame_height_ideal * 1024 * 2 / 3 / 30 / 1024;
+    }
+    return;
+    long upp = units_per_pixel_landview;
+    if ((768 * width / height) > 2048)
+    {
+        upp = units_per_pixel_landview;
+    }
+    return upp; //((is_menu_ar_wider_than_original(width, height)) ? units_per_pixel_menu_height : units_per_pixel_width); // If the screen is wider than 4:3 the height is used; if the screen is narrower than 4:3 the width is used.
 }
 
 /**

@@ -271,6 +271,8 @@ extern unsigned long aspect_ratio_factor_HOR_PLUS;
 extern unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
 extern unsigned long first_person_horizontal_fov;
 extern unsigned long first_person_vertical_fov;
+extern unsigned long landview_frame_movement_scale_x;
+extern unsigned long landview_frame_movement_scale_y;
 
 extern unsigned short MyScreenWidth;
 extern unsigned short MyScreenHeight;
@@ -339,7 +341,8 @@ long scale_fixed_DK_value(long base_value);
 long scale_value_menu(long base_value);
 long scale_value_landview(long base_value);
 long scale_value_landview_frame(long base_value);
-long calculate_landview_upp(long width, long height, long landview_width, long landview_height);
+void calculate_landview_upp(long width, long height, long landview_width, long landview_height);
+void calculate_landview_frame_upp(long width, long height, long landview_width, long landview_height, long landview_upp);
 TbBool is_ar_wider_than_original(long width, long height);
 TbBool is_menu_ar_wider_than_original(long width, long height);
 long calculate_relative_upp(long base_length, long reference_upp, long reference_length);
