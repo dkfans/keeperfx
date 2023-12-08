@@ -731,22 +731,38 @@ TbBool update_screen_mode_data(long width, long height)
   }
   */
   long psize = pixel_size;
+
   MyScreenWidth = width * psize;
   MyScreenHeight = height * psize;
   pixels_per_block = 16 * psize;
+
+
+  // Adjust scaling factor (units per pixel) based on window resolution compared to the original DK resolutions
+  // low-res - units per pixel = 8, low-res - units per pixel = 16 (or upp min is low-res = 4, high-res = 10)
+
+  // In-game scaling (DK original: low-res - 320x200, high-res - 640x400)
   units_per_pixel = (width>height?width:height)/40;// originally was 16 for hires, 8 for lores
   units_per_pixel_min = (width>height?height:width)/40;// originally 10 for hires
   units_per_pixel_width = width/40; // 8 for low res, 16 is "kfx default"
   units_per_pixel_height = height/25; // 8 for low res, 16 is "kfx default"
-  units_per_pixel_menu_height = height/30; // 16 is "kfx default" (640x480)
   units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
-  units_per_pixel_menu = ((is_menu_ar_wider_than_original(width, height)) ? units_per_pixel_width : units_per_pixel_menu_height); // If the screen is wider than 4:3 the width is used; if the screen is narrower than 4:3 the height is used.
-  calculate_landview_upp(width, height, LANDVIEW_MAP_WIDTH, LANDVIEW_MAP_HEIGHT); // 16 is "kfx default" for 640x480 window and a 1280x960 landview
+  
+  // In-game scaling: UI (for the side bar menu and escape menu)
   long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
   units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
+
+  // In-game scaling: Posession Mode (a 3D 1st person perspective camera)
   calculate_aspect_ratio_factor(width, height);
   first_person_vertical_fov = DEFAULT_FIRST_PERSON_VERTICAL_FOV;
   first_person_horizontal_fov = FOV_based_on_aspect_ratio();
+
+  // Main menu scaling (DK original: 640x480)
+  units_per_pixel_menu_height = height/30; // 16 is "kfx default" (640x480)
+  units_per_pixel_menu = ((is_menu_ar_wider_than_original(width, height)) ? units_per_pixel_menu_height : units_per_pixel_width); // If the screen is wider than 4:3 the height is used; if the screen is narrower than 4:3 the width is used.
+  
+  // Main menu scaling: Campaign map "land view" screen (including the window frame)
+  calculate_landview_upp(width, height, LANDVIEW_MAP_WIDTH, LANDVIEW_MAP_HEIGHT); // 16 is "kfx default" for 640x480 game window (1x), a 960x720 frame (1.5x), and a 1280x960 landview (2x)
+
 
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);
