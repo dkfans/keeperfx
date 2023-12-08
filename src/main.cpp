@@ -699,7 +699,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
         struct EffectElementStats *eestat;
-        eestat = get_effect_element_model_stats(9);
+        eestat = get_effect_element_model_stats(TngEffElm_SmallSparkles);
         int sprsize;
         int delta_size;
         delta_size = ((eestat->sprite_size_max - eestat->sprite_size_min) << 8) / (nsteps+1);
@@ -725,7 +725,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
                 if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
                 {
                     struct Thing *eelemtng;
-                    eelemtng = create_thing(&tngpos, TCls_EffectElem, TngEffElm_BallOfLight, game.neutral_player_num, -1);
+                    eelemtng = create_thing(&tngpos, TCls_EffectElem, TngEffElm_SmallSparkles, game.neutral_player_num, -1);
                     if (!thing_is_invalid(eelemtng)) {
                         eelemtng->sprite_size = sprsize >> 8;
                     }

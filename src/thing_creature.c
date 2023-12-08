@@ -2855,7 +2855,8 @@ long project_creature_shot_damage(const struct Thing *thing, ThingModel shot_mod
 
 void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot_model, char shot_lvl, unsigned char hit_type)
 {
-    struct Coord3d pos2;
+    struct Coord3d targetpos;
+    struct Coord3d originpos;
     struct Thing *tmptng;
     short angle_xy;
     short angle_yz;
@@ -2865,19 +2866,19 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     TbBool flag1 = false;
     // Prepare source position
-    struct Coord3d pos1;
-    pos1.x.val = firing->mappos.x.val;
-    pos1.y.val = firing->mappos.y.val;
-    pos1.z.val = firing->mappos.z.val;
+    struct Coord3d firingpos;
+    firingpos.x.val = firing->mappos.x.val;
+    firingpos.y.val = firing->mappos.y.val;
+    firingpos.z.val = firing->mappos.z.val;
     if (firing->class_id == TCls_Trap)
     {
         struct TrapStats* trapstat = &gameadd.trap_stats[firing->model];
         firing->move_angle_xy = get_angle_xy_to(&firing->mappos, &target->mappos); //visually rotates the trap
-        pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
-        pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
-        pos1.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, firing->move_angle_xy);
-        pos1.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, firing->move_angle_xy);
-        pos1.z.val += trapstat->shot_shift_z;
+        firingpos.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+        firingpos.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_x, firing->move_angle_xy + LbFPMath_PI / 2);
+        firingpos.x.val += distance_with_angle_to_coord_x(trapstat->shot_shift_y, firing->move_angle_xy);
+        firingpos.y.val += distance_with_angle_to_coord_y(trapstat->shot_shift_y, firing->move_angle_xy);
+        firingpos.z.val += trapstat->shot_shift_z;
 
         max_dexterity = UCHAR_MAX;
         dexterity = max_dexterity/4 + CREATURE_RANDOM(firing, max_dexterity/2);
@@ -2889,11 +2890,11 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
         max_dexterity = crstat->dexterity + ((crstat->dexterity * cctrl->explevel * gameadd.crtr_conf.exp.dexterity_increase_on_exp) / 100);
 
-        pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
-        pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
-        pos1.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
-        pos1.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
-        pos1.z.val += (cctrl->shot_shift_z + (cctrl->shot_shift_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
+        firingpos.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
+        firingpos.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_x + (cctrl->shot_shift_x * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy + LbFPMath_PI / 2);
+        firingpos.x.val += distance_with_angle_to_coord_x((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
+        firingpos.y.val += distance_with_angle_to_coord_y((cctrl->shot_shift_y + (cctrl->shot_shift_y * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100), firing->move_angle_xy);
+        firingpos.z.val += (cctrl->shot_shift_z + (cctrl->shot_shift_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100);
     }
     // Compute launch angles
     if (thing_is_invalid(target))
@@ -2902,17 +2903,25 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         angle_yz = firing->move_angle_z;
     } else
     {
-        pos2.x.val = target->mappos.x.val;
-        pos2.y.val = target->mappos.y.val;
-        pos2.z.val = target->mappos.z.val;
-        pos2.z.val += (target->clipbox_size_z >> 1);
+        targetpos.x.val = target->mappos.x.val;
+        targetpos.y.val = target->mappos.y.val;
+        targetpos.z.val = target->mappos.z.val;
+        targetpos.z.val += (target->clipbox_size_z >> 1);
+        if ((shotst->model_flags & ShMF_InstantHit) != 0)
+        {
+            originpos = targetpos;
+        }
+        else
+        {
+            originpos = firingpos;
+        }
         if (((shotst->model_flags & ShMF_StrengthBased) != 0) && ((shotst->model_flags & ShMF_ReboundImmune) != 0) && (target->class_id != TCls_Door))
         {
           flag1 = true;
-          pos1.z.val = pos2.z.val;
+          firingpos.z.val = targetpos.z.val;
         }
-        angle_xy = get_angle_xy_to(&pos1, &pos2);
-        angle_yz = get_angle_yz_to(&pos1, &pos2);
+        angle_xy = get_angle_xy_to(&originpos, &targetpos);
+        angle_yz = get_angle_yz_to(&originpos, &targetpos);
     }
     // Compute shot damage
     damage = shotst->damage;
@@ -2943,28 +2952,28 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     {
     case ShM_Lightning:
     case ShM_Drain:
-        if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
+        if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &targetpos) > shotst->max_range))
         {
-            project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/ COORD_PER_STL);
+            project_point_to_wall_on_angle(&firingpos, &targetpos, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/ COORD_PER_STL);
         }
-        shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
+        shotng = create_thing(&originpos, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
         if (shot_model == ShM_Drain)
-          draw_lightning(&pos1, &pos2, 96, TngEffElm_RedDot);
+          draw_lightning(&firingpos, &targetpos, 96, TngEffElm_RedDot);
         else
-          draw_lightning(&pos1, &pos2, 96, TngEffElm_ElectricBall3);
+          draw_lightning(&firingpos, &targetpos, 96, TngEffElm_ElectricBall3);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
     case ShM_FlameBreathe:
-        if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
-          project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/ COORD_PER_STL);
-        shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
+        if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &targetpos) > shotst->max_range))
+          project_point_to_wall_on_angle(&firingpos, &targetpos, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/ COORD_PER_STL);
+        shotng = create_thing(&originpos, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
-        draw_flame_breath(&pos1, &pos2, 96, 2);
+        draw_flame_breath(&firingpos, &targetpos, 96, 2);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
@@ -2972,14 +2981,14 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     case ShM_Hail_storm:
     {
         long i;
-        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
+        if (map_is_solid_at_height(firingpos.x.stl.num, firingpos.y.stl.num, firingpos.z.val, (firingpos.z.val + shotst->size_z)))
         {
-            pos1.x.val = firing->mappos.x.val;
-            pos1.y.val = firing->mappos.y.val;
+            firingpos.x.val = firing->mappos.x.val;
+            firingpos.y.val = firing->mappos.y.val;
         }
         for (i = 0; i < 32; i++)
         {
-            tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
+            tmptng = create_thing(&originpos, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
               break;
             shotng = tmptng;
@@ -2998,12 +3007,12 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         break;
     }
     default:
-        if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
+        if (map_is_solid_at_height(firingpos.x.stl.num, firingpos.y.stl.num, firingpos.z.val, (firingpos.z.val + shotst->size_z)))
         {
-            pos1.x.val = firing->mappos.x.val;
-            pos1.y.val = firing->mappos.y.val;
+            firingpos.x.val = firing->mappos.x.val;
+            firingpos.y.val = firing->mappos.y.val;
         }
-        shotng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
+        shotng = create_thing(&originpos, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
             return;
         shotng->move_angle_xy = angle_xy;
@@ -3043,7 +3052,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
       damage = shotng->shot.damage;
       // Special debug code that shows amount of damage the shot will make
       if ((start_params.debug_flags & DFlg_ShotsDamage) != 0)
-          create_price_effect(&pos1, my_player_number, damage);
+          create_price_effect(&firingpos, my_player_number, damage);
       if ((damage < 0) || (damage > 2000))
       {
         WARNLOG("Shot of type %d carries %d damage",(int)shot_model,(int)damage);

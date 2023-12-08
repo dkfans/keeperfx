@@ -181,6 +181,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"DISARMING",           18},
   {"BLOCKS_REBIRTH",      19},
   {"PENETRATING",         20},
+  {"INSTANT_HIT",         21},
   {NULL,                   0},
   };
 
@@ -1064,12 +1065,16 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_Disarming;
                 n++;
                 break;
-            case 19: // BlocksRebirth
+            case 19: // BLOCKSREBIRTH
                 shotst->model_flags |= ShMF_BlocksRebirth;
                 n++;
                 break;
-            case 20: // Penetrating
+            case 20: // PENETRATING
                 shotst->model_flags |= ShMF_Penetrating;
+                n++;
+                break;
+            case 21: // INSTANT_HIT
+                shotst->model_flags |= ShMF_InstantHit;
                 n++;
                 break;
             default:
