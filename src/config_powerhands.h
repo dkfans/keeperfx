@@ -1,10 +1,10 @@
 /******************************************************************************/
 // Free implementation of Bullfrog's Dungeon Keeper strategy game.
 /******************************************************************************/
-/** @file config_trapdoor.h
- *     Header file for config_trapdoor.c.
+/** @file config_powerhands.h
+ *     Header file for config_powerhands.c.
  * @par Purpose:
- *     Traps and doors configuration loading functions.
+ *     powerhand visuals configuration loading functions.
  * @par Comment:
  *     Just a header file - #defines, typedefs, function prototypes etc.
  * @author   Tomasz Lis
@@ -16,12 +16,11 @@
  *     (at your option) any later version.
  */
 /******************************************************************************/
-#ifndef DK_CFGSLABS_H
-#define DK_CFGSLABS_H
+#ifndef DK_CFGPOWERHANDS_H
+#define DK_CFGPOWERHANDS_H
 
 #include "globals.h"
 #include "bflib_basics.h"
-#include "map_columns.h"
 
 #include "config.h"
 
@@ -29,14 +28,34 @@
 extern "C" {
 #endif
 /******************************************************************************/
-extern const char keeper_slabset_file[];
-extern const char keeper_columns_file[];
+extern const char keeper_powerhands_file[];
 
+TbBool load_powerhands_config(const char *conf_fname,unsigned short flags);
 
-TbBool load_slabset_config(const char *conf_fname,unsigned short flags);
-TbBool load_columns_config(const char *conf_fname,unsigned short flags,struct Column *cols,long *ccount);
+#define NUM_VARIANTS 16
+#define NUM_ANIMS_PER_VARIANT 7
 
-void clear_slabsets(void);
+enum HandAnims {
+    HndA_Hold = 0,
+    HndA_HoldGold,
+    HndA_Hover,
+    HndA_Pickup,
+    HndA_SideHover,
+    HndA_SideSlap,
+    HndA_Slap,
+};
+
+struct PowerHandConfigStats {
+    char  code_name[COMMAND_WORD_LEN];
+    short anim_idx[NUM_ANIMS_PER_VARIANT];
+    short anim_speed[NUM_ANIMS_PER_VARIANT];;
+};
+
+struct PowerHandConfig {
+    struct PowerHandConfigStats pwrhnd_cfg_stats[NUM_VARIANTS];
+};
+
+extern struct NamedCommand powerhand_desc[NUM_VARIANTS + 1];
 
 /******************************************************************************/
 #ifdef __cplusplus
