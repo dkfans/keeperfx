@@ -1350,8 +1350,8 @@ void calculate_landview_upp(long width, long height, long landview_width, long l
         landview_frame_movement_scale_y = (1024 * (1024 * 480 - (temp_height - (1024 * 480))) / 480) / (1024 * v_ar / (1024 * 480 / 640));
 
         // calculate the window frame units per pixel value
-        long landview_frame_height_ideal = height + (((((scale_value_landview(landview_height) - height) / 2)) + 1) / 2) * 2;
-        units_per_pixel_landview_frame = (((landview_frame_height_ideal * 1024 * 2 / 3 / 30 / 1024) + 1) / 2) * 2; 
+        long landview_frame_height_ideal = height + (((scale_value_landview(landview_height) - height) / 2 + 1) / 2) * 2;
+        units_per_pixel_landview_frame = (((landview_frame_height_ideal * 1024 * 2 / 3 / 30 / 1024) + 1) / 2) * 2;
     }
 }
 
