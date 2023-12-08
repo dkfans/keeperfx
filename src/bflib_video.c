@@ -1330,7 +1330,7 @@ void calculate_landview_upp(long width, long height, long landview_width, long l
             // setup the landview frame upp and movement speed
             landview_frame_movement_scale_x = 1024;
             landview_frame_movement_scale_y = 1024;
-            units_per_pixel_landview_frame = (((height * 1024 * 2 / 3 / 30 / 1024) + 1) / 2) * 2;
+            units_per_pixel_landview_frame = (((height * 1024 * 2 / 3 / 30 / 1024) + 1) * 2) / 2;
             return;
         }
         units_per_pixel_landview = width * 1024 / 40 / 1024;
