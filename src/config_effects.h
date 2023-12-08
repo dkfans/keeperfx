@@ -32,6 +32,7 @@ extern "C" {
 
 #define EFFECTS_TYPES_MAX 128
 #define EFFECTSGEN_TYPES_MAX 64
+#define EFFECTSELLEMENTS_TYPES_MAX 128
 
 /******************************************************************************/
 
@@ -73,9 +74,54 @@ struct EffectGeneratorConfigStats {
     long sound_sample_rng;
 };
 
+struct EffectElementConfigStats {
+    char code_name[COMMAND_WORD_LEN * 2];
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
+    unsigned char move_type;
+    unsigned char unanimated;
+    short lifespan;
+    short lifespan_random;
+    short sprite_idx;
+    short sprite_size_min;
+    short sprite_size_max;
+    unsigned char rendering_flag;
+    unsigned short sprite_speed_min;
+    unsigned short sprite_speed_max;
+    TbBool animate_on_floor;
+    unsigned char unshaded;
+    unsigned char transparant;  // transparency flags in bits 4-5
+    unsigned char movable;
+    unsigned char movement_flags;
+    unsigned char size_change; /**< See enum ThingSizeChange. */
+    unsigned char fall_acceleration;
+    short inertia_floor;
+    short inertia_air;
+    unsigned short subeffect_model;
+    unsigned short subeffect_delay;
+    unsigned char impacts;
+    unsigned short solidgnd_effmodel;
+    unsigned short solidgnd_snd_smpid;
+    unsigned short solidgnd_loudness;
+    unsigned char solidgnd_destroy_on_impact;
+    unsigned short water_effmodel;
+    unsigned short water_snd_smpid;
+    unsigned short water_loudness;
+    unsigned char water_destroy_on_impact;
+    unsigned short lava_effmodel;
+    unsigned short lava_snd_smpid;
+    unsigned short lava_loudness;
+    unsigned char lava_destroy_on_impact;
+    unsigned short transform_model;
+    unsigned short light_radius;
+    unsigned char light_intensity;
+    long light_field_3D;
+    unsigned char affected_by_wind;
+};
+
 struct EffectsConfig {
     struct EffectConfigStats effect_cfgstats[EFFECTS_TYPES_MAX];
     struct EffectGeneratorConfigStats effectgen_cfgstats[EFFECTSGEN_TYPES_MAX];
+    struct EffectElementConfigStats effectelement_cfgstats[EFFECTSELLEMENTS_TYPES_MAX];
 };
 /******************************************************************************/
 extern const char keeper_effects_file[];
@@ -85,6 +131,7 @@ extern long const ball_puff_effects[];
 
 extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 extern struct NamedCommand effectgen_desc[EFFECTSGEN_TYPES_MAX];
+extern struct NamedCommand effectelem_desc[EFFECTSELLEMENTS_TYPES_MAX];
 /******************************************************************************/
 TbBool load_effects_config(const char *conf_fname,unsigned short flags);
 struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel);

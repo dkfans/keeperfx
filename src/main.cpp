@@ -352,7 +352,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     {
         if (!thing_is_picked_up(thing))
         {
-            struct EffectElementStats *eestat;
+            struct EffectElementConfigStats *eestat;
             eestat = get_effect_element_model_stats(thing->model);
             dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
             if ((dist < param->num1) && eestat->affected_by_wind)
@@ -698,7 +698,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
-        struct EffectElementStats *eestat;
+        struct EffectElementConfigStats *eestat;
         eestat = get_effect_element_model_stats(9);
         int sprsize;
         int delta_size;
