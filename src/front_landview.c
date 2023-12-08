@@ -806,7 +806,7 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
         bpos_y += src_delta;
     }
 }
-
+/** Draw the window frame on the campaign map (land view). */
 void compressed_window_draw(void)
 {
     SYNCDBG(18,"Starting");
