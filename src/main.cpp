@@ -51,6 +51,7 @@
 #include "kjm_input.h"
 #include "packets.h"
 #include "config.h"
+#include "config_slabsets.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_terrain.h"
@@ -1652,26 +1653,6 @@ TbBool set_default_startup_parameters(void)
     set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
     start_params.force_ppro_poly = 0;
     return true;
-}
-
-void clear_slabsets(void)
-{
-    struct SlabSet *sset;
-    struct SlabObj *sobj;
-    int i;
-    for (i=0; i < SLABSET_COUNT; i++)
-    {
-        sset = &game.slabset[i];
-        memset(sset, 0, sizeof(struct SlabSet));
-        game.slabobjs_idx[i] = -1;
-    }
-    game.slabset_num = SLABSET_COUNT;
-    game.slabobjs_num = 0;
-    for (i=0; i < SLABOBJS_COUNT; i++)
-    {
-        sobj = &game.slabobjs[i];
-        memset(sobj, 0, sizeof(struct SlabObj));
-    }
 }
 
 void clear_map(void)
