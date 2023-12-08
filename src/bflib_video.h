@@ -340,7 +340,6 @@ long scale_ui_value(long base_value);
 long scale_fixed_DK_value(long base_value);
 long scale_value_menu(long base_value);
 long scale_value_landview(long base_value);
-long scale_value_landview_frame(long base_value);
 void calculate_landview_upp(long width, long height, long landview_width, long landview_height);
 void calculate_landview_frame_upp(long width, long height, long landview_width, long landview_height, long landview_upp);
 TbBool is_ar_wider_than_original(long width, long height);
