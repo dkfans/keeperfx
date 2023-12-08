@@ -810,14 +810,12 @@ void frontzoom_to_point(long map_x, long map_y, long zoom)
 void compressed_window_draw(void)
 {
     SYNCDBG(18,"Starting");
-    long xshift = map_info.screen_shift_x * landview_frame_movement_scale_x / 1024 / 2; // X speed is slower on aspect ratios wider than 4:3
-    //long xshift = map_info.screen_shift_x / 2;// * 0.5f;
-    long yshift = map_info.screen_shift_y *landview_frame_movement_scale_y / 1024 / 2; // Y speed is slower on aspect ratios taller than 4:3
-    //long yshift = map_info.screen_shift_y / 2;// * 0.5f;
-    //xshift = map_info.screen_shift_x / 2 * 1.1f;
+    long default_movement_scale = 1024;
+    long xshift = map_info.screen_shift_x * landview_frame_movement_scale_x / default_movement_scale / 2; // X speed is slower on aspect ratios wider than 4:3
+    long yshift = map_info.screen_shift_y *landview_frame_movement_scale_y / default_movement_scale / 2; // Y speed is slower on aspect ratios taller than 4:3
     LbHugeSpriteDraw(&map_window, map_window_len,
         lbDisplay.WScreen, lbDisplay.GraphicsScreenWidth, lbDisplay.PhysicalScreenHeight,
-        xshift, yshift);
+        xshift, yshift, units_per_pixel_landview_frame);
 }
 
 void unload_map_and_window(void)
