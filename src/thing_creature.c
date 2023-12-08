@@ -2939,10 +2939,10 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         target_idx = target->index;
     }
     struct ComponentVector cvect;
-    switch (shot_model)
+
+    switch (shotst->shot_type)
     {
-    case ShM_Lightning:
-    case ShM_Drain:
+    case ShT_Lightning:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
         {
             project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 20);
@@ -2950,26 +2950,24 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
-        if (shot_model == ShM_Drain)
-          draw_lightning(&pos1, &pos2, 96, TngEffElm_RedDot);
-        else
-          draw_lightning(&pos1, &pos2, 96, TngEffElm_ElectricBall3);
+        draw_lightning(&pos1, &pos2, 96, shotst->effect_element);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
-    case ShM_FlameBreathe:
+    case ShT_FlameBreathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
           project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 4);
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
-        draw_flame_breath(&pos1, &pos2, 96, 2);
+        
+        draw_flame_breath(&pos1, &pos2, 96, 2,shotst->effect_element);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
-    case ShM_Hail_storm:
+    case ShT_Hail_storm:
     {
         long i;
         if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))

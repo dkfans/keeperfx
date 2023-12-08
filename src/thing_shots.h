@@ -64,6 +64,13 @@ enum ShotModels {
     ShM_TrapTNT = 32,
 };
 
+enum ShotTypes {
+    ShT_None = 0,
+    ShT_Lightning,
+    ShT_FlameBreathe,
+    ShT_Hail_storm,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 

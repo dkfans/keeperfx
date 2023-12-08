@@ -639,7 +639,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     return 0; // Default: No collision OR boulder destroyed on door
 }
 
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step)
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step,ThingModel eemodel)
 {
   MapCoordDelta dist_x;
   MapCoordDelta dist_y;
@@ -700,7 +700,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
         struct EffectElementConfigStats *eestat;
-        eestat = get_effect_element_model_stats(9);
+        eestat = get_effect_element_model_stats(eemodel);
         int sprsize;
         int delta_size;
         delta_size = ((eestat->sprite_size_max - eestat->sprite_size_min) << 8) / (nsteps+1);
@@ -726,7 +726,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
                 if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
                 {
                     struct Thing *eelemtng;
-                    eelemtng = create_thing(&tngpos, TCls_EffectElem, TngEffElm_BallOfLight, game.neutral_player_num, -1);
+                    eelemtng = create_thing(&tngpos, TCls_EffectElem, eemodel, game.neutral_player_num, -1);
                     if (!thing_is_invalid(eelemtng)) {
                         eelemtng->sprite_size = sprsize >> 8;
                     }
@@ -741,7 +741,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
     }
 }
 
-void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, long eemodel)
+void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, ThingModel eemodel)
 {
     MapCoordDelta dist_x = pos2->x.val - pos1->x.val;
     MapCoordDelta dist_y = pos2->y.val - pos1->y.val;

@@ -304,6 +304,9 @@ struct ShotConfigStats {
     unsigned char lightf_53;
     unsigned char unshaded;
     unsigned char soft_landing;
+    ThingModel effect_element;
+    unsigned char shot_type;
+
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
