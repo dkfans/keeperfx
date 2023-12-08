@@ -6801,3 +6801,8 @@ msgstr "岩盤：未請求の岩床。あなたはそれを請求したり、そ
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "密な金の層：あなたのインプが採掘するための多くの富を保持しています。"
+
+#: guitext:1053
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "クレンズ：クリーチャーに与えられたすべての負の効果を治療します。"

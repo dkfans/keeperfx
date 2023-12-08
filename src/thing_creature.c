@@ -737,6 +737,8 @@ TbBool creature_affected_by_spell(const struct Thing *thing, SpellKind spkind)
         return ((cctrl->spell_flags & CSAfF_Chicken) != 0);
     case SplK_TimeBomb:
         return ((cctrl->spell_flags & CSAfF_Timebomb) != 0);
+    case SplK_Cleanse:
+        return ((cctrl->spell_flags & CSAfF_Cleanse) != 0);
     // Handle spells with no continuous effect
     case SplK_Lightning:
     case SplK_Heal:
@@ -923,6 +925,10 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         duration = pwrdynst->duration;
     }
 
+    if (creature_affected_by_spell(thing, SplK_Cleanse) && spconf->debuff == 1) {
+        duration = 0;
+    }
+
     i = get_free_spell_slot(thing);
     if (spell_idx == SplK_Heal)
     {
@@ -1090,7 +1096,9 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         case SplK_Fly:
             thing->movement_flags |= TMvF_Flying;
             break;
-
+        case SplK_Cleanse:
+            cleanse_creature(thing);
+            break;
         }
         if (spconf->aura_effect != 0)
         {
@@ -1128,6 +1136,9 @@ void reapply_spell_effect_to_thing(struct Thing *thing, long spell_idx, long spe
     {
     case SplK_Freeze:
         creature_set_speed(thing, 0);
+        break;
+    case SplK_Cleanse:
+        cleanse_creature(thing);
         break;
     case SplK_Heal:
     {
@@ -1210,6 +1221,9 @@ void terminate_thing_spell_effect(struct Thing *thing, SpellKind spkind)
         break;
     case SplK_Rebound:
         cctrl->spell_flags &= ~CSAfF_Rebound;
+        break;
+    case SplK_Cleanse:
+        cctrl->spell_flags &= ~CSAfF_Cleanse;
         break;
     case SplK_Invisibility:
         cctrl->spell_flags &= ~CSAfF_Invisibility;
@@ -2662,6 +2676,10 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
     }
     if (creature_affected_by_spell(creatng, SplK_Rebound)) {
         terminate_thing_spell_effect(creatng, SplK_Rebound);
+    }
+    if (creature_affected_by_spell(creatng, SplK_Cleanse))
+    {
+        terminate_thing_spell_effect(creatng, SplK_Cleanse);
     }
     struct Dungeon* dungeon = (!is_neutral_thing(creatng)) ? get_players_num_dungeon(creatng->owner) : INVALID_DUNGEON;
     if (!dungeon_invalid(dungeon))
@@ -5476,7 +5494,13 @@ TngUpdateRet update_creature(struct Thing *thing)
         }
     } else
     {
-        if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
+        if (creature_affected_by_spell(thing, SplK_Freeze))
+        {
+            if (creature_instance_is_available(thing, CrInst_CLEANSE) && creature_instance_has_reset(thing, CrInst_CLEANSE)) { 
+                cctrl->stopped_for_hand_turns = 0;
+            }
+        }
+        else if ((cctrl->stateblock_flags == 0) || creature_state_cannot_be_blocked(thing))
         {
             if (cctrl->stopped_for_hand_turns > 0)
             {
@@ -5740,6 +5764,25 @@ void illuminate_creature(struct Thing *creatng)
     light_set_light_intensity(creatng->light_id, (light_get_light_intensity(creatng->light_id) + 20));
     struct Light* lgt = &game.lish.lights[creatng->light_id];
     lgt->radius <<= 1;
+}
+
+void cleanse_creature(struct Thing* creatng) 
+{
+    if (!creature_is_debuffed(creatng))
+    {
+        return;
+    }
+
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    for (long i = 0; i < CREATURE_MAX_SPELLS_CASTED_AT; ++i)
+    {
+        struct CastedSpellData *cspell = &cctrl->casted_spells[i];
+        struct SpellConfig* spconf = get_spell_config(cspell->spkind);
+        if (spconf->debuff == 1)
+        {
+            cspell->duration = 0;
+        }
+    }
 }
 
 struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location)

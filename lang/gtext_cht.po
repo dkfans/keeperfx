@@ -6651,3 +6651,8 @@ msgstr "基岩：未声明的岩石地板。你不能声明它或在上面建造
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "密集的金属矿层：为你的小鬼提供丰富的财富。"
+
+#: guitext:1053
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "净化：治愈生物身上所有负面效果。"

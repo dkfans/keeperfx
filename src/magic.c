@@ -1074,7 +1074,7 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
 
 TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    // If this spell is already casted at that creature, do nothing
+    // If this spell is already casted at that creature
     if (thing_affected_by_spell(thing, SplK_Chicken)) {
         return Lb_OK;
     }
@@ -1086,7 +1086,7 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
         }
     }
     // Check if the creature kind isn't affected by that spell
-    if ((get_creature_model_flags(thing) & CMF_NeverChickens) != 0)
+    if (((get_creature_model_flags(thing) & CMF_NeverChickens) != 0) || thing_affected_by_spell(thing, SplK_Cleanse))
     {
         thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;
@@ -1100,8 +1100,8 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
 
 TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
-    // If this spell is already casted at that creature, do nothing
-    if (thing_affected_by_spell(thing, SplK_Disease)) {
+    // If this spell is already casted at that creature
+    if (thing_affected_by_spell(thing, SplK_Disease) ) {
         return Lb_OK;
     }
     if ((mod_flags & PwMod_CastForFree) == 0)
@@ -1112,7 +1112,7 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
         }
     }
     // Check if the creature kind isn't affected by that spell
-    if ((get_creature_model_flags(thing) & CMF_NeverSick) != 0)
+    if (((get_creature_model_flags(thing) & CMF_NeverSick) != 0) || thing_affected_by_spell(thing, SplK_Cleanse))
     {
         thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;

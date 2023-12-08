@@ -1790,6 +1790,11 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing)
     return false;
 }
 
+TbBool creature_would_benefit_from_cleansing(const struct Thing* thing)
+{
+    return creature_is_debuffed(thing);
+}
+
 /**
  * Gives attack type optimized for self preservation.
  * @param thing The creature for which the instance is selected.
@@ -1809,6 +1814,10 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     if (creature_requires_healing(thing))
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
+    }
+    if (creature_requires_cleansing(thing))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_CLEANSE);
     }
     if (!creature_affected_by_spell(thing, SplK_Armour))
     {
@@ -1849,6 +1858,11 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }
 
+    if (creature_would_benefit_from_cleansing(thing))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_CLEANSE);
+    }
+
     if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
     {
         
@@ -1860,7 +1874,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
 
         for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
         {
-            if (i == CrInst_HEAL)
+            if (i == CrInst_HEAL || i == CrInst_CLEANSE)
                 continue;
 
             inst_inf = creature_instance_info_get(i);
@@ -3402,6 +3416,21 @@ long project_creature_attack_target_damage(const struct Thing *firing, const str
     long dexterity = compute_creature_max_dexterity(crstat->dexterity, cctrl->explevel);
     damage = project_damage_of_melee_shot(dexterity, damage, target);
     return damage;
+}
+
+TbBool creature_requires_cleansing(const struct Thing* thing)
+{
+    return creature_is_debuffed(thing);
+}
+
+TbBool creature_is_debuffed(const struct Thing* thing) 
+{
+    for (int i = 0; i < magic_conf.debuff_count; ++i) {
+        if (creature_affected_by_spell(thing, magic_conf.debuffs[i])) {
+            return true;
+        }
+    }
+    return false;
 }
 
 /******************************************************************************/

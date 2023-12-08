@@ -6074,3 +6074,8 @@ msgstr "Roca madre: Suelo de roca no reclamado. No puedes reclamarlo ni construi
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Veta de oro densa: Contiene mucha riqueza para que tus Duendes la extraigan."
+
+#: guitext:1053
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Purificar: Cura todos los efectos negativos infligidos a la criatura."

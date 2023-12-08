@@ -7153,3 +7153,8 @@ msgstr "Rocher de base : Sol rocheux non réclamé. Vous ne pouvez pas le revend
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Veine d'or dense : Contient beaucoup de richesses que vos Lutins peuvent extraire."
+
+#: guitext:1053
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Purifier : Guérit tous les effets négatifs infligés à la créature."

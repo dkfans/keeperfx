@@ -1455,6 +1455,17 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 return true;
             }
         }
+        else if (strcasecmp(parstr, "creature.cleanse") == 0)
+        {
+            player = get_player(plyr_idx);
+            thing = thing_get(player->influenced_thing_idx);
+            if (thing_is_creature(thing))
+            {
+                thing_play_sample(thing, 50, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
+                apply_spell_effect_to_thing(thing, SplK_Cleanse, 8);
+                return true;
+            }
+        }
         else if (strcasecmp(parstr, "creature.slow") == 0)
         {
             player = get_player(plyr_idx);

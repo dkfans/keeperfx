@@ -33,7 +33,6 @@ extern "C" {
 #define MAGIC_ITEMS_MAX        255
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define MAGIC_TYPES_COUNT      30
 #define POWER_TYPES_MAX      64
 
 enum SpellKinds {
@@ -67,6 +66,7 @@ enum SpellKinds {
     SplK_Chicken,
     SplK_TimeBomb,//[28]
     SplK_Lizard,
+    SplK_Cleanse,
 };
 
 enum CreatureSpellAffectedFlags {
@@ -89,6 +89,8 @@ enum CreatureSpellAffectedFlags {
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
     CSAfF_Grounded     = 0x8000,
     CSAfF_Timebomb     = 0x10000,
+    /** Cleanse effect can linger for some time. */
+    CSAfF_Cleanse      = 0x20000,
 };
 
 enum PowerKinds {
@@ -367,8 +369,11 @@ struct SpellConfig {
     short linked_power;
     short duration;
     short aura_effect;
-    unsigned short spell_flags;
+    unsigned long spell_flags;
+    /** Whether this spell negatively impacts a creature's combat performance in some way*/
+    unsigned char debuff;
 };
+
 
 struct MagicConfig {
     long spell_types_count;
@@ -381,6 +386,8 @@ struct MagicConfig {
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
     struct InstanceInfo instance_info[MAGIC_ITEMS_MAX]; //count in crtr_conf
+    int debuff_count;
+    int *debuffs;
 };
 
 #pragma pack(1)
@@ -439,6 +446,7 @@ const char *power_code_name(PowerKind pwkind);
 int power_model_id(const char * code_name);
 /******************************************************************************/
 TbBool load_magic_config(const char *conf_fname,unsigned short flags);
+void load_debuffs();
 TbBool make_all_powers_cost_free(void);
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx);
 TbBool set_power_available(PlayerNumber plyr_idx, PowerKind spl_idx, long resrch, long avail);

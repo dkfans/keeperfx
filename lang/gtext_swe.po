@@ -6923,3 +6923,8 @@ msgstr "Grundberg: Oöverklagad stenig mark. Du kan inte kräva den eller bygga 
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Tät guldåder: Innehåller mycket rikedom för dina Smådjävlar att utvinna."
+
+#: guitext:1053
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Rengöring: Botar alla negativa effekter som påverkar varelsen."

@@ -7166,3 +7166,8 @@ msgstr "Felsboden: Unbeanspruchter Felsenboden. Du kannst ihn nicht beanspruchen
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Dichte Goldader: Enthält viel Reichtum, den deine Imps abbauen können."
+
+#: guitext:1053
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Reinigen: Heilt alle negativen Effekte, die der Kreatur zugefügt wurden."

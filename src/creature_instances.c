@@ -509,15 +509,19 @@ long process_creature_self_spell_casting(struct Thing* creatng)
 {
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    if (((creatng->alloc_flags & TAlF_IsControlled) != 0)
-        || (cctrl->conscious_back_turns != 0)
-        || ((cctrl->stateblock_flags & CCSpl_Freeze) != 0)) {
+    if (((creatng->alloc_flags & TAlF_IsControlled) != 0) || (cctrl->conscious_back_turns != 0) || cctrl->instance_id != CrInst_NULL)
+    {
         return 0;
     }
-    if (cctrl->instance_id != CrInst_NULL) {
-        return 0;
-    }
-    if (cctrl->combat_flags != 0) {
+    if (cctrl->combat_flags != 0)
+    {
+        // should any debuff put us out of combat
+        for (int i = 0; i < magic_conf.debuff_count; ++i) {
+            if (creature_affected_by_spell(creatng, magic_conf.debuffs[i])) {
+                set_creature_instance(creatng, CrInst_CLEANSE, creatng->index, 0);
+                return 1;
+            }
+        }
         return 0;
     }
 

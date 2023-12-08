@@ -7020,3 +7020,8 @@ msgstr "Skała podstawowa: Niepomocne podłoże skalne. Nie możesz go oznaczyć
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Gęste żyłki złota: Zawiera dużo bogactwa do wydobycia przez twoje Chochliki."
+
+#: guitext:1053
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Oczyszczenie: Leczy wszystkie negatywne efekty zadane stworzeniu."

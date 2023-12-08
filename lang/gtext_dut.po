@@ -6920,3 +6920,8 @@ msgstr "Grondgesteente: Ongeclaimde rotsvloer. Je kunt het niet opeisen of erop 
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Dichte Goudader: Bevat veel rijkdom voor je Dondersteentjes om te delven."
+
+#: guitext:1053
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Zuiveren: Geneest alle negatieve effecten die op het wezen zijn toegebracht."
