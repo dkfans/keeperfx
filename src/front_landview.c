@@ -1457,25 +1457,25 @@ void draw_map_level_descriptions(void)
       }
 
       const char* level_description = get_level_description(lvinfo);
-      textWidth = LbTextStringWidthM(level_description, units_per_pixel_ui);
-      textHeight = scale_ui_value((LbTextHeight(level_description) - 2)); // -2 because LbTextHeight seems to come back a little too wide
-      boxWidth = textWidth + scale_ui_value(padding * 2);
-      boxHeight = textHeight + scale_ui_value(padding * 2);
-      borderBoxWidth = boxWidth + scale_ui_value(border * 2);
-      borderBoxHeight = boxHeight + scale_ui_value(border * 2);
+      textWidth = LbTextStringWidthM(level_description, units_per_pixel_menu);
+      textHeight = scale_value_menu((LbTextHeight(level_description) - 2)); // -2 because LbTextHeight seems to come back a little too wide
+      boxWidth = textWidth + scale_value_menu(padding * 2);
+      boxHeight = textHeight + scale_value_menu(padding * 2);
+      borderBoxWidth = boxWidth + scale_value_menu(border * 2);
+      borderBoxHeight = boxHeight + scale_value_menu(border * 2);
 
-      textX = scale_value_for_resolution(lvinfo->ensign_x - map_info.screen_shift_x) - (textWidth / 2) + scale_value_for_resolution(xOffset);
-      boxX = textX - scale_ui_value(padding);
-      borderBoxX = boxX - scale_ui_value(border);
-      textY = scale_value_for_resolution(lvinfo->ensign_y - map_info.screen_shift_y) - textHeight - scale_value_for_resolution(yOffset);
-      boxY = textY - scale_ui_value(padding);
-      borderBoxY = boxY + scale_ui_value(border);
+      textX = scale_value_landview(lvinfo->ensign_x - map_info.screen_shift_x) - (textWidth / 2) + scale_value_landview(xOffset);
+      boxX = textX - scale_value_menu(padding);
+      borderBoxX = boxX - scale_value_menu(border);
+      textY = scale_value_landview(lvinfo->ensign_y - map_info.screen_shift_y) - textHeight - scale_value_landview(yOffset);
+      boxY = textY - scale_value_menu(padding);
+      borderBoxY = boxY + scale_value_menu(border);
 
       // optional dropshadow
       // LbDrawBox(scale_value_for_resolution(borderBoxX+1), scale_value_for_resolution(borderBoxY+1), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), 0);
       LbDrawBox(borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight, borderColour);
       LbDrawBox(boxX, textY, boxWidth, boxHeight, boxColour);
-      LbTextDrawResized(textX, textY, units_per_pixel_ui, level_description);
+      LbTextDrawResized(textX, textY, units_per_pixel_menu, level_description);
     }
 }
 
