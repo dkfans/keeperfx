@@ -1474,12 +1474,8 @@ void draw_map_level_descriptions(void)
       // optional dropshadow
       // LbDrawBox(scale_value_for_resolution(borderBoxX+1), scale_value_for_resolution(borderBoxY+1), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), 0);
       LbDrawBox(borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight, borderColour);
-      long w = LbTextStringWidth(level_name);
-      long x = lvinfo->ensign_x - map_info.screen_shift_x;
-      long y = lvinfo->ensign_y - map_info.screen_shift_y - 8;
-      long h = LbTextHeight(level_name);
-      LbDrawBox(scale_value_landview(x-4), scale_value_landview(y), scale_value_landview(w+8), scale_value_landview(h), 0);
-      LbTextDrawResized(scale_value_landview(x), scale_value_landview(y), units_per_pixel_landview, level_name);
+      LbDrawBox(boxX, textY, boxWidth, boxHeight, boxColour);
+      LbTextDrawResized(textX, textY, units_per_pixel_ui, level_description);
     }
 }
 
