@@ -28,6 +28,7 @@
 #include "thing_physics.h"
 #include "creature_control.h"
 #include "creature_instances.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -970,9 +971,10 @@ short imp_converts_dungeon(struct Thing *spdigtng)
     {
       if (cctrl->instance_id == CrInst_NULL)
       {
-          if ( (creature_instance_is_available(spdigtng, CrInst_SPEED)) && (!creature_affected_by_spell(spdigtng, SplK_Speed)) && (creature_instance_has_reset(spdigtng, CrInst_SPEED)) )
+          CrInstance inst_idx = get_self_spell_casting(spdigtng);
+          if (inst_idx > CrInst_NULL) 
           {
-              set_creature_instance(spdigtng, CrInst_SPEED, 0, 0);
+              set_creature_instance(spdigtng, inst_idx, 0, 0);
               return 1;
           }
           else
