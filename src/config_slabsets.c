@@ -73,6 +73,11 @@ const struct NamedCommand slab_styles_commands[] = {
 TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     VALUE file_root;
+
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        clear_slabsets();
+    }
     
     if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
@@ -260,6 +265,26 @@ TbBool load_columns_config(const char *conf_fname,unsigned short flags,struct Co
     //Freeing and exiting
 
     return result;
+}
+
+void clear_slabsets(void)
+{
+    struct SlabSet *sset;
+    struct SlabObj *sobj;
+    int i;
+    for (i=0; i < SLABSET_COUNT; i++)
+    {
+        sset = &game.slabset[i];
+        memset(sset, 0, sizeof(struct SlabSet));
+        game.slabobjs_idx[i] = -1;
+    }
+    game.slabset_num = SLABSET_COUNT;
+    game.slabobjs_num = 0;
+    for (i=0; i < SLABOBJS_COUNT; i++)
+    {
+        sobj = &game.slabobjs[i];
+        memset(sobj, 0, sizeof(struct SlabObj));
+    }
 }
 
 /******************************************************************************/
