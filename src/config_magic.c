@@ -115,7 +115,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"INERTIA",               45},
   {"UNSHADED",              46},
   {"SOFTLANDING",           47},
-  {"EFFECTELEMENT",         48},
+  {"EFFECTMODEL ",          48},
   {"FIRELOGIC",             49},
   {NULL,                     0},
   };
@@ -1683,11 +1683,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 48: //EFFECTELEMENT
+      case 48: //EFFECTMODEL
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
-              shotst->effect_element = k;
+              k = effect_of_effect_element_id(word_buf);
+              shotst->effect_id = k;
               n++;
           }
           if (n < 1)
@@ -2251,7 +2251,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
       case 5: // ACTIVATIONEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_of_effect_element_id(word_buf);
               specst->effect_id = k;
               n++;
           }

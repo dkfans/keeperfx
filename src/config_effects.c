@@ -318,6 +318,40 @@ struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
     return &gameadd.effects_conf.effect_cfgstats[tngmodel];
 }
 
+static TbBool is_number(const char* parstr)
+{
+    for (int i = 0; parstr[i] != '\0'; i++)
+    {
+        TbBool digit = (i == 0) ? ( (parstr[i] == 0x2D) || (isdigit(parstr[i])) ) : (isdigit(parstr[i]));
+        if (!digit)
+        {
+            return false;
+        }
+    }
+    return true;
+}
+
+short effect_of_effect_element_id(const char * code_name)
+{
+    if (code_name == NULL)
+    {
+        return 0;
+    }
+
+    if (is_number(code_name))
+    {
+        return atoi(code_name);
+    }
+
+    short id = get_id(effect_desc,code_name);
+    if (id > 0)
+        return id;
+    id = get_id(effectelem_desc,code_name);
+    if (id > 0)
+        return -id;
+    return 0;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
