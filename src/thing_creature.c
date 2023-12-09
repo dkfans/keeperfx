@@ -2940,9 +2940,9 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
     }
     struct ComponentVector cvect;
 
-    switch (shotst->shot_type)
+    switch (shotst->fire_logic)
     {
-    case ShT_Lightning:
+    case ShFL_Beam:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
         {
             project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 20);
@@ -2955,7 +2955,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
-    case ShT_FlameBreathe:
+    case ShFL_Breathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
           project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 4);
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
@@ -2967,7 +2967,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
-    case ShT_Hail_storm:
+    case ShFL_Hail:
     {
         long i;
         if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
@@ -2995,6 +2995,8 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         }
         break;
     }
+    case ShFL_Lizard:
+    case ShFL_Default:
     default:
         if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
         {
@@ -3016,7 +3018,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng->parent_idx = firing->index;
         shotng->shot.target_idx = target_idx;
         shotng->shot.dexterity = dexterity;
-            if (shot_model == ShM_Lizard)
+            if (shotst->fire_logic == ShFL_Lizard)
             {
                 if (!thing_is_invalid(target))
                 {

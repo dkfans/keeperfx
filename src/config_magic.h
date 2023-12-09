@@ -305,7 +305,7 @@ struct ShotConfigStats {
     unsigned char unshaded;
     unsigned char soft_landing;
     ThingModel effect_element;
-    unsigned char shot_type;
+    unsigned char fire_logic;
 
 };
 
