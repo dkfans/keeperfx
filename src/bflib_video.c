@@ -1241,6 +1241,7 @@ long scale_ui_value_lofi(long base_value)
 
 /**
  * Takes a fixed value tuned for original DK at 640x400 and scales it for the game's current resolution.
+ * If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
  * Uses units_per_pixel_best (which is 16 at 640x400)
  *
  * @param base_value The fixed value tuned for original DK 640x400 mode
@@ -1252,6 +1253,108 @@ long scale_fixed_DK_value(long base_value)
     return value;
 }
 
+// TODO: The menu is currently always scaled so that the graphics FILL the screen on wider ARs than 4/3.
+// make a config setting to choose FIT or FILL for the menu background/map background (etc) 
+// (background image only really, buttons should always FIT the screen, but they currently FILL (so ultrawide is borked)).
+
+/** 
+ * Takes a fixed value tuned for original DK main menu at 640x480 and scales it to FIT the game's current resolution.
+ * If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
+ * Uses units_per_pixel_menu (which is 16 at 640x480)
+ *
+ * @param base_value The fixed value tuned for original DK menu in 640x480 mode
+ */
+long scale_value_menu(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_menu /16)
+    long value = ((((units_per_pixel_menu * base_value) >> 3) + (((units_per_pixel_menu * base_value) >> 3) & 1)) >> 1);
+    return value;
+}
+
+/** Scale the size and position of the landview background and banners. */
+long scale_value_landview(long base_value)
+{
+    // return value is equivalent to: round(base_value * units_per_pixel_landview /16)
+    long value = ((((units_per_pixel_landview * base_value) >> 3) + (((units_per_pixel_landview * base_value) >> 3) & 1)) >> 1);
+    return value;
+}
+
+/**
+ * Calculate units_per_pixel_landview (DK 640x480 was upp = 16) based on the current window size and the relative aspect ratio compared to 640x480).
+ * The aim is for the landview background image to be twice the size of the game window, but wider and taller aspect ratios inhibit this.
+ * For example 1920x1080p is wider than 640x480, so the height is used. Which would lead to a upp of 36, and a background of 2880x2160 (which is twice as tall as the game window).
+ 
+ * Calculate units_per_pixel_landview_frame based on the current window size and the landview background (scaled) size.
+ * This is used to make the window frame on the landview the correct size.
+ * The aim is to be half-way between these the window size and the background size (where the landview background is up to 2x larger than the game window).
+ * 
+ * Also calculates landview_frame_movement_scale_x, and landview_frame_movement_scale_y) for the landview window frame.
+ * 
+ * @param width the current window width
+ * @param height the current window height
+ * @param landview_width the current landview background image width (passed LANDVIEW_MAP_WIDTH)
+ * @param landview_height the current landview background image height (passed LANDVIEW_MAP_HEIGHT)
+ */
+void calculate_landview_upp(long width, long height, long landview_width, long landview_height)
+{
+    // horizontal, and vertical, aspect ratios for the current game window
+    long h_ar = 1024 * width / height;
+    long v_ar = 1024 * height / width;
+    if (is_menu_ar_wider_than_original(width, height))  // Get FIT upp
+    {
+        // **HOR+ land view**
+
+        // Is the game window more than twice as wide as 4:3? i.e. is it wider than 24:9?
+        if  (1024 * 1024 / h_ar < 384)
+        {
+            units_per_pixel_landview = (((width / 2 * 1024 / 40 / 1024) + 1) / 2) * 2;
+            
+            // setup the landview frame upp and movement speed
+            landview_frame_movement_scale_x = 1024;
+            landview_frame_movement_scale_y = 1024;
+            units_per_pixel_landview_frame = (((width * 1024 * 2 / 3 / 40 / 1024) + 1) / 2) * 2;
+            return;
+        }
+        units_per_pixel_landview = (((height * 1024 / 30 / 1024) + 1) / 2) * 2;
+        
+        // setup window frame movement speed (in land view)
+        long temp_width = 480 * h_ar;
+        landview_frame_movement_scale_x = (1024 * (1024 * 640 - (temp_width - (1024 * 640))) / 640) / (h_ar / (640 / 480));
+        landview_frame_movement_scale_y = 1024;
+
+        // calculate the window frame units per pixel value
+        long landview_frame_width_ideal = width + (((((scale_value_landview(landview_width) - width) / 2)) + 1) / 2) * 2;
+        units_per_pixel_landview_frame = (((landview_frame_width_ideal * 1024 * 2 / 3 / 40 / 1024) + 1) / 2) * 2;
+    }
+    else
+    {
+        // **VERT+ land view**
+        
+        // Is the game window more than twice as tall as 4:3? i.e. is it taller than 4:6?
+        if  (1024 * 1024 / v_ar < 682)
+        {
+            // Make the landview background (approximately) the same size as the height of the game window
+            units_per_pixel_landview = (((height / 2 * 1024 / 30 / 1024) + 1) / 2) * 2;
+
+            // setup the landview frame upp and movement speed
+            landview_frame_movement_scale_x = 1024;
+            landview_frame_movement_scale_y = 1024;
+            units_per_pixel_landview_frame = (((height * 1024 * 2 / 3 / 30 / 1024) + 1) / 2) * 2;
+            return;
+        }
+        units_per_pixel_landview = (((width * 1024 / 40 / 1024) + 1) / 2) * 2;
+
+        // setup window frame movement speed (in land view)
+        long temp_height = 640 * v_ar;
+        landview_frame_movement_scale_x = 1024;
+        landview_frame_movement_scale_y = (1024 * (1024 * 480 - (temp_height - (1024 * 480))) / 480) / (1024 * v_ar / (1024 * 480 / 640));
+
+        // calculate the window frame units per pixel value
+        long landview_frame_height_ideal = height + (((scale_value_landview(landview_height) - height) / 2 + 1) / 2) * 2;
+        units_per_pixel_landview_frame = (((landview_frame_height_ideal * 1024 * 2 / 3 / 30 / 1024) + 1) / 2) * 2;
+    }
+}
+
 /**
  * Determine whether the current window aspect ratio is wider than the original (16/10)
  *
@@ -1261,6 +1364,18 @@ long scale_fixed_DK_value(long base_value)
 TbBool is_ar_wider_than_original(long width, long height)
 {
     long original_aspect_ratio = (320 << 8) / 200;
+    long current_aspect_ratio = (width << 8) / height;
+    return (current_aspect_ratio > original_aspect_ratio);
+}
+/**
+ * Determine whether the current window aspect ratio is wider than the original main menu (4/3)
+ *
+ * @param width current window width
+ * @param height current window height
+ */
+TbBool is_menu_ar_wider_than_original(long width, long height)
+{
+    long original_aspect_ratio = (640 << 8) / 480;
     long current_aspect_ratio = (width << 8) / height;
     return (current_aspect_ratio > original_aspect_ratio);
 }
