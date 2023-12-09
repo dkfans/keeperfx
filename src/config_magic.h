@@ -306,7 +306,7 @@ struct ShotConfigStats {
     unsigned char soft_landing;
     EffectOrEffElModel effect_id;
     unsigned char fire_logic; // see enum ShotFireLogics
-    unsigned char update_logic // see enum ShotUpdateLogics
+    unsigned char update_logic; // see enum ShotUpdateLogics
 
 };
 

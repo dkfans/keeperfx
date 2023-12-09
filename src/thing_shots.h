@@ -69,7 +69,7 @@ enum ShotFireLogics {
     ShFL_Beam,
     ShFL_Breathe,
     ShFL_Hail,
-    ShFL_Lizard,
+    ShFL_Lizard
 };
 
 enum ShotUpdateLogics {
@@ -82,7 +82,7 @@ enum ShotUpdateLogics {
     ShUL_GodLightBall,
     ShUL_TrapTNT,
     ShUL_TrapLightning,
-}
+};
 
 /******************************************************************************/
 #pragma pack(1)
