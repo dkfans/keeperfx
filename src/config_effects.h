@@ -138,7 +138,7 @@ struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel);
 struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel);
 const char *effect_code_name(ThingModel tngmodel);
 const char *effectgenerator_code_name(ThingModel tngmodel);
-short effect_of_effect_element_id(const char * code_name);
+short effect_or_effect_element_id(const char * code_name);
 /******************************************************************************/
 #ifdef __cplusplus
 }

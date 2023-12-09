@@ -331,7 +331,7 @@ static TbBool is_number(const char* parstr)
     return true;
 }
 
-short effect_of_effect_element_id(const char * code_name)
+short effect_or_effect_element_id(const char * code_name)
 {
     if (code_name == NULL)
     {
