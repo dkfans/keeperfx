@@ -72,6 +72,18 @@ enum ShotFireLogics {
     ShFL_Lizard,
 };
 
+enum ShotUpdateLogics {
+    ShUL_Default = 0,
+    ShUL_Lightning,
+    ShUL_Wind,
+    ShUL_Grenade,
+    ShUL_GodLightning,
+    ShUL_Lizard,
+    ShUL_GodLightBall,
+    ShUL_TrapTNT,
+    ShUL_TrapLightning,
+}
+
 /******************************************************************************/
 #pragma pack(1)
 
