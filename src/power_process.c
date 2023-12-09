@@ -291,7 +291,7 @@ void update_god_lightning_ball(struct Thing *thing)
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        shotst = get_shot_model_stats(ShM_GodLightBall);
+        shotst = get_shot_model_stats(thing->model);
         draw_lightning(&thing->mappos,&target->mappos, 96, shotst->effect_id);
         break;
     case 2:
@@ -299,12 +299,12 @@ void update_god_lightning_ball(struct Thing *thing)
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        shotst = get_shot_model_stats(ShM_GodLightBall);
+        shotst = get_shot_model_stats(thing->model);
         apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
         if (target->health < 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(target);
-            cctrl->shot_model = ShM_GodLightBall;
+            cctrl->shot_model = thing->model;
             kill_creature(target, INVALID_THING, thing->owner, CrDed_DiedInBattle);
         }
         thing->shot.target_idx = 0;
