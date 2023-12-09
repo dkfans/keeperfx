@@ -115,7 +115,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"INERTIA",               45},
   {"UNSHADED",              46},
   {"SOFTLANDING",           47},
-  {"EFFECTMODEL ",          48},
+  {"EFFECTMODEL",           48},
   {"FIRELOGIC",             49},
   {"UPDATELOGIC",           50},
   {NULL,                     0},
