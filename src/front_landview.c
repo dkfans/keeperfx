@@ -1458,7 +1458,7 @@ void draw_map_level_descriptions(void)
 
       const char* level_description = get_level_description(lvinfo);
       textWidth = LbTextStringWidthM(level_description, units_per_pixel_menu);
-      textHeight = scale_value_menu((LbTextHeight(level_description) - 2)); // -2 because LbTextHeight seems to come back a little too wide
+      textHeight = scale_value_menu((LbTextHeight(level_description) - 2)); // -2 because LbTextHeight seems to come back a little too tall
       boxWidth = textWidth + scale_value_menu(padding * 2);
       boxHeight = textHeight + scale_value_menu(padding * 2);
       borderBoxWidth = boxWidth + scale_value_menu(border * 2);
