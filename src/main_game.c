@@ -239,10 +239,6 @@ static void post_init_level(void)
     init_all_creature_states();
     init_keepers_map_exploration();
     SYNCDBG(9,"Finished");
-
-#ifdef FUNCTESTING
-    ftest_init();
-#endif
 }
 
 /******************************************************************************/
@@ -361,6 +357,11 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
+
+#ifdef FUNCTESTING
+    set_flag_byte(&start_params.functest_flags, FTF_LevelLoaded, true);
+#endif
+
     return CLS_CONTINUE;
 }
 

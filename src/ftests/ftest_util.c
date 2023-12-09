@@ -246,6 +246,36 @@ struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNu
     return thing;
 }
 
+struct Thing* ftest_util_create_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv, ThingModel creature_model)
+{
+    struct Coord3d pos;
+    pos.x.val = x;
+    pos.y.val = y;
+    pos.z.val = 0;
+    struct Thing* thing = create_creature(&pos, creature_model, owner);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Cannot create creature %s at (%ld,%ld)",creature_code_name(creature_model),x,y);
+        return false;
+    }
+    pos.z.val = get_thing_height_at(thing, &pos);
+    if (thing_in_wall_at(thing, &pos))
+    {
+        delete_thing_structure(thing, 0);
+        ERRORLOG("Creature %s at (%ld,%ld) deleted because is in wall",creature_code_name(creature_model),x,y);
+        return false;
+    }
+    thing->mappos.x.val = pos.x.val;
+    thing->mappos.y.val = pos.y.val;
+    thing->mappos.z.val = pos.z.val;
+    remove_first_creature(thing);
+    set_first_creature(thing);
+    set_start_state(thing);
+    CrtrExpLevel lv = GAME_RANDOM(max_lv);
+    set_creature_level(thing, lv);
+    return thing;
+}
+
 void ftest_util_center_cursor_over_dungeon_view()
 {
     struct PlayerInfo *player = get_my_player();
@@ -264,6 +294,53 @@ void ftest_util_center_cursor_over_dungeon_view()
     }
 
     LbMouseSetPosition(point.x, point.y);
+}
+
+TbBool ftest_util_action__create_and_fill_torture_room(struct FTestActionArgs* const args)
+{
+    struct ftest_util_action__create_and_fill_torture_room__variables* const vars = args->data;
+
+    if(vars->only_run_once && args->times_executed > 0)
+    {
+        return true;
+    }
+
+    struct LevelInformation* const level_info = get_level_info(1);
+    if(level_info == NULL)
+    {
+        FTEST_FAIL_TEST("Failed to grab level info. Something is wrong.");
+        return true;
+    }
+
+    const MapSlabCoord room_start_x = vars->room_slb_x_start;
+    const MapSlabCoord room_start_y = vars->room_slb_y_start;
+    const MapSlabCoord room_end_x = vars->room_slb_x_start + vars->room_width;
+    const MapSlabCoord room_end_y = vars->room_slb_y_start + vars->room_height;
+
+    if(room_start_x <= 0 || room_end_x >= level_info->mapsize_x || room_start_y <= 0 || room_end_y >= level_info->mapsize_y)
+    {
+        FTEST_FAIL_TEST("Room bounds (%d,%d, %d,%d) exceed map border (%d,%d, %d,%d)", room_start_x, room_start_x, room_end_x, room_end_y
+                                                                                     , 0, 0, level_info->mapsize_x, level_info->mapsize_y);
+        return true;
+    }
+
+    if(!ftest_util_replace_slabs(room_start_x, room_start_y, room_end_x, room_end_y, SlbT_TORTURE, vars->room_owner))
+    {
+        FTEST_FAIL_TEST("Failed to create torture chamber at (%d,%d, %d,%d)", room_start_x, room_start_x, room_end_x, room_end_y);
+        return true;
+    }
+
+    struct Coord3d center_of_room_pos;
+    set_coords_to_slab_center(&center_of_room_pos, room_start_x + vars->room_width/2, room_start_y + vars->room_height);
+
+    struct Thing* torture_victim = ftest_util_create_creature(center_of_room_pos.x.val, center_of_room_pos.y.val, vars->victim_player_owner, vars->victim_max_lv, vars->victim_creature_model);
+    if(thing_is_invalid(torture_victim))
+    {
+        FTEST_FAIL_TEST("Cannot create creature %s at (%ld,%ld)",creature_code_name(vars->victim_creature_model), center_of_room_pos.x.val, center_of_room_pos.y.val);
+        return true;
+    }
+
+    return true;
 }
 
 

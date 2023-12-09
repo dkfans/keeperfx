@@ -3444,11 +3444,15 @@ void gameplay_loop_logic()
     }
 #endif // AUTOTESTING || FUNCTESTING
 #ifdef FUNCTESTING
-    if(ftest_update())
+    if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
-        quit_game = true;
-        exit_keeper = true;
-        return;
+        FTestFrameworkState ftstate = ftest_update(NULL);
+        if(ftstate == FTSt_InvalidState || ftstate == FTSt_TestsCompletedSuccessfully)
+        {
+            quit_game = true;
+            exit_keeper = true;
+            return;
+        }
     }
 #endif // FUNCTESTING
     do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
@@ -3684,6 +3688,31 @@ static TbBool wait_at_frontend(void)
     }
     // Init load/save catalogue
     initialise_load_game_slots();
+
+    #ifdef FUNCTESTING
+    if(flag_is_set(start_params.functest_flags, FTF_Enabled)) //override for functional tests
+    {
+        FTestFrameworkState ft_prev_state = FTSt_InvalidState;
+        FTestFrameworkState ft_current_state = ftest_update(&ft_prev_state);
+
+        TbBool user_aborted_tests = ft_prev_state == FTSt_TestIsProcessingActions && ft_current_state == FTSt_TestIsProcessingActions;
+        if(user_aborted_tests)
+        {
+            FTEST_FAIL_TEST("User aborted tests");
+        }
+
+        if(ft_current_state == FTSt_InvalidState || ft_current_state == FTSt_TestsCompletedSuccessfully || user_aborted_tests)
+        {
+            quit_game = true;
+            exit_keeper = true;
+            return true;
+        }
+        faststartup_network_game(&loop);
+        coroutine_process(&loop);
+        return true;
+    }
+    #endif
+
     // Prepare to enter PacketLoad game
     if ((game.packet_load_enable) && (!game.numfield_149F47))
     {
@@ -4174,24 +4203,12 @@ short process_command_line(unsigned short argc, char *argv[])
 #ifdef FUNCTESTING
       else if (strcasecmp(parstr, "ftests") == 0)
       {
-        strcpy(start_params.selected_campaign, "../ftests/campaign");
-
-        set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
-
-        if(strlen(pr2str) > 0 && pr2str[0] != '-')
+        if(ftest_parse_arg(pr2str))
         {
-            snprintf(start_params.functest_name, sizeof(start_params.functest_name), "%s", pr2str);
-            narg++;
+            ++narg;
         }
 
-        level_num = 1; //always use level 1 template map, each test overrides their own game content
-
-        start_params.no_intro = 1;
-
-        if(start_params.frame_skip == 0)
-        {
-            start_params.frame_skip = 8; //default to x8 speed for fast tests
-        }
+        ftest_init();
       }
 #endif
       else
@@ -4393,7 +4410,7 @@ int main(int argc, char *argv[])
   }
 
 #ifdef FUNCTESTING
-  if(start_params.functest_flags & FTF_Failed)
+  if(flag_is_set(start_params.functest_flags, FTF_Enabled) && flag_is_set(start_params.functest_flags, FTF_Failed))
   {
       return -1;
   }

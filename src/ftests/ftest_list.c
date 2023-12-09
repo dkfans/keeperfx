@@ -7,14 +7,14 @@
 #include "ftest.h"
 
 /**
- * Add the header files for your tests here
+ * Add the header files for all tests below here
  */
 #include "tests/ftest_template.h"
 #include "tests/ftest_bug_imp_tp_job_attack_door.h"
 #include "tests/ftest_bug_pathing_pillar_circling.h"
 #include "tests/ftest_bug_imp_goldseam_dig.h"
 #include "tests/ftest_bug_invisible_units_cant_select.h"
-//#include "tests/ftest_your_test_header.h"
+// append your test include here, eg: #include "tests/ftest_your_test_header.h"
 
 #include "../post_inc.h"
 
@@ -28,11 +28,12 @@ extern "C" {
  */
 struct ftest_onlyappendtests__config ftest_onlyappendtests__conf = {
     .tests_list = {
-        { "example_template_test", ftest_template_init },
-        { "bug_imp_teleport_attack_door", ftest_bug_imp_tp_attack_door_init },
-        { "bug_pathing_pillar_circling", ftest_bug_pathing_pillar_circling_init },
-        { "bug_imp_goldseam_dig", ftest_bug_imp_goldseam_dig_init },
-        { "bug_invisible_units_cant_select", ftest_bug_invisible_units_cant_select_init }
+         { .test_name="example_template_test",              .init_func=ftest_template_init,                         .level_file="keeporig", .level=8, .frame_skip=8 },
+         { .test_name="bug_imp_teleport_attack_door",       .init_func=ftest_bug_imp_tp_attack_door_init,           .level_file="deepdngn", .level=80, .frame_skip=0 },
+         { .test_name="bug_pathing_pillar_circling",        .init_func=ftest_bug_pathing_pillar_circling_init,      .level_file="lostlvls", .level=23, .frame_skip=0 },
+         { .test_name="bug_imp_goldseam_dig",               .init_func=ftest_bug_imp_goldseam_dig_init,             .level_file="deepdngn", .level=86, .frame_skip=0 },
+         { .test_name="bug_invisible_units_cant_select",    .init_func=ftest_bug_invisible_units_cant_select_init,  .level_file="lostlvls", .level=103, .frame_skip=0 },
+         // append your test to tests_list here, eg: { .test_name="your_test_name",    .init_func=ftest_your_test_name_init, .level_file="lostlvls", .level=103 },
     }
 };
 

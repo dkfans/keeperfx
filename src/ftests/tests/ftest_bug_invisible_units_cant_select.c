@@ -64,6 +64,22 @@ struct ftest_bug_invisible_units_cant_select__variables ftest_bug_invisible_unit
     .unit_dropped_at_turn = ULONG_MAX
 };
 
+struct ftest_util_action__create_and_fill_torture_room__variables ftest_bug_invisible_units_cant_select__torture__vars = {
+    .room_slb_x_start = 28,
+    .room_slb_y_start = 28,
+
+    .room_width = 10,
+    .room_height = 10,
+
+    .room_owner = PLAYER0,
+
+    .victim_creature_model = 17,
+    .victim_player_owner = PLAYER0,
+    .victim_max_lv = 10,
+
+    .only_run_once = true
+};
+
 // forward declarations - tests
 TbBool ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestActionArgs* const args);
 TbBool ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTestActionArgs* const args);
@@ -82,23 +98,34 @@ TbBool ftest_bug_invisible_units_cant_select_init()
     {
         ftest_util_reveal_map(PLAYER0); // we might want to see the entire map for testing purposes
         
-        // carve out arena
+        // carve out area
         ftest_util_replace_slabs(vars->slb_x_arena_start, vars->slb_y_arena_start, vars->slb_x_arena_start + vars->arena_width, vars->slb_y_arena_start + vars->arena_height, vars->arena_slab_type, PLAYER_NEUTRAL);
+
+        // 
 
         // focus camera to center of arena
         ftest_util_move_camera_to_slab((vars->slb_x_arena_start + (vars->slb_x_arena_start+vars->arena_width)) / 2, (vars->slb_y_arena_start + (vars->slb_y_arena_start+vars->arena_height)) / 2, PLAYER0);
     }
 
     // setup actions
-    ftest_append_action(ftest_bug_invisible_units_cant_select_action001__spawn_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
-    //ftest_append_action(ftest_bug_invisible_units_cant_select_action002__pickup_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
-    //ftest_append_action(ftest_bug_invisible_units_cant_select_action003__drop_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
-    //ftest_append_action(ftest_bug_invisible_units_cant_select_action004__kill_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
+    //ftest_append_action(ftest_util_action__create_and_fill_torture_room, 20, &ftest_bug_invisible_units_cant_select__torture__vars);
 
-    ftest_append_action(ftest_bug_invisible_units_cant_select_action005__restart_actions, 0, NULL);
+    for(int i = 0; i < 10; ++i)
+    {
+        ftest_append_action(ftest_bug_invisible_units_cant_select_action001__spawn_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
+        ftest_append_action(ftest_bug_invisible_units_cant_select_action002__pickup_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
+        ftest_append_action(ftest_bug_invisible_units_cant_select_action003__drop_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
+        ftest_append_action(ftest_bug_invisible_units_cant_select_action004__kill_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
+    }
+
+    
+
+    //ftest_append_action(ftest_bug_invisible_units_cant_select_action005__restart_actions, 0, NULL);
 
     return true;
 }
+
+
 
 TbBool ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestActionArgs* const args)
 {
@@ -219,6 +246,7 @@ TbBool ftest_bug_invisible_units_cant_select_action005__restart_actions(struct F
 {
     ftest_restart_actions();
 
+    //return false;
     return true;
 }
 

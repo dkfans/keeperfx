@@ -111,7 +111,9 @@ enum AutotestFlags {
 #endif
 #ifdef FUNCTESTING
 enum FunctestFlags {
-    FTF_Failed              = 0x01, // Test failed, causes exit code -1 for cmd line automation
+    FTF_Enabled             = 0x01, // Functional Tests Enabled
+    FTF_Failed              = 0x02, // Test failed, causes exit code -1 for cmd line automation
+    FTF_LevelLoaded         = 0x04, // For tracking if map is ready
 };
 #endif
 

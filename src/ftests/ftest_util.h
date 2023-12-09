@@ -108,10 +108,46 @@ TbBool ftest_util_move_camera_to_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, Pl
 struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv);
 
 /**
+ * @brief Creates creature of kind creature_model with random experience level
+ * 
+ * @param x 
+ * @param y 
+ * @param owner 
+ * @param max_lv 
+ * @param creature_model 
+ * @return
+ */
+struct Thing* ftest_util_create_creature(MapCoord x, MapCoord y, PlayerNumber owner, CrtrExpLevel max_lv, ThingModel creature_model);
+
+/**
  * @brief Centers the players cursor over the dungeon view (useful for picking up creatures by moving camera to/near unit pos)
  * 
  */
 void ftest_util_center_cursor_over_dungeon_view();
+
+/**
+ * @brief test action to create a torture room for player and fill it with assigned torture creatures
+ * 
+ * @param args 
+ * @return TbBool 
+ */
+TbBool ftest_util_action__create_and_fill_torture_room(struct FTestActionArgs* const args);
+struct ftest_util_action__create_and_fill_torture_room__variables
+{
+    const MapSlabCoord room_slb_x_start;
+    const MapSlabCoord room_slb_y_start;
+
+    const MapSlabCoord room_width;
+    const MapSlabCoord room_height;
+
+    PlayerNumber room_owner;
+
+    ThingModel victim_creature_model;
+    PlayerNumber victim_player_owner;
+    CrtrExpLevel victim_max_lv;
+
+    TbBool only_run_once;
+};
 
 
 #ifdef __cplusplus
