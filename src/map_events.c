@@ -638,8 +638,6 @@ void go_on_then_activate_the_event_box(PlayerNumber plyr_idx, EventIndex evidx)
         {
             turn_off_menu(GMnu_BATTLE);
             turn_off_menu(GMnu_DUNGEON_SPECIAL);
-            turn_off_menu(GMnu_RESURRECT_CREATURE);
-            turn_off_menu(GMnu_TRANSFER_CREATURE);
         }
     }
     SYNCDBG(8,"Finished");
