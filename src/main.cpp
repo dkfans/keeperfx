@@ -51,6 +51,7 @@
 #include "kjm_input.h"
 #include "packets.h"
 #include "config.h"
+#include "config_slabsets.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_terrain.h"
@@ -352,7 +353,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     {
         if (!thing_is_picked_up(thing))
         {
-            struct EffectElementStats *eestat;
+            struct EffectElementConfigStats *eestat;
             eestat = get_effect_element_model_stats(thing->model);
             dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
             if ((dist < param->num1) && eestat->affected_by_wind)
@@ -698,7 +699,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
-        struct EffectElementStats *eestat;
+        struct EffectElementConfigStats *eestat;
         eestat = get_effect_element_model_stats(9);
         int sprsize;
         int delta_size;
@@ -1652,26 +1653,6 @@ TbBool set_default_startup_parameters(void)
     set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
     start_params.force_ppro_poly = 0;
     return true;
-}
-
-void clear_slabsets(void)
-{
-    struct SlabSet *sset;
-    struct SlabObj *sobj;
-    int i;
-    for (i=0; i < SLABSET_COUNT; i++)
-    {
-        sset = &game.slabset[i];
-        memset(sset, 0, sizeof(struct SlabSet));
-        game.slabobjs_idx[i] = -1;
-    }
-    game.slabset_num = SLABSET_COUNT;
-    game.slabobjs_num = 0;
-    for (i=0; i < SLABOBJS_COUNT; i++)
-    {
-        sobj = &game.slabobjs[i];
-        memset(sobj, 0, sizeof(struct SlabObj));
-    }
 }
 
 void clear_map(void)
