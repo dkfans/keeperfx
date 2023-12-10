@@ -177,6 +177,11 @@ void remove_body_from_graveyard(struct Thing *thing)
 
 long move_dead_creature(struct Thing *thing)
 {
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing %s.", thing_class_and_model_name(thing->class_id, thing->model));
+        return TUFRet_Deleted;
+    }
     if ( (thing->velocity.x.val != 0) || (thing->velocity.y.val != 0) || (thing->velocity.z.val != 0) )
     {
         long i = (long)thing->mappos.x.val + (long)thing->velocity.x.val;
@@ -206,7 +211,7 @@ long move_dead_creature(struct Thing *thing)
         // Even if no velocity, update field_60
         thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
-    return 1;
+    return TUFRet_Modified;
 }
 
 TngUpdateRet update_dead_creature(struct Thing *thing)
@@ -272,8 +277,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     }
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-        move_dead_creature(thing);
-        return TUFRet_Modified;
+        return move_dead_creature(thing);
     }
     if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
       && !thing_is_dragged_or_pulled(thing) )
@@ -289,8 +293,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->corpse.exp_level);
         return TUFRet_Deleted;
     }
-    move_dead_creature(thing);
-    return TUFRet_Modified;
+    return move_dead_creature(thing);;
 }
 
 long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
