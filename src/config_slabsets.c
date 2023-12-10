@@ -35,8 +35,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_slabset_file[]="slabset.toml";
-const char keeper_columns_file[]="columnset.toml";
+const char keeper_slabset_file[]="slabset.cfg";
+const char keeper_columns_file[]="columnset.cfg";
 /******************************************************************************/
 typedef struct VALUE VALUE;
 const struct NamedCommand slab_styles_commands[] = {

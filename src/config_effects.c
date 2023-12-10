@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_effects_file[]="effects.toml";
+const char keeper_effects_file[]="effects.cfg";
 
 long const imp_spangle_effects[] = {
     TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_None, TngEff_None,

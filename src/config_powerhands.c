@@ -35,7 +35,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_powerhands_file[]="powerhands.toml";
+const char keeper_powerhands_file[]="powerhands.cfg";
 /******************************************************************************/
 typedef struct VALUE VALUE;
 

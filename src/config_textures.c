@@ -33,7 +33,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_textureanim_file[]="textureanim.toml";
+const char keeper_textureanim_file[]="textureanim.cfg";
 /******************************************************************************/
 
 TbBool load_textureanim_config_file(const char *textname, const char *fname, unsigned short flags)
