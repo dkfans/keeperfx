@@ -1480,6 +1480,11 @@ TngUpdateRet move_shot(struct Thing *shotng)
             }
         }
     }
+    // Shot may have been destroyed when it hit something
+    if (!thing_exists(shotng))
+    {
+        return TUFRet_Deleted;
+    }
     if ((shotng->movement_flags & TMvF_Unknown10) != 0)
     {
       if ((shotst->model_flags & ShMF_StrengthBased) && thing_in_wall_at(shotng, &pos)) {
