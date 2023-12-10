@@ -340,7 +340,7 @@ TbBool valid_dig_position(PlayerNumber plyr_idx, long stl_x, long stl_y)
             struct Thing* doortng = get_door_for_position(stl_x, stl_y);
             if (!thing_is_invalid(doortng) && !doortng->door.is_locked && players_are_mutual_allies(doortng->owner, plyr_idx))
             {
-                return true;
+                return map_block_revealed(mapblk, plyr_idx);
             }
         }
     }
