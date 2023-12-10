@@ -1498,8 +1498,9 @@ TngUpdateRet move_shot(struct Thing *shotng)
     if (!thing_is_invalid(shotng))
     {
         move_thing_in_map(shotng, &pos);
+        return TUFRet_Modified;
     }
-    return TUFRet_Modified;
+    return TUFRet_Deleted;
 }
 
 TngUpdateRet update_shot(struct Thing *thing)
