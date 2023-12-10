@@ -2328,7 +2328,11 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     if (typical_value <= 0) {
         return false;
     }
+
     thing->valuable.gold_stored += value;
+    if (thing->valuable.gold_stored == 0) {
+        return false;
+    }
     if (thing->valuable.gold_stored < 0)
         thing->valuable.gold_stored = LONG_MAX;
     if (thing->valuable.gold_stored < typical_value)
