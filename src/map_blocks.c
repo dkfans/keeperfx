@@ -2596,11 +2596,11 @@ unsigned short get_point_in_map_solid_flags_ignoring_own_door(const struct Coord
     } else
     if (point_in_map_is_solid(pos))
     {
-        struct Thing *thing;
-        thing = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
-        if (!thing_is_invalid(thing))
+        struct Thing *doortng;
+        doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
+        if (!thing_is_invalid(doortng))
         {
-            if ((thing->owner != plyr_idx) || (thing->door.is_locked)) {
+            if (!players_are_mutual_allies(doortng->owner,plyr_idx) || (doortng->door.is_locked)) {
                 flags |= 0x01;
             }
         } else

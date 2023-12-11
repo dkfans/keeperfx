@@ -28,14 +28,47 @@
 #include "power_hand.h"
 #include "thing_objects.h"
 #include "post_inc.h"
+#include "config_magic.h"
 
 /******************************************************************************/
 /******************************************************************************/
 // originally was player_state_to_spell
-unsigned short const player_state_to_power_kind[PLAYER_STATES_COUNT] = {
-  0,  0,  0,  0,  0,  0,  6,  7,  5,  0, 18, 18,  0,  0,  0,  0,
-  0, 10,  0, 11, 12, 13,  8,  0,  2, 16, 14, 15,  0,  3, 16, 14,
- 15, 18, 18,
+PowerKind const player_state_to_power_kind[PLAYER_STATES_COUNT] = {
+  PwrK_None, // PSt_None
+  PwrK_None, // PSt_CtrlDungeon 
+  PwrK_None, // PSt_BuildRoom
+  PwrK_None, // PSt_MkDigger
+  PwrK_None, // PSt_MkGoodCreatr 
+  PwrK_None, // PSt_HoldInHand
+  PwrK_CALL2ARMS, // PSt_CallToArms 
+  PwrK_CAVEIN,  // PSt_CaveIn
+  PwrK_SIGHT, // PSt_SightOfEvil 
+  PwrK_None, // PSt_Slap
+  PwrK_POSSESS, // PSt_CtrlPassngr
+  PwrK_POSSESS, // PSt_CtrlDirect
+  PwrK_None, // PSt_CreatrQuery  
+  PwrK_None, // PSt_OrderCreatr 
+  PwrK_None, // PSt_MkBadCreatr 
+  PwrK_None, // PSt_CreatrInfo
+  PwrK_None, // PSt_PlaceTrap
+  PwrK_LIGHTNING, // PSt_Lightning
+  PwrK_None,  // PSt_PlaceDoor
+  PwrK_SPEEDCRTR, // PSt_SpeedUp
+  PwrK_PROTECT, // PSt_Armour
+  PwrK_CONCEAL, // PSt_Conceal  
+  PwrK_HEALCRTR, // PSt_Heal  
+  PwrK_None, // PSt_Sell 
+  PwrK_MKDIGGER, // PSt_CreateDigger 
+  PwrK_DESTRWALLS, // PSt_DestroyWalls 
+  PwrK_DISEASE, // PSt_CastDisease 
+  PwrK_CHICKEN, // PSt_TurnChicken  
+  PwrK_None, // PSt_MkGoldPot 
+  PwrK_TIMEBOMB, // PSt_TimeBomb
+  PwrK_DESTRWALLS, // PSt_FreeDestroyWalls
+  PwrK_DISEASE, // PSt_FreeCastDisease
+  PwrK_CHICKEN, // PSt_FreeTurnChicken
+  PwrK_POSSESS, // PSt_FreeCtrlPassngr
+  PwrK_POSSESS, // PSt_FreeCtrlDirect
 };
 /******************************************************************************/
 

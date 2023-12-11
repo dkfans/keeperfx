@@ -41,6 +41,7 @@
 #include "config_trapdoor.h"
 #include "config_objects.h"
 #include "config_cubes.h"
+#include "config_powerhands.h"
 #include "map_columns.h"
 #include "map_events.h"
 #include "music_player.h"
@@ -124,7 +125,6 @@ char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
-    struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
     struct Things things;
     struct Persons persons;
     struct Columns columns;
@@ -137,12 +137,13 @@ char numfield_1A;
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
-    unsigned char navigation_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
-    struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y]; // field offset 0xDC157
+    NavColour navigation_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+    struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
     struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
     struct SlabsConfig slab_conf;
+    struct PowerHandConfig power_hand_conf;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
@@ -258,7 +259,6 @@ unsigned int packet_file_pos;
     long collapse_dungeon_damage;
     GameTurnDelta turns_per_collapse_dngn_dmg;
     struct SoundSettings sound_settings;
-    long num_fps;
     GameTurnDelta train_cost_frequency;
     GameTurnDelta scavenge_cost_frequency;
     unsigned long temple_scavenge_protection_turns;
@@ -306,6 +306,7 @@ unsigned int packet_file_pos;
 #pragma pack()
 /******************************************************************************/
 extern struct Game game;
+extern long game_num_fps;
 /******************************************************************************/
 #ifdef __cplusplus
 }

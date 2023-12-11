@@ -51,6 +51,7 @@
 #include "kjm_input.h"
 #include "packets.h"
 #include "config.h"
+#include "config_slabsets.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_terrain.h"
@@ -137,6 +138,7 @@ char *bf_argv[CMDLN_MAXLEN+1];
 short do_draw;
 short default_loc_player = 0;
 struct StartupParameters start_params;
+long game_num_fps;
 
 unsigned char *blue_palette;
 unsigned char *red_palette;
@@ -312,7 +314,7 @@ void process_keeper_spell_aura(struct Thing *thing)
 
 unsigned long lightning_is_close_to_player(struct PlayerInfo *player, struct Coord3d *pos)
 {
-    return get_2d_box_distance(&player->acamera->mappos, pos) < subtile_coord(45,0);
+    return get_chessboard_distance(&player->acamera->mappos, pos) < subtile_coord(45,0);
 }
 
 static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam param)
@@ -336,7 +338,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct CreatureStats *crstat;
             crstat = creature_stats_get_from_thing(thing);
-            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
             if ((dist < param->num1) && crstat->affected_by_wind)
             {
                 set_start_state(thing);
@@ -351,9 +353,9 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     {
         if (!thing_is_picked_up(thing))
         {
-            struct EffectElementStats *eestat;
+            struct EffectElementConfigStats *eestat;
             eestat = get_effect_element_model_stats(thing->model);
-            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
             if ((dist < param->num1) && eestat->affected_by_wind)
             {
                 apply_velocity = true;
@@ -366,7 +368,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
         {
             struct ShotConfigStats *shotst;
             shotst = get_shot_model_stats(thing->model);
-            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
+            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
             if ((dist < param->num1) && !shotst->wind_immune)
             {
                 apply_velocity = true;
@@ -380,8 +382,8 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
 
             struct EffectConfigStats *effcst;
             effcst = get_effect_model_stats(thing->model);
-            dist = get_2d_box_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && effcst->old->affected_by_wind)
+            dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
+            if ((dist < param->num1) && effcst->affected_by_wind)
             {
                 apply_velocity = true;
             }
@@ -452,7 +454,7 @@ void affect_nearby_friends_with_alarm(struct Thing *traptng)
         {
             struct StateInfo *stati;
             stati = get_thing_state_info_num(get_creature_state_besides_interruptions(thing));
-            if (stati->react_to_cta && (get_2d_box_distance(&traptng->mappos, &thing->mappos) < 4096))
+            if (stati->react_to_cta && (get_chessboard_distance(&traptng->mappos, &thing->mappos) < 4096))
             {
                 creature_mark_if_woken_up(thing);
                 if (external_set_thing_state(thing, CrSt_ArriveAtAlarm))
@@ -697,7 +699,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
-        struct EffectElementStats *eestat;
+        struct EffectElementConfigStats *eestat;
         eestat = get_effect_element_model_stats(9);
         int sprsize;
         int delta_size;
@@ -741,12 +743,9 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
 
 void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, long eemodel)
 {
-    MapCoordDelta dist_x;
-    MapCoordDelta dist_y;
-    MapCoordDelta dist_z;
-    dist_x = pos2->x.val - (MapCoordDelta)pos1->x.val;
-    dist_y = pos2->y.val - (MapCoordDelta)pos1->y.val;
-    dist_z = pos2->z.val - (MapCoordDelta)pos1->z.val;
+    MapCoordDelta dist_x = pos2->x.val - pos1->x.val;
+    MapCoordDelta dist_y = pos2->y.val - pos1->y.val;
+    MapCoordDelta dist_z = pos2->z.val - pos1->z.val;
     int delta_x;
     int delta_y;
     int delta_z;
@@ -788,18 +787,14 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             delta_x = dist_x * delta_x / dist_y;
             delta_z = delta_z * dist_z / dist_y;
         }
-        int deviat_x;
-        int deviat_y;
-        int deviat_z;
-        deviat_x = 0;
-        deviat_y = 0;
-        deviat_z = 0;
+        int deviat_x = 0;
+        int deviat_y = 0;
+        int deviat_z = 0;
         struct Coord3d curpos;
         curpos.x.val = pos1->x.val + UNSYNC_RANDOM(eeinterspace/4);
         curpos.y.val = pos1->y.val + UNSYNC_RANDOM(eeinterspace/4);
         curpos.z.val = pos1->z.val + UNSYNC_RANDOM(eeinterspace/4);
-        int i;
-        for (i=nsteps+1; i > 0; i--)
+        for (int i=nsteps+1; i > 0; i--)
         {
             struct Coord3d tngpos;
             tngpos.x.val = curpos.x.val + deviat_x;
@@ -824,14 +819,12 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             } else {
                 deviat_z += 32;
             }
-            int deviat_limit;
-            long dist;
-            dist = get_3d_box_distance(&curpos, pos2);
-            deviat_limit = 128;
+            MapCoordDelta dist = get_chessboard_3d_distance(&curpos, pos2);
+            int deviat_limit = 128;
             if (dist < 1024)
               deviat_limit = (dist * 128) / 1024;
             // Limit deviations
-            if (deviat_x >= -deviat_limit) {
+            if (deviat_x < -deviat_limit) {
                 deviat_x = -deviat_limit;
             } else
             if (deviat_x > deviat_limit) {
@@ -882,7 +875,7 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
                     limit = SHRT_MAX - (player->acamera->zoom / 3);
                 }
             }
-            if (get_2d_box_distance(&player->acamera->mappos, pos) <= limit)
+            if (get_chessboard_distance(&player->acamera->mappos, pos) <= limit)
             {
                 return true;
             }
@@ -932,7 +925,7 @@ void update_thing_animation(struct Thing *thing)
         if (thing->sprite_size >= thing->sprite_size_max)
         {
           thing->sprite_size = thing->sprite_size_max;
-          if ((thing->field_50 & 0x02) != 0)
+          if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
             thing->transformation_speed = -thing->transformation_speed;
           else
             thing->transformation_speed = 0;
@@ -940,7 +933,7 @@ void update_thing_animation(struct Thing *thing)
       } else
       {
         thing->sprite_size = thing->sprite_size_min;
-        if ((thing->field_50 & 0x02) != 0)
+        if ((thing->size_change & TSC_ChangeSizeContinuously) != 0)
           thing->transformation_speed = -thing->transformation_speed;
         else
           thing->transformation_speed = 0;
@@ -1056,6 +1049,37 @@ short setup_game(void)
   {
       SYNCMSG("Operating System: %s %ld.%ld.%ld", (v.dwPlatformId == VER_PLATFORM_WIN32_NT) ? "Windows NT" : "Windows", v.dwMajorVersion,v.dwMinorVersion,v.dwBuildNumber);
   }
+
+  // Check for Wine
+  #ifdef _WIN32
+      HMODULE hNTDLL = GetModuleHandle("ntdll.dll");
+      if(hNTDLL)
+      {
+          // Get Wine version
+          PROC wine_get_version = (PROC) GetProcAddress(hNTDLL, "wine_get_version");
+          if (wine_get_version)
+          {
+              SYNCMSG("Running on Wine v%s", wine_get_version());
+          }
+
+          // Get Wine host OS
+          // We have to use a union to make sure there is no weird cast warnings
+          union
+          {
+              FARPROC func;
+              void (*wine_get_host_version)(const char**, const char**);
+          } wineHostVersionUnion;
+          wineHostVersionUnion.func = GetProcAddress(hNTDLL, "wine_get_host_version");
+          if (wineHostVersionUnion.wine_get_host_version)
+          {
+              const char* sys_name = NULL;
+              const char* release_name = NULL;
+              wineHostVersionUnion.wine_get_host_version(&sys_name, &release_name);
+              SYNCMSG("Wine Host: %s %s", sys_name, release_name);
+          }
+      }
+  #endif
+
   update_memory_constraits();
   // Enable features that require more resources
   update_features(mem_size);
@@ -1147,13 +1171,10 @@ short setup_game(void)
     }
 
   result = 1;
-  // The 320x200 mode is required only for the intro;
-  // loading and no CD screens can run in both 320x2?0 and 640x4?0.
+  // Setup the intro video mode
   if ( result && (!game.no_intro) )
   {
-      LbPaletteDataFillBlack(engine_palette);
-      int mode_ok = LbScreenSetup(get_movies_vidmode(), 320, 200, engine_palette, 2, 0);
-      if (mode_ok != 1)
+      if (!setup_screen_mode_zero(get_movies_vidmode()))
       {
         ERRORLOG("Can't enter movies screen mode to play intro");
         result=0;
@@ -1411,7 +1432,7 @@ void toggle_hero_health_flowers(void)
       do_sound_menu_click();
       statstr = "on";
     }
-    show_onscreen_msg(2*game.num_fps, "Hero health flowers %s", statstr);
+    show_onscreen_msg(2*game_num_fps, "Hero health flowers %s", statstr);
 }
 
 void reset_gui_based_on_player_mode(void)
@@ -1632,26 +1653,6 @@ TbBool set_default_startup_parameters(void)
     set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
     start_params.force_ppro_poly = 0;
     return true;
-}
-
-void clear_slabsets(void)
-{
-    struct SlabSet *sset;
-    struct SlabObj *sobj;
-    int i;
-    for (i=0; i < SLABSET_COUNT; i++)
-    {
-        sset = &game.slabset[i];
-        memset(sset, 0, sizeof(struct SlabSet));
-        game.slabobjs_idx[i] = -1;
-    }
-    game.slabset_num = SLABSET_COUNT;
-    game.slabobjs_num = 0;
-    for (i=0; i < SLABOBJS_COUNT; i++)
-    {
-        sobj = &game.slabobjs[i];
-        memset(sobj, 0, sizeof(struct SlabObj));
-    }
 }
 
 void clear_map(void)
@@ -2496,7 +2497,7 @@ void update_near_creatures_for_footsteps(long *near_creatures, const struct Coor
                 struct CreatureControl *cctrl;
                 cctrl = creature_control_get_from_thing(thing);
                 long ndist;
-                ndist = get_2d_box_distance(srcpos, &thing->mappos);
+                ndist = get_chessboard_distance(srcpos, &thing->mappos);
                 if (ndist < near_distance[0])
                 {
                     if (((cctrl->distance_to_destination != 0) && ((int)thing->floor_height >= (int)thing->mappos.z.val))
@@ -2732,7 +2733,7 @@ long update_cave_in(struct Thing *thing)
                     pos2.x.val = subtile_coord(thing->cave_in.x,0);
                     pos2.y.val = subtile_coord(thing->cave_in.y,0);
                     pos2.z.val = subtile_coord(1,0);
-                    dist = get_2d_box_distance(&pos, &pos2);
+                    dist = get_chessboard_distance(&pos, &pos2);
                     if (pwrdynst->strength[thing->cave_in.model] >= coord_subtile(dist))
                     {
                         ncavitng = create_thing(&pos, TCls_CaveIn, thing->cave_in.model, owner, -1);
@@ -3352,7 +3353,7 @@ TbBool keeper_wait_for_next_turn(void)
     if (game.frame_skip == 0)
     {
         // Standard delaying system
-        TbClockMSec sleep_end = last_loop_time + 1000/game.num_fps;
+        TbClockMSec sleep_end = last_loop_time + 1000/game_num_fps;
         LbSleepUntil(sleep_end);
         last_loop_time = LbTimerClock();
         return true;
@@ -4305,7 +4306,7 @@ LONG __stdcall Vex_handler(
     _EXCEPTION_POINTERS *ExceptionInfo
 )
 {
-    LbJustLog("=== Crash ===");
+    LbJustLog("=== Crash ===\n");
     LbCloseLog();
     return 0;
 }

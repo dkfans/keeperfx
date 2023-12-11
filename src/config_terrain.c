@@ -60,6 +60,8 @@ const struct NamedCommand terrain_slab_commands[] = {
   {"ISDIGGABLE",     12},
   {"WLBTYPE",        13},
   {"ANIMATED",       14},
+  {"ISOWNABLE",      15},
+  {"INDESTRUCTIBLE", 16},
   {NULL,              0},
 };
 
@@ -385,15 +387,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             slabst = &game.slab_conf.slab_cfgstats[i];
             LbMemorySet(slabst->code_name, 0, COMMAND_WORD_LEN);
             slabst->tooltip_stridx = GUIStr_Empty;
-            if (i < game.slab_conf.slab_types_count)
-            {
-                slab_desc[i].name = slabst->code_name;
-                slab_desc[i].num = i;
-            } else
-            {
-                slab_desc[i].name = NULL;
-                slab_desc[i].num = 0;
-            }
+            slab_desc[i].name = NULL;
+            slab_desc[i].num = 0;
         }
         arr_size = sizeof(slab_attrs)/sizeof(slab_attrs[0]);
         for (i=0; i < arr_size; i++)
@@ -436,7 +431,12 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         switch (cmd_num)
         {
         case 1: // NAME
-            if (get_conf_parameter_single(buf,&pos,len,slabst->code_name,COMMAND_WORD_LEN) <= 0)
+            if (get_conf_parameter_single(buf,&pos,len,slabst->code_name,COMMAND_WORD_LEN) > 0)
+            {
+                slab_desc[i].name = slabst->code_name;
+                slab_desc[i].num = i;
+            }
+            else
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -458,7 +458,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 3: //BLOCKFLAGSHEIGHT
+        case 3: //BLOCKFLAGSHEIGHT
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -474,7 +474,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 4: //BLOCKHEALTHINDEX
+        case 4: //BLOCKHEALTHINDEX
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -490,8 +490,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 5: //BLOCKFLAGS
-            case 6: //NOBLOCKFLAGS
+        case 5: //BLOCKFLAGS
+        case 6: //NOBLOCKFLAGS
             {
                 unsigned long *flg = (cmd_num == 5) ? &slbattr->block_flags : &slbattr->noblck_flags;
                 *flg = 0;
@@ -551,7 +551,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                 }
                 break;
             }
-            case 7: //FILLSTYLE
+        case 7: //FILLSTYLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -567,7 +567,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 8: //CATEGORY
+        case 8: //CATEGORY
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -583,7 +583,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 9: // SLBID
+        case 9: // SLBID
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -599,7 +599,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 10: //WIBBLE
+        case 10: //WIBBLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -615,7 +615,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 11: //ISSAFELAND
+        case 11: //ISSAFELAND
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -631,7 +631,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 12: //ISDIGGABLE
+        case 12: //ISDIGGABLE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -647,7 +647,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-            case 13: //WLBTYPE
+        case 13: //WLBTYPE
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
@@ -663,13 +663,45 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
             }
             break;
-        case 14:
+        case 14: //ANIMATED
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
                 if (k >= 0)
                 {
                     slbattr->animated = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 15: //ISOWNABLE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->is_ownable = k;
+                    n++;
+                }
+            }
+            if (n < 1)
+            {
+                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
+            }
+            break;
+        case 16: //INDESTRUCTIBLE
+            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+            {
+                k = atoi(word_buf);
+                if (k >= 0)
+                {
+                    slbattr->indestructible = k;
                     n++;
                 }
             }
@@ -1394,7 +1426,8 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
  */
 TbBool slab_kind_is_indestructible(RoomKind slbkind)
 {
-    return (slbkind == SlbT_ROCK) || (slbkind == SlbT_GEMS) || (slbkind == SlbT_ENTRANCE) || (slbkind == SlbT_DUNGHEART);
+    struct SlabAttr* attributes = get_slab_kind_attrs(slbkind);
+    return (attributes->indestructible);
 }
 
 /**
@@ -1432,20 +1465,8 @@ TbBool slab_kind_is_friable_dirt(RoomKind slbkind)
 
 TbBool slab_kind_is_door(SlabKind slbkind)
 {
-    if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORMAGIC2))
-    {
-        return true;
-    }
-    return false;
-}
-
-TbBool slab_kind_is_nonmagic_door(SlabKind slbkind)
-{
-    if ((slbkind >= SlbT_DOORWOOD1) && (slbkind <= SlbT_DOORIRON2))
-    {
-        return true;
-    }
-    return false;
+    struct SlabAttr *slbattr = get_slab_kind_attrs(slbkind);
+    return (slbattr->block_flags & (SlbAtFlg_IsDoor));
 }
 
 /**

@@ -32,6 +32,7 @@
 #include "creature_instances.h"
 #include "config_creature.h"
 #include "config_crtrstates.h"
+#include "config_powerhands.h"
 #include "thing_stats.h"
 #include "light_data.h"
 #include "thing_effects.h"
@@ -132,11 +133,9 @@ struct PlayerInstanceInfo player_instance_info[PLAYER_INSTANCES_COUNT] = {
 long pinstfs_hand_grab(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandGrab);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_Hover);
     }
     return 0;
 }
@@ -146,7 +145,6 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     SYNCDBG(8,"Starting");
     struct Thing* dsttng = thing_get(player->influenced_thing_idx);
     struct Thing* grabtng = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (dsttng->creation_turn != player->influenced_thing_creation) {
         WARNLOG("The thing index %d is no longer the same",(int)player->influenced_thing_idx);
         player->influenced_thing_creation = 0;
@@ -162,8 +160,7 @@ long pinstfe_hand_grab(struct PlayerInfo *player, long *n)
     // Update sprites for the creature in hand, and power hand itself
     if (!thing_is_invalid(grabtng))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandGrab);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_Hold);
     }
     return 0;
 }
@@ -172,12 +169,10 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 {
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     player->influenced_thing_idx = dungeon->things_in_hand[0];
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandGrab);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, -objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_Pickup);
     }
     return 0;
 }
@@ -185,11 +180,9 @@ long pinstfs_hand_drop(struct PlayerInfo *player, long *n)
 long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHand);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_Hover);
     }
     player->influenced_thing_idx = 0;
     return 0;
@@ -198,11 +191,9 @@ long pinstfe_hand_drop(struct PlayerInfo *player, long *n)
 long pinstfs_hand_whip(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandWhip);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx+1, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_Slap);
     }
     return 0;
 }
@@ -256,7 +247,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           }
       } else
       {
-          detonate_shot(thing);
+          detonate_shot(thing,true);
       }
       break;
   case TCls_Trap:
@@ -286,11 +277,9 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
 long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandWhip);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx + 2, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_SideSlap);
     }
     return 0;
 }
@@ -298,11 +287,9 @@ long pinstfs_hand_whip_end(struct PlayerInfo *player, long *n)
 long pinstfe_hand_whip_end(struct PlayerInfo *player, long *n)
 {
     struct Thing* thing = thing_get(player->hand_thing_idx);
-    struct Objects* objdat;
     if (!thing_is_invalid(thing))
     {
-        objdat = get_objects_data(ObjMdl_PowerHandWhip);
-        set_power_hand_graphic(player->id_number, objdat->sprite_anim_idx, objdat->anim_speed);
+        set_power_hand_graphic(player->id_number, HndA_SideHover);
     }
     return 0;
 }
@@ -596,7 +583,7 @@ long pinstfm_zoom_to_heart(struct PlayerInfo *player, long *n)
         struct Coord3d pos;
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val - subtile_coord(7, 0) / 16;
-        pos.z.val = thing->mappos.z.val + subtile_coord(1, 0) / 8;
+        pos.z.val = thing->mappos.z.val + (thing->solid_size_z / 2);
         move_thing_in_map(thing, &pos);
   }
   if (player->instance_remain_rurns <= 8)
@@ -841,6 +828,7 @@ long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
 {
     player->allocflags &= ~PlaF_MouseInputDisabled;
     player->allocflags &= ~PlaF_KeyboardInputDisabled;
+    player->controlled_thing_idx = player->influenced_thing_idx;
     return 0;
 }
 
@@ -1230,7 +1218,8 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
     {
-        play_non_3d_sample(117);
+        struct TrapConfigStats* trap_cfg = get_trap_model_stats(tngmodel);    
+        play_non_3d_sample(trap_cfg->place_sound_idx);
     }
     return true;
 }
@@ -1266,7 +1255,8 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     dungeon->camera_deviate_jump = 192;
     if (is_my_player_number(plyr_idx))
     {
-        play_non_3d_sample(117);
+        struct DoorConfigStats* door_cfg = get_door_model_stats(tngmodel);
+        play_non_3d_sample(door_cfg->place_sound_idx);
     }
     return 1;
 }

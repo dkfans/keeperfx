@@ -300,6 +300,8 @@ TbBool tag_cursor_blocks_order_creature(PlayerNumber plyr_idx, MapSubtlCoord stl
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     unsigned char colour;
     struct Coord3d pos;
+    pos.x.val = 0;
+    pos.y.val = 0;
     pos.x.stl.num = stl_x;
     pos.y.stl.num = stl_y;
     pos.z.val = get_floor_height(stl_x, stl_y);

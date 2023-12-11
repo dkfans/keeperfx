@@ -71,7 +71,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"SIZE",               19},
   {"ATTACKPREFERENCE",   20},
   {"PAY",                21},
-  {"HEROVSKEEPERCOST",   22},
+  {"HEROVSKEEPERCOST",   22},//removed
   {"SLAPSTOKILL",        23},
   {"CREATURELOYALTY",    24},
   {"LOYALTYLEVEL",       25},
@@ -259,7 +259,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->size_z = 1;
       crstat->attack_preference = 0;
       crstat->pay = 1;
-      crstat->hero_vs_keeper_cost = 0;
       crstat->slaps_to_kill = 10;
       crstat->damage_to_boulder = 4;
       crstat->thing_size_xy = 128;
@@ -570,17 +569,6 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           break;
       case 22: // HEROVSKEEPERCOST
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->hero_vs_keeper_cost = k;
-            n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
-          }
           break;
       case 23: // SLAPSTOKILL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -1661,19 +1649,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 crstat->creature_picked_up_offset.delta_y = k;
                 n++;
             }
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                crstat->creature_picked_up_offset.field_4 = k;
-                n++;
-            }
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                crstat->creature_picked_up_offset.field_6 = k;
-                n++;
-            }
-            if (n < 4)
+            if (n < 2)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);

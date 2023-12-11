@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "config.h"
+#include "light_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -30,28 +31,113 @@ extern "C" {
 /******************************************************************************/
 
 #define EFFECTS_TYPES_MAX 128
+#define EFFECTSGEN_TYPES_MAX 64
+#define EFFECTSELLEMENTS_TYPES_MAX 128
 
 /******************************************************************************/
+
+
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    struct InitEffect *old;
+    /** Health; decreases by 1 on every turn, so it works also as lifespan. */
+    short start_health;
+    unsigned char generation_type;
+    short accel_xy_min;
+    short accel_xy_max;
+    short accel_z_min;
+    short accel_z_max;
+    unsigned char elements_count;
+    short effect_sound;
+    unsigned char kind_min;
+    unsigned char kind_max;
+    unsigned char area_affect_type;
+    unsigned char always_generate;
+    struct InitLight ilght;
+    unsigned char affected_by_wind;
+};
+
+struct EffectGeneratorConfigStats {
+    char code_name[COMMAND_WORD_LEN];
+    long genation_delay_min;
+    long genation_delay_max;
+    long genation_amount;
+    long effect_element_model;
+    unsigned char ignore_terrain;
+    long spawn_height;
+    long acc_x_min;
+    long acc_x_max;
+    long acc_y_min;
+    long acc_y_max;
+    long acc_z_min;
+    long acc_z_max;
+    long sound_sample_idx;
+    long sound_sample_rng;
+};
+
+struct EffectElementConfigStats {
+    char code_name[COMMAND_WORD_LEN * 2];
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
+    unsigned char move_type;
+    unsigned char unanimated;
+    short lifespan;
+    short lifespan_random;
+    short sprite_idx;
+    short sprite_size_min;
+    short sprite_size_max;
+    unsigned char rendering_flag;
+    unsigned short sprite_speed_min;
+    unsigned short sprite_speed_max;
+    TbBool animate_on_floor;
+    unsigned char unshaded;
+    unsigned char transparant;  // transparency flags in bits 4-5
+    unsigned char movable;
+    unsigned char movement_flags;
+    unsigned char size_change; /**< See enum ThingSizeChange. */
+    unsigned char fall_acceleration;
+    short inertia_floor;
+    short inertia_air;
+    unsigned short subeffect_model;
+    unsigned short subeffect_delay;
+    unsigned char impacts;
+    unsigned short solidgnd_effmodel;
+    unsigned short solidgnd_snd_smpid;
+    unsigned short solidgnd_loudness;
+    unsigned char solidgnd_destroy_on_impact;
+    unsigned short water_effmodel;
+    unsigned short water_snd_smpid;
+    unsigned short water_loudness;
+    unsigned char water_destroy_on_impact;
+    unsigned short lava_effmodel;
+    unsigned short lava_snd_smpid;
+    unsigned short lava_loudness;
+    unsigned char lava_destroy_on_impact;
+    unsigned short transform_model;
+    unsigned short light_radius;
+    unsigned char light_intensity;
+    long light_field_3D;
+    unsigned char affected_by_wind;
 };
 
 struct EffectsConfig {
-    long effect_types_count;
     struct EffectConfigStats effect_cfgstats[EFFECTS_TYPES_MAX];
+    struct EffectGeneratorConfigStats effectgen_cfgstats[EFFECTSGEN_TYPES_MAX];
+    struct EffectElementConfigStats effectelement_cfgstats[EFFECTSELLEMENTS_TYPES_MAX];
 };
 /******************************************************************************/
 extern const char keeper_effects_file[];
 extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 extern long const imp_spangle_effects[];
 extern long const ball_puff_effects[];
-extern struct EffectsConfig effects_conf;
+
+extern struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
+extern struct NamedCommand effectgen_desc[EFFECTSGEN_TYPES_MAX];
+extern struct NamedCommand effectelem_desc[EFFECTSELLEMENTS_TYPES_MAX];
 /******************************************************************************/
 TbBool load_effects_config(const char *conf_fname,unsigned short flags);
-struct EffectConfigStats *get_effect_model_stats(int tngmodel);
-const char *effect_code_name(int tngmodel);
-int effect_model_id(const char * code_name);
+struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel);
+struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel);
+const char *effect_code_name(ThingModel tngmodel);
+const char *effectgenerator_code_name(ThingModel tngmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }

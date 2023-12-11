@@ -47,7 +47,7 @@ extern "C" {
 /** Amount of instances. */
 /** Max amount of rooms needed for a creature to be attracted to a dungeon. */
 #define ENTRANCE_ROOMS_COUNT               3
-#define INSTANCE_TYPES_MAX 64
+#define INSTANCE_TYPES_MAX 255
 #define LAIR_ENEMY_MAX 5
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
@@ -138,10 +138,7 @@ enum ObjectCombatStates {
 struct CastedSpellData {
     unsigned char spkind;
     short duration;
-    unsigned char field_3;
 };
-
-#define SIZEOF_CreatureControl 776
 
 struct CreatureControl {
     unsigned char index;
@@ -327,7 +324,7 @@ unsigned char sound_flag;
     unsigned char fight_til_death;
     TbBool field_AA;
     unsigned char stateblock_flags;
-    unsigned short spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
+    unsigned long spell_flags; // Sometimes treated as two bytes, but it's a short (AC + AD)
     unsigned char field_AE;
     short force_visible;
     unsigned char frozen_on_hit;
@@ -412,6 +409,10 @@ unsigned char cowers_from_slap_turns;
     long following_leader_since;
     unsigned char follow_leader_fails;
     GameTurn dropped_turn;
+    unsigned long timebomb_countdown;
+    ThingIndex timebomb_countdown_id;
+    ThingIndex timebomb_target_id;
+    TbBool timebomb_death;
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
@@ -449,8 +450,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     TbBool entrance_force;
     short max_angle_change;
     short base_eye_height;
-  short field_57[14];
-  short field_73;
     unsigned short size_xy;
     unsigned short size_z;
     unsigned short walking_anim_speed;
@@ -490,7 +489,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_win_battle;
     short annoy_untrained_time;
     short annoy_untrained;
-    short field_C4;
     short annoy_queue;
     /* Annoyance caused by tries to assign creature to a job it won't do */
     short annoy_will_not_do_job;
@@ -503,7 +501,6 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short annoy_others_leaving;
     unsigned char slaps_to_kill;
     short lair_enemy[LAIR_ENEMY_MAX];
-    short hero_vs_keeper_cost;
     unsigned char rebirth;
     TbBool can_see_invisible;
     TbBool can_go_locked_doors;

@@ -87,6 +87,9 @@ enum SlabTypes {
     SlbT_GEMS               =  52,
     SlbT_GUARDPOST          =  53,
     SlbT_PURPLE             =  54,
+    SlbT_DOORSECRET1        =  55,
+    SlbT_DOORSECRET2        =  56,
+    SlbT_ROCK_FLOOR         =  57,
 };
 
 /******************************************************************************/
@@ -99,7 +102,7 @@ struct SlabMap {
       SlabKind kind;
       SlabCodedCoords next_in_room;
       unsigned char room_index;
-      unsigned char health;
+      short health;
       unsigned char flags;
 };
 

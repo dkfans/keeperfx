@@ -454,9 +454,9 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
-            hittype = THit_CrtrsNObjcts;
+            hittype = THit_CrtrsNObjctsNotOwn;
         else if (thing_is_destructible_trap(target) > 0)
-            hittype = THit_CrtrsNObjcts;
+            hittype = THit_CrtrsNObjctsNotOwn;
         else if (target->class_id == TCls_Trap)
             hittype = THit_TrapsAll;
         else if (target->owner == creatng->owner)
@@ -564,7 +564,7 @@ long instf_dig(struct Thing *creatng, long *param)
         create_effect(&creatng->mappos, shotst->dig.effect_model, creatng->owner);
         if (taskkind == SDDigTask_MineGold)
         {
-            gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, creatng->owner, cctrl->explevel, slb);
+            gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, slb);
             creatng->creature.gold_carried += gold;
             dungeon->lvstats.gold_mined += gold;
             EVM_CREATURE_STAT("gold_mined", creatng->owner, creatng, "gold", gold);
@@ -575,7 +575,9 @@ long instf_dig(struct Thing *creatng, long *param)
     remove_from_task_list(creatng->owner, task_idx);
     if (taskkind == SDDigTask_MineGold)
     {
-        gold = calculate_gold_digged_out_of_slab_with_single_hit(slb->health, creatng->owner, cctrl->explevel, slb);
+        if (!slab_kind_is_indestructible(slb->kind))
+            slb->health -= dig_damage; // otherwise, we won't get the final lot of gold
+        gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, slb);
         creatng->creature.gold_carried += gold;
         dungeon->lvstats.gold_mined += gold;
         EVM_CREATURE_STAT("gold_mined", creatng->owner, creatng, "gold", gold);

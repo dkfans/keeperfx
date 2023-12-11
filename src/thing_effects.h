@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "light_data.h"
+#include "map_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -229,96 +230,13 @@ enum ThingEffectElements {
 /******************************************************************************/
 #pragma pack(1)
 
-struct InitEffect;
 struct Thing;
-
-struct EffectGeneratorStats { // sizeof = 57
-    long genation_delay_min;
-    long genation_delay_max;
-    long genation_amount;
-    long effect_element_model;
-    unsigned char ignore_terrain;
-    long spawn_height;
-    long acc_x_min;
-    long acc_x_max;
-    long acc_y_min;
-    long acc_y_max;
-    long acc_z_min;
-    long acc_z_max;
-    long sound_sample_idx;
-    long sound_sample_rng;
-    long sound_sample_sec;
-};
-
-struct EffectElementStats { // sizeof = 79
-  unsigned char draw_class;
-  unsigned char move_type;
-  unsigned char unanimated;
-  short lifespan;
-  short lifespan_random;
-  short sprite_idx;
-  short sprite_size_min;
-  short sprite_size_max;
-  unsigned char rendering_flag;
-  unsigned short sprite_speed_min;
-  unsigned short sprite_speed_max;
-  TbBool animate_on_floor;
-  unsigned char unshaded;
-  unsigned char transparant;  // transparency flags in bits 4-5
-  unsigned char field_15;
-  unsigned char movement_flags;
-  unsigned char size_change;
-  unsigned char fall_acceleration;
-  unsigned char field_19_unused;
-  short inertia_floor;
-  short inertia_air;
-  unsigned short subeffect_model;
-  unsigned short subeffect_delay;
-  unsigned char field_22;
-  unsigned short effmodel_23;
-  unsigned short solidgnd_snd_smpid;
-  unsigned short solidgnd_loudness;
-  unsigned char solidgnd_destroy_on_impact;
-  unsigned short water_effmodel;
-  unsigned short water_snd_smpid;
-  unsigned short water_loudness;
-  unsigned char water_destroy_on_impact;
-  unsigned short lava_effmodel;
-  unsigned short lava_snd_smpid;
-  unsigned short lava_loudness;
-  unsigned char lava_destroy_on_impact;
-  unsigned short transform_model;
-  unsigned short light_radius;
-  unsigned char light_intensity;
-  long light_field_3D;
-  unsigned char affected_by_wind;
-};
-
-struct InitEffect { // sizeof = 39
-    /** Health; decreases by 1 on every turn, so it works also as lifespan. */
-  short start_health;
-  unsigned char generation_type;
-  short accel_xy_min;
-  short accel_xy_max;
-  short accel_z_min;
-  short accel_z_max;
-  unsigned char field_B;
-  short effect_sound;
-  unsigned char kind_min;
-  unsigned char kind_max;
-  unsigned char area_affect_type;
-  unsigned char field_11;
-  struct InitLight ilght;
-  unsigned char affected_by_wind;
-};
 
 #pragma pack()
 /******************************************************************************/
 extern const int birth_effect_element[];
 /******************************************************************************/
-struct InitEffect *get_effect_info(ThingModel effmodel);
-struct InitEffect *get_effect_info_for_thing(const struct Thing *thing);
-struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel);
+struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmodel);
 
 TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);
@@ -335,7 +253,9 @@ struct Thing *create_price_effect(const struct Coord3d *pos, long plyr_idx, long
 TbBool area_effect_can_affect_thing(const struct Thing *thing, HitTargetFlags hit_targets, PlayerNumber shot_owner);
 long explosion_affecting_area(struct Thing *tngsrc, const struct Coord3d *pos, MapCoord max_dist,
     HitPoints max_damage, long blow_strength, HitTargetFlags hit_targets, DamageType damage_type);
-
+    
+TbBool explosion_affecting_door(struct Thing *tngsrc, struct Thing *tngdst, const struct Coord3d *pos,
+    MapCoordDelta max_dist, HitPoints max_damage, long blow_strength, DamageType damage_type, PlayerNumber owner);    
 /******************************************************************************/
 #ifdef __cplusplus
 }

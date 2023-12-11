@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "bflib_sound.h"
 
 #include "config.h"
 #include "config_strings.h"
@@ -61,6 +62,8 @@ const struct NamedCommand trapdoor_door_commands[] = {
   {"POINTERSPRITES",       11},
   {"PANELTABINDEX",        12},
   {"OPENSPEED",            13},
+  {"PROPERTIES",           14},
+  {"PLACESOUND",           15},
   {NULL,                    0},
 };
 
@@ -102,8 +105,18 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"UNSELLABLE",           35},
   {"PLACEONBRIDGE",        36},
   {"SHOTORIGIN",           37},
+  {"PLACESOUND",           38},
   {NULL,                    0},
 };
+
+const struct NamedCommand door_properties_commands[] = {
+  {"RESIST_NON_MAGIC",     1},
+  {"SECRET",               2},
+  {"THICK",                3},  
+  {NULL,                   0},
+  };
+
+
 /******************************************************************************/
 struct NamedCommand trap_desc[TRAPDOOR_TYPES_MAX];
 struct NamedCommand door_desc[TRAPDOOR_TYPES_MAX];
@@ -258,6 +271,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->bigsym_sprite_idx = 0;
           trapst->medsym_sprite_idx = 0;
           trapst->pointer_sprite_idx = 0;
+          // Default trap placement sound, so that placement sound isn't broken if custom traps is bundled into maps
+          trapst->place_sound_idx = 117; 
           trapst->panel_tab_idx = 0;
           trapst->hidden = 0;
           trapst->slappable = 0;
@@ -788,7 +803,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               k = atoi(word_buf);
               if (k >= 0)
               {
-                  gameadd.trap_stats[i].light_radius = k;
+                  gameadd.trap_stats[i].light_radius = k * COORD_PER_STL;
                   n++;
               }
           }
@@ -974,6 +989,21 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+      case 38: // PLACESOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              n = atoi(word_buf);
+              if ( n < 0 || n > samples_in_bank - 1 )
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              }
+              else
+              {
+                  trapst->place_sound_idx = n;
+              }
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1010,6 +1040,8 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           doorst->bigsym_sprite_idx = 0;
           doorst->medsym_sprite_idx = 0;
           doorst->pointer_sprite_idx = 0;
+          // Default door placement sound, so that placement sound isn't broken if custom doors is bundled into maps
+          doorst->place_sound_idx = 117;
           doorst->panel_tab_idx = 0;
           if (i < gameadd.trapdoor_conf.door_types_count)
           {
@@ -1260,7 +1292,7 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-          case 13: // OPENSPEED
+      case 13: // OPENSPEED
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
@@ -1274,6 +1306,46 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
           {
             CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
+      case 14: // PROPERTIES
+          doorst->model_flags = 0;
+          while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            k = get_id(door_properties_commands, word_buf);
+            switch (k)
+            {
+            case 1: // RESIST_NON_MAGIC
+                doorst->model_flags |= DoMF_ResistNonMagic;
+                n++;
+                break;
+            case 2: // SECRET
+                doorst->model_flags |= DoMF_Secret;
+                n++;
+                break;
+            case 3: // THICK
+                doorst->model_flags |= DoMF_Thick;
+                n++;
+                break;
+            default:
+                CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
+                    COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+            }
+          }
+          break;
+      case 15: // PLACESOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              n = atoi(word_buf);
+              if (n < 0 || n > samples_in_bank - 1)
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              }
+              else
+              {
+                  doorst->place_sound_idx = n;
+              }
           }
           break;
       case 0: // comment

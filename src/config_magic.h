@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX        64
+#define MAGIC_ITEMS_MAX        255
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
 #define MAGIC_TYPES_COUNT      30
@@ -88,6 +88,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_ExpLevelUp   = 0x4000,
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
     CSAfF_Grounded     = 0x8000,
+    CSAfF_Timebomb     = 0x10000,
 };
 
 enum PowerKinds {
@@ -135,6 +136,7 @@ enum ShotModelFlags {
     ShMF_Disarming      = 0x1000,
     ShMF_Exploding      = 0x2000,
     ShMF_BlocksRebirth  = 0x4000,
+    ShMF_Penetrating    = 0x8000,
 };
 
 enum PowerCanCastFlags {
