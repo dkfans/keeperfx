@@ -7,19 +7,14 @@ Added benefit is that if tests are setup in a continuous integration environment
 The functional tests should run fast, hence `frame_skip = 8` is used by default.
 They also skip the trademark/cutscene by default for super fast launch.
 
-# <span style="color:yellow">WIP Issues</span>
-
-- <span style="color:orange">You must manually copy the [ftests campaign folder](../../ftests/) to your keeperfx directory</span>
-    - this means placing it adjacent to the `levels folder` and `keeperfx.exe`
-    - this is not ideal; it will potentially be automated in the future
-
 # Quickstart
 
 ## Available Test Names
 
 - `example_template_test`
-- `bug_imp_teleport_attack_door`
-- `bug_pathing_pillar_circling`
+- `bug_imp_tp_attack_door__claim`
+- `bug_imp_tp_attack_door__prisoner`
+- `bug_imp_tp_attack_door__deadbody`
 - `bug_imp_goldseam_dig`
 
 ## Run Existing Test
@@ -30,15 +25,13 @@ They also skip the trademark/cutscene by default for super fast launch.
         - FTEST_DEBUG=1 for debugging info
         - FTEST_DEBUG=0 for without
 2. Update [launch.json](../../.vscode/launch.json)
-    - add `-ftests` argument *(optionally provide the name of an existing test to run)*
+    - add `-ftests` argument to run all tests *(optionally provide the name of an existing test to run)*
 
         | without test name | with test name |
         |----------|-------------|
         | `"args": [`<br/>`"-ftests"`<br/>`],` | `"args": [`<br/>`"-ftests", "bug_imp_teleport_attack_door"`<br/>`],` |
 
 3. Run game - Watch test execute
-    - it will be x8 speed by default, and exit to desktop very quickly
-        - use
 4. View keeperfx exit code for test result
     - exit code 0 == `test success`
     - exit code -1 == `test failure`
@@ -69,10 +62,10 @@ They also skip the trademark/cutscene by default for super fast launch.
 5. Add your test to the test list [ftest_list.c](./ftest_list.c)
     - add the include for your tests header file
         - example: `#include "tests/ftest_bug_warlock_cooks_chicken.h"`
-    - update [tests_list](./ftest_list.c#L29)
-        - add the `name` of your test and then your tests `init function`
-        - example: `{ "bug_warlock_cooks_chicken", ftest_bug_warlock_cooks_chicken_init }`
-        - this `name` is what you pass to the `ftests` arg in [launch.json](../../.vscode/launch.json)
+    - update [tests_list](./ftest_list.c#L30)
+        - add the `test_name` of your test, your tests `init_func`, the `level_file` and specify the `frame_skip`
+        - example: `{ .test_name="bug_warlock_cooks_chicken",  .init_func=ftest_bug_warlock_cooks_chicken_init,  .level_file="keeporig",  .level=1,  .frame_skip=0 },`
+        - this `test_name` is what you pass to the `ftests` arg in [launch.json](../../.vscode/launch.json) if you only want to run that test
 6. [Run Your Test](#run-existing-test)
 
 ###  See Example Tests:
@@ -94,12 +87,19 @@ They also skip the trademark/cutscene by default for super fast launch.
 - In the example itself `ftest_bug_pathing_pillar_circling` you can see that it creates a tunneler that digs towards the dungeon heart.
 - The second test action does the same thing, but from different map coordinates and with a different base block type, showcasing the differences of data passed to the action.
 
+| .h | .c |
+|----------------------------------------|----------------------------------------|
+| [ftest_bug_imp_tp_job_attack_door.h](./tests/ftest_bug_imp_tp_job_attack_door.h) | [ftest_bug_imp_tp_job_attack_door.c](./tests/ftest_bug_imp_tp_job_attack_door.c) |
+
+- This advanced test showcases defining multiple tests inside the same file, while re-using shared functionality between the tests
+- Each test has an init func that is slightly different from the other. One also modifies the data slightly to change logic inside actions
+
 ### Explanation / Flow
 
-1. Template map is loaded (This is always [ftests/campaign.cfg](../../ftests/campaign.cfg) - map00001)
-    - in the future we might have multiple base maps, but for now there is only one
-    - it contains a dungeon heart for each player, with all research unlocked
+1. The desired campaign/mappack is atuomatically loaded for the current active test
+    - see [ftest_list.c](./ftest_list.c) for examples
 2. Init function is called for the current active test, which creates a list of actions to perform accordingly.
+    - NOTE: You can also call one-time logic here, like altering the map before the test actions are executed.
 3. The game loop will call each action in the list after the desired GameTurn delay.
     - actions are counted as completed when they `return true`, if they `return false`, the action will be executed again next game turn.
     - if there is a failure at any stage (you decide this with your test, using the [FTEST_FAIL_TEST](./ftest.h#L24) macro) the test exits immediately, closing the program.
@@ -109,4 +109,7 @@ They also skip the trademark/cutscene by default for super fast launch.
             - example failure message: `FTest: [20] ftest_template_action001__spawn_imp: Failed to level up imp`
             - the above message tells us that at game turn 20, the test failed at function `ftest_template_action001__spawn_imp` because `Failed to level up imp`
 
+
 Seeds have been overridden similar to the existing AUTOTESTING functionality. This means tests should perform the same every time for random events.
+
+- (NOTE: There may still be some unaccounted for RNG, the bug_imp_tp_attack_door__deadbody test is an example of this. Sometimes the imps do not fly into the door after teleport and the door isn't attacked/broken...)
