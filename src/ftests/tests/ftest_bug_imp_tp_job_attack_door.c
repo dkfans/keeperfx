@@ -10,6 +10,7 @@
 #include "../../game_legacy.h"
 #include "../../keeperfx.hpp"
 #include "../../player_instances.h"
+#include "../../power_specials.h"
 
 #include "../../post_inc.h"
 
@@ -20,10 +21,19 @@ extern "C" {
 // example of test variables wraped in a struct, this prevents variable name collisions with other tests, allowing you to name your variables how you like!
 struct ftest_bug_imp_tp_job_attack_door__variables
 {
-    MapSlabCoord slb_x_tunnel_start;
-    MapSlabCoord slb_y_tunnel_start;
-    MapSlabCoord slb_x_tunnel_end;
-    MapSlabCoord slb_y_tunnel_end;
+    MapSlabCoord slb_x_tunnel_1;
+    MapSlabCoord slb_y_tunnel_1;
+    MapSlabCoord slb_x_tunnel_2;
+    MapSlabCoord slb_y_tunnel_2;
+    MapSlabCoord slb_x_tunnel_3;
+    MapSlabCoord slb_y_tunnel_3;
+
+    MapSlabCoord slb_x_bridge_1;
+    MapSlabCoord slb_y_bridge_1;
+    MapSlabCoord slb_x_bridge_2;
+    MapSlabCoord slb_y_bridge_2;
+    MapSlabCoord slb_x_bridge_3;
+    MapSlabCoord slb_y_bridge_3;
 
     MapSlabCoord slb_x_door;
     MapSlabCoord slb_y_door;
@@ -39,27 +49,39 @@ struct ftest_bug_imp_tp_job_attack_door__variables
     const unsigned char ENEMY_PLAYER;
 
     struct Thing* new_imp;
+    struct Thing* door;
+
+    TbBool should_create_graveyard;
+    TbBool should_kill_hero;
 };
 struct ftest_bug_imp_tp_job_attack_door__variables ftest_bug_imp_tp_job_attack_door__vars = {
-    .slb_x_tunnel_start = 3,
-    .slb_y_tunnel_start = 6,
-    .slb_x_tunnel_end = 3,
-    .slb_y_tunnel_end = 75,
+    .slb_x_tunnel_1 = 27,
+    .slb_y_tunnel_1 = 41,
+    .slb_x_tunnel_2 = 27,
+    .slb_y_tunnel_2 = 55,
 
-    .slb_x_door = 6,
-    .slb_y_door = 3,
+    .slb_x_bridge_1 = 16,
+    .slb_y_bridge_1 = 40,
+    .slb_x_bridge_2 = 27,
+    .slb_y_bridge_2 = 40,
 
-    .slb_x_room_start = 7,
-    .slb_y_room_start = 1,
-    .slb_x_room_end = 11,
-    .slb_y_room_end = 5,
+    .slb_x_door = 16,
+    .slb_y_door = 38,
+
+    .slb_x_room_start = 21,
+    .slb_y_room_start = 70,
+    .slb_x_room_end = 25,
+    .slb_y_room_end = 72,
 
     .total_imps_to_create = 32,
 
     .HUMAN_PLAYER = PLAYER0,
     .ENEMY_PLAYER = PLAYER_GOOD,
 
-    .new_imp = NULL
+    .new_imp = NULL,
+
+    .should_create_graveyard = false,
+    .should_kill_hero = false
 };
 
 // forward declarations - tests
@@ -67,13 +89,35 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionA
 TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FTestActionArgs* const args);
 TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(struct FTestActionArgs* const args);
 
-TbBool ftest_bug_imp_tp_attack_door_init()
+TbBool ftest_tmp_delete_me(struct FTestActionArgs* const args);
+
+TbBool ftest_bug_imp_tp_attack_door__claim_init()
 {
     //here we can see that for each action we want to implement, we append the FTest_Action_Func and the game turn offset
     //note: you can add the same action multiple times
-    ftest_append_action(ftest_bug_imp_tp_job_attack_door_action001__setup_map,              20,     NULL);
+    ftest_append_action(ftest_bug_imp_tp_job_attack_door_action001__setup_map,              0,     NULL);
+    ftest_append_action(ftest_bug_imp_tp_job_attack_door_action003__end_test,               350,   NULL);
+
+    return true;
+}
+
+TbBool ftest_bug_imp_tp_attack_door__prisoner_init()
+{
+    ftest_append_action(ftest_bug_imp_tp_job_attack_door_action001__setup_map,              0,     NULL);
     ftest_append_action(ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero,    40,     NULL);
-    ftest_append_action(ftest_bug_imp_tp_job_attack_door_action003__end_test,               1000,   NULL);
+    ftest_append_action(ftest_bug_imp_tp_job_attack_door_action003__end_test,               350,   NULL);
+
+    return true;
+}
+
+TbBool ftest_bug_imp_tp_attack_door__deadbody_init()
+{
+    ftest_bug_imp_tp_job_attack_door__vars.should_create_graveyard = true; //override to get a graveyard instead of prison
+    ftest_bug_imp_tp_job_attack_door__vars.should_kill_hero = true; //override to get a dead body
+
+    ftest_append_action(ftest_bug_imp_tp_job_attack_door_action001__setup_map,              0,     NULL);
+    ftest_append_action(ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero,    40,     NULL);
+    ftest_append_action(ftest_bug_imp_tp_job_attack_door_action003__end_test,               350,   NULL);
 
     return true;
 }
@@ -106,38 +150,29 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionA
 
     ftest_util_reveal_map(vars->HUMAN_PLAYER); // we might want to see the entire map for testing purposes
 
-    // carve long tunnel to spawn imp at the end (imp will prefer to teleport to job site)
-    ftest_util_replace_slabs(vars->slb_x_tunnel_start-1, vars->slb_y_tunnel_start, vars->slb_x_tunnel_end+1, vars->slb_y_tunnel_end+1, SlbT_WALLDRAPE, vars->HUMAN_PLAYER); // then carve tunnel
-    ftest_util_replace_slabs(vars->slb_x_tunnel_start, vars->slb_y_tunnel_start, vars->slb_x_tunnel_end, vars->slb_y_tunnel_end, SlbT_CLAIMED, vars->HUMAN_PLAYER); // then carve tunnel
+    // carve tunnel, build bridge, towards locked door
+    ftest_util_replace_slabs(vars->slb_x_tunnel_1, vars->slb_y_tunnel_1, vars->slb_x_tunnel_2, vars->slb_y_tunnel_2, SlbT_CLAIMED, vars->HUMAN_PLAYER); // then carve tunnel
+    ftest_util_replace_slabs(vars->slb_x_bridge_1, vars->slb_y_bridge_1, vars->slb_x_bridge_2, vars->slb_y_bridge_2, SlbT_BRIDGE, vars->HUMAN_PLAYER); // then carve tunnel
 
-    // carve door frame for enemy player
-    ftest_util_replace_slabs(vars->slb_x_door, vars->slb_y_door, vars->slb_x_door, vars->slb_y_door, SlbT_CLAIMED, vars->ENEMY_PLAYER);
+    // claim tile in front of door (to prevent imps from teleport attacking the door)
 
-    // carve out empty room (ownership will be checked at end of test)
-    ftest_util_replace_slabs(vars->slb_x_room_start, vars->slb_y_room_start, vars->slb_x_room_end, vars->slb_y_room_end, SlbT_PATH, PLAYER_NEUTRAL);
-
-    // create enemy wooden door with low health
-    struct Coord3d doorPos;
-    set_coords_to_slab_center(&doorPos, vars->slb_x_door, vars->slb_y_door);
-
-    //ThingModel doorModel = gameadd.trapdoor_conf.door_to_object[1]; // couldn't find proper type mapping
-    ThingModel doorModel = 1; // wooden door == 1 (hardcoded for now)
-    unsigned char orient = find_door_angle(doorPos.x.stl.num, doorPos.y.stl.num, vars->ENEMY_PLAYER);
-    struct Thing* new_door = create_door(&doorPos, doorModel, orient, vars->ENEMY_PLAYER, true); 
-    if(thing_is_invalid(new_door))
+    // create prison or graveyard
+    if(vars->should_create_graveyard)
     {
-        FTEST_FAIL_TEST("Failed to create locked door");
-        return true;
+        //graveyard
+        ftest_util_replace_slabs(vars->slb_x_room_start, vars->slb_y_room_start, vars->slb_x_room_end, vars->slb_y_room_end, SlbT_GRAVEYARD, vars->HUMAN_PLAYER);
     }
-    new_door->health = 10;
+    else
+    {
+        //prison
+        ftest_util_replace_slabs(vars->slb_x_room_start, vars->slb_y_room_start, vars->slb_x_room_end, vars->slb_y_room_end, SlbT_PRISON, vars->HUMAN_PLAYER);
+    }
 
-    // create prison tile at end of tunnel
-    ftest_util_replace_slabs(vars->slb_x_tunnel_end, vars->slb_y_tunnel_end, vars->slb_x_tunnel_end, vars->slb_y_tunnel_end, SlbT_PRISON, vars->HUMAN_PLAYER);
 
-    // create imps at end of tunnel and max-level them
+    // create imps at start of tunnel
     struct Coord3d impPos;
-    set_coords_to_slab_center(&impPos, vars->slb_x_tunnel_end, vars->slb_y_tunnel_end);
-    
+    set_coords_to_slab_center(&impPos, vars->slb_x_tunnel_2, vars->slb_y_tunnel_2);
+
     vars->new_imp = INVALID_THING;
     for(unsigned char i = 0; i < vars->total_imps_to_create; ++i)
     {
@@ -147,27 +182,47 @@ TbBool ftest_bug_imp_tp_job_attack_door_action001__setup_map(struct FTestActionA
             FTEST_FAIL_TEST("Failed to create imp");
             return true;
         }
-        dungeon = get_dungeon(vars->new_imp->owner);
-        if(dungeon_invalid(dungeon))
-        {
-            FTEST_FAIL_TEST("Invalid dungeon for created imp");
-            return true;
-        }
-        struct CreatureControl* cctrl = creature_control_get_from_thing(vars->new_imp);
-        if(creature_control_invalid(cctrl))
-        {
-            FTEST_FAIL_TEST("Creature control invalid for imp");
-            return true;
-        }
+        // // example code for leveling creatures manually (not using dungeon special)
+        // dungeon = get_dungeon(vars->new_imp->owner);
+        // if(dungeon_invalid(dungeon))
+        // {
+        //     FTEST_FAIL_TEST("Invalid dungeon for created imp");
+        //     return true;
+        // }
+        // struct CreatureControl* cctrl = creature_control_get_from_thing(vars->new_imp);
+        // if(creature_control_invalid(cctrl))
+        // {
+        //     FTEST_FAIL_TEST("Creature control invalid for imp");
+        //     return true;
+        // }
 
-        if(!creature_change_multiple_levels(vars->new_imp, 9))
-        {
-            FTEST_FAIL_TEST("Failed to level up imp");
-            return true;
-        }
+        // if(!creature_change_multiple_levels(vars->new_imp, 9))
+        // {
+        //     FTEST_FAIL_TEST("Failed to level up imp");
+        //     return true;
+        // }
     }
 
-    // enable inprisonment
+    // use dungeon special to level imps to 10
+    increase_level(player, 9);
+
+    // find the enemy door
+    MapSubtlCoord stl_x_door = slab_subtile_center(vars->slb_x_door);
+    MapSubtlCoord stl_y_door = slab_subtile_center(vars->slb_y_door);
+    vars->door = get_door_for_position(stl_x_door, stl_y_door);
+    if (thing_is_invalid(vars->door))
+    {
+        FTEST_FAIL_TEST("Failed to find door at (%d,%d), this should never happen! Was the map changed!?", vars->slb_x_door, vars->slb_y_door);
+        return true;
+    }
+    
+    // lower door health to speed up test
+    vars->door->health = 10;
+
+    // move camera to door
+    ftest_util_move_camera_to_slab(vars->slb_x_door, vars->slb_y_door, vars->HUMAN_PLAYER);
+    
+    // enable inprisonment (bypasses prison gui button, button in gui will not represent actual current state)
     if (!set_creature_tendencies(player, CrTend_Imprison, true))
     {
         FTEST_FAIL_TEST("Failed to set imprison true for player %d", vars->HUMAN_PLAYER);
@@ -185,8 +240,8 @@ TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FT
     // create an enemy hero in front of the door, cripple them
     struct Coord3d heroPos;
     set_coords_to_slab_center(&heroPos, vars->slb_x_door-1, vars->slb_y_door);
-    //fudge x val to get hero closer to door
-    heroPos.x.val += 512;
+    //fudge y val to get hero closer to door
+    heroPos.y.val += 512;
 
     struct Thing* new_hero = create_creature(&heroPos, 5, vars->ENEMY_PLAYER);
     if(thing_is_invalid(new_hero))
@@ -197,8 +252,11 @@ TbBool ftest_bug_imp_tp_job_attack_door_action002__spawn_crippled_hero(struct FT
 
     // move camera to hero
     //ftest_util_move_camera_to_thing(new_hero, PLAYER0);
+
+    // either knock hero out (CrDed_Default does this when imprison flag is set) or kill hero (CrDed_NoUnconscious bypasses imprison flag)
+    CrDeathFlags death_flags = vars->should_kill_hero ? CrDed_NoUnconscious : CrDed_Default;
     
-    if(!kill_creature(new_hero, vars->new_imp, vars->HUMAN_PLAYER, CrDed_Default))
+    if(!kill_creature(new_hero, vars->new_imp, vars->HUMAN_PLAYER, death_flags))
     {
         if(new_hero->health != 1)
         {
@@ -215,10 +273,20 @@ TbBool ftest_bug_imp_tp_job_attack_door_action003__end_test(struct FTestActionAr
     // to make the test variable names shorter, use a pointer!
     struct ftest_bug_imp_tp_job_attack_door__variables* const vars = &ftest_bug_imp_tp_job_attack_door__vars;
 
-    // check ownership of tiles in room (if player0 owns any at end of test, it means failure, imp broke door)
-    if(ftest_util_does_player_own_any_slabs(vars->slb_x_room_start, vars->slb_y_room_start, vars->slb_x_room_end, vars->slb_y_room_end, vars->HUMAN_PLAYER))
+    // fail test if the door doesn't exist!
+    MapSubtlCoord stl_x_door = slab_subtile_center(vars->slb_x_door);
+    MapSubtlCoord stl_y_door = slab_subtile_center(vars->slb_y_door);
+    struct Thing* door = get_door_for_position(stl_x_door, stl_y_door);
+    if (thing_is_invalid(door))
     {
-        FTEST_FAIL_TEST("Failed because human player should not own any slabs in the area (%u,%d,%d,%d)", vars->slb_x_room_start, vars->slb_y_room_start, vars->slb_x_room_end, vars->slb_y_room_end);
+        FTEST_FAIL_TEST("Failed to find door at (%d,%d), imps destroyed door!", vars->slb_x_door, vars->slb_y_door);
+        return true;
+    }
+
+    if(door != vars->door)
+    {
+        FTEST_FAIL_TEST("Found different door... what?!");
+        return true;
     }
 
     return true;

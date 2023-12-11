@@ -325,6 +325,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
         if(vars->pending_init != NULL)
         {
             message_add_fmt(PLAYER0, "Initializing Functional Test %s", vars->pending_init->test_name);
+            FTESTLOG("Initializing Functional Test %s", vars->pending_init->test_name);
             if(vars->pending_init->init_func)
             {
                 vars->pending_init->init_func();
@@ -366,6 +367,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
                 {
                     if(vars->current_action != vars->previous_action)
                     {
+                        FTESTLOG("executing action %d", vars->current_action);
                         vars->previous_action = vars->current_action;
                         current_test_action_args->actual_started_at_game_turn = game.play_gameturn;
                     }

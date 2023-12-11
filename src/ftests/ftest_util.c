@@ -343,6 +343,24 @@ TbBool ftest_util_action__create_and_fill_torture_room(struct FTestActionArgs* c
     return true;
 }
 
+struct Thing* ftest_util_create_door_for_player_with_health(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner, long health)
+{
+    // create enemy wooden door with low health
+    struct Coord3d doorPos;
+    set_coords_to_slab_center(&doorPos, slb_x, slb_y);
+
+    //ThingModel doorModel = gameadd.trapdoor_conf.door_to_object[1]; // couldn't find proper type mapping
+    ThingModel doorModel = 1; // wooden door == 1 (hardcoded for now)
+    unsigned char orient = find_door_angle(doorPos.x.stl.num, doorPos.y.stl.num, owner);
+    struct Thing* new_door = create_door(&doorPos, doorModel, orient, owner, true); 
+    if(thing_is_invalid(new_door))
+    {
+        FTEST_FAIL_TEST("Failed to create locked door");
+        return true;
+    }
+    new_door->health = health;
+}
+
 
 #ifdef __cplusplus
 }
