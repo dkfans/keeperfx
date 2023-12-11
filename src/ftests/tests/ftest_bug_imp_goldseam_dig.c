@@ -29,16 +29,16 @@ struct ftest_bug_imp_goldseam_dig__variables ftest_bug_imp_goldseam_dig__vars = 
 
 // forward declarations - tests
 TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(struct FTestActionArgs* const args);
-TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(struct FTestActionArgs* const args);
+//TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(struct FTestActionArgs* const args);
 TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig(struct FTestActionArgs* const args);
 TbBool ftest_bug_imp_goldseam_dig_action004__end_test(struct FTestActionArgs* const args);
 
 TbBool ftest_bug_imp_goldseam_dig_init()
 {
     ftest_append_action(ftest_bug_imp_goldseam_dig_action001__map_setup,        10,     NULL);
-    ftest_append_action(ftest_bug_imp_goldseam_dig_action002__spawn_imp,        20,     NULL);
+    //ftest_append_action(ftest_bug_imp_goldseam_dig_action002__spawn_imp,        20,     NULL);
     ftest_append_action(ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig,  30,     NULL);
-    ftest_append_action(ftest_bug_imp_goldseam_dig_action004__end_test,         600,    NULL);
+    ftest_append_action(ftest_bug_imp_goldseam_dig_action004__end_test,         400,    NULL);
 
     return true;
 }
@@ -59,14 +59,12 @@ TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(struct FTestActionArgs* c
     }
     take_money_from_dungeon(PLAYER0, dungeon->total_money_owned, false);
 
-    // place gold room below dungeon heart
-    ftest_util_replace_slabs(3, 6, 3, 6, SlbT_CLAIMED, PLAYER0);
-    ftest_util_replace_slabs(1, 7, 6, 12, SlbT_WALLDRAPE, PLAYER0);
-    ftest_util_replace_slabs(1, 7, 5, 11, SlbT_TREASURE, PLAYER0);
+    // place gold room to left of dungeon heart
+    ftest_util_replace_slabs(36, 42, 38, 44, SlbT_TREASURE, PLAYER0);
 
-    // spawn gold
-    ftest_util_replace_slabs(6, 1, 7, 5, SlbT_PATH, PLAYER_NEUTRAL);
-    ftest_util_replace_slabs(6, 1, 7, 5, SlbT_GOLD, PLAYER_NEUTRAL);
+    // // spawn gold
+    // ftest_util_replace_slabs(6, 1, 7, 5, SlbT_PATH, PLAYER_NEUTRAL);
+    // ftest_util_replace_slabs(6, 1, 7, 5, SlbT_GOLD, PLAYER_NEUTRAL);
 
     // store/broadcast the gold stored in a single tile
     vars->game_gold_amount = game.gold_per_gold_block;
@@ -75,31 +73,31 @@ TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(struct FTestActionArgs* c
     return true;
 }
 
-TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(struct FTestActionArgs* const args)
-{
-    // to make the test variable names shorter, use a pointer!
-    //struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
+// TbBool ftest_bug_imp_goldseam_dig_action002__spawn_imp(struct FTestActionArgs* const args)
+// {
+//     // to make the test variable names shorter, use a pointer!
+//     //struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
 
-    // create an imp
-    struct Coord3d impPos;
-    set_coords_to_slab_center(&impPos, 1, 1);
+//     // create an imp
+//     struct Coord3d impPos;
+//     set_coords_to_slab_center(&impPos, 1, 1);
     
-    struct Thing* ftest_template_target_imp = create_owned_special_digger(impPos.x.val, impPos.y.val, PLAYER0);
-    if(thing_is_invalid(ftest_template_target_imp))
-    {
-        FTEST_FAIL_TEST("Failed to create imp");
-        return true;
-    }
+//     struct Thing* ftest_template_target_imp = create_owned_special_digger(impPos.x.val, impPos.y.val, PLAYER0);
+//     if(thing_is_invalid(ftest_template_target_imp))
+//     {
+//         FTEST_FAIL_TEST("Failed to create imp");
+//         return true;
+//     }
 
-    // level up the imp to 10 for faster digging
-    if(!creature_change_multiple_levels(ftest_template_target_imp, 9))
-    {
-        FTEST_FAIL_TEST("Failed to level up imp");
-        return true;
-    }
+//     // level up the imp to 10 for faster digging
+//     if(!creature_change_multiple_levels(ftest_template_target_imp, 9))
+//     {
+//         FTEST_FAIL_TEST("Failed to level up imp");
+//         return true;
+//     }
 
-    return true; //proceed to next test action
-}
+//     return true; //proceed to next test action
+// }
 
 TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig(struct FTestActionArgs* const args)
 {
@@ -107,8 +105,8 @@ TbBool ftest_bug_imp_goldseam_dig_action003__send_imp_to_dig(struct FTestActionA
     //struct ftest_bug_imp_goldseam_dig__variables* const vars = &ftest_bug_imp_goldseam_dig__vars;
 
     // select one of the gold slabmap blocks
-    const MapSlabCoord slb_x_gold_block = 6;
-    const MapSlabCoord slb_y_gold_block = 3;
+    const MapSlabCoord slb_x_gold_block = 46;
+    const MapSlabCoord slb_y_gold_block = 43;
 
     struct SlabMap* slabMapBlock = get_slabmap_block(slb_x_gold_block, slb_y_gold_block);
     if(slabmap_block_invalid(slabMapBlock))

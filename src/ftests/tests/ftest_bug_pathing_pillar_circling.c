@@ -32,11 +32,11 @@ struct ftest_bug_pathing_pillar_circling__variables
     unsigned char pillar_base_slab_type;
 };
 struct ftest_bug_pathing_pillar_circling__variables ftest_bug_pathing_pillar_circling__vars = {
-    .slb_x_tunneler_start = 25,
-    .slb_y_tunneler_start = 3,
+    .slb_x_tunneler_start = 66,
+    .slb_y_tunneler_start = 43,
 
-    .slb_x_pillar = 15,
-    .slb_y_pillar = 3,
+    .slb_x_pillar = 57,
+    .slb_y_pillar = 43,
 
     .is_tunneler_setup = false,
     .tunneler = NULL,
@@ -44,11 +44,11 @@ struct ftest_bug_pathing_pillar_circling__variables ftest_bug_pathing_pillar_cir
     .pillar_base_slab_type = SlbT_ROCK_FLOOR
 };
 struct ftest_bug_pathing_pillar_circling__variables ftest_bug_pathing_pillar_circling__vars2 = {
-    .slb_x_tunneler_start = 3,
-    .slb_y_tunneler_start = 25,
+    .slb_x_tunneler_start = 42,
+    .slb_y_tunneler_start = 56,
 
-    .slb_x_pillar = 3,
-    .slb_y_pillar = 15,
+    .slb_x_pillar = 42,
+    .slb_y_pillar = 49,
 
     .is_tunneler_setup = false,
     .tunneler = NULL,
@@ -91,9 +91,9 @@ TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_
 
         // place pillar/column in the way
         {
-            ftest_util_replace_slab_columns(vars->slb_x_pillar, vars->slb_y_pillar, PLAYER_NEUTRAL, vars->pillar_base_slab_type, 30, 30, 30
-                                                                                                                               , 30, 02, 30
-                                                                                                                               , 30, 30, 30); // 01 - impenetrable rock, 02 <-> 10 - dirt, 30 - path
+            ftest_util_replace_slab_columns(vars->slb_x_pillar, vars->slb_y_pillar, PLAYER_NEUTRAL, vars->pillar_base_slab_type, 26, 26, 26
+                                                                                                                               , 26, 01, 26
+                                                                                                                               , 26, 26, 26); // 01 - dirt pillar, 26 - path
         }
 
         struct Coord3d tunneler_pos;
