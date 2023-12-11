@@ -639,7 +639,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     return 0; // Default: No collision OR boulder destroyed on door
 }
 
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step,short ef_or_efel_model)
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model)
 {
   MapCoordDelta dist_x;
   MapCoordDelta dist_y;
