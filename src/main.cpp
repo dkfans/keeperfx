@@ -3962,6 +3962,11 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
       } else
+      if (strcasecmp(parstr, "columnconvert") == 0) //todo remove once it's no longer in the launcher
+      {
+          WARNLOG("The -%s commandline parameter is no longer functional.", parstr);
+      }
+      else
       if (strcasecmp(parstr, "cd") == 0)
       {
           start_params.overrides[Clo_CDMusic] = true;
@@ -4172,7 +4177,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
-        static const char *msg_text="Command line parameters analysis failed.\n";
+        static const char *msg_text="Found one or more invalid command line parameters. Please correct your Run options.\n\n";
         error_dialog_fatal(__func__, 1, msg_text);
         LbErrorLogClose();
         return 0;
