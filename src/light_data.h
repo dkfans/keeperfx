@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 
 #define LIGHT_MAX_RANGE       256 // Large enough to cover the whole map
-#define LIGHTS_COUNT          400
+#define LIGHTS_COUNT         2048
 #define MINIMUM_LIGHTNESS    8192
 
 #ifdef __cplusplus

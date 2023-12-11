@@ -454,9 +454,9 @@ long instf_creature_fire_shot(struct Thing *creatng, long *param)
         target = thing_get(cctrl->targtng_idx);
         TRACE_THING(target);
         if (target->class_id == TCls_Object)
-            hittype = THit_CrtrsNObjcts;
+            hittype = THit_CrtrsNObjctsNotOwn;
         else if (thing_is_destructible_trap(target) > 0)
-            hittype = THit_CrtrsNObjcts;
+            hittype = THit_CrtrsNObjctsNotOwn;
         else if (target->class_id == TCls_Trap)
             hittype = THit_TrapsAll;
         else if (target->owner == creatng->owner)
