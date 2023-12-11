@@ -4177,7 +4177,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
-        static const char *msg_text="Error detected in the Command line. Please correct the Run options.\n\n";
+        static const char *msg_text="Found one or more invalid command line parameters. Please correct your Run options.\n\n";
         error_dialog_fatal(__func__, 1, msg_text);
         LbErrorLogClose();
         return 0;
