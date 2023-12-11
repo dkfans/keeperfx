@@ -36,6 +36,8 @@ extern const char keeper_columns_file[];
 TbBool load_slabset_config(const char *conf_fname,unsigned short flags);
 TbBool load_columns_config(const char *conf_fname,unsigned short flags,struct Column *cols,long *ccount);
 
+void clear_slabsets(void);
+
 /******************************************************************************/
 #ifdef __cplusplus
 }

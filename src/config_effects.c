@@ -37,7 +37,7 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_effects_file[]="effects.cfg";
+const char keeper_effects_file[]="effects.toml";
 
 long const imp_spangle_effects[] = {
     TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_None, TngEff_None,
@@ -50,6 +50,7 @@ long const ball_puff_effects[] = {
 /******************************************************************************/
 struct NamedCommand effect_desc[EFFECTS_TYPES_MAX];
 struct NamedCommand effectgen_desc[EFFECTSGEN_TYPES_MAX];
+struct NamedCommand effectelem_desc[EFFECTSELLEMENTS_TYPES_MAX];
 /******************************************************************************/
 
 static void load_effects(VALUE *value, unsigned short flags)
@@ -168,6 +169,93 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
     }
 }
 
+static void load_effectelements(VALUE *value, unsigned short flags)
+{
+    char key[64];
+    VALUE *section;
+    for (int id = 0; id < EFFECTSELLEMENTS_TYPES_MAX; id++)
+    {
+        {
+            sprintf(key, "effectElement%d", id);
+            section = value_dict_get(value, key);
+        }
+        if (value_type(section) == VALUE_DICT)
+        {
+            struct EffectElementConfigStats *effelcst = &gameadd.effects_conf.effectelement_cfgstats[id];
+
+            const char* name = value_string(value_dict_get(section, "Name"));
+            if(name != NULL)
+            {
+                if(strlen(name) > COMMAND_WORD_LEN*2 - 1 )
+                {
+                    ERRORLOG("effectellement name (%s) to long max %d chars", name,COMMAND_WORD_LEN*2 - 1);
+                    break;
+                }
+
+                strcpy(effelcst->code_name,name);
+                effectelem_desc[id].name = effelcst->code_name;
+                effectelem_desc[id].num = id;
+            }
+            if ((flags & CnfLd_ListOnly) != 0)
+            {
+                continue;
+            }
+            effelcst->draw_class                 = value_int32(value_dict_get(section,"DrawClass"));
+            effelcst->move_type                  = value_int32(value_dict_get(section,"MoveType"));
+            effelcst->unanimated                 = value_int32(value_dict_get(section,"Unanimated"));
+
+            VALUE *lifespan_arr = value_dict_get(section, "Lifespan");
+            effelcst->lifespan        = value_int32(value_array_get(lifespan_arr, 0));
+            effelcst->lifespan_random = value_int32(value_array_get(lifespan_arr, 1));
+
+            effelcst->sprite_idx                 = value_parse_anim(value_dict_get(section,"AnimationId"));
+
+            VALUE *spriteSize_arr = value_dict_get(section, "SpriteSize");
+            effelcst->sprite_size_min = value_int32(value_array_get(spriteSize_arr, 0));
+            effelcst->sprite_size_max = value_int32(value_array_get(spriteSize_arr, 1));
+
+            effelcst->rendering_flag             = value_int32(value_dict_get(section,"RenderFlags"));
+
+            VALUE *spriteSpeed_arr = value_dict_get(section, "SpriteSpeed");
+            effelcst->sprite_speed_min     = value_int32(value_array_get(spriteSpeed_arr, 0));
+            effelcst->sprite_speed_max     = value_int32(value_array_get(spriteSpeed_arr, 1));
+
+            effelcst->animate_on_floor           = value_int32(value_dict_get(section,"AnimateOnFloor"));
+            effelcst->unshaded                   = value_int32(value_dict_get(section,"Unshaded"));
+            effelcst->transparant                = value_int32(value_dict_get(section,"Transparant"));
+            effelcst->movement_flags             = value_int32(value_dict_get(section,"MovementFlags"));
+            effelcst->size_change                = value_int32(value_dict_get(section,"SizeChange"));
+            effelcst->fall_acceleration          = value_int32(value_dict_get(section,"fallAcceleration"));
+            effelcst->inertia_floor              = value_int32(value_dict_get(section,"InertiaFloor"));
+            effelcst->inertia_air                = value_int32(value_dict_get(section,"InertiaAir"));
+            effelcst->subeffect_model            = value_int32(value_dict_get(section,"SubeffectModel"));
+            effelcst->subeffect_delay            = value_int32(value_dict_get(section,"SubeffectDelay"));
+            effelcst->movable                    = value_int32(value_dict_get(section,"Movable"));
+            effelcst->impacts                    = value_int32(value_dict_get(section,"Impacts"));
+            if(effelcst->impacts)
+            {
+                effelcst->solidgnd_effmodel          = value_int32(value_dict_get(section,"SolidGroundEffmodel"));
+                effelcst->solidgnd_snd_smpid         = value_int32(value_dict_get(section,"SolidGroundSoundId"));
+                effelcst->solidgnd_loudness          = value_int32(value_dict_get(section,"SolidGroundLoudness"));
+                effelcst->solidgnd_destroy_on_impact = value_int32(value_dict_get(section,"SolidGroundDestroyOnIimpact"));
+                effelcst->water_effmodel             = value_int32(value_dict_get(section,"WaterEffmodel"));
+                effelcst->water_snd_smpid            = value_int32(value_dict_get(section,"WaterSoundId"));
+                effelcst->water_loudness             = value_int32(value_dict_get(section,"WaterLoudness"));
+                effelcst->water_destroy_on_impact    = value_int32(value_dict_get(section,"WaterDestroyOnImpact"));
+                effelcst->lava_effmodel              = value_int32(value_dict_get(section,"LavaEffmodel"));
+                effelcst->lava_snd_smpid             = value_int32(value_dict_get(section,"LavaSoundId"));
+                effelcst->lava_loudness              = value_int32(value_dict_get(section,"LavaLoudness"));
+                effelcst->lava_destroy_on_impact     = value_int32(value_dict_get(section,"LavaDestroyOnImpact"));
+            }
+            effelcst->transform_model            = value_int32(value_dict_get(section,"TransformModel"));
+            effelcst->light_radius               = value_int32(value_dict_get(section,"LightRadius"));
+            effelcst->light_intensity            = value_int32(value_dict_get(section,"LightIntensity"));
+            effelcst->light_field_3D             = value_int32(value_dict_get(section,"LightFlags"));
+            effelcst->affected_by_wind           = value_int32(value_dict_get(section,"AffectedByWind"));
+        }
+    }
+}
+
 static TbBool load_effects_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     VALUE file_root;
@@ -175,6 +263,7 @@ static TbBool load_effects_config_file(const char *textname, const char *fname, 
         return false;
     load_effects(&file_root,flags);
     load_effectsgenerators(&file_root,flags);
+    load_effectelements(&file_root,flags);
 
     value_fini(&file_root);
     
