@@ -4,7 +4,7 @@ This is proof of concept; the goal is primarily for setting up scenarios to repl
 
 Added benefit is that if tests are setup in a continuous integration environment we can automatically know when we break behaviours when adding new features.
 
-The functional tests should run fast, hence `frame_skip = 8` is used by default.
+The functional tests should run fast, hence you will see `frame_skip = 8` is used by default for some tests. It can be specified per-test.
 They also skip the trademark/cutscene by default for super fast launch.
 
 # Quickstart
@@ -16,6 +16,7 @@ They also skip the trademark/cutscene by default for super fast launch.
 - `bug_imp_tp_attack_door__prisoner`
 - `bug_imp_tp_attack_door__deadbody`
 - `bug_imp_goldseam_dig`
+- `bug_pathing_stair_treasury`
 
 ## Run Existing Test
 
@@ -32,7 +33,8 @@ They also skip the trademark/cutscene by default for super fast launch.
         | `"args": [`<br/>`"-ftests"`<br/>`],` | `"args": [`<br/>`"-ftests", "bug_imp_teleport_attack_door"`<br/>`],` |
 
 3. Run game - Watch test execute
-4. View keeperfx exit code for test result
+4. View keeperfx.log for test results (lines prefixed with `FTest:`)
+5. (optional) If using the `-exitonfailedtest` flag, keeperfx.exe will exit on first failure, exit code represents test results (used for automation)
     - exit code 0 == `test success`
     - exit code -1 == `test failure`
     - optionally view the keeperfx.log to view details on why the test failed
@@ -102,7 +104,8 @@ They also skip the trademark/cutscene by default for super fast launch.
     - NOTE: You can also call one-time logic here, like altering the map before the test actions are executed.
 3. The game loop will call each action in the list after the desired GameTurn delay.
     - actions are counted as completed when they `return true`, if they `return false`, the action will be executed again next game turn.
-    - if there is a failure at any stage (you decide this with your test, using the [FTEST_FAIL_TEST](./ftest.h#L24) macro) the test exits immediately, closing the program.
+    - by default, if a test fails, the next test will be ran, unless you use the `-exitonfailedtest` flag.
+    - (optional) when using the `-exitonfailedtest` flag if there is a failure at any stage (you decide this with your test, using the [FTEST_FAIL_TEST](./ftest.h#L24) macro) the test exits immediately, closing the program.
         - exit code 0 == `test success`
         - exit code -1 == `test failure`
         - optionally view the keeperfx.log to view details on why the test failed
@@ -110,6 +113,7 @@ They also skip the trademark/cutscene by default for super fast launch.
             - the above message tells us that at game turn 20, the test failed at function `ftest_template_action001__spawn_imp` because `Failed to level up imp`
 
 
-Seeds have been overridden similar to the existing AUTOTESTING functionality. This means tests should perform the same every time for random events.
+Seeds are overriden when using the functional tests. This means tests should perform the same every time for random events.
 
 - (NOTE: There may still be some unaccounted for RNG, the bug_imp_tp_attack_door__deadbody test is an example of this. Sometimes the imps do not fly into the door after teleport and the door isn't attacked/broken...)
+- (The only srand not wrapped yet is inside [crypt.h](../../deps/zlib/contrib/minizip/crypt.h#L113) but requires further investigation)
