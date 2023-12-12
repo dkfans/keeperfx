@@ -203,7 +203,6 @@ obj/engine_redraw.o \
 obj/engine_render.o \
 obj/engine_render_data.o \
 obj/engine_textures.o \
-obj/event_monitoring.o \
 obj/front_credits.o \
 obj/front_credits_data.o \
 obj/front_easter.o \
@@ -389,7 +388,7 @@ endif
 
 # logging level flags
 STLOGFLAGS = -DBFDEBUG_LEVEL=0
-HVLOGFLAGS = -DBFDEBUG_LEVEL=10 -DAUTOTESTING=1
+HVLOGFLAGS = -DBFDEBUG_LEVEL=10
 # compiler warning generation flags
 WARNFLAGS = -Wall -W -Wshadow -Wno-sign-compare -Wno-unused-parameter -Wno-strict-aliasing -Wno-unknown-pragmas
 # disabled warnings: -Wextra -Wtype-limits

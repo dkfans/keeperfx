@@ -238,6 +238,8 @@ void ftest_srand()
 {
     if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
+        game.action_rand_seed = 1;
+        game.unsync_rand_seed = 1;
         srand(1);
     }
 }
@@ -281,17 +283,23 @@ TbBool ftest_init()
 FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
 {
     struct ftest_donottouch__variables* const vars = &ftest_donottouch__vars;
-
-    if(out_prev_state != NULL)
-    {
-        (*out_prev_state) = vars->current_state;
-    }
-
+    
     // enforce init call first
-    if(vars->current_state == FTSt_PendingInitialSetup)
+    if(!flag_is_set(start_params.functest_flags, FTF_Enabled) || vars->current_state == FTSt_PendingInitialSetup)
     {
         FTEST_FAIL_TEST("Tests not initialized! This shouldn't happen! ftest_init should be called once before ftest_update!");
         return ftest_change_state(FTSt_InvalidState);
+    }
+
+    // override seed
+    game.action_rand_seed = game.play_gameturn;
+    game.unsync_rand_seed = game.play_gameturn;
+    srand(game.play_gameturn);
+
+    // track previous state
+    if(out_prev_state != NULL)
+    {
+        (*out_prev_state) = vars->current_state;
     }
 
     // if there was a test error, exit

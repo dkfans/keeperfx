@@ -121,12 +121,10 @@
 #include "game_loop.h"
 #include "music_player.h"
 
-#ifdef AUTOTESTING
-#include "event_monitoring.h"
-#endif
 #ifdef FUNCTESTING
   #include "ftests/ftest.h"
 #endif
+
 #include "post_inc.h"
 
 #ifdef _MSC_VER
@@ -3407,23 +3405,6 @@ void gameplay_loop_logic()
         if (game.play_gameturn == 4)
             LbNetwork_ChangeExchangeTimeout(0);
     }
-#if AUTOTESTING || FUNCTESTING
-    #ifdef AUTOTESTING
-    if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
-    {
-        quit_game = true;
-        exit_keeper = true;
-        return;
-    }
-    evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    #endif // AUTOTESTING
-    {
-        game.action_rand_seed = game.play_gameturn;
-        game.unsync_rand_seed = game.play_gameturn;
-        srand(game.play_gameturn);
-    }
-#endif // AUTOTESTING || FUNCTESTING
 #ifdef FUNCTESTING
     if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
@@ -3506,12 +3487,6 @@ void keeper_gameplay_loop(void)
     if ((game.operation_flags & GOF_SingleLevel) != 0) {
         initialise_eye_lenses();
     }
-#ifdef AUTOTESTING
-    if ((start_params.autotest_flags & ATF_AI_Player) != 0)
-    {
-        toggle_computer_player(player->id_number);
-    }
-#endif
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
@@ -4146,41 +4121,6 @@ short process_command_line(unsigned short argc, char *argv[])
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
       }
-#ifdef AUTOTESTING
-      else if (strcasecmp(parstr, "exit_at_turn") == 0)
-      {
-         set_flag_byte(&start_params.autotest_flags, ATF_ExitOnTurn, true);
-         start_params.autotest_exit_turn = atol(pr2str);
-         narg++;
-      } else
-      if (strcasecmp(parstr, "fixed_seed") == 0)
-      {
-         set_flag_byte(&start_params.autotest_flags, ATF_FixedSeed, true);
-      } else
-      if (strcasecmp(parstr, "tests") == 0)
-      {
-        set_flag_byte(&start_params.autotest_flags, ATF_TestsCampaign, true);
-
-        if (!change_campaign("../tests/campaign.cfg"))
-        {
-          ERRORLOG("Unable to load tests campaign");
-          bad_param=narg;
-        }
-      } else
-      if (strcasecmp(parstr, "ai_player") == 0)
-      {
-         set_flag_byte(&start_params.autotest_flags, ATF_AI_Player, true);
-         fe_computer_players = 1;
-      } else
-      if (strcasecmp(parstr, "monitoring") == 0)
-      {
-          int instance_no = atoi(pr3str);
-          evm_init(pr2str, instance_no);
-          narg++;
-          if ((instance_no > 0) || (strcmp(pr3str, "0") == 0))
-              narg++;
-      }
-#endif
 #ifdef FUNCTESTING
       else if (strcasecmp(parstr, "ftests") == 0)
       {
@@ -4243,22 +4183,11 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
 
-#if AUTOTESTING || FUNCTESTING
-    #if AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    #endif
-    {
-      srand(1);
-    }
-    #if AUTOTESTING
-    else
-    {
-      srand(LbTimerClock());
-    }
-    #endif
-#else
     srand(LbTimerClock());
-#endif
+
+#ifdef FUNCTESTING
+    ftest_srand();
+#endif // FUNCTESTING
 
     if (!retval)
     {
@@ -4301,9 +4230,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         game_loop();
     }
-#ifdef AUTOTESTING
-    evm_done();
-#endif
     reset_game();
     LbScreenReset();
     if ( !retval )

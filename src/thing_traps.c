@@ -560,7 +560,6 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     cctrl->spell_flags |= CSAfF_MagicFall;
     thing->move_angle_xy = 0;
     return thing;
-    // EVM_CREATURE_EVENT("joined.trap", thing->owner, thing);
 }
 
 
@@ -591,7 +590,6 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
     traptng->trap.revealed = 1;
     const struct TrapStats *trapstat = &gameadd.trap_stats[traptng->model];
     struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[traptng->model];
-    // EVM_TRAP_EVENT("trap.actiated", traptng->owner, thing)
     if (trapst->notify == 1)
     {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);

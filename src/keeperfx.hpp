@@ -101,14 +101,6 @@ enum DebugFlags {
     DFlg_CreatrPaths        =  0x02,
 };
 
-#ifdef AUTOTESTING
-enum AutotestFlags {
-    ATF_ExitOnTurn          = 0x01, // Exit from a game after some time
-    ATF_FixedSeed           = 0x02, // Set randomseed to 1 on game start
-    ATF_AI_Player           = 0x04, // Activate Ai player on level start
-    ATF_TestsCampaign       = 0x08  // Switch to testing levels
-};
-#endif
 #ifdef FUNCTESTING
 enum FunctestFlags {
     FTF_Enabled             = 0x01, // Functional Tests Enabled
@@ -148,10 +140,6 @@ struct StartupParameters {
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
-#ifdef AUTOTESTING
-    unsigned char autotest_flags;
-    unsigned long autotest_exit_turn;
-#endif
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];

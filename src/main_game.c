@@ -440,18 +440,12 @@ void clear_complete_game(void)
 
 void init_seeds()
 {
-#if AUTOTESTING || FUNCTESTING
-    #if AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    #endif
+#if FUNCTESTING
+    if (flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
-      game.action_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
+        ftest_srand();
     }
-    #if AUTOTESTING
     else
-    #endif
 #endif
     {
         // Initialize random seeds (the value may be different
