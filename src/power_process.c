@@ -730,7 +730,7 @@ void timebomb_explode(struct Thing *creatng)
     SYNCDBG(8, "Explode Timebomb")
     //struct Thing* castng = creatng; //todo cleanup
     long weight = compute_creature_weight(creatng);
-    long weight_multiplier = weight / 64;
+    long weight_multiplier = weight / 32;
     if (weight_multiplier == 0)
     {
         weight_multiplier = 1;
@@ -742,7 +742,14 @@ void timebomb_explode(struct Thing *creatng)
         long damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng);
         if (weight_multiplier > 1)
         {
-            damage <<= 1;
+            if (creatng->model == get_players_special_digger_model(creatng->owner))
+            {
+                damage *= weight_multiplier;
+            }
+            else
+            {
+                damage <<= 1;
+            }
         }
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(creatng, &creatng->mappos, dist, damage, shotst->area_blow * weight_multiplier, hit_targets, shotst->damage_type);
