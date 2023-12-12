@@ -533,7 +533,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(transftng);
-    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->explevel))
+    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->explevel,cctrl->creature_name))
     {
         dungeonadd = get_dungeonadd(plyr_idx);
         dungeonadd->creatures_transferred++;
@@ -588,6 +588,7 @@ long create_transferred_creatures_on_level(void)
 {
     struct Thing* creatng;
     struct Thing* srcetng;
+    struct CreatureControl* cctrl;
     long creature_created = 0;
     PlayerNumber plyr_idx;
     for (int p = 0; p < PLAYERS_COUNT; p++)
@@ -619,6 +620,8 @@ long create_transferred_creatures_on_level(void)
                     continue;
                 }
                 init_creature_level(creatng, intralvl.transferred_creatures[p][i].explevel);
+                cctrl = creature_control_get_from_thing(creatng);
+                strcpy(cctrl->creature_name, intralvl.transferred_creatures[p][i].creature_name);
                 creature_created++;
             }
         }

@@ -69,9 +69,8 @@ struct CreatureStorage {
   unsigned char model;
   unsigned char explevel : 4;
   unsigned char count : 4;
+  char creature_name[25];
 };
-
-static_assert(sizeof(struct CreatureStorage) == 2, "");
 
 #pragma pack()
 /******************************************************************************/
