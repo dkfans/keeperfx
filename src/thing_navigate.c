@@ -292,7 +292,7 @@ void move_thing_in_map_f(struct Thing *thing, const struct Coord3d *pos, const c
     TRACE_THING(thing);
     if (thing->index == 0)
     {
-        ERRORLOG("Attempt to move deleted %s (from %s)", thing_class_and_model_name(thing->class_id, thing->model), func_name);
+        ERRORLOG("%s: Attempt to move deleted thing", func_name);
         return;
     }
     if ((thing->mappos.x.stl.num == pos->x.stl.num) && (thing->mappos.y.stl.num == pos->y.stl.num))

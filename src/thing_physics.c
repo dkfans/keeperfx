@@ -883,7 +883,7 @@ TbBool move_object_to_nearest_free_position(struct Thing *thing)
     TRACE_THING(thing)
     if (!thing_exists(thing))
     {
-        ERRORLOG("Attempt to move non-existing %s out of wall.", thing_class_and_model_name(thing->class_id, thing->model));
+        ERRORLOG("Attempt to move non-existing object out of wall.");
         return false;
     }
     struct Coord3d pos;

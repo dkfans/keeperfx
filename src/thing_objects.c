@@ -1906,7 +1906,7 @@ TngUpdateRet move_object(struct Thing *thing)
     SYNCDBG(18,"Starting");
     if (!thing_exists(thing))
     {
-        ERRORLOG("Attempt to move non-existing %s.", thing_class_and_model_name(thing->class_id, thing->model));
+        ERRORLOG("Attempt to move non-existing object.");
         return TUFRet_Deleted;
     }
     TRACE_THING(thing);

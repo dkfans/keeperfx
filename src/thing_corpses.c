@@ -179,7 +179,7 @@ long move_dead_creature(struct Thing *thing)
 {
     if (!thing_exists(thing))
     {
-        ERRORLOG("Attempt to move non-existing %s.", thing_class_and_model_name(thing->class_id, thing->model));
+        ERRORLOG("Attempt to move non-existing corpse.");
         return TUFRet_Deleted;
     }
     if ( (thing->velocity.x.val != 0) || (thing->velocity.y.val != 0) || (thing->velocity.z.val != 0) )

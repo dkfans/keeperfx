@@ -647,7 +647,7 @@ TbBool move_thing_to_different_room(struct Thing* thing, struct Coord3d* pos)
 {
     if (!thing_exists(thing))
     {
-        ERRORLOG("Attempt to move non-existing %s to different room.", thing_class_and_model_name(thing->class_id, thing->model));
+        ERRORLOG("Attempt to move non-existing thing to different room.");
         return false;
     }
     pos->z.val = get_thing_height_at(thing, pos);
@@ -703,7 +703,7 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
                         pos.z.val = get_thing_height_at(spelltng, &pos);
                         if (!thing_exists(spelltng))
                         {
-                            ERRORLOG("Attempt to reposition non-existing %s.", thing_class_and_model_name(spelltng->class_id, spelltng->model));
+                            ERRORLOG("Attempt to reposition non-existing book.");
                             return false;
                         }
                         move_thing_in_map(spelltng, &pos);
