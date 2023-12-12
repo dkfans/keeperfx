@@ -67,8 +67,8 @@ enum CreatureDeathFlags {
 
 struct CreatureStorage {
   unsigned char model;
-  unsigned char explevel : 4;
-  unsigned char count : 4;
+  unsigned char explevel;
+  unsigned char count;
   char creature_name[CREATURE_NAME_MAX];
 };
 
