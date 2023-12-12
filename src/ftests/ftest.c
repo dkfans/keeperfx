@@ -35,6 +35,37 @@ struct ftest_donottouch__variables ftest_donottouch__vars = {
     .current_turn_counter = 0
 };
 
+const char* FTestFrameworkState_Strings[] = {
+    "FTSt_InvalidState",
+    "FTSt_PendingInitialSetup",
+    "FTSt_InitialSetupCompleted",
+    "FTSt_TestIsProcessingActions",
+    "FTSt_TestHasCompletedActions_LoadNextTest",
+    "FTSt_TestsCompletedSuccessfully",
+};
+
+const char* ftest_get_frameworkstate_name(FTestFrameworkState state)
+{
+    switch(state)
+    {
+        case FTSt_InvalidState:
+            return FTestFrameworkState_Strings[0];
+        case FTSt_PendingInitialSetup:
+            return FTestFrameworkState_Strings[1];
+        case FTSt_InitialSetupCompleted:
+            return FTestFrameworkState_Strings[2];
+        case FTSt_TestIsProcessingActions:
+            return FTestFrameworkState_Strings[3];
+        case FTSt_TestHasCompletedActions_LoadNextTest:
+            return FTestFrameworkState_Strings[4];
+        case FTSt_TestsCompletedSuccessfully:
+            return FTestFrameworkState_Strings[5];
+
+        default:
+            return NULL;
+    }
+}
+
 FTestFrameworkState ftest_change_state(FTestFrameworkState next)
 {
     if(ftest_donottouch__vars.current_state == next)
@@ -42,7 +73,16 @@ FTestFrameworkState ftest_change_state(FTestFrameworkState next)
         FTESTLOG("Changing to state we are already on!");
     }
 
-    FTESTLOG("Changing from current state %d to %d", ftest_donottouch__vars.current_state, next);
+    const char* current_state_name = ftest_get_frameworkstate_name(ftest_donottouch__vars.current_state);
+    const char* next_state_name = ftest_get_frameworkstate_name(next);
+
+    if(current_state_name == NULL || next_state_name == NULL)
+    {
+        FTEST_FRAMEWORK_ABORT("Unknown state name!");
+        return FTSt_InvalidState;
+    }
+
+    FTESTLOG("Changing from current state %s(%d) to %s(%d)", current_state_name, ftest_donottouch__vars.current_state, next_state_name, next);
     ftest_donottouch__vars.previous_state = ftest_donottouch__vars.current_state;
     ftest_donottouch__vars.current_state = next;
 
@@ -165,7 +205,7 @@ TbBool ftest_fill_teststorun_by_name(char* const name)
     return vars->total_tests > 0;
 }
 
-struct FTestConfig* const ftest_get_next_test(TbBool restart)
+struct FTestConfig* ftest_get_next_test(TbBool restart)
 {
     struct ftest_donottouch__variables* const vars = &ftest_donottouch__vars;
 
@@ -191,7 +231,6 @@ struct FTestConfig* const ftest_get_next_test(TbBool restart)
 
 TbBool ftest_setup_test(struct FTestConfig* const test_config)
 {
-    struct ftest_onlyappendtests__config* const conf = &ftest_onlyappendtests__conf;
     struct ftest_donottouch__variables* const vars = &ftest_donottouch__vars;
 
     if(test_config == NULL)
@@ -246,7 +285,6 @@ void ftest_srand()
 
 TbBool ftest_init()
 {
-    struct ftest_onlyappendtests__config* const conf = &ftest_onlyappendtests__conf;
     struct ftest_donottouch__variables* const vars = &ftest_donottouch__vars;
 
     if(vars->current_state != FTSt_PendingInitialSetup)

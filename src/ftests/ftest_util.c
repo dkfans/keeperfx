@@ -381,9 +381,11 @@ struct Thing* ftest_util_create_door_for_player_with_health(MapSlabCoord slb_x, 
     if(thing_is_invalid(new_door))
     {
         FTEST_FAIL_TEST("Failed to create locked door");
-        return true;
+        return INVALID_THING;
     }
     new_door->health = health;
+
+    return new_door;
 }
 
 

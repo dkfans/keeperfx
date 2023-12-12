@@ -72,6 +72,10 @@ typedef enum FTestFrameworkState
     FTSt_TestsCompletedSuccessfully = 4
 } FTestFrameworkState;
 
+extern const char* FTestFrameworkState_Strings[];
+
+const char* ftest_get_frameworkstate_name(FTestFrameworkState state);
+
 /**
  * @brief Configuration object for a functional test
  * 
