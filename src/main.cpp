@@ -51,6 +51,7 @@
 #include "kjm_input.h"
 #include "packets.h"
 #include "config.h"
+#include "config_slabsets.h"
 #include "config_strings.h"
 #include "config_campaigns.h"
 #include "config_terrain.h"
@@ -352,7 +353,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
     {
         if (!thing_is_picked_up(thing))
         {
-            struct EffectElementStats *eestat;
+            struct EffectElementConfigStats *eestat;
             eestat = get_effect_element_model_stats(thing->model);
             dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
             if ((dist < param->num1) && eestat->affected_by_wind)
@@ -382,7 +383,7 @@ static TngUpdateRet affect_thing_by_wind(struct Thing *thing, ModTngFilterParam 
             struct EffectConfigStats *effcst;
             effcst = get_effect_model_stats(thing->model);
             dist = get_chessboard_distance(&shotng->mappos, &thing->mappos) + 1;
-            if ((dist < param->num1) && effcst->old->affected_by_wind)
+            if ((dist < param->num1) && effcst->affected_by_wind)
             {
                 apply_velocity = true;
             }
@@ -698,7 +699,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
-        struct EffectElementStats *eestat;
+        struct EffectElementConfigStats *eestat;
         eestat = get_effect_element_model_stats(9);
         int sprsize;
         int delta_size;
@@ -1652,26 +1653,6 @@ TbBool set_default_startup_parameters(void)
     set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
     start_params.force_ppro_poly = 0;
     return true;
-}
-
-void clear_slabsets(void)
-{
-    struct SlabSet *sset;
-    struct SlabObj *sobj;
-    int i;
-    for (i=0; i < SLABSET_COUNT; i++)
-    {
-        sset = &game.slabset[i];
-        memset(sset, 0, sizeof(struct SlabSet));
-        game.slabobjs_idx[i] = -1;
-    }
-    game.slabset_num = SLABSET_COUNT;
-    game.slabobjs_num = 0;
-    for (i=0; i < SLABOBJS_COUNT; i++)
-    {
-        sobj = &game.slabobjs[i];
-        memset(sobj, 0, sizeof(struct SlabObj));
-    }
 }
 
 void clear_map(void)
@@ -3981,6 +3962,11 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
       } else
+      if (strcasecmp(parstr, "columnconvert") == 0) //todo remove once it's no longer in the launcher
+      {
+          WARNLOG("The -%s commandline parameter is no longer functional.", parstr);
+      }
+      else
       if (strcasecmp(parstr, "cd") == 0)
       {
           start_params.overrides[Clo_CDMusic] = true;
@@ -4191,7 +4177,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
-        static const char *msg_text="Command line parameters analysis failed.\n";
+        static const char *msg_text="Found one or more invalid command line parameters. Please correct your Run options.\n\n";
         error_dialog_fatal(__func__, 1, msg_text);
         LbErrorLogClose();
         return 0;

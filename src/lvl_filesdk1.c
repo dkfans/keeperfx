@@ -1031,7 +1031,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
                     ncol = 0;
                 if (ncol == 0)
                 {
-                    ERRORLOG("column:%d referenced in slabset.cfg but not present in columnset.cfg",-n);
+                    ERRORLOG("column:%d referenced in slabset.toml but not present in columnset.toml",-n);
                     continue;
                 }
             }
