@@ -69,7 +69,7 @@ struct CreatureStorage {
   unsigned char model;
   unsigned char explevel : 4;
   unsigned char count : 4;
-  char creature_name[25];
+  char creature_name[CREATURE_NAME_MAX];
 };
 
 #pragma pack()

@@ -49,6 +49,7 @@ extern "C" {
 #define ENTRANCE_ROOMS_COUNT               3
 #define INSTANCE_TYPES_MAX 255
 #define LAIR_ENEMY_MAX 5
+#define CREATURE_NAME_MAX 25
 
 #define INVALID_CRTR_CONTROL (game.persons.cctrl_lookup[0])
 /******************************************************************************/
@@ -373,7 +374,7 @@ unsigned char cowers_from_slap_turns;
     unsigned short damage_wall_coords;
     unsigned char joining_age;
     unsigned char blood_type;
-    char creature_name[25];
+    char creature_name[CREATURE_NAME_MAX];
     struct Coord3d flee_pos;
     long flee_start_turn;
     struct MemberPos followers_pos[GROUP_MEMBERS_COUNT];
