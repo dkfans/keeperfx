@@ -86,6 +86,31 @@ TbBool ftest_util_does_player_own_any_slabs(MapSlabCoord slb_x_from, MapSlabCoor
     return true;
 }
 
+TbBool ftest_util_do_any_slabs_match(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, SlabKind slab)
+{
+    struct SlabMap *slb;
+    unsigned long x;
+    unsigned long y;
+    for (y = slb_y_from; y <= slb_y_to; y++)
+    {
+        for (x = slb_x_from; x <= slb_x_to; x++)
+        {
+            slb = get_slabmap_block(x, y);
+            if(slabmap_block_invalid(slb))
+            {
+                return false;
+            }
+
+            if(slb->kind == slab)
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 TbBool ftest_util_reveal_map(PlayerNumber plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);

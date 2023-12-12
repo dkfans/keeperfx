@@ -49,6 +49,18 @@ TbBool ftest_util_replace_slabs(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from
 TbBool ftest_util_does_player_own_any_slabs(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, PlayerNumber owner);
 
 /**
+ * @brief Checks if any slabs match the specified kind
+ * 
+ * @param slb_x_from 
+ * @param slb_y_from 
+ * @param slb_x_to 
+ * @param slb_y_to 
+ * @param slab 
+ * @return true if any match, false otherwise 
+ */
+TbBool ftest_util_do_any_slabs_match(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, SlabKind slab);
+
+/**
  * @brief Reveals the map for the given player
  * 
  * @param plyr_idx 

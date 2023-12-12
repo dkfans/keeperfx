@@ -234,6 +234,14 @@ void ftest_quit_game()
     set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);           
 }
 
+void ftest_srand()
+{
+    if(flag_is_set(start_params.functest_flags, FTF_Enabled))
+    {
+        srand(1);
+    }
+}
+
 TbBool ftest_init()
 {
     struct ftest_onlyappendtests__config* const conf = &ftest_onlyappendtests__conf;
@@ -250,6 +258,14 @@ TbBool ftest_init()
     set_flag_byte(&start_params.functest_flags, FTF_Enabled, true);
     set_flag_byte(&start_params.functest_flags, FTF_Failed, false);
     set_flag_byte(&start_params.functest_flags, FTF_LevelLoaded, false);
+
+    if(flag_is_set(start_params.operation_flags, GOF_SingleLevel))
+    {
+        FTESTLOG("Unsetting GOF_SingleLevel, -level arg is ignored for functional tests!");
+        set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,false);
+    }
+
+    set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
 
     if(!ftest_fill_teststorun_by_name(start_params.functest_name))
     {

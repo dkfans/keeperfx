@@ -153,6 +153,8 @@ TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay, void* da
 
 TbBool ftest_parse_arg(char* const arg);
 
+void ftest_srand();
+
 TbBool ftest_init();
 
 FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state);
