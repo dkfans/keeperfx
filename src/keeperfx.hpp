@@ -104,8 +104,10 @@ enum DebugFlags {
 #ifdef FUNCTESTING
 enum FunctestFlags {
     FTF_Enabled             = 0x01, // Functional Tests Enabled
-    FTF_Failed              = 0x02, // Test failed, causes exit code -1 for cmd line automation
-    FTF_LevelLoaded         = 0x04, // For tracking if map is ready
+    FTF_TestFailed          = 0x02, // Test failed, causes exit code -1 for cmd line automation
+    FTF_Abort               = 0x04, // Something went wrong, aborting
+    FTF_LevelLoaded         = 0x08, // For tracking if map is ready
+    FTF_ExitOnTestFailure   = 0x10, // If users want to exit on any test failure
 };
 #endif
 

@@ -4131,6 +4131,10 @@ short process_command_line(unsigned short argc, char *argv[])
 
         ftest_init();
       }
+      else if(strcasecmp(parstr, "exitonfailedtest") == 0)
+      {
+        set_flag_byte(&start_params.functest_flags, FTF_ExitOnTestFailure, true);
+      }
 #endif
       else
       {
@@ -4317,7 +4321,8 @@ int main(int argc, char *argv[])
   }
 
 #ifdef FUNCTESTING
-  if(flag_is_set(start_params.functest_flags, FTF_Enabled) && flag_is_set(start_params.functest_flags, FTF_Failed))
+  TbBool should_report_failure = flag_is_set(start_params.functest_flags, FTF_TestFailed) && flag_is_set(start_params.functest_flags, FTF_ExitOnTestFailure);
+  if(flag_is_set(start_params.functest_flags, FTF_Enabled) && (flag_is_set(start_params.functest_flags, FTF_Abort) || should_report_failure))
   {
       return -1;
   }

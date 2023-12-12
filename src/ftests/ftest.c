@@ -114,8 +114,8 @@ TbBool ftest_append_action(FTest_Action_Func func, GameTurn turn_delay, void* da
     }
     else
     {
-        FTEST_FAIL_TEST("Current action function arguments should never be null, something has gone wrong!");
-        return true;
+        FTEST_FRAMEWORK_ABORT("Current action function arguments should never be null, something has gone wrong!");
+        return false;
     }
 
     ++vars->total_actions;
@@ -183,7 +183,7 @@ struct FTestConfig* const ftest_get_next_test(TbBool restart)
     struct FTestConfig* test_config = vars->tests_to_run[vars->current_test];
     if(test_config == NULL)
     {
-        FTEST_FAIL_TEST("Missing test... this shouldn't happen.");
+        FTEST_FRAMEWORK_ABORT("Missing test... this shouldn't happen.");
     }
 
     return test_config;
@@ -251,14 +251,14 @@ TbBool ftest_init()
 
     if(vars->current_state != FTSt_PendingInitialSetup)
     {
-        FTEST_FAIL_TEST("Init should only be called once at startup!")
+        FTEST_FRAMEWORK_ABORT("Init should only be called once at startup!")
         return false;
     }
 
     start_params.no_intro = 1;
 
     set_flag_byte(&start_params.functest_flags, FTF_Enabled, true);
-    set_flag_byte(&start_params.functest_flags, FTF_Failed, false);
+    set_flag_byte(&start_params.functest_flags, FTF_TestFailed, false);
     set_flag_byte(&start_params.functest_flags, FTF_LevelLoaded, false);
 
     if(flag_is_set(start_params.operation_flags, GOF_SingleLevel))
@@ -267,11 +267,9 @@ TbBool ftest_init()
         set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,false);
     }
 
-    set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
-
     if(!ftest_fill_teststorun_by_name(start_params.functest_name))
     {
-        FTEST_FAIL_TEST("Failed to find any tests. (user provided: '%d') make sure init name/function are added to tests_list (see ftest_list.c)", start_params.functest_name)
+        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%d') make sure init name/function are added to tests_list (see ftest_list.c)", start_params.functest_name)
         return false;
     }
 
@@ -287,7 +285,13 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
     // enforce init call first
     if(!flag_is_set(start_params.functest_flags, FTF_Enabled) || vars->current_state == FTSt_PendingInitialSetup)
     {
-        FTEST_FAIL_TEST("Tests not initialized! This shouldn't happen! ftest_init should be called once before ftest_update!");
+        FTEST_FRAMEWORK_ABORT("Tests not initialized! This shouldn't happen! ftest_init should be called once before ftest_update!");
+        return ftest_change_state(FTSt_InvalidState);
+    }
+
+    // if there was a framework error, exit
+    if (flag_is_set(start_params.functest_flags, FTF_Abort))
+    {
         return ftest_change_state(FTSt_InvalidState);
     }
 
@@ -300,12 +304,6 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
     if(out_prev_state != NULL)
     {
         (*out_prev_state) = vars->current_state;
-    }
-
-    // if there was a test error, exit
-    if (flag_is_set(start_params.functest_flags, FTF_Failed))
-    {
-        return ftest_change_state(FTSt_InvalidState);
     }
 
     // tests already completed!
@@ -362,6 +360,12 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
             }
         }
 
+        struct FTestConfig* current_test_config = vars->tests_to_run[vars->current_test];
+        if(current_test_config == NULL)
+        {
+            FTEST_FRAMEWORK_ABORT("Missing test config... this shouldn't happen.");
+        }
+
         const unsigned long ftest_actions_length = sizeof(vars->actions_func_list) / sizeof(vars->actions_func_list[0]);
         if(vars->current_action < ftest_actions_length)
         {
@@ -380,7 +384,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
                 }
                 if(current_test_action_args == NULL)
                 {
-                    FTEST_FAIL_TEST("Current action function arguments should never be null, something has gone wrong!");
+                    FTEST_FRAMEWORK_ABORT("Current action function arguments should never be null, something has gone wrong!");
                     return FTSt_InvalidState;
                 }
             } while (test_action == NULL && vars->current_action < ftest_actions_length);
@@ -413,9 +417,28 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
             }
         }
 
-        TbBool isDoneActions = vars->current_action >= ftest_actions_length;
-        if(isDoneActions)
+        TbBool test_failed = flag_is_set(start_params.functest_flags, FTF_TestFailed);
+        TbBool is_done_actions = vars->current_action >= ftest_actions_length || test_failed; // actions completed, OR test failed
+        if(is_done_actions)
         {
+            if(!test_failed)
+            {
+                FTESTLOG("Test %s passed!", current_test_config->test_name);
+            }
+            else
+            {
+                if(flag_is_set(start_params.functest_flags, FTF_ExitOnTestFailure))
+                {
+                    FTESTLOG("Test %s failed and FTF_ExitOnTestFailure is set, aborting...", current_test_config->test_name);
+                    return ftest_change_state(FTSt_InvalidState);
+                }
+                else
+                {
+                    FTESTLOG("Test %s failed...", current_test_config->test_name);
+                }
+            }
+
+            set_flag_byte(&start_params.functest_flags, FTF_TestFailed, false);
             set_flag_byte(&start_params.functest_flags, FTF_LevelLoaded, false);
             ftest_quit_game();
             return ftest_change_state(FTSt_TestHasCompletedActions_LoadNextTest);
