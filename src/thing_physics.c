@@ -881,6 +881,11 @@ unsigned short push_thingz_against_wall_at(const struct Thing *thing, const stru
 TbBool move_object_to_nearest_free_position(struct Thing *thing)
 {
     TRACE_THING(thing)
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing %s out of wall.", thing_class_and_model_name(thing->class_id, thing->model));
+        return false;
+    }
     struct Coord3d pos;
     MapCoordDelta nav_radius = thing_nav_sizexy(thing) / 2;
 
@@ -903,13 +908,8 @@ TbBool move_object_to_nearest_free_position(struct Thing *thing)
             if (!thing_in_wall_at_with_radius(thing, &pos, nav_radius))
             {
                 pos.z.val = get_thing_height_at(thing, &pos);
-                if (thing_exists(thing))
-                {
-                    move_thing_in_map(thing, &pos);
-                    return true;
-                }
-                ERRORLOG("Attempt to move non-existing %s out of wall.", thing_class_and_model_name(thing->class_id, thing->model));
-                return false;
+                move_thing_in_map(thing, &pos);
+                return true;
             }
         }
     }
