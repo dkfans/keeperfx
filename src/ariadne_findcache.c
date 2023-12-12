@@ -51,25 +51,25 @@ long triangle_brute_find8_near(long pos_x, long pos_y)
     if (cx-1 >= 0)
     {
         tri_id = find_cache[cy][cx-1];
-        if (get_triangle_tree_alt(tri_id) != -1)
+        if (get_triangle_tree_alt(tri_id) != NAV_COL_UNSET)
             return tri_id;
     }
     if (cx+1 < 4)
     {
         tri_id = find_cache[cy][cx+1];
-        if (get_triangle_tree_alt(tri_id) != -1)
+        if (get_triangle_tree_alt(tri_id) != NAV_COL_UNSET)
             return tri_id;
     }
     if (cy-1 >= 0)
     {
         tri_id = find_cache[cy-1][cx];
-        if (get_triangle_tree_alt(tri_id) != -1)
+        if (get_triangle_tree_alt(tri_id) != NAV_COL_UNSET)
             return tri_id;
     }
     if (cy+1 < 4)
     {
         tri_id = find_cache[cy+1][cx];
-        if (get_triangle_tree_alt(tri_id) != -1)
+        if (get_triangle_tree_alt(tri_id) != NAV_COL_UNSET)
             return tri_id;
     }
     // Try any in cache
@@ -78,7 +78,7 @@ long triangle_brute_find8_near(long pos_x, long pos_y)
         for (cx=0; cx < 4; cx++)
         {
             tri_id = find_cache[cy][cx];
-            if (get_triangle_tree_alt(tri_id) != -1)
+            if (get_triangle_tree_alt(tri_id) != NAV_COL_UNSET)
                 return tri_id;
         }
     }
@@ -101,7 +101,7 @@ long triangle_find_cache_get(long pos_x, long pos_y)
         cache_y = 0;
 
     long ntri = find_cache[cache_y][cache_x];
-    if (get_triangle_tree_alt(ntri) == -1)
+    if (get_triangle_tree_alt(ntri) == NAV_COL_UNSET)
     {
         ntri = triangle_brute_find8_near(pos_x, pos_y);
         if ((ntri < 0) || (ntri > ix_Triangles))

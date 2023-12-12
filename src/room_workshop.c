@@ -62,6 +62,7 @@ struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel
     struct Thing* cratetng = create_object(&pos, cratngmodel, room->owner, -1);
     if (thing_is_invalid(cratetng))
     {
+        ERRORLOG("Failed to create %s in %s index %d", thing_model_name(cratetng), room_code_name(room->kind), (int)room->index);
         return INVALID_THING;
     }
     // Neutral thing do not need any more processing
@@ -69,8 +70,7 @@ struct Thing *create_crate_in_workshop(struct Room *room, ThingModel cratngmodel
         return cratetng;
     }
     if (!add_workshop_object_to_workshop(room, cratetng)) {
-        ERRORLOG("Could not fit %s in %s index %d",
-            thing_model_name(cratetng),room_code_name(room->kind),(int)room->index);
+        ERRORLOG("Could not fit %s in %s index %d", thing_model_name(cratetng),room_code_name(room->kind),(int)room->index);
         //remove_item_from_room_capacity(room); -- no need, it was not added
         destroy_object(cratetng);
         return INVALID_THING;
@@ -168,17 +168,17 @@ TbBool remove_workshop_object_from_workshop(struct Room *room, struct Thing *cra
 
 TbBool set_manufacture_level(struct Dungeon *dungeon)
 {
-    int wrkshp_slabs = count_slabs_of_room_type(dungeon->owner, RoK_WORKSHOP);
-    if (wrkshp_slabs <= 3*3) {
+    int mnfctr_slabs = get_room_of_role_slabs_count(dungeon->owner, RoRoF_CratesManufctr);
+    if (mnfctr_slabs <= 3*3) {
         dungeon->manufacture_level = 0;
     } else
-    if (wrkshp_slabs <= 4*4) {
+    if (mnfctr_slabs <= 4*4) {
         dungeon->manufacture_level = 1;
     } else
-    if (wrkshp_slabs <= 5*5) {
+    if (mnfctr_slabs <= 5*5) {
         dungeon->manufacture_level = 2;
     } else
-    if (wrkshp_slabs <= 6*6) {
+    if (mnfctr_slabs <= 6*6) {
         dungeon->manufacture_level = 3;
     } else
     {

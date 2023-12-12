@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "thing_objects.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -47,11 +48,9 @@ extern "C" {
 
 char const build_door_angle[] = {-1, -1, -1, -1, -1, 0, -1, 0, -1, -1, 1, 1, -1, 0, 1, -1 };
 
-/* Obsolete - use DoorConfigStats instead
-const short door_names[] = {
-    201, 590, 591, 592, 593, 0,
-};
-*/
+/******************************************************************************/
+
+static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortng);
 
 /******************************************************************************/
 #ifdef __cplusplus
@@ -128,9 +127,14 @@ struct Thing *create_door(struct Coord3d *pos, ThingModel tngmodel, unsigned cha
     doortng->creation_turn = game.play_gameturn;
     doortng->health = doorst->health;
     doortng->door.is_locked = is_locked;
+    if (doorst->model_flags & DoMF_Thick)
+    {
+        doortng->clipbox_size_xy = 3*COORD_PER_STL;
+    }
 
     add_thing_to_its_class_list(doortng);
     place_thing_in_mapwho(doortng);
+    check_if_enemy_can_see_placement_of_hidden_door(doortng);
     place_animating_slab_type_on_map(doorst->slbkind[orient], 0,  doortng->mappos.x.stl.num, doortng->mappos.y.stl.num, plyr_idx);
     ceiling_partially_recompute_heights(pos->x.stl.num - 1, pos->y.stl.num - 1, pos->x.stl.num + 2, pos->y.stl.num + 2);
     //update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+2,stl_y+2);
@@ -156,7 +160,7 @@ TbBool add_key_on_door(struct Thing *thing)
       return false;
     keytng->mappos.x.stl.pos = COORD_PER_STL/2;
     keytng->mappos.y.stl.pos = COORD_PER_STL/2;
-    keytng->mappos.z.stl.num = 4;
+    keytng->mappos.z.stl.num = 5;
     return true;
 }
 
@@ -235,7 +239,7 @@ long destroy_door(struct Thing *doortng)
         if (!player_exists(player))
             continue;
         struct Thing* thing = thing_get(player->controlled_thing_idx);
-        MapCoordDelta dist = get_2d_box_distance(&pos, &thing->mappos);
+        MapCoordDelta dist = get_chessboard_distance(&pos, &thing->mappos);
         long sight_stl = slab_subtile(get_explore_sight_distance_in_slabs(thing), 0);
         if (dist <= subtile_coord(sight_stl,0)) {
             check_map_explored(thing, thing->mappos.x.stl.num, thing->mappos.y.stl.num);
@@ -339,7 +343,7 @@ TbBool check_door_should_open(struct Thing *thing)
     return true;
 }
 
-TbBool door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
+TbBool door_will_open_for_thing(const struct Thing *doortng, const struct Thing *creatng)
 {
   if ( !doortng->door.is_locked && thing_is_creature(creatng) )
   {
@@ -349,6 +353,60 @@ TbBool door_will_open_for_thing(struct Thing *doortng, struct Thing *creatng)
     }
   }
   return false;
+}
+
+static void check_if_enemy_can_see_placement_of_hidden_door(struct Thing *doortng)
+{
+    struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+    if(!(doorst->model_flags & DoMF_Secret))
+    {
+        return;
+    }
+    MapSubtlCoord z = doortng->mappos.z.stl.num;
+    doortng->mappos.z.stl.num = 2;
+
+    const struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    long i = slist->index;
+    while (i > 0)
+    {
+        struct Thing* creatng = thing_get(i);
+        if (thing_is_invalid(creatng))
+          break;
+
+        if(creature_can_see_thing(creatng,doortng)) 
+        {
+            reveal_secret_door_to_player(doortng,creatng->owner);
+        }
+
+        i = creatng->next_of_class;
+    }
+    doortng->mappos.z.stl.num = z;
+}
+
+TbBool door_is_hidden_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
+{
+    struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+    if((plyr_idx != doortng->owner) && (doorst->model_flags & DoMF_Secret))
+    {
+        return !flag_is_set(doortng->door.revealed,to_flag(plyr_idx));
+    }
+    return false;
+}
+
+void reveal_secret_door_to_player(struct Thing *doortng,PlayerNumber plyr_idx)
+{
+    if(!door_is_hidden_to_player(doortng,plyr_idx))
+    {
+        return;
+    }
+    event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorDiscovered, plyr_idx, 0);
+    event_create_event(doortng->mappos.x.val, doortng->mappos.y.val, EvKind_SecretDoorSpotted, doortng->owner, 0);
+    set_flag(doortng->door.revealed,to_flag(plyr_idx));
+    MapSubtlCoord stl_x = doortng->mappos.x.stl.num;
+    MapSubtlCoord stl_y = doortng->mappos.y.stl.num;
+    update_navigation_triangulation(stl_x-1,  stl_y-1, stl_x+1,stl_y+1);
+    pannel_map_update(stl_x-1, stl_y-1, STL_PER_SLB, STL_PER_SLB);
+
 }
 
 long process_door_open(struct Thing *thing)

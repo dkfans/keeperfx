@@ -241,14 +241,15 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
 
 void count_gold_hoardes_in_room(struct Room *room);
 void update_room_total_capacity(struct Room *room);
+long reinitialise_rooms_of_kind(RoomKind rkind);
 
 TbBool find_random_valid_position_for_thing_in_room_avoiding_object_excluding_room_slab(struct Thing *thing, struct Room *room, struct Coord3d *pos, long slbnum);
 
 /* MOVE TO room_list.c/h */
 struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct Thing *thing, PlayerNumber plyr_idx, RoomRole rrole, unsigned char nav_flags);
 struct Room *find_random_room_of_role_for_thing(struct Thing *thing, PlayerNumber owner, RoomRole rkind, unsigned char nav_flags);
-struct Room * find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
-struct Room * pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
+struct Room *find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
+struct Room *pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -32,6 +32,8 @@ extern "C" {
 /******************************************************************************/
 #define FRONTMAP_ZOOM_LENGTH 240
 #define FRONTMAP_ZOOM_STEP 4
+
+#define DESCRIPTION_CHANNEL 0
 /******************************************************************************/
 #pragma pack(1)
 
@@ -62,14 +64,13 @@ struct MapLevelInfo { // sizeof = 56
   long screen_shift_aimed_y;
 };
 
-struct ScreenPacket { // sizeof = 12
+struct ScreenPacket {
   unsigned char field_0[4];
   unsigned char field_4;
   char field_5;
   short field_6;
   short field_8;
-  //TODO LANDVIEW This is unacceptable - level number won't fit in 8 bits; this causes zoom area to be invalid. Change to int when possible.
-  char param1;
+  short param1;
   unsigned char param2;
 };
 

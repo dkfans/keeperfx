@@ -28,6 +28,7 @@
 #include "bflib_dernc.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 
 #include "config.h"
 #include "config_compp.h"
@@ -286,7 +287,7 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
     gold_pos.y.stl.num = gldlook->stl_y;
     long min_distance = LONG_MAX;
     long distance = LONG_MAX;
-    for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         struct Room* room = find_room_nearest_to_position(dungeon->owner, rkind, &gold_pos, &distance);
         if (!room_is_invalid(room))
@@ -455,7 +456,7 @@ long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d
         // Thing list loop body
         if (cctrl->combat_flags == 0)
         {
-            if ((pos == NULL) || creature_can_navigate_to(thing, pos, 1)) {
+            if ((pos == NULL) || creature_can_navigate_to(thing, pos, NavRtF_NoOwner)) {
                 count++;
             }
         }
@@ -551,7 +552,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
                     pos->x.val = 0;
                 } else
                 {
-                    long dist = abs((MapSubtlCoord)pos->x.stl.num - dnstl_x) + abs((MapSubtlCoord)pos->y.stl.num - dnstl_y);
+                    long dist = grid_distance(pos->x.stl.num, pos->y.stl.num, dnstl_x, dnstl_y);
                     if (hate->distance_near >= dist)
                     {
                         hate->distance_near = dist;
@@ -569,7 +570,7 @@ TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(comp->dungeon);
     *retroom = NULL;
 
-    for (RoomKind i = 0; i < slab_conf.room_types_count; i++)
+    for (RoomKind i = 0; i < game.slab_conf.room_types_count; i++)
     {
         struct Room* room = room_get(dungeonadd->room_kind[i]);
         
@@ -760,8 +761,8 @@ int computer_find_more_trap_place_locations(struct Computer2 *comp)
     struct Dungeon* dungeon = comp->dungeon;
     struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     int num_added = 0;
-    RoomKind rkind = AI_RANDOM(slab_conf.room_types_count);
-    for (int m = 0; m < slab_conf.room_types_count; m++, rkind = (rkind + 1) % slab_conf.room_types_count)
+    RoomKind rkind = AI_RANDOM(game.slab_conf.room_types_count);
+    for (int m = 0; m < game.slab_conf.room_types_count; m++, rkind = (rkind + 1) % game.slab_conf.room_types_count)
     {
         unsigned long k = 0;
         int i = dungeonadd->room_kind[rkind];
@@ -976,7 +977,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Try selling traps and doors - aggressive way
-    if ((money_left < check->param2) && dungeon_has_room(dungeon, RoK_WORKSHOP))
+    if ((money_left < check->param2) && is_room_of_role_available(dungeon->owner, RoRoF_CratesManufctr))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon) ||
             player_has_deployed_trap_of_model(dungeon->owner, -1) || player_has_deployed_door_of_model(dungeon->owner, -1, 0))
@@ -991,7 +992,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         }
     }
     // Try selling traps and doors - cautious way
-    if ((money_left < check->param1) && dungeon_has_room(dungeon, RoK_WORKSHOP))
+    if ((money_left < check->param1) && is_room_of_role_available(dungeon->owner, RoRoF_CratesManufctr))
     {
         if (dungeon_has_any_buildable_traps(dungeon) || dungeon_has_any_buildable_doors(dungeon))
         {
@@ -1096,9 +1097,12 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     ( crtr_state != CrSt_CreatureBeingDropped ))
                 {
                     struct CreatureStats* crstat = creature_stats_get_from_thing(i);
-                    if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20 )
+                    if (crstat->health > 0)
                     {
-                        ++count;
+                        if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20)
+                        {
+                            ++count;
+                        }
                     }
                 }
             }
@@ -1220,7 +1224,7 @@ long check_call_to_arms(struct Computer2 *comp)
                         SYNCDBG(8,"Found existing CTA task");
                         ret = 0;
                     }
-                    if (ctask->field_60 + ctask->lastrun_turn - (long)game.play_gameturn < ctask->field_60 - ctask->field_60/10) {
+                    if (ctask->delay + ctask->lastrun_turn - (long)game.play_gameturn < ctask->delay - ctask->delay/10) {
                         SYNCDBG(8,"Less than 90% turns");
                         ret = -1;
                         break;
@@ -1273,6 +1277,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     comp->turn_begin = cpt->turn_begin;
     comp->sim_before_dig = cpt->sim_before_dig;
     comp->field_C = 1;
+    comp->task_delay = cpt->drop_delay;
     comp->task_state = CTaskSt_Select;
 
     for (i=0; i < PLAYERS_COUNT; i++)
@@ -1636,7 +1641,7 @@ void setup_computer_players2(void)
         int minSkirmishAI = comp_player_conf.skirmish_first;
         int maxSkirmishAI = comp_player_conf.skirmish_last;
 
-        int skirmish_AI_type = rand() % (maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
+        int skirmish_AI_type = GAME_RANDOM(maxSkirmishAI + 1 - minSkirmishAI) + minSkirmishAI;
         // Always set human player to computer7 (a computer assistant) by default
         if (i == game.local_plyr_idx)
         {

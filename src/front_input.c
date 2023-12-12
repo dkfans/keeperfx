@@ -341,7 +341,7 @@ void increaseFrameskip(void)
         game.frame_skip += (game.frame_skip/3);
     }
     clip_frame_skip();
-    show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+    show_onscreen_msg(game_num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
 }
 
 void decreaseFrameskip(void)
@@ -359,7 +359,7 @@ void decreaseFrameskip(void)
         game.frame_skip -= (game.frame_skip/4);
     }
     clip_frame_skip();
-    show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+    show_onscreen_msg(game_num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
 }
 
 /**
@@ -411,7 +411,7 @@ short get_packet_load_game_control_inputs(void)
     close_packet_file();
     game.packet_load_enable = false;
     game.packet_save_enable = false;
-    show_onscreen_msg(2*game.num_fps, "Packet mode disabled");
+    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
     set_gui_visible(true);
     return true;
   }
@@ -469,7 +469,7 @@ short get_bookmark_inputs(void)
                 bmark->x = player->acamera->mappos.x.stl.num;
                 bmark->y = player->acamera->mappos.y.stl.num;
                 bmark->flags |= 0x01;
-                show_onscreen_msg(game.num_fps, "Bookmark %d stored", i + 1);
+                show_onscreen_msg(game_num_fps, "Bookmark %d stored", i + 1);
             }
             return true;
         }
@@ -594,7 +594,7 @@ short get_global_inputs(void)
   {
     JUSTMSG("REPORT for gameturn %d",game.play_gameturn);
     // Timing report
-    JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game.num_fps);
+    JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game_num_fps);
     test_variable = !test_variable;
   }
 
@@ -649,8 +649,8 @@ short get_global_inputs(void)
         if ( timer_enabled() )
         {
             update_time();
-            struct GameTime GameT = get_game_time(game.play_gameturn, game.num_fps);
-            SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.",game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+            struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
+            SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.",game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);
@@ -866,27 +866,57 @@ short get_status_panel_keyboard_action_inputs(void)
   if (is_key_pressed(KC_1, KMod_NONE))
   {
     clear_key_pressed(KC_1);
-    fake_button_click(1);
+    fake_button_click(BID_INFO_TAB);
   }
   if (is_key_pressed(KC_2, KMod_NONE))
   {
     clear_key_pressed(KC_2);
-    fake_button_click(2);
+    fake_button_click(BID_ROOM_TAB);
   }
   if (is_key_pressed(KC_3, KMod_NONE))
   {
     clear_key_pressed(KC_3);
-    fake_button_click(3);
+    struct GuiButton *gbtn = get_gui_button(BID_POWER_NXPG);
+    if (gbtn != NULL)
+    {
+        if ((gbtn->flags & (LbBtnF_Visible|LbBtnF_Enabled)) != 0)
+        {
+            if (menu_is_active(GMnu_SPELL))
+            {
+                turn_off_menu(GMnu_SPELL);
+                turn_on_menu(GMnu_SPELL2);
+                fake_button_click(BID_POWER_NXPG);
+            }
+            else if (menu_is_active(GMnu_SPELL2))
+            {
+                turn_off_menu(GMnu_SPELL2);
+                turn_on_menu(GMnu_SPELL);
+                fake_button_click(BID_POWER_NXPG);
+            }
+            else
+            {
+                fake_button_click(BID_SPELL_TAB);
+            }
+        }
+        else
+        {
+            fake_button_click(BID_SPELL_TAB);
+        }
+    }
+    else
+    {
+        fake_button_click(BID_SPELL_TAB);
+    }
   }
   if (is_key_pressed(KC_4, KMod_NONE))
   {
     clear_key_pressed(KC_4);
-    fake_button_click(4);
+    fake_button_click(BID_MNFCT_TAB);
   }
   if (is_key_pressed(KC_5, KMod_NONE))
   {
     clear_key_pressed(KC_5);
-    fake_button_click(5);
+    fake_button_click(BID_CREATR_TAB);
   }
   return false;
 }
@@ -1157,24 +1187,95 @@ short get_creature_passenger_action_inputs(void)
         get_gui_inputs(1);
     if (player->controlled_thing_idx == 0)
         return false;
+    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    TRACE_THING(thing);
+    if (thing_is_creature(thing))
+    {
+        if (menu_is_active(GMnu_CREATURE_QUERY1))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY1);
+            turn_on_menu(GMnu_CREATURE_QUERY2);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY1);
+            turn_on_menu(GMnu_CREATURE_QUERY4);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+        else if (menu_is_active(GMnu_CREATURE_QUERY2))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY2);
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY2);
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+        else if (menu_is_active(GMnu_CREATURE_QUERY3))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY3);
+            turn_on_menu(GMnu_CREATURE_QUERY4);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY3);
+            turn_on_menu(GMnu_CREATURE_QUERY2);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+        else if (menu_is_active(GMnu_CREATURE_QUERY4))
+        {
+          if (wheel_scrolled_down)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY4);
+            turn_on_menu(GMnu_CREATURE_QUERY1);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+          else if (wheel_scrolled_up)
+          {
+            turn_off_menu(GMnu_CREATURE_QUERY4);
+            turn_on_menu(GMnu_CREATURE_QUERY3);
+            fake_button_click(0);
+            update_wheel_scrolled();
+          }
+        }
+    }
     if (right_button_released)
     {
         set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx, 0, 0, 0);
         return true;
-  }
-  struct Thing* thing = thing_get(player->controlled_thing_idx);
-  TRACE_THING(thing);
-  if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
-  {
-    set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
-    return true;
-  }
-  if (is_key_pressed(KC_TAB,KMod_NONE))
-  {
-    clear_key_pressed(KC_TAB);
-    toggle_gui_overlay_map();
-  }
-  return false;
+    }
+    if (!thing_exists(thing) || (player->controlled_thing_creatrn != thing->creation_turn))
+    {
+        set_players_packet_action(player, PckA_PasngrCtrlExit, player->controlled_thing_idx,0,0,0);
+        return true;
+    }
+    if (is_key_pressed(KC_TAB, KMod_CONTROL))
+    {
+        clear_key_pressed(KC_TAB);
+        toggle_gui();
+    }
+    return false;
 }
 
 short get_creature_control_action_inputs(void)
@@ -2408,6 +2509,7 @@ short get_inputs(void)
         inp_handled = get_global_inputs();
     if (game_is_busy_doing_gui_string_input())
       return false;
+    get_screen_capture_inputs();
     SYNCDBG(7,"Getting inputs for view %d",(int)player->view_type);
     switch (player->view_type)
     {
@@ -2874,7 +2976,7 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
             {
                 new_value++;
-                if (new_value > SlbT_PURPLE)
+                if (new_value >= game.slab_conf.slab_types_count)
                 {
                     new_value = SlbT_ROCK;
                 }
@@ -2915,12 +3017,12 @@ void process_cheat_mode_selection_inputs()
     }
 }
 
-TbBool process_cheat_heart_health_inputs(short *value)
+TbBool process_cheat_heart_health_inputs(short *value, long max_health)
 {
    short new_health = *value;
    if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
    {
-        if (new_health < game.dungeon_heart_health)
+        if (new_health < max_health) 
         {
             new_health++;
             *value = new_health;

@@ -60,13 +60,11 @@ struct M33 { // sizeof = 48
 struct MapVolumeBox { // sizeof = 24
   unsigned char visible;
   unsigned char color;
-  unsigned char field_2;
   long beg_x;
   long beg_y;
   long end_x;
   long end_y;
   long floor_height_z;
-  unsigned char field_17;
 };
 
 /******************************************************************************/
@@ -116,8 +114,6 @@ extern long floor_pointed_at_y;
 extern Offset vert_offset[3];
 extern Offset hori_offset[3];
 extern Offset high_offset[3];
-
-extern unsigned char player_bit;
 
 extern TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
 extern TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];

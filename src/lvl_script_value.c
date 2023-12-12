@@ -122,7 +122,7 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
         SYNCDBG(5,"No matching player %d creature of model %d (%s) found to level up",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
         return false;
     }
-    creature_increase_multiple_levels(thing,count);
+    creature_change_multiple_levels(thing,count);
     return true;
 }
 
@@ -192,8 +192,10 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
       case PwrK_SIGHT:
         return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
+      case PwrK_TIMEBOMB:
+        return magic_use_power_time_bomb(caster, thing, splevel, spell_flags);
       default:
-        SCRPTERRLOG("Power not supported for this command: %d", (int) pwkind);
+        SCRPTERRLOG("Power not supported for this command: %s", power_code_name(pwkind));
         return Lb_FAIL;
     }
 }
@@ -427,9 +429,9 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       context.plr_start = plr_start;
       context.plr_end = plr_end;
       // TODO: this should be checked for sanity
-      //for (i=plr_start; i < plr_end; i++)
+      for (i=plr_start; i < plr_end; i++)
       {
-          context.player_idx = plr_start;
+          context.player_idx = i;
           context.value = value;
           desc->process_fn(&context);
       }
@@ -833,20 +835,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       if ((my_player_number >= plr_start) && (my_player_number < plr_end))
           set_quick_information(val2, val3, stl_num_decode_x(val4), stl_num_decode_y(val4));
       break;
-  case Cmd_PLAY_MESSAGE:
-      if ((my_player_number >= plr_start) && (my_player_number < plr_end))
-      {
-          switch (val2)
-          {
-          case 1:
-              output_message(val3, 0, true);
-              break;
-          case 2:
-              play_non_3d_sample(val3);
-              break;
-          }
-      }
-      break;
   case Cmd_ADD_GOLD_TO_PLAYER:
       for (i=plr_start; i < plr_end; i++)
       {
@@ -1150,7 +1138,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           game.fight_hate_kill_value = val3;
           break;
       case 11: //PreserveClassicBugs
-          if (val3 >= 0 && val3 < 8192)
+          if (val3 >= 0 && val3 < ClscBug_ListEnd)
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.classic_bugs_flags, val3);
               gameadd.classic_bugs_flags = val3;
@@ -1225,19 +1213,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
-      case 23:  //DungeonHeartHealth
-          if (val3 <= LONG_MAX)
-          {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_health, val3);
-              game.dungeon_heart_health = val3;
-              game.objects_config[5].health = val3;
-              gameadd.object_conf.base_config[5].health = val3;
-          }
-          else
-          {
-              SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, SHRT_MAX);
-          }
-          break;
       case 24: //HungerHealthLoss
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.hunger_health_loss, val3);
           game.hunger_health_loss = val3;
@@ -1285,6 +1260,18 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range. Max %d.", val2, val3, MAX_THINGS_IN_HAND);
           }
           break;
+      case 34: //TrainingRoomMaxLevel
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.training_room_max_level, val3);
+              game.training_room_max_level = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 23:  //DungeonHeartHealth
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
           break;

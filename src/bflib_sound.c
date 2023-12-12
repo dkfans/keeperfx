@@ -33,6 +33,7 @@
 #include "game_legacy.h"
 #include "globals.h"
 #include "game_heap.h"
+#include "gui_soundmsgs.h"
 #include "post_inc.h"
 
 #define INVALID_SOUND_EMITTER (&emitter[0])
@@ -961,6 +962,10 @@ long speech_sample_playing(void)
          return false;
      }
      SYNCDBG(17,"Starting");
+     if (Mix_Playing(MESSAGE_CHANNEL))
+     {
+         return true;
+     }
      long sp_emiter = SpeechEmitter;
      if (sp_emiter != 0)
      {

@@ -134,13 +134,13 @@ void light_shadow_cache_free(struct ShadowCache *shdc)
 
 TbBool light_add_light_to_list(struct Light *lgt, struct StructureList *list)
 {
-  if ((lgt->flags2 & 0x01) != 0)
+  if (flag_is_set(lgt->flags2,LgtF2_InList))
   {
     ERRORLOG("Light is already in list");
     return false;
   }
   list->count++;
-  lgt->flags2 |= 0x01;
+  set_flag(lgt->flags2,LgtF2_InList);
   lgt->next_in_list = list->index;
   list->index = lgt->index;
   return true;
@@ -177,8 +177,8 @@ long light_create_light(struct InitLight *ilght)
     lgt->mappos.z.val = ilght->mappos.z.val;
     lgt->radius = ilght->radius;
     lgt->intensity = ilght->intensity;
-    unsigned long k = 2 * ilght->field_3;
-    lgt->flags2 = k ^ ((k ^ lgt->flags2) & 0x01);
+    lgt->flags2 |= ilght->field_3 << 1;
+
     set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
     return lgt->index;
@@ -218,6 +218,7 @@ TbBool light_create_light_adv(VALUE *init_data)
     lgt->mappos.z.val = value_read_stl_coord(value_dict_get(init_data, "SubtileZ"));
     lgt->radius = value_read_stl_coord(value_dict_get(init_data, "LightRange"));;
     lgt->intensity = value_uint32(value_dict_get(init_data, "LightIntensity"));
+    lgt->attached_slb = value_uint32(value_dict_get(init_data, "ParentTile"));
 
     /*
      * TODO: not implemented yet
@@ -478,7 +479,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
   TbBool Removed = false;
   struct Light *lgt2;
   struct Light *i;
-  if ( lgt->flags2 & 1 )
+  if ( flag_is_set(lgt->flags2,LgtF2_InList) )
   {
     if ( lgt->index == list->index )
     {
@@ -486,7 +487,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
       list->count--;
       list->index = lgt->next_in_list;
       lgt->next_in_list = 0;
-      lgt->flags2 &= ~1;
+      clear_flag(lgt->flags2,LgtF2_InList);
     }
     else
     {
@@ -499,7 +500,7 @@ void light_remove_light_from_list(struct Light *lgt, struct StructureList *list)
           if ( i )
           {
             i->next_in_list = lgt->next_in_list;
-            lgt->flags2 &= ~1;
+            clear_flag(lgt->flags2,LgtF2_InList);
             list->count--;
             lgt->next_in_list = 0;
           }
@@ -1526,6 +1527,7 @@ static void light_stat_light_map_clear_area(MapSubtlCoord start_stl_x, MapSubtlC
 
 void light_set_lights_on(char state)
 {
+    SYNCDBG(8, "Starting");
     if (state)
     {
         game.lish.global_ambient_light = 10;
@@ -1741,169 +1743,140 @@ static char light_render_light_dynamic_uncached(struct Light *lgt, int radius, i
 
 static char light_render_light_dynamic(struct Light *lgt, int radius, int render_intensity, unsigned int lighting_tables_idx)
 {
-    unsigned short *stl_lightness;
-    SubtlCodedCoords stl_num_2;
-    int v10;
-    int v11;
-    struct LightingTable *lighting_table;
-    unsigned int stl_y;
-    unsigned int some_y_2;
-    int angle;
-    unsigned char v17;
-    char v19;
-    unsigned char *v20;
-    int v22;
     unsigned char *shadow_limits;
-    unsigned int v24;
-    int bool_2;
-    int v28;
-    long shadow_limit_idx;
-    unsigned int stl_x;
-    long shadow_limit_idx2;
-    MapCoord lgt_pos_x;
-    MapCoord lgt_pos_y;
-    int lgt_stl_z;
-    unsigned int lgt_stl_x;
-    unsigned int lgt_stl_y;
-    int v38;
-    struct ShadowCache *shadow_cache;
-    TbBool bool_1;
-    unsigned int some_x_2;
-    char v42;
-    unsigned short *subtile_lightness;
-
-    lgt_pos_x = lgt->mappos.x.val;
-    lgt_pos_y = lgt->mappos.y.val;
-    lgt_stl_x = lgt_pos_x >> 8;
-    lgt_stl_y = lgt_pos_y >> 8;
-    lgt_stl_z = lgt->mappos.z.val / COORD_PER_STL;
-    shadow_cache = &game.lish.shadow_cache[lgt->shadow_index];
-    memset(game.lish.shadow_limits, 0, sizeof(game.lish.shadow_limits));
+    struct LightsShadows *lish = &game.lish;
+    struct ShadowCache *shadow_cache = &lish->shadow_cache[lgt->shadow_index];
+    clear_shadow_limits(lish);
     memset(shadow_cache->field_1, 0, 0x80u);
-
-    stl_num_2 = get_subtile_number(lgt->mappos.x.stl.num,lgt->mappos.y.stl.num);
-    stl_lightness = &game.lish.subtile_lightness[stl_num_2];
-    const struct Column *col = get_column_at(lgt_pos_x + 1,lgt_pos_y + 1);
-
-    if (col->bitfields >> 4 <= lgt_stl_z)
+    const struct Column *col = get_column_at(lgt->mappos.x.val + 1, lgt->mappos.y.val + 1);
+    SubtlCodedCoords stl_num = get_subtile_number(lgt->mappos.x.stl.num, lgt->mappos.y.stl.num);
+    if (get_column_floor_filled_subtiles(col) <= lgt->mappos.z.stl.num)
     {
-        v42 = lighting_tables_idx;
         shadow_cache->field_1[lighting_tables_idx] |= 1 << (31 - lighting_tables_idx);
-        MapCoordDelta some_delta_x_2 = lgt->mappos.x.stl.pos;
-        MapCoordDelta some_delta_y_2 = lgt->mappos.y.stl.pos;
-
-        v10 = LbDiagonalLength(some_delta_x_2, some_delta_y_2);
-
-        v11 = render_intensity * (radius - v10) / radius;
-        if ((unsigned short)*stl_lightness < v11)
-            *stl_lightness = v11;
-        lighting_table = &game.lish.lighting_tables[0];
-
-        stl_num_2 = get_subtile_number(game.lish.lighting_tables_count, stl_num_decode_y(stl_num_2));
-
-        if (&game.lish.lighting_tables[game.lish.lighting_tables_count] > &game.lish.lighting_tables[0])
+        int diagonal_length = LbDiagonalLength(lgt->mappos.x.stl.pos, lgt->mappos.y.stl.pos);
+        int intensity = render_intensity * (radius - diagonal_length) / radius;
+        if (lish->subtile_lightness[stl_num] < intensity)
+        {
+            lish->subtile_lightness[stl_num] = intensity;
+        }
+        struct LightingTable *lighting_table = &lish->lighting_tables[0];
+        stl_num = get_subtile_number(lish->lighting_tables_count, stl_num_decode_y(stl_num));
+        if (&lish->lighting_tables[lish->lighting_tables_count] > &lish->lighting_tables[0])
         {
             do
             {
-                stl_num_2 = lighting_table->distance;
-                if (stl_num_2 > lighting_tables_idx)
-                    break;
-                stl_y = lighting_table->delta_y + lgt_stl_y;
-                stl_x = lighting_table->delta_x + lgt_stl_x;
-                if (lighting_table->delta_x + lgt_stl_x < gameadd.map_subtiles_x && stl_y < gameadd.map_subtiles_y)
+                stl_num = lighting_table->distance;
+                if (stl_num > lighting_tables_idx)
                 {
-                    some_y_2 = stl_y << 8;
-                    some_x_2 = stl_x << 8;
-                    angle = LbArcTanAngle(some_x_2 - lgt_pos_x, some_y_2 - lgt_pos_y) & LbFPMath_AngleMask;
-                    if (stl_x < lgt_stl_x)
-                        v17 = (stl_y < lgt_stl_y) + 3;
-                    else
-                        v17 = 2 - (stl_y < lgt_stl_y);
-                    v19 = game.lish.shadow_limits[angle];
-                    v38 = v17;
-                    if (v19)
+                    break;
+                }
+                MapSubtlCoord stl_y = lighting_table->delta_y + lgt->mappos.y.stl.num;
+                MapSubtlCoord stl_x = lighting_table->delta_x + lgt->mappos.x.stl.num;
+                if (lighting_table->delta_x + lgt->mappos.x.stl.num < gameadd.map_subtiles_x && stl_y < gameadd.map_subtiles_y)
+                {
+                    unsigned int coord_y = stl_y << 8; // must be unsigned
+                    unsigned int coord_x = stl_x << 8; // must be unsigned
+                    int angle = LbArcTanAngle(coord_x - lgt->mappos.x.val, coord_y - lgt->mappos.y.val) & LbFPMath_AngleMask;
+                    int quadrant;
+                    if (stl_x < lgt->mappos.x.stl.num)
                     {
-                        calculate_shadow_angle(lgt_pos_x, lgt_pos_y, v38, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
-                        v20 = &game.lish.shadow_limits[shadow_limit_idx];
-                        const struct Column *col2 = get_column_at(stl_x + 1,stl_y + 1);
-                        if ((!game.lish.shadow_limits[shadow_limit_idx] || !game.lish.shadow_limits[shadow_limit_idx2]) && col2->bitfields >> 4 > lgt_stl_z)
+                        quadrant = (stl_y < lgt->mappos.y.stl.num) + 3;
+                    }
+                    else
+                    {
+                        quadrant = 2 - (stl_y < lgt->mappos.y.stl.num);
+                    }
+                    unsigned char shadow_limit = lish->shadow_limits[angle];
+                    long shadow_limit_idx;
+                    long shadow_limit_idx2;
+                    if (shadow_limit)
+                    {
+                        calculate_shadow_angle(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
+                        const struct Column *col2 = get_column_at(stl_x + 1, stl_y + 1);
+                        if (((!lish->shadow_limits[shadow_limit_idx]) || (!lish->shadow_limits[shadow_limit_idx2])) && (get_column_floor_filled_subtiles(col2) > lgt->mappos.z.stl.num))
                         {
-                            if (shadow_limit_idx2 < shadow_limit_idx)
-                            {
-                                memset(v20, 1u, 2047 - shadow_limit_idx);
-                                memset(game.lish.shadow_limits, 1u, shadow_limit_idx2);
-                            }
-                            else
-                            {
-                                memset(v20, 1u, shadow_limit_idx2 - shadow_limit_idx);
-                            }
+                            create_shadow_limits(lish, shadow_limit_idx, shadow_limit_idx2);
                         }
                     }
                     else
                     {
-                        const struct Column *col3 = get_column_at(stl_x,stl_y);
-                        subtile_lightness = &game.lish.subtile_lightness[get_subtile_number(stl_x,stl_y)];
-                        v22 = col3->bitfields >> 4;
-                        bool_1 = v22 > lgt_stl_z;
-                        if (v22 > lgt_stl_z)
+                        const struct Column *col3 = get_column_at(stl_x, stl_y);
+                        int height = get_column_floor_filled_subtiles(col3);
+                        TbBool too_high = (height > lgt->mappos.z.stl.num);
+                        unsigned int shadow;
+                        if (too_high)
                         {
-                            calculate_shadow_angle(lgt_pos_x, lgt_pos_y, v38, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
+                            calculate_shadow_angle(lgt->mappos.x.val, lgt->mappos.y.val, quadrant, stl_x, stl_y, &shadow_limit_idx, &shadow_limit_idx2);
                             if (shadow_limit_idx2 < shadow_limit_idx)
                             {
-                                memset(&game.lish.shadow_limits[shadow_limit_idx], 1u, 2047 - shadow_limit_idx);
-                                v24 = shadow_limit_idx2;
-                                shadow_limits = &game.lish.shadow_limits[0];
+                                memset(&lish->shadow_limits[shadow_limit_idx], 1u, 2047 - shadow_limit_idx);
+                                shadow = shadow_limit_idx2;
+                                shadow_limits = &lish->shadow_limits[0];
                             }
                             else
                             {
-                                shadow_limits = &game.lish.shadow_limits[shadow_limit_idx];
-                                v24 = shadow_limit_idx2 - shadow_limit_idx;
+                                shadow_limits = &lish->shadow_limits[shadow_limit_idx];
+                                shadow = shadow_limit_idx2 - shadow_limit_idx;
                             }
-                            memset(shadow_limits, 1u, v24);
+                            memset(shadow_limits, 1u, shadow);
                         }
-                        bool_2 = false;
-                        if (bool_1)
+                        TbBool bool_2;
+                        if (too_high)
                         {
-                            const struct Column *col4;
-                            switch (v38)
+                            switch (quadrant)
                             {
-                            case 1:
-                                col4 = get_column_at(stl_x,stl_y + 1);
-                                bool_2 = (col4->bitfields >> 4 <= lgt_stl_z);
-                                break;
-                            case 3:
-                                bool_2 = (!point_is_above_floor(stl_x, stl_y - 1, lgt_stl_z));
-                                break;
-                            case 4:
-                                bool_2 = 0;
-                                break;
-                            default:
-                                bool_2 = 1;
-                                break;
+                                case 1:
+                                {
+                                    const struct Column *col4 = get_column_at(stl_x, stl_y + 1);
+                                    bool_2 = (get_column_floor_filled_subtiles(col4) <= lgt->mappos.z.stl.num);
+                                    break;
+                                }
+                                case 3:
+                                {
+                                    bool_2 = (!point_is_above_floor(stl_x, stl_y - 1, lgt->mappos.z.stl.num));
+                                    break;
+                                }
+                                case 4:
+                                {
+                                    bool_2 = false;
+                                    break;
+                                }
+                                default:
+                                {
+                                    bool_2 = true;
+                                    break;
+                                }
                             }
                         }
-                        if (!bool_1 || bool_2)
+                        else
                         {
-                            MapCoordDelta some_delta_x = min((lgt_pos_x - some_x_2),(some_x_2 - lgt_pos_x));
-                            MapCoordDelta some_delta_y = min((lgt_pos_y - some_y_2),(some_y_2 - lgt_pos_y));
-
-                            v28 = LbDiagonalLength(some_delta_x, some_delta_y);
-
-                            stl_num_2 = render_intensity * (radius - v28) / radius;
-                            if (stl_num_2 <= game.lish.global_ambient_light)
-                                return stl_num_2;
-                            shadow_cache->field_1[lighting_tables_idx + lighting_table->delta_y] |= 1 << (31 - lighting_table->delta_x - v42);
-                            if ((unsigned short)*subtile_lightness < stl_num_2)
-                                *subtile_lightness = stl_num_2;
+                            bool_2 = false;
+                        }
+                        if (!too_high || bool_2)
+                        {
+                            MapCoordDelta some_delta_x = min((lgt->mappos.x.val - coord_x), (coord_x - lgt->mappos.x.val));
+                            MapCoordDelta some_delta_y = min((lgt->mappos.y.val - coord_y), (coord_y - lgt->mappos.y.val));
+                            int length = LbDiagonalLength(some_delta_x, some_delta_y);
+                            stl_num = render_intensity * (radius - length) / radius;
+                            if (stl_num <= lish->global_ambient_light)
+                            {
+                                return stl_num;
+                            }
+                            shadow_cache->field_1[lighting_tables_idx + lighting_table->delta_y] |= 1 << (31 - lighting_table->delta_x - (char)lighting_tables_idx);
+                            SubtlCodedCoords next_stl = get_subtile_number(stl_x, stl_y);
+                            if (lish->subtile_lightness[next_stl] < stl_num)
+                            {
+                                lish->subtile_lightness[next_stl] = stl_num;
+                            }
                         }
                     }
                 }
-                ++lighting_table;
-                stl_num_2 = get_subtile_number(game.lish.lighting_tables_count, stl_num_decode_y(stl_num_2));
-            } while (&game.lish.lighting_tables[game.lish.lighting_tables_count] > lighting_table);
+                lighting_table++;
+                stl_num = get_subtile_number(lish->lighting_tables_count, stl_num_decode_y(stl_num));
+            } while (&lish->lighting_tables[lish->lighting_tables_count] > lighting_table);
         }
     }
-    return stl_num_2;
+    return stl_num;
 }
 
 static int light_render_light_static(struct Light *lgt, int radius, int intensity, SubtlCodedCoords stl_num)
@@ -2000,7 +1973,7 @@ static int light_render_light_static(struct Light *lgt, int radius, int intensit
 
                     if ( (v24) || (!too_high) )
                     {
-                        floor_filled_stls = intensity * (radius - lish->lighting_tables[lighting_table_idx].field_4) / radius;
+                        floor_filled_stls = intensity * (radius - lish->lighting_tables[lighting_table_idx].diagonal_length) / radius;
                         if (floor_filled_stls <= lish->global_ambient_light)
                             return floor_filled_stls;
                         SubtlCodedCoords next_stl = get_subtile_number(stl_x,stl_y);
@@ -2067,7 +2040,14 @@ static char light_render_light(struct Light* lgt)
   unsigned int lighting_tables_idx;
   if ( intensity >= game.lish.global_ambient_light << 8 )
   {
-    lighting_tables_idx = (intensity - (game.lish.global_ambient_light << 8)) / (intensity / (render_radius / 256)) + 1;
+      short subtile_radius = (render_radius / 256);
+      if (subtile_radius == 0)
+          subtile_radius++;
+      short intensity_per_tile = intensity / subtile_radius;
+      if (intensity_per_tile == 0)
+          intensity_per_tile++;
+        
+    lighting_tables_idx = ((intensity - (game.lish.global_ambient_light << 8)) / intensity_per_tile) + 1;
     if ( lighting_tables_idx > 31 )
       lighting_tables_idx = 31;
   }
@@ -2241,24 +2221,24 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
         {
           if ( lgt->field_6 == 1 )
           {
-            if ( lgt->field_1E + lgt->radius >= lgt->field_20 )
+            if ( lgt->radius_delta + lgt->radius >= lgt->max_radius )
             {
-              lgt->radius = lgt->field_20;
+              lgt->radius = lgt->max_radius;
               lgt->field_6 = 2;
             }
             else
             {
-              lgt->radius += lgt->field_1E;
+              lgt->radius += lgt->radius_delta;
             }
           }
-          else if ( lgt->radius - lgt->field_1E <= lgt->field_22 )
+          else if ( lgt->radius - lgt->radius_delta <= lgt->min_radius2 )
           {
-            lgt->radius = lgt->field_22;
+            lgt->radius = lgt->min_radius2;
             lgt->field_6 = 1;
           }
           else
           {
-            lgt->radius -= lgt->field_1E;
+            lgt->radius -= lgt->radius_delta;
           }
           lgt->flags |= LgtF_Unkn08;
         }
@@ -2266,26 +2246,26 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
         {
           if ( lgt->field_3 == 1 )
           {
-            if ( lgt->field_4 + lgt->intensity >= lgt->field_7 )
+            if ( lgt->intensity_delta + lgt->intensity >= lgt->max_intensity )
             {
-              lgt->intensity = lgt->field_7;
+              lgt->intensity = lgt->max_intensity;
               lgt->field_3 = 2;
             }
             else
             {
-              lgt->intensity = lgt->field_4 + lgt->intensity;
+              lgt->intensity = lgt->intensity_delta + lgt->intensity;
             }
           }
           else
           {
-            if ( lgt->intensity - lgt->field_4 <= lgt->field_7 )
+            if ( lgt->intensity - lgt->intensity_delta <= lgt->max_intensity )
             {
-              lgt->intensity = lgt->field_7;
+              lgt->intensity = lgt->max_intensity;
               lgt->field_3 = 1;
             }
             else
             {
-              lgt->intensity = lgt->intensity - lgt->field_4;
+              lgt->intensity = lgt->intensity - lgt->intensity_delta;
             }
           }
           lgt->flags |= LgtF_Unkn08;

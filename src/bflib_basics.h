@@ -175,6 +175,60 @@ long saturate_set_signed(long long val,unsigned short nbits);
 unsigned long saturate_set_unsigned(unsigned long long val,unsigned short nbits);
 void make_lowercase(char *);
 void make_uppercase(char *);
+
+// TODO: refactor usage of set_flag_* and toggle_flag_* functions to use the following macros instead
+
+/**
+ * Converts an index number to a flag - by creating a bitmask where only the nth bit is set to 1.
+ * For example: idx=0 returns 0b000001, idx=1 returns 0b000010, idx=2 returns 0b000100.
+ * 
+ * @param idx The index number of the flag, or n, used to set the nth bit of the mask to 1.
+ * @return Returns a bitmask with a single masked bit (aka "flag", "bitflag").
+ */
+#define to_flag(idx) (1 << idx)
+
+/** 
+ * Set a flag* - by setting the given masked bit(s) to 1 in the given flags variable. *Can set multiple flags.
+ * 
+ * @param flags The flags variable we want to change.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to set.
+ */
+#define set_flag(flags,mask) flags |= mask
+
+/** 
+ * Clear a flag* - by setting the given masked bit(s) to 0 in the given flags variable. *Can clear multiple flags.
+ * 
+ * @param flags The flags variable we want to change.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to clear.
+ */
+#define clear_flag(flags,mask) flags &= ~(mask)
+
+/** 
+ * Toggle a given flag* between set/cleared - by toggling the given masked bit(s) in the given flags variable. *Can toggle multiple flags.
+ * 
+ * @param flags The flags variable we want to change.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to toggle.
+ */
+#define toggle_flag(flags,mask) flags ^= mask
+
+/** 
+ * Check if the given flag* is set - by checking if the given masked bits are set to 1 in the given flags variable. *Can check for multiple flags.
+ * 
+ * @param flags The flags variable we want to check.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the flag(s) we want to check in the "flags" parameter.
+ * @return Returns TRUE if the given masked bits are set to 1 in the given flags variable.
+ */
+#define flag_is_set(flags,mask) ((flags & mask) == mask)
+
+/** 
+ * Check if all of the flags are set - by checking if all of the bits are set to 1 in the given flags variable.
+ * For example: all 6 players set in a flags variable would be 0b111111.
+ * 
+ * @param flags The flags variable we want to check.
+ * @param count The number of bits used by the flags variable, i.e the count of "all of the bits".
+ * @return Returns TRUE if all bits are set to 1 in the given flags variable.
+ */
+#define all_flags_are_set(flags,count) ((1 << count) - flags == 1)
 /******************************************************************************/
 #ifdef __cplusplus
 }

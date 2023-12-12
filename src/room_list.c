@@ -21,6 +21,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_planar.h"
 #include "room_data.h"
 #include "player_data.h"
 #include "dungeon_data.h"
@@ -100,7 +101,7 @@ long calculate_player_num_rooms_built(PlayerNumber plyr_idx)
 {
     long count = 0;
     struct PlayerInfo* player = get_player(plyr_idx);
-    for (long rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if (!room_never_buildable(rkind))
         {
@@ -156,7 +157,7 @@ struct Room *get_player_room_of_kind_nearest_to(PlayerNumber plyr_idx, RoomKind 
       }
       i = room->next_of_owner;
       // Per-room code
-      long dist = abs(room->central_stl_y - stl_y) + abs(room->central_stl_x - stl_x);
+      long dist = grid_distance(room->central_stl_x, room->central_stl_y, stl_x, stl_y);
       if (dist < nearest_dist)
       {
           nearest_dist = dist;
@@ -180,7 +181,7 @@ struct Room *get_player_room_any_kind_nearest_to(PlayerNumber plyr_idx,
 {
     long nearest_dist = LONG_MAX;
     struct Room* nearest_room = INVALID_ROOM;
-    for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
         long dist;
         struct Room* room = get_player_room_of_kind_nearest_to(plyr_idx, rkind, stl_x, stl_y, &dist);
@@ -209,7 +210,7 @@ struct Room * find_next_navigable_room_for_thing_with_capacity_and_closer_than(s
         i = room->next_of_owner;
         // Per-room code
         // Compute simplified distance - without use of mul or div
-        long distance = abs(thing->mappos.x.stl.num - (int)room->central_stl_x) + abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
+        long distance = grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, room->central_stl_x, room->central_stl_y);
         if ((*neardistance > distance) && (room->used_capacity >= used))
         {
             struct Coord3d pos;
@@ -270,7 +271,7 @@ struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_tha
     struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
     struct Room* nearoom = INVALID_ROOM;
     long distance = *neardistance;
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -323,7 +324,7 @@ struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, 
     long neardistance = max_distance;
     struct Room* nearoom = INVALID_ROOM;
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -367,7 +368,7 @@ struct Room *find_nearest_room_to_vandalise(struct Thing *thing, PlayerNumber ow
 {
     long neardistance = LONG_MAX;
     struct Room* nearoom = INVALID_ROOM;
-    for (RoomKind rkind = 1; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
     {
 		if (room_cannot_vandalise(rkind)) {
 			continue;

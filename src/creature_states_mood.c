@@ -246,7 +246,8 @@ void anger_set_creature_anger_f(struct Thing *creatng, long annoy_lv, AnnoyMotiv
     SYNCDBG(18,"%s: Setting reason %d to %d for %s index %d",func_name,(int)reason,(int)annoy_lv,thing_model_name(creatng),(int)creatng->index);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    if ((game.numfield_14 != 0) || !creature_can_get_angry(creatng)) {
+    if (!creature_can_get_angry(creatng))
+    {
         return;
     }
     if (annoy_lv < 0)

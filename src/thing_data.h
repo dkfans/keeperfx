@@ -73,6 +73,17 @@ enum ThingRenderingFlags {
     TRF_BeingHit       = 0x80,    // Being hit (draw red sometimes)
 };
 
+ /**
+  * Used for EffectElementConfigStats->size_change and Thing->size_change.
+  * 
+  * See effect_element_stats[] for setting of size_change.
+  */
+enum ThingSizeChange {
+  TSC_DontChangeSize         = 0x00, /**< Default behaviour. */
+  TSC_ChangeSize             = 0x01, /**< Used when creature changing to/from chicken, and by TngEffElm_Cloud3. */
+  TSC_ChangeSizeContinuously = 0x02, /**< Used by TngEffElm_IceShard. */
+};
+
 enum FreeThingAllocFlags {
     FTAF_Default             = 0x00,
     FTAF_FreeEffectIfNoSlots = 0x01,
@@ -215,6 +226,7 @@ struct Thing {
       unsigned char opening_counter;
       short closing_counter;
       unsigned char is_locked;
+      PlayerBitFlags revealed;
       } door;
 //TCls_Unkn10
 //TCls_Unkn11
@@ -256,14 +268,15 @@ unsigned char max_frames;
 unsigned short sprite_size_min;
 unsigned short sprite_size_max;
     unsigned char rendering_flags;
-    unsigned char field_50; // control rendering process (draw_class << 2) + (growth/shrink continiously) + (shrink/grow then stop)
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses for valid values. */
+    unsigned char size_change; /**< See enum ThingSizeChange for valid values. */
 unsigned char tint_colour;
     short move_angle_xy;
     short move_angle_z;
     unsigned short clipbox_size_xy;
-    unsigned short clipbox_size_yz;
+    unsigned short clipbox_size_z;
     unsigned short solid_size_xy;
-    unsigned short solid_size_yz;
+    unsigned short solid_size_z;
     long health;
 unsigned short floor_height;
     unsigned short light_id;
@@ -320,7 +333,7 @@ TbBool thing_is_in_limbo(const struct Thing* thing);
 TbBool thing_is_dragged_or_pulled(const struct Thing *thing);
 struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing);
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char draw_class);
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class);
 
 void query_thing(struct Thing *thing);
 /******************************************************************************/

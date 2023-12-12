@@ -63,8 +63,6 @@ struct CreaturePickedUpOffset
 {
   short delta_x;
   short delta_y;
-  short field_4;
-  short field_6;
 };
 
 /**
@@ -115,7 +113,7 @@ struct KeeperSprite * keepersprite_array(unsigned short n);
 unsigned char keepersprite_frames(unsigned short n);
 unsigned char keepersprite_rotable(unsigned short n);
 void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
-long get_lifespan_of_animation(long ani, long frameskip);
+long get_lifespan_of_animation(long ani, long speed);
 short get_creature_anim(struct Thing *thing, unsigned short frame);
 short get_creature_model_graphics(long crmodel, unsigned short frame);
 void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned long val);

@@ -343,15 +343,18 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
         {
             SYNCDBG(8,"The %s will come to player %d even though lair is full",creature_code_name(crmodel),(int)dungeon->owner);
             generate_creature_at_random_entrance(dungeon, crmodel);
-
-            if (dungeon_has_room(dungeon, RoK_LAIR))
+            RoomKind rkind = find_first_available_roomkind_with_role(dungeon->owner,RoRoF_LairStorage);
+            if (rkind == RoK_NONE)
             {
-                event_create_event_or_update_nearby_existing_event(0, 0,
-                    EvKind_NoMoreLivingSet, dungeon->owner, 0);
-                output_message_room_related_from_computer_or_player_action(dungeon->owner, RoK_LAIR, OMsg_RoomTooSmall);
+                rkind = find_first_roomkind_with_role(RoRoF_LairStorage);
+            }
+            if (dungeon_has_room_of_role(dungeon, RoRoF_LairStorage))
+            {
+                event_create_event_or_update_nearby_existing_event(0, 0, EvKind_NoMoreLivingSet, dungeon->owner, 0);
+                output_message_room_related_from_computer_or_player_action(dungeon->owner, rkind, OMsg_RoomTooSmall);
             } else
             {
-                output_message_room_related_from_computer_or_player_action(dungeon->owner, RoK_LAIR, OMsg_RoomNeeded);
+                output_message_room_related_from_computer_or_player_action(dungeon->owner, rkind, OMsg_RoomNeeded);
             }
         } else
         {

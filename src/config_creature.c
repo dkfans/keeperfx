@@ -329,7 +329,7 @@ void check_and_auto_fix_stats(void)
             ERRORLOG("Creature model %d (%s) SleepSlab set but SleepExperience = 0 - Fixing", (int)model, creature_code_name(model));
             crstat->sleep_exp_slab = 0;
         }
-        if (crstat->grow_up >= gameadd.crtr_conf.model_count)
+        if ((crstat->grow_up >= gameadd.crtr_conf.model_count) && !(crstat->grow_up == CREATURE_ANY))
         {
             ERRORLOG("Creature model %d (%s) Invalid GrowUp model - Fixing", (int)model, creature_code_name(model));
             crstat->grow_up = 0;
@@ -2084,7 +2084,7 @@ CreatureJob get_jobs_enemies_may_do_in_room(RoomKind rkind)
 RoomKind get_first_room_kind_for_job(CreatureJob job_flags)
 {
     struct CreatureJobConfig* jobcfg = get_config_for_job(job_flags);
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, jobcfg->room_role))
             return rkind;

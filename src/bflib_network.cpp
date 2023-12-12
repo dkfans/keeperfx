@@ -27,6 +27,7 @@
 #include "bflib_netsession.h"
 #include "bflib_netsp.hpp"
 #include "bflib_netsp_ipx.hpp"
+#include "bflib_sound.h"
 #include "globals.h"
 #include <assert.h>
 #include <ctype.h>
@@ -373,6 +374,7 @@ static void HandleLoginRequest(NetUserId source, char * ptr, char * end)
     //presume login successful from here
     NETMSG("User %s successfully logged in", netstate.users[source].name);
     netstate.users[source].progress = USER_LOGGEDIN;
+    play_non_3d_sample(76);
 
     //send reply
     ptr = netstate.msg_buffer;

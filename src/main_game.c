@@ -45,6 +45,7 @@
 #include "vidmode.h"
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
+#include "sounds.h"
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -269,8 +270,8 @@ void startup_saved_packet_game(void)
         WARNLOG("Packet file was created with different version of the game; this rarely works");
     }
     game.game_kind = GKind_LocalGame;
-    if (!(game.packet_save_head.players_exist & (1 << game.local_plyr_idx))
-        || (game.packet_save_head.players_comp & (1 << game.local_plyr_idx)))
+    if (!flag_is_set(game.packet_save_head.players_exist, to_flag(game.local_plyr_idx))
+        || flag_is_set(game.packet_save_head.players_comp, to_flag(game.local_plyr_idx)))
         my_player_number = 0;
     else
         my_player_number = game.local_plyr_idx;
@@ -295,6 +296,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context);
 void startup_network_game(CoroutineLoop *context, TbBool local)
 {
     SYNCDBG(0,"Starting up network game");
+    stop_streamed_sample();
     unsigned int flgmem;
     struct PlayerInfo *player;
     setup_count_players();
@@ -322,6 +324,12 @@ void startup_network_game(CoroutineLoop *context, TbBool local)
     {
         game.game_kind = GKind_MultiGame;
         init_players_network_game(context);
+
+        // Fix desyncs when two players have a different zoom distance cfg setting
+        // This temporary solution just disregards their cfg value and sets it here
+        int max_zoom_in_multiplayer = 60;
+        zoom_distance_setting = lerp(4100, CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
+        frontview_zoom_distance_setting = lerp(16384, FRONTVIEW_CAMERA_ZOOM_MIN, (float)max_zoom_in_multiplayer/100.0);
     }
     setup_count_players(); // It is reset by init_level
     int args[COROUTINE_ARGS] = {ShouldAssignCpuKeepers, 0};
@@ -408,7 +416,7 @@ void clear_complete_game(void)
         set_selected_level_number(start_params.selected_level_number);
     else
         set_selected_level_number(first_singleplayer_level());
-    game.num_fps = start_params.num_fps;
+    game_num_fps = start_params.num_fps;
     game.flags_cd = start_params.flags_cd;
     game.no_intro = start_params.no_intro;
     set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);

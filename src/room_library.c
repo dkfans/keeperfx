@@ -270,7 +270,7 @@ TbBool update_players_research_amount(PlayerNumber plyr_idx, long rtyp, long rki
     for (long i = 0; i < dungeon->research_num; i++)
     {
         struct ResearchVal* resrch = &dungeon->research[i];
-        if ((resrch->rtyp == rtyp) && (resrch->rkind = rkind))
+        if ((resrch->rtyp == rtyp) && (resrch->rkind == rkind))
         {
             resrch->req_amount = amount;
         }

@@ -99,15 +99,37 @@ static void draw_creature_view_icons(struct Thing* creatng)
         y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (int Spell = SplK_Freeze; Spell < SplK_TimeBomb; Spell++)
+    for (SpellKind Spell = SplK_Freeze; Spell <= SplK_TimeBomb; Spell++)
     {
         if (creature_affected_by_spell(creatng, Spell))
         {
             struct SpellConfig* spconf = get_spell_config(Spell);
             long spridx = spconf->medsym_sprite_idx;
-            if ( (Spell == SplK_Invisibility) && (cctrl->force_visible & 2) )
+            if (Spell == SplK_Invisibility)
             {
-                spridx++;
+                if (cctrl->force_visible & 2)
+                {
+                    spridx++;
+                }
+            }
+            else if (Spell == SplK_TimeBomb)
+            {
+                int tx_units_per_px = (dbc_language > 0) ? scale_ui_value_lofi(16) : (22 * units_per_pixel) / LbTextLineHeight();
+                int h = LbTextLineHeight() * tx_units_per_px / 16;
+                int w = scale_ui_value_lofi(spr->SWidth);
+                if (dbc_language > 0)
+                {
+                    if (MyScreenHeight < 400)
+                    {
+                        w *= 2;
+                    }
+                }
+                LbTextSetWindow(x + scale_ui_value_lofi(spr->SWidth / 2), y - scale_ui_value_lofi(spr->SHeight), w, h);
+                lbDisplay.DrawFlags = Lb_TEXT_HALIGN_CENTER;
+                lbDisplay.DrawColour = LbTextGetFontFaceColor();
+                lbDisplayEx.ShadowColour = LbTextGetFontBackColor();
+                char* text = buf_sprintf("%d", (cctrl->timebomb_countdown / game_num_fps));
+                LbTextDrawResized(0, 0, tx_units_per_px, text);
             }
             draw_gui_panel_sprite_left(x, y, ps_units_per_px, spridx);
             x += scale_ui_value_lofi(spr->SWidth);
@@ -122,15 +144,17 @@ static void draw_creature_view_icons(struct Thing* creatng)
         {
             case TCls_Object:
             {
+                RoomKind rkind;
                 struct RoomConfigStats *roomst;
                 if (thing_is_workshop_crate(dragtng))
                 {
-                    roomst = get_room_kind_stats(RoK_WORKSHOP);
+                    rkind = find_first_roomkind_with_role(RoRoF_CratesStorage);
                 }
                 else
                 {
-                    roomst = get_room_kind_stats(RoK_LIBRARY);
+                    rkind = find_first_roomkind_with_role(RoRoF_PowersStorage);
                 }
+                roomst = get_room_kind_stats(rkind);
                 spr_idx = roomst->medsym_sprite_idx;
                 break;
             }
@@ -155,11 +179,15 @@ static void draw_creature_view_icons(struct Thing* creatng)
     }
     else
     {
-        if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+        struct PlayerInfo* player = get_my_player();
+        if (player->view_type == PVT_CreatureContrl)
         {
-            x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
-            struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % gameadd.crtr_conf.instances_count);
-            draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
+            if (!creature_instance_is_available(creatng, cctrl->active_instance_id))
+            {
+                x = MyScreenWidth - (scale_value_by_horizontal_resolution(148) / 4);
+                struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->active_instance_id % gameadd.crtr_conf.instances_count);
+                draw_gui_panel_sprite_left(x, y, ps_units_per_px, inst_inf->symbol_spridx);
+            }
         }
     }
 }
@@ -951,6 +979,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_FreeTurnChicken:
     case PSt_FreeCtrlPassngr:
     case PSt_FreeCtrlDirect:
+    case PSt_TimeBomb:
         draw_spell_cursor(player->work_state, 0, game.mouse_light_pos.x.stl.num, game.mouse_light_pos.y.stl.num);
         break;
     case PSt_CreatrQuery:
@@ -1009,7 +1038,7 @@ void process_pointer_graphic(void)
         break;
     case PVT_CreatureContrl:
     case PVT_CreaturePasngr:
-        if ( ((game.numfield_D & GNFldD_CreaturePasngr) != 0) || (cheat_menu_is_active()) )
+        if (cheat_menu_is_active())
           set_pointer_graphic(MousePG_Arrow);
         else
           set_pointer_graphic(MousePG_Invisible);

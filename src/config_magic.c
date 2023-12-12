@@ -86,6 +86,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"BOUNCEANGLE",           17},
   {"SIZE_XY",               18},
   {"SIZE_YZ",               19},
+  {"SIZE_Z",                19},
   {"FALLACCELERATION",      20},
   {"VISUALEFFECT",          21},
   {"VISUALEFFECTAMOUNT",    22},
@@ -178,10 +179,12 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"FIXED_DAMAGE",        16},
   {"HIDDEN_PROJECTILE",   17},
   {"DISARMING",           18},
+  {"BLOCKS_REBIRTH",      19},
+  {"PENETRATING",         20},
   {NULL,                   0},
   };
 
-const struct NamedCommand powermodel_castability_commands[] = {
+const struct LongNamedCommand powermodel_castability_commands[] = {
   {"CUSTODY_CRTRS",    PwCast_CustodyCrtrs},
   {"OWNED_CRTRS",      PwCast_OwnedCrtrs},
   {"ALLIED_CRTRS",     PwCast_AlliedCrtrs},
@@ -210,6 +213,8 @@ const struct NamedCommand powermodel_castability_commands[] = {
   {"UNREVEALED",       PwCast_Unrevealed},
   {"REVEALED_TEMP",    PwCast_RevealedTemp},
   {"THING_OR_MAP",     PwCast_ThingOrMap},
+  {"ONLY_DIGGERS",     PwCast_DiggersOnly},
+  {"NO_DIGGERS",       PwCast_DiggersNot},
   {"ANYWHERE",         PwCast_Anywhere},
   {"ALL_CRTRS",        PwCast_AllCrtrs},
   {"ALL_FOOD",         PwCast_AllFood},
@@ -818,7 +823,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             shotst->push_on_hit = 0;
             shotst->max_range = 0;
             shotst->size_xy = 0;
-            shotst->size_yz = 0;
+            shotst->size_z = 0;
             shotst->speed = 0;
             shotst->destroy_on_first_hit = 0;
             shotst->experience_given_to_shooter = 0;
@@ -1059,6 +1064,14 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_Disarming;
                 n++;
                 break;
+            case 19: // BlocksRebirth
+                shotst->model_flags |= ShMF_BlocksRebirth;
+                n++;
+                break;
+            case 20: // Penetrating
+                shotst->model_flags |= ShMF_Penetrating;
+                n++;
+                break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -1196,11 +1209,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 19: //SIZE_YZ
+      case 19: //SIZE_Z
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->size_yz = k;
+              shotst->size_z = k;
               n++;
           }
           if (n < 1)
@@ -1602,7 +1615,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->light_radius = k << 8;
+              shotst->light_radius = k * COORD_PER_STL;
               n++;
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
@@ -1739,7 +1752,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
       char block_buf[COMMAND_WORD_LEN];
       sprintf(block_buf, "power%d", i);
       long pos = 0;
-      int k = find_conf_block(buf, &pos, len, block_buf);
+      long long k = find_conf_block(buf, &pos, len, block_buf);
       if (k < 0)
       {
           if ((flags & CnfLd_AcceptPartial) == 0)
@@ -1833,7 +1846,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           powerst->can_cast_flags = 0;
           while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-              k = get_id(powermodel_castability_commands, word_buf);
+              k = get_long_id(powermodel_castability_commands, word_buf);
               if ((k != 0) && (k != -1))
               {
                   powerst->can_cast_flags |= k;

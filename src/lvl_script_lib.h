@@ -172,6 +172,8 @@ enum TbScriptCommands {
     Cmd_NEW_TRAP_TYPE                     = 159,
     Cmd_NEW_OBJECT_TYPE                   = 160,
     Cmd_NEW_ROOM_TYPE                     = 161,
+    Cmd_NEW_CREATURE_TYPE                 = 162,
+    Cmd_SET_POWER_HAND                    = 163,
 };
 
 struct ScriptLine {
@@ -264,6 +266,7 @@ enum ScriptVariables {
   SVar_BONUS_TIME                      = 76,
   SVar_CREATURES_TRANSFERRED           = 77,
   SVar_ALLIED_PLAYER                   = 78,
+  SVar_ACTIVE_BATTLES                  = 79,
  };
 
 

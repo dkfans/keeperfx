@@ -27,6 +27,7 @@
 #include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
+#include "config_effects.h"
 #include "config_objects.h"
 #include "config_rules.h"
 #include "creature_control.h"
@@ -42,7 +43,7 @@ extern "C" {
 #endif
 /******************************************************************************/
 #define MESSAGE_TEXT_LEN           1024
-#define QUICK_MESSAGES_COUNT         50
+#define QUICK_MESSAGES_COUNT        256
 #define BONUS_LEVEL_STORAGE_COUNT     6
 #define PLAYERS_FOR_CAMPAIGN_FLAGS    5
 #define CAMPAIGN_FLAGS_PER_PLAYER     8
@@ -95,20 +96,22 @@ enum GameGUIFlags {
 };
 
 enum ClassicBugFlags {
-    ClscBug_None                   = 0x0000,
-    ClscBug_ResurrectForever       = 0x0001,
-    ClscBug_Overflow8bitVal        = 0x0002,
-    ClscBug_ClaimRoomAllThings     = 0x0004,
-    ClscBug_ResurrectRemoved       = 0x0008,
-    ClscBug_NoHandPurgeOnDefeat    = 0x0010,
-    ClscBug_MustObeyKeepsNotDoJobs = 0x0020,
-    ClscBug_BreakNeutralWalls      = 0x0040,
-    ClscBug_AlwaysTunnelToRed      = 0x0080,
-    ClscBug_FullyHappyWithGold     = 0x0100,
-    ClscBug_FaintedImmuneToBoulder = 0x0200,
-    ClscBug_RebirthKeepsSpells     = 0x0400,
-    ClscBug_FriendlyFaint          = 0x0800,
-    ClscBug_PassiveNeutrals        = 0x1000,
+    ClscBug_None                          = 0x0000,
+    ClscBug_ResurrectForever              = 0x0001,
+    ClscBug_Overflow8bitVal               = 0x0002,
+    ClscBug_ClaimRoomAllThings            = 0x0004,
+    ClscBug_ResurrectRemoved              = 0x0008,
+    ClscBug_NoHandPurgeOnDefeat           = 0x0010,
+    ClscBug_MustObeyKeepsNotDoJobs        = 0x0020,
+    ClscBug_BreakNeutralWalls             = 0x0040,
+    ClscBug_AlwaysTunnelToRed             = 0x0080,
+    ClscBug_FullyHappyWithGold            = 0x0100,
+    ClscBug_FaintedImmuneToBoulder        = 0x0200,
+    ClscBug_RebirthKeepsSpells            = 0x0400,
+    ClscBug_FriendlyFaint                 = 0x0800,
+    ClscBug_PassiveNeutrals               = 0x1000,
+    ClscBug_NeutralTortureConverts        = 0x2000,
+    ClscBug_ListEnd                       = 0x4000,
 };
 
 enum GameFlags2 {
@@ -149,8 +152,6 @@ struct IntralevelData {
  * Defines additional elements, which are not stored in main 'Game' struct.
  */
 struct GameAdd {
-    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
-    struct CreatureConfig crtr_conf;
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
@@ -187,29 +188,28 @@ struct GameAdd {
     unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
     unsigned long gold_per_hoard;
-    struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
+    struct CubesConfig cube_conf;
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
     struct TrapDoorConfig trapdoor_conf;
+    struct EffectsConfig effects_conf;
+    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+    struct CreatureConfig crtr_conf;
+    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
+    struct ObjectsConfig object_conf;
+    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
 
     uint8_t               max_custom_box_kind;
     unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
-
     char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
     struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
     int                   active_fx_lines;
-
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
-
-    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
-    struct ObjectsConfig object_conf;
-    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
-
     LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
     PlayerNumber script_player;

@@ -734,9 +734,9 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
     struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
 
 
-    for (RoomKind rkind = 0; rkind < slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,RoRoF_CrPoolSpawn))
+        if(room_role_matches(rkind, RoRoF_CrSacrifice))
         {
             int k = 0, i = dungeonadd->room_kind[rkind];
             while (i != 0)
