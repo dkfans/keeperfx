@@ -106,10 +106,23 @@ struct FTestConfig {
     LevelNumber level;
 
     /**
-     * @brief override frameskip for your test (optional)
+     * @brief Override frameskip for your test (optional)
      * 
      */
     int frame_skip;
+
+    /**
+     * @brief Override seed for your test (optional)
+     * This is generally not needed unless you want to fudge the seed value for a specific test.
+     * (0): default behaviour, overrides seed each game turn with the current GameTurn. (non 0): overrides seed each game turn to that value. NOTE: Even cheats like spawning random creatures will always return the same type of creature for that seed.
+     */
+    unsigned int seed;
+
+    /**
+     * @brief Repeat the test N times (optional)
+     * 
+     */
+    unsigned short repeat_n_times;
 };
 
 struct ftest_onlyappendtests__config

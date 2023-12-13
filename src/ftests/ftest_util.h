@@ -138,6 +138,18 @@ struct Thing* ftest_util_create_creature(MapCoord x, MapCoord y, PlayerNumber ow
 void ftest_util_center_cursor_over_dungeon_view();
 
 /**
+ * @brief Replaces slabs with dungeon hearts, separated by paths so that destroying one won't destroy the others
+ * 
+ * @param slb_x_from 
+ * @param slb_y_from 
+ * @param slb_x_to 
+ * @param slb_y_to 
+ * @param owner 
+ * @return  
+ */
+TbBool ftest_util_replace_slabs_with_dungeon_hearts(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, PlayerNumber owner);
+
+/**
  * @brief test action to create a torture room for player and fill it with assigned torture creatures
  * 
  * @param args 

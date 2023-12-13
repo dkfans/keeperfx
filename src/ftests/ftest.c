@@ -242,6 +242,9 @@ TbBool ftest_setup_test(struct FTestConfig* const test_config)
     // set frame skip
     game.frame_skip = test_config->frame_skip;
 
+    // set seed
+    start_params.functest_seed = test_config->seed;
+
     // change campaign / level
     strcpy(start_params.selected_campaign, test_config->level_file);
     LevelNumber selected_level = test_config->level;
@@ -277,9 +280,18 @@ void ftest_srand()
 {
     if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
-        game.action_rand_seed = 1;
-        game.unsync_rand_seed = 1;
-        srand(1);
+        if(start_params.functest_seed == 0)
+        {
+            game.action_rand_seed = game.play_gameturn;
+            game.unsync_rand_seed = game.play_gameturn;
+            srand(game.play_gameturn);
+        }
+        else
+        {
+            game.action_rand_seed = start_params.functest_seed;
+            game.unsync_rand_seed = start_params.functest_seed;
+            srand(start_params.functest_seed);
+        }
     }
 }
 
@@ -334,9 +346,7 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
     }
 
     // override seed
-    game.action_rand_seed = game.play_gameturn;
-    game.unsync_rand_seed = game.play_gameturn;
-    srand(game.play_gameturn);
+    ftest_srand();
 
     // track previous state
     if(out_prev_state != NULL)
@@ -474,6 +484,13 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
                 {
                     FTESTLOG("Test %s failed...", current_test_config->test_name);
                 }
+            }
+
+            if(current_test_config->repeat_n_times-1 > 0)
+            {
+                FTESTLOG("Test %s is marked to repeat %d times, restarting...", current_test_config->test_name, current_test_config->repeat_n_times);
+                --vars->current_test;
+                --current_test_config->repeat_n_times;
             }
 
             set_flag_byte(&start_params.functest_flags, FTF_TestFailed, false);

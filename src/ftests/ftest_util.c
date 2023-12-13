@@ -321,6 +321,26 @@ void ftest_util_center_cursor_over_dungeon_view()
     LbMouseSetPosition(point.x, point.y);
 }
 
+TbBool ftest_util_replace_slabs_with_dungeon_hearts(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, PlayerNumber owner)
+{
+    ftest_util_replace_slabs(slb_x_from, slb_y_from, slb_x_to, slb_y_to, SlbT_DUNGHEART, owner);
+
+    MapSlabCoord x_offset = 0;
+    MapSlabCoord y_offset = 0;
+    for(MapSlabCoord y = slb_y_from; y < slb_y_to; ++y)
+    {
+        for(MapSlabCoord x = slb_x_from; x < slb_x_to; ++x)
+        {
+            x_offset = slb_x_from - x;
+            y_offset = slb_y_from - y;
+            if(x_offset % 4 == 0 || y_offset % 4 == 0)
+            {
+                ftest_util_replace_slabs(x, y, x, y, SlbT_CLAIMED, owner);
+            }
+        }
+    }
+}
+
 TbBool ftest_util_action__create_and_fill_torture_room(struct FTestActionArgs* const args)
 {
     struct ftest_util_action__create_and_fill_torture_room__variables* const vars = args->data;
