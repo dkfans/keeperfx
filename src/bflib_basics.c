@@ -317,7 +317,7 @@ int LbNaviLog(const char *format, ...)
     return result;
 }
 
-int Lbvsprintf(const char* buffer, const char *format, ...)
+int Lbvsprintf(char* buffer, const char *format, ...)
 {
     va_list val;
     va_start(val, format);

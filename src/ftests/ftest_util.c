@@ -323,7 +323,10 @@ void ftest_util_center_cursor_over_dungeon_view()
 
 TbBool ftest_util_replace_slabs_with_dungeon_hearts(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, PlayerNumber owner)
 {
-    ftest_util_replace_slabs(slb_x_from, slb_y_from, slb_x_to, slb_y_to, SlbT_DUNGHEART, owner);
+    if(!ftest_util_replace_slabs(slb_x_from, slb_y_from, slb_x_to, slb_y_to, SlbT_DUNGHEART, owner))
+    {
+        return false;
+    }
 
     MapSlabCoord x_offset = 0;
     MapSlabCoord y_offset = 0;
@@ -335,10 +338,15 @@ TbBool ftest_util_replace_slabs_with_dungeon_hearts(MapSlabCoord slb_x_from, Map
             y_offset = slb_y_from - y;
             if(x_offset % 4 == 0 || y_offset % 4 == 0)
             {
-                ftest_util_replace_slabs(x, y, x, y, SlbT_CLAIMED, owner);
+                if(!ftest_util_replace_slabs(x, y, x, y, SlbT_CLAIMED, owner))
+                {
+                    return false;
+                }
             }
         }
     }
+
+    return true;
 }
 
 TbBool ftest_util_action__create_and_fill_torture_room(struct FTestActionArgs* const args)
