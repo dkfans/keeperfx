@@ -76,7 +76,7 @@
 					"    if ($content -like '*DEBUG=1') {",
 					"        $debugFlag = 'DEBUG=1';",
 					"    }",
-					"    if ($content -eq 'FTEST_DEBUG=1') {",
+					"    if ($content -like 'FTEST_DEBUG=*') {",
 					"        $debugFlagFTest = 'FTEST_DEBUG=1';",
 					"    }",
 					"}",

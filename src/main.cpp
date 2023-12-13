@@ -4121,24 +4121,34 @@ short process_command_line(unsigned short argc, char *argv[])
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
       }
-#ifdef FUNCTESTING
       else if (strcasecmp(parstr, "ftests") == 0)
       {
-        if(ftest_parse_arg(pr2str))
+#ifdef FUNCTESTING
+        if(ftest_parse_arg(pr2str)) // handle arg on ftest build
+#else
+        if(strlen(pr2str) > 0 && pr2str[0] != '-') // ignore arg on regular build
+#endif // FUNCTESTING
         {
             ++narg;
         }
 
-        ftest_init();
+#ifdef FUNCTESTING
+        ftest_init(); // initialise test framework on ftest build
+#else
+        WARNING_DIALOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
       }
       else if(strcasecmp(parstr, "exitonfailedtest") == 0)
       {
+#ifdef FUNCTESTING
         set_flag_byte(&start_params.functest_flags, FTF_ExitOnTestFailure, true);
+#else
+        WARNING_DIALOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
       }
-#endif
       else
       {
-        WARNMSG("Unrecognized command line parameter '%s'.",parstr);
+        WARNING_DIALOG("Unrecognized command line parameter '%s'.",parstr);
         bad_param=narg;
       }
       narg++;

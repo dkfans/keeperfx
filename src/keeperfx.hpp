@@ -145,6 +145,7 @@ struct StartupParameters {
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];
+    unsigned int functest_seed;
 #endif
 };
 

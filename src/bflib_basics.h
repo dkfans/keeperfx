@@ -134,6 +134,7 @@ extern struct DebugMessage ** debug_messages_tail;
 extern const char *log_file_name;
 // High level functions - DK specific
 void error(const char *codefile,const int ecode,const char *message);
+short warning_dialog(const char *codefile,const int ecode,const char *message);
 short error_dialog(const char *codefile,const int ecode,const char *message);
 short error_dialog_fatal(const char *codefile,const int ecode,const char *message);
 char *buf_sprintf(const char *format, ...);
@@ -145,6 +146,7 @@ int LbNetLog(const char *format, ...);
 int LbJustLog(const char *format, ...);
 int LbAiLog(const char *format, ...);
 int LbNaviLog(const char *format, ...);
+int Lbvsprintf(const char* buffer, const char *format, ...);
 #ifdef FUNCTESTING
 int LbFTestLog(const char *format, ...);
 #endif

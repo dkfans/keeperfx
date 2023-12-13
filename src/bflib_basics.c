@@ -215,6 +215,13 @@ void error(const char *codefile,const int ecode,const char *message)
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
 }
 
+short warning_dialog(const char *codefile,const int ecode,const char *message)
+{
+  LbWarnLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+  SDL_ShowSimpleMessageBox(SDL_MESSAGEBOX_WARNING, PROGRAM_FULL_NAME, message, NULL);
+  return 0;
+}
+
 short error_dialog(const char *codefile,const int ecode,const char *message)
 {
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
@@ -306,6 +313,15 @@ int LbNaviLog(const char *format, ...)
     va_list val;
     va_start(val, format);
     int result=LbLog(&error_log, format, val);
+    va_end(val);
+    return result;
+}
+
+int Lbvsprintf(const char* buffer, const char *format, ...)
+{
+    va_list val;
+    va_start(val, format);
+    int result=vsprintf(buffer, format, val);
     va_end(val);
     return result;
 }
