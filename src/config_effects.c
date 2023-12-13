@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "console_cmd.h"
 
 #include "value_util.h"
 #include <toml.h>
@@ -318,19 +319,6 @@ struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
     return &gameadd.effects_conf.effect_cfgstats[tngmodel];
 }
 
-static TbBool is_number(const char* parstr)
-{
-    for (int i = 0; parstr[i] != '\0'; i++)
-    {
-        TbBool digit = (i == 0) ? ( (parstr[i] == 0x2D) || (isdigit(parstr[i])) ) : (isdigit(parstr[i]));
-        if (!digit)
-        {
-            return false;
-        }
-    }
-    return true;
-}
-
 short effect_or_effect_element_id(const char * code_name)
 {
     if (code_name == NULL)
@@ -338,7 +326,7 @@ short effect_or_effect_element_id(const char * code_name)
         return 0;
     }
 
-    if (is_number(code_name))
+    if (parameter_is_number(code_name))
     {
         return atoi(code_name);
     }
