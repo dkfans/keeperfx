@@ -735,6 +735,9 @@
     <ClCompile Include="src\config_textures.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\ftests\ftest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\actionpt.h">
@@ -1377,6 +1380,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\config_textures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ftests\ftest.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
