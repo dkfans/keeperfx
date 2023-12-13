@@ -2950,7 +2950,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
-        draw_lightning(&pos1, &pos2, 96, shotst->effect_id);
+        draw_lightning(&pos1, &pos2, shotst->effect_spacing, shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
@@ -2962,7 +2962,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         if (thing_is_invalid(shotng))
           return;
         
-        draw_flame_breath(&pos1, &pos2, 96, 2,shotst->effect_id);
+        draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
@@ -2975,7 +2975,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             pos1.x.val = firing->mappos.x.val;
             pos1.y.val = firing->mappos.y.val;
         }
-        for (i = 0; i < 32; i++)
+        for (i = 0; i < shotst->effect_amount; i++)
         {
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))

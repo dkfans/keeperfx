@@ -292,7 +292,7 @@ void update_god_lightning_ball(struct Thing *thing)
         if (thing_is_invalid(target))
             break;
         shotst = get_shot_model_stats(thing->model);
-        draw_lightning(&thing->mappos,&target->mappos, 96, shotst->effect_id);
+        draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
         break;
     case 2:
     {

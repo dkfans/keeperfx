@@ -118,6 +118,8 @@ const struct NamedCommand magic_shot_commands[] = {
   {"EFFECTMODEL",           48},
   {"FIRELOGIC",             49},
   {"UPDATELOGIC",           50},
+  {"EFFECTSPACING",         51},
+  {"EFFECTAMOUNT",          52},
   {NULL,                     0},
   };
 
@@ -1715,6 +1717,32 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->update_logic = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 51: //EFFECTSPACING
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->effect_spacing = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 52: //EFFECTAMOUNT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->effect_amount = k;
               n++;
           }
           if (n < 1)
