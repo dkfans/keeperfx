@@ -1972,7 +1972,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           break;
       case 10: // SYMBOLSPRITES
-        if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               powerst->bigsym_sprite_idx = bad_icon_id;
               k = get_icon_id(word_buf);
