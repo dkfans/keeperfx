@@ -22,6 +22,7 @@
 
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_memory.h"
 #include "config_creature.h"
 #include "power_specials.h"
@@ -644,6 +645,11 @@ TbBool recreate_repositioned_book_in_room_on_subtile(struct Room *room, MapSubtl
 
 TbBool move_thing_to_different_room(struct Thing* thing, struct Coord3d* pos)
 {
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing thing to different room.");
+        return false;
+    }
     pos->z.val = get_thing_height_at(thing, pos);
     move_thing_in_map(thing, pos);
     create_effect(pos, TngEff_RoomSparkeLarge, thing->owner);
@@ -695,6 +701,11 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
                     else
                     {
                         pos.z.val = get_thing_height_at(spelltng, &pos);
+                        if (!thing_exists(spelltng))
+                        {
+                            ERRORLOG("Attempt to reposition non-existing book.");
+                            return false;
+                        }
                         move_thing_in_map(spelltng, &pos);
                         create_effect(&pos, TngEff_RoomSparkeLarge, spelltng->owner);
                         rrepos->used--;
@@ -3105,7 +3116,7 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_capacity(struct Thin
                 i = room->next_of_owner;
                 // Per-room code
                 // Compute simplified distance - without use of mul or div
-                long distance = abs(thing->mappos.x.stl.num - room->central_stl_x) + abs(thing->mappos.y.stl.num - room->central_stl_y);
+                long distance = grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, room->central_stl_x, room->central_stl_y);
                 if ((neardistance > distance) && (room->used_capacity + spare <= room->total_capacity))
                 {
                     struct Coord3d pos;
@@ -3502,8 +3513,7 @@ struct Room *get_room_of_given_role_for_thing(const struct Thing *thing, const s
             long attractiveness = get_room_attractiveness_for_thing(dungeon, room, thing, rrole & get_room_roles(room->kind), needed_capacity);
             if (attractiveness > 0)
             {
-                long dist = abs(thing->mappos.y.stl.num - (int)room->central_stl_y);
-                dist += abs(thing->mappos.x.stl.num - (int)room->central_stl_x);
+                long dist = grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, room->central_stl_x, room->central_stl_y);
                 dist = (dist*128)/attractiveness;
                 if (retdist > dist)
                 {
@@ -3632,6 +3642,23 @@ struct Room *find_nth_room_for_thing(struct Thing *thing, PlayerNumber owner, Ro
         {
             ERRORLOG("Infinite loop detected when sweeping rooms list");
             break;
+        }
+    }
+    return INVALID_ROOM;
+}
+
+struct Room* find_first_room_of_role(PlayerNumber owner, RoomRole rrole)
+{
+    struct DungeonAdd* dungeonadd = get_dungeonadd(owner);
+    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    {
+        if (room_role_matches(rkind, rrole))
+        {
+            int i = dungeonadd->room_kind[rkind];
+            if (i != 0)
+            {
+                return room_get(i);
+            }
         }
     }
     return INVALID_ROOM;
@@ -4583,7 +4610,7 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct
                 }
                 i = room->next_of_owner;
                 // Per-room code
-                long dist = abs(thing->mappos.x.stl.num - room->central_stl_x) + abs(thing->mappos.y.stl.num - room->central_stl_y);
+                long dist = grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, room->central_stl_x, room->central_stl_y);
                 if ((dist < retdist) && (room->total_capacity > room->capacity_used_for_storage))
                 {
                     struct Coord3d pos;
@@ -5199,8 +5226,10 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
     if (room_is_invalid(room) || (!room_role_matches(room->kind,RoRoF_KeeperStorage)))
     {
         WARNLOG("The heart thing is not in heart room");
-        long i = dungeonadd->room_kind[RoK_DUNGHEART];
-        room = room_get(i);
+        if (dungeonadd->backup_heart_idx == 0)
+        {
+            room = find_first_room_of_role(plyr_idx, RoRoF_KeeperStorage);
+        }
     }
     if (room_is_invalid(room))
     {

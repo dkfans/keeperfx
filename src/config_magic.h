@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX        64
+#define MAGIC_ITEMS_MAX        255
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
 #define MAGIC_TYPES_COUNT      30
@@ -88,6 +88,7 @@ enum CreatureSpellAffectedFlags {
     CSAfF_ExpLevelUp   = 0x4000,
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
     CSAfF_Grounded     = 0x8000,
+    CSAfF_Timebomb     = 0x10000,
 };
 
 enum PowerKinds {
@@ -135,6 +136,7 @@ enum ShotModelFlags {
     ShMF_Disarming      = 0x1000,
     ShMF_Exploding      = 0x2000,
     ShMF_BlocksRebirth  = 0x4000,
+    ShMF_Penetrating    = 0x8000,
 };
 
 enum PowerCanCastFlags {
@@ -282,7 +284,7 @@ struct ShotConfigStats {
     unsigned short sprite_anim_idx;
     unsigned short sprite_size_max;
     short size_xy;
-    short size_yz;
+    short size_z;
     unsigned char fall_acceleration;
     unsigned char cast_spell_kind;
     unsigned char push_on_hit;
@@ -302,6 +304,12 @@ struct ShotConfigStats {
     unsigned char lightf_53;
     unsigned char unshaded;
     unsigned char soft_landing;
+    EffectOrEffElModel effect_id;
+    unsigned char fire_logic; // see enum ShotFireLogics
+    unsigned char update_logic; // see enum ShotUpdateLogics
+    unsigned char effect_spacing;
+    unsigned char effect_amount;
+
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

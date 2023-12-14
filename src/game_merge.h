@@ -27,6 +27,7 @@
 #include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
+#include "config_effects.h"
 #include "config_objects.h"
 #include "config_rules.h"
 #include "creature_control.h"
@@ -151,8 +152,6 @@ struct IntralevelData {
  * Defines additional elements, which are not stored in main 'Game' struct.
  */
 struct GameAdd {
-    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
-    struct CreatureConfig crtr_conf;
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
@@ -189,29 +188,28 @@ struct GameAdd {
     unsigned short disease_to_temple_pct;
     TbBool place_traps_on_subtiles;
     unsigned long gold_per_hoard;
-    struct CubeAttribs cubes_data[CUBE_ITEMS_MAX];
 
+    struct CubesConfig cube_conf;
     struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
     struct TrapDoorConfig trapdoor_conf;
+    struct EffectsConfig effects_conf;
+    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+    struct CreatureConfig crtr_conf;
+    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
+    struct ObjectsConfig object_conf;
+    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
 
     uint8_t               max_custom_box_kind;
     unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
-
     char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
     struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
     int                   active_fx_lines;
-
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
-
-    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
-    struct ObjectsConfig object_conf;
-    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
-
     LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
     PlayerNumber script_player;

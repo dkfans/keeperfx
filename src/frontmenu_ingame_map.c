@@ -43,6 +43,7 @@
 #include "power_hand.h"
 #include "kjm_input.h"
 #include "frontmenu_ingame_tabs.h"
+#include "thing_doors.h"
 #include "vidmode.h"
 #include "vidfade.h"
 #include "player_instances.h"
@@ -728,12 +729,25 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         {
             struct Room *room;
             room = room_get(slb->room_index);
-            col = owner_col + 6 * room->kind + 8;
+
+            //TODO support roomkinds over 16
+            RoomKind rkind;
+            if(room->kind > 16)
+                rkind = 0;
+            else
+                rkind = room->kind;
+
+            col = owner_col + 6 * rkind + 8;
         } else
         if (slb->kind == SlbT_ROCK)
         {
             col = 2;
         } else
+        if (slb->kind == SlbT_ROCK_FLOOR)
+        {
+            col = 2;
+        }
+        else
         if ((mapblk->flags & SlbAtFlg_Filled) != 0)
         {
             col = 1;
@@ -743,7 +757,21 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
             struct Thing *doortng;
             doortng = get_door_for_position(stl_x, stl_y);
             if (!thing_is_invalid(doortng)) {
-                col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * doortng->model) + 110;
+                if(door_is_hidden_to_player(doortng,plyr_idx))
+                {
+                    col = 1;
+                }
+                else
+                {
+                    //TODO support doors over 4
+                    int model;
+                    if(doortng->model>4)
+                        model = 0;
+                    else
+                        model = doortng->model;
+
+                    col = owner_col + 6 * ((doortng->door.is_locked == 1) + 2 * model ) + 110;
+                }
             }
         } else
         if ((mapblk->flags & SlbAtFlg_Blocking) == 0)

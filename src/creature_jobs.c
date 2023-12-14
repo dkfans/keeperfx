@@ -777,7 +777,7 @@ TbBool creature_can_do_research_near_pos(const struct Thing *creatng, MapSubtlCo
         if (!is_neutral_thing(creatng) && (dungeon->current_research_idx < 0))
         {
             if (is_my_player_number(dungeon->owner) && ((flags & JobChk_PlayMsgOnFail) != 0)) {
-                output_message(SMsg_NoMoreReseach, 500, true);
+                output_message(SMsg_NoMoreReseach, MESSAGE_DELAY_KEEPR_TAUNT, true);
             }
         }
         return false;

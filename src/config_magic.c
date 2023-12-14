@@ -86,6 +86,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"BOUNCEANGLE",           17},
   {"SIZE_XY",               18},
   {"SIZE_YZ",               19},
+  {"SIZE_Z",                19},
   {"FALLACCELERATION",      20},
   {"VISUALEFFECT",          21},
   {"VISUALEFFECTAMOUNT",    22},
@@ -114,6 +115,11 @@ const struct NamedCommand magic_shot_commands[] = {
   {"INERTIA",               45},
   {"UNSHADED",              46},
   {"SOFTLANDING",           47},
+  {"EFFECTMODEL",           48},
+  {"FIRELOGIC",             49},
+  {"UPDATELOGIC",           50},
+  {"EFFECTSPACING",         51},
+  {"EFFECTAMOUNT",          52},
   {NULL,                     0},
   };
 
@@ -179,6 +185,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"HIDDEN_PROJECTILE",   17},
   {"DISARMING",           18},
   {"BLOCKS_REBIRTH",      19},
+  {"PENETRATING",         20},
   {NULL,                   0},
   };
 
@@ -821,7 +828,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             shotst->push_on_hit = 0;
             shotst->max_range = 0;
             shotst->size_xy = 0;
-            shotst->size_yz = 0;
+            shotst->size_z = 0;
             shotst->speed = 0;
             shotst->destroy_on_first_hit = 0;
             shotst->experience_given_to_shooter = 0;
@@ -1066,6 +1073,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_BlocksRebirth;
                 n++;
                 break;
+            case 20: // Penetrating
+                shotst->model_flags |= ShMF_Penetrating;
+                n++;
+                break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -1203,11 +1214,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 19: //SIZE_YZ
+      case 19: //SIZE_Z
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->size_yz = k;
+              shotst->size_z = k;
               n++;
           }
           if (n < 1)
@@ -1609,7 +1620,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->light_radius = k << 8;
+              shotst->light_radius = k * COORD_PER_STL;
               n++;
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
@@ -1667,6 +1678,71 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->soft_landing = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 48: //EFFECTMODEL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              shotst->effect_id = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 49: //FIRELOGIC
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->fire_logic = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 50: //UPDATELOGIC
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->update_logic = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 51: //EFFECTSPACING
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->effect_spacing = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 52: //EFFECTAMOUNT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->effect_amount = k;
               n++;
           }
           if (n < 1)
@@ -2236,7 +2312,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
       case 5: // ACTIVATIONEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               specst->effect_id = k;
               n++;
           }

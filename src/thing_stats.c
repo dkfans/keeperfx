@@ -123,6 +123,9 @@ const char *thing_class_and_model_name(int class_id, int model)
     case TCls_Effect:
         snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s effect",effect_code_name(model));
         break;
+    case TCls_EffectGen:
+        snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s effectgenerator",effectgenerator_code_name(model));
+        break;
     default:
         snprintf(name_buffer[bid],sizeof(name_buffer[0]),"%s model %d",thing_class_code_name(class_id),(int)model);
         break;
@@ -589,7 +592,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long speed = crstat->base_speed;
-    if (creature_affected_by_slap(thing))
+    if ( (creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)) )
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Speed))
         speed *= 2;
@@ -780,9 +783,10 @@ HitPoints calculate_shot_real_damage_to_door(const struct Thing *doortng, const 
 {
     HitPoints dmg;
     const struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    const struct ObjectConfig* objconf = get_object_model_stats2(door_crate_object_model(doortng->model));
+    const struct DoorConfigStats* doorst = get_door_model_stats(doortng->model);
+
     //TODO CONFIG replace deals_physical_damage with check for shotst->damage_type (magic in this sense is DmgT_Electric, DmgT_Combustion and DmgT_Heatburn)
-    if ( !objconf->resistant_to_nonmagic || (shotst->damage_type == DmgT_Magical))
+    if ( !(doorst->model_flags & DoMF_ResistNonMagic)  || (shotst->damage_type == DmgT_Magical))
     {
         dmg = shotng->shot.damage;
     } else
@@ -852,13 +856,31 @@ long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng,
     return dig_damage;
 }
 
-long calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, PlayerNumber plyr_idx, unsigned short crlevel, const struct SlabMap *slb)
+GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, const struct SlabMap *slb)
 {
-    long gold = (damage_did_to_slab * (long)game.gold_per_gold_block) / game.block_health[1];
+    struct SlabAttr *slbattr = get_slab_attrs(slb);
+    GoldAmount gold = (damage_did_to_slab * game.gold_per_gold_block) / game.block_health[slbattr->block_health_index];
+    // Returns gold-per-hit as an integer
     if (slb->kind == SlbT_GEMS)
-      gold = gold * gameadd.gem_effectiveness / 100;
-    if (gold <= 1)
-      return 1;
+    {
+        gold = gold * gameadd.gem_effectiveness / 100;
+    }
+    else if (slb->health == 0)
+    // if the last hit deals the damage exactly, just drop a pile and the remainder
+    {
+        gold += (game.gold_per_gold_block % gold);
+    }
+    else if (slb->health < 0)
+    // If the damage dealt is more than the remaining health, then health is not divisible by damage, so this 
+    // should return whatever is left, as this is less than the gold given for a full hit.
+    {
+        gold = game.gold_per_gold_block - (game.block_health[slbattr->block_health_index] / damage_did_to_slab) * gold;
+    // subtract all of the "full hits" and return what's left.
+    }
+    if (gold < 1)
+    {
+        return 1;
+    }
     return gold;
 }
 

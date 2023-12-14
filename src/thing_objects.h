@@ -29,7 +29,6 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define OBJECT_TYPES_COUNT_ORIGINAL  136
 #define OBJECT_TYPES_COUNT  255
 
 enum ObjectStates {
@@ -116,6 +115,22 @@ enum ObjectModels
     ObjMdl_SpecboxCustom = 133,
     ObjMdl_GoldBag = 136
 };
+
+/**
+ * Used for Objects->draw_class  EffectElementConfigStats->draw_class and Thing->draw_class. 
+ * 
+ * Used in in draw_frontview_thing_on_element() and do_map_who_for_thing().
+ * 
+ * See also see set_object_configuration_process(), parse_objects_object_blocks(), objects_data_init[], effect_element_stats[] and objects.cfg for setting of draw_class.
+ */
+enum ObjectsDrawClasses { 
+  ODC_None           = 0x00, /**< Used by POWER_SIGHT and POWER_LIGHTNG - do nothing in draw_frontview_thing_on_element() or do_map_who_for_thing(). */
+  ODC_Default        = 0x02, /**< Default behaviour in draw_frontview_thing_on_element() / do_map_who_for_thing(). */
+  ODC_DrawClass3     = 0x03, /**< Unknown use. Present in do_map_who_for_thing(). */
+  ODC_RoomPrice      = 0x04, /**< Used by TngEffElm_Price. */
+  ODC_RoomStatusFlag = 0x05, /**< Used by ROOM_FLAG. */
+  ODC_SpinningKey    = 0x06, /**< Used by SPINNING_KEY. */
+};
 /******************************************************************************/
 #pragma pack(1)
 
@@ -126,11 +141,11 @@ struct Objects {
     short sprite_anim_idx;
     short anim_speed;
     short size_xy;
-    short size_yz;
+    short size_z;
     short sprite_size_max;
     unsigned char field_F;      // Lower 2 bits are transparency flags
     unsigned short fp_smpl_idx;
-    unsigned char draw_class;
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char destroy_on_lava;
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
     unsigned char related_creatr_model;
@@ -174,6 +189,7 @@ TbBool thing_is_workshop_crate(const struct Thing *thing);
 TbBool thing_is_trap_crate(const struct Thing *thing);
 TbBool thing_is_door_crate(const struct Thing *thing);
 TbBool thing_is_dungeon_heart(const struct Thing *thing);
+TbBool thing_is_beating_dungeon_heart(const struct Thing* thing);
 TbBool thing_is_mature_food(const struct Thing *thing);
 TbBool object_is_hero_gate(const struct Thing *thing);
 TbBool object_is_infant_food(const struct Thing *thing);
@@ -221,7 +237,6 @@ void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
 
-void define_custom_object(int obj_id, short anim_idx);
 void init_thing_objects();
 /******************************************************************************/
 #ifdef __cplusplus

@@ -177,6 +177,11 @@ void remove_body_from_graveyard(struct Thing *thing)
 
 long move_dead_creature(struct Thing *thing)
 {
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing corpse.");
+        return TUFRet_Deleted;
+    }
     if ( (thing->velocity.x.val != 0) || (thing->velocity.y.val != 0) || (thing->velocity.z.val != 0) )
     {
         long i = (long)thing->mappos.x.val + (long)thing->velocity.x.val;
@@ -206,7 +211,7 @@ long move_dead_creature(struct Thing *thing)
         // Even if no velocity, update field_60
         thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
-    return 1;
+    return TUFRet_Modified;
 }
 
 TngUpdateRet update_dead_creature(struct Thing *thing)
@@ -222,7 +227,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             pos.x.val = thing->mappos.x.val;
             pos.y.val = thing->mappos.y.val;
             pos.z.val = thing->mappos.z.val;
-            pos.z.val += 3 * (int)thing->clipbox_size_yz / 4;
+            pos.z.val += 3 * (int)thing->clipbox_size_z / 4;
             if (creature_model_bleeds(thing->model)) {
                 create_effect(&pos, TngEff_BloodyFootstep, thing->owner);
             }
@@ -231,7 +236,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             if (thing->health <= 0) {
                 thing->active_state = DCrSt_RigorMortis;
                 long i = get_creature_anim(thing, 16);
-                set_thing_draw(thing, i, 64, -1, 1, 0, 2);
+                set_thing_draw(thing, i, 64, -1, 1, 0, ODC_Default);
             }
         } else
         if (corpse_laid_to_rest(thing))
@@ -272,8 +277,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     }
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-        move_dead_creature(thing);
-        return TUFRet_Modified;
+        return move_dead_creature(thing);
     }
     if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
       && !thing_is_dragged_or_pulled(thing) )
@@ -289,8 +293,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->corpse.exp_level);
         return TUFRet_Deleted;
     }
-    move_dead_creature(thing);
-    return TUFRet_Modified;
+    return move_dead_creature(thing);;
 }
 
 long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
@@ -437,9 +440,9 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     thing->mappos.z.val = 0;
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
     thing->clipbox_size_xy = 0;
-    thing->clipbox_size_yz = 0;
+    thing->clipbox_size_z = 0;
     thing->solid_size_xy = 0;
-    thing->solid_size_yz = 0;
+    thing->solid_size_z = 0;
     thing->fall_acceleration = 16;
     thing->inertia_floor = 204;
     thing->inertia_air = 51;
@@ -457,12 +460,12 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     case DCrSt_RigorMortis:
         thing->active_state = DCrSt_RigorMortis;
         k = get_creature_anim(thing, 17);
-        set_thing_draw(thing, k, 256, gameadd.crtr_conf.sprite_size, 0, 0, 2);
+        set_thing_draw(thing, k, 256, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
         break;
     default:
         thing->active_state = DCrSt_DramaticDying;
         k = get_creature_anim(thing, 15);
-        set_thing_draw(thing, k, 128, gameadd.crtr_conf.sprite_size, 0, 0, 2);
+        set_thing_draw(thing, k, 128, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
         thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;

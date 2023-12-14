@@ -33,14 +33,5 @@
                 "moduleLoad": false
             }
         }
-    ],
-    "inputs": [
-        {
-            "id": "compileOptions",
-            "type": "pickString",
-            "description": "Choose compile options:",
-            "options": ["make all -j8 DEBUG=1", "make all -j8"],
-            "default": "make all -j8 DEBUG=1"
-        }
     ]
 }

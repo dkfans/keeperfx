@@ -44,6 +44,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
+#include <math.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -122,6 +123,12 @@ static inline void clear_gui_tooltip_button(void)
 {
     tool_tip_time = 0;
     tool_tip_box.gbutton = NULL;
+}
+
+TbBool cursor_moved_to_new_slab(struct PlayerInfo *player)
+{
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    return (floor(playeradd->cursor_subtile_x/3) != floor(playeradd->previous_cursor_subtile_x/3) || floor(playeradd->cursor_subtile_y/3) != floor(playeradd->previous_cursor_subtile_y/3));
 }
 
 TbBool setup_trap_tooltips(struct Coord3d *pos)
@@ -254,7 +261,10 @@ short setup_land_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target((void *)skind);
   struct PlayerInfo* player = get_my_player();
-  if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
+  if (cursor_moved_to_new_slab(player)) {
+      return false;
+  }
+  if ( (help_tip_time > 30) || (player->work_state == PSt_CreatrQuery) )
   {
       set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
   } else
@@ -278,7 +288,10 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target(room);
   struct PlayerInfo* player = get_my_player();
-  if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
+  if (cursor_moved_to_new_slab(player)) {
+      return false;
+  }
+  if ( (help_tip_time > 30) || (player->work_state == PSt_CreatrQuery) )
   {
     set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
   } else
@@ -429,7 +442,7 @@ void toggle_tooltips(void)
   {
     statstr = "off";
   }
-  show_onscreen_msg(2*game.num_fps, "Tooltips %s", statstr);
+  show_onscreen_msg(2*game_num_fps, "Tooltips %s", statstr);
   save_settings();
 }
 

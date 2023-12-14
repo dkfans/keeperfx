@@ -192,14 +192,16 @@ typedef int ScreenCoord;
 typedef int RealScreenCoord;
 /** Player identification number, or owner of in-game thing/room/slab. */
 typedef signed char PlayerNumber;
-/** bitflag where each bit represents a player */
-typedef unsigned char PlayerBitFlag;
+/** bitflags where each bit represents a player (e.g. player id 0 = 0b000001, player id 1 = 0b000010, player id 2 = 0b000100). */
+typedef unsigned char PlayerBitFlags;
 /** Type which stores thing class. */
 typedef unsigned char ThingClass;
 /** Type which stores thing model. */
 typedef unsigned char ThingModel;
 /** Type which stores thing index. */
 typedef unsigned short ThingIndex;
+/** Type which stores effectModels on positive or EffectElements on Negative. */
+typedef short EffectOrEffElModel;
 /** Type which stores creature state index. */
 typedef unsigned short CrtrStateId;
 /** Type which stores creature experience level. */
@@ -266,8 +268,6 @@ typedef long SubtlCodedCoords;
 typedef unsigned long SlabCodedCoords;
 /** Index in the columns array. */
 typedef short ColumnIndex;
-/** A variable which bits store bool value for each player. */
-typedef unsigned char PerPlayerFlags;
 /** Movement speed on objects in the game. */
 typedef short MoveSpeed;
 /** Parameter for storing gold sum or price. */
@@ -294,6 +294,10 @@ typedef short FrontendMenuState;
 typedef unsigned short SpDiggerTaskType;
 /** Flags for tracing route for creature movement. */
 typedef unsigned char NaviRouteFlags;
+/** data used for navigating contains floor height, locked doors per player, unsafe surfaces */
+typedef unsigned short NavColour;
+
+
 
 /* Stores a 2d coordinate (x,y).
 

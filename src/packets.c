@@ -111,6 +111,8 @@ void set_packet_action(struct Packet *pckt, unsigned char pcktype, long par1, lo
 {
     pckt->actn_par1 = par1;
     pckt->actn_par2 = par2;
+    pckt->actn_par3 = par3;
+    pckt->actn_par4 = par4;
     pckt->action = pcktype;
 }
 
@@ -192,6 +194,9 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
           break;
       case PSt_Heal:
           update_power_overcharge(player, PwrK_HEALCRTR);
+          break;
+      case PSt_TimeBomb:
+          update_power_overcharge(player, PwrK_TIMEBOMB);
           break;
       default:
           player->cast_expand_level++;
@@ -326,8 +331,15 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     struct Camera* cam = player->acamera;
+    if (cam == NULL)
+    {
+        ERRORLOG("No active camera");
+        return;
+    }
     long inter_val;
     int scroll_speed = cam->zoom;
+    if (scroll_speed <= 0)
+        scroll_speed = 1;
     switch (cam->view_mode)
     {
     case PVM_IsoWibbleView:
@@ -668,7 +680,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   case PckA_SwitchScrnRes:
       if (is_my_player(player))
       {
-          switch_to_next_video_mode();
+          switch_to_next_video_mode_wrapper();
       }
       return 1;
   case PckA_TogglePause:
@@ -1007,6 +1019,11 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
         playeradd->roomspace_no_default = true;
         return false;
     }
+    case PckA_PlyrQueryCreature:
+    {
+        query_creature(player, pckt->actn_par1, pckt->actn_par2, pckt->actn_par3);
+        return false;
+    }
     default:
       return process_players_global_cheats_packet_action(plyr_idx, pckt);
   }
@@ -1248,12 +1265,12 @@ void process_players_creature_control_packet_control(long idx)
         else
         if (angle > 32)
             angle = 32;
-        ccctrl->field_6C += 56 * angle / 32;
+        ccctrl->view_angle += 56 * angle / 32;
     }
     long angle_limit = crstat->max_angle_change;
     if (angle_limit < 1)
         angle_limit = 1;
-    angle = ccctrl->field_6C;
+    angle = ccctrl->view_angle;
     if (angle < -angle_limit)
         angle = -angle_limit;
     else
@@ -1262,7 +1279,7 @@ void process_players_creature_control_packet_control(long idx)
     cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
     cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
     ccctrl->field_CC = 170 * angle / angle_limit;
-    ccctrl->field_6C = 4 * angle / 8;
+    ccctrl->view_angle = 4 * angle / 8;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)

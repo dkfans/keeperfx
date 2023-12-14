@@ -26,6 +26,7 @@
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_video.h"
 #include "bflib_sprite.h"
 #include "bflib_vidraw.h"
@@ -462,7 +463,6 @@ static long map_z_pos;
 static int normal_shade_front;
 static int normal_shade_back;
 static long me_distance;
-static unsigned char engine_player_number;
 static long UseFastBlockDraw;
 static long thelens;
 static long fade_mmm;
@@ -488,8 +488,6 @@ TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
 TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];
 struct HeapMgrHeader *graphics_heap;
 TbFileHandle jty_file_handle;
-
-unsigned char player_bit;
 
 struct MapVolumeBox map_volume_box;
 long view_height_over_2;
@@ -649,6 +647,8 @@ static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
     long long der_hn;
     long long der_vp;
     long long der_vn;
+    long long div_v;
+    long long div_h;
     if ( (vert_offset[1] == 0) && (hori_offset[1] == 0) )
     {
         *floor_x = 0;
@@ -665,8 +665,17 @@ static void get_floor_pointed_at(long x, long y, long *floor_x, long *floor_y)
     sor_hn = (((long long)hori_offset[0] * ofs_y) / 2LL);
     der_hp = ((long long)vert_offset[0] * (long long)hori_offset[1]) / 8LL;
     der_hn = ((long long)hori_offset[0] * (long long)vert_offset[1]) / 8LL;
-    *floor_y = ((sor_vp-sor_vn) / ((der_vp-der_vn)>>8)) >> 2;
-    *floor_x = ((sor_hp-sor_hn) / ((der_hp-der_hn)>>8)) >> 2;
+    div_v = (der_vp - der_vn) >> 8;
+    div_h = (der_hp - der_hn) >> 8;
+    if (div_v == 0 || div_h == 0)
+    {
+        ERRORLOG("Invalid floor value from %d,%d", x, y);
+        *floor_x = 0;
+        *floor_y = 0;
+        return;
+    }
+    *floor_y = ((sor_vp - sor_vn) / div_v) >> 2;
+    *floor_x = ((sor_hp - sor_hn) / div_h) >> 2;
 }
 
 static long compute_cells_away(void) // For overhead view, not for 1st person view
@@ -748,8 +757,6 @@ static void update_normal_shade(struct M33 *matx)
 
 void update_engine_settings(struct PlayerInfo *player)
 {
-    engine_player_number = player->id_number;
-    player_bit = (1 << engine_player_number);
     switch (settings.field_0)
     {
     case 0:
@@ -1017,12 +1024,12 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
         mapblk = get_map_block_at(stl_x-1, stl_y+1);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
         }
         mapblk = get_map_block_at(stl_x-1, stl_y);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
         }
@@ -1043,12 +1050,12 @@ static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bst
         mask_yp = mask_unrev;
         mapblk = get_map_block_at(stl_x, stl_y+1);
         wib_v = get_mapblk_wibble_value(mapblk);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
         }
         mapblk = get_map_block_at(stl_x, stl_y);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
         }
@@ -1161,7 +1168,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
         mapblk = get_map_block_at(stl_x-1, stl_y+1);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
             if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
@@ -1169,7 +1176,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
             }
         }
         mapblk = get_map_block_at(stl_x-1, stl_y);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
             if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
@@ -1235,7 +1242,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
         mask_yp = mask_unrev;
         mapblk = get_map_block_at(stl_x, stl_y+1);
         wib_v = get_mapblk_wibble_value(mapblk);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
             if ((mask_cur >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
@@ -1243,7 +1250,7 @@ static void fill_in_points_cluedo(struct Camera *cam, long bstl_x, long bstl_y, 
             }
         }
         mapblk = get_map_block_at(stl_x, stl_y);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
             if ((mask_yp >= 8) && ((mapblk->flags & (SlbAtFlg_IsDoor|SlbAtFlg_IsRoom)) == 0) && ((col->bitfields & 0xE) == 0)) {
@@ -1378,12 +1385,12 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         mask_cur = mask_unrev;
         mask_yp = mask_unrev;
         mapblk = get_map_block_at(stl_x-1, stl_y+1);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
         }
         mapblk = get_map_block_at(stl_x-1, stl_y);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
         }
@@ -1459,12 +1466,12 @@ static void fill_in_points_isometric(struct Camera *cam, long bstl_x, long bstl_
         mask_yp = mask_unrev;
         mapblk = get_map_block_at(stl_x, stl_y+1);
         wib_v = get_mapblk_wibble_value(mapblk);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_cur = col->solidmask;
         }
         mapblk = get_map_block_at(stl_x, stl_y);
-        if (map_block_revealed_bit(mapblk, player_bit)) {
+        if (map_block_revealed(mapblk, my_player_number)) {
             col = get_map_column(mapblk);
             mask_yp = col->solidmask;
         }
@@ -3878,7 +3885,7 @@ static void find_closest_lights_on_list(struct NearestLights *nlgt, long *nlgt_d
         if ((lgt->flags & LgtF_Allocated) != 0)
         {
             long dist;
-            dist = get_2d_box_distance(pos, &lgt->mappos);
+            dist = get_chessboard_distance(pos, &lgt->mappos);
             if ((dist < 2560) && (nlgt_dist[settings.video_shadows-1] > dist)
                 && (pos->x.val != lgt->mappos.x.val) && (pos->y.val != lgt->mappos.y.val))
             {
@@ -4089,7 +4096,7 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
 {
     struct EngineCoord coord = *ecor;
     const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    coord.y += thing->clipbox_size_yz + crstat->status_offset; 
+    coord.y += thing->clipbox_size_z + crstat->status_offset; 
     rotpers(&coord, &camera_matrix);
     if (getpoly >= poly_pool_end)
         return;
@@ -4136,7 +4143,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
     long ecpos;
     long clip_start;
     long clip_end;
-    struct CubeAttribs *texturing;
+    struct CubeConfigStats *texturing;
     unsigned short *cubenum_ptr;
     long i;
     long n;
@@ -4158,7 +4165,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
     {
         mapblk = get_map_block_at_pos(center_block_idx);
         colmn = blank_colmn;
-        if (map_block_revealed_bit(mapblk, player_bit) )
+        if (map_block_revealed(mapblk, my_player_number))
         {
             n = get_mapwho_thing_index(mapblk);
             if (n != 0)
@@ -4177,22 +4184,22 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         solidmsk_bottom = blank_colmn->solidmask;
         solidmsk_left = blank_colmn->solidmask;
         sib_mapblk = get_map_block_at_pos(center_block_idx-gameadd.map_subtiles_x-1);
-        if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_top = sib_colmn->solidmask;
         }
         sib_mapblk = get_map_block_at_pos(center_block_idx+gameadd.map_subtiles_x+1);
-        if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_bottom = sib_colmn->solidmask;
         }
         sib_mapblk = get_map_block_at_pos(center_block_idx-1);
-        if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_left = sib_colmn->solidmask;
         }
         sib_mapblk = get_map_block_at_pos(center_block_idx+1);
-        if (map_block_revealed_bit(sib_mapblk, player_bit) ) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             sib_colmn = get_map_column(sib_mapblk);
             solidmsk_right = sib_colmn->solidmask;
         }
@@ -4202,7 +4209,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         height_bit = 1;
         while (height_bit <= solidmsk_center)
         {
-            texturing = &gameadd.cubes_data[*cubenum_ptr];
+            texturing = get_cube_model_stats(*cubenum_ptr);
             if ((solidmsk_center & height_bit) != 0)
             {
               if ((solidmsk_top & height_bit) == 0)
@@ -4240,14 +4247,14 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         if (ecpos > 0)
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
-            texturing = &gameadd.cubes_data[*cubenum_ptr];
+            texturing = get_cube_model_stats(*cubenum_ptr);
             textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         } else
         {
             ecpos = 0;
-            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), colmn->baseblock);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), colmn->floor_texture);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
         }
@@ -4256,7 +4263,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         if (ecpos > 0)
         {
             cubenum_ptr = &colmn->cubes[ecpos-1];
-            texturing = &gameadd.cubes_data[*cubenum_ptr];
+            texturing = get_cube_model_stats(*cubenum_ptr);
             textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), texturing->texture_id[4]);
             do_a_trig_gourad_tr(&bec[0].cors[ecpos], &bec[1].cors[ecpos], &fec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&fec[1].cors[ecpos], &fec[0].cors[ecpos], &bec[0].cors[ecpos], textr_idx, -1);
@@ -4269,7 +4276,7 @@ static void do_a_plane_of_engine_columns_perspective(long stl_x, long stl_y, lon
         // Draw the universal ceiling on top of the columns
         ecpos = 8;
         {
-            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), floor_to_ceiling_map[colmn->baseblock]);
+            textr_idx = engine_remap_texture_blocks(stl_num_decode_x(center_block_idx), stl_num_decode_y(center_block_idx), floor_to_ceiling_map[colmn->floor_texture]);
             do_a_trig_gourad_tr(&fec[0].cors[ecpos], &fec[1].cors[ecpos], &bec[1].cors[ecpos], textr_idx, -1);
             do_a_trig_gourad_bl(&bec[1].cors[ecpos], &bec[0].cors[ecpos], &fec[0].cors[ecpos], textr_idx, -1);
         }
@@ -4545,7 +4552,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         // Get column to be drawn
         const struct Column *cur_colmn;
         cur_colmn = unrev_colmn;
-        if (map_block_revealed_bit(cur_mapblk, player_bit))
+        if (map_block_revealed(cur_mapblk, my_player_number))
         {
             long i;
             i = get_mapwho_thing_index(cur_mapblk);
@@ -4564,7 +4571,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         }
         struct Map *sib_mapblk;
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y - 1);
-        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_back = colmn->solidmask;
@@ -4576,7 +4583,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             }
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y + 1);
-        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_front = colmn->solidmask;
@@ -4588,7 +4595,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             }
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx - 1, stl_y);
-        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_left = colmn->solidmask;
@@ -4600,7 +4607,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
             }
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx + 1, stl_y);
-        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
@@ -4621,8 +4628,8 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         for (mask=1,ncor=0; mask <= solidmsk_cur; mask*=2,ncor++)
         {
             unsigned short textr_id;
-            struct CubeAttribs *cubed;
-            cubed = &gameadd.cubes_data[cur_colmn->cubes[ncor]];
+            struct CubeConfigStats *cubed;
+            cubed = get_cube_model_stats(cur_colmn->cubes[ncor]);
             if ((mask & solidmsk_cur) == 0)
             {
                 continue;
@@ -4673,7 +4680,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
              {
                 if ((ncor_raw > 0) && (ncor_raw <= COLUMN_STACK_HEIGHT))
                 {
-                    struct CubeAttribs * cubed = &gameadd.cubes_data[cur_colmn->cubes[ncor_raw-1]];
+                    struct CubeConfigStats * cubed = get_cube_model_stats(cur_colmn->cubes[ncor_raw-1]);
                     unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
                     // Top surface in cluedo mode
                     do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
@@ -4684,7 +4691,7 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         {
             if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
             {
-                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->baseblock);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->floor_texture);
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
             } else
@@ -4697,8 +4704,8 @@ static void do_a_plane_of_engine_columns_cluedo(long stl_x, long stl_y, long pla
         ncor = lintel_top_height[solidmsk_cur];
         if ((ncor > 0) && (ncor <= COLUMN_STACK_HEIGHT))
         {
-            struct CubeAttribs * cubed;
-            cubed = &gameadd.cubes_data[cur_colmn->cubes[ncor-1]];
+            struct CubeConfigStats * cubed;
+            cubed = get_cube_model_stats(cur_colmn->cubes[ncor-1]);
             unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
             do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
             do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
@@ -4740,7 +4747,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         // Get column to be drawn
         const struct Column *cur_colmn;
         cur_colmn = unrev_colmn;
-        if (map_block_revealed_bit(cur_mapblk, player_bit))
+        if (map_block_revealed(cur_mapblk, my_player_number))
         {
             long i;
             i = get_mapwho_thing_index(cur_mapblk);
@@ -4762,25 +4769,25 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         solidmsk_left = unrev_colmn->solidmask;
         struct Map *sib_mapblk;
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y - 1);
-        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_back = colmn->solidmask;
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx, stl_y + 1);
-        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_front = colmn->solidmask;
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx - 1, stl_y);
-        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_left = colmn->solidmask;
         }
         sib_mapblk = get_map_block_at(stl_x + xaval + xidx + 1, stl_y);
-        if (map_block_revealed_bit(sib_mapblk, player_bit)) {
+        if (map_block_revealed(sib_mapblk, my_player_number)) {
             struct Column *colmn;
             colmn = get_map_column(sib_mapblk);
             solidmsk_right = colmn->solidmask;
@@ -4810,8 +4817,8 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         for (mask=1,ncor=0; mask <= solidmsk_cur; mask*=2,ncor++)
         {
             unsigned short textr_id;
-            struct CubeAttribs *cubed;
-            cubed = &gameadd.cubes_data[cur_colmn->cubes[ncor]];
+            struct CubeConfigStats *cubed;
+            cubed = get_cube_model_stats(cur_colmn->cubes[ncor]);
             if ((mask & solidmsk_cur) == 0)
             {
                 continue;
@@ -4853,8 +4860,8 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
             }
             else if ((cur_mapblk->flags & (SlbAtFlg_TaggedValuable|SlbAtFlg_Unexplored)) == 0)
             {
-                struct CubeAttribs * cubed;
-                cubed = &gameadd.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
+                struct CubeConfigStats * cubed;
+                cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->floor_texture + 2 * ncor + 1));
                 unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
                 // Top surface on full iso mode
                 do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
@@ -4870,7 +4877,7 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         {
             if ((cur_mapblk->flags & SlbAtFlg_Unexplored) == 0)
             {
-                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->baseblock);
+                unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cur_colmn->floor_texture);
                 do_a_gpoly_gourad_tr(&bec[0].cors[0], &bec[1].cors[0], &fec[1].cors[0], textr_id, -1);
                 do_a_gpoly_gourad_bl(&fec[1].cors[0], &fec[0].cors[0], &bec[0].cors[0], textr_id, -1);
             } else
@@ -4883,8 +4890,8 @@ static void do_a_plane_of_engine_columns_isometric(long stl_x, long stl_y, long 
         ncor = lintel_top_height[solidmsk_cur];
         if (ncor > 0)
         {
-            struct CubeAttribs * cubed;
-            cubed = &gameadd.cubes_data[*(short *)((char *)&cur_colmn->baseblock + 2 * ncor + 1)];
+            struct CubeConfigStats * cubed;
+            cubed = get_cube_model_stats(*(short *)((char *)&cur_colmn->floor_texture + 2 * ncor + 1));
             unsigned short textr_id = engine_remap_texture_blocks(stl_x + xaval + xidx, stl_y, cubed->texture_id[4]);
             do_a_gpoly_gourad_tr(&bec[0].cors[ncor], &bec[1].cors[ncor], &fec[1].cors[ncor], textr_id, -1);
             do_a_gpoly_gourad_bl(&fec[1].cors[ncor], &fec[0].cors[ncor], &bec[0].cors[ncor], textr_id, -1);
@@ -7178,7 +7185,7 @@ static void add_thing_sprite_to_polypool(struct Thing *thing, long scr_x, long s
     poly->field_14 = a4;
 }
 
-static void add_unkn18_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
+static void add_spinning_key_to_polypool(struct Thing *thing, long scr_x, long scr_y, long a4, long bckt_idx)
 {
     struct BucketKindJontySprite *poly;
     if (bckt_idx >= BUCKETS_COUNT)
@@ -7373,7 +7380,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
 {
     struct PlayerInfo *myplyr;
     TbBool sibrevealed[3][3];
-    struct CubeAttribs *unkstrcp;
+    struct CubeConfigStats *unkstrcp;
     struct Map *mapblk;
     long lightness_arr[4][9];
     long bckt_idx;
@@ -7422,7 +7429,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     // Get column to be drawn on the current subtile
 
     struct Column *col;
-    if (map_block_revealed_bit(map, player_bit))
+    if (map_block_revealed(map, my_player_number))
       i = get_mapblk_column_index(map);
     else
       i = game.unrevealed_column_idx;
@@ -7433,10 +7440,10 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
 
     if (*ymax > pos_y)
     {
-      if ((col->baseblock != 0) && (col->cubes[0] == 0))
+      if ((col->floor_texture != 0) && (col->cubes[0] == 0))
       {
           *ymax = pos_y;
-          textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->baseblock);
+          textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->floor_texture);
           if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
           {
               add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, a7, 0,
@@ -7458,7 +7465,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       if (col->cubes[tc] == 0)
         break;
       y -= delta_y;
-      unkstrcp = &gameadd.cubes_data[col->cubes[tc]];
+      unkstrcp = get_cube_model_stats(col->cubes[tc]);
       if (*ymax > y)
       {
         *ymax = y;
@@ -7508,7 +7515,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             if (col->cubes[tc] == 0)
               break;
             y -= delta_y;
-            unkstrcp = &gameadd.cubes_data[col->cubes[tc]];
+            unkstrcp = get_cube_model_stats(col->cubes[tc]);
             if (*ymax > y)
             {
               textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
@@ -8813,9 +8820,9 @@ static void do_map_who_for_thing(struct Thing *thing)
     render_pos_z = thing->interp_mappos.y.val;
     render_floorpos = thing->interp_floor_height;
 
-    switch (thing->field_50 >> 2) // draw_class
+    switch (thing->draw_class)
     {
-    case 2:
+    case ODC_Default:
         ecor.field_8 = 0;
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
@@ -8852,7 +8859,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             add_thing_sprite_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, bckt_idx);
         }
         break;
-    case 3:
+    case ODC_DrawClass3:
         ecor.field_8 = 0;
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
@@ -8862,7 +8869,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         object_origin.y = 0;
         object_origin.z = 0;
         break;
-    case 4:
+    case ODC_RoomPrice:
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_pos_y - map_z_pos);
@@ -8872,7 +8879,7 @@ static void do_map_who_for_thing(struct Thing *thing)
             add_number_to_polypool(ecor.view_width, ecor.view_height, thing->price_effect.number, 1);
         }
         break;
-    case 5:
+    case ODC_RoomStatusFlag:
         // Hide status flags when full zoomed out, for atmospheric overview
         if (hud_scale == 0) {
             break;
@@ -8906,13 +8913,13 @@ static void do_map_who_for_thing(struct Thing *thing)
             }
         }
         break;
-    case 6:
+    case ODC_SpinningKey:
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
         ecor.y = (render_pos_y - map_z_pos);
         rotpers(&ecor, &camera_matrix);
         if (getpoly < poly_pool_end) {
-            add_unkn18_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, 1);
+            add_spinning_key_to_polypool(thing, ecor.view_width, ecor.view_height, ecor.z, 1);
         }
         break;
     default:
@@ -8963,9 +8970,9 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
     long cz;
     if ((thing->rendering_flags & TRF_Unknown01) != 0)
         return;
-    switch (thing->field_50 >> 2)
+    switch (thing->draw_class)
     {
-    case 2: // Things
+    case ODC_Default: // Things
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
@@ -8976,14 +8983,14 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             }
         }
         break;
-    case 4: // Floating gold text when buying and selling
+    case ODC_RoomPrice: // Floating gold text when buying and selling
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             add_number_to_polypool(cx, cy, thing->creature.gold_carried, 1);
         }
         break;
-    case 5: // Room Status flags
+    case ODC_RoomStatusFlag: // Room Status flags
         // Hide status flags when full zoomed out, for atmospheric overview
         if (hud_scale == 0) {
             break;
@@ -9012,11 +9019,11 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             }
         }
         break;
-    case 6:
+    case ODC_SpinningKey:
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
-            add_unkn18_to_polypool(thing, cx, cy, cy, cz-3);
+            add_spinning_key_to_polypool(thing, cx, cy, cy, cz-3);
         }
         break;
     default:
@@ -9097,8 +9104,6 @@ void draw_frontview_engine(struct Camera *cam)
     LbScreenSetGraphicsWindow(ewnd.x, ewnd.y, ewnd.width, ewnd.height);
     gtblock_set_clipping_window(lbDisplay.GraphicsWindowPtr, ewnd.width, ewnd.height, lbDisplay.GraphicsScreenWidth);
     setup_vecs(lbDisplay.GraphicsWindowPtr, NULL, lbDisplay.GraphicsScreenWidth, ewnd.width, ewnd.height);
-    engine_player_number = player->id_number;
-    player_bit = (1 << player->id_number);
     clear_fast_bucket_list();
     store_engine_window(&ewnd,1);
     setup_engine_window(ewnd.x, ewnd.y, ewnd.width, ewnd.height);

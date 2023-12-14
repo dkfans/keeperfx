@@ -28,6 +28,7 @@
 #include "bflib_dernc.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 
 #include "config.h"
 #include "config_compp.h"
@@ -455,7 +456,7 @@ long count_creatures_availiable_for_fight(struct Computer2 *comp, struct Coord3d
         // Thing list loop body
         if (cctrl->combat_flags == 0)
         {
-            if ((pos == NULL) || creature_can_navigate_to(thing, pos, 1)) {
+            if ((pos == NULL) || creature_can_navigate_to(thing, pos, NavRtF_NoOwner)) {
                 count++;
             }
         }
@@ -551,7 +552,7 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
                     pos->x.val = 0;
                 } else
                 {
-                    long dist = abs((MapSubtlCoord)pos->x.stl.num - dnstl_x) + abs((MapSubtlCoord)pos->y.stl.num - dnstl_y);
+                    long dist = grid_distance(pos->x.stl.num, pos->y.stl.num, dnstl_x, dnstl_y);
                     if (hate->distance_near >= dist)
                     {
                         hate->distance_near = dist;
@@ -1096,9 +1097,12 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     ( crtr_state != CrSt_CreatureBeingDropped ))
                 {
                     struct CreatureStats* crstat = creature_stats_get_from_thing(i);
-                    if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20 )
+                    if (crstat->health > 0)
                     {
-                        ++count;
+                        if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20)
+                        {
+                            ++count;
+                        }
                     }
                 }
             }
@@ -1220,7 +1224,7 @@ long check_call_to_arms(struct Computer2 *comp)
                         SYNCDBG(8,"Found existing CTA task");
                         ret = 0;
                     }
-                    if (ctask->field_60 + ctask->lastrun_turn - (long)game.play_gameturn < ctask->field_60 - ctask->field_60/10) {
+                    if (ctask->delay + ctask->lastrun_turn - (long)game.play_gameturn < ctask->delay - ctask->delay/10) {
                         SYNCDBG(8,"Less than 90% turns");
                         ret = -1;
                         break;
@@ -1273,6 +1277,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     comp->turn_begin = cpt->turn_begin;
     comp->sim_before_dig = cpt->sim_before_dig;
     comp->field_C = 1;
+    comp->task_delay = cpt->drop_delay;
     comp->task_state = CTaskSt_Select;
 
     for (i=0; i < PLAYERS_COUNT; i++)

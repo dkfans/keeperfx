@@ -17,16 +17,7 @@
 #      (at your option) any later version.
 #
 # *****************************************************************************
-#, fuzzy:
-msgid ""
-msgstr ""
 "Project-Id-Version: Post Ancient Keeper campaign for KeeperFX\n"
-"Report-Msgid-Bugs-To: https://code.google.com/p/keeperfx/issues/list\n"
-"POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: Ninja\n"
-"Language-Team: KeeperFX Team <code.google.com>\n"
-"MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
@@ -37,70 +28,70 @@ msgstr ""
 
 #: landview:10
 msgctxt "Level introduction"
-msgid "Armageddon. Land is worn out by lava, but nonetheless, yonder people are happy. The time to change has come, my black Master!"
+msgid "Armageddon. This land is heavily devastated by lava, yet the people are still happy. The time to change has come, my dark Master!"
 msgstr ""
 
 #: landview:11
 msgctxt "Level summary"
-msgid "The Horned Ripper had a lot joys to cut heads and bodies of this settlement's inhabitants! The perfect view, isn't it?"
+msgid "Bloody Harvest. The Horned Reaper had much joy cutting the heads and bodies of the inhabitants of this settlement! A perfect view, isn't it?"
 msgstr ""
 
 #: landview:20
 msgctxt "Level introduction"
-msgid "Collect. The Land is less drunk with lava compared to previous one, but also a lot more honest. People are quiet and very nice for themselves. It's time to start a war, here!"
+msgid "Collect. The land is less flooded with lava compared to the previous one, but it is also much more honest. People are kind and peaceful here. It's time to start a war!"
 msgstr ""
 
 #: landview:21
 msgctxt "Level summary"
-msgid "Now the Land no longer is such quiet; volcano eruptions are at least once every hour. Inhabitants tried hard to save themsevles, but fortunately did not succeed. Excellent work my lord."
+msgid "Dark and Bloody. Now the land is no longer so peaceful; volcanic eruptions occur at least once every hour. The inhabitants did their best to save themselves, but fortunately did not succeed. Excellent work, my lord."
 msgstr ""
 
 #: landview:30
 msgctxt "Level introduction"
-msgid "Sacrifice this. The land with rich biography. many murders, but also many sacrifices took place here. Now we will sacrifice the population in our demonic prey to ravage this land!"
+msgid "Sacrifice. This land has a rich history, with many murders but also many sacrifices. Now it's our turn to sacrifice the population in our demonic pursuit to ravage this land!"
 msgstr ""
 
 #: landview:31
 msgctxt "Level summary"
-msgid "the Land came back to roots directly to inhabitants we showed as well to be to bad. Even children steal, the excellent work my Lord!"
+msgid "Thievery. The land has returned to its roots, showing the inhabitants to be corrupt. Even children steal. Excellent work, my Lord!"
 msgstr ""
 
 #: landview:40
 msgctxt "Level introduction"
-msgid "Defection. the Land of love and the calm, fie I loathe to such of places, better quickly to these let us see about my Lord."
+msgid "Transformation. A land of love and peace; I abhor such places. We had better deal with this quickly, my Lord."
 msgstr ""
 
 #: landview:41
 msgctxt "Level summary"
-msgid "Over this land hung the new name the Pain. Inhabitants of her slowly themselves go by the board just of course with our help. Ours Black we Will give well and slowly them they torture. The excellent view, the untruth you?"
+msgid "Pain. A new name hangs over this land, Pain. The inhabitants are slowly perishing, of course with our help. Our dark arts will torture them well and slowly. A splendid sight, isn't it, sir?"
 msgstr ""
 
 #: landview:50
 msgctxt "Level introduction"
-msgid "Imps. In mines of this land are Imps which hinder very much in the conquest of this Land, many guards tried, but to none did not succeed. You must be this first!"
+msgid "Imps. In the mines of this land, there are Imps that hinder conquest. Many guards have tried, but none have succeeded. You must be the first!"
 msgstr ""
 
 #: landview:51
 msgctxt "Level summary"
-msgid "Our Imps built the gigantic ravine of the round this land. In the ravine issued the lava and to her we began to lower lively inhabitants of the settlement. The perfect pleasure to watch such unparalleled spectacle, the untruth?"
+msgid "Ravine of Death. Our Imps built a gigantic ravine around this land. Lava flowed through the ravine, and we began to lower the lively inhabitants of the settlement into it. A splendid pleasure to watch such an unparalleled spectacle, isn't it?"
 msgstr ""
 
 #: landview:60
 msgctxt "Level introduction"
-msgid "Clone. Land wields the good and honest lord. The time of him on to teach gentility. Of course our habits!"
+msgid "Cloning. This land is ruled by a good and honest lord. It's time to teach him some manners. Of course, our manners!"
 msgstr ""
 
 #: landview:61
 msgctxt "Level summary"
-msgid "Land we called so because because after gardens of the ruler of the land we spread remainders of human bodies became which after the mass take off of people by through our of favourite of Horned the Ripper. The perfect work you sir!"
+msgid "Bloody Garden. We named this land so because we spread the remains of human bodies around the ruler's gardens after the mass slaughter by our favorite Horned Reaper. Excellent job, sir!"
 msgstr ""
 
 #: landview:70
 msgctxt "Level introduction"
-msgid "Dig. Became to us the still one good land to the destruction. Last remainders of the human sort , elfs and bogy means hide in this land. She will track down them and kill to rule over with the all the world!"
+msgid "Dig. We have yet another good land for destruction. The last remnants of the human, elf, and dwarf races hide in this land. We will track them down and kill them to rule over the entire world!"
 msgstr ""
 
 #: landview:71
 msgctxt "Level summary"
-msgid "So certainly my stamping ground. I worship to go outdoors and to look on the red sky blood and the lava flowing after this land. The excellent work my Lord! "
+msgid "Favorite Spot. This is certainly my favorite place. I love going outside and watching the red sky, the blood, and the flowing lava across this land. Excellent work, my Lord!"
 msgstr ""
