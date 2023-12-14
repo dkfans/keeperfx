@@ -1,0 +1,12 @@
+gui_panel_sprites = [
+    [93,"CTA_BLUE_64","CTA_GREEN_64","CTA_YELLOW_64"],
+    [116,"CTA_BLUE_32","CTA_GREEN_32","CTA_YELLOW_32"]
+
+
+
+#    	GPS_symbols_creatr_mood_vhappy_std = 468,
+#	GPS_symbols_creatr_mood_happy_std = 469,
+#	GPS_symbols_creatr_mood_content_std = 470,
+#	GPS_symbols_creatr_mood_angry_std = 471,
+#	GPS_symbols_creatr_mood_livid_std = 472,
+]
