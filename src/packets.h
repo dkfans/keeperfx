@@ -181,6 +181,7 @@ enum TbPacketAction {
         PckA_SetNearestTeleport,
         PckA_SetRoomspaceDragPaint,
         PckA_PlyrQueryCreature,
+        PckA_PlyrFastMsg2,
 };
 
 /** Packet flags for non-action player operation. */

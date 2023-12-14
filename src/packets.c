@@ -882,6 +882,9 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       //show_onscreen_msg(game.num_fps, "Message from player %d", plyr_idx);
       output_message(SMsg_EnemyHarassments+pckt->actn_par1, 0, true);
       return 0;
+  case PckA_PlyrFastMsg2:
+      output_message(SMsg_EnemyLordQuote + pckt->actn_par1, 0, true);
+      return 0;
   case PckA_SetComputerKind:
       set_autopilot_type(plyr_idx, pckt->actn_par1);
       return 0;
