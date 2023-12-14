@@ -305,38 +305,38 @@ void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, lo
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     int x;
     int y;
-    struct TbSprite* spr = &gui_panel_sprites[242];
+    struct TbSprite* spr = &gui_panel_sprites[GPS_message_frame_thin_hex_ct];
     int ps_units_per_spr = 26*units_per_px/spr->SWidth;
     long i;
     for (i = 0; i < width - 68*units_per_px/16; i += 26*units_per_px/16)
     {
         x = pos_x + i + 34*units_per_px/16;
         y = pos_y;
-        spr = &gui_panel_sprites[242];
+        spr = &gui_panel_sprites[GPS_message_frame_thin_hex_ct];
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
         y += height - 4*units_per_px/16;
-        spr = &gui_panel_sprites[248];
+        spr = &gui_panel_sprites[GPS_message_frame_thin_hex_cb];
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
     }
     for (i = 0; i < height - 56*units_per_px/16; i += 20*units_per_px/16)
     {
         x = pos_x;
         y = pos_y + i + 28*units_per_px/16;
-        spr = &gui_panel_sprites[244];
+        spr = &gui_panel_sprites[GPS_message_frame_thin_hex_cr];
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
         x += width - 4*units_per_px/16;
-        spr = &gui_panel_sprites[246];
+        spr = &gui_panel_sprites[GPS_message_frame_thin_hex_cl];
         LbSpriteDrawResized(x, y, ps_units_per_spr, spr);
     }
     x = pos_x + width - 34*units_per_px/16;
     y = pos_y + height - 28*units_per_px/16;
-    spr = &gui_panel_sprites[241];
+    spr = &gui_panel_sprites[GPS_message_frame_thin_hex_tl];
     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_spr, spr);
-    spr = &gui_panel_sprites[243];
+    spr = &gui_panel_sprites[GPS_message_frame_thin_hex_tr];
     LbSpriteDrawResized(x,     pos_y, ps_units_per_spr, spr);
-    spr = &gui_panel_sprites[247];
+    spr = &gui_panel_sprites[GPS_message_frame_thin_hex_bl];
     LbSpriteDrawResized(pos_x, y,     ps_units_per_spr, spr);
-    spr = &gui_panel_sprites[249];
+    spr = &gui_panel_sprites[GPS_message_frame_thin_hex_br];
     LbSpriteDrawResized(x,     y,     ps_units_per_spr, spr);
     lbDisplay.DrawFlags = drwflags_mem;
 }

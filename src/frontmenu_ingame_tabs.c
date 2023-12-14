@@ -1681,7 +1681,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
       spr_idx++;
     if (MyScreenHeight < 400)
     {
-        struct TbSprite* spr = &gui_panel_sprites[488];
+        struct TbSprite* spr = &gui_panel_sprites[GPS_plyrsym_symbol_player_red_std_b];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 8*units_per_px/16, ps_units_per_px, spr_idx);
@@ -2456,7 +2456,7 @@ void update_powers_tab_to_config(void)
 
 void draw_placefiller(long scr_x, long scr_y, long units_per_px)
 {
-    struct TbSprite* spr = &gui_panel_sprites[547];
+    struct TbSprite* spr = &gui_panel_sprites[GPS_rpanel_rpanel_extra];
     LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
 }
 

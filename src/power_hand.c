@@ -536,7 +536,7 @@ void draw_power_hand(void)
     int ps_units_per_px;
     {
         struct TbSprite *spr;
-        spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
     // Now draw
@@ -1097,7 +1097,7 @@ void draw_mini_things_in_hand(long x, long y)
     // Scale factor
     int ps_units_per_px;
     {
-        struct TbSprite *spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        struct TbSprite *spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
     unsigned long spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);

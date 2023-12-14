@@ -351,7 +351,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[57];
+        struct TbSprite* spr = &gui_panel_sprites[GPS_room_treasury_std_s];//only for size, room irrelevant
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
     long rkind_select = (game.play_gameturn >> 1) % game.slab_conf.room_types_count;
@@ -657,7 +657,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        struct TbSprite* spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
         ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
     }
     struct PlayerInfo* player = get_my_player();
