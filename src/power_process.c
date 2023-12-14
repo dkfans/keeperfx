@@ -279,6 +279,7 @@ void update_god_lightning_ball(struct Thing *thing)
         lightning_modify_palette(thing);
         return;
     }
+    struct ShotConfigStats* shotst;
     long i = (game.play_gameturn - thing->creation_turn) % 16;
     struct Thing* target;
     switch (i)
@@ -290,19 +291,20 @@ void update_god_lightning_ball(struct Thing *thing)
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
+        shotst = get_shot_model_stats(thing->model);
+        draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
         break;
     case 2:
     {
         target = thing_get(thing->shot.target_idx);
         if (thing_is_invalid(target))
             break;
-        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodLightBall);
+        shotst = get_shot_model_stats(thing->model);
         apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
         if (target->health < 0)
         {
             struct CreatureControl* cctrl = creature_control_get_from_thing(target);
-            cctrl->shot_model = ShM_GodLightBall;
+            cctrl->shot_model = thing->model;
             kill_creature(target, INVALID_THING, thing->owner, CrDed_DiedInBattle);
         }
         thing->shot.target_idx = 0;
@@ -381,7 +383,8 @@ void draw_god_lightning(struct Thing *shotng)
         locpos.x.val = (shotng->mappos.x.val + (LbSinL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.y.val = (shotng->mappos.y.val - (LbCosL(i + cam->orient_a) >> (LbFPMath_TrigmBits - 10))) + 128;
         locpos.z.val = shotng->mappos.z.val + subtile_coord(12,0);
-        draw_lightning(&locpos, &shotng->mappos, 256, TngEffElm_ElectricBall3);
+        struct ShotConfigStats* shotst = get_shot_model_stats(ShM_GodLightBall);
+        draw_lightning(&locpos, &shotng->mappos, 256, shotst->effect_id);
     }
 }
 
