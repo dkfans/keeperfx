@@ -733,7 +733,7 @@ void timebomb_explode(struct Thing *creatng)
     SYNCDBG(8, "Explode Timebomb")
     //struct Thing* castng = creatng; //todo cleanup
     long weight = compute_creature_weight(creatng);
-    long weight_multiplier = weight / 32;
+    long weight_multiplier = weight / 64;
     if (weight_multiplier == 0)
     {
         weight_multiplier = 1;
@@ -742,22 +742,10 @@ void timebomb_explode(struct Thing *creatng)
         struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         long dist = (compute_creature_attack_range(shotst->area_range * COORD_PER_STL, crstat->luck, cctrl->explevel) * weight_multiplier);
-        long damage = compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng);
-        if (weight_multiplier > 1)
-        {
-            if (creatng->model == get_players_special_digger_model(creatng->owner))
-            {
-                damage *= weight_multiplier;
-            }
-            else
-            {
-                damage <<= 1;
-            }
-        }
+        long damage = (compute_creature_attack_spell_damage(shotst->area_damage, crstat->luck, cctrl->explevel, creatng) * weight_multiplier);
         HitTargetFlags hit_targets = hit_type_to_hit_targets(shotst->area_hit_type);
         explosion_affecting_area(creatng, &creatng->mappos, dist, damage, shotst->area_blow * weight_multiplier, hit_targets, shotst->damage_type);
     }
-
     struct Thing *efftng = create_used_effect_or_element(&creatng->mappos, TngEff_Explosion5, creatng->owner);
     if (!thing_is_invalid(efftng))
     {
