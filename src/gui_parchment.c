@@ -244,7 +244,7 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         {
             pixval = player_highlight_colours[owner];
       } else
-      if (owner == game.neutral_player_num)
+      if ( (owner == game.neutral_player_num) && (flash_neutral_room_colours) )
       {
           pixval = player_room_colours[game.play_gameturn & 3];
       } else
