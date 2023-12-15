@@ -640,7 +640,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     return 0; // Default: No collision OR boulder destroyed on door
 }
 
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step)
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model)
 {
   MapCoordDelta dist_x;
   MapCoordDelta dist_y;
@@ -700,12 +700,18 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
+        
+        int sprsize = 0;
+        int delta_size = 0;
+
         struct EffectElementConfigStats *eestat;
-        eestat = get_effect_element_model_stats(9);
-        int sprsize;
-        int delta_size;
-        delta_size = ((eestat->sprite_size_max - eestat->sprite_size_min) << 8) / (nsteps+1);
-        sprsize = (eestat->sprite_size_min << 8);
+        if (ef_or_efel_model < 0)
+        {
+            eestat = get_effect_element_model_stats(ef_or_efel_model * -1);
+            delta_size = ((eestat->sprite_size_max - eestat->sprite_size_min) << 8) / (nsteps+1);
+            sprsize = (eestat->sprite_size_min << 8);
+        }
+
         int deviat;
         deviat = 1;
         struct Coord3d curpos;
@@ -721,13 +727,14 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             for (k = num_per_step; k > 0; k--)
             {
                 struct Coord3d tngpos;
-                tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange); // I hope it is only visual
+                tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange);
                 tngpos.y.val = curpos.y.val + deviat - UNSYNC_RANDOM(devrange);
                 tngpos.z.val = curpos.z.val + deviat - UNSYNC_RANDOM(devrange);
                 if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
                 {
                     struct Thing *eelemtng;
-                    eelemtng = create_thing(&tngpos, TCls_EffectElem, TngEffElm_BallOfLight, game.neutral_player_num, -1);
+
+                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
                     if (!thing_is_invalid(eelemtng)) {
                         eelemtng->sprite_size = sprsize >> 8;
                     }
@@ -742,7 +749,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
     }
 }
 
-void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, long eemodel)
+void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, EffectOrEffElModel ef_or_efel_model)
 {
     MapCoordDelta dist_x = pos2->x.val - pos1->x.val;
     MapCoordDelta dist_y = pos2->y.val - pos1->y.val;
@@ -803,7 +810,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             tngpos.z.val = curpos.z.val + deviat_z;
             if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
             {
-                create_thing(&tngpos, TCls_EffectElem, eemodel, game.neutral_player_num, -1);
+                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
             }
             if (UNSYNC_RANDOM(6) >= 3) {
                 deviat_x -= 32;

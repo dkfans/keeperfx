@@ -64,6 +64,26 @@ enum ShotModels {
     ShM_TrapTNT = 32,
 };
 
+enum ShotFireLogics {
+    ShFL_Default = 0,
+    ShFL_Beam,
+    ShFL_Breathe,
+    ShFL_Hail,
+    ShFL_Lizard
+};
+
+enum ShotUpdateLogics {
+    ShUL_Default = 0,
+    ShUL_Lightning,
+    ShUL_Wind,
+    ShUL_Grenade,
+    ShUL_GodLightning,
+    ShUL_Lizard,
+    ShUL_GodLightBall,
+    ShUL_TrapTNT,
+    ShUL_TrapLightning,
+};
+
 /******************************************************************************/
 #pragma pack(1)
 

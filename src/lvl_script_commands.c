@@ -2140,6 +2140,9 @@ static void set_door_configuration_process(struct ScriptContext *context)
                 doorst->open_speed = value;
             }
             break;
+        case 14: // Properties
+            doorst->model_flags = value;
+            break;
         case 15: // PlaceSound
             if (door_type < gameadd.trapdoor_conf.door_types_count)
             {
