@@ -4131,24 +4131,20 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         case 5: // Castability
         {
 
-            long long j;
-            char *flag = strtok(new_value," ");
-            while ( flag != NULL )
+            long long j = get_long_id(powermodel_castability_commands, new_value);
+            if (j <= 0)
             {
-                j = get_long_id(powermodel_castability_commands, flag);
-                if (j > 0)
-                {
-                    number_value |= j;
-                } else
-                {
-                    SCRPTERRLOG("Incorrect castability value");
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                flag = strtok(NULL, " " );
+                SCRPTERRLOG("Incorrect castability value");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            else
+            {
+                number_value = j;
             }
             unsigned long long *new = (unsigned long long*)&value->uarg1;
             *new = number_value;
+            value->bytes[3] = atoi(scline->tp[3]);
             break;
         }
         case 6: // Artifact
@@ -4163,22 +4159,18 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         }
         case 14: // Properties
         {
-            char *flag = strtok(new_value," ");
-            while ( flag != NULL )
+            k = get_id(powermodel_properties_commands, new_value);
+            if (k <= 0)
             {
-                k = get_id(powermodel_properties_commands, flag);
-                if (k > 0)
-                {
-                    number_value |= k;
-                } else
-                {
-                    SCRPTERRLOG("Incorrect property value");
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                flag = strtok( NULL, " " );
+                SCRPTERRLOG("Incorrect property value");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
             }
-            value->arg2 = number_value;
+            else
+            {
+                number_value = k;
+            }
+            value->bytes[3] = atoi(scline->tp[3]);
             break;
         }
         case 15: // Functions
@@ -4242,7 +4234,15 @@ static void set_power_configuration_process(struct ScriptContext *context)
         case 5: // Castability
         {
             unsigned long long *value = (unsigned long long*)&context->value->uarg1;
-            powerst->can_cast_flags = *value;
+            unsigned long long flag = *value;
+            if (context->value->bytes[3])
+            {
+                powerst->can_cast_flags |= flag;
+            }
+            else
+            {
+                powerst->can_cast_flags &= ~flag;
+            }
             break;
         }
         case 6: // Artifact
@@ -4269,7 +4269,14 @@ static void set_power_configuration_process(struct ScriptContext *context)
             powerst->select_sample_idx = context->value->arg2;
             break;
         case 14: // Properties
-            powerst->config_flags = context->value->arg2;
+            if (context->value->bytes[3])
+            {
+                powerst->config_flags |= context->value->arg2;
+            }
+            else
+            {
+                powerst->config_flags &= ~context->value->arg2;
+            }
             break;
         case 15: // Functions
             powerst->overcharge_check = powermodel_expand_check_func_list[context->value->arg2];
