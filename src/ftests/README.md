@@ -23,8 +23,8 @@ They also skip the trademark/cutscene by default for super fast launch.
 1. Enable Functional Testing
     - <b>CTRL+SHIFT+B</b> (VSCode shortcut for switching debug option)
     - select one of the FTEST_DEBUG options
-        - FTEST_DEBUG=1 for debugging info
-        - FTEST_DEBUG=0 for without
+        - FTEST_DEBUG=1    (debug symbols ON, functional tests ON)
+		- FTEST_DEBUG=0    (debug symbols OFF, functional tests ON)
 2. Update [launch.json](../../.vscode/launch.json)
     - add `-ftests` argument to run all tests *(optionally provide the name of an existing test to run)*
 
@@ -47,17 +47,26 @@ They also skip the trademark/cutscene by default for super fast launch.
     - [ftest_template.h](./tests/ftest_template.h) example: `ftest_bug_warlock_cooks_chicken.h`
     - [ftest_template.c](./tests/ftest_template.c) example: `ftest_bug_warlock_cooks_chicken.c`
 2. Update the name of the init function inside your new files to also reflect the name of your test.
-    - [ftest_template_init](./tests/ftest_template.h#L17) example: `ftest_bug_warlock_cooks_chicken_init`
+    - [ftest_template_init.h](./tests/ftest_template.h#L17) example: `ftest_bug_warlock_cooks_chicken_init`
+    - [ftest_template_init.c](./tests/ftest_template.c#L44) example: `ftest_bug_warlock_cooks_chicken_init`
 3. Implement test actions in your .c file.
     - follow the naming convention provided `ftest_<test_name>__action###__<action_name>`
-    - this is not required, but doing so prevents naming collisions from occuring
+        - this is not required, but doing so prevents naming collisions from occuring
+    - declare any test variables inside a struct like `ftest_template__variables` see [ftest_template_init.c](./tests/ftest_template.c#L21), eg: `ftest_bug_warlock_cooks_chicken__variables`
+        - define instances of the variables struct and set their values, like `ftest_template__vars` see [ftest_template_init.c](./tests/ftest_template.c#L30), eg: `ftest_bug_warlock_cooks_chicken__vars`
+        - again, not required, but highly recommended for preventing many naming collisions; tests usually have a lot of variables!
+    - use the variables inside your test actions
+        1. when appending test actions using `ftest_append_action`, pass a reference of your vars, see [ftest_template_init.c](./tests/ftest_template.c#L49)
+        2. access the vars inside your actions by casting `args->data` to your variables type, see [ftest_template_init.c](./tests/ftest_template.c#L60)
+            - doing this allows for more flexibility, the test actions can be re-used multiple times with different data in your test, or other tests can use your actions.
+            - NOTE: you may access your glolbal variables `__vars` directly instead of using `args->data`, but this makes the actions not as flexible or re-usable.
 4. Update your tests init function
     - for example, inside `ftest_bug_warlock_cooks_chicken.c` make sure all your actions are appended
         - `ftest_append_action( ftest_template_action001__spawn_warlock,            100, NULL );`
         - `ftest_append_action( ftest_template_action002__drop_chicken_on_warlock,  100, NULL );`
     - actions are executed:
-        - *sequentially*: `action002` will not execute until the previous action `returns true`
-        - *after the `game turn delay`*: provided to `ftest_append_action(<test_action>, <game_turn_delay>)`
+        - **sequentially**: `action002` will not execute until the previous action `returns true`
+        - **after the `game turn delay`**: provided to `ftest_append_action(<test_action>, <game_turn_delay>)`
         
          this means if an action always `returns false` it will never finish and the `test will run forever`
      
@@ -65,7 +74,7 @@ They also skip the trademark/cutscene by default for super fast launch.
     - add the include for your tests header file
         - example: `#include "tests/ftest_bug_warlock_cooks_chicken.h"`
     - update [tests_list](./ftest_list.c#L30)
-        - add the `test_name` of your test, your tests `init_func`, the `level_file` and specify the `frame_skip`
+        - add the `test_name` of your test, your tests `init_func`, the `level_file` and specify the `frame_skip` *(there are other advanced optional values not listed here)*
         - example: `{ .test_name="bug_warlock_cooks_chicken",  .init_func=ftest_bug_warlock_cooks_chicken_init,  .level_file="keeporig",  .level=1,  .frame_skip=0 },`
         - this `test_name` is what you pass to the `ftests` arg in [launch.json](../../.vscode/launch.json) if you only want to run that test
 6. [Run Your Test](#run-existing-test)
