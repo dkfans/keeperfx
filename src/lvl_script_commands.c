@@ -4130,7 +4130,6 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         }
         case 5: // Castability
         {
-
             long long j = get_long_id(powermodel_castability_commands, new_value);
             if (j <= 0)
             {
