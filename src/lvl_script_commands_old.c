@@ -205,7 +205,7 @@ static void command_add_object_to_level(const char *obj_name, const char *locnam
 static void command_add_effect_generator_to_level(const char* generator_name, const char* locname, long range)
 {
     TbMapLocation location;
-    long gen_id = get_rid(effectgen_desc, generator_name);
+    unsigned char gen_id = get_rid(effectgen_desc, generator_name);
     if (gen_id == -1)
     {
         SCRPTERRLOG("Unknown effect generator, '%s'", generator_name);
@@ -230,8 +230,8 @@ static void command_add_effect_generator_to_level(const char* generator_name, co
         pr_trig->flags = TrgF_CREATE_EFFECT_GENERATOR;
         pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
         pr_trig->plyr_idx = 0; //not needed
-        pr_trig->creatr_id = gen_id & 0x7F;
-        pr_trig->crtr_level = ((gen_id >> 7) & 7); // mystery bitshift
+        pr_trig->creatr_id = 0; //not needed
+        pr_trig->crtr_level = gen_id;
         pr_trig->carried_gold = range;
         pr_trig->location = location;
         pr_trig->ncopies = 1;
