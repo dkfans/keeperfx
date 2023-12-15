@@ -990,6 +990,11 @@ static void process_party(struct PartyTrigger* pr_trig)
         SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
         script_process_new_object(n, pr_trig->location, pr_trig->carried_gold, pr_trig->plyr_idx);
         break;
+    case TrgF_CREATE_EFFECT_GENERATOR:
+        n |= ((pr_trig->crtr_level & 7) << 7);
+        SYNCDBG(6, "Adding effect generator %d at location %d", (int)n, (int)pr_trig->location);
+        script_process_new_effectgen(n, pr_trig->location, pr_trig->carried_gold);
+        break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
         script_process_new_party(&gameadd.script.creature_partys[n],
