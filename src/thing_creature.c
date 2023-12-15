@@ -2935,37 +2935,35 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         target_idx = target->index;
     }
     struct ComponentVector cvect;
-    switch (shot_model)
+
+    switch (shotst->fire_logic)
     {
-    case ShM_Lightning:
-    case ShM_Drain:
+    case ShFL_Beam:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
         {
-            project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 20);
+            project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
         }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
-        if (shot_model == ShM_Drain)
-          draw_lightning(&pos1, &pos2, 96, TngEffElm_RedDot);
-        else
-          draw_lightning(&pos1, &pos2, 96, TngEffElm_ElectricBall3);
+        draw_lightning(&pos1, &pos2, shotst->effect_spacing, shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
-    case ShM_FlameBreathe:
+    case ShFL_Breathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
-          project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 4);
+          project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
-        draw_flame_breath(&pos1, &pos2, 96, 2);
+        
+        draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
-    case ShM_Hail_storm:
+    case ShFL_Hail:
     {
         long i;
         if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
@@ -2973,7 +2971,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             pos1.x.val = firing->mappos.x.val;
             pos1.y.val = firing->mappos.y.val;
         }
-        for (i = 0; i < 32; i++)
+        for (i = 0; i < shotst->effect_amount; i++)
         {
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
@@ -2993,6 +2991,8 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         }
         break;
     }
+    case ShFL_Lizard:
+    case ShFL_Default:
     default:
         if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
         {
@@ -3014,7 +3014,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng->parent_idx = firing->index;
         shotng->shot.target_idx = target_idx;
         shotng->shot.dexterity = dexterity;
-            if (shot_model == ShM_Lizard)
+            if (shotst->fire_logic == ShFL_Lizard)
             {
                 if (!thing_is_invalid(target))
                 {
