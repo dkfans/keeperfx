@@ -39,39 +39,35 @@ const char keeper_spritecolors_file[]="spritecolors.toml";
 /******************************************************************************/
 #define MAX_COLORED_SPRITES 255
 #define PLAYER_COLORS_COUNT 5
-short sprite_color_equivalent[MAX_COLORED_SPRITES][PLAYER_COLORS_COUNT];
+short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 /******************************************************************************/
 
-TbBool load_spritecolors_config_file(const char *textname, const char *fname, unsigned short flags)
+static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsigned short flags)
 {
-    VALUE file_root;
-    if (!load_toml_file(textname, fname,&file_root,flags))
-        return false;
-
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        memset(sprite_color_equivalent,0,sizeof(sprite_color_equivalent));
+        memset(arr,0,sizeof(short) * MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT );
     }
-
-    VALUE *gui_panel_sprites_arr = value_dict_get(&file_root, "gui_panel_sprites");
-    if(value_array_size(gui_panel_sprites_arr) > MAX_COLORED_SPRITES)
+    VALUE *toml_arr = value_dict_get(file_root, arr_name);
+    if(value_array_size(toml_arr) > MAX_COLORED_SPRITES)
     {
-        WARNLOG("to many colored frames, max %d got %d",MAX_COLORED_SPRITES,value_array_size(gui_panel_sprites_arr));
+        WARNLOG("to many colored frames, max %d got %d",MAX_COLORED_SPRITES,value_array_size(toml_arr));
     }
-    for (size_t sprite_no = 0; sprite_no < value_array_size(gui_panel_sprites_arr); sprite_no++)
+    for (size_t sprite_no = 0; sprite_no < value_array_size(toml_arr); sprite_no++)
     {
-        VALUE *col_arr = value_array_get(gui_panel_sprites_arr, sprite_no);
+        VALUE *col_arr = value_array_get(toml_arr, sprite_no);
         if (value_array_size(col_arr) > PLAYER_COLORS_COUNT)
         {
-            WARNLOG("to many colors for sprite, max %d got %d",PLAYER_COLORS_COUNT,value_array_size(col_arr));
+            WARNLOG("to many colors for %s, max %d got %d",arr_name,PLAYER_COLORS_COUNT,value_array_size(col_arr));
+            continue;
         }
 
-        for (size_t i = 0; i < value_array_size(col_arr); i++)
+        for (size_t plr_idx = 0; plr_idx < value_array_size(col_arr); plr_idx++)
         {
-            VALUE * entry = value_array_get(col_arr, i);
-            JUSTLOG("value_type(entry) %d",value_type(entry));
+            VALUE * entry = value_array_get(col_arr, plr_idx);
             if(value_type(entry) == VALUE_INT32)
-                sprite_color_equivalent[sprite_no][i] = value_int32(entry);
+                arr[sprite_no * PLAYER_COLORS_COUNT + plr_idx] = value_int32(entry);
             else
             {
                 short icon_id = get_icon_id(value_string(entry));
@@ -79,18 +75,24 @@ TbBool load_spritecolors_config_file(const char *textname, const char *fname, un
                 {
                     WARNLOG("unknown sprite %s",value_string(entry));
                 }
-                sprite_color_equivalent[sprite_no][i] = icon_id;
+                arr[sprite_no * PLAYER_COLORS_COUNT + plr_idx] = icon_id;
             }
-                
         }
-    
     }
+}
 
+static TbBool load_spritecolors_config_file(const char *textname, const char *fname, unsigned short flags)
+{
+    VALUE file_root;
+    if (!load_toml_file(textname, fname,&file_root,flags))
+        return false;
+
+    load_array(&file_root,"gui_panel_sprites",gui_panel_sprites_eq,flags);
+    load_array(&file_root,"pointer_sprites",pointer_sprites_eq,flags);
     value_fini(&file_root);
     
     return true;
 }
-
 
 TbBool load_spritecolors_config(const char *conf_fname,unsigned short flags)
 {
@@ -108,7 +110,7 @@ TbBool load_spritecolors_config(const char *conf_fname,unsigned short flags)
     return result;
 }
 
-short get_player_colored_icon_idx(short base_icon_idx,PlayerNumber plyr_idx)
+static short get_player_colored_idx(short base_icon_idx,PlayerNumber plyr_idx,short *arr)
 {
     if(plyr_idx == PLAYER0)
     {
@@ -117,17 +119,25 @@ short get_player_colored_icon_idx(short base_icon_idx,PlayerNumber plyr_idx)
     }
     for (size_t i = 0; i < MAX_COLORED_SPRITES; i++)
     {
-        if(sprite_color_equivalent[i][PLAYER0] == base_icon_idx)
+        if(arr[i * PLAYER_COLORS_COUNT] == base_icon_idx)
         {
-            JUSTLOG("sprite_color_equivalent[i][plyr_idx]; %d",sprite_color_equivalent[i][plyr_idx]);
-            return sprite_color_equivalent[i][plyr_idx];
+            return arr[i * PLAYER_COLORS_COUNT + plyr_idx];
         }
-        else if (sprite_color_equivalent[i][PLAYER0] == 0)
+        else if (arr[i * PLAYER_COLORS_COUNT + PLAYER0] == 0)
         {
             return base_icon_idx;
         }
     }
     return base_icon_idx;
+}
+
+short get_player_colored_icon_idx(short base_icon_idx,PlayerNumber plyr_idx)
+{
+    return get_player_colored_idx(base_icon_idx,plyr_idx,gui_panel_sprites_eq);
+}
+short get_player_colored_pointer_icon_idx(short base_icon_idx,PlayerNumber plyr_idx)
+{
+    return get_player_colored_idx(base_icon_idx,plyr_idx,pointer_sprites_eq);
 }
 
 /******************************************************************************/

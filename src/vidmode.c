@@ -30,6 +30,8 @@
 #include "bflib_sprfnt.h"
 #include "bflib_filelst.h"
 
+
+#include "config_spritecolors.h"
 #include "vidfade.h"
 #include "front_simple.h"
 #include "front_landview.h"
@@ -346,7 +348,9 @@ TbBool set_pointer_graphic(long ptr_idx)
         WARNLOG("Pointer sprites not loaded, setting to none");
         LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
         return false;
-  }
+    }
+    ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
+
   switch (ptr_idx)
   {
   case MousePG_Invisible:
