@@ -4093,28 +4093,41 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     const char* generator_name = scline->tp[0];
     const char* locname = scline->tp[1];
     long range = scline->np[2];
+    const char* generator_name = scline->tp[0];
 
     TbMapLocation location;
-    long gen_id = get_rid(effectgen_desc, generator_name);
-    if (gen_id == -1)
+    long gen_id;
+    if (parameter_is_number(generator_name))
+    {
+        gen_id = atoi(generator_name);
+    }
+    else
+    {
+        gen_id = get_rid(effectgen_desc, generator_name);
+    }
+    if (gen_id <= 0)
     {
         SCRPTERRLOG("Unknown effect generator, '%s'", generator_name);
+        DEALLOCATE_SCRIPT_VALUE;
         return;
     }
     if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
     {
         SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        DEALLOCATE_SCRIPT_VALUE;
         return;
     }
 
     // Recognize place where party is created
     if (!get_map_location_id(locname, &location))
+    {
+        DEALLOCATE_SCRIPT_VALUE;
         return;
+    }
     value->shorts[0] = gen_id;
     value->shorts[1] = location;
     value->shorts[2] = range;
     PROCESS_SCRIPT_VALUE(scline->command);
-
 }
 
 static void add_effectgen_to_level_process(struct ScriptContext* context)
