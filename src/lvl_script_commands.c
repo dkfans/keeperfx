@@ -4143,7 +4143,11 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             }
             unsigned long long *new = (unsigned long long*)&value->uarg1;
             *new = number_value;
-            value->bytes[3] = atoi(scline->tp[3]);
+            value->chars[3] = -1;
+            if (scline->tp[3][0] != '\0')
+            {
+                value->chars[3] = atoi(scline->tp[3]);
+            }
             break;
         }
         case 6: // Artifact
@@ -4248,13 +4252,17 @@ static void set_power_configuration_process(struct ScriptContext *context)
         {
             unsigned long long *value = (unsigned long long*)&context->value->uarg1;
             unsigned long long flag = *value;
-            if (context->value->bytes[3])
+            if (context->value->chars[3] == 1)
             {
-                powerst->can_cast_flags |= flag;
+                set_flag(powerst->can_cast_flags, flag);
+            }
+            else if (context->value->chars[3] == 0)
+            {
+                clear_flag(powerst->can_cast_flags, flag);
             }
             else
             {
-                powerst->can_cast_flags &= ~flag;
+                powerst->can_cast_flags = flag;
             }
             break;
         }
