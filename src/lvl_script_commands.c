@@ -4157,7 +4157,6 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             if (k >= 0) 
             {
                   number_value = k;
-                  // gameadd.object_conf.object_to_power_artifact[k] = i;
             }
             value->arg2 = number_value;
             break;
@@ -4248,6 +4247,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
         }
         case 6: // Artifact
             powerst->artifact_model = context->value->arg2;
+            gameadd.object_conf.object_to_power_artifact[powerst->artifact_model] = context->value->shorts[0];
             break;
         case 7: // NameTextID
             powerst->name_stridx = context->value->arg2;
