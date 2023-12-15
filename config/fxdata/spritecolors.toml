@@ -7,11 +7,11 @@ gui_panel_sprites = [
 
 
 
-#    	GPS_symbols_creatr_mood_vhappy_std = [468,
-#	GPS_symbols_creatr_mood_happy_std =      [469,
-#	GPS_symbols_creatr_mood_content_std =    [470,
-#	GPS_symbols_creatr_mood_angry_std =      [471,
-#	GPS_symbols_creatr_mood_livid_std =      [472,
+#   [468,MOOD_VHAPPY_BLUE
+#	[469,MOOD_HAPPY_BLUE 
+#	[470,MOOD_CONTENT   
+#	[471,MOOD_ANGRY   
+#	[472,MOOD_LIVID
 ]
 
 pointer_sprites = [

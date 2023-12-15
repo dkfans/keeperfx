@@ -114,8 +114,7 @@ static short get_player_colored_idx(short base_icon_idx,PlayerNumber plyr_idx,sh
 {
     if(plyr_idx == PLAYER0)
     {
-        plyr_idx = PLAYER1;
-        //return base_icon_idx;
+        return base_icon_idx;
     }
     for (size_t i = 0; i < MAX_COLORED_SPRITES; i++)
     {
