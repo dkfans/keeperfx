@@ -202,44 +202,6 @@ static void command_add_object_to_level(const char *obj_name, const char *locnam
     }
 }
 
-static void command_add_effect_generator_to_level(const char* generator_name, const char* locname, long range)
-{
-    TbMapLocation location;
-    unsigned char gen_id = get_rid(effectgen_desc, generator_name);
-    if (gen_id == -1)
-    {
-        SCRPTERRLOG("Unknown effect generator, '%s'", generator_name);
-        return;
-    }
-    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
-    {
-        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
-        return;
-    }
-
-    // Recognize place where party is created
-    if (!get_map_location_id(locname, &location))
-        return;
-    if (get_script_current_condition() == CONDITION_ALWAYS)
-    {
-        script_process_new_effectgen(gen_id, location, range);
-    }
-    else
-    {
-        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
-        pr_trig->flags = TrgF_CREATE_EFFECT_GENERATOR;
-        pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
-        pr_trig->plyr_idx = 0; //not needed
-        pr_trig->creatr_id = 0; //not needed
-        pr_trig->crtr_level = gen_id;
-        pr_trig->carried_gold = range;
-        pr_trig->location = location;
-        pr_trig->ncopies = 1;
-        pr_trig->condit_idx = get_script_current_condition();
-        gameadd.script.party_triggers_num++;
-    }
-}
-
 static void command_add_creature_to_level(long plr_range_id, const char *crtr_name, const char *locname, long ncopies, long crtr_level, long carried_gold)
 {
     TbMapLocation location;
@@ -1706,9 +1668,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_ADD_OBJECT_TO_LEVEL:
         command_add_object_to_level(scline->tp[0], scline->tp[1], scline->np[2], scline->tp[3]);
-        break;
-    case Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL:
-        command_add_effect_generator_to_level(scline->tp[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_ENDIF:
         pop_condition();
