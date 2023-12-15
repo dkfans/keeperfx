@@ -4148,7 +4148,7 @@ short process_command_line(unsigned short argc, char *argv[])
 #ifdef FUNCTESTING
         ftest_init(); // initialise test framework on ftest build
 #else
-        WARNING_DIALOG("Flag '%s' disabled for release builds.", parstr);
+        WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
       }
       else if(strcasecmp(parstr, "exitonfailedtest") == 0)
@@ -4156,7 +4156,7 @@ short process_command_line(unsigned short argc, char *argv[])
 #ifdef FUNCTESTING
         set_flag_byte(&start_params.functest_flags, FTF_ExitOnTestFailure, true);
 #else
-        WARNING_DIALOG("Flag '%s' disabled for release builds.", parstr);
+       WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
       }
       else
@@ -4191,7 +4191,9 @@ short process_command_line(unsigned short argc, char *argv[])
 
   if(bad_param != 0)
   {
-    WARNING_DIALOG("Unrecognized command line parameters '%s'.", bad_params);
+    int res = 0;
+    WARNING_DIALOG(res, "Found invalid command line parameters '%s'.\nPlease correct your Run options, or expect unintended behavior.\n\nSee '%s' for details.", bad_params, log_file_name);
+    return res;
   }
 
   return (bad_param==0);
@@ -4206,8 +4208,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
-        static const char *msg_text="Found one or more invalid command line parameters. Please correct your Run options.\n\n";
-        error_dialog_fatal(__func__, 1, msg_text);
         LbErrorLogClose();
         return 0;
     }
