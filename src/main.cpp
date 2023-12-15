@@ -3952,6 +3952,7 @@ short process_command_line(unsigned short argc, char *argv[])
   level_num = LEVELNUMBER_ERROR;
   TbBool one_player_mode = 0;
   narg = 1;
+  char bad_params[TEXT_BUFFER_LENGTH] = "\0";
   while ( narg < argc )
   {
       char *par;
@@ -4153,7 +4154,10 @@ short process_command_line(unsigned short argc, char *argv[])
       }
       else
       {
-        WARNING_DIALOG("Unrecognized command line parameter '%s'.",parstr);
+        // append bad parstr to bad_params string
+        char param_buffer[128] = "\0";
+        Lbvsprintf(param_buffer, "%s%s", strnlen(bad_params, TEXT_BUFFER_LENGTH) > 0 ? ", " : "" , parstr);
+        strcat(bad_params, param_buffer);
         bad_param=narg;
       }
       narg++;
@@ -4177,6 +4181,12 @@ short process_command_line(unsigned short argc, char *argv[])
   }
   start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
+
+  if(bad_param != 0)
+  {
+    WARNING_DIALOG("Unrecognized command line parameters '%s'.", bad_params);
+  }
+
   return (bad_param==0);
 }
 
