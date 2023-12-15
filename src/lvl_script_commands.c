@@ -4184,7 +4184,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             value->arg2 = number_value;
             break;
         }
-        case 16: /// PlayerState
+        case 16: // PlayerState
         {
             k = get_id(player_state_commands, new_value);
             if (k >= 0)
@@ -4207,8 +4207,22 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         default:
             value->arg2 = atoi(new_value);
     }
-    
-    SCRIPTDBG(7, "Setting power %s property %s to %lld", powername, property, number_value);
+    #if (BFDEBUG_LEVEL >= 7)
+    {
+        if (powervar == 5)
+        {
+            SCRIPTDBG(7, "Toggling %s castability flag: %lld", powername, number_value);
+        }
+        else if (powervar == 14)
+        {
+            SCRIPTDBG(7, "Toggling %s property flag: %lld", powername, number_value);
+        }
+        else
+        {
+            SCRIPTDBG(7, "Setting power %s property %s to %lld", powername, property, number_value);
+        }
+    }
+    #endif
     value->shorts[0] = power_id;
     value->bytes[2] = powervar;
 
