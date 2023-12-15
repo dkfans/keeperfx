@@ -174,6 +174,7 @@ enum TbScriptCommands {
     Cmd_NEW_ROOM_TYPE                     = 161,
     Cmd_NEW_CREATURE_TYPE                 = 162,
     Cmd_SET_POWER_HAND                    = 163,
+    SET_POWER_CONFIGURATION               = 164,
 };
 
 struct ScriptLine {
