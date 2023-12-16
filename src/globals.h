@@ -200,6 +200,8 @@ typedef unsigned char ThingClass;
 typedef unsigned char ThingModel;
 /** Type which stores thing index. */
 typedef unsigned short ThingIndex;
+/** Type which stores effectModels on positive or EffectElements on Negative. */
+typedef short EffectOrEffElModel;
 /** Type which stores creature state index. */
 typedef unsigned short CrtrStateId;
 /** Type which stores creature experience level. */
