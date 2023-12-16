@@ -19,9 +19,12 @@ gui_panel_sprites = [
     [  9,  9,625,627,631,629],#rpanel_tab_room
     [154,154,653,655,659,657],#trap_alarm_low
     [132,132,661,663,667,665],#trap_alarm_high
-
 ]
 
 pointer_sprites = [
-    [40,40,"CTA_BLUE_CASTING","CTA_GREEN_CASTING","CTA_YELLOW_CASTING"],
+    [ 40, 40,203,211,227,219],#quadptr_power_cta
+    [193,193,267,243,270,269],#tileptr_power_cta
+    [ 80, 80,235,268,259,251],#quadptr_power_mkdigger
+    [ 38, 38,271,272,274,273],#tileptr_room_guardpst
+    [  9,  9,275,276,278,277],#tileptr_trap_alarm
 ]
