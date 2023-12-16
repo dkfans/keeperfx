@@ -321,6 +321,19 @@ TbBool thing_is_sellable_door(const struct Thing* thing)
     return (doorst->unsellable == 0);
 }
 
+struct Thing *get_door_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    MapCoord pos_x = subtile_coord_center(slab_subtile_center(slb_x));
+    MapCoord pos_y = subtile_coord_center(slab_subtile_center(slb_y));
+    return get_door_around_of_model_and_owned_by(pos_x, pos_y, -1, -1);
+}
+
+TbBool slab_is_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Thing* doortng = get_door_for_slab_position(slb_x, slb_y);
+    return thing_is_sellable_trap(doortng);
+}
+
 TbBool door_can_stand(struct Thing *thing)
 {
     unsigned int wall_flags = 0;
