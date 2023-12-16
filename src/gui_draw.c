@@ -30,8 +30,10 @@
 #include "bflib_guibtns.h"
 #include "config_strings.h"
 
+#include "player_data.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "config_spritecolors.h"
 #include "custom_sprites.h"
 #include "sprites.h"
 #include "post_inc.h"
@@ -735,7 +737,7 @@ void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx)
 {
     if ((spridx <= 0) || (spridx >= num_icons_total))
       return;
-    spridx = get_player_colored_icon_idx(spridx);
+    spridx = get_player_colored_icon_idx(spridx,my_player_number);
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResized(x, y, units_per_px, spr);
 }
@@ -744,7 +746,7 @@ void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx,
 {
     if ((spridx <= 0) || (spridx >= num_icons_total))
       return;
-    spridx = get_player_colored_icon_idx(spridx);
+    spridx = get_player_colored_icon_idx(spridx,my_player_number);
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
 }
@@ -753,7 +755,7 @@ void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx,
 {
     if ((spridx <= 0) || (spridx > num_icons_total))
       return;
-    spridx = get_player_colored_icon_idx(spridx);
+    spridx = get_player_colored_icon_idx(spridx,my_player_number);
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResizedOneColour(x, y, units_per_px, spr, color);
 }
@@ -762,7 +764,7 @@ void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long sprid
 {
     if ((spridx <= 0) || (spridx > num_icons_total))
       return;
-    spridx = get_player_colored_icon_idx(spridx);
+    spridx = get_player_colored_icon_idx(spridx,my_player_number);
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
@@ -773,7 +775,7 @@ void draw_gui_panel_sprite_occentered(long x, long y, int units_per_px, long spr
 {
     if ((spridx <= 0) || (spridx > num_icons_total))
       return;
-    spridx = get_player_colored_icon_idx(spridx);
+    spridx = get_player_colored_icon_idx(spridx,my_player_number);
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     x -= ((spr->SWidth*units_per_px/16) >> 1);
     y -= ((spr->SHeight*units_per_px/16) >> 1);
