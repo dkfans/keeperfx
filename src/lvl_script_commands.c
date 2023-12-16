@@ -4122,6 +4122,74 @@ static void set_power_hand_process(struct ScriptContext *context)
     }
 }
 
+static void add_effectgen_to_level_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    const char* generator_name = scline->tp[0];
+    const char* locname = scline->tp[1];
+    long range = scline->np[2];
+
+    TbMapLocation location;
+    long gen_id;
+    if (parameter_is_number(generator_name))
+    {
+        gen_id = atoi(generator_name);
+    }
+    else
+    {
+        gen_id = get_rid(effectgen_desc, generator_name);
+    }
+    if (gen_id <= 0)
+    {
+        SCRPTERRLOG("Unknown effect generator, '%s'", generator_name);
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+
+    // Recognize place where party is created
+    if (!get_map_location_id(locname, &location))
+    {
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+    value->shorts[0] = gen_id;
+    value->shorts[1] = location;
+    value->shorts[2] = range;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_effectgen_to_level_process(struct ScriptContext* context)
+{
+    short gen_id = context->value->shorts[0];
+    short location = context->value->shorts[1];
+    short range = context->value->shorts[2];
+    if (get_script_current_condition() == CONDITION_ALWAYS)
+    {
+        script_process_new_effectgen(gen_id, location, range);
+    }
+    else
+    {
+        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        pr_trig->flags = TrgF_CREATE_EFFECT_GENERATOR;
+        pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
+        pr_trig->plyr_idx = 0; //not needed
+        pr_trig->creatr_id = 0; //not needed
+        pr_trig->crtr_level = gen_id;
+        pr_trig->carried_gold = range;
+        pr_trig->location = location;
+        pr_trig->ncopies = 1;
+        pr_trig->condit_idx = get_script_current_condition();
+        gameadd.script.party_triggers_num++;
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -4265,6 +4333,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
   {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process },
   {"SET_POWER_HAND",                    "PA      ", Cmd_SET_POWER_HAND, &set_power_hand_check, &set_power_hand_process },
+  {"ADD_EFFECT_GENERATOR_TO_LEVEL",     "AAN     ", Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL, &add_effectgen_to_level_check, &add_effectgen_to_level_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
