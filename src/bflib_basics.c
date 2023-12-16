@@ -220,8 +220,8 @@ short warning_dialog(const char *codefile,const int ecode,const char *message)
   LbWarnLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
 
   const SDL_MessageBoxButtonData buttons[] = {
-		{ .flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, .buttonid = 0, .text = "abort" },
-    { .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "continue" },
+		{ .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "Ignore" },
+    { .flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, .buttonid = 0, .text = "Abort" },
 	};
 
 	const SDL_MessageBoxData messageboxdata = {
