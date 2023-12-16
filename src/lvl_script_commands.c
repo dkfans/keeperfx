@@ -4166,24 +4166,43 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         }
         case 5: // Castability
         {
-            long long j = get_long_id(powermodel_castability_commands, new_value);
-            if (j <= 0)
+            long long j;
+            if (scline->tp[3][0] != '\0')
             {
-                SCRPTERRLOG("Incorrect castability value");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
+                j = get_long_id(powermodel_castability_commands, new_value);
+                if (j <= 0)
+                {
+                    SCRPTERRLOG("Incorrect castability value");
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                else
+                {
+                    number_value = j;
+                }
+                value->chars[3] = atoi(scline->tp[3]);
             }
             else
             {
-                number_value = j;
+                char *flag = strtok(new_value," ");
+                while ( flag != NULL )
+                {
+                    j = get_long_id(powermodel_castability_commands, flag);
+                    if (j > 0)
+                    {
+                        number_value |= j;
+                    } else
+                    {
+                        SCRPTERRLOG("Incorrect castability value");
+                        DEALLOCATE_SCRIPT_VALUE
+                        return;
+                    }
+                    flag = strtok(NULL, " " );
+                }
+                value->chars[3] = -1;
             }
             unsigned long long *new = (unsigned long long*)&value->uarg1;
             *new = number_value;
-            value->chars[3] = -1;
-            if (scline->tp[3][0] != '\0')
-            {
-                value->chars[3] = atoi(scline->tp[3]);
-            }
             break;
         }
         case 6: // Artifact
@@ -4198,18 +4217,41 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         }
         case 14: // Properties
         {
-            k = get_id(powermodel_properties_commands, new_value);
-            if (k <= 0)
+            if (scline->tp[3][0] != '\0')
             {
-                SCRPTERRLOG("Incorrect property value");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
+                k = get_id(powermodel_properties_commands, new_value);
+                if (k <= 0)
+                {
+                    SCRPTERRLOG("Incorrect property value");
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                else
+                {
+                    number_value = k;
+                }
+                value->chars[3] = atoi(scline->tp[3]);
             }
             else
             {
-                number_value = k;
+                char *flag = strtok(new_value," ");
+                while ( flag != NULL )
+                {
+                    k = get_id(powermodel_properties_commands, flag);
+                    if (k > 0)
+                    {
+                        number_value |= k;
+                    } else
+                    {
+                        SCRPTERRLOG("Incorrect property value");
+                        DEALLOCATE_SCRIPT_VALUE
+                        return;
+                    }
+                    flag = strtok(NULL, " " );
+                }
+                value->chars[3] = -1;
             }
-            value->bytes[3] = atoi(scline->tp[3]);
+            value->arg2 = number_value;
             break;
         }
         case 15: // Functions
@@ -4326,13 +4368,17 @@ static void set_power_configuration_process(struct ScriptContext *context)
             powerst->select_sample_idx = context->value->arg2;
             break;
         case 14: // Properties
-            if (context->value->bytes[3])
+            if (context->value->chars[3] == 1)
             {
-                powerst->config_flags |= context->value->arg2;
+                set_flag(powerst->config_flags, context->value->arg2);
+            }
+            else if (context->value->chars[3] == 0)
+            {
+                clear_flag(powerst->config_flags, context->value->arg2);
             }
             else
             {
-                powerst->config_flags &= ~context->value->arg2;
+                powerst->config_flags = context->value->arg2;
             }
             break;
         case 15: // Functions
