@@ -1,7 +1,7 @@
 #equivilents for player colored gui elements
 #in other cfgs just reference the first entry, followed by red (used as first entry but could be swapped) blue, green, yellow and white
 # can also use custom sprites eg.
-# [ 93,"CTA_BLUE_64","CTA_GREEN_64","CTA_YELLOW_64"],#cta_high
+# [ 93,"CTA_RED_64","CTA_BLUE_64","CTA_GREEN_64","CTA_YELLOW_64"],#cta_high
 
 gui_panel_sprites = [
     [116,116,558,560,564,562],#cta_low
