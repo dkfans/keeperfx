@@ -1161,6 +1161,10 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     {
         return false;
     }
+    if (!thing_is_sellable_door(thing))
+    {
+        return false;
+    }
 
 	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
 	dungeon->camera_deviate_jump = 192;
