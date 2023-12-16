@@ -1252,7 +1252,6 @@ TbResult magic_use_power_imp(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubt
         ERRORLOG("There was place to create new creature, but creation failed");
         return Lb_OK;
     }
-    EVM_CREATURE_EVENT("joined", plyr_idx, thing);
     thing->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
     thing->veloc_push_add.z.val += 160;
@@ -1719,7 +1718,6 @@ TbResult magic_use_power_slap_thing(PlayerNumber plyr_idx, struct Thing *thing, 
     if ((player->instance_num == PI_Whip) || (game.play_gameturn - dungeon->last_creature_dropped_gameturn <= 10)) {
         return Lb_OK;
     }
-    EVM_CREATURE_EVENT("slap", plyr_idx, thing);
     player->influenced_thing_idx = thing->index;
     player->influenced_thing_creation = thing->creation_turn;
     set_player_instance(player, PI_Whip, 0);

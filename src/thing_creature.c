@@ -2635,10 +2635,6 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
-    if ((flags & CrDed_NotReallyDying) == 0)
-    {
-        EVM_CREATURE_EVENT("died", creatng->owner, creatng);
-    }
     cleanup_creature_state_and_interactions(creatng);
     if (!thing_is_invalid(killertng))
     {
