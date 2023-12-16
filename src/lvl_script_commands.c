@@ -4252,20 +4252,27 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             }
             else
             {
-                char *flag = strtok(new_value," ");
-                while ( flag != NULL )
+                if (parameter_is_number(new_value))
                 {
-                    j = get_long_id(powermodel_castability_commands, flag);
-                    if (j > 0)
+                    number_value = atoll(new_value);
+                }
+                else
+                {
+                    char *flag = strtok(new_value," ");
+                    while ( flag != NULL )
                     {
-                        number_value |= j;
-                    } else
-                    {
-                        SCRPTERRLOG("Incorrect castability value");
-                        DEALLOCATE_SCRIPT_VALUE
-                        return;
+                        j = get_long_id(powermodel_castability_commands, flag);
+                        if (j > 0)
+                        {
+                            number_value |= j;
+                        } else
+                        {
+                            SCRPTERRLOG("Incorrect castability value");
+                            DEALLOCATE_SCRIPT_VALUE
+                            return;
+                        }
+                        flag = strtok(NULL, " " );
                     }
-                    flag = strtok(NULL, " " );
                 }
                 value->chars[3] = -1;
             }
@@ -4302,20 +4309,27 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
             }
             else
             {
-                char *flag = strtok(new_value," ");
-                while ( flag != NULL )
+                if (parameter_is_number(new_value))
                 {
-                    k = get_id(powermodel_properties_commands, flag);
-                    if (k > 0)
+                    number_value = atoi(new_value);
+                }
+                else
+                {
+                    char *flag = strtok(new_value," ");
+                    while ( flag != NULL )
                     {
-                        number_value |= k;
-                    } else
-                    {
-                        SCRPTERRLOG("Incorrect property value");
-                        DEALLOCATE_SCRIPT_VALUE
-                        return;
+                        k = get_id(powermodel_properties_commands, flag);
+                        if (k > 0)
+                        {
+                            number_value |= k;
+                        } else
+                        {
+                            SCRPTERRLOG("Incorrect property value");
+                            DEALLOCATE_SCRIPT_VALUE
+                            return;
+                        }
+                        flag = strtok(NULL, " " );
                     }
-                    flag = strtok(NULL, " " );
                 }
                 value->chars[3] = -1;
             }
