@@ -38,9 +38,9 @@ extern "C" {
 const char keeper_spritecolors_file[]="spritecolors.toml";
 /******************************************************************************/
 #define MAX_COLORED_SPRITES 255
-#define PLAYER_COLORS_COUNT 5
-short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
-short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+#define PLAYER_COLORS_COUNT 5 + 1
+static short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 /******************************************************************************/
 
 static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsigned short flags)
@@ -119,7 +119,7 @@ static short get_player_colored_idx(short base_icon_idx,PlayerNumber plyr_idx,sh
         {
             return arr[i * PLAYER_COLORS_COUNT + color_idx];
         }
-        else if (arr[i * PLAYER_COLORS_COUNT + PLAYER0] == 0)
+        else if (arr[i * PLAYER_COLORS_COUNT] == 0)
         {
             return base_icon_idx;
         }
