@@ -3,6 +3,7 @@
 # can also use custom sprites eg.
 # [ 93,"CTA_RED_64","CTA_BLUE_64","CTA_GREEN_64","CTA_YELLOW_64"],#cta_high
 
+#stuff in gui2-xx.dat
 gui_panel_sprites = [
     [116,116,558,560,564,562],#cta_low
     [ 93, 93,574,576,580,578],#cta_high
@@ -21,10 +22,16 @@ gui_panel_sprites = [
     [132,132,661,663,667,665],#trap_alarm_high
 ]
 
+#stuff in pointerxx.dat
 pointer_sprites = [
     [ 40, 40,203,211,227,219],#quadptr_power_cta
     [193,193,267,243,270,269],#tileptr_power_cta
     [ 80, 80,235,268,259,251],#quadptr_power_mkdigger
     [ 38, 38,271,272,274,273],#tileptr_room_guardpst
     [  9,  9,275,276,278,277],#tileptr_trap_alarm
+]
+
+#stuff in gui1-xx.dat
+button_sprite = [
+    [ 62, 62,127,128,129,130],#creatr_state_cta
 ]

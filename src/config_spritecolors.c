@@ -41,6 +41,7 @@ const char keeper_spritecolors_file[]="spritecolors.toml";
 #define PLAYER_COLORS_COUNT 5 + 1
 static short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
+static short button_sprite_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 /******************************************************************************/
 
 static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsigned short flags)
@@ -89,6 +90,7 @@ static TbBool load_spritecolors_config_file(const char *textname, const char *fn
 
     load_array(&file_root,"gui_panel_sprites",gui_panel_sprites_eq,flags);
     load_array(&file_root,"pointer_sprites",pointer_sprites_eq,flags);
+    load_array(&file_root,"button_sprite",button_sprite_eq,flags);
     value_fini(&file_root);
     
     return true;
@@ -134,6 +136,11 @@ short get_player_colored_icon_idx(short base_icon_idx,PlayerNumber plyr_idx)
 short get_player_colored_pointer_icon_idx(short base_icon_idx,PlayerNumber plyr_idx)
 {
     return get_player_colored_idx(base_icon_idx,plyr_idx,pointer_sprites_eq);
+}
+
+short get_player_colored_button_sprite_idx(short base_icon_idx,PlayerNumber plyr_idx)
+{
+    return get_player_colored_idx(base_icon_idx,plyr_idx,button_sprite_eq);
 }
 
 /******************************************************************************/
