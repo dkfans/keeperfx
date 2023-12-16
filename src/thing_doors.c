@@ -323,8 +323,8 @@ TbBool thing_is_sellable_door(const struct Thing* thing)
 
 TbBool subtile_is_sellable_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    struct Door* door = subtile_has_door_thing_on(stl_x, stl_y);
-    struct DoorConfigStats* doorst = &gameadd.trapdoor_conf.door_cfgstats[door->model];
+    struct Thing* doortng = subtile_has_door_thing_on(stl_x, stl_y);
+    struct DoorConfigStats* doorst = &gameadd.trapdoor_conf.door_cfgstats[doortng->model];
     if (doorst->unsellable != 0)
     {
         return false;
