@@ -4198,7 +4198,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char *powername = scline->tp[0];
     const char *property = scline->tp[1];
-    char *new_value = scline->tp[2];
+    char *new_value = (char*)scline->tp[2];
 
     long power_id = get_id(power_desc, powername);
     if (power_id == -1)
