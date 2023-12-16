@@ -121,6 +121,9 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigne
     case TCls_Door:
         thing = create_door(pos, tngmodel, find_door_angle(pos->x.stl.num, pos->y.stl.num, owner), owner, false);
         break;
+    case TCls_EffectGen:
+        thing = create_effect_generator(pos, tngmodel, 1, owner, parent_idx);
+        break;
     default:
         break;
     }

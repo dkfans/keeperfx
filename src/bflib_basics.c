@@ -215,6 +215,30 @@ void error(const char *codefile,const int ecode,const char *message)
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
 }
 
+short warning_dialog(const char *codefile,const int ecode,const char *message)
+{
+  LbWarnLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+
+  const SDL_MessageBoxButtonData buttons[] = {
+		{ .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "Ignore" },
+    { .flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, .buttonid = 0, .text = "Abort" },
+	};
+
+	const SDL_MessageBoxData messageboxdata = {
+		.flags = SDL_MESSAGEBOX_WARNING,
+		.window = NULL,
+		.title = PROGRAM_FULL_NAME,
+		.message = message,
+		.numbuttons = SDL_arraysize(buttons),
+		.buttons = buttons,
+		.colorScheme = NULL //colorScheme not supported on windows
+	};
+
+  int button = 0;
+  SDL_ShowMessageBox(&messageboxdata, &button);
+  return button;
+}
+
 short error_dialog(const char *codefile,const int ecode,const char *message)
 {
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
@@ -309,6 +333,29 @@ int LbNaviLog(const char *format, ...)
     va_end(val);
     return result;
 }
+
+int Lbvsprintf(char* buffer, const char *format, ...)
+{
+    va_list val;
+    va_start(val, format);
+    int result=vsprintf(buffer, format, val);
+    va_end(val);
+    return result;
+}
+
+#ifdef FUNCTESTING
+int LbFTestLog(const char *format, ...)
+{
+    if (!error_log_initialised)
+        return -1;
+    LbLogSetPrefix(&error_log, "FTest: ");
+    va_list val;
+    va_start(val, format);
+    int result=LbLog(&error_log, format, val);
+    va_end(val);
+    return result;
+}
+#endif
 
 /*
  * Logs script-related message.

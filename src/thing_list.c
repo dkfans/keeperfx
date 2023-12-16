@@ -492,7 +492,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
                         return -1;
                     // It is not "correct" randomness (pick random N from list) but rolling a dice on each creature found
                     unsigned long tmp = maximizer + dist + 1;
-                    return (long)LbRandomSeries(LONG_MAX, &tmp, __func__, __LINE__, "");
+                    return (long)LbRandomSeries(LONG_MAX, &tmp, __func__, __LINE__);
                 }
             }
         }

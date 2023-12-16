@@ -1606,18 +1606,25 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     long value = context->value->uarg1;
     short value2 = context->value->shorts[4];
     short value3 = context->value->shorts[5];
+    int old_value, old_value2;
     switch (context->value->shorts[1])
     {
         case 1: // NameTextID
             trapst->name_stridx = value;
             break;
         case 2: // TooltipTextID
+            old_value = trapst->tooltip_stridx;
             trapst->tooltip_stridx = value;
             manufctr->tooltip_stridx = trapst->tooltip_stridx;
-            update_trap_tab_to_config();
+            if (trapst->tooltip_stridx != old_value)
+            {
+                update_trap_tab_to_config();
+            }
             break;
         case 3: // SymbolSprites
         {
+            old_value = trapst->medsym_sprite_idx;
+            old_value2 = trapst->bigsym_sprite_idx;
             trapst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
             trapst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
             if (trapst->bigsym_sprite_idx < 0)
@@ -1626,19 +1633,30 @@ static void set_trap_configuration_process(struct ScriptContext *context)
                 trapst->medsym_sprite_idx = bad_icon_id;
             manufctr->bigsym_sprite_idx = trapst->bigsym_sprite_idx;
             manufctr->medsym_sprite_idx = trapst->medsym_sprite_idx;
-            update_trap_tab_to_config();
+            if ( (trapst->medsym_sprite_idx != old_value) || (trapst->bigsym_sprite_idx != old_value2) )
+            {
+                update_trap_tab_to_config();
+            }
         }
             break;
         case 4: // PointerSprites
+            old_value = trapst->pointer_sprite_idx;
             trapst->pointer_sprite_idx = get_icon_id(context->value->str2);
             if (trapst->pointer_sprite_idx < 0)
                 trapst->pointer_sprite_idx = bad_icon_id;
-            update_trap_tab_to_config();
+            if (trapst->pointer_sprite_idx != old_value)
+            {
+                update_trap_tab_to_config();
+            }
             break;
         case 5: // PanelTabIndex
+            old_value = trapst->panel_tab_idx;
             trapst->panel_tab_idx = value;
             manufctr->panel_tab_idx = value;
-            update_trap_tab_to_config();
+            if (trapst->panel_tab_idx != old_value)
+            {
+                update_trap_tab_to_config();
+            }
             break;
         case 6: // Crate
             gameadd.object_conf.object_to_door_or_trap[value] = trap_type;
@@ -1763,6 +1781,7 @@ static void set_room_configuration_process(struct ScriptContext *context)
     unsigned short value;
     short value2;
     short value3;
+    int old_value, old_value2;
     if (context->value->shorts[1] != 13) // Roles need larger values, so can fit fewer
     {
         value = context->value->shorts[2];
@@ -1775,29 +1794,46 @@ static void set_room_configuration_process(struct ScriptContext *context)
             roomst->name_stridx = value;
             break;
         case 2: // TooltipTextID
+            old_value = roomst->tooltip_stridx;
             roomst->tooltip_stridx = value;
-            update_room_tab_to_config();
+            if (roomst->tooltip_stridx != old_value)
+            {
+                update_room_tab_to_config();
+            }
             break;
         case 3: // SymbolSprites
         {
+            old_value = roomst->medsym_sprite_idx;
+            old_value2 = roomst->bigsym_sprite_idx;
             roomst->bigsym_sprite_idx = get_icon_id(context->value->str2); // First
             roomst->medsym_sprite_idx = get_icon_id(context->value->str2 + strlen(context->value->str2) + 1); // Second
             if (roomst->bigsym_sprite_idx < 0)
                 roomst->bigsym_sprite_idx = bad_icon_id;
             if (roomst->medsym_sprite_idx < 0)
                 roomst->medsym_sprite_idx = bad_icon_id;
-            update_room_tab_to_config();
+            if ( (roomst->medsym_sprite_idx != old_value) || (roomst->bigsym_sprite_idx != old_value2) )
+            {
+                update_room_tab_to_config();
+            }
         }
             break;
         case 4: // PointerSprites
+            old_value = roomst->pointer_sprite_idx;
             roomst->pointer_sprite_idx = get_icon_id(context->value->str2);
             if (roomst->pointer_sprite_idx < 0)
                 roomst->pointer_sprite_idx = bad_icon_id;
-            update_room_tab_to_config();
+            if (roomst->pointer_sprite_idx != old_value)
+            {
+                update_room_tab_to_config();
+            }
             break;
         case 5: // PanelTabIndex
+            old_value = roomst->panel_tab_idx;
             roomst->panel_tab_idx = value;
-            update_room_tab_to_config();
+            if (roomst->panel_tab_idx != old_value)
+            {
+                update_room_tab_to_config();
+            }
             break;
         case 6: // Cost
             roomst->cost = value;
@@ -2139,6 +2175,9 @@ static void set_door_configuration_process(struct ScriptContext *context)
             {
                 doorst->open_speed = value;
             }
+            break;
+        case 14: // Properties
+            doorst->model_flags = value;
             break;
         case 15: // PlaceSound
             if (door_type < gameadd.trapdoor_conf.door_types_count)
@@ -4083,6 +4122,74 @@ static void set_power_hand_process(struct ScriptContext *context)
     }
 }
 
+static void add_effectgen_to_level_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    const char* generator_name = scline->tp[0];
+    const char* locname = scline->tp[1];
+    long range = scline->np[2];
+
+    TbMapLocation location;
+    long gen_id;
+    if (parameter_is_number(generator_name))
+    {
+        gen_id = atoi(generator_name);
+    }
+    else
+    {
+        gen_id = get_rid(effectgen_desc, generator_name);
+    }
+    if (gen_id <= 0)
+    {
+        SCRPTERRLOG("Unknown effect generator, '%s'", generator_name);
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+
+    // Recognize place where party is created
+    if (!get_map_location_id(locname, &location))
+    {
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+    value->shorts[0] = gen_id;
+    value->shorts[1] = location;
+    value->shorts[2] = range;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_effectgen_to_level_process(struct ScriptContext* context)
+{
+    short gen_id = context->value->shorts[0];
+    short location = context->value->shorts[1];
+    short range = context->value->shorts[2];
+    if (get_script_current_condition() == CONDITION_ALWAYS)
+    {
+        script_process_new_effectgen(gen_id, location, range);
+    }
+    else
+    {
+        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        pr_trig->flags = TrgF_CREATE_EFFECT_GENERATOR;
+        pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
+        pr_trig->plyr_idx = 0; //not needed
+        pr_trig->creatr_id = 0; //not needed
+        pr_trig->crtr_level = gen_id;
+        pr_trig->carried_gold = range;
+        pr_trig->location = location;
+        pr_trig->ncopies = 1;
+        pr_trig->condit_idx = get_script_current_condition();
+        gameadd.script.party_triggers_num++;
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -4225,7 +4332,8 @@ const struct CommandDesc command_desc[] = {
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
   {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process },
-  {"SET_POWER_HAND",                    "PA      ", Cmd_SET_POWER_HAND, &set_power_hand_check, &set_power_hand_process },
+  {"SET_HAND_GRAPHIC",                  "PA      ", Cmd_SET_HAND_GRAPHIC, &set_power_hand_check, &set_power_hand_process },
+  {"ADD_EFFECT_GENERATOR_TO_LEVEL",     "AAN     ", Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL, &add_effectgen_to_level_check, &add_effectgen_to_level_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

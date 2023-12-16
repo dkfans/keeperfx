@@ -46,6 +46,11 @@
 #include "custom_sprites.h"
 #include "gui_boxmenu.h"
 #include "sounds.h"
+
+#ifdef FUNCTESTING
+  #include "ftests/ftest.h"
+#endif
+
 #include "post_inc.h"
 
 extern TbBool force_player_num;
@@ -352,6 +357,11 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     post_init_players();
     post_init_packets();
     set_selected_level_number(0);
+
+#ifdef FUNCTESTING
+    set_flag_byte(&start_params.functest_flags, FTF_LevelLoaded, true);
+#endif
+
     return CLS_CONTINUE;
 }
 
@@ -430,12 +440,10 @@ void clear_complete_game(void)
 
 void init_seeds()
 {
-    #ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
+#if FUNCTESTING
+    if (flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
-      game.action_rand_seed = 1;
-      game.unsync_rand_seed = 1;
-      srand(1);
+        ftest_srand();
     }
     else
 #endif
