@@ -331,7 +331,7 @@ struct Thing *get_door_for_slab_position(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool slab_is_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing* doortng = get_door_for_slab_position(slb_x, slb_y);
-    return thing_is_sellable_trap(doortng);
+    return thing_is_sellable_door(doortng);
 }
 
 TbBool door_can_stand(struct Thing *thing)
