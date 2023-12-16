@@ -48,7 +48,6 @@ struct Thing;
 TbBool subtile_has_door_thing_on(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_has_door_thing_on_for_trap_placement(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 TbBool subtile_has_locked_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
-TbBool slab_has_sellable_door_on(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_row_has_door_thing_on(MapSlabCoord slb_x, MapSubtlCoord stl_y);
 TbBool slab_column_has_door_thing_on(MapSubtlCoord stl_x, MapSlabCoord slb_y);
 TbBool door_will_open_for_thing(const struct Thing *doortng,const struct Thing *creatng);
