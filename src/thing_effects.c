@@ -913,7 +913,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     return thing;
 }
 
-struct Thing *create_used_effect_or_element(const struct Coord3d *pos, short effect, long plyr_idx)
+struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrEffElModel effect, PlayerNumber plyr_idx)
 {
     if (effect == 0)
         return INVALID_THING;

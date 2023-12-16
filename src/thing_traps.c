@@ -461,7 +461,7 @@ void activate_trap_effect_on_trap(struct Thing *traptng)
         efftng->parent_idx = traptng->index;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
-    if (trapstat->created_itm_model == 14) //Word of Power trap
+    if (trapstat->created_itm_model == TngEff_WoPExplosion) //Word of Power trap
     { 
         struct ShotConfigStats* shotst = get_shot_model_stats(ShM_TrapWordOfPower);
         if (shotst->firing_sound > 0) 
