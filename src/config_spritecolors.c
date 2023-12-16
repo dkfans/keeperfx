@@ -112,15 +112,12 @@ TbBool load_spritecolors_config(const char *conf_fname,unsigned short flags)
 
 static short get_player_colored_idx(short base_icon_idx,PlayerNumber plyr_idx,short *arr)
 {
-    if(plyr_idx == PLAYER0)
-    {
-        return base_icon_idx;
-    }
+    unsigned char color_idx = plyr_idx + 1;
     for (size_t i = 0; i < MAX_COLORED_SPRITES; i++)
     {
         if(arr[i * PLAYER_COLORS_COUNT] == base_icon_idx)
         {
-            return arr[i * PLAYER_COLORS_COUNT + plyr_idx];
+            return arr[i * PLAYER_COLORS_COUNT + color_idx];
         }
         else if (arr[i * PLAYER_COLORS_COUNT + PLAYER0] == 0)
         {
