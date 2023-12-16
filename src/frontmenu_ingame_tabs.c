@@ -2336,10 +2336,14 @@ void update_room_tab_to_config(void)
         ibtn->draw_call = gui_area_room_button;
     }
     // Update active menu
-    if (menu_is_active(GMnu_ROOM))
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_DungeonTop)
     {
-        turn_off_menu(GMnu_ROOM);
-        turn_on_menu(GMnu_ROOM);
+        if (menu_is_active(GMnu_ROOM))
+        {
+            turn_off_menu(GMnu_ROOM);
+            turn_on_menu(GMnu_ROOM);
+        }
     }
 }
 
@@ -2390,10 +2394,14 @@ void update_trap_tab_to_config(void)
         }
     }
     // Update active menu
-    if ( menu_is_active(GMnu_TRAP) )
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_DungeonTop)
     {
-        turn_off_menu(GMnu_TRAP);
-        turn_on_menu(GMnu_TRAP);
+        if ( menu_is_active(GMnu_TRAP) )
+        {
+            turn_off_menu(GMnu_TRAP);
+            turn_on_menu(GMnu_TRAP);
+        }
     }
 }
 
