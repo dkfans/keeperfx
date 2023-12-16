@@ -1904,6 +1904,11 @@ static TbBool find_free_position_on_slab(struct Thing* thing, struct Coord3d* po
 TngUpdateRet move_object(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing object.");
+        return TUFRet_Deleted;
+    }
     TRACE_THING(thing);
     struct Coord3d pos;
     TbBool move_allowed = get_thing_next_position(&pos, thing);

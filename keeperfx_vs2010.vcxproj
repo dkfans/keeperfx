@@ -127,7 +127,6 @@
     <ClCompile Include="src\engine_render.c" />
     <ClCompile Include="src\engine_render_data.cpp" />
     <ClCompile Include="src\engine_textures.c" />
-    <ClCompile Include="src\event_monitoring.c" />
     <ClCompile Include="src\frontend.cpp" />
     <ClCompile Include="src\frontmenu_ingame_evnt.c" />
     <ClCompile Include="src\frontmenu_ingame_evnt_data.cpp" />
@@ -158,6 +157,7 @@
     <ClCompile Include="src\front_simple.c" />
     <ClCompile Include="src\front_torture.c" />
     <ClCompile Include="src\front_torture_data.cpp" />
+    <ClCompile Include="src\ftests\ftest.c" />
     <ClCompile Include="src\game_heap.c" />
     <ClCompile Include="src\game_legacy.c" />
     <ClCompile Include="src\game_lghtshdw.c" />
@@ -362,7 +362,6 @@
     <ClInclude Include="src\engine_redraw.h" />
     <ClInclude Include="src\engine_render.h" />
     <ClInclude Include="src\engine_textures.h" />
-    <ClInclude Include="src\event_monitoring.h" />
     <ClInclude Include="src\frontend.h" />
     <ClInclude Include="src\frontmenu_ingame_evnt.h" />
     <ClInclude Include="src\frontmenu_ingame_map.h" />
@@ -383,6 +382,7 @@
     <ClInclude Include="src\front_network.h" />
     <ClInclude Include="src\front_simple.h" />
     <ClInclude Include="src\front_torture.h" />
+    <ClInclude Include="src\ftests\ftest.h" />
     <ClInclude Include="src\game_heap.h" />
     <ClInclude Include="src\game_legacy.h" />
     <ClInclude Include="src\game_lghtshdw.h" />
