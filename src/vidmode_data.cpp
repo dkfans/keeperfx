@@ -168,12 +168,6 @@ struct TbLoadFiles front_load_files_minimal_640[] = {
   {"",                     NULL,                                  NULL,                                           0, 0, 0},
 };
 
-struct TbLoadFiles pointer_load_files_320[] = {
-  {"data/pointer-32.dat",(unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointer-32.tab",(unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
 struct TbLoadFiles pointer_small_load_files_320[] = {
   {"data/pointsm-32.dat",(unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
   {"data/pointsm-32.tab",(unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
@@ -207,29 +201,12 @@ struct TbLoadFiles front_load_files_minimal_640[] = {
   {"",                   NULL,                                  NULL,                                           0, 0, 0},
 };
 
-struct TbLoadFiles pointer_load_files_320[] = {
-  {"data/pointer32.dat", (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/pointer32.tab", (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
-struct TbLoadFiles pointer_small_load_files_320[] = {
-  {"data/points32.dat",  (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/points32.tab",  (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
-
 struct TbLoadFiles pointer_load_files_640[] = {
   {"data/pointer64.dat", (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
   {"data/pointer64.tab", (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
   {"",                   NULL,                                   NULL,                                          0, 0, 0},
 };
 
-struct TbLoadFiles pointer_small_load_files_640[] = {
-  {"data/points64.dat",  (unsigned char **)&pointer_data,        NULL,                                          0, 0, 0},
-  {"data/points64.tab",  (unsigned char **)&pointer_sprites,     (unsigned char **)&end_pointer_sprites,        0, 0, 0},
-  {"",                   NULL,                                   NULL,                                          0, 0, 0},
-};
 #endif
 
 struct TbLoadFiles legal_load_files[] = {

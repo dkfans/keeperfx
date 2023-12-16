@@ -122,10 +122,7 @@ extern struct TbLoadFiles gui_load_files_320[];
 extern struct TbLoadFiles gui_load_files_640[];
 extern struct TbLoadFiles front_load_files_minimal_320[];
 extern struct TbLoadFiles front_load_files_minimal_640[];
-extern struct TbLoadFiles pointer_load_files_320[];
-extern struct TbLoadFiles pointer_small_load_files_320[];
 extern struct TbLoadFiles pointer_load_files_640[];
-extern struct TbLoadFiles pointer_small_load_files_640[];
 /******************************************************************************/
 
 /**
@@ -254,19 +251,7 @@ void set_frontend_vidmode(TbScreenMode nmode)
 void load_pointer_file(short hi_res)
 {
   struct TbLoadFiles *ldfiles;
-  if ((features_enabled & Ft_BigPointer) == 0)
-  {
-    if (hi_res)
-      ldfiles = pointer_small_load_files_640;
-    else
-      ldfiles = pointer_small_load_files_320;
-  } else
-  {
-    if (hi_res)
-      ldfiles = pointer_load_files_640;
-    else
-      ldfiles = pointer_load_files_320;
-  }
+  ldfiles = pointer_load_files_640;
   if ( LbDataLoadAll(ldfiles) )
     ERRORLOG("Unable to load pointer files");
   LbSpriteSetup(pointer_sprites, end_pointer_sprites, pointer_data);
@@ -492,19 +477,7 @@ void unload_pointer_file(short hi_res)
 {
   struct TbLoadFiles *ldfiles;
   set_pointer_graphic_none();
-  if ((features_enabled & Ft_BigPointer) == 0)
-  {
-    if (hi_res)
-      ldfiles = pointer_small_load_files_640;
-    else
-      ldfiles = pointer_small_load_files_320;
-  } else
-  {
-    if (hi_res)
-      ldfiles = pointer_load_files_640;
-    else
-      ldfiles = pointer_load_files_320;
-  }
+  ldfiles = pointer_load_files_640;
   LbDataFreeAll(ldfiles);
 }
 
