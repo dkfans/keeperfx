@@ -4192,7 +4192,7 @@ short process_command_line(unsigned short argc, char *argv[])
   if(bad_param != 0)
   {
     int res = 0;
-    WARNING_DIALOG(res, "Incorrect command line parameters '%s'.\nPlease correct your Run options.", bad_params);
+    WARNING_DIALOG(res, "Incorrect command line parameters: '%s'.\nPlease correct your Run options.", bad_params);
     return res;
   }
 
