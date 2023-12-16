@@ -321,6 +321,12 @@ TbBool thing_is_sellable_door(const struct Thing* thing)
     return (doorst->unsellable == 0);
 }
 
+TbBool slab_has_sellable_door_on(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Thing* doortng = slab_is_door(slb_x, slb_y);
+    return thing_is_sellable_door(doortng);
+}
+
 TbBool door_can_stand(struct Thing *thing)
 {
     unsigned int wall_flags = 0;
