@@ -4295,7 +4295,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         {
             SCRIPTDBG(7, "Toggling %s castability flag: %lld", powername, number_value);
         }
-        else if ( (powervar == 14) && (value->chars[3] = -1) )
+        else if ( (powervar == 14) && (value->chars[3] != -1) )
         {
             SCRIPTDBG(7, "Toggling %s property flag: %lld", powername, number_value);
         }
