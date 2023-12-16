@@ -4129,7 +4129,6 @@ static void add_effectgen_to_level_check(const struct ScriptLine* scline)
     const char* generator_name = scline->tp[0];
     const char* locname = scline->tp[1];
     long range = scline->np[2];
-    const char* generator_name = scline->tp[0];
 
     TbMapLocation location;
     long gen_id;
