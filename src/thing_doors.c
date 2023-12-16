@@ -311,6 +311,16 @@ TbBool thing_is_deployed_door(const struct Thing *thing)
     return true;
 }
 
+TbBool thing_is_sellable_door(const struct Thing* thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Door)
+        return false;
+    struct DoorConfigStats* doorst = &gameadd.trapdoor_conf.door_cfgstats[thing->model];
+    return (doorst->unsellable == 0);
+}
+
 TbBool door_can_stand(struct Thing *thing)
 {
     unsigned int wall_flags = 0;
