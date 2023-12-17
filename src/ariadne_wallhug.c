@@ -57,30 +57,6 @@ const uint8_t byte_51120A[] = { 2,0,2,1,0,6,1,0,2,2,0,0,0,0 };
 const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
 
 /******************************************************************************/
-static TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    if (slabmap_block_invalid(slb))
-        return false;
-    struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
-    {
-        struct Thing* doortng = get_door_for_position(stl_x, stl_y);
-        if (!thing_is_invalid(doortng) && door_will_open_for_thing(doortng,creatng))
-        {
-            return true;
-        }
-    }
-    else
-    {
-        if (slbattr->is_safe_land || can_step_on_unsafe_terrain_at_position(creatng, stl_x, stl_y))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 static TbBool wallhug_angle_with_collide_valid(struct Thing *thing, long slab_flags, long speed, long angle, PlayerBitFlags crt_owner_flags)
 {
     struct Coord3d pos;

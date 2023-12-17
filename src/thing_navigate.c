@@ -820,4 +820,30 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
     return flags;
 }
 
+/**
+ * Whether the current slab is safe land, unsafe land that the creature can pass, or is a door that the creature can pass.
+ */
+TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    if (slabmap_block_invalid(slb))
+        return false;
+    struct SlabAttr* slbattr = get_slab_attrs(slb);
+    if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
+    {
+        struct Thing* doortng = get_door_for_position(stl_x, stl_y);
+        if (!thing_is_invalid(doortng) && door_will_open_for_thing(doortng,creatng))
+        {
+            return true;
+        }
+    }
+    else
+    {
+        if (slbattr->is_safe_land || can_step_on_unsafe_terrain_at_position(creatng, stl_x, stl_y))
+        {
+            return true;
+        }
+    }
+    return false;
+}
 /******************************************************************************/
