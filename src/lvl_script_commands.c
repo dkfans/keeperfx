@@ -4198,13 +4198,14 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char* effgenname = scline->tp[0];
     const char* property = scline->tp[1];
+    short value1;
 
     char effgen_id = get_id(effectgen_desc, effgenname);
     if (effgen_id == -1)
     {
         SCRPTERRLOG("Unknown effect generator, '%s'", effgenname);
         DEALLOCATE_SCRIPT_VALUE
-            return;
+        return;
     }
 
     long property_id = get_id(effect_generator_commands, property);
@@ -4212,17 +4213,35 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     {
         SCRPTERRLOG("Unknown effect generator variable");
         DEALLOCATE_SCRIPT_VALUE
+        return;
+    } else
+    if (property_id == 5) // EFFECTELEMENTMODEL
+    {
+        short effelem_id = -1;
+        if (parameter_is_number(scline->tp[3]))
+        {
+            effelem_id = atoi(scline->tp[3]);
+        }
+        else
+        {
+            effelem_id = get_id(effectelem_desc, scline->tp[3]);
+        }
+        if (effelem_id == -1)
+        {
+            SCRPTERRLOG("Unknown effect element value for Effect Generator");
+            DEALLOCATE_SCRIPT_VALUE
             return;
+        }
+        value1 = effelem_id;
     }
-    // if 1, not supported
-
+    else
     if ((property_id == 8) || (property_id == 9)) // ACCELERATIONMIN or ACCELERATIONMAX
     {
         if (scline->np[3] == NULL) // or 4
         {
             JUSTMSG("testlog: todo, test this for missing params");
         }
-    }
+    } else
     if (property_id == 10) // SOUND
     {
         if (scline->np[3] == NULL)
@@ -4230,12 +4249,24 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
             JUSTMSG("testlog: todo, test this for missing params");
         }
     }
+    else
+    {
+        if (parameter_is_number(scline->tp[2]))
+        {
+            value1 = atoi(scline->tp[2]);
+        }
+        else
+        {
+            SCRPTERRLOG("Unsupported value %s for Effect Generator configuration %s", scline->tp[2], scline->tp[1]);
+            DEALLOCATE_SCRIPT_VALUE
+        }
+    }
 
 
     //SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
     value->shorts[0] = effgen_id;
     value->shorts[1] = property_id;
-    value->shorts[2] = scline->np[2];
+    value->shorts[2] = value1;
     value->shorts[3] = scline->np[3];
     value->shorts[4] = scline->np[4];
 
@@ -4283,7 +4314,7 @@ static void set_effectgen_configuration_process(struct ScriptContext* context)
         effgencst->sound_sample_rng = context->value->shorts[3];
         break;
     default:
-        //error
+        WARNMSG("Unsupported Effect Generator configuration, variable %d.", context->value->shorts[1]);
         break;
     }
 }
@@ -4725,7 +4756,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_POWER_HAND",                    "PA      ", Cmd_SET_POWER_HAND, &set_power_hand_check, &set_power_hand_process },
   {"SET_HAND_GRAPHIC",                  "PA      ", Cmd_SET_HAND_GRAPHIC, &set_power_hand_check, &set_power_hand_process },
   {"ADD_EFFECT_GENERATOR_TO_LEVEL",     "AAN     ", Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL, &add_effectgen_to_level_check, &add_effectgen_to_level_process},
-  {"SET_EFFECT_GENERATOR_CONFIGURATION","AANnn   ", Cmd_SET_EFFECT_GENERATOR_CONFIGURATION, &set_effectgen_configuration_check, &set_effectgen_configuration_process },
+  {"SET_EFFECT_GENERATOR_CONFIGURATION","AAAnn   ", Cmd_SET_EFFECT_GENERATOR_CONFIGURATION, &set_effectgen_configuration_check, &set_effectgen_configuration_process },
   {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
