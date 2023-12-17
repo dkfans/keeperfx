@@ -822,6 +822,8 @@ long get_thing_blocked_flags_at(struct Thing *thing, struct Coord3d *pos)
 
 /**
  * Whether the current slab is safe land, unsafe land that the creature can pass, or is a door that the creature can pass.
+ * 
+ * Used for wallhugging by creature_can_have_combat_with_object and creature_can_have_combat_with_creature. 
  */
 TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
