@@ -255,7 +255,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     if (scale != -1)
     {
         thing->sprite_size = scale;
-        if (object_is_gold_pile(thing) && (thing->model != ObjMdl_SpinningCoin))
+        if (object_is_gold_pile(thing))
         {
             add_gold_to_pile(thing, 0); //makes sure scale is correct based on gold value
         }

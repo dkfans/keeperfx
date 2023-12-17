@@ -174,7 +174,10 @@ enum TbScriptCommands {
     Cmd_NEW_ROOM_TYPE                     = 161,
     Cmd_NEW_CREATURE_TYPE                 = 162,
     Cmd_SET_POWER_HAND                    = 163,
-    Cmd_SET_PLAYER_COLOR                  = 164,
+    Cmd_SET_HAND_GRAPHIC                  = 163,
+    Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL     = 164,
+    Cmd_SET_POWER_CONFIGURATION           = 165,
+    Cmd_SET_PLAYER_COLOR                  = 166,
 };
 
 struct ScriptLine {
@@ -282,6 +285,7 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
 long parse_creature_name(const char *creature_name);
 struct ScriptValue *allocate_script_value(void);
 struct Thing *script_process_new_object(long crmodel, TbMapLocation location, long arg, unsigned long plr_range_id);
+struct Thing* script_process_new_effectgen(long crmodel, TbMapLocation location, long range);
 void command_init_value(struct ScriptValue* value, unsigned long var_index, unsigned long plr_range_id);
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4);
 void set_variable(int player_idx, long var_type, long var_idx, long new_val);
