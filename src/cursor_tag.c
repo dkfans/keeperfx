@@ -120,7 +120,7 @@ TbBool tag_cursor_blocks_sell_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     slb = get_slabmap_block(slb_x, slb_y);
     int floor_height_z = floor_height_for_volume_box(plyr_idx, slb_x, slb_y);
     unsigned char colour = SLC_RED;
-    if (playeradd->render_roomspace.slab_count > 0 && full_slab)
+    if (playeradd->render_roomspace.slab_count > 0 && full_slab && !(slab_is_door(slb_x, slb_y)))
     {
         colour = SLC_GREEN; // roomspace selling support is basic, this makes roomspace selling work over any slabtype
     }
