@@ -36,8 +36,8 @@ extern "C" {
 
 #define LOWRES_SCREEN_SIZE          320
 
-#define MAX_SUPPORTED_SCREEN_WIDTH  3840
-#define MAX_SUPPORTED_SCREEN_HEIGHT 2160
+#define MAX_SUPPORTED_SCREEN_WIDTH  7680
+#define MAX_SUPPORTED_SCREEN_HEIGHT 4320
 
 /******************************************************************************/
 #pragma pack(1)
