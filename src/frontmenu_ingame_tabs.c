@@ -1592,7 +1592,7 @@ void gui_area_smiley_anger_button(struct GuiButton *gbtn)
         if ( shift_x > 36 ) {
             shift_x = 36;
         }
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x + (shift_x - 12) * units_per_px / 16, gbtn->scr_pos_y - 22 * units_per_px / 16, ps_units_per_px, spr_idx);
+        draw_gui_panel_sprite_left_player(gbtn->scr_pos_x + (shift_x - 12) * units_per_px / 16, gbtn->scr_pos_y - 22 * units_per_px / 16, ps_units_per_px, spr_idx,ctrltng->owner);
     }
 }
 

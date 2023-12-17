@@ -733,11 +733,11 @@ void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows)
     }
 }
 
-void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx)
+void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long spridx, PlayerNumber plyr_idx)
 {
     if ((spridx <= 0) || (spridx >= num_icons_total))
       return;
-    spridx = get_player_colored_icon_idx(spridx,my_player_number);
+    spridx = get_player_colored_icon_idx(spridx,plyr_idx);
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResized(x, y, units_per_px, spr);
 }

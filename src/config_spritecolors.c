@@ -38,7 +38,7 @@ extern "C" {
 const char keeper_spritecolors_file[]="spritecolors.toml";
 /******************************************************************************/
 #define MAX_COLORED_SPRITES 255
-#define PLAYER_COLORS_COUNT 5 + 1
+#define PLAYER_COLORS_COUNT 7+1
 static short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short button_sprite_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
@@ -121,6 +121,10 @@ TbBool load_spritecolors_config(const char *conf_fname,unsigned short flags)
 static short get_player_colored_idx(short base_icon_idx,PlayerNumber plyr_idx,short *arr)
 {
     unsigned char color_idx = plyr_idx + 1;
+    if(color_idx >= PLAYER_COLORS_COUNT)
+    {
+        return base_icon_idx;
+    }
     for (size_t i = 0; i < MAX_COLORED_SPRITES; i++)
     {
         if(arr[i * PLAYER_COLORS_COUNT] == base_icon_idx)
