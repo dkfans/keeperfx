@@ -1127,6 +1127,9 @@ short setup_game(void)
       return 0;
   }
 
+  // Setup polyscans
+  setup_bflib_render();
+
   // View the legal screen
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
@@ -3925,7 +3928,7 @@ short reset_game(void)
 
     LbMouseSuspend();
     LbIKeyboardClose();
-    LbScreenReset();
+    LbScreenReset(false);
     LbDataFreeAll(game_load_files);
     free_gui_strings_data();
     FreeAudio();
@@ -4267,7 +4270,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         game_loop();
     }
     reset_game();
-    LbScreenReset();
+    LbScreenReset(true);
     if ( !retval )
     {
         static const char *msg_text="Setting up game failed.\n";

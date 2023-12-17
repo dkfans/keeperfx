@@ -654,7 +654,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
       unload_pointer_file(hi_res);
     }
     if (nmode != old_mode)
-        LbScreenReset();
+        LbScreenReset(false);
     if (MinimalResolutionSetup)
       LbDataFreeAll(hi_res ? front_load_files_minimal_640 : front_load_files_minimal_320);
     else
@@ -829,7 +829,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
     if ((!MinimalResolutionSetup && !hi_res) || (MinimalResolutionSetup && hi_res))
       unload_pointer_file(hi_res);
     if ((nmode != old_mode) || (force_video_mode_reset))
-      LbScreenReset();
+      LbScreenReset(false);
     if (hi_res)
     {
       if (MinimalResolutionSetup)
