@@ -51,13 +51,13 @@ void draw_quad(struct PolyPoint *point_a, struct PolyPoint *point_b, struct Poly
 
 void setup_bflib_render()
 {
-    polyscans = malloc(sizeof(struct PolyPoint) * MAX_SUPPORTED_SCREEN_HEIGHT);
-    memset(polyscans, 0, sizeof(struct PolyPoint) * MAX_SUPPORTED_SCREEN_HEIGHT);
+    polyscans = malloc(sizeof(struct PolyPoint) * 4096);
+    memset(polyscans, 0, sizeof(struct PolyPoint) * 4096);
 }
 
 void reset_bflib_render()
 {
-    memset(polyscans, 0, sizeof(struct PolyPoint) * MAX_SUPPORTED_SCREEN_HEIGHT);
+    memset(polyscans, 0, sizeof(struct PolyPoint) * 4096);
 }
 
 void finish_bflib_render()
