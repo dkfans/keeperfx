@@ -341,6 +341,28 @@ TbBool creature_can_travel_over_lava(const struct Thing *creatng)
     return (crstat->hurt_by_lava <= 0) || ((creatng->movement_flags & TMvF_Flying) != 0);
 }
 
+TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
+    // We can step on lava if it doesn't hurt us or we can fly
+    if (slb->kind == SlbT_LAVA) {
+        return creature_can_travel_over_lava(creatng);
+    }
+    return false;
+}
+
+TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    // If the position is over lava, and we can't continuously fly, then it's toxic
+    if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
+        // Check not only if a creature is now flying, but also whether it's natural ability
+        if (((creatng->movement_flags & TMvF_Flying) == 0) || (!crstat->flying))
+            return true;
+    }
+    return false;
+}
+
 /**
  * Checks if a creature can navigate to target by tracing a complete route.
  * @param thing

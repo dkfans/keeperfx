@@ -57,29 +57,6 @@ const uint8_t byte_51120A[] = { 2,0,2,1,0,6,1,0,2,2,0,0,0,0 };
 const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
 
 /******************************************************************************/
-static TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    // We can step on lava if it doesn't hurt us or we can fly
-    if (slb->kind == SlbT_LAVA) {
-        return (crstat->hurt_by_lava <= 0) || ((creatng->movement_flags & TMvF_Flying) != 0);
-    }
-    return false;
-}
-
-TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    // If the position is over lava, and we can't continuously fly, then it's toxic
-    if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
-        // Check not only if a creature is now flying, but also whether it's natural ability
-        if (((creatng->movement_flags & TMvF_Flying) == 0) || (!crstat->flying))
-            return true;
-    }
-    return false;
-}
-
 static TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
