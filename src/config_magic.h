@@ -424,6 +424,11 @@ extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
 extern struct SpellData spell_data[];
 extern struct SpellConfig spell_config[];
+extern const struct NamedCommand powermodel_properties_commands[];
+extern const struct LongNamedCommand powermodel_castability_commands[];
+extern const struct NamedCommand powermodel_expand_check_func_type[];
+extern const struct NamedCommand magic_power_commands[];
+extern const Expand_Check_Func powermodel_expand_check_func_list[];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(int mgc_idx);
 TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo);
