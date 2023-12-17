@@ -294,8 +294,8 @@ typedef unsigned short SpDiggerTaskType;
 typedef unsigned char NaviRouteFlags;
 /** data used for navigating contains floor height, locked doors per player, unsafe surfaces */
 typedef unsigned short NavColour;
-/** Either North (0), East (1), South (2), or West (3). (see enum CardinalIndices) */
-typedef signed char CardinalIndex;
+/** Either North (0), East (1), South (2), or West (3). */
+typedef signed char SmallAroundIndex;
 
 /**
  * Stores a 2d coordinate (x,y).
@@ -376,14 +376,6 @@ struct CoordDelta3d {
         short num;
         } stl;
     } z;
-};
-
-/** Valid values for CardinalIndex. */
-enum CardinalIndices {
-    CI_NORTH = 0,
-    CI_EAST  = 1,
-    CI_SOUTH = 2,
-    CI_WEST  = 3,
 };
 
 struct Around { // sizeof = 2

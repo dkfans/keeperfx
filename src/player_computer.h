@@ -336,7 +336,7 @@ struct ComputerDig {
     struct Coord3d pos_next; /**< used by dig to position - the next position in the path to check */
     long distance; /**< used by dig to position - the distance between a given position and the destination */
     unsigned char hug_side; /**< used by dig to position - the rule to follow when hugging the wall (left-hand rule/side or right-hand rule/side) */
-    CardinalIndex direction_around; /**< used by dig to position - the forwards direction of the path */
+    SmallAroundIndex direction_around; /**< used by dig to position - the forwards direction of the path */
     unsigned long subfield_2C; /**< this is always set to 1... but it's value is used to create a bool test: did action fail */
     long number_of_failed_actions; /**< used by dig to position (incremented when gold is found but digflags is 0, or a mark for digging action failed) */
     MapSubtlCoord last_backwards_step_stl_x; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the X coordinate of the slab we stepped back in to */
@@ -349,7 +349,7 @@ struct ComputerDig {
 		long slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
         /** Variables for the spiral used to dig slabs/place rooms. */
 		struct {
-			CardinalIndex forward_direction; /**< The current direction we are moving through the spiral. */
+			SmallAroundIndex forward_direction; /**< The current direction we are moving through the spiral. */
 			long turns_made; /**< The number of turns made in the spiral. */
 			long steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
 			long steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */

@@ -901,7 +901,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
             pos.y.val = ctask->pos_6A.y.val;
             pos.z.val = ctask->pos_6A.z.val;
             {
-                CardinalIndex round_directn = small_around_index_towards_destination(ctask->pos_6A.x.stl.num,ctask->pos_6A.y.stl.num,
+                SmallAroundIndex round_directn = small_around_index_towards_destination(ctask->pos_6A.x.stl.num,ctask->pos_6A.y.stl.num,
                     ctask->new_room_pos.x.stl.num,ctask->new_room_pos.y.stl.num);
                 pos_move_in_direction_to_last_allowing_drop(&pos, round_directn, comp->dungeon->owner, ctask->create_room.width+ctask->create_room.height);
             }
@@ -1182,7 +1182,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     struct Room *room;
     
     // check the surrounding subtiles to see if they are the requested room
-    for (CardinalIndex n = 0; n < SMALL_AROUND_LENGTH; n++)
+    for (SmallAroundIndex n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
         MapSubtlCoord stl_x;
         MapSubtlCoord stl_y;
@@ -1575,7 +1575,7 @@ ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct
     dungeon = comp->dungeon;
     MapSlabCoord nextslb_x;
     MapSlabCoord nextslb_y;
-    CardinalIndex around_index;
+    SmallAroundIndex around_index;
     ToolDigResult dig_result;
     for (dig_result = TDR_DigSlab; ; dig_result++)
     {
@@ -1649,7 +1649,7 @@ ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Compute
     dungeon = comp->dungeon;
     MapSlabCoord nextslb_x;
     MapSlabCoord nextslb_y;
-    CardinalIndex around_index;
+    SmallAroundIndex around_index;
     ToolDigResult dig_result;
     for (dig_result = TDR_DigSlab; dig_result < cdig->subfield_2C; dig_result++)
     {
@@ -1779,7 +1779,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
             return dig_result;
         }
         // If the straight road stopped and we were not able to find anything to dig, check other directions
-        CardinalIndex around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
+        SmallAroundIndex around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
         if (dig_result > TDR_DigSlab)
         {
             cdig->pos_begin.x.stl.num = gldstl_x;
