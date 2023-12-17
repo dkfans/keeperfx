@@ -1195,12 +1195,18 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global terrain config";
     static const char config_campgn_textname[] = "campaign terrain config";
+    static const char config_level_textname[] = "level terrain config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_terrain_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_terrain_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_terrain_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;
