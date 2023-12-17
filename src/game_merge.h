@@ -27,6 +27,7 @@
 #include "config_cubes.h"
 #include "config_creature.h"
 #include "config_crtrmodel.h"
+#include "config_effects.h"
 #include "config_objects.h"
 #include "config_rules.h"
 #include "creature_control.h"
@@ -57,24 +58,24 @@ extern "C" {
 // So priority is  CREATURE_RANDOM >> PLAYER_RANDOM >> GAME_RANDOM
 
 // Used only once. Maybe it is light-specific UNSYNC_RANDOM
-#define LIGHT_RANDOM(range) LbRandomSeries(range, &game.lish.light_rand_seed, __func__, __LINE__, "light")
+#define LIGHT_RANDOM(range) LbRandomSeries(range, &game.lish.light_rand_seed, __func__, __LINE__)
 // This RNG should not be used to affect anything related affecting game state
-#define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__, "unsync")
+#define UNSYNC_RANDOM(range) LbRandomSeries(range, &game.unsync_rand_seed, __func__, __LINE__)
 // This RNG should be used only for "whole game" events (i.e. from script)
-#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "game")
+#define GAME_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
 // This RNG is for anything related to creatures or their shots. So creatures should act independent
 #define CREATURE_RANDOM(thing, range) \
-    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "creature")
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
 // This is messy. Used only for AI choices. Maybe it should be merged with PLAYER_RANDOM.
-#define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "ai")
+#define AI_RANDOM(range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
 // This RNG is about something related to specific player
-#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "player")
+#define PLAYER_RANDOM(plyr, range) LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
 // RNG related to effects. I am unsure about its relationship with game state.
 // It should be replaced either with CREATURE_RANDOM or with UNSYNC_RANDOM on case by case basis.
 #define EFFECT_RANDOM(thing, range) \
-    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "effect")
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
 #define ACTION_RANDOM(range) \
-    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__, "action")
+    LbRandomSeries(range, &game.action_rand_seed, __func__, __LINE__)
 
 enum GameSystemFlags {
     GSF_NetworkActive    = 0x0001,
@@ -151,8 +152,6 @@ struct IntralevelData {
  * Defines additional elements, which are not stored in main 'Game' struct.
  */
 struct GameAdd {
-    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
-    struct CreatureConfig crtr_conf;
     unsigned long turn_last_checked_for_gold;
     unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
@@ -195,23 +194,22 @@ struct GameAdd {
     struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
     struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
     struct TrapDoorConfig trapdoor_conf;
+    struct EffectsConfig effects_conf;
+    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+    struct CreatureConfig crtr_conf;
+    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
+    struct ObjectsConfig object_conf;
+    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
 
     uint8_t               max_custom_box_kind;
     unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
     struct Coord3d        triggered_object_location; //Position of `TRIGGERED_OBJECT`
-
     char                  box_tooltip[CUSTOM_BOX_COUNT][MESSAGE_TEXT_LEN];
     struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
     int                   active_fx_lines;
-
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
     struct DungeonAdd dungeon[DUNGEONS_COUNT];
-
-    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
-    struct ObjectsConfig object_conf;
-    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
-
     LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
     PlayerNumber script_player;

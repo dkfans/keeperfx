@@ -1097,9 +1097,12 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     ( crtr_state != CrSt_CreatureBeingDropped ))
                 {
                     struct CreatureStats* crstat = creature_stats_get_from_thing(i);
-                    if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20 )
+                    if (crstat->health > 0)
                     {
-                        ++count;
+                        if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20)
+                        {
+                            ++count;
+                        }
                     }
                 }
             }
@@ -1622,6 +1625,10 @@ void setup_computer_players2(void)
   // Using a seed for rand() based on the current time, so that the same
   // random results aren't used in the same order every time.
   srand((unsigned) time(NULL));
+
+#ifdef FUNCTESTING
+  ftest_srand();
+#endif
 
   for (i=0; i < PLAYERS_COUNT; i++)
   {

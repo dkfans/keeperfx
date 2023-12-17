@@ -87,7 +87,7 @@ TbBool shot_is_boulder(const struct Thing *shotng)
     return ((shotst->model_flags & ShMF_Boulder) != 0);
 }
 
-TbBool detonate_shot(struct Thing *shotng)
+TbBool detonate_shot(struct Thing *shotng, TbBool destroy)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     SYNCDBG(8,"Starting for %s index %d owner %d",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
@@ -144,7 +144,10 @@ TbBool detonate_shot(struct Thing *shotng)
     default:
         break;
     }
-    delete_thing_structure(shotng, 0);
+    if (destroy)
+    {
+        delete_thing_structure(shotng, 0);
+    }
     return true;
 }
 
@@ -218,11 +221,10 @@ struct Thing *get_shot_collided_with_same_type(struct Thing *shotng, struct Coor
 
 TbBool give_gold_to_creature_or_drop_on_map_when_digging(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long damage)
 {
-    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
-    long gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, creatng->owner, cctrl->explevel, slb);
+    long gold = calculate_gold_digged_out_of_slab_with_single_hit(damage, slb);
     creatng->creature.gold_carried += gold;
     if (!dungeon_invalid(dungeon)) {
         dungeon->lvstats.gold_mined += gold;
@@ -411,6 +413,10 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
         {
             if ((mapblk->flags & SlbAtFlg_Valuable) != 0)
             { // Valuables require counting gold
+                if (!slab_kind_is_indestructible(slb->kind))
+                {
+                    slb->health -= damage; // otherwise, we won't get the final lot of gold
+                }
                 give_gold_to_creature_or_drop_on_map_when_digging(diggertng, stl_x, stl_y, damage);
                 mine_out_block(stl_x, stl_y, diggertng->owner);
                 thing_play_sample(diggertng, 72+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
@@ -549,7 +555,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                     target_pos.y.val = shotng->shot_lizard.posint * gameadd.crtr_conf.sprite_size;
                     target_pos.z.val = pos->z.val;
                     const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
-                    if (dist <= 800) return detonate_shot(shotng);
+                    if (dist <= 800) return detonate_shot(shotng, true);
                 }
             }
             doortng = get_door_for_position(pos->x.stl.num, pos->y.stl.num);
@@ -589,15 +595,18 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
     }
     if ( destroy_shot )
     {
-        return detonate_shot(shotng);
+        return detonate_shot(shotng, true);
     }
-    if (shotng->bounce_angle <= 0)
+    if (!(shotst->model_flags & ShMF_Penetrating))
     {
-        slide_thing_against_wall_at(shotng, pos, blocked_flags);
-    }
-    else
-    {
-        bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        if (shotng->bounce_angle <= 0)
+        {
+            slide_thing_against_wall_at(shotng, pos, blocked_flags);
+        }
+        else
+        {
+            bounce_thing_off_wall_at(shotng, pos, blocked_flags);
+        }
     }
     return false;
 }
@@ -657,7 +666,7 @@ long shot_hit_door_at(struct Thing *shotng, struct Coord3d *pos)
     }
     if ( shot_explodes )
     {
-        return detonate_shot(shotng);
+        return detonate_shot(shotng, true);
     }
     if (shotng->bounce_angle <= 0)
     {
@@ -840,7 +849,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     }
     if (shotst->area_range != 0)
     {
-        return detonate_shot(shotng);
+        return detonate_shot(shotng, shotst->destroy_on_first_hit);
     }
     if (shotst->destroy_on_first_hit) {
         delete_thing_structure(shotng, 0);
@@ -1309,7 +1318,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
 
     if (shotst->area_range != 0)
     {
-        detonate_shot(shotng);
+        detonate_shot(shotng, shotst->destroy_on_first_hit);
     }
 
 
@@ -1463,8 +1472,12 @@ TngUpdateRet move_shot(struct Thing *shotng)
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
     if (!(shotst->model_flags & ShMF_NoHit))
     {
-        if (shot_hit_something_while_moving(shotng, &pos)) {
-            return TUFRet_Deleted;
+        if (shot_hit_something_while_moving(shotng, &pos))
+        {
+            if ( (!(shotst->model_flags & ShMF_Penetrating)) || (!thing_exists(shotng)) ) // Shot may have been destroyed when it hit something
+            {
+                return TUFRet_Deleted;
+            }
         }
     }
     if ((shotng->movement_flags & TMvF_Unknown10) != 0)
@@ -1578,9 +1591,9 @@ TngUpdateRet update_shot(struct Thing *thing)
                 }
             }
         }
-        switch (thing->model)
+        switch (shotst->update_logic)
         {
-        case ShM_Lightning:
+        case ShUL_Lightning:
         {
             struct PlayerInfo* player;
             if (lightning_is_close_to_player(myplyr, &thing->mappos))
@@ -1597,22 +1610,22 @@ TngUpdateRet update_shot(struct Thing *thing)
             }
             break;
         }
-        case ShM_Wind:
+        case ShUL_Wind:
             affect_nearby_enemy_creatures_with_wind(thing);
             break;
-        case ShM_Grenade:
+        case ShUL_Grenade:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
             break;
-        case ShM_GodLightning:
+        case ShUL_GodLightning:
             draw_god_lightning(thing);
             lightning_modify_palette(thing);
             break;
-        /**case ShM_Vortex:
+        /**case ShUL_Vortex:
             //Not implemented, due to limited amount of shots, replaced by Lizard
             affect_nearby_stuff_with_vortex(thing);
             break;
             **/
-        case ShM_Lizard:
+        case ShUL_Lizard:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
             int skill = thing->shot_lizard2.range;
             target = thing_get(thing->shot_lizard.target_idx);
@@ -1633,13 +1646,13 @@ TngUpdateRet update_shot(struct Thing *thing)
                 if (dist <= 260) hit = true;
             }
             break;
-        case ShM_GodLightBall:
+        case ShUL_GodLightBall:
             update_god_lightning_ball(thing);
             break;
-        case ShM_TrapTNT:
+        case ShUL_TrapTNT:
             thing->mappos.z.val = 0;
             break;
-        case ShM_TrapLightning:
+        case ShUL_TrapLightning:
             if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
             {
               thing->shot.spell_level = 5;
@@ -1648,7 +1661,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               if (thing_exists(target))
               {
                   shotst = get_shot_model_stats(ShM_GodLightBall);
-                  draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
+                  draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
                   apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
               }
             }
@@ -1663,7 +1676,7 @@ TngUpdateRet update_shot(struct Thing *thing)
         return TUFRet_Deleted;
     }
     if (hit) {
-        detonate_shot(thing);
+        detonate_shot(thing, true);
         return TUFRet_Deleted;
     }
     return move_shot(thing);

@@ -243,7 +243,7 @@ struct PlayerInfo *get_player_thing_is_controlled_by(const struct Thing *thing)
     return get_player(thing->owner);
 }
 
-void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char a5, char start_frame, unsigned char draw_class)
+void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char animate_once, char start_frame, unsigned char draw_class)
 {
     unsigned long i;
     thing->anim_sprite = convert_td_iso(anim);
@@ -252,11 +252,16 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
     if (speed != -1) {
         thing->anim_speed = speed;
     }
-    if (scale != -1) {
+    if (scale != -1)
+    {
         thing->sprite_size = scale;
+        if (object_is_gold_pile(thing))
+        {
+            add_gold_to_pile(thing, 0); //makes sure scale is correct based on gold value
+        }
     }
-    if (a5 != -1) {
-        set_flag_byte(&thing->rendering_flags, TRF_AnimateOnce, a5);
+    if (animate_once != -1) {
+        set_flag_byte(&thing->rendering_flags, TRF_AnimateOnce, animate_once);
     }
     if (start_frame == -2)
     {

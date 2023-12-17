@@ -128,7 +128,6 @@ enum ThingEffectKind {
     TngEff_Unknown69,
 };
 
-/** See struct EffectElementStats effect_element_stats for use. */
 enum ThingEffectElements {
     TngEffElm_None = 0,
     TngEffElm_Blast1,
@@ -231,102 +230,19 @@ enum ThingEffectElements {
 /******************************************************************************/
 #pragma pack(1)
 
-struct InitEffect;
 struct Thing;
-
-struct EffectGeneratorStats { // sizeof = 57
-    long genation_delay_min;
-    long genation_delay_max;
-    long genation_amount;
-    long effect_element_model;
-    unsigned char ignore_terrain;
-    long spawn_height;
-    long acc_x_min;
-    long acc_x_max;
-    long acc_y_min;
-    long acc_y_max;
-    long acc_z_min;
-    long acc_z_max;
-    long sound_sample_idx;
-    long sound_sample_rng;
-    long sound_sample_sec;
-};
-
-struct EffectElementStats { // sizeof = 79
-  unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
-  unsigned char move_type;
-  unsigned char unanimated;
-  short lifespan;
-  short lifespan_random;
-  short sprite_idx;
-  short sprite_size_min;
-  short sprite_size_max;
-  unsigned char rendering_flag;
-  unsigned short sprite_speed_min;
-  unsigned short sprite_speed_max;
-  TbBool animate_on_floor;
-  unsigned char unshaded;
-  unsigned char transparant;  // transparency flags in bits 4-5
-  unsigned char field_15;
-  unsigned char movement_flags;
-  unsigned char size_change; /**< See enum ThingSizeChange. */
-  unsigned char fall_acceleration;
-  unsigned char field_19_unused;
-  short inertia_floor;
-  short inertia_air;
-  unsigned short subeffect_model;
-  unsigned short subeffect_delay;
-  unsigned char field_22;
-  unsigned short effmodel_23;
-  unsigned short solidgnd_snd_smpid;
-  unsigned short solidgnd_loudness;
-  unsigned char solidgnd_destroy_on_impact;
-  unsigned short water_effmodel;
-  unsigned short water_snd_smpid;
-  unsigned short water_loudness;
-  unsigned char water_destroy_on_impact;
-  unsigned short lava_effmodel;
-  unsigned short lava_snd_smpid;
-  unsigned short lava_loudness;
-  unsigned char lava_destroy_on_impact;
-  unsigned short transform_model;
-  unsigned short light_radius;
-  unsigned char light_intensity;
-  long light_field_3D;
-  unsigned char affected_by_wind;
-};
-
-struct InitEffect { // sizeof = 39
-    /** Health; decreases by 1 on every turn, so it works also as lifespan. */
-  short start_health;
-  unsigned char generation_type;
-  short accel_xy_min;
-  short accel_xy_max;
-  short accel_z_min;
-  short accel_z_max;
-  unsigned char field_B;
-  short effect_sound;
-  unsigned char kind_min;
-  unsigned char kind_max;
-  unsigned char area_affect_type;
-  unsigned char field_11;
-  struct InitLight ilght;
-  unsigned char affected_by_wind;
-};
 
 #pragma pack()
 /******************************************************************************/
 extern const int birth_effect_element[];
 /******************************************************************************/
-struct InitEffect *get_effect_info(ThingModel effmodel);
-struct InitEffect *get_effect_info_for_thing(const struct Thing *thing);
-struct EffectElementStats *get_effect_element_model_stats(ThingModel tngmodel);
+struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmodel);
 
 TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx);
 struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner);
-struct Thing* create_used_effect_or_element(const struct Coord3d* pos, short effect_id, long plyr_idx);
+struct Thing* create_used_effect_or_element(const struct Coord3d* pos, EffectOrEffElModel effect_id, PlayerNumber plyr_idx);
 TngUpdateRet update_effect_element(struct Thing *thing);
 TngUpdateRet update_effect(struct Thing *thing);
 TngUpdateRet process_effect_generator(struct Thing *thing);

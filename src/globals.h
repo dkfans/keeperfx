@@ -129,6 +129,13 @@ extern "C" {
 #define NETLOG(format, ...) LbNetLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 #define NOLOG(format, ...)
 
+// Debug function-like macros - for dialogs windows
+#define WARNING_DIALOG(out_result, format, ...) { \
+  char buffer[TEXT_BUFFER_LENGTH]; \
+  Lbvsprintf(buffer, format, ##__VA_ARGS__); \
+  (*(&out_result)) = warning_dialog(__func__, 0, buffer); \
+}
+
 // Debug function-like macros - for debug code logging
 #if (BFDEBUG_LEVEL > 0)
   #define SYNCDBG(dblv,format, ...) {\
@@ -162,23 +169,6 @@ extern "C" {
   #define AIDBG(dblv,format, ...)
 #endif
 
-#if AUTOTESTING
-  #include "event_monitoring.h"
-  #define EVM_CREATURE_EVENT(event_name, plyr_id, thing) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id)
-  #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d cnt=1,targ=%d", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id, targ_val)
-  #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt) \
-    evm_stat(0, "map.%s,x=%d,y=%d,plyr=%d,opt=%s cnt=1,x=%d,y=%d", event_name, x, y, plyr_idx, opt, x,y)
-  #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val) \
-    evm_stat(0, "ev.%s,cr=%s,thing=%d,plyr=%d %s=%d", event_name, get_string(gameadd.crtr_conf.model[thing->model].namestr_idx), thing->index, plyr_id, stat_name, stat_val)
-#else
-  #define EVM_CREATURE_EVENT(event_name, plyr_id, thing)
-  #define EVM_CREATURE_EVENT_WITH_TARGET(event_name, plyr_id, thing, targ_val)
-  #define EVM_CREATURE_STAT(event_name, plyr_id, thing, stat_name, stat_val)
-  #define EVM_MAP_EVENT(event_name, plyr_idx, x, y, opt)
-#endif
-
 #define MAX_TILES_X 170
 #define MAX_TILES_Y 170
 #define MAX_SUBTILES_X 511
@@ -200,6 +190,8 @@ typedef unsigned char ThingClass;
 typedef unsigned char ThingModel;
 /** Type which stores thing index. */
 typedef unsigned short ThingIndex;
+/** Type which stores effectModels on positive or EffectElements on Negative. */
+typedef short EffectOrEffElModel;
 /** Type which stores creature state index. */
 typedef unsigned short CrtrStateId;
 /** Type which stores creature experience level. */

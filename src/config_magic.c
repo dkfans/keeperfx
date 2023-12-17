@@ -115,6 +115,11 @@ const struct NamedCommand magic_shot_commands[] = {
   {"INERTIA",               45},
   {"UNSHADED",              46},
   {"SOFTLANDING",           47},
+  {"EFFECTMODEL",           48},
+  {"FIRELOGIC",             49},
+  {"UPDATELOGIC",           50},
+  {"EFFECTSPACING",         51},
+  {"EFFECTAMOUNT",          52},
   {NULL,                     0},
   };
 
@@ -180,6 +185,7 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"HIDDEN_PROJECTILE",   17},
   {"DISARMING",           18},
   {"BLOCKS_REBIRTH",      19},
+  {"PENETRATING",         20},
   {NULL,                   0},
   };
 
@@ -1067,6 +1073,10 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_BlocksRebirth;
                 n++;
                 break;
+            case 20: // Penetrating
+                shotst->model_flags |= ShMF_Penetrating;
+                n++;
+                break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -1676,6 +1686,71 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+      case 48: //EFFECTMODEL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              shotst->effect_id = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 49: //FIRELOGIC
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->fire_logic = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 50: //UPDATELOGIC
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->update_logic = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 51: //EFFECTSPACING
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->effect_spacing = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 52: //EFFECTAMOUNT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->effect_amount = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -2218,7 +2293,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
       case 5: // ACTIVATIONEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               specst->effect_id = k;
               n++;
           }
