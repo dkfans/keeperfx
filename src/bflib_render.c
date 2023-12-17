@@ -55,6 +55,8 @@ void setup_bflib_render(long width, long height)
     {
         free(polyscans);
     }
+    if (height < 4096)
+        height = 4096;
     polyscans = malloc(sizeof(struct PolyPoint) * height);
 }
 
