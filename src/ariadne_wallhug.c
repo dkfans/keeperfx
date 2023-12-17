@@ -2066,7 +2066,9 @@ TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
         return true;
     return false;
 }
-
+/**
+ * Hello.
+ */
 static TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx)
 {
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
