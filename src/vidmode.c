@@ -334,7 +334,7 @@ TbBool set_pointer_graphic(long ptr_idx)
         LbMouseChangeSpriteAndHotspot(NULL, 0, 0);
         return false;
     }
-    ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
+    
 
   switch (ptr_idx)
   {
@@ -343,10 +343,12 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_Pickaxe:
   case MousePG_Query:
   case MousePG_DenyMark:
+    ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
   case MousePG_Sell:
+      ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       spr = &pointer_sprites[ptr_idx];
       x = 17; y = 29;
       break;
@@ -386,6 +388,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case 179:
   case 180:
   case 181:
+      ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
@@ -398,6 +401,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case  MousePG_SpellCharge6:
   case  MousePG_SpellCharge7:
   case  MousePG_SpellCharge8:
+      ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       spr = &pointer_sprites[ptr_idx];
       x = 20; y = 20;
       break;
@@ -416,12 +420,14 @@ TbBool set_pointer_graphic(long ptr_idx)
   case  MousePG_PlaceRoom13:
   case  MousePG_PlaceRoom14:
   case  MousePG_PlaceRoom15:
+      ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
   case  MousePG_LockMark:
   // 40..144 are spell pointers
   case  MousePG_Unkn47:
+      ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
@@ -433,6 +439,7 @@ TbBool set_pointer_graphic(long ptr_idx)
   case 101:
   case 102:
   case 103:
+      ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 15;
       break;
@@ -448,10 +455,12 @@ TbBool set_pointer_graphic(long ptr_idx)
   case MousePG_MkDigger:
   case MousePG_MkCreature:
   case MousePG_MvCreature:
+      ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       spr = &pointer_sprites[ptr_idx];
       x = 12; y = 38;
       break;
   default:
+      ptr_idx = get_player_colored_pointer_icon_idx(ptr_idx,my_player_number);
       spr = get_new_icon_sprite(ptr_idx);
       if (spr != NULL)
       {
