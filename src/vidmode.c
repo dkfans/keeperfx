@@ -72,12 +72,18 @@ static TbScreenMode frontend_vidmode = Lb_SCREEN_MODE_640_480_8;
 unsigned short units_per_pixel_min;
 unsigned short units_per_pixel_width;
 unsigned short units_per_pixel_height;
+unsigned short units_per_pixel_menu_height;
 unsigned short units_per_pixel_best;
+unsigned short units_per_pixel_menu;
+unsigned short units_per_pixel_landview;
+unsigned short units_per_pixel_landview_frame;
 unsigned short units_per_pixel_ui;
 unsigned long aspect_ratio_factor_HOR_PLUS;
 unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
 unsigned long first_person_horizontal_fov;
 unsigned long first_person_vertical_fov;
+unsigned long landview_frame_movement_scale_x;
+unsigned long landview_frame_movement_scale_y;
 long base_mouse_sensitivity = 256;
 
 static TbBool force_video_mode_reset = true;
@@ -648,7 +654,7 @@ TbScreenMode setup_screen_mode(TbScreenMode nmode, TbBool failsafe)
       unload_pointer_file(hi_res);
     }
     if (nmode != old_mode)
-        LbScreenReset();
+        LbScreenReset(false);
     if (MinimalResolutionSetup)
       LbDataFreeAll(hi_res ? front_load_files_minimal_640 : front_load_files_minimal_320);
     else
@@ -725,19 +731,38 @@ TbBool update_screen_mode_data(long width, long height)
   }
   */
   long psize = pixel_size;
+
   MyScreenWidth = width * psize;
   MyScreenHeight = height * psize;
   pixels_per_block = 16 * psize;
+
+
+  // Adjust scaling factor (units per pixel) based on window resolution compared to the original DK resolutions
+  // low-res - units per pixel = 8, low-res - units per pixel = 16 (or upp min is low-res = 4, high-res = 10)
+
+  // In-game scaling (DK original: low-res - 320x200, high-res - 640x400)
   units_per_pixel = (width>height?width:height)/40;// originally was 16 for hires, 8 for lores
   units_per_pixel_min = (width>height?height:width)/40;// originally 10 for hires
   units_per_pixel_width = width/40; // 8 for low res, 16 is "kfx default"
   units_per_pixel_height = height/25; // 8 for low res, 16 is "kfx default"
-  units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // 8 for low res, 16 is "kfx default"
+  units_per_pixel_best = ((is_ar_wider_than_original(width, height)) ? units_per_pixel_height : units_per_pixel_width); // If the screen is wider than 16:10 the height is used; if the screen is narrower than 16:10 the width is used.
+  
+  // In-game scaling: UI (for the side bar menu and escape menu)
   long ui_scale = UI_NORMAL_SIZE; // UI_NORMAL_SIZE, UI_HALF_SIZE, or UI_DOUBLE_SIZE (not fully implemented yet)
   units_per_pixel_ui = resize_ui(units_per_pixel_best, ui_scale);
+
+  // In-game scaling: Posession Mode (a 3D 1st person perspective camera)
   calculate_aspect_ratio_factor(width, height);
   first_person_vertical_fov = DEFAULT_FIRST_PERSON_VERTICAL_FOV;
   first_person_horizontal_fov = FOV_based_on_aspect_ratio();
+
+  // Main menu scaling (DK original: 640x480)
+  units_per_pixel_menu_height = height/30; // 16 is "kfx default" (640x480)
+  units_per_pixel_menu = ((is_menu_ar_wider_than_original(width, height)) ? units_per_pixel_menu_height : units_per_pixel_width); // If the screen is wider than 4:3 the height is used; if the screen is narrower than 4:3 the width is used.
+  
+  // Main menu scaling: Campaign map "land view" screen (including the window frame)
+  calculate_landview_upp(width, height, LANDVIEW_MAP_WIDTH, LANDVIEW_MAP_HEIGHT); // 16 is "kfx default" for 640x480 game window (1x), a 960x720 frame (1.5x), and a 1280x960 landview (2x)
+
 
   if (MinimalResolutionSetup)
     LbSpriteSetupAll(setup_sprites_minimal);
@@ -804,7 +829,7 @@ TbScreenMode setup_screen_mode_minimal(TbScreenMode nmode)
     if ((!MinimalResolutionSetup && !hi_res) || (MinimalResolutionSetup && hi_res))
       unload_pointer_file(hi_res);
     if ((nmode != old_mode) || (force_video_mode_reset))
-      LbScreenReset();
+      LbScreenReset(false);
     if (hi_res)
     {
       if (MinimalResolutionSetup)

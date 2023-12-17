@@ -492,7 +492,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
                         return -1;
                     // It is not "correct" randomness (pick random N from list) but rolling a dice on each creature found
                     unsigned long tmp = maximizer + dist + 1;
-                    return (long)LbRandomSeries(LONG_MAX, &tmp, __func__, __LINE__, "");
+                    return (long)LbRandomSeries(LONG_MAX, &tmp, __func__, __LINE__);
                 }
             }
         }
@@ -4201,17 +4201,23 @@ void break_mapwho_infinite_chain(const struct Map *mapblk)
     WARNLOG("No change performed");
 }
 
-ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel)
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player)
 {
     unsigned long k = 0;
     struct Thing* thing = current_creature;
     ThingIndex i;
+    unsigned char loops = 0;
     do
     {
         i = thing->prev_of_class;
         if (i == 0)
         {
-            return get_index_of_first_creature_of_owner_and_model(owner, crmodel);
+            loops++;
+            if (loops > 1)
+            {
+                break;
+            }
+            i = get_index_of_first_creature_of_owner_and_model(owner, crmodel);
         }
         else if (i == current_creature->index)
         {
@@ -4224,7 +4230,10 @@ ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_c
             {
                 if ( (thing->model == crmodel) || (crmodel == 0) )
                 {
-                    return thing->index;
+                    if (creature_can_be_queried(player, thing))
+                    {
+                        return thing->index;
+                    }
                 }
             }
         }

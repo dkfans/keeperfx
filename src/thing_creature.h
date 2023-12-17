@@ -33,6 +33,7 @@ extern "C" {
 /******************************************************************************/
 #define CREATURE_TYPES_COUNT  32
 #define DEAD_CREATURES_MAX_COUNT 64
+#define CREATURE_NAME_MAX 25
 /** The standard altitude at which a creature is flying.
  * Should be over one tile, to allow flying creatures leave water areas. */
 #define NORMAL_FLYING_ALTITUDE (256+16)
@@ -67,11 +68,10 @@ enum CreatureDeathFlags {
 
 struct CreatureStorage {
   unsigned char model;
-  unsigned char explevel : 4;
-  unsigned char count : 4;
+  unsigned char explevel;
+  unsigned char count;
+  char creature_name[CREATURE_NAME_MAX];
 };
-
-static_assert(sizeof(struct CreatureStorage) == 2, "");
 
 #pragma pack()
 /******************************************************************************/
@@ -191,6 +191,7 @@ void controlled_continue_looking_excluding_diagonal(struct Thing *creatng, MapSu
 short get_creature_eye_height(const struct Thing *creatng);
 
 void query_creature(struct PlayerInfo *player, ThingIndex index, TbBool reset, TbBool zoom);
+TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng);
 /******************************************************************************/
 TbBool thing_is_creature(const struct Thing *thing);
 TbBool thing_is_dead_creature(const struct Thing *thing);

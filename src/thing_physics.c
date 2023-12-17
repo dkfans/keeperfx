@@ -880,6 +880,12 @@ unsigned short push_thingz_against_wall_at(const struct Thing *thing, const stru
 
 TbBool move_object_to_nearest_free_position(struct Thing *thing)
 {
+    TRACE_THING(thing)
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing object out of wall.");
+        return false;
+    }
     struct Coord3d pos;
     MapCoordDelta nav_radius = thing_nav_sizexy(thing) / 2;
 

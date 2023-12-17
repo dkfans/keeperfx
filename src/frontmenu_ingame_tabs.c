@@ -2336,10 +2336,14 @@ void update_room_tab_to_config(void)
         ibtn->draw_call = gui_area_room_button;
     }
     // Update active menu
-    if (menu_is_active(GMnu_ROOM))
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_DungeonTop)
     {
-        turn_off_menu(GMnu_ROOM);
-        turn_on_menu(GMnu_ROOM);
+        if (menu_is_active(GMnu_ROOM))
+        {
+            turn_off_menu(GMnu_ROOM);
+            turn_on_menu(GMnu_ROOM);
+        }
     }
 }
 
@@ -2390,10 +2394,14 @@ void update_trap_tab_to_config(void)
         }
     }
     // Update active menu
-    if ( menu_is_active(GMnu_TRAP) )
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_DungeonTop)
     {
-        turn_off_menu(GMnu_TRAP);
-        turn_on_menu(GMnu_TRAP);
+        if ( menu_is_active(GMnu_TRAP) )
+        {
+            turn_off_menu(GMnu_TRAP);
+            turn_on_menu(GMnu_TRAP);
+        }
     }
 }
 
@@ -2464,7 +2472,7 @@ void gui_query_next_creature_of_owner_and_model(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player = get_my_player();
     struct Thing *creatng = thing_get(player->influenced_thing_idx);
-    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, creatng->model);
+    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, creatng->model, player);
     if (next_creature != player->influenced_thing_idx)
     {
         struct Packet* pckt = get_packet(player->id_number);
@@ -2477,7 +2485,7 @@ void gui_query_next_creature_of_owner(struct GuiButton *gbtn)
 {
     struct PlayerInfo *player = get_my_player();
     struct Thing *creatng = thing_get(player->influenced_thing_idx);
-    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, 0);
+    ThingIndex next_creature = get_index_of_next_creature_of_owner_and_model(creatng, creatng->owner, 0, player);
     if (next_creature != player->influenced_thing_idx)
     {
         struct Packet* pckt = get_packet(player->id_number);

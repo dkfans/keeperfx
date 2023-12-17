@@ -347,7 +347,6 @@ long computer_setup_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
 
 long computer_setup_attack1(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), 500, 1);
     return CProcRet_Continue;
 }
 
@@ -1322,18 +1321,22 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     long par1 = ctask->pickup_for_attack.long_86;
     if (xy_walkable(pos->x.stl.num, pos->y.stl.num, dungeon->owner))
     {
-        if (!create_task_pickup_for_attack(comp, pos, par1, creatrs_num)) {
+        if (!create_task_pickup_for_attack(comp, pos, par1, creatrs_num)) 
+        {
             return CProcRet_Wait;
         }
+        output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DELAY_KEEPR_TAUNT, 1);
         return CProcRet_Continue;
     } else
     if (cproc->confval_3 <= creatrs_num)
     {
         if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 5, 2) && check_call_to_arms(comp))
         {
-            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, par1, creatrs_num)) {
+            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, par1, creatrs_num))
+            {
                 return CProcRet_Wait;
             }
+            output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DELAY_KEEPR_TAUNT, 1);
             return CProcRet_Continue;
         }
     }

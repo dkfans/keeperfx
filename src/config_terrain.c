@@ -387,15 +387,8 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
             slabst = &game.slab_conf.slab_cfgstats[i];
             LbMemorySet(slabst->code_name, 0, COMMAND_WORD_LEN);
             slabst->tooltip_stridx = GUIStr_Empty;
-            if (i < game.slab_conf.slab_types_count)
-            {
-                slab_desc[i].name = slabst->code_name;
-                slab_desc[i].num = i;
-            } else
-            {
-                slab_desc[i].name = NULL;
-                slab_desc[i].num = 0;
-            }
+            slab_desc[i].name = NULL;
+            slab_desc[i].num = 0;
         }
         arr_size = sizeof(slab_attrs)/sizeof(slab_attrs[0]);
         for (i=0; i < arr_size; i++)
@@ -438,7 +431,12 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         switch (cmd_num)
         {
         case 1: // NAME
-            if (get_conf_parameter_single(buf,&pos,len,slabst->code_name,COMMAND_WORD_LEN) <= 0)
+            if (get_conf_parameter_single(buf,&pos,len,slabst->code_name,COMMAND_WORD_LEN) > 0)
+            {
+                slab_desc[i].name = slabst->code_name;
+                slab_desc[i].num = i;
+            }
+            else
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
@@ -1197,12 +1195,18 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global terrain config";
     static const char config_campgn_textname[] = "campaign terrain config";
+    static const char config_level_textname[] = "level terrain config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_terrain_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_terrain_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_terrain_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;
