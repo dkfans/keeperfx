@@ -1626,6 +1626,10 @@ void setup_computer_players2(void)
   // random results aren't used in the same order every time.
   srand((unsigned) time(NULL));
 
+#ifdef FUNCTESTING
+  ftest_srand();
+#endif
+
   for (i=0; i < PLAYERS_COUNT; i++)
   {
       struct PlayerInfo* player = get_player(i);
