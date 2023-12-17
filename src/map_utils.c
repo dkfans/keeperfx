@@ -277,6 +277,20 @@ SmallAroundIndex small_around_index_towards_destination(long curr_x, long curr_y
 }
 
 /**
+ * Computes index in small_around[] array which contains coordinates directing towards given destination.
+ * @param srcpos_x Source position X; either map coordinates or subtiles, but have to match type of other coords.
+ * @param srcpos_y Source position Y; either map coordinates or subtiles, but have to match type of other coords.
+ * @param dstpos_x Destination position X; either map coordinates or subtiles, but have to match type of other coords.
+ * @param dstpos_y Destination position Y; either map coordinates or subtiles, but have to match type of other coords.
+ * @return Index for small_around[] array.
+ */
+SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
+{
+    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI / 4);
+    return (i >> 9) & 3;
+}
+
+/**
  * Returns filtered position from subtiles around given coordinates.
  * Uses "spiral" checking of surrounding subtiles, up to given number of subtiles.
  * The position which will return highest nonnegative value from given filter function

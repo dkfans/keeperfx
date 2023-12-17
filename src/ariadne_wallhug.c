@@ -45,7 +45,6 @@ extern "C" {
 #endif
 /******************************************************************************/
 static TbBool check_forward_for_prospective_hugs(struct Thing *creatng, struct Coord3d *pos_a, long angle, long side, long a3, long speed, PlayerBitFlags crt_owner_flags);
-SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y);
 static long get_angle_of_wall_hug(struct Thing *creatng, long slab_flags, long a3, PlayerBitFlags crt_owner_flags);
 static void set_hugging_pos_using_blocked_flags(struct Coord3d *dstpos, struct Thing *creatng, unsigned short block_flags, int nav_radius);
 static TbBool navigation_push_towards_target(struct Navigation *navi, struct Thing *creatng, const struct Coord3d *pos, MoveSpeed speed, MoveSpeed nav_radius, PlayerBitFlags crt_owner_flags);
@@ -58,20 +57,6 @@ const uint8_t byte_51120A[] = { 2,0,2,1,0,6,1,0,2,2,0,0,0,0 };
 const uint8_t byte_51121A[22] = { 2,0,0,1,0,2,1,0,0,2,0,6,1,0,4,2,0,2,2,0,4,1 };
 
 /******************************************************************************/
-/**
- * Computes index in small_around[] array which contains coordinates directing towards given destination.
- * @param srcpos_x Source position X; either map coordinates or subtiles, but have to match type of other coords.
- * @param srcpos_y Source position Y; either map coordinates or subtiles, but have to match type of other coords.
- * @param dstpos_x Destination position X; either map coordinates or subtiles, but have to match type of other coords.
- * @param dstpos_y Destination position Y; either map coordinates or subtiles, but have to match type of other coords.
- * @return Index for small_around[] array.
- */
-SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
-{
-    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI / 4);
-    return (i >> 9) & 3;
-}
-
 static TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
