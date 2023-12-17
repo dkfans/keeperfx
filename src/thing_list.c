@@ -3930,16 +3930,9 @@ struct Thing *get_door_around_of_model_and_owned_by(MapCoord pos_x, MapCoord pos
     param.class_id = TCls_Door;
     param.model_id = model;
     param.plyr_idx = plyr_idx;
-    MapSlabCoord slb_x = subtile_slab(pos_x);
-    MapSlabCoord slb_y = subtile_slab(pos_y);
-    const struct Map* mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-    if (map_block_invalid(mapblk))
-    {
-        return INVALID_THING;
-    }
-    long i = get_mapwho_thing_index(mapblk);
-    long n = 0;
-    return get_thing_on_map_block_with_filter(i, filter, &param, &n);
+    param.num1 = pos_x;
+    param.num2 = pos_y;
+    return get_thing_spiral_near_map_block_with_filter(pos_x, pos_y, 9, filter, &param);
 }
 
 struct Thing *get_door_for_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
