@@ -152,6 +152,9 @@ TbBool slab_is_liquid(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool slab_is_wall(MapSlabCoord slb_x, MapSlabCoord slb_y);
 TbBool is_slab_type_walkable(SlabKind slbkind);
 
+TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb);
+TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber plyr_idx);
+
 TbBool can_build_room_at_slab(PlayerNumber plyr_idx, RoomKind rkind,
     MapSlabCoord slb_x, MapSlabCoord slb_y);
 
