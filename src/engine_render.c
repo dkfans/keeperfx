@@ -5469,7 +5469,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     int bar_empty;
     struct TbSprite *spr;
     int ps_units_per_px;
-    spr = &gui_panel_sprites[303];
+    spr = &gui_panel_sprites[GPS_rpanel_room_ensign_filled];
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;

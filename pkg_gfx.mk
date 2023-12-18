@@ -82,9 +82,6 @@ pkg/data/gui2-32.dat \
 pkg/data/gui1-64.dat \
 pkg/data/gui1-32.dat \
 pkg/data/pointer64.dat \
-pkg/data/pointer32.dat \
-pkg/data/points64.dat \
-pkg/data/points32.dat \
 pkg/data/font1-64.dat \
 pkg/data/font1-32.dat \
 pkg/data/font2-32.dat \
@@ -252,9 +249,6 @@ pkg/data/gui1-64.dat:   gfx/menufx/gui1-64/filelist_gui1.txt pkg/data/palette.da
 pkg/data/gui1-32.dat:   gfx/menufx/gui1-32/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/pointer64.dat: gfx/enginefx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/pointer32.dat: gfx/enginefx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/points64.dat:  gfx/enginefx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/points32.dat:  gfx/enginefx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/font1-64.dat:  gfx/enginefx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/font1-32.dat:  gfx/enginefx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
 
