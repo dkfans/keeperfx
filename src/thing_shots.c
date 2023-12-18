@@ -1474,7 +1474,7 @@ TngUpdateRet move_shot(struct Thing *shotng)
     {
         if (shot_hit_something_while_moving(shotng, &pos))
         {
-            if (!(shotst->model_flags & ShMF_Penetrating))
+            if ( (!(shotst->model_flags & ShMF_Penetrating)) || (!thing_exists(shotng)) ) // Shot may have been destroyed when it hit something
             {
                 return TUFRet_Deleted;
             }
@@ -1591,9 +1591,9 @@ TngUpdateRet update_shot(struct Thing *thing)
                 }
             }
         }
-        switch (thing->model)
+        switch (shotst->update_logic)
         {
-        case ShM_Lightning:
+        case ShUL_Lightning:
         {
             struct PlayerInfo* player;
             if (lightning_is_close_to_player(myplyr, &thing->mappos))
@@ -1610,22 +1610,22 @@ TngUpdateRet update_shot(struct Thing *thing)
             }
             break;
         }
-        case ShM_Wind:
+        case ShUL_Wind:
             affect_nearby_enemy_creatures_with_wind(thing);
             break;
-        case ShM_Grenade:
+        case ShUL_Grenade:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
             break;
-        case ShM_GodLightning:
+        case ShUL_GodLightning:
             draw_god_lightning(thing);
             lightning_modify_palette(thing);
             break;
-        /**case ShM_Vortex:
+        /**case ShUL_Vortex:
             //Not implemented, due to limited amount of shots, replaced by Lizard
             affect_nearby_stuff_with_vortex(thing);
             break;
             **/
-        case ShM_Lizard:
+        case ShUL_Lizard:
             thing->move_angle_xy = (thing->move_angle_xy + LbFPMath_PI/9) & LbFPMath_AngleMask;
             int skill = thing->shot_lizard2.range;
             target = thing_get(thing->shot_lizard.target_idx);
@@ -1646,13 +1646,13 @@ TngUpdateRet update_shot(struct Thing *thing)
                 if (dist <= 260) hit = true;
             }
             break;
-        case ShM_GodLightBall:
+        case ShUL_GodLightBall:
             update_god_lightning_ball(thing);
             break;
-        case ShM_TrapTNT:
+        case ShUL_TrapTNT:
             thing->mappos.z.val = 0;
             break;
-        case ShM_TrapLightning:
+        case ShUL_TrapLightning:
             if (((game.play_gameturn - thing->creation_turn) % 16) == 0)
             {
               thing->shot.spell_level = 5;
@@ -1661,7 +1661,7 @@ TngUpdateRet update_shot(struct Thing *thing)
               if (thing_exists(target))
               {
                   shotst = get_shot_model_stats(ShM_GodLightBall);
-                  draw_lightning(&thing->mappos,&target->mappos, 96, TngEffElm_ElectricBall3);
+                  draw_lightning(&thing->mappos,&target->mappos, shotst->effect_spacing, shotst->effect_id);
                   apply_damage_to_thing_and_display_health(target, shotst->damage, shotst->damage_type, thing->owner);
               }
             }

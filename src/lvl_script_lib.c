@@ -98,6 +98,37 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
     return thing;
 }
 
+struct Thing* script_process_new_effectgen(long tngmodel, TbMapLocation location, long range)
+{
+    struct Coord3d pos;
+    const unsigned char tngclass = TCls_EffectGen;
+    if (!get_coords_at_location(&pos, location))
+    {
+        ERRORLOG("Couldn't find location %d to create %s", (int)location, thing_class_and_model_name(tngclass, tngmodel));
+        return INVALID_THING;
+    }
+    SlabCodedCoords place_slbnum = get_slab_number(subtile_slab(pos.x.stl.num), subtile_slab(pos.y.stl.num));
+    struct Thing* thing = create_thing(&pos, tngclass, tngmodel, game.neutral_player_num, place_slbnum);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create %s at location %d", thing_class_and_model_name(tngclass, tngmodel), (int)location);
+        return INVALID_THING;
+    }
+    thing->effect_generator.range = range;
+    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+    
+    // Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        if (!move_creature_to_nearest_valid_position(thing)) {
+            ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
+            delete_thing_structure(thing, 0);
+            return INVALID_THING;
+        }
+    }
+    return thing;
+}
+
 void set_variable(int player_idx, long var_type, long var_idx, long new_val)
 {
     struct Dungeon *dungeon = get_dungeon(player_idx);
