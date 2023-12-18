@@ -855,7 +855,7 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
             break;
         }
         
-        if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel))
+        if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel, cctrl->creature_name))
         {
             transferred++;
             dungeonadd = get_dungeonadd(plyr_idx);

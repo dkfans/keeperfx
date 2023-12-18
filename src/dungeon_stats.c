@@ -32,6 +32,7 @@
 #include "config_slabsets.h"
 #include "config_textures.h"
 #include "config_powerhands.h"
+#include "config_spritecolors.h"
 #include "room_library.h"
 #include "game_legacy.h"
 #include "post_inc.h"
@@ -82,7 +83,10 @@ TbBool load_stats_files(void)
       result = false;
     if (!load_powerhands_config(keeper_powerhands_file,CnfLd_Standard))
       result = false;
+    if (!load_spritecolors_config(keeper_spritecolors_file,CnfLd_Standard))
+      result = false;
 
+    
     for (int i = 1; i < gameadd.crtr_conf.model_count; i++)
     {
       if (!load_creaturemodel_config(i,0))

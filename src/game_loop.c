@@ -48,7 +48,7 @@ static void powerful_magic_breaking_sparks(struct Thing* breaktng)
     pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + GAME_RANDOM(11) - 5);
     pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(11) - 5);
     pos.z.val = get_floor_height_at(&pos);
-    draw_lightning(&breaktng->mappos, &pos, 96, TngEffElm_ElectricBall3);
+    draw_lightning(&breaktng->mappos, &pos, 96, -TngEffElm_ElectricBall3);
     if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0)) {
         thing_play_sample(breaktng, 157, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
     }
