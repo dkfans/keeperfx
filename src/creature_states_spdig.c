@@ -28,6 +28,7 @@
 #include "thing_physics.h"
 #include "creature_control.h"
 #include "creature_instances.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -970,24 +971,33 @@ short imp_converts_dungeon(struct Thing *spdigtng)
     {
       if (cctrl->instance_id == CrInst_NULL)
       {
-          struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-          struct SlabAttr* slbattr = get_slab_attrs(slb);
-          set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0);
-          // If the area we're converting is an enemy room, issue event to that player
-          if (slbattr->category == SlbAtCtg_RoomInterior)
+          CrInstance inst_idx = get_self_spell_casting(spdigtng);
+          if (inst_idx > CrInst_NULL) 
           {
-              struct Room* room = room_get(slb->room_index);
-              if (!room_is_invalid(room))
+              set_creature_instance(spdigtng, inst_idx, 0, 0);
+              return 1;
+          }
+          else
+          {
+              set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0);
+              struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+              struct SlabAttr* slbattr = get_slab_attrs(slb);
+              // If the area we're converting is an enemy room, issue event to that player
+              if (slbattr->category == SlbAtCtg_RoomInterior)
               {
-                  MapCoord coord_x = subtile_coord_center(room->central_stl_x);
-                  MapCoord coord_y = subtile_coord_center(room->central_stl_y);
-                  event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
-                      EvKind_RoomUnderAttack, room->owner, 0);
-                  if (is_my_player_number(room->owner))
+                  struct Room* room = room_get(slb->room_index);
+                  if (!room_is_invalid(room))
                   {
-                      output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
-                  }
-            }
+                      MapCoord coord_x = subtile_coord_center(room->central_stl_x);
+                      MapCoord coord_y = subtile_coord_center(room->central_stl_y);
+                      event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
+                          EvKind_RoomUnderAttack, room->owner, 0);
+                      if (is_my_player_number(room->owner))
+                      {
+                          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                      }
+                }
+              }
           }
       }
       if (gameadd.digger_work_experience != 0)

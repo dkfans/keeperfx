@@ -27,6 +27,7 @@
 #include "frontend.h"
 #include "bflib_dernc.h"
 #include "sprites.h"
+#include "config_spritecolors.h"
 
 #include <spng.h>
 #include <json.h>
@@ -1521,6 +1522,8 @@ short get_anim_id(const char *name, struct Objects *objdat)
 
 const struct TbSprite *get_button_sprite(short sprite_idx)
 {
+    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx,my_player_number);
+
     if (sprite_idx < GUI_BUTTON_SPRITES_COUNT)
         return &button_sprite[sprite_idx];
     else if (sprite_idx < num_icons_total)

@@ -1904,6 +1904,11 @@ static TbBool find_free_position_on_slab(struct Thing* thing, struct Coord3d* po
 TngUpdateRet move_object(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing object.");
+        return TUFRet_Deleted;
+    }
     TRACE_THING(thing);
     struct Coord3d pos;
     TbBool move_allowed = get_thing_next_position(&pos, thing);
@@ -2328,11 +2333,11 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     if (typical_value <= 0) {
         return false;
     }
-    if (thing->valuable.gold_stored <= 0) {
-        return false;
-    }
 
     thing->valuable.gold_stored += value;
+    if (thing->valuable.gold_stored == 0) {
+        return false;
+    }
     if (thing->valuable.gold_stored < 0)
         thing->valuable.gold_stored = LONG_MAX;
     if (thing->valuable.gold_stored < typical_value)

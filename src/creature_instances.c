@@ -567,7 +567,6 @@ long instf_dig(struct Thing *creatng, long *param)
             gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, slb);
             creatng->creature.gold_carried += gold;
             dungeon->lvstats.gold_mined += gold;
-            EVM_CREATURE_STAT("gold_mined", creatng->owner, creatng, "gold", gold);
         }
         return 0;
     }
@@ -580,8 +579,6 @@ long instf_dig(struct Thing *creatng, long *param)
         gold = calculate_gold_digged_out_of_slab_with_single_hit(dig_damage, slb);
         creatng->creature.gold_carried += gold;
         dungeon->lvstats.gold_mined += gold;
-        EVM_CREATURE_STAT("gold_mined", creatng->owner, creatng, "gold", gold);
-        EVM_MAP_EVENT("dig", creatng->owner, stl_x, stl_y, "gold");
         mine_out_block(stl_x, stl_y, creatng->owner);
         if (dig_has_revealed_area(stl_x, stl_y, creatng->owner))
         {
@@ -595,7 +592,6 @@ long instf_dig(struct Thing *creatng, long *param)
     if (taskkind == SDDigTask_DigEarth)
     {
         dig_out_block(stl_x, stl_y, creatng->owner);
-        EVM_MAP_EVENT("dig", creatng->owner, stl_x, stl_y, "");
 
         if (dig_has_revealed_area(stl_x, stl_y, creatng->owner))
         {
@@ -953,7 +949,6 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     do_slab_efficiency_alteration(slb_x, slb_y);
     increase_dungeon_area(creatng->owner, 1);
     dungeon->lvstats.area_claimed++;
-    EVM_MAP_EVENT("claimed", creatng->owner, slb_x, slb_y, "");
     return 1;
 }
 

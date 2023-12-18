@@ -115,6 +115,7 @@ struct HandRule {
 
 TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing_to_pick);
 
+extern float global_hand_scale;
 /******************************************************************************/
 #ifdef __cplusplus
 }

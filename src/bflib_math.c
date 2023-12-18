@@ -26,11 +26,6 @@
 #include <intrin.h>
 #endif // _MSC_VER
 
-#ifdef AUTOTESTING
-
-#include "event_monitoring.h"
-
-#endif
 #include "post_inc.h"
 
 /******************************************************************************/
@@ -768,16 +763,13 @@ long LbMathOperation(unsigned char opkind, long val1, long val2)
   }
 }
 
-unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place, const char *tag)
+unsigned long LbRandomSeries(unsigned long range, unsigned long *seed, const char *func_name, unsigned long place)
 {
   if (range == 0)
     return 0;
   unsigned long i = 9377 * (*seed) + 9439;
   *seed = (i >> 13) | (i << ((sizeof(long) * 8) - 13));
   i = (*seed) % range;
-#ifdef AUTOTESTING
-  evm_stat(0, "rnd.%s,fn=%s,range=%ld val=%ld,range=%ld", tag, func_name, range, i, range);
-#endif
   return i;
 }
 
