@@ -285,9 +285,7 @@ unsigned long gold_pickup_amount;
     unsigned short        backup_heart_idx;
     unsigned short        free_soul_idx;
     struct HandRule       hand_rules[CREATURE_TYPES_MAX][HAND_RULE_SLOTS_COUNT];
-    };
-
-
+};
 /******************************************************************************/
 extern struct Dungeon bad_dungeon;
 /******************************************************************************/
@@ -295,7 +293,6 @@ struct Dungeon *get_players_num_dungeon_f(long plyr_idx,const char *func_name);
 struct Dungeon *get_players_dungeon_f(const struct PlayerInfo *player,const char *func_name);
 struct Dungeon *get_dungeon_f(PlayerNumber plyr_num,const char *func_name);
 #define get_players_num_dungeon(plyr_idx) get_players_num_dungeon_f(plyr_idx,__func__)
-#define get_players_dungeon(player) get_players_dungeon_f(player,__func__)
 #define get_players_dungeon(player) get_players_dungeon_f(player,__func__)
 #define get_dungeon(plyr_idx) get_dungeon_f(plyr_idx,__func__)
 #define get_my_dungeon() get_players_num_dungeon_f(my_player_number,__func__)
