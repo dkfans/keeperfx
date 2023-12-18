@@ -1567,7 +1567,6 @@ int trap_model_id(const char * code_name)
 TbBool is_trap_placeable(PlayerNumber plyr_idx, long tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1580,7 +1579,7 @@ TbBool is_trap_placeable(PlayerNumber plyr_idx, long tngmodel)
         ERRORLOG("Incorrect trap %d (player %d)",(int)tngmodel, (int)plyr_idx);
         return false;
     }
-    if (dungeonadd->mnfct_info.trap_amount_placeable[tngmodel] > 0) {
+    if (dungeon->mnfct_info.trap_amount_placeable[tngmodel] > 0) {
         return true;
     }
     return false;
@@ -1594,7 +1593,6 @@ TbBool is_trap_placeable(PlayerNumber plyr_idx, long tngmodel)
 TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1607,7 +1605,7 @@ TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel)
         ERRORLOG("Incorrect trap %d (player %d)",(int)tngmodel, (int)plyr_idx);
         return false;
     }
-    if ((dungeonadd->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) {
+    if ((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) {
         return true;
     }
     return false;
@@ -1619,7 +1617,6 @@ TbBool is_trap_buildable(PlayerNumber plyr_idx, long tngmodel)
 TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1628,7 +1625,7 @@ TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel)
         ERRORLOG("Incorrect trap %d (player %d)",(int)tngmodel, (int)plyr_idx);
         return false;
     }
-    if ((dungeonadd->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Built) != 0) {
+    if ((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Built) != 0) {
         return true;
     }
     return false;
@@ -1642,7 +1639,6 @@ TbBool is_trap_built(PlayerNumber plyr_idx, long tngmodel)
 TbBool is_door_placeable(PlayerNumber plyr_idx, long tngmodel)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1655,7 +1651,7 @@ TbBool is_door_placeable(PlayerNumber plyr_idx, long tngmodel)
         ERRORLOG("Incorrect door %d (player %d)",(int)tngmodel, (int)plyr_idx);
         return false;
     }
-    if (dungeonadd->mnfct_info.door_amount_placeable[tngmodel] > 0) {
+    if (dungeon->mnfct_info.door_amount_placeable[tngmodel] > 0) {
         return true;
     }
     return false;
@@ -1669,7 +1665,6 @@ TbBool is_door_placeable(PlayerNumber plyr_idx, long tngmodel)
 TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1682,7 +1677,7 @@ TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
         ERRORLOG("Incorrect door %d (player %d)",(int)door_idx, (int)plyr_idx);
         return false;
     }
-    if ((dungeonadd->mnfct_info.door_build_flags[door_idx] & MnfBldF_Manufacturable) != 0) {
+    if ((dungeon->mnfct_info.door_build_flags[door_idx] & MnfBldF_Manufacturable) != 0) {
         return true;
     }
     return false;
@@ -1694,7 +1689,6 @@ TbBool is_door_buildable(PlayerNumber plyr_idx, long door_idx)
 TbBool is_door_built(PlayerNumber plyr_idx, long door_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(dungeon->owner);
     // Check if the player even have a dungeon
     if (dungeon_invalid(dungeon)) {
         return false;
@@ -1707,7 +1701,7 @@ TbBool is_door_built(PlayerNumber plyr_idx, long door_idx)
         ERRORLOG("Incorrect door %d (player %d)",(int)door_idx, (int)plyr_idx);
         return false;
     }
-    if ((dungeonadd->mnfct_info.door_build_flags[door_idx] & MnfBldF_Built) != 0) {
+    if ((dungeon->mnfct_info.door_build_flags[door_idx] & MnfBldF_Built) != 0) {
         return true;
     }
     return false;

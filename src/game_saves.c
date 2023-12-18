@@ -669,14 +669,14 @@ short load_continue_game(void)
 
 TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel, char *name)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    if (dungeonadd == INVALID_DUNGEON_ADD)
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
     {
         ERRORDBG(11, "Can't transfer creature; player %d has no dungeon.", (int)plyr_idx);
         return false;
     }
 
-    short i = dungeonadd->creatures_transferred; //makes sure it fits 255 units
+    short i = dungeon->creatures_transferred; //makes sure it fits 255 units
 
     intralvl.transferred_creatures[plyr_idx][i].model = model;
     intralvl.transferred_creatures[plyr_idx][i].explevel = explevel;
