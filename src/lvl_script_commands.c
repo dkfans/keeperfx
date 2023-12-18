@@ -18,6 +18,7 @@
 #include "lvl_script_lib.h"
 
 #include <math.h>
+#include <string.h>
 
 #include "dungeon_data.h"
 #include "thing_data.h"
@@ -25,10 +26,12 @@
 #include "keeperfx.hpp"
 #include "custom_sprites.h"
 #include "gui_soundmsgs.h"
+#include "config_magic.h"
 #include "config_settings.h"
 #include "config_effects.h"
 #include "config_trapdoor.h"
 #include "config_powerhands.h"
+#include "config_players.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
@@ -852,7 +855,7 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
             break;
         }
         
-        if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel))
+        if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel, cctrl->creature_name))
         {
             transferred++;
             dungeonadd = get_dungeonadd(plyr_idx);
@@ -4122,6 +4125,366 @@ static void set_power_hand_process(struct ScriptContext *context)
     }
 }
 
+static void add_effectgen_to_level_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    const char* generator_name = scline->tp[0];
+    const char* locname = scline->tp[1];
+    long range = scline->np[2];
+
+    TbMapLocation location;
+    long gen_id;
+    if (parameter_is_number(generator_name))
+    {
+        gen_id = atoi(generator_name);
+    }
+    else
+    {
+        gen_id = get_rid(effectgen_desc, generator_name);
+    }
+    if (gen_id <= 0)
+    {
+        SCRPTERRLOG("Unknown effect generator, '%s'", generator_name);
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+    if (gameadd.script.party_triggers_num >= PARTY_TRIGGERS_COUNT)
+    {
+        SCRPTERRLOG("Too many ADD_CREATURE commands in script");
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+
+    // Recognize place where party is created
+    if (!get_map_location_id(locname, &location))
+    {
+        DEALLOCATE_SCRIPT_VALUE;
+        return;
+    }
+    value->shorts[0] = gen_id;
+    value->shorts[1] = location;
+    value->shorts[2] = range;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void add_effectgen_to_level_process(struct ScriptContext* context)
+{
+    short gen_id = context->value->shorts[0];
+    short location = context->value->shorts[1];
+    short range = context->value->shorts[2];
+    if (get_script_current_condition() == CONDITION_ALWAYS)
+    {
+        script_process_new_effectgen(gen_id, location, range);
+    }
+    else
+    {
+        struct PartyTrigger* pr_trig = &gameadd.script.party_triggers[gameadd.script.party_triggers_num % PARTY_TRIGGERS_COUNT];
+        pr_trig->flags = TrgF_CREATE_EFFECT_GENERATOR;
+        pr_trig->flags |= next_command_reusable ? TrgF_REUSABLE : 0;
+        pr_trig->plyr_idx = 0; //not needed
+        pr_trig->creatr_id = 0; //not needed
+        pr_trig->crtr_level = gen_id;
+        pr_trig->carried_gold = range;
+        pr_trig->location = location;
+        pr_trig->ncopies = 1;
+        pr_trig->condit_idx = get_script_current_condition();
+        gameadd.script.party_triggers_num++;
+    }
+}
+
+static void set_power_configuration_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char *powername = scline->tp[0];
+    const char *property = scline->tp[1];
+    char *new_value = (char*)scline->tp[2];
+
+    long power_id = get_id(power_desc, powername);
+    if (power_id == -1)
+    {
+        SCRPTERRLOG("Unknown power, '%s'", powername);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    long powervar = get_id(magic_power_commands, property);
+    if (powervar == -1)
+    {
+        SCRPTERRLOG("Unknown power variable");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    long long number_value = 0;
+    long k;
+    switch (powervar)
+    {
+        case 2: // Power
+        case 3: // Cost
+        {
+            value->bytes[3] = atoi(new_value);
+            value->arg2 = atoi(scline->tp[3]);
+            break;
+        }
+        case 10: // SymbolSprites
+        {
+            value->arg1 = atoi(new_value);
+            value->arg2 = atoi(scline->tp[3]);
+            break;
+        }
+        case 5: // Castability
+        {
+            long long j;
+            if (scline->tp[3][0] != '\0')
+            {
+                j = get_long_id(powermodel_castability_commands, new_value);
+                if (j <= 0)
+                {
+                    SCRPTERRLOG("Incorrect castability value");
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                else
+                {
+                    number_value = j;
+                }
+                value->chars[3] = atoi(scline->tp[3]);
+            }
+            else
+            {
+                if (parameter_is_number(new_value))
+                {
+                    number_value = atoll(new_value);
+                }
+                else
+                {
+                    char *flag = strtok(new_value," ");
+                    while ( flag != NULL )
+                    {
+                        j = get_long_id(powermodel_castability_commands, flag);
+                        if (j > 0)
+                        {
+                            number_value |= j;
+                        } else
+                        {
+                            SCRPTERRLOG("Incorrect castability value");
+                            DEALLOCATE_SCRIPT_VALUE
+                            return;
+                        }
+                        flag = strtok(NULL, " " );
+                    }
+                }
+                value->chars[3] = -1;
+            }
+            unsigned long long *new = (unsigned long long*)&value->uarg1;
+            *new = number_value;
+            break;
+        }
+        case 6: // Artifact
+        {
+            k = get_id(object_desc, new_value);
+            if (k >= 0) 
+            {
+                  number_value = k;
+            }
+            value->arg2 = number_value;
+            break;
+        }
+        case 14: // Properties
+        {
+            if (scline->tp[3][0] != '\0')
+            {
+                k = get_id(powermodel_properties_commands, new_value);
+                if (k <= 0)
+                {
+                    SCRPTERRLOG("Incorrect property value");
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                else
+                {
+                    number_value = k;
+                }
+                value->chars[3] = atoi(scline->tp[3]);
+            }
+            else
+            {
+                if (parameter_is_number(new_value))
+                {
+                    number_value = atoi(new_value);
+                }
+                else
+                {
+                    char *flag = strtok(new_value," ");
+                    while ( flag != NULL )
+                    {
+                        k = get_id(powermodel_properties_commands, flag);
+                        if (k > 0)
+                        {
+                            number_value |= k;
+                        } else
+                        {
+                            SCRPTERRLOG("Incorrect property value");
+                            DEALLOCATE_SCRIPT_VALUE
+                            return;
+                        }
+                        flag = strtok(NULL, " " );
+                    }
+                }
+                value->chars[3] = -1;
+            }
+            value->arg2 = number_value;
+            break;
+        }
+        case 15: // Functions
+        {
+            number_value = get_id(powermodel_expand_check_func_type,new_value);
+            if (number_value < 0)
+            {
+                SCRPTERRLOG("Invalid power update function id");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
+            value->arg2 = number_value;
+            break;
+        }
+        case 16: // PlayerState
+        {
+            k = get_id(player_state_commands, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            value->arg2 = number_value;
+            break;
+        }
+        case 17: // ParentPower
+        {
+            k = get_id(power_desc, new_value);
+            if (k >= 0)
+            {
+                number_value = k;
+            }
+            value->arg2 = number_value;
+            break;
+        }
+        default:
+            value->arg2 = atoi(new_value);
+    }
+    #if (BFDEBUG_LEVEL >= 7)
+    {
+        if ( (powervar == 5) && (value->chars[3] != -1) )
+        {
+            SCRIPTDBG(7, "Toggling %s castability flag: %lld", powername, number_value);
+        }
+        else if ( (powervar == 14) && (value->chars[3] != -1) )
+        {
+            SCRIPTDBG(7, "Toggling %s property flag: %lld", powername, number_value);
+        }
+        else
+        {
+            SCRIPTDBG(7, "Setting power %s property %s to %lld", powername, property, number_value);
+        }
+    }
+    #endif
+    value->shorts[0] = power_id;
+    value->bytes[2] = powervar;
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_power_configuration_process(struct ScriptContext *context)
+{
+    struct PowerConfigStats *powerst = get_power_model_stats(context->value->shorts[0]);
+    struct MagicStats* pwrdynst = get_power_dynamic_stats(context->value->shorts[0]);
+    switch (context->value->bytes[2])
+    {
+        case 2: // Power
+            pwrdynst->strength[context->value->bytes[3]] = context->value->arg2;
+            break;
+        case 3: // Cost
+            pwrdynst->cost[context->value->bytes[3]] = context->value->arg2;
+            break;
+        case 4: // Duration
+            pwrdynst->duration = context->value->arg2;
+            break;
+        case 5: // Castability
+        {
+            unsigned long long *value = (unsigned long long*)&context->value->uarg1;
+            unsigned long long flag = *value;
+            if (context->value->chars[3] == 1)
+            {
+                set_flag(powerst->can_cast_flags, flag);
+            }
+            else if (context->value->chars[3] == 0)
+            {
+                clear_flag(powerst->can_cast_flags, flag);
+            }
+            else
+            {
+                powerst->can_cast_flags = flag;
+            }
+            break;
+        }
+        case 6: // Artifact
+            powerst->artifact_model = context->value->arg2;
+            gameadd.object_conf.object_to_power_artifact[powerst->artifact_model] = context->value->shorts[0];
+            break;
+        case 7: // NameTextID
+            powerst->name_stridx = context->value->arg2;
+            break;
+        case 8: // TooltipTextID
+            powerst->tooltip_stridx = context->value->arg2;
+            break;
+        case 10: // SymbolSprites
+            powerst->bigsym_sprite_idx = context->value->arg1;
+            powerst->medsym_sprite_idx = context->value->arg2;
+            break;
+        case 11: // PointerSprites
+            powerst->pointer_sprite_idx = context->value->arg2;
+            break;
+        case 12: // PanelTabIndex
+            powerst->panel_tab_idx = context->value->arg2;
+            break;
+        case 13: // SoundSamples
+            powerst->select_sample_idx = context->value->arg2;
+            break;
+        case 14: // Properties
+            if (context->value->chars[3] == 1)
+            {
+                set_flag(powerst->config_flags, context->value->arg2);
+            }
+            else if (context->value->chars[3] == 0)
+            {
+                clear_flag(powerst->config_flags, context->value->arg2);
+            }
+            else
+            {
+                powerst->config_flags = context->value->arg2;
+            }
+            break;
+        case 15: // Functions
+            powerst->overcharge_check = powermodel_expand_check_func_list[context->value->arg2];
+            break;
+        case 16: // PlayerState
+            powerst->work_state = context->value->arg2;
+            break;
+        case 17: // ParentPower
+            powerst->parent_power = context->value->arg2;
+            break;
+        case 18: // SoundPlayed
+            powerst->select_sound_idx = context->value->arg2;
+            break;
+        case 19: // Cooldown
+            powerst->cast_cooldown = context->value->arg2;
+            break;
+        default:
+            WARNMSG("Unsupported power configuration, variable %d.", context->value->bytes[2]);
+            break;
+    }
+    update_powers_tab_to_config();
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -4265,6 +4628,9 @@ const struct CommandDesc command_desc[] = {
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
   {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process },
   {"SET_POWER_HAND",                    "PA      ", Cmd_SET_POWER_HAND, &set_power_hand_check, &set_power_hand_process },
+  {"SET_HAND_GRAPHIC",                  "PA      ", Cmd_SET_HAND_GRAPHIC, &set_power_hand_check, &set_power_hand_process },
+  {"ADD_EFFECT_GENERATOR_TO_LEVEL",     "AAN     ", Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL, &add_effectgen_to_level_check, &add_effectgen_to_level_process},
+  {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 

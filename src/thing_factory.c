@@ -121,6 +121,9 @@ struct Thing *create_thing(struct Coord3d *pos, unsigned short tngclass, unsigne
     case TCls_Door:
         thing = create_door(pos, tngmodel, find_door_angle(pos->x.stl.num, pos->y.stl.num, owner), owner, false);
         break;
+    case TCls_EffectGen:
+        thing = create_effect_generator(pos, tngmodel, 1, owner, parent_idx);
+        break;
     default:
         break;
     }
@@ -346,9 +349,9 @@ TbBool thing_create_thing_adv(VALUE *init_data)
                 const char* creatureName = value_string(value_dict_get(init_data, "CreatureName"));
                 if(creatureName != NULL)
                 {
-                    if(strlen(creatureName) > 24)
+                    if(strlen(creatureName) >= CREATURE_NAME_MAX)
                     {
-                        ERRORLOG("init creature name (%s) to long max 24 chars", creatureName);
+                        ERRORLOG("init creature name (%s) too long max %d chars", creatureName, CREATURE_NAME_MAX-1);
                         break;
                     }
                     strcpy(cctrl->creature_name,creatureName);

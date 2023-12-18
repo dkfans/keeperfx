@@ -1,6 +1,6 @@
 #custom looks for the keeperhand
-#can be set with the SET_POWER_HAND command
-#e.g. SET_POWER_HAND(PLAYER0,HeroHand)
+#can be set with the SET_HAND_GRAPHIC command
+#e.g. SET_HAND_GRAPHIC(PLAYER0,HeroHand)
 
 [hand0]
 Name = "Default"

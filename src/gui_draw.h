@@ -85,7 +85,8 @@ TbBool draw_text_box(const char *text);
 void draw_scroll_box(struct GuiButton *gbtn, int units_per_px, int num_rows);
 int scroll_box_get_units_per_px(struct GuiButton *gbtn);
 
-void draw_gui_panel_sprite_left(long x, long y, int units_per_px, long spridx);
+#define draw_gui_panel_sprite_left(x, y, units_per_px, spridx) draw_gui_panel_sprite_left_player(x, y, units_per_px, spridx, my_player_number) 
+void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long spridx, PlayerNumber plyr_idx);
 void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap);
 void draw_gui_panel_sprite_ocleft(long x, long y, int units_per_px, long spridx, TbPixel color);
 void draw_gui_panel_sprite_centered(long x, long y, int units_per_px, long spridx);

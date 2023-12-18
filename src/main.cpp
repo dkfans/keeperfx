@@ -121,9 +121,10 @@
 #include "game_loop.h"
 #include "music_player.h"
 
-#ifdef AUTOTESTING
-#include "event_monitoring.h"
+#ifdef FUNCTESTING
+  #include "ftests/ftest.h"
 #endif
+
 #include "post_inc.h"
 
 #ifdef _MSC_VER
@@ -1110,6 +1111,11 @@ short setup_game(void)
       return 0;
   }
 
+  #ifdef FUNCTESTING
+    features_enabled |= Ft_SkipSplashScreens;
+    features_enabled |= Ft_SkipHeartZoom;
+  #endif
+
   // Process CmdLine overrides
   process_cmdline_overrides();
 
@@ -1120,6 +1126,9 @@ short setup_game(void)
       ERRORLOG("Error on allocation/loading of legal_load_files.");
       return 0;
   }
+
+  // Setup polyscans
+  setup_bflib_render();
 
   // View the legal screen
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
@@ -3406,21 +3415,18 @@ void gameplay_loop_logic()
         if (game.play_gameturn == 4)
             LbNetwork_ChangeExchangeTimeout(0);
     }
-#ifdef AUTOTESTING
-    if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
+#ifdef FUNCTESTING
+    if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
-        quit_game = true;
-        exit_keeper = true;
-        return;
+        FTestFrameworkState ftstate = ftest_update(NULL);
+        if(ftstate == FTSt_InvalidState || ftstate == FTSt_TestsCompletedSuccessfully)
+        {
+            quit_game = true;
+            exit_keeper = true;
+            return;
+        }
     }
-    evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    {
-        game.action_rand_seed = game.play_gameturn;
-        game.unsync_rand_seed = game.play_gameturn;
-        srand(game.play_gameturn);
-    }
-#endif
+#endif // FUNCTESTING
     do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
     LbWindowsControl();
     input_eastegg();
@@ -3491,12 +3497,6 @@ void keeper_gameplay_loop(void)
     if ((game.operation_flags & GOF_SingleLevel) != 0) {
         initialise_eye_lenses();
     }
-#ifdef AUTOTESTING
-    if ((start_params.autotest_flags & ATF_AI_Player) != 0)
-    {
-        toggle_computer_player(player->id_number);
-    }
-#endif
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
@@ -3654,6 +3654,31 @@ static TbBool wait_at_frontend(void)
     }
     // Init load/save catalogue
     initialise_load_game_slots();
+
+    #ifdef FUNCTESTING
+    if(flag_is_set(start_params.functest_flags, FTF_Enabled)) //override for functional tests
+    {
+        FTestFrameworkState ft_prev_state = FTSt_InvalidState;
+        FTestFrameworkState ft_current_state = ftest_update(&ft_prev_state);
+
+        TbBool user_aborted_tests = ft_prev_state == FTSt_TestIsProcessingActions && ft_current_state == FTSt_TestIsProcessingActions;
+        if(user_aborted_tests)
+        {
+            FTEST_FAIL_TEST("User aborted tests");
+        }
+
+        if(ft_current_state == FTSt_InvalidState || ft_current_state == FTSt_TestsCompletedSuccessfully || user_aborted_tests)
+        {
+            quit_game = true;
+            exit_keeper = true;
+            return true;
+        }
+        faststartup_network_game(&loop);
+        coroutine_process(&loop);
+        return true;
+    }
+    #endif
+
     // Prepare to enter PacketLoad game
     if ((game.packet_load_enable) && (!game.numfield_149F47))
     {
@@ -3903,7 +3928,7 @@ short reset_game(void)
 
     LbMouseSuspend();
     LbIKeyboardClose();
-    LbScreenReset();
+    LbScreenReset(false);
     LbDataFreeAll(game_load_files);
     free_gui_strings_data();
     FreeAudio();
@@ -3937,6 +3962,7 @@ short process_command_line(unsigned short argc, char *argv[])
   level_num = LEVELNUMBER_ERROR;
   TbBool one_player_mode = 0;
   narg = 1;
+  char bad_params[TEXT_BUFFER_LENGTH] = "\0";
   while ( narg < argc )
   {
       char *par;
@@ -4111,44 +4137,37 @@ short process_command_line(unsigned short argc, char *argv[])
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
       }
-#ifdef AUTOTESTING
-      else if (strcasecmp(parstr, "exit_at_turn") == 0)
+      else if (strcasecmp(parstr, "ftests") == 0)
       {
-         set_flag_byte(&start_params.autotest_flags, ATF_ExitOnTurn, true);
-         start_params.autotest_exit_turn = atol(pr2str);
-         narg++;
-      } else
-      if (strcasecmp(parstr, "fixed_seed") == 0)
-      {
-         set_flag_byte(&start_params.autotest_flags, ATF_FixedSeed, true);
-      } else
-      if (strcasecmp(parstr, "tests") == 0)
-      {
-        set_flag_byte(&start_params.autotest_flags, ATF_TestsCampaign, true);
-
-        if (!change_campaign("../tests/campaign.cfg"))
+#ifdef FUNCTESTING
+        if(ftest_parse_arg(pr2str)) // handle arg on ftest build
+#else
+        if(strlen(pr2str) > 0 && pr2str[0] != '-') // ignore arg on regular build
+#endif // FUNCTESTING
         {
-          ERRORLOG("Unable to load tests campaign");
-          bad_param=narg;
+            ++narg;
         }
-      } else
-      if (strcasecmp(parstr, "ai_player") == 0)
-      {
-         set_flag_byte(&start_params.autotest_flags, ATF_AI_Player, true);
-         fe_computer_players = 1;
-      } else
-      if (strcasecmp(parstr, "monitoring") == 0)
-      {
-          int instance_no = atoi(pr3str);
-          evm_init(pr2str, instance_no);
-          narg++;
-          if ((instance_no > 0) || (strcmp(pr3str, "0") == 0))
-              narg++;
+
+#ifdef FUNCTESTING
+        ftest_init(); // initialise test framework on ftest build
+#else
+        WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
       }
-#endif
+      else if(strcasecmp(parstr, "exitonfailedtest") == 0)
+      {
+#ifdef FUNCTESTING
+        set_flag_byte(&start_params.functest_flags, FTF_ExitOnTestFailure, true);
+#else
+       WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
+      }
       else
       {
-        WARNMSG("Unrecognized command line parameter '%s'.",parstr);
+        // append bad parstr to bad_params string
+        char param_buffer[128] = "\0";
+        Lbvsprintf(param_buffer, "%s%s", strnlen(bad_params, TEXT_BUFFER_LENGTH) > 0 ? ", " : "" , parstr);
+        strcat(bad_params, param_buffer);
         bad_param=narg;
       }
       narg++;
@@ -4172,6 +4191,14 @@ short process_command_line(unsigned short argc, char *argv[])
   }
   start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
+
+  if(bad_param != 0)
+  {
+    int res = 0;
+    WARNING_DIALOG(res, "Incorrect command line parameters: '%s'.\nPlease correct your Run options.", bad_params);
+    return res;
+  }
+
   return (bad_param==0);
 }
 
@@ -4184,8 +4211,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
-        static const char *msg_text="Found one or more invalid command line parameters. Please correct your Run options.\n\n";
-        error_dialog_fatal(__func__, 1, msg_text);
         LbErrorLogClose();
         return 0;
     }
@@ -4196,15 +4221,13 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
-#ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    {
-      srand(1);
-    }
-    else
-#else
+
     srand(LbTimerClock());
-#endif
+
+#ifdef FUNCTESTING
+    ftest_srand();
+#endif // FUNCTESTING
+
     if (!retval)
     {
         static const char *msg_text="Basic engine initialization failed.\n";
@@ -4246,16 +4269,14 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         game_loop();
     }
-#ifdef AUTO_TESTING
-    ev_done();
-#endif
     reset_game();
-    LbScreenReset();
+    LbScreenReset(true);
     if ( !retval )
     {
         static const char *msg_text="Setting up game failed.\n";
         error_dialog_fatal(__func__, 2, msg_text);
-    } else
+    }
+    else
     {
         SYNCDBG(0,"finished properly");
     }
@@ -4333,6 +4354,14 @@ int main(int argc, char *argv[])
       error_dialog(__func__, 1, text);
       return 1;
   }
+
+#ifdef FUNCTESTING
+  TbBool should_report_failure = flag_is_set(start_params.functest_flags, FTF_TestFailed) && flag_is_set(start_params.functest_flags, FTF_ExitOnTestFailure);
+  if(flag_is_set(start_params.functest_flags, FTF_Enabled) && (flag_is_set(start_params.functest_flags, FTF_Abort) || should_report_failure))
+  {
+      return -1;
+  }
+#endif
 
   return 0;
 }

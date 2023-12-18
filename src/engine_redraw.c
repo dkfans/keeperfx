@@ -56,6 +56,7 @@
 #include "config_terrain.h"
 #include "config_players.h"
 #include "config_magic.h"
+#include "config_spritecolors.h"
 #include "magic.h"
 #include "game_merge.h"
 #include "game_legacy.h"
@@ -847,7 +848,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
             return true;
         }
     }
-    i = powerst->pointer_sprite_idx;
+    i = get_player_colored_pointer_icon_idx(powerst->pointer_sprite_idx,my_player_number);
     set_pointer_graphic_spell(i, game.play_gameturn);
     return true;
 }
