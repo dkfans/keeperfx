@@ -4222,7 +4222,7 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         case 2: // Power
         case 3: // Cost
         {
-            value->bytes[3] = atoi(scline->tp[3]);
+            value->bytes[3] = atoi(scline->tp[3]) - 1; //-1 because we want slot 1 to 9, not 0 to 8
             value->arg2 = atoi(new_value);
             break;
         }
