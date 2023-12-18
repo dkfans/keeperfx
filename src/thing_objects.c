@@ -1904,6 +1904,11 @@ static TbBool find_free_position_on_slab(struct Thing* thing, struct Coord3d* po
 TngUpdateRet move_object(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing object.");
+        return TUFRet_Deleted;
+    }
     TRACE_THING(thing);
     struct Coord3d pos;
     TbBool move_allowed = get_thing_next_position(&pos, thing);
@@ -1989,20 +1994,20 @@ TngUpdateRet update_object(struct Thing *thing)
     thing->movement_flags &= ~TMvF_IsOnLava;
     if ( ((thing->movement_flags & TMvF_Immobile) == 0) && thing_touching_floor(thing) )
     {
-      if (subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
-      {
-        thing->movement_flags |= TMvF_IsOnLava;
-        struct Objects* objdat = get_objects_data_for_thing(thing);
-        if ( (objdat->destroy_on_lava) && !thing_is_dragged_or_pulled(thing) )
+        if (subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
         {
-            destroy_object(thing);
-            return TUFRet_Deleted;
+            thing->movement_flags |= TMvF_IsOnLava;
+            struct Objects* objdat = get_objects_data_for_thing(thing);
+            if ( (objdat->destroy_on_lava) && !thing_is_dragged_or_pulled(thing) )
+            {
+                destroy_object(thing);
+                return TUFRet_Deleted;
+            }
+        } else
+        if (subtile_has_water_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
+        {
+            thing->movement_flags |= TMvF_IsOnWater;
         }
-      } else
-      if (subtile_has_water_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
-      {
-        thing->movement_flags |= TMvF_IsOnWater;
-      }
     }
     if ((thing->movement_flags & TMvF_Immobile) != 0)
         return TUFRet_Modified;
@@ -2328,7 +2333,11 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     if (typical_value <= 0) {
         return false;
     }
+
     thing->valuable.gold_stored += value;
+    if (thing->valuable.gold_stored == 0) {
+        return false;
+    }
     if (thing->valuable.gold_stored < 0)
         thing->valuable.gold_stored = LONG_MAX;
     if (thing->valuable.gold_stored < typical_value)

@@ -35,8 +35,8 @@
 extern "C" {
 #endif
 /******************************************************************************/
-const char keeper_slabset_file[]="slabset.cfg";
-const char keeper_columns_file[]="columnset.cfg";
+const char keeper_slabset_file[]="slabset.toml";
+const char keeper_columns_file[]="columnset.toml";
 /******************************************************************************/
 typedef struct VALUE VALUE;
 const struct NamedCommand slab_styles_commands[] = {
@@ -73,6 +73,11 @@ const struct NamedCommand slab_styles_commands[] = {
 TbBool load_slabset_config_file(const char *textname, const char *fname, unsigned short flags)
 {
     VALUE file_root;
+
+    if ((flags & CnfLd_AcceptPartial) == 0)
+    {
+        clear_slabsets();
+    }
     
     if (!load_toml_file(textname, fname,&file_root,flags))
         return false;
@@ -235,12 +240,18 @@ TbBool load_slabset_config(const char *conf_fname,unsigned short flags)
 {
     static const char config_global_textname[] = "global slabset config";
     static const char config_campgn_textname[] = "campaign slabset config";
+    static const char config_level_textname[] = "level slabset config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_slabset_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_slabset_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_slabset_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;
@@ -250,6 +261,7 @@ TbBool load_columns_config(const char *conf_fname,unsigned short flags,struct Co
 {
     static const char config_global_textname[] = "global columns config";
     static const char config_campgn_textname[] = "campaign columns config";
+    static const char config_level_textname[] = "level columns config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_columns_config_file(config_global_textname, fname, flags,cols,ccount);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
@@ -257,9 +269,34 @@ TbBool load_columns_config(const char *conf_fname,unsigned short flags,struct Co
     {
         load_columns_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors,cols,ccount);
     }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_columns_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors,cols,ccount);
+    }
     //Freeing and exiting
 
     return result;
+}
+
+void clear_slabsets(void)
+{
+    struct SlabSet *sset;
+    struct SlabObj *sobj;
+    int i;
+    for (i=0; i < SLABSET_COUNT; i++)
+    {
+        sset = &game.slabset[i];
+        memset(sset, 0, sizeof(struct SlabSet));
+        game.slabobjs_idx[i] = -1;
+    }
+    game.slabset_num = SLABSET_COUNT;
+    game.slabobjs_num = 0;
+    for (i=0; i < SLABOBJS_COUNT; i++)
+    {
+        sobj = &game.slabobjs[i];
+        memset(sobj, 0, sizeof(struct SlabObj));
+    }
 }
 
 /******************************************************************************/

@@ -30,7 +30,7 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX        64
+#define MAGIC_ITEMS_MAX        255
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
 #define MAGIC_TYPES_COUNT      30
@@ -304,6 +304,12 @@ struct ShotConfigStats {
     unsigned char lightf_53;
     unsigned char unshaded;
     unsigned char soft_landing;
+    EffectOrEffElModel effect_id;
+    unsigned char fire_logic; // see enum ShotFireLogics
+    unsigned char update_logic; // see enum ShotUpdateLogics
+    unsigned char effect_spacing;
+    unsigned char effect_amount;
+
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);
@@ -418,6 +424,11 @@ extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
 extern struct SpellData spell_data[];
 extern struct SpellConfig spell_config[];
+extern const struct NamedCommand powermodel_properties_commands[];
+extern const struct LongNamedCommand powermodel_castability_commands[];
+extern const struct NamedCommand powermodel_expand_check_func_type[];
+extern const struct NamedCommand magic_power_commands[];
+extern const Expand_Check_Func powermodel_expand_check_func_list[];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(int mgc_idx);
 TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo);

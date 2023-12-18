@@ -1592,7 +1592,7 @@ void gui_area_smiley_anger_button(struct GuiButton *gbtn)
         if ( shift_x > 36 ) {
             shift_x = 36;
         }
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x + (shift_x - 12) * units_per_px / 16, gbtn->scr_pos_y - 22 * units_per_px / 16, ps_units_per_px, spr_idx);
+        draw_gui_panel_sprite_left_player(gbtn->scr_pos_x + (shift_x - 12) * units_per_px / 16, gbtn->scr_pos_y - 22 * units_per_px / 16, ps_units_per_px, spr_idx,ctrltng->owner);
     }
 }
 
@@ -1681,7 +1681,7 @@ void gui_area_instance_button(struct GuiButton *gbtn)
       spr_idx++;
     if (MyScreenHeight < 400)
     {
-        struct TbSprite* spr = &gui_panel_sprites[488];
+        struct TbSprite* spr = &gui_panel_sprites[GPS_plyrsym_symbol_player_red_std_b];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     draw_gui_panel_sprite_left(gbtn->scr_pos_x - 4*units_per_px/16, gbtn->scr_pos_y - 8*units_per_px/16, ps_units_per_px, spr_idx);
@@ -2336,10 +2336,14 @@ void update_room_tab_to_config(void)
         ibtn->draw_call = gui_area_room_button;
     }
     // Update active menu
-    if (menu_is_active(GMnu_ROOM))
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_DungeonTop)
     {
-        turn_off_menu(GMnu_ROOM);
-        turn_on_menu(GMnu_ROOM);
+        if (menu_is_active(GMnu_ROOM))
+        {
+            turn_off_menu(GMnu_ROOM);
+            turn_on_menu(GMnu_ROOM);
+        }
     }
 }
 
@@ -2390,10 +2394,14 @@ void update_trap_tab_to_config(void)
         }
     }
     // Update active menu
-    if ( menu_is_active(GMnu_TRAP) )
+    struct PlayerInfo *player = get_my_player();
+    if (player->view_type == PVT_DungeonTop)
     {
-        turn_off_menu(GMnu_TRAP);
-        turn_on_menu(GMnu_TRAP);
+        if ( menu_is_active(GMnu_TRAP) )
+        {
+            turn_off_menu(GMnu_TRAP);
+            turn_on_menu(GMnu_TRAP);
+        }
     }
 }
 
@@ -2456,7 +2464,7 @@ void update_powers_tab_to_config(void)
 
 void draw_placefiller(long scr_x, long scr_y, long units_per_px)
 {
-    struct TbSprite* spr = &gui_panel_sprites[547];
+    struct TbSprite* spr = &gui_panel_sprites[GPS_rpanel_rpanel_extra];
     LbSpriteDrawResized(scr_x, scr_y, units_per_px, spr);
 }
 
