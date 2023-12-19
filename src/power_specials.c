@@ -393,7 +393,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   struct Coord3d pos;
 
   // Gathering data which we'll need if the special is used and disposed.
-  struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
+  struct Dungeon* dungeon = get_dungeon(player->id_number);
   memcpy(&pos,&cratetng->mappos,sizeof(struct Coord3d));
   SpecialKind spkindidx = box_thing_to_special(cratetng);
   struct SpecialConfigStats* specst;
@@ -460,7 +460,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
                 gameadd.current_player_turn = game.play_gameturn;
                 gameadd.script_current_player = player->id_number;
                 memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
-                dungeonadd->box_info.activated[cratetng->custom_box.box_kind]++;
+                dungeon->box_info.activated[cratetng->custom_box.box_kind]++;
                 no_speech = true;
                 remove_events_thing_is_attached_to(cratetng);
                 used = 1;
@@ -512,7 +512,6 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
 {
     SYNCDBG(7, "Starting");
     TbBool from_script = false;
-    struct DungeonAdd* dungeonadd;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon->dnheart_idx == boxtng->index)
     {
@@ -533,10 +532,9 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     }
 
     struct CreatureControl* cctrl = creature_control_get_from_thing(transftng);
-    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->explevel))
+    if (add_transfered_creature(plyr_idx, transftng->model, cctrl->explevel,cctrl->creature_name))
     {
-        dungeonadd = get_dungeonadd(plyr_idx);
-        dungeonadd->creatures_transferred++;
+        dungeon->creatures_transferred++;
     }
     remove_thing_from_power_hand_list(transftng, plyr_idx);
     kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
@@ -588,6 +586,7 @@ long create_transferred_creatures_on_level(void)
 {
     struct Thing* creatng;
     struct Thing* srcetng;
+    struct CreatureControl* cctrl;
     long creature_created = 0;
     PlayerNumber plyr_idx;
     for (int p = 0; p < PLAYERS_COUNT; p++)
@@ -619,6 +618,8 @@ long create_transferred_creatures_on_level(void)
                     continue;
                 }
                 init_creature_level(creatng, intralvl.transferred_creatures[p][i].explevel);
+                cctrl = creature_control_get_from_thing(creatng);
+                strcpy(cctrl->creature_name, intralvl.transferred_creatures[p][i].creature_name);
                 creature_created++;
             }
         }

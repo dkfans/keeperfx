@@ -32,6 +32,7 @@
 #include "config_slabsets.h"
 #include "config_textures.h"
 #include "config_powerhands.h"
+#include "config_spritecolors.h"
 #include "room_library.h"
 #include "game_legacy.h"
 #include "post_inc.h"
@@ -82,7 +83,10 @@ TbBool load_stats_files(void)
       result = false;
     if (!load_powerhands_config(keeper_powerhands_file,CnfLd_Standard))
       result = false;
+    if (!load_spritecolors_config(keeper_spritecolors_file,CnfLd_Standard))
+      result = false;
 
+    
     for (int i = 1; i < gameadd.crtr_conf.model_count; i++)
     {
       if (!load_creaturemodel_config(i,0))
@@ -216,14 +220,13 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
     int i;
     int k;
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct DungeonAdd* dungeonadd = get_players_dungeonadd(player);
     if (dungeon_invalid(dungeon)) {
         return false;
     }
     unsigned long manage_efficiency = 0;
     unsigned long max_manage_efficiency = 0;
     {
-        manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeonadd->room_slabs_count[RoK_ENTRANCE],
+        manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(dungeon->room_slabs_count[RoK_ENTRANCE],
             dungeon->room_manage_area, dungeon->portal_scavenge_boost);
         max_manage_efficiency += 40 * compute_dungeon_rooms_attraction_score(LONG_MAX, LONG_MAX, LONG_MAX);
     }
@@ -237,7 +240,7 @@ TbBool update_dungeon_scores_for_player(struct PlayerInfo *player)
         unsigned long room_types = 0;
         for (i=0; i < game.slab_conf.room_types_count; i++)
         {
-            if (dungeonadd->room_slabs_count[i] > 0)
+            if (dungeon->room_slabs_count[i] > 0)
                 room_types++;
         }
         manage_efficiency += 40 * compute_dungeon_rooms_variety_score(room_types, dungeon->total_area);

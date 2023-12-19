@@ -2520,6 +2520,7 @@ TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature model config";
     static const char config_campgn_textname[] = "campaign creature model config";
+    static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
@@ -2534,6 +2535,11 @@ TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
     {
         load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+    if (strlen(fname) > 0)
+    {
+        load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
     //Freeing and exiting
     return result;
 }
@@ -2542,6 +2548,7 @@ TbBool swap_creaturemodel_config(long nwcrmodel, long crmodel, unsigned short fl
 {
     static const char config_global_textname[] = "global creature model config";
     static const char config_campgn_textname[] = "campaing creature model config";
+    static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(newcrtr_desc, nwcrmodel), COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
@@ -2555,6 +2562,11 @@ TbBool swap_creaturemodel_config(long nwcrmodel, long crmodel, unsigned short fl
     if (strlen(fname) > 0)
     {
         load_creaturemodel_config_file(crmodel, config_campgn_textname, fname, flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+    if (strlen(fname) > 0)
+    {
+        load_creaturemodel_config_file(crmodel, config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;

@@ -1127,6 +1127,9 @@ short setup_game(void)
       return 0;
   }
 
+  // Setup polyscans
+  setup_bflib_render();
+
   // View the legal screen
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
   {
@@ -1850,11 +1853,11 @@ void reset_creature_max_levels(void)
 
 void reset_hand_rules(void)
 {
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
-        dungeonadd = get_dungeonadd(i);
-        memset(dungeonadd->hand_rules, 0, sizeof(dungeonadd->hand_rules));
+        dungeon = get_dungeon(i);
+        memset(dungeon->hand_rules, 0, sizeof(dungeon->hand_rules));
     }
 }
 
@@ -2280,16 +2283,16 @@ void check_players_lost(void)
   long i;
   SYNCDBG(8,"Starting");
   struct PlayerInfo* player;
-  struct DungeonAdd* dungeonadd;
+  struct Dungeon* dungeon;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
       player = get_player(i);
-      dungeonadd = get_players_dungeonadd(player);
+      dungeon = get_players_dungeon(player);
       if (player_exists(player) && (player->is_active == 1))
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
-          if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeonadd->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
+          if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeon->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
@@ -3925,7 +3928,7 @@ short reset_game(void)
 
     LbMouseSuspend();
     LbIKeyboardClose();
-    LbScreenReset();
+    LbScreenReset(false);
     LbDataFreeAll(game_load_files);
     free_gui_strings_data();
     FreeAudio();
@@ -4267,7 +4270,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
         game_loop();
     }
     reset_game();
-    LbScreenReset();
+    LbScreenReset(true);
     if ( !retval )
     {
         static const char *msg_text="Setting up game failed.\n";
