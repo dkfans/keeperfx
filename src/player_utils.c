@@ -1155,7 +1155,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     MapSubtlCoord cstl_x = stl_slab_center_subtile(stl_x);
     MapSubtlCoord cstl_y = stl_slab_center_subtile(stl_y);
     struct Thing* thing = get_door_for_position(cstl_x, cstl_y);
-    if (thing_is_invalid(thing))
+    if (!thing_is_sellable_door(thing))
     {
         return false;
     }

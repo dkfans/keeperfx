@@ -462,7 +462,6 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
-    TbBool is_spec_digger;
     int i = dungeon->creatr_list_start;
     if ((crmodel == get_players_special_digger_model(plyr_idx)) || (crmodel == CREATURE_DIGGER))
     {
@@ -478,11 +477,10 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
-        is_spec_digger = (thing->model > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, thing->model);
         i = cctrl->players_next_creature_idx;
         // Per creature code
        
-        if (thing->model == crmodel || crmodel == 0 || (!is_spec_digger && (crmodel == CREATURE_ANY)) || (is_spec_digger && (crmodel == CREATURE_DIGGER)))
+        if (thing_matches_model(thing,crmodel))
         {
             i = cctrl->players_next_creature_idx;
             if (operation == SOpr_SET)
@@ -522,7 +520,7 @@ long parse_creature_name(const char *creature_name)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
         {
-            return CREATURE_ANY;
+            return CREATURE_NOT_A_DIGGER; //For scripts, when we say 'ANY_CREATURE' we exclude diggers.
         }
     }
     return ret;
@@ -1896,14 +1894,23 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long hand_rule_slot = context->value->shorts[2];
     long hand_rule_type = context->value->shorts[3];
     long param = context->value->shorts[4];
-    long crtr_id_start = crtr_id == CREATURE_ANY ? 0 : crtr_id;
-    long crtr_id_end = crtr_id == CREATURE_ANY ? CREATURE_TYPES_MAX : crtr_id + 1;
+    long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
+    long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
+    ThingModel digger_model;
 
     struct Dungeon* dungeon;
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
+        digger_model = get_players_special_digger_model(i);
         for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
         {
+            if (crtr_id == CREATURE_NOT_A_DIGGER)
+            {
+                if (ci == digger_model)
+                {
+                    continue;
+                }
+            }
             dungeon = get_dungeon(i);
             if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
             {
@@ -2187,6 +2194,9 @@ static void set_door_configuration_process(struct ScriptContext *context)
             {
                 doorst->place_sound_idx = value;
             }
+            break;
+        case 16: // Unsellable
+            doorst->unsellable = value;
             break;
         default:
             WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
