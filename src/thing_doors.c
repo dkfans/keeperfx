@@ -321,7 +321,7 @@ TbBool thing_is_sellable_door(const struct Thing* thing)
     return (doorst->unsellable == 0);
 }
 
-TbBool slab_is_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
+TbBool slab_has_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
     struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
     return thing_is_sellable_door(doortng);
