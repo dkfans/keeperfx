@@ -317,7 +317,7 @@ TbBool thing_is_sellable_door(const struct Thing* thing)
         return false;
     if (thing->class_id != TCls_Door)
         return false;
-    struct DoorConfigStats* doorst = &gameadd.trapdoor_conf.door_cfgstats[thing->model];
+    struct DoorConfigStats* doorst = get_door_model_stats(thing->model)
     return (doorst->unsellable == 0);
 }
 
