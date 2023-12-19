@@ -843,7 +843,7 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
 {
     short transferred = 0;
     struct Thing* thing;
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl;
     for (int i = 0; i < count; i++)
     {
@@ -858,8 +858,8 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
         if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel, cctrl->creature_name))
         {
             transferred++;
-            dungeonadd = get_dungeonadd(plyr_idx);
-            dungeonadd->creatures_transferred++;
+            dungeon = get_dungeon(plyr_idx);
+            dungeon->creatures_transferred++;
             remove_thing_from_power_hand_list(thing, plyr_idx);
             struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
             create_used_effect_or_element(&thing->mappos, specst->effect_id, plyr_idx);
@@ -1899,21 +1899,21 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long crtr_id_start = crtr_id == CREATURE_ANY ? 0 : crtr_id;
     long crtr_id_end = crtr_id == CREATURE_ANY ? CREATURE_TYPES_MAX : crtr_id + 1;
 
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
         for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
         {
-            dungeonadd = get_dungeonadd(i);
+            dungeon = get_dungeon(i);
             if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
             {
-                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = 1;
-                dungeonadd->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
-                dungeonadd->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
-                dungeonadd->hand_rules[ci][hand_rule_slot].param = param;
+                dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
+                dungeon->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
+                dungeon->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
+                dungeon->hand_rules[ci][hand_rule_slot].param = param;
             } else
             {
-                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
+                dungeon->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
             }
         }
     }
@@ -4225,8 +4225,8 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         case 2: // Power
         case 3: // Cost
         {
-            value->bytes[3] = atoi(new_value);
-            value->arg2 = atoi(scline->tp[3]);
+            value->bytes[3] = atoi(scline->tp[3]) - 1; //-1 because we want slot 1 to 9, not 0 to 8
+            value->arg2 = atoi(new_value);
             break;
         }
         case 10: // SymbolSprites
