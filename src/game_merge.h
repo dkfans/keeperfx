@@ -209,7 +209,6 @@ struct GameAdd {
     struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
     int                   active_fx_lines;
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
-    struct DungeonAdd dungeon[DUNGEONS_COUNT];
     LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
     PlayerNumber script_player;
