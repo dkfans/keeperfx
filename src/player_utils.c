@@ -281,7 +281,6 @@ GoldAmount take_money_from_room(struct Room *room, GoldAmount amount_take)
 long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, TbBool only_whole_sum, const char *func_name)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("%s: Cannot take gold from player %d with no dungeon",func_name,(int)plyr_idx);
         return -1;
@@ -319,7 +318,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
-            long i = dungeonadd->room_kind[rkind];
+            long i = dungeon->room_kind[rkind];
             unsigned long k = 0;
             while (i != 0)
             {
@@ -1125,11 +1124,10 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
         traps_sold = remove_traps_around_subtile(slab_subtile_center(slb_x), slab_subtile_center(slb_y), &sell_value);
     }
 
-	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
-	dungeonadd->traps_sold += traps_sold;
-	dungeonadd->manufacture_gold += sell_value;
+	struct Dungeon* dungeon = get_dungeon(thing->owner);
+	dungeon->traps_sold += traps_sold;
+	dungeon->manufacture_gold += sell_value;
 
-    struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
     if (is_my_player_number(plyr_idx))
     {
         play_non_3d_sample(115);
@@ -1166,9 +1164,8 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 	dungeon->camera_deviate_jump = 192;
     long sell_value = compute_value_percentage(gameadd.doors_config[thing->model].selling_value, gameadd.door_sale_percent);
 
-	struct DungeonAdd* dungeonadd = get_dungeonadd(thing->owner);
-	dungeonadd->doors_sold++;
-	dungeonadd->manufacture_gold += sell_value;
+	dungeon->doors_sold++;
+	dungeon->manufacture_gold += sell_value;
 
     destroy_door(thing);
     if (is_my_player_number(plyr_idx))
@@ -1198,9 +1195,8 @@ void compute_and_update_player_payday_total(PlayerNumber plyr_idx)
 void compute_and_update_player_backpay_total(PlayerNumber plyr_idx)
 {
     SYNCDBG(15, "Starting for player %d", (int)plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    dungeonadd->creatures_total_backpay = compute_player_payday_total(dungeon);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    dungeon->creatures_total_backpay = compute_player_payday_total(dungeon);
 }
 
 /******************************************************************************/

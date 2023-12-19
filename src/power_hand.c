@@ -1559,12 +1559,12 @@ TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing
 }
 
 TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx) {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (thing_is_creature(thing_to_pick) && thing_to_pick->owner == plyr_idx)
     {
         struct HandRule hand_rule;
         for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) {
-            hand_rule = dungeonadd->hand_rules[thing_to_pick->model][i];
+            hand_rule = dungeon->hand_rules[thing_to_pick->model][i];
             if (
                 hand_rule.enabled
                 && hand_rule.type != HandRule_Unset
