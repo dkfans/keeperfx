@@ -462,7 +462,6 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
-    TbBool is_spec_digger;
     int i = dungeon->creatr_list_start;
     if ((crmodel == get_players_special_digger_model(plyr_idx)) || (crmodel == CREATURE_DIGGER))
     {
@@ -478,7 +477,6 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
-        is_spec_digger = (thing->model > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, thing->model);
         i = cctrl->players_next_creature_idx;
         // Per creature code
        
@@ -522,7 +520,7 @@ long parse_creature_name(const char *creature_name)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
         {
-            return CREATURE_NOT_A_DIGGER;
+            return CREATURE_NOT_A_DIGGER; //For scripts, when we say 'ANY_CREATURE' we exclude diggers.
         }
     }
     return ret;
