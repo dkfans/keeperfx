@@ -311,6 +311,22 @@ TbBool thing_is_deployed_door(const struct Thing *thing)
     return true;
 }
 
+TbBool thing_is_sellable_door(const struct Thing* thing)
+{
+    if (thing_is_invalid(thing))
+        return false;
+    if (thing->class_id != TCls_Door)
+        return false;
+    struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    return (doorst->unsellable == 0);
+}
+
+TbBool slab_has_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
+{
+    struct Thing* doortng = get_door_for_position(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    return thing_is_sellable_door(doortng);
+}
+
 TbBool door_can_stand(struct Thing *thing)
 {
     unsigned int wall_flags = 0;

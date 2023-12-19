@@ -57,6 +57,7 @@ struct DoorConfigStats {
     long health;
     unsigned short open_speed;
     unsigned short model_flags;
+    short unsellable;
 };
 
   /** Contains properties of a door model, to be stored in DoorConfigStats.

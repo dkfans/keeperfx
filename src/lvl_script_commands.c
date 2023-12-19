@@ -2188,6 +2188,9 @@ static void set_door_configuration_process(struct ScriptContext *context)
                 doorst->place_sound_idx = value;
             }
             break;
+        case 16: // Unsellable
+            doorst->unsellable = value;
+            break;
         default:
             WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
             break;
