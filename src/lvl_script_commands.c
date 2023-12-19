@@ -1894,8 +1894,8 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long hand_rule_slot = context->value->shorts[2];
     long hand_rule_type = context->value->shorts[3];
     long param = context->value->shorts[4];
-    long crtr_id_start = crtr_id == (CREATURE_ANY || CREATURE_NOT_A_DIGGER) ? 0 : crtr_id;
-    long crtr_id_end = crtr_id == (CREATURE_ANY || CREATURE_NOT_A_DIGGER) ? CREATURE_TYPES_MAX : crtr_id + 1;
+    long crtr_id_start = (crtr_id == CREATURE_ANY || crtr_id == CREATURE_NOT_A_DIGGER) ? 0 : crtr_id;
+    long crtr_id_end = (crtr_id == CREATURE_ANY || crtr_id == CREATURE_NOT_A_DIGGER) ? CREATURE_TYPES_MAX : crtr_id + 1;
 
     struct Dungeon* dungeon;
     for (int i = context->plr_start; i < context->plr_end; i++)
