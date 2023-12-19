@@ -1236,7 +1236,6 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     create_door(&pos, tngmodel, orient, plyr_idx, 0);
     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     int crate_source = remove_workshop_item_from_amount_stored(plyr_idx, TCls_Door, tngmodel, WrkCrtF_Default);
     switch (crate_source)
     {
@@ -1249,7 +1248,7 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         break;
     default:
         WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(tngmodel),(int)dungeon->owner);
-        dungeonadd->mnfct_info.door_amount_placeable[tngmodel] = 0;
+        dungeon->mnfct_info.door_amount_placeable[tngmodel] = 0;
         break;
     }
     dungeon->camera_deviate_jump = 192;

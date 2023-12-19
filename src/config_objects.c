@@ -671,7 +671,6 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
 void update_all_object_stats()
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
-    struct DungeonAdd* dungeonadd;
     struct Dungeon* dungeon;
     for (int i = slist->index; i > 0;)
     {
@@ -689,10 +688,9 @@ void update_all_object_stats()
             dungeon = get_dungeon(thing->owner);
             if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
             {
-                dungeonadd = get_dungeonadd(thing->owner);
-                if (dungeonadd->backup_heart_idx == 0)
+                if (dungeon->backup_heart_idx == 0)
                 {
-                    dungeonadd->backup_heart_idx = thing->index;
+                    dungeon->backup_heart_idx = thing->index;
                 }
             }
         }
