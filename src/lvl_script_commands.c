@@ -1896,12 +1896,21 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long param = context->value->shorts[4];
     long crtr_id_start = (crtr_id == CREATURE_ANY || crtr_id == CREATURE_NOT_A_DIGGER) ? 0 : crtr_id;
     long crtr_id_end = (crtr_id == CREATURE_ANY || crtr_id == CREATURE_NOT_A_DIGGER) ? CREATURE_TYPES_MAX : crtr_id + 1;
+    ThingModel digger_model;
 
     struct Dungeon* dungeon;
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
+        digger_model = get_players_special_digger_model(i);
         for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
         {
+            if (crtr_id == CREATURE_NOT_A_DIGGER)
+            {
+                if (ci == digger_model)
+                {
+                    continue;
+                }
+            }
             dungeon = get_dungeon(i);
             if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
             {
