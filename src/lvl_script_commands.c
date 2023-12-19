@@ -482,7 +482,7 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
         i = cctrl->players_next_creature_idx;
         // Per creature code
        
-        if (thing->model == crmodel || crmodel == 0 || (!is_spec_digger && (crmodel == CREATURE_ANY)) || (is_spec_digger && (crmodel == CREATURE_DIGGER)))
+        if (thing_matches_model(thing,crmodel))
         {
             i = cctrl->players_next_creature_idx;
             if (operation == SOpr_SET)
@@ -522,7 +522,7 @@ long parse_creature_name(const char *creature_name)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
         {
-            return CREATURE_ANY;
+            return CREATURE_NOT_A_DIGGER;
         }
     }
     return ret;
@@ -1896,8 +1896,8 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long hand_rule_slot = context->value->shorts[2];
     long hand_rule_type = context->value->shorts[3];
     long param = context->value->shorts[4];
-    long crtr_id_start = crtr_id == CREATURE_ANY ? 0 : crtr_id;
-    long crtr_id_end = crtr_id == CREATURE_ANY ? CREATURE_TYPES_MAX : crtr_id + 1;
+    long crtr_id_start = crtr_id == (CREATURE_ANY || CREATURE_NOT_A_DIGGER) ? 0 : crtr_id;
+    long crtr_id_end = crtr_id == (CREATURE_ANY || CREATURE_NOT_A_DIGGER) ? CREATURE_TYPES_MAX : crtr_id + 1;
 
     struct Dungeon* dungeon;
     for (int i = context->plr_start; i < context->plr_end; i++)
