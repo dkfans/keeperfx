@@ -1177,11 +1177,11 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     unsigned long flg_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags &= ~Lb_TEXT_ONE_COLOR;
     LbTextSetJustifyWindow((x - (dst_w / 2)), y, dst_w);
-    LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, scale_ui_value(LbTextLineHeight()));
+    LbTextSetClipWindow( (x - (dst_w / 2)), y, dst_w, 16*dst_w/base_w);
     lbDisplay.DrawFlags |= Lb_TEXT_HALIGN_CENTER;
     int tx_units_per_px;
     int text_x = 0;
-    int text_y = -scale_ui_value(6);
+    int text_y = -6*dst_w/base_w;
     if ( (MyScreenHeight < 400) && (dbc_language > 0) ) 
     {
         tx_units_per_px = scale_ui_value(32);
