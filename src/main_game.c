@@ -358,7 +358,7 @@ static CoroutineLoopState startup_network_game_tail(CoroutineLoop *context)
     set_selected_level_number(0);
 
 #ifdef FUNCTESTING
-    set_flag_byte(&start_params.functest_flags, FTF_LevelLoaded, true);
+    set_flag(start_params.functest_flags, FTF_LevelLoaded);
 #endif
 
     return CLS_CONTINUE;
