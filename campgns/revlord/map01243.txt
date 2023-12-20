@@ -14,7 +14,11 @@ REM More time for heart destroying
 REM Slower demonspawn attacks (was too often)
 REM Two extra archers spawned for final
 REM ********************************************
-REM LEVEL_VERSION(1)
+
+LEVEL_VERSION(1)
+
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
 
 SET_GENERATE_SPEED(1000)
 
