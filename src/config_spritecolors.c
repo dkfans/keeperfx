@@ -44,7 +44,7 @@ static short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short button_sprite_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short animationIds_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 /******************************************************************************/
-static short get_player_colored_idx(short base_icon_idx,PlayerNumber plyr_idx,short *arr);
+static short get_player_colored_idx(short base_icon_idx,unsigned char color_idx,short *arr);
 /******************************************************************************/
 static short get_anim_id_(const char *word_buf)
 {
@@ -106,9 +106,9 @@ static TbBool load_spritecolors_config_file(const char *textname, const char *fn
     extern struct CallToArmsGraphics call_to_arms_graphics[];
     for (size_t plr_idx = 0; plr_idx < PLAYER_COLORS_COUNT; plr_idx++)
     {
-        call_to_arms_graphics[plr_idx].birth_anim_idx = get_player_colored_idx(867,plr_idx,animationIds_eq);
-        call_to_arms_graphics[plr_idx].alive_anim_idx = get_player_colored_idx(868,plr_idx,animationIds_eq);
-        call_to_arms_graphics[plr_idx].leave_anim_idx = get_player_colored_idx(869,plr_idx,animationIds_eq);
+        call_to_arms_graphics[plr_idx].birth_anim_idx = get_player_colored_idx(867,plr_idx + 1,animationIds_eq);
+        call_to_arms_graphics[plr_idx].alive_anim_idx = get_player_colored_idx(868,plr_idx + 1,animationIds_eq);
+        call_to_arms_graphics[plr_idx].leave_anim_idx = get_player_colored_idx(869,plr_idx + 1,animationIds_eq);
     }
     
 
@@ -139,9 +139,8 @@ TbBool load_spritecolors_config(const char *conf_fname,unsigned short flags)
     return result;
 }
 
-static short get_player_colored_idx(short base_icon_idx,PlayerNumber plyr_idx,short *arr)
+static short get_player_colored_idx(short base_icon_idx,unsigned char color_idx,short *arr)
 {
-    unsigned char color_idx = get_player_color_idx(plyr_idx) + 1;
     if(color_idx >= PLAYER_COLORS_COUNT)
     {
         return base_icon_idx;
@@ -162,16 +161,16 @@ static short get_player_colored_idx(short base_icon_idx,PlayerNumber plyr_idx,sh
 
 short get_player_colored_icon_idx(short base_icon_idx,PlayerNumber plyr_idx)
 {
-    return get_player_colored_idx(base_icon_idx,plyr_idx,gui_panel_sprites_eq);
+    return get_player_colored_idx(base_icon_idx,get_player_color_idx(plyr_idx) + 1,gui_panel_sprites_eq);
 }
 short get_player_colored_pointer_icon_idx(short base_icon_idx,PlayerNumber plyr_idx)
 {
-    return get_player_colored_idx(base_icon_idx,plyr_idx,pointer_sprites_eq);
+    return get_player_colored_idx(base_icon_idx,get_player_color_idx(plyr_idx) + 1,pointer_sprites_eq);
 }
 
 short get_player_colored_button_sprite_idx(short base_icon_idx,PlayerNumber plyr_idx)
 {
-    return get_player_colored_idx(base_icon_idx,plyr_idx,button_sprite_eq);
+    return get_player_colored_idx(base_icon_idx,get_player_color_idx(plyr_idx) + 1,button_sprite_eq);
 }
 
 /******************************************************************************/
