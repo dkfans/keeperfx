@@ -960,7 +960,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if ((cproc->flags & ComProc_Unkn0002) != 0)
+            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
             //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
             if (cproc->func_check == computer_check_dig_to_gold)
@@ -1529,7 +1529,7 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber 
         return NULL;
   }
   struct ComputerProcess* cproc = &comp->processes[0];
-  while ((cproc->flags & ComProc_Unkn0002) == 0)
+  while (!flag_is_set(cproc->flags, ComProc_Unkn0002))
   {
       if (cproc->func_setup == func_setup)
       {

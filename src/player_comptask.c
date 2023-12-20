@@ -264,8 +264,8 @@ void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
         onproc = get_computer_process(comp, comp->ongoing_process);
         if (onproc != cproc)
         {
-            cproc->flags &= ~ComProc_Unkn0020;
-            cproc->flags &= ~ComProc_Unkn0008;
+            clear_flag(cproc->flags, ComProc_Unkn0020);
+            clear_flag(cproc->flags, ComProc_Unkn0008);
         }
     } 
     else 
@@ -1098,7 +1098,7 @@ void shut_down_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
     cproc = get_computer_process(comp, ctask->cproc_idx);
     if (cproc != NULL)
     {
-        if ((cproc->flags & ComProc_Unkn0020) != 0) {
+        if (flag_is_set(cproc->flags, ComProc_Unkn0020)) {
             shut_down_process(comp, cproc);
         }
     } else {
