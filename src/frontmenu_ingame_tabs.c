@@ -1191,13 +1191,9 @@ void draw_centred_string64k(const char *text, short x, short y, short base_w, sh
     {
         if ( (dbc_language > 0) && (MyScreenWidth > 640) )
         {
-            tx_units_per_px = scale_value_by_horizontal_resolution(12 + (MyScreenWidth / 640));
             text_y += 12;
         }
-        else
-        {
-            tx_units_per_px = (22 * units_per_pixel_ui)/LbTextLineHeight();
-        }
+        tx_units_per_px = (22 * units_per_pixel_ui)/LbTextLineHeight();
     }
     LbTextDrawResized(text_x, text_y, tx_units_per_px, text);
     LbTextSetJustifyWindow(0, 0, LbGraphicsScreenWidth());
