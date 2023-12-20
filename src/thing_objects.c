@@ -1407,7 +1407,6 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     SYNCDBG(18,"Starting");
     struct Dungeon* dungeon = INVALID_DUNGEON;
     struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
-    struct DungeonAdd* dungeonadd;
 
     if (heartng->owner != game.neutral_player_num)
     {
@@ -1437,7 +1436,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
         }
     }
-    else if ((dungeon != INVALID_DUNGEON) && (heartng->index == dungeon->dnheart_idx))
+    else if (!dungeon_invalid(dungeon) && (heartng->index == dungeon->dnheart_idx))
     {
         if (dungeon->heart_destroy_state == 0)
         {
@@ -1448,7 +1447,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             dungeon->essential_pos.z.val = heartng->mappos.z.val;
         }
     }
-    if (heartng->index != dungeon->dnheart_idx)
+    if (dungeon_invalid(dungeon) || (heartng->index != dungeon->dnheart_idx))
     {
         SYNCDBG(18, "Inactive Heart");
         if (heartng->health <= 0)
@@ -1461,10 +1460,9 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             destroy_dungeon_heart_room(heartng->owner, heartng);
-            dungeonadd = get_dungeonadd(heartng->owner);
-            if (heartng->index == dungeonadd->backup_heart_idx)
+            if (!dungeon_invalid(dungeon) && heartng->index == dungeon->backup_heart_idx)
             {
-                dungeonadd->backup_heart_idx = 0;
+                dungeon->backup_heart_idx = 0;
             }
             delete_thing_structure(heartng, 0);
         }
@@ -1474,16 +1472,15 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     {
         if (!thing_is_dungeon_heart(heartng))
         {
-            dungeonadd = get_dungeonadd(heartng->owner);
-            if (dungeonadd->backup_heart_idx > 0)
+            if (dungeon->backup_heart_idx > 0)
             {
-                dungeon->dnheart_idx = dungeonadd->backup_heart_idx;
-                dungeonadd->backup_heart_idx = 0;
+                dungeon->dnheart_idx = dungeon->backup_heart_idx;
+                dungeon->backup_heart_idx = 0;
                 struct Thing* scndthing = find_players_backup_dungeon_heart(heartng->owner);
                 {
                     if (!thing_is_invalid(scndthing))
                     {
-                        dungeonadd->backup_heart_idx = scndthing->index;
+                        dungeon->backup_heart_idx = scndthing->index;
                     }
                 }
             }
@@ -1904,6 +1901,11 @@ static TbBool find_free_position_on_slab(struct Thing* thing, struct Coord3d* po
 TngUpdateRet move_object(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing object.");
+        return TUFRet_Deleted;
+    }
     TRACE_THING(thing);
     struct Coord3d pos;
     TbBool move_allowed = get_thing_next_position(&pos, thing);
@@ -1989,20 +1991,20 @@ TngUpdateRet update_object(struct Thing *thing)
     thing->movement_flags &= ~TMvF_IsOnLava;
     if ( ((thing->movement_flags & TMvF_Immobile) == 0) && thing_touching_floor(thing) )
     {
-      if (subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
-      {
-        thing->movement_flags |= TMvF_IsOnLava;
-        struct Objects* objdat = get_objects_data_for_thing(thing);
-        if ( (objdat->destroy_on_lava) && !thing_is_dragged_or_pulled(thing) )
+        if (subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
         {
-            destroy_object(thing);
-            return TUFRet_Deleted;
+            thing->movement_flags |= TMvF_IsOnLava;
+            struct Objects* objdat = get_objects_data_for_thing(thing);
+            if ( (objdat->destroy_on_lava) && !thing_is_dragged_or_pulled(thing) )
+            {
+                destroy_object(thing);
+                return TUFRet_Deleted;
+            }
+        } else
+        if (subtile_has_water_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
+        {
+            thing->movement_flags |= TMvF_IsOnWater;
         }
-      } else
-      if (subtile_has_water_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
-      {
-        thing->movement_flags |= TMvF_IsOnWater;
-      }
     }
     if ((thing->movement_flags & TMvF_Immobile) != 0)
         return TUFRet_Modified;
@@ -2328,7 +2330,11 @@ TbBool add_gold_to_pile(struct Thing *thing, long value)
     if (typical_value <= 0) {
         return false;
     }
+
     thing->valuable.gold_stored += value;
+    if (thing->valuable.gold_stored == 0) {
+        return false;
+    }
     if (thing->valuable.gold_stored < 0)
         thing->valuable.gold_stored = LONG_MAX;
     if (thing->valuable.gold_stored < typical_value)

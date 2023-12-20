@@ -339,7 +339,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     struct PlayerInfo* player;
     struct Thing* thing;
     struct Dungeon* dungeon;
-    struct DungeonAdd* dungeonadd;
     struct Room* room;
     struct Packet* pckt;
     struct SlabMap *slb;
@@ -657,15 +656,15 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 dungeon = get_dungeon(id);
                 if (!dungeon_invalid(dungeon))
                 {
-                    dungeonadd = get_dungeonadd(id);
+                    dungeon = get_dungeon(id);
                     if (pr4str == NULL)
                     {
                         targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d flag %d value: %d", id,
-                                             flg_id, dungeonadd->script_flags[flg_id]);
+                                             flg_id, dungeon->script_flags[flg_id]);
                     }
                     else
                     {
-                        dungeonadd->script_flags[flg_id] = atoi(pr4str);
+                        dungeon->script_flags[flg_id] = atoi(pr4str);
                     }
                     return true;
                 }
@@ -1689,6 +1688,10 @@ PlayerNumber get_player_number_for_command(char *msg)
 
 TbBool parameter_is_number(const char* parstr)
 {
+    if (parstr == NULL)
+    {
+        return false;
+    }
     for (int i = 0; parstr[i] != '\0'; i++)
     {
         TbBool digit = (i == 0) ? ( (parstr[i] == 0x2D) || (isdigit(parstr[i])) ) : (isdigit(parstr[i]));

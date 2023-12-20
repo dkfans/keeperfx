@@ -67,10 +67,10 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
     }
     if (thing_is_dungeon_heart(thing))
     {
-        struct DungeonAdd* dungeonadd = get_dungeonadd(tngowner);
-        if (dungeonadd->backup_heart_idx == 0)
+        struct Dungeon* dungeon = get_dungeon(tngowner);
+        if (dungeon->backup_heart_idx == 0)
         {
-            dungeonadd->backup_heart_idx = thing->index;
+            dungeon->backup_heart_idx = thing->index;
         }
     }
     thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
@@ -98,10 +98,40 @@ struct Thing *script_process_new_object(long tngmodel, TbMapLocation location, l
     return thing;
 }
 
+struct Thing* script_process_new_effectgen(long tngmodel, TbMapLocation location, long range)
+{
+    struct Coord3d pos;
+    const unsigned char tngclass = TCls_EffectGen;
+    if (!get_coords_at_location(&pos, location))
+    {
+        ERRORLOG("Couldn't find location %d to create %s", (int)location, thing_class_and_model_name(tngclass, tngmodel));
+        return INVALID_THING;
+    }
+    SlabCodedCoords place_slbnum = get_slab_number(subtile_slab(pos.x.stl.num), subtile_slab(pos.y.stl.num));
+    struct Thing* thing = create_thing(&pos, tngclass, tngmodel, game.neutral_player_num, place_slbnum);
+    if (thing_is_invalid(thing))
+    {
+        ERRORLOG("Couldn't create %s at location %d", thing_class_and_model_name(tngclass, tngmodel), (int)location);
+        return INVALID_THING;
+    }
+    thing->effect_generator.range = range;
+    thing->mappos.z.val = get_thing_height_at(thing, &thing->mappos);
+    
+    // Try to move thing out of the solid wall if it's inside one
+    if (thing_in_wall_at(thing, &thing->mappos))
+    {
+        if (!move_creature_to_nearest_valid_position(thing)) {
+            ERRORLOG("The %s was created in wall, removing", thing_model_name(thing));
+            delete_thing_structure(thing, 0);
+            return INVALID_THING;
+        }
+    }
+    return thing;
+}
+
 void set_variable(int player_idx, long var_type, long var_idx, long new_val)
 {
     struct Dungeon *dungeon = get_dungeon(player_idx);
-    struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
     struct Coord3d pos = {0};
 
     switch (var_type)
@@ -113,7 +143,7 @@ void set_variable(int player_idx, long var_type, long var_idx, long new_val)
         intralvl.campaign_flags[player_idx][var_idx] = new_val;
         break;
     case SVar_BOX_ACTIVATED:
-        dungeonadd->box_info.activated[var_idx] = saturate_set_unsigned(new_val, 8);
+        dungeon->box_info.activated[var_idx] = saturate_set_unsigned(new_val, 8);
         break;
     case SVar_SACRIFICED:
         dungeon->creature_sacrifice[var_idx] = saturate_set_unsigned(new_val, 8);
@@ -123,7 +153,7 @@ void set_variable(int player_idx, long var_type, long var_idx, long new_val)
         }
         break;
     case SVar_REWARDED:
-        dungeonadd->creature_awarded[var_idx] = new_val;
+        dungeon->creature_awarded[var_idx] = new_val;
         break;
     default:
         WARNLOG("Unexpected type:%d",(int)var_type);

@@ -581,7 +581,6 @@ static void command_add_tunneller_to_level(long plr_range_id, const char *locnam
         tn_trig->plyr_idx = plr_id;
         tn_trig->location = location;
         tn_trig->heading = heading;
-        tn_trig->heading_OLD = 0; //target is now contained in heading and this is unused
         tn_trig->carried_gold = carried_gold;
         tn_trig->crtr_level = crtr_level-1;
         tn_trig->carried_gold = carried_gold;
@@ -642,7 +641,6 @@ static void command_add_tunneller_party_to_level(long plr_range_id, const char *
         tn_trig->plyr_idx = plr_id;
         tn_trig->location = location;
         tn_trig->heading = heading;
-        tn_trig->heading_OLD = 0; //target is now contained in heading and this is unused
         tn_trig->carried_gold = carried_gold;
         tn_trig->crtr_level = crtr_level-1;
         tn_trig->carried_gold = carried_gold;

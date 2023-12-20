@@ -492,7 +492,7 @@ long near_map_block_creature_filter_diagonal_random(const struct Thing *thing, M
                         return -1;
                     // It is not "correct" randomness (pick random N from list) but rolling a dice on each creature found
                     unsigned long tmp = maximizer + dist + 1;
-                    return (long)LbRandomSeries(LONG_MAX, &tmp, __func__, __LINE__, "");
+                    return (long)LbRandomSeries(LONG_MAX, &tmp, __func__, __LINE__);
                 }
             }
         }
@@ -1230,7 +1230,6 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
 {
     struct Thing* thing = find_players_dungeon_heart(player->id_number);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct DungeonAdd* dungeonadd = get_players_dungeonadd(player);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("Tried to init player %d which has no dungeon",(int)player->id_number);
         return;
@@ -1254,12 +1253,12 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
         }
     }
 
-    dungeonadd->backup_heart_idx = 0;
+    dungeon->backup_heart_idx = 0;
     struct Thing* scndthing = find_players_backup_dungeon_heart(player->id_number);
     {
         if (!thing_is_invalid(scndthing))
         {
-            dungeonadd->backup_heart_idx = scndthing->index;
+            dungeon->backup_heart_idx = scndthing->index;
         }
     }
 }
