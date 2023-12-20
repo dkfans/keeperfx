@@ -235,7 +235,7 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
         //Removing first task in list
         comp->task_idx = ctask->next_task;
         ctask->next_task = 0;
-        ctask->flags &= ~ComTsk_Unkn0001;
+        clear_flag(ctask->flags, ComTsk_Unkn0001);
         return true;
     }
     nxctask = get_computer_task(i);
@@ -246,7 +246,7 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
         {
           nxctask->next_task = ctask->next_task;
           ctask->next_task = 0;
-          ctask->flags &= ~ComTsk_Unkn0001;
+          clear_flag(ctask->flags, ComTsk_Unkn0001);
           return true;
         }
         nxctask = get_computer_task(i);
@@ -437,7 +437,7 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
         }
         ctask = &game.computer_task[i];
         i = ctask->next_task;
-        if ((ctask->flags & ComTsk_Unkn0001) != 0)
+        if (flag_is_set(ctask->flags, ComTsk_Unkn0001))
         {
             long n;
             n = ctask->ttype;
@@ -481,7 +481,7 @@ struct ComputerTask *get_task_in_progress_in_list(const struct Computer2 *comp, 
         }
         ctask = &game.computer_task[i];
         i = ctask->next_task;
-        if ((ctask->flags & ComTsk_Unkn0001) != 0)
+        if (flag_is_set(ctask->flags, ComTsk_Unkn0001))
         {
             long n;
             n = ctask->ttype;
@@ -913,10 +913,10 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
             return CTaskRet_Unk1;
         case TDR_DigSlab:
             // a slab has been marked for digging
-            if (ctask->flags & ComTsk_AddTrapLocation)
+            if (flag_is_set(ctask->flags, ComTsk_AddTrapLocation))
             {
                 add_to_trap_locations(comp, &ctask->dig.pos_next); // add the dug slab to the list of potential trap locations
-                ctask->flags &= ~ComTsk_AddTrapLocation; // only add the first dug slab to the list
+                clear_flag(ctask->flags, ComTsk_AddTrapLocation); // only add the first dug slab to the list
             }
             return CTaskRet_Unk2;
         case TDR_BuildBridgeOnSlab:
@@ -1198,10 +1198,10 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
     ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
-    if (ctask->flags & ComTsk_AddTrapLocation)
+    if (flag_is_set(ctask->flags, ComTsk_AddTrapLocation))
     {
         add_to_trap_locations(comp, &ctask->dig.pos_next); // add the dug slab to the list of potential trap locations
-        ctask->flags &= ~ComTsk_AddTrapLocation; // only add the first dug slab to the list
+        clear_flag(ctask->flags, ComTsk_AddTrapLocation); // only add the first dug slab to the list
     }
     switch(dig_result)
     {
@@ -1530,9 +1530,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         ctask->create_room.height = height_slabs;
         ctask->create_room.area = area_buildable;
         ctask->create_room.kind = rkind;
-        ctask->flags |= ComTsk_Unkn0002;
-        ctask->flags |= ComTsk_AddTrapLocation;
-        ctask->flags |= ComTsk_Urgent;
+        set_flag(ctask->flags, (ComTsk_Unkn0002|ComTsk_AddTrapLocation|ComTsk_Urgent));
         setup_dig_to(&ctask->dig, ctask->create_room.startpos, ctask->new_room_pos);
     }
     return ctask;
@@ -2138,10 +2136,10 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 
     ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_AllowValuable);
 
-    if (ctask->flags & ComTsk_AddTrapLocation)
+    if (flag_is_set(ctask->flags, ComTsk_AddTrapLocation))
     {
         add_to_trap_locations(comp, &ctask->dig.pos_next); // add the dug slab to the list of potential trap locations
-        ctask->flags &= ~ComTsk_AddTrapLocation; // only add the first dug slab to the list
+        clear_flag(ctask->flags, ComTsk_AddTrapLocation); // only add the first dug slab to the list
     }
 
     if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.slabs_dig_count)
@@ -2228,13 +2226,13 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         {
             return CTaskRet_Unk4;
         }
-        if (ctask->flags & ComTsk_AddTrapLocation)
+        if (flag_is_set(ctask->flags, ComTsk_AddTrapLocation))
         {
             add_to_trap_locations(comp, &ctask->dig.pos_next); // add the dug slab to the list of potential trap locations
             ctask->lastrun_turn++;
             if (ctask->lastrun_turn > 5)
             {
-                ctask->flags &= ~ComTsk_AddTrapLocation;  // add the first 5 dug slabs to the list
+                clear_flag(ctask->flags, ComTsk_AddTrapLocation);  // add the first 5 dug slabs to the list
             }
         }
     }
@@ -3053,10 +3051,10 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         case TDR_DigSlab:
             // a slab has been marked for digging
-            if (ctask->flags & ComTsk_AddTrapLocation)
+            if (flag_is_set(ctask->flags, ComTsk_AddTrapLocation))
             {
                 add_to_trap_locations(comp, &ctask->dig.pos_next); // add the dug slab to the list of potential trap locations
-                ctask->flags &= ~ComTsk_AddTrapLocation; // only add the first dug slab to the list
+                clear_flag(ctask->flags, ComTsk_AddTrapLocation); // only add the first dug slab to the list
             }
             return CTaskRet_Unk0;
 
@@ -3132,7 +3130,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     if (game.play_gameturn - ctask->created_turn > COMPUTER_URGENT_BRIDGE_TIMEOUT)
     {
-        if ((is_room_available(plyr_idx, RoK_BRIDGE)) || (ctask->flags & ComTsk_Urgent))
+        if ((is_room_available(plyr_idx, RoK_BRIDGE)) || flag_is_set(ctask->flags, ComTsk_Urgent))
         {
             //When the player already has the bridge available, or is doing an urgent task, don't keep the task active as long.
             ctask->ttype = ctask->ottype;
@@ -3681,7 +3679,7 @@ TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d st
     ctask->cproc_idx = parent_cproc_idx;
     ctask->dig_somewhere.target_plyr_idx = victim_plyr_idx;
     ctask->lastrun_turn = 0;
-    ctask->flags |= ComTsk_AddTrapLocation;
+    set_flag(ctask->flags, ComTsk_AddTrapLocation);
     // Setup the digging
     setup_dig_to(&ctask->dig, startpos, endpos);
     return true;
@@ -3706,7 +3704,7 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
     ctask->dig_somewhere.endpos.x.val = endpos.x.val;
     ctask->dig_somewhere.endpos.y.val = endpos.y.val;
     ctask->dig_somewhere.endpos.z.val = endpos.z.val;
-    ctask->flags |= ComTsk_AddTrapLocation;
+    set_flag(ctask->flags, ComTsk_AddTrapLocation);
     ctask->created_turn = game.play_gameturn;
     setup_dig_to(&ctask->dig, startpos, endpos);
     return true;
@@ -3724,7 +3722,7 @@ TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d star
         message_add_fmt(comp->dungeon->owner, "Time to dig more gold.");
     }
     ctask->ttype = CTT_DigToGold;
-    ctask->flags |= ComTsk_AddTrapLocation;
+    set_flag(ctask->flags, ComTsk_AddTrapLocation);
     ctask->dig_to_gold.startpos.x.val = startpos.x.val;
     ctask->dig_to_gold.startpos.y.val = startpos.y.val;
     ctask->dig_to_gold.startpos.z.val = startpos.z.val;
@@ -3753,8 +3751,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
         message_add_fmt(comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_DigToEntrance;
-    ctask->flags |= ComTsk_AddTrapLocation;
-    ctask->flags |= ComTsk_Urgent;
+    set_flag(ctask->flags, (ComTsk_AddTrapLocation|ComTsk_Urgent));
     ctask->dig_to_room.startpos.x.val = startpos.x.val;
     ctask->dig_to_room.startpos.y.val = startpos.y.val;
     ctask->dig_to_room.startpos.z.val = startpos.z.val;
@@ -3850,7 +3847,7 @@ long process_tasks(struct Computer2 *comp)
             break;
         ctask = &game.computer_task[i];
         i = ctask->next_task;
-        if ((ctask->flags & ComTsk_Unkn0001) != 0)
+        if (flag_is_set(ctask->flags, ComTsk_Unkn0001))
         {
             n = ctask->ttype;
             if ((n > 0) && (n < sizeof(task_function)/sizeof(task_function[0])))

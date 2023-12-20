@@ -152,7 +152,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
         }
         i = ctask->next_task;
         // Per-task code
-        if (((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0))
+        if (flag_is_set(ctask->flags, (ComTsk_Unkn0001|ComTsk_Unkn0002)))
         {
             unsigned short max_radius = ctask->create_room.width / 2;
             if (max_radius <= ctask->create_room.height / 2)
@@ -331,7 +331,7 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
         }
         i = ctask->next_task;
         // Per-task code
-        if ( ((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0) )
+        if (flag_is_set(ctask->flags, (ComTsk_Unkn0001|ComTsk_Unkn0002)))
         {
             MapCoordDelta delta_x = ctask->new_room_pos.x.val - (MapCoordDelta)task_pos.x.val;
             MapCoordDelta delta_y = ctask->new_room_pos.y.val - (MapCoordDelta)task_pos.y.val;
@@ -1212,7 +1212,7 @@ long check_call_to_arms(struct Computer2 *comp)
             }
             i = ctask->next_task;
             // Per-task code
-            if ((ctask->flags & ComTsk_Unkn0001) != 0)
+            if (flag_is_set(ctask->flags, ComTsk_Unkn0001))
             {
                 if ((ctask->ttype == CTT_MagicCallToArms) && (ctask->task_state == CTaskSt_Select))
                 {
