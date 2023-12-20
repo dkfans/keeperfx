@@ -838,7 +838,7 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
     {
         struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
         TRACE_THING(lairtng);
-        create_effect(&lairtng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+        create_effect(&lairtng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
         delete_lair_totem(lairtng);
     }
     return result;

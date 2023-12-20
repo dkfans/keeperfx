@@ -493,7 +493,7 @@ TbBool remove_workshop_object_from_player(PlayerNumber owner, ThingModel objmode
     } else {
         WARNLOG("Crate thing index %d isn't placed existing room; removing anyway",(int)cratetng->index);
     }
-    create_effect(&cratetng->mappos, imp_spangle_effects[cratetng->owner], cratetng->owner);
+    create_effect(&cratetng->mappos, imp_spangle_effects[get_player_color_idx(cratetng->owner)], cratetng->owner);
     destroy_object(cratetng);
     return true;
 }

@@ -141,7 +141,7 @@ TbBool load_spritecolors_config(const char *conf_fname,unsigned short flags)
 
 static short get_player_colored_idx(short base_icon_idx,PlayerNumber plyr_idx,short *arr)
 {
-    unsigned char color_idx = plyr_idx + 1;
+    unsigned char color_idx = get_player_color_idx(plyr_idx) + 1;
     if(color_idx >= PLAYER_COLORS_COUNT)
     {
         return base_icon_idx;

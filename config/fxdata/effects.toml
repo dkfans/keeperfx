@@ -1116,6 +1116,22 @@ LightFlags = 0
 ElementsCount = 20
 AlwaysGenerate = 0
 
+[effect69]
+Name = "EFFECT_SPANGLE_WHITE"
+Health = 4
+GenerationType = 1
+GenerationAccelXYRange = [16,16]
+GenerationAccelZRange = [-32,64]
+GenerationKindRange = [99,99]
+AreaAffectType = 0
+Sound = 0
+AffectedByWind = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+ElementsCount = 3
+AlwaysGenerate = 0
+
 #EffectGenerators
 
 [effectGenerator0]
@@ -4132,6 +4148,62 @@ Unanimated = 0
 Lifespan = [-1,-1]
 AnimationId = "SIGHT_SPARKLE_WHITE"
 SpriteSize = [172,172]
+RenderFlags = 1
+SpriteSpeed = [256,256]
+AnimateOnFloor = 1
+Unshaded = 1
+Transparant = 3
+MovementFlags = 0
+SizeChange = 0
+fallAcceleration = 2
+InertiaFloor = 0
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = 0
+Impacts = 0
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 0
+
+[effectElement98]
+Name = "EFFECTELEMENT_RED_FLAME"
+DrawClass = 2
+MoveType = 5
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = "ROOMFLAME_WHITE"
+SpriteSize = [320,374]
+RenderFlags = 1
+SpriteSpeed = [256,256]
+AnimateOnFloor = 0
+Unshaded = 0
+Transparant = 3
+MovementFlags = 0
+SizeChange = 0
+fallAcceleration = 10
+InertiaFloor = 102
+InertiaAir = 0
+SubeffectModel = 0
+SubeffectDelay = 0
+Movable = 1
+Impacts = 0
+TransformModel = 0
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
+AffectedByWind = 0
+
+[effectElement99]
+Name = "EFFECTELEMENT_WHITE_SMOKE_PUFF"
+DrawClass = 2
+MoveType = 1
+Unanimated = 0
+Lifespan = [-1,-1]
+AnimationId = "CLAIMPUFF_WHITE"
+SpriteSize = [172,255]
 RenderFlags = 1
 SpriteSpeed = [256,256]
 AnimateOnFloor = 1
