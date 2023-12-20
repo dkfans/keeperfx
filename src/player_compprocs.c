@@ -1204,14 +1204,14 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
             if (dungeon->owner != slab_owner)
             {
                 struct SlabAttr *slbattr = get_slab_kind_attrs(slb->kind);
-                if (slab_owner != game.neutral_player_num || (((slbattr->block_flags & (SlbAtFlg_Valuable | SlbAtFlg_Digable | SlbAtFlg_Filled)) == 0) && slb->kind != SlbT_LAVA))
+                if (slab_owner != game.neutral_player_num || (!any_flag_is_set(slbattr->block_flags, (SlbAtFlg_Valuable | SlbAtFlg_Digable | SlbAtFlg_Filled)) && slb->kind != SlbT_LAVA))
                 {
                     if (!flag_is_set(potential_opponents, to_flag(slab_owner)) && (get_slabmap_for_subtile(stl_x_current,stl_y_current)->flags & 7) == slab_owner)
                     {
                         if ((block_flags = slbattr->block_flags,
-                             ((block_flags & SlbAtFlg_Blocking) == 0) &&
+                             (!flag_is_set(block_flags, SlbAtFlg_Blocking)) &&
                                  slb->kind != SlbT_LAVA) ||
-                            (block_flags & 2) != 0)
+                            flag_is_set(block_flags, SlbAtFlg_IsRoom))
                         {
                             set_flag(potential_opponents, to_flag(slab_owner));
                             current_idx = comp->opponent_relations[slab_owner].next_idx;
