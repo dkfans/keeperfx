@@ -1753,7 +1753,7 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     if (is_my_player(player)) {
-        set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+        clear_flag(tool_tip_box.flags, TTip_Visible);
     }
     return Lb_SUCCESS;
 }

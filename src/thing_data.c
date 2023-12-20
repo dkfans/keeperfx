@@ -261,7 +261,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
         }
     }
     if (animate_once != -1) {
-        set_flag_byte(&thing->rendering_flags, TRF_AnimateOnce, animate_once);
+        set_flag_value(thing->rendering_flags, TRF_AnimateOnce, animate_once);
     }
     if (start_frame == -2)
     {
