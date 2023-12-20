@@ -273,7 +273,7 @@ TbBool slab_kind_is_animated(SlabKind slbkind)
 TbBool slab_good_for_computer_dig_path(const struct SlabMap *slb)
 {
     const struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ( ((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (slb->kind == SlbT_LAVA) )
+    if ( any_flag_is_set(slbattr->block_flags, (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) || (slb->kind == SlbT_LAVA) )
         return true;
     return false;
 }
@@ -285,7 +285,7 @@ TbBool is_valid_hug_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     if ((slbattr->is_diggable) && !slab_kind_is_indestructible(slb->kind))
     {
         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-        if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == plyr_idx)) {
+        if (!flag_is_set(mapblk->flags, SlbAtFlg_Filled) || (slabmap_owner(slb) == plyr_idx)) {
             SYNCDBG(17,"Subtile (%d,%d) rejected based on attrs",(int)stl_x,(int)stl_y);
             return false;
         }

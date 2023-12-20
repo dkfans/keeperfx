@@ -339,7 +339,7 @@ TbBool creature_can_travel_over_lava(const struct Thing *creatng)
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     // Check if a creature can fly in this moment - we don't care if it's natural ability
     // or temporary spell effect
-    return (crstat->hurt_by_lava <= 0) || ((creatng->movement_flags & TMvF_Flying) != 0);
+    return (crstat->hurt_by_lava <= 0) || flag_is_set(creatng->movement_flags, TMvF_Flying);
 }
 
 TbBool can_step_on_unsafe_terrain_at_position(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
@@ -358,7 +358,7 @@ TbBool terrain_toxic_for_creature_at_position(const struct Thing *creatng, MapSu
     // If the position is over lava, and we can't continuously fly, then it's toxic
     if ((crstat->hurt_by_lava > 0) && map_pos_is_lava(stl_x,stl_y)) {
         // Check not only if a creature is now flying, but also whether it's natural ability
-        if (((creatng->movement_flags & TMvF_Flying) == 0) || (!crstat->flying))
+        if (!flag_is_set(creatng->movement_flags, TMvF_Flying) || (!crstat->flying))
             return true;
     }
     return false;
@@ -832,7 +832,7 @@ TbBool hug_can_move_on(struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord
     if (slabmap_block_invalid(slb))
         return false;
     struct SlabAttr* slbattr = get_slab_attrs(slb);
-    if ((slbattr->block_flags & SlbAtFlg_IsDoor) != 0)
+    if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsDoor))
     {
         struct Thing* doortng = get_door_for_position(stl_x, stl_y);
         if (!thing_is_invalid(doortng) && door_will_open_for_thing(doortng,creatng))
