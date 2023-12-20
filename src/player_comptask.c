@@ -527,7 +527,7 @@ static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool use_com
     int next_task;
 
     task_result = &game.computer_task[1];
-    while ((task_result->flags & ComTsk_Unkn0001) != 0)
+    while (flag_is_set(task_result->flags, ComTsk_Unkn0001))
     {
         if (++task_result >= (struct ComputerTask *)&game.computer)
             return 0;
@@ -548,7 +548,7 @@ static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool use_com
             }
             current_task->next_task = task_result - game.computer_task;
 
-            task_result->flags |= ComTsk_Unkn0001;
+            set_flag(task_result->flags, ComTsk_Unkn0001);
             task_result->created_turn = game.play_gameturn;
             return task_result;
         }
@@ -556,7 +556,7 @@ static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool use_com
     }
     comp->task_idx = task_result - game.computer_task;
 
-    task_result->flags |= ComTsk_Unkn0001;
+    set_flag(task_result->flags, ComTsk_Unkn0001);
     task_result->created_turn = game.play_gameturn;
     return task_result;
 }
@@ -674,7 +674,7 @@ long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *th
         ERRORLOG("Computer tries to pick up %s index %d which is not pickable", thing_model_name(thing),(int)thing->index);
         return 0;
     }
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0) {
+    if (flag_is_set(thing->alloc_flags, TAlF_IsControlled)) {
         SYNCDBG(7,"Computer tries to pick up %s index %d which is being controlled", thing_model_name(thing),(int)thing->index);
         return 0;
     }
@@ -955,7 +955,7 @@ long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
                 struct Map *mapblk = get_map_block_at(stl_x, stl_y);
                 if (slbattr->is_diggable && (slb->kind != SlbT_GEMS))
                 {
-                    if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == dungeon->owner))
+                    if (!flag_is_set(mapblk->flags, SlbAtFlg_Filled) || (slabmap_owner(slb) == dungeon->owner))
                     {
                         if (find_from_task_list(dungeon->owner, get_subtile_number(stl_x,stl_y)) < 0)
                         {
@@ -3423,7 +3423,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent)) {
         struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[thing->model];
 
         switch (dst_state)
@@ -3479,7 +3479,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Minions, defend this place!");
     }
     ctask->ttype = CTT_MoveCreaturesToDefend;
@@ -3502,7 +3502,7 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct Room *room;
         room = room_get(room_idx);
         if (room_exists(room)) {
@@ -3510,7 +3510,7 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
             roomst = &game.slab_conf.room_cfgstats[room->kind];
             message_add_fmt(comp->dungeon->owner, "Time to put some creatures into %s.",get_string(roomst->name_stridx));
         } else {
-            if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0)
+            if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent))
                 message_add_fmt(comp->dungeon->owner, "Time to put some creatures into rooms.");
         }
     }
@@ -3530,7 +3530,7 @@ TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Minions, attack now!");
     }
     ctask->ttype = CTT_PickupForAttack;
@@ -3552,7 +3552,7 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Minions, call to arms! Join the battle!");
     }
     ctask->ttype = CTT_MagicCallToArms;
@@ -3577,7 +3577,7 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Minions, call to arms! Attack!");
     }
     ctask->ttype = CTT_MagicCallToArms;
@@ -3612,7 +3612,7 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(dungeon->owner, "I will sell some traps and doors.");
     }
     ctask->ttype = CTT_SellTrapsAndDoors;
@@ -3643,7 +3643,7 @@ TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_mov
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent)) {
         message_add_fmt(comp->dungeon->owner, "Gold should not lay around outside treasury.");
     }
     ctask->ttype = CTT_MoveGoldToTreasury;
@@ -3665,7 +3665,7 @@ TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d st
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Player %d looks like he need a kick.",(int)victim_plyr_idx);
     }
     ctask->ttype = CTT_DigToAttack;
@@ -3692,7 +3692,7 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Localized neutral place, hopefully with loot.");
     }
     ctask->ttype = CTT_DigToNeutral;
@@ -3717,7 +3717,7 @@ TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d star
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Time to dig more gold.");
     }
     ctask->ttype = CTT_DigToGold;
@@ -3744,7 +3744,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
         roomst = &game.slab_conf.room_cfgstats[RoK_ENTRANCE];
         message_add_fmt(comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
@@ -3772,7 +3772,7 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent)) {
         message_add_fmt(comp->dungeon->owner, "Work harder, minions!");
     }
     ctask->ttype = CTT_SlapDiggers;
@@ -3791,7 +3791,7 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "I should buff my fighters.");
     }
     ctask->ttype = CTT_MagicSpeedUp;
@@ -3809,7 +3809,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
         struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatng->model];
