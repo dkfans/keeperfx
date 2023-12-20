@@ -300,7 +300,7 @@ short get_screen_capture_inputs(void)
   }
   if (is_key_pressed(KC_C,KMod_SHIFT))
   {
-      set_flag_byte(&game.system_flags,GSF_CaptureSShot,true);
+      set_flag(game.system_flags, GSF_CaptureSShot);
       clear_key_pressed(KC_C);
   }
   return false;
@@ -744,14 +744,14 @@ TbBool get_level_lost_inputs(void)
         if (player->view_mode != PVM_ParchFadeOut)
         {
           turn_off_all_window_menus();
-          set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+          set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
           if (((game.system_flags & GSF_NetworkActive) != 0)
             || (lbDisplay.PhysicalScreenWidth > 320))
           {
                 if (toggle_status_menu(0))
-                  set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+                  set_flag(game.operation_flags, GOF_ShowPanel);
                 else
-                  set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+                  clear_flag(game.operation_flags, GOF_ShowPanel);
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
           } else
           {
@@ -2550,10 +2550,7 @@ short get_inputs(void)
         {
           if ((game.system_flags & GSF_NetworkActive) == 0)
             game.operation_flags &= ~GOF_Paused;
-          if (toggle_status_menu(0))
-            player->field_1 |= 0x01;
-          else
-            player->field_1 &= ~0x01;
+          player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
           set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
         }
         return false;
@@ -2709,7 +2706,7 @@ short get_gui_inputs(short gameplay_on)
       over_slider_button = -1;
       do_sound_menu_click();
   }
-  set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+  clear_flag(tool_tip_box.flags, TTip_Visible);
   gui_button_tooltip_update(gmbtn_idx);
   if (gui_slider_button_inputs(over_slider_button))
       return true;

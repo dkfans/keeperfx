@@ -161,8 +161,8 @@ void resync_game(void)
     }
     recall_localised_game_structure();
     reinit_level_after_load();
-    set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-    set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+    clear_flag(game.system_flags, GSF_NetGameNoSync);
+    clear_flag(game.system_flags, GSF_NetSeedNoSync);
 }
 
 /**

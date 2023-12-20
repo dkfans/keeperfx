@@ -737,7 +737,7 @@ void init_player(struct PlayerInfo *player, short no_explore)
     player->frontview_zoom_level = settings.frontview_zoom_level;
     if (is_my_player(player))
     {
-        set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+        set_flag(game.operation_flags, GOF_ShowPanel);
         set_gui_visible(true);
         init_gui();
         turn_on_menu(GMnu_MAIN);
@@ -1155,7 +1155,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     MapSubtlCoord cstl_x = stl_slab_center_subtile(stl_x);
     MapSubtlCoord cstl_y = stl_slab_center_subtile(stl_y);
     struct Thing* thing = get_door_for_position(cstl_x, cstl_y);
-    if (thing_is_invalid(thing))
+    if (!thing_is_sellable_door(thing))
     {
         return false;
     }

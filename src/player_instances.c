@@ -472,7 +472,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
       turn_off_all_window_menus();
       turn_off_query_menus();
       turn_on_main_panel_menu();
-      set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+      set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
       LbGrabMouseCheck(MG_OnPossessionLeave);
   }
   thing = thing_get(player->influenced_thing_idx);
@@ -514,7 +514,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
     turn_off_query_menus();
     turn_off_all_panel_menus();
     turn_on_main_panel_menu();
-    set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+    set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   leave_creature_as_passenger(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
@@ -717,9 +717,9 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
     player->view_mode_restore = cam->view_mode;
     if (is_my_player(player))
     {
-        set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
-        settings.tooltips_on = 0;
-        set_flag_byte(&player->field_1, 0x01, toggle_status_menu(0));
+        player->tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
+        settings.tooltips_on = false; // don't show tooltips during the fade
+        player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible)
   }
   set_engine_view(player, PVM_ParchFadeIn);
   return 0;
@@ -735,7 +735,7 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
 {
   set_player_mode(player, PVT_MapScreen);
   if (is_my_player(player))
-    settings.tooltips_on = ((player->field_1 & 0x02) != 0);
+    settings.tooltips_on = player->tooltips_restore; // restore tooltips setting after the fade is completed
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
@@ -745,8 +745,8 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
   player->allocflags |= PlaF_MouseInputDisabled;
   if (is_my_player(player))
   {
-    set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
-    settings.tooltips_on = 0;
+    player->tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
+    settings.tooltips_on = false; // don't show tooltips during the fade
     game.operation_flags &= ~GOF_ShowPanel;
   }
   player->field_4BD = 32;
@@ -765,8 +765,8 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
     struct PlayerInfo* myplyr = get_player(my_player_number);
     set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
-        settings.tooltips_on = ((player->field_1 & 2) != 0);
-        toggle_status_menu(player->field_1 & 1);
+        settings.tooltips_on = player->tooltips_restore; // restore tooltips setting after the fade is completed
+        toggle_status_menu(player->status_menu_restore); // restore the status menu visiblity now that the map is no longer visible
     }
     player->allocflags &= ~PlaF_MouseInputDisabled;
     return 0;
