@@ -16,8 +16,10 @@ gui_panel_sprites = [
     [472,472,645,646,648,647,676],#creatr_mood_livid
     [108,108,566,568,572,570,  0],#sight_low
     [ 85, 85,582,584,588,586,  0],#sight_high
-    [ 15, 15,617,619,623,621,  0],#rpanel_tab_crtr
-    [  9,  9,625,627,631,629,  0],#rpanel_tab_room
+    [ 15, 15,617,619,623,621,  0],#rpanel_tab_crtra
+    [ 16, 16,618,620,624,622,  0],#rpanel_tab_crtrd
+    [  9,  9,625,627,631,629,  0],#rpanel_tab_rooma
+    [ 10, 10,626,628,632,630,  0],#rpanel_tab_roomd
     [154,154,653,655,659,657,  0],#trap_alarm_low
     [132,132,661,663,667,665,  0],#trap_alarm_high
     [323,323,325,327,329,533,468],#plyrsym_symbol_player

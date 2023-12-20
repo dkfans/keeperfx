@@ -204,7 +204,7 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
  * Returns if the command is 'preloaded'. Preloaded commands are initialized
  * before the whole level data is loaded.
  */
-short script_is_preloaded_command(long cmnd_index)
+TbBool script_is_preloaded_command(long cmnd_index)
 {
     switch (cmnd_index)
     {
@@ -214,11 +214,9 @@ short script_is_preloaded_command(long cmnd_index)
         case Cmd_NEW_OBJECT_TYPE:
         case Cmd_NEW_ROOM_TYPE:
         case Cmd_NEW_CREATURE_TYPE:
-            return 1;
-        case Cmd_SET_PLAYER_COLOR:
-            return -1;
+            return true;
         default:
-            return 0;
+            return false;
     }
 }
 
@@ -752,8 +750,7 @@ long script_scan_line(char *line,TbBool preloaded)
     }
     scline->command = cmd_desc->index;
     // selecting only preloaded/not preloaded commands
-    if (script_is_preloaded_command(cmd_desc->index) != preloaded
-        && script_is_preloaded_command(cmd_desc->index) != -1)
+    if (script_is_preloaded_command(cmd_desc->index) != preloaded)
     {
         LbMemoryFree(scline);
         return 0;
