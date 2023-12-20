@@ -260,23 +260,17 @@ ThingModel object_to_special[OBJECT_TYPES_MAX] = {
 
 /** Guard flag objects model per player index. Originally named guard_post_objects.
  */
-unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
+unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  161, ObjMdl_GuardFlagPole};
 /** Dungeon Heart flame objects model per player index.
  */
-unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
-unsigned short lightning_spangles[] = {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_None, TngEffElm_None};
-unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle, TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle, TngEffElm_YellowTwinkle, TngEffElm_None, TngEffElm_None};
+unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  162,   0};
+unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, 97, TngEffElm_None};
+unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  96, TngEffElm_None};
 
-unsigned short gold_hoard_objects[] = {52, 52, 53, 54, 55, 56};
-unsigned short food_grow_objects[] = {40, 41, 42};
+unsigned short gold_hoard_objects[] = {ObjMdl_GoldPile, ObjMdl_GoldPile, ObjMdl_GoldHorde1, ObjMdl_GoldHorde2, ObjMdl_GoldHorde3, ObjMdl_GoldHorde4};
+unsigned short food_grow_objects[] = {ObjMdl_ChickenStb, ObjMdl_ChickenWob, ObjMdl_ChickenCrk};
 
-struct CallToArmsGraphics call_to_arms_graphics[] = {
-    {867, 868, 869},
-    {873, 874, 875},
-    {879, 880, 881},
-    {885, 886, 887},
-    {  0,   0,   0}
-};
+struct CallToArmsGraphics call_to_arms_graphics[10];
 
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
