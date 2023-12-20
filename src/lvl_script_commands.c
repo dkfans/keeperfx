@@ -462,7 +462,6 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
-    TbBool is_spec_digger;
     int i = dungeon->creatr_list_start;
     if ((crmodel == get_players_special_digger_model(plyr_idx)) || (crmodel == CREATURE_DIGGER))
     {
@@ -478,11 +477,10 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
-        is_spec_digger = (thing->model > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, thing->model);
         i = cctrl->players_next_creature_idx;
         // Per creature code
        
-        if (thing->model == crmodel || crmodel == 0 || (!is_spec_digger && (crmodel == CREATURE_ANY)) || (is_spec_digger && (crmodel == CREATURE_DIGGER)))
+        if (thing_matches_model(thing,crmodel))
         {
             i = cctrl->players_next_creature_idx;
             if (operation == SOpr_SET)
@@ -522,7 +520,7 @@ long parse_creature_name(const char *creature_name)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
         {
-            return CREATURE_ANY;
+            return CREATURE_NOT_A_DIGGER; //For scripts, when we say 'ANY_CREATURE' we exclude diggers.
         }
     }
     return ret;
@@ -843,7 +841,7 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
 {
     short transferred = 0;
     struct Thing* thing;
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl;
     for (int i = 0; i < count; i++)
     {
@@ -858,8 +856,8 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
         if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel, cctrl->creature_name))
         {
             transferred++;
-            dungeonadd = get_dungeonadd(plyr_idx);
-            dungeonadd->creatures_transferred++;
+            dungeon = get_dungeon(plyr_idx);
+            dungeon->creatures_transferred++;
             remove_thing_from_power_hand_list(thing, plyr_idx);
             struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
             create_used_effect_or_element(&thing->mappos, specst->effect_id, plyr_idx);
@@ -1896,24 +1894,33 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long hand_rule_slot = context->value->shorts[2];
     long hand_rule_type = context->value->shorts[3];
     long param = context->value->shorts[4];
-    long crtr_id_start = crtr_id == CREATURE_ANY ? 0 : crtr_id;
-    long crtr_id_end = crtr_id == CREATURE_ANY ? CREATURE_TYPES_MAX : crtr_id + 1;
+    long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
+    long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
+    ThingModel digger_model;
 
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
+        digger_model = get_players_special_digger_model(i);
         for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
         {
-            dungeonadd = get_dungeonadd(i);
+            if (crtr_id == CREATURE_NOT_A_DIGGER)
+            {
+                if (ci == digger_model)
+                {
+                    continue;
+                }
+            }
+            dungeon = get_dungeon(i);
             if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
             {
-                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = 1;
-                dungeonadd->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
-                dungeonadd->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
-                dungeonadd->hand_rules[ci][hand_rule_slot].param = param;
+                dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
+                dungeon->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
+                dungeon->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
+                dungeon->hand_rules[ci][hand_rule_slot].param = param;
             } else
             {
-                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
+                dungeon->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
             }
         }
     }
@@ -2187,6 +2194,9 @@ static void set_door_configuration_process(struct ScriptContext *context)
             {
                 doorst->place_sound_idx = value;
             }
+            break;
+        case 16: // Unsellable
+            doorst->unsellable = value;
             break;
         default:
             WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
@@ -4222,8 +4232,8 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         case 2: // Power
         case 3: // Cost
         {
-            value->bytes[3] = atoi(new_value);
-            value->arg2 = atoi(scline->tp[3]);
+            value->bytes[3] = atoi(scline->tp[3]) - 1; //-1 because we want slot 1 to 9, not 0 to 8
+            value->arg2 = atoi(new_value);
             break;
         }
         case 10: // SymbolSprites

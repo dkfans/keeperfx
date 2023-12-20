@@ -317,7 +317,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->bounce_angle = 0;
     thing->movement_flags |= TMvF_Unknown08;
 
-    set_flag_byte(&thing->movement_flags, TMvF_Immobile, objst->immobile);
+    set_flag_value(thing->movement_flags, TMvF_Immobile, objst->immobile);
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
 
@@ -331,11 +331,11 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       k = -1;
     }
     set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
-    set_flag_byte(&thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
-    set_flag_byte(&thing->rendering_flags, TRF_Unknown01, objdat->not_drawn & 0x01);
+    set_flag_value(thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
+    set_flag_value(thing->rendering_flags, TRF_Unknown01, objdat->not_drawn & 0x01);
 
-    set_flag_byte(&thing->rendering_flags, TRF_Transpar_4, objdat->field_F & 0x01);
-    set_flag_byte(&thing->rendering_flags, TRF_Transpar_8, objdat->field_F & 0x02);
+    set_flag_value(thing->rendering_flags, TRF_Transpar_4, objdat->field_F & 0x01);
+    set_flag_value(thing->rendering_flags, TRF_Transpar_8, objdat->field_F & 0x02);
 
     thing->active_state = objdat->initial_state;
     if (objst->ilght.radius != 0)
@@ -1407,7 +1407,6 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     SYNCDBG(18,"Starting");
     struct Dungeon* dungeon = INVALID_DUNGEON;
     struct ObjectConfigStats* objst = get_object_model_stats(heartng->model);
-    struct DungeonAdd* dungeonadd;
 
     if (heartng->owner != game.neutral_player_num)
     {
@@ -1437,7 +1436,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
         }
     }
-    else if ((dungeon != INVALID_DUNGEON) && (heartng->index == dungeon->dnheart_idx))
+    else if (!dungeon_invalid(dungeon) && (heartng->index == dungeon->dnheart_idx))
     {
         if (dungeon->heart_destroy_state == 0)
         {
@@ -1448,7 +1447,7 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             dungeon->essential_pos.z.val = heartng->mappos.z.val;
         }
     }
-    if (heartng->index != dungeon->dnheart_idx)
+    if (dungeon_invalid(dungeon) || (heartng->index != dungeon->dnheart_idx))
     {
         SYNCDBG(18, "Inactive Heart");
         if (heartng->health <= 0)
@@ -1461,10 +1460,9 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             destroy_dungeon_heart_room(heartng->owner, heartng);
-            dungeonadd = get_dungeonadd(heartng->owner);
-            if (heartng->index == dungeonadd->backup_heart_idx)
+            if (!dungeon_invalid(dungeon) && heartng->index == dungeon->backup_heart_idx)
             {
-                dungeonadd->backup_heart_idx = 0;
+                dungeon->backup_heart_idx = 0;
             }
             delete_thing_structure(heartng, 0);
         }
@@ -1474,16 +1472,15 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
     {
         if (!thing_is_dungeon_heart(heartng))
         {
-            dungeonadd = get_dungeonadd(heartng->owner);
-            if (dungeonadd->backup_heart_idx > 0)
+            if (dungeon->backup_heart_idx > 0)
             {
-                dungeon->dnheart_idx = dungeonadd->backup_heart_idx;
-                dungeonadd->backup_heart_idx = 0;
+                dungeon->dnheart_idx = dungeon->backup_heart_idx;
+                dungeon->backup_heart_idx = 0;
                 struct Thing* scndthing = find_players_backup_dungeon_heart(heartng->owner);
                 {
                     if (!thing_is_invalid(scndthing))
                     {
-                        dungeonadd->backup_heart_idx = scndthing->index;
+                        dungeon->backup_heart_idx = scndthing->index;
                     }
                 }
             }

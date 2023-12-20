@@ -538,7 +538,7 @@ void draw_power_hand(void)
     int ps_units_per_px;
     {
         struct TbSprite *spr;
-        spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
     // Now draw
@@ -1099,7 +1099,7 @@ void draw_mini_things_in_hand(long x, long y)
     // Scale factor
     int ps_units_per_px;
     {
-        struct TbSprite *spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        struct TbSprite *spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
         ps_units_per_px = calculate_relative_upp(46, units_per_pixel_ui, spr->SHeight);
     }
     unsigned long spr_idx = get_creature_model_graphics(get_players_special_digger_model(dungeon->owner), CGI_HandSymbol);
@@ -1559,12 +1559,12 @@ TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing
 }
 
 TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx) {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (thing_is_creature(thing_to_pick) && thing_to_pick->owner == plyr_idx)
     {
         struct HandRule hand_rule;
         for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) {
-            hand_rule = dungeonadd->hand_rules[thing_to_pick->model][i];
+            hand_rule = dungeon->hand_rules[thing_to_pick->model][i];
             if (
                 hand_rule.enabled
                 && hand_rule.type != HandRule_Unset

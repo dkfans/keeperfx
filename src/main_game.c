@@ -66,7 +66,6 @@ CoroutineLoopState set_not_has_quit(CoroutineLoop *context);
 void reset_script_timers_and_flags(void)
 {
     struct Dungeon *dungeon;
-    struct DungeonAdd *dungeonadd;
     int plyr_idx;
     int k;
     TbBool freeplay = is_map_pack();
@@ -76,7 +75,7 @@ void reset_script_timers_and_flags(void)
         add_power_to_player(PwrK_SLAP, plyr_idx);
         add_power_to_player(PwrK_POSSESS, plyr_idx);
         dungeon = get_dungeon(plyr_idx);
-        dungeonadd = get_dungeonadd(plyr_idx);
+        dungeon = get_dungeon(plyr_idx);
         for (k=0; k<TURN_TIMERS_COUNT; k++)
         {
             memset(&dungeon->turn_timers[k], 0, sizeof(struct TurnTimer));
@@ -84,7 +83,7 @@ void reset_script_timers_and_flags(void)
         }
         for (k=0; k<SCRIPT_FLAGS_COUNT; k++)
         {
-            dungeonadd->script_flags[k] = 0;
+            dungeon->script_flags[k] = 0;
             if (freeplay)
             {
                 intralvl.campaign_flags[plyr_idx][k] = 0;
@@ -135,7 +134,7 @@ static void init_level(void)
     //LbMemoryCopy(&transfer_mem,&game.intralvl.transferred_creature,sizeof(struct CreatureStorage));
     LbMemoryCopy(&transfer_mem,&intralvl,sizeof(struct IntralevelData));
     game.flags_gui = GGUI_SoloChatEnabled;
-    set_flag_byte(&game.system_flags, GSF_RunAfterVictory, false);
+    clear_flag(game.system_flags, GSF_RunAfterVictory);
     free_swipe_graphic();
     game.loaded_swipe_idx = -1;
     game.play_gameturn = 0;
@@ -401,7 +400,7 @@ void faststartup_saved_packet_game(void)
         player->flgfield_6 &= ~PlaF6_PlyrHasQuit;
     }
     set_gui_visible(false);
-    set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+    clear_flag(game.operation_flags, GOF_ShowPanel);
 }
 
 /******************************************************************************/
@@ -429,7 +428,7 @@ void clear_complete_game(void)
     game_num_fps = start_params.num_fps;
     game.flags_cd = start_params.flags_cd;
     game.no_intro = start_params.no_intro;
-    set_flag_byte(&game.system_flags,GSF_AllowOnePlayer,start_params.one_player);
+    set_flag_value(game.system_flags, GSF_AllowOnePlayer, start_params.one_player);
     gameadd.computer_chat_flags = start_params.computer_chat_flags;
     game.operation_flags = start_params.operation_flags;
     snprintf(game.packet_fname,150, "%s", start_params.packet_fname);

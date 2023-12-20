@@ -52,14 +52,13 @@ long calculate_free_lair_space(struct Dungeon * dungeon)
     long cap_used = 0;
     long cap_total = 0;
     unsigned long k = 0;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     long i;
 
     for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            i = dungeonadd->room_kind[rkind];
+            i = dungeon->room_kind[rkind];
             while (i != 0)
             {
                 struct Room* room = room_get(i);
@@ -174,7 +173,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     char best_score = 0;
 
     const struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(creatng->owner);
+    struct Dungeon* dungeon = get_dungeon(creatng->owner);
 
     short *room_scores = (short *)scratch;
     memset(scratch, 0, ROOMS_COUNT);
@@ -184,7 +183,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            room = room_get(dungeonadd->room_kind[rkind]);
+            room = room_get(dungeon->room_kind[rkind]);
             while (!room_is_invalid(room))
             {
                 if ( room_has_enough_free_capacity_for_creature_job(room, creatng, Job_TAKE_SLEEP) && creature_can_head_for_room(creatng, room, 0) )
@@ -236,7 +235,7 @@ struct Room *get_best_new_lair_for_creature(struct Thing *creatng)
     {
         if(room_role_matches(rkind,RoRoF_LairStorage))
         {
-            room = room_get(dungeonadd->room_kind[rkind]);
+            room = room_get(dungeon->room_kind[rkind]);
             while (!room_is_invalid(room))
             {
                 if ( room_scores[room->index] == best_score )

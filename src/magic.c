@@ -732,16 +732,14 @@ GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKi
 GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     struct Dungeon *dungeon;
-    struct DungeonAdd* dungeonadd;
     const struct MagicStats *pwrdynst;
     long price;
     switch (pwkind)
     {
     case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
-        dungeonadd = get_dungeonadd(plyr_idx);
         // Increase price by amount of diggers, reduce by count of sacrificed diggers. Cheaper diggers may be a negative amount.
-        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeonadd->cheaper_diggers);
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeon->cheaper_diggers);
         break;
     default:
         pwrdynst = get_power_dynamic_stats(pwkind);
@@ -1755,7 +1753,7 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     if (is_my_player(player)) {
-        set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+        clear_flag(tool_tip_box.flags, TTip_Visible);
     }
     return Lb_SUCCESS;
 }
