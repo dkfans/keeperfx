@@ -1242,7 +1242,7 @@ void draw_name_box(long x, long y, int width, struct Thing *thing)
         }
         // Draw creature name
         const char* text = creature_own_name(thing);
-        draw_centred_string64k(text, x + 63*width/140, y + scale_ui_value(6), 120, 120*width/140);
+        draw_centred_string64k(text, x + 63*width/140, y + scale_ui_value(2), 120, 120*width/140);
     }
 }
 
