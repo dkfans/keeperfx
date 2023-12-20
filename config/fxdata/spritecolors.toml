@@ -20,6 +20,10 @@ gui_panel_sprites = [
     [  9,  9,625,627,631,629,  0],#rpanel_tab_room
     [154,154,653,655,659,657,  0],#trap_alarm_low
     [132,132,661,663,667,665,  0],#trap_alarm_high
+    [323,323,325,327,329,533,468],#plyrsym_symbol_player
+    [535,535,536,537,538,539,541],#plyrsym_symbol_player_dead
+    [324,324,326,328,330,542,  0],#plyrsym_symbol_room
+    [488,488,489,490,491,533,468],#plyrsym_symbol_player_ally
 ]
 
 #stuff in pointerxx.dat

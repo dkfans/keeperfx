@@ -204,20 +204,22 @@ const struct CommandDesc *get_next_word(char **line, char *param, int *para_leve
  * Returns if the command is 'preloaded'. Preloaded commands are initialized
  * before the whole level data is loaded.
  */
-TbBool script_is_preloaded_command(long cmnd_index)
+short script_is_preloaded_command(long cmnd_index)
 {
-  switch (cmnd_index)
-  {
-  case Cmd_SWAP_CREATURE:
-  case Cmd_LEVEL_VERSION:
-  case Cmd_NEW_TRAP_TYPE:
-  case Cmd_NEW_OBJECT_TYPE:
-  case Cmd_NEW_ROOM_TYPE:
-  case Cmd_NEW_CREATURE_TYPE:
-      return true;
-  default:
-      return false;
-  }
+    switch (cmnd_index)
+    {
+        case Cmd_SWAP_CREATURE:
+        case Cmd_LEVEL_VERSION:
+        case Cmd_NEW_TRAP_TYPE:
+        case Cmd_NEW_OBJECT_TYPE:
+        case Cmd_NEW_ROOM_TYPE:
+        case Cmd_NEW_CREATURE_TYPE:
+            return 1;
+        case Cmd_SET_PLAYER_COLOR:
+            return -1;
+        default:
+            return 0;
+    }
 }
 
 #define get_players_range(plr_range_id, plr_start, plr_end) get_players_range_f(plr_range_id, plr_start, plr_end, __func__, text_line_number)
@@ -750,7 +752,8 @@ long script_scan_line(char *line,TbBool preloaded)
     }
     scline->command = cmd_desc->index;
     // selecting only preloaded/not preloaded commands
-    if (script_is_preloaded_command(cmd_desc->index) != preloaded)
+    if (script_is_preloaded_command(cmd_desc->index) != preloaded
+        && script_is_preloaded_command(cmd_desc->index) != -1)
     {
         LbMemoryFree(scline);
         return 0;

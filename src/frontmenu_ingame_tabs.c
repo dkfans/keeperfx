@@ -43,6 +43,7 @@
 #include "config_magic.h"
 #include "config_trapdoor.h"
 #include "config_terrain.h"
+#include "config_spritecolors.h"
 #include "room_workshop.h"
 #include "room_list.h"
 #include "gui_frontbtns.h"
@@ -1866,13 +1867,13 @@ void gui_area_ally(struct GuiButton *gbtn)
     {
         struct PlayerInfo* player = get_my_player();
         if (player_allied_with(player, plyr_idx)) {
-            spr_idx = GPS_plyrsym_symbol_player_red_std_b + (plyr_idx & 0x0f);
+            spr_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_b,plyr_idx);
         }
     } else
     {
         struct PlayerInfo* player = get_player(plyr_idx);
         if (player_allied_with(player, my_player_number)) {
-            spr_idx = GPS_plyrsym_symbol_player_red_std_b + (plyr_idx & 0x0f);
+            spr_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_b,plyr_idx);
         }
     }
     if ( gbtn->gbactn_1 || gbtn->gbactn_2 )
@@ -2028,11 +2029,11 @@ void maintain_prison_bar(struct GuiButton *gbtn)
 {
     if (player_has_room_of_role(my_player_number, RoRoF_Prison))
     {
-        gbtn->sprite_idx = 350;
+        gbtn->sprite_idx = GPS_rpanel_tendency_prisne_act;
         gbtn->flags |= LbBtnF_Enabled;
     } else
     {
-        gbtn->sprite_idx = 354;
+        gbtn->sprite_idx = GPS_rpanel_tendency_prisnu_dis;
         gbtn->flags &= ~LbBtnF_Enabled;
         /*if (gbtn->gbactn_1) - this does nothing, but was in original function
         {
@@ -2045,6 +2046,8 @@ void maintain_room_button(struct GuiButton *gbtn)
 {
     PlayerNumber plyr_idx = (int)gbtn->content;
     struct PlayerInfo* player = get_player(plyr_idx);
+    gbtn->sprite_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_room_red_std_a,plyr_idx);
+    
     if (player_exists(player))
     {
         gbtn->btype_value &= LbBFeF_IntValueMask;
@@ -2064,11 +2067,11 @@ void maintain_creature_button(struct GuiButton* gbtn)
     {
         if (player_has_heart(plyr_idx))
         {
-            gbtn->sprite_idx = 323 + (plyr_idx * 2);
+            gbtn->sprite_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_a,plyr_idx);
         }
         else
         {
-            gbtn->sprite_idx = 535 + (plyr_idx);
+            gbtn->sprite_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_dead,plyr_idx);
         }
         gbtn->btype_value &= LbBFeF_IntValueMask;
         gbtn->flags |= LbBtnF_Enabled;
