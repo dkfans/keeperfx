@@ -2899,7 +2899,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 24: // INITIALSTATE
             objst->initial_state = context->value->arg2;
             break;
-        case 25: // RANDOMISESTARTFRAME
+        case 25: // RANDOMIZESTARTFRAME
             objst->randomise_startframe = context->value->arg2;
             break;
         case 26: // TRANSPARENCYFLAGS
