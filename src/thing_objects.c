@@ -96,156 +96,6 @@ static Thing_Class_Func object_update_functions[] = {
     object_update_power_lightning,
 };
 
-/**
- * Objects config array.
- *
- * Originally was named objects[].
- */
-
-/*  initial_state;start_frame_to_minus1;not_drawn;
-transparancy_flags;fp_smpl_idx;
-draw_class;destroy_on_lava;related_creatr_model;persistence;destroy_on_liquid;rotation_flag;updatefn_idx*/
-struct Objects objects_data_init[OBJECT_TYPES_MAX] = {
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Unset,   0, 0, 0}, //0
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Vanish,  1, 0, 0}, //1 BARREL
-  {0, 1, 0, 0, 78, 2, 0,  0, ObPer_Persist, 1, 0, 0}, //2 TORCH
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    1, 0, 0}, //3 GOLD_CHEST
-  {0, 0, 0, 0, 78, 2, 0,  0, ObPer_Vanish,  1, 0, 0}, //4 STATUE_LIT
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Unset,   0, 0, 0}, //5 SOUL_CONTAINER
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    1, 0, 0}, //6 GOLD_POT
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Persist, 1, 0, 0}, //7 TORCH_UNLIT
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Vanish,  1, 0, 0}, //8 STATUE_UNLIT
-  {2, 0, 0, 0, 0,  2, 1,  0, ObPer_Persist, 1, 0, 0}, //9 CHICKEN_GRW
-  {1, 0, 0, 0, 0,  2, 0,  0, ObPer_Persist, 1, 0, 0}, //10 CHICKEN_MAT
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //11 SPELLBOOK_HOE
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //12 SPELLBOOK_IMP
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //13 SPELLBOOK_OBEY
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //14 SPELLBOOK_SLAP
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //15 SPELLBOOK_SOE
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //16 SPELLBOOK_CTA
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //17 SPELLBOOK_CAVI
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //18 SPELLBOOK_HEAL
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //19 SPELLBOOK_HLDAUD
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //20 SPELLBOOK_LIGHTN
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //21 SPELLBOOK_SPDC
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //22 SPELLBOOK_PROT
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //23 SPELLBOOK_CONCL
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0}, //24 CTA_ENSIGN
-  {0, 0, 0, 0, 0,  5, 0,  0, ObPer_Unset,   0, 0, 0}, //25 ROOM_FLAG
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Persist, 1, 0, 0}, //26 ANVIL
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Persist, 1, 0, 0}, //27 PRISON_BAR
-  {0, 1, 0, 0, 78, 2, 0,  0, ObPer_Vanish,  1, 0, 0}, //28 CANDLESTICK
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Persist, 1, 0, 0}, //29 GRAVE_STONE
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Vanish,  1, 0, 0}, //30 STATUE_SKELETON
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Persist, 1, 0, 0}, //31 TRAINING_POST
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Persist, 1, 0, 0}, //32 TORTURE_SPIKE
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Persist, 1, 0, 0}, //33 TEMPLE_SPANGLE
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Persist, 1, 0, 0}, //34 POTION_PURPLE
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Persist, 1, 0, 0}, //35 POTION_BLUE
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Persist, 1, 0, 0}, //36 POTION_GREEN
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //37 POWER_HAND
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //38 POWER_HAND_GRAB
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //39 POWER_HAND_WHIP
-  {2, 0, 0, 0, 0,  2, 1,  0, ObPer_Persist, 1, 0, 0}, //40 CHICKEN_STB
-  {2, 0, 0, 0, 0,  2, 1,  0, ObPer_Persist, 1, 0, 0}, //41 CHICKEN_WOB
-  {2, 0, 0, 0, 0,  2, 1,  0, ObPer_Persist, 1, 0, 0}, //42 CHICKEN_CRK
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    1, 0, 0}, //43 GOLDL
-  {0, 0, 0, 0, 0,  6, 0,  0, ObPer_Persist, 0, 0, 0}, //44 SPINNING_KEY
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //45 SPELLBOOK_DISEASE
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //46 SPELLBOOK_CHKN
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //47 SPELLBOOK_DWAL
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //48 SPELLBOOK_TBMB
-  {0, 0, 0, 3, 0,  2, 0,  0, ObPer_Move,    0, 0, 0}, //49 HERO_GATE
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Unset,   0, 0, 0}, //50 SPINNING_KEY
-  {0, 1, 0, 3, 0,  2, 0,  0, ObPer_Unset,   0, 0, 0}, //51 LIGHT_BALL
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Move,    1, 0, 0}, //52 GOLD_PILE
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Move,    1, 0, 0}, //53 GOLD_HORDE1
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Move,    1, 0, 0}, //54 GOLD_HORDE2
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Move,    1, 0, 0}, //55 GOLD_HORDE3
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Move,    1, 0, 0}, //56 GOLD_HORDE4
-  {0, 0, 0, 0, 0,  2, 0,  1, ObPer_Persist, 0, 0, 0}, //57 LAIR_WIZRD
-  {0, 0, 0, 0, 0,  2, 0,  2, ObPer_Persist, 0, 0, 0}, //58 LAIR_BARBR
-  {0, 0, 0, 0, 0,  2, 0,  3, ObPer_Persist, 0, 0, 0}, //59 LAIR_ARCHR
-  {0, 0, 0, 0, 0,  2, 0,  4, ObPer_Persist, 0, 0, 0}, //60 LAIR_MONK
-  {0, 0, 0, 0, 0,  2, 0,  5, ObPer_Persist, 0, 0, 0}, //61 LAIR_DWRFA
-  {0, 0, 0, 0, 0,  2, 0,  6, ObPer_Persist, 0, 0, 0}, //62 LAIR_KNGHT
-  {0, 0, 0, 0, 0,  2, 0,  7, ObPer_Persist, 0, 0, 0}, //63 LAIR_AVATR
-  {0, 0, 0, 0, 0,  2, 0,  8, ObPer_Persist, 0, 0, 0}, //64 LAIR_TUNLR
-  {0, 0, 0, 0, 0,  2, 0,  9, ObPer_Persist, 0, 0, 0}, //65 LAIR_WITCH
-  {0, 0, 0, 0, 0,  2, 0, 10, ObPer_Persist, 0, 0, 0}, //66 LAIR_GIANT
-  {0, 0, 0, 0, 0,  2, 0, 11, ObPer_Persist, 0, 0, 0}, //67 LAIR_FAIRY
-  {0, 0, 0, 0, 0,  2, 0, 12, ObPer_Persist, 0, 0, 0}, //68 LAIR_THIEF
-  {0, 0, 0, 0, 0,  2, 0, 13, ObPer_Persist, 0, 0, 0}, //69 LAIR_SAMUR
-  {0, 0, 0, 0, 0,  2, 0, 14, ObPer_Persist, 0, 0, 0}, //70 LAIR_REAPER
-  {0, 0, 0, 0, 0,  2, 0, 15, ObPer_Persist, 0, 0, 0}, //71 LAIR_SKELT
-  {0, 0, 0, 0, 0,  2, 0, 16, ObPer_Persist, 0, 0, 0}, //72 LAIR_GOBLN
-  {0, 0, 0, 0, 0,  2, 0, 17, ObPer_Persist, 0, 0, 0}, //73 LAIR_DRAGN
-  {0, 0, 0, 0, 0,  2, 0, 18, ObPer_Persist, 0, 0, 0}, //74 LAIR_DEMSP
-  {0, 0, 0, 0, 0,  2, 0, 19, ObPer_Persist, 0, 0, 0}, //75 LAIR_FLY
-  {0, 0, 0, 0, 0,  2, 0, 20, ObPer_Persist, 0, 0, 0}, //76 LAIR_DKMIS
-  {0, 0, 0, 0, 0,  2, 0, 21, ObPer_Persist, 0, 0, 0}, //77 LAIR_SORCR
-  {0, 0, 0, 0, 0,  2, 0, 22, ObPer_Persist, 0, 0, 0}, //78 LAIR_BILDM
-  {0, 0, 0, 0, 0,  2, 0, 23, ObPer_Persist, 0, 0, 0}, //79 LAIR_IMP
-  {0, 0, 0, 0, 0,  2, 0, 24, ObPer_Persist, 0, 0, 0}, //80 LAIR_BUG
-  {0, 0, 0, 0, 0,  2, 0, 25, ObPer_Persist, 0, 0, 0}, //81 LAIR_VAMP
-  {0, 0, 0, 0, 0,  2, 0, 26, ObPer_Persist, 0, 0, 0}, //82 LAIR_SPIDR
-  {0, 0, 0, 0, 0,  2, 0, 27, ObPer_Persist, 0, 0, 0}, //83 LAIR_HLHND
-  {0, 0, 0, 0, 0,  2, 0, 28, ObPer_Persist, 0, 0, 0}, //84 LAIR_GHOST
-  {0, 0, 0, 0, 0,  2, 0, 29, ObPer_Persist, 0, 0, 0}, //85 LAIR_TENTC
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0}, //86 SPECBOX_REVMAP
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0}, //87 SPECBOX_RESURCT
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //94 CRATE
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //100
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0}, //106
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0},
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0},
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0}, //110 ANVIL
-  {0, 1, 0, 3, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //111 HEARTFLAME_RED
-  {0, 1, 0, 3, 0,  2, 0,  0, ObPer_Unset,   0, 0, 0}, //112 DISEASE
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //113 SCAVENGE_EYE
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //114 WORKSHOP_MACHINE
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //115 GUARDFLAG_RED
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //116
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //117
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //118
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //119 GUARDFLAG_POLE
-  {0, 1, 0, 3, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //120 HEARTFLAME_BLUE
-  {0, 1, 0, 3, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //121 HEARTFLAME_GREEN
-  {0, 1, 0, 3, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //122 HEARTFLAME_YELLOW
-  {0, 0, 0, 0, 0,  0, 0,  0, ObPer_Unset,   0, 0, 0}, //123 POWER_SIGHT
-  {0, 0, 0, 0, 0,  0, 0,  0, ObPer_Unset,   0, 0, 0}, //124 POWER_LIGHTNG
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Persist, 0, 0, 0}, //125 TORTURER
-  {0, 0, 0, 0, 0,  2, 0, 30, ObPer_Persist, 0, 0, 0}, //126 LAIR_ORC
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Unset,   0, 0, 0}, //127 HAND_WITH_GOLD
-  {4, 1, 0, 0, 0,  2, 1,  0, ObPer_Unset,   0, 0, 0}, //128 COIN
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Vanish,  1, 0, 0}, //129 STATUE_UNLIT
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Vanish,  1, 0, 0}, //130 STATUE_PLACEHOLDER3
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Vanish,  1, 0, 0}, //131 STATUE_PLACEHOLDER4
-  {0, 0, 0, 0, 0,  2, 0,  0, ObPer_Vanish,  1, 0, 0}, //132 STATUE_PLACEHOLDER5
-  {0, 1, 0, 0, 0,  2, 0,  0, ObPer_Move,    0, 0, 0}, //133 STATUE_PLACEHOLDER6 -> SPECBOX_CUSTOM
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //134 SPELLBOOK
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    0, 0, 0}, //135
-  {0, 0, 0, 0, 0,  2, 1,  0, ObPer_Move,    1, 0, 0}, //136 GOLD_BAG
-  {0, 0, 0, 0, 0,  0, 0,  0, ObPer_Unset,   0, 0, 0},
-};
-
 ThingModel object_to_special[OBJECT_TYPES_MAX] = {
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
     0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
@@ -304,13 +154,12 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
       thing->parent_idx = parent_idx;
     LbMemoryCopy(&thing->mappos, pos, sizeof(struct Coord3d));
     struct ObjectConfigStats* objst = get_object_model_stats(model);
-    struct Objects* objdat = get_objects_data(model);
-    thing->clipbox_size_xy = objdat->size_xy;
-    thing->clipbox_size_z = objdat->size_z;
-    thing->solid_size_xy = objdat->size_xy;
-    thing->solid_size_z = objdat->size_z;
-    thing->anim_speed = objdat->anim_speed;
-    thing->anim_sprite = objdat->sprite_anim_idx;
+    thing->clipbox_size_xy = objst->size_xy;
+    thing->clipbox_size_z = objst->size_z;
+    thing->solid_size_xy = objst->size_xy;
+    thing->solid_size_z = objst->size_z;
+    thing->anim_speed = objst->anim_speed;
+    thing->anim_sprite = objst->sprite_anim_idx;
     thing->health = saturate_set_signed(objst->health,32);
     thing->fall_acceleration = objst->fall_acceleration;
     thing->inertia_floor = 204;
@@ -322,23 +171,22 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
 
-    if (!objdat->start_frame_to_minus1)
+    if (!objst->randomise_startframe)
     {
-      i = convert_td_iso(objdat->sprite_anim_idx);
+      i = convert_td_iso(objst->sprite_anim_idx);
       k = 0;
     } else
     {
-      i = convert_td_iso(objdat->sprite_anim_idx);
+      i = convert_td_iso(objst->sprite_anim_idx);
       k = -1;
     }
-    set_thing_draw(thing, i, objdat->anim_speed, objdat->sprite_size_max, 0, k, objdat->draw_class);
+    set_thing_draw(thing, i, objst->anim_speed, objst->sprite_size_max, 0, k, objst->draw_class);
     set_flag_value(thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
-    set_flag_value(thing->rendering_flags, TRF_Unknown01, objdat->not_drawn & 0x01);
 
-    set_flag_value(thing->rendering_flags, TRF_Transpar_4, objdat->transparancy_flags & 0x01);
-    set_flag_value(thing->rendering_flags, TRF_Transpar_8, objdat->transparancy_flags & 0x02);
+    set_flag_value(thing->rendering_flags, TRF_Transpar_4, objst->transparancy_flags & 0x01);
+    set_flag_value(thing->rendering_flags, TRF_Transpar_8, objst->transparancy_flags & 0x02);
 
-    thing->active_state = objdat->initial_state;
+    thing->active_state = objst->initial_state;
     if (objst->ilght.radius != 0)
     {
         struct InitLight ilight;
@@ -397,7 +245,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     place_thing_in_mapwho(thing);
 
     thing->flags = 0;
-    thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+    thing->flags |= objst->rotation_flag << TAF_ROTATED_SHIFT;
 
     return thing;
 }
@@ -474,21 +322,6 @@ void change_object_owner(struct Thing *objtng, PlayerNumber nowner)
     //TODO make this function more advanced - switch object types and update dungeon and rooms for spellbook/workshop box/lair
     SYNCDBG(6,"Starting for %s, owner %d to %d",thing_model_name(objtng),(int)objtng->owner,(int)nowner);
     objtng->owner = nowner;
-}
-
-struct Objects *get_objects_data_for_thing(struct Thing *thing)
-{
-    unsigned int tmodel = thing->model;
-    if (tmodel >= OBJECT_TYPES_COUNT)
-      return &gameadd.thing_objects_data[0];
-    return &gameadd.thing_objects_data[tmodel];
-}
-
-struct Objects *get_objects_data(unsigned int tmodel)
-{
-    if (tmodel >= OBJECT_TYPES_COUNT)
-        return &gameadd.thing_objects_data[0];
-    return &gameadd.thing_objects_data[tmodel];
 }
 
 /**
@@ -1432,9 +1265,8 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         {
             long long k = ((heartng->health << 8) / objst->health) << 7;
             long i = (saturate_set_signed(k, 32) >> 8) + 128;
-            struct Objects* objdat = get_objects_data_for_thing(heartng);
-            heartng->sprite_size = i * (long)objdat->sprite_size_max >> 8;
-            heartng->clipbox_size_xy = i * (long)objdat->size_xy >> 8;
+            heartng->sprite_size = i * (long)objst->sprite_size_max >> 8;
+            heartng->clipbox_size_xy = i * (long)objst->size_xy >> 8;
         }
     }
     else if (!dungeon_invalid(dungeon) && (heartng->index == dungeon->dnheart_idx))
@@ -1521,8 +1353,8 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
         break;
     }
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
-    struct Objects* objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, frame, ODC_Default);
+    struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
+    set_thing_draw(objtng, ctagfx->birth_anim_idx, 256, objst->sprite_size_max, 0, frame, ODC_Default);
     objtng->call_to_arms_flag.state = CTAOL_Birthing;
     struct PowerConfigStats* powerst = get_power_model_stats(PwrK_CALL2ARMS);
     stop_thing_playing_sample(objtng, powerst->select_sound_idx);
@@ -1550,8 +1382,8 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
         break;
     }
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
-    struct Objects* objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, ODC_Default);
+    struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
+    set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objst->sprite_size_max, 0, frame, ODC_Default);
     objtng->call_to_arms_flag.state = CTAOL_Dying;
 }
 
@@ -1576,8 +1408,8 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
         break;
     }
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
-    struct Objects* objdat = get_objects_data_for_thing(objtng);
-    set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objdat->sprite_size_max, 0, frame, ODC_Default);
+    struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
+    set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objst->sprite_size_max, 0, frame, ODC_Default);
     objtng->call_to_arms_flag.state = CTAOL_Rebirthing;
 }
 
@@ -1591,7 +1423,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     }
     struct Dungeon* dungeon = get_players_dungeon(player);
     struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[player->id_number];
-    struct Objects* objdat = get_objects_data_for_thing(thing);
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
 
     switch (thing->call_to_arms_flag.state)
     {
@@ -1599,7 +1431,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
         if (thing->max_frames - 1 <= thing->current_frame)
         {
             thing->call_to_arms_flag.state = CTAOL_Alive;
-            set_thing_draw(thing, ctagfx->alive_anim_idx, 256, objdat->sprite_size_max, 0, 0, ODC_Default);
+            set_thing_draw(thing, ctagfx->alive_anim_idx, 256, objst->sprite_size_max, 0, 0, ODC_Default);
             return 1;
         }
         break;
@@ -1624,7 +1456,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
             pos.z.val = get_thing_height_at(thing, &pos);
             move_thing_in_map(thing, &pos);
             reset_interpolation_of_thing(thing);
-            set_thing_draw(thing, ctagfx->birth_anim_idx, 256, objdat->sprite_size_max, 0, 0, ODC_Default);
+            set_thing_draw(thing, ctagfx->birth_anim_idx, 256, objst->sprite_size_max, 0, 0, ODC_Default);
             thing->call_to_arms_flag.state = CTAOL_Birthing;
             stop_thing_playing_sample(thing, powerst->select_sound_idx);
             thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 6, FULL_LOUDNESS);
@@ -1692,13 +1524,13 @@ static TngUpdateRet object_update_object_scale(struct Thing *objtng)
 {
     struct Thing* creatng = thing_get(objtng->lair.belongs_to);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    struct Objects* objdat = get_objects_data_for_thing(objtng);
+    struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
     int spr_size;
     int start_frame = objtng->current_frame;
     if (objtng->lair.belongs_to) {
         spr_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * cctrl->explevel * gameadd.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
-        spr_size = objdat->sprite_size_max;
+        spr_size = objst->sprite_size_max;
     }
     int cssize = objtng->lair.cssize;
     objtng->lair.spr_size = spr_size;
@@ -1706,21 +1538,21 @@ static TngUpdateRet object_update_object_scale(struct Thing *objtng)
     if (cssize+32 < spr_size)
     {
         objtng->lair.cssize = cssize+32;
-        i = convert_td_iso(objdat->sprite_anim_idx);
+        i = convert_td_iso(objst->sprite_anim_idx);
     } else
     if (cssize-32 > spr_size)
     {
         objtng->lair.cssize = cssize-32;
-        i = convert_td_iso(objdat->sprite_anim_idx);
+        i = convert_td_iso(objst->sprite_anim_idx);
     } else
     {
         objtng->lair.cssize = spr_size;
-        i = convert_td_iso(objdat->sprite_anim_idx);
+        i = convert_td_iso(objst->sprite_anim_idx);
     }
     if ((i & 0x8000u) != 0) {
-        i = objdat->sprite_anim_idx;
+        i = objst->sprite_anim_idx;
     }
-    set_thing_draw(objtng, i, objdat->anim_speed, objtng->lair.cssize, 0, start_frame, objdat->draw_class);
+    set_thing_draw(objtng, i, objst->anim_speed, objtng->lair.cssize, 0, start_frame, objst->draw_class);
     return 1;
 }
 
@@ -1965,8 +1797,8 @@ TngUpdateRet update_object(struct Thing *thing)
     TRACE_THING(thing);
 
     Thing_Class_Func upcallback = NULL;
-    
-    upcallback = object_update_functions[get_objects_data_for_thing(thing)->updatefn_idx];
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    upcallback = object_update_functions[objst->updatefn_idx];
 
     if (upcallback != NULL)
     {
@@ -1995,8 +1827,7 @@ TngUpdateRet update_object(struct Thing *thing)
         if (subtile_has_lava_on_top(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
         {
             thing->movement_flags |= TMvF_IsOnLava;
-            struct Objects* objdat = get_objects_data_for_thing(thing);
-            if ( (objdat->destroy_on_lava) && !thing_is_dragged_or_pulled(thing) )
+            if ( (objst->destroy_on_lava) && !thing_is_dragged_or_pulled(thing) )
             {
                 destroy_object(thing);
                 return TUFRet_Deleted;
@@ -2187,13 +2018,13 @@ long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amou
     // switch hoard object model
     gldtng->model = gold_hoard_objects[wealth_size];
     // Set visual appearance
-    struct Objects* objdat = get_objects_data_for_thing(gldtng);
-    unsigned short i = objdat->sprite_anim_idx;
+    struct ObjectConfigStats* objst = get_object_model_stats(gldtng->model);
+    unsigned short i = objst->sprite_anim_idx;
     unsigned short n = convert_td_iso(i);
     if ((n & 0x8000u) == 0) {
       i = n;
     }
-    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
+    set_thing_draw(gldtng, i, objst->anim_speed, objst->sprite_size_max, 0, 0, objst->draw_class);
     return amount;
 }
 
@@ -2239,13 +2070,13 @@ long remove_gold_from_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount
     // switch hoard object model
     gldtng->model = gold_hoard_objects[wealth_size];
     // Set visual appearance
-    struct Objects* objdat = get_objects_data_for_thing(gldtng);
-    unsigned short i = objdat->sprite_anim_idx;
+    struct ObjectConfigStats* objst = get_object_model_stats(gldtng->model);
+    unsigned short i = objst->sprite_anim_idx;
     unsigned short n = convert_td_iso(i);
     if ((n & 0x8000u) == 0) {
       i = n;
     }
-    set_thing_draw(gldtng, i, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
+    set_thing_draw(gldtng, i, objst->anim_speed, objst->sprite_size_max, 0, 0, objst->draw_class);
     return amount;
 }
 
@@ -2368,11 +2199,6 @@ struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
         add_gold_to_pile(thing, value);
     }
     return thing;
-}
-
-void init_thing_objects()
-{
-    memcpy(gameadd.thing_objects_data, objects_data_init, sizeof(objects_data_init));
 }
 /******************************************************************************/
 #ifdef __cplusplus

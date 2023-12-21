@@ -132,31 +132,12 @@ enum ObjectsDrawClasses {
   ODC_SpinningKey    = 0x06, /**< Used by SPINNING_KEY. */
 };
 /******************************************************************************/
-#pragma pack(1)
-
-struct Objects {
-    unsigned char initial_state;//miss
-    unsigned char start_frame_to_minus1;//miss
-    unsigned char not_drawn;//miss
-    unsigned char transparancy_flags;      // Lower 2 bits are transparency flags //miss
-    unsigned short fp_smpl_idx;//ok
-    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */ //ok
-    unsigned char destroy_on_lava;//ok
-    /** Creature model related to the object, ie for lairs - which creature lair it is. */
-    unsigned char related_creatr_model;//ok
-    unsigned char persistence;
-    unsigned char destroy_on_liquid;
-    unsigned char rotation_flag;//miss
-    unsigned char updatefn_idx;//ok
-};
-
 struct CallToArmsGraphics {
     int birth_anim_idx;
     int alive_anim_idx;
     int leave_anim_idx;
 };
 
-#pragma pack()
 /******************************************************************************/
 extern unsigned short player_guardflag_objects[];
 extern unsigned short dungeon_flame_objects[];
@@ -170,8 +151,6 @@ TbBool thing_is_object(const struct Thing *thing);
 void change_object_owner(struct Thing *objtng, PlayerNumber nowner);
 void destroy_food(struct Thing *foodtng);
 
-struct Objects *get_objects_data_for_thing(struct Thing *thing);
-struct Objects *get_objects_data(unsigned int tmodel);
 struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
@@ -231,8 +210,6 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel);
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
-
-void init_thing_objects();
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -74,7 +74,19 @@ struct ObjectConfigStats {
     short anim_speed;
     short size_xy;
     short size_z;
-    short sprite_size_max;
+    short sprite_size_max;    
+    unsigned short fp_smpl_idx;
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
+    unsigned char destroy_on_lava;
+    /** Creature model related to the object, ie for lairs - which creature lair it is. */
+    unsigned char related_creatr_model;
+    unsigned char persistence;
+    unsigned char destroy_on_liquid;
+    unsigned char rotation_flag;
+    unsigned char updatefn_idx;
+    unsigned char initial_state;
+    unsigned char randomise_startframe;
+    unsigned char transparancy_flags;  // Lower 2 bits are transparency flags
 };
 
 struct ObjectsConfig {

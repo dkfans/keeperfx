@@ -69,6 +69,12 @@ const struct NamedCommand objects_object_commands[] = {
   {"DRAWCLASS",         21},
   {"PERSISTENCE",       22},
   {"IMMOBILE",          23},
+  {"INITIALSTATE",      24},
+  {"RANDOMISESTARTFRAME",25},
+  {"TRANSPARENCYFLAGS", 26},
+
+
+
   {NULL,                 0},
   };
 
@@ -268,8 +274,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
         }
 
         objst = &gameadd.object_conf.object_cfgstats[tmodel];
-        struct Objects* objdat = get_objects_data(tmodel);
-        objdat->draw_class = ODC_Default;    
+        objst->draw_class = ODC_Default;    
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
         {
@@ -319,7 +324,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
                     break;
                 }
-                objdat->related_creatr_model = n;
+                objst->related_creatr_model = n;
                 break;
             case 4: // PROPERTIES
                 while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -366,7 +371,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
 
-                    n = get_anim_id(word_buf, objdat);
+                    n = get_anim_id(word_buf, objst);
                     objst->sprite_anim_idx = n;
                     n++;
                 }
@@ -380,7 +385,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objdat->anim_speed = n;
+                    objst->anim_speed = n;
                     n++;
                 }
                 if (n <= 0)
@@ -393,7 +398,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objdat->size_xy = n;
+                    objst->size_xy = n;
                     n++;
                 }
                 if (n <= 0)
@@ -406,7 +411,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objdat->size_z = n;
+                    objst->size_z = n;
                     n++;
                 }
                 if (n <= 0)
@@ -419,7 +424,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objdat->sprite_size_max = n;
+                    objst->sprite_size_max = n;
                     n++;
                 }
                 if (n <= 0)
@@ -432,7 +437,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objdat->destroy_on_liquid = n;
+                    objst->destroy_on_liquid = n;
                     n++;
                 }
                 if (n <= 0)
@@ -445,7 +450,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objdat->destroy_on_lava = n;
+                    objst->destroy_on_lava = n;
                     n++;
                 }
                 if (n <= 0)
@@ -559,7 +564,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     }
                     else
                     {
-                        objdat->fp_smpl_idx = n;
+                        objst->fp_smpl_idx = n;
                     }
                 }
                 break;
@@ -574,13 +579,13 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num),block_buf,config_textname);
                     break;
                 }
-                objdat->updatefn_idx = n;
+                objst->updatefn_idx = n;
                 break;
             case 21: // DRAWCLASS
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objdat->draw_class = n;
+                    objst->draw_class = n;
                     n++;
                 }
                 if (n <= 0)
@@ -593,7 +598,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objdat->persistence = n;
+                    objst->persistence = n;
                     n++;
                 }
                 if (n <= 0)
@@ -607,6 +612,45 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                 {
                     n = atoi(word_buf);
                     objst->immobile = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 24: // INITIALSTATE
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->initial_state = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 25: // RANDOMISESTARTFRAME
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->randomise_startframe = n;
+                    n++;
+                }
+                if (n <= 0)
+                {
+                    CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                        COMMAND_TEXT(cmd_num), block_buf, config_textname);
+                }
+                break;
+            case 26: // TRANSPARENCYFLAGS
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    objst->transparancy_flags = n;
                     n++;
                 }
                 if (n <= 0)
@@ -677,11 +721,11 @@ void update_all_object_stats()
         struct Thing* thing = thing_get(i);
         i = thing->next_of_class
             TRACE_THING(thing);
-        struct Objects* objdat = get_objects_data_for_thing(thing);
-        set_thing_draw(thing, objdat->sprite_anim_idx, objdat->anim_speed, objdat->sprite_size_max, 0, 0, objdat->draw_class);
+        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        set_thing_draw(thing, objst->sprite_anim_idx, objst->anim_speed, objst->sprite_size_max, 0, 0, objst->draw_class);
         // TODO: Should we rotate this on per-object basis?
         thing->flags = 0;
-        thing->flags |= objdat->rotation_flag << TAF_ROTATED_SHIFT;
+        thing->flags |= objst->rotation_flag << TAF_ROTATED_SHIFT;
 
         if (thing->owner != game.neutral_player_num)
         {
@@ -695,7 +739,7 @@ void update_all_object_stats()
             }
         }
 
-        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+        
         if (thing->light_id != 0)
         {
             light_delete_light(thing->light_id);
