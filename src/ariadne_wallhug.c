@@ -2931,54 +2931,80 @@ char look_ahead_for_best_route(struct DigPathTraveller *traveller)
     return robot_A_rotation_direction;
 }
 
-/** Take the next step in a walled maze (or around an obstacle) by using either the left-hand rule or right-hand rule to follow the wall. */
+
+struct DigPathTraveller {
+    char state_flags; /**< The state of the traveller (Please elaborate). */
+    struct Coord2d pos; /**< The position of the traveller. */
+    SmallAroundIndex direction; /**< The direction (N, E, S, W) the traveller is facing i.e. the traveller's forward direction. */
+    char rotation_direction; /**< Either clockwise (1) or anti-clockwise (-1) - this indicates the direction the traveller will rotate in when checking neighbouring tiles. */
+    MapCoordDelta step_size; /**< The size of each step along the path. This is same size as the width of a tile in the grid. */
+    short pledge_angle_counter; /**< Increases by 1 when we rotate clockwise, and decreases by 1 when we rotate anti-clockwise. */
+    WallFollowerRule rule; /**< Left-hand rule, right-hand rule, or look-ahead for best rule. */
+    PledgeAlgorithmState state; /**< Either: follow pledge direction, or follow wall. */
+    uchar mode; /**< Either: take required actions, or simulate required actions, or look-ahead mode. */
+    SmallAroundIndex check_direction; /**< The direction we are currently checking. */
+    struct Coord3d next_step; /**< The slab where we are currently checking. */
+    MapSlabDelta steps_taken; /**< The numbers of steps taken on the current path to reach this location. */
+};
+
+enum DigPathTravellerStates {
+    DpTS_AtKnownWall,
+};
+
+enum DigPathSlabStates {
+    DpSS_Impassable,
+    DpSS_Passable,
+    DpSS_BlockedOnAll4Sides,
+};
+
+/** Take the next step in a walled maze (or around an obstacle) by using either the left-hand rule or right-hand rule to follow the wall. 
+ * When we reach this function, we have already decided that we should be "wallhugging" for the next step on the path.
+ * 
+ * This is a 1 step-at-a-time implementation of the "Hand_On_Wall_Rule" maze-solving algorithm - see https://en.wikipedia.org/wiki/Maze-solving_algorithm#Hand_On_Wall_Rule
+*/
 DigPathSlabState follow_wall_single_step(struct DigPathTraveller *traveller)
 {
-    // traveller->direction will already be facing "forwards"
-    char direction;
-    // traveller->rotation_direction represents the order we want to check the slabs in; it will be either clockwise (1) for the left-hand rule, or anti-clockwise (-1) for the right-hand rule.
-    char rotation_direction;
-    char around_index; // the index of the small_around array that we currently want to use - i.e. "the direction we want to check in the for loop below"
-    char count; // the number of slabs we have checked
-    struct Coord2d pos;
-    struct Coord2d next;
-    char traveller_state;
-    DigPathSlabState slab_state;
-    enum {AtKnownWall,Impassable,Passable,stuck_in_a_1_by_1_trap};
-    // Is the slab in front of us a known obstacle?
-    if (flag_is_set(traveller_state, AtKnownWall))
+    SmallAroundIndex around_index; // the direction (N, E, S, W - relative to the traveller's current position) of the neighbouring slab that we want to check
+    char count; // the number of neighbouring slabs we have checked
+    struct Coord2d next; // the position of the neighbouring slab that we are checking
+    DigPathSlabState slab_state; // used to store and return the state of the slab being checked
+
+    // Is the slab in front of the traveller a known obstacle?
+    if (flag_is_set(traveller->state_flags, DpTS_AtKnownWall))
     {
-        // We get here at the start of a wall follow route
-        count = 1; // we know we have 1 wall already, check the other 3 directions
-        // First, place your hand on the wall, then: for the left-hand rule: rotate clockwise, or for the right-hand rule: rotate anti-clockwise
-        around_index = rotate_around(direction, rotation_direction);
-        clear_flag(traveller_state, AtKnownWall);
+        // The traveller is at the start of a wall follow route
+        count = 1; // the slab in front of the traveller is a wall, check the other 3 directions
+        // First, For the left-hand rule: the traveller rotates clockwise and places its left hand on the wall
+        // Or for the right-hand rule: the traveller rotates anti-clockwise and places its right hand on the wall
+        around_index = rotate_around(traveller->direction, traveller->rotation_direction);
+        clear_flag(traveller->state_flags, DpTS_AtKnownWall);
     }
     else
     {
+        // The traveller already has its hand on a wall
         count = 0; // check all 4 directions
         // First, rotate to face "towards the rule", this is the opposite of the traveller's rotation_direction:
         // for the left-hand rule: rotate anti-clockwise, or for the right-hand rule: rotate clockwise
-        around_index = rotate_around(direction, -rotation_direction);
+        around_index = rotate_around(traveller->direction, -(traveller->rotation_direction));
     }
     // Next, check the neighbouring slabs (in preferencial order based on the chosen rule)
-    // If the slab is passable then move to it, if the slab is impassable, check the next slab
+    // If the slab is impassable, check the next slab - otherwise return the slab status
     for (count; count < SMALL_AROUND_LENGTH ; ++count)
     {
-        next = step_around(&pos, around_index, slab_coord(1));
+        next = step_around(&traveller->pos, around_index, traveller->step_size);
         slab_state = check_slab(next);
         // if slab is passable/action/destination/error
-        if (!(flag_is_set(slab_state, Impassable)))
+        if (!(flag_is_set(slab_state, DpSS_Impassable)))
         {
-            pos = next; // move to slab
-            direction = around_index; // update forward direction
+            traveller->pos = next; // The traveller moves to the next slab
+            traveller->direction = around_index; // update the traveller's forward direction
             return slab_state;
         }
-        // obstacle found; rotate to the next direction (for the left-hand rule: rotate clockwise, or for the right-hand rule: rotate anti-clockwise)
-        around_index = rotate_around(around_index, rotation_direction);
+        // wall found; rotate to the next direction (for the left-hand rule: rotate clockwise, or for the right-hand rule: rotate anti-clockwise)
+        around_index = rotate_around(around_index, traveller->rotation_direction);
     }
-    // we can't move in any direction!
-    return stuck_in_a_1_by_1_trap;
+    // The traveller can't move in any direction!
+    return DpSS_BlockedOnAll4Sides;
 }
 
 #ifdef __cplusplus
