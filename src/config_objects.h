@@ -70,6 +70,11 @@ struct ObjectConfigStats {
     char light_unaffected;
     char immobile;
     struct InitLight ilght;
+    short sprite_anim_idx;
+    short anim_speed;
+    short size_xy;
+    short size_z;
+    short sprite_size_max;
 };
 
 struct ObjectsConfig {
