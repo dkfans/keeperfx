@@ -163,7 +163,6 @@ SET_OBJECT_CONFIGURATION(SPECBOX_CUSTOM,AnimationID,804)
 IF(PLAYER0,BOX0_ACTIVATED > 0)
 	REM "Congratulations Keeper. This vial has given your researchers a much needed boost. You can now construct Bridges that enable you to traverse water and fire."
 	DISPLAY_OBJECTIVE(906,LAST_EVENT)
-	PLAY_MESSAGE(PLAYER0,160,0)
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,1,1)
 ENDIF
 
