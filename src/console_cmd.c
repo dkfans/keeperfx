@@ -428,7 +428,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             fill_game_catalogue_slot(slot_num, pr3str);
         }
         player = get_player(plyr_idx);
-        set_flag_byte(&game.operation_flags,GOF_Paused,true); // games are saved in a paused state
+        set_flag(game.operation_flags, GOF_Paused); // games are saved in a paused state
         TbBool result = save_game(slot_num);
         if (result)
         {
@@ -439,7 +439,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
           ERRORLOG("Error in save!");
           create_error_box(GUIStr_ErrorSaving);
         }
-        set_flag_byte(&game.operation_flags,GOF_Paused,false); // unpause after save attempt
+        clear_flag(game.operation_flags, GOF_Paused); // unpause after save attempt
         return result;
     }
     else if (strcasecmp(parstr, "game.load") == 0)
@@ -450,7 +450,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (load_game(slot_num))
             {
-                set_flag_byte(&game.operation_flags,GOF_Paused,Pause); // unpause, because games are saved whilst paused
+                set_flag_value(game.operation_flags, GOF_Paused, Pause); // unpause, because games are saved whilst paused
                 return true;
             }
             else
@@ -1510,7 +1510,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     bug = atoi(pr2str);
                 }
                 unsigned long flg = (bug > 2) ? (1 << (bug - 1)) : bug;
-                toggle_flag_dword(&gameadd.classic_bugs_flags, flg);
+                toggle_flag(gameadd.classic_bugs_flags, flg);
                 targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((gameadd.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
                 return true;
             }
