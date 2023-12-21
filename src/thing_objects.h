@@ -135,24 +135,19 @@ enum ObjectsDrawClasses {
 #pragma pack(1)
 
 struct Objects {
-    unsigned char initial_state;
-    unsigned char start_frame_to_minus1;
-    unsigned char not_drawn;
-    short sprite_anim_idx;
-    short anim_speed;
-    short size_xy;
-    short size_z;
-    short sprite_size_max;
-    unsigned char field_F;      // Lower 2 bits are transparency flags
-    unsigned short fp_smpl_idx;
-    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
-    unsigned char destroy_on_lava;
+    unsigned char initial_state;//miss
+    unsigned char start_frame_to_minus1;//miss
+    unsigned char not_drawn;//miss
+    unsigned char transparancy_flags;      // Lower 2 bits are transparency flags //miss
+    unsigned short fp_smpl_idx;//ok
+    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */ //ok
+    unsigned char destroy_on_lava;//ok
     /** Creature model related to the object, ie for lairs - which creature lair it is. */
-    unsigned char related_creatr_model;
+    unsigned char related_creatr_model;//ok
     unsigned char persistence;
     unsigned char destroy_on_liquid;
-    unsigned char rotation_flag;
-    unsigned char updatefn_idx;
+    unsigned char rotation_flag;//miss
+    unsigned char updatefn_idx;//ok
 };
 
 struct CallToArmsGraphics {
