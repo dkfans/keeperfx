@@ -922,6 +922,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
             // make the task a "wait for bridge" task, and park the dig task for later
             ctask->ottype = ctask->ttype;
             ctask->ttype = CTT_WaitForBridge;
+            SYNCLOG("task_dig_room passage  -Player is waiting for bridge");
             return CTaskRet_Unk4;
         case TDR_ToolDigError:
         default:
@@ -1212,6 +1213,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
             // make the task a "wait for bridge" task, and park the dig task for later
             ctask->ottype = ctask->ttype;
             ctask->ttype = CTT_WaitForBridge;
+            SYNCLOG("task_dig_to_entrance - Player %d is waiting for bridge",(int)dungeon->owner);
             return CTaskRet_Unk4;
         case TDR_ToolDigError:
             // we can't reach the room, so say we are disinterested in that room
@@ -1766,6 +1768,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
             cdig->pos_next.y.stl.num = gldstl_y;
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid slab (%d,%d)",func_name,
                 (int)dungeon->owner,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
+            SYNCLOG("We are NOT wallhugging - return BuildBridgeOnSlab 1 : start (%d,%d) - dest (%d,%d) - current (%d,%d)",coord_slab(cdig->pos_begin.x.val),coord_slab(cdig->pos_begin.y.val),coord_slab(cdig->pos_dest.x.val),coord_slab(cdig->pos_dest.y.val),coord_slab(cdig->pos_next.x.val),coord_slab(cdig->pos_next.y.val));
             return TDR_BuildBridgeOnSlab;
         }
         
@@ -1832,6 +1835,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
             cdig->pos_next.y.stl.num = digstl_y;
             cdig->pos_next.x.stl.num = digstl_x;
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid subtile (%d,%d)",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
+            SYNCLOG("We are wallhugging - return BuildBridgeOnSlab 2 : start (%d,%d) - dest (%d,%d) - current (%d,%d)",coord_slab(cdig->pos_begin.x.val),coord_slab(cdig->pos_begin.y.val),coord_slab(cdig->pos_dest.x.val),coord_slab(cdig->pos_dest.y.val),coord_slab(cdig->pos_next.x.val),coord_slab(cdig->pos_next.y.val));
             return TDR_BuildBridgeOnSlab;
         }
     } else
@@ -1866,6 +1870,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
                     if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                     {
                         magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y-3, PwCast_Unrevealed);
+                        SYNCLOG("return BuildBridgeOnSlab 3");
                         return TDR_BuildBridgeOnSlab;
                     }
                     else
@@ -1875,6 +1880,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
                         if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                         {
                             magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y+3, PwCast_Unrevealed);
+                            SYNCLOG("return BuildBridgeOnSlab 4");
                             return TDR_BuildBridgeOnSlab;
                         }
                         else
@@ -1884,6 +1890,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
                             if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                             {
                                 magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x-3, digstl_y, PwCast_Unrevealed);
+                                SYNCLOG("return BuildBridgeOnSlab 5");
                                 return TDR_BuildBridgeOnSlab;
                             }
                             else
@@ -1893,6 +1900,7 @@ ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * c
                                 if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                                 {
                                     magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x+3, digstl_y, PwCast_Unrevealed);
+                                    SYNCLOG("return BuildBridgeOnSlab 6");
                                     return TDR_BuildBridgeOnSlab;
                                 }
                             }
@@ -2155,6 +2163,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
             ctask->ottype = ctask->ttype;
             ctask->ttype = CTT_WaitForBridge;
             SYNCDBG(6,"Player %d is waiting for bridge",(int)dungeon->owner);
+            SYNCLOG("task_dig_to_gold - Player %d is waiting for bridge",(int)dungeon->owner);
             return CTaskRet_Unk4;
         default:
             break;
@@ -2268,6 +2277,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
         case TDR_BuildBridgeOnSlab:
             ctask->ottype = ctask->ttype;
             ctask->ttype = CTT_WaitForBridge;
+            SYNCLOG("task_dig_to_attack - Player is waiting for bridge");
             return CTaskRet_Unk4;
         case TDR_ToolDigError:
         default:
@@ -3059,6 +3069,7 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
             // make the task a "wait for bridge" task, and park the dig task for later
             ctask->ottype = ctask->ttype;
             ctask->ttype = CTT_WaitForBridge;
+            SYNCLOG("task_dig_to_neutral - Player is waiting for bridge");
             return CTaskRet_Unk4;
         case TDR_ReachedDestination:
         case TDR_ToolDigError:
