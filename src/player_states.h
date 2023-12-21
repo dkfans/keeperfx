@@ -84,7 +84,6 @@ enum PlayerStates {
     PSt_DestroyThing,
     PSt_CreatrInfoAll,
     PSt_Rebound, // 50
-    PSt_Null,
     PSt_ListEnd
 };
 
