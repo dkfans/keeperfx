@@ -2069,6 +2069,7 @@ TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     switch(dig_result)
     {
         case TDR_ReachedDestination:
+        case TDR_BuildBridgeOnSlab:
             return true;
         default:
             return false;
