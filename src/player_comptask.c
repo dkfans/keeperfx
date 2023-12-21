@@ -896,6 +896,7 @@ long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
     case -5:
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
+        SYNCLOG("task_dig_room passage  -Player is waiting for bridge");
         return CTaskRet_Unk4;
     case -3:
     case -2:
@@ -1214,6 +1215,7 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
     case -5:
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
+        SYNCLOG("task_dig_to_entrance - Player %d is waiting for bridge",(int)dungeon->owner);
         return 4;
     case -3:
     case -2:
@@ -1768,6 +1770,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             cdig->pos_next.y.stl.num = gldstl_y;
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid slab (%d,%d)",func_name,
                 (int)dungeon->owner,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
+            SYNCLOG("We are NOT wallhugging - return BuildBridgeOnSlab 1 : start (%d,%d) - dest (%d,%d) - current (%d,%d)",coord_slab(cdig->pos_begin.x.val),coord_slab(cdig->pos_begin.y.val),coord_slab(cdig->pos_dest.x.val),coord_slab(cdig->pos_dest.y.val),coord_slab(cdig->pos_next.x.val),coord_slab(cdig->pos_next.y.val));
             return -5;
         }
         
@@ -1835,6 +1838,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             cdig->pos_next.y.stl.num = digstl_y;
             cdig->pos_next.x.stl.num = digstl_x;
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid subtile (%d,%d)",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
+            SYNCLOG("We are wallhugging - return BuildBridgeOnSlab 2 : start (%d,%d) - dest (%d,%d) - current (%d,%d)",coord_slab(cdig->pos_begin.x.val),coord_slab(cdig->pos_begin.y.val),coord_slab(cdig->pos_dest.x.val),coord_slab(cdig->pos_dest.y.val),coord_slab(cdig->pos_next.x.val),coord_slab(cdig->pos_next.y.val));
             return -5;
         }
     } else
@@ -1869,6 +1873,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                     if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                     {
                         magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y-3, PwCast_Unrevealed);
+                        SYNCLOG("return BuildBridgeOnSlab 3");
                         return -5;
                     }
                     else
@@ -1878,6 +1883,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                         if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                         {
                             magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y+3, PwCast_Unrevealed);
+                            SYNCLOG("return BuildBridgeOnSlab 4");
                             return -5;
                         }
                         else
@@ -1887,6 +1893,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                             if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                             {
                                 magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x-3, digstl_y, PwCast_Unrevealed);
+                                SYNCLOG("return BuildBridgeOnSlab 5");
                                 return -5;
                             }
                             else
@@ -1896,6 +1903,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                                 if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                                 {
                                     magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x+3, digstl_y, PwCast_Unrevealed);
+                                    SYNCLOG("return BuildBridgeOnSlab 6");
                                     return -5;
                                 }
                             }
@@ -2146,7 +2154,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
-
+        SYNCLOG("task_dig_to_gold - Player %d is waiting for bridge",(int)dungeon->owner);
         SYNCDBG(6,"Player %d is waiting for bridge",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
@@ -2234,6 +2242,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
     case -5:
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
+        SYNCLOG("task_dig_to_attack - Player is waiting for bridge");
         dig_ret = CTaskRet_Unk4;
         break;
     case -3:
@@ -3039,6 +3048,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 {
+    SYNCLOG("Dig to neutral because... player: %d, cproc_idx: %d, created_turn: %d, ttype: %d :: start (%d,%d) - dest (%d,%d) - current (%d,%d)", comp->dungeon->owner, ctask->cproc_idx, ctask->created_turn, ctask->ttype,coord_slab(ctask->dig.pos_begin.x.val),coord_slab(ctask->dig.pos_begin.y.val),coord_slab(ctask->dig.pos_dest.x.val),coord_slab(ctask->dig.pos_dest.y.val),coord_slab(ctask->dig.pos_next.x.val),coord_slab(ctask->dig.pos_next.y.val));
     SYNCDBG(9,"Starting");
     short digret;
     digret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
@@ -3046,6 +3056,7 @@ long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
     {
         ctask->ottype = ctask->ttype;
         ctask->ttype = CTT_WaitForBridge;
+        SYNCLOG("task_dig_to_neutral - Player is waiting for bridge");
         return CTaskRet_Unk4;
     }
     if ((digret >= -3) && (digret <= -1))

@@ -881,6 +881,10 @@ TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const s
         }
         (*dig_distance)++;
     }
+    if (digres == -5)
+    {
+        SYNCLOG("simulate_dig_to - Player %d is waiting for bridge",(int)dungeon->owner);
+    }
     return ((digres == -1) || (digres == -5));
 }
 
