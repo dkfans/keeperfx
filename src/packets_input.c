@@ -885,6 +885,7 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         }
         case PSt_SpeedUp:
         case PSt_Armour:
+        case PSt_Rebound:
         case PSt_Conceal:
         case PSt_Heal:
         case PSt_TimeBomb:
