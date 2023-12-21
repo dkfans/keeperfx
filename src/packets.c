@@ -189,6 +189,9 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       case PSt_Armour:
           update_power_overcharge(player, PwrK_PROTECT);
           break;
+      case PSt_Rebound:
+          update_power_overcharge(player, PwrK_REBOUND);
+          break;
       case PSt_Conceal:
           update_power_overcharge(player, PwrK_CONCEAL);
           break;
