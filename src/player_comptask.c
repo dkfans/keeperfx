@@ -3048,7 +3048,7 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
 
 long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 {
-    SYNCLOG("Dig to neutral because... player: %d, cproc_idx: %d, created_turn: %d, ttype: %d :: start (%d,%d) - dest (%d,%d) - current (%d,%d)", comp->dungeon->owner, ctask->cproc_idx, ctask->created_turn, ctask->ttype,coord_slab(ctask->dig.pos_begin.x.val),coord_slab(ctask->dig.pos_begin.y.val),coord_slab(ctask->dig.pos_dest.x.val),coord_slab(ctask->dig.pos_dest.y.val),coord_slab(ctask->dig.pos_next.x.val),coord_slab(ctask->dig.pos_next.y.val));
+    SYNCLOG("Dig to neutral because... player: %d, cproc_idx: %d, created_turn: %d, ttype: %d :: start (%d,%d) - dest (%d,%d) - current (%d,%d)", comp->dungeon->owner, ctask->field_8C, ctask->created_turn, ctask->ttype,coord_slab(ctask->dig.pos_begin.x.val),coord_slab(ctask->dig.pos_begin.y.val),coord_slab(ctask->dig.pos_dest.x.val),coord_slab(ctask->dig.pos_dest.y.val),coord_slab(ctask->dig.pos_next.x.val),coord_slab(ctask->dig.pos_next.y.val));
     SYNCDBG(9,"Starting");
     short digret;
     digret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
