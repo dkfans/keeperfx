@@ -969,6 +969,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
     case PSt_Lightning:
     case PSt_SpeedUp:
     case PSt_Armour:
+    case PSt_Rebound:
     case PSt_Conceal:
     case PSt_Heal:
     case PSt_CreateDigger:
