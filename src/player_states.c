@@ -55,6 +55,7 @@ PowerKind const player_state_to_power_kind[PLAYER_STATES_COUNT] = {
   PwrK_None,  // PSt_PlaceDoor
   PwrK_SPEEDCRTR, // PSt_SpeedUp
   PwrK_PROTECT, // PSt_Armour
+  PwrK_REBOUND, // PSt_Rebound
   PwrK_CONCEAL, // PSt_Conceal  
   PwrK_HEALCRTR, // PSt_Heal  
   PwrK_None, // PSt_Sell 
