@@ -2246,7 +2246,7 @@ long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
                 cproc->func_complete(comp, cproc);
             }
             suspend_task_process(comp, ctask);
-            return dig_result;  
+            return TDR_ReachedDestination;
         case TDR_DigSlab:
             for (int i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
             {
