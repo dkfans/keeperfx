@@ -4169,7 +4169,7 @@ LightFlags = 0
 AffectedByWind = 0
 
 [effectElement98]
-Name = "EFFECTELEMENT_RED_FLAME"
+Name = "EFFECTELEMENT_WHITE_FLAME"
 DrawClass = 2
 MoveType = 5
 Unanimated = 0
