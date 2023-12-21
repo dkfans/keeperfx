@@ -72,9 +72,6 @@ const struct NamedCommand objects_object_commands[] = {
   {"INITIALSTATE",      24},
   {"RANDOMISESTARTFRAME",25},
   {"TRANSPARENCYFLAGS", 26},
-
-
-
   {NULL,                 0},
   };
 
