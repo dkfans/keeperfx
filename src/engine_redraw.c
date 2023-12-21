@@ -823,7 +823,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
     SYNCDBG(5,"Starting for power %d",(int)pwkind);
     if (pwkind <= 0)
     {
-        set_pointer_graphic(MousePG_Invisible);
+        set_pointer_graphic(MousePG_Arrow); // Set it back to MousePG_Invisible once the issue is fixed
         return false;
     }
     struct PlayerInfo* player = get_my_player();
