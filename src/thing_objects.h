@@ -116,7 +116,9 @@ enum ObjectModels
     ObjMdl_PowerHandWithGold = 127,
     ObjMdl_SpinningCoin = 128,
     ObjMdl_SpecboxCustom = 133,
-    ObjMdl_GoldBag = 136
+    ObjMdl_GoldBag = 136,
+    ObjMdl_GuardFlagWhite = 161,
+    ObjMdl_HeartFlameWhite = 162,
 };
 
 /**

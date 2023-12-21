@@ -41,7 +41,7 @@ extern "C" {
 const char keeper_effects_file[]="effects.toml";
 
 long const imp_spangle_effects[] = {
-    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, 69, TngEff_None,
+    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite, TngEff_None,
 };
 
 long const ball_puff_effects[] = {
