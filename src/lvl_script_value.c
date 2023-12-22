@@ -808,7 +808,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
       break;
   case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
-      set_flag_byte(&game.flags_cd, MFlg_DeadBackToPool, val2);
+      set_flag_value(game.flags_cd, MFlg_DeadBackToPool, val2);
       break;
   case Cmd_BONUS_LEVEL_TIME:
       if (val2 > 0) {
@@ -973,24 +973,23 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
   {
     if (val2 > 0)
     {
-        struct DungeonAdd* dungeonadd;
         if (plr_range_id == ALL_PLAYERS)
         {
             for (i = PLAYER3; i >= PLAYER0; i--)
             {
-                dungeonadd = get_dungeonadd(i);
-                if (!dungeonadd_invalid(dungeonadd))
+                dungeon = get_dungeon(i);
+                if (!dungeon_invalid(dungeon))
                 {
-                    dungeonadd->creature_entrance_level = (val2 - 1);
+                    dungeon->creature_entrance_level = (val2 - 1);
                 }
             }
         }
         else
         {
-            dungeonadd = get_dungeonadd(plr_range_id);
-            if (!dungeonadd_invalid(dungeonadd))
+            dungeon = get_dungeon(plr_range_id);
+            if (!dungeon_invalid(dungeon))
             {
-                dungeonadd->creature_entrance_level = (val2 - 1);
+                dungeon->creature_entrance_level = (val2 - 1);
             }
         }
     }

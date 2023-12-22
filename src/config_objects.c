@@ -671,7 +671,6 @@ TbBool load_objects_config_file(const char *textname, const char *fname, unsigne
 void update_all_object_stats()
 {
     const struct StructureList* slist = get_list_for_thing_class(TCls_Object);
-    struct DungeonAdd* dungeonadd;
     struct Dungeon* dungeon;
     for (int i = slist->index; i > 0;)
     {
@@ -689,10 +688,9 @@ void update_all_object_stats()
             dungeon = get_dungeon(thing->owner);
             if ((thing_is_dungeon_heart(thing)) && (thing->index != dungeon->dnheart_idx))
             {
-                dungeonadd = get_dungeonadd(thing->owner);
-                if (dungeonadd->backup_heart_idx == 0)
+                if (dungeon->backup_heart_idx == 0)
                 {
-                    dungeonadd->backup_heart_idx = thing->index;
+                    dungeon->backup_heart_idx = thing->index;
                 }
             }
         }
@@ -720,12 +718,18 @@ TbBool load_objects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global objects config";
     static const char config_campgn_textname[] = "campaign objects config";
+    static const char config_level_textname[] = "level objects config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_objects_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_objects_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_objects_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;

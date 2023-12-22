@@ -1195,12 +1195,18 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global terrain config";
     static const char config_campgn_textname[] = "campaign terrain config";
+    static const char config_level_textname[] = "level terrain config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_terrain_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_terrain_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_terrain_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;
@@ -1260,14 +1266,14 @@ TbBool make_all_rooms_free(void)
  */
 TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    if (dungeonadd_invalid(dungeonadd)) {
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
     for (long rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
     {
-        dungeonadd->room_resrchable[rkind] = 1;
+        dungeon->room_resrchable[rkind] = 1;
     }
     return true;
 }
@@ -1294,9 +1300,9 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
 {
     // note that we can't get_players_num_dungeon() because players
     // may be uninitialized yet when this is called.
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     struct Computer2* comp = INVALID_COMPUTER_PLAYER;
-    if (dungeonadd_invalid(dungeonadd)) {
+    if (dungeon_invalid(dungeon)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
@@ -1305,14 +1311,14 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
         ERRORLOG("Can't add incorrect room %d to player %d",(int)rkind, (int)plyr_idx);
         return false;
     }
-    dungeonadd->room_resrchable[rkind] = resrch;
+    dungeon->room_resrchable[rkind] = resrch;
     // This doesnt reset if player has room in the past
     if (resrch != 0)
-        dungeonadd->room_buildable[rkind] |= (avail? 1 : 0 );
+        dungeon->room_buildable[rkind] |= (avail? 1 : 0 );
     else
-        dungeonadd->room_buildable[rkind] &= ~1;
+        dungeon->room_buildable[rkind] &= ~1;
 
-    if (dungeonadd->room_buildable[rkind] & 1)
+    if (dungeon->room_buildable[rkind] & 1)
     {
         comp = get_computer_player(plyr_idx);
         if (comp != INVALID_COMPUTER_PLAYER)
@@ -1331,9 +1337,9 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
  */
 TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     // Check if the player even have a dungeon
-    if (dungeonadd_invalid(dungeonadd)) {
+    if (dungeon_invalid(dungeon)) {
         return false;
     }
     // Player must have dungeon heart to build rooms
@@ -1345,7 +1351,7 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
       ERRORLOG("Incorrect room %d (player %d)",(int)rkind, (int)plyr_idx);
       return false;
     }
-    if (dungeonadd->room_buildable[rkind] & 1) {
+    if (dungeon->room_buildable[rkind] & 1) {
         return true;
     }
     return false;
@@ -1359,9 +1365,9 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
  */
 RoomKind find_first_available_roomkind_with_role(PlayerNumber plyr_idx, RoomRole rrole)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     // Check if the player even have a dungeon
-    if (dungeonadd_invalid(dungeonadd)) {
+    if (dungeon_invalid(dungeon)) {
         return RoK_NONE;
     }
     // Player must have dungeon heart to build rooms
@@ -1373,7 +1379,7 @@ RoomKind find_first_available_roomkind_with_role(PlayerNumber plyr_idx, RoomRole
     {
         if (room_role_matches(rkind, rrole))
         {
-            if (dungeonadd->room_buildable[rkind] & 1)
+            if (dungeon->room_buildable[rkind] & 1)
             {
                 return rkind;
             }
@@ -1402,17 +1408,17 @@ TbBool is_room_of_role_available(PlayerNumber plyr_idx, RoomRole rrole)
 TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
 {
     SYNCDBG(0,"Starting");
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     // Check if the player even have a dungeon
-    if (dungeonadd_invalid(dungeonadd)) {
+    if (dungeon_invalid(dungeon)) {
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
     for (long i = 0; i < game.slab_conf.room_types_count; i++)
     {
-        if (dungeonadd->room_resrchable[i])
+        if (dungeon->room_resrchable[i])
         {
-            dungeonadd->room_buildable[i] = 1;
+            dungeon->room_buildable[i] = 1;
         }
     }
     return true;

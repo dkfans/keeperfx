@@ -43,6 +43,7 @@
 #include "config_campaigns.h"
 #include "config_creature.h"
 #include "config_terrain.h"
+#include "config_spritecolors.h"
 #include "thing_data.h"
 #include "thing_objects.h"
 #include "thing_traps.h"
@@ -351,7 +352,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[57];
+        struct TbSprite* spr = &gui_panel_sprites[GPS_room_treasury_std_s];//only for size, room irrelevant
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
     long rkind_select = (game.play_gameturn >> 1) % game.slab_conf.room_types_count;
@@ -371,7 +372,8 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
                 const struct RoomConfigStats* roomst = get_room_kind_stats(room->kind);
                 if (roomst->medsym_sprite_idx > 0)
                 {
-                    struct TbSprite* spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
+                    long sprite_idx = get_player_colored_icon_idx(roomst->medsym_sprite_idx,room->owner);
+                    struct TbSprite* spr = &gui_panel_sprites[sprite_idx];
                     long pos_x = map_area->left + (block_size * room->central_stl_x / STL_PER_SLB) - (spr->SWidth * ps_units_per_px / 16 / 2);
                     long pos_y = map_area->top + (block_size * room->central_stl_y / STL_PER_SLB) - (spr->SHeight * ps_units_per_px / 16 / 2);
                     LbSpriteDrawResized(pos_x, pos_y, ps_units_per_px, spr);
@@ -657,7 +659,7 @@ void draw_zoom_box_things_on_mapblk(struct Map *mapblk,unsigned short subtile_si
 {
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[164]; // Use dungeon special box as reference
+        struct TbSprite* spr = &gui_panel_sprites[GPS_trapdoor_bonus_box_std_s]; // Use dungeon special box as reference
         ps_units_per_px = (46 * units_per_pixel) / spr->SHeight;
     }
     struct PlayerInfo* player = get_my_player();
@@ -908,15 +910,15 @@ void zoom_to_parchment_map(void)
 {
     turn_off_all_window_menus();
     if ((game.operation_flags & GOF_ShowGui) == 0)
-      set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+      clear_flag(game.operation_flags, GOF_ShowPanel);
     else
-      set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+      set_flag(game.operation_flags, GOF_ShowPanel);
     struct PlayerInfo* player = get_my_player();
     if (((game.system_flags & GSF_NetworkActive) != 0)
         || (lbDisplay.PhysicalScreenWidth > 320))
     {
       if (!toggle_status_menu(0))
-        set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+        clear_flag(game.operation_flags, GOF_ShowPanel);
       set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0, 0, 0);
       turn_off_roaming_menus();
     } else

@@ -68,12 +68,12 @@ static inline void reset_scrolling_tooltip(void)
 {
     render_tooltip_scroll_offset = 0;
     render_tooltip_scroll_timer = 25.0;
-    set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,false);
+    clear_flag(tool_tip_box.flags, TTip_NeedReset);
 }
 
 void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
 {
-  set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
+  set_flag(tool_tip_box.flags, TTip_Visible);
   va_list val;
   va_start(val, format);
   vsnprintf(tool_tip_box.text, TOOLTIP_MAX_LEN, format, val);
@@ -92,7 +92,7 @@ static inline TbBool update_gui_tooltip_target(void *target)
     {
         help_tip_time = 0;
         tool_tip_box.target = target;
-        set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
+        set_flag(tool_tip_box.flags, TTip_NeedReset);
         return true;
     }
     return false;
@@ -102,7 +102,7 @@ static inline void clear_gui_tooltip_target(void)
 {
     help_tip_time = 0;
     tool_tip_box.target = NULL;
-    set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
+    set_flag(tool_tip_box.flags, TTip_NeedReset);
 }
 
 static inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
@@ -172,7 +172,11 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
           if (gameadd.box_tooltip[thing->custom_box.box_kind][0] == 0)
           {
               i = box_thing_to_special(thing);
-              set_gui_tooltip_box_fmt(5, "%s", get_string(get_special_description_strindex(i)));
+              long strngindex = get_special_description_strindex(i);
+              if (strngindex != GUIStr_Empty)
+              {
+                  set_gui_tooltip_box_fmt(5, "%s", get_string(strngindex));
+              }
           }
           else
           {
