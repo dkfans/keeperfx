@@ -45,7 +45,7 @@ const struct NamedCommand effect_generator_commands[] = {
     {"GENATIONDELAYMIN",        2},
     {"GENATIONDELAYMAX",        3},
     {"GENATIONAMOUNT",          4},
-    {"EFFECT_MODEL",            5},
+    {"EFFECTMODEL",             5},
     {"IGNORETERRAIN",           6},
     {"SPAWNHEIGHT",             7},
     {"ACCELERATIONMIN",         8},

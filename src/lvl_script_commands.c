@@ -4216,7 +4216,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char* effgenname = scline->tp[0];
     const char* property = scline->tp[1];
-    short value1;
+    short value1 = 0;
 
     char effgen_id = get_id(effectgen_desc, effgenname);
     if (effgen_id == -1)
@@ -4243,6 +4243,10 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
         else
         {
             effelem_id = get_id(effectelem_desc, scline->tp[2]);
+            if (effelem_id == -1)
+            {
+                effelem_id = get_id(effect_desc, scline->tp[2]);
+            }
         }
         if (effelem_id == -1)
         {
@@ -4255,7 +4259,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     else
     if ((property_id == 8) || (property_id == 9)) // ACCELERATIONMIN or ACCELERATIONMAX
     {
-        if ((scline->np[3] == NULL) || (scline->np[4] == NULL))
+        if ((scline->np[3] == NULL) || (scline->np[4] == NULL)) //todo fix build warning
         {
             SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
             DEALLOCATE_SCRIPT_VALUE
