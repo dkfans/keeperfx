@@ -293,15 +293,6 @@ TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
   return false;
 }
 
-struct SpellData *get_power_data(int pwkind)
-{
-  if ((pwkind > 0) && (pwkind < magic_conf.power_types_count))
-    return &spell_data[pwkind];
-  if ((pwkind < -1) || (pwkind >= magic_conf.power_types_count))
-    ERRORLOG("Request of invalid power (no %d) intercepted",pwkind);
-  return &spell_data[0];
-}
-
 TextStringId get_power_name_strindex(PowerKind pwkind)
 {
     if (pwkind >= magic_conf.power_types_count)
