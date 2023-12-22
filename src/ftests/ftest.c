@@ -529,14 +529,6 @@ void ftest_restart_actions()
     ftest_donottouch__vars.current_action = 0;
 }
 
-/**
- * @brief Returns the current test config (some tests may want to modify it... meta!)
- * 
- */
-struct FTestConfig* ftest_get_current_test_config()
-{
-    return ftest_donottouch__vars.tests_to_run[ftest_donottouch__vars.current_test];
-}
 
 #ifdef __cplusplus
 }

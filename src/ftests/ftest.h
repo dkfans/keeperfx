@@ -188,11 +188,6 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state);
  */
 void ftest_restart_actions();
 
-/**
- * @brief Returns the current test config (some tests may want to modify it... meta!)
- * 
- */
-struct FTestConfig* ftest_get_current_test_config();
 
 #ifdef __cplusplus
 }
