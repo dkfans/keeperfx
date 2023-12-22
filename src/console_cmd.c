@@ -95,12 +95,12 @@ static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn
     comp = get_computer_player(args[0]);
     struct ComputerProcess* cproc = &comp->processes[args[1]];
 
-    if (cproc->flags & ComProc_Unkn0020)
+    if (flag_is_set(cproc->flags, ComProc_Unkn0020))
         message_add_fmt(args[0], "resuming %s", cproc->name?cproc->name:"(null)");
     else
         message_add_fmt(args[0], "suspending %s", cproc->name?cproc->name:"(null)");
 
-    cproc->flags ^= ComProc_Unkn0020; // Suspend, but do not update running time
+    toggle_flag(cproc->flags, ComProc_Unkn0020); // Suspend, but do not update running time
     return 1;
 }
 
@@ -228,14 +228,14 @@ static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *gopt
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);
-    struct ComputerCheck* cproc = &comp->checks[args[1]];
+    struct ComputerCheck* ccheck = &comp->checks[args[1]];
 
-    if (cproc->flags & ComChk_Unkn0001)
-        message_add_fmt(args[0], "resuming %s", cproc->name?cproc->name:"(null)");
+    if (flag_is_set(ccheck->flags, ComChk_Unkn0001))
+        message_add_fmt(args[0], "resuming %s", ccheck->name?ccheck->name:"(null)");
     else
-        message_add_fmt(args[0], "suspending %s", cproc->name?cproc->name:"(null)");
+        message_add_fmt(args[0], "suspending %s", ccheck->name?ccheck->name:"(null)");
 
-    cproc->flags ^= ComChk_Unkn0001;
+    ccheck->flags ^= ComChk_Unkn0001;
     return 1;
 }
 static const char *get_check_name(struct Computer2 *comp, int i)
