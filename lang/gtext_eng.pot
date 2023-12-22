@@ -6122,7 +6122,7 @@ msgstr ""
 
 #: guitext:1057
 msgctxt "Keeper spell name"
-msgid "Fly"
+msgid "Flight"
 msgstr ""
 
 #: guitext:1058
