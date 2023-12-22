@@ -6099,3 +6099,33 @@ msgstr ""
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr ""
+
+#: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr ""
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr ""
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr ""
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Fly"
+msgstr ""
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Light"
+msgstr ""
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr ""
