@@ -863,35 +863,25 @@ TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const s
 {
     struct Dungeon* dungeon = comp->dungeon;
     struct ComputerDig cdig;
-    ToolDigResult dig_result;
+    long digres;
     // Setup the digging on dummy ComputerDig, to compute distance and move start position near to wall
     setup_dig_to(&cdig, *startpos, *endpos);
-    while(1)
+    while ( 1 )
     {
-        dig_result = tool_dig_to_pos2(comp, &cdig, true, digflags);
-        switch(dig_result)
-        {
-            case TDR_DigSlab:
-                // If the slab we've got from digging is safe to walk and connected to original room, use it as starting position
-                // But don't change distance - it should be computed from our rooms (and resetting it could lead to infinite loop)
-                // Note: when verifying the path traced by computer player, we might want to disable this to see the full path
-                if (slab_is_safe_land(dungeon->owner, coord_slab(cdig.pos_next.x.val), coord_slab(cdig.pos_next.y.val))) {
-                    if (navigation_points_connected(startpos, &cdig.pos_next)) {
-                        *startpos = cdig.pos_next;
-                    }
-                }
-                (*dig_distance)++;
-                continue;
-            case TDR_ReachedDestination:
-                return true;
-            case TDR_BuildBridgeOnSlab:
-                SYNCLOG("simulate_dig_to - Player %d is waiting for bridge",(int)dungeon->owner);
-                return true;
-            case TDR_ToolDigError:
-            default:
-                return false;
+        digres = tool_dig_to_pos2(comp, &cdig, true, digflags);
+        if (digres != 0)
+          break;
+        // If the slab we've got from digging is safe to walk and connected to original room, use it as starting position
+        // But don't change distance - it should be computed from our rooms (and resetting it could lead to infinite loop)
+        // Note: when verifying the path traced by computer player, we might want to disable this to see the full path
+        if (slab_is_safe_land(dungeon->owner, coord_slab(cdig.pos_next.x.val), coord_slab(cdig.pos_next.y.val))) {
+            if (navigation_points_connected(startpos, &cdig.pos_next)) {
+                *startpos = cdig.pos_next;
+            }
         }
+        (*dig_distance)++;
     }
+    return ((digres == -1) || (digres == -5));
 }
 
 long computer_setup_dig_to_entrance(struct Computer2 *comp, struct ComputerProcess *cproc)

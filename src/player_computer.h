@@ -131,9 +131,10 @@ enum GameActionTypes {
 };
 
 enum ToolDigFlags {
-    ToolDig_BasicOnly = 0x00, /**< Allows digging through basic earth slabs (default: always applies). */
-    ToolDig_AllowValuable = 0x01, /**< Allows digging through valuable slabs. */
-    ToolDig_AllowLiquidWBridge = 0x02, /**< Allows bridging over liquid (bridges must be available to the player for this to have an effect). */
+    ToolDig_BasicOnly = 0x00, /**< Allows to dig only through basic earth slabs. */
+    ToolDig_AllowValuable = 0x01, /**< Allows to dig through valuable slabs. */
+    ToolDig_AllowLiquidWBridge = 0x02, /**< Allows to dig through liquid slabs, if only player has ability to build bridges through them.
+                                            Also allows to dig through valuable slabs(which should be later changed)). */
 };
 
 /** These are the possible return values for the CPU player's "mark for digging" functions */
@@ -329,32 +330,27 @@ struct ComputerEventMnemonic {
   char name[16];
   struct ComputerEvent *event;
 };
-struct ComputerDig {
-    struct Coord3d pos_E; /**< used by dig to position - set to pos_begin when a dig action fails ?? */
-    struct Coord3d pos_dest; /**< used by dig to position - the destination */
-    struct Coord3d pos_begin; /**< used by dig to position (the start of the path) and for room dig/place (the centre of the room) */
-    struct Coord3d pos_next; /**< used by dig to position - the next position in the path to check */
-    long distance; /**< used by dig to position - the distance between a given position and the destination */
-    unsigned char hug_side; /**< used by dig to position - the rule to follow when hugging the wall (left-hand rule/side or right-hand rule/side) */
-    SmallAroundIndex direction_around; /**< used by dig to position - the forwards direction of the path */
-    unsigned long subfield_2C; /**< this is always set to 1... but it's value is used to create a bool test: did action fail */
-    long number_of_failed_actions; /**< used by dig to position (incremented when gold is found but digflags is 0, or a mark for digging action failed) */
-    MapSubtlCoord last_backwards_step_stl_x; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the X coordinate of the slab we stepped back in to */
-    MapSubtlCoord last_backwards_step_stl_y; /**< used by dig to position - ?? when a dig action fails, we step backwards, this is this the Y coordinate of the slab we stepped back in to */
-    long calls_count; /**< used by dig to position */
-    long valuable_slabs_tagged; /**< used by dig to position - Amount of valuable slabs tagged for digging during this dig process. */
-    /** Variables for digging (or placing) a room. */
-	struct { 
-		long area; /**< The number of slabs in the room. */
-		long slabs_processed; /**< The number of slabs marked for digging or converted in to a room. */
-        /** Variables for the spiral used to dig slabs/place rooms. */
-		struct {
-			SmallAroundIndex forward_direction; /**< The current direction we are moving through the spiral. */
-			long turns_made; /**< The number of turns made in the spiral. */
-			long steps_to_take_before_turning; /**< The number of steps to take before the next turn in the spiral. */
-			long steps_remaining_before_turn; /**< The number of steps we have left to take before we need to turn in the spiral. */
-		} spiral;
-	} room;
+struct ComputerDig { // sizeof = 78
+    struct Coord3d pos_E;
+    struct Coord3d pos_dest;
+    struct Coord3d pos_begin;
+    struct Coord3d pos_next;
+    long distance;
+    unsigned char hug_side;
+    unsigned char direction_around;
+    unsigned long subfield_2C;
+    long subfield_30;
+    long subfield_34;
+    long subfield_38;
+    long subfield_3C; // dig direction index
+    long subfield_40;
+    long subfield_44; // marked tiles so far
+    long subfield_48;
+    long sub4C_stl_x;
+    long sub4C_stl_y;
+    long calls_count;
+    /** Amount of valuable slabs tagged for digging during this dig process. */
+    long valuable_slabs_tagged;
 };
 
 struct ComputerTask {
@@ -690,7 +686,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
 TbResult try_game_action(struct Computer2 *comp, PlayerNumber plyr_idx, unsigned short gaction, unsigned short alevel,
     MapSubtlCoord stl_x, MapSubtlCoord stl_y, unsigned short param1, unsigned short param2);
-ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags digflags, const char *func_name);
+short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name);
 TbBool add_trap_location_if_requested(struct Computer2 *comp, struct ComputerTask *ctask, TbBool is_task_dig_to_attack);
 #define tool_dig_to_pos2(comp,cdig,simulation,digflags) tool_dig_to_pos2_f(comp,cdig,simulation,digflags,__func__)
 #define search_spiral(pos, owner, area_total, cb) search_spiral_f(pos, owner, area_total, cb, __func__)
