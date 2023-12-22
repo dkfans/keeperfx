@@ -4228,13 +4228,13 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     if (property_id == 5) // EFFECTELEMENTMODEL
     {
         short effelem_id = -1;
-        if (parameter_is_number(scline->tp[3]))
+        if (parameter_is_number(scline->tp[2]))
         {
-            effelem_id = atoi(scline->tp[3]);
+            effelem_id = atoi(scline->tp[2]);
         }
         else
         {
-            effelem_id = get_id(effectelem_desc, scline->tp[3]);
+            effelem_id = get_id(effectelem_desc, scline->tp[2]);
         }
         if (effelem_id == -1)
         {
@@ -4247,16 +4247,20 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     else
     if ((property_id == 8) || (property_id == 9)) // ACCELERATIONMIN or ACCELERATIONMAX
     {
-        if (scline->np[3] == NULL) // or 4
+        if ((scline->np[3] == NULL) || (scline->np[4] == NULL))
         {
-            JUSTMSG("testlog: todo, test this for missing params");
+            SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
         }
     } else
     if (property_id == 10) // SOUND
     {
         if (scline->np[3] == NULL)
         {
-            JUSTMSG("testlog: todo, test this for missing params");
+            SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
         }
     }
     else
@@ -4269,11 +4273,12 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
         {
             SCRPTERRLOG("Unsupported value %s for Effect Generator configuration %s", scline->tp[2], scline->tp[1]);
             DEALLOCATE_SCRIPT_VALUE
+            return;
         }
     }
 
 
-    //SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
+    SCRIPTDBG(7, "Setting effect generator %s property %s to %d", effectgenerator_code_name(effgen_id), property, value1);
     value->shorts[0] = effgen_id;
     value->shorts[1] = property_id;
     value->shorts[2] = value1;
