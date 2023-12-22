@@ -808,7 +808,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       break;
       break;
   case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
-      set_flag_byte(&game.flags_cd, MFlg_DeadBackToPool, val2);
+      set_flag_value(game.flags_cd, MFlg_DeadBackToPool, val2);
       break;
   case Cmd_BONUS_LEVEL_TIME:
       if (val2 > 0) {

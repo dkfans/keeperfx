@@ -63,7 +63,7 @@ void message_draw(void)
         {
             long x = 148 * units_per_pixel / 16;
             LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-            set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
+            clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
             LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
             unsigned long spr_idx = 0;
             TbBool IsCreature = false;

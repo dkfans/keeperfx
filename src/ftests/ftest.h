@@ -23,13 +23,13 @@ extern "C" {
 #define FTESTLOG(format, ...) LbFTestLog("[%d] %s: " format "\n", get_gameturn(), __func__ , ##__VA_ARGS__)
 
 #define FTEST_FAIL_TEST(format, ...) { \
-    set_flag_byte(&start_params.functest_flags, FTF_TestFailed, true); \
+    set_flag(start_params.functest_flags, FTF_TestFailed); \
     FTESTLOG("Failing test"); \
     FTESTLOG(format, ##__VA_ARGS__); \
 }
 
 #define FTEST_FRAMEWORK_ABORT(format, ...) { \
-    set_flag_byte(&start_params.functest_flags, FTF_Abort, true); \
+    set_flag(start_params.functest_flags, FTF_Abort); \
     FTESTLOG("Framework error, aborting..."); \
     FTESTLOG(format, ##__VA_ARGS__); \
 }
