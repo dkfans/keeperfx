@@ -301,10 +301,10 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
     switch (tend_type)
     {
     case CrTend_Imprison:
-        set_flag_byte(&dungeon->creature_tendencies, 0x01, val);
+        set_flag_value(dungeon->creature_tendencies, 0x01, val);
         return true;
     case CrTend_Flee:
-        set_flag_byte(&dungeon->creature_tendencies, 0x02, val);
+        set_flag_value(dungeon->creature_tendencies, 0x02, val);
         return true;
     default:
         ERRORLOG("Can't set tendency; bad tendency type %d",(int)tend_type);

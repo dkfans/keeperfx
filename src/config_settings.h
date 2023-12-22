@@ -49,7 +49,7 @@ struct GameSettings { // KFX settings
     unsigned short gamma_correction;
     int switching_vidmodes_index; /**< The current position in the list of video modes to switch between with Alt+R (-1 means the index is unset). */
     struct GameKey kbkeys[GAME_KEYS_COUNT];
-    unsigned char tooltips_on;
+    TbBool tooltips_on;
     unsigned char first_person_move_invert;
     unsigned char first_person_move_sensitivity;
     unsigned int minimap_zoom;
