@@ -130,6 +130,16 @@ void compute_alpha_table(unsigned char *alphtbl, unsigned char *spal, unsigned c
             int valB = blendB + baseCol[2];
             if (valB >= 63)
               valB = 63;
+
+            if (valR < 0)
+              valR = 0;
+            int valG = blendG + baseCol[1];
+            if (valG < 0)
+              valG = 0;
+            int valB = blendB + baseCol[2];
+            if (valB < 0)
+              valB = 0;
+
             TbPixel c = LbPaletteFindColour(dpal, valR, valG, valB);
             alphtbl[nrow*256 + n] = c;
         }
@@ -148,11 +158,11 @@ void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,uns
             alphtbls->black[n] = 144;
         }
     }
-    // Every color alpha-blended with shade of grey
-    compute_alpha_table(alphtbls->grey, spal, dpal, 4, 4, 4);
-    // Every color alpha-blended with brown/orange
-    compute_alpha_table(alphtbls->orange, spal, dpal, 7, 4, 0);
-    // Every color alpha-blended with intense red
+    // Every color alpha-blended with shade of white
+    compute_alpha_table(alphtbls->white, spal, dpal, 4, 4, 4);
+    // Every color alpha-blended with yellow
+    compute_alpha_table(alphtbls->yellow, spal, dpal, 7, 4, 0);
+    // Every color alpha-blended with red
     compute_alpha_table(alphtbls->red, spal, dpal, 6, 1, 1);
     // Every color alpha-blended with blue
     compute_alpha_table(alphtbls->blue, spal, dpal, 2, 2, 6);

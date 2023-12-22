@@ -121,8 +121,8 @@ struct TbColorTables {
 
 struct TbAlphaTables {
     unsigned char black[256];
-    unsigned char grey[8*256];
-    unsigned char orange[8*256];
+    unsigned char white[8*256];
+    unsigned char yellow[8*256];
     unsigned char red[8*256];
     unsigned char blue[8*256];
     unsigned char green[8*256];
