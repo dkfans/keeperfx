@@ -186,8 +186,6 @@ TbBool ftest_fill_teststorun_by_name(char* const name)
     TbBool too_many_tests = false;
     for(unsigned short test_list_id = 0; test_list_id < 2; ++test_list_id)
     {
-        // int* (*pArr)[MAX] = &arr;
-
         struct FTestConfig* current_test_list = NULL;
 
         switch(test_list_id)
@@ -373,7 +371,7 @@ TbBool ftest_init()
 
     if(!ftest_fill_teststorun_by_name(start_params.functest_name))
     {
-        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%d') make sure init name/function are added to tests_list (see ftest_list.c)", start_params.functest_name)
+        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%s') make sure init name/function are added to tests_list (see ftest_list.c)", start_params.functest_name)
         return false;
     }
 
