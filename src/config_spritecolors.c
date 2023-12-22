@@ -48,7 +48,7 @@ static short get_player_colored_idx(short base_icon_idx,unsigned char color_idx,
 /******************************************************************************/
 static short get_anim_id_(const char *word_buf)
 {
-    struct Objects obj_tmp;
+    struct ObjectConfigStats obj_tmp;
     return get_anim_id(word_buf, &obj_tmp);
 
 }
