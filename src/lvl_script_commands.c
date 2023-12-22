@@ -4259,7 +4259,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     else
     if ((property_id == 8) || (property_id == 9)) // ACCELERATIONMIN or ACCELERATIONMAX
     {
-        if ((scline->np[3] == NULL) || (scline->np[4] == NULL)) //todo fix build warning
+        if ((scline->np[3] == '\0') || (scline->np[4] == '\0'))
         {
             SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
             DEALLOCATE_SCRIPT_VALUE
@@ -4268,7 +4268,7 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     } else
     if (property_id == 10) // SOUND
     {
-        if (scline->np[3] == NULL)
+        if (scline->np[3] == '\0')
         {
             SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
             DEALLOCATE_SCRIPT_VALUE
