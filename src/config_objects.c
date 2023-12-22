@@ -719,7 +719,12 @@ void update_all_object_stats()
         i = thing->next_of_class
             TRACE_THING(thing);
         struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
-        set_thing_draw(thing, objst->sprite_anim_idx, objst->anim_speed, objst->sprite_size_max, 0, 0, objst->draw_class);
+        int start_frame = 0;
+        if(objst->random_start_frame)
+        {
+            start_frame = -1;
+        }
+        set_thing_draw(thing, objst->sprite_anim_idx, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
         // TODO: Should we rotate this on per-object basis?
         thing->flags = 0;
         thing->flags |= objst->rotation_flag << TAF_ROTATED_SHIFT;
