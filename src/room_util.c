@@ -88,6 +88,10 @@ void room_update_surrounding_flames(struct Room *room, const struct Coord3d *pos
 void process_room_surrounding_flames(struct Room *room)
 {
     SYNCDBG(19,"Starting");
+    if(room->owner == game.hero_player_num)
+    {
+        return;
+    }
     MapSlabCoord x = slb_num_decode_x(room->flame_slb);
     MapSlabCoord y = slb_num_decode_y(room->flame_slb);
     long i = 3 * room->flames_around_idx + room->flame_stl;
