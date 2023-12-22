@@ -6127,7 +6127,7 @@ msgstr ""
 
 #: guitext:1058
 msgctxt "Keeper spell name"
-msgid "Light"
+msgid "Illumination"
 msgstr ""
 
 #: guitext:1059
