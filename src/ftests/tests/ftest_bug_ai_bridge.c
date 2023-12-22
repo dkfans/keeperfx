@@ -205,7 +205,7 @@ TbBool ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTestActionArgs*
         }
         
         struct FTestConfig* current_test_config = ftest_get_current_test_config();
-        char fname[FILENAME_MAX];
+        char fname[FILENAME_MAX] = "\0";
         sprintf(fname, "scrshots/scr%05u.%s", current_test_config->seed, ".png");
         take_screenshot(fname);
         vars->take_screenshot = false;
