@@ -883,9 +883,7 @@ TbBool simulate_dig_to(struct Computer2 *comp, struct Coord3d *startpos, const s
                 (*dig_distance)++;
                 continue;
             case TDR_ReachedDestination:
-                return true;
             case TDR_BuildBridgeOnSlab:
-                SYNCLOG("simulate_dig_to - Player %d is waiting for bridge",(int)dungeon->owner);
                 return true;
             case TDR_ToolDigError:
             default:
