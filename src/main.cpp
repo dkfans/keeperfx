@@ -3987,6 +3987,11 @@ short process_command_line(unsigned short argc, char *argv[])
           pr3str[0]='\0';
       }
 
+      if (strcasecmp(parstr, "v") == 0 || strcasecmp(parstr, "version") == 0)
+      {
+        printf("%s %s", PRODUCT_NAME, PRODUCT_VERSION);
+        exit(1);
+      } else
       if (strcasecmp(parstr, "nointro") == 0)
       {
         start_params.no_intro = 1;
