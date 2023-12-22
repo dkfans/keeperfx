@@ -12,6 +12,7 @@
 #include "../../player_instances.h"
 #include "../../config_objects.h"
 #include "../../gui_parchment.h"
+#include "../../scrcapt.h"
 
 #include "../../post_inc.h"
 
@@ -37,6 +38,8 @@ struct ftest_bug_ai_bridge__variables
     unsigned long test_runs;
     unsigned long test_runs_with_bridges;
     unsigned long test_runs_without_bridges;
+
+    TbBool take_screenshot;
 };
 struct ftest_bug_ai_bridge__variables ftest_bug_ai_bridge__vars = {
     .stl_enemies_to_nerf = {
@@ -51,16 +54,20 @@ struct ftest_bug_ai_bridge__variables ftest_bug_ai_bridge__vars = {
     .slb_x_max_bridge_check_area = 21,
     .slb_y_min_bridge_check_area = 40,
     .slb_y_max_bridge_check_area = 46,
+
+    .take_screenshot = false,
 };
 
 // forward declarations - tests
 TbBool ftest_bug_ai_bridge_action001__setup_map(struct FTestActionArgs* const args);
 TbBool ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs* const args);
+TbBool ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTestActionArgs* const args);
 
 TbBool ftest_bug_ai_bridge_init()
 {
     ftest_append_action(ftest_bug_ai_bridge_action001__setup_map, 0, &ftest_bug_ai_bridge__vars);
     ftest_append_action(ftest_bug_ai_bridge_action002__end_test, 0, &ftest_bug_ai_bridge__vars);
+    ftest_append_action(ftest_bug_ai_bridge_action003__delayed_screenshot, 0, &ftest_bug_ai_bridge__vars);
 
     return true;
 }
@@ -166,6 +173,8 @@ TbBool ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs* const arg
         ++vars->test_runs;
         ++vars->test_runs_with_bridges;
         FTESTLOG("Bridges were found at GameTurn %d, reporting and exiting test", game.play_gameturn);
+        vars->take_screenshot = true;
+        game.frame_skip = 0;
         ftest_bug_ai_bridge__report_stats_and_increment_seed();
         return true; // exit test
     }
@@ -180,6 +189,29 @@ TbBool ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs* const arg
     }
 
     return false; // repeat current action
+}
+
+TbBool ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTestActionArgs* const args)
+{
+    struct ftest_bug_ai_bridge__variables* const vars = args->data;
+
+    const GameTurn screenshot_turn_delay = 0;
+
+    if(vars->take_screenshot)
+    {
+        if(game.play_gameturn < args->actual_started_at_game_turn + screenshot_turn_delay) // wait until we are supposed to take the screenshot
+        {
+            return false;
+        }
+        
+        struct FTestConfig* current_test_config = ftest_get_current_test_config();
+        char fname[FILENAME_MAX];
+        sprintf(fname, "scrshots/scr%05u.%s", current_test_config->seed, ".png");
+        take_screenshot(fname);
+        vars->take_screenshot = false;
+    }
+
+    return true;
 }
 
 #endif
