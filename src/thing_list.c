@@ -1491,10 +1491,10 @@ struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlC
         // Per-thing code
         if (thing->class_id == TCls_Object)
         {
-            struct Objects* objdat = get_objects_data_for_thing(thing);
-            if (objdat->related_creatr_model > 0)
+            struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+            if (objst->related_creatr_model > 0)
             {
-                if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (objdat->related_creatr_model == crmodel))
+                if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (objst->related_creatr_model == crmodel))
                     return thing;
             }
         }
