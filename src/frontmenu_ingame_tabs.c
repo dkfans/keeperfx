@@ -2053,7 +2053,7 @@ void maintain_room_button(struct GuiButton *gbtn)
     {
         gbtn->btype_value |= LbBFeF_NoMouseOver;
         gbtn->flags &= ~LbBtnF_Enabled;
-        gbtn->tooltip_stridx = 201;
+        gbtn->tooltip_stridx = GUIStr_Empty;
     }
 }
 void maintain_creature_button(struct GuiButton* gbtn)
@@ -2077,7 +2077,7 @@ void maintain_creature_button(struct GuiButton* gbtn)
     {
         gbtn->btype_value |= LbBFeF_NoMouseOver;
         gbtn->flags &= ~LbBtnF_Enabled;
-        gbtn->tooltip_stridx = 201;
+        gbtn->tooltip_stridx = GUIStr_Empty;
     }
 }
 
