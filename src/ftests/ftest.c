@@ -194,7 +194,7 @@ TbBool ftest_fill_teststorun_by_name(char* const name)
         {
             case 0:
             {
-                current_test_list = &conf->tests_list;
+                current_test_list = conf->tests_list;
                 break;
             }
 
@@ -202,7 +202,7 @@ TbBool ftest_fill_teststorun_by_name(char* const name)
             {
                 if(flag_is_set(start_params.functest_flags, FTF_IncludeLongTests))
                 {
-                    current_test_list = &conf->long_running_tests_list;
+                    current_test_list = conf->long_running_tests_list;
                 }
                 break;
             }
