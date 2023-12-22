@@ -106,6 +106,9 @@ TbBool ftest_bug_ai_bridge_action001__setup_map(struct FTestActionArgs* const ar
             ftest_util_mark_slab_for_highlight(slb_x, slb_y, PLAYER0);
         }   
     }
+
+    // dig tiles to portal
+    ftest_util_replace_slabs(20, 14, 21, 14, SlbT_CLAIMED, PLAYER0);
     
     return true; //proceed to next test action
 }
