@@ -347,7 +347,6 @@ long computer_setup_sight_of_evil(struct Computer2 *comp, struct ComputerProcess
 
 long computer_setup_attack1(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
-    output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), 500, 1);
     return CProcRet_Continue;
 }
 
@@ -541,9 +540,8 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
 static PlayerNumber get_player_with_more_entrances_than_computer(const struct Computer2 *comp, int *max_entr_count)
 {
     const struct Dungeon* dungeon = comp->dungeon;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     PlayerNumber max_plyr_idx = -1;
-    *max_entr_count = dungeonadd->room_slabs_count[RoK_ENTRANCE];
+    *max_entr_count = dungeon->room_slabs_count[RoK_ENTRANCE];
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (plyr_idx == dungeon->owner)
@@ -598,7 +596,6 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
 {
     SYNCDBG(18,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     int neutral_entrances = count_entrances(comp, game.neutral_player_num);
     if (is_task_in_progress(comp, CTT_DigToEntrance)) {
         return CProcRet_Wait;
@@ -610,7 +607,7 @@ long computer_check_dig_to_entrance(struct Computer2 *comp, struct ComputerProce
     }
     int better_entr_count;
     PlayerNumber better_plyr_idx = get_player_with_more_entrances_than_computer(comp, &better_entr_count);
-    int entr_count = dungeonadd->room_slabs_count[RoK_ENTRANCE];
+    int entr_count = dungeon->room_slabs_count[RoK_ENTRANCE];
     if ((better_plyr_idx >= 0) && (better_entr_count > entr_count))
     {
         return CProcRet_Continue;
@@ -644,7 +641,7 @@ long computer_finds_nearest_entrance2(struct Computer2 *comp, struct Coord3d *st
     if (from_plyr_idx == game.neutral_player_num) {
         i = game.entrance_room_id;
     } else {
-        struct DungeonAdd* fromdngnadd = get_dungeonadd(from_plyr_idx);
+        struct Dungeon* fromdngnadd = get_dungeon(from_plyr_idx);
         i = fromdngnadd->room_kind[RoK_ENTRANCE];
     }
     while (i != 0)
@@ -1314,18 +1311,22 @@ long computer_completed_attack1(struct Computer2 *comp, struct ComputerProcess *
     long par1 = ctask->pickup_for_attack.long_86;
     if (xy_walkable(pos->x.stl.num, pos->y.stl.num, dungeon->owner))
     {
-        if (!create_task_pickup_for_attack(comp, pos, par1, creatrs_num)) {
+        if (!create_task_pickup_for_attack(comp, pos, par1, creatrs_num)) 
+        {
             return CProcRet_Wait;
         }
+        output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DELAY_KEEPR_TAUNT, 1);
         return CProcRet_Continue;
     } else
     if (cproc->confval_3 <= creatrs_num)
     {
         if (computer_able_to_use_power(comp, PwrK_CALL2ARMS, 5, 2) && check_call_to_arms(comp))
         {
-            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, par1, creatrs_num)) {
+            if (!create_task_magic_support_call_to_arms(comp, pos, 2500, par1, creatrs_num))
+            {
                 return CProcRet_Wait;
             }
+            output_message(SMsg_EnemyHarassments + UNSYNC_RANDOM(8), MESSAGE_DELAY_KEEPR_TAUNT, 1);
             return CProcRet_Continue;
         }
     }

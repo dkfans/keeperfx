@@ -177,6 +177,11 @@ void remove_body_from_graveyard(struct Thing *thing)
 
 long move_dead_creature(struct Thing *thing)
 {
+    if (!thing_exists(thing))
+    {
+        ERRORLOG("Attempt to move non-existing corpse.");
+        return TUFRet_Deleted;
+    }
     if ( (thing->velocity.x.val != 0) || (thing->velocity.y.val != 0) || (thing->velocity.z.val != 0) )
     {
         long i = (long)thing->mappos.x.val + (long)thing->velocity.x.val;
@@ -206,7 +211,7 @@ long move_dead_creature(struct Thing *thing)
         // Even if no velocity, update field_60
         thing->floor_height = get_thing_height_at(thing, &thing->mappos);
     }
-    return 1;
+    return TUFRet_Modified;
 }
 
 TngUpdateRet update_dead_creature(struct Thing *thing)
@@ -242,14 +247,12 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                     thing->health--;
                 if (thing->health <= 0) {
                     remove_body_from_graveyard(thing);
-                    EVM_CREATURE_EVENT("remove.decomposed", thing->owner, thing);
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
             } else
             {
                 if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
-                    EVM_CREATURE_EVENT("remove", thing->owner, thing);
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
@@ -261,7 +264,6 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
             if (((corpse_age > game.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
                 && !(is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing)))
             {
-                EVM_CREATURE_EVENT("remove", thing->owner, thing);
                 delete_corpse(thing);
                 return TUFRet_Deleted;
             }
@@ -272,25 +274,21 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
     }
     if ((thing->alloc_flags & TAlF_IsControlled) != 0)
     {
-        move_dead_creature(thing);
-        return TUFRet_Modified;
+        return move_dead_creature(thing);
     }
     if ( map_pos_is_lava(thing->mappos.x.stl.num, thing->mappos.y.stl.num)
       && !thing_is_dragged_or_pulled(thing) )
     {
-        EVM_CREATURE_EVENT("remove.melted", thing->owner, thing);
         delete_thing_structure(thing, 0);
         return TUFRet_Deleted;
     }
     if (subtile_is_door(thing->mappos.x.stl.num, thing->mappos.y.stl.num))
     {
-        EVM_CREATURE_EVENT("remove.squished", thing->owner, thing);
         delete_thing_structure(thing, 0);
         create_dead_creature(&thing->mappos, thing->model, 2, thing->owner, thing->corpse.exp_level);
         return TUFRet_Deleted;
     }
-    move_dead_creature(thing);
-    return TUFRet_Modified;
+    return move_dead_creature(thing);;
 }
 
 long find_item_in_dead_creature_list(struct Dungeon *dungeon, ThingModel crmodel, long crlevel)
@@ -498,7 +496,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
         ERRORLOG("Could not create dead thing while killing %s index %d owned by player %d.",creature_code_name(crmodel),(int)prev_idx,(int)owner);
         return INVALID_THING;
     }
-    set_flag_byte(&deadtng->alloc_flags, TAlF_IsControlled, memf1);
+    set_flag_value(deadtng->alloc_flags, TAlF_IsControlled, memf1);
     if (owner != game.neutral_player_num)
     {
         // Update thing index inside player struct

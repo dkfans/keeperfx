@@ -24,6 +24,7 @@
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
+#include "console_cmd.h"
 
 #include "value_util.h"
 #include <toml.h>
@@ -274,12 +275,18 @@ TbBool load_effects_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global effects config";
     static const char config_campgn_textname[] = "campaign effects config";
+    static const char config_level_textname[] = "level effects config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_effects_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_effects_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_effects_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;
@@ -316,6 +323,27 @@ struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
     if (tngmodel >= EFFECTS_TYPES_MAX)
         return &gameadd.effects_conf.effect_cfgstats[0];
     return &gameadd.effects_conf.effect_cfgstats[tngmodel];
+}
+
+short effect_or_effect_element_id(const char * code_name)
+{
+    if (code_name == NULL)
+    {
+        return 0;
+    }
+
+    if (parameter_is_number(code_name))
+    {
+        return atoi(code_name);
+    }
+
+    short id = get_id(effect_desc,code_name);
+    if (id > 0)
+        return id;
+    id = get_id(effectelem_desc,code_name);
+    if (id > 0)
+        return -id;
+    return 0;
 }
 
 /******************************************************************************/

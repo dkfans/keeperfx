@@ -44,6 +44,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "post_inc.h"
+#include <math.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -67,12 +68,12 @@ static inline void reset_scrolling_tooltip(void)
 {
     render_tooltip_scroll_offset = 0;
     render_tooltip_scroll_timer = 25.0;
-    set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,false);
+    clear_flag(tool_tip_box.flags, TTip_NeedReset);
 }
 
 void set_gui_tooltip_box_fmt(int bxtype,const char *format, ...)
 {
-  set_flag_byte(&tool_tip_box.flags,TTip_Visible,true);
+  set_flag(tool_tip_box.flags, TTip_Visible);
   va_list val;
   va_start(val, format);
   vsnprintf(tool_tip_box.text, TOOLTIP_MAX_LEN, format, val);
@@ -91,7 +92,7 @@ static inline TbBool update_gui_tooltip_target(void *target)
     {
         help_tip_time = 0;
         tool_tip_box.target = target;
-        set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
+        set_flag(tool_tip_box.flags, TTip_NeedReset);
         return true;
     }
     return false;
@@ -101,7 +102,7 @@ static inline void clear_gui_tooltip_target(void)
 {
     help_tip_time = 0;
     tool_tip_box.target = NULL;
-    set_flag_byte(&tool_tip_box.flags,TTip_NeedReset,true);
+    set_flag(tool_tip_box.flags, TTip_NeedReset);
 }
 
 static inline TbBool update_gui_tooltip_button(struct GuiButton *gbtn)
@@ -122,6 +123,12 @@ static inline void clear_gui_tooltip_button(void)
 {
     tool_tip_time = 0;
     tool_tip_box.gbutton = NULL;
+}
+
+TbBool cursor_moved_to_new_slab(struct PlayerInfo *player)
+{
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    return (floor(playeradd->cursor_subtile_x/3) != floor(playeradd->previous_cursor_subtile_x/3) || floor(playeradd->cursor_subtile_y/3) != floor(playeradd->previous_cursor_subtile_y/3));
 }
 
 TbBool setup_trap_tooltips(struct Coord3d *pos)
@@ -165,7 +172,11 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
           if (gameadd.box_tooltip[thing->custom_box.box_kind][0] == 0)
           {
               i = box_thing_to_special(thing);
-              set_gui_tooltip_box_fmt(5, "%s", get_string(get_special_description_strindex(i)));
+              long strngindex = get_special_description_strindex(i);
+              if (strngindex != GUIStr_Empty)
+              {
+                  set_gui_tooltip_box_fmt(5, "%s", get_string(strngindex));
+              }
           }
           else
           {
@@ -223,13 +234,13 @@ TbBool setup_object_tooltips(struct Coord3d *pos)
       }
       return true;
     }
-    struct Objects* objdat = get_objects_data_for_thing(thing);
-    if (objdat->related_creatr_model)
+    struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+    if (objst->related_creatr_model)
     {
       update_gui_tooltip_target(thing);
       if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
       {
-          struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[objdat->related_creatr_model];
+          struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[objst->related_creatr_model];
           const struct RoomConfigStats* roomst = get_room_kind_stats(RoK_LAIR);     //TODO use a separate string for creature lair object than for lair room
           set_gui_tooltip_box_fmt(5, "%s %s", get_string(crconf->namestr_idx), get_string(roomst->name_stridx)); // (creature) Lair
       } else
@@ -254,7 +265,10 @@ short setup_land_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target((void *)skind);
   struct PlayerInfo* player = get_my_player();
-  if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
+  if (cursor_moved_to_new_slab(player)) {
+      return false;
+  }
+  if ( (help_tip_time > 30) || (player->work_state == PSt_CreatrQuery) )
   {
       set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
   } else
@@ -278,7 +292,10 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target(room);
   struct PlayerInfo* player = get_my_player();
-  if ( (help_tip_time > 20) || (player->work_state == PSt_CreatrQuery) )
+  if (cursor_moved_to_new_slab(player)) {
+      return false;
+  }
+  if ( (help_tip_time > 30) || (player->work_state == PSt_CreatrQuery) )
   {
     set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
   } else

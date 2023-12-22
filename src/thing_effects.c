@@ -108,19 +108,19 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
         i = EFFECT_RANDOM(thing, eestat->sprite_size_max  - (int)eestat->sprite_size_min  + 1);
         long n = EFFECT_RANDOM(thing, eestat->sprite_speed_max - (int)eestat->sprite_speed_min + 1);
         set_thing_draw(thing, eestat->sprite_idx, eestat->sprite_speed_min + n, eestat->sprite_size_min + i, 0, 0, eestat->draw_class);
-        set_flag_byte(&thing->rendering_flags,TRF_Unshaded,eestat->unshaded);
+        set_flag_value(thing->rendering_flags, TRF_Unshaded, eestat->unshaded);
         thing->rendering_flags ^= (thing->rendering_flags ^ (TRF_Transpar_8 * eestat->transparant)) & (TRF_Transpar_Flags);
-        set_flag_byte(&thing->rendering_flags,TRF_AnimateOnce,eestat->rendering_flag);
+        set_flag_value(thing->rendering_flags, TRF_AnimateOnce, eestat->rendering_flag);
     } else
     {
-        set_flag_byte(&thing->rendering_flags,TRF_Unknown01,true);
+        set_flag(thing->rendering_flags, TRF_Unknown01);
     }
 
     thing->fall_acceleration = eestat->fall_acceleration;
     thing->inertia_floor = eestat->inertia_floor;
     thing->inertia_air = eestat->inertia_air;
     thing->movement_flags |= TMvF_Unknown08;
-    set_flag_byte(&thing->movement_flags,TMvF_Unknown10,eestat->movement_flags);
+    set_flag_value(thing->movement_flags, TMvF_Unknown10, eestat->movement_flags);
     thing->creation_turn = game.play_gameturn;
 
     if (eestat->lifespan > 0)
@@ -913,7 +913,7 @@ struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, Play
     return thing;
 }
 
-struct Thing *create_used_effect_or_element(const struct Coord3d *pos, short effect, long plyr_idx)
+struct Thing *create_used_effect_or_element(const struct Coord3d *pos, EffectOrEffElModel effect, PlayerNumber plyr_idx)
 {
     if (effect == 0)
         return INVALID_THING;

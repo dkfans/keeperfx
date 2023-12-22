@@ -115,6 +115,11 @@ const struct NamedCommand magic_shot_commands[] = {
   {"INERTIA",               45},
   {"UNSHADED",              46},
   {"SOFTLANDING",           47},
+  {"EFFECTMODEL",           48},
+  {"FIRELOGIC",             49},
+  {"UPDATELOGIC",           50},
+  {"EFFECTSPACING",         51},
+  {"EFFECTAMOUNT",          52},
   {NULL,                     0},
   };
 
@@ -286,15 +291,6 @@ TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
   if (mgcinfo <= &magic_conf.spell_config[0])
     return true;
   return false;
-}
-
-struct SpellData *get_power_data(int pwkind)
-{
-  if ((pwkind > 0) && (pwkind < magic_conf.power_types_count))
-    return &spell_data[pwkind];
-  if ((pwkind < -1) || (pwkind >= magic_conf.power_types_count))
-    ERRORLOG("Request of invalid power (no %d) intercepted",pwkind);
-  return &spell_data[0];
 }
 
 TextStringId get_power_name_strindex(PowerKind pwkind)
@@ -1146,7 +1142,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 14: //ANIMATION
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              struct Objects obj_tmp;
+              struct ObjectConfigStats obj_tmp;
               k = get_anim_id(word_buf, &obj_tmp);
               shotst->sprite_anim_idx = k;
               n++;
@@ -1673,6 +1669,71 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           {
               k = atoi(word_buf);
               shotst->soft_landing = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 48: //EFFECTMODEL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              shotst->effect_id = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 49: //FIRELOGIC
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->fire_logic = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 50: //UPDATELOGIC
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->update_logic = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 51: //EFFECTSPACING
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->effect_spacing = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 52: //EFFECTAMOUNT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->effect_amount = k;
               n++;
           }
           if (n < 1)
@@ -2223,7 +2284,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
       case 5: // ACTIVATIONEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               specst->effect_id = k;
               n++;
           }
@@ -2315,12 +2376,18 @@ TbBool load_magic_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global magic config";
     static const char config_campgn_textname[] = "campaign magic config";
+    static const char config_level_textname[] = "level magic config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_magic_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_magic_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_magic_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;

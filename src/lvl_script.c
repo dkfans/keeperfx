@@ -990,6 +990,10 @@ static void process_party(struct PartyTrigger* pr_trig)
         SYNCDBG(6, "Adding object %d at location %d", (int)n, (int)pr_trig->location);
         script_process_new_object(n, pr_trig->location, pr_trig->carried_gold, pr_trig->plyr_idx);
         break;
+    case TrgF_CREATE_EFFECT_GENERATOR:
+        SYNCDBG(6, "Adding effect generator %d at location %d", pr_trig->crtr_level, (int)pr_trig->location);
+        script_process_new_effectgen(pr_trig->crtr_level, pr_trig->location, pr_trig->carried_gold);
+        break;
     case TrgF_CREATE_PARTY:
         SYNCDBG(6, "Adding player %d party %d at location %d", (int)pr_trig->plyr_idx, (int)n, (int)pr_trig->location);
         script_process_new_party(&gameadd.script.creature_partys[n],
@@ -1014,7 +1018,7 @@ void process_check_new_creature_partys(void)
             {
                 process_party(pr_trig);
                 if ((pr_trig->flags & TrgF_REUSABLE) == 0)
-                    set_flag_byte(&pr_trig->flags, TrgF_DISABLED, true);
+                    set_flag(pr_trig->flags, TrgF_DISABLED);
             }
       }
     }
@@ -1097,7 +1101,7 @@ void process_values(void)
             {
                 script_process_value(value->valtype, value->plyr_range, value->arg0, value->arg1, value->arg2, value);
                 if ((value->flags & TrgF_REUSABLE) == 0)
-                  set_flag_byte(&value->flags, TrgF_DISABLED, true);
+                  set_flag(value->flags, TrgF_DISABLED);
             }
         }
     }

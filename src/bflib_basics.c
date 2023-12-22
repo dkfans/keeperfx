@@ -78,93 +78,6 @@ unsigned long lword (unsigned char *p)
 }
 
 /**
- * Toggles a masked bit in the flags field to the value.
- * This version assumes the flag field is 1 byte long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- */
-void toggle_flag_byte(unsigned char *flags,unsigned char mask)
-{
-  if ((*flags & mask) == 0)
-    *flags |= mask;
-  else
-    *flags ^= mask;
-}
-
-/**
- * Toggles a masked bit in the flags field to the value.
- * This version assumes the flag field is 2 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- */
-void toggle_flag_word(unsigned short *flags,unsigned short mask)
-{
-  if ((*flags & mask) == 0)
-    *flags |= mask;
-  else
-    *flags ^= mask;
-}
-
-/**
- * Toggles a masked bit in the flags field to the value.
- * This version assumes the flag field is 4 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- */
-void toggle_flag_dword(unsigned long *flags,unsigned long mask)
-{
-  if ((*flags & mask) == 0)
-    *flags |= mask;
-  else
-    *flags ^= mask;
-}
-
-/**
- * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 2 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_word(unsigned short *flags,unsigned short mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
-}
-
-/**
- * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 1 byte long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_byte(unsigned char *flags,unsigned char mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
-}
-
-/**
- * Sets a masked bit in the flags field to the value.
- * This version assumes the flag field is 4 bytes long.
- * @param flags Pointer to the flags byte.
- * @param mask Bitmask for the flag.
- * @param value The new logic value.
- */
-void set_flag_dword(unsigned long *flags,unsigned long mask,short value)
-{
-  if (value)
-    *flags |= mask;
-  else
-    *flags ^= *flags & mask;
-}
-
-/**
  * Returns a signed value, which is equal to val if it fits in nbits.
  * Otherwise, returns max value that can fit in nbits.
  * @param val the value to be saturated.
@@ -213,6 +126,30 @@ char *buf_sprintf(const char *format, ...)
 void error(const char *codefile,const int ecode,const char *message)
 {
   LbErrorLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+}
+
+short warning_dialog(const char *codefile,const int ecode,const char *message)
+{
+  LbWarnLog("In source %s:\n %5d - %s\n",codefile,ecode,message);
+
+  const SDL_MessageBoxButtonData buttons[] = {
+		{ .flags = SDL_MESSAGEBOX_BUTTON_RETURNKEY_DEFAULT, .buttonid = 1, .text = "Ignore" },
+    { .flags = SDL_MESSAGEBOX_BUTTON_ESCAPEKEY_DEFAULT, .buttonid = 0, .text = "Abort" },
+	};
+
+	const SDL_MessageBoxData messageboxdata = {
+		.flags = SDL_MESSAGEBOX_WARNING,
+		.window = NULL,
+		.title = PROGRAM_FULL_NAME,
+		.message = message,
+		.numbuttons = SDL_arraysize(buttons),
+		.buttons = buttons,
+		.colorScheme = NULL //colorScheme not supported on windows
+	};
+
+  int button = 0;
+  SDL_ShowMessageBox(&messageboxdata, &button);
+  return button;
 }
 
 short error_dialog(const char *codefile,const int ecode,const char *message)
@@ -309,6 +246,29 @@ int LbNaviLog(const char *format, ...)
     va_end(val);
     return result;
 }
+
+int Lbvsprintf(char* buffer, const char *format, ...)
+{
+    va_list val;
+    va_start(val, format);
+    int result=vsprintf(buffer, format, val);
+    va_end(val);
+    return result;
+}
+
+#ifdef FUNCTESTING
+int LbFTestLog(const char *format, ...)
+{
+    if (!error_log_initialised)
+        return -1;
+    LbLogSetPrefix(&error_log, "FTest: ");
+    va_list val;
+    va_start(val, format);
+    int result=LbLog(&error_log, format, val);
+    va_end(val);
+    return result;
+}
+#endif
 
 /*
  * Logs script-related message.

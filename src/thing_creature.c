@@ -405,6 +405,19 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
     return true;
 }
 
+/** 
+ * Randomise the draw direction of the swipe sprite in the first-person possession view.
+ * 
+ * Sets PlayerInfo->swipe_sprite_drawLR to either TRUE or FALSE.
+ * 
+ * Draw direction is either: left-to-right (TRUE) or right-to-left (FALSE)
+ */
+void randomise_swipe_graphic_direction()
+{
+    struct PlayerInfo* myplyr = get_my_player();
+    myplyr->swipe_sprite_drawLR = UNSYNC_RANDOM(2); // equal chance to be left-to-right or right-to-left
+}
+
 void draw_swipe_graphic(void)
 {
     struct PlayerInfo* myplyr = get_my_player();
@@ -432,7 +445,7 @@ void draw_swipe_graphic(void)
             int scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
             struct TbSprite *spr;
             int scrpos_x;
-            if ((myplyr->field_1 & 4) != 0)
+            if (myplyr->swipe_sprite_drawLR)
             {
                 int delta_y = sprlist[1].SHeight;
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
@@ -468,7 +481,8 @@ void draw_swipe_graphic(void)
             return;
         }
     }
-    myplyr->field_1 ^= (myplyr->field_1 ^ 4 * UNSYNC_RANDOM(4)) & 4;
+    // we get here many times a second when in possession mode and not attacking: to randomise the swipe direction
+    randomise_swipe_graphic_direction();
 }
 
 long creature_available_for_combat_this_turn(struct Thing *creatng)
@@ -2586,7 +2600,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_off_all_window_menus();
         turn_off_query_menus();
         turn_on_main_panel_menu();
-        set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+        set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   light_turn_light_on(player->cursor_light_idx);
 }
@@ -2635,10 +2649,6 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
-    if ((flags & CrDed_NotReallyDying) == 0)
-    {
-        EVM_CREATURE_EVENT("died", creatng->owner, creatng);
-    }
     cleanup_creature_state_and_interactions(creatng);
     if (!thing_is_invalid(killertng))
     {
@@ -2939,37 +2949,35 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         target_idx = target->index;
     }
     struct ComponentVector cvect;
-    switch (shot_model)
+
+    switch (shotst->fire_logic)
     {
-    case ShM_Lightning:
-    case ShM_Drain:
+    case ShFL_Beam:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
         {
-            project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 20);
+            project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
         }
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
-        if (shot_model == ShM_Drain)
-          draw_lightning(&pos1, &pos2, 96, TngEffElm_RedDot);
-        else
-          draw_lightning(&pos1, &pos2, 96, TngEffElm_ElectricBall3);
+        draw_lightning(&pos1, &pos2, shotst->effect_spacing, shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
-    case ShM_FlameBreathe:
+    case ShFL_Breathe:
         if ((thing_is_invalid(target)) || (get_2d_distance(&firing->mappos, &pos2) > shotst->max_range))
-          project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, 256, 4);
+          project_point_to_wall_on_angle(&pos1, &pos2, firing->move_angle_xy, firing->move_angle_z, COORD_PER_STL, shotst->max_range/COORD_PER_STL);
         shotng = create_thing(&pos2, TCls_Shot, shot_model, firing->owner, -1);
         if (thing_is_invalid(shotng))
           return;
-        draw_flame_breath(&pos1, &pos2, 96, 2);
+        
+        draw_flame_breath(&pos1, &pos2, shotst->effect_spacing, shotst->effect_amount,shotst->effect_id);
         shotng->health = shotst->health;
         shotng->shot.damage = damage;
         shotng->parent_idx = firing->index;
         break;
-    case ShM_Hail_storm:
+    case ShFL_Hail:
     {
         long i;
         if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
@@ -2977,7 +2985,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
             pos1.x.val = firing->mappos.x.val;
             pos1.y.val = firing->mappos.y.val;
         }
-        for (i = 0; i < 32; i++)
+        for (i = 0; i < shotst->effect_amount; i++)
         {
             tmptng = create_thing(&pos1, TCls_Shot, shot_model, firing->owner, -1);
             if (thing_is_invalid(tmptng))
@@ -2997,6 +3005,8 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         }
         break;
     }
+    case ShFL_Lizard:
+    case ShFL_Default:
     default:
         if (map_is_solid_at_height(pos1.x.stl.num, pos1.y.stl.num, pos1.z.val, (pos1.z.val + shotst->size_z)))
         {
@@ -3018,7 +3028,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
         shotng->parent_idx = firing->index;
         shotng->shot.target_idx = target_idx;
         shotng->shot.dexterity = dexterity;
-            if (shot_model == ShM_Lizard)
+            if (shotst->fire_logic == ShFL_Lizard)
             {
                 if (!thing_is_invalid(target))
                 {
@@ -3059,7 +3069,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
       {
         thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
       }
-      set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
+      set_flag_value(shotng->movement_flags, TMvF_Unknown10, flag1);
     }
 }
 

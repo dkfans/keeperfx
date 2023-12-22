@@ -184,7 +184,7 @@ void reset_eye_lenses(void)
         LbMemoryFree(eye_lens_spare_screen_memory);
         eye_lens_spare_screen_memory = NULL;
     }
-    set_flag_byte(&game.flags_cd, MFlg_EyeLensReady, false);
+    clear_flag(game.flags_cd, MFlg_EyeLensReady);
     game.numfield_1A = 0;
     game.numfield_1B = 0;
     SYNCDBG(9,"Done");
@@ -200,7 +200,7 @@ void initialise_eye_lenses(void)
   }
   if ((features_enabled & Ft_EyeLens) == 0)
   {
-    set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,false);
+    clear_flag(game.flags_cd, MFlg_EyeLensReady);
     return;
   }
 
@@ -217,7 +217,7 @@ void initialise_eye_lenses(void)
     return;
   }
   SYNCDBG(9,"Buffer dimensions (%d,%d)",eye_lens_width,eye_lens_height);
-  set_flag_byte(&game.flags_cd,MFlg_EyeLensReady,true);
+  set_flag(game.flags_cd, MFlg_EyeLensReady);
 }
 
 void setup_eye_lens(long nlens)

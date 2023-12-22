@@ -784,7 +784,6 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
     long k;
 
     const struct Dungeon *dungeon = comp->dungeon;
-    const struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
 
     chosen_job = Job_NULL;
     chosen_priority = LONG_MIN;
@@ -804,7 +803,7 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
             continue;
         }
         // Find specific room which meets capacity demands
-        room = find_room_of_role_with_most_spare_capacity(dungeonadd,rrole,&total_spare_cap);
+        room = find_room_of_role_with_most_spare_capacity(dungeon,rrole,&total_spare_cap);
         if (room_is_invalid(room)) {
             SYNCDBG(9,"Cannot assign %s for %s index %d; no room with spares",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
@@ -1246,7 +1245,6 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    const struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
         return IAvail_Never;
     }
@@ -1254,9 +1252,9 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
         ERRORLOG("Invalid dungeon in computer player.");
         return IAvail_Never;
     }
-    if (!dungeonadd->room_resrchable[rkind])
+    if (!dungeon->room_resrchable[rkind])
         return IAvail_Never;
-    if ((dungeonadd->room_buildable[rkind] & 1) == 0)
+    if ((dungeon->room_buildable[rkind] & 1) == 0)
         return IAvail_NeedResearch;
     return IAvail_Now;
 }
@@ -3195,7 +3193,6 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     long value;
     long model;
     long i;
-    struct DungeonAdd *dungeonadd = get_dungeonadd(dungeon->owner);
 
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player");
@@ -3218,7 +3215,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                if (dungeonadd->mnfct_info.door_amount_placeable[model] > 0)
+                if (dungeon->mnfct_info.door_amount_placeable[model] > 0)
                 {
                     int crate_source;
                     crate_source = remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Door, model, WrkCrtF_Default);
@@ -3239,7 +3236,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         break;
                     default:
                         WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(model),(int)dungeon->owner);
-                        dungeonadd->mnfct_info.door_amount_placeable[model] = 0;
+                        dungeon->mnfct_info.door_amount_placeable[model] = 0;
                         break;
                     }
                 }
@@ -3251,7 +3248,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     break;
                 }
                 struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[model];
-                if ((dungeonadd->mnfct_info.trap_amount_placeable[model] > 0) && (trapst->unsellable == 0))
+                if ((dungeon->mnfct_info.trap_amount_placeable[model] > 0) && (trapst->unsellable == 0))
                 {
                     int crate_source;
                     crate_source = remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Trap, model, WrkCrtF_Default);
@@ -3272,7 +3269,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         break;
                     default:
                         WARNLOG("Placeable trap %s amount for player %d was incorrect; fixed",trap_code_name(model),(int)dungeon->owner);
-                        dungeonadd->mnfct_info.trap_amount_placeable[model] = 0;
+                        dungeon->mnfct_info.trap_amount_placeable[model] = 0;
                         break;
                     }
                 }

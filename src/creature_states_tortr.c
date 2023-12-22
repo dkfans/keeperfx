@@ -281,10 +281,12 @@ void convert_creature_to_ghost(struct Room *room, struct Thing *thing)
         return;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureControl* newcctrl = creature_control_get_from_thing(newthing);
     init_creature_level(newthing, cctrl->explevel);
     if (creature_model_bleeds(thing->model))
       create_effect_around_thing(newthing, TngEff_Blood5);
     set_start_state(newthing);
+    strcpy(newcctrl->creature_name, cctrl->creature_name);
     kill_creature(thing, INVALID_THING, -1, CrDed_NoEffects|CrDed_DiedInBattle);
     struct Dungeon* dungeon = get_dungeon(room->owner);
     if (!dungeon_invalid(dungeon)) {
@@ -307,7 +309,6 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
     change_creature_owner(creatng, new_owner);
     anger_set_creature_anger_all_types(creatng, 0);
     struct Dungeon* dungeon = get_dungeon(new_owner);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(new_owner);
     if (!dungeon_invalid(dungeon)) 
     {
         dungeon->lvstats.creatures_converted++;
@@ -315,11 +316,11 @@ void convert_tortured_creature_owner(struct Thing *creatng, PlayerNumber new_own
         {
             if (get_creature_model_flags(creatng) & CMF_IsEvil)
             {
-                dungeonadd->evil_creatures_converted++;
+                dungeon->evil_creatures_converted++;
             }
             else
             {
-                dungeonadd->good_creatures_converted++;
+                dungeon->good_creatures_converted++;
             }
         }
     }
