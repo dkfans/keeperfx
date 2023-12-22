@@ -371,7 +371,7 @@ TbBool ftest_init()
 
     if(!ftest_fill_teststorun_by_name(start_params.functest_name))
     {
-        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%s') make sure init name/function are added to tests_list (see ftest_list.c)", start_params.functest_name)
+        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%s') make sure init name/function are added to tests_list or long_running_tests_list (see ftest_list.c)", start_params.functest_name)
         return false;
     }
 
