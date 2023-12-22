@@ -124,20 +124,17 @@ void compute_alpha_table(unsigned char *alphtbl, unsigned char *spal, unsigned c
             int valR = blendR + baseCol[0];
             if (valR >= 63)
               valR = 63;
+            else if (valR < 0)
+              valR = 0;
             int valG = blendG + baseCol[1];
             if (valG >= 63)
               valG = 63;
+            else if (valG < 0)
+              valG = 0;
             int valB = blendB + baseCol[2];
             if (valB >= 63)
               valB = 63;
-
-            if (valR < 0)
-              valR = 0;
-            int valG = blendG + baseCol[1];
-            if (valG < 0)
-              valG = 0;
-            int valB = blendB + baseCol[2];
-            if (valB < 0)
+            else if (valB < 0)
               valB = 0;
 
             TbPixel c = LbPaletteFindColour(dpal, valR, valG, valB);
