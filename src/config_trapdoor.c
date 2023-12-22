@@ -599,7 +599,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
       case 16: // MODEL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
-            struct Objects obj_tmp;
+            struct ObjectConfigStats obj_tmp;
             k = get_anim_id(word_buf, &obj_tmp);
             if (k >= 0)
             {

@@ -152,7 +152,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
         }
         i = ctask->next_task;
         // Per-task code
-        if (((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0))
+        if (flag_is_set(ctask->flags, (ComTsk_Unkn0001|ComTsk_Unkn0002)))
         {
             unsigned short max_radius = ctask->create_room.width / 2;
             if (max_radius <= ctask->create_room.height / 2)
@@ -331,7 +331,7 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
         }
         i = ctask->next_task;
         // Per-task code
-        if ( ((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0) )
+        if (flag_is_set(ctask->flags, (ComTsk_Unkn0001|ComTsk_Unkn0002)))
         {
             MapCoordDelta delta_x = ctask->new_room_pos.x.val - (MapCoordDelta)task_pos.x.val;
             MapCoordDelta delta_y = ctask->new_room_pos.y.val - (MapCoordDelta)task_pos.y.val;
@@ -960,7 +960,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if ((cproc->flags & ComProc_Unkn0002) != 0)
+            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
             //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
             if (cproc->func_check == computer_check_dig_to_gold)
@@ -1212,7 +1212,7 @@ long check_call_to_arms(struct Computer2 *comp)
             }
             i = ctask->next_task;
             // Per-task code
-            if ((ctask->flags & ComTsk_Unkn0001) != 0)
+            if (flag_is_set(ctask->flags, ComTsk_Unkn0001))
             {
                 if ((ctask->ttype == CTT_MagicCallToArms) && (ctask->task_state == CTaskSt_Select))
                 {
@@ -1319,7 +1319,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     // The check with 0x02 flag identifies end of active checks
     // (the check with 0x02 flag is invalid - only previous checks are in use)
     //newchk = &comp->checks[i];
-    newchk->flags |= ComTsk_Unkn0002;
+    set_flag(newchk->flags, ComChk_Unkn0002);
 
     for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
@@ -1529,7 +1529,7 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber 
         return NULL;
   }
   struct ComputerProcess* cproc = &comp->processes[0];
-  while ((cproc->flags & ComProc_Unkn0002) == 0)
+  while (!flag_is_set(cproc->flags, ComProc_Unkn0002))
   {
       if (cproc->func_setup == func_setup)
       {

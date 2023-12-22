@@ -61,7 +61,7 @@ struct EffectGeneratorConfigStats {
     long genation_delay_min;
     long genation_delay_max;
     long genation_amount;
-    long effect_element_model;
+    long effect_model;
     unsigned char ignore_terrain;
     long spawn_height;
     long acc_x_min;

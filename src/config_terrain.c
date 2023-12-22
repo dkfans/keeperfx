@@ -1285,7 +1285,7 @@ TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind)
         struct ComputerProcess* cproc = &comp->processes[i];
         if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == rkind))
         {
-            cproc->flags &= ~ComProc_Unkn0004;
+            clear_flag(cproc->flags, ComProc_Unkn0004);
             cproc->last_run_turn = 0;
             return true;
         }
