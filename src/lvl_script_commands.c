@@ -1483,17 +1483,14 @@ static void new_object_type_check(const struct ScriptLine* scline)
     SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], gameadd.object_conf.object_types_count + 1);
     gameadd.object_conf.object_types_count++;
 
-    struct ObjectConfigStats* objst;
     int tmodel = gameadd.object_conf.object_types_count -1;
-    struct Objects* objdat = get_objects_data(tmodel);
-
-    objst = &gameadd.object_conf.object_cfgstats[tmodel];
+    struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
     LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     objst->name_stridx = 201;
     objst->map_icon = 0;
     objst->genre = 0;
-    objdat->draw_class = ODC_Default;
+    objst->draw_class = ODC_Default;
     object_desc[tmodel].name = objst->code_name;
     object_desc[tmodel].num = tmodel;
 }
@@ -1681,7 +1678,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 12: // Model
         {
-            struct Objects obj_tmp;
+            struct ObjectConfigStats obj_tmp;
             gameadd.trap_stats[trap_type].sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             refresh_trap_anim(trap_type);
         }
@@ -2523,7 +2520,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             break;
         case  5: // AnimId
         {
-            struct Objects obj_tmp;
+            struct ObjectConfigStats obj_tmp;
             number_value = get_anim_id(new_value, &obj_tmp);
             if (number_value == 0)
             {
@@ -2830,7 +2827,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    struct Objects* objdat = get_objects_data(context->value->arg0);
     struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
     switch (context->value->arg1)
     {
@@ -2838,31 +2834,31 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->genre = context->value->arg2;
             break;
         case 3: // RELATEDCREATURE
-            objdat->related_creatr_model = context->value->arg2;
+            objst->related_creatr_model = context->value->arg2;
             break;
         case 4: // PROPERTIES
             objst->model_flags = context->value->arg2;
             break;
         case 5: // ANIMATIONID
-            objdat->sprite_anim_idx = get_anim_id(context->value->str2, objdat);
+            objst->sprite_anim_idx = get_anim_id(context->value->str2, objst);
             break;
         case 6: // ANIMATIONSPEED
-            objdat->anim_speed = context->value->arg2;
+            objst->anim_speed = context->value->arg2;
             break;
         case 7: //SIZE_XY
-            objdat->size_xy = context->value->arg2;
+            objst->size_xy = context->value->arg2;
             break;
         case 8: // SIZE_Z
-            objdat->size_z = context->value->arg2;
+            objst->size_z = context->value->arg2;
             break;
         case 9: // MAXIMUMSIZE
-            objdat->sprite_size_max = context->value->arg2;
+            objst->sprite_size_max = context->value->arg2;
             break;
         case 10: // DESTROYONLIQUID
-            objdat->destroy_on_liquid = context->value->arg2;
+            objst->destroy_on_liquid = context->value->arg2;
             break;
         case 11: // DESTROYONLAVA
-            objdat->destroy_on_lava = context->value->arg2;
+            objst->destroy_on_lava = context->value->arg2;
             break;
         case 12: // HEALTH
             objst->health = context->value->arg2;
@@ -2886,16 +2882,28 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->map_icon = context->value->arg2;
             break;
         case 19: // AMBIENCESOUND
-            objdat->fp_smpl_idx = context->value->arg2;
+            objst->fp_smpl_idx = context->value->arg2;
             break;
         case 20: // UPDATEFUNCTION
-            objdat->updatefn_idx = context->value->arg2;
+            objst->updatefn_idx = context->value->arg2;
             break;
         case 21: // DRAWCLASS
-            objdat->draw_class = context->value->arg2;
+            objst->draw_class = context->value->arg2;
             break;
         case 22: // PERSISTENCE
-            objdat->persistence = context->value->arg2;
+            objst->persistence = context->value->arg2;
+            break;
+        case 23: // Immobile
+            objst->immobile = context->value->arg2;
+            break;
+        case 24: // INITIALSTATE
+            objst->initial_state = context->value->arg2;
+            break;
+        case 25: // RANDOMSTARTFRAME
+            objst->random_start_frame = context->value->arg2;
+            break;
+        case 26: // TRANSPARENCYFLAGS
+            objst->transparancy_flags = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);

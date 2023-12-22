@@ -461,7 +461,6 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
     SubtlCodedCoords stl_num;
     struct Thing *thing;
     struct Map *mapblk;
-    struct Objects *objdat;
     struct Coord3d pos;
     unsigned long removed_num;
     unsigned long k;
@@ -486,8 +485,8 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
             // Per thing code
             if (thing->class_id == TCls_Object)
             {
-                objdat = get_objects_data_for_thing(thing);
-                if (objdat->destroy_on_liquid)
+                struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
+                if (objst->destroy_on_liquid)
                 {
                     if (rmeffect > 0)
                     {
@@ -1490,9 +1489,9 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
                     TbBool delete_thing = true;
                     if (thing_is_object(thing))
                     {
-                        struct Objects *objdat = get_objects_data_for_thing(thing);
+                        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
 
-                        persistence = objdat->persistence;
+                        persistence = objst->persistence;
                         if (persistence == ObPer_Move)
                         {
                             if ((get_map_floor_filled_subtiles(mapblk) <= 4) || move_object_to_nearest_free_position(thing))
