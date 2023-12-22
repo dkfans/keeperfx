@@ -152,11 +152,11 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
 
             if(value_dict_get(section,"EffectModel") == VALUE_INT32)
             {
-                effgencst->effect_element_model = value_int32(value_dict_get(section,"EffectModel"));
+                effgencst->effect_model = value_int32(value_dict_get(section,"EffectModel"));
             }
             else
             {
-                effgencst->effect_element_model = effect_or_effect_element_id(value_string(value_dict_get(section,"EffectModel")));
+                effgencst->effect_model = effect_or_effect_element_id(value_string(value_dict_get(section,"EffectModel")));
             }
             effgencst->ignore_terrain       = value_int32(value_dict_get(section,"IgnoreTerrain"));
             effgencst->spawn_height         = value_int32(value_dict_get(section,"SpawnHeight"));
