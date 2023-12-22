@@ -4149,7 +4149,7 @@ short process_command_line(unsigned short argc, char *argv[])
         }
 
 #ifdef FUNCTESTING
-        ftest_init(); // initialise test framework on ftest build
+        set_flag(start_params.functest_flags, FTF_Enabled);
 #else
         WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
@@ -4158,6 +4158,14 @@ short process_command_line(unsigned short argc, char *argv[])
       {
 #ifdef FUNCTESTING
         set_flag(start_params.functest_flags, FTF_ExitOnTestFailure);
+#else
+       WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
+      }
+      else if(strcasecmp(parstr, "includelongtests") == 0)
+      {
+#ifdef FUNCTESTING
+        set_flag(start_params.functest_flags, FTF_IncludeLongTests);
 #else
        WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
@@ -4191,6 +4199,10 @@ short process_command_line(unsigned short argc, char *argv[])
   }
   start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
+
+#ifdef FUNCTESTING
+  ftest_init(); // initialise test framework on ftest build
+#endif
 
   if(bad_param != 0)
   {

@@ -128,6 +128,7 @@ struct FTestConfig {
 struct ftest_onlyappendtests__config
 {
     struct FTestConfig tests_list[FTEST_MAX_TESTS];
+    struct FTestConfig long_running_tests_list[FTEST_MAX_TESTS];
 };
 extern struct ftest_onlyappendtests__config ftest_onlyappendtests__conf;
 
