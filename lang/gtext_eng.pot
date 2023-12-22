@@ -6101,31 +6101,36 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr ""
 
 #: guitext:1053
-msgctxt "Keeper spell name"
-msgid "Rebound"
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
 msgstr ""
 
 #: guitext:1054
 msgctxt "Keeper spell name"
-msgid "Freeze"
+msgid "Rebound"
 msgstr ""
 
 #: guitext:1055
 msgctxt "Keeper spell name"
-msgid "Slow"
+msgid "Freeze"
 msgstr ""
 
 #: guitext:1056
 msgctxt "Keeper spell name"
-msgid "Fly"
+msgid "Slow"
 msgstr ""
 
 #: guitext:1057
 msgctxt "Keeper spell name"
-msgid "Light"
+msgid "Fly"
 msgstr ""
 
 #: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Light"
+msgstr ""
+
+#: guitext:1059
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr ""
