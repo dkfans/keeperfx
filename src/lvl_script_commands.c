@@ -4313,8 +4313,8 @@ static void set_effectgen_configuration_process(struct ScriptContext* context)
     case 4: // GENATIONAMOUNT
         effgencst->genation_amount = context->value->shorts[2];
         break;
-    case 5: // EFFECTELEMENTMODEL
-        effgencst->effect_element_model = context->value->shorts[2];
+    case 5: // EFFECTMODEL
+        effgencst->effect_model = context->value->shorts[2];
         break;
     case 6: // IGNORETERRAIN
         effgencst->ignore_terrain = context->value->shorts[2];
