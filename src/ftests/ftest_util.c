@@ -349,6 +349,45 @@ TbBool ftest_util_replace_slabs_with_dungeon_hearts(MapSlabCoord slb_x_from, Map
     return true;
 }
 
+TbBool ftest_util_mark_slab_for_highlight(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    long stl_x = slab_subtile(slb_x,0);
+    long stl_y = slab_subtile(slb_y,0);
+
+    long dx;
+    long dy;
+    struct Map* mapblk = INVALID_MAP_BLOCK;
+    for (dy=0; dy < STL_PER_SLB; dy++)
+    {
+        for (dx=0; dx < STL_PER_SLB; dx++)
+        {
+            mapblk = get_map_block_at(stl_x + dx, stl_y + dy);
+            if(map_block_invalid(mapblk))
+            {
+                ERRORLOG("Invalid map block for slab (%d,%d) at (%ld,%ld)", slb_x, slb_y, stl_x + dx, stl_y + dy);
+                return false;
+            }
+
+            if((slb_x % 2 == 0 && slb_y % 2 != 0) || (slb_x % 2 != 0 && slb_y % 2 == 0))
+            {
+                if(((dx == 0 || dx == 2) && (dy == 0 || dy == 2)) || (dx == 1 && dy == 1))
+                {
+                    mapblk->flags |= SlbAtFlg_Unexplored;
+                }
+            }
+            else
+            {
+                if(!(((dx == 0 || dx == 2) && (dy == 0 || dy == 2)) || (dx == 1 && dy == 1)))
+                {
+                    mapblk->flags |= SlbAtFlg_Unexplored;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 TbBool ftest_util_action__create_and_fill_torture_room(struct FTestActionArgs* const args)
 {
     struct ftest_util_action__create_and_fill_torture_room__variables* const vars = args->data;
