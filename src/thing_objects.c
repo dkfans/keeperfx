@@ -171,7 +171,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     thing->owner = owner;
     thing->creation_turn = game.play_gameturn;
 
-    if (!objst->randomise_startframe)
+    if (!objst->random_start_frame)
     {
       i = convert_td_iso(objst->sprite_anim_idx);
       k = 0;

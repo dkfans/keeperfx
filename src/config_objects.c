@@ -70,7 +70,7 @@ const struct NamedCommand objects_object_commands[] = {
   {"PERSISTENCE",       22},
   {"IMMOBILE",          23},
   {"INITIALSTATE",      24},
-  {"RANDOMIZESTARTFRAME",25},
+  {"RANDOMSTARTFRAME",  25},
   {"TRANSPARENCYFLAGS", 26},
   {NULL,                 0},
   };
@@ -630,11 +630,11 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
                 }
                 break;
-            case 25: // RANDOMIZESTARTFRAME
+            case 25: // RANDOMSTARTFRAME
                 if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
                     n = atoi(word_buf);
-                    objst->randomise_startframe = n;
+                    objst->random_start_frame = n;
                     n++;
                 }
                 if (n <= 0)

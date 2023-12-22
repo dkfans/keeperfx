@@ -85,7 +85,7 @@ struct ObjectConfigStats {
     unsigned char rotation_flag;
     unsigned char updatefn_idx;
     unsigned char initial_state;
-    unsigned char randomise_startframe;
+    unsigned char random_start_frame;
     unsigned char transparancy_flags;  // Lower 2 bits are transparency flags
 };
 
