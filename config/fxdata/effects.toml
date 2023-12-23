@@ -1120,9 +1120,9 @@ AlwaysGenerate = 0
 
 [effectGenerator0]
 Name = "EFFECTGENERATOR_NULL"
-GenationDelayMin = 0
-GenationDelayMax = 0
-GenationAmount = 0
+GenerationDelayMin = 0
+GenerationDelayMax = 0
+GenerationAmount = 0
 EffectModel = 0
 IgnoreTerrain = 0
 SpawnHeight = 0
@@ -1132,9 +1132,9 @@ Sound = [0,0]
 
 [effectGenerator1]
 Name = "EFFECTGENERATOR_LAVA"
-GenationDelayMin = 10
-GenationDelayMax = 20
-GenationAmount = 1
+GenerationDelayMin = 10
+GenerationDelayMax = 20
+GenerationAmount = 1
 EffectModel = "EFFECTELEMENT_LAVA_FLAME_STATIONARY"
 IgnoreTerrain = 1
 SpawnHeight = 0
@@ -1144,9 +1144,9 @@ Sound = [147,3]
 
 [effectGenerator2]
 Name = "EFFECTGENERATOR_DRIPPING_WATER"
-GenationDelayMin = 10
-GenationDelayMax = 20
-GenationAmount = 1
+GenerationDelayMin = 10
+GenerationDelayMax = 20
+GenerationAmount = 1
 EffectModel = "EFFECTELEMENT_WATERDROP"
 IgnoreTerrain = 0
 SpawnHeight = -1
@@ -1156,9 +1156,9 @@ Sound = [0,0]
 
 [effectGenerator3]
 Name = "EFFECTGENERATOR_ROCK_FALL"
-GenationDelayMin = 0
-GenationDelayMax = 0
-GenationAmount = 5
+GenerationDelayMin = 0
+GenerationDelayMax = 0
+GenerationAmount = 5
 EffectModel = "EFFECTELEMENT_LARGE_ROCK2"
 IgnoreTerrain = 0
 SpawnHeight = -1
@@ -1168,9 +1168,9 @@ Sound = [0,0]
 
 [effectGenerator4]
 Name = "EFFECTGENERATOR_ENTRANCE_ICE"
-GenationDelayMin = 0
-GenationDelayMax = 2
-GenationAmount = 1
+GenerationDelayMin = 0
+GenerationDelayMax = 2
+GenerationAmount = 1
 EffectModel = "EFFECTELEMENT_ENTRANCE_MIST"
 IgnoreTerrain = 0
 SpawnHeight = 256
@@ -1180,9 +1180,9 @@ Sound = [0,0]
 
 [effectGenerator5]
 Name = "EFFECTGENERATOR_DRY_ICE"
-GenationDelayMin = 2
-GenationDelayMax = 5
-GenationAmount = 1
+GenerationDelayMin = 2
+GenerationDelayMax = 5
+GenerationAmount = 1
 EffectModel = "EFFECTELEMENT_ENTRANCE_MIST"
 IgnoreTerrain = 0
 SpawnHeight = 0
