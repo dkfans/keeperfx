@@ -60,6 +60,7 @@
 #include "custom_sprites.h"
 #include "sprites.h"
 #include "post_inc.h"
+#include <math.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -5701,22 +5702,53 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     }
     b = b_start;
 
-    // Draw the line
-    for (a = a_start; a <= a_end; a ++)
-    {
+    // A hack-fix to ensure that pixels are always drawn on screen. Otherwise when zoomed in, pixels have trouble being drawn in the bottom right corner
+    relative_window_a *= 1.5;
+    relative_window_b *= 1.5;
+
+    // Set up parameters before starting the drawing loop
+    long jx = x2 - x1;
+    long jy = y2 - y1;
+    long line_length = (long)sqrt((double)(jx * jx + jy * jy));
+
+    int line_thickness = max(1, units_per_pixel / 16);
+    int half_thickness = line_thickness / 2;
+    TbBool isHorizontal = abs(x2 - x1) >= abs(y2 - y1); // Check if line is more horizontal than vertical, helps with the "pixel-art look".
+    int temp_x, temp_y;
+    float color_animation_position = color_index;
+    // Main loop to draw the line
+    for (a = a_start; a <= a_end; a++) {
         if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b))
         {
             // Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
             WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
         }
-        // Draw a pixel with the correct colour from the stripey line's color array.
-        LbDrawPixel(*x_coord, *y_coord, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
-        // Increment color_index, looping back to 0 after 15
-        color_index = (color_index + 1) & 0xf;
-        // The remainder is used to know when to round up B to the next increment
-        if (remainder >= remainder_limit)
-        {
+        color_animation_position += lerp(4.0, 1.0, hud_scale) * (16.0/units_per_pixel);
+        if (color_animation_position >= 16.0) {
+            color_animation_position -= 16.0;
+        }
+        color_index = max(0, (int)color_animation_position);
 
+        // Nested loops to draw square pixels around each point for the specified thickness
+        for (int dx = -half_thickness; dx <= half_thickness; dx++) {
+            for (int dy = -half_thickness; dy <= half_thickness; dy++) {
+                // Determine pixel coordinates based on line orientation
+                if (isHorizontal) {
+                    temp_x = *x_coord;
+                    temp_y = *y_coord + dy;
+                } else {
+                    temp_x = *x_coord + dx;
+                    temp_y = *y_coord;
+                }
+
+                // Draw the pixel if it's within the bounds of the window
+                if ((temp_x >= 0) && (temp_x < relative_window_a) && (temp_y >= 0) && (temp_y < relative_window_b)) {
+                    LbDrawPixel(temp_x, temp_y, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
+                }
+            }
+        }
+
+        if (remainder >= remainder_limit) {
             b += b_increment;
             remainder -= distance_a;
         }
