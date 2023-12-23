@@ -88,9 +88,9 @@ struct EffectElementConfigStats {
     unsigned short sprite_speed_min;
     unsigned short sprite_speed_max;
     TbBool animate_on_floor;
-    unsigned char unshaded;
+    TbBool unshaded;
     unsigned char transparant;  // transparency flags in bits 4-5
-    unsigned char movable;
+    TbBool movable;
     unsigned char movement_flags;
     unsigned char size_change; /**< See enum ThingSizeChange. */
     unsigned char fall_acceleration;
@@ -98,19 +98,19 @@ struct EffectElementConfigStats {
     short inertia_air;
     unsigned short subeffect_model;
     unsigned short subeffect_delay;
-    unsigned char impacts;
+    TbBool impacts;
     unsigned short solidgnd_effmodel;
     unsigned short solidgnd_snd_smpid;
     unsigned short solidgnd_loudness;
-    unsigned char solidgnd_destroy_on_impact;
+    TbBool solidgnd_destroy_on_impact;
     unsigned short water_effmodel;
     unsigned short water_snd_smpid;
     unsigned short water_loudness;
-    unsigned char water_destroy_on_impact;
+    TbBool water_destroy_on_impact;
     unsigned short lava_effmodel;
     unsigned short lava_snd_smpid;
     unsigned short lava_loudness;
-    unsigned char lava_destroy_on_impact;
+    TbBool lava_destroy_on_impact;
     unsigned short transform_model;
     unsigned short light_radius;
     unsigned char light_intensity;
