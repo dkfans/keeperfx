@@ -210,7 +210,7 @@ CrStateRet creature_add_lair_to_room(struct Thing *creatng, struct Room *room)
     unsigned long i = convert_td_iso(objst->sprite_anim_idx);
     set_thing_draw(lairtng, i, objst->anim_speed, lairtng->lair.cssize, 0, -1, objst->draw_class);
     thing_play_sample(creatng, 158, NORMAL_PITCH, 0, 3, 1, 2, FULL_LOUDNESS);
-    create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
+    create_effect(&pos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     anger_set_creature_anger(creatng, 0, AngR_NoLair);
     remove_thing_from_mapwho(creatng);
     place_thing_in_mapwho(creatng);
