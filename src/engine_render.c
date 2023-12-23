@@ -5706,7 +5706,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     relative_window_b *= 1.5;
 
     // Set up parameters before starting the drawing loop
-    int line_thickness = max(1, units_per_pixel / 16);
+    int line_thickness = max(1, units_per_pixel_best / 16);
 
     // Make the line slightly thinner when zoomed out
     line_thickness = lerp(line_thickness, 1, fastPow(1.0-hud_scale, 4.0));
@@ -5722,7 +5722,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
             // Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
             WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
         }
-        color_animation_position += lerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel);
+        color_animation_position += lerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel_best);
         if (color_animation_position >= 16.0) {
             color_animation_position -= 16.0;
         }
