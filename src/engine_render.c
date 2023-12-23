@@ -5707,10 +5707,6 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     relative_window_b *= 1.5;
 
     // Set up parameters before starting the drawing loop
-    long jx = x2 - x1;
-    long jy = y2 - y1;
-    long line_length = (long)sqrt((double)(jx * jx + jy * jy));
-
     int line_thickness = max(1, units_per_pixel / 16);
     int half_thickness = line_thickness / 2;
     TbBool isHorizontal = abs(x2 - x1) >= abs(y2 - y1); // Check if line is more horizontal than vertical, helps with the "pixel-art look".
