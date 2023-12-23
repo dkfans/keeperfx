@@ -111,7 +111,7 @@ struct SlabSet { // sizeof = 18
 };
 
 struct SlabObj {
-  unsigned char isLight;
+  TbBool isLight;
   short slabset_id;
   unsigned char stl_id;
   short offset_x; // position within the subtile
