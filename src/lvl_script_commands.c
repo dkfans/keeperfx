@@ -32,6 +32,7 @@
 #include "config_trapdoor.h"
 #include "config_powerhands.h"
 #include "config_players.h"
+#include "frontmenu_ingame_map.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
@@ -4679,6 +4680,8 @@ static void set_player_color_process(struct ScriptContext *context)
                     struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
                     if (slabmap_owner(slb) == plyr_idx)
                     {
+                        setup_pannel_colours();                        
+
                         if (slab_kind_is_animated(slb->kind))
                         {
                             place_animating_slab_type_on_map(slb->kind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
