@@ -40,6 +40,20 @@ extern "C" {
 /******************************************************************************/
 const char keeper_effects_file[]="effects.toml";
 
+const struct NamedCommand effect_generator_commands[] = {
+    {"NAME",                    1},
+    {"GENERATIONDELAYMIN",      2},
+    {"GENERATIONDELAYMAX",      3},
+    {"GENERATIONAMOUNT",        4},
+    {"EFFECTMODEL",             5},
+    {"IGNORETERRAIN",           6},
+    {"SPAWNHEIGHT",             7},
+    {"ACCELERATIONMIN",         8},
+    {"ACCELERATIONMAX",         9},
+    {"SOUND",                  10},
+    {NULL,                      0},
+};
+
 long const imp_spangle_effects[] = {
     TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite, TngEff_None,
 };
@@ -109,7 +123,6 @@ static void load_effects(VALUE *value, unsigned short flags)
             effcst->ilght.field_3     = value_int32(value_dict_get(section,"LightFlags"));
             effcst->elements_count    = value_int32(value_dict_get(section,"ElementsCount"));
             effcst->always_generate   = value_int32(value_dict_get(section,"AlwaysGenerate"));
-
         }
     }
 }

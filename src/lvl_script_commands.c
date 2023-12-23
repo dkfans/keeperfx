@@ -4211,6 +4211,141 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
     }
 }
 
+static void set_effectgen_configuration_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char* effgenname = scline->tp[0];
+    const char* property = scline->tp[1];
+    short value1 = 0;
+
+    char effgen_id = get_id(effectgen_desc, effgenname);
+    if (effgen_id == -1)
+    {
+        SCRPTERRLOG("Unknown effect generator, '%s'", effgenname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    long property_id = get_id(effect_generator_commands, property);
+    if (property_id == -1)
+    {
+        SCRPTERRLOG("Unknown effect generator variable");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    } else
+    if (property_id == 5) // EFFECTELEMENTMODEL
+    {
+        short effelem_id = -1;
+        if (parameter_is_number(scline->tp[2]))
+        {
+            effelem_id = atoi(scline->tp[2]);
+        }
+        else
+        {
+            effelem_id = get_id(effectelem_desc, scline->tp[2]);
+            if (effelem_id == -1)
+            {
+                effelem_id = get_id(effect_desc, scline->tp[2]);
+            }
+        }
+        if (effelem_id == -1)
+        {
+            SCRPTERRLOG("Unknown effect element value for Effect Generator");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value1 = effelem_id;
+    }
+    else
+    if ((property_id == 8) || (property_id == 9)) // ACCELERATIONMIN or ACCELERATIONMAX
+    {
+        if ((scline->np[3] == '\0') || (scline->np[4] == '\0'))
+        {
+            SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    } else
+    if (property_id == 10) // SOUND
+    {
+        if (scline->np[3] == '\0')
+        {
+            SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    else
+    {
+        if (parameter_is_number(scline->tp[2]))
+        {
+            value1 = atoi(scline->tp[2]);
+        }
+        else
+        {
+            SCRPTERRLOG("Unsupported value %s for Effect Generator configuration %s", scline->tp[2], scline->tp[1]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+
+
+    SCRIPTDBG(7, "Setting effect generator %s property %s to %d", effectgenerator_code_name(effgen_id), property, value1);
+    value->shorts[0] = effgen_id;
+    value->shorts[1] = property_id;
+    value->shorts[2] = value1;
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = scline->np[4];
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_effectgen_configuration_process(struct ScriptContext* context)
+{
+    short effgen_id = context->value->shorts[0];
+    short property_id = context->value->shorts[1];
+
+    struct EffectGeneratorConfigStats* effgencst = &gameadd.effects_conf.effectgen_cfgstats[effgen_id];
+    switch (property_id)
+    {
+    case 2: // GENERATIONDELAYMIN
+        effgencst->generation_delay_min = context->value->shorts[2];
+        break;
+    case 3: // GENERATIONDELAYMAX
+        effgencst->generation_delay_max = context->value->shorts[2];
+        break;
+    case 4: // GENERATIONAMOUNT
+        effgencst->generation_amount = context->value->shorts[2];
+        break;
+    case 5: // EFFECTMODEL
+        effgencst->effect_model = context->value->shorts[2];
+        break;
+    case 6: // IGNORETERRAIN
+        effgencst->ignore_terrain = context->value->shorts[2];
+        break;
+    case 7: // SPAWNHEIGHT
+        effgencst->spawn_height = context->value->shorts[2];
+        break;
+    case 8: // ACCELERATIONMIN
+        effgencst->acc_x_min = context->value->shorts[2];
+        effgencst->acc_y_min = context->value->shorts[3];
+        effgencst->acc_z_min = context->value->shorts[4];
+        break;
+    case 9: // ACCELERATIONMAX
+        effgencst->acc_x_max = context->value->shorts[2];
+        effgencst->acc_y_max = context->value->shorts[3];
+        effgencst->acc_z_max = context->value->shorts[4];
+        break;
+    case 10: // SOUND
+        effgencst->sound_sample_idx = context->value->shorts[2];
+        effgencst->sound_sample_rng = context->value->shorts[3];
+        break;
+    default:
+        WARNMSG("Unsupported Effect Generator configuration, variable %d.", context->value->shorts[1]);
+        break;
+    }
+}
+
 static void set_power_configuration_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -4705,6 +4840,7 @@ const struct CommandDesc command_desc[] = {
   {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process },
   {"SET_HAND_GRAPHIC",                  "PA      ", Cmd_SET_HAND_GRAPHIC, &set_power_hand_check, &set_power_hand_process },
   {"ADD_EFFECT_GENERATOR_TO_LEVEL",     "AAN     ", Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL, &add_effectgen_to_level_check, &add_effectgen_to_level_process},
+  {"SET_EFFECT_GENERATOR_CONFIGURATION","AAAnn   ", Cmd_SET_EFFECT_GENERATOR_CONFIGURATION, &set_effectgen_configuration_check, &set_effectgen_configuration_process },
   {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
   {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},

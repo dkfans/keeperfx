@@ -175,8 +175,9 @@ enum TbScriptCommands {
     Cmd_NEW_CREATURE_TYPE                 = 162,
     Cmd_SET_HAND_GRAPHIC                  = 163,
     Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL     = 164,
-    Cmd_SET_POWER_CONFIGURATION           = 165,
-    Cmd_SET_PLAYER_COLOR                  = 166,
+    Cmd_SET_EFFECT_GENERATOR_CONFIGURATION = 165,
+    Cmd_SET_POWER_CONFIGURATION           = 166,
+    Cmd_SET_PLAYER_COLOR                  = 167,
 };
 
 struct ScriptLine {
