@@ -76,7 +76,7 @@ struct EffectGeneratorConfigStats {
 };
 
 struct EffectElementConfigStats {
-    char code_name[COMMAND_WORD_LEN * 2];
+    char code_name[COMMAND_WORD_LEN];
     unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char move_type;
     unsigned char unanimated;
