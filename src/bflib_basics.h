@@ -218,6 +218,15 @@ void make_uppercase(char *);
 #define flag_is_set(flags,mask) ((flags & mask) == mask)
 
 /** 
+ * Check if any of the given flags is set - by checking if any of the given masked bits are set to 1 in the given flags variable.
+ * 
+ * @param flags The flags variable we want to check.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the bit flags we want to check in the "flags" parameter.
+ * @return Returns TRUE if any of the given masked bits are set to 1 in the given flags variable.
+ */
+#define any_flag_is_set(flags,mask) ((flags & mask) != 0)
+
+/** 
  * Check if all of the flags are set - by checking if all of the bits are set to 1 in the given flags variable.
  * For example: all 6 players set in a flags variable would be 0b111111.
  * 
