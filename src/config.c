@@ -1130,7 +1130,7 @@ short load_configuration(void)
           {
             i = atoi(word_buf);
           }
-          if ((i >= 0) && (i <= 32768)) {
+          if ((i >= 0) && (i <= SHRT_MAX)) {
               global_hand_scale = i/100.0;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);

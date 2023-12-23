@@ -36,6 +36,7 @@ extern "C" {
 
 /******************************************************************************/
 
+extern const struct NamedCommand effect_generator_commands[];
 
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
@@ -58,10 +59,10 @@ struct EffectConfigStats {
 
 struct EffectGeneratorConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    long genation_delay_min;
-    long genation_delay_max;
-    long genation_amount;
-    long effect_element_model;
+    long generation_delay_min;
+    long generation_delay_max;
+    long generation_amount;
+    long effect_model;
     unsigned char ignore_terrain;
     long spawn_height;
     long acc_x_min;

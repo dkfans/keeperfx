@@ -40,8 +40,22 @@ extern "C" {
 /******************************************************************************/
 const char keeper_effects_file[]="effects.toml";
 
+const struct NamedCommand effect_generator_commands[] = {
+    {"NAME",                    1},
+    {"GENERATIONDELAYMIN",      2},
+    {"GENERATIONDELAYMAX",      3},
+    {"GENERATIONAMOUNT",        4},
+    {"EFFECTMODEL",             5},
+    {"IGNORETERRAIN",           6},
+    {"SPAWNHEIGHT",             7},
+    {"ACCELERATIONMIN",         8},
+    {"ACCELERATIONMAX",         9},
+    {"SOUND",                  10},
+    {NULL,                      0},
+};
+
 long const imp_spangle_effects[] = {
-    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_None, TngEff_None,
+    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite, TngEff_None,
 };
 
 long const ball_puff_effects[] = {
@@ -109,7 +123,6 @@ static void load_effects(VALUE *value, unsigned short flags)
             effcst->ilght.field_3     = value_int32(value_dict_get(section,"LightFlags"));
             effcst->elements_count    = value_int32(value_dict_get(section,"ElementsCount"));
             effcst->always_generate   = value_int32(value_dict_get(section,"AlwaysGenerate"));
-
         }
     }
 }
@@ -146,10 +159,18 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
                 continue;
             }
 
-            effgencst->genation_delay_min   = value_int32(value_dict_get(section,"GenationDelayMin"));
-            effgencst->genation_delay_max   = value_int32(value_dict_get(section,"GenationDelayMax"));
-            effgencst->genation_amount      = value_int32(value_dict_get(section,"GenationAmount"));
-            effgencst->effect_element_model = value_int32(value_dict_get(section,"EffectElementModel"));
+            effgencst->generation_delay_min   = value_int32(value_dict_get(section,"GenerationDelayMin"));
+            effgencst->generation_delay_max   = value_int32(value_dict_get(section,"GenerationDelayMax"));
+            effgencst->generation_amount      = value_int32(value_dict_get(section,"GenerationAmount"));
+
+            if(value_type(value_dict_get(section,"EffectModel")) == VALUE_INT32)
+            {
+                effgencst->effect_model = value_int32(value_dict_get(section,"EffectModel"));
+            }
+            else
+            {
+                effgencst->effect_model = effect_or_effect_element_id(value_string(value_dict_get(section,"EffectModel")));
+            }
             effgencst->ignore_terrain       = value_int32(value_dict_get(section,"IgnoreTerrain"));
             effgencst->spawn_height         = value_int32(value_dict_get(section,"SpawnHeight"));
 

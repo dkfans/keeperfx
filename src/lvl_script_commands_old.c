@@ -884,7 +884,7 @@ static void command_set_computer_process(long plr_range_id, const char *procname
       for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
       {
           struct ComputerProcess* cproc = &comp->processes[k];
-          if ((cproc->flags & ComProc_Unkn0002) != 0)
+          if (flag_is_set(cproc->flags, ComProc_Unkn0002))
               break;
           if (cproc->name == NULL)
               break;

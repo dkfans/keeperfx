@@ -225,12 +225,11 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if ((cproc->flags & ComProc_Unkn0002) != 0)
+        if (flag_is_set(cproc->flags, ComProc_Unkn0002))
             break;
         if (cproc->parent == cevent->process)
         {
-            cproc->flags &= ~ComProc_Unkn0008;
-            cproc->flags &= ~ComProc_Unkn0001;
+            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
             cproc->last_run_turn = 0;
             cproc_idx = 1;
         }
@@ -507,14 +506,13 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
             {
                 struct ComputerProcess* cproc = &comp->processes[i];
-                if ((cproc->flags & ComProc_Unkn0002) != 0)
+                if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                     break;
                 if (cproc->parent == bldroom->process)
                 {
                     SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
                     ret = 1;
-                    cproc->flags &= ~ComProc_Unkn0008;
-                    cproc->flags &= ~ComProc_Unkn0001;
+                    clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
                     cproc->last_run_turn = 0;
                     cproc->param_3 = 0;
                 }
@@ -661,13 +659,12 @@ long computer_event_rebuild_room(struct Computer2* comp, struct ComputerEvent* c
         for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if ((cproc->flags & ComProc_Unkn0002) != 0)
+            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
             if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == event->target))
             {
                 SYNCDBG(8,"Resetting process for player %d to build room %s", (int)comp->dungeon->owner, room_code_name(event->target));
-                cproc->flags &= ~ComProc_Unkn0008;
-                cproc->flags &= ~ComProc_Unkn0001;
+                clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
                 cproc->last_run_turn = 0;
             }
         }
