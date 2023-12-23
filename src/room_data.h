@@ -30,7 +30,7 @@ extern "C" {
 
 #define ROOM_TYPES_COUNT_OLD      17
 #define SLAB_AROUND_COUNT      4
-#define ROOMS_COUNT          150
+#define ROOMS_COUNT          255
 /******************************************************************************/
 enum RoomFlags {
     RoF_Allocated           = 0x01,
