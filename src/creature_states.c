@@ -3632,11 +3632,9 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
           // if there's another route, take it
           if (creature_can_navigate_to(creatng, &cctrl->moveto_pos, NavRtF_Default))
           {
-              {
-                  cctrl->collided_door_subtile = 0;
-                  internal_set_thing_state(creatng, creatng->continue_state);
-                  return CrCkRet_Continue;
-              }
+              cctrl->collided_door_subtile = 0;
+              internal_set_thing_state(creatng, creatng->continue_state);
+              return CrCkRet_Continue;
           }
       }
       doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
