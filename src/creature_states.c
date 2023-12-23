@@ -2608,7 +2608,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
 short creature_present_to_dungeon_heart(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if ( !external_set_thing_state(creatng, CrSt_CreatureDoingNothing) )
       set_start_state(creatng);

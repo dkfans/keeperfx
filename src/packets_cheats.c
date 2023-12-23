@@ -923,7 +923,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                     {
                         play_non_3d_sample(76);
                     }
-                    create_effect(&pos, imp_spangle_effects[id], id);
+                    create_effect(&pos, imp_spangle_effects[get_player_color_idx(id)], id);
                 }
                 else
                 {
@@ -942,7 +942,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                         if (map_block_revealed(mapblk, id) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
                         {
                             pos.z.val = get_floor_height_at(&pos);
-                            create_effect(&pos, imp_spangle_effects[id], id);
+                            create_effect(&pos, imp_spangle_effects[get_player_color_idx(id)], id);
                         }
                     }
                 }
@@ -974,7 +974,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                     {
                         play_non_3d_sample(116);
                     }
-                    create_effects_on_room_slabs(room, imp_spangle_effects[pckt->actn_par1], 0, pckt->actn_par1);
+                    create_effects_on_room_slabs(room, imp_spangle_effects[get_player_color_idx(pckt->actn_par1)], 0, pckt->actn_par1);
                 }
                 take_over_room(room, pckt->actn_par1);
             }

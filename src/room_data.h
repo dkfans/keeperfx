@@ -30,7 +30,7 @@ extern "C" {
 
 #define ROOM_TYPES_COUNT_OLD      17
 #define SLAB_AROUND_COUNT      4
-#define ROOMS_COUNT          150
+#define ROOMS_COUNT          255
 /******************************************************************************/
 enum RoomFlags {
     RoF_Allocated           = 0x01,
@@ -249,6 +249,8 @@ struct Room *find_nearest_room_of_role_for_thing_with_spare_item_capacity(struct
 struct Room *find_random_room_of_role_for_thing(struct Thing *thing, PlayerNumber owner, RoomRole rkind, unsigned char nav_flags);
 struct Room *find_random_room_of_role_for_thing_with_spare_room_item_capacity(struct Thing *thing, PlayerNumber owner, RoomRole rrole, unsigned char nav_flags);
 struct Room *pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
+
+void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y);
 /******************************************************************************/
 #ifdef __cplusplus
 }

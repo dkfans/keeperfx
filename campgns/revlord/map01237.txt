@@ -14,6 +14,9 @@ REM Reduced AI-side hero parties spawn, some appear at treasury and not over at 
 REM ********************************************
 LEVEL_VERSION(1)
 
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
+
 SET_GENERATE_SPEED(400)
 
 REM AI keeper gets WAY more creatures than you do, but those are all filthy barbarians you can kill easily. Prebuilt dungeon and gems are more concerning; you'll probably have to wall for safety.

@@ -125,7 +125,7 @@ enum ThingEffectKind {
     TngEff_Blood7, // blood splat
     TngEff_SpecialBox,
     TngEff_BoulderSink, // boulder sink
-    TngEff_Unknown69,
+    TngEff_ImpSpangleWhite,
 };
 
 enum ThingEffectElements {
@@ -225,6 +225,10 @@ enum ThingEffectElements {
     TngEffElm_RedDot,
     TngEffElm_IceMelt3,
     TngEffElm_DiseaseFly,
+    TngEffElm_WhiteTwinkle,
+    TngEffElm_WhiteTwinkle2,
+    TngEffElm_WhiteFlame,
+    TngEffElm_WhiteSmokePuff,
 };
 
 /******************************************************************************/
