@@ -55,7 +55,8 @@ extern "C" {
 
 long const bounce_table[] = { -160, -160, -120, -120, -80, -40, -20, 0, 20, 40, 80, 120, 120, 160, 160, 160 };
 /** Effects used when creating new imps. Every player color has different index. */
-const int birth_effect_element[] = { TngEffElm_RedPuff, TngEffElm_BluePuff, TngEffElm_GreenPuff, TngEffElm_YellowPuff, TngEffElm_WhitePuff, TngEffElm_WhitePuff, };
+const int birth_effect_element[] = { TngEffElm_RedPuff, TngEffElm_BluePuff, TngEffElm_GreenPuff, TngEffElm_YellowPuff, TngEffElm_WhitePuff, TngEffElm_WhitePuff,
+                                     TngEffElm_PurplePuff,TngEffElm_BlackPuff,TngEffElm_OrangePuff };
 /******************************************************************************/
 TbBool thing_is_effect(const struct Thing *thing)
 {

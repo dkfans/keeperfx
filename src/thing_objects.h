@@ -119,6 +119,12 @@ enum ObjectModels
     ObjMdl_GoldBag = 136,
     ObjMdl_GuardFlagWhite = 161,
     ObjMdl_HeartFlameWhite = 162,
+    ObjMdl_GuardFlagPurple = 163,
+    ObjMdl_HeartFlamePurple = 164,
+    ObjMdl_GuardFlagBlack = 165,
+    ObjMdl_HeartFlameBlack = 166,
+    ObjMdl_GuardFlagOrange = 167,
+    ObjMdl_HeartFlameOrange = 168,
 };
 
 /**

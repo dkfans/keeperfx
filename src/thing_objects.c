@@ -98,10 +98,12 @@ static Thing_Class_Func object_update_functions[] = {
 
 /** Guard flag objects model per player index. Originally named guard_post_objects.
  */
-unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole};
+unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole,
+                                             ObjMdl_GuardFlagPurple,ObjMdl_GuardFlagBlack,ObjMdl_GuardFlagOrange};
 /** Dungeon Heart flame objects model per player index.
  */
-unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  ObjMdl_HeartFlameWhite,   0};
+unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  ObjMdl_HeartFlameWhite,   0,
+                                             ObjMdl_HeartFlamePurple, ObjMdl_HeartFlameBlack, ObjMdl_HeartFlameOrange};
 unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_WhiteTwinkle2, TngEffElm_None};
 unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  TngEffElm_WhiteTwinkle,  TngEffElm_None};
 

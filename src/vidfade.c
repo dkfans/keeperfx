@@ -156,15 +156,21 @@ void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,uns
         }
     }
     // Every color alpha-blended with shade of white
-    compute_alpha_table(alphtbls->white, spal, dpal, 4, 4, 4);
+    compute_alpha_table(alphtbls->white,  spal, dpal, 4, 4, 4);
     // Every color alpha-blended with yellow
-    compute_alpha_table(alphtbls->yellow, spal, dpal, 7, 4, 0);
+    compute_alpha_table(alphtbls->yellow, spal, dpal, 6, 4, 0);
     // Every color alpha-blended with red
-    compute_alpha_table(alphtbls->red, spal, dpal, 6, 1, 1);
+    compute_alpha_table(alphtbls->red,    spal, dpal, 6, 1, 1);
     // Every color alpha-blended with blue
-    compute_alpha_table(alphtbls->blue, spal, dpal, 2, 2, 6);
+    compute_alpha_table(alphtbls->blue,   spal, dpal, 2, 2, 6);
     // Every color alpha-blended with green
-    compute_alpha_table(alphtbls->green, spal, dpal, 2, 6, 2);
+    compute_alpha_table(alphtbls->green,  spal, dpal, 2, 6, 2);
+    // Every color alpha-blended with purple
+    compute_alpha_table(alphtbls->purple, spal, dpal, 3, 0, 3);
+    // Every color alpha-blended with black
+    compute_alpha_table(alphtbls->black,  spal, dpal,-2,-2,-2);
+    // Every color alpha-blended with orange
+    compute_alpha_table(alphtbls->orange, spal, dpal, 2, 6, 2);
 }
 
 void compute_rgb2idx_table(TbRGBColorTable ctab,unsigned char *spal)
