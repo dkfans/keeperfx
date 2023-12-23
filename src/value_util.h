@@ -47,6 +47,13 @@ TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsi
         field = value_int32(val);\
 }
 
+#define CONDITIONAL_ASSIGN_ANIMID(section,name,field) \
+{\
+    VALUE *val = value_dict_get(section,name);\
+    if (value_type(val) == VALUE_INT32 || value_type(val) == VALUE_STRING )\
+        field = value_parse_anim(val);\
+}
+
 #define CONDITIONAL_ASSIGN_BOOL(section,name,field) \
 {\
     VALUE *val = value_dict_get(section,name);\

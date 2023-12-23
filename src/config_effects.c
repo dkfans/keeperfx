@@ -152,7 +152,7 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"MoveType",  effelcst->move_type);
             CONDITIONAL_ASSIGN_INT(section,"Unanimated",effelcst->unanimated);
             CONDITIONAL_ASSIGN_ARR2_INT(section,"Lifespan",effelcst->lifespan,effelcst->lifespan_random);
-            CONDITIONAL_ASSIGN_INT(section,"AnimationId",effelcst->sprite_idx);
+            CONDITIONAL_ASSIGN_ANIMID(section,"AnimationId",effelcst->sprite_idx);
             CONDITIONAL_ASSIGN_ARR2_INT(section,"SpriteSize",effelcst->sprite_size_min,effelcst->sprite_size_max);
             CONDITIONAL_ASSIGN_INT(section,"RenderFlags",effelcst->rendering_flag);
             CONDITIONAL_ASSIGN_ARR2_INT(section,"SpriteSpeed",effelcst->sprite_speed_min,effelcst->sprite_speed_max);
