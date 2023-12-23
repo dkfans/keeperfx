@@ -4503,6 +4503,64 @@ static void set_power_configuration_process(struct ScriptContext *context)
     update_powers_tab_to_config();
 }
 
+static void set_player_color_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    long color_idx = get_rid(cmpgn_human_player_options, scline->tp[1]);
+    if (color_idx == -1)
+    {
+        if (parameter_is_number(scline->tp[1]))
+        {
+            color_idx = atoi(scline->tp[1]);
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid color: '%s'", scline->tp[1]);
+            return;
+        }
+    }
+    value->shorts[0] = color_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_player_color_process(struct ScriptContext *context)
+{
+    long color_idx = context->value->shorts[0];
+    struct Dungeon* dungeon;
+
+    // skip this step in the preload
+    if(game.loaded_level_number != 0)
+    {
+        for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+        {
+            dungeon = get_dungeon(plyr_idx);
+            dungeon->color_idx = color_idx;
+
+            for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+            {
+                for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+                {
+                    struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                    if (slabmap_owner(slb) == plyr_idx)
+                    {
+                        if (slab_kind_is_animated(slb->kind))
+                        {
+                            place_animating_slab_type_on_map(slb->kind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+                        }
+                        else
+                        {
+                            place_slab_type_on_map(slb->kind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+                        }
+
+                    }
+                }
+            }
+        }
+
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -4645,10 +4703,10 @@ const struct CommandDesc command_desc[] = {
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
   {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process },
-  {"SET_POWER_HAND",                    "PA      ", Cmd_SET_POWER_HAND, &set_power_hand_check, &set_power_hand_process },
   {"SET_HAND_GRAPHIC",                  "PA      ", Cmd_SET_HAND_GRAPHIC, &set_power_hand_check, &set_power_hand_process },
   {"ADD_EFFECT_GENERATOR_TO_LEVEL",     "AAN     ", Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL, &add_effectgen_to_level_check, &add_effectgen_to_level_process},
   {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
+  {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
