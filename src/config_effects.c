@@ -159,9 +159,9 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
                 continue;
             }
 
-            effgencst->genation_delay_min   = value_int32(value_dict_get(section,"GenationDelayMin"));
-            effgencst->genation_delay_max   = value_int32(value_dict_get(section,"GenationDelayMax"));
-            effgencst->genation_amount      = value_int32(value_dict_get(section,"GenationAmount"));
+            effgencst->generation_delay_min   = value_int32(value_dict_get(section,"GenerationDelayMin"));
+            effgencst->generation_delay_max   = value_int32(value_dict_get(section,"GenerationDelayMax"));
+            effgencst->generation_amount      = value_int32(value_dict_get(section,"GenerationAmount"));
 
             if(value_type(value_dict_get(section,"EffectModel")) == VALUE_INT32)
             {
