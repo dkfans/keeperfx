@@ -306,7 +306,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             if ((dturn % 2) == 0) {
-                effeltng = create_effect_element(&thing->mappos, birth_effect_element[thing->owner], thing->owner);
+                effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
             }
             creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_angle_change);
         }
@@ -316,7 +316,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         dturn = game.play_gameturn - thing->creation_turn;
         if ((dturn & 1) == 0) {
-            effeltng = create_effect_element(&thing->mappos, birth_effect_element[thing->owner], thing->owner);
+            effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
         }
         struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
         creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_angle_change);
@@ -810,7 +810,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         return TUFRet_Modified;
     }
     struct EffectGeneratorConfigStats* egenstat = get_effectgenerator_model_stats(thing->model);
-    for (long i = 0; i < egenstat->genation_amount; i++)
+    for (long i = 0; i < egenstat->generation_amount; i++)
     {
         long deviation_angle = EFFECT_RANDOM(thing, 0x800);
         long deviation_mag = EFFECT_RANDOM(thing, thing->effect_generator.range + 1);
@@ -839,11 +839,11 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         elemtng->mappos.z.val = k;
         if ( thing_in_wall_at(elemtng, &elemtng->mappos) )
         {
-            SYNCDBG(18,"The %s created effect %d/%d in wall, removing",thing_model_name(thing),(int)i,(int)egenstat->genation_amount);
+            SYNCDBG(18,"The %s created effect %d/%d in wall, removing",thing_model_name(thing),(int)i,(int)egenstat->generation_amount);
             delete_thing_structure(elemtng, 0);
         } else
         {
-            SYNCDBG(18,"The %s created effect %d/%d, index %d",thing_model_name(thing),(int)i,(int)egenstat->genation_amount,(int)elemtng->index);
+            SYNCDBG(18,"The %s created effect %d/%d, index %d",thing_model_name(thing),(int)i,(int)egenstat->generation_amount,(int)elemtng->index);
             long acc_x = egenstat->acc_x_min + EFFECT_RANDOM(thing, egenstat->acc_x_max - egenstat->acc_x_min + 1);
             long acc_y = egenstat->acc_y_min + EFFECT_RANDOM(thing, egenstat->acc_y_max - egenstat->acc_y_min + 1);
             long acc_z = egenstat->acc_z_min + EFFECT_RANDOM(thing, egenstat->acc_z_max - egenstat->acc_z_min + 1);
@@ -861,7 +861,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             }
         }
     }
-    thing->effect_generator.generation_delay = egenstat->genation_delay_min + EFFECT_RANDOM(thing, egenstat->genation_delay_max - egenstat->genation_delay_min + 1);
+    thing->effect_generator.generation_delay = egenstat->generation_delay_min + EFFECT_RANDOM(thing, egenstat->generation_delay_max - egenstat->generation_delay_min + 1);
     return TUFRet_Modified;
 }
 

@@ -35,8 +35,6 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-/******************************************************************************/
-unsigned short player_colors_map[] = {0, 1, 2, 3, 4, 5, 0, 0, 0, };
 
 TbPixel player_path_colours[]  = {131, 90, 163, 181,  20,   4, };
 TbPixel player_room_colours[]  = {132, 92, 164, 183,  21, 132, };
@@ -476,5 +474,14 @@ unsigned char rotate_mode_to_view_mode(unsigned char mode)
         case 2: return PVM_FrontView;
         default: ERRORLOG("Unrecognised video rotate mode: %u", mode); return PVM_IsoWibbleView;
     }
+}
+
+unsigned char get_player_color_idx(PlayerNumber plyr_idx)
+{
+    //neutral has no dungeon to store this in
+    if(plyr_idx == NEUTRAL_PLAYER)
+        return plyr_idx;
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    return dungeon->color_idx;
 }
 /******************************************************************************/

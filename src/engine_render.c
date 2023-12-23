@@ -5210,8 +5210,9 @@ static unsigned short choose_health_sprite(struct Thing* thing)
     int color_idx;
     health = thing->health;
     maxhealth = cctrl->max_health;
-    color_idx = (thing->owner % 5);
-    if (is_neutral_thing(thing)) {
+    color_idx = get_player_color_idx(thing->owner);
+
+    if (color_idx == NEUTRAL_PLAYER) {
         color_idx = game.play_gameturn & 3;
     }
     if ((maxhealth <= 0) || (health <= 0))
@@ -5421,16 +5422,14 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
-        int flash_owner;
-        if (is_neutral_thing(thing)) {
-            flash_owner = game.play_gameturn & 3;
-        } else {
-            flash_owner = thing->owner;
+        int flash_color = get_player_color_idx(thing->owner);
+        if (flash_color == NEUTRAL_PLAYER) {
+            flash_color = game.play_gameturn & 3;
         }
         spr = get_button_sprite(health_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-        LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
+        LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_color]);
     }
     else
     {
@@ -5721,9 +5720,10 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     float color_animation_position = color_index;
     // Main loop to draw the line
     for (a = a_start; a <= a_end; a++) {
+
         //if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b))
         //{
-            // Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
+        //    Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
         //    WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
         //}
         color_animation_position += lerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel_best);

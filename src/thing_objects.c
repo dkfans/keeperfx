@@ -98,29 +98,23 @@ static Thing_Class_Func object_update_functions[] = {
 
 /** Guard flag objects model per player index. Originally named guard_post_objects.
  */
-unsigned short player_guardflag_objects[] = {115, 116, 117, 118,  0, 119};
+unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole};
 /** Dungeon Heart flame objects model per player index.
  */
-unsigned short dungeon_flame_objects[] =    {111, 120, 121, 122,  0,   0};
-unsigned short lightning_spangles[] = {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_None, TngEffElm_None};
-unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle, TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle, TngEffElm_YellowTwinkle, TngEffElm_None, TngEffElm_None};
+unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  ObjMdl_HeartFlameWhite,   0};
+unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_WhiteTwinkle2, TngEffElm_None};
+unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  TngEffElm_WhiteTwinkle,  TngEffElm_None};
 
-unsigned short gold_hoard_objects[] = {52, 52, 53, 54, 55, 56};
-unsigned short food_grow_objects[] = {40, 41, 42};
+unsigned short gold_hoard_objects[] = {ObjMdl_GoldPile, ObjMdl_GoldPile, ObjMdl_GoldHorde1, ObjMdl_GoldHorde2, ObjMdl_GoldHorde3, ObjMdl_GoldHorde4};
+unsigned short food_grow_objects[] = {ObjMdl_ChickenStb, ObjMdl_ChickenWob, ObjMdl_ChickenCrk};
 
-struct CallToArmsGraphics call_to_arms_graphics[] = {
-    {867, 868, 869},
-    {873, 874, 875},
-    {879, 880, 881},
-    {885, 886, 887},
-    {  0,   0,   0}
-};
+struct CallToArmsGraphics call_to_arms_graphics[10];
 
 /******************************************************************************/
 struct Thing *create_object(const struct Coord3d *pos, unsigned short model, unsigned short owner, long parent_idx)
 {
     long i;
-    long k;
+    long start_frame;
 
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots))
     {
@@ -162,13 +156,13 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
     if (!objst->random_start_frame)
     {
       i = convert_td_iso(objst->sprite_anim_idx);
-      k = 0;
+      start_frame = 0;
     } else
     {
       i = convert_td_iso(objst->sprite_anim_idx);
-      k = -1;
+      start_frame = -1;
     }
-    set_thing_draw(thing, i, objst->anim_speed, objst->sprite_size_max, 0, k, objst->draw_class);
+    set_thing_draw(thing, i, objst->anim_speed, objst->sprite_size_max, 0, start_frame, objst->draw_class);
     set_flag_value(thing->rendering_flags, TRF_Unshaded, objst->light_unaffected);
 
     set_flag_value(thing->rendering_flags, TRF_Transpar_4, objst->transparancy_flags & 0x01);
@@ -665,7 +659,7 @@ TbBool creature_remove_lair_totem_from_room(struct Thing *creatng, struct Room *
     {
         struct Thing* lairtng = thing_get(cctrl->lairtng_idx);
         TRACE_THING(lairtng);
-        create_effect(&lairtng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+        create_effect(&lairtng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
         delete_lair_totem(lairtng);
     }
     return result;
@@ -1340,7 +1334,7 @@ void set_call_to_arms_as_birthing(struct Thing *objtng)
         frame = 0;
         break;
     }
-    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[get_player_color_idx(objtng->owner)];
     struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
     set_thing_draw(objtng, ctagfx->birth_anim_idx, 256, objst->sprite_size_max, 0, frame, ODC_Default);
     objtng->call_to_arms_flag.state = CTAOL_Birthing;
@@ -1369,7 +1363,7 @@ void set_call_to_arms_as_dying(struct Thing *objtng)
         frame = 0;
         break;
     }
-    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[get_player_color_idx(objtng->owner)];
     struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
     set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objst->sprite_size_max, 0, frame, ODC_Default);
     objtng->call_to_arms_flag.state = CTAOL_Dying;
@@ -1395,7 +1389,7 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
         frame = 0;
         break;
     }
-    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[objtng->owner];
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[get_player_color_idx(objtng->owner)];
     struct ObjectConfigStats* objst = get_object_model_stats(objtng->model);
     set_thing_draw(objtng, ctagfx->leave_anim_idx, 256, objst->sprite_size_max, 0, frame, ODC_Default);
     objtng->call_to_arms_flag.state = CTAOL_Rebirthing;
@@ -1410,7 +1404,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
         return -1;
     }
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[player->id_number];
+    struct CallToArmsGraphics* ctagfx = &call_to_arms_graphics[dungeon->color_idx];
     struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
 
     switch (thing->call_to_arms_flag.state)
@@ -1622,7 +1616,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
                 pos.x.val = objtng->mappos.x.val + ((radius * LbSinL(angle)) / 8192);
                 pos.y.val = objtng->mappos.y.val + ((radius * LbCosL(angle)) / 8192);
                 pos.z.val = 1408;
-                create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
+                create_effect_element(&pos, twinkle_eff_elements[get_player_color_idx(objtng->owner)], objtng->owner);
             }
             return 1;
         }
@@ -1644,7 +1638,7 @@ static TngUpdateRet object_update_power_sight(struct Thing *objtng)
             pos.x.val = pos_x;
             pos.y.val = pos_y;
             pos.z.val = 1408;
-            create_effect_element(&pos, twinkle_eff_elements[objtng->owner], objtng->owner);
+            create_effect_element(&pos, twinkle_eff_elements[get_player_color_idx(objtng->owner)], objtng->owner);
             if ( pos_x >= 0 && pos_x < gameadd.map_subtiles_x * COORD_PER_STL && pos_y >= 0 && pos_y < gameadd.map_subtiles_y * COORD_PER_STL ) {
                 const int shift_x = pos.x.stl.num - objtng->mappos.x.stl.num + 13;
                 const int shift_y = pos.y.stl.num - objtng->mappos.y.stl.num + 13;
@@ -1672,7 +1666,7 @@ static TngUpdateRet object_update_power_lightning(struct Thing *objtng)
             if ((mapblk->flags & SlbAtFlg_Blocking) == 0)
             {
                 pos.z.val = get_floor_height_at(&pos) + 128;
-                create_effect_element(&pos, lightning_spangles[objtng->owner], objtng->owner);
+                create_effect_element(&pos, lightning_spangles[get_player_color_idx(objtng->owner)], objtng->owner);
             }
         }
         variation++;
@@ -1844,7 +1838,7 @@ struct Thing *create_guard_flag_object(const struct Coord3d *pos, PlayerNumber p
     if (plyr_idx >= sizeof(player_guardflag_objects)/sizeof(player_guardflag_objects[0]))
         grdflag_kind = player_guardflag_objects[NEUTRAL_PLAYER];
     else
-        grdflag_kind = player_guardflag_objects[(int)plyr_idx];
+        grdflag_kind = player_guardflag_objects[get_player_color_idx(plyr_idx)];
     if (grdflag_kind <= 0)
         return INVALID_THING;
     // Guard posts have slab number set as parent

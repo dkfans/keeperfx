@@ -644,7 +644,7 @@ long instf_destroy(struct Thing *creatng, long *param)
             claim_enemy_room(room, creatng);
         }
         thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        create_effects_on_room_slabs(room, imp_spangle_effects[creatng->owner], 0, creatng->owner);
+        create_effects_on_room_slabs(room, imp_spangle_effects[get_player_color_idx(creatng->owner)], 0, creatng->owner);
         return 0;
     }
     if (slb->health > 1)
@@ -942,7 +942,7 @@ long instf_pretty_path(struct Thing *creatng, long *param)
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     MapSlabCoord slb_x = subtile_slab(creatng->mappos.x.stl.num);
     MapSlabCoord slb_y = subtile_slab(creatng->mappos.y.stl.num);
-    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     place_slab_type_on_map(SlbT_CLAIMED, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 1);
     do_unprettying(creatng->owner, slb_x, slb_y);
@@ -991,7 +991,7 @@ long instf_reinforce(struct Thing *creatng, long *param)
         if (map_block_revealed(mapblk, creatng->owner) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
         {
             pos.z.val = get_floor_height_at(&pos);
-            create_effect(&pos, imp_spangle_effects[creatng->owner], creatng->owner);
+            create_effect(&pos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
         }
     }
     thing_play_sample(creatng, 41, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
