@@ -3627,14 +3627,26 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
   struct Room *room;
   if (cctrl->collided_door_subtile != 0)
   {
-    doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
-    if (!thing_is_invalid(doortng))
-    {
-      internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
-      cctrl->blocking_door_id = doortng->index;
-      cctrl->collided_door_subtile = 0;
-      return CrCkRet_Continue;
-    }
+      if ( cctrl->target_room_id != 0 )
+      {   
+          // if there's another route, take it
+          if (creature_can_navigate_to(creatng, &cctrl->moveto_pos, NavRtF_Default))
+          {
+              {
+                  cctrl->collided_door_subtile = 0;
+                  internal_set_thing_state(creatng, creatng->continue_state);
+                  return CrCkRet_Continue;
+              }
+          }
+      }
+      doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
+      if (!thing_is_invalid(doortng))
+      {
+        internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
+        cctrl->blocking_door_id = doortng->index;
+        cctrl->collided_door_subtile = 0;
+        return CrCkRet_Continue;
+      }
   }
   else if ( cctrl->target_room_id != 0 )
   {
