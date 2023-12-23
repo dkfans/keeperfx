@@ -399,7 +399,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
             long pos_x = map_area->left + block_size * (int)dungeon->cta_stl_x / STL_PER_SLB;
             long pos_y = map_area->top + block_size * (int)dungeon->cta_stl_y / STL_PER_SLB;
             long radius = (((m & 7) + m) >> 3);
-            LbDrawCircle(pos_x, pos_y, radius/pixel_size, player_room_colours[i]);
+            LbDrawCircle(pos_x, pos_y, radius/pixel_size, player_room_colours[get_player_color_idx(i)]);
             n++;
         }
     }
