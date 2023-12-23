@@ -46,6 +46,7 @@
 #include "room_util.h"
 #include "room_list.h"
 #include "tasks_list.h"
+#include "map_data.h"
 #include "map_events.h"
 #include "map_blocks.h"
 #include "map_utils.h"
@@ -3109,10 +3110,15 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     struct Thing *doortng;
     if (cctrl->blocking_door_id > 0) 
     {
-        if ( cctrl->target_room_id != 0 )
+        struct Room *room = room_get(cctrl->target_room_id);
+        if (room_exists(room))
         {   
             // if there's another route, take it
-            if (creature_can_navigate_to(creatng, &cctrl->moveto_pos, NavRtF_Default))
+            struct Coord3d roompos;
+            roompos.x.val = subtile_coord_center(room->central_stl_x);
+            roompos.y.val = subtile_coord_center(room->central_stl_y);
+            roompos.z.val = get_floor_height_at(&roompos);
+            if (creature_can_navigate_to(creatng, &roompos, NavRtF_Default))
             {
                 cctrl->blocking_door_id = 0;
                 internal_set_thing_state(creatng, creatng->continue_state);
