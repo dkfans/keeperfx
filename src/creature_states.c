@@ -3111,7 +3111,7 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     if (cctrl->blocking_door_id > 0) 
     {
         struct Room *room = room_get(cctrl->target_room_id);
-        if (room_exists(room))
+        if (!room_is_invalid(room))
         {   
             // if there's another route, take it
             struct Coord3d roompos;
@@ -3647,7 +3647,7 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
   if (cctrl->collided_door_subtile != 0)
   {
       room = room_get(cctrl->target_room_id);
-      if (room_exists(room))
+      if (!room_is_invalid(room))
       {   
           // if there's another route, take it
           struct Coord3d roompos;
