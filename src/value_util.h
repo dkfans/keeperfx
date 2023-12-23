@@ -105,7 +105,7 @@ TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsi
     {\
         if(strlen(name) > COMMAND_WORD_LEN - 1 )\
         {\
-            ERRORLOG("effectgenerator name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);\
+            ERRORLOG("name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);\
             break;\
         }\
         strncpy(namefield,name,COMMAND_WORD_LEN);\

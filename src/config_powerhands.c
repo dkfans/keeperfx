@@ -59,21 +59,8 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
         {
             struct PowerHandConfigStats *pwrhnd_cfg_stat = &game.power_hand_conf.pwrhnd_cfg_stats[variant_no];
 
-            const char* name = value_string(value_dict_get(section, "Name"));
-            if(name != NULL)
-            {
-                if(strlen(name) > COMMAND_WORD_LEN - 1 )
-                {
-                    ERRORLOG("PowerHand name (%s) to long max %d chars", name,COMMAND_WORD_LEN - 1);
-                    break;
-                }
-
-                strcpy(pwrhnd_cfg_stat->code_name,name);
-                powerhand_desc[variant_no].name = pwrhnd_cfg_stat->code_name;
-                powerhand_desc[variant_no].num = variant_no;
-            }
+            SET_NAME(section,powerhand_desc,pwrhnd_cfg_stat->code_name);
             
-
             CONDITIONAL_ASSIGN_ANIMID(section, "HoldAnim",      pwrhnd_cfg_stat->anim_idx[HndA_Hold]);
             CONDITIONAL_ASSIGN_ANIMID(section, "HoldGoldAnim",  pwrhnd_cfg_stat->anim_idx[HndA_HoldGold]);
             CONDITIONAL_ASSIGN_ANIMID(section, "HoverAnim",     pwrhnd_cfg_stat->anim_idx[HndA_Hover]);
