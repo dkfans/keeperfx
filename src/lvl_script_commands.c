@@ -4308,14 +4308,14 @@ static void set_effectgen_configuration_process(struct ScriptContext* context)
     struct EffectGeneratorConfigStats* effgencst = &gameadd.effects_conf.effectgen_cfgstats[effgen_id];
     switch (property_id)
     {
-    case 2: // GENATIONDELAYMIN
-        effgencst->genation_delay_min = context->value->shorts[2];
+    case 2: // GENERATIONDELAYMIN
+        effgencst->generation_delay_min = context->value->shorts[2];
         break;
-    case 3: // GENATIONDELAYMAX
-        effgencst->genation_delay_max = context->value->shorts[2];
+    case 3: // GENERATIONDELAYMAX
+        effgencst->generation_delay_max = context->value->shorts[2];
         break;
-    case 4: // GENATIONAMOUNT
-        effgencst->genation_amount = context->value->shorts[2];
+    case 4: // GENERATIONAMOUNT
+        effgencst->generation_amount = context->value->shorts[2];
         break;
     case 5: // EFFECTMODEL
         effgencst->effect_model = context->value->shorts[2];
