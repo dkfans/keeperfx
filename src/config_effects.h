@@ -36,6 +36,7 @@ extern "C" {
 
 /******************************************************************************/
 
+extern const struct NamedCommand effect_generator_commands[];
 
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
