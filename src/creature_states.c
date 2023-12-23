@@ -3107,9 +3107,22 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing *doortng;
-    if (cctrl->blocking_door_id > 0) {
+    if (cctrl->blocking_door_id > 0) 
+    {
+        if ( cctrl->target_room_id != 0 )
+        {   
+            // if there's another route, take it
+            if (creature_can_navigate_to(creatng, &cctrl->moveto_pos, NavRtF_Default))
+            {
+                cctrl->blocking_door_id = 0;
+                internal_set_thing_state(creatng, creatng->continue_state);
+                return 1;
+            }
+        }
         doortng = thing_get(cctrl->blocking_door_id);
-    } else {
+    } 
+    else 
+    {
         doortng = INVALID_THING;
     }
     if (!thing_is_deployed_door(doortng) || ((game.play_gameturn - doortng->creation_turn) <= 3) || !doortng->door.is_locked)
