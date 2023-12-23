@@ -54,6 +54,20 @@ TbBool load_toml_file(const char *textname, const char *fname,VALUE *value, unsi
         field = value_parse_anim(val);\
 }
 
+#define CONDITIONAL_ASSIGN_CLASS(section,name,field) \
+{\
+    VALUE *val = value_dict_get(section,name);\
+    if (value_type(val) == VALUE_INT32 || value_type(val) == VALUE_STRING )\
+        field = value_parse_class(val);\
+}
+
+#define CONDITIONAL_ASSIGN_MODEL(section,name,field,class_id) \
+{\
+    VALUE *val = value_dict_get(section,name);\
+    if (value_type(val) == VALUE_INT32 || value_type(val) == VALUE_STRING )\
+        field = value_parse_model(class_id,val);\
+}
+
 #define CONDITIONAL_ASSIGN_BOOL(section,name,field) \
 {\
     VALUE *val = value_dict_get(section,name);\

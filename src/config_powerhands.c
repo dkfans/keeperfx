@@ -51,13 +51,13 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
     char key[64];
     VALUE *section;
     // Create sections
-    for (int variant_no = 0; variant_no < NUM_VARIANTS; variant_no++)
+    for (int id = 0; id < NUM_VARIANTS; id++)
     {
-        sprintf(key, "hand%d", variant_no);
+        sprintf(key, "hand%d", id);
         section = value_dict_get(&file_root, key);
         if (value_type(section) == VALUE_DICT)
         {
-            struct PowerHandConfigStats *pwrhnd_cfg_stat = &game.power_hand_conf.pwrhnd_cfg_stats[variant_no];
+            struct PowerHandConfigStats *pwrhnd_cfg_stat = &game.power_hand_conf.pwrhnd_cfg_stats[id];
 
             SET_NAME(section,powerhand_desc,pwrhnd_cfg_stat->code_name);
             
