@@ -428,6 +428,7 @@ struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 float hud_scale;
 
+int line_box_size = 100; // Default value, overwritten by cfg setting
 int creature_status_size = 16; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
@@ -5702,16 +5703,19 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     b = b_start;
 
     // A hack-fix to ensure that pixels are always drawn on screen. Otherwise when zoomed in, pixels have trouble being drawn in the bottom right corner
-    relative_window_a *= 1.5;
-    relative_window_b *= 1.5;
+    relative_window_a = lbDisplay.GraphicsScreenWidth;
+    relative_window_b = lbDisplay.GraphicsScreenHeight;
 
     // Set up parameters before starting the drawing loop
-    int line_thickness = max(1, units_per_pixel_best / 16);
-
-    // Make the line slightly thinner when zoomed out
-    line_thickness = lerp(line_thickness, 1, fastPow(1.0-hud_scale, 4.0));
+    float custom_line_box_size = line_box_size / 100.0;
+    int line_thickness = max(1, (custom_line_box_size * units_per_pixel_best / 16.0) );
     
-    int half_thickness = line_thickness / 2;
+    // Make the line slightly thinner when zoomed out
+    line_thickness = lerp(line_thickness, 1, 1.0-hud_scale);
+    
+    int put_pixels_left = line_thickness/2; // Allocate half of the thickness to the left
+    int put_pixels_right = line_thickness-put_pixels_left; // Remaining thickness is placed to the right
+
     TbBool isHorizontal = abs(x2 - x1) >= abs(y2 - y1); // Check if line is more horizontal than vertical, helps with the "pixel-art look".
     int temp_x, temp_y;
     float color_animation_position = color_index;
@@ -5729,8 +5733,8 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
         color_index = max(0, (int)color_animation_position);
 
         // Nested loops to draw square pixels around each point for the specified thickness
-        for (int dx = -half_thickness; dx <= half_thickness; dx++) {
-            for (int dy = -half_thickness; dy <= half_thickness; dy++) {
+        for (int dx = -put_pixels_left; dx < put_pixels_right; dx++) {
+            for (int dy = -put_pixels_left; dy < put_pixels_right; dy++) {
                 // Determine pixel coordinates based on line orientation
                 if (isHorizontal) {
                     temp_x = *x_coord;
