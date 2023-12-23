@@ -74,21 +74,21 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
             }
             
 
-            CONDITIONAL_ASSIGN_ANIMID(section, "HoldAnim",      pwrhnd_cfg_stat->anim_idx[HndA_Hold];
-            CONDITIONAL_ASSIGN_ANIMID(section, "HoldGoldAnim",  pwrhnd_cfg_stat->anim_idx[HndA_HoldGold];
-            CONDITIONAL_ASSIGN_ANIMID(section, "HoverAnim",     pwrhnd_cfg_stat->anim_idx[HndA_Hover];
-            CONDITIONAL_ASSIGN_ANIMID(section, "PickupAnim",    pwrhnd_cfg_stat->anim_idx[HndA_Pickup];
-            CONDITIONAL_ASSIGN_ANIMID(section, "SideHoverAnim", pwrhnd_cfg_stat->anim_idx[HndA_SideHover];
-            CONDITIONAL_ASSIGN_ANIMID(section, "SideSlapAnim",  pwrhnd_cfg_stat->anim_idx[HndA_SideSlap];
-            CONDITIONAL_ASSIGN_ANIMID(section, "SlapAnim",      pwrhnd_cfg_stat->anim_idx[HndA_Slap];
+            CONDITIONAL_ASSIGN_ANIMID(section, "HoldAnim",      pwrhnd_cfg_stat->anim_idx[HndA_Hold]);
+            CONDITIONAL_ASSIGN_ANIMID(section, "HoldGoldAnim",  pwrhnd_cfg_stat->anim_idx[HndA_HoldGold]);
+            CONDITIONAL_ASSIGN_ANIMID(section, "HoverAnim",     pwrhnd_cfg_stat->anim_idx[HndA_Hover]);
+            CONDITIONAL_ASSIGN_ANIMID(section, "PickupAnim",    pwrhnd_cfg_stat->anim_idx[HndA_Pickup]);
+            CONDITIONAL_ASSIGN_ANIMID(section, "SideHoverAnim", pwrhnd_cfg_stat->anim_idx[HndA_SideHover]);
+            CONDITIONAL_ASSIGN_ANIMID(section, "SideSlapAnim",  pwrhnd_cfg_stat->anim_idx[HndA_SideSlap]);
+            CONDITIONAL_ASSIGN_ANIMID(section, "SlapAnim",      pwrhnd_cfg_stat->anim_idx[HndA_Slap]);
 
-            CONDITIONAL_ASSIGN_INT(section, "HoldSpeed",      pwrhnd_cfg_stat->anim_speed[HndA_Hold];
-            CONDITIONAL_ASSIGN_INT(section, "HoldGoldSpeed",  pwrhnd_cfg_stat->anim_speed[HndA_HoldGold];
-            CONDITIONAL_ASSIGN_INT(section, "HoverSpeed",     pwrhnd_cfg_stat->anim_speed[HndA_Hover];
-            CONDITIONAL_ASSIGN_INT(section, "PickupSpeed",    pwrhnd_cfg_stat->anim_speed[HndA_Pickup];
-            CONDITIONAL_ASSIGN_INT(section, "SideHoverSpeed", pwrhnd_cfg_stat->anim_speed[HndA_SideHover];
-            CONDITIONAL_ASSIGN_INT(section, "SideSlapSpeed",  pwrhnd_cfg_stat->anim_speed[HndA_SideSlap];
-            CONDITIONAL_ASSIGN_INT(section, "SlapSpeed",      pwrhnd_cfg_stat->anim_speed[HndA_Slap];
+            CONDITIONAL_ASSIGN_INT(section, "HoldSpeed",      pwrhnd_cfg_stat->anim_speed[HndA_Hold]);
+            CONDITIONAL_ASSIGN_INT(section, "HoldGoldSpeed",  pwrhnd_cfg_stat->anim_speed[HndA_HoldGold]);
+            CONDITIONAL_ASSIGN_INT(section, "HoverSpeed",     pwrhnd_cfg_stat->anim_speed[HndA_Hover]);
+            CONDITIONAL_ASSIGN_INT(section, "PickupSpeed",    pwrhnd_cfg_stat->anim_speed[HndA_Pickup]);
+            CONDITIONAL_ASSIGN_INT(section, "SideHoverSpeed", pwrhnd_cfg_stat->anim_speed[HndA_SideHover]);
+            CONDITIONAL_ASSIGN_INT(section, "SideSlapSpeed",  pwrhnd_cfg_stat->anim_speed[HndA_SideSlap]);
+            CONDITIONAL_ASSIGN_INT(section, "SlapSpeed",      pwrhnd_cfg_stat->anim_speed[HndA_Slap]);
         }
     }
 
