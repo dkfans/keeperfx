@@ -3646,10 +3646,15 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
   struct Room *room;
   if (cctrl->collided_door_subtile != 0)
   {
-      if ( cctrl->target_room_id != 0 )
+      room = room_get(cctrl->target_room_id);
+      if (room_exists(room))
       {   
           // if there's another route, take it
-          if (creature_can_navigate_to(creatng, &cctrl->moveto_pos, NavRtF_Default))
+          struct Coord3d roompos;
+          roompos.x.val = subtile_coord_center(room->central_stl_x);
+          roompos.y.val = subtile_coord_center(room->central_stl_y);
+          roompos.z.val = get_floor_height_at(&roompos);
+          if (creature_can_navigate_to(creatng, &roompos, NavRtF_Default))
           {
               cctrl->collided_door_subtile = 0;
               internal_set_thing_state(creatng, creatng->continue_state);
