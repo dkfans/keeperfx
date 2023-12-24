@@ -90,6 +90,10 @@ struct GameRulesConfig {
     long trap_sale_percent;
     unsigned long pay_day_speed;
     TbBool place_traps_on_subtiles;
+    TbBool allies_share_vision;
+    TbBool allies_share_drop;
+    TbBool allies_share_cta;
+    unsigned char max_things_in_hand;
 };
 
 struct ComputerRulesConfig {
@@ -122,6 +126,9 @@ struct MagicRulesConfig {
     long collapse_dungeon_damage;
     GameTurnDelta turns_per_collapse_dngn_dmg;
     GoldAmount power_hand_gold_grab_amount;
+    long friendly_fight_area_damage_permil;
+    long friendly_fight_area_range_permil;
+    TbBool armegeddon_teleport_neutrals;
 };
 
 struct RoomRulesConfig {
@@ -149,6 +156,7 @@ struct WorkersRulesConfig {
     unsigned char hits_per_slab;
     unsigned long default_imp_dig_damage;
     unsigned long default_imp_dig_own_damage;
+    long digger_work_experience;
 };
 
 struct HealthRulesConfig {
@@ -161,6 +169,8 @@ struct HealthRulesConfig {
 
 struct SacrificesRulesConfig {
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
+    /** The creature model used for determining amount of sacrifices which decrease digger cost. */
+    ThingModel cheaper_diggers_sacrifice_model;
 };
 struct RulesConfig {
     struct GameRulesConfig game;
@@ -171,7 +181,6 @@ struct RulesConfig {
     struct WorkersRulesConfig workers;
     struct HealthRulesConfig health;
     struct SacrificesRulesConfig sacrifices;
-
 };
 /******************************************************************************/
 extern const char keeper_rules_file[];

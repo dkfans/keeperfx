@@ -704,7 +704,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.allies_share_vision = (TbBool)k;
+                game.conf.rules.game.allies_share_vision = (TbBool)k;
                 n++;
             }
             if (n < 1)
@@ -717,7 +717,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.allies_share_drop = (TbBool)k;
+                game.conf.rules.game.allies_share_drop = (TbBool)k;
                 n++;
             }
             if (n < 1)
@@ -730,7 +730,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.allies_share_cta = (TbBool)k;
+                game.conf.rules.game.allies_share_cta = (TbBool)k;
                 n++;
             }
             if (n < 1)
@@ -749,7 +749,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname, MAX_THINGS_IN_HAND);
                   k = MAX_THINGS_IN_HAND;
               }
-              gameadd.max_things_in_hand = k;
+              game.conf.rules.game.max_things_in_hand = k;
               n++;
             }
             if (n < 1)
@@ -1134,7 +1134,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.armegeddon_teleport_neutrals = k;
+            game.conf.rules.magic.armegeddon_teleport_neutrals = k;
             n++;
           }
           if (n < 1)
@@ -1267,7 +1267,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.friendly_fight_area_range_permil = k * 10;
+            game.conf.rules.magic.friendly_fight_area_range_permil = k * 10;
             n++;
           }
           if (n < 1)
@@ -1280,7 +1280,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.friendly_fight_area_damage_permil = k * 10;
+            game.conf.rules.magic.friendly_fight_area_damage_permil = k * 10;
             n++;
           }
           if (n < 1)
@@ -1719,7 +1719,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              gameadd.digger_work_experience = k;
+              game.conf.rules.workers.digger_work_experience = k;
               n++;
           }
           if (n < 1)
@@ -1988,7 +1988,7 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
  */
 static void mark_cheaper_diggers_sacrifice(void)
 {
-    gameadd.cheaper_diggers_sacrifice_model = 0;
+    game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model = 0;
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
         struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
@@ -1997,15 +1997,15 @@ static void mark_cheaper_diggers_sacrifice(void)
         if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp)) 
             || ((sac->action == SacA_NegUniqFunc) && (sac->param == UnqF_CostlierImp)))
         {
-            if ((sac->victims[1] == 0) && (gameadd.cheaper_diggers_sacrifice_model == 0)) {
-                gameadd.cheaper_diggers_sacrifice_model = sac->victims[0];
+            if ((sac->victims[1] == 0) && (game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model == 0)) {
+                game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model = sac->victims[0];
             } else {
                 WARNLOG("Found unsupported %s sacrifice; either there's more than one, or has one than more victim.",
                     get_conf_parameter_text(sacrifice_unique_desc,UnqF_CheaperImp));
             }
         }
     }
-    SYNCDBG(4,"Marked sacrifice of %s",thing_class_and_model_name(TCls_Creature, gameadd.cheaper_diggers_sacrifice_model));
+    SYNCDBG(4,"Marked sacrifice of %s",thing_class_and_model_name(TCls_Creature, game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model));
 }
 
 TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_textname, unsigned short flags)

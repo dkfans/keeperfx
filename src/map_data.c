@@ -306,7 +306,7 @@ TbBool map_block_revealed(const struct Map *mapblk, PlayerNumber plyr_idx)
 {
     if (map_block_invalid(mapblk))
         return false;
-    if (gameadd.allies_share_vision)
+    if (game.conf.rules.game.allies_share_vision)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
         {

@@ -2067,8 +2067,8 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
     }
     // Friendly fire usually causes less damage and at smaller distance
     if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-        max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
-        max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
+        max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_permil / 1000;
+        max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_permil / 1000;
     }
     MapCoordDelta distance = get_chessboard_distance(pos, &tngdst->mappos);
     if (distance < max_dist)

@@ -948,7 +948,7 @@ long digger_work_experience(struct Thing* spdigtng)
 {
     if (creature_can_gain_experience(spdigtng))
     {
-        return gameadd.digger_work_experience;
+        return game.conf.rules.workers.digger_work_experience;
     }
     return 0;
 }
@@ -1000,7 +1000,7 @@ short imp_converts_dungeon(struct Thing *spdigtng)
               }
           }
       }
-      if (gameadd.digger_work_experience != 0)
+      if (game.conf.rules.workers.digger_work_experience != 0)
       {
           cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
           check_experience_upgrade(spdigtng);
@@ -1030,7 +1030,7 @@ short imp_digs_mines(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(spdigtng);
         check_experience_upgrade(spdigtng);
@@ -1190,7 +1190,7 @@ short imp_drops_gold(struct Thing *spdigtng)
         internal_set_thing_state(spdigtng, state);
         return 1;
     }
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
         cctrl->exp_points += digger_work_experience(spdigtng);
@@ -1215,7 +1215,7 @@ short imp_improves_dungeon(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
         check_experience_upgrade(spdigtng);
@@ -1360,7 +1360,7 @@ short imp_reinforces(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 0;
     }
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);
@@ -1767,7 +1767,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     add_body_to_graveyard(deadtng, room);
     // The action of moving object is now finished
     set_start_state(creatng);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
@@ -1827,9 +1827,9 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     }
     // The action of moving object is now finished
     set_start_state(thing);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
-        cctrl->exp_points += gameadd.digger_work_experience;
+        cctrl->exp_points += game.conf.rules.workers.digger_work_experience;
         check_experience_upgrade(thing);
     }
     return 1;
@@ -1895,7 +1895,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     }
     // The action of moving object is now finished
     set_start_state(creatng);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
@@ -1946,7 +1946,7 @@ short creature_arms_trap(struct Thing *thing)
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     // The action of moving object is now finished
     set_start_state(thing);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);
@@ -1965,7 +1965,7 @@ short creature_arms_trap_first_person(struct Thing *creatng)
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     dungeon->lvstats.traps_armed++;
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);

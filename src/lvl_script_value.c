@@ -1154,8 +1154,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           game.conf.rules.game.dungeon_heart_heal_health = val3;
           break;
       case 13: //ImpWorkExperience
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.digger_work_experience, val3);
-          gameadd.digger_work_experience = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.workers.digger_work_experience, val3);
+          game.conf.rules.workers.digger_work_experience = val3;
           break;
       case 14: //GemEffectiveness
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.gem_effectiveness, val3);
@@ -1235,16 +1235,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           game.conf.rules.health.turns_per_torture_health_loss = val3;
           break;
       case 29: //AlliesShareVision
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_vision, val3);
-          gameadd.allies_share_vision = (TbBool)val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.allies_share_vision, val3);
+          game.conf.rules.game.allies_share_vision = (TbBool)val3;
           break;
       case 30: //AlliesShareDrop
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_drop, val3);
-          gameadd.allies_share_drop = (TbBool)val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.allies_share_drop, val3);
+          game.conf.rules.game.allies_share_drop = (TbBool)val3;
           break;
       case 31: //AlliesShareCta
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
-          gameadd.allies_share_cta = (TbBool)val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.allies_share_cta, val3);
+          game.conf.rules.game.allies_share_cta = (TbBool)val3;
           break; 
       case 32: //BarrackMaxPartySize
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.barrack_max_party_size, val3);
@@ -1253,8 +1253,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 33: //MaxThingsInHand
           if (val3 <= MAX_THINGS_IN_HAND)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.max_things_in_hand, val3);
-              gameadd.max_things_in_hand = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.max_things_in_hand, val3);
+              game.conf.rules.game.max_things_in_hand = val3;
           }
           else
           {

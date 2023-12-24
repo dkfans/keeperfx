@@ -147,18 +147,12 @@ struct IntralevelData {
  */
 struct GameAdd {
     unsigned long turn_last_checked_for_gold;
-    long friendly_fight_area_damage_permil;
-    long friendly_fight_area_range_permil;
     long scavenge_effectiveness_evil; //unused
     long scavenge_effectiveness_good; //unused
-    TbBool armegeddon_teleport_neutrals;
     unsigned short computer_chat_flags;
-    /** The creature model used for determining amount of sacrifices which decrease digger cost. */
-    ThingModel cheaper_diggers_sacrifice_model;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct GuiMessage messages[GUI_MESSAGES_COUNT];
     struct LightSystemState lightst;
-    long digger_work_experience;
     uint8_t               max_custom_box_kind;
     unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
@@ -187,9 +181,6 @@ struct GameAdd {
     float delta_time;
     long double process_turn_time;
     float flash_button_time;
-    TbBool allies_share_vision;
-    TbBool allies_share_drop;
-    TbBool allies_share_cta;
     MapSubtlCoord map_subtiles_x;
     MapSubtlCoord map_subtiles_y;
     MapSlabCoord map_tiles_x;
@@ -200,7 +191,6 @@ struct GameAdd {
     short around_slab[AROUND_SLAB_LENGTH];
     short around_slab_eight[AROUND_SLAB_EIGHT_LENGTH];
     short small_around_slab[SMALL_AROUND_SLAB_LENGTH];
-    unsigned char max_things_in_hand;
 };
 
 extern unsigned long game_flags2; // Should be reset to zero on new level
