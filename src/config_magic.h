@@ -400,7 +400,6 @@ struct MagicStats {  // sizeof=0x4C
 
 #pragma pack()
 /******************************************************************************/
-extern struct MagicConfig magic_conf;
 extern const char keeper_magic_file[];
 extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];

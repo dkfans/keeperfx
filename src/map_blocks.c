@@ -787,7 +787,7 @@ void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoo
                 found = true;
                 struct SlabMap *slb;
                 slb = get_slabmap_for_subtile(stl_x, stl_y);
-                col.cubes[i] = gameadd.cube_conf.cube_bits[cubed->ownershipGroup][get_player_color_idx(slabmap_owner(slb))];
+                col.cubes[i] = game.conf.cube_conf.cube_bits[cubed->ownershipGroup][get_player_color_idx(slabmap_owner(slb))];
             }
         }
     }
@@ -888,7 +888,7 @@ void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
 #define get_slabset_index(slbkind, style, pick) get_slabset_index_f(slbkind, style, pick, __func__)
 unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsigned char pick, const char *func_name)
 {
-    if (slbkind >= game.slab_conf.slab_types_count) {
+    if (slbkind >= game.conf.slab_conf.slab_types_count) {
         ERRORLOG("%s: Illegal animating slab kind: %d", func_name, (int)slbkind);
         slbkind = 0;
     }

@@ -235,9 +235,9 @@ struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNu
 {
     ThingModel crmodel;
     while (1) {
-        crmodel = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
+        crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
         // Accept any non-spectator creatures
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
         if ((crconf->model_flags & CMF_IsSpectator) != 0) {
             continue;
         }
@@ -402,7 +402,7 @@ struct Thing* ftest_util_create_door_for_player_with_health(MapSlabCoord slb_x, 
     struct Coord3d doorPos;
     set_coords_to_slab_center(&doorPos, slb_x, slb_y);
 
-    //ThingModel doorModel = gameadd.trapdoor_conf.door_to_object[1]; // couldn't find proper type mapping
+    //ThingModel doorModel = game.conf.trapdoor_conf.door_to_object[1]; // couldn't find proper type mapping
     ThingModel doorModel = 1; // wooden door == 1 (hardcoded for now)
     unsigned char orient = find_door_angle(doorPos.x.stl.num, doorPos.y.stl.num, owner);
     struct Thing* new_door = create_door(&doorPos, doorModel, orient, owner, true); 

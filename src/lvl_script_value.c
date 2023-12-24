@@ -556,7 +556,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               continue;
           if (val3 == -1)
               val3 = CREATURE_MAX_LEVEL + 1;
-          dungeon->creature_max_level[val2%gameadd.crtr_conf.model_count] = val3;
+          dungeon->creature_max_level[val2%game.conf.crtr_conf.model_count] = val3;
       }
       break;
   case Cmd_SET_CREATURE_HEALTH:
@@ -593,7 +593,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       crstat->fearsome_factor = saturate_set_unsigned(val3, 16);
       break;
   case Cmd_SET_CREATURE_PROPERTY:
-      crconf = &gameadd.crtr_conf.model[val2];
+      crconf = &game.conf.crtr_conf.model[val2];
       crstat = creature_stats_get(val2);
       switch (val3)
       {

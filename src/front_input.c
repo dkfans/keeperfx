@@ -2865,12 +2865,12 @@ void process_cheat_mode_selection_inputs()
                     do
                     {
                         new_value++;
-                        if (new_value >= gameadd.crtr_conf.model_count)
+                        if (new_value >= game.conf.crtr_conf.model_count)
                         {
                             new_value = 0;
                             break;
                         }
-                        crconf = &gameadd.crtr_conf.model[new_value];
+                        crconf = &game.conf.crtr_conf.model[new_value];
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
@@ -2881,12 +2881,12 @@ void process_cheat_mode_selection_inputs()
                     do
                     {
                         new_value++;
-                        if (new_value >= gameadd.crtr_conf.model_count)
+                        if (new_value >= game.conf.crtr_conf.model_count)
                         {
                             new_value = 0;
                             break;
                         }
-                        crconf = &gameadd.crtr_conf.model[new_value];
+                        crconf = &game.conf.crtr_conf.model[new_value];
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);
@@ -2973,7 +2973,7 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
             {
                 new_value++;
-                if (new_value >= game.slab_conf.slab_types_count)
+                if (new_value >= game.conf.slab_conf.slab_types_count)
                 {
                     new_value = SlbT_ROCK;
                 }
