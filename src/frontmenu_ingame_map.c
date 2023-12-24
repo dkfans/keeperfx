@@ -68,15 +68,15 @@ static long *MapShapeStart = NULL;
 static long *MapShapeEnd = NULL;
 static const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
 static const TbPixel ClaimedGroundColours[] = {131, 90, 163, 181, 20, 4};
-static long PannelMapY;
-static long PannelMapX;
+static long PanelMapY;
+static long PanelMapX;
 static long NoBackColours;
 static long PrevPixelSize;
 static unsigned char MapBackColours[256];
-static unsigned char PannelColours[4096];
+static unsigned char PanelColours[4096];
 static long PrevRoomHighlight;
 static long PrevDoorHighlight;
-static unsigned char PannelMap[MAX_SUBTILES_X*MAX_SUBTILES_Y];//map subtiles x*y
+static unsigned char PanelMap[MAX_SUBTILES_X*MAX_SUBTILES_Y];//map subtiles x*y
 static struct InterpMinimap interp_minimap;
 
 long clicked_on_small_map;
@@ -85,13 +85,13 @@ long MapDiagonalLength = 0;
 TbBool reset_all_minimap_interpolation = false;
 /******************************************************************************/
 
-void pannel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
+void panel_map_draw_pixel(RealScreenCoord x, RealScreenCoord y, TbPixel col)
 {
     if ((y >= 0) && (y < MapDiagonalLength))
     {
         if ((x >= MapShapeStart[y]) && (x < MapShapeEnd[y]))
         {
-            lbDisplay.WScreen[(PannelMapY + y) * lbDisplay.GraphicsScreenWidth + (PannelMapX + x)] = col;
+            lbDisplay.WScreen[(PanelMapY + y) * lbDisplay.GraphicsScreenWidth + (PanelMapX + x)] = col;
         }
     }
 }
@@ -116,7 +116,7 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
     TbPixel col;
     col = player_room_colours[get_player_color_idx(owner)];
     int i;
-    i = 2*(PANNEL_MAP_RADIUS*units_per_px/16) / 2;
+    i = 2*(PANEL_MAP_RADIUS*units_per_px/16) / 2;
     long center_x;
     long center_y;
     center_x = i + x2;
@@ -150,20 +150,20 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
       {
           dxq1 = center_x - sx;
           dyq1 = center_y - sy;
-          pannel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
+          panel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
           dxq2 = center_x + sx;
-          pannel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
+          panel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
           dyq2 = sy + center_y;
-          pannel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
-          pannel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
+          panel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
+          panel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
           dxq3 = center_x - sy;
           dyq3 = center_y - sx;
-          pannel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
+          panel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
           dxq4 = center_x + sy;
-          pannel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
+          panel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
           dyq4 = sx + center_y;
-          pannel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
-          pannel_map_draw_pixel(x1 + dxq4, y1 + dyq4, col);
+          panel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
+          panel_map_draw_pixel(x1 + dxq4, y1 + dyq4, col);
           if (i >= 0)
           {
               i += 4 * (sx - sy) + 10*units_per_px/16;
@@ -178,20 +178,20 @@ void draw_call_to_arms_circle(unsigned char owner, long x1, long y1, long x2, lo
       {
         dxq1 = center_x - sx;
         dyq1 = center_y - sy;
-        pannel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
+        panel_map_draw_pixel(x1 + dxq1, y1 + dyq1, col);
         dxq2 = center_x + sx;
-        pannel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
+        panel_map_draw_pixel(x1 + dxq2, y1 + dyq1, col);
         dyq2 = sy + center_y;
-        pannel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
-        pannel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
+        panel_map_draw_pixel(x1 + dxq1, y1 + dyq2, col);
+        panel_map_draw_pixel(x1 + dxq2, y1 + dyq2, col);
         dxq3 = center_x - sy;
         dyq3 = center_y - sx;
-        pannel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
+        panel_map_draw_pixel(x1 + dxq3, y1 + dyq3, col);
         dxq4 = center_x + sy;
-        pannel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
+        panel_map_draw_pixel(x1 + dxq4, y1 + dyq3, col);
         dyq4 = sx + center_y;
-        pannel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
-        pannel_map_draw_pixel(dxq4 + x1, dyq4 + y1, col);
+        panel_map_draw_pixel(x1 + dxq3, y1 + dyq4, col);
+        panel_map_draw_pixel(dxq4 + x1, dyq4 + y1, col);
       }
     }
 }
@@ -334,11 +334,11 @@ int draw_overlay_traps(struct PlayerInfo *player, long units_per_px, long scaled
                 for (int p = 0; p < pixel_end; p++)
                 {
                     // Draw a cross
-                    pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, col);
-                    pannel_map_draw_pixel(mapos_x + basepos + pixels_amount + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, col);
-                    pannel_map_draw_pixel(mapos_x + basepos - pixels_amount + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, col);
-                    pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + pixels_amount + draw_square[p].delta_y, col);
-                    pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos - pixels_amount + draw_square[p].delta_y, col);
+                    panel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, col);
+                    panel_map_draw_pixel(mapos_x + basepos + pixels_amount + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, col);
+                    panel_map_draw_pixel(mapos_x + basepos - pixels_amount + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, col);
+                    panel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + pixels_amount + draw_square[p].delta_y, col);
+                    panel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos - pixels_amount + draw_square[p].delta_y, col);
                 }
                 n++;
             }
@@ -409,7 +409,7 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
                         int p;
                         for (p = 0; p < pixel_end; p++)
                         {
-                            pannel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, colours[15][0][15]);
+                            panel_map_draw_pixel(mapos_x + basepos + draw_square[p].delta_x, mapos_y + basepos + draw_square[p].delta_y, colours[15][0][15]);
                         }
                         n++;
                     }
@@ -427,18 +427,18 @@ int draw_overlay_spells_and_boxes(struct PlayerInfo *player, long units_per_px, 
     return n;
 }
 
-void pannel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
+void panel_map_draw_creature_dot(long mapos_x, long mapos_y, RealScreenCoord basepos, TbPixel col, long basic_zoom, TbBool isLowRes)
 {
     if (isLowRes)
     {
         // At low resolutions, we only need the single pixel
-        pannel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
+        panel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
         return;
     }
     short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom);     
     for (int i = 0; i < pixel_end; i++)
     {
-        pannel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
+        panel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
     }
 }
 
@@ -457,18 +457,18 @@ int draw_overlay_possessed_thing(struct PlayerInfo* player, long mapos_x, long m
     if (isLowRes)
     {
         // At low resolutions, we only need the single pixel
-        pannel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
+        panel_map_draw_pixel(mapos_x + basepos, mapos_y + basepos, col);
         return 1;
     }
     short pixel_end = get_pixels_scaled_and_zoomed(basic_zoom * 2);
     short pixels_amount = scale_pixel(basic_zoom * 2);
     for (int i = 0; i < pixel_end; i++)
     {
-        pannel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
-        pannel_map_draw_pixel(mapos_x + basepos + pixels_amount + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
-        pannel_map_draw_pixel(mapos_x + basepos - pixels_amount + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
-        pannel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + pixels_amount + draw_square[i].delta_y, col);
-        pannel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos - pixels_amount + draw_square[i].delta_y, col);
+        panel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
+        panel_map_draw_pixel(mapos_x + basepos + pixels_amount + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
+        panel_map_draw_pixel(mapos_x + basepos - pixels_amount + draw_square[i].delta_x, mapos_y + basepos + draw_square[i].delta_y, col);
+        panel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos + pixels_amount + draw_square[i].delta_y, col);
+        panel_map_draw_pixel(mapos_x + basepos + draw_square[i].delta_x, mapos_y + basepos - pixels_amount + draw_square[i].delta_y, col);
     }
     return 1;
 }
@@ -535,11 +535,11 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                     if ((thing->model == gui_creature_type_highlighted) && (game.play_gameturn & 2))
                     {
                         short pixels_amount = scale_pixel(basic_zoom * 4);
-                        pannel_map_draw_creature_dot(mapos_x + pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);
-                        pannel_map_draw_creature_dot(mapos_x - pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);
-                        pannel_map_draw_creature_dot(mapos_x, mapos_y + pixels_amount, basepos, col2, basic_zoom, isLowRes);
-                        pannel_map_draw_creature_dot(mapos_x, mapos_y - pixels_amount, basepos, col2, basic_zoom, isLowRes);
-                        pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, 31, basic_zoom, isLowRes);
+                        panel_map_draw_creature_dot(mapos_x + pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);
+                        panel_map_draw_creature_dot(mapos_x - pixels_amount, mapos_y, basepos, col2, basic_zoom, isLowRes);
+                        panel_map_draw_creature_dot(mapos_x, mapos_y + pixels_amount, basepos, col2, basic_zoom, isLowRes);
+                        panel_map_draw_creature_dot(mapos_x, mapos_y - pixels_amount, basepos, col2, basic_zoom, isLowRes);
+                        panel_map_draw_creature_dot(mapos_x, mapos_y, basepos, 31, basic_zoom, isLowRes);
                     } else
                     {
                         if ((is_thing_directly_controlled_by_player(thing, my_player_number)) || (is_thing_passenger_controlled_by_player(thing, my_player_number)))
@@ -548,7 +548,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                         }
                         else
                         {
-                            pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col2, basic_zoom, isLowRes);
+                            panel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col2, basic_zoom, isLowRes);
                         }
                     }
                 } else
@@ -558,7 +558,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                     } else {
                         col = col1;
                     }
-                    pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom, isLowRes);
+                    panel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom, isLowRes);
                 }
             } else
             // Hero tunnelers may be visible on unrevealed terrain too (if on revealed, then they're already drawn)
@@ -597,7 +597,7 @@ int draw_overlay_creatures(struct PlayerInfo *player, long units_per_px, long zo
                     } else {
                         col = col1;
                     }
-                    pannel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom, isLowRes);
+                    panel_map_draw_creature_dot(mapos_x, mapos_y, basepos, col, basic_zoom, isLowRes);
                 }
             }
         }
@@ -670,14 +670,14 @@ int draw_line_to_heart(struct PlayerInfo *player, long units_per_px, long zoom)
         TbPixel col = 15;
         for (int p = 0; p < pixel_end; p++)
         {
-            pannel_map_draw_pixel((draw_x >> 8) + draw_square[p].delta_x, (draw_y >> 8) + draw_square[p].delta_y, col);
+            panel_map_draw_pixel((draw_x >> 8) + draw_square[p].delta_x, (draw_y >> 8) + draw_square[p].delta_y, col);
         }
     }
     lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
     return 1;
 }
 
-void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long basic_zoom)
+void panel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long basic_zoom)
 {
     SYNCDBG(7,"Starting");
     if (scaled_zoom < 1) {
@@ -691,7 +691,7 @@ void pannel_map_draw_overlay_things(long units_per_px, long scaled_zoom, long ba
     draw_line_to_heart(player, units_per_px, basic_zoom);
 }
 
-void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
+void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     MapSlabCoord slb_x = subtile_slab(stl_x);
     MapSlabCoord slb_y = subtile_slab(stl_y);
@@ -792,11 +792,11 @@ void pannel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSu
         }
 
     }
-    TbPixel *mapptr = &PannelMap[stl_num];
+    TbPixel *mapptr = &PanelMap[stl_num];
     *mapptr = col;
 }
 
-void pannel_map_update(long x, long y, long w, long h)
+void panel_map_update(long x, long y, long w, long h)
 {
     SYNCDBG(17,"Starting for rect (%ld,%ld) at (%ld,%ld)",w,h,x,y);
     struct PlayerInfo *player;
@@ -813,7 +813,7 @@ void pannel_map_update(long x, long y, long w, long h)
                 break;
             if (subtile_has_slab(stl_x, stl_y))
             {
-                pannel_map_update_subtile(player->id_number, stl_x, stl_y);
+                panel_map_update_subtile(player->id_number, stl_x, stl_y);
             }
         }
     }
@@ -933,9 +933,9 @@ short do_right_map_click(long start_x, long start_y, long curr_mx, long curr_my,
 
 void setup_background(long units_per_px)
 {
-    if (MapDiagonalLength != 2*(PANNEL_MAP_RADIUS*units_per_px/16))
+    if (MapDiagonalLength != 2*(PANEL_MAP_RADIUS*units_per_px/16))
     {
-        MapDiagonalLength = 2*(PANNEL_MAP_RADIUS*units_per_px/16);
+        MapDiagonalLength = 2*(PANEL_MAP_RADIUS*units_per_px/16);
         LbMemoryFree(MapBackground);
         MapBackground = LbMemoryAlloc(MapDiagonalLength*MapDiagonalLength*sizeof(TbPixel));
         LbMemoryFree(MapShapeStart);
@@ -967,7 +967,7 @@ void setup_background(long units_per_px)
     long bkgnd_pos;
     bkgnd_pos = 0;
     TbPixel *out;
-    out = &lbDisplay.WScreen[PannelMapX + out_scanline * PannelMapY];
+    out = &lbDisplay.WScreen[PanelMapX + out_scanline * PanelMapY];
     int w;
     int h;
     for (h=0; h < MapDiagonalLength; h++)
@@ -997,7 +997,7 @@ void setup_background(long units_per_px)
     NoBackColours = num_colours;
 }
 
-void setup_pannel_colours(void)
+void setup_panel_colors(void)
 {
     int frame;
     frame = game.play_gameturn & 3;
@@ -1014,23 +1014,23 @@ void setup_pannel_colours(void)
         n = pncol_idx;
         if (frame != 0)
         {
-            PannelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
-            PannelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
-            PannelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
+            PanelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
+            PanelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
         } else //as this is during setup at gameturn 1, the else looks like it is never used.
         {
-            PannelColours[n + 3] = bkcol;
-            PannelColours[n + 4] = bkcol;
-            PannelColours[n + 177] = 104 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + 3] = bkcol;
+            PanelColours[n + 4] = bkcol;
+            PanelColours[n + 177] = 104 + (pixmap.ghost[bkcol] >> 6);
         }
-        PannelColours[n + 0] = bkcol;
-        PannelColours[n + 1] = pixmap.ghost[bkcol + 16*256];
-        PannelColours[n + 2] = 0;
-        PannelColours[n + 5] = pixmap.ghost[bkcol + 140*256];
-        PannelColours[n + 6] = 146;
-        PannelColours[n + 7] = 85;
-        PannelColours[n + 176] = 255;
-        PannelColours[n + 178] = 102 + (pixmap.ghost[bkcol] >> 6);
+        PanelColours[n + 0] = bkcol;
+        PanelColours[n + 1] = pixmap.ghost[bkcol + 16*256];
+        PanelColours[n + 2] = 0;
+        PanelColours[n + 5] = pixmap.ghost[bkcol + 140*256];
+        PanelColours[n + 6] = 146;
+        PanelColours[n + 7] = 85;
+        PanelColours[n + 176] = 255;
+        PanelColours[n + 178] = 102 + (pixmap.ghost[bkcol] >> 6);
         n = pncol_idx + 8;
         int i;
         int k;
@@ -1038,34 +1038,34 @@ void setup_pannel_colours(void)
 
         for (i=17; i > 0; i--)
         {
-            PannelColours[n + 0] = (get_player_color_idx(0) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(0)];
-            PannelColours[n + 1] = (get_player_color_idx(1) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(1)];
-            PannelColours[n + 2] = (get_player_color_idx(2) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(2)];
-            PannelColours[n + 3] = (get_player_color_idx(3) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(3)];
-            PannelColours[n + 4] = (get_player_color_idx(4) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(4)];
-            PannelColours[n + 5] = (get_player_color_idx(5) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(5)];
+            PanelColours[n + 0] = (get_player_color_idx(0) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(0)];
+            PanelColours[n + 1] = (get_player_color_idx(1) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(1)];
+            PanelColours[n + 2] = (get_player_color_idx(2) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(2)];
+            PanelColours[n + 3] = (get_player_color_idx(3) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(3)];
+            PanelColours[n + 4] = (get_player_color_idx(4) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(4)];
+            PanelColours[n + 5] = (get_player_color_idx(5) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(5)];
             n += 6;
         }
         n = pncol_idx + 8 + 17*6 + 12*5;
         {
-            PannelColours[n + 0] = ClaimedGroundColours[get_player_color_idx(0)];
-            PannelColours[n + 1] = ClaimedGroundColours[get_player_color_idx(1)];
-            PannelColours[n + 2] = ClaimedGroundColours[get_player_color_idx(2)];
-            PannelColours[n + 3] = ClaimedGroundColours[get_player_color_idx(3)];
-            PannelColours[n + 4] = ClaimedGroundColours[get_player_color_idx(4)];
-            PannelColours[n + 5] = ClaimedGroundColours[get_player_color_idx(5)];
+            PanelColours[n + 0] = ClaimedGroundColours[get_player_color_idx(0)];
+            PanelColours[n + 1] = ClaimedGroundColours[get_player_color_idx(1)];
+            PanelColours[n + 2] = ClaimedGroundColours[get_player_color_idx(2)];
+            PanelColours[n + 3] = ClaimedGroundColours[get_player_color_idx(3)];
+            PanelColours[n + 4] = ClaimedGroundColours[get_player_color_idx(4)];
+            PanelColours[n + 5] = ClaimedGroundColours[get_player_color_idx(5)];
         }
         n = pncol_idx + 8 + 17*6;
         for (i=5; i > 0; i--)
         {
             for (k=0; k < 6; k++)
             {
-              PannelColours[n + k] = 60;
+              PanelColours[n + k] = 60;
             }
             n += 6;
             for (k=0; k < 6; k++)
             {
-              PannelColours[n + k] = 79;
+              PanelColours[n + k] = 79;
             }
             n += 6;
         }
@@ -1073,7 +1073,7 @@ void setup_pannel_colours(void)
     }
 }
 
-void update_pannel_colour_player_color(PlayerNumber plyr_idx, unsigned char color_idx)
+void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_idx)
 {
     int n = 0;
     int pncol_idx = 0;
@@ -1084,19 +1084,19 @@ void update_pannel_colour_player_color(PlayerNumber plyr_idx, unsigned char colo
         JUSTLOG("n %d",n);
         for (int i=17; i > 0; i--)
         {
-            PannelColours[n + plyr_idx] = RoomColours[color_idx];
+            PanelColours[n + plyr_idx] = RoomColours[color_idx];
             n += 6;
         }
         n = pncol_idx + 8 + 17*6 + 12*5;
         {
-            PannelColours[n + plyr_idx] = ClaimedGroundColours[color_idx];
+            PanelColours[n + plyr_idx] = ClaimedGroundColours[color_idx];
         }
 
         pncol_idx += 256;
     }
 }
 
-void update_pannel_colours(void)
+void update_panel_colors(void)
 {
     int frame;
     frame = game.play_gameturn & 3;
@@ -1113,20 +1113,20 @@ void update_pannel_colours(void)
         n = pncol_idx;
         if (frame != 0)
         {
-            PannelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
-            PannelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
-            PannelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + 3] = pixmap.ghost[bkcol + 26*256];
+            PanelColours[n + 4] = pixmap.ghost[bkcol + 140*256];
+            PanelColours[n + 177] = 102 + (pixmap.ghost[bkcol] >> 6);
         } else
         {
-            PannelColours[n + 3] = bkcol;
-            PannelColours[n + 4] = bkcol;
-            PannelColours[n + 177] = 100 + (pixmap.ghost[bkcol] >> 6);
+            PanelColours[n + 3] = bkcol;
+            PanelColours[n + 4] = bkcol;
+            PanelColours[n + 177] = 100 + (pixmap.ghost[bkcol] >> 6);
         }
         n = pncol_idx + 8;
         int i;
         for (i=17; i > 0; i--)
         {
-            PannelColours[n + 5] = frcol;
+            PanelColours[n + 5] = frcol;
             n += 6;
         }
         pncol_idx += 256;
@@ -1146,12 +1146,12 @@ void update_pannel_colours(void)
             n = 6 * PrevRoomHighlight + 8;
             for (i=NoBackColours; i > 0; i--)
             {
-                PannelColours[n + 0] = (get_player_color_idx(0) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(0)];;
-                PannelColours[n + 1] = (get_player_color_idx(1) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(1)];;
-                PannelColours[n + 2] = (get_player_color_idx(2) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(2)];;
-                PannelColours[n + 3] = (get_player_color_idx(3) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(3)];;
-                PannelColours[n + 4] = (get_player_color_idx(4) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(4)];;
-                PannelColours[n + 5] = (get_player_color_idx(5) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(5)];;
+                PanelColours[n + 0] = (get_player_color_idx(0) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(0)];;
+                PanelColours[n + 1] = (get_player_color_idx(1) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(1)];;
+                PanelColours[n + 2] = (get_player_color_idx(2) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(2)];;
+                PanelColours[n + 3] = (get_player_color_idx(3) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(3)];;
+                PanelColours[n + 4] = (get_player_color_idx(4) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(4)];;
+                PanelColours[n + 5] = (get_player_color_idx(5) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(5)];;
                 n += 256;
             }
         }
@@ -1162,12 +1162,12 @@ void update_pannel_colours(void)
             n = 6 * highlight + 8;
             for (i=NoBackColours; i > 0; i--)
             {
-                PannelColours[n + 0] = 31;
-                PannelColours[n + 1] = 31;
-                PannelColours[n + 2] = 31;
-                PannelColours[n + 3] = 31;
-                PannelColours[n + 4] = 31;
-                PannelColours[n + 5] = 31;
+                PanelColours[n + 0] = 31;
+                PanelColours[n + 1] = 31;
+                PanelColours[n + 2] = 31;
+                PanelColours[n + 3] = 31;
+                PanelColours[n + 4] = 31;
+                PanelColours[n + 5] = 31;
                 n += 256;
             }
         }
@@ -1189,8 +1189,8 @@ void update_pannel_colours(void)
                 int k;
                 for (k=0; k < 6; k+=2)
                 {
-                  PannelColours[n + 110 + k] = 60;
-                  PannelColours[n + 116 + k] = 79;
+                  PanelColours[n + 110 + k] = 60;
+                  PanelColours[n + 116 + k] = 79;
                 }
                 n += 256;
             }
@@ -1205,8 +1205,8 @@ void update_pannel_colours(void)
                 int k;
                 for (k=0; k < 6; k+=2)
                 {
-                  PannelColours[n + 110 + k] = 31;
-                  PannelColours[n + 116 + k] = 31;
+                  PanelColours[n + 110 + k] = 31;
+                  PanelColours[n + 116 + k] = 31;
                 }
                 n += 256;
             }
@@ -1221,16 +1221,16 @@ void auto_gen_tables(long units_per_px)
     {
         PrevPixelSize = 256 * units_per_px / 16;
         setup_background(units_per_px);
-        setup_pannel_colours();
+        setup_panel_colors();
     }
 }
 
-void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
+void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
 {
-    PannelMapX = scale_value_for_resolution_with_upp(x,units_per_px);
-    PannelMapY = scale_value_for_resolution_with_upp(y,units_per_px);
+    PanelMapX = scale_value_for_resolution_with_upp(x,units_per_px);
+    PanelMapY = scale_value_for_resolution_with_upp(y,units_per_px);
     auto_gen_tables(units_per_px);
-    update_pannel_colours();
+    update_panel_colors();
     struct PlayerInfo *player = get_my_player();
     struct Camera *cam = player->acamera;
     
@@ -1271,7 +1271,7 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
     TbPixel *bkgnd_line;
     bkgnd_line = MapBackground;
     TbPixel *out_line;
-    out_line = &lbDisplay.WScreen[PannelMapX + lbDisplay.GraphicsScreenWidth * PannelMapY];
+    out_line = &lbDisplay.WScreen[PanelMapX + lbDisplay.GraphicsScreenWidth * PanelMapY];
     int h;
     for (h = 0; h < MapDiagonalLength; h++)
     {
@@ -1316,8 +1316,8 @@ void pannel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
             //formula will have to be redone if maps bigger then 256, but works for smallerAD
             pnmap_idx = ((precor_x>>16)) + (((precor_y>>16)) * (gameadd.map_subtiles_x + 1) );
             int pncol_idx;
-            pncol_idx = PannelMap[pnmap_idx] | (*bkgnd << 8);
-            *out = PannelColours[pncol_idx];
+            pncol_idx = PanelMap[pnmap_idx] | (*bkgnd << 8);
+            *out = PanelColours[pncol_idx];
             precor_x += shift_y;
             precor_y -= shift_x;
             out++;

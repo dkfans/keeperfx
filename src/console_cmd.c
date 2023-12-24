@@ -595,7 +595,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                                        subtile_slab(stl_y + r - r2)
                 );
                 reveal_map_rect(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
-                pannel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
+                panel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
             }
             else
             {

@@ -223,7 +223,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
               }
           }
       }
-      pannel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
+      panel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
     }
     return task_added;
 }
@@ -266,7 +266,7 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
             }
         }
     }
-    pannel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
     return num_untagged;
 }
 
@@ -323,7 +323,7 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
     reveal_map_subtile(slab_subtile(slb_x,0), slab_subtile(slb_y,2), plyr_idx);
     reveal_map_subtile(slab_subtile(slb_x,1), slab_subtile(slb_y,2), plyr_idx);
     reveal_map_subtile(slab_subtile(slb_x,2), slab_subtile(slb_y,2), plyr_idx);
-    pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
     return true;
 }
 
@@ -347,7 +347,7 @@ void set_slab_explored_flags(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
         get_map_block_at(stl_x + 1, stl_y + 2)->revealed = flag;
         get_map_block_at(stl_x + 2, stl_y + 2)->revealed = flag;
 
-        pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
+        panel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
     }
 }
 
@@ -1612,7 +1612,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabset_id, MapSubtlCoord stl_x, Ma
 
     slb = get_slabmap_block(slb_x, slb_y);
     slb->kind = slbkind;
-    pannel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
     if (slab_kind_is_animated(slbkind) && !slab_kind_is_door(slbkind))
     {
         MapSubtlCoord stl_xb;
@@ -1817,7 +1817,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
       }
     }
 
-    pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
 
     for (i = 0; i < AROUND_EIGHT_LENGTH; i++)
     {
@@ -2741,7 +2741,7 @@ void pretty_map_remove_flags_and_update(MapSlabCoord slb_x, MapSlabCoord slb_y)
         mapblk->flags &= ~SlbAtFlg_TaggedValuable;
         mapblk->flags &= ~SlbAtFlg_Unexplored;
     }
-    pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
 }
 
 void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)

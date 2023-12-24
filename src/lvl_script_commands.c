@@ -4676,7 +4676,7 @@ static void set_player_color_process(struct ScriptContext *context)
 
         dungeon->color_idx = color_idx;
         
-        update_pannel_colour_player_color(plyr_idx,color_idx);
+        update_panel_color_player_color(plyr_idx,color_idx);
 
         for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
         {
