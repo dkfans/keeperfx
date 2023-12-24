@@ -1232,7 +1232,7 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
             if (!thing_is_invalid(bodytng))
             {
                 bodytng->corpse.laid_to_rest = 1;
-                bodytng->health = game.graveyard_convert_time;
+                bodytng->health = game.conf.rules.rooms.graveyard_convert_time;
                 rrepos->used--;
                 rrepos->models[ri] = 0;
                 rrepos->explevels[ri] = 0;
@@ -2263,7 +2263,7 @@ short room_grow_food(struct Room *room)
         count_food_in_room(room);
     }
     if ((room->used_capacity >= room->total_capacity)
-      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1))
+      || game.play_gameturn % ((game.conf.rules.rooms.food_generation_speed / room->total_capacity) + 1))
     {
         return 0;
     }

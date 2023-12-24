@@ -341,7 +341,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
         return false;
     }
     //TODO CONFIG Allow skeletification only if spent specific amount of turns in prison (set low value)
-    if (CREATURE_RANDOM(thing, 101) > game.prison_skeleton_chance)
+    if (CREATURE_RANDOM(thing, 101) > game.conf.rules.rooms.prison_skeleton_chance)
       return false;
     if (prison_convert_creature_to_skeleton(room, thing))
     {
@@ -454,7 +454,7 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         return CrCkRet_Continue;
     // Breaking from jail is only possible once per some amount of turns,
     // and only if creature sits in jail for long enough
-    if (((game.play_gameturn % gameadd.time_between_prison_break) == 0) &&
+    if (((game.play_gameturn % game.conf.rules.rooms.time_between_prison_break) == 0) &&
         (game.play_gameturn > cctrl->imprison.start_gameturn + gameadd.time_in_prison_without_break))
     {
         // Check the base jail break condition - whether prison touches enemy land

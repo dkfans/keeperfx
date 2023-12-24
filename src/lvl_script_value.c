@@ -1038,8 +1038,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 1: //BodiesForVampire
           if ((val3 >= 0) && (val3 <= UCHAR_MAX))
           {
-              SCRIPTDBG(7,"Changing rule %d from %d to %d", val2, game.bodies_for_vampire, val3);
-              game.bodies_for_vampire = val3;
+              SCRIPTDBG(7,"Changing rule %d from %d to %d", val2, game.conf.rules.rooms.bodies_for_vampire, val3);
+              game.conf.rules.rooms.bodies_for_vampire = val3;
           }
           else
           {
@@ -1049,8 +1049,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 2: //PrisonSkeletonChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.prison_skeleton_chance, val3);
-              game.prison_skeleton_chance = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.prison_skeleton_chance, val3);
+              game.conf.rules.rooms.prison_skeleton_chance = val3;
           }
           else
           {
@@ -1060,8 +1060,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 3: //GhostConvertChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.ghost_convert_chance, val3);
-              game.ghost_convert_chance = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.ghost_convert_chance, val3);
+              game.conf.rules.rooms.ghost_convert_chance = val3;
           }
           else
           {
@@ -1093,8 +1093,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 6: //FoodGenerationSpeed
           if (val3 >= 0)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.food_generation_speed, val3);
-              game.food_generation_speed = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.food_generation_speed, val3);
+              game.conf.rules.rooms.food_generation_speed = val3;
           }
           else
           {
@@ -1247,8 +1247,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           gameadd.allies_share_cta = (TbBool)val3;
           break; 
       case 32: //BarrackMaxPartySize
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
-          game.barrack_max_party_size = (TbBool)val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.barrack_max_party_size, val3);
+          game.conf.rules.rooms.barrack_max_party_size = (TbBool)val3;
           break;
       case 33: //MaxThingsInHand
           if (val3 <= MAX_THINGS_IN_HAND)
@@ -1264,8 +1264,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 34: //TrainingRoomMaxLevel
           if (val3 >= 0 && val3 <= SHRT_MAX)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.training_room_max_level, val3);
-              game.training_room_max_level = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.training_room_max_level, val3);
+              game.conf.rules.rooms.training_room_max_level = val3;
           }
           else
           {

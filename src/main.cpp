@@ -985,7 +985,7 @@ void init_keeper(void)
     init_top_texture_to_cube_table();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
-      game.generate_speed = game.default_generate_speed;
+      game.generate_speed = game.conf.rules.rooms.default_generate_speed;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     lbDisplay.DrawColour = colours[15][15][15];

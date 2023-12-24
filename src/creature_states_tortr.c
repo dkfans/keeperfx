@@ -508,9 +508,9 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         cctrl->turns_at_job = (long)game.play_gameturn;
     }
     // Check if we should convert the creature into ghost
-    if ((creatng->health < 0) && (game.ghost_convert_chance > 0))
+    if ((creatng->health < 0) && (game.conf.rules.rooms.ghost_convert_chance > 0))
     {
-        if (CREATURE_RANDOM(creatng, 100) < game.ghost_convert_chance)
+        if (CREATURE_RANDOM(creatng, 100) < game.conf.rules.rooms.ghost_convert_chance)
         {
             convert_creature_to_ghost(room, creatng);
             return CrCkRet_Deleted;
@@ -544,7 +544,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         } else
         {
             SYNCDBG(4, "The %s died from torture", thing_model_name(creatng));
-            if (CREATURE_RANDOM(creatng, 100) < game.ghost_convert_chance)
+            if (CREATURE_RANDOM(creatng, 100) < game.conf.rules.rooms.ghost_convert_chance)
             {
                 convert_creature_to_ghost(room, creatng);
                 return CrCkRet_Deleted;

@@ -1310,21 +1310,21 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.scavenge_cost_frequency = 64;
-      game.temple_scavenge_protection_turns = 1000;
-      game.train_cost_frequency = 64;
-      game.ghost_convert_chance = 10;
-      game.default_generate_speed = 500;
-      game.default_max_crtrs_gen_entrance = 200;
-      game.food_generation_speed = 2000;
-      game.prison_skeleton_chance = 100;
-      game.bodies_for_vampire = 6;
-      game.graveyard_convert_time = 300;
-      game.barrack_max_party_size = 10;
-      game.training_room_max_level = 0;
-      gameadd.scavenge_good_allowed = 1;
-      gameadd.scavenge_neutral_allowed = 1;
-      gameadd.time_between_prison_break = 64;
+      game.conf.rules.rooms.scavenge_cost_frequency = 64;
+      game.conf.rules.rooms.temple_scavenge_protection_turns = 1000;
+      game.conf.rules.rooms.train_cost_frequency = 64;
+      game.conf.rules.rooms.ghost_convert_chance = 10;
+      game.conf.rules.rooms.default_generate_speed = 500;
+      game.conf.rules.rooms.default_max_crtrs_gen_entrance = 200;
+      game.conf.rules.rooms.food_generation_speed = 2000;
+      game.conf.rules.rooms.prison_skeleton_chance = 100;
+      game.conf.rules.rooms.bodies_for_vampire = 6;
+      game.conf.rules.rooms.graveyard_convert_time = 300;
+      game.conf.rules.rooms.barrack_max_party_size = 10;
+      game.conf.rules.rooms.training_room_max_level = 0;
+      game.conf.rules.rooms.scavenge_good_allowed = 1;
+      game.conf.rules.rooms.scavenge_neutral_allowed = 1;
+      game.conf.rules.rooms.time_between_prison_break = 64;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1352,7 +1352,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.scavenge_cost_frequency = k;
+            game.conf.rules.rooms.scavenge_cost_frequency = k;
             n++;
           }
           if (n < 1)
@@ -1365,7 +1365,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.temple_scavenge_protection_turns = k;
+            game.conf.rules.rooms.temple_scavenge_protection_turns = k;
             n++;
           }
           if (n < 1)
@@ -1378,7 +1378,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.train_cost_frequency = k;
+            game.conf.rules.rooms.train_cost_frequency = k;
             n++;
           }
           if (n < 1)
@@ -1417,7 +1417,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.ghost_convert_chance = k;
+            game.conf.rules.rooms.ghost_convert_chance = k;
             n++;
           }
           if (n < 1)
@@ -1442,7 +1442,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.default_generate_speed = k;
+            game.conf.rules.rooms.default_generate_speed = k;
             n++;
           }
           if (n < 1)
@@ -1455,7 +1455,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.default_max_crtrs_gen_entrance = k;
+            game.conf.rules.rooms.default_max_crtrs_gen_entrance = k;
             n++;
           }
           if (n < 1)
@@ -1474,7 +1474,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.food_generation_speed = k;
+            game.conf.rules.rooms.food_generation_speed = k;
             n++;
           }
           if (n < 1)
@@ -1487,7 +1487,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.prison_skeleton_chance = k;
+            game.conf.rules.rooms.prison_skeleton_chance = k;
             n++;
           }
           if (n < 1)
@@ -1500,7 +1500,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.bodies_for_vampire = k;
+            game.conf.rules.rooms.bodies_for_vampire = k;
             n++;
           }
           if (n < 1)
@@ -1513,7 +1513,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.graveyard_convert_time = k;
+            game.conf.rules.rooms.graveyard_convert_time = k;
             n++;
           }
           if (n < 1)
@@ -1526,7 +1526,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.scavenge_good_allowed = k;
+            game.conf.rules.rooms.scavenge_good_allowed = k;
             n++;
           }
           if (n < 1)
@@ -1539,7 +1539,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.scavenge_neutral_allowed = k;
+            game.conf.rules.rooms.scavenge_neutral_allowed = k;
             n++;
           }
           if (n < 1)
@@ -1552,7 +1552,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.time_between_prison_break = k;
+            game.conf.rules.rooms.time_between_prison_break = k;
             n++;
           }
           if (n < 1)
@@ -1591,7 +1591,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              game.barrack_max_party_size = k;
+              game.conf.rules.rooms.barrack_max_party_size = k;
               n++;
           }
           if (n < 1)
@@ -1604,7 +1604,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              game.training_room_max_level = k;
+              game.conf.rules.rooms.training_room_max_level = k;
               n++;
           }
           if (n < 1)
@@ -1625,7 +1625,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       skip_conf_to_next_line(buf,&pos,len);
   }
 #undef COMMAND_TEXT
-  //SYNCMSG("Prison skeleton chance = %d",game.prison_skeleton_chance);
+  //SYNCMSG("Prison skeleton chance = %d",game.conf.rules.rooms.prison_skeleton_chance);
   return true;
 }
 

@@ -123,11 +123,50 @@ struct MagicRulesConfig {
     GameTurnDelta turns_per_collapse_dngn_dmg;
     GoldAmount power_hand_gold_grab_amount;
 };
+
+struct RoomRulesConfig {
+    GameTurnDelta scavenge_cost_frequency;
+    unsigned long temple_scavenge_protection_turns;
+    GameTurnDelta train_cost_frequency;
+    unsigned char ghost_convert_chance;
+    unsigned short default_generate_speed;
+    unsigned long default_max_crtrs_gen_entrance;
+    GameTurnDelta food_generation_speed;
+    unsigned char prison_skeleton_chance;
+    unsigned char bodies_for_vampire;
+    unsigned short graveyard_convert_time;
+    short barrack_max_party_size;
+    unsigned short training_room_max_level;
+    TbBool scavenge_good_allowed;
+    TbBool scavenge_neutral_allowed;
+    unsigned long time_between_prison_break;
+};
+/*
+struct WorkersRulesConfig {
+};
+
+struct HealthRulesConfig {
+};
+
+struct ResearchRulesConfig {
+};
+
+struct SacrificesRulesConfig {
+};
+
+*/
 struct RulesConfig {
     struct GameRulesConfig game;
     struct ComputerRulesConfig computer;
     struct CreatureRulesConfig creature;
     struct MagicRulesConfig magic;
+    struct RoomRulesConfig rooms;
+    /*
+    struct WorkersRulesConfig workers;
+    struct HealthRulesConfig health;
+    struct ResearchRulesConfig research;
+    struct SacrificesRulesConfig sacrifices;
+    */
 
 };
 /******************************************************************************/
