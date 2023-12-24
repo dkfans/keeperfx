@@ -85,7 +85,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
     char key[64];
     VALUE *slb_section;
     // Create sections
-    for (int slab_kind = 0; slab_kind < game.slab_conf.slab_types_count; slab_kind++)
+    for (int slab_kind = 0; slab_kind < game.conf.slab_conf.slab_types_count; slab_kind++)
     {
        
         {

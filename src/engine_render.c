@@ -5091,7 +5091,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         TbBool is_shown = false;
         if (thing->class_id == TCls_Trap)
         {
-            is_shown = !gameadd.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+            is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
         }
         else
         {
@@ -5473,7 +5473,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
-    roomst = &game.slab_conf.room_cfgstats[room->kind];
+    roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
     spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
@@ -8229,7 +8229,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
             break;
         case TCls_Trap:
-            trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;

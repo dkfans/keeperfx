@@ -318,8 +318,8 @@ void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
   struct Thing *thing;
   player = get_player(plyr_idx);
 
-  short anim_idx   = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
-  short anim_speed = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
+  short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
+  short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
 
   if (player->hand_busy_until_turn >= game.play_gameturn)
   {
@@ -334,10 +334,10 @@ void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
       thing = thing_get(player->hand_thing_idx);
       if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
       {
-        set_thing_draw(thing, anim_idx, anim_speed, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
+        set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
       } else
       {
-        set_thing_draw(thing, anim_idx, anim_speed, gameadd.crtr_conf.sprite_size, 1, 0, ODC_Default);
+        set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 1, 0, ODC_Default);
       }
     }
   }
@@ -1256,7 +1256,7 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long expl
     ERRORLOG("Player %d cannot sacrifice %s",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model));
     return;
   }
-  if ((model < 0) || (model >= gameadd.crtr_conf.model_count))
+  if ((model < 0) || (model >= game.conf.crtr_conf.model_count))
   {
     ERRORLOG("Tried to sacrifice invalid creature model %d",(int)model);
     return;

@@ -158,7 +158,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
             TbBool can_cast_child;
             can_cast_child = false;
             int i;
-            for (i = 0; i < magic_conf.power_types_count; i++)
+            for (i = 0; i < game.conf.magic_conf.power_types_count; i++)
             {
                 const struct PowerConfigStats *child_powerst;
                 child_powerst = get_power_model_stats(i);
@@ -290,7 +290,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         {
             if (thing->owner == plyr_idx) {
                 struct TrapConfigStats *trapst;
-                trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+                trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
                 if ((trapst->slappable == 1) && trap_is_active(thing)) {
                     return true;
                 }
@@ -813,7 +813,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     long price;
-    if (pwkind >= magic_conf.power_types_count)
+    if (pwkind >= game.conf.magic_conf.power_types_count)
         return false;
     if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
         pwlevel = MAGIC_OVERCHARGE_LEVELS;
@@ -2269,7 +2269,7 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
 {
   struct Dungeon *dungeon;
   int i;
-  if (pwkind >= magic_conf.power_types_count)
+  if (pwkind >= game.conf.magic_conf.power_types_count)
       return false;
   dungeon = get_dungeon(player->id_number);
   const struct MagicStats *pwrdynst;

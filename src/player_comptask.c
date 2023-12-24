@@ -1085,7 +1085,7 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     // The room digging task is complete - change it to room placing task
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
-        roomst = &game.slab_conf.room_cfgstats[ctask->rkind];
+        roomst = &game.conf.slab_conf.room_cfgstats[ctask->rkind];
         message_add_fmt(comp->dungeon->owner, "Now I can place the %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_PlaceRoom;
@@ -1117,7 +1117,7 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
     SYNCDBG(9,"Starting");
     struct Dungeon *dungeon = comp->dungeon;
     RoomKind rkind = ctask->create_room.kind;
-    struct RoomConfigStats *roomst = &game.slab_conf.room_cfgstats[rkind];
+    struct RoomConfigStats *roomst = &game.conf.slab_conf.room_cfgstats[rkind];
     // If we don't have money for the room - don't even try
     if (roomst->cost + 1000 >= dungeon->total_money_owned)
     {
@@ -1239,7 +1239,7 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
         return IAvail_Never;
     }
     if (dungeon_invalid(dungeon)) {
@@ -1262,7 +1262,7 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
 ItemAvailability computer_check_room_of_role_available(const struct Computer2 * comp, RoomRole rrole)
 {
     ItemAvailability result = IAvail_Never;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -1514,7 +1514,7 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     {
         if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
             struct RoomConfigStats *roomst;
-            roomst = &game.slab_conf.room_cfgstats[rkind];
+            roomst = &game.conf.slab_conf.room_cfgstats[rkind];
             message_add_fmt(comp->dungeon->owner, "It is time to build %s.",get_string(roomst->name_stridx));
         }
         ctask->ttype = CTT_DigRoomPassage;
@@ -3231,7 +3231,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
             {
             case TDSC_DoorCrate:
                 model = tdsell->model;
-                if ((model <= 0) || (model >= gameadd.trapdoor_conf.door_types_count)) {
+                if ((model <= 0) || (model >= game.conf.trapdoor_conf.door_types_count)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3244,14 +3244,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         item_sold = true;
-                        value = compute_value_percentage(gameadd.doors_config[model].selling_value,gameadd.door_sale_percent);
+                        value = compute_value_percentage(game.conf.doors_config[model].selling_value,gameadd.door_sale_percent);
                         SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(gameadd.doors_config[model].selling_value, gameadd.door_sale_percent);
+                        value = compute_value_percentage(game.conf.doors_config[model].selling_value, gameadd.door_sale_percent);
                         SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3263,11 +3263,11 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 break;
             case TDSC_TrapCrate:
                 model = tdsell->model;
-                if ((model <= 0) || (model >= gameadd.trapdoor_conf.trap_types_count)) {
+                if ((model <= 0) || (model >= game.conf.trapdoor_conf.trap_types_count)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[model];
+                struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[model];
                 if ((dungeon->mnfct_info.trap_amount_placeable[model] > 0) && (trapst->unsellable == 0))
                 {
                     int crate_source;
@@ -3277,14 +3277,14 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
-                        value = compute_value_percentage(gameadd.traps_config[model].selling_value, gameadd.trap_sale_percent);
+                        value = compute_value_percentage(game.conf.traps_config[model].selling_value, gameadd.trap_sale_percent);
                         SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(gameadd.traps_config[model].selling_value, gameadd.trap_sale_percent);
+                        value = compute_value_percentage(game.conf.traps_config[model].selling_value, gameadd.trap_sale_percent);
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
@@ -3298,7 +3298,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 if (!ctask->sell_traps_doors.allow_deployed)
                     break;
                 model = tdsell->model;
-                if ((model <= 0) || (model >= gameadd.trapdoor_conf.door_types_count)) {
+                if ((model <= 0) || (model >= game.conf.trapdoor_conf.door_types_count)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3311,7 +3311,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
-                        value = compute_value_percentage(gameadd.doors_config[model].selling_value, gameadd.door_sale_percent);
+                        value = compute_value_percentage(game.conf.doors_config[model].selling_value, gameadd.door_sale_percent);
                         destroy_door(doortng);
                         if (is_my_player_number(dungeon->owner))
                             play_non_3d_sample(115);
@@ -3334,7 +3334,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 if (!ctask->sell_traps_doors.allow_deployed)
                     break;
                 model = tdsell->model;
-                if ((model <= 0) || (model >= gameadd.trapdoor_conf.trap_types_count)) {
+                if ((model <= 0) || (model >= game.conf.trapdoor_conf.trap_types_count)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3433,7 +3433,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent)) {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[thing->model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[thing->model];
 
         switch (dst_state)
         {
@@ -3516,7 +3516,7 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
         room = room_get(room_idx);
         if (room_exists(room)) {
             struct RoomConfigStats *roomst;
-            roomst = &game.slab_conf.room_cfgstats[room->kind];
+            roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
             message_add_fmt(comp->dungeon->owner, "Time to put some creatures into %s.",get_string(roomst->name_stridx));
         } else {
             if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent))
@@ -3755,7 +3755,7 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
-        roomst = &game.slab_conf.room_cfgstats[RoK_ENTRANCE];
+        roomst = &game.conf.slab_conf.room_cfgstats[RoK_ENTRANCE];
         message_add_fmt(comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_DigToEntrance;
@@ -3821,7 +3821,7 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatng->model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
         message_add_fmt(comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crconf->namestr_idx));
     }
     ctask->ttype = CTT_AttackMagic;

@@ -286,7 +286,7 @@ long computer_finds_nearest_room_to_gold_lookup(const struct Dungeon *dungeon, c
     gold_pos.y.stl.num = gldlook->stl_y;
     long min_distance = LONG_MAX;
     long distance = LONG_MAX;
-    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         struct Room* room = find_room_nearest_to_position(dungeon->owner, rkind, &gold_pos, &distance);
         if (!room_is_invalid(room))
@@ -569,7 +569,7 @@ TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **
     struct Dungeon* dungeon = comp->dungeon;
     *retroom = NULL;
 
-    for (RoomKind i = 0; i < game.slab_conf.room_types_count; i++)
+    for (RoomKind i = 0; i < game.conf.slab_conf.room_types_count; i++)
     {
         struct Room* room = room_get(dungeon->room_kind[i]);
         
@@ -669,7 +669,7 @@ long count_diggers_in_dungeon(const struct Dungeon *dungeon)
  */
 long buildable_traps_amount(struct Dungeon *dungeon, ThingModel trmodel)
 {
-    if ((trmodel < 1) || (trmodel >= gameadd.trapdoor_conf.trap_types_count))
+    if ((trmodel < 1) || (trmodel >= game.conf.trapdoor_conf.trap_types_count))
         return 0;
 
     if ((dungeon->mnfct_info.trap_build_flags[trmodel] & MnfBldF_Manufacturable) != 0)
@@ -687,7 +687,7 @@ long buildable_traps_amount(struct Dungeon *dungeon, ThingModel trmodel)
 long get_number_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long base_amount)
 {
     long kinds = 0;
-    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
+    for (long i = 1; i < game.conf.trapdoor_conf.trap_types_count; i++)
     {
         if (buildable_traps_amount(dungeon, i) >= base_amount)
         {
@@ -704,7 +704,7 @@ long get_number_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long
  */
 long get_nth_of_trap_kinds_with_amount_at_least(struct Dungeon *dungeon, long base_amount, long n)
 {
-    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
+    for (long i = 1; i < game.conf.trapdoor_conf.trap_types_count; i++)
     {
         if (buildable_traps_amount(dungeon, i) >= base_amount)
         {
@@ -758,8 +758,8 @@ int computer_find_more_trap_place_locations(struct Computer2 *comp)
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
     int num_added = 0;
-    RoomKind rkind = AI_RANDOM(game.slab_conf.room_types_count);
-    for (int m = 0; m < game.slab_conf.room_types_count; m++, rkind = (rkind + 1) % game.slab_conf.room_types_count)
+    RoomKind rkind = AI_RANDOM(game.conf.slab_conf.room_types_count);
+    for (int m = 0; m < game.conf.slab_conf.room_types_count; m++, rkind = (rkind + 1) % game.conf.slab_conf.room_types_count)
     {
         unsigned long k = 0;
         int i = dungeon->room_kind[rkind];
@@ -1095,7 +1095,7 @@ long count_creatures_for_defend_pickup(struct Computer2 *comp)
                     struct CreatureStats* crstat = creature_stats_get_from_thing(i);
                     if (crstat->health > 0)
                     {
-                        if (100 * i->health / (gameadd.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20)
+                        if (100 * i->health / (game.conf.crtr_conf.exp.health_increase_on_exp * crstat->health * cctrl->explevel / 100 + crstat->health) > 20)
                         {
                             ++count;
                         }
