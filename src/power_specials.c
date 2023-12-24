@@ -70,12 +70,12 @@ unsigned short dungeon_special_selected;
 TbBool activate_bonus_level(struct PlayerInfo *player)
 {
   SYNCDBG(5,"Starting");
-  set_flag_byte(&game.flags_font,FFlg_unk02,true);
+  set_flag(game.flags_font, FFlg_unk02);
   LevelNumber sp_lvnum = get_loaded_level_number();
   TbBool result = set_bonus_level_visibility_for_singleplayer_level(player, sp_lvnum, true);
   if (!result)
     ERRORLOG("No Bonus level assigned to level %d",(int)sp_lvnum);
-  set_flag_byte(&game.operation_flags,GOF_SingleLevel,false);
+  clear_flag(game.operation_flags, GOF_SingleLevel);
   return result;
 }
 
@@ -384,7 +384,7 @@ void make_safe(struct PlayerInfo *player)
         slb_y = slb_num_decode_y(slblist[list_cur]);
         list_cur++;
     }
-    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
 }
 
 void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
@@ -393,7 +393,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   struct Coord3d pos;
 
   // Gathering data which we'll need if the special is used and disposed.
-  struct DungeonAdd* dungeonadd = get_dungeonadd(player->id_number);
+  struct Dungeon* dungeon = get_dungeon(player->id_number);
   memcpy(&pos,&cratetng->mappos,sizeof(struct Coord3d));
   SpecialKind spkindidx = box_thing_to_special(cratetng);
   struct SpecialConfigStats* specst;
@@ -460,7 +460,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
                 gameadd.current_player_turn = game.play_gameturn;
                 gameadd.script_current_player = player->id_number;
                 memcpy(&gameadd.triggered_object_location, &pos, sizeof(struct Coord3d));
-                dungeonadd->box_info.activated[cratetng->custom_box.box_kind]++;
+                dungeon->box_info.activated[cratetng->custom_box.box_kind]++;
                 no_speech = true;
                 remove_events_thing_is_attached_to(cratetng);
                 used = 1;
@@ -512,7 +512,6 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
 {
     SYNCDBG(7, "Starting");
     TbBool from_script = false;
-    struct DungeonAdd* dungeonadd;
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     if (dungeon->dnheart_idx == boxtng->index)
     {
@@ -535,8 +534,7 @@ void transfer_creature(struct Thing *boxtng, struct Thing *transftng, unsigned c
     struct CreatureControl* cctrl = creature_control_get_from_thing(transftng);
     if (add_transfered_creature(plyr_idx, transftng->model, cctrl->explevel,cctrl->creature_name))
     {
-        dungeonadd = get_dungeonadd(plyr_idx);
-        dungeonadd->creatures_transferred++;
+        dungeon->creatures_transferred++;
     }
     remove_thing_from_power_hand_list(transftng, plyr_idx);
     kill_creature(transftng, INVALID_THING, -1, CrDed_NoEffects|CrDed_NotReallyDying);
@@ -634,8 +632,8 @@ SpecialKind box_thing_to_special(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= gameadd.object_conf.object_types_count) )
+    if ( (thing->class_id != TCls_Object) || (thing->model >= game.conf.object_conf.object_types_count) )
         return 0;
-    return gameadd.object_conf.object_to_special_artifact[thing->model];
+    return game.conf.object_conf.object_to_special_artifact[thing->model];
 }
 /******************************************************************************/

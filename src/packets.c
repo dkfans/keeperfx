@@ -198,6 +198,9 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       case PSt_TimeBomb:
           update_power_overcharge(player, PwrK_TIMEBOMB);
           break;
+      case PSt_Rebound:
+          update_power_overcharge(player, PwrK_REBOUND);
+          break;
       default:
           player->cast_expand_level++;
           break;
@@ -294,11 +297,11 @@ void process_pause_packet(long curr_pause, long new_pause)
   if ( can )
   {
       player = get_my_player();
-      set_flag_byte(&game.operation_flags, GOF_Paused, curr_pause);
+      set_flag_value(game.operation_flags, GOF_Paused, curr_pause);
       if ((game.operation_flags & GOF_Paused) != 0)
-          set_flag_byte(&game.operation_flags, GOF_WorldInfluence, new_pause);
+          set_flag_value(game.operation_flags, GOF_WorldInfluence, new_pause);
       else
-          set_flag_byte(&game.operation_flags, GOF_Paused, false);
+          clear_flag(game.operation_flags, GOF_Paused);
       if ( !SoundDisabled )
       {
         if ((game.operation_flags & GOF_Paused) != 0)
@@ -917,7 +920,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
          toggle_ally_with_player(plyr_idx, pckt->actn_par1);
          if (gameadd.allies_share_vision)
          {
-            pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+            panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
          }
       }
       return false;
@@ -1451,20 +1454,20 @@ void process_packets(void)
   switch (checksums_different())
   {
   case 1:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+      set_flag(game.system_flags, GSF_NetGameNoSync);
+      clear_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   case 2:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
+      clear_flag(game.system_flags, GSF_NetGameNoSync);
+      set_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   case 3:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,true);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,true);
+      set_flag(game.system_flags, GSF_NetGameNoSync);
+      set_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   default:
-      set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-      set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+      clear_flag(game.system_flags, GSF_NetGameNoSync);
+      clear_flag(game.system_flags, GSF_NetSeedNoSync);
     break;
   }
   // Write packets into file, if requested
@@ -1500,9 +1503,9 @@ void process_frontend_packets(void)
     net_screen_packet[i].field_4 &= ~0x01;
   }
   struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
-  set_flag_byte(&nspckt->field_4, 0x01, true);
+  set_flag(nspckt->field_4, 0x01);
   nspckt->field_5 = frontend_alliances;
-  set_flag_byte(&nspckt->field_4, 0x01, true);
+  set_flag(nspckt->field_4, 0x01);
   nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
   nspckt->field_6 = VersionMajor;
   nspckt->field_8 = VersionMinor;

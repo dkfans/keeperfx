@@ -455,17 +455,17 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     case DCrSt_RigorMortis:
         thing->active_state = DCrSt_RigorMortis;
         k = get_creature_anim(thing, 17);
-        set_thing_draw(thing, k, 256, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
+        set_thing_draw(thing, k, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
         break;
     default:
         thing->active_state = DCrSt_DramaticDying;
         k = get_creature_anim(thing, 15);
-        set_thing_draw(thing, k, 128, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
+        set_thing_draw(thing, k, 128, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
         thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
     }
-    thing->sprite_size = (gameadd.crtr_conf.sprite_size * (long)thing->corpse.exp_level) / 20 + gameadd.crtr_conf.sprite_size;
+    thing->sprite_size = (game.conf.crtr_conf.sprite_size * (long)thing->corpse.exp_level) / 20 + game.conf.crtr_conf.sprite_size;
     return thing;
 }
 
@@ -496,7 +496,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
         ERRORLOG("Could not create dead thing while killing %s index %d owned by player %d.",creature_code_name(crmodel),(int)prev_idx,(int)owner);
         return INVALID_THING;
     }
-    set_flag_byte(&deadtng->alloc_flags, TAlF_IsControlled, memf1);
+    set_flag_value(deadtng->alloc_flags, TAlF_IsControlled, memf1);
     if (owner != game.neutral_player_num)
     {
         // Update thing index inside player struct

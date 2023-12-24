@@ -630,7 +630,7 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
   clear_dig_for_map_rect(plyr_idx,subtile_slab(start_x),subtile_slab(end_x),
       subtile_slab(start_y),subtile_slab(end_y));
   reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);
-  pannel_map_update(start_x,start_y,end_x,end_y);
+  panel_map_update(start_x,start_y,end_x,end_y);
 }
 
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all)
@@ -662,7 +662,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
             conceal_map_block(mapblk, plyr_idx);
         }
     }
-    pannel_map_update(start_x,start_y,end_x,end_y);
+    panel_map_update(start_x,start_y,end_x,end_y);
 }
 /**
  * Returns if given map position is unsafe (contains a terrain which may lead to creature death).
@@ -744,7 +744,7 @@ TbBool subtile_is_sellable_door_or_trap(PlayerNumber plyr_idx, MapSubtlCoord stl
     struct SlabMap* slb = get_slabmap_for_subtile(stl_x, stl_y);
     if (slabmap_owner(slb) != plyr_idx)
         return false;
-    if ((slab_has_door_thing_on(subtile_slab(stl_x), subtile_slab(stl_y))) || (slab_has_sellable_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))))
+    if ((slab_has_sellable_door(subtile_slab(stl_x), subtile_slab(stl_y))) || (slab_has_sellable_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))))
         return true;
     return false;
 }

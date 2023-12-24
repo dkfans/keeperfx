@@ -396,7 +396,7 @@ TbBool load_game(long slot_num)
         my_player_number = default_loc_player;
         player = get_my_player();
         game.flagfield_14EA4A = 2;
-        set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
+        clear_flag(game.system_flags, GSF_NetworkActive);
         player->is_active = 1;
         set_selected_level_number(((struct Game *)buf)->load_restart_level);
         set_continue_level_number(((struct Game *)buf)->continue_level_number);
@@ -422,12 +422,12 @@ TbBool load_game(long slot_num)
     LbStringCopy(game.campaign_fname,campaign.fname,sizeof(game.campaign_fname));
     reinit_level_after_load();
     output_message(SMsg_GameLoaded, 0, true);
-    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
     calculate_moon_phase(false,false);
     update_extra_levels_visibility();
     struct PlayerInfo* player = get_my_player();
-    set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
-    set_flag_byte(&player->additional_flags,PlaAF_FreezePaletteIsActive,false);
+    clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
+    clear_flag(player->additional_flags, PlaAF_FreezePaletteIsActive);
     player->palette_fade_step_pain = 0;
     player->palette_fade_step_possession = 0;
     player->lens_palette = 0;
@@ -468,7 +468,7 @@ TbBool fill_game_catalogue_entry(struct CatalogueEntry *centry,const char *textn
     snprintf(centry->campaign_name, LINEMSG_SIZE, "%s", campaign.name);
     snprintf(centry->campaign_fname, DISKPATH_SIZE, "%s", campaign.fname);
     snprintf(centry->player_name, PLAYER_NAME_LENGTH, "%s", high_score_entry);
-    set_flag_word(&centry->flags, CEF_InUse, true);
+    set_flag(centry->flags, CEF_InUse);
     return true;
 }
 
@@ -493,7 +493,7 @@ TbBool game_catalogue_slot_disable(struct CatalogueEntry *game_catalg,unsigned i
 {
   if (slot_idx >= TOTAL_SAVE_SLOTS_COUNT)
     return false;
-  set_flag_word(&game_catalg[slot_idx].flags, CEF_InUse, false);
+  clear_flag(game_catalg[slot_idx].flags, CEF_InUse);
   game_save_catalogue(game_catalg,TOTAL_SAVE_SLOTS_COUNT);
   return true;
 }
@@ -510,13 +510,13 @@ TbBool save_game_save_catalogue(void)
 
 TbBool load_catalogue_entry(TbFileHandle fh,struct FileChunkHeader *hdr,struct CatalogueEntry *centry)
 {
-    set_flag_word(&centry->flags, CEF_InUse, false);
+    clear_flag(centry->flags, CEF_InUse);
     if ((hdr->id == SGC_InfoBlock) && (hdr->len == sizeof(struct CatalogueEntry)))
     {
         if (LbFileRead(fh, centry, sizeof(struct CatalogueEntry))
           == sizeof(struct CatalogueEntry))
         {
-            set_flag_word(&centry->flags, CEF_InUse, true);
+            set_flag(centry->flags, CEF_InUse);
         }
     }
     centry->textname[SAVE_TEXTNAME_LEN-1] = '\0';
@@ -669,14 +669,14 @@ short load_continue_game(void)
 
 TbBool add_transfered_creature(PlayerNumber plyr_idx, ThingModel model, long explevel, char *name)
 {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    if (dungeonadd == INVALID_DUNGEON_ADD)
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
     {
         ERRORDBG(11, "Can't transfer creature; player %d has no dungeon.", (int)plyr_idx);
         return false;
     }
 
-    short i = dungeonadd->creatures_transferred; //makes sure it fits 255 units
+    short i = dungeon->creatures_transferred; //makes sure it fits 255 units
 
     intralvl.transferred_creatures[plyr_idx][i].model = model;
     intralvl.transferred_creatures[plyr_idx][i].explevel = explevel;

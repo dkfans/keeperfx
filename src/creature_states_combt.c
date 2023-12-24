@@ -571,7 +571,7 @@ void update_battle_events(BattleIndex battle_id)
     MapCoord map_x = -1;
     MapCoord map_y = -1;
     MapCoord map_z = -1;
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     unsigned long k = 0;
     struct CreatureBattle* battle = creature_battle_get(battle_id);
     int i = battle->first_creatr;
@@ -605,10 +605,10 @@ void update_battle_events(BattleIndex battle_id)
             continue;
         if (flag_is_set(owner_flags, to_flag(i)))
         {
-            dungeonadd = get_dungeonadd(i);
-            dungeonadd->last_combat_location.x.val = map_x;
-            dungeonadd->last_combat_location.y.val = map_y;
-            dungeonadd->last_combat_location.z.val = map_z;
+            dungeon = get_dungeon(i);
+            dungeon->last_combat_location.x.val = map_x;
+            dungeon->last_combat_location.y.val = map_y;
+            dungeon->last_combat_location.z.val = map_z;
             if (owner_flags == to_flag(i)) { // if the current player (i) is the only player in the fight
                 event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, 0);
             } else {
@@ -1826,7 +1826,7 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
     }
-    for (int i = CrInst_LISTEND; i < gameadd.crtr_conf.instances_count; i++)
+    for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
         if ((inst_inf->flags & InstPF_SelfBuff))
@@ -1858,7 +1858,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
 
-        for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
+        for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
             if (i == CrInst_HEAL)
                 continue;
@@ -1942,7 +1942,7 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
-    for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
+    for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
         if (inst_inf->range_min < 0) //instance is not a combat weapon
@@ -1974,7 +1974,7 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
-    for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
+    for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
         if (inst_inf->range_min < 0) //instance is not a combat weapon
@@ -3135,7 +3135,7 @@ struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, c
         {
             if (players_are_enemies(thing->owner, trpthing->owner))
             {
-                struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpthing->model];
+                struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpthing->model];
                 if (creature_can_see_invisible(thing) || (trapst->hidden == 0) || (trpthing->trap.revealed == 1))
                 {
                     return trpthing;

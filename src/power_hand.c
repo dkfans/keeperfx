@@ -318,8 +318,8 @@ void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
   struct Thing *thing;
   player = get_player(plyr_idx);
 
-  short anim_idx   = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
-  short anim_speed = game.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
+  short anim_idx   = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_idx[HandAnimationID];
+  short anim_speed = game.conf.power_hand_conf.pwrhnd_cfg_stats[player->hand_idx].anim_speed[HandAnimationID];
 
   if (player->hand_busy_until_turn >= game.play_gameturn)
   {
@@ -334,10 +334,10 @@ void set_power_hand_graphic(unsigned char plyr_idx, long HandAnimationID)
       thing = thing_get(player->hand_thing_idx);
       if ((HandAnimationID == HndA_Hover) || (HandAnimationID == HndA_HoldGold))
       {
-        set_thing_draw(thing, anim_idx, anim_speed, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
+        set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
       } else
       {
-        set_thing_draw(thing, anim_idx, anim_speed, gameadd.crtr_conf.sprite_size, 1, 0, ODC_Default);
+        set_thing_draw(thing, anim_idx, anim_speed, game.conf.crtr_conf.sprite_size, 1, 0, ODC_Default);
       }
     }
   }
@@ -543,7 +543,7 @@ void draw_power_hand(void)
     }
     // Now draw
     if (((game.operation_flags & GOF_ShowGui) != 0) && (game.small_map_state != 2)
-      && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
+      && mouse_is_over_panel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
         MapSubtlCoord stl_x;
         MapSubtlCoord stl_y;
@@ -1256,7 +1256,7 @@ void add_creature_to_sacrifice_list(PlayerNumber plyr_idx, long model, long expl
     ERRORLOG("Player %d cannot sacrifice %s",(int)plyr_idx,thing_class_and_model_name(TCls_Creature, model));
     return;
   }
-  if ((model < 0) || (model >= gameadd.crtr_conf.model_count))
+  if ((model < 0) || (model >= game.conf.crtr_conf.model_count))
   {
     ERRORLOG("Tried to sacrifice invalid creature model %d",(int)model);
     return;
@@ -1559,12 +1559,12 @@ TbBool eval_hand_rule_for_thing(struct HandRule *rule, const struct Thing *thing
 }
 
 TbBool thing_pickup_is_blocked_by_hand_rule(const struct Thing *thing_to_pick, PlayerNumber plyr_idx) {
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
     if (thing_is_creature(thing_to_pick) && thing_to_pick->owner == plyr_idx)
     {
         struct HandRule hand_rule;
         for (int i = HAND_RULE_SLOTS_COUNT - 1; i >= 0; i--) {
-            hand_rule = dungeonadd->hand_rules[thing_to_pick->model][i];
+            hand_rule = dungeon->hand_rules[thing_to_pick->model][i];
             if (
                 hand_rule.enabled
                 && hand_rule.type != HandRule_Unset

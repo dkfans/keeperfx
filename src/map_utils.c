@@ -255,7 +255,7 @@ void slabs_fill_iterate_from_slab(MapSlabCoord src_slab_x, MapSlabCoord src_slab
  * @param dest_y Destination position y coord.
  * @return Index closer to destination.
  */
-unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long dest_x,long dest_y)
+SmallAroundIndex small_around_index_towards_destination(long curr_x, long curr_y, long dest_x, long dest_y)
 {
     long n;
     long i = LbArcTanAngle(dest_x - curr_x, dest_y - curr_y);
@@ -274,6 +274,20 @@ unsigned int small_around_index_towards_destination(long curr_x,long curr_y,long
     }
     SYNCDBG(18,"Vector (%ld,%ld) returned ArcTan=%ld, around (%d,%d)",dest_x - curr_x, dest_y - curr_y,i,(int)small_around[n].delta_x,(int)small_around[n].delta_y);
     return n & 3;
+}
+
+/**
+ * Computes index in small_around[] array which contains coordinates directing towards given destination.
+ * @param srcpos_x Source position X; either map coordinates or subtiles, but have to match type of other coords.
+ * @param srcpos_y Source position Y; either map coordinates or subtiles, but have to match type of other coords.
+ * @param dstpos_x Destination position X; either map coordinates or subtiles, but have to match type of other coords.
+ * @param dstpos_y Destination position Y; either map coordinates or subtiles, but have to match type of other coords.
+ * @return Index for small_around[] array.
+ */
+SmallAroundIndex small_around_index_in_direction(long srcpos_x, long srcpos_y, long dstpos_x, long dstpos_y)
+{
+    long i = ((LbArcTanAngle(dstpos_x - srcpos_x, dstpos_y - srcpos_y) & LbFPMath_AngleMask) + LbFPMath_PI / 4);
+    return (i >> 9) & 3;
 }
 
 /**

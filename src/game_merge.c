@@ -141,7 +141,7 @@ TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
     WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
     return false;
   }
-  set_flag_byte(&intralvl.bonuses_found[n], k, visible);
+  set_flag_value(intralvl.bonuses_found[n], k, visible);
   return true;
 }
 

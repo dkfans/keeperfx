@@ -97,6 +97,7 @@ extern unsigned char *poly_pool_end;
 extern long cells_away;
 extern float hud_scale;
 extern int creature_status_size;
+extern int line_box_size;
 
 extern struct MapVolumeBox map_volume_box;
 extern long view_height_over_2;

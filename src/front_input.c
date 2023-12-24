@@ -300,7 +300,7 @@ short get_screen_capture_inputs(void)
   }
   if (is_key_pressed(KC_C,KMod_SHIFT))
   {
-      set_flag_byte(&game.system_flags,GSF_CaptureSShot,true);
+      set_flag(game.system_flags, GSF_CaptureSShot);
       clear_key_pressed(KC_C);
   }
   return false;
@@ -426,7 +426,7 @@ long get_small_map_inputs(long x, long y, long zoom)
   long curr_my = GetMouseY();
   if (!grabbed_small_map)
     game.small_map_state = 0;
-  if (((game.operation_flags & GOF_ShowGui) != 0) && (mouse_is_over_pannel_map(x,y) || grabbed_small_map))
+  if (((game.operation_flags & GOF_ShowGui) != 0) && (mouse_is_over_panel_map(x,y) || grabbed_small_map))
   {
     if (left_button_clicked)
     {
@@ -744,14 +744,14 @@ TbBool get_level_lost_inputs(void)
         if (player->view_mode != PVM_ParchFadeOut)
         {
           turn_off_all_window_menus();
-          set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+          set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
           if (((game.system_flags & GSF_NetworkActive) != 0)
             || (lbDisplay.PhysicalScreenWidth > 320))
           {
                 if (toggle_status_menu(0))
-                  set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+                  set_flag(game.operation_flags, GOF_ShowPanel);
                 else
-                  set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+                  clear_flag(game.operation_flags, GOF_ShowPanel);
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
           } else
           {
@@ -2550,10 +2550,7 @@ short get_inputs(void)
         {
           if ((game.system_flags & GSF_NetworkActive) == 0)
             game.operation_flags &= ~GOF_Paused;
-          if (toggle_status_menu(0))
-            player->field_1 |= 0x01;
-          else
-            player->field_1 &= ~0x01;
+          player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
           set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
         }
         return false;
@@ -2648,7 +2645,7 @@ short get_gui_inputs(short gameplay_on)
       if ((gbtn->btype_value & LbBFeF_NoMouseOver) != 0)
           continue;
       // TODO GUI Introduce circular buttons instead of specific condition for pannel map
-      if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_pannel_map(player->minimap_pos_x,player->minimap_pos_y))
+      if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_panel_map(player->minimap_pos_x,player->minimap_pos_y))
           continue;
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
         || ((gbtn->gbtype == LbBtnT_Unknown6) && (gbtn->gbactn_1 != 0)) )
@@ -2709,7 +2706,7 @@ short get_gui_inputs(short gameplay_on)
       over_slider_button = -1;
       do_sound_menu_click();
   }
-  set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+  clear_flag(tool_tip_box.flags, TTip_Visible);
   gui_button_tooltip_update(gmbtn_idx);
   if (gui_slider_button_inputs(over_slider_button))
       return true;
@@ -2868,12 +2865,12 @@ void process_cheat_mode_selection_inputs()
                     do
                     {
                         new_value++;
-                        if (new_value >= gameadd.crtr_conf.model_count)
+                        if (new_value >= game.conf.crtr_conf.model_count)
                         {
                             new_value = 0;
                             break;
                         }
-                        crconf = &gameadd.crtr_conf.model[new_value];
+                        crconf = &game.conf.crtr_conf.model[new_value];
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
@@ -2884,12 +2881,12 @@ void process_cheat_mode_selection_inputs()
                     do
                     {
                         new_value++;
-                        if (new_value >= gameadd.crtr_conf.model_count)
+                        if (new_value >= game.conf.crtr_conf.model_count)
                         {
                             new_value = 0;
                             break;
                         }
-                        crconf = &gameadd.crtr_conf.model[new_value];
+                        crconf = &game.conf.crtr_conf.model[new_value];
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);
@@ -2976,7 +2973,7 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
             {
                 new_value++;
-                if (new_value >= game.slab_conf.slab_types_count)
+                if (new_value >= game.conf.slab_conf.slab_types_count)
                 {
                     new_value = SlbT_ROCK;
                 }

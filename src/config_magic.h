@@ -115,6 +115,7 @@ enum PowerKinds {
     PwrK_PICKUPCRTR, // 20
     PwrK_PICKUPGOLD,
     PwrK_PICKUPFOOD,
+    PwrK_REBOUND, // 23
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -376,9 +377,15 @@ struct SpellConfig {
     unsigned short spell_flags;
 };
 
+struct MagicStats {
+  long cost[MAGIC_OVERCHARGE_LEVELS];
+  long duration;
+  long strength[MAGIC_OVERCHARGE_LEVELS];
+};
+
 struct MagicConfig {
     long spell_types_count;
-    struct SpellConfig spell_config[MAGIC_ITEMS_MAX];
+    struct SpellConfig spell_config[MAGIC_ITEMS_MAX];// should get merged into SpellConfigStats
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
     long shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
@@ -387,42 +394,14 @@ struct MagicConfig {
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
     struct InstanceInfo instance_info[MAGIC_ITEMS_MAX]; //count in crtr_conf
+    struct MagicStats keeper_power_stats[POWER_TYPES_MAX]; // should get merged into PowerConfigStats
 };
 
-#pragma pack(1)
-
-struct MagicStats {  // sizeof=0x4C
-  long cost[MAGIC_OVERCHARGE_LEVELS];
-  long duration;
-  long strength[MAGIC_OVERCHARGE_LEVELS];
-};
-
-/**
- * Powers config structure.
- * Stores configuration of powers; to be replaced with PowerConfigStats.
- */
-struct SpellData {
-      long pcktype;
-      long work_state;
-      unsigned char has_progress;
-      short bigsym_sprite_idx;
-      short medsym_sprite_idx;
-      unsigned short name_stridx;
-      unsigned short tooltip_stridx;
-      short select_sample_idx;
-      short pointer_sprite_idx;
-      Expand_Check_Func overcharge_check;
-      unsigned long can_cast_flags;
-};
-
-#pragma pack()
 /******************************************************************************/
-extern struct MagicConfig magic_conf;
 extern const char keeper_magic_file[];
 extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];
 extern struct NamedCommand power_desc[];
-extern struct SpellData spell_data[];
 extern struct SpellConfig spell_config[];
 extern const struct NamedCommand powermodel_properties_commands[];
 extern const struct LongNamedCommand powermodel_castability_commands[];
@@ -432,7 +411,6 @@ extern const Expand_Check_Func powermodel_expand_check_func_list[];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(int mgc_idx);
 TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo);
-struct SpellData *get_power_data(int pwkind);
 TextStringId get_power_description_strindex(PowerKind pwkind);
 TextStringId get_power_name_strindex(PowerKind pwkind);
 TbBool power_is_instinctive(int pwkind);
