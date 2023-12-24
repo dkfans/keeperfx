@@ -4665,7 +4665,6 @@ static void set_player_color_process(struct ScriptContext *context)
     long color_idx = context->value->shorts[0];
     struct Dungeon* dungeon;
 
-
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
         dungeon = get_dungeon(plyr_idx);
@@ -4695,13 +4694,10 @@ static void set_player_color_process(struct ScriptContext *context)
                     {
                         place_slab_type_on_map(slb->kind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
                     }
-
                 }
             }
         }
-    }
-
-    
+    }  
 }
 
 /**
