@@ -161,7 +161,6 @@ struct GameAdd {
     ThingModel cheaper_diggers_sacrifice_model;
     char quick_messages[QUICK_MESSAGES_COUNT][MESSAGE_TEXT_LEN];
     struct GuiMessage messages[GUI_MESSAGES_COUNT];
-    struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
     long digger_work_experience;
     uint8_t               max_custom_box_kind;

@@ -155,14 +155,9 @@ struct HealthRulesConfig {
     unsigned short turns_per_torture_health_loss;
 };
 
-/*
-struct ResearchRulesConfig {
-};
-
 struct SacrificesRulesConfig {
+    struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
 };
-
-*/
 struct RulesConfig {
     struct GameRulesConfig game;
     struct ComputerRulesConfig computer;
@@ -171,10 +166,7 @@ struct RulesConfig {
     struct RoomRulesConfig rooms;
     struct WorkersRulesConfig workers;
     struct HealthRulesConfig health;
-    /*
-    struct ResearchRulesConfig research;
     struct SacrificesRulesConfig sacrifices;
-    */
 
 };
 /******************************************************************************/
