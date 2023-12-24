@@ -1011,7 +1011,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (strcasecmp(pr2str, "all") == 0)
             {
-                for (PowerKind pw = PwrK_REBOUND; pw > PwrK_HAND; pw--)
+                for (PowerKind pw = game.conf.magic_conf.power_types_count; pw > PwrK_HAND; pw--)
                 {
                     if ( (pw == PwrK_PICKUPCRTR) || (pw == PwrK_PICKUPGOLD) || (pw == PwrK_PICKUPFOOD) )
                     {
