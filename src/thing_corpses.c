@@ -496,7 +496,7 @@ struct Thing *destroy_creature_and_create_corpse(struct Thing *thing, long crpsc
         ERRORLOG("Could not create dead thing while killing %s index %d owned by player %d.",creature_code_name(crmodel),(int)prev_idx,(int)owner);
         return INVALID_THING;
     }
-    set_flag_byte(&deadtng->alloc_flags, TAlF_IsControlled, memf1);
+    set_flag_value(deadtng->alloc_flags, TAlF_IsControlled, memf1);
     if (owner != game.neutral_player_num)
     {
         // Update thing index inside player struct

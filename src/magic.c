@@ -732,16 +732,14 @@ GoldAmount compute_power_price_scaled_with_amount(PlayerNumber plyr_idx, PowerKi
 GoldAmount compute_power_price(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     struct Dungeon *dungeon;
-    struct DungeonAdd* dungeonadd;
     const struct MagicStats *pwrdynst;
     long price;
     switch (pwkind)
     {
     case PwrK_MKDIGGER: // Special price algorithm for "create imp" spell
         dungeon = get_players_num_dungeon(plyr_idx);
-        dungeonadd = get_dungeonadd(plyr_idx);
         // Increase price by amount of diggers, reduce by count of sacrificed diggers. Cheaper diggers may be a negative amount.
-        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeonadd->cheaper_diggers);
+        price = compute_power_price_scaled_with_amount(plyr_idx, pwkind, pwlevel, dungeon->num_active_diggers - dungeon->cheaper_diggers);
         break;
     default:
         pwrdynst = get_power_dynamic_stats(pwkind);
@@ -1047,7 +1045,7 @@ TbResult magic_use_power_hold_audience(PlayerNumber plyr_idx, unsigned long mod_
         // Thing list loop body
         if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing) && !creature_is_being_unconscious(thing))
         {
-            create_effect(&thing->mappos, imp_spangle_effects[thing->owner], thing->owner);
+            create_effect(&thing->mappos, imp_spangle_effects[get_player_color_idx(thing->owner)], thing->owner);
             const struct Coord3d *pos;
             pos = dungeon_get_essential_pos(thing->owner);
             move_thing_in_map(thing, pos);
@@ -1336,6 +1334,30 @@ TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapS
     powerst = get_power_model_stats(PwrK_PROTECT);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Armour, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_rebound(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Rebound)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_REBOUND, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_REBOUND);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Rebound, splevel);
     return Lb_SUCCESS;
 }
 
@@ -1755,7 +1777,7 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     if (is_my_player(player)) {
-        set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+        clear_flag(tool_tip_box.flags, TTip_Visible);
     }
     return Lb_SUCCESS;
 }
@@ -2054,6 +2076,9 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
             break;
         case PwrK_PROTECT:
             ret = magic_use_power_armour(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_REBOUND:
+            ret = magic_use_power_rebound(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_CONCEAL:
             ret = magic_use_power_conceal(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);

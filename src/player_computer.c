@@ -152,7 +152,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
         }
         i = ctask->next_task;
         // Per-task code
-        if (((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0))
+        if (flag_is_set(ctask->flags, (ComTsk_Unkn0001|ComTsk_Unkn0002)))
         {
             unsigned short max_radius = ctask->create_room.width / 2;
             if (max_radius <= ctask->create_room.height / 2)
@@ -187,8 +187,7 @@ struct ComputerTask * able_to_build_room_at_task(struct Computer2 *comp, RoomKin
 struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomKind rkind, RoomKind look_kind, long width_slabs, long height_slabs, long area, long require_perfect)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
-    long i = dungeonadd->room_kind[look_kind];
+    long i = dungeon->room_kind[look_kind];
     unsigned long k = 0;
     while (i != 0)
     {
@@ -332,7 +331,7 @@ long computer_finds_nearest_task_to_gold(const struct Computer2 *comp, const str
         }
         i = ctask->next_task;
         // Per-task code
-        if ( ((ctask->flags & ComTsk_Unkn0001) != 0) && ((ctask->flags & ComTsk_Unkn0002) != 0) )
+        if (flag_is_set(ctask->flags, (ComTsk_Unkn0001|ComTsk_Unkn0002)))
         {
             MapCoordDelta delta_x = ctask->new_room_pos.x.val - (MapCoordDelta)task_pos.x.val;
             MapCoordDelta delta_y = ctask->new_room_pos.y.val - (MapCoordDelta)task_pos.y.val;
@@ -567,12 +566,12 @@ void get_opponent(struct Computer2 *comp, struct THate hates[])
 
 TbBool computer_finds_nearest_room_to_pos(struct Computer2 *comp, struct Room **retroom, struct Coord3d *nearpos){
     long nearest_distance = LONG_MAX;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(comp->dungeon);
+    struct Dungeon* dungeon = comp->dungeon;
     *retroom = NULL;
 
     for (RoomKind i = 0; i < game.slab_conf.room_types_count; i++)
     {
-        struct Room* room = room_get(dungeonadd->room_kind[i]);
+        struct Room* room = room_get(dungeon->room_kind[i]);
         
         while (!room_is_invalid(room))
         {
@@ -673,10 +672,9 @@ long buildable_traps_amount(struct Dungeon *dungeon, ThingModel trmodel)
     if ((trmodel < 1) || (trmodel >= gameadd.trapdoor_conf.trap_types_count))
         return 0;
 
-    struct DungeonAdd *dungeonadd = get_dungeonadd(dungeon->owner);
-    if ((dungeonadd->mnfct_info.trap_build_flags[trmodel] & MnfBldF_Manufacturable) != 0)
+    if ((dungeon->mnfct_info.trap_build_flags[trmodel] & MnfBldF_Manufacturable) != 0)
     {
-        return dungeonadd->mnfct_info.trap_amount_stored[trmodel];
+        return dungeon->mnfct_info.trap_amount_stored[trmodel];
     }
     return 0;
 }
@@ -759,13 +757,12 @@ int computer_find_more_trap_place_locations(struct Computer2 *comp)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
     int num_added = 0;
     RoomKind rkind = AI_RANDOM(game.slab_conf.room_types_count);
     for (int m = 0; m < game.slab_conf.room_types_count; m++, rkind = (rkind + 1) % game.slab_conf.room_types_count)
     {
         unsigned long k = 0;
-        int i = dungeonadd->room_kind[rkind];
+        int i = dungeon->room_kind[rkind];
         while (i != 0)
         {
             struct Room* room = room_get(i);
@@ -918,8 +915,7 @@ long computer_pick_training_or_scavenging_creatures_and_place_on_room(struct Com
 long computer_pick_expensive_job_creatures_and_place_on_lair(struct Computer2 *comp, long tasks_limit)
 {
     struct Dungeon* dungeon = comp->dungeon;
-    struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
-    struct Room* room = room_get(dungeonadd->room_kind[RoK_LAIR]);
+    struct Room* room = room_get(dungeon->room_kind[RoK_LAIR]);
     long new_tasks = 0;
     // If we don't have lair, then don't even bother
     if (room_is_invalid(room)) {
@@ -964,7 +960,7 @@ long computer_check_for_money(struct Computer2 *comp, struct ComputerCheck * che
         for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
         {
             struct ComputerProcess* cproc = &comp->processes[i];
-            if ((cproc->flags & ComProc_Unkn0002) != 0)
+            if (flag_is_set(cproc->flags, ComProc_Unkn0002))
                 break;
             //TODO COMPUTER_PLAYER comparing function pointers is a bad practice
             if (cproc->func_check == computer_check_dig_to_gold)
@@ -1216,7 +1212,7 @@ long check_call_to_arms(struct Computer2 *comp)
             }
             i = ctask->next_task;
             // Per-task code
-            if ((ctask->flags & ComTsk_Unkn0001) != 0)
+            if (flag_is_set(ctask->flags, ComTsk_Unkn0001))
             {
                 if ((ctask->ttype == CTT_MagicCallToArms) && (ctask->task_state == CTaskSt_Select))
                 {
@@ -1259,8 +1255,8 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
         return false;
     }
     LbMemorySet(comp, 0, sizeof(struct Computer2));
-    comp->events = &get_dungeonadd(plyr_idx)->computer_info.events[0];
-    comp->checks = &get_dungeonadd(plyr_idx)->computer_info.checks[0];
+    comp->events = &get_dungeon(plyr_idx)->computer_info.events[0];
+    comp->checks = &get_dungeon(plyr_idx)->computer_info.checks[0];
 
     struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp_model);
     comp->dungeon = get_players_num_dungeon(plyr_idx);
@@ -1323,7 +1319,7 @@ TbBool setup_a_computer_player(PlayerNumber plyr_idx, long comp_model)
     // The check with 0x02 flag identifies end of active checks
     // (the check with 0x02 flag is invalid - only previous checks are in use)
     //newchk = &comp->checks[i];
-    newchk->flags |= ComTsk_Unkn0002;
+    set_flag(newchk->flags, ComChk_Unkn0002);
 
     for (i=0; i < COMPUTER_EVENTS_COUNT; i++)
     {
@@ -1533,7 +1529,7 @@ struct ComputerProcess *computer_player_find_process_by_func_setup(PlayerNumber 
         return NULL;
   }
   struct ComputerProcess* cproc = &comp->processes[0];
-  while ((cproc->flags & ComProc_Unkn0002) == 0)
+  while (!flag_is_set(cproc->flags, ComProc_Unkn0002))
   {
       if (cproc->func_setup == func_setup)
       {
@@ -1662,8 +1658,8 @@ void setup_computer_players2(void)
         }
 #endif
       }
-      get_computer_player(i)->events = &get_dungeonadd(i)->computer_info.events[0];
-      get_computer_player(i)->checks = &get_dungeonadd(i)->computer_info.checks[0];
+      get_computer_player(i)->events = &get_dungeon(i)->computer_info.events[0];
+      get_computer_player(i)->checks = &get_dungeon(i)->computer_info.checks[0];
     }
   }
 }
@@ -1691,8 +1687,8 @@ void restore_computer_player_after_load(void)
             continue;
         }
         comp->dungeon = get_players_dungeon(player);
-        comp->events = &get_dungeonadd(plyr_idx)->computer_info.events[0];
-        comp->checks = &get_dungeonadd(plyr_idx)->computer_info.checks[0];
+        comp->events = &get_dungeon(plyr_idx)->computer_info.events[0];
+        comp->checks = &get_dungeon(plyr_idx)->computer_info.checks[0];
         struct ComputerProcessTypes* cpt = get_computer_process_type_template(comp->model);
 
         long i;

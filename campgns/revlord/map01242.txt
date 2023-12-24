@@ -12,6 +12,9 @@ REM Lowered maximal amounts of troops, wizards and fairies in particular are lim
 REM ********************************************
 LEVEL_VERSION(1)
 
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
+
 SET_GENERATE_SPEED(500)
 
 MAX_CREATURES(PLAYER0,15)
@@ -141,7 +144,7 @@ REM Startup
     SET_TIMER(PLAYER0,TIMER0)
     SET_TIMER(PLAYER1,TIMER0)
 REM	QUICK_OBJECTIVE(1,"The haunted land of Verminfeast is crawling with insects. The food is scarce, and the training room and library cannot be built here. It will be necessary to capture more Hatcheries to sustain you army, even if it isn't very numerous in first place.", PLAYER0)
-	DISPLAY_OBJECTIVE(85,PLAYER0)
+	DISPLAY_OBJECTIVE(85)
 
 REM Add imps for AI if some are dead.
 IF(PLAYER1,TIMER0 >= 200)
@@ -222,7 +225,7 @@ REM Third timer, parties
 IF(PLAYER0,TIMER3 >= 20000)
 REM Let's note it's possible to wall in and only have a single entrance to your dungeon.
 REM	QUICK_OBJECTIVE(2,"My liege, the vermin infesting this lands is growing agitated. You must protect your hatcheries from their attacks, as you prepare your forces to destroy the keeper who stands on your way to Wickedridge.", PLAYER0)
-	DISPLAY_OBJECTIVE(86,PLAYER0)
+	DISPLAY_OBJECTIVE(86)
     IF(PLAYER_GOOD,TRAINING <= 12)
         NEXT_COMMAND_REUSABLE
         ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_BEETLE,-4,1)
@@ -351,7 +354,7 @@ ENDIF
 
 IF(PLAYER0,BRIDGE >= 1)
 REM	QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
-	DISPLAY_INFORMATION(27,PLAYER0)
+	DISPLAY_INFORMATION(27)
     NEXT_COMMAND_REUSABLE
     ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
 ENDIF
@@ -363,6 +366,6 @@ ENDIF
 
 IF(PLAYER_GOOD, DUNGEON_DESTROYED>=1)
 REM	QUICK_OBJECTIVE(16,"The Verminfeast is no more crawling with itchies and insects. The road to the last bastion of evil atWickedridge is open!", PLAYER0)
-	DISPLAY_OBJECTIVE(87,PLAYER0)
+	DISPLAY_OBJECTIVE(87)
 	WIN_GAME
 ENDIF

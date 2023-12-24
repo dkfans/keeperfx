@@ -13,6 +13,9 @@ REM Update 1.00, august 2018: lowered difficulty. Final Reaper stack is lower le
 REM ********************************************
 LEVEL_VERSION(1)
 
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
+
 SET_GENERATE_SPEED(400)
 
 START_MONEY(PLAYER0,10000)
@@ -146,7 +149,7 @@ REM Startup
     SET_TIMER(PLAYER0,TIMER0)
     SET_TIMER(PLAYER0,TIMER1)
 REM	QUICK_OBJECTIVE(1,"Monastery of Abbeystone is under attack by forces of evil. Marshal your forces quickly and crush the heart of the evil keeper before he breaks into the walls of the sacred keep and slaughters the defenders. The enemy forces seem to be gathering at the various rooms across the region. If you can kill the guards and capture these rooms, the flow of attackers will abate.", PLAYER0)
-	DISPLAY_OBJECTIVE(29,PLAYER0)
+	DISPLAY_OBJECTIVE(29)
 
 REM Basic orcs parties since half the payday.
 IF(PLAYER0,TIMER0 >= 5300)
@@ -299,7 +302,7 @@ IF(PLAYER0,TIMER6 >= 6000)
 REM Inform the player that the last, strongest wave has been enabled, and he hasn't captured quite enough rooms.
 	IF(PLAYER_GOOD, GUARD_POST >= 45)
 		REM	QUICK_INFORMATION(5,"Grave news, my liege, - the enemy forces are gathering in great numbers!", PLAYER0)
-		DISPLAY_INFORMATION(36,PLAYER0)
+		DISPLAY_INFORMATION(36)
 		NEXT_COMMAND_REUSABLE
 		ADD_PARTY_TO_LEVEL(PLAYER_GOOD,WAVE_DEATH,6,1)
 	ENDIF
@@ -337,7 +340,7 @@ ENDIF
 
 IF(PLAYER0,BRIDGE >= 1)
 	REM	QUICK_INFORMATION(15,"The inhabitants of Dominus do not approve of building too many bridges. Make do with shorter ones!", PLAYER0)
-	DISPLAY_INFORMATION(27,PLAYER0)
+	DISPLAY_INFORMATION(27)
 	NEXT_COMMAND_REUSABLE
 	ROOM_AVAILABLE(PLAYER0,BRIDGE,0,0)
 ENDIF
@@ -350,7 +353,7 @@ ENDIF
 REM If the blue Dungeon heart is destroyed, lose, regardless of everything.
 IF(PLAYER1,DUNGEON_DESTROYED >= 1)
 	REM	QUICK_OBJECTIVE(16,"The Abbeystone has fallen, my liege!.. It is grim day indeed.", PLAYER0)
-	DISPLAY_OBJECTIVE(37,PLAYER0)
+	DISPLAY_OBJECTIVE(37,PLAYER1)
 	LOSE_GAME
 ENDIF
 
@@ -358,6 +361,6 @@ REM If the white Dungeon heart is destroyed, win, regardless of everything.
 REM Hint: if you go the long route killing cavern guardposts via CTA, you can sneak the fairies and such to evade the final mega-big party of Reapers with 14 supporting creatures.
 IF(PLAYER_GOOD,DUNGEON_DESTROYED >= 1)
 	REM	QUICK_OBJECTIVE(17,"We are victorious, my liege - the siege upon Abbeystone is broken. While the undead of Misty Bog is still a threat, you first head towards the Widerwilds, where the barbarians resist the demonic incursions from underground realm.", PLAYER0)
-	DISPLAY_OBJECTIVE(38,PLAYER0)
+	DISPLAY_OBJECTIVE(38)
 	WIN_GAME
 ENDIF

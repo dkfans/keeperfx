@@ -2608,7 +2608,7 @@ TbBool find_random_valid_position_for_thing_in_room_avoiding_object(struct Thing
 short creature_present_to_dungeon_heart(struct Thing *creatng)
 {
     TRACE_THING(creatng);
-    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     thing_play_sample(creatng, 76, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     if ( !external_set_thing_state(creatng, CrSt_CreatureDoingNothing) )
       set_start_state(creatng);
@@ -4921,17 +4921,15 @@ long anger_process_creature_anger(struct Thing *creatng, const struct CreatureSt
     if (is_my_player_number(creatng->owner))
     {
         struct Dungeon* dungeon;
-        struct DungeonAdd* dungeonadd;
         AnnoyMotive anger_motive = anger_get_creature_anger_type(creatng);
         switch (anger_motive)
         {
         case AngR_NotPaid:
             dungeon = get_players_num_dungeon(creatng->owner);
-            dungeonadd = get_dungeonadd(creatng->owner);
             struct Room* room = find_nearest_room_of_role_for_thing(creatng, creatng->owner, RoRoF_GoldStorage, NavRtF_Default);
             if (cctrl->paydays_advanced < 0)
             {
-                if ((dungeon->total_money_owned >= dungeonadd->creatures_total_backpay) && !room_is_invalid(room))
+                if ((dungeon->total_money_owned >= dungeon->creatures_total_backpay) && !room_is_invalid(room))
                 {
                     cctrl->paydays_advanced++;
                     if (cctrl->paydays_owed < SCHAR_MAX)

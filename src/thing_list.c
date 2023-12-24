@@ -1230,7 +1230,6 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
 {
     struct Thing* thing = find_players_dungeon_heart(player->id_number);
     struct Dungeon* dungeon = get_players_dungeon(player);
-    struct DungeonAdd* dungeonadd = get_players_dungeonadd(player);
     if (dungeon_invalid(dungeon)) {
         WARNLOG("Tried to init player %d which has no dungeon",(int)player->id_number);
         return;
@@ -1254,12 +1253,12 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev)
         }
     }
 
-    dungeonadd->backup_heart_idx = 0;
+    dungeon->backup_heart_idx = 0;
     struct Thing* scndthing = find_players_backup_dungeon_heart(player->id_number);
     {
         if (!thing_is_invalid(scndthing))
         {
-            dungeonadd->backup_heart_idx = scndthing->index;
+            dungeon->backup_heart_idx = scndthing->index;
         }
     }
 }
@@ -1492,10 +1491,10 @@ struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlC
         // Per-thing code
         if (thing->class_id == TCls_Object)
         {
-            struct Objects* objdat = get_objects_data_for_thing(thing);
-            if (objdat->related_creatr_model > 0)
+            struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+            if (objst->related_creatr_model > 0)
             {
-                if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (objdat->related_creatr_model == crmodel))
+                if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (objst->related_creatr_model == crmodel))
                     return thing;
             }
         }

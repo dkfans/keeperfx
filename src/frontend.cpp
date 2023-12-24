@@ -1030,6 +1030,7 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
     case PSt_TurnChicken:
     case PSt_DestroyWalls:
     case PSt_TimeBomb:
+    case PSt_Rebound:
         return PckA_SetPlyrState;
     case PSt_None:
         switch (pwkind)
@@ -1859,7 +1860,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     // Restore saved data
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-    set_flag_byte(&player->additional_flags,PlaAF_UnlockedLordTorture,flg_mem);
+    set_flag_value(player->additional_flags, PlaAF_UnlockedLordTorture, flg_mem);
     // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
     if (((game.system_flags & GSF_NetworkActive) != 0)
      || ((game.operation_flags & GOF_SingleLevel) != 0)
@@ -2337,6 +2338,14 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     return mnu_num;
 }
 
+/**
+ * Sets the status menu visiblity.
+ * 
+ * Doesn't change anything if the current menu visibility is the same as the passed parameter.
+ * 
+ * @param visible If TRUE show the menu, if FALSE hide the menu
+ * @return The visibility of the menu before this function was called (used to store the user's previous setting when the menu is forcibly hidden).
+ */
 unsigned long toggle_status_menu(short visible)
 {
   static TbBool room_on = false;
@@ -2530,7 +2539,7 @@ TbBool toggle_first_person_menu(TbBool visible)
 void set_gui_visible(TbBool visible)
 {
   SYNCDBG(6,"Starting");
-  set_flag_byte(&game.operation_flags,GOF_ShowGui,visible);
+  set_flag_value(game.operation_flags, GOF_ShowGui, visible);
   struct PlayerInfo *player=get_my_player();
   unsigned char is_visbl = ((game.operation_flags & GOF_ShowGui) != 0);
   switch (player->view_type)
@@ -2776,7 +2785,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           last_mouse_y = GetMouseY();
           time_last_played_demo = LbTimerClock();
           fe_high_score_table_from_main_menu = true;
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_FELOAD_GAME:
@@ -2798,13 +2807,13 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_NET_SESSION:
           turn_on_menu(GMnu_FENET_SESSION);
           frontnet_session_setup();
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_NET_START:
           turn_on_menu(GMnu_FENET_START);
           frontnet_start_setup();
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
+          set_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_START_KPRLEVEL:
@@ -3139,7 +3148,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
 void toggle_gui_overlay_map(void)
 {
-    toggle_flag_byte(&game.operation_flags,GOF_ShowGui);
+    toggle_flag(game.operation_flags, GOF_ShowGui);
 }
 
 void draw_menu_buttons(struct GuiMenu *gmnu)

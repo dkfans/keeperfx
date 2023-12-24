@@ -5,6 +5,7 @@
 #include "pre_inc.h"
 #include "value_util.h"
 #include "config.h"
+#include "config_objects.h"
 #include "bflib_basics.h"
 #include "bflib_memory.h"
 #include "bflib_fileio.h"
@@ -105,7 +106,7 @@ int value_parse_anim(VALUE *value)
     else if (value_type(value) == VALUE_STRING)
     {
         const char *tst = value_string(value);
-        struct Objects obj_tmp;
+        struct ObjectConfigStats obj_tmp;
         return get_anim_id(tst, &obj_tmp);
     }
     return -1;
