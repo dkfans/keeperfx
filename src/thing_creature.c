@@ -2274,7 +2274,7 @@ void throw_out_gold(struct Thing *thing)
     int num_pots_to_drop;
     // Compute if we want bags or pots
     int dropject = 6; //GOLD object
-    if ((game.pot_of_gold_holds > gameadd.bag_gold_hold) && (thing->creature.gold_carried <= gameadd.bag_gold_hold))
+    if ((game.conf.rules.pot_of_gold_holds > game.conf.rules.bag_gold_hold) && (thing->creature.gold_carried <= game.conf.rules.bag_gold_hold))
     {
             dropject = 136; //Drop GOLD_BAG object when we're dealing with small amounts
             num_pots_to_drop = 1;
@@ -2282,7 +2282,7 @@ void throw_out_gold(struct Thing *thing)
     else //drop pots
     {
         // Compute how many pots we want to drop
-        num_pots_to_drop = ((thing->creature.gold_carried + game.pot_of_gold_holds - 1) / game.pot_of_gold_holds);
+        num_pots_to_drop = ((thing->creature.gold_carried + game.conf.rules.pot_of_gold_holds - 1) / game.conf.rules.pot_of_gold_holds);
         if (num_pots_to_drop > 8)
         {
             num_pots_to_drop = 8;
@@ -2549,7 +2549,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         return INVALID_THING;
     }
     // Beyond this point, the creature thing is bound to be deleted
-    if (((flags & CrDed_NotReallyDying) == 0) || ((gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
+    if (((flags & CrDed_NotReallyDying) == 0) || ((game.conf.rules.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
     {
         // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
         update_dead_creatures_list_for_owner(thing);
@@ -5631,7 +5631,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
                 // Unless the relevant classic bug is enabled,
                 // neutral creatures in custody (prison/torture) can only be claimed by the player who holds it captive
                 // and neutral creatures can not be claimed by creatures in custody.
-                if ((gameadd.classic_bugs_flags & ClscBug_PassiveNeutrals)
+                if ((game.conf.rules.classic_bugs_flags & ClscBug_PassiveNeutrals)
                     || (get_room_creature_works_in(thing)->owner == creatng->owner && !creature_is_kept_in_custody(creatng))
                     || !(creature_is_kept_in_custody(thing) || creature_is_kept_in_custody(creatng)))
                 {

@@ -58,7 +58,7 @@ TbBool remove_food_from_food_room_if_possible(struct Thing *thing)
     {
         room->used_capacity--;
     }
-    thing->food.life_remaining = game.food_life_out_of_hatchery;
+    thing->food.life_remaining = game.conf.rules.food_life_out_of_hatchery;
     thing->parent_idx = -1;
     return true;
 }

@@ -3572,7 +3572,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         // Per thing processing block
         if ((thing->class_id == TCls_Object) && (object_is_gold_laying_on_ground(thing)))
         {
-            if (thing->valuable.gold_stored >= game.gold_pile_maximum)
+            if (thing->valuable.gold_stored >= game.conf.rules.gold_pile_maximum)
             {
                 return true;
             }
@@ -4068,7 +4068,7 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
             force_any_creature_dragging_thing_to_drop_it(thing);
             // Drop creature if it's in hand
             if (thing_is_picked_up(thing)) {
-                if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+                if ((game.conf.rules.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
                     SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
                     return false;
                 }
@@ -4092,7 +4092,7 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
         force_any_creature_dragging_thing_to_drop_it(thing);
         // Drop creature if it's in hand
         if (thing_is_picked_up(thing)) {
-            if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+            if ((game.conf.rules.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
                 SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
                 return false;
             }

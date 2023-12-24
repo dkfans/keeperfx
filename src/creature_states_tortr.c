@@ -491,7 +491,7 @@ CrCheckRet process_torture_function(struct Thing *creatng)
         set_start_state(creatng);
         return CrCkRet_Continue;
     }
-    if ((gameadd.classic_bugs_flags & ClscBug_NeutralTortureConverts) == 0)
+    if ((game.conf.rules.classic_bugs_flags & ClscBug_NeutralTortureConverts) == 0)
     {
         if (room->owner == game.neutral_player_num || is_neutral_thing(creatng))
         {

@@ -159,13 +159,11 @@ struct GameAdd {
     long friendly_fight_area_range_permil;
     unsigned char torture_death_chance;
     unsigned char torture_convert_chance;
-    unsigned short bag_gold_hold;
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
     long scavenge_effectiveness_evil; //unused
     long scavenge_effectiveness_good; //unused
     TbBool armegeddon_teleport_neutrals;
-    unsigned long classic_bugs_flags;
     unsigned short computer_chat_flags;
     /** The creature model used for determining amount of sacrifices which decrease digger cost. */
     ThingModel cheaper_diggers_sacrifice_model;
@@ -174,14 +172,7 @@ struct GameAdd {
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
     long digger_work_experience;
-    unsigned long gem_effectiveness;
-    long door_sale_percent;
-    long room_sale_percent;
-    long trap_sale_percent;
-    unsigned long pay_day_speed;
     unsigned short disease_to_temple_pct;
-    TbBool place_traps_on_subtiles;
-    unsigned long gold_per_hoard;
     uint8_t               max_custom_box_kind;
     unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;

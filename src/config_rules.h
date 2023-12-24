@@ -66,6 +66,32 @@ struct SacrificeRecipe {
     long action;
     long param;
 };
+
+struct RulesConfig {
+    GoldAmount gold_per_gold_block;
+    GoldAmount pot_of_gold_holds;
+    GoldAmount chest_gold_hold;
+    GoldAmount gold_pile_value;
+    GoldAmount gold_pile_maximum;
+    unsigned short food_life_out_of_hatchery;
+    long boulder_reduce_health_wall;
+    long boulder_reduce_health_slap;
+    long boulder_reduce_health_room;
+    GameTurnDelta pay_day_gap;
+    unsigned long dungeon_heart_heal_time;
+    long dungeon_heart_heal_health;
+    unsigned long hero_door_wait_time;
+    unsigned long classic_bugs_flags;
+    unsigned long gem_effectiveness;
+    long door_sale_percent;
+    long room_sale_percent;
+    long trap_sale_percent;
+    unsigned long pay_day_speed;
+    TbBool place_traps_on_subtiles;
+    unsigned long gold_per_hoard;
+    unsigned short bag_gold_hold;
+
+};
 /******************************************************************************/
 extern const char keeper_rules_file[];
 extern const struct NamedCommand research_desc[];

@@ -351,7 +351,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     *health = slb->health;
     // You can only dig your own tiles or non-fortified neutral ground (dirt/gold)
     // If you're not the tile owner, unless the classic bug mode is enabled.
-    if (!(gameadd.classic_bugs_flags & ClscBug_BreakNeutralWalls))
+    if (!(game.conf.rules.classic_bugs_flags & ClscBug_BreakNeutralWalls))
     {
         if (slabmap_owner(slb) != diggertng->owner)
         {
@@ -994,7 +994,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0) | ((shotst->model_flags & ShMF_BlocksRebirth)? CrDed_NoRebirth : 0);
     }
     // Friendly fire should kill the creature, not knock out
-    if ((shotng->owner == creatng->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint))
+    if ((shotng->owner == creatng->owner) &! (game.conf.rules.classic_bugs_flags & ClscBug_FriendlyFaint))
     {
         dieflags |= CrDed_NoUnconscious;
     }
@@ -1237,7 +1237,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (creature_is_being_unconscious(trgtng))
     {
         amp ++;
-        if (gameadd.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
+        if (game.conf.rules.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
             amp *= 5;
             i = amp * (long)shotng->velocity.x.val;
@@ -1294,7 +1294,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->model_flags & ShMF_Boulder)
     {
-        if (creature_is_being_unconscious(trgtng)  && !(gameadd.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
+        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
         {
             return 0;
         } 

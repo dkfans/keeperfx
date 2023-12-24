@@ -859,7 +859,7 @@ long gold_being_dropped_on_creature(long plyr_idx, struct Thing *goldtng, struct
     struct CreatureStats *crstat;
     crstat = creature_stats_get_from_thing(creatng);
     anger_apply_anger_to_creature_all_types(creatng, (crstat->annoy_got_wage * tribute / salary * 2));
-    if (gameadd.classic_bugs_flags & ClscBug_FullyHappyWithGold)
+    if (game.conf.rules.classic_bugs_flags & ClscBug_FullyHappyWithGold)
     {
         anger_set_creature_anger_all_types(creatng, 0);
     }

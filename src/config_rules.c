@@ -291,28 +291,28 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        game.gold_per_gold_block = 1000;
-        game.pot_of_gold_holds = 1000;
-        game.gold_pile_value = 500;
-        game.gold_pile_maximum = 5000;
-        game.food_life_out_of_hatchery = 100;
-        game.boulder_reduce_health_slap = 10;
-        game.boulder_reduce_health_wall = 10;
-        game.boulder_reduce_health_room = 10;
-        game.pay_day_gap = 5000;
-        game.chest_gold_hold = 1000;
-        game.dungeon_heart_heal_time = 10;
-        game.dungeon_heart_heal_health = 1;
-        game.hero_door_wait_time = 100;
-        gameadd.bag_gold_hold = 200;
-        gameadd.classic_bugs_flags = ClscBug_None;
-        gameadd.door_sale_percent = 100;
-        gameadd.room_sale_percent = 50;
-        gameadd.trap_sale_percent = 100;
-        gameadd.gem_effectiveness = 17;
-        gameadd.pay_day_speed = 100;
-        gameadd.place_traps_on_subtiles = false;
-        gameadd.gold_per_hoard = 2000;
+        game.conf.rules.gold_per_gold_block = 1000;
+        game.conf.rules.pot_of_gold_holds = 1000;
+        game.conf.rules.gold_pile_value = 500;
+        game.conf.rules.gold_pile_maximum = 5000;
+        game.conf.rules.food_life_out_of_hatchery = 100;
+        game.conf.rules.boulder_reduce_health_slap = 10;
+        game.conf.rules.boulder_reduce_health_wall = 10;
+        game.conf.rules.boulder_reduce_health_room = 10;
+        game.conf.rules.pay_day_gap = 5000;
+        game.conf.rules.chest_gold_hold = 1000;
+        game.conf.rules.dungeon_heart_heal_time = 10;
+        game.conf.rules.dungeon_heart_heal_health = 1;
+        game.conf.rules.hero_door_wait_time = 100;
+        game.conf.rules.bag_gold_hold = 200;
+        game.conf.rules.classic_bugs_flags = ClscBug_None;
+        game.conf.rules.door_sale_percent = 100;
+        game.conf.rules.room_sale_percent = 50;
+        game.conf.rules.trap_sale_percent = 100;
+        game.conf.rules.gem_effectiveness = 17;
+        game.conf.rules.pay_day_speed = 100;
+        game.conf.rules.place_traps_on_subtiles = false;
+        game.conf.rules.gold_per_hoard = 2000;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -340,7 +340,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.gold_per_gold_block = k;
+              game.conf.rules.gold_per_gold_block = k;
               n++;
             }
             if (n < 1)
@@ -353,7 +353,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.pot_of_gold_holds = k;
+              game.conf.rules.pot_of_gold_holds = k;
               n++;
             }
             if (n < 1)
@@ -366,7 +366,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.chest_gold_hold = k;
+              game.conf.rules.chest_gold_hold = k;
               n++;
             }
             if (n < 1)
@@ -379,7 +379,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.gold_pile_value = k;
+              game.conf.rules.gold_pile_value = k;
               n++;
             }
             if (n < 1)
@@ -392,7 +392,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.gold_pile_maximum = k;
+              game.conf.rules.gold_pile_maximum = k;
               n++;
             }
             if (n < 1)
@@ -405,7 +405,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.gold_per_hoard = k;
+              game.conf.rules.gold_per_hoard = k;
               n++;
             }
             if (n < 1)
@@ -418,7 +418,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.food_life_out_of_hatchery = k;
+              game.conf.rules.food_life_out_of_hatchery = k;
               n++;
             }
             if (n < 1)
@@ -437,7 +437,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.boulder_reduce_health_slap = k;
+              game.conf.rules.boulder_reduce_health_slap = k;
               n++;
             }
             if (n < 1)
@@ -450,7 +450,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.boulder_reduce_health_wall = k;
+              game.conf.rules.boulder_reduce_health_wall = k;
               n++;
             }
             if (n < 1)
@@ -463,7 +463,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.boulder_reduce_health_room = k;
+              game.conf.rules.boulder_reduce_health_room = k;
               n++;
             }
             if (n < 1)
@@ -483,7 +483,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.pay_day_gap = k;
+              game.conf.rules.pay_day_gap = k;
               n++;
             }
             if (n < 1)
@@ -496,7 +496,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.pay_day_speed = k;
+                game.conf.rules.pay_day_speed = k;
                 n++;
             }
             if (n < 1)
@@ -513,7 +513,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.dungeon_heart_heal_time = k;
+              game.conf.rules.dungeon_heart_heal_time = k;
               n++;
             }
             if (n < 1)
@@ -526,7 +526,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.dungeon_heart_heal_health = k;
+              game.conf.rules.dungeon_heart_heal_health = k;
               n++;
             }
             if (n < 1)
@@ -539,7 +539,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.hero_door_wait_time = k;
+              game.conf.rules.hero_door_wait_time = k;
               n++;
             }
             if (n < 1)
@@ -549,66 +549,66 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             }
             break;
         case 25: // PRESERVECLASSICBUGS
-            gameadd.classic_bugs_flags = ClscBug_None;
+            game.conf.rules.classic_bugs_flags = ClscBug_None;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(rules_game_classicbugs_commands, word_buf);
               switch (k)
               {
               case 1: // RESURRECT_FOREVER
-                  gameadd.classic_bugs_flags |= ClscBug_ResurrectForever;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_ResurrectForever;
                   n++;
                   break;
               case 2: // OVERFLOW_8BIT
-                  gameadd.classic_bugs_flags |= ClscBug_Overflow8bitVal;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_Overflow8bitVal;
                   n++;
                   break;
               case 3: // CLAIM_ROOM_ALL_THINGS
-                  gameadd.classic_bugs_flags |= ClscBug_ClaimRoomAllThings;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_ClaimRoomAllThings;
                   n++;
                   break;
               case 4: // RESURRECT_REMOVED
-                  gameadd.classic_bugs_flags |= ClscBug_ResurrectRemoved;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_ResurrectRemoved;
                   n++;
                   break;
               case 5: // NO_HAND_PURGE_ON_DEFEAT
-                  gameadd.classic_bugs_flags |= ClscBug_NoHandPurgeOnDefeat;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_NoHandPurgeOnDefeat;
                   n++;
                   break;
               case 6: // MUST_OBEY_KEEPS_NOT_DO_JOBS
-                  gameadd.classic_bugs_flags |= ClscBug_MustObeyKeepsNotDoJobs;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_MustObeyKeepsNotDoJobs;
                   n++;
                   break;
               case 7: // BREAK_NEUTRAL_WALLS
-                  gameadd.classic_bugs_flags |= ClscBug_BreakNeutralWalls;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_BreakNeutralWalls;
                   n++;
                   break;
               case 8: // ALWAYS_TUNNEL_TO_RED
-                  gameadd.classic_bugs_flags |= ClscBug_AlwaysTunnelToRed;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_AlwaysTunnelToRed;
                   n++;
                   break;
               case 9: // FULLY_HAPPY_WITH_GOLD
-                  gameadd.classic_bugs_flags |= ClscBug_FullyHappyWithGold;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_FullyHappyWithGold;
                   n++;
                   break;
               case 10: // FAINTED_IMMUNE_TO_BOULDER
-                  gameadd.classic_bugs_flags |= ClscBug_FaintedImmuneToBoulder;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_FaintedImmuneToBoulder;
                   n++;
                   break;
               case 11: // REBIRTH_KEEPS_SPELLS
-                  gameadd.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
                   n++;
                   break;
               case 12: // STUN_FRIENDLY_UNITS
-                  gameadd.classic_bugs_flags |= ClscBug_FriendlyFaint;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_FriendlyFaint;
                   n++;
                   break;
               case 13: // PASSIVE_NEUTRALS
-                  gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_PassiveNeutrals;
                   n++;
                   break;
               case 14: // NEUTRAL_TORTURE_CONVERTS
-                  gameadd.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
+                  game.conf.rules.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
                   n++;
                   break;
               default:
@@ -626,7 +626,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.gem_effectiveness = k;
+                game.conf.rules.gem_effectiveness = k;
                 n++;
             }
             if (n < 1)
@@ -639,7 +639,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.room_sale_percent = k;
+                game.conf.rules.room_sale_percent = k;
                 n++;
             }
             if (n < 1)
@@ -652,7 +652,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.door_sale_percent = k;
+                game.conf.rules.door_sale_percent = k;
                 n++;
             }
             if (n < 1)
@@ -665,7 +665,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.trap_sale_percent = k;
+                game.conf.rules.trap_sale_percent = k;
                 n++;
             }
             if (n < 1)
@@ -678,7 +678,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.place_traps_on_subtiles = (TbBool)k;
+                game.conf.rules.place_traps_on_subtiles = (TbBool)k;
                 n++;
             }
             if (n < 1)
@@ -691,7 +691,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.bag_gold_hold = k;
+                game.conf.rules.bag_gold_hold = k;
                 n++;
             }
             if (n < 1)

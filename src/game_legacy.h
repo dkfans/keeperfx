@@ -125,6 +125,7 @@ struct Configs {
     struct CreatureConfig crtr_conf;
     struct ObjectsConfig object_conf;
     struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
+    struct RulesConfig rules;
 };
 
 struct Game {
@@ -224,15 +225,9 @@ unsigned int packet_file_pos;
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
     unsigned short entrances_count;
-    GoldAmount gold_per_gold_block;
-    GoldAmount pot_of_gold_holds;
-    GoldAmount chest_gold_hold;
-    GoldAmount gold_pile_value;
-    GoldAmount gold_pile_maximum;
     unsigned short fight_max_hate;
     unsigned short fight_borderline;
     unsigned short fight_max_love;
-    unsigned short food_life_out_of_hatchery;
     unsigned short fight_hate_kill_value;
     unsigned short body_remains_for;
     unsigned short graveyard_convert_time;
@@ -257,13 +252,9 @@ unsigned int packet_file_pos;
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
     long frame_skip;
-    GameTurnDelta pay_day_gap;
     GameTurnDelta pay_day_progress;
     GoldAmount power_hand_gold_grab_amount;
     TbBool no_intro;
-    unsigned long hero_door_wait_time;
-    unsigned long dungeon_heart_heal_time;
-    long dungeon_heart_heal_health;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
@@ -288,9 +279,6 @@ unsigned int packet_file_pos;
     struct TextScrollWindow evntbox_scroll_window;
     long flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
     char loaded_swipe_idx;
-    long boulder_reduce_health_wall;
-    long boulder_reduce_health_slap;
-    long boulder_reduce_health_room;
     unsigned char active_messages_count;
     long bonus_time;
     struct Armageddon armageddon;
