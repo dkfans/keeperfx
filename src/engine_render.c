@@ -8859,10 +8859,22 @@ TbBool cursor_on_room(RoomIndex room_index)
 TbBool room_is_damaged(RoomIndex room_index)
 {
     struct Room* room = room_get(room_index);
-    if (room->health != compute_room_max_health(room->slabs_count, room->efficiency)) {
-        return true;
+    if (room->health == compute_room_max_health(room->slabs_count, room->efficiency)) {
+        return false;
     }
-    return false;
+    return true;
+}
+TbBool placing_same_room_type(RoomIndex room_index)
+{
+    struct PlayerInfo* player = get_my_player();
+    if (map_volume_box.visible == 0) {
+        return false;
+    }
+    struct Room* room = room_get(room_index);
+    if (player->chosen_room_kind != room->kind) {
+        return false;
+    }
+    return true;
 }
 
 static void do_map_who_for_thing(struct Thing *thing)
@@ -8942,9 +8954,9 @@ static void do_map_who_for_thing(struct Thing *thing)
         if (hud_scale == 0) {
             break;
         }
-
+        
         RoomIndex flag_room_index = thing->lair.belongs_to;
-        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false ) {
+        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false && placing_same_room_type(flag_room_index) == false) {
             break;
         }
 
@@ -9060,7 +9072,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         }
 
         RoomIndex flag_room_index = thing->lair.belongs_to;
-        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false ) {
+        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false && placing_same_room_type(flag_room_index) == false) {
             break;
         }
 
