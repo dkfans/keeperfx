@@ -4665,38 +4665,43 @@ static void set_player_color_process(struct ScriptContext *context)
     long color_idx = context->value->shorts[0];
     struct Dungeon* dungeon;
 
-    // skip this step in the preload
-    if(game.loaded_level_number != 0)
+
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+        dungeon = get_dungeon(plyr_idx);
+
+        if(dungeon->color_idx == color_idx)
         {
-            dungeon = get_dungeon(plyr_idx);
-            dungeon->color_idx = color_idx;
+            continue;
+        }
 
-            for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        dungeon->color_idx = color_idx;
+        
+        update_pannel_colour_player_color(plyr_idx,color_idx);
+
+        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        {
+            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
             {
-                for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                if (slabmap_owner(slb) == plyr_idx)
                 {
-                    struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
-                    if (slabmap_owner(slb) == plyr_idx)
+
+                    if (slab_kind_is_animated(slb->kind))
                     {
-                        update_pannel_colour_player_color(plyr_idx,color_idx);
-
-                        if (slab_kind_is_animated(slb->kind))
-                        {
-                            place_animating_slab_type_on_map(slb->kind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
-                        }
-                        else
-                        {
-                            place_slab_type_on_map(slb->kind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
-                        }
-
+                        place_animating_slab_type_on_map(slb->kind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
                     }
+                    else
+                    {
+                        place_slab_type_on_map(slb->kind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+                    }
+
                 }
             }
         }
-
     }
+
+    
 }
 
 /**
