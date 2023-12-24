@@ -779,7 +779,7 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
     // Default values
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        gameadd.disease_to_temple_pct = 500;
+        game.conf.rules.computer.disease_to_temple_pct = 500;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -814,7 +814,7 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.disease_to_temple_pct = k;
+                game.conf.rules.computer.disease_to_temple_pct = k;
                 n++;
             }
             if (n < 1)
@@ -844,18 +844,18 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.recovery_frequency = 10;
-      game.fight_max_hate = 200;
-      game.fight_borderline = 0;
-      game.fight_max_love = -100;
-      game.body_remains_for = 1000;
-      game.fight_hate_kill_value = -5;
-      gameadd.flee_zone_radius = 2048;
-      game.game_turns_in_flee = 200;
-      gameadd.game_turns_unconscious = 2000;
-      gameadd.critical_health_permil = 125;
-      gameadd.stun_enemy_chance_good = 100;
-      gameadd.stun_enemy_chance_evil = 100;
+      game.conf.rules.creature.recovery_frequency = 10;
+      game.conf.rules.creature.fight_max_hate = 200;
+      game.conf.rules.creature.fight_borderline = 0;
+      game.conf.rules.creature.fight_max_love = -100;
+      game.conf.rules.creature.body_remains_for = 1000;
+      game.conf.rules.creature.fight_hate_kill_value = -5;
+      game.conf.rules.creature.flee_zone_radius = 2048;
+      game.conf.rules.creature.game_turns_in_flee = 200;
+      game.conf.rules.creature.game_turns_unconscious = 2000;
+      game.conf.rules.creature.critical_health_permil = 125;
+      game.conf.rules.creature.stun_enemy_chance_good = 100;
+      game.conf.rules.creature.stun_enemy_chance_evil = 100;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -883,7 +883,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.recovery_frequency = k;
+            game.conf.rules.creature.recovery_frequency = k;
             n++;
           }
           if (n < 1)
@@ -896,7 +896,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.fight_max_hate = k;
+            game.conf.rules.creature.fight_max_hate = k;
             n++;
           }
           if (n < 1)
@@ -909,7 +909,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.fight_borderline = k;
+            game.conf.rules.creature.fight_borderline = k;
             n++;
           }
           if (n < 1)
@@ -922,7 +922,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.fight_max_love = k;
+            game.conf.rules.creature.fight_max_love = k;
             n++;
           }
           if (n < 1)
@@ -935,7 +935,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.body_remains_for = k;
+            game.conf.rules.creature.body_remains_for = k;
             n++;
           }
           if (n < 1)
@@ -948,7 +948,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.fight_hate_kill_value = k;
+            game.conf.rules.creature.fight_hate_kill_value = k;
             n++;
           }
           if (n < 1)
@@ -961,7 +961,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.flee_zone_radius = k;
+            game.conf.rules.creature.flee_zone_radius = k;
             n++;
           }
           if (n < 1)
@@ -974,7 +974,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.game_turns_in_flee = k;
+            game.conf.rules.creature.game_turns_in_flee = k;
             n++;
           }
           if (n < 1)
@@ -987,7 +987,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.game_turns_unconscious = k;
+            game.conf.rules.creature.game_turns_unconscious = k;
             n++;
           }
           if (n < 1)
@@ -1000,7 +1000,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.critical_health_permil = k*10;
+            game.conf.rules.creature.critical_health_permil = k*10;
             n++;
           }
           if (n < 1)
@@ -1013,7 +1013,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              gameadd.stun_enemy_chance_evil = k;
+              game.conf.rules.creature.stun_enemy_chance_evil = k;
               n++;
           }
           if (n < 1)
@@ -1026,7 +1026,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              gameadd.stun_enemy_chance_good = k;
+              game.conf.rules.creature.stun_enemy_chance_good = k;
               n++;
           }
           if (n < 1)

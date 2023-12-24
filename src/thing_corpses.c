@@ -252,7 +252,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 }
             } else
             {
-                if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
+                if (game.play_gameturn - thing->creation_turn > game.conf.rules.creature.body_remains_for) {
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
@@ -261,7 +261,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         {
             corpse_age = game.play_gameturn - thing->creation_turn;
             #define VANISH_EFFECT_DELAY 60
-            if (((corpse_age > game.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
+            if (((corpse_age > game.conf.rules.creature.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
                 && !(is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing)))
             {
                 delete_corpse(thing);

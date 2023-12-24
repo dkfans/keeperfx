@@ -1104,8 +1104,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 7: //StunEvilEnemyChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.stun_enemy_chance_evil, val3);
-              gameadd.stun_enemy_chance_evil = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.creature.stun_enemy_chance_evil, val3);
+              game.conf.rules.creature.stun_enemy_chance_evil = val3;
           }
           else
           {
@@ -1115,8 +1115,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 8: //StunGoodEnemyChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.stun_enemy_chance_good, val3);
-              gameadd.stun_enemy_chance_good = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.creature.stun_enemy_chance_good, val3);
+              game.conf.rules.creature.stun_enemy_chance_good = val3;
           }
           else
           {
@@ -1126,8 +1126,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 9: //BodyRemainsFor
           if (val3 >= 0)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.body_remains_for, val3);
-              game.body_remains_for = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.creature.body_remains_for, val3);
+              game.conf.rules.creature.body_remains_for = val3;
           }
           else
           {
@@ -1135,8 +1135,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 10: //FightHateKillValue
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.fight_hate_kill_value, val3);
-          game.fight_hate_kill_value = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.creature.fight_hate_kill_value, val3);
+          game.conf.rules.creature.fight_hate_kill_value = val3;
           break;
       case 11: //PreserveClassicBugs
           if (val3 >= 0 && val3 < ClscBug_ListEnd)
@@ -1206,8 +1206,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 22: //DiseaseHPTemplePercentage
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
-              gameadd.disease_to_temple_pct = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.computer.disease_to_temple_pct, val3);
+              game.conf.rules.computer.disease_to_temple_pct = val3;
           }
           else
           {

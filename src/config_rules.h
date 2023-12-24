@@ -67,7 +67,6 @@ struct SacrificeRecipe {
     long param;
 };
 
-
 struct GameRulesConfig {
     GoldAmount gold_per_gold_block;
     GoldAmount pot_of_gold_holds;
@@ -76,7 +75,6 @@ struct GameRulesConfig {
     GoldAmount gold_pile_maximum;
     GoldAmount gold_per_hoard;
     GoldAmount bag_gold_hold;
-
     unsigned short food_life_out_of_hatchery;
     long boulder_reduce_health_wall;
     long boulder_reduce_health_slap;
@@ -94,8 +92,29 @@ struct GameRulesConfig {
     TbBool place_traps_on_subtiles;
 };
 
+struct ComputerRulesConfig {
+    unsigned short disease_to_temple_pct;
+};
+
+struct CreatureRulesConfig {
+    unsigned char recovery_frequency;
+    unsigned short fight_max_hate;
+    unsigned short fight_borderline;
+    unsigned short fight_max_love;
+    unsigned short body_remains_for;
+    unsigned short fight_hate_kill_value;
+    unsigned long flee_zone_radius;
+    GameTurnDelta game_turns_in_flee;
+    unsigned short game_turns_unconscious;
+    long critical_health_permil;
+    unsigned char stun_enemy_chance_evil;
+    unsigned char stun_enemy_chance_good;
+};
 struct RulesConfig {
     struct GameRulesConfig game;
+    struct ComputerRulesConfig computer;
+    struct CreatureRulesConfig creature;
+
 };
 /******************************************************************************/
 extern const char keeper_rules_file[];

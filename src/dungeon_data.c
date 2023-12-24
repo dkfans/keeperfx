@@ -510,9 +510,9 @@ void init_dungeons(void)
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
         struct Dungeon* dungeon = get_dungeon(game.hero_player_num);
-        dungeon->hates_player[i] = game.fight_max_hate;
+        dungeon->hates_player[i] = game.conf.rules.creature.fight_max_hate;
         dungeon = get_dungeon(i);
-        dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.fight_max_hate;
+        dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.conf.rules.creature.fight_max_hate;
         dungeon->num_active_diggers = 0;
         dungeon->num_active_creatrs = 0;
         dungeon->creatr_list_start = 0;
@@ -524,9 +524,9 @@ void init_dungeons(void)
         for (int k = 0; k < DUNGEONS_COUNT; k++)
         {
           if (k == i)
-            dungeon->hates_player[k] = game.fight_max_love;
+            dungeon->hates_player[k] = game.conf.rules.creature.fight_max_love;
           else
-            dungeon->hates_player[k] = game.fight_max_hate;
+            dungeon->hates_player[k] = game.conf.rules.creature.fight_max_hate;
         }
         dungeon->color_idx = i;
         LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);

@@ -225,14 +225,8 @@ unsigned int packet_file_pos;
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
     unsigned short entrances_count;
-    unsigned short fight_max_hate;
-    unsigned short fight_borderline;
-    unsigned short fight_max_love;
-    unsigned short fight_hate_kill_value;
-    unsigned short body_remains_for;
     unsigned short graveyard_convert_time;
     MapSubtlDelta min_distance_for_teleport;
-    unsigned char recovery_frequency;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     GameTurnDelta food_generation_speed;
     enum GameKinds game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
@@ -241,7 +235,6 @@ unsigned int packet_file_pos;
     unsigned long default_max_crtrs_gen_entrance;
     unsigned long default_imp_dig_damage;
     unsigned long default_imp_dig_own_damage;
-    GameTurnDelta game_turns_in_flee;
     unsigned short hunger_health_loss;
     unsigned short turns_per_hunger_health_loss;
     unsigned short food_health_gain;

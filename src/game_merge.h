@@ -147,14 +147,9 @@ struct IntralevelData {
  */
 struct GameAdd {
     unsigned long turn_last_checked_for_gold;
-    unsigned long flee_zone_radius;
     unsigned long time_between_prison_break;
     unsigned long time_in_prison_without_break;
     unsigned char prison_break_chance;
-    unsigned short game_turns_unconscious;
-    unsigned char stun_enemy_chance_evil;
-    unsigned char stun_enemy_chance_good;
-    long critical_health_permil;
     long friendly_fight_area_damage_permil;
     long friendly_fight_area_range_permil;
     unsigned char torture_death_chance;
@@ -172,7 +167,6 @@ struct GameAdd {
     struct SacrificeRecipe sacrifice_recipes[MAX_SACRIFICE_RECIPES];
     struct LightSystemState lightst;
     long digger_work_experience;
-    unsigned short disease_to_temple_pct;
     uint8_t               max_custom_box_kind;
     unsigned long         current_player_turn; // Actually it is a hack. We need to rewrite scripting for current player
     int                   script_current_player;
