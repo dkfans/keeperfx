@@ -336,12 +336,12 @@ short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 void untint_thing(struct Thing *thing)
 {
     thing->tint_colour = 0;
-    thing->rendering_flags &= ~(TRF_Unknown04|TRF_Unknown08);
+    thing->rendering_flags &= ~(TRF_Tint_1|TRF_Tint_2);
 }
 
 void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 {
-    thing->rendering_flags ^= (thing->rendering_flags ^ (tint << 2)) & (TRF_Unknown04|TRF_Unknown08);
+    thing->rendering_flags ^= (thing->rendering_flags ^ (tint << 2)) & (TRF_Tint_1|TRF_Tint_2);
     thing->tint_colour = colour;
 }
 
@@ -528,7 +528,7 @@ void update_creature_graphic_tint(struct Thing *thing)
         untint_thing(thing);
     } else
     {
-        switch (thing->owner) //TODO: move player colors to array
+        switch (get_player_color_idx(thing->owner)) //TODO: move player colors to array
         {
         case 0:
             tint_thing(thing, colours[15][0][0], 1);
