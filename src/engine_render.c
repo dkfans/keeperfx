@@ -8842,6 +8842,29 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     }
     map_volume_box.color = default_color;
 }
+
+TbBool cursor_on_room(RoomIndex room_index)
+{
+    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    struct SlabMap* slb = get_slabmap_for_subtile(playeradd->cursor_subtile_x, playeradd->cursor_subtile_y);
+    if (slabmap_block_invalid(slb)) {
+        return false;
+    }
+    if (slb->room_index != room_index) {
+        return false;
+    }
+    return true;
+}
+TbBool room_is_damaged(RoomIndex room_index)
+{
+    struct Room* room = room_get(room_index);
+    if (room->health != compute_room_max_health(room->slabs_count, room->efficiency)) {
+        return true;
+    }
+    return false;
+}
+
 static void do_map_who_for_thing(struct Thing *thing)
 {
     int bckt_idx;
@@ -8919,15 +8942,10 @@ static void do_map_who_for_thing(struct Thing *thing)
         if (hud_scale == 0) {
             break;
         }
-        
-        // If cursor is not on the room containing the room flag, do not draw roomflag
-        struct PlayerInfo* player = get_my_player();
-        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-        struct SlabMap* slb = get_slabmap_for_subtile(playeradd->cursor_subtile_x, playeradd->cursor_subtile_y);
-        if (!slabmap_block_invalid(slb)) {
-            if (slb->room_index != thing->lair.belongs_to) {
-                break;
-            }
+
+        RoomIndex flag_room_index = thing->lair.belongs_to;
+        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false ) {
+            break;
         }
 
         ecor.x = (render_pos_x - map_x_pos);
@@ -9041,14 +9059,9 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
             break;
         }
 
-        // If cursor is not on the room containing the room flag, do not draw roomflag
-        struct PlayerInfo* player = get_my_player();
-        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-        struct SlabMap* slb = get_slabmap_for_subtile(playeradd->cursor_subtile_x, playeradd->cursor_subtile_y);
-        if (!slabmap_block_invalid(slb)) {
-            if (slb->room_index != thing->lair.belongs_to) {
-                break;
-            }
+        RoomIndex flag_room_index = thing->lair.belongs_to;
+        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false ) {
+            break;
         }
 
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
