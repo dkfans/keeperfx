@@ -13,6 +13,9 @@ REM Update 1.00, august 2018: lowered difficulty. Final Reaper stack is lower le
 REM ********************************************
 LEVEL_VERSION(1)
 
+SET_PLAYER_COLOR(PLAYER0,WHITE)
+SET_PLAYER_COLOR(PLAYER_GOOD,RED)
+
 SET_GENERATE_SPEED(400)
 
 START_MONEY(PLAYER0,10000)

@@ -78,6 +78,9 @@ enum ObjectModels
     ObjMdl_PowerHand = 37,
     ObjMdl_PowerHandGrab = 38,
     ObjMdl_PowerHandWhip = 39,
+    ObjMdl_ChickenStb = 40,
+    ObjMdl_ChickenWob = 41,
+    ObjMdl_ChickenCrk = 42,
     ObjMdl_Goldl = 43,
     ObjMdl_SpinningKey = 44,
     ObjMdl_HeroGate = 49,
@@ -113,7 +116,9 @@ enum ObjectModels
     ObjMdl_PowerHandWithGold = 127,
     ObjMdl_SpinningCoin = 128,
     ObjMdl_SpecboxCustom = 133,
-    ObjMdl_GoldBag = 136
+    ObjMdl_GoldBag = 136,
+    ObjMdl_GuardFlagWhite = 161,
+    ObjMdl_HeartFlameWhite = 162,
 };
 
 /**

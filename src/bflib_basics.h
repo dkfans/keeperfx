@@ -33,7 +33,7 @@ extern "C" {
 #define LINEMSG_SIZE     160
 #define READ_BUFSIZE     256
 #define LOOPED_FILE_LEN 4096
-#define COMMAND_WORD_LEN  32
+#define COMMAND_WORD_LEN  64
 
 // Max length of any processed string
 #define MAX_TEXT_LENGTH 4096

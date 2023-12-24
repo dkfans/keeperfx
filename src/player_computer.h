@@ -120,6 +120,7 @@ enum GameActionTypes {
     GA_UsePwrLightning,
     GA_UsePwrSpeedUp,
     GA_UsePwrArmour,
+    GA_UsePwrRebound,
     GA_UsePwrConceal,
     GA_UsePwrHoldAudnc,
     GA_UsePwrDisease,
