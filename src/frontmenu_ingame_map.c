@@ -1073,6 +1073,29 @@ void setup_pannel_colours(void)
     }
 }
 
+void update_pannel_colour_player_color(PlayerNumber plyr_idx, unsigned char color_idx)
+{
+    int n = 0;
+    int pncol_idx = 0;
+    for (int bkcol_idx=0; bkcol_idx < NoBackColours; bkcol_idx++)
+    {
+        n = pncol_idx + 8;
+
+        JUSTLOG("n %d",n);
+        for (int i=17; i > 0; i--)
+        {
+            PannelColours[n + plyr_idx] = RoomColours[color_idx];
+            n += 6;
+        }
+        n = pncol_idx + 8 + 17*6 + 12*5;
+        {
+            PannelColours[n + plyr_idx] = ClaimedGroundColours[color_idx];
+        }
+
+        pncol_idx += 256;
+    }
+}
+
 void update_pannel_colours(void)
 {
     int frame;

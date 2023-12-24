@@ -21,6 +21,7 @@
 #define DK_FRONTMENU_INGAMEMAP_H
 
 #include "bflib_basics.h"
+#include "globals.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,7 +42,8 @@ short do_left_map_drag(long begin_x, long begin_y, long curr_x, long curr_y, lon
 short do_left_map_click(long begin_x, long begin_y, long curr_x, long curr_y, long zoom);
 short do_right_map_click(long start_x, long start_y, long curr_x, long curr_y, long zoom);
 
-void setup_pannel_colours(void);
+void update_pannel_colour_player_color(PlayerNumber plyr_idx, unsigned char color_idx);
+
 /******************************************************************************/
 
 #ifdef __cplusplus

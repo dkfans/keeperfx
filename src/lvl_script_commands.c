@@ -4680,7 +4680,7 @@ static void set_player_color_process(struct ScriptContext *context)
                     struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
                     if (slabmap_owner(slb) == plyr_idx)
                     {
-                        setup_pannel_colours();                        
+                        update_pannel_colour_player_color(plyr_idx,color_idx);
 
                         if (slab_kind_is_animated(slb->kind))
                         {
