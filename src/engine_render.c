@@ -8919,6 +8919,16 @@ static void do_map_who_for_thing(struct Thing *thing)
         if (hud_scale == 0) {
             break;
         }
+        
+        // If cursor is not on the room containing the room flag, do not draw roomflag
+        struct PlayerInfo* player = get_my_player();
+        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+        struct SlabMap* slb = get_slabmap_for_subtile(playeradd->cursor_subtile_x, playeradd->cursor_subtile_y);
+        if (!slabmap_block_invalid(slb)) {
+            if (slb->room_index != thing->lair.belongs_to) {
+                break;
+            }
+        }
 
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
@@ -8928,7 +8938,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 40) {
+                if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
@@ -8937,7 +8947,7 @@ static void do_map_who_for_thing(struct Thing *thing)
                 }
             }
             thing->roomflag2.last_turn_drawn = game.play_gameturn;
-            if (thing->roomflag2.display_timer == 40)
+            if (thing->roomflag2.display_timer == 10)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
                 add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
@@ -9030,12 +9040,23 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         if (hud_scale == 0) {
             break;
         }
+
+        // If cursor is not on the room containing the room flag, do not draw roomflag
+        struct PlayerInfo* player = get_my_player();
+        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+        struct SlabMap* slb = get_slabmap_for_subtile(playeradd->cursor_subtile_x, playeradd->cursor_subtile_y);
+        if (!slabmap_block_invalid(slb)) {
+            if (slb->room_index != thing->lair.belongs_to) {
+                break;
+            }
+        }
+
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 40) {
+                if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
@@ -9044,7 +9065,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
                 }
             }
             thing->roomflag2.last_turn_drawn = game.play_gameturn;
-            if (thing->roomflag2.display_timer == 40)
+            if (thing->roomflag2.display_timer == 10)
             {
                 add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
                 if (is_free_space_in_poly_pool(1))
