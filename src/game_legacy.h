@@ -228,8 +228,6 @@ unsigned int packet_file_pos;
     enum GameKinds game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
     TbBool map_changed_for_nagivation; // something with navigation
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
-    unsigned long default_imp_dig_damage;
-    unsigned long default_imp_dig_own_damage;
     unsigned short hunger_health_loss;
     unsigned short turns_per_hunger_health_loss;
     unsigned short food_health_gain;
@@ -243,7 +241,6 @@ unsigned int packet_file_pos;
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
     PlayerNumber armageddon_caster_idx;
-    unsigned char hits_per_slab;
     struct SoundSettings sound_settings;
     struct CreatureBattle battles[BATTLES_COUNT];
     long music_track_index;

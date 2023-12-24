@@ -1635,9 +1635,9 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.hits_per_slab = 2;
-      game.default_imp_dig_damage = 1;
-      game.default_imp_dig_own_damage = 2;
+      game.conf.rules.workers.hits_per_slab = 2;
+      game.conf.rules.workers.default_imp_dig_damage = 1;
+      game.conf.rules.workers.default_imp_dig_own_damage = 2;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1665,7 +1665,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.hits_per_slab = k;
+            game.conf.rules.workers.hits_per_slab = k;
             n++;
           }
           if (n < 1)
@@ -1690,7 +1690,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.default_imp_dig_damage = k;
+            game.conf.rules.workers.default_imp_dig_damage = k;
             n++;
           }
           if (n < 1)
@@ -1703,7 +1703,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.default_imp_dig_own_damage = k;
+            game.conf.rules.workers.default_imp_dig_own_damage = k;
             n++;
           }
           if (n < 1)

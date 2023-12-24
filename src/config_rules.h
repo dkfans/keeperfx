@@ -141,10 +141,13 @@ struct RoomRulesConfig {
     TbBool scavenge_neutral_allowed;
     unsigned long time_between_prison_break;
 };
-/*
 struct WorkersRulesConfig {
+    unsigned char hits_per_slab;
+    unsigned long default_imp_dig_damage;
+    unsigned long default_imp_dig_own_damage;
 };
 
+/*
 struct HealthRulesConfig {
 };
 
@@ -161,8 +164,8 @@ struct RulesConfig {
     struct CreatureRulesConfig creature;
     struct MagicRulesConfig magic;
     struct RoomRulesConfig rooms;
-    /*
     struct WorkersRulesConfig workers;
+    /*
     struct HealthRulesConfig health;
     struct ResearchRulesConfig research;
     struct SacrificesRulesConfig sacrifices;

@@ -850,9 +850,9 @@ long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng,
 {
     long dig_damage;
     if (slabmap_owner(slb) == diggertng->owner)
-        dig_damage = game.default_imp_dig_own_damage;
+        dig_damage = game.conf.rules.workers.default_imp_dig_own_damage;
     else
-        dig_damage = game.default_imp_dig_damage;
+        dig_damage = game.conf.rules.workers.default_imp_dig_damage;
     return dig_damage;
 }
 
