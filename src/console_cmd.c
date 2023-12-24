@@ -595,7 +595,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                                        subtile_slab(stl_y + r - r2)
                 );
                 reveal_map_rect(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
-                pannel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
+                panel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
             }
             else
             {
@@ -689,7 +689,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if ((strcasecmp(parstr, "give.trap") == 0) || (strcasecmp(parstr, "trap.give") == 0))
         {
             long id = get_trap_number_for_command(pr2str);
-            if (id <= 0 || id > gameadd.trapdoor_conf.trap_types_count)
+            if (id <= 0 || id > game.conf.trapdoor_conf.trap_types_count)
             {
                 return false;
             }
@@ -702,7 +702,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if ((strcasecmp(parstr, "give.door") == 0) || (strcasecmp(parstr, "door.give") == 0))
         {
             long id = get_door_number_for_command(pr2str);
-            if (id <= 0 || id > gameadd.trapdoor_conf.door_types_count)
+            if (id <= 0 || id > game.conf.trapdoor_conf.door_types_count)
             {
                 return false;
             }
@@ -791,7 +791,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         crmodel = atoi(pr2str);
                     }
                 }
-                if ((crmodel > 0) && (crmodel < gameadd.crtr_conf.model_count))
+                if ((crmodel > 0) && (crmodel < game.conf.crtr_conf.model_count))
                 {
                     player = get_player(plyr_idx);
                     pckt = get_packet_direct(player->packet_num);
@@ -949,7 +949,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                             }
                         }
                     }
-                    if ((slbkind >= 0) && (slbkind <= game.slab_conf.slab_types_count))
+                    if ((slbkind >= 0) && (slbkind <= game.conf.slab_conf.slab_types_count))
                     {
                         if (subtile_is_room(stl_x, stl_y))
                         {
@@ -1011,8 +1011,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (strcasecmp(pr2str, "all") == 0)
             {
-                for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
+                for (PowerKind pw = game.conf.magic_conf.power_types_count; pw > PwrK_HAND; pw--)
                 {
+                    if ( (pw == PwrK_PICKUPCRTR) || (pw == PwrK_PICKUPGOLD) || (pw == PwrK_PICKUPFOOD) )
+                    {
+                        continue;
+                    }
                     if (!set_power_available(plyr_idx, pw, 1, 1))
                         WARNLOG("Setting power %s availability for player %d failed.", power_code_name(pw), 1);
                 }

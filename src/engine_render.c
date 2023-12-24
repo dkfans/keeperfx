@@ -5091,7 +5091,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         TbBool is_shown = false;
         if (thing->class_id == TCls_Trap)
         {
-            is_shown = !gameadd.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+            is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
         }
         else
         {
@@ -5473,7 +5473,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
-    roomst = &game.slab_conf.room_cfgstats[room->kind];
+    roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
     spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
@@ -8229,7 +8229,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
             break;
         case TCls_Trap:
-            trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;
@@ -8842,6 +8842,41 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     }
     map_volume_box.color = default_color;
 }
+
+TbBool cursor_on_room(RoomIndex room_index)
+{
+    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    struct SlabMap* slb = get_slabmap_for_subtile(playeradd->cursor_subtile_x, playeradd->cursor_subtile_y);
+    if (slabmap_block_invalid(slb)) {
+        return false;
+    }
+    if (slb->room_index != room_index) {
+        return false;
+    }
+    return true;
+}
+TbBool room_is_damaged(RoomIndex room_index)
+{
+    struct Room* room = room_get(room_index);
+    if (room->health == compute_room_max_health(room->slabs_count, room->efficiency)) {
+        return false;
+    }
+    return true;
+}
+TbBool placing_same_room_type(RoomIndex room_index)
+{
+    struct PlayerInfo* player = get_my_player();
+    if (map_volume_box.visible == 0) {
+        return false;
+    }
+    struct Room* room = room_get(room_index);
+    if (player->chosen_room_kind != room->kind) {
+        return false;
+    }
+    return true;
+}
+
 static void do_map_who_for_thing(struct Thing *thing)
 {
     int bckt_idx;
@@ -8919,6 +8954,11 @@ static void do_map_who_for_thing(struct Thing *thing)
         if (hud_scale == 0) {
             break;
         }
+        
+        RoomIndex flag_room_index = thing->lair.belongs_to;
+        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false && placing_same_room_type(flag_room_index) == false) {
+            break;
+        }
 
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
@@ -8928,7 +8968,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 40) {
+                if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
@@ -8937,7 +8977,7 @@ static void do_map_who_for_thing(struct Thing *thing)
                 }
             }
             thing->roomflag2.last_turn_drawn = game.play_gameturn;
-            if (thing->roomflag2.display_timer == 40)
+            if (thing->roomflag2.display_timer == 10)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
                 add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
@@ -9030,12 +9070,18 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         if (hud_scale == 0) {
             break;
         }
+
+        RoomIndex flag_room_index = thing->lair.belongs_to;
+        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false && placing_same_room_type(flag_room_index) == false) {
+            break;
+        }
+
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 40) {
+                if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
@@ -9044,7 +9090,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
                 }
             }
             thing->roomflag2.last_turn_drawn = game.play_gameturn;
-            if (thing->roomflag2.display_timer == 40)
+            if (thing->roomflag2.display_timer == 10)
             {
                 add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
                 if (is_free_space_in_poly_pool(1))

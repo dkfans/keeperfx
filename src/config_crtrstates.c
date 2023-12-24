@@ -19,7 +19,7 @@
 #include "pre_inc.h"
 #include "config_crtrstates.h"
 #include "globals.h"
-#include "game_merge.h"
+#include "game_legacy.h"
 
 #include "bflib_basics.h"
 #include "bflib_memory.h"
@@ -87,7 +87,7 @@ TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *confi
               k = atoi(word_buf);
               if ((k > 0) && (k <= CREATURE_STATES_MAX))
               {
-                gameadd.crtr_conf.states_count = k;
+                game.conf.crtr_conf.states_count = k;
                 n++;
               }
             }
@@ -110,7 +110,7 @@ TbBool parse_creaturestates_common_blocks(char *buf, long len, const char *confi
         skip_conf_to_next_line(buf,&pos,len);
     }
 #undef COMMAND_TEXT
-    if (gameadd.crtr_conf.states_count < 1)
+    if (game.conf.crtr_conf.states_count < 1)
     {
         WARNLOG("No creature states defined in [%s] block of %s file.",
             block_buf,config_textname);
@@ -126,13 +126,13 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(gameadd.crtr_conf.states)/sizeof(gameadd.crtr_conf.states[0]);
+        arr_size = sizeof(game.conf.crtr_conf.states)/sizeof(game.conf.crtr_conf.states[0]);
         for (i=0; i < arr_size; i++)
         {
-            LbMemorySet(gameadd.crtr_conf.states[i].name, 0, COMMAND_WORD_LEN);
-            if (i < gameadd.crtr_conf.states_count)
+            LbMemorySet(game.conf.crtr_conf.states[i].name, 0, COMMAND_WORD_LEN);
+            if (i < game.conf.crtr_conf.states_count)
             {
-                creatrstate_desc[i].name = gameadd.crtr_conf.states[i].name;
+                creatrstate_desc[i].name = game.conf.crtr_conf.states[i].name;
                 creatrstate_desc[i].num = i;
             } else
             {
@@ -142,7 +142,7 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
         }
     }
     // Load the file blocks
-    arr_size = gameadd.crtr_conf.states_count;
+    arr_size = game.conf.crtr_conf.states_count;
     for (i=0; i < arr_size; i++)
     {
         char block_buf[COMMAND_WORD_LEN];
@@ -175,7 +175,7 @@ TbBool parse_creaturestates_state_blocks(char *buf, long len, const char *config
         switch (cmd_num)
         {
         case 1: // NAME
-            if (get_conf_parameter_single(buf,&pos,len,gameadd.crtr_conf.states[i].name,COMMAND_WORD_LEN) <= 0)
+            if (get_conf_parameter_single(buf,&pos,len,game.conf.crtr_conf.states[i].name,COMMAND_WORD_LEN) <= 0)
             {
                 CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),block_buf,config_textname);
