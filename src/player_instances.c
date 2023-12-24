@@ -243,7 +243,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           thing->move_angle_xy = player->acamera->orient_a;
           if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
           {
-              thing->health -= game.conf.rules.boulder_reduce_health_slap;
+              thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
           }
       } else
       {
@@ -1192,7 +1192,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     struct Coord3d pos;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!game.conf.rules.place_traps_on_subtiles))
+    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!game.conf.rules.game.place_traps_on_subtiles))
     {
         set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     }

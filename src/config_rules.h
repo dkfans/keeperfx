@@ -67,7 +67,8 @@ struct SacrificeRecipe {
     long param;
 };
 
-struct RulesConfig {
+
+struct GameRulesConfig {
     GoldAmount gold_per_gold_block;
     GoldAmount pot_of_gold_holds;
     GoldAmount chest_gold_hold;
@@ -91,7 +92,10 @@ struct RulesConfig {
     long trap_sale_percent;
     unsigned long pay_day_speed;
     TbBool place_traps_on_subtiles;
+};
 
+struct RulesConfig {
+    struct GameRulesConfig game;
 };
 /******************************************************************************/
 extern const char keeper_rules_file[];

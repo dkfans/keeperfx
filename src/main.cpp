@@ -531,7 +531,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     {
       if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
       {
-        thing->health -= game.conf.rules.boulder_reduce_health_wall;
+        thing->health -= game.conf.rules.game.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
       if ( blocked_flags & SlbBloF_WalledX )
@@ -618,7 +618,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
             }
             if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
             {
-                boulder->health -= game.conf.rules.boulder_reduce_health_room; // decrease boulder health
+                boulder->health -= game.conf.rules.game.boulder_reduce_health_room; // decrease boulder health
             }
             return 1; // guardpost destroyed
         }
@@ -2420,7 +2420,7 @@ void count_players_creatures_being_paid(int *creatures_count)
 
 void process_payday(void)
 {
-    game.pay_day_progress = game.pay_day_progress + (game.conf.rules.pay_day_speed / 100);
+    game.pay_day_progress = game.pay_day_progress + (game.conf.rules.game.pay_day_speed / 100);
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -2435,7 +2435,7 @@ void process_payday(void)
             compute_and_update_player_backpay_total(plyr_idx);
         }
     }
-    if (game.conf.rules.pay_day_gap <= game.pay_day_progress)
+    if (game.conf.rules.game.pay_day_gap <= game.pay_day_progress)
     {
         output_message(SMsg_Payday, 0, true);
         game.pay_day_progress = 0;

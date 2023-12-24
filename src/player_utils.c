@@ -163,7 +163,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         turn_off_all_menus();
         clear_transfered_creatures();
     }
-    if ((game.conf.rules.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
+    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
         dungeon->num_things_in_hand = 0;
     }
@@ -1162,7 +1162,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
 	dungeon->camera_deviate_jump = 192;
-    long sell_value = compute_value_percentage(game.conf.doors_config[thing->model].selling_value, game.conf.rules.door_sale_percent);
+    long sell_value = compute_value_percentage(game.conf.doors_config[thing->model].selling_value, game.conf.rules.game.door_sale_percent);
 
 	dungeon->doors_sold++;
 	dungeon->manufacture_gold += sell_value;

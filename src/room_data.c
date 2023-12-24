@@ -449,7 +449,7 @@ void count_gold_hoardes_in_room(struct Room *room)
 {
     GoldAmount all_gold_amount = 0;
     int all_wealth_size = 0;
-    long wealth_size_holds = game.conf.rules.gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // First, set the values to something big; this will prevent logging warnings on add/remove_gold_from_hoarde()
     room->used_capacity = room->total_capacity;
@@ -4812,7 +4812,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
         destroy_object(thing);
         return;
     }
-    if ((game.conf.rules.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
+    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
         // Preserve classic bug - object is claimed with the room
         thing->owner = newowner;
         return;

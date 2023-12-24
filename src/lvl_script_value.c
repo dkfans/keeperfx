@@ -1141,8 +1141,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 11: //PreserveClassicBugs
           if (val3 >= 0 && val3 < ClscBug_ListEnd)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.classic_bugs_flags, val3);
-              game.conf.rules.classic_bugs_flags = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.classic_bugs_flags, val3);
+              game.conf.rules.game.classic_bugs_flags = val3;
           }
           else
           {
@@ -1150,38 +1150,38 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 12: //DungeonHeartHealHealth
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.dungeon_heart_heal_health, val3);
-          game.conf.rules.dungeon_heart_heal_health = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.dungeon_heart_heal_health, val3);
+          game.conf.rules.game.dungeon_heart_heal_health = val3;
           break;
       case 13: //ImpWorkExperience
           SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.digger_work_experience, val3);
           gameadd.digger_work_experience = val3;
           break;
       case 14: //GemEffectiveness
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.gem_effectiveness, val3);
-          game.conf.rules.gem_effectiveness = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.gem_effectiveness, val3);
+          game.conf.rules.game.gem_effectiveness = val3;
           break;
       case 15: //RoomSellGoldBackPercent
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.room_sale_percent, val3);
-          game.conf.rules.room_sale_percent = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.room_sale_percent, val3);
+          game.conf.rules.game.room_sale_percent = val3;
           break;
       case 16: //DoorSellGoldBackPercent
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.door_sale_percent, val3);
-          game.conf.rules.door_sale_percent = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.door_sale_percent, val3);
+          game.conf.rules.game.door_sale_percent = val3;
           break;
       case 17: //TrapSellGoldBackPercent
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.trap_sale_percent, val3);
-          game.conf.rules.trap_sale_percent = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.trap_sale_percent, val3);
+          game.conf.rules.game.trap_sale_percent = val3;
           break;
       case 18: //PayDayGap
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.pay_day_gap, val3);
-          game.conf.rules.pay_day_gap = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.pay_day_gap, val3);
+          game.conf.rules.game.pay_day_gap = val3;
           break;
       case 19: //PayDaySpeed
           if (val3 >= 0)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.pay_day_speed, val3);
-              game.conf.rules.pay_day_speed = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.pay_day_speed, val3);
+              game.conf.rules.game.pay_day_speed = val3;
           }
           else
           {
@@ -1200,8 +1200,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 21: //PlaceTrapsOnSubtiles
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.place_traps_on_subtiles, val3);
-          game.conf.rules.place_traps_on_subtiles = (TbBool)val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.place_traps_on_subtiles, val3);
+          game.conf.rules.game.place_traps_on_subtiles = (TbBool)val3;
           break;
       case 22: //DiseaseHPTemplePercentage
           if (val3 >= 0 && val3 <= 100)
