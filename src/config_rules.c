@@ -1749,11 +1749,11 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.hunger_health_loss = 1;
-      game.turns_per_hunger_health_loss = 100;
-      game.food_health_gain = 10;
-      game.torture_health_loss = 5;
-      game.turns_per_torture_health_loss = 100;
+      game.conf.rules.health.hunger_health_loss = 1;
+      game.conf.rules.health.turns_per_hunger_health_loss = 100;
+      game.conf.rules.health.food_health_gain = 10;
+      game.conf.rules.health.torture_health_loss = 5;
+      game.conf.rules.health.turns_per_torture_health_loss = 100;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1781,7 +1781,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.hunger_health_loss = k;
+            game.conf.rules.health.hunger_health_loss = k;
             n++;
           }
           if (n < 1)
@@ -1794,7 +1794,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.turns_per_hunger_health_loss = k;
+            game.conf.rules.health.turns_per_hunger_health_loss = k;
             n++;
           }
           if (n < 1)
@@ -1807,7 +1807,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.food_health_gain = k;
+            game.conf.rules.health.food_health_gain = k;
             n++;
           }
           if (n < 1)
@@ -1826,7 +1826,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.torture_health_loss = k;
+            game.conf.rules.health.torture_health_loss = k;
             n++;
           }
           if (n < 1)
@@ -1839,7 +1839,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.turns_per_torture_health_loss = k;
+            game.conf.rules.health.turns_per_torture_health_loss = k;
             n++;
           }
           if (n < 1)

@@ -147,10 +147,15 @@ struct WorkersRulesConfig {
     unsigned long default_imp_dig_own_damage;
 };
 
-/*
 struct HealthRulesConfig {
+    unsigned short hunger_health_loss;
+    unsigned short turns_per_hunger_health_loss;
+    unsigned short food_health_gain;
+    unsigned short torture_health_loss;
+    unsigned short turns_per_torture_health_loss;
 };
 
+/*
 struct ResearchRulesConfig {
 };
 
@@ -165,8 +170,8 @@ struct RulesConfig {
     struct MagicRulesConfig magic;
     struct RoomRulesConfig rooms;
     struct WorkersRulesConfig workers;
-    /*
     struct HealthRulesConfig health;
+    /*
     struct ResearchRulesConfig research;
     struct SacrificesRulesConfig sacrifices;
     */

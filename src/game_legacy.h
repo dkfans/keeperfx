@@ -228,11 +228,6 @@ unsigned int packet_file_pos;
     enum GameKinds game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
     TbBool map_changed_for_nagivation; // something with navigation
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
-    unsigned short hunger_health_loss;
-    unsigned short turns_per_hunger_health_loss;
-    unsigned short food_health_gain;
-    unsigned short torture_health_loss;
-    unsigned short turns_per_torture_health_loss;
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
     long frame_skip;
