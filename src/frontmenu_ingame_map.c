@@ -66,8 +66,7 @@ struct InterpMinimap
 static unsigned char *MapBackground = NULL;
 static long *MapShapeStart = NULL;
 static long *MapShapeEnd = NULL;
-static const TbPixel RoomColours[] = {132, 92, 164, 183, 21, 132};
-static const TbPixel ClaimedGroundColours[] = {131, 90, 163, 181, 20, 4};
+
 static long PanelMapY;
 static long PanelMapX;
 static long NoBackColours;
@@ -1002,7 +1001,7 @@ void setup_panel_colors(void)
     int frame;
     frame = game.play_gameturn & 3;
     unsigned int frcol;
-    frcol = RoomColours[frame];
+    frcol = player_room_colours[frame];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
@@ -1038,22 +1037,22 @@ void setup_panel_colors(void)
 
         for (i=17; i > 0; i--)
         {
-            PanelColours[n + 0] = (get_player_color_idx(0) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(0)];
-            PanelColours[n + 1] = (get_player_color_idx(1) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(1)];
-            PanelColours[n + 2] = (get_player_color_idx(2) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(2)];
-            PanelColours[n + 3] = (get_player_color_idx(3) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(3)];
-            PanelColours[n + 4] = (get_player_color_idx(4) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(4)];
-            PanelColours[n + 5] = (get_player_color_idx(5) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(5)];
+            PanelColours[n + 0] = (get_player_color_idx(0) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(0)];
+            PanelColours[n + 1] = (get_player_color_idx(1) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(1)];
+            PanelColours[n + 2] = (get_player_color_idx(2) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(2)];
+            PanelColours[n + 3] = (get_player_color_idx(3) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(3)];
+            PanelColours[n + 4] = (get_player_color_idx(4) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(4)];
+            PanelColours[n + 5] = (get_player_color_idx(5) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(5)];
             n += 6;
         }
         n = pncol_idx + 8 + 17*6 + 12*5;
         {
-            PanelColours[n + 0] = ClaimedGroundColours[get_player_color_idx(0)];
-            PanelColours[n + 1] = ClaimedGroundColours[get_player_color_idx(1)];
-            PanelColours[n + 2] = ClaimedGroundColours[get_player_color_idx(2)];
-            PanelColours[n + 3] = ClaimedGroundColours[get_player_color_idx(3)];
-            PanelColours[n + 4] = ClaimedGroundColours[get_player_color_idx(4)];
-            PanelColours[n + 5] = ClaimedGroundColours[get_player_color_idx(5)];
+            PanelColours[n + 0] = player_path_colours[get_player_color_idx(0)];
+            PanelColours[n + 1] = player_path_colours[get_player_color_idx(1)];
+            PanelColours[n + 2] = player_path_colours[get_player_color_idx(2)];
+            PanelColours[n + 3] = player_path_colours[get_player_color_idx(3)];
+            PanelColours[n + 4] = player_path_colours[get_player_color_idx(4)];
+            PanelColours[n + 5] = player_path_colours[get_player_color_idx(5)];
         }
         n = pncol_idx + 8 + 17*6;
         for (i=5; i > 0; i--)
@@ -1084,12 +1083,12 @@ void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_
         JUSTLOG("n %d",n);
         for (int i=17; i > 0; i--)
         {
-            PanelColours[n + plyr_idx] = RoomColours[color_idx];
+            PanelColours[n + plyr_idx] = player_room_colours[color_idx];
             n += 6;
         }
         n = pncol_idx + 8 + 17*6 + 12*5;
         {
-            PanelColours[n + plyr_idx] = ClaimedGroundColours[color_idx];
+            PanelColours[n + plyr_idx] = player_path_colours[color_idx];
         }
 
         pncol_idx += 256;
@@ -1101,7 +1100,7 @@ void update_panel_colors(void)
     int frame;
     frame = game.play_gameturn & 3;
     unsigned int frcol;
-    frcol = RoomColours[frame];
+    frcol = player_room_colours[frame];
     int bkcol_idx;
     int pncol_idx;
     pncol_idx = 0;
@@ -1146,12 +1145,12 @@ void update_panel_colors(void)
             n = 6 * PrevRoomHighlight + 8;
             for (i=NoBackColours; i > 0; i--)
             {
-                PanelColours[n + 0] = (get_player_color_idx(0) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(0)];;
-                PanelColours[n + 1] = (get_player_color_idx(1) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(1)];;
-                PanelColours[n + 2] = (get_player_color_idx(2) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(2)];;
-                PanelColours[n + 3] = (get_player_color_idx(3) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(3)];;
-                PanelColours[n + 4] = (get_player_color_idx(4) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(4)];;
-                PanelColours[n + 5] = (get_player_color_idx(5) == NEUTRAL_PLAYER)?frcol:RoomColours[get_player_color_idx(5)];;
+                PanelColours[n + 0] = (get_player_color_idx(0) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(0)];;
+                PanelColours[n + 1] = (get_player_color_idx(1) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(1)];;
+                PanelColours[n + 2] = (get_player_color_idx(2) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(2)];;
+                PanelColours[n + 3] = (get_player_color_idx(3) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(3)];;
+                PanelColours[n + 4] = (get_player_color_idx(4) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(4)];;
+                PanelColours[n + 5] = (get_player_color_idx(5) == NEUTRAL_PLAYER)?frcol:player_room_colours[get_player_color_idx(5)];;
                 n += 256;
             }
         }
