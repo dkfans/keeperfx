@@ -269,7 +269,7 @@ short setup_land_tooltips(struct Coord3d *pos)
   if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
       return false;
   }
-  if ( (help_tip_time > 100) || (player->work_state == PSt_CreatrQuery) )
+  if ( (help_tip_time > 50) || (player->work_state == PSt_CreatrQuery) )
   {
       set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
   } else
@@ -297,7 +297,7 @@ short setup_room_tooltips(struct Coord3d *pos)
   if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
       return false;
   }
-  if ( (help_tip_time > 100) || (player->work_state == PSt_CreatrQuery) )
+  if ( (help_tip_time > 50) || (player->work_state == PSt_CreatrQuery) )
   {
     set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
   } else
