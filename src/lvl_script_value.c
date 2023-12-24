@@ -1071,8 +1071,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 4: //TortureConvertChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.torture_convert_chance, val3);
-              gameadd.torture_convert_chance = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.torture_convert_chance, val3);
+              game.conf.rules.rooms.torture_convert_chance = val3;
           }
           else
           {
@@ -1082,8 +1082,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 5: //TortureDeathChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.torture_death_chance, val3);
-              gameadd.torture_death_chance = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.torture_death_chance, val3);
+              game.conf.rules.rooms.torture_death_chance = val3;
           }
           else
           {

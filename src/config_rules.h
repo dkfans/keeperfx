@@ -140,6 +140,10 @@ struct RoomRulesConfig {
     TbBool scavenge_good_allowed;
     TbBool scavenge_neutral_allowed;
     unsigned long time_between_prison_break;
+    unsigned char prison_break_chance;
+    unsigned char torture_death_chance;
+    unsigned char torture_convert_chance;
+    unsigned long time_in_prison_without_break;
 };
 struct WorkersRulesConfig {
     unsigned char hits_per_slab;

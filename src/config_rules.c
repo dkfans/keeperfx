@@ -1391,7 +1391,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.torture_convert_chance = k;
+            game.conf.rules.rooms.torture_convert_chance = k;
             n++;
           }
           if (n < 1)
@@ -1404,7 +1404,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.time_in_prison_without_break = k;
+            game.conf.rules.rooms.time_in_prison_without_break = k;
             n++;
           }
           if (n < 1)
@@ -1565,7 +1565,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.prison_break_chance = k;
+            game.conf.rules.rooms.prison_break_chance = k;
             n++;
           }
           if (n < 1)
@@ -1578,7 +1578,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              gameadd.torture_death_chance = k;
+              game.conf.rules.rooms.torture_death_chance = k;
               n++;
           }
           if (n < 1)

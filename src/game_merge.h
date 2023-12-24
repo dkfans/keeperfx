@@ -147,12 +147,8 @@ struct IntralevelData {
  */
 struct GameAdd {
     unsigned long turn_last_checked_for_gold;
-    unsigned long time_in_prison_without_break;
-    unsigned char prison_break_chance;
     long friendly_fight_area_damage_permil;
     long friendly_fight_area_range_permil;
-    unsigned char torture_death_chance;
-    unsigned char torture_convert_chance;
     long scavenge_effectiveness_evil; //unused
     long scavenge_effectiveness_good; //unused
     TbBool armegeddon_teleport_neutrals;

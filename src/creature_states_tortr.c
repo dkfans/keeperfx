@@ -526,11 +526,11 @@ CrCheckRet process_torture_function(struct Thing *creatng)
     // After that, every time broke chance is hit, do something
     if (CREATURE_RANDOM(creatng, 100) < compute_torture_broke_chance(creatng))
     {
-        if (CREATURE_RANDOM(creatng, 100) >= (int)gameadd.torture_death_chance)
+        if (CREATURE_RANDOM(creatng, 100) >= (int)game.conf.rules.rooms.torture_death_chance)
         {
             SYNCDBG(4, "The %s has been broken", thing_model_name(creatng));
             
-            if (CREATURE_RANDOM(creatng, 100) < (int)gameadd.torture_convert_chance)
+            if (CREATURE_RANDOM(creatng, 100) < (int)game.conf.rules.rooms.torture_convert_chance)
             { // converting creature and ending the torture
                 convert_tortured_creature_owner(creatng, room->owner);
                 return CrCkRet_Continue;
