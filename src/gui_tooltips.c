@@ -125,10 +125,10 @@ static inline void clear_gui_tooltip_button(void)
     tool_tip_box.gbutton = NULL;
 }
 
-TbBool cursor_moved_to_new_slab(struct PlayerInfo *player)
+TbBool cursor_moved_to_new_subtile(struct PlayerInfo *player)
 {
     struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    return (floor(playeradd->cursor_subtile_x/3) != floor(playeradd->previous_cursor_subtile_x/3) || floor(playeradd->cursor_subtile_y/3) != floor(playeradd->previous_cursor_subtile_y/3));
+    return ((playeradd->cursor_subtile_x != playeradd->previous_cursor_subtile_x) || (playeradd->cursor_subtile_y != playeradd->previous_cursor_subtile_y));
 }
 
 TbBool setup_trap_tooltips(struct Coord3d *pos)
@@ -265,10 +265,11 @@ short setup_land_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target((void *)skind);
   struct PlayerInfo* player = get_my_player();
-  if (cursor_moved_to_new_slab(player)) {
+  struct Thing *handthing = thing_get(player->thing_under_hand);
+  if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
       return false;
   }
-  if ( (help_tip_time > 30) || (player->work_state == PSt_CreatrQuery) )
+  if ( (help_tip_time > 100) || (player->work_state == PSt_CreatrQuery) )
   {
       set_gui_tooltip_box_fmt(2,"%s",get_string(slbattr->tooltip_stridx));
   } else
@@ -292,10 +293,11 @@ short setup_room_tooltips(struct Coord3d *pos)
     return false;
   update_gui_tooltip_target(room);
   struct PlayerInfo* player = get_my_player();
-  if (cursor_moved_to_new_slab(player)) {
+  struct Thing *handthing = thing_get(player->thing_under_hand);
+  if (cursor_moved_to_new_subtile(player) || !thing_is_invalid(handthing)) {
       return false;
   }
-  if ( (help_tip_time > 30) || (player->work_state == PSt_CreatrQuery) )
+  if ( (help_tip_time > 100) || (player->work_state == PSt_CreatrQuery) )
   {
     set_gui_tooltip_box_fmt(1,"%s",get_string(stridx));
   } else
@@ -379,14 +381,24 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
     clear_gui_tooltip_button();
     return false;
   }
+  int tooltip_delay;
   struct PlayerInfo* player = get_my_player();
   struct GuiButton* gbtn = &active_buttons[gbtn_idx];
   if ((get_active_menu(gbtn->gmenu_idx)->visual_state == 2) && ((gbtn->btype_value & LbBFeF_NoTooltip) == 0))
   {
     if (tool_tip_box.gbutton == gbtn)
     {
-        if ( (tool_tip_time > 10) || (player->work_state == PSt_CreatrQuery) )
+        // Increase tooltip time if the tooltip has been shown before
+        if (gbtn->has_shown_before == 2) {
+            tooltip_delay = 40;
+        } else {
+            tooltip_delay = 10;
+        }
+        if ( (tool_tip_time > tooltip_delay) || (player->work_state == PSt_CreatrQuery) )
         {
+          if (gbtn->has_shown_before == 0) {
+            gbtn->has_shown_before = 1;
+          }
           busy_doing_gui = 1;
           if (gbtn->draw_call != gui_area_text)
             setup_gui_tooltip(gbtn);
@@ -399,6 +411,9 @@ TbBool gui_button_tooltip_update(int gbtn_idx)
     {
         clear_gui_tooltip_button();
         update_gui_tooltip_button(gbtn);
+        if (gbtn->has_shown_before == 1) {
+          gbtn->has_shown_before = 2;
+        }
     }
     return true;
   }
