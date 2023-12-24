@@ -101,7 +101,7 @@ long calculate_player_num_rooms_built(PlayerNumber plyr_idx)
 {
     long count = 0;
     struct PlayerInfo* player = get_player(plyr_idx);
-    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (!room_never_buildable(rkind))
         {
@@ -181,7 +181,7 @@ struct Room *get_player_room_any_kind_nearest_to(PlayerNumber plyr_idx,
 {
     long nearest_dist = LONG_MAX;
     struct Room* nearest_room = INVALID_ROOM;
-    for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         long dist;
         struct Room* room = get_player_room_of_kind_nearest_to(plyr_idx, rkind, stl_x, stl_y, &dist);
@@ -271,7 +271,7 @@ struct Room * find_nearest_navigable_room_for_thing_with_capacity_and_closer_tha
     struct Dungeon* dungeon = get_dungeon(owner);
     struct Room* nearoom = INVALID_ROOM;
     long distance = *neardistance;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -324,7 +324,7 @@ struct Room *find_any_navigable_room_for_thing_closer_than(struct Thing *thing, 
     long neardistance = max_distance;
     struct Room* nearoom = INVALID_ROOM;
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -368,7 +368,7 @@ struct Room *find_nearest_room_to_vandalise(struct Thing *thing, PlayerNumber ow
 {
     long neardistance = LONG_MAX;
     struct Room* nearoom = INVALID_ROOM;
-    for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
 		if (room_cannot_vandalise(rkind)) {
 			continue;

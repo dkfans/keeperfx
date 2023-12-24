@@ -80,7 +80,7 @@ static void load_effects(VALUE *value, unsigned short flags)
         }
         if (value_type(section) == VALUE_DICT)
         {
-            struct EffectConfigStats *effcst = &gameadd.effects_conf.effect_cfgstats[id];
+            struct EffectConfigStats *effcst = &game.conf.effects_conf.effect_cfgstats[id];
 
             SET_NAME(section,effect_desc,effcst->code_name);
 
@@ -113,7 +113,7 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
         }
         if (value_type(section) == VALUE_DICT)
         {
-            struct EffectGeneratorConfigStats *effgencst = &gameadd.effects_conf.effectgen_cfgstats[id];
+            struct EffectGeneratorConfigStats *effgencst = &game.conf.effects_conf.effectgen_cfgstats[id];
 
             SET_NAME(section,effectgen_desc,effgencst->code_name);
 
@@ -144,7 +144,7 @@ static void load_effectelements(VALUE *value, unsigned short flags)
         }
         if (value_type(section) == VALUE_DICT)
         {
-            struct EffectElementConfigStats *effelcst = &gameadd.effects_conf.effectelement_cfgstats[id];
+            struct EffectElementConfigStats *effelcst = &game.conf.effects_conf.effectelement_cfgstats[id];
 
             SET_NAME(section,effectelem_desc,effelcst->code_name);
 
@@ -250,15 +250,15 @@ const char *effectgenerator_code_name(ThingModel tngmodel)
 struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel)
 {
     if (tngmodel >= EFFECTSGEN_TYPES_MAX)
-        return &gameadd.effects_conf.effectgen_cfgstats[0];
-    return &gameadd.effects_conf.effectgen_cfgstats[tngmodel];
+        return &game.conf.effects_conf.effectgen_cfgstats[0];
+    return &game.conf.effects_conf.effectgen_cfgstats[tngmodel];
 }
 
 struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
 {
     if (tngmodel >= EFFECTS_TYPES_MAX)
-        return &gameadd.effects_conf.effect_cfgstats[0];
-    return &gameadd.effects_conf.effect_cfgstats[tngmodel];
+        return &game.conf.effects_conf.effect_cfgstats[0];
+    return &game.conf.effects_conf.effect_cfgstats[tngmodel];
 }
 
 short effect_or_effect_element_id(const char * code_name)

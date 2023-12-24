@@ -32,6 +32,7 @@
 #include "config_trapdoor.h"
 #include "config_powerhands.h"
 #include "config_players.h"
+#include "frontmenu_ingame_map.h"
 #include "thing_effects.h"
 #include "thing_physics.h"
 #include "thing_navigate.h"
@@ -1415,43 +1416,43 @@ static void count_creatures_at_action_point_check(const struct ScriptLine* sclin
 
 static void new_creature_type_check(const struct ScriptLine* scline)
 {
-    if (gameadd.crtr_conf.model_count >= CREATURE_TYPES_MAX)
+    if (game.conf.crtr_conf.model_count >= CREATURE_TYPES_MAX)
     {
         SCRPTERRLOG("Cannot increase creature type count for creature type '%s', already at maximum %d types.", scline->tp[0], CREATURE_TYPES_MAX);
         return;
     }
 
-    int i = gameadd.crtr_conf.model_count;
-    gameadd.crtr_conf.model_count++;
-    LbStringCopy(gameadd.crtr_conf.model[i].name, scline->tp[0], COMMAND_WORD_LEN);
-    creature_desc[i-1].name = gameadd.crtr_conf.model[i].name;
+    int i = game.conf.crtr_conf.model_count;
+    game.conf.crtr_conf.model_count++;
+    LbStringCopy(game.conf.crtr_conf.model[i].name, scline->tp[0], COMMAND_WORD_LEN);
+    creature_desc[i-1].name = game.conf.crtr_conf.model[i].name;
     creature_desc[i-1].num = i;
 
     if (load_creaturemodel_config(i, 0))
     {
-        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), gameadd.crtr_conf.model_count - 1);
+        SCRPTLOG("Adding creature type %s and increasing creature types to %d", creature_code_name(i), game.conf.crtr_conf.model_count - 1);
     }
     else
     {
-        SCRPTERRLOG("Failed to load config for creature '%s'(%d).", gameadd.crtr_conf.model[i].name,i);
+        SCRPTERRLOG("Failed to load config for creature '%s'(%d).", game.conf.crtr_conf.model[i].name,i);
     }
 }
 
 static void new_room_type_check(const struct ScriptLine* scline)
 {
-    if (game.slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
+    if (game.conf.slab_conf.room_types_count >= TERRAIN_ITEMS_MAX - 1)
     {
         SCRPTERRLOG("Cannot increase room count for room type '%s', already at maximum %d rooms.", scline->tp[0], TERRAIN_ITEMS_MAX - 1);
         return;
     }
 
-    SCRPTLOG("Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.slab_conf.room_types_count + 1);
-    game.slab_conf.room_types_count++;
+    SCRPTLOG("Adding room type %s and increasing 'RoomsCount to %d", scline->tp[0], game.conf.slab_conf.room_types_count + 1);
+    game.conf.slab_conf.room_types_count++;
 
     struct RoomConfigStats* roomst;
-    int i = game.slab_conf.room_types_count - 1;
+    int i = game.conf.slab_conf.room_types_count - 1;
 
-    roomst = &game.slab_conf.room_cfgstats[i];
+    roomst = &game.conf.slab_conf.room_cfgstats[i];
     LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(roomst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     roomst->name_stridx = GUIStr_Empty;
@@ -1474,16 +1475,16 @@ static void new_room_type_check(const struct ScriptLine* scline)
 
 static void new_object_type_check(const struct ScriptLine* scline)
 {
-    if (gameadd.object_conf.object_types_count >= OBJECT_TYPES_MAX-1)
+    if (game.conf.object_conf.object_types_count >= OBJECT_TYPES_MAX-1)
     {
         SCRPTERRLOG("Cannot increase object count for object type '%s', already at maximum %d objects.", scline->tp[0], OBJECT_TYPES_MAX-1);
         return;
     }
 
-    SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], gameadd.object_conf.object_types_count + 1);
-    gameadd.object_conf.object_types_count++;
+    SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], game.conf.object_conf.object_types_count + 1);
+    game.conf.object_conf.object_types_count++;
 
-    int tmodel = gameadd.object_conf.object_types_count -1;
+    int tmodel = game.conf.object_conf.object_types_count -1;
     struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
     LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
@@ -1497,18 +1498,18 @@ static void new_object_type_check(const struct ScriptLine* scline)
 
 static void new_trap_type_check(const struct ScriptLine* scline)
 {
-    if (gameadd.trapdoor_conf.trap_types_count >= TRAPDOOR_TYPES_MAX)
+    if (game.conf.trapdoor_conf.trap_types_count >= TRAPDOOR_TYPES_MAX)
     {
         SCRPTERRLOG("Cannot increase trap count for trap type '%s', already at maximum %d traps.", scline->tp[0], TRAPDOOR_TYPES_MAX);
         return;
     }
 
-    SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], gameadd.trapdoor_conf.trap_types_count + 1);
-    gameadd.trapdoor_conf.trap_types_count++;
+    SCRPTLOG("Adding trap type %s and increasing 'TrapsCount to %d", scline->tp[0], game.conf.trapdoor_conf.trap_types_count + 1);
+    game.conf.trapdoor_conf.trap_types_count++;
 
-    short i = gameadd.trapdoor_conf.trap_types_count-1;
+    short i = game.conf.trapdoor_conf.trap_types_count-1;
 
-    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[i];
+    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[i];
     LbMemorySet(trapst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(trapst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     trapst->name_stridx = GUIStr_Empty;
@@ -1525,29 +1526,29 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->notify = 0;
     trapst->placeonbridge = 0;
 
-    gameadd.trap_stats[i].health = 0;
-    gameadd.trap_stats[i].sprite_anim_idx = 0;
-    gameadd.trap_stats[i].sprite_size_max = 0;
-    gameadd.trap_stats[i].unanimated = 0;
-    gameadd.trap_stats[i].anim_speed = 0;
-    gameadd.trap_stats[i].unshaded = 0;
-    gameadd.trap_stats[i].transparency_flag = 0;
-    gameadd.trap_stats[i].random_start_frame = 0;
-    gameadd.trap_stats[i].size_xy = 0;
-    gameadd.trap_stats[i].size_z = 0;
-    gameadd.trap_stats[i].trigger_type = 0;
-    gameadd.trap_stats[i].activation_type = 0;
-    gameadd.trap_stats[i].created_itm_model = 0;
-    gameadd.trap_stats[i].hit_type = 0;
-    gameadd.trap_stats[i].light_radius = 0;
-    gameadd.trap_stats[i].light_intensity = 0;
-    gameadd.trap_stats[i].light_flag = 0;
-    gameadd.trap_stats[i].shotvector.x = 0;
-    gameadd.trap_stats[i].shotvector.y = 0;
-    gameadd.trap_stats[i].shotvector.z = 0;
+    game.conf.trap_stats[i].health = 0;
+    game.conf.trap_stats[i].sprite_anim_idx = 0;
+    game.conf.trap_stats[i].sprite_size_max = 0;
+    game.conf.trap_stats[i].unanimated = 0;
+    game.conf.trap_stats[i].anim_speed = 0;
+    game.conf.trap_stats[i].unshaded = 0;
+    game.conf.trap_stats[i].transparency_flag = 0;
+    game.conf.trap_stats[i].random_start_frame = 0;
+    game.conf.trap_stats[i].size_xy = 0;
+    game.conf.trap_stats[i].size_z = 0;
+    game.conf.trap_stats[i].trigger_type = 0;
+    game.conf.trap_stats[i].activation_type = 0;
+    game.conf.trap_stats[i].created_itm_model = 0;
+    game.conf.trap_stats[i].hit_type = 0;
+    game.conf.trap_stats[i].light_radius = 0;
+    game.conf.trap_stats[i].light_intensity = 0;
+    game.conf.trap_stats[i].light_flag = 0;
+    game.conf.trap_stats[i].shotvector.x = 0;
+    game.conf.trap_stats[i].shotvector.y = 0;
+    game.conf.trap_stats[i].shotvector.z = 0;
     trap_desc[i].name = trapst->code_name;
     trap_desc[i].num = i;
-    struct ManfctrConfig* mconf = &gameadd.traps_config[i];
+    struct ManfctrConfig* mconf = &game.conf.traps_config[i];
     mconf->manufct_level = 0;
     mconf->manufct_required = 0;
     mconf->shots = 0;
@@ -1574,8 +1575,8 @@ void refresh_trap_anim(long trap_id)
         // Per thing code
         if (traptng->model == trap_id)
         {
-            traptng->anim_sprite = gameadd.trap_stats[trap_id].sprite_anim_idx;
-            struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+            traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
+            struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
             char start_frame;
             if (trapstat->random_start_frame) {
                 start_frame = -1;
@@ -1598,8 +1599,8 @@ void refresh_trap_anim(long trap_id)
 static void set_trap_configuration_process(struct ScriptContext *context)
 {
     long trap_type = context->value->shorts[0];
-    struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[trap_type];
-    struct ManfctrConfig *mconf = &gameadd.traps_config[trap_type];
+    struct TrapConfigStats *trapst = &game.conf.trapdoor_conf.trap_cfgstats[trap_type];
+    struct ManfctrConfig *mconf = &game.conf.traps_config[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
     long value = context->value->uarg1;
     short value2 = context->value->shorts[4];
@@ -1657,9 +1658,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             }
             break;
         case 6: // Crate
-            gameadd.object_conf.object_to_door_or_trap[value] = trap_type;
-            gameadd.object_conf.workshop_object_class[value] = TCls_Trap;
-            gameadd.trapdoor_conf.trap_to_object[trap_type] = value;
+            game.conf.object_conf.object_to_door_or_trap[value] = trap_type;
+            game.conf.object_conf.workshop_object_class[value] = TCls_Trap;
+            game.conf.trapdoor_conf.trap_to_object[trap_type] = value;
             break;
         case 7: // ManufactureLevel
             mconf->manufct_level = value;
@@ -1679,26 +1680,26 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 12: // Model
         {
             struct ObjectConfigStats obj_tmp;
-            gameadd.trap_stats[trap_type].sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            game.conf.trap_stats[trap_type].sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             refresh_trap_anim(trap_type);
         }
             break;
         case 13: // ModelSize
-            gameadd.trap_stats[trap_type].sprite_size_max = value;
+            game.conf.trap_stats[trap_type].sprite_size_max = value;
             refresh_trap_anim(trap_type);
             break;
         case 14: // AnimationSpeed
-            gameadd.trap_stats[trap_type].anim_speed = value;
+            game.conf.trap_stats[trap_type].anim_speed = value;
             refresh_trap_anim(trap_type);
             break;
         case 15: // TriggerType
-            gameadd.trap_stats[trap_type].trigger_type = value;
+            game.conf.trap_stats[trap_type].trigger_type = value;
             break;
         case 16: // ActivationType
-            gameadd.trap_stats[trap_type].activation_type = value;
+            game.conf.trap_stats[trap_type].activation_type = value;
             break;
         case 17: // EffectType
-            gameadd.trap_stats[trap_type].created_itm_model = value;
+            game.conf.trap_stats[trap_type].created_itm_model = value;
             break;
         case 18: // Hidden
             trapst->hidden = value;
@@ -1710,41 +1711,41 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->slappable = value;
             break;
         case 21: // Unanimated
-            gameadd.trap_stats[trap_type].unanimated = value;
+            game.conf.trap_stats[trap_type].unanimated = value;
             refresh_trap_anim(trap_type);
             break;
         case 22: // Health
-            gameadd.trap_stats[trap_type].health = value;
+            game.conf.trap_stats[trap_type].health = value;
             break;
         case 23: // Unshaded
-            gameadd.trap_stats[trap_type].unshaded = value;
+            game.conf.trap_stats[trap_type].unshaded = value;
             break;
         case 24: // RandomStartFrame
-            gameadd.trap_stats[trap_type].random_start_frame = value;
+            game.conf.trap_stats[trap_type].random_start_frame = value;
             break;
         case 25: // ThingSize
-            gameadd.trap_stats[trap_type].size_xy = value; // First
-            gameadd.trap_stats[trap_type].size_z = value2; // Second
+            game.conf.trap_stats[trap_type].size_xy = value; // First
+            game.conf.trap_stats[trap_type].size_z = value2; // Second
             break;
         case 26: // HitType
-            gameadd.trap_stats[trap_type].hit_type = value;
+            game.conf.trap_stats[trap_type].hit_type = value;
             break;
         case 27: // LightRadius
-            gameadd.trap_stats[trap_type].light_radius = value * COORD_PER_STL;
+            game.conf.trap_stats[trap_type].light_radius = value * COORD_PER_STL;
             break;
         case 28: // LightIntensity
-            gameadd.trap_stats[trap_type].light_intensity = value;
+            game.conf.trap_stats[trap_type].light_intensity = value;
             break;
         case 29: // LightFlags
-            gameadd.trap_stats[trap_type].light_flag = value;
+            game.conf.trap_stats[trap_type].light_flag = value;
             break;
         case 30: // TransparencyFlags
-            gameadd.trap_stats[trap_type].transparency_flag = value;
+            game.conf.trap_stats[trap_type].transparency_flag = value;
             break;
         case 31: // ShotVector
-            gameadd.trap_stats[trap_type].shotvector.x = value;
-            gameadd.trap_stats[trap_type].shotvector.y = value2;
-            gameadd.trap_stats[trap_type].shotvector.z = value3;
+            game.conf.trap_stats[trap_type].shotvector.x = value;
+            game.conf.trap_stats[trap_type].shotvector.y = value2;
+            game.conf.trap_stats[trap_type].shotvector.z = value3;
             break;
         case 32: // Destructible
             trapst->destructible = value;
@@ -1759,9 +1760,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->placeonbridge = value;
             break;
         case 36: // ShotOrigin
-            gameadd.trap_stats[trap_type].shot_shift_x = value;
-            gameadd.trap_stats[trap_type].shot_shift_y = value2;
-            gameadd.trap_stats[trap_type].shot_shift_z = value3;
+            game.conf.trap_stats[trap_type].shot_shift_x = value;
+            game.conf.trap_stats[trap_type].shot_shift_y = value2;
+            game.conf.trap_stats[trap_type].shot_shift_z = value3;
             break;
         case 37: // PlaceSound
             trapst->place_sound_idx = value;
@@ -1775,7 +1776,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
 static void set_room_configuration_process(struct ScriptContext *context)
 {
     long room_type = context->value->shorts[0];
-    struct RoomConfigStats *roomst = &game.slab_conf.room_cfgstats[room_type];
+    struct RoomConfigStats *roomst = &game.conf.slab_conf.room_cfgstats[room_type];
     unsigned short value;
     short value2;
     short value3;
@@ -2110,8 +2111,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
 {
     long door_type = context->value->shorts[0];
     struct DoorConfigStats *doorst = get_door_model_stats(door_type);
-    struct ManfctrConfig *mconf = &gameadd.doors_config[door_type];
-    struct ManufactureData *manufctr = get_manufacture_data(gameadd.trapdoor_conf.trap_types_count - 1 + door_type);
+    struct ManfctrConfig *mconf = &game.conf.doors_config[door_type];
+    struct ManufactureData *manufctr = get_manufacture_data(game.conf.trapdoor_conf.trap_types_count - 1 + door_type);
     short value = context->value->arg1;
     short value2 = context->value->shorts[4];
     switch (context->value->shorts[1])
@@ -2123,7 +2124,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
             mconf->manufct_required = value;
             break;
         case 4: // SlabKind
-            if (door_type < gameadd.trapdoor_conf.door_types_count)
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
             {
                 doorst->slbkind[0] = value2;
                 doorst->slbkind[1] = value;
@@ -2131,7 +2132,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
             update_all_door_stats();
             break;
         case 5: // Health
-            if (door_type < gameadd.trapdoor_conf.door_types_count)
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
             {
                 doorst->health = value;
             }
@@ -2149,9 +2150,9 @@ static void set_door_configuration_process(struct ScriptContext *context)
             update_trap_tab_to_config();
             break;
         case 9: // Crate
-            gameadd.object_conf.object_to_door_or_trap[value] = door_type;
-            gameadd.object_conf.workshop_object_class[value] = TCls_Door;
-            gameadd.trapdoor_conf.door_to_object[door_type] = value;
+            game.conf.object_conf.object_to_door_or_trap[value] = door_type;
+            game.conf.object_conf.workshop_object_class[value] = TCls_Door;
+            game.conf.trapdoor_conf.door_to_object[door_type] = value;
             break;
         case 10: //SymbolSprites
             {
@@ -2178,7 +2179,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
             update_trap_tab_to_config();
             break;
         case 13: // OpenSpeed
-            if (door_type < gameadd.trapdoor_conf.door_types_count)
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
             {
                 doorst->open_speed = value;
             }
@@ -2187,7 +2188,7 @@ static void set_door_configuration_process(struct ScriptContext *context)
             doorst->model_flags = value;
             break;
         case 15: // PlaceSound
-            if (door_type < gameadd.trapdoor_conf.door_types_count)
+            if (door_type < game.conf.trapdoor_conf.door_types_count)
             {
                 doorst->place_sound_idx = value;
             }
@@ -2657,7 +2658,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 {
     short creatid = context->value->shorts[0];
     struct CreatureStats* crstat = creature_stats_get(creatid);
-    struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatid];
+    struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatid];
 
     short attribute = context->value->shorts[1];
     short value = context->value->shorts[2];
@@ -2827,7 +2828,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
+    struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->arg0];
     switch (context->value->arg1)
     {
         case 2: // GENRE
@@ -3324,9 +3325,9 @@ static void change_slab_type_check(const struct ScriptLine *scline)
         value->shorts[1] = scline->np[1];
     }
 
-    if (scline->np[2] < 0 || scline->np[2] >= game.slab_conf.slab_types_count) //slab kind
+    if (scline->np[2] < 0 || scline->np[2] >= game.conf.slab_conf.slab_types_count) //slab kind
     {
-        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-%d allowed.", scline->np[2],game.slab_conf.slab_types_count-1);
+        SCRPTERRLOG("Unsupported slab '%d'. Slabs range 0-%d allowed.", scline->np[2],game.conf.slab_conf.slab_types_count-1);
         return;
     }
     else
@@ -4305,7 +4306,7 @@ static void set_effectgen_configuration_process(struct ScriptContext* context)
     short effgen_id = context->value->shorts[0];
     short property_id = context->value->shorts[1];
 
-    struct EffectGeneratorConfigStats* effgencst = &gameadd.effects_conf.effectgen_cfgstats[effgen_id];
+    struct EffectGeneratorConfigStats* effgencst = &game.conf.effects_conf.effectgen_cfgstats[effgen_id];
     switch (property_id)
     {
     case 2: // GENERATIONDELAYMIN
@@ -4581,7 +4582,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
         }
         case 6: // Artifact
             powerst->artifact_model = context->value->arg2;
-            gameadd.object_conf.object_to_power_artifact[powerst->artifact_model] = context->value->shorts[0];
+            game.conf.object_conf.object_to_power_artifact[powerst->artifact_model] = context->value->shorts[0];
             break;
         case 7: // NameTextID
             powerst->name_stridx = context->value->arg2;
@@ -4664,36 +4665,39 @@ static void set_player_color_process(struct ScriptContext *context)
     long color_idx = context->value->shorts[0];
     struct Dungeon* dungeon;
 
-    // skip this step in the preload
-    if(game.loaded_level_number != 0)
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+        dungeon = get_dungeon(plyr_idx);
+
+        if(dungeon->color_idx == color_idx)
         {
-            dungeon = get_dungeon(plyr_idx);
-            dungeon->color_idx = color_idx;
+            continue;
+        }
 
-            for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        dungeon->color_idx = color_idx;
+        
+        update_panel_color_player_color(plyr_idx,color_idx);
+
+        for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+        {
+            for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
             {
-                for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+                struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                if (slabmap_owner(slb) == plyr_idx)
                 {
-                    struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
-                    if (slabmap_owner(slb) == plyr_idx)
-                    {
-                        if (slab_kind_is_animated(slb->kind))
-                        {
-                            place_animating_slab_type_on_map(slb->kind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
-                        }
-                        else
-                        {
-                            place_slab_type_on_map(slb->kind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
-                        }
 
+                    if (slab_kind_is_animated(slb->kind))
+                    {
+                        place_animating_slab_type_on_map(slb->kind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+                    }
+                    else
+                    {
+                        place_slab_type_on_map(slb->kind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
                     }
                 }
             }
         }
-
-    }
+    }  
 }
 
 /**

@@ -70,7 +70,7 @@ long calculate_efficiency(PlayerNumber plyr_idx)
     long count = 0;
     long efficiency = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         long i = dungeon->room_kind[rkind];
         unsigned long k = 0;
@@ -104,7 +104,7 @@ long calculate_style(long plyr_idx)
 {
     long area = 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    for (long rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (long rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         long i = dungeon->room_kind[rkind];
         unsigned long k = 0;
@@ -167,7 +167,7 @@ long calculate_doors_unused(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     long count = 0;
-    for (long i = 1; i < gameadd.trapdoor_conf.door_types_count; i++)
+    for (long i = 1; i < game.conf.trapdoor_conf.door_types_count; i++)
     {
       count += dungeon->mnfct_info.door_amount_stored[i];
     }
@@ -178,7 +178,7 @@ long calculate_traps_unused(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     long count = 0;
-    for (long i = 1; i < gameadd.trapdoor_conf.trap_types_count; i++)
+    for (long i = 1; i < game.conf.trapdoor_conf.trap_types_count; i++)
     {
       count += dungeon->mnfct_info.trap_amount_stored[i];
     }

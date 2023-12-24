@@ -302,7 +302,7 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
     base_health = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_health = base_health + (gameadd.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+  long max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
   return saturate_set_signed(max_health, 16);
 }
 
@@ -317,7 +317,7 @@ long compute_creature_max_pay(long base_param,unsigned short crlevel)
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.pay_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.pay_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -332,7 +332,7 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel)
       base_param = 10000;
     if (crlevel >= CREATURE_MAX_LEVEL)
       crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (gameadd.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
+    long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
     return saturate_set_unsigned(max_param, 8);
 }
 
@@ -347,7 +347,7 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
     base_param = 10000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.dexterity_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.dexterity_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_unsigned(max_param, 8);
 }
 
@@ -362,7 +362,7 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
         base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_unsigned(max_param, 15);
 }
 
@@ -377,7 +377,7 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
       base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.loyalty_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.loyalty_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_unsigned(max_param, 24);
 }
 
@@ -392,7 +392,7 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool
      base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.armour_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.armour_increase_on_exp * base_param * (long)crlevel) / 100;
   if (armour_spell)
       max_param = (320 * max_param) / 256;
   // This limit makes armor absorb up to 80% of damage, never more
@@ -444,7 +444,7 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (gameadd.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
+    long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (luck > 0)
     {
         if (luck > 100) luck = 100;
@@ -488,7 +488,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (gameadd.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
+    long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (luck > 0)
     {
         if (CREATURE_RANDOM(thing, 100) < luck)
@@ -508,7 +508,7 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -529,7 +529,7 @@ long compute_creature_work_value(long base_param,long efficiency,unsigned short 
       crlevel = CREATURE_MAX_LEVEL-1;
   if (efficiency > 1024)
       efficiency = 1024;
-  long max_param = base_param + (gameadd.crtr_conf.exp.job_value_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.job_value_increase_on_exp * base_param * (long)crlevel) / 100;
   return (max_param * efficiency) / ROOM_EFFICIENCY_MAX;
 }
 

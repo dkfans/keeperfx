@@ -517,9 +517,9 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
     int chosen_level = INT_MAX;
 
     // Try getting door kind for manufacture
-    for (tngmodel = 1; tngmodel < gameadd.trapdoor_conf.door_types_count; tngmodel++)
+    for (tngmodel = 1; tngmodel < game.conf.trapdoor_conf.door_types_count; tngmodel++)
     {
-        mconf = &gameadd.doors_config[tngmodel];
+        mconf = &game.conf.doors_config[tngmodel];
         if (((dungeon->mnfct_info.door_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
         {
             amount = dungeon->mnfct_info.door_amount_stored[tngmodel];
@@ -534,9 +534,9 @@ long get_doable_manufacture_with_minimal_amount_available(const struct Dungeon *
         }
     }
     // Try getting trap kind for manufacture
-    for (tngmodel = 1; tngmodel < gameadd.trapdoor_conf.trap_types_count; tngmodel++)
+    for (tngmodel = 1; tngmodel < game.conf.trapdoor_conf.trap_types_count; tngmodel++)
     {
-        mconf = &gameadd.traps_config[tngmodel];
+        mconf = &game.conf.traps_config[tngmodel];
         if (((dungeon->mnfct_info.trap_build_flags[tngmodel] & MnfBldF_Manufacturable) != 0) && (dungeon->manufacture_level >= mconf->manufct_level))
         {
             amount = dungeon->mnfct_info.trap_amount_stored[tngmodel];
@@ -592,10 +592,10 @@ long manufacture_points_required_f(long mfcr_type, unsigned long mfcr_kind, cons
     switch (mfcr_type)
     {
     case TCls_Trap:
-        mconf = &gameadd.traps_config[mfcr_kind%gameadd.trapdoor_conf.trap_types_count ];
+        mconf = &game.conf.traps_config[mfcr_kind%game.conf.trapdoor_conf.trap_types_count ];
         return mconf->manufct_required;
     case TCls_Door:
-        mconf = &gameadd.doors_config[mfcr_kind%gameadd.trapdoor_conf.door_types_count];
+        mconf = &game.conf.doors_config[mfcr_kind%game.conf.trapdoor_conf.door_types_count];
         return mconf->manufct_required;
     default:
         ERRORMSG("%s: Invalid type of manufacture: %d",func_name,(int)mfcr_type);
