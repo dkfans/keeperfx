@@ -73,6 +73,9 @@ struct RulesConfig {
     GoldAmount chest_gold_hold;
     GoldAmount gold_pile_value;
     GoldAmount gold_pile_maximum;
+    GoldAmount gold_per_hoard;
+    GoldAmount bag_gold_hold;
+
     unsigned short food_life_out_of_hatchery;
     long boulder_reduce_health_wall;
     long boulder_reduce_health_slap;
@@ -88,8 +91,6 @@ struct RulesConfig {
     long trap_sale_percent;
     unsigned long pay_day_speed;
     TbBool place_traps_on_subtiles;
-    unsigned long gold_per_hoard;
-    unsigned short bag_gold_hold;
 
 };
 /******************************************************************************/
