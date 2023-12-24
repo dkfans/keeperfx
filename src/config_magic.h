@@ -115,6 +115,7 @@ enum PowerKinds {
     PwrK_PICKUPCRTR, // 20
     PwrK_PICKUPGOLD,
     PwrK_PICKUPFOOD,
+    PwrK_REBOUND, // 23
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -376,9 +377,15 @@ struct SpellConfig {
     unsigned short spell_flags;
 };
 
+struct MagicStats {
+  long cost[MAGIC_OVERCHARGE_LEVELS];
+  long duration;
+  long strength[MAGIC_OVERCHARGE_LEVELS];
+};
+
 struct MagicConfig {
     long spell_types_count;
-    struct SpellConfig spell_config[MAGIC_ITEMS_MAX];
+    struct SpellConfig spell_config[MAGIC_ITEMS_MAX];// should get merged into SpellConfigStats
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
     long shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
@@ -387,19 +394,10 @@ struct MagicConfig {
     long special_types_count;
     struct SpecialConfigStats special_cfgstats[MAGIC_ITEMS_MAX];
     struct InstanceInfo instance_info[MAGIC_ITEMS_MAX]; //count in crtr_conf
+    struct MagicStats keeper_power_stats[POWER_TYPES_MAX]; // should get merged into PowerConfigStats
 };
 
-#pragma pack(1)
-
-struct MagicStats {  // sizeof=0x4C
-  long cost[MAGIC_OVERCHARGE_LEVELS];
-  long duration;
-  long strength[MAGIC_OVERCHARGE_LEVELS];
-};
-
-#pragma pack()
 /******************************************************************************/
-extern struct MagicConfig magic_conf;
 extern const char keeper_magic_file[];
 extern struct NamedCommand spell_desc[];
 extern struct NamedCommand shot_desc[];

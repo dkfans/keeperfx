@@ -307,7 +307,7 @@ void query_thing(struct Thing *thing)
         sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
-            struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
+            struct ManfctrConfig *mconf = &game.conf.traps_config[querytng->model];
             sprintf((char*)health, "Health: %ld", querytng->health);
             sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
         }
@@ -325,7 +325,7 @@ void query_thing(struct Thing *thing)
             else 
             if (querytng->class_id == TCls_Door)
             {
-                sprintf(output, "%s/%ln", health, &gameadd.trapdoor_conf.door_cfgstats[querytng->model].health);
+                sprintf(output, "%s/%ln", health, &game.conf.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
             else
             {

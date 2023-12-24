@@ -428,6 +428,7 @@ struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 float hud_scale;
 
+int line_box_size = 200; // Default value, overwritten by cfg setting
 int creature_status_size = 16; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
@@ -5090,7 +5091,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         TbBool is_shown = false;
         if (thing->class_id == TCls_Trap)
         {
-            is_shown = !gameadd.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+            is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
         }
         else
         {
@@ -5472,7 +5473,7 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
-    roomst = &game.slab_conf.room_cfgstats[room->kind];
+    roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
     spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
@@ -5700,22 +5701,57 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     }
     b = b_start;
 
-    // Draw the line
-    for (a = a_start; a <= a_end; a ++)
-    {
-        if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b))
-        {
-            // Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
-            WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
-        }
-        // Draw a pixel with the correct colour from the stripey line's color array.
-        LbDrawPixel(*x_coord, *y_coord, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
-        // Increment color_index, looping back to 0 after 15
-        color_index = (color_index + 1) & 0xf;
-        // The remainder is used to know when to round up B to the next increment
-        if (remainder >= remainder_limit)
-        {
+    // A hack-fix to ensure that pixels are always drawn on screen. Otherwise when zoomed in, pixels have trouble being drawn in the bottom right corner
+    relative_window_a = lbDisplay.GraphicsScreenWidth;
+    relative_window_b = lbDisplay.GraphicsScreenHeight;
 
+    // Set up parameters before starting the drawing loop
+    float custom_line_box_size = line_box_size / 100.0;
+    int line_thickness = max(1, (custom_line_box_size * units_per_pixel_best / 16.0) );
+    
+    // Make the line slightly thinner when zoomed out
+    line_thickness = lerp(line_thickness, 1, 1.0-hud_scale);
+    
+    int put_pixels_left = line_thickness/2; // Allocate half of the thickness to the left
+    int put_pixels_right = line_thickness-put_pixels_left; // Remaining thickness is placed to the right
+
+    TbBool isHorizontal = abs(x2 - x1) >= abs(y2 - y1); // Check if line is more horizontal than vertical, helps with the "pixel-art look".
+    int temp_x, temp_y;
+    float color_animation_position = color_index;
+    // Main loop to draw the line
+    for (a = a_start; a <= a_end; a++) {
+
+        //if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b))
+        //{
+        //    Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
+        //    WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
+        //}
+        color_animation_position += lerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel_best);
+        if (color_animation_position >= 16.0) {
+            color_animation_position -= 16.0;
+        }
+        color_index = max(0, (int)color_animation_position);
+
+        // Nested loops to draw square pixels around each point for the specified thickness
+        for (int dx = -put_pixels_left; dx < put_pixels_right; dx++) {
+            for (int dy = -put_pixels_left; dy < put_pixels_right; dy++) {
+                // Determine pixel coordinates based on line orientation
+                if (isHorizontal) {
+                    temp_x = *x_coord;
+                    temp_y = *y_coord + dy;
+                } else {
+                    temp_x = *x_coord + dx;
+                    temp_y = *y_coord;
+                }
+
+                // Draw the pixel if it's within the bounds of the window
+                if ((temp_x >= 0) && (temp_x < relative_window_a) && (temp_y >= 0) && (temp_y < relative_window_b)) {
+                    LbDrawPixel(temp_x, temp_y, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
+                }
+            }
+        }
+
+        if (remainder >= remainder_limit) {
             b += b_increment;
             remainder -= distance_a;
         }
@@ -8193,7 +8229,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
             break;
         case TCls_Trap:
-            trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;
@@ -8806,6 +8842,41 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     }
     map_volume_box.color = default_color;
 }
+
+TbBool cursor_on_room(RoomIndex room_index)
+{
+    struct PlayerInfo* player = get_my_player();
+    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
+    struct SlabMap* slb = get_slabmap_for_subtile(playeradd->cursor_subtile_x, playeradd->cursor_subtile_y);
+    if (slabmap_block_invalid(slb)) {
+        return false;
+    }
+    if (slb->room_index != room_index) {
+        return false;
+    }
+    return true;
+}
+TbBool room_is_damaged(RoomIndex room_index)
+{
+    struct Room* room = room_get(room_index);
+    if (room->health == compute_room_max_health(room->slabs_count, room->efficiency)) {
+        return false;
+    }
+    return true;
+}
+TbBool placing_same_room_type(RoomIndex room_index)
+{
+    struct PlayerInfo* player = get_my_player();
+    if (map_volume_box.visible == 0) {
+        return false;
+    }
+    struct Room* room = room_get(room_index);
+    if (player->chosen_room_kind != room->kind) {
+        return false;
+    }
+    return true;
+}
+
 static void do_map_who_for_thing(struct Thing *thing)
 {
     int bckt_idx;
@@ -8883,6 +8954,11 @@ static void do_map_who_for_thing(struct Thing *thing)
         if (hud_scale == 0) {
             break;
         }
+        
+        RoomIndex flag_room_index = thing->lair.belongs_to;
+        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false && placing_same_room_type(flag_room_index) == false) {
+            break;
+        }
 
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
@@ -8892,7 +8968,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 40) {
+                if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
@@ -8901,7 +8977,7 @@ static void do_map_who_for_thing(struct Thing *thing)
                 }
             }
             thing->roomflag2.last_turn_drawn = game.play_gameturn;
-            if (thing->roomflag2.display_timer == 40)
+            if (thing->roomflag2.display_timer == 10)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
                 add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
@@ -8994,12 +9070,18 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         if (hud_scale == 0) {
             break;
         }
+
+        RoomIndex flag_room_index = thing->lair.belongs_to;
+        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false && placing_same_room_type(flag_room_index) == false) {
+            break;
+        }
+
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 40) {
+                if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
@@ -9008,7 +9090,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
                 }
             }
             thing->roomflag2.last_turn_drawn = game.play_gameturn;
-            if (thing->roomflag2.display_timer == 40)
+            if (thing->roomflag2.display_timer == 10)
             {
                 add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
                 if (is_free_space_in_poly_pool(1))

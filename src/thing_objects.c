@@ -317,9 +317,9 @@ PowerKind book_thing_to_power_kind(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= gameadd.object_conf.object_types_count) )
+    if ( (thing->class_id != TCls_Object) || (thing->model >= game.conf.object_conf.object_types_count) )
         return 0;
-    return gameadd.object_conf.object_to_power_artifact[thing->model];
+    return game.conf.object_conf.object_to_power_artifact[thing->model];
 }
 
 TbBool thing_is_special_box(const struct Thing *thing)
@@ -1512,7 +1512,7 @@ static TngUpdateRet object_update_object_scale(struct Thing *objtng)
     int spr_size;
     int start_frame = objtng->current_frame;
     if (objtng->lair.belongs_to) {
-        spr_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * cctrl->explevel * gameadd.crtr_conf.exp.size_increase_on_exp) / 100;
+        spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * cctrl->explevel * game.conf.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
         spr_size = objst->sprite_size_max;
     }

@@ -445,7 +445,7 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
     // Select a random job as a starting point
     int n = CREATURE_RANDOM(creatng, i) + 1;
     i = 0;
-    for (k = 0; k < gameadd.crtr_conf.angerjobs_count; k++)
+    for (k = 0; k < game.conf.crtr_conf.angerjobs_count; k++)
     {
         if ((crstat->jobs_anger & (1 << k)) != 0) {
             n--;
@@ -456,14 +456,14 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
         }
     }
     // Go through all jobs, starting at randomly selected one, attempting to start each one
-    for (k = 0; k < gameadd.crtr_conf.angerjobs_count; k++)
+    for (k = 0; k < game.conf.crtr_conf.angerjobs_count; k++)
     {
         if ((crstat->jobs_anger & (1 << i)) != 0)
         {
           if (attempt_anger_job(creatng, 1 << i))
               return 1;
         }
-        i = (i+1) % gameadd.crtr_conf.angerjobs_count;
+        i = (i+1) % game.conf.crtr_conf.angerjobs_count;
     }
     return 0;
 }
@@ -1112,11 +1112,11 @@ TbBool attempt_job_in_state_internal_near_pos(struct Thing *creatng, MapSubtlCoo
 TbBool attempt_job_preference(struct Thing *creatng, long jobpref)
 {
     // Start checking at random job
-    if (gameadd.crtr_conf.jobs_count < 1) {
+    if (game.conf.crtr_conf.jobs_count < 1) {
         return false;
     }
-    long n = CREATURE_RANDOM(creatng, gameadd.crtr_conf.jobs_count);
-    for (long i = 0; i < gameadd.crtr_conf.jobs_count; i++, n = (n + 1) % gameadd.crtr_conf.jobs_count)
+    long n = CREATURE_RANDOM(creatng, game.conf.crtr_conf.jobs_count);
+    for (long i = 0; i < game.conf.crtr_conf.jobs_count; i++, n = (n + 1) % game.conf.crtr_conf.jobs_count)
     {
         if (n == 0)
             continue;
@@ -1153,7 +1153,7 @@ TbBool attempt_job_secondary_preference(struct Thing *creatng, long jobpref)
     unsigned long select_curr = select_delta;
     // For some reason, this is a bit different than attempt_job_preference().
     // Probably needs unification
-    for (i=1; i < gameadd.crtr_conf.jobs_count; i++)
+    for (i=1; i < game.conf.crtr_conf.jobs_count; i++)
     {
         CreatureJob new_job = 1<<(i-1);
         if ((jobpref & new_job) == 0) {

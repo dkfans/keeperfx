@@ -369,7 +369,7 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
     if (comp->dungeon->fights_num <= 0) {
         return 4;
     }
-    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1))) {
+    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1))) {
         return 4;
     }
     struct Thing* fightng = computer_get_creature_in_fight(comp, PwrK_SPEEDCRTR);
@@ -378,7 +378,11 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
         fightng = computer_get_creature_in_fight(comp, PwrK_PROTECT);
         if (thing_is_invalid(fightng))
         {
-            return 4;
+            fightng = computer_get_creature_in_fight(comp, PwrK_REBOUND);
+            if (thing_is_invalid(fightng))
+            {
+                return 4;
+            }
         }
     }
     if (!create_task_magic_speed_up(comp, fightng, cevent->param1)) {
@@ -473,7 +477,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
         if (computer_get_room_kind_free_capacity(comp, bldroom->rkind) > 0) {
             continue;
         }
-        struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[bldroom->rkind];
+        struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[bldroom->rkind];
         int tiles = get_room_slabs_count(comp->dungeon->owner,bldroom->rkind);
         if ((tiles >= cevent->param3) && !(cevent->param3 == 0)) // Room has reached the preconfigured maximum size
         {
