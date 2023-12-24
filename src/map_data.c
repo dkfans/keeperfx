@@ -630,7 +630,7 @@ void reveal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord e
   clear_dig_for_map_rect(plyr_idx,subtile_slab(start_x),subtile_slab(end_x),
       subtile_slab(start_y),subtile_slab(end_y));
   reveal_map_rect(plyr_idx,start_x,end_x,start_y,end_y);
-  pannel_map_update(start_x,start_y,end_x,end_y);
+  panel_map_update(start_x,start_y,end_x,end_y);
 }
 
 void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord end_x,MapSubtlCoord start_y,MapSubtlCoord end_y, TbBool all)
@@ -662,7 +662,7 @@ void conceal_map_area(PlayerNumber plyr_idx,MapSubtlCoord start_x,MapSubtlCoord 
             conceal_map_block(mapblk, plyr_idx);
         }
     }
-    pannel_map_update(start_x,start_y,end_x,end_y);
+    panel_map_update(start_x,start_y,end_x,end_y);
 }
 /**
  * Returns if given map position is unsafe (contains a terrain which may lead to creature death).

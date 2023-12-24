@@ -34,6 +34,7 @@
 #include "thing_objects.h"
 #include "thing_effects.h"
 #include "thing_navigate.h"
+#include "room_workshop.h"
 #include "room_data.h"
 #include "room_jobs.h"
 #include "map_utils.h"
@@ -50,8 +51,10 @@ TbBool creature_can_do_manufacturing(const struct Thing *creatng)
     if (is_neutral_thing(creatng)) {
         return false;
     }
+    struct Dungeon* dungeon;
+    dungeon = get_dungeon(creatng->owner);
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
-    return (crstat->manufacture_value > 0);
+    return ((crstat->manufacture_value > 0) && get_next_manufacture(dungeon));
 }
 
 TbBool setup_workshop_move(struct Thing *thing, SubtlCodedCoords stl_num)
@@ -208,6 +211,11 @@ short at_workshop_room(struct Thing *creatng)
     if (!room_initially_valid_as_type_for_thing(room, get_room_role_for_job(Job_MANUFACTURE), creatng))
     {
         WARNLOG("Room %s owned by player %d is invalid for %s",room_code_name(room->kind),(int)room->owner,thing_model_name(creatng));
+        set_start_state(creatng);
+        return 0;
+    }
+    if (!creature_can_do_manufacturing(creatng))
+    {
         set_start_state(creatng);
         return 0;
     }

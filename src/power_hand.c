@@ -543,7 +543,7 @@ void draw_power_hand(void)
     }
     // Now draw
     if (((game.operation_flags & GOF_ShowGui) != 0) && (game.small_map_state != 2)
-      && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
+      && mouse_is_over_panel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
         MapSubtlCoord stl_x;
         MapSubtlCoord stl_y;
