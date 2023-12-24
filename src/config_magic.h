@@ -385,7 +385,7 @@ struct MagicStats {
 
 struct MagicConfig {
     long spell_types_count;
-    struct SpellConfig spell_config[MAGIC_ITEMS_MAX];
+    struct SpellConfig spell_config[MAGIC_ITEMS_MAX];// should get merged into SpellConfigStats
     struct SpellConfigStats spell_cfgstats[MAGIC_ITEMS_MAX];
     long shot_types_count;
     struct ShotConfigStats shot_cfgstats[MAGIC_ITEMS_MAX];
