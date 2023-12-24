@@ -174,6 +174,8 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_PROTECT:
         return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_REBOUND:
+        return magic_use_power_rebound(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_CONCEAL:
         return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_DISEASE:

@@ -904,6 +904,23 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
                 unset_packet_control(pckt, PCtr_LBtnRelease);
             }
             break;
+        case PSt_Rebound:
+            influence_own_creatures = true;
+            pwkind = player_state_to_power_kind[player->work_state];
+            thing = get_creature_near_to_be_keeper_power_target(x, y, pwkind, plyr_idx);
+            if (thing_is_invalid(thing))
+            {
+                player->thing_under_hand = 0;
+                break;
+            }
+            player->thing_under_hand = thing->index;
+            if ((pckt->control_flags & PCtr_LBtnRelease) != 0)
+            {
+                i = get_power_overcharge_level(player);
+                magic_use_available_power_on_thing(plyr_idx, pwkind, i, stl_x, stl_y, thing, PwMod_Default);
+                unset_packet_control(pckt, PCtr_LBtnRelease);
+            }
+            break;
         case PSt_Sell:
             process_dungeon_control_packet_sell_operation(plyr_idx);
             break;
