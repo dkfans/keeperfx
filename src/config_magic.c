@@ -361,8 +361,8 @@ TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst)
 struct MagicStats *get_power_dynamic_stats(PowerKind pwkind)
 {
     if (pwkind >= game.conf.magic_conf.power_types_count)
-        return &game.keeper_power_stats[0];
-    return &game.keeper_power_stats[pwkind];
+        return &game.conf.magic_conf.keeper_power_stats[0];
+    return &game.conf.magic_conf.keeper_power_stats[pwkind];
 }
 
 TbBool power_is_instinctive(int pwkind)
