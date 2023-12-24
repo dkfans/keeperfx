@@ -1056,18 +1056,18 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.hold_audience_time = 500;
-      game.armagedon_teleport_your_time_gap = 10;
-      game.armagedon_teleport_enemy_time_gap = 10;
+      game.conf.rules.magic.hold_audience_time = 500;
+      game.conf.rules.magic.armagedon_teleport_your_time_gap = 10;
+      game.conf.rules.magic.armagedon_teleport_enemy_time_gap = 10;
       game.armageddon.count_down = 500;
       game.armageddon.duration = 4000;
-      game.disease_transfer_percentage = 15;
-      game.disease_lose_percentage_health = 8;
-      game.disease_lose_health_time = 200;
-      game.min_distance_for_teleport = 20;
-      game.collapse_dungeon_damage = 10;
-      game.turns_per_collapse_dngn_dmg = 4;
-      game.power_hand_gold_grab_amount = 100;
+      game.conf.rules.magic.disease_transfer_percentage = 15;
+      game.conf.rules.magic.disease_lose_percentage_health = 8;
+      game.conf.rules.magic.disease_lose_health_time = 200;
+      game.conf.rules.magic.min_distance_for_teleport = 20;
+      game.conf.rules.magic.collapse_dungeon_damage = 10;
+      game.conf.rules.magic.turns_per_collapse_dngn_dmg = 4;
+      game.conf.rules.magic.power_hand_gold_grab_amount = 100;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1095,7 +1095,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.hold_audience_time = k;
+            game.conf.rules.magic.hold_audience_time = k;
             n++;
           }
           if (n < 1)
@@ -1108,7 +1108,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.armagedon_teleport_your_time_gap = k;
+            game.conf.rules.magic.armagedon_teleport_your_time_gap = k;
             n++;
           }
           if (n < 1)
@@ -1121,7 +1121,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.armagedon_teleport_enemy_time_gap = k;
+            game.conf.rules.magic.armagedon_teleport_enemy_time_gap = k;
             n++;
           }
           if (n < 1)
@@ -1173,7 +1173,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.disease_transfer_percentage = k;
+            game.conf.rules.magic.disease_transfer_percentage = k;
             n++;
           }
           if (n < 1)
@@ -1186,7 +1186,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.disease_lose_percentage_health = k;
+            game.conf.rules.magic.disease_lose_percentage_health = k;
             n++;
           }
           if (n < 1)
@@ -1199,7 +1199,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.disease_lose_health_time = k;
+            game.conf.rules.magic.disease_lose_health_time = k;
             n++;
           }
           if (n < 1)
@@ -1212,7 +1212,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.min_distance_for_teleport = k;
+            game.conf.rules.magic.min_distance_for_teleport = k;
             n++;
           }
           if (n < 1)
@@ -1225,7 +1225,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.collapse_dungeon_damage = k;
+            game.conf.rules.magic.collapse_dungeon_damage = k;
             n++;
           }
           if (n < 1)
@@ -1238,7 +1238,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.turns_per_collapse_dngn_dmg = k;
+            game.conf.rules.magic.turns_per_collapse_dngn_dmg = k;
             n++;
           }
           if (n < 1)
@@ -1254,7 +1254,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.power_hand_gold_grab_amount = k;
+            game.conf.rules.magic.power_hand_gold_grab_amount = k;
             n++;
           }
           if (n < 1)

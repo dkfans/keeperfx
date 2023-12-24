@@ -110,10 +110,24 @@ struct CreatureRulesConfig {
     unsigned char stun_enemy_chance_evil;
     unsigned char stun_enemy_chance_good;
 };
+
+struct MagicRulesConfig {
+    GameTurnDelta hold_audience_time;
+    unsigned long armagedon_teleport_your_time_gap;
+    unsigned long armagedon_teleport_enemy_time_gap;
+    unsigned char disease_transfer_percentage;
+    unsigned char disease_lose_percentage_health;
+    unsigned char disease_lose_health_time;
+    MapSubtlDelta min_distance_for_teleport;
+    long collapse_dungeon_damage;
+    GameTurnDelta turns_per_collapse_dngn_dmg;
+    GoldAmount power_hand_gold_grab_amount;
+};
 struct RulesConfig {
     struct GameRulesConfig game;
     struct ComputerRulesConfig computer;
     struct CreatureRulesConfig creature;
+    struct MagicRulesConfig magic;
 
 };
 /******************************************************************************/

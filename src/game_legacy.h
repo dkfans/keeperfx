@@ -226,7 +226,6 @@ unsigned int packet_file_pos;
     unsigned short entrance_room_id;
     unsigned short entrances_count;
     unsigned short graveyard_convert_time;
-    MapSubtlDelta min_distance_for_teleport;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
     GameTurnDelta food_generation_speed;
     enum GameKinds game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
@@ -246,20 +245,11 @@ unsigned int packet_file_pos;
     struct CreaturePool pool;
     long frame_skip;
     GameTurnDelta pay_day_progress;
-    GoldAmount power_hand_gold_grab_amount;
     TbBool no_intro;
-    unsigned char disease_transfer_percentage;
-    unsigned char disease_lose_percentage_health;
-    unsigned char disease_lose_health_time;
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
     PlayerNumber armageddon_caster_idx;
-    GameTurnDelta hold_audience_time;
-    unsigned long armagedon_teleport_your_time_gap;
-    unsigned long armagedon_teleport_enemy_time_gap;
     unsigned char hits_per_slab;
-    long collapse_dungeon_damage;
-    GameTurnDelta turns_per_collapse_dngn_dmg;
     struct SoundSettings sound_settings;
     GameTurnDelta train_cost_frequency;
     GameTurnDelta scavenge_cost_frequency;

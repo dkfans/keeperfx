@@ -921,9 +921,9 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
         {
             cctrl->armageddon_teleport_turn = your_time_gap;
             if (thing->owner == plyr_idx) {
-                your_time_gap += game.armagedon_teleport_your_time_gap;
+                your_time_gap += game.conf.rules.magic.armagedon_teleport_your_time_gap;
             } else {
-                enemy_time_gap += game.armagedon_teleport_enemy_time_gap;
+                enemy_time_gap += game.conf.rules.magic.armagedon_teleport_enemy_time_gap;
             }
         }
         // Per-thing code ends
@@ -1787,7 +1787,7 @@ void magic_power_hold_audience_update(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     SYNCDBG(8,"Starting");
-    if ( game.play_gameturn - dungeon->hold_audience_cast_turn <= game.hold_audience_time) {
+    if ( game.play_gameturn - dungeon->hold_audience_cast_turn <= game.conf.rules.magic.hold_audience_time) {
         return;
     }
     // Dispose hold audience effect
