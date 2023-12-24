@@ -307,14 +307,14 @@ TbBool ftest_init()
 
     start_params.no_intro = 1;
 
-    set_flag_byte(&start_params.functest_flags, FTF_Enabled, true);
-    set_flag_byte(&start_params.functest_flags, FTF_TestFailed, false);
-    set_flag_byte(&start_params.functest_flags, FTF_LevelLoaded, false);
+    set_flag(start_params.functest_flags, FTF_Enabled);
+    clear_flag(start_params.functest_flags, FTF_TestFailed);
+    clear_flag(start_params.functest_flags, FTF_LevelLoaded);
 
     if(flag_is_set(start_params.operation_flags, GOF_SingleLevel))
     {
         FTESTLOG("Unsetting GOF_SingleLevel, -level arg is ignored for functional tests!");
-        set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,false);
+        clear_flag(start_params.operation_flags,GOF_SingleLevel);
     }
 
     if(!ftest_fill_teststorun_by_name(start_params.functest_name))
@@ -493,8 +493,8 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
                 --current_test_config->repeat_n_times;
             }
 
-            set_flag_byte(&start_params.functest_flags, FTF_TestFailed, false);
-            set_flag_byte(&start_params.functest_flags, FTF_LevelLoaded, false);
+            clear_flag(start_params.functest_flags, FTF_TestFailed);
+            clear_flag(start_params.functest_flags, FTF_LevelLoaded);
             ftest_quit_game();
             return ftest_change_state(FTSt_TestHasCompletedActions_LoadNextTest);
         }

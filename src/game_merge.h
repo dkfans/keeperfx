@@ -197,7 +197,6 @@ struct GameAdd {
     struct EffectsConfig effects_conf;
     struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
     struct CreatureConfig crtr_conf;
-    struct Objects thing_objects_data[OBJECT_TYPES_COUNT];
     struct ObjectsConfig object_conf;
     struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
 
@@ -209,7 +208,6 @@ struct GameAdd {
     struct ScriptFxLine   fx_lines[FX_LINES_COUNT];
     int                   active_fx_lines;
     struct ActionPoint action_points[ACTN_POINTS_COUNT];
-    struct DungeonAdd dungeon[DUNGEONS_COUNT];
     LevelNumber last_level; // Used to restore custom sprites
     struct LevelScript script;
     PlayerNumber script_player;

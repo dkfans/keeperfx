@@ -461,7 +461,6 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
     SubtlCodedCoords stl_num;
     struct Thing *thing;
     struct Map *mapblk;
-    struct Objects *objdat;
     struct Coord3d pos;
     unsigned long removed_num;
     unsigned long k;
@@ -486,8 +485,8 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
             // Per thing code
             if (thing->class_id == TCls_Object)
             {
-                objdat = get_objects_data_for_thing(thing);
-                if (objdat->destroy_on_liquid)
+                struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
+                if (objst->destroy_on_liquid)
                 {
                     if (rmeffect > 0)
                     {
@@ -788,7 +787,7 @@ void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoo
                 found = true;
                 struct SlabMap *slb;
                 slb = get_slabmap_for_subtile(stl_x, stl_y);
-                col.cubes[i] = gameadd.cube_conf.cube_bits[cubed->ownershipGroup][slabmap_owner(slb)];
+                col.cubes[i] = gameadd.cube_conf.cube_bits[cubed->ownershipGroup][get_player_color_idx(slabmap_owner(slb))];
             }
         }
     }
@@ -970,10 +969,10 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                     ThingModel tngmodel;
                     tngmodel = sobj->model;
                     if (tngmodel == dungeon_flame_objects[0]) {
-                        tngmodel = dungeon_flame_objects[plyr_idx];
+                        tngmodel = dungeon_flame_objects[get_player_color_idx(plyr_idx)];
                     } else
                     if (tngmodel == player_guardflag_objects[0]) {
-                        tngmodel = player_guardflag_objects[plyr_idx];
+                        tngmodel = player_guardflag_objects[get_player_color_idx(plyr_idx)];
                     }
                     if (tngmodel <= 0)
                         continue;
@@ -1490,9 +1489,9 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
                     TbBool delete_thing = true;
                     if (thing_is_object(thing))
                     {
-                        struct Objects *objdat = get_objects_data_for_thing(thing);
+                        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
 
-                        persistence = objdat->persistence;
+                        persistence = objst->persistence;
                         if (persistence == ObPer_Move)
                         {
                             if ((get_map_floor_filled_subtiles(mapblk) <= 4) || move_object_to_nearest_free_position(thing))

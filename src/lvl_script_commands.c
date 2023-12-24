@@ -462,7 +462,6 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
     unsigned long k = 0;
-    TbBool is_spec_digger;
     int i = dungeon->creatr_list_start;
     if ((crmodel == get_players_special_digger_model(plyr_idx)) || (crmodel == CREATURE_DIGGER))
     {
@@ -478,11 +477,10 @@ TbBool script_change_creatures_annoyance(PlayerNumber plyr_idx, ThingModel crmod
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
-        is_spec_digger = (thing->model > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, thing->model);
         i = cctrl->players_next_creature_idx;
         // Per creature code
        
-        if (thing->model == crmodel || crmodel == 0 || (!is_spec_digger && (crmodel == CREATURE_ANY)) || (is_spec_digger && (crmodel == CREATURE_DIGGER)))
+        if (thing_matches_model(thing,crmodel))
         {
             i = cctrl->players_next_creature_idx;
             if (operation == SOpr_SET)
@@ -522,7 +520,7 @@ long parse_creature_name(const char *creature_name)
     {
         if (0 == strcasecmp(creature_name, "ANY_CREATURE"))
         {
-            return CREATURE_ANY;
+            return CREATURE_NOT_A_DIGGER; //For scripts, when we say 'ANY_CREATURE' we exclude diggers.
         }
     }
     return ret;
@@ -843,7 +841,7 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
 {
     short transferred = 0;
     struct Thing* thing;
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl;
     for (int i = 0; i < count; i++)
     {
@@ -858,8 +856,8 @@ short script_transfer_creature(long plyr_idx, long crmodel, long criteria, int c
         if (add_transfered_creature(plyr_idx, thing->model, cctrl->explevel, cctrl->creature_name))
         {
             transferred++;
-            dungeonadd = get_dungeonadd(plyr_idx);
-            dungeonadd->creatures_transferred++;
+            dungeon = get_dungeon(plyr_idx);
+            dungeon->creatures_transferred++;
             remove_thing_from_power_hand_list(thing, plyr_idx);
             struct SpecialConfigStats* specst = get_special_model_stats(SpcKind_Resurrect);
             create_used_effect_or_element(&thing->mappos, specst->effect_id, plyr_idx);
@@ -1485,17 +1483,14 @@ static void new_object_type_check(const struct ScriptLine* scline)
     SCRPTLOG("Adding object type %s and increasing 'ObjectsCount to %d", scline->tp[0], gameadd.object_conf.object_types_count + 1);
     gameadd.object_conf.object_types_count++;
 
-    struct ObjectConfigStats* objst;
     int tmodel = gameadd.object_conf.object_types_count -1;
-    struct Objects* objdat = get_objects_data(tmodel);
-
-    objst = &gameadd.object_conf.object_cfgstats[tmodel];
+    struct ObjectConfigStats* objst = get_object_model_stats(tmodel);
     LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
     snprintf(objst->code_name, COMMAND_WORD_LEN, "%s", scline->tp[0]);
     objst->name_stridx = 201;
     objst->map_icon = 0;
     objst->genre = 0;
-    objdat->draw_class = ODC_Default;
+    objst->draw_class = ODC_Default;
     object_desc[tmodel].name = objst->code_name;
     object_desc[tmodel].num = tmodel;
 }
@@ -1683,7 +1678,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 12: // Model
         {
-            struct Objects obj_tmp;
+            struct ObjectConfigStats obj_tmp;
             gameadd.trap_stats[trap_type].sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             refresh_trap_anim(trap_type);
         }
@@ -1896,24 +1891,33 @@ static void set_hand_rule_process(struct ScriptContext* context)
     long hand_rule_slot = context->value->shorts[2];
     long hand_rule_type = context->value->shorts[3];
     long param = context->value->shorts[4];
-    long crtr_id_start = crtr_id == CREATURE_ANY ? 0 : crtr_id;
-    long crtr_id_end = crtr_id == CREATURE_ANY ? CREATURE_TYPES_MAX : crtr_id + 1;
+    long crtr_id_start = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? 0 : crtr_id;
+    long crtr_id_end = ((crtr_id == CREATURE_ANY) || (crtr_id == CREATURE_NOT_A_DIGGER)) ? CREATURE_TYPES_MAX : crtr_id + 1;
+    ThingModel digger_model;
 
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
+        digger_model = get_players_special_digger_model(i);
         for (int ci = crtr_id_start; ci < crtr_id_end; ci++)
         {
-            dungeonadd = get_dungeonadd(i);
+            if (crtr_id == CREATURE_NOT_A_DIGGER)
+            {
+                if (ci == digger_model)
+                {
+                    continue;
+                }
+            }
+            dungeon = get_dungeon(i);
             if (hand_rule_action == HandRuleAction_Allow || hand_rule_action == HandRuleAction_Deny)
             {
-                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = 1;
-                dungeonadd->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
-                dungeonadd->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
-                dungeonadd->hand_rules[ci][hand_rule_slot].param = param;
+                dungeon->hand_rules[ci][hand_rule_slot].enabled = 1;
+                dungeon->hand_rules[ci][hand_rule_slot].type = hand_rule_type;
+                dungeon->hand_rules[ci][hand_rule_slot].allow = hand_rule_action;
+                dungeon->hand_rules[ci][hand_rule_slot].param = param;
             } else
             {
-                dungeonadd->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
+                dungeon->hand_rules[ci][hand_rule_slot].enabled = hand_rule_action == HandRuleAction_Enable;
             }
         }
     }
@@ -2187,6 +2191,9 @@ static void set_door_configuration_process(struct ScriptContext *context)
             {
                 doorst->place_sound_idx = value;
             }
+            break;
+        case 16: // Unsellable
+            doorst->unsellable = value;
             break;
         default:
             WARNMSG("Unsupported Door configuration, variable %d.", context->value->shorts[1]);
@@ -2513,7 +2520,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
             break;
         case  5: // AnimId
         {
-            struct Objects obj_tmp;
+            struct ObjectConfigStats obj_tmp;
             number_value = get_anim_id(new_value, &obj_tmp);
             if (number_value == 0)
             {
@@ -2820,7 +2827,6 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 
 static void set_object_configuration_process(struct ScriptContext *context)
 {
-    struct Objects* objdat = get_objects_data(context->value->arg0);
     struct ObjectConfigStats* objst = &gameadd.object_conf.object_cfgstats[context->value->arg0];
     switch (context->value->arg1)
     {
@@ -2828,31 +2834,31 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->genre = context->value->arg2;
             break;
         case 3: // RELATEDCREATURE
-            objdat->related_creatr_model = context->value->arg2;
+            objst->related_creatr_model = context->value->arg2;
             break;
         case 4: // PROPERTIES
             objst->model_flags = context->value->arg2;
             break;
         case 5: // ANIMATIONID
-            objdat->sprite_anim_idx = get_anim_id(context->value->str2, objdat);
+            objst->sprite_anim_idx = get_anim_id(context->value->str2, objst);
             break;
         case 6: // ANIMATIONSPEED
-            objdat->anim_speed = context->value->arg2;
+            objst->anim_speed = context->value->arg2;
             break;
         case 7: //SIZE_XY
-            objdat->size_xy = context->value->arg2;
+            objst->size_xy = context->value->arg2;
             break;
         case 8: // SIZE_Z
-            objdat->size_z = context->value->arg2;
+            objst->size_z = context->value->arg2;
             break;
         case 9: // MAXIMUMSIZE
-            objdat->sprite_size_max = context->value->arg2;
+            objst->sprite_size_max = context->value->arg2;
             break;
         case 10: // DESTROYONLIQUID
-            objdat->destroy_on_liquid = context->value->arg2;
+            objst->destroy_on_liquid = context->value->arg2;
             break;
         case 11: // DESTROYONLAVA
-            objdat->destroy_on_lava = context->value->arg2;
+            objst->destroy_on_lava = context->value->arg2;
             break;
         case 12: // HEALTH
             objst->health = context->value->arg2;
@@ -2876,16 +2882,28 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->map_icon = context->value->arg2;
             break;
         case 19: // AMBIENCESOUND
-            objdat->fp_smpl_idx = context->value->arg2;
+            objst->fp_smpl_idx = context->value->arg2;
             break;
         case 20: // UPDATEFUNCTION
-            objdat->updatefn_idx = context->value->arg2;
+            objst->updatefn_idx = context->value->arg2;
             break;
         case 21: // DRAWCLASS
-            objdat->draw_class = context->value->arg2;
+            objst->draw_class = context->value->arg2;
             break;
         case 22: // PERSISTENCE
-            objdat->persistence = context->value->arg2;
+            objst->persistence = context->value->arg2;
+            break;
+        case 23: // Immobile
+            objst->immobile = context->value->arg2;
+            break;
+        case 24: // INITIALSTATE
+            objst->initial_state = context->value->arg2;
+            break;
+        case 25: // RANDOMSTARTFRAME
+            objst->random_start_frame = context->value->arg2;
+            break;
+        case 26: // TRANSPARENCYFLAGS
+            objst->transparancy_flags = context->value->arg2;
             break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
@@ -4193,6 +4211,141 @@ static void add_effectgen_to_level_process(struct ScriptContext* context)
     }
 }
 
+static void set_effectgen_configuration_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    const char* effgenname = scline->tp[0];
+    const char* property = scline->tp[1];
+    short value1 = 0;
+
+    char effgen_id = get_id(effectgen_desc, effgenname);
+    if (effgen_id == -1)
+    {
+        SCRPTERRLOG("Unknown effect generator, '%s'", effgenname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    long property_id = get_id(effect_generator_commands, property);
+    if (property_id == -1)
+    {
+        SCRPTERRLOG("Unknown effect generator variable");
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    } else
+    if (property_id == 5) // EFFECTELEMENTMODEL
+    {
+        short effelem_id = -1;
+        if (parameter_is_number(scline->tp[2]))
+        {
+            effelem_id = atoi(scline->tp[2]);
+        }
+        else
+        {
+            effelem_id = get_id(effectelem_desc, scline->tp[2]);
+            if (effelem_id == -1)
+            {
+                effelem_id = get_id(effect_desc, scline->tp[2]);
+            }
+        }
+        if (effelem_id == -1)
+        {
+            SCRPTERRLOG("Unknown effect element value for Effect Generator");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value1 = effelem_id;
+    }
+    else
+    if ((property_id == 8) || (property_id == 9)) // ACCELERATIONMIN or ACCELERATIONMAX
+    {
+        if ((scline->np[3] == '\0') || (scline->np[4] == '\0'))
+        {
+            SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    } else
+    if (property_id == 10) // SOUND
+    {
+        if (scline->np[3] == '\0')
+        {
+            SCRPTERRLOG("Missing parameter for Effect Generator variable %s", property);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+    else
+    {
+        if (parameter_is_number(scline->tp[2]))
+        {
+            value1 = atoi(scline->tp[2]);
+        }
+        else
+        {
+            SCRPTERRLOG("Unsupported value %s for Effect Generator configuration %s", scline->tp[2], scline->tp[1]);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+    }
+
+
+    SCRIPTDBG(7, "Setting effect generator %s property %s to %d", effectgenerator_code_name(effgen_id), property, value1);
+    value->shorts[0] = effgen_id;
+    value->shorts[1] = property_id;
+    value->shorts[2] = value1;
+    value->shorts[3] = scline->np[3];
+    value->shorts[4] = scline->np[4];
+
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_effectgen_configuration_process(struct ScriptContext* context)
+{
+    short effgen_id = context->value->shorts[0];
+    short property_id = context->value->shorts[1];
+
+    struct EffectGeneratorConfigStats* effgencst = &gameadd.effects_conf.effectgen_cfgstats[effgen_id];
+    switch (property_id)
+    {
+    case 2: // GENERATIONDELAYMIN
+        effgencst->generation_delay_min = context->value->shorts[2];
+        break;
+    case 3: // GENERATIONDELAYMAX
+        effgencst->generation_delay_max = context->value->shorts[2];
+        break;
+    case 4: // GENERATIONAMOUNT
+        effgencst->generation_amount = context->value->shorts[2];
+        break;
+    case 5: // EFFECTMODEL
+        effgencst->effect_model = context->value->shorts[2];
+        break;
+    case 6: // IGNORETERRAIN
+        effgencst->ignore_terrain = context->value->shorts[2];
+        break;
+    case 7: // SPAWNHEIGHT
+        effgencst->spawn_height = context->value->shorts[2];
+        break;
+    case 8: // ACCELERATIONMIN
+        effgencst->acc_x_min = context->value->shorts[2];
+        effgencst->acc_y_min = context->value->shorts[3];
+        effgencst->acc_z_min = context->value->shorts[4];
+        break;
+    case 9: // ACCELERATIONMAX
+        effgencst->acc_x_max = context->value->shorts[2];
+        effgencst->acc_y_max = context->value->shorts[3];
+        effgencst->acc_z_max = context->value->shorts[4];
+        break;
+    case 10: // SOUND
+        effgencst->sound_sample_idx = context->value->shorts[2];
+        effgencst->sound_sample_rng = context->value->shorts[3];
+        break;
+    default:
+        WARNMSG("Unsupported Effect Generator configuration, variable %d.", context->value->shorts[1]);
+        break;
+    }
+}
+
 static void set_power_configuration_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -4222,8 +4375,8 @@ static void set_power_configuration_check(const struct ScriptLine *scline)
         case 2: // Power
         case 3: // Cost
         {
-            value->bytes[3] = atoi(new_value);
-            value->arg2 = atoi(scline->tp[3]);
+            value->bytes[3] = atoi(scline->tp[3]) - 1; //-1 because we want slot 1 to 9, not 0 to 8
+            value->arg2 = atoi(new_value);
             break;
         }
         case 10: // SymbolSprites
@@ -4485,6 +4638,64 @@ static void set_power_configuration_process(struct ScriptContext *context)
     update_powers_tab_to_config();
 }
 
+static void set_player_color_check(const struct ScriptLine *scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+
+    long color_idx = get_rid(cmpgn_human_player_options, scline->tp[1]);
+    if (color_idx == -1)
+    {
+        if (parameter_is_number(scline->tp[1]))
+        {
+            color_idx = atoi(scline->tp[1]);
+        }
+        else
+        {
+            SCRPTERRLOG("Invalid color: '%s'", scline->tp[1]);
+            return;
+        }
+    }
+    value->shorts[0] = color_idx;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_player_color_process(struct ScriptContext *context)
+{
+    long color_idx = context->value->shorts[0];
+    struct Dungeon* dungeon;
+
+    // skip this step in the preload
+    if(game.loaded_level_number != 0)
+    {
+        for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+        {
+            dungeon = get_dungeon(plyr_idx);
+            dungeon->color_idx = color_idx;
+
+            for (MapSlabCoord slb_y=0; slb_y < gameadd.map_tiles_y; slb_y++)
+            {
+                for (MapSlabCoord slb_x=0; slb_x < gameadd.map_tiles_x; slb_x++)
+                {
+                    struct SlabMap* slb = get_slabmap_block(slb_x,slb_y);
+                    if (slabmap_owner(slb) == plyr_idx)
+                    {
+                        if (slab_kind_is_animated(slb->kind))
+                        {
+                            place_animating_slab_type_on_map(slb->kind, 0, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx);
+                        }
+                        else
+                        {
+                            place_slab_type_on_map(slb->kind, slab_subtile(slb_x, 0), slab_subtile(slb_y, 0), plyr_idx, 0);
+                        }
+
+                    }
+                }
+            }
+        }
+
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -4627,10 +4838,11 @@ const struct CommandDesc command_desc[] = {
   {"NEW_OBJECT_TYPE",                   "A       ", Cmd_NEW_OBJECT_TYPE, &new_object_type_check, &null_process},
   {"NEW_ROOM_TYPE",                     "A       ", Cmd_NEW_ROOM_TYPE, &new_room_type_check, &null_process},
   {"NEW_CREATURE_TYPE",                 "A       ", Cmd_NEW_CREATURE_TYPE, &new_creature_type_check, &null_process },
-  {"SET_POWER_HAND",                    "PA      ", Cmd_SET_POWER_HAND, &set_power_hand_check, &set_power_hand_process },
   {"SET_HAND_GRAPHIC",                  "PA      ", Cmd_SET_HAND_GRAPHIC, &set_power_hand_check, &set_power_hand_process },
   {"ADD_EFFECT_GENERATOR_TO_LEVEL",     "AAN     ", Cmd_ADD_EFFECT_GENERATOR_TO_LEVEL, &add_effectgen_to_level_check, &add_effectgen_to_level_process},
+  {"SET_EFFECT_GENERATOR_CONFIGURATION","AAAnn   ", Cmd_SET_EFFECT_GENERATOR_CONFIGURATION, &set_effectgen_configuration_check, &set_effectgen_configuration_process },
   {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
+  {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
