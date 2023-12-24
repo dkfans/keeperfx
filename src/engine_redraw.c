@@ -869,7 +869,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         return;
     }
     // Mouse over panel map
-    if (((game.operation_flags & GOF_ShowGui) != 0) && mouse_is_over_pannel_map(player->minimap_pos_x, player->minimap_pos_y))
+    if (((game.operation_flags & GOF_ShowGui) != 0) && mouse_is_over_panel_map(player->minimap_pos_x, player->minimap_pos_y))
     {
         if (game.small_map_state == 2) {
             set_pointer_graphic(MousePG_Invisible);
