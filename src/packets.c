@@ -198,6 +198,9 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       case PSt_TimeBomb:
           update_power_overcharge(player, PwrK_TIMEBOMB);
           break;
+      case PSt_Rebound:
+          update_power_overcharge(player, PwrK_REBOUND);
+          break;
       default:
           player->cast_expand_level++;
           break;
@@ -917,7 +920,7 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
          toggle_ally_with_player(plyr_idx, pckt->actn_par1);
          if (gameadd.allies_share_vision)
          {
-            pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+            panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
          }
       }
       return false;

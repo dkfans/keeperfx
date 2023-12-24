@@ -550,7 +550,7 @@ TbBool creature_model_bleeds(unsigned long crmodel)
         // If censorship is on, only evil creatures can have blood
         if (!crstat->bleeds)
             return false;
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
         return ((crconf->model_flags & CMF_IsEvil) != 0);
   }
   return crstat->bleeds;
@@ -1585,10 +1585,10 @@ void set_creature_size_stuff(struct Thing *creatng)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (creature_affected_by_spell(creatng, SplK_Chicken))
     {
-      creatng->sprite_size = gameadd.crtr_conf.sprite_size;
+      creatng->sprite_size = game.conf.crtr_conf.sprite_size;
     } else
     {
-      creatng->sprite_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
+      creatng->sprite_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100;
     }
 }
 
@@ -1606,7 +1606,7 @@ short creature_change_from_chicken(struct Thing *creatng)
         struct Thing* efftng = create_effect_element(&creatng->mappos, TngEffElm_Chicken, creatng->owner);
         if (!thing_is_invalid(efftng))
         {
-            long n = (10 - cctrl->countdown_282) * (gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
+            long n = (10 - cctrl->countdown_282) * (game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100) / 10;
             unsigned long k = get_creature_anim(creatng, 0);
             set_thing_draw(efftng, k, 256, n, -1, 0, ODC_Default);
             efftng->rendering_flags &= ~TRF_Transpar_Flags;
@@ -1639,7 +1639,7 @@ short creature_change_to_chicken(struct Thing *creatng)
       if (!thing_is_invalid(efftng))
       {
           unsigned long k = convert_td_iso(819);
-          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + gameadd.crtr_conf.sprite_size, -1, 0, ODC_Default);
+          set_thing_draw(efftng, k, 0, 1200 * cctrl->countdown_282 / 10 + game.conf.crtr_conf.sprite_size, -1, 0, ODC_Default);
           efftng->rendering_flags &= ~TRF_Transpar_Flags;
           efftng->rendering_flags |= TRF_Transpar_8;
       }
@@ -4663,7 +4663,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     }
     if (is_hero_thing(thing))
     {
-        i = creatures[thing->model%gameadd.crtr_conf.model_count].good_start_state;
+        i = creatures[thing->model%game.conf.crtr_conf.model_count].good_start_state;
         cleanup_current_thing_state(thing);
         initialise_thing_state(thing, i);
         return thing->active_state;
@@ -4682,7 +4682,7 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
         initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
         return thing->active_state;
     }
-    i = creatures[thing->model%gameadd.crtr_conf.model_count].evil_start_state;
+    i = creatures[thing->model%game.conf.crtr_conf.model_count].evil_start_state;
     cleanup_current_thing_state(thing);
     initialise_thing_state(thing, i);
     return thing->active_state;

@@ -24,6 +24,18 @@
 #include "globals.h"
 
 #include "player_data.h"
+#include "config_campaigns.h"
+#include "config_magic.h"
+#include "config_trapdoor.h"
+#include "config_objects.h"
+#include "config_cubes.h"
+#include "config_powerhands.h"
+#include "config_cubes.h"
+#include "config_creature.h"
+#include "config_crtrmodel.h"
+#include "config_effects.h"
+#include "config_objects.h"
+#include "config_rules.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -36,12 +48,6 @@
 #include "actionpt.h"
 #include "creature_control.h"
 #include "creature_battle.h"
-#include "config_campaigns.h"
-#include "config_magic.h"
-#include "config_trapdoor.h"
-#include "config_objects.h"
-#include "config_cubes.h"
-#include "config_powerhands.h"
 #include "map_columns.h"
 #include "map_events.h"
 #include "music_player.h"
@@ -105,6 +111,21 @@ struct PerExpLevelValues {
   unsigned char value[10];
 };
 
+struct Configs {
+    struct SlabsConfig slab_conf;
+    struct PowerHandConfig power_hand_conf;
+    struct MagicConfig magic_conf;
+    struct CubesConfig cube_conf;
+    struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
+    struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
+    struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
+    struct TrapDoorConfig trapdoor_conf;
+    struct EffectsConfig effects_conf;
+    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+    struct CreatureConfig crtr_conf;
+    struct ObjectsConfig object_conf;
+    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
+};
 
 struct Game {
     LevelNumber continue_level_number;
@@ -142,8 +163,6 @@ char numfield_1A;
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
     struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
-    struct SlabsConfig slab_conf;
-    struct PowerHandConfig power_hand_conf;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
@@ -194,7 +213,6 @@ unsigned int packet_file_pos;
     unsigned char small_map_state;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
-    struct MagicStats keeper_power_stats[POWER_TYPES_MAX];
     char active_players_count;
     PlayerNumber hero_player_num;
     PlayerNumber neutral_player_num;
@@ -301,6 +319,7 @@ unsigned int packet_file_pos;
     char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
     char loaded_sound[EXTERNAL_SOUNDS_COUNT][DISKPATH_SIZE];
     unsigned char sounds_count;
+    struct Configs conf;
 };
 
 #pragma pack()

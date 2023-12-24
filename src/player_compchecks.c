@@ -507,7 +507,7 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
         {
             if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
                 struct PowerConfigStats* powerst = get_power_model_stats(PwrK_MKDIGGER);
-                struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[get_players_special_digger_model(dungeon->owner)];
+                struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[get_players_special_digger_model(dungeon->owner)];
                 message_add_fmt(comp->dungeon->owner, "My %s count is only %d, casting %s!",get_string(crconf->namestr_idx),(int)controlled_diggers,get_string(powerst->name_stridx));
             }
             if (try_game_action(comp, dungeon->owner, GA_UseMkDigger, 0, stl_x, stl_y, 1, 1) > Lb_OK) {
@@ -617,17 +617,17 @@ struct Room *get_opponent_room(struct Computer2 *comp, PlayerNumber plyr_idx)
 {
     static const RoomKind opponent_room_kinds[] = {RoK_DUNGHEART, RoK_PRISON, RoK_LIBRARY, RoK_TREASURE};
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    if (dungeon_invalid(dungeon) || (game.slab_conf.room_types_count < 1)) {
+    if (dungeon_invalid(dungeon) || (game.conf.slab_conf.room_types_count < 1)) {
         return INVALID_ROOM;
     }
     int n = opponent_room_kinds[PLAYER_RANDOM(comp->dungeon->owner, sizeof(opponent_room_kinds) / sizeof(opponent_room_kinds[0]))];
-    for (int i = 0; i < game.slab_conf.room_types_count; i++)
+    for (int i = 0; i < game.conf.slab_conf.room_types_count; i++)
     {
         struct Room* room = room_get(dungeon->room_kind[n]);
         if (room_exists(room)) {
             return room;
         }
-        n = (n + 1) % game.slab_conf.room_types_count;
+        n = (n + 1) % game.conf.slab_conf.room_types_count;
     }
     return INVALID_ROOM;
 }
@@ -736,7 +736,7 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
 
 struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(struct Computer2 *comp, RoomKind rkind)
 {
-    if ((rkind < 1) || (rkind > game.slab_conf.room_types_count))
+    if ((rkind < 1) || (rkind > game.conf.slab_conf.room_types_count))
     {
         ERRORLOG("Invalid room kind %d",(int)rkind);
         return INVALID_THING;
@@ -935,7 +935,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = comp->dungeon;
-    for (ThingModel doorkind = gameadd.trapdoor_conf.door_types_count; doorkind > 1; doorkind--)
+    for (ThingModel doorkind = game.conf.trapdoor_conf.door_types_count; doorkind > 1; doorkind--)
     {
         if (dungeon->mnfct_info.door_amount_stored[doorkind] <= 0) {
             continue;
@@ -943,7 +943,7 @@ long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck 
         long rkind = check->param1;
         if (rkind == 0)
         {
-            rkind = (check->param2 + 1) % game.slab_conf.room_types_count;
+            rkind = (check->param2 + 1) % game.conf.slab_conf.room_types_count;
             check->param2 = rkind;
         }
         unsigned long k = 0;

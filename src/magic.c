@@ -158,7 +158,7 @@ TbBool can_cast_spell_f(PlayerNumber plyr_idx, PowerKind pwkind, MapSubtlCoord s
             TbBool can_cast_child;
             can_cast_child = false;
             int i;
-            for (i = 0; i < magic_conf.power_types_count; i++)
+            for (i = 0; i < game.conf.magic_conf.power_types_count; i++)
             {
                 const struct PowerConfigStats *child_powerst;
                 child_powerst = get_power_model_stats(i);
@@ -290,7 +290,7 @@ TbBool can_cast_power_on_thing(PlayerNumber plyr_idx, const struct Thing *thing,
         {
             if (thing->owner == plyr_idx) {
                 struct TrapConfigStats *trapst;
-                trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+                trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
                 if ((trapst->slappable == 1) && trap_is_active(thing)) {
                     return true;
                 }
@@ -813,7 +813,7 @@ long find_spell_age_percentage(PlayerNumber plyr_idx, PowerKind pwkind)
 TbBool pay_for_spell(PlayerNumber plyr_idx, PowerKind pwkind, long pwlevel)
 {
     long price;
-    if (pwkind >= magic_conf.power_types_count)
+    if (pwkind >= game.conf.magic_conf.power_types_count)
         return false;
     if (pwlevel >= MAGIC_OVERCHARGE_LEVELS)
         pwlevel = MAGIC_OVERCHARGE_LEVELS;
@@ -1334,6 +1334,30 @@ TbResult magic_use_power_armour(PlayerNumber plyr_idx, struct Thing *thing, MapS
     powerst = get_power_model_stats(PwrK_PROTECT);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     apply_spell_effect_to_thing(thing, SplK_Armour, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_rebound(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Rebound)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_REBOUND, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_REBOUND);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Rebound, splevel);
     return Lb_SUCCESS;
 }
 
@@ -2053,6 +2077,9 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
         case PwrK_PROTECT:
             ret = magic_use_power_armour(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
             break;
+        case PwrK_REBOUND:
+            ret = magic_use_power_rebound(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
         case PwrK_CONCEAL:
             ret = magic_use_power_conceal(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
             break;
@@ -2242,7 +2269,7 @@ TbBool update_power_overcharge(struct PlayerInfo *player, int pwkind)
 {
   struct Dungeon *dungeon;
   int i;
-  if (pwkind >= magic_conf.power_types_count)
+  if (pwkind >= game.conf.magic_conf.power_types_count)
       return false;
   dungeon = get_dungeon(player->id_number);
   const struct MagicStats *pwrdynst;

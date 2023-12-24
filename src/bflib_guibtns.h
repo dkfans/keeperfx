@@ -167,6 +167,7 @@ struct GuiButton {
        struct GuiMenu *parent_menu;
        unsigned long *content; //TODO FRONTEND change it to GuiVariant
        unsigned short slide_val; // slider value, scaled 0..255
+       short has_shown_before; // GUI tooltips take longer to display the next time you show them
 };
 
 struct GuiMenu {

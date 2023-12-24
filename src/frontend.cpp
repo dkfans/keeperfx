@@ -997,7 +997,7 @@ void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
     player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind, 0, 0);
     struct RoomConfigStats *roomst;
-    roomst = &game.slab_conf.room_cfgstats[rkind];
+    roomst = &game.conf.slab_conf.room_cfgstats[rkind];
     game.chosen_room_kind = rkind;
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = tooltip_id;
@@ -1030,6 +1030,7 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
     case PSt_TurnChicken:
     case PSt_DestroyWalls:
     case PSt_TimeBomb:
+    case PSt_Rebound:
         return PckA_SetPlyrState;
     case PSt_None:
         switch (pwkind)
@@ -1115,7 +1116,7 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct PlayerInfo *player;
 
-    pwkind = pwkind % magic_conf.power_types_count;
+    pwkind = pwkind % game.conf.magic_conf.power_types_count;
 
     if (is_special_power(pwkind)) {
         choose_special_spell(pwkind, tooltip_id);
