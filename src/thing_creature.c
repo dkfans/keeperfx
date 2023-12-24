@@ -405,6 +405,19 @@ TbBool load_swipe_graphic_for_creature(const struct Thing *thing)
     return true;
 }
 
+/** 
+ * Randomise the draw direction of the swipe sprite in the first-person possession view.
+ * 
+ * Sets PlayerInfo->swipe_sprite_drawLR to either TRUE or FALSE.
+ * 
+ * Draw direction is either: left-to-right (TRUE) or right-to-left (FALSE)
+ */
+void randomise_swipe_graphic_direction()
+{
+    struct PlayerInfo* myplyr = get_my_player();
+    myplyr->swipe_sprite_drawLR = UNSYNC_RANDOM(2); // equal chance to be left-to-right or right-to-left
+}
+
 void draw_swipe_graphic(void)
 {
     struct PlayerInfo* myplyr = get_my_player();
@@ -432,7 +445,7 @@ void draw_swipe_graphic(void)
             int scrpos_y = (MyScreenHeight * 16 / units_per_px - (startspr->SHeight + endspr->SHeight)) / 2;
             struct TbSprite *spr;
             int scrpos_x;
-            if ((myplyr->field_1 & 4) != 0)
+            if (myplyr->swipe_sprite_drawLR)
             {
                 int delta_y = sprlist[1].SHeight;
                 for (i=0; i < SWIPE_SPRITES_X*SWIPE_SPRITES_Y; i+=SWIPE_SPRITES_X)
@@ -468,7 +481,8 @@ void draw_swipe_graphic(void)
             return;
         }
     }
-    myplyr->field_1 ^= (myplyr->field_1 ^ 4 * UNSYNC_RANDOM(4)) & 4;
+    // we get here many times a second when in possession mode and not attacking: to randomise the swipe direction
+    randomise_swipe_graphic_direction();
 }
 
 long creature_available_for_combat_this_turn(struct Thing *creatng)
@@ -2596,7 +2610,7 @@ void prepare_to_controlled_creature_death(struct Thing *thing)
         turn_off_all_window_menus();
         turn_off_query_menus();
         turn_on_main_panel_menu();
-        set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+        set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   light_turn_light_on(player->cursor_light_idx);
 }
@@ -3065,7 +3079,7 @@ void thing_fire_shot(struct Thing *firing, struct Thing *target, ThingModel shot
       {
         thing_play_sample(shotng, shotst->shot_sound, NORMAL_PITCH, 0, 3, 0, shotst->sound_priority, FULL_LOUDNESS);
       }
-      set_flag_byte(&shotng->movement_flags,TMvF_Unknown10,flag1);
+      set_flag_value(shotng->movement_flags, TMvF_Unknown10, flag1);
     }
 }
 

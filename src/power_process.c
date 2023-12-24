@@ -164,7 +164,7 @@ void teleport_armageddon_influenced_creature(struct Thing* creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     cctrl->armageddon_teleport_turn = 0;
-    create_effect(&creatng->mappos, imp_spangle_effects[creatng->owner], creatng->owner);
+    create_effect(&creatng->mappos, imp_spangle_effects[get_player_color_idx(creatng->owner)], creatng->owner);
     move_thing_in_map(creatng, &game.armageddon.mappos);
     cleanup_current_thing_state(creatng);
     reset_interpolation_of_thing(creatng);

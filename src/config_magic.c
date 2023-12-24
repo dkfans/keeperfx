@@ -293,15 +293,6 @@ TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
   return false;
 }
 
-struct SpellData *get_power_data(int pwkind)
-{
-  if ((pwkind > 0) && (pwkind < magic_conf.power_types_count))
-    return &spell_data[pwkind];
-  if ((pwkind < -1) || (pwkind >= magic_conf.power_types_count))
-    ERRORLOG("Request of invalid power (no %d) intercepted",pwkind);
-  return &spell_data[0];
-}
-
 TextStringId get_power_name_strindex(PowerKind pwkind)
 {
     if (pwkind >= magic_conf.power_types_count)
@@ -1151,7 +1142,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 14: //ANIMATION
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              struct Objects obj_tmp;
+              struct ObjectConfigStats obj_tmp;
               k = get_anim_id(word_buf, &obj_tmp);
               shotst->sprite_anim_idx = k;
               n++;

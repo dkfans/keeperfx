@@ -57,12 +57,12 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
         ERRORLOG("Cannot create creature %s for player %d entrance",creature_code_name(crkind),(int)room->owner);
         return INVALID_THING;
     }
-    struct DungeonAdd* dungeonadd = get_dungeonadd(room->owner);
-    if (!dungeonadd_invalid(dungeonadd))
+    struct Dungeon* dungeon = get_dungeon(room->owner);
+    if (!dungeon_invalid(dungeon))
     {
-        if (dungeonadd->creature_entrance_level > 0)
+        if (dungeon->creature_entrance_level > 0)
         {
-            set_creature_level(creatng, dungeonadd->creature_entrance_level);
+            set_creature_level(creatng, dungeon->creature_entrance_level);
         }
     }
     mark_creature_joined_dungeon(creatng);
@@ -74,7 +74,6 @@ struct Thing *create_creature_at_entrance(struct Room * room, ThingModel crkind)
     move_thing_in_map(creatng, &pos);
     if (room->owner != game.neutral_player_num)
     {
-        struct Dungeon* dungeon = get_dungeon(room->owner);
         dungeon->lvstats.creatures_attracted++;
         dungeon->lvstats.field_8++;
         dungeon->lvstats.field_88 = crkind;
