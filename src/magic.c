@@ -1899,7 +1899,7 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     long duration = game.play_gameturn - dungeon->cta_start_turn;
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
     struct SlabMap *slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
-    TbBool free = (slabmap_owner(slb) == plyr_idx) || dungeon->cta_free;
+    TbBool free = ((slabmap_owner(slb) == plyr_idx) || dungeon->cta_free);
     if (game.conf.rules.game.allies_share_cta)
     {
         for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
