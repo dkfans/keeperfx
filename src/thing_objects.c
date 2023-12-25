@@ -492,6 +492,9 @@ TbBool object_is_guard_flag(const struct Thing *thing)
       case ObjMdl_GuardFlagBlue:
       case ObjMdl_GuardFlagGreen:
       case ObjMdl_GuardFlagYellow:
+      case ObjMdl_GuardFlagPurple:
+      case ObjMdl_GuardFlagBlack:
+      case ObjMdl_GuardFlagOrange:
       case ObjMdl_GuardFlagPole:
           return true;
       default:
