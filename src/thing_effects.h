@@ -126,7 +126,6 @@ enum ThingEffectKind {
     TngEff_SpecialBox,
     TngEff_BoulderSink, // boulder sink
     TngEff_ImpSpangleWhite,
-
     TngEff_ImpSpanglePurple,
     TngEff_BallPuffPurple,
     TngEff_ImpSpangleBlack,
@@ -236,19 +235,16 @@ enum ThingEffectElements {
     TngEffElm_WhiteTwinkle2,
     TngEffElm_WhiteFlame,
     TngEffElm_WhiteSmokePuff,
-
     TngEffElm_PurpleFlame,
     TngEffElm_PurpleSmokePuff,
     TngEffElm_PurpleTwinkle,
     TngEffElm_PurpleTwinkle2,
     TngEffElm_PurplePuff,
-
     TngEffElm_BlackFlame,
     TngEffElm_BlackSmokePuff,
     TngEffElm_BlackTwinkle,
     TngEffElm_BlackTwinkle2,
     TngEffElm_BlackPuff,
-
     TngEffElm_OrangeFlame,
     TngEffElm_OrangeSmokePuff,
     TngEffElm_OrangeTwinkle,
