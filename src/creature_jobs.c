@@ -476,7 +476,7 @@ TbBool creature_find_and_perform_anger_job(struct Thing *creatng)
  */
 TbBool creature_will_reject_job(const struct Thing *creatng, CreatureJob jobpref)
 {
-    if (player_uses_power_obey(creatng->owner) && ((gameadd.classic_bugs_flags & ClscBug_MustObeyKeepsNotDoJobs) == 0)) {
+    if (player_uses_power_obey(creatng->owner) && ((game.conf.rules.game.classic_bugs_flags & ClscBug_MustObeyKeepsNotDoJobs) == 0)) {
         return false;
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);

@@ -989,8 +989,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     {
         // Friendly fire usually causes less damage and at smaller distance
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-            max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
-            max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
+            max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_permil / 1000;
+            max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_permil / 1000;
         }
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
         if (distance <= max_dist)
@@ -1007,7 +1007,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
+                    if (((tngsrc->owner == tngdst->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }

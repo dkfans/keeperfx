@@ -3188,7 +3188,7 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
     }
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
         if (sac->action == (long)SacA_None)
         {
             break;
@@ -3200,7 +3200,7 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
             if (action == (long)SacA_None)
             {
                 // remove empty space
-                memmove(sac, sac + 1, (MAX_SACRIFICE_RECIPES - 1 - (sac - &gameadd.sacrifice_recipes[0])) * sizeof(*sac));
+                memmove(sac, sac + 1, (MAX_SACRIFICE_RECIPES - 1 - (sac - &game.conf.rules.sacrifices.sacrifice_recipes[0])) * sizeof(*sac));
             }
             return;
         }
@@ -3211,7 +3211,7 @@ static void set_sacrifice_recipe_process(struct ScriptContext *context)
         return;
     }
     struct SacrificeRecipe* sac = get_unused_sacrifice_recipe_slot();
-    if (sac == &gameadd.sacrifice_recipes[0])
+    if (sac == &game.conf.rules.sacrifices.sacrifice_recipes[0])
     {
         ERRORLOG("No free sacrifice rules");
         return;
