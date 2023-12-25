@@ -420,7 +420,7 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
         SYNCDBG(7,"Computer players %d dungeon in invalid or has no heart",(int)dungeon->owner);
         return CTaskRet_Unk4;
     }
-    if (gameadd.cheaper_diggers_sacrifice_model == 0) {
+    if (game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model == 0) {
         return CTaskRet_Unk0;
     }
 
@@ -431,7 +431,7 @@ long computer_check_sacrifice_for_cheap_diggers(struct Computer2 *comp, struct C
 	if ((power_price > lowest_price) && !is_task_in_progress_using_hand(comp)
 		&& computer_able_to_use_power(comp, PwrK_MKDIGGER, 0, 2)) //TODO COMPUTER_PLAYER add amount of imps to afford to the checks config params
 	{
-        struct Thing* creatng = find_creature_for_sacrifice(comp, gameadd.cheaper_diggers_sacrifice_model);
+        struct Thing* creatng = find_creature_for_sacrifice(comp, game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model);
         struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
         if (!thing_is_invalid(creatng) && (cctrl->explevel < 2))
 		{

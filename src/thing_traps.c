@@ -925,7 +925,7 @@ unsigned long remove_trap(struct Thing *traptng, long *sell_value)
         if (sell_value != NULL)
         {
             // Do the refund only if we were able to sell armed trap
-            long i = compute_value_percentage(game.conf.traps_config[traptng->model].selling_value, gameadd.trap_sale_percent);
+            long i = compute_value_percentage(game.conf.traps_config[traptng->model].selling_value, game.conf.rules.game.trap_sale_percent);
             if (traptng->trap.num_shots == 0)
             {
                 // Trap not armed - try selling crate from workshop
@@ -1040,12 +1040,12 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     }
     if ((slabmap_owner(slb) == plyr_idx) && (((slb->kind == SlbT_BRIDGE) && (trap_on_bridge(trpkind))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
-        if ((!gameadd.place_traps_on_subtiles))
+        if ((!game.conf.rules.game.place_traps_on_subtiles))
         {
                 HasTrap = slab_has_trap_on(slb_x, slb_y);
                 HasDoor = slab_is_door(slb_x, slb_y);
         }
-        else if ( (gameadd.place_traps_on_subtiles) && (player->chosen_trap_kind == TngTrp_Boulder) ) 
+        else if ( (game.conf.rules.game.place_traps_on_subtiles) && (player->chosen_trap_kind == TngTrp_Boulder) ) 
         {
                 HasTrap = subtile_has_trap_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
                 HasDoor = slab_is_door(slb_x, slb_y);

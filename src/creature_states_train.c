@@ -58,7 +58,7 @@ TbBool creature_can_be_trained(const struct Thing *thing)
     // Creatures without training value can't be trained
     if (crstat->training_value <= 0)
         return false;
-    if ((cctrl->explevel >= game.training_room_max_level-1) &! (game.training_room_max_level == 0))
+    if ((cctrl->explevel >= game.conf.rules.rooms.training_room_max_level-1) &! (game.conf.rules.rooms.training_room_max_level == 0))
         return false;
     // If its model can train, check if this one can gain more experience
     return creature_can_gain_experience(thing);
@@ -576,9 +576,9 @@ CrStateRet training(struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     // Pay for the training
     cctrl->turns_at_job++;
-    if (cctrl->turns_at_job >= game.train_cost_frequency)
+    if (cctrl->turns_at_job >= game.conf.rules.rooms.train_cost_frequency)
     {
-        cctrl->turns_at_job -= game.train_cost_frequency;
+        cctrl->turns_at_job -= game.conf.rules.rooms.train_cost_frequency;
         if (take_money_from_dungeon(thing->owner, crstat->training_cost, 1) < 0) {
             ERRORLOG("Cannot take %d gold from dungeon %d",(int)crstat->training_cost,(int)thing->owner);
         }
