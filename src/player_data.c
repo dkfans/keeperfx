@@ -39,6 +39,7 @@ TbPixel player_path_colours[]  =     {131, 90, 163, 181,  20,   4, 106,   0,  42
 TbPixel player_room_colours[]  =     {132, 92, 164, 183,  21, 132, 108,   2,  44};
 TbPixel player_flash_colours[] =     {133, 94, 167, 142,  31,  15, 110,   4,  46};
 TbPixel player_highlight_colours[] = {31,  31,  31,  31,  31,  31,  31,  31,  31};
+TbPixel possession_hit_colours[] =   {133, 89, 167, 141,  31,  31, 110,   4,  46};
 
 unsigned short const player_cubes[] = {0x00C0, 0x00C1, 0x00C2, 0x00C3, 0x00C7, 0x00C6 };
 
