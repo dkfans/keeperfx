@@ -1038,8 +1038,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 1: //BodiesForVampire
           if ((val3 >= 0) && (val3 <= UCHAR_MAX))
           {
-              SCRIPTDBG(7,"Changing rule %d from %d to %d", val2, game.bodies_for_vampire, val3);
-              game.bodies_for_vampire = val3;
+              SCRIPTDBG(7,"Changing rule %d from %d to %d", val2, game.conf.rules.rooms.bodies_for_vampire, val3);
+              game.conf.rules.rooms.bodies_for_vampire = val3;
           }
           else
           {
@@ -1049,8 +1049,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 2: //PrisonSkeletonChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.prison_skeleton_chance, val3);
-              game.prison_skeleton_chance = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.prison_skeleton_chance, val3);
+              game.conf.rules.rooms.prison_skeleton_chance = val3;
           }
           else
           {
@@ -1060,8 +1060,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 3: //GhostConvertChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.ghost_convert_chance, val3);
-              game.ghost_convert_chance = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.ghost_convert_chance, val3);
+              game.conf.rules.rooms.ghost_convert_chance = val3;
           }
           else
           {
@@ -1071,8 +1071,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 4: //TortureConvertChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.torture_convert_chance, val3);
-              gameadd.torture_convert_chance = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.torture_convert_chance, val3);
+              game.conf.rules.rooms.torture_convert_chance = val3;
           }
           else
           {
@@ -1082,8 +1082,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 5: //TortureDeathChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.torture_death_chance, val3);
-              gameadd.torture_death_chance = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.torture_death_chance, val3);
+              game.conf.rules.rooms.torture_death_chance = val3;
           }
           else
           {
@@ -1093,8 +1093,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 6: //FoodGenerationSpeed
           if (val3 >= 0)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.food_generation_speed, val3);
-              game.food_generation_speed = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.food_generation_speed, val3);
+              game.conf.rules.rooms.food_generation_speed = val3;
           }
           else
           {
@@ -1104,8 +1104,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 7: //StunEvilEnemyChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.stun_enemy_chance_evil, val3);
-              gameadd.stun_enemy_chance_evil = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.creature.stun_enemy_chance_evil, val3);
+              game.conf.rules.creature.stun_enemy_chance_evil = val3;
           }
           else
           {
@@ -1115,8 +1115,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 8: //StunGoodEnemyChance
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.stun_enemy_chance_good, val3);
-              gameadd.stun_enemy_chance_good = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.creature.stun_enemy_chance_good, val3);
+              game.conf.rules.creature.stun_enemy_chance_good = val3;
           }
           else
           {
@@ -1126,8 +1126,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 9: //BodyRemainsFor
           if (val3 >= 0)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.body_remains_for, val3);
-              game.body_remains_for = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.creature.body_remains_for, val3);
+              game.conf.rules.creature.body_remains_for = val3;
           }
           else
           {
@@ -1135,14 +1135,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 10: //FightHateKillValue
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.fight_hate_kill_value, val3);
-          game.fight_hate_kill_value = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.creature.fight_hate_kill_value, val3);
+          game.conf.rules.creature.fight_hate_kill_value = val3;
           break;
       case 11: //PreserveClassicBugs
           if (val3 >= 0 && val3 < ClscBug_ListEnd)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.classic_bugs_flags, val3);
-              gameadd.classic_bugs_flags = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.classic_bugs_flags, val3);
+              game.conf.rules.game.classic_bugs_flags = val3;
           }
           else
           {
@@ -1150,38 +1150,38 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 12: //DungeonHeartHealHealth
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.dungeon_heart_heal_health, val3);
-          game.dungeon_heart_heal_health = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.dungeon_heart_heal_health, val3);
+          game.conf.rules.game.dungeon_heart_heal_health = val3;
           break;
       case 13: //ImpWorkExperience
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.digger_work_experience, val3);
-          gameadd.digger_work_experience = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.workers.digger_work_experience, val3);
+          game.conf.rules.workers.digger_work_experience = val3;
           break;
       case 14: //GemEffectiveness
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.gem_effectiveness, val3);
-          gameadd.gem_effectiveness = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.gem_effectiveness, val3);
+          game.conf.rules.game.gem_effectiveness = val3;
           break;
       case 15: //RoomSellGoldBackPercent
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.room_sale_percent, val3);
-          gameadd.room_sale_percent = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.room_sale_percent, val3);
+          game.conf.rules.game.room_sale_percent = val3;
           break;
       case 16: //DoorSellGoldBackPercent
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.door_sale_percent, val3);
-          gameadd.door_sale_percent = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.door_sale_percent, val3);
+          game.conf.rules.game.door_sale_percent = val3;
           break;
       case 17: //TrapSellGoldBackPercent
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.trap_sale_percent, val3);
-          gameadd.trap_sale_percent = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.trap_sale_percent, val3);
+          game.conf.rules.game.trap_sale_percent = val3;
           break;
       case 18: //PayDayGap
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.pay_day_gap, val3);
-          game.pay_day_gap = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.pay_day_gap, val3);
+          game.conf.rules.game.pay_day_gap = val3;
           break;
       case 19: //PayDaySpeed
           if (val3 >= 0)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.pay_day_speed, val3);
-              gameadd.pay_day_speed = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.pay_day_speed, val3);
+              game.conf.rules.game.pay_day_speed = val3;
           }
           else
           {
@@ -1200,14 +1200,14 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 21: //PlaceTrapsOnSubtiles
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.place_traps_on_subtiles, val3);
-          gameadd.place_traps_on_subtiles = (TbBool)val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.place_traps_on_subtiles, val3);
+          game.conf.rules.game.place_traps_on_subtiles = (TbBool)val3;
           break;
       case 22: //DiseaseHPTemplePercentage
           if (val3 >= 0 && val3 <= 100)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.disease_to_temple_pct, val3);
-              gameadd.disease_to_temple_pct = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.computer.disease_to_temple_pct, val3);
+              game.conf.rules.computer.disease_to_temple_pct = val3;
           }
           else
           {
@@ -1215,46 +1215,46 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           break;
       case 24: //HungerHealthLoss
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.hunger_health_loss, val3);
-          game.hunger_health_loss = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.health.hunger_health_loss, val3);
+          game.conf.rules.health.hunger_health_loss = val3;
           break;
       case 25: //GameTurnsPerHungerHealthLoss
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_hunger_health_loss, val3);
-          game.turns_per_hunger_health_loss = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.health.turns_per_hunger_health_loss, val3);
+          game.conf.rules.health.turns_per_hunger_health_loss = val3;
           break;
       case 26: //FoodHealthGain
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.food_health_gain, val3);
-          game.food_health_gain = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.health.food_health_gain, val3);
+          game.conf.rules.health.food_health_gain = val3;
           break;
       case 27: //TortureHealthLoss
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.torture_health_loss, val3);
-          game.torture_health_loss = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.health.torture_health_loss, val3);
+          game.conf.rules.health.torture_health_loss = val3;
           break;
       case 28: //GameTurnsPerTortureHealthLoss
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.turns_per_torture_health_loss, val3);
-          game.turns_per_torture_health_loss = val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.health.turns_per_torture_health_loss, val3);
+          game.conf.rules.health.turns_per_torture_health_loss = val3;
           break;
       case 29: //AlliesShareVision
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_vision, val3);
-          gameadd.allies_share_vision = (TbBool)val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.allies_share_vision, val3);
+          game.conf.rules.game.allies_share_vision = (TbBool)val3;
           break;
       case 30: //AlliesShareDrop
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_drop, val3);
-          gameadd.allies_share_drop = (TbBool)val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.allies_share_drop, val3);
+          game.conf.rules.game.allies_share_drop = (TbBool)val3;
           break;
       case 31: //AlliesShareCta
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.allies_share_cta, val3);
-          gameadd.allies_share_cta = (TbBool)val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.allies_share_cta, val3);
+          game.conf.rules.game.allies_share_cta = (TbBool)val3;
           break; 
       case 32: //BarrackMaxPartySize
-          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.barrack_max_party_size, val3);
-          game.barrack_max_party_size = (TbBool)val3;
+          SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.barrack_max_party_size, val3);
+          game.conf.rules.rooms.barrack_max_party_size = (TbBool)val3;
           break;
       case 33: //MaxThingsInHand
           if (val3 <= MAX_THINGS_IN_HAND)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, gameadd.max_things_in_hand, val3);
-              gameadd.max_things_in_hand = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.max_things_in_hand, val3);
+              game.conf.rules.game.max_things_in_hand = val3;
           }
           else
           {
@@ -1264,8 +1264,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 34: //TrainingRoomMaxLevel
           if (val3 >= 0 && val3 <= SHRT_MAX)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.training_room_max_level, val3);
-              game.training_room_max_level = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.training_room_max_level, val3);
+              game.conf.rules.rooms.training_room_max_level = val3;
           }
           else
           {

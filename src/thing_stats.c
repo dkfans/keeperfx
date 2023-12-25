@@ -850,31 +850,31 @@ long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng,
 {
     long dig_damage;
     if (slabmap_owner(slb) == diggertng->owner)
-        dig_damage = game.default_imp_dig_own_damage;
+        dig_damage = game.conf.rules.workers.default_imp_dig_own_damage;
     else
-        dig_damage = game.default_imp_dig_damage;
+        dig_damage = game.conf.rules.workers.default_imp_dig_damage;
     return dig_damage;
 }
 
 GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, const struct SlabMap *slb)
 {
     struct SlabAttr *slbattr = get_slab_attrs(slb);
-    GoldAmount gold = (damage_did_to_slab * game.gold_per_gold_block) / game.block_health[slbattr->block_health_index];
+    GoldAmount gold = (damage_did_to_slab * game.conf.rules.game.gold_per_gold_block) / game.block_health[slbattr->block_health_index];
     // Returns gold-per-hit as an integer
     if (slb->kind == SlbT_GEMS)
     {
-        gold = gold * gameadd.gem_effectiveness / 100;
+        gold = gold * game.conf.rules.game.gem_effectiveness / 100;
     }
     else if (slb->health == 0)
     // if the last hit deals the damage exactly, just drop a pile and the remainder
     {
-        gold += (game.gold_per_gold_block % gold);
+        gold += (game.conf.rules.game.gold_per_gold_block % gold);
     }
     else if (slb->health < 0)
     // If the damage dealt is more than the remaining health, then health is not divisible by damage, so this 
     // should return whatever is left, as this is less than the gold given for a full hit.
     {
-        gold = game.gold_per_gold_block - (game.block_health[slbattr->block_health_index] / damage_did_to_slab) * gold;
+        gold = game.conf.rules.game.gold_per_gold_block - (game.block_health[slbattr->block_health_index] / damage_did_to_slab) * gold;
     // subtract all of the "full hits" and return what's left.
     }
     if (gold < 1)
