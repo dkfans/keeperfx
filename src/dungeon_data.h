@@ -262,6 +262,7 @@ unsigned long gold_pickup_amount;
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
     unsigned char texture_pack;
+    unsigned char color_idx;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;
