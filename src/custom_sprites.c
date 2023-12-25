@@ -28,6 +28,7 @@
 #include "bflib_dernc.h"
 #include "sprites.h"
 #include "config_spritecolors.h"
+#include "vidfade.h"
 
 #include <spng.h>
 #include <json.h>
@@ -230,6 +231,7 @@ static int cmp_named_command(const void *a, const void *b)
 
 static void load_system_sprites(short fgroup)
 {
+    int starttime = SDL_GetTicks();
     struct TbFileFind fileinfo;
     int cnt = 0, cnt_ok = 0, cnt_icons = 0;
     char *fname = prepare_file_path(fgroup, "*.zip");
@@ -259,6 +261,7 @@ static void load_system_sprites(short fgroup)
         cnt++;
     }
     LbJustLog("Found %d sprite zip file(s), loaded %d with animations and %d with icons.\n", cnt, cnt_ok, cnt_icons);
+    JUSTLOG("total time %d",SDL_GetTicks() - starttime );
 }
 
 void init_custom_sprites(LevelNumber lvnum)
@@ -886,27 +889,17 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
 
 static void convert_row(unsigned char *dst_buf, uint32_t *src_buf, int len)
 {
-#define SCALE 4
+#define SCALE 16
     for (int i = 0; i < len; i++, src_buf++, dst_buf++)
     {
         uint32_t data = *src_buf;
-        int idx = ((data & 0x00FF00) >> 8) / SCALE;
-        const struct PaletteNode *node = &pal_tree[idx];
-        uint8_t max_val = 255;
-        uint32_t max_dst = 3 * 64 * 64;
 
-        for (struct PaletteRecord *rec = node->rec; rec != node->rec + node->size; rec++)
-        {
-            int8_t dr = (rec->color & 0x00000FF) - (data & 0x0000FF) / SCALE;
-            int8_t dg = ((rec->color & 0xFF00) >> 8) - ((data & 0xFF00) >> 8) / SCALE;
-            int8_t db = ((rec->color & 0xFF0000) >> 16) - ((data & 0xFF0000) >> 16) / SCALE;
-            if (dr * dr + dg * dg + db * db < max_dst)
-            {
-                max_dst = dr * dr + dg * dg + db * db;
-                max_val = rec->color_idx;
-            }
-        }
-        *dst_buf = max_val;
+        int32_t dr = (data & 0x0000FF)        / SCALE;
+        int32_t dg = ((data & 0x00FF00) >> 8) / SCALE;
+        int32_t db = ((data & 0xFF0000) >> 16) / SCALE;
+
+        
+        *dst_buf = colours[dr][dg][db];
     }
 #undef SCALE
 }
