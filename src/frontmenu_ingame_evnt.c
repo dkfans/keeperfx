@@ -508,6 +508,11 @@ TbBool frametime_enabled(void)
   return (debug_display_frametime != 0);
 }
 
+TbBool consolelog_enabled(void)
+{
+    return (debug_display_consolelog != 0);
+}
+
 TbBool script_timer_enabled(void)
 {
   return ((game.flags_gui & GGUI_ScriptTimer) != 0);
@@ -651,6 +656,36 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
 }
+
+int consolelog_font_size = 11;
+int consolelog_simultaneous_message_count = 21;
+void draw_consolelog()
+{
+    draw_round_slab64k(0, 0, units_per_pixel, lbDisplay.GraphicsScreenWidth, (lbDisplay.GraphicsScreenHeight/2), ROUNDSLAB64K_DARK);
+    
+    size_t startIdx = 0;
+    if (consoleLogArraySize > consolelog_simultaneous_message_count) {
+        startIdx = consoleLogArraySize - consolelog_simultaneous_message_count;
+    }
+
+    LbTextSetFont(winfont);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+    
+    int tx_units_per_px = (consolelog_font_size * units_per_pixel) / LbTextLineHeight();
+    
+    // Iterate over the last log messages and draw them
+    for (size_t i = startIdx; i < consoleLogArraySize; i++) {
+        char* text = consoleLogArray[i];
+
+        // Calculate the y position for each line of text
+        int yPos = ((i - startIdx)) * tx_units_per_px;
+        yPos += tx_units_per_px*0.5; //offset_y
+        LbTextDrawResized(1 * tx_units_per_px, yPos, tx_units_per_px, text);
+    }
+
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT; // Reset draw flags
+}
+
 
 void draw_frametime()
 {

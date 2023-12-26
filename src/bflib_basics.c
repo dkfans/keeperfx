@@ -32,6 +32,11 @@
 #include "bflib_fileio.h"
 #include "post_inc.h"
 
+
+char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
+size_t consoleLogArraySize = 0;
+int debug_display_consolelog = 0;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -353,6 +358,21 @@ void LbCloseLog()
     file = NULL;
 }
 
+void write_log_to_array_for_live_viewing(const char* fmt_str, va_list args) {
+    if (consoleLogArraySize >= MAX_CONSOLE_LOG_COUNT) {
+        // Array is full
+        return;
+    }
+
+    char buffer[MAX_TEXT_LENGTH];
+    vsnprintf(buffer, sizeof(buffer), fmt_str, args);
+
+    // Add the formatted message to the array
+    strncpy(consoleLogArray[consoleLogArraySize], buffer, MAX_TEXT_LENGTH);
+    consoleLogArray[consoleLogArraySize][MAX_TEXT_LENGTH - 1] = '\0'; // Ensure null-termination
+    consoleLogArraySize++;
+}
+
 int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
 {
   enum Header {
@@ -448,8 +468,17 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
         fprintf(file, "%02d:%02d:%02d ",
             curr_time.Hour,curr_time.Minute,curr_time.Second);
     }
-    if (log->prefix[0] != '\0')
+
+  // Write formatted message to the array
+  va_list arg_copy;
+  va_copy(arg_copy, arg);
+  write_log_to_array_for_live_viewing(fmt_str, arg_copy);
+  va_end(arg_copy);
+  
+  // Write the log to the file
+  if (log->prefix[0] != '\0') {
       fputs(log->prefix, file);
+  }
   vfprintf(file, fmt_str, arg);
   log->position = ftell(file);
   // fclose is slow and automatically happens on normal program exit.
