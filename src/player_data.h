@@ -37,7 +37,6 @@ extern "C" {
 #define HERO_PLAYER             4
 
 #define INVALID_PLAYER (&bad_player)
-#define INVALID_PLAYER_ADD (&bad_player)
 
 #define PLAYER_MP_MESSAGE_LEN  64
 
