@@ -69,6 +69,22 @@ PowerKind const player_state_to_power_kind[PLAYER_STATES_COUNT] = {
   PwrK_CHICKEN, // PSt_FreeTurnChicken
   PwrK_POSSESS, // PSt_FreeCtrlPassngr
   PwrK_POSSESS, // PSt_FreeCtrlDirect
+  PwrK_None, // PSt_StealRoom
+  PwrK_None, // PSt_DestroyRoom
+  PwrK_None, // PSt_KillCreatr
+  PwrK_None, // PSt_ConvertCreatr
+  PwrK_None, // PSt_StealSlab
+  PwrK_None, // PSt_LevelCreatureUp
+  PwrK_None, // PSt_LevelCreatureDown
+  PwrK_None, // PSt_KillPlayer
+  PwrK_None, // PSt_HeartHealth
+  PwrK_None, // PSt_QueryAll
+  PwrK_None, // PSt_MkHappy
+  PwrK_None, // PSt_MkAngry
+  PwrK_None, // PSt_PlaceTerrain
+  PwrK_None, // PSt_DestroyThing
+  PwrK_None, // PSt_CreatrInfoAll
+  PwrK_REBOUND, // PSt_Rebound
 };
 /******************************************************************************/
 

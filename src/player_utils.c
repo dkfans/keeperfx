@@ -163,7 +163,7 @@ void set_player_as_lost_level(struct PlayerInfo *player)
         turn_off_all_menus();
         clear_transfered_creatures();
     }
-    if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
+    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0) {
         clear_things_in_hand(player);
         dungeon->num_things_in_hand = 0;
     }
@@ -314,7 +314,7 @@ long take_money_from_dungeon_f(PlayerNumber plyr_idx, GoldAmount amount_take, Tb
         dungeon->offmap_money_owned = 0;
     }
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,RoRoF_GoldStorage))
         {
@@ -670,7 +670,7 @@ void fill_in_explored_area(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlC
             }
         }
     }
-    pannel_map_update(0, 0, 256, 256);
+    panel_map_update(0, 0, 256, 256);
     
 }
 
@@ -1018,7 +1018,7 @@ void post_init_player(struct PlayerInfo *player)
         }
         break;
     }
-    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
 }
 
 void post_init_players(void)
@@ -1145,7 +1145,7 @@ TbBool player_sell_trap_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     struct Computer2* comp = get_computer_player(plyr_idx);
     if (!computer_player_invalid(comp))
     {
-        add_to_trap_location(comp, &pos);
+        add_to_trap_locations(comp, &pos);
     }
     return true;
 }
@@ -1162,7 +1162,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
 
 	struct Dungeon* dungeon = get_players_num_dungeon(thing->owner);
 	dungeon->camera_deviate_jump = 192;
-    long sell_value = compute_value_percentage(gameadd.doors_config[thing->model].selling_value, gameadd.door_sale_percent);
+    long sell_value = compute_value_percentage(game.conf.doors_config[thing->model].selling_value, game.conf.rules.game.door_sale_percent);
 
 	dungeon->doors_sold++;
 	dungeon->manufacture_gold += sell_value;
@@ -1180,7 +1180,7 @@ TbBool player_sell_door_at_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, M
     { // Add the trap location to related computer player, in case we'll want to place a trap again
         struct Computer2* comp = get_computer_player(plyr_idx);
         if (!computer_player_invalid(comp)) {
-            add_to_trap_location(comp, &pos);
+            add_to_trap_locations(comp, &pos);
         }
     }
     return true;

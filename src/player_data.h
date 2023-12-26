@@ -176,7 +176,7 @@ unsigned char field_14;
     struct Wander wandr_within;
     struct Wander wandr_outside;
     short hand_thing_idx;
-    short field_43C;
+    short cta_flag_idx;
     short influenced_thing_idx;
     long influenced_thing_creation;
     short engine_window_width;
@@ -312,6 +312,8 @@ void reset_player_mode(struct PlayerInfo *player, unsigned short nview);
 void clear_players(void);
 
 unsigned char rotate_mode_to_view_mode(unsigned char mode);
+
+unsigned char get_player_color_idx(PlayerNumber plyr_idx);
 /******************************************************************************/
 #ifdef __cplusplus
 }

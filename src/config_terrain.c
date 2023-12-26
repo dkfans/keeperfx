@@ -221,7 +221,7 @@ const struct NamedCommand terrain_flags[] = {
 /******************************************************************************/
 struct SlabAttr *get_slab_kind_attrs(SlabKind slab_kind)
 {
-    if (slab_kind >= game.slab_conf.slab_types_count)
+    if (slab_kind >= game.conf.slab_conf.slab_types_count)
         return &slab_attrs[0];
     return &slab_attrs[slab_kind];
 }
@@ -235,15 +235,15 @@ struct SlabAttr *get_slab_attrs(const struct SlabMap *slb)
 
 struct SlabConfigStats *get_slab_kind_stats(SlabKind slab_kind)
 {
-    if (slab_kind >= game.slab_conf.slab_types_count)
-        return &game.slab_conf.slab_cfgstats[0];
-    return &game.slab_conf.slab_cfgstats[slab_kind];
+    if (slab_kind >= game.conf.slab_conf.slab_types_count)
+        return &game.conf.slab_conf.slab_cfgstats[0];
+    return &game.conf.slab_conf.slab_cfgstats[slab_kind];
 }
 
 struct SlabConfigStats *get_slab_stats(struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
-        return &game.slab_conf.slab_cfgstats[0];
+        return &game.conf.slab_conf.slab_cfgstats[0];
     return get_slab_kind_stats(slb->kind);
 }
 
@@ -271,9 +271,9 @@ const char *room_role_code_name(RoomRole rrole)
 
 struct RoomConfigStats *get_room_kind_stats(RoomKind room_kind)
 {
-    if (room_kind >= game.slab_conf.room_types_count)
-        return &game.slab_conf.room_cfgstats[0];
-    return &game.slab_conf.room_cfgstats[room_kind];
+    if (room_kind >= game.conf.slab_conf.room_types_count)
+        return &game.conf.slab_conf.room_cfgstats[0];
+    return &game.conf.slab_conf.room_cfgstats[room_kind];
 }
 
 /**
@@ -293,8 +293,8 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        game.slab_conf.slab_types_count = 1;
-        game.slab_conf.room_types_count = 1;
+        game.conf.slab_conf.slab_types_count = 1;
+        game.conf.slab_conf.room_types_count = 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -324,7 +324,7 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
               k = atoi(word_buf);
               if ((k > 0) && (k <= TERRAIN_ITEMS_MAX))
               {
-                  game.slab_conf.slab_types_count = k;
+                  game.conf.slab_conf.slab_types_count = k;
                 n++;
               }
             }
@@ -340,7 +340,7 @@ TbBool parse_terrain_common_blocks(char *buf, long len, const char *config_textn
               k = atoi(word_buf);
               if ((k > 0) && (k <= TERRAIN_ITEMS_MAX))
               {
-                  game.slab_conf.room_types_count = k;
+                  game.conf.slab_conf.room_types_count = k;
                 n++;
               }
             }
@@ -381,10 +381,10 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(game.slab_conf.slab_cfgstats)/sizeof(game.slab_conf.slab_cfgstats[0]);
+        arr_size = sizeof(game.conf.slab_conf.slab_cfgstats)/sizeof(game.conf.slab_conf.slab_cfgstats[0]);
         for (i=0; i < arr_size; i++)
         {
-            slabst = &game.slab_conf.slab_cfgstats[i];
+            slabst = &game.conf.slab_conf.slab_cfgstats[i];
             LbMemorySet(slabst->code_name, 0, COMMAND_WORD_LEN);
             slabst->tooltip_stridx = GUIStr_Empty;
             slab_desc[i].name = NULL;
@@ -398,7 +398,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
         }
     }
     // Parse every numbered block within range
-    arr_size = game.slab_conf.slab_types_count;
+    arr_size = game.conf.slab_conf.slab_types_count;
     for (i=0; i < arr_size; i++)
     {
       sprintf(block_buf,"slab%d",i);
@@ -413,7 +413,7 @@ TbBool parse_terrain_slab_blocks(char *buf, long len, const char *config_textnam
           continue;
       }
       slbattr = get_slab_kind_attrs(i);
-      slabst = &game.slab_conf.slab_cfgstats[i];
+      slabst = &game.conf.slab_conf.slab_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_slab_commands,cmd_num)
       while (pos<len)
       {
@@ -791,9 +791,9 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
     {
         if (((flags & CnfLd_AcceptPartial) == 0) || ((room_desc[i].name) == NULL))
         {
-            if (i < game.slab_conf.room_types_count)
+            if (i < game.conf.slab_conf.room_types_count)
             {
-                roomst = &game.slab_conf.room_cfgstats[i];
+                roomst = &game.conf.slab_conf.room_cfgstats[i];
                 LbMemorySet(roomst->code_name, 0, COMMAND_WORD_LEN);
                 roomst->name_stridx = GUIStr_Empty;
                 roomst->tooltip_stridx = GUIStr_Empty;
@@ -819,7 +819,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
         }
     }
     // Parse every numbered block within range
-    arr_size = game.slab_conf.room_types_count;
+    arr_size = game.conf.slab_conf.room_types_count;
     for (i=0; i < arr_size; i++)
     {
         char block_buf[COMMAND_WORD_LEN];
@@ -835,7 +835,7 @@ TbBool parse_terrain_room_blocks(char *buf, long len, const char *config_textnam
             }
             continue;
       }
-      roomst = &game.slab_conf.room_cfgstats[i];
+      roomst = &game.conf.slab_conf.room_cfgstats[i];
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(terrain_room_commands,cmd_num)
       while (pos<len)
       {
@@ -1215,10 +1215,10 @@ TbBool load_terrain_config(const char *conf_fname, unsigned short flags)
 void restore_room_update_functions_after_load()
 {
     struct RoomConfigStats* roomst;
-    int arr_size = game.slab_conf.room_types_count;
+    int arr_size = game.conf.slab_conf.room_types_count;
     for (int i = 0; i < arr_size; i++)
     {
-        roomst = &game.slab_conf.room_cfgstats[i];
+        roomst = &game.conf.slab_conf.room_cfgstats[i];
         if ((roomst->update_total_capacity_idx > 0) && (roomst->update_total_capacity_idx <= sizeof(terrain_room_total_capacity_func_list)))
         {
             roomst->update_total_capacity = terrain_room_total_capacity_func_list[roomst->update_total_capacity_idx];
@@ -1253,7 +1253,7 @@ void restore_room_update_functions_after_load()
  */
 TbBool make_all_rooms_free(void)
 {
-    for (long rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (long rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
         roomst->cost = 0;
@@ -1271,7 +1271,7 @@ TbBool make_all_rooms_researchable(PlayerNumber plyr_idx)
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    for (long rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (long rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         dungeon->room_resrchable[rkind] = 1;
     }
@@ -1285,7 +1285,7 @@ TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind)
         struct ComputerProcess* cproc = &comp->processes[i];
         if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == rkind))
         {
-            cproc->flags &= ~ComProc_Unkn0004;
+            clear_flag(cproc->flags, ComProc_Unkn0004);
             cproc->last_run_turn = 0;
             return true;
         }
@@ -1306,7 +1306,7 @@ TbBool set_room_available(PlayerNumber plyr_idx, RoomKind rkind, long resrch, lo
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    if (rkind >= game.slab_conf.room_types_count)
+    if (rkind >= game.conf.slab_conf.room_types_count)
     {
         ERRORLOG("Can't add incorrect room %d to player %d",(int)rkind, (int)plyr_idx);
         return false;
@@ -1346,7 +1346,7 @@ TbBool is_room_available(PlayerNumber plyr_idx, RoomKind rkind)
     if (!player_has_heart(plyr_idx)) {
         return false;
     }
-    if (rkind >= game.slab_conf.room_types_count)
+    if (rkind >= game.conf.slab_conf.room_types_count)
     {
       ERRORLOG("Incorrect room %d (player %d)",(int)rkind, (int)plyr_idx);
       return false;
@@ -1375,7 +1375,7 @@ RoomKind find_first_available_roomkind_with_role(PlayerNumber plyr_idx, RoomRole
         return RoK_NONE;
     }
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
         {
@@ -1414,7 +1414,7 @@ TbBool make_available_all_researchable_rooms(PlayerNumber plyr_idx)
         ERRORDBG(11,"Cannot do; player %d has no dungeon",(int)plyr_idx);
         return false;
     }
-    for (long i = 0; i < game.slab_conf.room_types_count; i++)
+    for (long i = 0; i < game.conf.slab_conf.room_types_count; i++)
     {
         if (dungeon->room_resrchable[i])
         {
@@ -1593,7 +1593,7 @@ SlabKind room_corresponding_slab(RoomKind rkind)
  */
 RoomKind slab_corresponding_room(SlabKind slbkind)
 {
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
         if (roomst->assigned_slab == slbkind)
@@ -1609,7 +1609,7 @@ RoomKind slab_corresponding_room(SlabKind slbkind)
  */
 RoomKind find_first_roomkind_with_role(RoomRole rrole)
 {
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
