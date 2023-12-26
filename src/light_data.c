@@ -177,7 +177,7 @@ long light_create_light(struct InitLight *ilght)
     lgt->mappos.z.val = ilght->mappos.z.val;
     lgt->radius = ilght->radius;
     lgt->intensity = ilght->intensity;
-    lgt->flags2 |= ilght->field_3 << 1;
+    lgt->flags2 |= ilght->flags << 1;
 
     set_flag_value(lgt->flags, LgtF_Dynamic, ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;

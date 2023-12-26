@@ -102,7 +102,6 @@ struct BasicQ { // sizeof = 5
 
 struct BucketKindPolygonStandard {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short block;
     struct PolyPoint p1;
     struct PolyPoint p2;
@@ -111,7 +110,6 @@ struct BucketKindPolygonStandard {
 
 struct BucketKindPolygonSimple {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short block;
     struct PolyPoint p1;
     struct PolyPoint p2;
@@ -148,14 +146,12 @@ struct BucketKindPolyMode4 {
 
 struct BucketKindTrigMode2 {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short x1;
     unsigned short y1;
     unsigned short x2;
     unsigned short y2;
     unsigned short x3;
     unsigned short y3;
-    unsigned short field_12;
     unsigned char uf1;
     unsigned char vf1;
     unsigned char uf2;
@@ -166,14 +162,12 @@ struct BucketKindTrigMode2 {
 
 struct BucketKindPolyMode5 {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short x1;
     unsigned short y1;
     unsigned short x2;
     unsigned short y2;
     unsigned short x3;
     unsigned short y3;
-    unsigned short field_12;
     unsigned char uf1;
     unsigned char vf1;
     unsigned char uf2;
@@ -187,14 +181,12 @@ struct BucketKindPolyMode5 {
 
 struct BucketKindTrigMode3 {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short x1;
     unsigned short y1;
     unsigned short x2;
     unsigned short y2;
     unsigned short x3;
     unsigned short y3;
-    unsigned short field_12;
     unsigned char uf1;
     unsigned char vf1;
     unsigned char uf2;
@@ -205,14 +197,12 @@ struct BucketKindTrigMode3 {
 
 struct BucketKindTrigMode6 {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short x1;
     unsigned short y1;
     unsigned short x2;
     unsigned short y2;
     unsigned short x3;
     unsigned short y3;
-    unsigned short field_12;
     unsigned char uf1;
     unsigned char vf1;
     unsigned char uf2;
@@ -226,7 +216,6 @@ struct BucketKindTrigMode6 {
 
 struct BucketKindRotableSprite {
     struct BasicQ b;
-    unsigned char field_5[3];
     long field_8;
     long field_C;
     long field_10;
@@ -249,7 +238,6 @@ struct BucketKindPolygonNearFP {
 
 struct BucketKindBasicUnk10 {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned char field_6;
     unsigned char field_7;
     struct PolyPoint p1;
@@ -259,7 +247,6 @@ struct BucketKindBasicUnk10 {
 
 struct BucketKindJontySprite {  // BasicQ type 11,18
     struct BasicQ b;
-    unsigned char field_5[3];
     struct Thing *thing;
     long scr_x;
     long scr_y;
@@ -270,7 +257,6 @@ struct BucketKindJontySprite {  // BasicQ type 11,18
 
 struct BucketKindCreatureShadow {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short field_6;
     struct PolyPoint p1;
     struct PolyPoint p2;
@@ -278,12 +264,11 @@ struct BucketKindCreatureShadow {
     struct PolyPoint p4;
     long angle;
     unsigned short anim_sprite;
-    unsigned char thing_field48;
+    unsigned char current_frame;
 };
 
 struct BucketKindSlabSelector {
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short field_6;
     struct PolyPoint p;
     unsigned char field_19[3];
@@ -304,22 +289,21 @@ struct NearestLights {
 };
 struct BucketKindTexturedQuad { // sizeof = 46
     struct BasicQ b;
-    unsigned char field_5;
-    long field_6;
-    long field_A;
-    long field_E;
-    long field_12;
-    long field_16;
-    long field_1A;
-    long field_1E;
-    long field_22;
-    long field_26;
-    long field_2A;
+    unsigned char orient;
+    long texture_idx;
+    long unk_x;
+    long unk_y;
+    long zoom_x;
+    long zoom_y;
+    long lightness0;
+    long lightness1;
+    long lightness2;
+    long lightness3;
+    long marked_mode;
 };
 
 struct BucketKindFloatingGoldText { // BasicQ type 16
     struct BasicQ b;
-    unsigned char field_5[3];
     long x;
     long y;
     long lvl;
@@ -327,7 +311,6 @@ struct BucketKindFloatingGoldText { // BasicQ type 16
 
 struct BucketKindRoomFlag { // BasicQ type 17,19
     struct BasicQ b;
-    unsigned char field_5;
     unsigned short lvl;
     long x;
     long y;
@@ -512,7 +495,7 @@ static const char splittypes[64] = {
 static void do_map_who(short tnglist_idx);
 static void (*render_sprite_debug_fn) (struct Thing*, long scrpos_x, long scrpos_y) = NULL;
 static int render_sprite_debug_level = 0;
-static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short a2, unsigned char field48, unsigned char *a4);
+static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf);
 static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr);
 /******************************************************************************/
 
@@ -4089,7 +4072,7 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     kspr->p1.S = dist_sq;
     kspr->angle = angle;
     kspr->anim_sprite = thing->anim_sprite;
-    kspr->thing_field48 = thing->current_frame;
+    kspr->current_frame = thing->current_frame;
 }
 
 // Creature status flower above head in isometric view
@@ -6722,7 +6705,7 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 draw_jonty_mapwho(item.jontySprite);
                 break;
             case QK_CreatureShadow: // Shadows of creatures in isometric and 1st person view
-                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->anim_sprite, item.creatureShadow->angle, item.creatureShadow->thing_field48, big_scratch);
+                draw_keepsprite_unscaled_in_buffer(item.creatureShadow->anim_sprite, item.creatureShadow->angle, item.creatureShadow->current_frame, big_scratch);
                 vec_map = big_scratch;
                 vec_mode = VM_Unknown10;
                 vec_colour = item.creatureShadow->p1.S;
@@ -6962,7 +6945,7 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
         struct PolyPoint point_c;
         struct PolyPoint point_d;
         vec_mode = VM_Unknown5;
-        switch (txquad->field_2A) // Is visible/selected
+        switch (txquad->marked_mode) // Is visible/selected
         {
         case 0:
             vec_map = block_ptrs[TEXTURE_LAND_MARKED_LAND];
@@ -6972,68 +6955,68 @@ static void draw_texturedquad_block(struct BucketKindTexturedQuad *txquad)
             break;
         case 3:
         default:
-            vec_map = block_ptrs[txquad->field_6];
+            vec_map = block_ptrs[txquad->texture_idx];
             break;
         }
-        point_a.X = (txquad->field_A >> 8) / pixel_size;
-        point_a.Y = (txquad->field_E >> 8) / pixel_size;
-        point_a.U = orient_to_mapU1[txquad->field_5];
-        point_a.V = orient_to_mapV1[txquad->field_5];
-        point_a.S = txquad->field_1A;
-        point_d.X = ((txquad->field_12 + txquad->field_A) >> 8) / pixel_size;
-        point_d.Y = (txquad->field_E >> 8) / pixel_size;
-        point_d.U = orient_to_mapU2[txquad->field_5];
-        point_d.V = orient_to_mapV2[txquad->field_5];
-        point_d.S = txquad->field_1E;
-        point_b.X = ((txquad->field_12 + txquad->field_A) >> 8) / pixel_size;
-        point_b.Y = ((txquad->field_16 + txquad->field_E) >> 8) / pixel_size;
-        point_b.U = orient_to_mapU3[txquad->field_5];
-        point_b.V = orient_to_mapV3[txquad->field_5];
-        point_b.S = txquad->field_22;
-        point_c.X = (txquad->field_A >> 8) / pixel_size;
-        point_c.Y = ((txquad->field_16 + txquad->field_E) >> 8) / pixel_size;
-        point_c.U = orient_to_mapU4[txquad->field_5];
-        point_c.V = orient_to_mapV4[txquad->field_5];
-        point_c.S = txquad->field_26;
+        point_a.X = (txquad->unk_x >> 8) / pixel_size;
+        point_a.Y = (txquad->unk_y >> 8) / pixel_size;
+        point_a.U = orient_to_mapU1[txquad->orient];
+        point_a.V = orient_to_mapV1[txquad->orient];
+        point_a.S = txquad->lightness0;
+        point_d.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
+        point_d.Y = (txquad->unk_y >> 8) / pixel_size;
+        point_d.U = orient_to_mapU2[txquad->orient];
+        point_d.V = orient_to_mapV2[txquad->orient];
+        point_d.S = txquad->lightness1;
+        point_b.X = ((txquad->zoom_x + txquad->unk_x) >> 8) / pixel_size;
+        point_b.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+        point_b.U = orient_to_mapU3[txquad->orient];
+        point_b.V = orient_to_mapV3[txquad->orient];
+        point_b.S = txquad->lightness2;
+        point_c.X = (txquad->unk_x >> 8) / pixel_size;
+        point_c.Y = ((txquad->zoom_y + txquad->unk_y) >> 8) / pixel_size;
+        point_c.U = orient_to_mapU4[txquad->orient];
+        point_c.V = orient_to_mapV4[txquad->orient];
+        point_c.S = txquad->lightness3;
         draw_gpoly(&point_a, &point_d, &point_b);
         draw_gpoly(&point_a, &point_b, &point_c);
     } else
     {
         struct GtBlock gtb;
-        switch (txquad->field_2A)
+        switch (txquad->marked_mode)
         {
         case 0:
             gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_LAND];
-            gtb.field_C = txquad->field_1A >> 16;
-            gtb.field_10 = txquad->field_1E >> 16;
-            gtb.field_18 = txquad->field_22 >> 16;
-            gtb.field_14 = txquad->field_26 >> 16;
+            gtb.lightness0 = txquad->lightness0 >> 16;
+            gtb.lightness1 = txquad->lightness1 >> 16;
+            gtb.lightness2 = txquad->lightness2 >> 16;
+            gtb.lightness3 = txquad->lightness3 >> 16;
             break;
         case 1:
             gtb.field_0 = block_ptrs[TEXTURE_LAND_MARKED_GOLD];
-            gtb.field_C = txquad->field_1A >> 16;
-            gtb.field_10 = txquad->field_1E >> 16;
-            gtb.field_18 = txquad->field_22 >> 16;
-            gtb.field_14 = txquad->field_26 >> 16;
+            gtb.lightness0 = txquad->lightness0 >> 16;
+            gtb.lightness1 = txquad->lightness1 >> 16;
+            gtb.lightness2 = txquad->lightness2 >> 16;
+            gtb.lightness3 = txquad->lightness3 >> 16;
             break;
         case 3:
-            gtb.field_0 = block_ptrs[txquad->field_6];
-            gtb.field_C = txquad->field_1A >> 16;
-            gtb.field_10 = txquad->field_1E >> 16;
-            gtb.field_18 = txquad->field_22 >> 16;
-            gtb.field_14 = txquad->field_26 >> 16;
+            gtb.field_0 = block_ptrs[txquad->texture_idx];
+            gtb.lightness0 = txquad->lightness0 >> 16;
+            gtb.lightness1 = txquad->lightness1 >> 16;
+            gtb.lightness2 = txquad->lightness2 >> 16;
+            gtb.lightness3 = txquad->lightness3 >> 16;
             break;
         default:
-            gtb.field_0 = block_ptrs[txquad->field_6];
+            gtb.field_0 = block_ptrs[txquad->texture_idx];
             break;
         }
-        gtb.field_4 = (txquad->field_A >> 8) / pixel_size;
-        gtb.field_8 = (txquad->field_E >> 8) / pixel_size;
-        gtb.field_1C = orient_table_xflip[txquad->field_5];
-        gtb.field_20 = orient_table_yflip[txquad->field_5];
-        gtb.field_24 = orient_table_rotate[txquad->field_5];
-        gtb.field_28 = (txquad->field_12 >> 8) / pixel_size >> 5;
-        gtb.field_2C = (txquad->field_16 >> 8) / pixel_size >> 4;
+        gtb.field_4 = (txquad->unk_x >> 8) / pixel_size;
+        gtb.field_8 = (txquad->unk_y >> 8) / pixel_size;
+        gtb.field_1C = orient_table_xflip[txquad->orient];
+        gtb.field_20 = orient_table_yflip[txquad->orient];
+        gtb.field_24 = orient_table_rotate[txquad->orient];
+        gtb.field_28 = (txquad->zoom_x >> 8) / pixel_size >> 5;
+        gtb.field_2C = (txquad->zoom_y >> 8) / pixel_size >> 4;
         gtblock_draw(&gtb);
     }
 }
@@ -7271,7 +7254,7 @@ static void create_fast_view_status_box(struct Thing *thing, long x, long y)
     create_status_box_element(thing, x, y, y, 1);
 }
 
-static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long a7, long a8, long lightness, long a9, long bckt_idx)
+static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long zoom, long orient, long lightness, long marked_mode, long bckt_idx)
 {
     struct BucketKindTexturedQuad *poly;
     if (bckt_idx >= BUCKETS_COUNT)
@@ -7285,20 +7268,20 @@ static void add_textruredquad_to_polypool(long x, long y, long texture_idx, long
     poly->b.kind = QK_TextureQuad;
     buckets[bckt_idx] = (struct BasicQ *)poly;
 
-    poly->field_6 = texture_idx;
-    poly->field_A = x;
-    poly->field_E = y;
-    poly->field_12 = a7;
-    poly->field_16 = a7;
-    poly->field_5 = a8;
-    poly->field_1A = lightness;
-    poly->field_1E = lightness;
-    poly->field_22 = lightness;
-    poly->field_26 = lightness;
-    poly->field_2A = a9;
+    poly->texture_idx = texture_idx;
+    poly->unk_x = x;
+    poly->unk_y = y;
+    poly->zoom_x = zoom;
+    poly->zoom_y = zoom;
+    poly->orient = orient;
+    poly->lightness0 = lightness;
+    poly->lightness1 = lightness;
+    poly->lightness2 = lightness;
+    poly->lightness3 = lightness;
+    poly->marked_mode = marked_mode;
 }
 
-static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long a6, long a7, long a8, long lg0, long lg1, long lg2, long lg3, long bckt_idx)
+static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long zoom_x, long zoom_y, long orient, long lg0, long lg1, long lg2, long lg3, long bckt_idx)
 {
     struct BucketKindTexturedQuad *poly;
     if (bckt_idx >= BUCKETS_COUNT)
@@ -7312,17 +7295,17 @@ static void add_lgttextrdquad_to_polypool(long x, long y, long texture_idx, long
     poly->b.kind = QK_TextureQuad;
     buckets[bckt_idx] = (struct BasicQ *)poly;
 
-    poly->field_6 = texture_idx;
-    poly->field_A = x;
-    poly->field_E = y;
-    poly->field_12 = a6;
-    poly->field_16 = a7;
-    poly->field_5 = a8;
-    poly->field_1A = lg0;
-    poly->field_1E = lg1;
-    poly->field_22 = lg2;
-    poly->field_26 = lg3;
-    poly->field_2A = 3;
+    poly->texture_idx = texture_idx;
+    poly->unk_x = x;
+    poly->unk_y = y;
+    poly->zoom_x = zoom_x;
+    poly->zoom_y = zoom_y;
+    poly->orient = orient;
+    poly->lightness0 = lg0;
+    poly->lightness1 = lg1;
+    poly->lightness2 = lg2;
+    poly->lightness3 = lg3;
+    poly->marked_mode = 3;
 }
 
 static void add_number_to_polypool(long x, long y, long number, long bckt_idx)
@@ -7411,7 +7394,7 @@ static void prepare_lightness_intensity_array(long stl_x, long stl_y, long *arrp
     }
 }
 
-static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long pos_x, long pos_y, long a7, unsigned char a8, long *ymax)
+static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y, long pos_x, long pos_y, long zoom, unsigned char qdrant, long *ymax)
 {
     struct PlayerInfo *myplyr;
     TbBool sibrevealed[3][3];
@@ -7426,8 +7409,8 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     long y;
     long i;
     myplyr = get_my_player();
-    cube_itm = (a8 + 2) & 3;
-    delta_y = (a7 << 7) / 256;
+    cube_itm = (qdrant + 2) & 3;
+    delta_y = (zoom << 7) / 256;
     bckt_idx = myplyr->engine_window_height - (pos_y >> 8) + 64;
     // Check if there's enough place to draw
     if (!is_free_space_in_poly_pool(8))
@@ -7444,22 +7427,22 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
     i = 0;
     if (sibrevealed[0][1] && sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[0][0])
         i = lightness;
-    prepare_lightness_intensity_array(stl_x,stl_y,lightness_arr[(-a8) & 3],i);
+    prepare_lightness_intensity_array(stl_x,stl_y,lightness_arr[(-qdrant) & 3],i);
 
     i = 0;
     if (sibrevealed[0][1] && sibrevealed[0][2] && sibrevealed[1][2] && sibrevealed[1][1])
         i = get_subtile_lightness(&game.lish,stl_x+1,stl_y);
-    prepare_lightness_intensity_array(stl_x+1,stl_y,lightness_arr[(1-a8) & 3],i);
+    prepare_lightness_intensity_array(stl_x+1,stl_y,lightness_arr[(1-qdrant) & 3],i);
 
     i = 0;
     if (sibrevealed[1][0] && sibrevealed[1][1] && sibrevealed[2][0] && sibrevealed[2][1])
         i = get_subtile_lightness(&game.lish,stl_x,stl_y+1);
-    prepare_lightness_intensity_array(stl_x,stl_y+1,lightness_arr[(-1-a8) & 3],i);
+    prepare_lightness_intensity_array(stl_x,stl_y+1,lightness_arr[(-1-qdrant) & 3],i);
 
     i = 0;
     if (sibrevealed[2][2] && sibrevealed[1][2] && sibrevealed[1][1] && sibrevealed[2][1])
         i = get_subtile_lightness(&game.lish,stl_x+1,stl_y+1);
-    prepare_lightness_intensity_array(stl_x+1,stl_y+1,lightness_arr[(-2-a8) & 3],i);
+    prepare_lightness_intensity_array(stl_x+1,stl_y+1,lightness_arr[(-2-qdrant) & 3],i);
 
     // Get column to be drawn on the current subtile
 
@@ -7481,11 +7464,11 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
           textr_idx = engine_remap_texture_blocks(stl_x, stl_y, col->floor_texture);
           if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
           {
-              add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, a7, 0,
+              add_textruredquad_to_polypool(pos_x, pos_y, textr_idx, zoom, 0,
                   2097152, 0, bckt_idx);
           } else
           {
-              add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, a7, a7, 0,
+              add_lgttextrdquad_to_polypool(pos_x, pos_y, textr_idx, zoom, zoom, 0,
                   lightness_arr[0][0], lightness_arr[1][0], lightness_arr[2][0], lightness_arr[3][0], bckt_idx);
           }
       }
@@ -7493,7 +7476,7 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
 
     // Draw the columns cubes
 
-    y = a7 + pos_y;
+    y = zoom + pos_y;
     unkstrcp = NULL;
     for (tc=0; tc < COLUMN_STACK_HEIGHT; tc++)
     {
@@ -7505,30 +7488,28 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
       {
         *ymax = y;
         textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
-        add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
+        add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, zoom, delta_y, 0,
             lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
       }
     }
 
     if (unkstrcp != NULL)
     {
-      i = y - a7;
+      i = y - zoom;
       if (*ymax > i)
       {
         *ymax = i;
         textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
         if ((mapblk->flags & SlbAtFlg_TaggedValuable) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
-              2097152, 1, bckt_idx);
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 1, bckt_idx);
         } else
         if ((mapblk->flags & SlbAtFlg_Unexplored) != 0)
         {
-          add_textruredquad_to_polypool(pos_x, i, textr_idx, a7, a8,
-              2097152, 0, bckt_idx);
+          add_textruredquad_to_polypool(pos_x, i, textr_idx, zoom, qdrant, 2097152, 0, bckt_idx);
         } else
         {
-          add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
+          add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, zoom, zoom, qdrant,
               lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
         }
       }
@@ -7554,17 +7535,17 @@ static void draw_element(struct Map *map, long lightness, long stl_x, long stl_y
             if (*ymax > y)
             {
               textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[cube_itm]);
-              add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, a7, delta_y, 0,
+              add_lgttextrdquad_to_polypool(pos_x, y, textr_idx, zoom, delta_y, 0,
                   lightness_arr[3][tc+1], lightness_arr[2][tc+1], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
             }
         }
         if (unkstrcp != NULL)
         {
-          i = y - a7;
+          i = y - zoom;
           if (*ymax > i)
           {
               textr_idx = engine_remap_texture_blocks(stl_x, stl_y, unkstrcp->texture_id[4]);
-            add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, a7, a7, a8,
+            add_lgttextrdquad_to_polypool(pos_x, i, textr_idx, zoom, zoom, qdrant,
                 lightness_arr[0][tc], lightness_arr[1][tc], lightness_arr[2][tc], lightness_arr[3][tc], bckt_idx);
           }
         }
@@ -8377,7 +8358,7 @@ static void sprite_to_sbuff_xflip(const TbSpriteData sprdata, unsigned char *out
     }
 }
 
-static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char field48, unsigned char *outbuf)
+static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angle, unsigned char current_frame, unsigned char *outbuf)
 {
     struct KeeperSprite *kspr_arr;
     unsigned long kspr_idx;
@@ -8407,7 +8388,7 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             return;
         }
-        keepsprite_id = field48 + kspr_idx;
+        keepsprite_id = current_frame + kspr_idx;
         if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
         {
             sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];
@@ -8421,7 +8402,7 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             sprite_data = *keepsprite[keepsprite_id];
         }
-        kspr = &kspr_arr[field48];
+        kspr = &kspr_arr[current_frame];
         fill_w = kspr->FrameWidth;
         fill_h = kspr->FrameHeight;
         if ( flip_range )
@@ -8456,10 +8437,10 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
         {
             return;
         }
-        kspr = &kspr_arr[field48 + quarter * kspr_arr->FramesCount];
+        kspr = &kspr_arr[current_frame + quarter * kspr_arr->FramesCount];
         fill_w = kspr->SWidth;
         fill_h = kspr->SHeight;
-        keepsprite_id = field48 + quarter * kspr->FramesCount + kspr_idx;
+        keepsprite_id = current_frame + quarter * kspr->FramesCount + kspr_idx;
         if (keepsprite_id >= KEEPERSPRITE_ADD_OFFSET)
         {
             sprite_data = keepersprite_add[keepsprite_id - KEEPERSPRITE_ADD_OFFSET];

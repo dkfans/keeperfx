@@ -85,7 +85,7 @@ struct Light {
 struct InitLight { // sizeof=0x14
     short radius;
     unsigned char intensity;
-    unsigned char field_3;
+    unsigned char flags;
     struct Coord3d mappos;
     unsigned char is_dynamic;
     SlabCodedCoords attached_slb;

@@ -98,7 +98,7 @@ struct LegacyInitActionPoint { // sizeof = 8
 struct LegacyInitLight { // sizeof=0x14
     short radius;
     unsigned char intensity;
-    unsigned char field_3;
+    unsigned char flags;
     short field_4_unused;
     short field_6_unused;
     short field_8_unused;
@@ -1314,7 +1314,7 @@ static TbBool load_static_light_file(unsigned long lv_num)
         struct InitLight ilght;
         LbMemoryCopy(&legilght, &buf[i], sizeof(struct LegacyInitLight));
         ilght.attached_slb = legilght.attached_slb;
-        ilght.field_3      = legilght.field_3;
+        ilght.flags      = legilght.flags;
         ilght.intensity    = legilght.intensity;
         ilght.is_dynamic   = legilght.is_dynamic;
         ilght.radius       = legilght.radius;
