@@ -215,9 +215,10 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
     const struct SpellConfig* spconf = get_spell_config(spkind);
 
     if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These four should be also marked at configs somehow
+            (spkind == SplK_Slow) || // These four should be also marked at configs somehow
             ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
-            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
+            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) ||
+            ( (spkind == SplK_Freeze) && ((get_creature_model_flags(thing) & CMF_NeverFrozen) == 0) ) )
     {
         if (thing_is_picked_up(thing))
         {
@@ -795,6 +796,16 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
+          break;
+      case 28: // NEVER_FROZEN
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_NeverFrozen;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_NeverFrozen;
+          }
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
