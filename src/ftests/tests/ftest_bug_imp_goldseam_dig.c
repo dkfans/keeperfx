@@ -67,7 +67,7 @@ TbBool ftest_bug_imp_goldseam_dig_action001__map_setup(struct FTestActionArgs* c
     // ftest_util_replace_slabs(6, 1, 7, 5, SlbT_GOLD, PLAYER_NEUTRAL);
 
     // store/broadcast the gold stored in a single tile
-    vars->game_gold_amount = game.gold_per_gold_block;
+    vars->game_gold_amount = game.conf.rules.game.gold_per_gold_block;
     message_add_fmt(PLAYER0, "Game gold per gold block: %ld", vars->game_gold_amount);
 
     return true;
