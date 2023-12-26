@@ -150,6 +150,7 @@ struct Dungeon {
     MapSubtlCoord cta_stl_y;
     unsigned char cta_splevel;
     unsigned long cta_start_turn;
+    TbBool cta_free;
     unsigned long must_obey_turn;
     int hold_audience_cast_turn;
     int scavenge_counters_turn;
