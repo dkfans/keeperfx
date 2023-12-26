@@ -150,7 +150,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     if (i != -1)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[cstore->model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[cstore->model];
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
         struct TbSprite* spr = &gui_panel_sprites[spr_idx];
@@ -281,7 +281,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     if (!thing_is_invalid(thing))
     {
         const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[thing->model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[thing->model];
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
         struct TbSprite* spr = &gui_panel_sprites[spr_idx];

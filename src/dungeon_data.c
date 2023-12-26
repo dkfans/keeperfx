@@ -162,7 +162,7 @@ TbBool player_has_room_of_role(PlayerNumber plyr_idx, RoomRole rrole)
     if (plyr_idx == game.neutral_player_num)
         return false;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
         {
@@ -185,7 +185,7 @@ long count_player_slabs_of_rooms_with_role(PlayerNumber plyr_idx, RoomRole rrole
         return 0;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     int count = 0;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (room_role_matches(rkind, rrole))
         {
@@ -221,7 +221,7 @@ TbBool dungeon_has_room(const struct Dungeon *dungeon, RoomKind rkind)
     if (dungeon_invalid(dungeon)) {
         return false;
     }
-    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
         return false;
     }
     return (dungeon->room_kind[rkind] > 0);
@@ -239,11 +239,11 @@ TbBool dungeon_has_room_of_role(const struct Dungeon *dungeon, RoomRole rrole)
         return false;
     }
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
-            if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
+            if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
                 return false;
             }
             if (dungeon->room_kind[rkind] > 0)
@@ -314,7 +314,7 @@ TbBool set_creature_tendencies(struct PlayerInfo *player, unsigned short tend_ty
 
 TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
 {
-    if ( (tngmodel <= 0) || (tngmodel >= gameadd.trapdoor_conf.trap_types_count) ) {
+    if ( (tngmodel <= 0) || (tngmodel >= game.conf.trapdoor_conf.trap_types_count) ) {
         ERRORDBG(1,"Can't set trap availability; invalid trap kind %d.",(int)tngmodel);
         return false;
     }
@@ -343,7 +343,7 @@ TbBool set_trap_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
 
 TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tngmodel, long buildable, long amount)
 {
-    if ( (tngmodel <= 0) || (tngmodel >= gameadd.trapdoor_conf.door_types_count) ) {
+    if ( (tngmodel <= 0) || (tngmodel >= game.conf.trapdoor_conf.door_types_count) ) {
         ERRORDBG(1,"Can't set door availability; invalid door kind %d.",(int)tngmodel);
         return false;
     }
@@ -373,7 +373,7 @@ TbBool set_door_buildable_and_add_to_amount(PlayerNumber plyr_idx, ThingModel tn
  */
 TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon)
 {
-    for (ThingModel tngmodel = 1; tngmodel < gameadd.trapdoor_conf.trap_types_count; tngmodel++)
+    for (ThingModel tngmodel = 1; tngmodel < game.conf.trapdoor_conf.trap_types_count; tngmodel++)
     {
         if ((dungeon->mnfct_info.trap_amount_stored[tngmodel] + dungeon->mnfct_info.trap_amount_offmap[tngmodel]) > 0)
             return true;
@@ -388,7 +388,7 @@ TbBool dungeon_has_any_buildable_traps(struct Dungeon *dungeon)
  */
 TbBool dungeon_has_any_buildable_doors(struct Dungeon *dungeon)
 {
-    for (ThingModel tngmodel = 1; tngmodel < gameadd.trapdoor_conf.door_types_count; tngmodel++)
+    for (ThingModel tngmodel = 1; tngmodel < game.conf.trapdoor_conf.door_types_count; tngmodel++)
     {
         if ((dungeon->mnfct_info.door_amount_stored[tngmodel] + dungeon->mnfct_info.door_amount_offmap[tngmodel]) > 0)
             return true;
@@ -467,7 +467,7 @@ TbBool mark_creature_joined_dungeon(struct Thing *creatng)
 void init_dungeon_essential_position(struct Dungeon *dungeon)
 {
     struct Room* room = room_get(dungeon->room_kind[RoK_DUNGHEART]);
-    for (RoomKind rkind = 1; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 1; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if (!room_is_invalid(room))
             break;
@@ -510,24 +510,25 @@ void init_dungeons(void)
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
         struct Dungeon* dungeon = get_dungeon(game.hero_player_num);
-        dungeon->hates_player[i] = game.fight_max_hate;
+        dungeon->hates_player[i] = game.conf.rules.creature.fight_max_hate;
         dungeon = get_dungeon(i);
-        dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.fight_max_hate;
+        dungeon->hates_player[game.hero_player_num%DUNGEONS_COUNT] = game.conf.rules.creature.fight_max_hate;
         dungeon->num_active_diggers = 0;
         dungeon->num_active_creatrs = 0;
         dungeon->creatr_list_start = 0;
         dungeon->digger_list_start = 0;
         dungeon->owner = i;
-        dungeon->max_creatures_attracted = game.default_max_crtrs_gen_entrance;
+        dungeon->max_creatures_attracted = game.conf.rules.rooms.default_max_crtrs_gen_entrance;
         dungeon->dead_creatures_count = 0;
         dungeon->dead_creature_idx = 0;
         for (int k = 0; k < DUNGEONS_COUNT; k++)
         {
           if (k == i)
-            dungeon->hates_player[k] = game.fight_max_love;
+            dungeon->hates_player[k] = game.conf.rules.creature.fight_max_love;
           else
-            dungeon->hates_player[k] = game.fight_max_hate;
+            dungeon->hates_player[k] = game.conf.rules.creature.fight_max_hate;
         }
+        dungeon->color_idx = i;
         LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }
 }

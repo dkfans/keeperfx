@@ -33,7 +33,7 @@ extern "C" {
 #define LINEMSG_SIZE     160
 #define READ_BUFSIZE     256
 #define LOOPED_FILE_LEN 4096
-#define COMMAND_WORD_LEN  32
+#define COMMAND_WORD_LEN  64
 
 // Max length of any processed string
 #define MAX_TEXT_LENGTH 4096
@@ -216,6 +216,15 @@ void make_uppercase(char *);
  * @return Returns TRUE if the given masked bits are set to 1 in the given flags variable.
  */
 #define flag_is_set(flags,mask) ((flags & mask) == mask)
+
+/** 
+ * Check if any of the given flags is set - by checking if any of the given masked bits are set to 1 in the given flags variable.
+ * 
+ * @param flags The flags variable we want to check.
+ * @param mask Bitmask, containing 1 (or more) masked bits, representing the bit flags we want to check in the "flags" parameter.
+ * @return Returns TRUE if any of the given masked bits are set to 1 in the given flags variable.
+ */
+#define any_flag_is_set(flags,mask) ((flags & mask) != 0)
 
 /** 
  * Check if all of the flags are set - by checking if all of the bits are set to 1 in the given flags variable.
