@@ -159,7 +159,7 @@ static const unsigned short creature_list[CREATURE_FRAMELIST_LENGTH] = {
 struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing)
 {
     int crmodel = thing->model;
-    if ((crmodel < 1) || (crmodel >= gameadd.crtr_conf.model_count))
+    if ((crmodel < 1) || (crmodel >= game.conf.crtr_conf.model_count))
         crmodel = 0;
     struct CreatureStats* crstat = creature_stats_get(crmodel);
     return &crstat->creature_picked_up_offset;
@@ -307,11 +307,11 @@ short get_creature_model_graphics(long crmodel, unsigned short seq_idx)
       ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
       seq_idx = 0;
   }
-  if ((crmodel < 0) || (crmodel >= gameadd.crtr_conf.model_count)) {
+  if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
       ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
       crmodel = 0;
   }
-  return gameadd.crtr_conf.creature_graphics[crmodel][seq_idx];
+  return game.conf.crtr_conf.creature_graphics[crmodel][seq_idx];
 }
 
 void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned long val)
@@ -320,11 +320,11 @@ void set_creature_model_graphics(long crmodel, unsigned short seq_idx, unsigned 
         ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
-    if ((crmodel < 0) || (crmodel >= gameadd.crtr_conf.model_count)) {
+    if ((crmodel < 0) || (crmodel >= game.conf.crtr_conf.model_count)) {
         ERRORLOG("Invalid model %d graphics sequence %d",crmodel,seq_idx);
         return;
     }
-    gameadd.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
+    game.conf.crtr_conf.creature_graphics[crmodel][seq_idx] = val;
 }
 
 short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
@@ -336,12 +336,12 @@ short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 void untint_thing(struct Thing *thing)
 {
     thing->tint_colour = 0;
-    thing->rendering_flags &= ~(TRF_Unknown04|TRF_Unknown08);
+    thing->rendering_flags &= ~(TRF_Tint_1|TRF_Tint_2);
 }
 
 void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 {
-    thing->rendering_flags ^= (thing->rendering_flags ^ (tint << 2)) & (TRF_Unknown04|TRF_Unknown08);
+    thing->rendering_flags ^= (thing->rendering_flags ^ (tint << 2)) & (TRF_Tint_1|TRF_Tint_2);
     thing->tint_colour = colour;
 }
 
@@ -523,12 +523,12 @@ void update_creature_graphic_tint(struct Thing *thing)
     {
         untint_thing(thing);
     } else
-    if ((game.play_gameturn % 3) == 0)
+    if (((game.play_gameturn % 3) == 0) || is_hero_thing(thing))
     {
         untint_thing(thing);
     } else
     {
-        switch (thing->owner) //TODO: move player colors to array
+        switch (get_player_color_idx(thing->owner)) //TODO: move player colors to array
         {
         case 0:
             tint_thing(thing, colours[15][0][0], 1);
@@ -541,6 +541,9 @@ void update_creature_graphic_tint(struct Thing *thing)
             break;
         case 3:
             tint_thing(thing, colours[13][13][2], 1);
+            break;
+        case 4:
+            tint_thing(thing, colours[15][15][15], 1);
             break;
         default:
             untint_thing(thing);

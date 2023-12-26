@@ -169,8 +169,8 @@ void remove_body_from_graveyard(struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(room->owner);
     dungeon->bodies_rotten_for_vampire++;
     dungeon->lvstats.graveyard_bodys++;
-    if (dungeon->bodies_rotten_for_vampire >= game.bodies_for_vampire) {
-        dungeon->bodies_rotten_for_vampire -= game.bodies_for_vampire;
+    if (dungeon->bodies_rotten_for_vampire >= game.conf.rules.rooms.bodies_for_vampire) {
+        dungeon->bodies_rotten_for_vampire -= game.conf.rules.rooms.bodies_for_vampire;
         create_vampire_in_room(room);
     }
 }
@@ -252,7 +252,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
                 }
             } else
             {
-                if (game.play_gameturn - thing->creation_turn > game.body_remains_for) {
+                if (game.play_gameturn - thing->creation_turn > game.conf.rules.creature.body_remains_for) {
                     delete_thing_structure(thing, 0);
                     return TUFRet_Deleted;
                 }
@@ -261,7 +261,7 @@ TngUpdateRet update_dead_creature(struct Thing *thing)
         {
             corpse_age = game.play_gameturn - thing->creation_turn;
             #define VANISH_EFFECT_DELAY 60
-            if (((corpse_age > game.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
+            if (((corpse_age > game.conf.rules.creature.body_remains_for) ||(!corpse_is_rottable(thing) && (corpse_age > VANISH_EFFECT_DELAY)))
                 && !(is_thing_directly_controlled(thing) || is_thing_passenger_controlled(thing)))
             {
                 delete_corpse(thing);
@@ -455,17 +455,17 @@ struct Thing *create_dead_creature(const struct Coord3d *pos, ThingModel model, 
     case DCrSt_RigorMortis:
         thing->active_state = DCrSt_RigorMortis;
         k = get_creature_anim(thing, 17);
-        set_thing_draw(thing, k, 256, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
+        set_thing_draw(thing, k, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
         break;
     default:
         thing->active_state = DCrSt_DramaticDying;
         k = get_creature_anim(thing, 15);
-        set_thing_draw(thing, k, 128, gameadd.crtr_conf.sprite_size, 0, 0, ODC_Default);
+        set_thing_draw(thing, k, 128, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
         thing->health = 3 * get_lifespan_of_animation(thing->anim_sprite, thing->anim_speed);
         play_creature_sound(thing, CrSnd_Die, 3, 0);
         break;
     }
-    thing->sprite_size = (gameadd.crtr_conf.sprite_size * (long)thing->corpse.exp_level) / 20 + gameadd.crtr_conf.sprite_size;
+    thing->sprite_size = (game.conf.crtr_conf.sprite_size * (long)thing->corpse.exp_level) / 20 + game.conf.crtr_conf.sprite_size;
     return thing;
 }
 

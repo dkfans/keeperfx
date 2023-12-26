@@ -108,6 +108,7 @@ enum FunctestFlags {
     FTF_Abort               = 0x04, // Something went wrong, aborting
     FTF_LevelLoaded         = 0x08, // For tracking if map is ready
     FTF_ExitOnTestFailure   = 0x10, // If users want to exit on any test failure
+    FTF_IncludeLongTests    = 0x20, // If users want to run the long running test list
 };
 #endif
 

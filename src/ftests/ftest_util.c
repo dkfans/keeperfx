@@ -235,9 +235,9 @@ struct Thing* ftest_util_create_random_creature(MapCoord x, MapCoord y, PlayerNu
 {
     ThingModel crmodel;
     while (1) {
-        crmodel = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
+        crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
         // Accept any non-spectator creatures
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
         if ((crconf->model_flags & CMF_IsSpectator) != 0) {
             continue;
         }
@@ -349,6 +349,45 @@ TbBool ftest_util_replace_slabs_with_dungeon_hearts(MapSlabCoord slb_x_from, Map
     return true;
 }
 
+TbBool ftest_util_mark_slab_for_highlight(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx)
+{
+    long stl_x = slab_subtile(slb_x,0);
+    long stl_y = slab_subtile(slb_y,0);
+
+    long dx;
+    long dy;
+    struct Map* mapblk = INVALID_MAP_BLOCK;
+    for (dy=0; dy < STL_PER_SLB; dy++)
+    {
+        for (dx=0; dx < STL_PER_SLB; dx++)
+        {
+            mapblk = get_map_block_at(stl_x + dx, stl_y + dy);
+            if(map_block_invalid(mapblk))
+            {
+                ERRORLOG("Invalid map block for slab (%d,%d) at (%ld,%ld)", slb_x, slb_y, stl_x + dx, stl_y + dy);
+                return false;
+            }
+
+            if((slb_x % 2 == 0 && slb_y % 2 != 0) || (slb_x % 2 != 0 && slb_y % 2 == 0))
+            {
+                if(((dx == 0 || dx == 2) && (dy == 0 || dy == 2)) || (dx == 1 && dy == 1))
+                {
+                    mapblk->flags |= SlbAtFlg_Unexplored;
+                }
+            }
+            else
+            {
+                if(!(((dx == 0 || dx == 2) && (dy == 0 || dy == 2)) || (dx == 1 && dy == 1)))
+                {
+                    mapblk->flags |= SlbAtFlg_Unexplored;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
 TbBool ftest_util_action__create_and_fill_torture_room(struct FTestActionArgs* const args)
 {
     struct ftest_util_action__create_and_fill_torture_room__variables* const vars = args->data;
@@ -402,7 +441,7 @@ struct Thing* ftest_util_create_door_for_player_with_health(MapSlabCoord slb_x, 
     struct Coord3d doorPos;
     set_coords_to_slab_center(&doorPos, slb_x, slb_y);
 
-    //ThingModel doorModel = gameadd.trapdoor_conf.door_to_object[1]; // couldn't find proper type mapping
+    //ThingModel doorModel = game.conf.trapdoor_conf.door_to_object[1]; // couldn't find proper type mapping
     ThingModel doorModel = 1; // wooden door == 1 (hardcoded for now)
     unsigned char orient = find_door_angle(doorPos.x.stl.num, doorPos.y.stl.num, owner);
     struct Thing* new_door = create_door(&doorPos, doorModel, orient, owner, true); 

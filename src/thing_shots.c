@@ -351,7 +351,7 @@ SubtlCodedCoords process_dig_shot_hit_wall(struct Thing *thing, long blocked_fla
     *health = slb->health;
     // You can only dig your own tiles or non-fortified neutral ground (dirt/gold)
     // If you're not the tile owner, unless the classic bug mode is enabled.
-    if (!(gameadd.classic_bugs_flags & ClscBug_BreakNeutralWalls))
+    if (!(game.conf.rules.game.classic_bugs_flags & ClscBug_BreakNeutralWalls))
     {
         if (slabmap_owner(slb) != diggertng->owner)
         {
@@ -552,7 +552,7 @@ TbBool shot_hit_wall_at(struct Thing *shotng, struct Coord3d *pos)
                 {
                     struct Coord3d target_pos;
                     target_pos.x.val = shotng->shot_lizard.x;
-                    target_pos.y.val = shotng->shot_lizard.posint * gameadd.crtr_conf.sprite_size;
+                    target_pos.y.val = shotng->shot_lizard.posint * game.conf.crtr_conf.sprite_size;
                     target_pos.z.val = pos->z.val;
                     const MapCoordDelta dist = get_2d_distance(pos, &target_pos);
                     if (dist <= 800) return detonate_shot(shotng, true);
@@ -686,7 +686,7 @@ TbBool apply_shot_experience(struct Thing *shooter, long exp_factor, long exp_in
     struct CreatureControl* shcctrl = creature_control_get_from_thing(shooter);
     struct ShotConfigStats* shotst = get_shot_model_stats(shot_model);
     long exp_mag = shotst->experience_given_to_shooter;
-    long exp_gained = (exp_mag * (exp_factor + gameadd.crtr_conf.exp.exp_on_hitting_increase_on_exp * exp_factor * exp_increase / 100) << 8) / 256;
+    long exp_gained = (exp_mag * (exp_factor + game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp * exp_factor * exp_increase / 100) << 8) / 256;
     shcctrl->prev_exp_points = shcctrl->exp_points;
     shcctrl->exp_points += exp_gained;
     if ( check_experience_upgrade(shooter) ) {
@@ -994,7 +994,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
         dieflags = CrDed_DiedInBattle | ((shotst->model_flags & ShMF_NoStun)?CrDed_NoUnconscious:0) | ((shotst->model_flags & ShMF_BlocksRebirth)? CrDed_NoRebirth : 0);
     }
     // Friendly fire should kill the creature, not knock out
-    if ((shotng->owner == creatng->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint))
+    if ((shotng->owner == creatng->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint))
     {
         dieflags |= CrDed_NoUnconscious;
     }
@@ -1144,7 +1144,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             pos2.x.val = killertng->mappos.x.val;
             pos2.y.val = killertng->mappos.y.val;
             struct CreatureControl* cctrl = creature_control_get_from_thing(killertng);
-            short target_center = (killertng->solid_size_z + ((killertng->solid_size_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
+            short target_center = (killertng->solid_size_z + ((killertng->solid_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 100)) / 2;
             pos2.z.val = target_center + killertng->mappos.z.val;
             clear_thing_acceleration(shotng);
             set_thing_acceleration_angles(shotng, get_angle_xy_to(&shotng->mappos, &pos2), get_angle_yz_to(&shotng->mappos, &pos2));
@@ -1237,7 +1237,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     if (creature_is_being_unconscious(trgtng))
     {
         amp ++;
-        if (gameadd.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
+        if (game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
             amp *= 5;
             i = amp * (long)shotng->velocity.x.val;
@@ -1294,7 +1294,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     create_relevant_effect_for_shot_hitting_thing(shotng, trgtng);
     if (shotst->model_flags & ShMF_Boulder)
     {
-        if (creature_is_being_unconscious(trgtng)  && !(gameadd.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
+        if (creature_is_being_unconscious(trgtng)  && !(game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)) //We're not actually hitting the unconscious units with a boulder
         {
             return 0;
         } 
@@ -1640,7 +1640,7 @@ TngUpdateRet update_shot(struct Thing *thing)
             {
                 struct Coord3d target_pos;
                 target_pos.x.val = thing->shot_lizard.x;
-                target_pos.y.val = thing->shot_lizard.posint * gameadd.crtr_conf.sprite_size;
+                target_pos.y.val = thing->shot_lizard.posint * game.conf.crtr_conf.sprite_size;
                 target_pos.z.val = target->mappos.z.val;
                 dist = get_2d_distance(&thing->mappos, &target_pos);
                 if (dist <= 260) hit = true;

@@ -102,7 +102,7 @@ TbBool packets_process_cheats(
         }
         else
         {
-            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[playeradd->cheatselection.chosen_hero_kind];
+            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[playeradd->cheatselection.chosen_hero_kind];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), playeradd->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
@@ -116,12 +116,12 @@ TbBool packets_process_cheats(
                 {
                     while (1)
                     {
-                        crmodel = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
-                        if (crmodel >= gameadd.crtr_conf.model_count)
+                        crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
+                        if (crmodel >= game.conf.crtr_conf.model_count)
                         {
                             continue;
                         }
-                        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+                        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
                         if ((crconf->model_flags & CMF_IsSpectator) != 0)
                         {
                             continue;
@@ -259,7 +259,7 @@ TbBool packets_process_cheats(
         }
         else
         {
-            struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[playeradd->cheatselection.chosen_creature_kind];
+            struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[playeradd->cheatselection.chosen_creature_kind];
             sprintf(str, "%s %d", get_string(crconf->namestr_idx), playeradd->cheatselection.chosen_experience_level + 1);
         }
         targeted_message_add(playeradd->cheatselection.chosen_player, plyr_idx, 1, "%s", str);
@@ -273,8 +273,8 @@ TbBool packets_process_cheats(
                 {
                     while (1)
                     {
-                        crmodel = GAME_RANDOM(gameadd.crtr_conf.model_count) + 1;
-                        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+                        crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
+                        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
                         if ((crconf->model_flags & CMF_IsSpectator) != 0) {
                             continue;
                         }
@@ -923,7 +923,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                     {
                         play_non_3d_sample(76);
                     }
-                    create_effect(&pos, imp_spangle_effects[id], id);
+                    create_effect(&pos, imp_spangle_effects[get_player_color_idx(id)], id);
                 }
                 else
                 {
@@ -942,7 +942,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                         if (map_block_revealed(mapblk, id) && ((mapblk->flags & SlbAtFlg_Blocking) == 0))
                         {
                             pos.z.val = get_floor_height_at(&pos);
-                            create_effect(&pos, imp_spangle_effects[id], id);
+                            create_effect(&pos, imp_spangle_effects[get_player_color_idx(id)], id);
                         }
                     }
                 }
@@ -974,7 +974,7 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
                     {
                         play_non_3d_sample(116);
                     }
-                    create_effects_on_room_slabs(room, imp_spangle_effects[pckt->actn_par1], 0, pckt->actn_par1);
+                    create_effects_on_room_slabs(room, imp_spangle_effects[get_player_color_idx(pckt->actn_par1)], 0, pckt->actn_par1);
                 }
                 take_over_room(room, pckt->actn_par1);
             }
