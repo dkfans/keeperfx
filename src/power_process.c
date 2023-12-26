@@ -190,7 +190,7 @@ void process_disease(struct Thing *creatng)
     if (!creature_affected_by_spell(creatng, SplK_Disease)) {
         return;
     }
-    if (CREATURE_RANDOM(creatng, 100) < game.disease_transfer_percentage)
+    if (CREATURE_RANDOM(creatng, 100) < game.conf.rules.magic.disease_transfer_percentage)
     {
         SubtlCodedCoords stl_num = get_subtile_number(creatng->mappos.x.stl.num, creatng->mappos.y.stl.num);
         for (long n = 0; n < AROUND_MAP_LENGTH; n++)
@@ -226,9 +226,9 @@ void process_disease(struct Thing *creatng)
             }
         }
     }
-    if (((game.play_gameturn - cctrl->disease_start_turn) % game.disease_lose_health_time) == 0)
+    if (((game.play_gameturn - cctrl->disease_start_turn) % game.conf.rules.magic.disease_lose_health_time) == 0)
     {
-        apply_damage_to_thing_and_display_health(creatng, game.disease_lose_percentage_health * cctrl->max_health / 100, DmgT_Biological, cctrl->disease_caster_plyridx);
+        apply_damage_to_thing_and_display_health(creatng, game.conf.rules.magic.disease_lose_percentage_health * cctrl->max_health / 100, DmgT_Biological, cctrl->disease_caster_plyridx);
     }
 }
 
@@ -423,7 +423,7 @@ void turn_off_power_call_to_arms(PlayerNumber plyr_idx)
     }
     struct PlayerInfo* player = get_player(plyr_idx);
     {
-        struct Thing* objtng = thing_get(player->field_43C);
+        struct Thing* objtng = thing_get(player->cta_flag_idx);
         set_call_to_arms_as_dying(objtng);
         struct Dungeon* dungeon = get_players_dungeon(player);
         dungeon->cta_start_turn = 0;

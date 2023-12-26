@@ -240,11 +240,11 @@ struct SacrificeRecipe *get_unused_sacrifice_recipe_slot(void)
 {
     for (long i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             return sac;
   }
-  return &gameadd.sacrifice_recipes[0];
+  return &game.conf.rules.sacrifices.sacrifice_recipes[0];
 }
 
 /**
@@ -254,7 +254,7 @@ void clear_sacrifice_recipes(void)
 {
     for (long i = 0; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
         LbMemorySet(sac, '\0', sizeof(struct SacrificeRecipe));
         sac->action = SacA_None;
   }
@@ -291,28 +291,28 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        game.gold_per_gold_block = 1000;
-        game.pot_of_gold_holds = 1000;
-        game.gold_pile_value = 500;
-        game.gold_pile_maximum = 5000;
-        game.food_life_out_of_hatchery = 100;
-        game.boulder_reduce_health_slap = 10;
-        game.boulder_reduce_health_wall = 10;
-        game.boulder_reduce_health_room = 10;
-        game.pay_day_gap = 5000;
-        game.chest_gold_hold = 1000;
-        game.dungeon_heart_heal_time = 10;
-        game.dungeon_heart_heal_health = 1;
-        game.hero_door_wait_time = 100;
-        gameadd.bag_gold_hold = 200;
-        gameadd.classic_bugs_flags = ClscBug_None;
-        gameadd.door_sale_percent = 100;
-        gameadd.room_sale_percent = 50;
-        gameadd.trap_sale_percent = 100;
-        gameadd.gem_effectiveness = 17;
-        gameadd.pay_day_speed = 100;
-        gameadd.place_traps_on_subtiles = false;
-        gameadd.gold_per_hoard = 2000;
+        game.conf.rules.game.gold_per_gold_block = 1000;
+        game.conf.rules.game.pot_of_gold_holds = 1000;
+        game.conf.rules.game.gold_pile_value = 500;
+        game.conf.rules.game.gold_pile_maximum = 5000;
+        game.conf.rules.game.food_life_out_of_hatchery = 100;
+        game.conf.rules.game.boulder_reduce_health_slap = 10;
+        game.conf.rules.game.boulder_reduce_health_wall = 10;
+        game.conf.rules.game.boulder_reduce_health_room = 10;
+        game.conf.rules.game.pay_day_gap = 5000;
+        game.conf.rules.game.chest_gold_hold = 1000;
+        game.conf.rules.game.dungeon_heart_heal_time = 10;
+        game.conf.rules.game.dungeon_heart_heal_health = 1;
+        game.conf.rules.game.hero_door_wait_time = 100;
+        game.conf.rules.game.bag_gold_hold = 200;
+        game.conf.rules.game.classic_bugs_flags = ClscBug_None;
+        game.conf.rules.game.door_sale_percent = 100;
+        game.conf.rules.game.room_sale_percent = 50;
+        game.conf.rules.game.trap_sale_percent = 100;
+        game.conf.rules.game.gem_effectiveness = 17;
+        game.conf.rules.game.pay_day_speed = 100;
+        game.conf.rules.game.place_traps_on_subtiles = false;
+        game.conf.rules.game.gold_per_hoard = 2000;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -340,7 +340,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.gold_per_gold_block = k;
+              game.conf.rules.game.gold_per_gold_block = k;
               n++;
             }
             if (n < 1)
@@ -353,7 +353,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.pot_of_gold_holds = k;
+              game.conf.rules.game.pot_of_gold_holds = k;
               n++;
             }
             if (n < 1)
@@ -366,7 +366,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.chest_gold_hold = k;
+              game.conf.rules.game.chest_gold_hold = k;
               n++;
             }
             if (n < 1)
@@ -379,7 +379,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.gold_pile_value = k;
+              game.conf.rules.game.gold_pile_value = k;
               n++;
             }
             if (n < 1)
@@ -392,7 +392,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.gold_pile_maximum = k;
+              game.conf.rules.game.gold_pile_maximum = k;
               n++;
             }
             if (n < 1)
@@ -405,7 +405,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.gold_per_hoard = k;
+              game.conf.rules.game.gold_per_hoard = k;
               n++;
             }
             if (n < 1)
@@ -418,7 +418,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.food_life_out_of_hatchery = k;
+              game.conf.rules.game.food_life_out_of_hatchery = k;
               n++;
             }
             if (n < 1)
@@ -437,7 +437,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.boulder_reduce_health_slap = k;
+              game.conf.rules.game.boulder_reduce_health_slap = k;
               n++;
             }
             if (n < 1)
@@ -450,7 +450,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.boulder_reduce_health_wall = k;
+              game.conf.rules.game.boulder_reduce_health_wall = k;
               n++;
             }
             if (n < 1)
@@ -463,7 +463,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.boulder_reduce_health_room = k;
+              game.conf.rules.game.boulder_reduce_health_room = k;
               n++;
             }
             if (n < 1)
@@ -483,7 +483,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.pay_day_gap = k;
+              game.conf.rules.game.pay_day_gap = k;
               n++;
             }
             if (n < 1)
@@ -496,7 +496,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.pay_day_speed = k;
+                game.conf.rules.game.pay_day_speed = k;
                 n++;
             }
             if (n < 1)
@@ -513,7 +513,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.dungeon_heart_heal_time = k;
+              game.conf.rules.game.dungeon_heart_heal_time = k;
               n++;
             }
             if (n < 1)
@@ -526,7 +526,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.dungeon_heart_heal_health = k;
+              game.conf.rules.game.dungeon_heart_heal_health = k;
               n++;
             }
             if (n < 1)
@@ -539,7 +539,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              game.hero_door_wait_time = k;
+              game.conf.rules.game.hero_door_wait_time = k;
               n++;
             }
             if (n < 1)
@@ -549,66 +549,66 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             }
             break;
         case 25: // PRESERVECLASSICBUGS
-            gameadd.classic_bugs_flags = ClscBug_None;
+            game.conf.rules.game.classic_bugs_flags = ClscBug_None;
             while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = get_id(rules_game_classicbugs_commands, word_buf);
               switch (k)
               {
               case 1: // RESURRECT_FOREVER
-                  gameadd.classic_bugs_flags |= ClscBug_ResurrectForever;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_ResurrectForever;
                   n++;
                   break;
               case 2: // OVERFLOW_8BIT
-                  gameadd.classic_bugs_flags |= ClscBug_Overflow8bitVal;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_Overflow8bitVal;
                   n++;
                   break;
               case 3: // CLAIM_ROOM_ALL_THINGS
-                  gameadd.classic_bugs_flags |= ClscBug_ClaimRoomAllThings;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_ClaimRoomAllThings;
                   n++;
                   break;
               case 4: // RESURRECT_REMOVED
-                  gameadd.classic_bugs_flags |= ClscBug_ResurrectRemoved;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_ResurrectRemoved;
                   n++;
                   break;
               case 5: // NO_HAND_PURGE_ON_DEFEAT
-                  gameadd.classic_bugs_flags |= ClscBug_NoHandPurgeOnDefeat;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_NoHandPurgeOnDefeat;
                   n++;
                   break;
               case 6: // MUST_OBEY_KEEPS_NOT_DO_JOBS
-                  gameadd.classic_bugs_flags |= ClscBug_MustObeyKeepsNotDoJobs;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_MustObeyKeepsNotDoJobs;
                   n++;
                   break;
               case 7: // BREAK_NEUTRAL_WALLS
-                  gameadd.classic_bugs_flags |= ClscBug_BreakNeutralWalls;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_BreakNeutralWalls;
                   n++;
                   break;
               case 8: // ALWAYS_TUNNEL_TO_RED
-                  gameadd.classic_bugs_flags |= ClscBug_AlwaysTunnelToRed;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_AlwaysTunnelToRed;
                   n++;
                   break;
               case 9: // FULLY_HAPPY_WITH_GOLD
-                  gameadd.classic_bugs_flags |= ClscBug_FullyHappyWithGold;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_FullyHappyWithGold;
                   n++;
                   break;
               case 10: // FAINTED_IMMUNE_TO_BOULDER
-                  gameadd.classic_bugs_flags |= ClscBug_FaintedImmuneToBoulder;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_FaintedImmuneToBoulder;
                   n++;
                   break;
               case 11: // REBIRTH_KEEPS_SPELLS
-                  gameadd.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
                   n++;
                   break;
               case 12: // STUN_FRIENDLY_UNITS
-                  gameadd.classic_bugs_flags |= ClscBug_FriendlyFaint;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_FriendlyFaint;
                   n++;
                   break;
               case 13: // PASSIVE_NEUTRALS
-                  gameadd.classic_bugs_flags |= ClscBug_PassiveNeutrals;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_PassiveNeutrals;
                   n++;
                   break;
               case 14: // NEUTRAL_TORTURE_CONVERTS
-                  gameadd.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
+                  game.conf.rules.game.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
                   n++;
                   break;
               default:
@@ -626,7 +626,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.gem_effectiveness = k;
+                game.conf.rules.game.gem_effectiveness = k;
                 n++;
             }
             if (n < 1)
@@ -639,7 +639,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.room_sale_percent = k;
+                game.conf.rules.game.room_sale_percent = k;
                 n++;
             }
             if (n < 1)
@@ -652,7 +652,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.door_sale_percent = k;
+                game.conf.rules.game.door_sale_percent = k;
                 n++;
             }
             if (n < 1)
@@ -665,7 +665,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.trap_sale_percent = k;
+                game.conf.rules.game.trap_sale_percent = k;
                 n++;
             }
             if (n < 1)
@@ -678,7 +678,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.place_traps_on_subtiles = (TbBool)k;
+                game.conf.rules.game.place_traps_on_subtiles = (TbBool)k;
                 n++;
             }
             if (n < 1)
@@ -691,7 +691,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.bag_gold_hold = k;
+                game.conf.rules.game.bag_gold_hold = k;
                 n++;
             }
             if (n < 1)
@@ -704,7 +704,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.allies_share_vision = (TbBool)k;
+                game.conf.rules.game.allies_share_vision = (TbBool)k;
                 n++;
             }
             if (n < 1)
@@ -717,7 +717,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.allies_share_drop = (TbBool)k;
+                game.conf.rules.game.allies_share_drop = (TbBool)k;
                 n++;
             }
             if (n < 1)
@@ -730,7 +730,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.allies_share_cta = (TbBool)k;
+                game.conf.rules.game.allies_share_cta = (TbBool)k;
                 n++;
             }
             if (n < 1)
@@ -749,7 +749,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num),block_buf,config_textname, MAX_THINGS_IN_HAND);
                   k = MAX_THINGS_IN_HAND;
               }
-              gameadd.max_things_in_hand = k;
+              game.conf.rules.game.max_things_in_hand = k;
               n++;
             }
             if (n < 1)
@@ -779,7 +779,7 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
     // Default values
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        gameadd.disease_to_temple_pct = 500;
+        game.conf.rules.computer.disease_to_temple_pct = 500;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -814,7 +814,7 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.disease_to_temple_pct = k;
+                game.conf.rules.computer.disease_to_temple_pct = k;
                 n++;
             }
             if (n < 1)
@@ -844,18 +844,18 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.recovery_frequency = 10;
-      game.fight_max_hate = 200;
-      game.fight_borderline = 0;
-      game.fight_max_love = -100;
-      game.body_remains_for = 1000;
-      game.fight_hate_kill_value = -5;
-      gameadd.flee_zone_radius = 2048;
-      game.game_turns_in_flee = 200;
-      gameadd.game_turns_unconscious = 2000;
-      gameadd.critical_health_permil = 125;
-      gameadd.stun_enemy_chance_good = 100;
-      gameadd.stun_enemy_chance_evil = 100;
+      game.conf.rules.creature.recovery_frequency = 10;
+      game.conf.rules.creature.fight_max_hate = 200;
+      game.conf.rules.creature.fight_borderline = 0;
+      game.conf.rules.creature.fight_max_love = -100;
+      game.conf.rules.creature.body_remains_for = 1000;
+      game.conf.rules.creature.fight_hate_kill_value = -5;
+      game.conf.rules.creature.flee_zone_radius = 2048;
+      game.conf.rules.creature.game_turns_in_flee = 200;
+      game.conf.rules.creature.game_turns_unconscious = 2000;
+      game.conf.rules.creature.critical_health_permil = 125;
+      game.conf.rules.creature.stun_enemy_chance_good = 100;
+      game.conf.rules.creature.stun_enemy_chance_evil = 100;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -883,7 +883,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.recovery_frequency = k;
+            game.conf.rules.creature.recovery_frequency = k;
             n++;
           }
           if (n < 1)
@@ -896,7 +896,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.fight_max_hate = k;
+            game.conf.rules.creature.fight_max_hate = k;
             n++;
           }
           if (n < 1)
@@ -909,7 +909,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.fight_borderline = k;
+            game.conf.rules.creature.fight_borderline = k;
             n++;
           }
           if (n < 1)
@@ -922,7 +922,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.fight_max_love = k;
+            game.conf.rules.creature.fight_max_love = k;
             n++;
           }
           if (n < 1)
@@ -935,7 +935,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.body_remains_for = k;
+            game.conf.rules.creature.body_remains_for = k;
             n++;
           }
           if (n < 1)
@@ -948,7 +948,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.fight_hate_kill_value = k;
+            game.conf.rules.creature.fight_hate_kill_value = k;
             n++;
           }
           if (n < 1)
@@ -961,7 +961,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.flee_zone_radius = k;
+            game.conf.rules.creature.flee_zone_radius = k;
             n++;
           }
           if (n < 1)
@@ -974,7 +974,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.game_turns_in_flee = k;
+            game.conf.rules.creature.game_turns_in_flee = k;
             n++;
           }
           if (n < 1)
@@ -987,7 +987,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.game_turns_unconscious = k;
+            game.conf.rules.creature.game_turns_unconscious = k;
             n++;
           }
           if (n < 1)
@@ -1000,7 +1000,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.critical_health_permil = k*10;
+            game.conf.rules.creature.critical_health_permil = k*10;
             n++;
           }
           if (n < 1)
@@ -1013,7 +1013,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              gameadd.stun_enemy_chance_evil = k;
+              game.conf.rules.creature.stun_enemy_chance_evil = k;
               n++;
           }
           if (n < 1)
@@ -1026,7 +1026,7 @@ TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_text
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              gameadd.stun_enemy_chance_good = k;
+              game.conf.rules.creature.stun_enemy_chance_good = k;
               n++;
           }
           if (n < 1)
@@ -1056,18 +1056,18 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.hold_audience_time = 500;
-      game.armagedon_teleport_your_time_gap = 10;
-      game.armagedon_teleport_enemy_time_gap = 10;
+      game.conf.rules.magic.hold_audience_time = 500;
+      game.conf.rules.magic.armagedon_teleport_your_time_gap = 10;
+      game.conf.rules.magic.armagedon_teleport_enemy_time_gap = 10;
       game.armageddon.count_down = 500;
       game.armageddon.duration = 4000;
-      game.disease_transfer_percentage = 15;
-      game.disease_lose_percentage_health = 8;
-      game.disease_lose_health_time = 200;
-      game.min_distance_for_teleport = 20;
-      game.collapse_dungeon_damage = 10;
-      game.turns_per_collapse_dngn_dmg = 4;
-      game.power_hand_gold_grab_amount = 100;
+      game.conf.rules.magic.disease_transfer_percentage = 15;
+      game.conf.rules.magic.disease_lose_percentage_health = 8;
+      game.conf.rules.magic.disease_lose_health_time = 200;
+      game.conf.rules.magic.min_distance_for_teleport = 20;
+      game.conf.rules.magic.collapse_dungeon_damage = 10;
+      game.conf.rules.magic.turns_per_collapse_dngn_dmg = 4;
+      game.conf.rules.magic.power_hand_gold_grab_amount = 100;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1095,7 +1095,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.hold_audience_time = k;
+            game.conf.rules.magic.hold_audience_time = k;
             n++;
           }
           if (n < 1)
@@ -1108,7 +1108,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.armagedon_teleport_your_time_gap = k;
+            game.conf.rules.magic.armagedon_teleport_your_time_gap = k;
             n++;
           }
           if (n < 1)
@@ -1121,7 +1121,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.armagedon_teleport_enemy_time_gap = k;
+            game.conf.rules.magic.armagedon_teleport_enemy_time_gap = k;
             n++;
           }
           if (n < 1)
@@ -1134,7 +1134,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.armegeddon_teleport_neutrals = k;
+            game.conf.rules.magic.armegeddon_teleport_neutrals = k;
             n++;
           }
           if (n < 1)
@@ -1173,7 +1173,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.disease_transfer_percentage = k;
+            game.conf.rules.magic.disease_transfer_percentage = k;
             n++;
           }
           if (n < 1)
@@ -1186,7 +1186,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.disease_lose_percentage_health = k;
+            game.conf.rules.magic.disease_lose_percentage_health = k;
             n++;
           }
           if (n < 1)
@@ -1199,7 +1199,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.disease_lose_health_time = k;
+            game.conf.rules.magic.disease_lose_health_time = k;
             n++;
           }
           if (n < 1)
@@ -1212,7 +1212,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.min_distance_for_teleport = k;
+            game.conf.rules.magic.min_distance_for_teleport = k;
             n++;
           }
           if (n < 1)
@@ -1225,7 +1225,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.collapse_dungeon_damage = k;
+            game.conf.rules.magic.collapse_dungeon_damage = k;
             n++;
           }
           if (n < 1)
@@ -1238,7 +1238,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.turns_per_collapse_dngn_dmg = k;
+            game.conf.rules.magic.turns_per_collapse_dngn_dmg = k;
             n++;
           }
           if (n < 1)
@@ -1254,7 +1254,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.power_hand_gold_grab_amount = k;
+            game.conf.rules.magic.power_hand_gold_grab_amount = k;
             n++;
           }
           if (n < 1)
@@ -1267,7 +1267,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.friendly_fight_area_range_permil = k * 10;
+            game.conf.rules.magic.friendly_fight_area_range_permil = k * 10;
             n++;
           }
           if (n < 1)
@@ -1280,7 +1280,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.friendly_fight_area_damage_permil = k * 10;
+            game.conf.rules.magic.friendly_fight_area_damage_permil = k * 10;
             n++;
           }
           if (n < 1)
@@ -1310,21 +1310,21 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.scavenge_cost_frequency = 64;
-      game.temple_scavenge_protection_turns = 1000;
-      game.train_cost_frequency = 64;
-      game.ghost_convert_chance = 10;
-      game.default_generate_speed = 500;
-      game.default_max_crtrs_gen_entrance = 200;
-      game.food_generation_speed = 2000;
-      game.prison_skeleton_chance = 100;
-      game.bodies_for_vampire = 6;
-      game.graveyard_convert_time = 300;
-      game.barrack_max_party_size = 10;
-      game.training_room_max_level = 0;
-      gameadd.scavenge_good_allowed = 1;
-      gameadd.scavenge_neutral_allowed = 1;
-      gameadd.time_between_prison_break = 64;
+      game.conf.rules.rooms.scavenge_cost_frequency = 64;
+      game.conf.rules.rooms.temple_scavenge_protection_turns = 1000;
+      game.conf.rules.rooms.train_cost_frequency = 64;
+      game.conf.rules.rooms.ghost_convert_chance = 10;
+      game.conf.rules.rooms.default_generate_speed = 500;
+      game.conf.rules.rooms.default_max_crtrs_gen_entrance = 200;
+      game.conf.rules.rooms.food_generation_speed = 2000;
+      game.conf.rules.rooms.prison_skeleton_chance = 100;
+      game.conf.rules.rooms.bodies_for_vampire = 6;
+      game.conf.rules.rooms.graveyard_convert_time = 300;
+      game.conf.rules.rooms.barrack_max_party_size = 10;
+      game.conf.rules.rooms.training_room_max_level = 0;
+      game.conf.rules.rooms.scavenge_good_allowed = 1;
+      game.conf.rules.rooms.scavenge_neutral_allowed = 1;
+      game.conf.rules.rooms.time_between_prison_break = 64;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1352,7 +1352,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.scavenge_cost_frequency = k;
+            game.conf.rules.rooms.scavenge_cost_frequency = k;
             n++;
           }
           if (n < 1)
@@ -1365,7 +1365,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.temple_scavenge_protection_turns = k;
+            game.conf.rules.rooms.temple_scavenge_protection_turns = k;
             n++;
           }
           if (n < 1)
@@ -1378,7 +1378,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.train_cost_frequency = k;
+            game.conf.rules.rooms.train_cost_frequency = k;
             n++;
           }
           if (n < 1)
@@ -1391,7 +1391,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.torture_convert_chance = k;
+            game.conf.rules.rooms.torture_convert_chance = k;
             n++;
           }
           if (n < 1)
@@ -1404,7 +1404,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.time_in_prison_without_break = k;
+            game.conf.rules.rooms.time_in_prison_without_break = k;
             n++;
           }
           if (n < 1)
@@ -1417,7 +1417,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.ghost_convert_chance = k;
+            game.conf.rules.rooms.ghost_convert_chance = k;
             n++;
           }
           if (n < 1)
@@ -1442,7 +1442,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.default_generate_speed = k;
+            game.conf.rules.rooms.default_generate_speed = k;
             n++;
           }
           if (n < 1)
@@ -1455,7 +1455,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.default_max_crtrs_gen_entrance = k;
+            game.conf.rules.rooms.default_max_crtrs_gen_entrance = k;
             n++;
           }
           if (n < 1)
@@ -1474,7 +1474,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.food_generation_speed = k;
+            game.conf.rules.rooms.food_generation_speed = k;
             n++;
           }
           if (n < 1)
@@ -1487,7 +1487,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.prison_skeleton_chance = k;
+            game.conf.rules.rooms.prison_skeleton_chance = k;
             n++;
           }
           if (n < 1)
@@ -1500,7 +1500,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.bodies_for_vampire = k;
+            game.conf.rules.rooms.bodies_for_vampire = k;
             n++;
           }
           if (n < 1)
@@ -1513,7 +1513,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.graveyard_convert_time = k;
+            game.conf.rules.rooms.graveyard_convert_time = k;
             n++;
           }
           if (n < 1)
@@ -1526,7 +1526,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.scavenge_good_allowed = k;
+            game.conf.rules.rooms.scavenge_good_allowed = k;
             n++;
           }
           if (n < 1)
@@ -1539,7 +1539,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.scavenge_neutral_allowed = k;
+            game.conf.rules.rooms.scavenge_neutral_allowed = k;
             n++;
           }
           if (n < 1)
@@ -1552,7 +1552,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.time_between_prison_break = k;
+            game.conf.rules.rooms.time_between_prison_break = k;
             n++;
           }
           if (n < 1)
@@ -1565,7 +1565,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            gameadd.prison_break_chance = k;
+            game.conf.rules.rooms.prison_break_chance = k;
             n++;
           }
           if (n < 1)
@@ -1578,7 +1578,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              gameadd.torture_death_chance = k;
+              game.conf.rules.rooms.torture_death_chance = k;
               n++;
           }
           if (n < 1)
@@ -1591,7 +1591,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              game.barrack_max_party_size = k;
+              game.conf.rules.rooms.barrack_max_party_size = k;
               n++;
           }
           if (n < 1)
@@ -1604,7 +1604,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              game.training_room_max_level = k;
+              game.conf.rules.rooms.training_room_max_level = k;
               n++;
           }
           if (n < 1)
@@ -1625,7 +1625,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
       skip_conf_to_next_line(buf,&pos,len);
   }
 #undef COMMAND_TEXT
-  //SYNCMSG("Prison skeleton chance = %d",game.prison_skeleton_chance);
+  //SYNCMSG("Prison skeleton chance = %d",game.conf.rules.rooms.prison_skeleton_chance);
   return true;
 }
 
@@ -1635,9 +1635,9 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.hits_per_slab = 2;
-      game.default_imp_dig_damage = 1;
-      game.default_imp_dig_own_damage = 2;
+      game.conf.rules.workers.hits_per_slab = 2;
+      game.conf.rules.workers.default_imp_dig_damage = 1;
+      game.conf.rules.workers.default_imp_dig_own_damage = 2;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1665,7 +1665,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.hits_per_slab = k;
+            game.conf.rules.workers.hits_per_slab = k;
             n++;
           }
           if (n < 1)
@@ -1690,7 +1690,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.default_imp_dig_damage = k;
+            game.conf.rules.workers.default_imp_dig_damage = k;
             n++;
           }
           if (n < 1)
@@ -1703,7 +1703,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.default_imp_dig_own_damage = k;
+            game.conf.rules.workers.default_imp_dig_own_damage = k;
             n++;
           }
           if (n < 1)
@@ -1719,7 +1719,7 @@ TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textna
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              gameadd.digger_work_experience = k;
+              game.conf.rules.workers.digger_work_experience = k;
               n++;
           }
           if (n < 1)
@@ -1749,11 +1749,11 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.hunger_health_loss = 1;
-      game.turns_per_hunger_health_loss = 100;
-      game.food_health_gain = 10;
-      game.torture_health_loss = 5;
-      game.turns_per_torture_health_loss = 100;
+      game.conf.rules.health.hunger_health_loss = 1;
+      game.conf.rules.health.turns_per_hunger_health_loss = 100;
+      game.conf.rules.health.food_health_gain = 10;
+      game.conf.rules.health.torture_health_loss = 5;
+      game.conf.rules.health.turns_per_torture_health_loss = 100;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1781,7 +1781,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.hunger_health_loss = k;
+            game.conf.rules.health.hunger_health_loss = k;
             n++;
           }
           if (n < 1)
@@ -1794,7 +1794,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.turns_per_hunger_health_loss = k;
+            game.conf.rules.health.turns_per_hunger_health_loss = k;
             n++;
           }
           if (n < 1)
@@ -1807,7 +1807,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.food_health_gain = k;
+            game.conf.rules.health.food_health_gain = k;
             n++;
           }
           if (n < 1)
@@ -1826,7 +1826,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.torture_health_loss = k;
+            game.conf.rules.health.torture_health_loss = k;
             n++;
           }
           if (n < 1)
@@ -1839,7 +1839,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            game.turns_per_torture_health_loss = k;
+            game.conf.rules.health.turns_per_torture_health_loss = k;
             n++;
           }
           if (n < 1)
@@ -1988,24 +1988,24 @@ TbBool parse_rules_research_blocks(char *buf, long len, const char *config_textn
  */
 static void mark_cheaper_diggers_sacrifice(void)
 {
-    gameadd.cheaper_diggers_sacrifice_model = 0;
+    game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model = 0;
     for (int i = 1; i < MAX_SACRIFICE_RECIPES; i++)
     {
-        struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[i];
+        struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[i];
         if (sac->action == SacA_None)
             continue;
         if (((sac->action == SacA_PosUniqFunc) && (sac->param == UnqF_CheaperImp)) 
             || ((sac->action == SacA_NegUniqFunc) && (sac->param == UnqF_CostlierImp)))
         {
-            if ((sac->victims[1] == 0) && (gameadd.cheaper_diggers_sacrifice_model == 0)) {
-                gameadd.cheaper_diggers_sacrifice_model = sac->victims[0];
+            if ((sac->victims[1] == 0) && (game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model == 0)) {
+                game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model = sac->victims[0];
             } else {
                 WARNLOG("Found unsupported %s sacrifice; either there's more than one, or has one than more victim.",
                     get_conf_parameter_text(sacrifice_unique_desc,UnqF_CheaperImp));
             }
         }
     }
-    SYNCDBG(4,"Marked sacrifice of %s",thing_class_and_model_name(TCls_Creature, gameadd.cheaper_diggers_sacrifice_model));
+    SYNCDBG(4,"Marked sacrifice of %s",thing_class_and_model_name(TCls_Creature, game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model));
 }
 
 TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -2051,7 +2051,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
-            if (sac <= &gameadd.sacrifice_recipes[0])
+            if (sac <= &game.conf.rules.sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
@@ -2097,7 +2097,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
-            if (sac <= &gameadd.sacrifice_recipes[0])
+            if (sac <= &game.conf.rules.sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
                   word_buf,block_buf,config_textname);
@@ -2143,7 +2143,7 @@ TbBool parse_rules_sacrifices_blocks(char *buf, long len, const char *config_tex
               break;
             }
             sac = get_unused_sacrifice_recipe_slot();
-            if (sac <= &gameadd.sacrifice_recipes[0])
+            if (sac <= &game.conf.rules.sacrifices.sacrifice_recipes[0])
             {
               CONFWRNLOG("No free slot to store \"%s\" from [%s] block of %s file.",
                   word_buf,block_buf,config_textname);

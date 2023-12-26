@@ -8062,7 +8062,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     }
     shade_factor = shade >> 8;
     *scale = (thelens * (long)thing->sprite_size) / fade;
-    if ((thing->rendering_flags & (TRF_Unknown04|TRF_Unknown08)) != 0)
+    if ((thing->rendering_flags & (TRF_Tint_1|TRF_Tint_2)) != 0)
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
         shade_factor = thing->tint_colour;
