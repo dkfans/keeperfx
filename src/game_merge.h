@@ -120,8 +120,6 @@ enum GameFlags2 {
 /******************************************************************************/
 #pragma pack(1)
 
-struct PlayerInfo;
-
 /** Structure which stores state of scrollable message with text.
  */
 struct TextScrollWindow {
