@@ -46,7 +46,7 @@ button_sprite = [
 #stuff in creatures.jty
 #only works for cta flag
 animationIds = [
-    [ 867, 867,873,879,885,"CTA_WHITE_ACTIVATE",   0],#cta_birth_anim_idx
-    [ 868, 868,874,880,886,"CTA_WHITE_ACTIVE",     0],#cta_alive_anim_idx
-    [ 869, 869,875,881,887,"CTA_WHITE_DEACTIVATE", 0],#cta_leave_anim_idx
+    [ 867, 867,873,879,885,"CTA_WHITE_ACTIVATE",  0,"CTA_PURPLE_ACTIVATE",  "CTA_BLACK_ACTIVATE",  "CTA_ORANGE_ACTIVATE"  ],#cta_birth_anim_idx
+    [ 868, 868,874,880,886,"CTA_WHITE_ACTIVE",    0,"CTA_PURPLE_ACTIVE",    "CTA_BLACK_ACTIVE",    "CTA_ORANGE_ACTIVE"    ],#cta_alive_anim_idx
+    [ 869, 869,875,881,887,"CTA_WHITE_DEACTIVATE",0,"CTA_PURPLE_DEACTIVATE","CTA_BLACK_DEACTIVATE","CTA_ORANGE_DEACTIVATE"],#cta_leave_anim_idx
 ]
