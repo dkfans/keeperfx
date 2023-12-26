@@ -1491,10 +1491,10 @@ struct Thing *find_creature_lair_totem_at_subtile(MapSubtlCoord stl_x, MapSubtlC
         // Per-thing code
         if (thing->class_id == TCls_Object)
         {
-            struct Objects* objdat = get_objects_data_for_thing(thing);
-            if (objdat->related_creatr_model > 0)
+            struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
+            if (objst->related_creatr_model > 0)
             {
-                if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (objdat->related_creatr_model == crmodel))
+                if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (objst->related_creatr_model == crmodel))
                     return thing;
             }
         }
@@ -1806,7 +1806,7 @@ struct Thing *get_nth_creature_owned_by_and_failing_bool_filter(PlayerNumber ply
 
 struct Thing* get_nearest_enemy_creature_in_sight_and_range_of_trap(struct Thing* traptng)
 {
-    const struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    const struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
 
     SYNCDBG(19, "Starting");
@@ -1979,9 +1979,9 @@ struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel)
 
 TbBool lord_of_the_land_in_prison_or_tortured(void)
 {
-    for (long crtr_model = 0; crtr_model < gameadd.crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             struct Thing* thing = creature_of_model_in_prison_or_tortured(crtr_model);
@@ -1999,9 +1999,9 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
 
 struct Thing *lord_of_the_land_find(void)
 {
-    for (long crtr_model = 0; crtr_model < gameadd.crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
         {
             int i = creature_of_model_find_first(crtr_model);
@@ -2067,8 +2067,8 @@ TbBool electricity_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, c
     }
     // Friendly fire usually causes less damage and at smaller distance
     if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-        max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
-        max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
+        max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_permil / 1000;
+        max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_permil / 1000;
     }
     MapCoordDelta distance = get_chessboard_distance(pos, &tngdst->mappos);
     if (distance < max_dist)
@@ -3572,7 +3572,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
         // Per thing processing block
         if ((thing->class_id == TCls_Object) && (object_is_gold_laying_on_ground(thing)))
         {
-            if (thing->valuable.gold_stored >= game.gold_pile_maximum)
+            if (thing->valuable.gold_stored >= game.conf.rules.game.gold_pile_maximum)
             {
                 return true;
             }
@@ -4068,7 +4068,7 @@ TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing)
             force_any_creature_dragging_thing_to_drop_it(thing);
             // Drop creature if it's in hand
             if (thing_is_picked_up(thing)) {
-                if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+                if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
                     SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
                     return false;
                 }
@@ -4092,7 +4092,7 @@ TbBool setup_creature_die_if_not_in_custody(struct Thing *thing)
         force_any_creature_dragging_thing_to_drop_it(thing);
         // Drop creature if it's in hand
         if (thing_is_picked_up(thing)) {
-            if ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
+            if ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) != 0) {
                 SYNCDBG(19,"Skipped %s index %d due to classic bug",thing_model_name(thing),(int)thing->index);
                 return false;
             }
@@ -4121,9 +4121,9 @@ void setup_all_player_creatures_and_diggers_leave_or_die(PlayerNumber plyr_idx)
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
 {
     long count = 0;
-    for (ThingModel crmodel = 1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (ThingModel crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
         if (((crconf->model_flags & need_mdflags) == need_mdflags) &&
            ((crconf->model_flags & excl_mdflags) == 0))
         {
@@ -4136,9 +4136,9 @@ long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, un
 long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags)
 {
     long count = 0;
-    for (ThingModel crmodel = 1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (ThingModel crmodel = 1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crmodel];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
         if (((crconf->model_flags & need_mdflags) == need_mdflags) &&
            ((crconf->model_flags & excl_mdflags) == 0))
         {

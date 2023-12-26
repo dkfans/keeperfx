@@ -245,13 +245,17 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
         {
             pixval = player_highlight_colours[owner];
       } else
-      if (owner == game.neutral_player_num)
       {
-          pixval = player_room_colours[game.play_gameturn & 3];
-      } else
-      {
-          pixval = player_room_colours[owner];
+        unsigned char color_idx = get_player_color_idx(owner);
+        if (color_idx == NEUTRAL_PLAYER)
+        {
+            pixval = player_room_colours[game.play_gameturn & 3];
+        } else
+        {
+            pixval = player_room_colours[color_idx];
+        }
       }
+
     } else
     {
       if (slb->kind == SlbT_ROCK)
@@ -305,12 +309,8 @@ TbPixel get_overhead_mapblock_color(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Pl
               pixval = 255;
           }
           else
-          if (owner == game.neutral_player_num)
           {
-            pixval = 4;
-          } else
-          {
-            pixval = player_path_colours[owner];
+            pixval = get_player_path_colour(owner);
           }
         } else
         {
@@ -355,7 +355,7 @@ void draw_overhead_room_icons(const struct TbRect *map_area, long block_size, Pl
         struct TbSprite* spr = &gui_panel_sprites[GPS_room_treasury_std_s];//only for size, room irrelevant
         ps_units_per_px = 32 * block_size * 4 / spr->SHeight;
     }
-    long rkind_select = (game.play_gameturn >> 1) % game.slab_conf.room_types_count;
+    long rkind_select = (game.play_gameturn >> 1) % game.conf.slab_conf.room_types_count;
     for (struct Room* room = start_rooms; room < end_rooms; room++)
     {
       if (room_exists(room))
@@ -399,7 +399,7 @@ int draw_overhead_call_to_arms(const struct TbRect *map_area, long block_size, P
             long pos_x = map_area->left + block_size * (int)dungeon->cta_stl_x / STL_PER_SLB;
             long pos_y = map_area->top + block_size * (int)dungeon->cta_stl_y / STL_PER_SLB;
             long radius = (((m & 7) + m) >> 3);
-            LbDrawCircle(pos_x, pos_y, radius/pixel_size, player_room_colours[i]);
+            LbDrawCircle(pos_x, pos_y, radius/pixel_size, player_room_colours[get_player_color_idx(i)]);
             n++;
         }
     }
@@ -427,18 +427,19 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
         // Per-thing code
         if (!thing_is_picked_up(thing))
         {
-            TbPixel col1 = player_highlight_colours[thing->owner];
+            unsigned char color_idx = get_player_color_idx(thing->owner);
+            TbPixel col1 = player_highlight_colours[color_idx];
             TbPixel col2 = 1;
             if (thing_revealed(thing, plyr_idx))
             {
-                if (thing->owner == game.neutral_player_num)
+                if (color_idx == game.neutral_player_num)
                 {
                     col1 = player_room_colours[(game.play_gameturn + 1) & 3];
                 } else
                 if ((game.play_gameturn & 4) == 0)
                 {
-                    col2 = player_room_colours[thing->owner];
-                    col1 = player_room_colours[thing->owner];
+                    col2 = player_room_colours[color_idx];
+                    col1 = player_room_colours[color_idx];
                 }
                 long pos_x = map_area->left + block_size * (int)thing->mappos.x.stl.num / STL_PER_SLB;
                 long pos_y = map_area->top + block_size * (int)thing->mappos.y.stl.num / STL_PER_SLB;
@@ -464,8 +465,8 @@ int draw_overhead_creatures(const struct TbRect *map_area, long block_size, Play
                 struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
                 if ((game.play_gameturn & 4) == 0)
                 {
-                    col1 = player_room_colours[(int)(cctrl->party.target_plyr_idx>=0?cctrl->party.target_plyr_idx:0)];
-                    col2 = player_room_colours[thing->owner];
+                    col1 = player_room_colours[get_player_color_idx((int)(cctrl->party.target_plyr_idx>=0?cctrl->party.target_plyr_idx:0))];
+                    col2 = player_room_colours[get_player_color_idx(thing->owner)];
                 }
                 if (thing->owner == plyr_idx)
                 {

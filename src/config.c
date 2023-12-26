@@ -141,6 +141,7 @@ const struct NamedCommand conf_commands[] = {
   {"DISPLAY_NUMBER"                , 28},
   {"MUSIC_FROM_DISK"               , 29},
   {"HAND_SIZE"                     , 30},
+  {"LINE_BOX_SIZE"                 , 31},
   {NULL,                   0},
   };
 
@@ -1130,8 +1131,19 @@ short load_configuration(void)
           {
             i = atoi(word_buf);
           }
-          if ((i >= 0) && (i <= 32768)) {
+          if ((i >= 0) && (i <= SHRT_MAX)) {
               global_hand_scale = i/100.0;
+          } else {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
+          }
+          break;
+      case 31: // LINE_BOX_SIZE
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= 32768)) {
+              line_box_size = i;
           } else {
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }

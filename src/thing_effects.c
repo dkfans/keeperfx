@@ -69,8 +69,8 @@ TbBool thing_is_effect(const struct Thing *thing)
 struct EffectElementConfigStats *get_effect_element_model_stats(ThingModel tngmodel)
 {
     if (tngmodel >= EFFECTSELLEMENTS_TYPES_MAX)
-        return &gameadd.effects_conf.effectelement_cfgstats[0];
-    return &gameadd.effects_conf.effectelement_cfgstats[tngmodel];
+        return &game.conf.effects_conf.effectelement_cfgstats[0];
+    return &game.conf.effects_conf.effectelement_cfgstats[tngmodel];
 }
 
 struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner)
@@ -192,7 +192,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
         dturn = game.play_gameturn - thing->creation_turn;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 25% larger than unit
 
         struct EffectElementConfigStats* eestat = get_effect_element_model_stats(TngEffElm_FlashBall1);
         unsigned short nframes = keepersprite_frames(eestat->sprite_idx);
@@ -220,7 +220,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     if ((cctrl->spell_flags & CSAfF_Slow) != 0)
     {
         int diamtr = 4 * thing->clipbox_size_xy / 2;
-        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
+        MapCoord cor_z_max = thing->clipbox_size_z + (thing->clipbox_size_z * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel) / 80; //effect is 20% smaller than unit
         int i = cor_z_max / 64; //64 is the vertical speed of the circle.
         if (i <= 1)
           i = 1;
@@ -306,7 +306,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
         {
             struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
             if ((dturn % 2) == 0) {
-                effeltng = create_effect_element(&thing->mappos, birth_effect_element[thing->owner], thing->owner);
+                effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
             }
             creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_angle_change);
         }
@@ -316,7 +316,7 @@ void process_spells_affected_by_effect_elements(struct Thing *thing)
     {
         dturn = game.play_gameturn - thing->creation_turn;
         if ((dturn & 1) == 0) {
-            effeltng = create_effect_element(&thing->mappos, birth_effect_element[thing->owner], thing->owner);
+            effeltng = create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
         }
         struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
         creature_turn_to_face_angle(thing, thing->move_angle_xy + crstat->max_angle_change);
@@ -810,14 +810,14 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         return TUFRet_Modified;
     }
     struct EffectGeneratorConfigStats* egenstat = get_effectgenerator_model_stats(thing->model);
-    for (long i = 0; i < egenstat->genation_amount; i++)
+    for (long i = 0; i < egenstat->generation_amount; i++)
     {
         long deviation_angle = EFFECT_RANDOM(thing, 0x800);
         long deviation_mag = EFFECT_RANDOM(thing, thing->effect_generator.range + 1);
         struct Coord3d pos;
         set_coords_to_cylindric_shift(&pos, &thing->mappos, deviation_mag, deviation_angle, 0);
         SYNCDBG(18,"The %s creates effect %d/%d at (%d,%d,%d)",thing_model_name(thing),(int)pos.x.val,(int)pos.y.val,(int)pos.z.val);
-        struct Thing* elemtng = create_effect_element(&pos, egenstat->effect_element_model , thing->owner);
+        struct Thing* elemtng = create_used_effect_or_element(&pos, egenstat->effect_model , thing->owner);
         TRACE_THING(elemtng);
         if (thing_is_invalid(elemtng))
             break;
@@ -839,11 +839,11 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
         elemtng->mappos.z.val = k;
         if ( thing_in_wall_at(elemtng, &elemtng->mappos) )
         {
-            SYNCDBG(18,"The %s created effect %d/%d in wall, removing",thing_model_name(thing),(int)i,(int)egenstat->genation_amount);
+            SYNCDBG(18,"The %s created effect %d/%d in wall, removing",thing_model_name(thing),(int)i,(int)egenstat->generation_amount);
             delete_thing_structure(elemtng, 0);
         } else
         {
-            SYNCDBG(18,"The %s created effect %d/%d, index %d",thing_model_name(thing),(int)i,(int)egenstat->genation_amount,(int)elemtng->index);
+            SYNCDBG(18,"The %s created effect %d/%d, index %d",thing_model_name(thing),(int)i,(int)egenstat->generation_amount,(int)elemtng->index);
             long acc_x = egenstat->acc_x_min + EFFECT_RANDOM(thing, egenstat->acc_x_max - egenstat->acc_x_min + 1);
             long acc_y = egenstat->acc_y_min + EFFECT_RANDOM(thing, egenstat->acc_y_max - egenstat->acc_y_min + 1);
             long acc_z = egenstat->acc_z_min + EFFECT_RANDOM(thing, egenstat->acc_z_max - egenstat->acc_z_min + 1);
@@ -861,7 +861,7 @@ TngUpdateRet process_effect_generator(struct Thing *thing)
             }
         }
     }
-    thing->effect_generator.generation_delay = egenstat->genation_delay_min + EFFECT_RANDOM(thing, egenstat->genation_delay_max - egenstat->genation_delay_min + 1);
+    thing->effect_generator.generation_delay = egenstat->generation_delay_min + EFFECT_RANDOM(thing, egenstat->generation_delay_max - egenstat->generation_delay_min + 1);
     return TUFRet_Modified;
 }
 
@@ -988,8 +988,8 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
     {
         // Friendly fire usually causes less damage and at smaller distance
         if ((tngdst->class_id == TCls_Creature) && (tngdst->owner == owner)) {
-            max_dist = max_dist * gameadd.friendly_fight_area_range_permil / 1000;
-            max_damage = max_damage * gameadd.friendly_fight_area_damage_permil / 1000;
+            max_dist = max_dist * game.conf.rules.magic.friendly_fight_area_range_permil / 1000;
+            max_damage = max_damage * game.conf.rules.magic.friendly_fight_area_damage_permil / 1000;
         }
         MapCoordDelta distance = get_2d_distance(pos, &tngdst->mappos);
         if (distance <= max_dist)
@@ -1006,7 +1006,7 @@ TbBool explosion_affecting_thing(struct Thing *tngsrc, struct Thing *tngdst, con
                     struct CreatureBattle* battle = creature_battle_get_from_thing(origtng);
                     CrDeathFlags dieflags = (!creature_battle_invalid(battle)) ? CrDed_DiedInBattle : CrDed_Default;
                     // Explosions kill rather than only stun friendly creatures when imprison is on
-                    if (((tngsrc->owner == tngdst->owner) &! (gameadd.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
+                    if (((tngsrc->owner == tngdst->owner) &! (game.conf.rules.game.classic_bugs_flags & ClscBug_FriendlyFaint)) || (shot_model_flags & ShMF_NoStun) )
                     {
                         dieflags |= CrDed_NoUnconscious;
                     }

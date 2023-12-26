@@ -95,12 +95,12 @@ static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn
     comp = get_computer_player(args[0]);
     struct ComputerProcess* cproc = &comp->processes[args[1]];
 
-    if (cproc->flags & ComProc_Unkn0020)
+    if (flag_is_set(cproc->flags, ComProc_Unkn0020))
         message_add_fmt(args[0], "resuming %s", cproc->name?cproc->name:"(null)");
     else
         message_add_fmt(args[0], "suspending %s", cproc->name?cproc->name:"(null)");
 
-    cproc->flags ^= ComProc_Unkn0020; // Suspend, but do not update running time
+    toggle_flag(cproc->flags, ComProc_Unkn0020); // Suspend, but do not update running time
     return 1;
 }
 
@@ -228,14 +228,14 @@ static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *gopt
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);
-    struct ComputerCheck* cproc = &comp->checks[args[1]];
+    struct ComputerCheck* ccheck = &comp->checks[args[1]];
 
-    if (cproc->flags & ComChk_Unkn0001)
-        message_add_fmt(args[0], "resuming %s", cproc->name?cproc->name:"(null)");
+    if (flag_is_set(ccheck->flags, ComChk_Unkn0001))
+        message_add_fmt(args[0], "resuming %s", ccheck->name?ccheck->name:"(null)");
     else
-        message_add_fmt(args[0], "suspending %s", cproc->name?cproc->name:"(null)");
+        message_add_fmt(args[0], "suspending %s", ccheck->name?ccheck->name:"(null)");
 
-    cproc->flags ^= ComChk_Unkn0001;
+    ccheck->flags ^= ComChk_Unkn0001;
     return 1;
 }
 static const char *get_check_name(struct Computer2 *comp, int i)
@@ -595,7 +595,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                                        subtile_slab(stl_y + r - r2)
                 );
                 reveal_map_rect(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
-                pannel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
+                panel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
             }
             else
             {
@@ -689,7 +689,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if ((strcasecmp(parstr, "give.trap") == 0) || (strcasecmp(parstr, "trap.give") == 0))
         {
             long id = get_trap_number_for_command(pr2str);
-            if (id <= 0 || id > gameadd.trapdoor_conf.trap_types_count)
+            if (id <= 0 || id > game.conf.trapdoor_conf.trap_types_count)
             {
                 return false;
             }
@@ -702,7 +702,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if ((strcasecmp(parstr, "give.door") == 0) || (strcasecmp(parstr, "door.give") == 0))
         {
             long id = get_door_number_for_command(pr2str);
-            if (id <= 0 || id > gameadd.trapdoor_conf.door_types_count)
+            if (id <= 0 || id > game.conf.trapdoor_conf.door_types_count)
             {
                 return false;
             }
@@ -791,7 +791,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         crmodel = atoi(pr2str);
                     }
                 }
-                if ((crmodel > 0) && (crmodel < gameadd.crtr_conf.model_count))
+                if ((crmodel > 0) && (crmodel < game.conf.crtr_conf.model_count))
                 {
                     player = get_player(plyr_idx);
                     pckt = get_packet_direct(player->packet_num);
@@ -949,7 +949,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                             }
                         }
                     }
-                    if ((slbkind >= 0) && (slbkind <= game.slab_conf.slab_types_count))
+                    if ((slbkind >= 0) && (slbkind <= game.conf.slab_conf.slab_types_count))
                     {
                         if (subtile_is_room(stl_x, stl_y))
                         {
@@ -1011,10 +1011,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (strcasecmp(pr2str, "all") == 0)
             {
-                for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
+                for (PowerKind pw = game.conf.magic_conf.power_types_count - 1; pw > PwrK_HAND; pw--)
                 {
+                    if ( (pw == PwrK_PICKUPCRTR) || (pw == PwrK_PICKUPGOLD) || (pw == PwrK_PICKUPFOOD) )
+                    {
+                        continue;
+                    }
                     if (!set_power_available(plyr_idx, pw, 1, 1))
-                        WARNLOG("Setting power %s availability for player %d failed.", power_code_name(pw), 1);
+                        WARNLOG("Setting power %s availability for player %d failed.", power_code_name(pw), plyr_idx);
                 }
                 update_powers_tab_to_config();
                 return true;
@@ -1027,7 +1031,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     power = atoi(pr2str);
                 }
                 if (!set_power_available(plyr_idx, power, 1, 1))
-                    WARNLOG("Setting power %s availability for player %d failed.", power_code_name(power), 1);
+                    WARNLOG("Setting power %s availability for player %d failed.", power_code_name(power), plyr_idx);
                 update_powers_tab_to_config();
                 return true;
             }
@@ -1510,8 +1514,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     bug = atoi(pr2str);
                 }
                 unsigned long flg = (bug > 2) ? (1 << (bug - 1)) : bug;
-                toggle_flag(gameadd.classic_bugs_flags, flg);
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((gameadd.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
+                toggle_flag(game.conf.rules.game.classic_bugs_flags, flg);
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules.game.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
                 return true;
             }
         }
