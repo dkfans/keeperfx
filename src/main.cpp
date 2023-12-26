@@ -3991,7 +3991,7 @@ short process_command_line(unsigned short argc, char *argv[])
       {
         printf("%s %s\n", PRODUCT_NAME, PRODUCT_VERSION);
         fflush(stdout);
-        exit(1);
+        exit(0);
       } else
       if (strcasecmp(parstr, "nointro") == 0)
       {
