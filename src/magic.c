@@ -1900,18 +1900,11 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
     struct SlabMap *slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
     TbBool free = ((slabmap_owner(slb) == plyr_idx) || dungeon->cta_free);
-    if (game.conf.rules.game.allies_share_cta)
+    if (!free)
     {
-        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        if ((game.conf.rules.game.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
         {
-            if (players_are_mutual_allies(plyr_idx, i))
-            {
-                if (slabmap_owner(slb) == i)
-                {
-                    free = true;
-                    break;
-                }
-            }
+            free = true;
         }
     }
     if (((pwrdynst->duration < 1) || ((duration % pwrdynst->duration) == 0)) && !free)
