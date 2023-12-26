@@ -470,10 +470,7 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
     }
 
   // Write formatted message to the array
-  va_list arg_copy;
-  va_copy(arg_copy, arg);
-  write_log_to_array_for_live_viewing(fmt_str, arg_copy);
-  va_end(arg_copy);
+  write_log_to_array_for_live_viewing(fmt_str, arg);
   
   // Write the log to the file
   if (log->prefix[0] != '\0') {
