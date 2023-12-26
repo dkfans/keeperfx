@@ -182,24 +182,71 @@ TbBool ftest_fill_teststorun_by_name(char* const name)
     struct FTestConfig* test_config = NULL;
     vars->total_tests = 0;
     for(unsigned long i = 0; i < FTEST_MAX_TESTS; ++i) { vars->tests_to_run[i] = NULL; }
-    for(unsigned long i = 0; i < FTEST_MAX_TESTS; ++i)
+
+    TbBool too_many_tests = false;
+    for(unsigned short test_list_id = 0; test_list_id < 2; ++test_list_id)
     {
-        test_config = &conf->tests_list[i];
-        if(test_config == NULL || strnlen(test_config->test_name, FTEST_MAX_NAME_LENGTH) <= 0)
+        struct FTestConfig* current_test_list = NULL;
+
+        switch(test_list_id)
+        {
+            case 0:
+            {
+                current_test_list = conf->tests_list;
+                break;
+            }
+
+            case 1:
+            {
+                if(flag_is_set(start_params.functest_flags, FTF_IncludeLongTests))
+                {
+                    current_test_list = conf->long_running_tests_list;
+                }
+                break;
+            }
+
+            default:
+                break;
+        }
+
+        if(current_test_list == NULL)
         {
             continue;
         }
 
-        if(name[0] == '*' || strnlen(name, FTEST_MAX_NAME_LENGTH) <= 0)
+        for(unsigned long i = 0; i < FTEST_MAX_TESTS; ++i)
         {
-            FTESTLOG("Added test '%s' via wildcard match", test_config->test_name);
-            vars->tests_to_run[vars->total_tests++] = test_config;
+            test_config = &current_test_list[i];
+            if(test_config == NULL || strnlen(test_config->test_name, FTEST_MAX_NAME_LENGTH) <= 0)
+            {
+                continue;
+            }
+
+            if(vars->total_tests >= FTEST_MAX_TESTS)
+            {
+                vars->total_tests++;
+                too_many_tests = true;
+                FTESTLOG("Skipped adding test '%s', too many tests!", test_config->test_name);
+                continue;
+            }
+
+            if(name[0] == '*' || strnlen(name, FTEST_MAX_NAME_LENGTH) <= 0)
+            {
+                FTESTLOG("Added test '%s' via wildcard match", test_config->test_name);
+                vars->tests_to_run[vars->total_tests++] = test_config;
+            }
+            else if(strcmp(name, test_config->test_name) == 0)
+            {
+                FTESTLOG("Added test '%s' via exact match", test_config->test_name);
+                vars->tests_to_run[vars->total_tests++] = test_config;
+            }
         }
-        else if(strcmp(name, test_config->test_name) == 0)
-        {
-            FTESTLOG("Added test '%s' via exact match", test_config->test_name);
-            vars->tests_to_run[vars->total_tests++] = test_config;
-        }
+    }
+
+    if(too_many_tests)
+    {
+        FTEST_FRAMEWORK_ABORT("Too many tests %lu, increase the value of FTEST_MAX_TESTS(%d)", vars->total_tests, FTEST_MAX_TESTS);
+        return false;
     }
 
     return vars->total_tests > 0;
@@ -299,6 +346,12 @@ TbBool ftest_init()
 {
     struct ftest_donottouch__variables* const vars = &ftest_donottouch__vars;
 
+    if(!flag_is_set(start_params.functest_flags, FTF_Enabled))
+    {
+        FTESTLOG("Functional Tests are not enabled, skipping Init.");
+        return false;
+    }
+
     if(vars->current_state != FTSt_PendingInitialSetup)
     {
         FTEST_FRAMEWORK_ABORT("Init should only be called once at startup!")
@@ -307,19 +360,18 @@ TbBool ftest_init()
 
     start_params.no_intro = 1;
 
-    set_flag_byte(&start_params.functest_flags, FTF_Enabled, true);
-    set_flag_byte(&start_params.functest_flags, FTF_TestFailed, false);
-    set_flag_byte(&start_params.functest_flags, FTF_LevelLoaded, false);
+    clear_flag(start_params.functest_flags, FTF_TestFailed);
+    clear_flag(start_params.functest_flags, FTF_LevelLoaded);
 
     if(flag_is_set(start_params.operation_flags, GOF_SingleLevel))
     {
         FTESTLOG("Unsetting GOF_SingleLevel, -level arg is ignored for functional tests!");
-        set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,false);
+        clear_flag(start_params.operation_flags,GOF_SingleLevel);
     }
 
     if(!ftest_fill_teststorun_by_name(start_params.functest_name))
     {
-        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%d') make sure init name/function are added to tests_list (see ftest_list.c)", start_params.functest_name)
+        FTEST_FRAMEWORK_ABORT("Failed to find any tests. (user provided: '%s') make sure init name/function are added to tests_list or long_running_tests_list (see ftest_list.c)", start_params.functest_name)
         return false;
     }
 
@@ -493,8 +545,8 @@ FTestFrameworkState ftest_update(FTestFrameworkState* const out_prev_state)
                 --current_test_config->repeat_n_times;
             }
 
-            set_flag_byte(&start_params.functest_flags, FTF_TestFailed, false);
-            set_flag_byte(&start_params.functest_flags, FTF_LevelLoaded, false);
+            clear_flag(start_params.functest_flags, FTF_TestFailed);
+            clear_flag(start_params.functest_flags, FTF_LevelLoaded);
             ftest_quit_game();
             return ftest_change_state(FTSt_TestHasCompletedActions_LoadNextTest);
         }
@@ -529,6 +581,14 @@ void ftest_restart_actions()
     ftest_donottouch__vars.current_action = 0;
 }
 
+/**
+ * @brief Returns the current test config (some tests may want to modify it... meta!)
+ * 
+ */
+struct FTestConfig* ftest_get_current_test_config()
+{
+    return ftest_donottouch__vars.tests_to_run[ftest_donottouch__vars.current_test];
+}
 
 #ifdef __cplusplus
 }

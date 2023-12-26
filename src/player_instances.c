@@ -243,7 +243,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           thing->move_angle_xy = player->acamera->orient_a;
           if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
           {
-              thing->health -= game.boulder_reduce_health_slap;
+              thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
           }
       } else
       {
@@ -251,7 +251,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       }
       break;
   case TCls_Trap:
-      trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+      trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
       if ((trapst->slappable == 1) && trap_is_active(thing))
       {
           external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, thing_get(player->hand_thing_idx));
@@ -472,7 +472,7 @@ long pinstfs_direct_leave_creature(struct PlayerInfo *player, long *n)
       turn_off_all_window_menus();
       turn_off_query_menus();
       turn_on_main_panel_menu();
-      set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+      set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
       LbGrabMouseCheck(MG_OnPossessionLeave);
   }
   thing = thing_get(player->influenced_thing_idx);
@@ -514,7 +514,7 @@ long pinstfs_passenger_leave_creature(struct PlayerInfo *player, long *n)
     turn_off_query_menus();
     turn_off_all_panel_menus();
     turn_on_main_panel_menu();
-    set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+    set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
   }
   leave_creature_as_passenger(player, thing);
   player->allocflags |= PlaF_KeyboardInputDisabled;
@@ -717,9 +717,9 @@ long pinstfs_fade_to_map(struct PlayerInfo *player, long *n)
     player->view_mode_restore = cam->view_mode;
     if (is_my_player(player))
     {
-        set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
-        settings.tooltips_on = 0;
-        set_flag_byte(&player->field_1, 0x01, toggle_status_menu(0));
+        player->tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
+        settings.tooltips_on = false; // don't show tooltips during the fade
+        player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible)
   }
   set_engine_view(player, PVM_ParchFadeIn);
   return 0;
@@ -735,7 +735,7 @@ long pinstfe_fade_to_map(struct PlayerInfo *player, long *n)
 {
   set_player_mode(player, PVT_MapScreen);
   if (is_my_player(player))
-    settings.tooltips_on = ((player->field_1 & 0x02) != 0);
+    settings.tooltips_on = player->tooltips_restore; // restore tooltips setting after the fade is completed
   player->allocflags &= ~PlaF_MouseInputDisabled;
   return 0;
 }
@@ -745,8 +745,8 @@ long pinstfs_fade_from_map(struct PlayerInfo *player, long *n)
   player->allocflags |= PlaF_MouseInputDisabled;
   if (is_my_player(player))
   {
-    set_flag_byte(&player->field_1, 0x02, settings.tooltips_on);
-    settings.tooltips_on = 0;
+    player->tooltips_restore = settings.tooltips_on; // store tooltips setting before starting the fade
+    settings.tooltips_on = false; // don't show tooltips during the fade
     game.operation_flags &= ~GOF_ShowPanel;
   }
   player->field_4BD = 32;
@@ -765,8 +765,8 @@ long pinstfe_fade_from_map(struct PlayerInfo *player, long *n)
     struct PlayerInfo* myplyr = get_player(my_player_number);
     set_engine_view(player, player->view_mode_restore);
     if (player->id_number == myplyr->id_number) {
-        settings.tooltips_on = ((player->field_1 & 2) != 0);
-        toggle_status_menu(player->field_1 & 1);
+        settings.tooltips_on = player->tooltips_restore; // restore tooltips setting after the fade is completed
+        toggle_status_menu(player->status_menu_restore); // restore the status menu visiblity now that the map is no longer visible
     }
     player->allocflags &= ~PlaF_MouseInputDisabled;
     return 0;
@@ -1192,7 +1192,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     struct Coord3d pos;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles))
+    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!game.conf.rules.game.place_traps_on_subtiles))
     {
         set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     }
@@ -1236,7 +1236,6 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     create_door(&pos, tngmodel, orient, plyr_idx, 0);
     do_slab_efficiency_alteration(subtile_slab(stl_x), subtile_slab(stl_y));
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     int crate_source = remove_workshop_item_from_amount_stored(plyr_idx, TCls_Door, tngmodel, WrkCrtF_Default);
     switch (crate_source)
     {
@@ -1249,7 +1248,7 @@ TbBool player_place_door_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
         break;
     default:
         WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(tngmodel),(int)dungeon->owner);
-        dungeonadd->mnfct_info.door_amount_placeable[tngmodel] = 0;
+        dungeon->mnfct_info.door_amount_placeable[tngmodel] = 0;
         break;
     }
     dungeon->camera_deviate_jump = 192;
