@@ -360,8 +360,9 @@ void LbCloseLog()
 
 void write_log_to_array_for_live_viewing(const char* fmt_str, va_list args) {
     if (consoleLogArraySize >= MAX_CONSOLE_LOG_COUNT) {
-        // Array is full
-        return;
+        // Array is full - so clear it. This is a bit of a stopgap solution, it will lose us the older entries.
+        memset(consoleLogArray, 0, sizeof(consoleLogArray));
+        consoleLogArraySize = 0;
     }
 
     char buffer[MAX_TEXT_LENGTH];
