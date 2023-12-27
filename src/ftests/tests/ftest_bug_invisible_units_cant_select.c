@@ -81,11 +81,11 @@ struct ftest_util_action__create_and_fill_torture_room__variables ftest_bug_invi
 };
 
 // forward declarations - tests
-TbBool ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestActionArgs* const args);
-TbBool ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTestActionArgs* const args);
-TbBool ftest_bug_invisible_units_cant_select_action003__drop_unit(struct FTestActionArgs* const args);
-TbBool ftest_bug_invisible_units_cant_select_action004__kill_unit(struct FTestActionArgs* const args);
-TbBool ftest_bug_invisible_units_cant_select_action005__restart_actions(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action003__drop_unit(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action004__kill_unit(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action005__restart_actions(struct FTestActionArgs* const args);
 
 
 TbBool ftest_bug_invisible_units_cant_select_init()
@@ -122,12 +122,12 @@ TbBool ftest_bug_invisible_units_cant_select_init()
 
     //ftest_append_action(ftest_bug_invisible_units_cant_select_action005__restart_actions, 0, NULL);
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
 
 
-TbBool ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestActionArgs* const args)
 {
     struct ftest_bug_invisible_units_cant_select__variables* const vars = args->data;
 
@@ -148,7 +148,7 @@ TbBool ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestA
     if(thing_is_invalid(vars->unit))
     {
         FTEST_FAIL_TEST("Failed to create random creature");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     //center cursor/camera on unit pos (using slight offset for better results)
@@ -158,10 +158,10 @@ TbBool ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestA
     vars->unit_spawned_at_turn = game.play_gameturn;
     vars->is_unit_spawned = true;
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
-TbBool ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTestActionArgs* const args)
 {
     struct ftest_bug_invisible_units_cant_select__variables* const vars = args->data;
 
@@ -188,7 +188,7 @@ TbBool ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTest
         if(pickup_result != Lb_SUCCESS)
         {
             FTEST_FAIL_TEST("Cannot pick up %s index %d", thing_model_name(vars->unit), (int)vars->unit->index);
-            return true;
+            return FTRs_Go_To_Next_Action;
         }
 
         vars->unit_grabbed_at_turn = game.play_gameturn;
@@ -196,17 +196,17 @@ TbBool ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTest
         return true;
     }
 
-    return false;
+    return FTRs_Repeat_Current_Action;
 }
 
-TbBool ftest_bug_invisible_units_cant_select_action003__drop_unit(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_invisible_units_cant_select_action003__drop_unit(struct FTestActionArgs* const args)
 {
     struct ftest_bug_invisible_units_cant_select__variables* const vars = args->data;
 
     if(!vars->is_unit_in_hand)
     {
         FTEST_FAIL_TEST("There is no unit in hand to drop!");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     // try to drop creature
@@ -215,6 +215,7 @@ TbBool ftest_bug_invisible_units_cant_select_action003__drop_unit(struct FTestAc
     if(!dump_first_held_thing_on_map(PLAYER0, dropPos.x.stl.num, dropPos.y.stl.num, 1))
     {
         FTEST_FAIL_TEST("Cannot drop %s index %d", thing_model_name(vars->unit), (int)vars->unit->index);
+        return FTRs_Go_To_Next_Action;
     }
     else
     {
@@ -222,10 +223,10 @@ TbBool ftest_bug_invisible_units_cant_select_action003__drop_unit(struct FTestAc
         vars->unit_dropped_at_turn = game.play_gameturn;
     }
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
-TbBool ftest_bug_invisible_units_cant_select_action004__kill_unit(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_invisible_units_cant_select_action004__kill_unit(struct FTestActionArgs* const args)
 {
     struct ftest_bug_invisible_units_cant_select__variables* const vars = args->data;
 
@@ -239,15 +240,14 @@ TbBool ftest_bug_invisible_units_cant_select_action004__kill_unit(struct FTestAc
     vars->unit_grabbed_at_turn = ULONG_MAX;
     vars->unit_dropped_at_turn = ULONG_MAX;
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
-TbBool ftest_bug_invisible_units_cant_select_action005__restart_actions(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_invisible_units_cant_select_action005__restart_actions(struct FTestActionArgs* const args)
 {
     ftest_restart_actions();
 
-    //return false;
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
 #endif
