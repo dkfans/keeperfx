@@ -6905,7 +6905,6 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Hustý zlatý základ: Obsahuje mnoho bohatství, které mohou tví Skřeti těžit."
 
 #: guitext:1053
-msgctxt "Creature spell"
 msgctxt "Keeper spell name"
 msgid "Rebound"
 msgstr "Odražení"

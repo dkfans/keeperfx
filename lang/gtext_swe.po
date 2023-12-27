@@ -6954,7 +6954,7 @@ msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "Syn"
 
-#: guitext:1053
+#: guitext:1059
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
 msgstr "Rengöring: Botar alla negativa effekter som påverkar varelsen."
