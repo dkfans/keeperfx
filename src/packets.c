@@ -333,7 +333,6 @@ void process_pause_packet(long curr_pause, long new_pause)
 void process_players_dungeon_control_packet_control(long plyr_idx)
 {
     struct PlayerInfo* player = get_player(plyr_idx);
-    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
     struct Packet* pckt = get_packet_direct(player->packet_num);
     SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
     struct Camera* cam = player->acamera;
@@ -350,7 +349,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
     {
     case PVM_IsoWibbleView:
     case PVM_IsoStraightView:
-        if (playeradd->roomspace_drag_paint_mode == 1)
+        if (player->roomspace_drag_paint_mode == 1)
         {
             if (scroll_speed < 4100)
             {
@@ -360,7 +359,7 @@ void process_players_dungeon_control_packet_control(long plyr_idx)
         inter_val = 2560000 / scroll_speed;
         break;
     case PVM_FrontView:
-        if (playeradd->roomspace_drag_paint_mode == 1)
+        if (player->roomspace_drag_paint_mode == 1)
         {
             if (scroll_speed < 16384)
             {
@@ -604,7 +603,6 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
   struct Packet* pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   struct Dungeon *dungeon;
-  struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
   struct Thing *thing;
   int i;
   switch (pckt->action)
@@ -938,91 +936,91 @@ TbBool process_players_global_packet_action(PlayerNumber plyr_idx)
       return false;
   case PckA_SetRoomspaceAuto:
     {
-        playeradd->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
-        playeradd->roomspace_mode = roomspace_detection_mode;
-        playeradd->one_click_mode_exclusive = false;
-        playeradd->render_roomspace.highlight_mode = false;
+        player->roomspace_detection_looseness = (unsigned char)pckt->actn_par1;
+        player->roomspace_mode = roomspace_detection_mode;
+        player->one_click_mode_exclusive = false;
+        player->render_roomspace.highlight_mode = false;
         return false;
     }
    case PckA_SetRoomspaceMan:
     {
-        playeradd->user_defined_roomspace_width = pckt->actn_par1;
-        playeradd->roomspace_width = pckt->actn_par1;
-        playeradd->roomspace_height = pckt->actn_par1;
-        playeradd->roomspace_mode = box_placement_mode;
-        playeradd->one_click_mode_exclusive = false;
-        playeradd->render_roomspace.highlight_mode = false;
-        playeradd->roomspace_no_default = true;
+        player->user_defined_roomspace_width = pckt->actn_par1;
+        player->roomspace_width = pckt->actn_par1;
+        player->roomspace_height = pckt->actn_par1;
+        player->roomspace_mode = box_placement_mode;
+        player->one_click_mode_exclusive = false;
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_no_default = true;
         return false;
     }
     case PckA_SetRoomspaceDragPaint:
     {
-        playeradd->roomspace_height = 1;
-        playeradd->roomspace_width = 1;
+        player->roomspace_height = 1;
+        player->roomspace_width = 1;
     }
     // fall through
     case PckA_SetRoomspaceDrag:
     {
-        playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        playeradd->roomspace_mode = drag_placement_mode;
-        playeradd->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
-        playeradd->render_roomspace.highlight_mode = false;
-        playeradd->roomspace_no_default = false;
-        playeradd->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
+        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+        player->roomspace_mode = drag_placement_mode;
+        player->one_click_mode_exclusive = true; // Enable GuiLayer_OneClickBridgeBuild layer
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_no_default = false;
+        player->roomspace_drag_paint_mode = (pckt->action == PckA_SetRoomspaceDragPaint);
         return false;
     }
     case PckA_SetRoomspaceDefault:
     {
-        playeradd->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
-        playeradd->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
-        playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par1;
-        playeradd->roomspace_mode = box_placement_mode;
-        playeradd->one_click_mode_exclusive = false;
-        playeradd->roomspace_no_default = false;
+        player->roomspace_detection_looseness = DEFAULT_USER_ROOMSPACE_DETECTION_LOOSENESS;
+        player->user_defined_roomspace_width = DEFAULT_USER_ROOMSPACE_WIDTH;
+        player->roomspace_width = player->roomspace_height = pckt->actn_par1;
+        player->roomspace_mode = box_placement_mode;
+        player->one_click_mode_exclusive = false;
+        player->roomspace_no_default = false;
         return false;
     }
     case PckA_SetRoomspaceWholeRoom:
     {
-        playeradd->render_roomspace.highlight_mode = false;
-        playeradd->roomspace_mode = roomspace_detection_mode;
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_mode = roomspace_detection_mode;
         return false;
     }
     case PckA_SetRoomspaceSubtile:
     {
-        playeradd->render_roomspace.highlight_mode = false;
-        playeradd->roomspace_mode = single_subtile_mode;
+        player->render_roomspace.highlight_mode = false;
+        player->roomspace_mode = single_subtile_mode;
         return false;
     }
     case PckA_SetRoomspaceHighlight:
     {
-        playeradd->roomspace_mode = box_placement_mode;
+        player->roomspace_mode = box_placement_mode;
         if ( (pckt->actn_par2 == 1) || (pckt->actn_par1 == 2) )
         {
             // exit out of click and drag mode
-            if (playeradd->render_roomspace.drag_mode)
+            if (player->render_roomspace.drag_mode)
             {
-                playeradd->one_click_lock_cursor = false;
+                player->one_click_lock_cursor = false;
                 if ((pckt->control_flags & PCtr_LBtnHeld) == PCtr_LBtnHeld)
                 {
-                    playeradd->ignore_next_PCtr_LBtnRelease = true;
+                    player->ignore_next_PCtr_LBtnRelease = true;
                 }
             }
-            playeradd->render_roomspace.drag_mode = false;
+            player->render_roomspace.drag_mode = false;
         }
-        playeradd->roomspace_highlight_mode = pckt->actn_par1;
+        player->roomspace_highlight_mode = pckt->actn_par1;
         if (pckt->actn_par1 == 2)
         {
-            playeradd->user_defined_roomspace_width = pckt->actn_par2;
-            playeradd->roomspace_width = pckt->actn_par2;
-            playeradd->roomspace_height = pckt->actn_par2;
+            player->user_defined_roomspace_width = pckt->actn_par2;
+            player->roomspace_width = pckt->actn_par2;
+            player->roomspace_height = pckt->actn_par2;
         }
         else if (pckt->actn_par1 == 0)
         {
             reset_dungeon_build_room_ui_variables(plyr_idx);
-            playeradd->roomspace_width = playeradd->roomspace_height = pckt->actn_par2;
+            player->roomspace_width = player->roomspace_height = pckt->actn_par2;
         }
-        playeradd->roomspace_no_default = true;
+        player->roomspace_no_default = true;
         return false;
     }
     case PckA_PlyrQueryCreature:
@@ -1298,7 +1296,6 @@ void process_players_creature_control_packet_action(long plyr_idx)
   long i;
   long k;
   player = get_player(plyr_idx);
-  struct PlayerInfoAdd* playeradd;
   pckt = get_packet_direct(player->packet_num);
   SYNCDBG(6,"Processing player %d action %d",(int)plyr_idx,(int)pckt->action);
   switch (pckt->action)
@@ -1373,26 +1370,22 @@ void process_players_creature_control_packet_action(long plyr_idx)
       }
     case PckA_SetFirstPersonDigMode:
     {
-        playeradd = get_playeradd(plyr_idx);
-        playeradd->first_person_dig_claim_mode = pckt->actn_par1;
+        player->first_person_dig_claim_mode = pckt->actn_par1;
         break;
     }
     case PckA_SwitchTeleportDest:
     {
-        playeradd = get_playeradd(plyr_idx);
-        playeradd->teleport_destination = pckt->actn_par1;
+        player->teleport_destination = pckt->actn_par1;
         break;
     }
     case PckA_SelectFPPickup:
     {
-        playeradd = get_playeradd(plyr_idx);
-        playeradd->selected_fp_thing_pickup = pckt->actn_par1;
+        player->selected_fp_thing_pickup = pckt->actn_par1;
         break;
     }
     case PckA_SetNearestTeleport:
     {
-        playeradd = get_playeradd(plyr_idx);
-        playeradd->nearest_teleport = pckt->actn_par1;
+        player->nearest_teleport = pckt->actn_par1;
         break;
     }
   }

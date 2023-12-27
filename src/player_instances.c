@@ -1121,8 +1121,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
             room_code_name(rkind),(int)stl_x,(int)stl_y);
         if (is_my_player(player))
         {
-            struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-            if (!playeradd->roomspace.is_active)
+            if (!player->roomspace.is_active)
             {
                 play_non_3d_sample(119);
             }

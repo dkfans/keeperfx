@@ -716,10 +716,8 @@ void create_message_box(const char *title, const char *line1, const char *line2,
 
 short game_is_busy_doing_gui(void)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
-    struct PlayerInfoAdd *playeradd = get_playeradd(player->id_number);
-    if (playeradd->one_click_lock_cursor)
+    struct PlayerInfo *player = get_my_player();
+    if (player->one_click_lock_cursor)
       return false;
     if (!busy_doing_gui)
       return false;
@@ -993,8 +991,7 @@ TbResult frontend_load_data(void)
 
 void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind, 0, 0);
     struct RoomConfigStats *roomst;
     roomst = &game.conf.slab_conf.room_cfgstats[rkind];
@@ -1171,8 +1168,7 @@ long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long fi
 
 void gui_quit_game(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
 }
 
@@ -1695,8 +1691,7 @@ void gui_go_to_event(struct GuiButton *gbtn)
 
 void gui_close_objective(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_EventBoxClose, 0, 0, 0, 0);
     // The final effect of this packet should be 3 menus disabled
     /*turn_off_menu(GMnu_TEXT_INFO);
@@ -2222,8 +2217,7 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
 
 long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     long scaled_height;
     scaled_height = (menu_height * units_per_px + 8) / 16;
     long pos;
