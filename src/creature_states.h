@@ -359,6 +359,8 @@ TbBool person_get_somewhere_adjacent_in_room_around_borders_f(struct Thing *thin
 void place_thing_in_creature_controlled_limbo(struct Thing *thing);
 void remove_thing_from_creature_controlled_limbo(struct Thing *thing);
 TbBool get_random_position_in_dungeon_for_creature(PlayerNumber plyr_idx, unsigned char wandr_select, struct Thing *thing, struct Coord3d *pos);
+
+struct Room* get_room_for_thing_salary(struct Thing* creatng, unsigned char *navtype);
 /******************************************************************************/
 TbBool creature_is_dying(const struct Thing *thing);
 TbBool creature_is_being_dropped(const struct Thing *thing);
