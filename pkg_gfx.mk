@@ -298,7 +298,7 @@ pkg/data/frac%.raw:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/data/tmapa%.dat:
+pkg/data/tmap%.dat:
 	-$(ECHO) 'Building RAW texture: $@'
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f raw -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'
