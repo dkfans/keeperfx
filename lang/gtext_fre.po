@@ -53,7 +53,7 @@ msgid ""
 msgstr ""
 "Un Gardien doit absolument pouvoir stocker l'or extrait par ses lutins. "
 "Cliquez sur l'icône de la Salle du trésor figurant dans le panneau des "
-"salles, et remplissez la zone vers l'ouest avec des dalles Salle du trésor."
+"salles, et remplissez la zone vers l'ouest avec des dalles de Salle du trésor."
 
 #. Level Eversmile information when started building Treasure Room
 #: guitext:3
@@ -101,7 +101,7 @@ msgid ""
 "dropped into."
 msgstr ""
 "Attrapez vos créatures du Donjon à l'aide du bouton Gauche de la souris, et "
-"avec le bouton Droit, laissez-les tomber dans une pièce ou sur un dalle de "
+"avec le bouton Droit, laissez-les tomber dans une pièce ou sur une dalle de "
 "votre Donjon. Les créatures effectuent les tâches les plus appropriées."
 
 #. Level Eversmile objective after digging gold
@@ -128,7 +128,7 @@ msgid ""
 "dungeon."
 msgstr ""
 "Creusez un tunnel jusqu'au portail Nord. Les portails sont représentés sur la "
-"carte par des dalles qui clignotent jusqu'à ce qu'ils soient réclamés. Les "
+"carte par des dalles qui clignotent jusqu'à ce qu'elles soient réclamées. Les "
 "créatures ne peuvent utiliser que les portails réclamés par un Gardien. Vos "
 "lutins réclament un portail s'il touche votre Donjon."
 
@@ -141,7 +141,7 @@ msgid ""
 "Dungeon Heart."
 msgstr ""
 "Vous devez d'abord construire une Salle du trésor. Sélectionnez l'icône Salle "
-"Du Trésor dans le panneau des salles et cliquez avec le bouton Gauche sur les "
+"du trésor dans le panneau des salles et cliquez avec le bouton Gauche sur les "
 "dalles dans la zone située à l'Ouest du Coeur du Donjon."
 
 #. Level Eversmile information after some digging
@@ -153,7 +153,7 @@ msgid ""
 "the situation they're dropped into."
 msgstr ""
 "Ramassez les créatures en cliquant avec le bouton Gauche. Laissez-les tomber "
-"d'un clic Droit dans une salle ou sur un dalle faisant partie de votre "
+"d'un clic Droit dans une salle ou sur une dalle faisant partie de votre "
 "Donjon. Les créatures accomplissent les tâches les plus appropriées."
 
 #. Level Eversmile information after some digging
@@ -3603,7 +3603,7 @@ msgstr "Combat À Mort"
 msgctxt "In-game interface description"
 msgid "Sell Room: Sell a room tile for half the building price. LMB select."
 msgstr ""
-"Vente de salles : Vendez un dalle à moitié prix. Bouton gauche de la souris "
+"Vente de salles : Vendez une dalle à moitié prix. Bouton gauche de la souris "
 "pour sélectionner. [6.4]"
 
 #: guitext:463
@@ -4290,7 +4290,7 @@ msgid ""
 "are irreversible, so Bridge is needed to be able to step on affected area "
 "again. LMB select. RMB zoom."
 msgstr ""
-"Lave : Le dalle se désintègre et fait place à de la lave en fusion. Les "
+"Lave : La dalle se désintègre et fait place à de la lave en fusion. Les "
 "effets sont irréversibles, il faut donc un pont pour pouvoir à nouveau "
 "marcher sur la zone touchée. Sélectionnez avec le bouton gauche de la souris "
 "et zoomez avec le bouton droit. [20.6]"
