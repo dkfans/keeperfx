@@ -261,12 +261,18 @@ enum UIScaleSettings {
 
 extern unsigned short units_per_pixel_width;
 extern unsigned short units_per_pixel_height;
+extern unsigned short units_per_pixel_menu_height;
 extern unsigned short units_per_pixel_best;
+extern unsigned short units_per_pixel_menu;
+extern unsigned short units_per_pixel_landview;
+extern unsigned short units_per_pixel_landview_frame;
 extern unsigned short units_per_pixel_ui;
 extern unsigned long aspect_ratio_factor_HOR_PLUS;
 extern unsigned long aspect_ratio_factor_HOR_PLUS_AND_VERT_PLUS;
 extern unsigned long first_person_horizontal_fov;
 extern unsigned long first_person_vertical_fov;
+extern unsigned long landview_frame_movement_scale_x;
+extern unsigned long landview_frame_movement_scale_y;
 
 extern unsigned short MyScreenWidth;
 extern unsigned short MyScreenHeight;
@@ -284,7 +290,7 @@ TbResult LbScreenSetDoubleBuffering(TbBool state);
 TbBool LbScreenIsDoubleBufferred(void);
 TbResult LbScreenSetup(TbScreenMode mode, TbScreenCoord width, TbScreenCoord height,
     unsigned char *palette, short buffers_count, TbBool wscreen_vid);
-TbResult LbScreenReset(void);
+TbResult LbScreenReset(TbBool exiting_application);
 
 TbBool LbScreenIsModeAvailable(TbScreenMode mode, unsigned short display);
 TbScreenMode LbRecogniseVideoModeString(const char *desc);
@@ -332,7 +338,11 @@ long scale_value_by_vertical_resolution(long base_value);
 long scale_ui_value_lofi(long base_value);
 long scale_ui_value(long base_value);
 long scale_fixed_DK_value(long base_value);
+long scale_value_menu(long base_value);
+long scale_value_landview(long base_value);
+void calculate_landview_upp(long width, long height, long landview_width, long landview_height);
 TbBool is_ar_wider_than_original(long width, long height);
+TbBool is_menu_ar_wider_than_original(long width, long height);
 long calculate_relative_upp(long base_length, long reference_upp, long reference_length);
 long resize_ui(long units_per_px, long ui_scale);
 void calculate_aspect_ratio_factor(long width, long height);

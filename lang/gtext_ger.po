@@ -7168,6 +7168,36 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Dichte Goldader: Enthält viel Reichtum, den deine Imps abbauen können."
 
 #: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr "Abprall"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "Einfrieren"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "Bremsen"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr "Flug"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "Beleuchtung"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "Sicht"
+
+#: guitext:1059
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
 msgstr "Reinigen: Heilt alle negativen Effekte, die der Kreatur zugefügt wurden."

@@ -6906,5 +6906,37 @@ msgstr "Hustý zlatý základ: Obsahuje mnoho bohatství, které mohou tví Skř
 
 #: guitext:1053
 msgctxt "Creature spell"
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr "Odražení"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "Zmražení"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "Zpomaleni"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr "Letani"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "Svetelkovani"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "Pohled"
+
+#: guitext:1059
+msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
 msgstr "Čištění: Vyléčí všechny negativní účinky postihující bytost."
+

@@ -44,6 +44,7 @@
 #include "config_creature.h"
 #include "config_terrain.h"
 #include "config_magic.h"
+#include "config_spritecolors.h"
 #include "scrcapt.h"
 #include "gui_draw.h"
 #include "kjm_input.h"
@@ -715,10 +716,8 @@ void create_message_box(const char *title, const char *line1, const char *line2,
 
 short game_is_busy_doing_gui(void)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
-    struct PlayerInfoAdd *playeradd = get_playeradd(player->id_number);
-    if (playeradd->one_click_lock_cursor)
+    struct PlayerInfo *player = get_my_player();
+    if (player->one_click_lock_cursor)
       return false;
     if (!busy_doing_gui)
       return false;
@@ -992,11 +991,10 @@ TbResult frontend_load_data(void)
 
 void activate_room_build_mode(RoomKind rkind, TextStringId tooltip_id)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_SetPlyrState, PSt_BuildRoom, rkind, 0, 0);
     struct RoomConfigStats *roomst;
-    roomst = &game.slab_conf.room_cfgstats[rkind];
+    roomst = &game.conf.slab_conf.room_cfgstats[rkind];
     game.chosen_room_kind = rkind;
     game.chosen_room_spridx = roomst->bigsym_sprite_idx;
     game.chosen_room_tooltip = tooltip_id;
@@ -1029,6 +1027,7 @@ long player_state_to_packet(long work_state, PowerKind pwkind, TbBool already_in
     case PSt_TurnChicken:
     case PSt_DestroyWalls:
     case PSt_TimeBomb:
+    case PSt_Rebound:
         return PckA_SetPlyrState;
     case PSt_None:
         switch (pwkind)
@@ -1114,7 +1113,7 @@ void choose_spell(PowerKind pwkind, TextStringId tooltip_id)
 {
     struct PlayerInfo *player;
 
-    pwkind = pwkind % magic_conf.power_types_count;
+    pwkind = pwkind % game.conf.magic_conf.power_types_count;
 
     if (is_special_power(pwkind)) {
         choose_special_spell(pwkind, tooltip_id);
@@ -1168,8 +1167,7 @@ long frontend_scroll_tab_to_offset(struct GuiButton *gbtn, long scr_pos, long fi
 
 void gui_quit_game(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_Unknown001, 0, 0, 0, 0);
 }
 
@@ -1692,8 +1690,7 @@ void gui_go_to_event(struct GuiButton *gbtn)
 
 void gui_close_objective(struct GuiButton *gbtn)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     set_players_packet_action(player, PckA_EventBoxClose, 0, 0, 0, 0);
     // The final effect of this packet should be 3 menus disabled
     /*turn_off_menu(GMnu_TEXT_INFO);
@@ -1858,7 +1855,7 @@ short frontend_save_continue_game(short allow_lvnum_grow)
     // Restore saved data
     player->victory_state = victory_state;
     memcpy(&dungeon->lvstats, scratch, sizeof(struct LevelStats));
-    set_flag_byte(&player->additional_flags,PlaAF_UnlockedLordTorture,flg_mem);
+    set_flag_value(player->additional_flags, PlaAF_UnlockedLordTorture, flg_mem);
     // Only save continue if level was won, not a free play level, not a multiplayer level and not in packet mode
     if (((game.system_flags & GSF_NetworkActive) != 0)
      || ((game.operation_flags & GOF_SingleLevel) != 0)
@@ -2111,7 +2108,7 @@ int create_button(struct GuiMenu *gmnu, struct GuiButtonInit *gbinit, int units_
     gbtn->width = (gbinit->width * units_per_px + 8) / 16;
     gbtn->height = (gbinit->height * units_per_px + 8) / 16;
     gbtn->draw_call = gbinit->draw_call;
-    gbtn->sprite_idx = gbinit->sprite_idx;
+    gbtn->sprite_idx = get_player_colored_icon_idx(gbinit->sprite_idx,my_player_number);
     gbtn->tooltip_stridx = gbinit->tooltip_stridx;
     gbtn->parent_menu = gbinit->parent_menu;
     gbtn->content = (unsigned long *)gbinit->content.lptr;
@@ -2219,8 +2216,7 @@ long compute_menu_position_x(long desired_pos,int menu_width, int units_per_px)
 
 long compute_menu_position_y(long desired_pos,int menu_height, int units_per_px)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     long scaled_height;
     scaled_height = (menu_height * units_per_px + 8) / 16;
     long pos;
@@ -2336,6 +2332,14 @@ MenuNumber create_menu(struct GuiMenu *gmnu)
     return mnu_num;
 }
 
+/**
+ * Sets the status menu visiblity.
+ * 
+ * Doesn't change anything if the current menu visibility is the same as the passed parameter.
+ * 
+ * @param visible If TRUE show the menu, if FALSE hide the menu
+ * @return The visibility of the menu before this function was called (used to store the user's previous setting when the menu is forcibly hidden).
+ */
 unsigned long toggle_status_menu(short visible)
 {
   static TbBool room_on = false;
@@ -2529,7 +2533,7 @@ TbBool toggle_first_person_menu(TbBool visible)
 void set_gui_visible(TbBool visible)
 {
   SYNCDBG(6,"Starting");
-  set_flag_byte(&game.operation_flags,GOF_ShowGui,visible);
+  set_flag_value(game.operation_flags, GOF_ShowGui, visible);
   struct PlayerInfo *player=get_my_player();
   unsigned char is_visbl = ((game.operation_flags & GOF_ShowGui) != 0);
   switch (player->view_type)
@@ -2775,7 +2779,7 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
           last_mouse_y = GetMouseY();
           time_last_played_demo = LbTimerClock();
           fe_high_score_table_from_main_menu = true;
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_FELOAD_GAME:
@@ -2797,13 +2801,13 @@ FrontendMenuState frontend_setup_state(FrontendMenuState nstate)
       case FeSt_NET_SESSION:
           turn_on_menu(GMnu_FENET_SESSION);
           frontnet_session_setup();
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_NET_START:
           turn_on_menu(GMnu_FENET_START);
           frontnet_start_setup();
-          set_flag_byte(&game.system_flags, GSF_NetworkActive, true);
+          set_flag(game.system_flags, GSF_NetworkActive);
           set_pointer_graphic_menu();
           break;
       case FeSt_START_KPRLEVEL:
@@ -3138,7 +3142,7 @@ char update_menu_fade_level(struct GuiMenu *gmnu)
 
 void toggle_gui_overlay_map(void)
 {
-    toggle_flag_byte(&game.operation_flags,GOF_ShowGui);
+    toggle_flag(game.operation_flags, GOF_ShowGui);
 }
 
 void draw_menu_buttons(struct GuiMenu *gmnu)

@@ -70,7 +70,7 @@ TbBool trap_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx)
     struct TrapConfigStats *trapst;
     if (thing->owner == plyr_idx)
     {
-        trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+        trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
         return (trapst->slappable == 1) && trap_is_active(thing);
     }
     return false;
@@ -172,7 +172,7 @@ short thing_is_destructible_trap(const struct Thing *thing)
         return -2;
     if (thing->trap.num_shots <= 0)
         return -2;
-    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
     return trapst->destructible;
 }
 
@@ -182,7 +182,7 @@ TbBool thing_is_sellable_trap(const struct Thing* thing)
         return false;
     if (thing->class_id != TCls_Trap)
         return false;
-    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
     return (trapst->unsellable == 0);
 }
 
@@ -238,7 +238,7 @@ TbBool update_trap_trigger_line_of_sight_90_on_subtile(struct Thing *traptng, Ma
 
 TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 {
-    const struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    const struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     struct ShotConfigStats* shotst = get_shot_model_stats(trapstat->created_itm_model);
 
     MapSubtlDelta line_of_sight_90_range = (shotst->max_range / COORD_PER_STL);
@@ -380,7 +380,7 @@ TbBool update_trap_trigger_line_of_sight_90(struct Thing *traptng)
 
 void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *creatng)
 {
-    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
@@ -439,7 +439,7 @@ void activate_trap_shot_head_for_target90(struct Thing *traptng, struct Thing *c
 
 void activate_trap_effect_on_trap(struct Thing *traptng)
 {
-    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad effect kind %d",(int)trapstat->created_itm_model);
@@ -461,7 +461,7 @@ void activate_trap_effect_on_trap(struct Thing *traptng)
         efftng->parent_idx = traptng->index;
         SYNCDBG(18,"Created %s",thing_model_name(efftng));
     }
-    if (trapstat->created_itm_model == 14) //Word of Power trap
+    if (trapstat->created_itm_model == TngEff_WoPExplosion) //Word of Power trap
     { 
         struct ShotConfigStats* shotst = get_shot_model_stats(ShM_TrapWordOfPower);
         if (shotst->firing_sound > 0) 
@@ -478,7 +478,7 @@ void activate_trap_effect_on_trap(struct Thing *traptng)
 
 void activate_trap_shot_on_trap(struct Thing *traptng)
 {
-    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     if (trapstat->created_itm_model <= 0)
     {
         ERRORLOG("Trap activation of bad shot kind %d",(int)trapstat->created_itm_model);
@@ -510,7 +510,7 @@ void activate_trap_slab_change(struct Thing *traptng)
 {
     MapSubtlCoord stl_x = traptng->mappos.x.stl.num;
     MapSubtlCoord stl_y = traptng->mappos.y.stl.num;
-    SlabKind slab = gameadd.trap_stats[traptng->model].created_itm_model;
+    SlabKind slab = game.conf.trap_stats[traptng->model].created_itm_model;
     if (subtile_is_room(stl_x, stl_y))
     {
         // deleting the room also deletes the trap
@@ -526,7 +526,7 @@ void activate_trap_slab_change(struct Thing *traptng)
 struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char model)
 {
     struct Thing* thing;
-    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     struct CreatureControl* cctrl;
 
     struct Coord3d shot_origin;
@@ -560,7 +560,6 @@ struct Thing *activate_trap_spawn_creature(struct Thing *traptng, unsigned char 
     cctrl->spell_flags |= CSAfF_MagicFall;
     thing->move_angle_xy = 0;
     return thing;
-    // EVM_CREATURE_EVENT("joined.trap", thing->owner, thing);
 }
 
 
@@ -589,9 +588,8 @@ void activate_trap_god_spell(struct Thing *traptng, struct Thing *creatng, Power
 void activate_trap(struct Thing *traptng, struct Thing *creatng)
 {
     traptng->trap.revealed = 1;
-    const struct TrapStats *trapstat = &gameadd.trap_stats[traptng->model];
-    struct TrapConfigStats *trapst = &gameadd.trapdoor_conf.trap_cfgstats[traptng->model];
-    // EVM_TRAP_EVENT("trap.actiated", traptng->owner, thing)
+    const struct TrapStats *trapstat = &game.conf.trap_stats[traptng->model];
+    struct TrapConfigStats *trapst = &game.conf.trapdoor_conf.trap_cfgstats[traptng->model];
     if (trapst->notify == 1)
     {
         event_create_event(traptng->mappos.x.val, traptng->mappos.y.val, EvKind_AlarmTriggered, traptng->owner, 0);
@@ -717,7 +715,7 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
         return TUFRet_Unchanged;
     }
     TbBool do_trig;
-    switch (gameadd.trap_stats[traptng->model].trigger_type)
+    switch (game.conf.trap_stats[traptng->model].trigger_type)
     {
     case TrpTrg_LineOfSight90:
         do_trig = update_trap_trigger_line_of_sight_90(traptng);
@@ -735,13 +733,13 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
         do_trig = false;
         break;
     default:
-        ERRORLOG("Illegal trap trigger type %d",(int)gameadd.trap_stats[traptng->model].trigger_type);
+        ERRORLOG("Illegal trap trigger type %d",(int)game.conf.trap_stats[traptng->model].trigger_type);
         do_trig = false;
         break;
     }
     if (do_trig)
     {
-        const struct ManfctrConfig* mconf = &gameadd.traps_config[traptng->model];
+        const struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
         traptng->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
         int n = traptng->trap.num_shots;
         if ((n > 0) && (n != 255))
@@ -778,8 +776,8 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
 
 TbBool rearm_trap(struct Thing *traptng)
 {
-    struct ManfctrConfig* mconf = &gameadd.traps_config[traptng->model];
-    struct TrapStats* trapstat = &gameadd.trap_stats[traptng->model];
+    struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     traptng->trap.num_shots = mconf->shots;
     traptng->rendering_flags ^= (traptng->rendering_flags ^ (trapstat->transparency_flag << 4)) & (TRF_Transpar_Flags);
     return true;
@@ -811,7 +809,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
 struct Thing *create_trap(struct Coord3d *pos, ThingModel trpkind, PlayerNumber plyr_idx)
 {
     SYNCDBG(7,"Starting for %s owner %d",trap_code_name(trpkind),(int)plyr_idx);
-    struct TrapStats* trapstat = &gameadd.trap_stats[trpkind];
+    struct TrapStats* trapstat = &game.conf.trap_stats[trpkind];
     if (!i_can_allocate_free_thing_structure(FTAF_FreeEffectIfNoSlots)) {
         ERRORDBG(3,"Cannot create trap %s for player %d. There are too many things allocated.",trap_code_name(trpkind),(int)plyr_idx);
         erstat_inc(ESE_NoFreeThings);
@@ -927,7 +925,7 @@ unsigned long remove_trap(struct Thing *traptng, long *sell_value)
         if (sell_value != NULL)
         {
             // Do the refund only if we were able to sell armed trap
-            long i = compute_value_percentage(gameadd.traps_config[traptng->model].selling_value, gameadd.trap_sale_percent);
+            long i = compute_value_percentage(game.conf.traps_config[traptng->model].selling_value, game.conf.rules.game.trap_sale_percent);
             if (traptng->trap.num_shots == 0)
             {
                 // Trap not armed - try selling crate from workshop
@@ -969,7 +967,7 @@ unsigned long remove_traps_around_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl
 
 void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct Thing *hand)
 {
-    struct TrapStats* trapstat = &gameadd.trap_stats[thing->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[thing->model];
     if (trapstat->created_itm_model <= 0) {
         ERRORLOG("Cannot activate trap with shot model %d",(int)trapstat->created_itm_model);
         return;
@@ -1003,7 +1001,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     shotng->veloc_push_add.z.val += cvect.z;
     shotng->state_flags |= TF1_PushAdd;
     shotng->shot.hit_type = trapstat->hit_type;
-    const struct ManfctrConfig* mconf = &gameadd.traps_config[thing->model];
+    const struct ManfctrConfig* mconf = &game.conf.traps_config[thing->model];
     thing->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
     if (thing->trap.num_shots != 255)
     {
@@ -1018,7 +1016,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
 
 TbBool trap_on_bridge(ThingModel trpkind)
 {
-    struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpkind];
+    struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpkind];
     return trapst->placeonbridge;
 }
 
@@ -1042,12 +1040,12 @@ TbBool can_place_trap_on(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoo
     }
     if ((slabmap_owner(slb) == plyr_idx) && (((slb->kind == SlbT_BRIDGE) && (trap_on_bridge(trpkind))) || (slb->kind == SlbT_CLAIMED) || (slab_is_door(slb_x, slb_y))))
     {
-        if ((!gameadd.place_traps_on_subtiles))
+        if ((!game.conf.rules.game.place_traps_on_subtiles))
         {
                 HasTrap = slab_has_trap_on(slb_x, slb_y);
                 HasDoor = slab_is_door(slb_x, slb_y);
         }
-        else if ( (gameadd.place_traps_on_subtiles) && (player->chosen_trap_kind == TngTrp_Boulder) ) 
+        else if ( (game.conf.rules.game.place_traps_on_subtiles) && (player->chosen_trap_kind == TngTrp_Boulder) ) 
         {
                 HasTrap = subtile_has_trap_on(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
                 HasDoor = slab_is_door(slb_x, slb_y);

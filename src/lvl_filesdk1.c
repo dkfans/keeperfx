@@ -1031,7 +1031,7 @@ TbBool update_slabset_column_indices(struct Column *cols, long ccount)
                     ncol = 0;
                 if (ncol == 0)
                 {
-                    ERRORLOG("column:%d referenced in slabset.cfg but not present in columnset.cfg",-n);
+                    ERRORLOG("column:%d referenced in slabset.toml but not present in columnset.toml",-n);
                     continue;
                 }
             }
@@ -1073,7 +1073,7 @@ TbBool load_slab_datclm_files(void)
       LbMemoryFree(cols);
       return false;
     }
-    long slbset_tot = game.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
+    long slbset_tot = game.conf.slab_conf.slab_types_count * SLABSETS_PER_SLAB;
     game.slabset_num = slbset_tot;
     update_columns_use(cols,cols_tot,game.slabset,slbset_tot);
     create_columns_from_list(cols,cols_tot);
@@ -1246,9 +1246,9 @@ short load_map_slab_file(unsigned long lv_num)
       {
         slb = get_slabmap_block(x,y);
         n = lword(&buf[i]);
-        if (n > game.slab_conf.slab_types_count)
+        if (n > game.conf.slab_conf.slab_types_count)
         {
-          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,game.slab_conf.slab_types_count);
+          WARNMSG("Slab Type %d exceeds limit of %d",(int)n,game.conf.slab_conf.slab_types_count);
           n = SlbT_ROCK;
         }
         slb->kind = n;

@@ -3841,7 +3841,7 @@ msgctxt "Slab description"
 msgid ""
 "Gems: Infinite wealth for your Imps to extract. Cannot be destroyed, but "
 "takes longer to mine than Gold."
-msgstr "宝石: 手下インプが採掘する莫大な富。 [12.3]"
+msgstr "宝石: 手下インプが採掘する無限な富。 [12.3]"
 
 #: guitext:545
 #, fuzzy
@@ -6795,7 +6795,7 @@ msgstr "岩の形成。"
 #: guitext:1051
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
-msgstr "岩盤：未請求の岩床。あなたはそれを請求したり、それに建物を建てたりすることはできません。"
+msgstr "基盤岩： 誰の所有でもない岩石の地面。それを占領できられない、それ上に建てられない。"
 
 #: guitext:1052
 msgctxt "Slab description"
@@ -6803,6 +6803,36 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "密な金の層：あなたのインプが採掘するための多くの富を保持しています。"
 
 #: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr "反射"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "凍結"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "減速"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr "飛行"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "照明"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "照準"
+
+#: guitext:1059
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
-msgstr "クレンズ：クリーチャーに与えられたすべての負の効果を治療します。"
+msgstr "クレンズ：クリーチャーに与えられたすべての負の効果を治療します。

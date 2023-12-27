@@ -428,6 +428,7 @@ struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 float hud_scale;
 
+int line_box_size = 200; // Default value, overwritten by cfg setting
 int creature_status_size = 16; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
@@ -2844,16 +2845,15 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct PlayerInfoAdd* current_playeradd = get_playeradd(plyr_idx);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((current_playeradd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    if ((current_player->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
-    if (current_playeradd->render_roomspace.render_roomspace_as_box)
+    if (current_player->render_roomspace.render_roomspace_as_box)
     {
-        if (current_playeradd->render_roomspace.is_roomspace_a_box)
+        if (current_player->render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
             create_map_volume_box(x, y, z, line_color);
@@ -2863,13 +2863,13 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_map_volume_box(current_playeradd->render_roomspace, x, y, z, (current_playeradd->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_map_volume_box(current_player->render_roomspace, x, y, z, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_map_volume_box(current_playeradd->render_roomspace, x, y, z, line_color, false);
+        create_fancy_map_volume_box(current_player->render_roomspace, x, y, z, line_color, false);
     }
     map_volume_box.color = default_color;
 }
@@ -5090,7 +5090,7 @@ static void draw_fastview_mapwho(struct Camera *cam, struct BucketKindJontySprit
         TbBool is_shown = false;
         if (thing->class_id == TCls_Trap)
         {
-            is_shown = !gameadd.trapdoor_conf.trap_cfgstats[thing->model].hidden;
+            is_shown = !game.conf.trapdoor_conf.trap_cfgstats[thing->model].hidden;
         }
         else
         {
@@ -5209,8 +5209,9 @@ static unsigned short choose_health_sprite(struct Thing* thing)
     int color_idx;
     health = thing->health;
     maxhealth = cctrl->max_health;
-    color_idx = (thing->owner % 5);
-    if (is_neutral_thing(thing)) {
+    color_idx = get_player_color_idx(thing->owner);
+
+    if (color_idx == NEUTRAL_PLAYER) {
         color_idx = game.play_gameturn & 3;
     }
     if ((maxhealth <= 0) || (health <= 0))
@@ -5420,16 +5421,14 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
 
     if ((thing->lair.spr_size > 0) && (health_spridx > 0) && ((game.play_gameturn & 1) != 0))
     {
-        int flash_owner;
-        if (is_neutral_thing(thing)) {
-            flash_owner = game.play_gameturn & 3;
-        } else {
-            flash_owner = thing->owner;
+        int flash_color = get_player_color_idx(thing->owner);
+        if (flash_color == NEUTRAL_PLAYER) {
+            flash_color = game.play_gameturn & 3;
         }
         spr = get_button_sprite(health_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
-        LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_owner]);
+        LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_color]);
     }
     else
     {
@@ -5469,11 +5468,11 @@ static void draw_room_flag_top(long x, long y, int units_per_px, const struct Ro
     int bar_empty;
     struct TbSprite *spr;
     int ps_units_per_px;
-    spr = &gui_panel_sprites[303];
+    spr = &gui_panel_sprites[GPS_rpanel_room_ensign_filled];
     ps_units_per_px = 36*units_per_px/spr->SHeight;
     LbSpriteDrawScaled(x, y, spr, spr->SWidth * ps_units_per_px / 16, spr->SHeight * ps_units_per_px / 16);
     struct RoomConfigStats *roomst;
-    roomst = &game.slab_conf.room_cfgstats[room->kind];
+    roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
     int barpos_x;
     barpos_x = x + spr->SWidth * ps_units_per_px / 16 - (8 * units_per_px - 8) / 16;
     spr = &gui_panel_sprites[roomst->medsym_sprite_idx];
@@ -5552,8 +5551,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     unsigned char color_index = game.play_gameturn & 0xf;
 
     // get engine window width and height
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     long relative_window_width = ((player->engine_window_width * 256) / (pixel_size * 256)) - 1;
     long relative_window_height = ((player->engine_window_height * 256) / (pixel_size * 256)) - 1;
 
@@ -5701,22 +5699,57 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     }
     b = b_start;
 
-    // Draw the line
-    for (a = a_start; a <= a_end; a ++)
-    {
-        if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b))
-        {
-            // Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
-            WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
-        }
-        // Draw a pixel with the correct colour from the stripey line's color array.
-        LbDrawPixel(*x_coord, *y_coord, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
-        // Increment color_index, looping back to 0 after 15
-        color_index = (color_index + 1) & 0xf;
-        // The remainder is used to know when to round up B to the next increment
-        if (remainder >= remainder_limit)
-        {
+    // A hack-fix to ensure that pixels are always drawn on screen. Otherwise when zoomed in, pixels have trouble being drawn in the bottom right corner
+    relative_window_a = lbDisplay.GraphicsScreenWidth;
+    relative_window_b = lbDisplay.GraphicsScreenHeight;
 
+    // Set up parameters before starting the drawing loop
+    float custom_line_box_size = line_box_size / 100.0;
+    int line_thickness = max(1, (custom_line_box_size * units_per_pixel_best / 16.0) );
+    
+    // Make the line slightly thinner when zoomed out
+    line_thickness = lerp(line_thickness, 1, 1.0-hud_scale);
+    
+    int put_pixels_left = line_thickness/2; // Allocate half of the thickness to the left
+    int put_pixels_right = line_thickness-put_pixels_left; // Remaining thickness is placed to the right
+
+    TbBool isHorizontal = abs(x2 - x1) >= abs(y2 - y1); // Check if line is more horizontal than vertical, helps with the "pixel-art look".
+    int temp_x, temp_y;
+    float color_animation_position = color_index;
+    // Main loop to draw the line
+    for (a = a_start; a <= a_end; a++) {
+
+        //if ((a < 0) || (a > relative_window_a) || (b < 0) || (b > relative_window_b))
+        //{
+        //    Temporary Error message, this should never appear in the log, but if it does, then the line must have been clipped incorrectly
+        //    WARNMSG("draw_stripey_line: Pixel rendered outside engine window. X: %d, Y: %d, window_width: %d, window_height %d, A1: %d, A2 %d, B1 %d, B2 %d, a_start: %d, a_end: %d, b_start: %d, rWA: %d", *x_coord, *y_coord, relative_window_width, relative_window_height, a1, a2, b1, b2, a_start, a_end, b_start, relative_window_a);
+        //}
+        color_animation_position += lerp(1.0, 4.0, 1.0-hud_scale) * (16.0/units_per_pixel_best);
+        if (color_animation_position >= 16.0) {
+            color_animation_position -= 16.0;
+        }
+        color_index = max(0, (int)color_animation_position);
+
+        // Nested loops to draw square pixels around each point for the specified thickness
+        for (int dx = -put_pixels_left; dx < put_pixels_right; dx++) {
+            for (int dy = -put_pixels_left; dy < put_pixels_right; dy++) {
+                // Determine pixel coordinates based on line orientation
+                if (isHorizontal) {
+                    temp_x = *x_coord;
+                    temp_y = *y_coord + dy;
+                } else {
+                    temp_x = *x_coord + dx;
+                    temp_y = *y_coord;
+                }
+
+                // Draw the pixel if it's within the bounds of the window
+                if ((temp_x >= 0) && (temp_x < relative_window_a) && (temp_y >= 0) && (temp_y < relative_window_b)) {
+                    LbDrawPixel(temp_x, temp_y, colored_stripey_lines[line_color].stripey_line_color_array[color_index]);
+                }
+            }
+        }
+
+        if (remainder >= remainder_limit) {
             b += b_increment;
             remainder -= distance_a;
         }
@@ -8027,7 +8060,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
     }
     shade_factor = shade >> 8;
     *scale = (thelens * (long)thing->sprite_size) / fade;
-    if ((thing->rendering_flags & (TRF_Unknown04|TRF_Unknown08)) != 0)
+    if ((thing->rendering_flags & (TRF_Tint_1|TRF_Tint_2)) != 0)
     {
         lbDisplay.DrawFlags |= Lb_TEXT_UNDERLNSHADOW;
         shade_factor = thing->tint_colour;
@@ -8046,8 +8079,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
 static void draw_mapwho_ariadne_path(struct Thing *thing)
 {
     // Don't draw debug pathfinding lines in Possession to avoid crash
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     if (player->view_mode == PVM_CreatureView)
         return;
 
@@ -8194,7 +8226,7 @@ static void draw_jonty_mapwho(struct BucketKindJontySprite *jspr)
             process_keeper_sprite(jspr->scr_x, jspr->scr_y, thing->anim_sprite, angle, thing->current_frame, scale);
             break;
         case TCls_Trap:
-            trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+            trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
             if ((trapst->hidden == 1) && (player->id_number != thing->owner) && (thing->trap.revealed == 0))
             {
                 break;
@@ -8530,8 +8562,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     }
     
     struct PlayerInfo *player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    playeradd->mouse_is_offmap = out_of_bounds;
+    player->mouse_is_offmap = out_of_bounds;
 }
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
@@ -8778,35 +8809,68 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct PlayerInfoAdd* current_playeradd = get_playeradd(plyr_idx);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((current_playeradd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    if ((current_player->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
-    if (current_playeradd->render_roomspace.render_roomspace_as_box)
+    if (current_player->render_roomspace.render_roomspace_as_box)
     {
-        if (current_playeradd->render_roomspace.is_roomspace_a_box)
+        if (current_player->render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
-             create_frontview_map_volume_box(cam, stl_width, current_playeradd->render_roomspace.is_roomspace_a_single_subtile, line_color);
+             create_frontview_map_volume_box(cam, stl_width, current_player->render_roomspace.is_roomspace_a_single_subtile, line_color);
         }
         else
         {
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_frontview_map_volume_box(current_playeradd->render_roomspace, cam, stl_width, (current_playeradd->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_frontview_map_volume_box(current_player->render_roomspace, cam, stl_width, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_frontview_map_volume_box(current_playeradd->render_roomspace, cam, stl_width, line_color, false);
+        create_fancy_frontview_map_volume_box(current_player->render_roomspace, cam, stl_width, line_color, false);
     }
     map_volume_box.color = default_color;
 }
+
+TbBool cursor_on_room(RoomIndex room_index)
+{
+    struct PlayerInfo* player = get_my_player();
+    struct SlabMap* slb = get_slabmap_for_subtile(player->cursor_subtile_x, player->cursor_subtile_y);
+    if (slabmap_block_invalid(slb)) {
+        return false;
+    }
+    if (slb->room_index != room_index) {
+        return false;
+    }
+    return true;
+}
+TbBool room_is_damaged(RoomIndex room_index)
+{
+    struct Room* room = room_get(room_index);
+    if (room->health == compute_room_max_health(room->slabs_count, room->efficiency)) {
+        return false;
+    }
+    return true;
+}
+TbBool placing_same_room_type(RoomIndex room_index)
+{
+    struct PlayerInfo* player = get_my_player();
+    if (map_volume_box.visible == 0) {
+        return false;
+    }
+    struct Room* room = room_get(room_index);
+    if (player->chosen_room_kind != room->kind) {
+        return false;
+    }
+    return true;
+}
+
 static void do_map_who_for_thing(struct Thing *thing)
 {
     int bckt_idx;
@@ -8884,6 +8948,11 @@ static void do_map_who_for_thing(struct Thing *thing)
         if (hud_scale == 0) {
             break;
         }
+        
+        RoomIndex flag_room_index = thing->lair.belongs_to;
+        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false && placing_same_room_type(flag_room_index) == false) {
+            break;
+        }
 
         ecor.x = (render_pos_x - map_x_pos);
         ecor.z = (map_y_pos - render_pos_z);
@@ -8893,7 +8962,7 @@ static void do_map_who_for_thing(struct Thing *thing)
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 40) {
+                if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
@@ -8902,7 +8971,7 @@ static void do_map_who_for_thing(struct Thing *thing)
                 }
             }
             thing->roomflag2.last_turn_drawn = game.play_gameturn;
-            if (thing->roomflag2.display_timer == 40)
+            if (thing->roomflag2.display_timer == 10)
             {
                 bckt_idx = (ecor.z - 64) / 16 - 6;
                 add_room_flag_pole_to_polypool(ecor.view_width, ecor.view_height, thing->roomflag.room_idx, bckt_idx);
@@ -8995,12 +9064,18 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
         if (hud_scale == 0) {
             break;
         }
+
+        RoomIndex flag_room_index = thing->lair.belongs_to;
+        if (cursor_on_room(flag_room_index) == false && room_is_damaged(flag_room_index) == false && placing_same_room_type(flag_room_index) == false) {
+            break;
+        }
+
         convert_world_coord_to_front_view_screen_coord(&thing->interp_mappos,cam,&cx,&cy,&cz);
         if (is_free_space_in_poly_pool(1))
         {
             if (game.play_gameturn - thing->roomflag2.last_turn_drawn == 1)
             {
-                if (thing->roomflag2.display_timer < 40) {
+                if (thing->roomflag2.display_timer < 10) {
                     thing->roomflag2.display_timer++;
                 }
             } else {
@@ -9009,7 +9084,7 @@ static void draw_frontview_thing_on_element(struct Thing *thing, struct Map *map
                 }
             }
             thing->roomflag2.last_turn_drawn = game.play_gameturn;
-            if (thing->roomflag2.display_timer == 40)
+            if (thing->roomflag2.display_timer == 10)
             {
                 add_room_flag_pole_to_polypool(cx, cy, thing->roomflag.room_idx, cz-3);
                 if (is_free_space_in_poly_pool(1))

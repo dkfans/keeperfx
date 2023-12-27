@@ -125,7 +125,7 @@ enum ThingEffectKind {
     TngEff_Blood7, // blood splat
     TngEff_SpecialBox,
     TngEff_BoulderSink, // boulder sink
-    TngEff_Unknown69,
+    TngEff_ImpSpangleWhite,
 };
 
 enum ThingEffectElements {
@@ -225,6 +225,10 @@ enum ThingEffectElements {
     TngEffElm_RedDot,
     TngEffElm_IceMelt3,
     TngEffElm_DiseaseFly,
+    TngEffElm_WhiteTwinkle,
+    TngEffElm_WhiteTwinkle2,
+    TngEffElm_WhiteFlame,
+    TngEffElm_WhiteSmokePuff,
 };
 
 /******************************************************************************/
@@ -242,7 +246,7 @@ TbBool thing_is_effect(const struct Thing *thing);
 struct Thing *create_effect(const struct Coord3d *pos, ThingModel effmodel, PlayerNumber owner);
 struct Thing *create_effect_generator(struct Coord3d *pos, unsigned short model, unsigned short range, unsigned short owner, long parent_idx);
 struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short eelmodel, PlayerNumber owner);
-struct Thing* create_used_effect_or_element(const struct Coord3d* pos, short effect_id, long plyr_idx);
+struct Thing* create_used_effect_or_element(const struct Coord3d* pos, EffectOrEffElModel effect_id, PlayerNumber plyr_idx);
 TngUpdateRet update_effect_element(struct Thing *thing);
 TngUpdateRet update_effect(struct Thing *thing);
 TngUpdateRet process_effect_generator(struct Thing *thing);

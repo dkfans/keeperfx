@@ -2143,7 +2143,7 @@ msgid ""
 "Freeze: Changes the target creature to ice. It is then in suspended animation "
 "and can be shattered with a well-aimed blow."
 msgstr ""
-"Glaciateur : Change la cible en glace. Son animation est suspendue et elle "
+"Gel : Change la cible en glace. Son animation est suspendue et elle "
 "peut être éclatée avec un coup bien effectué [26.8]"
 
 #: guitext:228
@@ -2184,7 +2184,7 @@ msgid ""
 "Sight: Allows the creature to temporarily increase its awareness and notice "
 "the invisible."
 msgstr ""
-"Oeil : Permet à la créature d'augmenter temporairement sa conscience et de "
+"Vision : Permet à la créature d'augmenter temporairement sa conscience et de "
 "remarquer l'invisible."
 
 #: guitext:233
@@ -2221,7 +2221,7 @@ msgid ""
 "Speed: Speeds up the creature so that it can perform fighting and working "
 "tasks really quickly."
 msgstr ""
-"Accélération : Accélère la créature afin qu'elle puisse effectuer des tâches "
+"Hâte : Accélère la créature afin qu'elle puisse effectuer des tâches "
 "de combat et de travail très rapidement.[26.20]"
 
 #: guitext:237
@@ -2280,7 +2280,7 @@ msgid ""
 "Flight: Causes the creature to take off from the ground and attack creatures "
 "from the air or cross lava unharmed."
 msgstr ""
-"Vol : Fait décoller la créature du sol et attaque les créatures depuis les "
+"Lévitation : Fait décoller la créature du sol et attaque les créatures depuis les "
 "airs.[26.7]"
 
 #: guitext:244
@@ -2293,7 +2293,7 @@ msgctxt "Creature spell"
 msgid ""
 "Slow: Slows down the target creature, making it attacks and movement delayed."
 msgstr ""
-"Ralentisseur : Ralentit la créature cible, ce qui ralentit ses attaques et "
+"Lenteur : Ralentit la créature cible, ce qui ralentit ses attaques et "
 "ses mouvements."
 
 #: guitext:246
@@ -4615,7 +4615,7 @@ msgstr "Obéissance"
 #: guitext:637
 msgctxt "Keeper spell name"
 msgid "Speed Monster"
-msgstr "Accélérateur de monstre"
+msgstr "Hâte"
 
 #: guitext:638
 msgctxt "Keeper spell name"
@@ -7155,6 +7155,36 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Veine d'or dense : Contient beaucoup de richesses que vos Lutins peuvent extraire."
 
 #: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr "Rebond"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "Gel"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "Lenteur"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr "Lévitation"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "Illumination"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "Vision"
+
+#: guitext:1059
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
 msgstr "Purifier : Guérit tous les effets négatifs infligés à la créature."

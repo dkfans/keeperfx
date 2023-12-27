@@ -28,6 +28,7 @@
 #include "thing_physics.h"
 #include "creature_control.h"
 #include "creature_instances.h"
+#include "creature_states_combt.h"
 #include "config_creature.h"
 #include "config_rules.h"
 #include "config_terrain.h"
@@ -935,7 +936,7 @@ short imp_birth(struct Thing *thing)
     }
     long i = game.play_gameturn - thing->creation_turn;
     if ((i % 2) == 0) {
-      create_effect_element(&thing->mappos, birth_effect_element[thing->owner], thing->owner);
+      create_effect_element(&thing->mappos, birth_effect_element[get_player_color_idx(thing->owner)], thing->owner);
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     thing->movement_flags &= ~TMvF_Flying;
@@ -947,7 +948,7 @@ long digger_work_experience(struct Thing* spdigtng)
 {
     if (creature_can_gain_experience(spdigtng))
     {
-        return gameadd.digger_work_experience;
+        return game.conf.rules.workers.digger_work_experience;
     }
     return 0;
 }
@@ -970,27 +971,36 @@ short imp_converts_dungeon(struct Thing *spdigtng)
     {
       if (cctrl->instance_id == CrInst_NULL)
       {
-          struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
-          struct SlabAttr* slbattr = get_slab_attrs(slb);
-          set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0);
-          // If the area we're converting is an enemy room, issue event to that player
-          if (slbattr->category == SlbAtCtg_RoomInterior)
+          CrInstance inst_idx = get_self_spell_casting(spdigtng);
+          if (inst_idx > CrInst_NULL) 
           {
-              struct Room* room = room_get(slb->room_index);
-              if (!room_is_invalid(room))
+              set_creature_instance(spdigtng, inst_idx, 0, 0);
+              return 1;
+          }
+          else
+          {
+              set_creature_instance(spdigtng, CrInst_DESTROY_AREA, 0, 0);
+              struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
+              struct SlabAttr* slbattr = get_slab_attrs(slb);
+              // If the area we're converting is an enemy room, issue event to that player
+              if (slbattr->category == SlbAtCtg_RoomInterior)
               {
-                  MapCoord coord_x = subtile_coord_center(room->central_stl_x);
-                  MapCoord coord_y = subtile_coord_center(room->central_stl_y);
-                  event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
-                      EvKind_RoomUnderAttack, room->owner, 0);
-                  if (is_my_player_number(room->owner))
+                  struct Room* room = room_get(slb->room_index);
+                  if (!room_is_invalid(room))
                   {
-                      output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
-                  }
-            }
+                      MapCoord coord_x = subtile_coord_center(room->central_stl_x);
+                      MapCoord coord_y = subtile_coord_center(room->central_stl_y);
+                      event_create_event_or_update_nearby_existing_event(coord_x, coord_y,
+                          EvKind_RoomUnderAttack, room->owner, 0);
+                      if (is_my_player_number(room->owner))
+                      {
+                          output_message(SMsg_EnemyDestroyRooms, MESSAGE_DELAY_FIGHT, true);
+                      }
+                }
+              }
           }
       }
-      if (gameadd.digger_work_experience != 0)
+      if (game.conf.rules.workers.digger_work_experience != 0)
       {
           cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
           check_experience_upgrade(spdigtng);
@@ -1020,7 +1030,7 @@ short imp_digs_mines(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(spdigtng);
         check_experience_upgrade(spdigtng);
@@ -1180,7 +1190,7 @@ short imp_drops_gold(struct Thing *spdigtng)
         internal_set_thing_state(spdigtng, state);
         return 1;
     }
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
         cctrl->exp_points += digger_work_experience(spdigtng);
@@ -1205,7 +1215,7 @@ short imp_improves_dungeon(struct Thing *spdigtng)
     SYNCDBG(19,"Starting");
     TRACE_THING(spdigtng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(spdigtng);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += (digger_work_experience(spdigtng) / 6);
         check_experience_upgrade(spdigtng);
@@ -1350,7 +1360,7 @@ short imp_reinforces(struct Thing *thing)
         internal_set_thing_state(thing, CrSt_ImpLastDidJob);
         return 0;
     }
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);
@@ -1757,7 +1767,7 @@ short creature_drops_corpse_in_graveyard(struct Thing *creatng)
     add_body_to_graveyard(deadtng, room);
     // The action of moving object is now finished
     set_start_state(creatng);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
@@ -1817,9 +1827,9 @@ short creature_drops_crate_in_workshop(struct Thing *thing)
     }
     // The action of moving object is now finished
     set_start_state(thing);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
-        cctrl->exp_points += gameadd.digger_work_experience;
+        cctrl->exp_points += game.conf.rules.workers.digger_work_experience;
         check_experience_upgrade(thing);
     }
     return 1;
@@ -1885,7 +1895,7 @@ short creature_drops_spell_object_in_library(struct Thing *creatng)
     }
     // The action of moving object is now finished
     set_start_state(creatng);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);
@@ -1936,7 +1946,7 @@ short creature_arms_trap(struct Thing *thing)
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     // The action of moving object is now finished
     set_start_state(thing);
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(thing);
         check_experience_upgrade(thing);
@@ -1955,7 +1965,7 @@ short creature_arms_trap_first_person(struct Thing *creatng)
     thing_play_sample(traptng, 1000, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
     dungeon->lvstats.traps_armed++;
-    if (gameadd.digger_work_experience != 0)
+    if (game.conf.rules.workers.digger_work_experience != 0)
     {
         cctrl->exp_points += digger_work_experience(creatng);
         check_experience_upgrade(creatng);

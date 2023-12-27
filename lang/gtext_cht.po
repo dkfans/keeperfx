@@ -6653,6 +6653,36 @@ msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "密集的金属矿层：为你的小鬼提供丰富的财富。"
 
 #: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr "反弹术"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "冻结术"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "缓慢术"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr "飞行术"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "照明术"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "恶魔之眼"
+
+#: guitext:1059
 msgctxt "Creature spell"
 msgid "Cleanse: Cures all negative effects inflicted on the creature."
 msgstr "净化：治愈生物身上所有负面效果。"
