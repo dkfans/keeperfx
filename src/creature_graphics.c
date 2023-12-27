@@ -529,7 +529,7 @@ void update_creature_graphic_tint(struct Thing *thing)
         untint_thing(thing);
     } else
     {
-        possession_hit_colours[get_player_color_idx(thing->owner)];
+        tint_thing(thing, possession_hit_colours[get_player_color_idx(thing->owner)], 1);
     }
 }
 
