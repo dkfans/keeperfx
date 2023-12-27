@@ -159,11 +159,10 @@ void update_gui_layer()
     }
 
     struct PlayerInfo* player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (playeradd->render_roomspace.highlight_mode))  &&
+    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (player->render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
     {
-        if (playeradd->render_roomspace.one_click_mode_exclusive)
+        if (player->render_roomspace.one_click_mode_exclusive)
         {
             // Is the user in "one-click bridge building" mode
             set_current_gui_layer(GuiLayer_OneClickBridgeBuild);
@@ -1592,31 +1591,30 @@ short get_creature_control_action_inputs(void)
             }
             message_add(CrInst, get_string(StrID));
         }
-        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
         if (is_game_key_pressed(Gkey_CrtrContrlMod, &val, false))
         {
-            if (!playeradd->first_person_dig_claim_mode)
+            if (!player->first_person_dig_claim_mode)
             {
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, true, 0, 0, 0);
             }
         }
         else
         {
-            if (playeradd->first_person_dig_claim_mode)
+            if (player->first_person_dig_claim_mode)
             {
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, false, 0, 0, 0);
             }
         }
         if (is_key_pressed(KC_LALT,KMod_DONTCARE))
         {
-            if (!playeradd->nearest_teleport)
+            if (!player->nearest_teleport)
             {
                 set_players_packet_action(player, PckA_SetNearestTeleport, true, 0, 0, 0);
             }
         }
         else
         {
-            if (playeradd->nearest_teleport)
+            if (player->nearest_teleport)
             {
                 set_players_packet_action(player, PckA_SetNearestTeleport, false, 0, 0, 0);
             }
@@ -1670,7 +1668,7 @@ short get_creature_control_action_inputs(void)
                     }
                 }
             }
-            if (playeradd->selected_fp_thing_pickup != player->thing_under_hand)
+            if (player->selected_fp_thing_pickup != player->thing_under_hand)
             {
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
@@ -2107,7 +2105,6 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   unsigned long x;
   unsigned long y;
   struct PlayerInfo* player = get_my_player();
-  struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
   if ((pointer_x < 0) || (pointer_y < 0)
    || (pointer_x >= player->engine_window_width/pixel_size)
    || (pointer_y >= player->engine_window_height/pixel_size))
@@ -2125,7 +2122,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
 
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabAttr* slbattr = get_slab_attrs(slb);
-  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!playeradd->one_click_lock_cursor))
+  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!player->one_click_lock_cursor))
   {
     *context = CSt_DoorKey;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -2143,13 +2140,13 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (((slb_x >= gameadd.map_tiles_x) || (slb_y >= gameadd.map_tiles_y)) && (!playeradd->one_click_lock_cursor))
+  if (((slb_x >= gameadd.map_tiles_x) || (slb_y >= gameadd.map_tiles_y)) && (!player->one_click_lock_cursor))
   {
     *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
-  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (playeradd->one_click_lock_cursor))
+  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (player->one_click_lock_cursor))
   {
     *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -2722,12 +2719,11 @@ void process_cheat_mode_selection_inputs()
 {
     struct PlayerInfo *player = get_my_player();
     unsigned char new_value;
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
     struct CreatureModelConfig* crconf;
     // player selection
     if (player->work_state == PSt_PlaceTerrain)
     {
-        if (slab_kind_has_no_ownership(playeradd->cheatselection.chosen_terrain_kind))
+        if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
         {
             goto INPUTS;
         }
@@ -2839,7 +2835,7 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
             {
 
-                new_value = playeradd->cheatselection.chosen_experience_level;
+                new_value = player->cheatselection.chosen_experience_level;
                 if (new_value < 9)
                 {
                     new_value++;
@@ -2849,7 +2845,7 @@ void process_cheat_mode_selection_inputs()
             }
             else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
             {
-                new_value = playeradd->cheatselection.chosen_experience_level;
+                new_value = player->cheatselection.chosen_experience_level;
                 if (new_value > 0)
                 {
                     new_value--;
@@ -2861,7 +2857,7 @@ void process_cheat_mode_selection_inputs()
             {
                 if (player->work_state == PSt_MkGoodCreatr)
                 {
-                    new_value = playeradd->cheatselection.chosen_hero_kind;
+                    new_value = player->cheatselection.chosen_hero_kind;
                     do
                     {
                         new_value++;
@@ -2877,7 +2873,7 @@ void process_cheat_mode_selection_inputs()
                 }
                 else if (player->work_state == PSt_MkBadCreatr)
                 {
-                    new_value = playeradd->cheatselection.chosen_creature_kind;
+                    new_value = player->cheatselection.chosen_creature_kind;
                     do
                     {
                         new_value++;
@@ -2897,7 +2893,7 @@ void process_cheat_mode_selection_inputs()
         }
         case PSt_PlaceTerrain:
         {
-            new_value = playeradd->cheatselection.chosen_terrain_kind;
+            new_value = player->cheatselection.chosen_terrain_kind;
             if (is_key_pressed(KC_0, KMod_NONE))
             {
                 new_value = SlbT_ROCK;
@@ -2980,7 +2976,7 @@ void process_cheat_mode_selection_inputs()
                 set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_LSHIFT);
             }
-            if ( (playeradd->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (playeradd->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
+            if ( (player->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (player->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
             {
                 if (is_key_pressed(KC_LALT, KMod_DONTCARE))
                 {
@@ -2997,7 +2993,7 @@ void process_cheat_mode_selection_inputs()
                         }
                         else
                         {
-                            id = playeradd->cheatselection.chosen_player;
+                            id = player->cheatselection.chosen_player;
                         }
                         new_value = choose_pretty_type(id, slb_x, slb_y);
                         set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
