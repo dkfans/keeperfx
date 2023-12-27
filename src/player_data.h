@@ -31,6 +31,7 @@ extern "C" {
 /******************************************************************************/
 #define PLAYERS_COUNT           5
 #define PLAYERS_EXT_COUNT       6
+#define COLOURS_COUNT       9
 /** This acts as default value for neutral_player_number */
 #define NEUTRAL_PLAYER          5
 /** This acts as default value for hero_player_number */

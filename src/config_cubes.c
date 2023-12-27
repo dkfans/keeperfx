@@ -233,7 +233,7 @@ TbBool parse_cubes_cube_blocks(char *buf, long len, const char *config_textname,
                     }
 
                     k = get_id(cmpgn_human_player_options, word_buf);
-                    if (k < 0 || k >= PLAYERS_EXT_COUNT)
+                    if (k < 0 || k >= COLOURS_COUNT)
                     {
                       CONFWRNLOG("invalid player in [%s] block of %s file.",block_buf,config_textname);
                       cubed->ownershipGroup = 0;

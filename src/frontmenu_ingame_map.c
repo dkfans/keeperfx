@@ -1080,7 +1080,6 @@ void update_panel_color_player_color(PlayerNumber plyr_idx, unsigned char color_
     {
         n = pncol_idx + 8;
 
-        JUSTLOG("n %d",n);
         for (int i=17; i > 0; i--)
         {
             PanelColours[n + plyr_idx] = player_room_colours[color_idx];

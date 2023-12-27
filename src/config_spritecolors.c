@@ -38,7 +38,7 @@ extern "C" {
 const char keeper_spritecolors_file[]="spritecolors.toml";
 /******************************************************************************/
 #define MAX_COLORED_SPRITES 255
-#define PLAYER_COLORS_COUNT 7+1
+#define PLAYER_COLORS_COUNT (COLOURS_COUNT + 2)
 static short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short button_sprite_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
