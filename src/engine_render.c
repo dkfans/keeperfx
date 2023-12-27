@@ -2845,16 +2845,15 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct PlayerInfoAdd* current_playeradd = get_playeradd(plyr_idx);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((current_playeradd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    if ((current_player->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
-    if (current_playeradd->render_roomspace.render_roomspace_as_box)
+    if (current_player->render_roomspace.render_roomspace_as_box)
     {
-        if (current_playeradd->render_roomspace.is_roomspace_a_box)
+        if (current_player->render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
             create_map_volume_box(x, y, z, line_color);
@@ -2864,13 +2863,13 @@ static void process_isometric_map_volume_box(long x, long y, long z, PlayerNumbe
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_map_volume_box(current_playeradd->render_roomspace, x, y, z, (current_playeradd->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_map_volume_box(current_player->render_roomspace, x, y, z, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_map_volume_box(current_playeradd->render_roomspace, x, y, z, line_color, false);
+        create_fancy_map_volume_box(current_player->render_roomspace, x, y, z, line_color, false);
     }
     map_volume_box.color = default_color;
 }
@@ -5552,8 +5551,7 @@ static void draw_stripey_line(long x1,long y1,long x2,long y2,unsigned char line
     unsigned char color_index = game.play_gameturn & 0xf;
 
     // get engine window width and height
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     long relative_window_width = ((player->engine_window_width * 256) / (pixel_size * 256)) - 1;
     long relative_window_height = ((player->engine_window_height * 256) / (pixel_size * 256)) - 1;
 
@@ -8081,8 +8079,7 @@ static void prepare_jonty_remap_and_scale(long *scale, const struct BucketKindJo
 static void draw_mapwho_ariadne_path(struct Thing *thing)
 {
     // Don't draw debug pathfinding lines in Possession to avoid crash
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     if (player->view_mode == PVM_CreatureView)
         return;
 
@@ -8565,8 +8562,7 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     }
     
     struct PlayerInfo *player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    playeradd->mouse_is_offmap = out_of_bounds;
+    player->mouse_is_offmap = out_of_bounds;
 }
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
@@ -8813,32 +8809,31 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
     unsigned char default_color = map_volume_box.color;
     unsigned char line_color = default_color;
     struct PlayerInfo* current_player = get_player(plyr_idx);
-    struct PlayerInfoAdd* current_playeradd = get_playeradd(plyr_idx);
     // Check if a roomspace is currently being built
     // and if so feed this back to the user
-    if ((current_playeradd->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
+    if ((current_player->roomspace.is_active) && ((current_player->work_state == PSt_Sell) || (current_player->work_state == PSt_BuildRoom)))
     {
         line_color = SLC_REDYELLOW; // change the cursor color to indicate to the user that nothing else can be built or sold at the moment
     }
-    if (current_playeradd->render_roomspace.render_roomspace_as_box)
+    if (current_player->render_roomspace.render_roomspace_as_box)
     {
-        if (current_playeradd->render_roomspace.is_roomspace_a_box)
+        if (current_player->render_roomspace.is_roomspace_a_box)
         {
             // This is a basic square box
-             create_frontview_map_volume_box(cam, stl_width, current_playeradd->render_roomspace.is_roomspace_a_single_subtile, line_color);
+             create_frontview_map_volume_box(cam, stl_width, current_player->render_roomspace.is_roomspace_a_single_subtile, line_color);
         }
         else
         {
             // This is a "2-line" square box
             // i.e. an "accurate" box with an outer square box
             map_volume_box.color = line_color;
-            create_fancy_frontview_map_volume_box(current_playeradd->render_roomspace, cam, stl_width, (current_playeradd->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
+            create_fancy_frontview_map_volume_box(current_player->render_roomspace, cam, stl_width, (current_player->render_roomspace.slab_count == 0) ? SLC_RED : SLC_BROWN, true);
         }
     }
     else
     {
         // This is an "accurate"/"automagic" box
-        create_fancy_frontview_map_volume_box(current_playeradd->render_roomspace, cam, stl_width, line_color, false);
+        create_fancy_frontview_map_volume_box(current_player->render_roomspace, cam, stl_width, line_color, false);
     }
     map_volume_box.color = default_color;
 }
@@ -8846,8 +8841,7 @@ static void process_frontview_map_volume_box(struct Camera *cam, unsigned char s
 TbBool cursor_on_room(RoomIndex room_index)
 {
     struct PlayerInfo* player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    struct SlabMap* slb = get_slabmap_for_subtile(playeradd->cursor_subtile_x, playeradd->cursor_subtile_y);
+    struct SlabMap* slb = get_slabmap_for_subtile(player->cursor_subtile_x, player->cursor_subtile_y);
     if (slabmap_block_invalid(slb)) {
         return false;
     }
