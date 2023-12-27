@@ -2134,7 +2134,7 @@ short get_hug_side_options(MapSubtlCoord src_stl_x, MapSubtlCoord src_stl_y, Map
 /** Supporting stuff (needs to go elsewhere) */
 
 /** Holds information about a slab that a dig path would be interested in: e.g. whether it is passable, or impassable, or needs to be dug etc. */
-typedef signed char DigPathSlabState;
+typedef signed char GridPathTileState;
 
 /**For pathfinding: the rule we are using when following a wall (see enum WallFollowerRules) */
 typedef unsigned char WallFollowerRule;
@@ -2594,7 +2594,32 @@ DigPathSlabState dig_path_check_slab(struct Coord3d *location, struct Coord3d *d
 /******************************************************************************/
 /** Wallhug algorithm */
 
-// replaces tool_dig_to_pos2(comp, &cdig, simulation, digflags);
+// replaces tool_dig_to_pos2_f(&comp, &cdig, simulation, digflags, &func_name);
+
+ToolDigResult tool_dig_to_pos2_f_new(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulate_actions, DigFlags dig_flags, const char *func_name)
+{
+    // Limit amount of calls
+    cdig->calls_count++;
+    if (cdig->calls_count >= COMPUTER_TOOL_DIG_LIMIT)
+    {
+        WARNLOG("%s: Player %d ComputerDig calls count (%d) exceeds limit for path from (%d,%d) to (%d,%d)",func_name,
+            (int)comp->dungeon->owner,(int)cdig->calls_count,(int)coord_slab(cdig->pos_begin.x.val),(int)coord_slab(cdig->pos_begin.y.val),
+            (int)coord_slab(cdig->pos_dest.x.val),(int)coord_slab(cdig->pos_dest.y.val));
+        return TDR_ToolDigError;
+    }
+
+    switch(*ariadne_wallhug(cdig->traveller))
+    {
+        case GpTs_ReachedDestination:
+            return TDR_ReachedDestination;
+        case Gpts_MarkedForDigging:
+            return TDR_DigSlab;
+        case Gpts_MarkedForBridging:
+            return TDR_BuildBridgeOnSlab;
+        default:
+            return TDR_ToolDigError;
+    }
+}
 /** Follow a path for the current position to the known destination. This is used for cpu dig tasks.
   * This function will continue until either: 
   *  > the destination is reached
@@ -2603,26 +2628,26 @@ DigPathSlabState dig_path_check_slab(struct Coord3d *location, struct Coord3d *d
   *  > an error has occurred
   * This function can be called many times before a path is completed.
  */
-DigPathSlabState ariadne_wallhug(struct ComputerDig2 *cdig)
+GridPathTileState *ariadne_wallhug(struct ComputerDig2 *cdig)
 {
     long all_slabs_count = gameadd.map_tiles_x * gameadd.map_tiles_y;
     // setup traveller
-    char traveller = setup_traveller();
+    struct DigPathTraveller *traveller = &setup_traveller();
     char current_slab;
     char previous_slab;
     char backtrack_slab;
     char path_length;
-    DigPathSlabState slab_state;
-    enum {Impassable,Passable,ReachedDestination,AnyActionCompleted,give_up_error,AnyError,path_cant_start_error,backtrack_retry,path_too_long};
+    GridPathTileState tile_state;
+    enum {backtrack_retry};
     // check current slab...
-    slab_state = check_slab(current_slab);
+    traveller->tile_state = check_slab(current_slab);
     // we expect the current slab to be passable, if it is not then "handle it"
-    if (!(flag_is_set(slab_state, Passable)))
+    if (!(flag_is_set(traveller->tile_state, GpTs_Passable)))
     {
         // if current slab is destination or action complete
-        if (any_flag_is_set(slab_state, (AnyActionCompleted|ReachedDestination)))
+        if (any_flag_is_set(traveller->tile_state, (GpTs_AnyActionCompleted|GpTs_ReachedDestination)))
         {
-            return slab_state;
+            return &traveller->tile_state;
         }
         // else slab is impassable/queued_task/error
         // if we are already backtracking
@@ -2631,20 +2656,23 @@ DigPathSlabState ariadne_wallhug(struct ComputerDig2 *cdig)
             if (previous_slab == current_slab == backtrack_slab) // and tries >= 10??
             {
                 // we are going nowhere, give up!
-                return (slab_state|give_up_error);
+                set_flag(traveller->tile_state, GpTs_ErrorGiveUpError);
+                return &traveller->tile_state;
             }
         }
         // Is this the very first slab of the path?
         if (previous_slab == NULL)
         {
-            if (any_flag_is_set(slab_state, (AnyError|Impassable)))
+            if (any_flag_is_set(traveller->tile_state, (GpTs_AnyError|GpTs_Impassable)))
             {
                 // the path cannot start
-                return (slab_state|path_cant_start_error);
+                set_flag(traveller->tile_state, GpTs_ErrorPathCantStart);
+                return &traveller->tile_state;
             }
+            // Else this is a queued action
             // just in case the queued action on this first slab of the path fails...
             backtrack_slab = previous_slab = current_slab;
-            return slab_state;
+            return &traveller->tile_state;
         }
         else
         {
@@ -2652,7 +2680,8 @@ DigPathSlabState ariadne_wallhug(struct ComputerDig2 *cdig)
             // current slab could be impassable/queued_task/error here
             // take a step backwards along our path (only "1 level of undo")
             backtrack_slab = current_slab = previous_slab;
-            return (slab_state|backtrack_retry);
+            set_flag(traveller->state_flags, backtrack_retry);
+            return &traveller->tile_state;
         }
     }
     // The current slab is passable...
@@ -2662,15 +2691,18 @@ DigPathSlabState ariadne_wallhug(struct ComputerDig2 *cdig)
         // keep track of the previous step, so that we can go back to it if we have an issue
         previous_slab = current_slab;
         // take a step along the path, one step at a time
-        slab_state = ariadne_wallhug_single_step(traveller);
+        traveller->tile_state = ariadne_wallhug_single_step(traveller);
         path_length++;
         if (path_length >= all_slabs_count)
         {
-            return (slab_state|path_too_long);
+            set_flag(traveller->tile_state, GpTs_ErrorPathTooLong);
+            return &traveller->tile_state;
         }
-    } while (flag_is_set(slab_state, Passable));
+        // we will loop around when the tile_state is simply GpTs_Passable,
+        // it is not possible (except by bug) for to return a slab state 
+    } while (!any_flag_is_set(traveller->tile_state, (GpTs_ReachedDestination|GpTs_AnyError|GpTs_AnyActionCompleted|GpTs_AnyActionQueue)));
     // slab is: destination/action_done/queued_action/error
-    return slab_state;
+    return &traveller->tile_state;
 }
 
 /** 
@@ -2846,6 +2878,7 @@ char look_ahead_for_best_route(struct DigPathTraveller *traveller)
 struct DigPathTraveller {
     char state_flags; /**< The state of the traveller (Please elaborate). */
     struct Coord2d pos; /**< The position of the traveller. */
+    GridPathTileState tile_state; /** See enum GridPathTileStates. */
     SmallAroundIndex direction; /**< The direction (N, E, S, W) the traveller is facing i.e. the traveller's forward direction. */
     char rotation_direction; /**< Either clockwise (1) or anti-clockwise (-1) - this indicates the direction the traveller will rotate in when checking neighbouring tiles. */
     MapCoordDelta step_size; /**< The size of each step along the path. This is same size as the width of a tile in the grid. */
@@ -2862,10 +2895,37 @@ enum DigPathTravellerStates {
     DpTS_AtKnownWall,
 };
 
-enum DigPathSlabStates {
-    DpSS_Impassable,
-    DpSS_Passable,
-    DpSS_BlockedOnAll4Sides,
+enum ToolDigFlags2 {
+    ToolDig_BasicOnly = 1, /**< Allows digging through basic earth slabs (and the like). */
+    ToolDig_AllowValuable = 2, /**< Allows digging through valuable slabs, like gold and gems. */
+    ToolDig_AllowBridgeSafeLiquid = 4, /**< Allows bridging over safe liquid (bridges must be available to the player for this to have an effect). */
+    ToolDig_AllowBridgeUnSafeLiquid = 8, /**< Allows bridging over hazardous liquid (bridges must be available to the player for this to have an effect). */
+    ToolDig_AllowDestroyWallSpell = 16, /**< Allows casting the Destroy Wall spell on fortified walls that cannot be dug by the player. */
+};
+
+/** 
+ * With a given 2d grid of tiles, when a traveller plots a path across the grid - it needs to track the "state" of the tiles in the grid.
+ * A tile can be in a combination of the following states:
+ */
+enum GridPathTileStates {
+
+    GpTs_Impassable = 0x1, /**< The tile cannot be passed by the traveller, it is a wall, an impassable obstacle. Mutually exlusive with GpTs_Passable. */
+    GpTs_Passable = 0x2, /**< Regardless of any other qualities, the tile is passable by the traveller. Mutually exlusive with GpTs_Impassable. */
+    GpTs_ReachedDestination = 0x4,
+    /** The following states are all mutually exclusive with each other, and are only used when digging paths. */
+    GpTs_CouldBeDug = 0x8, /**< The tile could be passed, if it is dug out. */
+    Gpts_MarkedForDigging = 0x10, /**< The tile has been added to the Imp's task list (to be dug out). */
+    GptS_CouldBeBridged = 0x20, /**< The tile could be passed, if it is bridged over. */
+    Gpts_MarkedForBridging = 0x40, /**< The tile has been added to the Imp's task list (to be dug out). */
+    GpTs_CouldBeDestroyed = 0x80, /**< The tile is a wall and could be passed if it is destroyed. */
+    GpTs_Destroyed = 0x100, /**< The wall in the tile has been destroyed by casting the destroy wall spell. (Note: This feature should probably be handled as a sub-task, like bridging.)*/
+    GpTs_AnyActionCompleted = 0x110, /**< Sum of Gpts_MarkedForDigging and GpTs_Destroyed. */
+    GpTs_AnyActionQueue = 0x40, /**< Sum of Gpts_MarkedForBridging. */
+    GpTs_ErrorGiveUpError = 0x100,
+    GpTs_ErrorPathCantStart = 0x100,
+    GpTs_ErrorBlockedOnAll4Sides = 0x4, /**< The 4 neighbouring tiles are impassable. */
+    GpTs_ErrorPathTooLong = 0x100,
+    GpTs_AnyError = 0x100, /**< Sum of all the errors... */
 };
 
 /** Take the next step in a walled maze (or around an obstacle) by using either the left-hand rule or right-hand rule to follow the wall. 
@@ -2873,19 +2933,20 @@ enum DigPathSlabStates {
  * 
  * This is a 1 step-at-a-time implementation of the "Hand_On_Wall_Rule" maze-solving algorithm - see https://en.wikipedia.org/wiki/Maze-solving_algorithm#Hand_On_Wall_Rule
 */
-DigPathSlabState follow_wall_single_step(struct DigPathTraveller *traveller)
+GridPathTileState follow_wall_single_step(struct DigPathTraveller *traveller)
 {
     SmallAroundIndex around_index; // the direction (N, E, S, W - relative to the traveller's current position) of the neighbouring slab that we want to check
     char count; // the number of neighbouring slabs we have checked
     struct Coord2d next; // the position of the neighbouring slab that we are checking
-    DigPathSlabState slab_state; // used to store and return the state of the slab being checked
+    GridPathTileState tile_state; // used to store and return the state of the slab being checked
 
+    // Choose the starting direction to check first:
     // Is the slab in front of the traveller a known obstacle?
     if (flag_is_set(traveller->state_flags, DpTS_AtKnownWall))
     {
         // The traveller is at the start of a wall follow route
         count = 1; // the slab in front of the traveller is a wall, check the other 3 directions
-        // First, For the left-hand rule: the traveller rotates clockwise and places its left hand on the wall
+        // First, for the left-hand rule: the traveller rotates clockwise and places its left hand on the wall
         // Or for the right-hand rule: the traveller rotates anti-clockwise and places its right hand on the wall
         around_index = rotate_around(traveller->direction, traveller->rotation_direction);
         clear_flag(traveller->state_flags, DpTS_AtKnownWall);
@@ -2894,8 +2955,8 @@ DigPathSlabState follow_wall_single_step(struct DigPathTraveller *traveller)
     {
         // The traveller already has its hand on a wall
         count = 0; // check all 4 directions
-        // First, rotate to face "towards the rule", this is the opposite of the traveller's rotation_direction:
-        // for the left-hand rule: rotate anti-clockwise, or for the right-hand rule: rotate clockwise
+        // First, the traveller rotates to face "towards the rule hand", this is the opposite of the traveller's rotation_direction:
+        // for the left-hand rule: the traveller rotates anti-clockwise, or for the right-hand rule: the traveller rotates rotate clockwise
         around_index = rotate_around(traveller->direction, -(traveller->rotation_direction));
     }
     // Next, check the neighbouring slabs (in preferencial order based on the chosen rule)
@@ -2903,19 +2964,19 @@ DigPathSlabState follow_wall_single_step(struct DigPathTraveller *traveller)
     for (count; count < SMALL_AROUND_LENGTH ; ++count)
     {
         next = step_around(&traveller->pos, around_index, traveller->step_size);
-        slab_state = check_slab(next);
+        tile_state = check_slab(next);
         // if slab is passable/action/destination/error
-        if (!(flag_is_set(slab_state, DpSS_Impassable)))
+        if (!flag_is_set(tile_state, GpTs_Impassable)) // temp - bitor the cases where we want to move next and else any other return cases?
         {
             traveller->pos = next; // The traveller moves to the next slab
             traveller->direction = around_index; // update the traveller's forward direction
-            return slab_state;
+            return tile_state;
         }
         // wall found; rotate to the next direction (for the left-hand rule: rotate clockwise, or for the right-hand rule: rotate anti-clockwise)
         around_index = rotate_around(around_index, traveller->rotation_direction);
     }
     // The traveller can't move in any direction!
-    return DpSS_BlockedOnAll4Sides;
+    return (set_flag(traveller->tile_state, GpTs_ErrorBlockedOnAll4Sides));
 }
 
 #ifdef __cplusplus
