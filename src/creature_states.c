@@ -46,6 +46,7 @@
 #include "room_util.h"
 #include "room_list.h"
 #include "tasks_list.h"
+#include "map_data.h"
 #include "map_events.h"
 #include "map_blocks.h"
 #include "map_utils.h"
@@ -3107,9 +3108,43 @@ short creature_wait_at_treasure_room_door(struct Thing *creatng)
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing *doortng;
-    if (cctrl->blocking_door_id > 0) {
+    if (cctrl->blocking_door_id > 0) 
+    {
+        struct Room *room = room_get(cctrl->target_room_id);
+        if (!room_is_invalid(room))
+        {   
+            // if there's another route to the current target room, take it
+            struct Coord3d roompos;
+            roompos.x.val = subtile_coord_center(room->central_stl_x);
+            roompos.y.val = subtile_coord_center(room->central_stl_y);
+            roompos.z.val = get_floor_height_at(&roompos);
+            if (creature_can_navigate_to(creatng, &roompos, NavRtF_Default))
+            {
+                cctrl->blocking_door_id = 0;
+                internal_set_thing_state(creatng, creatng->continue_state);
+                return 1;
+            }
+            else
+            {
+                // look for another Treasure Room
+                unsigned char navtype;
+                room = get_room_for_thing_salary(creatng, &navtype);
+                if (!room_is_invalid(room))
+                {
+                    if (room->index != cctrl->target_room_id)
+                    {
+                        cctrl->target_room_id = room->index;
+                        cctrl->collided_door_subtile = 0;
+                        internal_set_thing_state(creatng, creatng->continue_state);
+                        return CrCkRet_Continue;
+                    }
+                }
+            }
+        }
         doortng = thing_get(cctrl->blocking_door_id);
-    } else {
+    } 
+    else 
+    {
         doortng = INVALID_THING;
     }
     if (!thing_is_deployed_door(doortng) || ((game.play_gameturn - doortng->creation_turn) <= 3) || !doortng->door.is_locked)
@@ -3627,14 +3662,45 @@ CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng)
   struct Room *room;
   if (cctrl->collided_door_subtile != 0)
   {
-    doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
-    if (!thing_is_invalid(doortng))
-    {
-      internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
-      cctrl->blocking_door_id = doortng->index;
-      cctrl->collided_door_subtile = 0;
-      return CrCkRet_Continue;
-    }
+      room = room_get(cctrl->target_room_id);
+      if (!room_is_invalid(room))
+      {   
+          // if there's another route to the current target room, take it
+          struct Coord3d roompos;
+          roompos.x.val = subtile_coord_center(room->central_stl_x);
+          roompos.y.val = subtile_coord_center(room->central_stl_y);
+          roompos.z.val = get_floor_height_at(&roompos);
+          if (creature_can_navigate_to(creatng, &roompos, NavRtF_Default))
+          {
+              cctrl->collided_door_subtile = 0;
+              internal_set_thing_state(creatng, creatng->continue_state);
+              return CrCkRet_Continue;
+          }
+          else
+          {
+              // look for another Treasure Room
+              unsigned char navtype;
+              room = get_room_for_thing_salary(creatng, &navtype);
+              if (!room_is_invalid(room))
+              {
+                  if (room->index != cctrl->target_room_id)
+                  {
+                      cctrl->target_room_id = room->index;
+                      cctrl->collided_door_subtile = 0;
+                      internal_set_thing_state(creatng, creatng->continue_state);
+                      return CrCkRet_Continue;
+                  }
+              }
+          }
+      }
+      doortng = get_door_for_position(stl_num_decode_x(cctrl->collided_door_subtile), stl_num_decode_y(cctrl->collided_door_subtile));
+      if (!thing_is_invalid(doortng))
+      {
+        internal_set_thing_state(creatng, CrSt_CreatureWaitAtTreasureRoomDoor);
+        cctrl->blocking_door_id = doortng->index;
+        cctrl->collided_door_subtile = 0;
+        return CrCkRet_Continue;
+      }
   }
   else if ( cctrl->target_room_id != 0 )
   {
