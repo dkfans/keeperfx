@@ -1156,6 +1156,10 @@ void redraw_display(void)
     {
         draw_frametime();
     }
+    if (consolelog_enabled())
+    {
+        draw_consolelog();
+    }
 
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))
     {
