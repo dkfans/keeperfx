@@ -100,7 +100,7 @@ static void draw_creature_view_icons(struct Thing* creatng)
         y = MyScreenHeight - scale_ui_value_lofi(spr->SHeight * 2);
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
-    for (SpellKind Spell = SplK_Freeze; Spell <= SplK_TimeBomb; Spell++)
+    for (SpellKind Spell = SplK_Freeze; Spell <= SplK_Cleanse; Spell++) //todo spell number
     {
         if (creature_affected_by_spell(creatng, Spell))
         {
