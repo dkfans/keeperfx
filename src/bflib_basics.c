@@ -358,19 +358,22 @@ void LbCloseLog()
     file = NULL;
 }
 
-void write_log_to_array_for_live_viewing(const char* fmt_str, va_list args) {
+void write_log_to_array_for_live_viewing(const char* fmt_str, va_list args, const char* add_log_prefix) {
     if (consoleLogArraySize >= MAX_CONSOLE_LOG_COUNT) {
         // Array is full - so clear it. This is a bit of a stopgap solution, it will lose us the older entries.
         memset(consoleLogArray, 0, sizeof(consoleLogArray));
         consoleLogArraySize = 0;
     }
 
-    char buffer[MAX_TEXT_LENGTH];
-    vsnprintf(buffer, sizeof(buffer), fmt_str, args);
+    char formattedString[MAX_TEXT_LENGTH];
+    vsnprintf(formattedString, sizeof(formattedString), fmt_str, args);
 
-    // Add the formatted message to the array
+    char buffer[MAX_TEXT_LENGTH];
+    snprintf(buffer, sizeof(buffer), "%s%s", add_log_prefix, formattedString); // merge prefix and formatted string
+
+    // Add the combined message to the array
     strncpy(consoleLogArray[consoleLogArraySize], buffer, MAX_TEXT_LENGTH);
-    consoleLogArray[consoleLogArraySize][MAX_TEXT_LENGTH - 1] = '\0'; // Ensure null-termination
+    consoleLogArray[consoleLogArraySize][MAX_TEXT_LENGTH - 1] = '\0';
     consoleLogArraySize++;
 }
 
@@ -469,14 +472,13 @@ int LbLog(struct TbLog *log, const char *fmt_str, va_list arg)
         fprintf(file, "%02d:%02d:%02d ",
             curr_time.Hour,curr_time.Minute,curr_time.Second);
     }
-
-  // Write formatted message to the array
-  write_log_to_array_for_live_viewing(fmt_str, arg);
-  
-  // Write the log to the file
   if (log->prefix[0] != '\0') {
       fputs(log->prefix, file);
   }
+
+  // Write formatted message to the array
+  write_log_to_array_for_live_viewing(fmt_str, arg, log->prefix);
+
   vfprintf(file, fmt_str, arg);
   log->position = ftell(file);
   // fclose is slow and automatically happens on normal program exit.
