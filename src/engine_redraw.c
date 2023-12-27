@@ -1003,8 +1003,7 @@ void process_dungeon_top_pointer_graphic(struct PlayerInfo *player)
         break;
     case PSt_PlaceTerrain:
     {
-        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-        i = get_place_terrain_pointer_graphics(playeradd->cheatselection.chosen_terrain_kind);
+        i = get_place_terrain_pointer_graphics(player->cheatselection.chosen_terrain_kind);
         set_pointer_graphic(i);
         break;
     }
@@ -1155,6 +1154,10 @@ void redraw_display(void)
     if (frametime_enabled())
     {
         draw_frametime();
+    }
+    if (consolelog_enabled())
+    {
+        draw_consolelog();
     }
 
     if (((game.operation_flags & GOF_Paused) != 0) && ((game.operation_flags & GOF_WorldInfluence) == 0))

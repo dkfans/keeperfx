@@ -798,8 +798,7 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
 void panel_map_update(long x, long y, long w, long h)
 {
     SYNCDBG(17,"Starting for rect (%ld,%ld) at (%ld,%ld)",w,h,x,y);
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     MapSubtlCoord stl_x;
     MapSubtlCoord stl_y;
     for (stl_y = y; stl_y < y + h; stl_y++)
@@ -820,8 +819,7 @@ void panel_map_update(long x, long y, long w, long h)
 
 static void do_map_rotate_stuff(long relpos_x, long relpos_y, long *stl_x, long *stl_y, long zoom)
 {
-    const struct PlayerInfo *player;
-    player = get_my_player();
+    const struct PlayerInfo *player = get_my_player();
     const struct Camera *cam;
     cam = player->acamera;
     int angle;

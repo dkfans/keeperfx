@@ -1713,6 +1713,10 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
           dungeon->cta_splevel = splevel;
           dungeon->cta_stl_x = stl_x;
           dungeon->cta_stl_y = stl_y;
+          if (flag_is_set(mod_flags, PwMod_CastForFree))
+          {
+              dungeon->cta_free = 1;
+          }
           player->cta_flag_idx = objtng->index;
           objtng->mappos.z.val = get_thing_height_at(objtng, &objtng->mappos);
           set_call_to_arms_as_birthing(objtng);
@@ -1770,10 +1774,9 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    playeradd->first_person_dig_claim_mode = false;
-    playeradd->teleport_destination = 18; // reset to default behaviour
-    playeradd->battleid = 1;
+    player->first_person_dig_claim_mode = false;
+    player->teleport_destination = 18; // reset to default behaviour
+    player->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     if (is_my_player(player)) {
@@ -1895,26 +1898,18 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     long duration = game.play_gameturn - dungeon->cta_start_turn;
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
     struct SlabMap *slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
-    TbBool pay_land = (slabmap_owner(slb) != plyr_idx);
-    if (game.conf.rules.game.allies_share_cta)
+    TbBool free = ((slabmap_owner(slb) == plyr_idx) || dungeon->cta_free);
+    if (!free)
     {
-        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        if ((game.conf.rules.game.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
         {
-            if (players_are_mutual_allies(plyr_idx, i))
-            {
-                if (slabmap_owner(slb) == i)
-                {
-                    pay_land = false;
-                    break;
-                }
-            }
+            free = true;
         }
     }
-    if (((pwrdynst->duration < 1) || ((duration % pwrdynst->duration) == 0)) && pay_land)
+    if (((pwrdynst->duration < 1) || ((duration % pwrdynst->duration) == 0)) && !free)
     {
-        if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
-            if (is_my_player_number(plyr_idx))
-                output_message(SMsg_GoldNotEnough, 0, true);
+        if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel))
+        {
             turn_off_power_call_to_arms(plyr_idx);
             return;
         }

@@ -31,8 +31,8 @@ gui_panel_sprites = [
 #stuff in pointerxx.dat
 pointer_sprites = [
     [ 40, 40,203,211,227,219,  0],#quadptr_power_cta
-    [193,193,267,243,270,269,  0],#tileptr_power_cta
-    [ 80, 80,235,268,259,251,  0],#quadptr_power_mkdigger
+    [193,193,267,268,270,269,  0],#tileptr_power_cta
+    [ 80, 80,235,243,259,251,  0],#quadptr_power_mkdigger
     [ 38, 38,271,272,274,273,  0],#tileptr_room_guardpst
     [  9,  9,275,276,278,277,  0],#tileptr_trap_alarm
 ]

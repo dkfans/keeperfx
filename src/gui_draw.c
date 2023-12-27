@@ -298,13 +298,19 @@ void draw_ornate_slab_outline64k(long pos_x, long pos_y, int units_per_px, long 
     lbDisplay.DrawFlags &= ~Lb_SPRITE_FLIP_HORIZ;
 }
 
-void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height)
+void draw_round_slab64k(long pos_x, long pos_y, int units_per_px, long width, long height, long style_type)
 {
     unsigned short drwflags_mem = lbDisplay.DrawFlags;
     lbDisplay.DrawFlags &= ~Lb_SPRITE_OUTLINE;
-    lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
-    LbDrawBox(pos_x + 4*units_per_px/16, pos_y + 4*units_per_px/16, width - 8*units_per_px/16, height - 8*units_per_px/16, 1);
-    lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    if (style_type == ROUNDSLAB64K_LIGHT) {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR4;
+        LbDrawBox(pos_x + 4*units_per_px/16, pos_y + 4*units_per_px/16, width - 8*units_per_px/16, height - 8*units_per_px/16, 1);
+        lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR4;
+    } else {
+        lbDisplay.DrawFlags |= Lb_SPRITE_TRANSPAR8;
+        LbDrawBox(pos_x + 4*units_per_px/16, pos_y + 4*units_per_px/16, width - 8*units_per_px/16, height - 8*units_per_px/16, 1);
+        lbDisplay.DrawFlags &= ~Lb_SPRITE_TRANSPAR8;
+    }
     int x;
     int y;
     struct TbSprite* spr = &gui_panel_sprites[GPS_message_frame_thin_hex_ct];

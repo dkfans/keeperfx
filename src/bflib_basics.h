@@ -40,6 +40,8 @@ extern "C" {
 // Smaller buffer, also widely used
 #define TEXT_BUFFER_LENGTH 2048
 
+#define MAX_CONSOLE_LOG_COUNT 1000   // Maximum number of log messages
+
 enum TbErrorLogFlags {
         Lb_ERROR_LOG_APPEND = 0,
         Lb_ERROR_LOG_NEW    = 1,
@@ -129,9 +131,15 @@ struct DebugMessage {
 extern struct DebugMessage * debug_messages_head;
 extern struct DebugMessage ** debug_messages_tail;
 
+
+
 #pragma pack()
 /******************************************************************************/
 extern const char *log_file_name;
+extern int debug_display_consolelog;
+extern char consoleLogArray[MAX_CONSOLE_LOG_COUNT][MAX_TEXT_LENGTH];
+extern size_t consoleLogArraySize;
+
 // High level functions - DK specific
 void error(const char *codefile,const int ecode,const char *message);
 short warning_dialog(const char *codefile,const int ecode,const char *message);
