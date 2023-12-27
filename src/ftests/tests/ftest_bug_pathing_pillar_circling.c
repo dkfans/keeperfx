@@ -59,7 +59,7 @@ struct ftest_bug_pathing_pillar_circling__variables ftest_bug_pathing_pillar_cir
 
 
 // forward declarations - tests
-TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test(struct FTestActionArgs* const args);
 
 TbBool ftest_bug_pathing_pillar_circling_init()
 {
@@ -75,7 +75,7 @@ TbBool ftest_bug_pathing_pillar_circling_init()
 /**
  * @brief This action will be a sub-test, it will setup the situation of a single tunneler digging towards you, and replicate getting stuck on a pillar (portal?)
  */
-TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_test(struct FTestActionArgs* const args)
 {
     // to make the test variable names shorter, use a pointer!
     // in this case we are grabbing the data from the argument, allowing different action setups!
@@ -104,11 +104,11 @@ TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_
         if(thing_is_invalid(vars->tunneler))
         {
             FTEST_FAIL_TEST("Failed to create tunneler");
-            return true;
+            return FTRs_Go_To_Next_Action;
         }
 
         vars->is_tunneler_setup = true;
-        return false;
+        return FTRs_Repeat_Current_Action;
     }
 
     // snap camera to tunneler
@@ -117,7 +117,7 @@ TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_
     // delay for a while so we can watch what's going on
     if(game.play_gameturn < args->actual_started_at_game_turn + 1000)
     {
-        return false;
+        return FTRs_Repeat_Current_Action;
     }
 
     // todo - insert check stage here to verify if tunneler made it past the column or not
@@ -127,7 +127,7 @@ TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_
     if(thing_is_invalid(vars->tunneler))
     {
         FTEST_FAIL_TEST("Expected tunneler but it didn't exist?");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
     else
     {
@@ -135,11 +135,11 @@ TbBool ftest_bug_pathing_pillar_circling_action001__tunneler_dig_towards_pillar_
         if(thing_is_invalid(vars->tunneler))
         {
             FTEST_FAIL_TEST("Failed to cleanup tunneler on map");
-            return true;
+            return FTRs_Go_To_Next_Action;
         }
     }
 
-    return true; //proceed to next test action
+    return FTRs_Go_To_Next_Action; //proceed to next test action
 }
 
 

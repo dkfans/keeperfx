@@ -59,9 +59,9 @@ struct ftest_bug_ai_bridge__variables ftest_bug_ai_bridge__vars = {
 };
 
 // forward declarations - tests
-TbBool ftest_bug_ai_bridge_action001__setup_map(struct FTestActionArgs* const args);
-TbBool ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs* const args);
-TbBool ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_ai_bridge_action001__setup_map(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTestActionArgs* const args);
 
 TbBool ftest_bug_ai_bridge_init()
 {
@@ -72,7 +72,7 @@ TbBool ftest_bug_ai_bridge_init()
     return true;
 }
 
-TbBool ftest_bug_ai_bridge_action001__setup_map(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_ai_bridge_action001__setup_map(struct FTestActionArgs* const args)
 {
     struct ftest_bug_ai_bridge__variables* const vars = args->data;
 
@@ -88,13 +88,13 @@ TbBool ftest_bug_ai_bridge_action001__setup_map(struct FTestActionArgs* const ar
         if(map_block_invalid(mapblk))
         {
             FTEST_FAIL_TEST("Invalid map block at subtile (%ld,%ld)", stl_x, stl_y)
-            return true;
+            return FTRs_Go_To_Next_Action;
         }
         struct Thing* thing = thing_get(get_mapwho_thing_index(mapblk));
         if (thing_is_invalid(thing) || !thing_is_creature(thing))
         {
             FTEST_FAIL_TEST("Failed to find creature to nerf at subtile (%ld,%ld)", stl_x, stl_y);
-            return true;
+            return FTRs_Go_To_Next_Action;
         }
         
         FTESTLOG("Nerfing Creature %s at (%ld,%ld) to 'level 1' and '1 health'", creature_code_name(thing->model), stl_x, stl_y);
@@ -117,7 +117,7 @@ TbBool ftest_bug_ai_bridge_action001__setup_map(struct FTestActionArgs* const ar
     // dig tiles to portal
     ftest_util_replace_slabs(20, 14, 21, 14, SlbT_CLAIMED, PLAYER0);
     
-    return true; //proceed to next test action
+    return FTRs_Go_To_Next_Action; //proceed to next test action
 }
 
 void ftest_bug_ai_bridge__report_stats_and_increment_seed()
@@ -138,7 +138,7 @@ void ftest_bug_ai_bridge__report_stats_and_increment_seed()
     }
 }
 
-TbBool ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs* const args)
 {
     struct ftest_bug_ai_bridge__variables* const vars = args->data;
 
@@ -157,7 +157,7 @@ TbBool ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs* const arg
             if(slabmap_block_invalid(slb))
             {
                 FTEST_FAIL_TEST("Invalid slab found at (%d,%d)", slb_x, slb_y);
-                return true;
+                return FTRs_Go_To_Next_Action;
             }
 
             if(slb->kind == SlbT_BRIDGE)
@@ -176,7 +176,7 @@ TbBool ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs* const arg
         vars->take_screenshot = true;
         game.frame_skip = 0;
         ftest_bug_ai_bridge__report_stats_and_increment_seed();
-        return true; // exit test
+        return FTRs_Go_To_Next_Action; // exit test
     }
 
     if(game.play_gameturn >= vars->end_test_after_n_turns)
@@ -185,13 +185,13 @@ TbBool ftest_bug_ai_bridge_action002__end_test(struct FTestActionArgs* const arg
         ++vars->test_runs_without_bridges;
         FTESTLOG("Reached GameTurn limit %ld, exiting test.",  vars->end_test_after_n_turns);
         ftest_bug_ai_bridge__report_stats_and_increment_seed();
-        return true; // exit test
+        return FTRs_Go_To_Next_Action; // exit test
     }
 
-    return false; // repeat current action
+    return FTRs_Repeat_Current_Action; // repeat current action
 }
 
-TbBool ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTestActionArgs* const args)
 {
     struct ftest_bug_ai_bridge__variables* const vars = args->data;
 
@@ -201,7 +201,7 @@ TbBool ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTestActionArgs*
     {
         if(game.play_gameturn < args->actual_started_at_game_turn + screenshot_turn_delay) // wait until we are supposed to take the screenshot
         {
-            return false;
+            return FTRs_Repeat_Current_Action;
         }
         
         struct FTestConfig* current_test_config = ftest_get_current_test_config();
@@ -211,7 +211,7 @@ TbBool ftest_bug_ai_bridge_action003__delayed_screenshot(struct FTestActionArgs*
         vars->take_screenshot = false;
     }
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
 #endif
