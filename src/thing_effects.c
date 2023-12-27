@@ -189,7 +189,7 @@ struct Thing *create_effect_element(const struct Coord3d *pos, unsigned short ee
 void process_cleanse_effect(struct Thing* thing) {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
 
-    int height = thing->clipbox_size_z + thing->floor_height + (5 * gameadd.crtr_conf.exp.size_increase_on_exp * cctrl->explevel);
+    int height = thing->clipbox_size_z + thing->floor_height + (5 * game.conf.crtr_conf.exp.size_increase_on_exp * cctrl->explevel);
     int z_min = thing->mappos.z.val;
     int z_max = z_min + height;
     int z_mid = (z_min + z_max) >> 1;

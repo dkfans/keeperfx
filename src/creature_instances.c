@@ -516,8 +516,8 @@ long process_creature_self_spell_casting(struct Thing* creatng)
     if (cctrl->combat_flags != 0)
     {
         // should any debuff put us out of combat
-        for (int i = 0; i < magic_conf.debuff_count; ++i) {
-            if (creature_affected_by_spell(creatng, magic_conf.debuffs[i])) {
+        for (int i = 0; i < game.conf.magic_conf.debuff_count; ++i) {
+            if (creature_affected_by_spell(creatng, game.conf.magic_conf.debuffs[i])) {
                 set_creature_instance(creatng, CrInst_CLEANSE, creatng->index, 0);
                 return 1;
             }

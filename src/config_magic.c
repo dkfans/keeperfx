@@ -287,7 +287,7 @@ struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(int mgc_idx)
 {
-  if ((mgc_idx < 0) || (mgc_idx >= magic_conf.spell_types_count))
+  if ((mgc_idx < 0) || (mgc_idx >= game.conf.magic_conf.spell_types_count))
     return &game.conf.magic_conf.spell_config[0];
   return &game.conf.magic_conf.spell_config[mgc_idx];
 }
@@ -802,23 +802,23 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
 
 void load_debuffs() {
     int count = 0;
-    for (int i = 0; i < magic_conf.spell_types_count; ++i) {
+    for (int i = 0; i < game.conf.magic_conf.spell_types_count; ++i) {
         struct SpellConfig *spconf = get_spell_config(i);
         if (spconf->debuff == 1) {
             ++count;
         }
     }
-    magic_conf.debuff_count = count;
-    if (magic_conf.debuff_count > 0) {
-        magic_conf.debuffs = malloc(magic_conf.debuff_count * sizeof(*magic_conf.debuffs));
-        if (magic_conf.debuffs == NULL) {
+    game.conf.magic_conf.debuff_count = count;
+    if (game.conf.magic_conf.debuff_count > 0) {
+        game.conf.magic_conf.debuffs = malloc(game.conf.magic_conf.debuff_count * sizeof(*game.conf.magic_conf.debuffs));
+        if (game.conf.magic_conf.debuffs == NULL) {
             fprintf(stderr, "Memory allocation failed for debuffs\n");
             exit(EXIT_FAILURE);
         }
-        for (int i = 0, j = 0; i < magic_conf.spell_types_count; ++i) {
+        for (int i = 0, j = 0; i < game.conf.magic_conf.spell_types_count; ++i) {
             struct SpellConfig *spconf = get_spell_config(i);
             if (spconf->debuff == 1) {
-                magic_conf.debuffs[j++] = i;
+                game.conf.magic_conf.debuffs[j++] = i;
             }
         }
     }
