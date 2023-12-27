@@ -52,8 +52,8 @@ msgid ""
 "with Treasure Room tiles."
 msgstr ""
 "Un Gardien doit absolument pouvoir stocker l'or extrait par ses lutins. "
-"Cliquez sur l'icône de la salle du trésor figurant dans le panneau des "
-"salles, et remplissez la zone vers l'ouest avec des dalles Salle du Trésor."
+"Cliquez sur l'icône de la Salle du trésor figurant dans le panneau des "
+"salles, et remplissez la zone vers l'ouest avec des dalles Salle du trésor."
 
 #. Level Eversmile information when started building Treasure Room
 #: guitext:3
@@ -78,7 +78,7 @@ msgstr ""
 "Remarquable! Appuyez sur le bouton Droit de la souris pour que le curseur "
 "revienne sur la main. Extrayez de l'or dans la zone Est en faisant glisser le "
 "curseur et en appuyant sur le bouton Gauche de la souris. Vos lutins "
-"extrairont de l'or et le porteront vers la Salle Du Trésor."
+"extrairont de l'or et le porteront vers la Salle du trésor."
 
 #. Level Eversmile information while digging gold
 #: guitext:5
@@ -140,7 +140,7 @@ msgid ""
 "the Rooms Panel and left click on the tiles in the area to the west of your "
 "Dungeon Heart."
 msgstr ""
-"Vous devez d'abord construire une Salle Du Trésor. Sélectionnez l'icône Salle "
+"Vous devez d'abord construire une Salle du trésor. Sélectionnez l'icône Salle "
 "Du Trésor dans le panneau des salles et cliquez avec le bouton Gauche sur les "
 "dalles dans la zone située à l'Ouest du Coeur du Donjon."
 
@@ -174,7 +174,7 @@ msgid ""
 "be unable to pay any creatures. Only Imps give their loyalty freely. No other "
 "creatures will serve you unpaid."
 msgstr ""
-"Vous n'avez pas encore construit de Salle Du Trésor, vous ne pouvez donc pas "
+"Vous n'avez pas encore construit de Salle du trésor, vous ne pouvez donc pas "
 "payer vos créatures. Seuls les lutins font cadeau de leur loyauté. Aucune "
 "autre créature ne vous servira gratuitement."
 
@@ -320,7 +320,7 @@ msgid ""
 "in squares of at least nine tiles to increase the efficiency of the room."
 msgstr ""
 "Souvenez-vous des leçons apprises à Grise Mine. Vous devez construire une "
-"Salle Du Trésor, un Antre et un Couvoir, et vous devrez réclamer un Portail. "
+"Salle du trésor, un Antre et un Couvoir, et vous devrez réclamer un Portail. "
 "Choisissez des zones de 9 dalles au moins pour augmenter leur efficacité."
 
 #. Level Cosyton objective after basic rooms built
@@ -422,7 +422,7 @@ msgid ""
 "Make sure they're all big enough. Cramped conditions do nothing for the "
 "morale of your minions."
 msgstr ""
-"Construisez un donjon avec une Salle du Trésor, un Antre, un Couvoir et une "
+"Construisez un donjon avec une Salle du trésor, un Antre, un Couvoir et une "
 "Salle d'entraînement. Ces salles doivent être assez grandes, car la "
 "promiscuité nuit au moral de vos larbins."
 
@@ -1159,7 +1159,7 @@ msgid ""
 "magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
 msgstr ""
 "Vous avez créé une Porte Magique. Elle résiste à tout, sauf à la magie. Je "
-"vous conseille de sceller votre Salle du Trésor ou le Coeur du Donjon."
+"vous conseille de sceller votre Salle du trésor ou le Coeur du Donjon."
 
 #. Level Nevergrim objective
 #: guitext:100
@@ -2849,7 +2849,7 @@ msgid ""
 "ground."
 msgstr ""
 "Filon d'or : Votre source de métal précieux. Exploitez-le et vos lutins "
-"stockeront l'or dans votre salle du trésor. [12.2]"
+"stockeront l'or dans votre Salle du trésor. [12.2]"
 
 #: guitext:327
 msgctxt "Slab description"
@@ -4804,7 +4804,7 @@ msgstr ""
 #: guitext:664
 msgctxt "Game event name"
 msgid "Treasure Room full"
-msgstr "Salle Du Trésor pleine"
+msgstr "Salle du trésor pleine"
 
 #: guitext:665
 msgctxt "Game event name"
@@ -4909,7 +4909,7 @@ msgstr "Salle attaquée"
 #: guitext:685
 msgctxt "Game event name"
 msgid "Treasure Room needed"
-msgstr "Besoin d'une Salle Du Trésor"
+msgstr "Besoin d'une Salle du trésor"
 
 #: guitext:686
 msgctxt "Game event name"
@@ -5080,7 +5080,7 @@ msgstr ""
 msgctxt "Game event description"
 msgid "Need Treasure Room: LMB toggle. RMB delete."
 msgstr ""
-"Besoin d'une salle du trésor : Afficher avec le bouton gauche de la souris, "
+"Besoin d'une Salle du trésor : Afficher avec le bouton gauche de la souris, "
 "supprimer avec le bouton droit."
 
 #: guitext:712
