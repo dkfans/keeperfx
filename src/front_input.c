@@ -661,6 +661,10 @@ short get_global_inputs(void)
       set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
       clear_key_pressed(keycode);
   }
+  if (is_key_pressed(KC_GRAVE, KMod_DONTCARE)) {
+    debug_display_consolelog = !debug_display_consolelog;
+    clear_key_pressed(KC_GRAVE);
+  }
   return false;
 }
 
