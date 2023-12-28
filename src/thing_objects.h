@@ -216,6 +216,22 @@ void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
 /******************************************************************************/
+typedef enum ThingLoop_CallbackResult
+{
+    TLRs_Continue_Iterating = 0,
+    TLRs_Found_Result_Stop_Iterating = 1
+} ThingLoop_CallbackResult;
+
+/**
+ * @brief Callback function that determines if current_iterated_thing is the thing we are interested in. optional_data makes the callbacks very flexible.
+ * 
+ */
+typedef ThingLoop_CallbackResult (*Thing_Loop_Callback_Func)(struct Thing* current_iterated_thing, void* optional_data);
+struct Thing* foreach_thing_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Thing_Loop_Callback_Func callback, void* optional_data);
+
+ThingLoop_CallbackResult if__thing_is_gold_hoard__select_first(struct Thing* thing, void* optional_data);
+ThingLoop_CallbackResult if__thing_is_same_class_and_model__select_first(struct Thing* thing, void* optional_data);
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

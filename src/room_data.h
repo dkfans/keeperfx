@@ -22,7 +22,7 @@
 #include "bflib_basics.h"
 #include "config_creature.h"
 #include "globals.h"
-#include "config_creature.h"
+#include "thing_objects.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -174,7 +174,6 @@ TbBool thing_is_on_own_room_tile(const struct Thing *thing);
 struct Room *get_room_thing_is_on(const struct Thing *thing);
 struct Room *get_room_at_pos(struct Coord3d *pos);
 void reinitialise_map_rooms(void);
-struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 
 // Finding position within room
 TbBool find_random_valid_position_for_thing_in_room(struct Thing *thing, struct Room *room, struct Coord3d *pos);
@@ -251,6 +250,25 @@ struct Room *find_random_room_of_role_for_thing_with_spare_room_item_capacity(st
 struct Room *pick_random_room_of_role(PlayerNumber plyr_idx, RoomRole rrole);
 
 void redraw_slab_map_elements(MapSlabCoord slb_x, MapSlabCoord slb_y);
+/******************************************************************************/
+
+struct ThingLoop_CheckForRepositionInRoomArgs
+{
+    struct Room *room;
+    int* matching_things_at_subtile;
+};
+
+struct ThingLoop_RepositionInRoomArgs
+{
+    struct Room* room;
+    struct RoomReposition* rrepos;
+};
+
+ThingLoop_CallbackResult if__thing_is_spellbook__check_books_on_subtile_for_reposition_in_room(struct Thing* thing, void* optional_data);
+ThingLoop_CallbackResult if__thing_is_spellbook__reposition_in_room(struct Thing* thing, void* optional_data);
+
+ThingLoop_CallbackResult if__thing_is_crate__check_crates_on_subtile_for_reposition_in_room(struct Thing* thing, void* optional_data);
+ThingLoop_CallbackResult if__thing_is_crate__reposition_in_room(struct Thing* thing, void* optional_data);
 /******************************************************************************/
 #ifdef __cplusplus
 }
