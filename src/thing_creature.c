@@ -5742,7 +5742,7 @@ void create_light_for_possession(struct Thing *creatng)
     ilght.mappos.x.val = creatng->mappos.x.val;
     ilght.mappos.y.val = creatng->mappos.y.val;
     ilght.mappos.z.val = creatng->mappos.z.val;
-    ilght.field_3 = 1;
+    ilght.flags = 1;
     ilght.intensity = 36;
     ilght.radius = 2560;
     ilght.is_dynamic = 1;

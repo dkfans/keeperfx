@@ -176,7 +176,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
         ilight.radius = objst->ilght.radius;
         ilight.intensity = objst->ilght.intensity;
-        ilight.field_3 = objst->ilght.field_3;
+        ilight.flags = objst->ilght.flags;
         ilight.is_dynamic = objst->ilght.is_dynamic;
         thing->light_id = light_create_light(&ilight);
         if (thing->light_id == 0) {
