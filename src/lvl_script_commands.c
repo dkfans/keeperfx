@@ -4248,7 +4248,6 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
             if (eff_id == -1)
             {
                 eff_id = get_id(effectelem_desc, scline->tp[2]);
-                JUSTMSG("eff_id = %d", eff_id);
                 if (eff_id > 0)
                 {
                     is_element = true;
