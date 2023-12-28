@@ -827,7 +827,7 @@ void free_sound_chunks()
         {
             Mix_FreeChunk(Ext_Sounds[i]);
             Ext_Sounds[i] = NULL;
-            memset(game.loaded_sound[i],0,strlen(game.loaded_sound[i]));
+            memset(game.loaded_sound[i],0,DISKPATH_SIZE);
         }
     }
     game.sounds_count = 0;
