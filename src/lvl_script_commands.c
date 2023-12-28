@@ -4218,7 +4218,6 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     const char* effgenname = scline->tp[0];
     const char* property = scline->tp[1];
     short value1 = 0;
-    TbBool is_element = false;
 
     char effgen_id = get_id(effectgen_desc, effgenname);
     if (effgen_id == -1)
@@ -4237,36 +4236,12 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     } else
     if (property_id == 5) // EFFECTELEMENTMODEL
     {
-        short eff_id = -1;
-        if (parameter_is_number(scline->tp[2]))
-        {
-            eff_id = atoi(scline->tp[2]);
-        }
-        else
-        {
-            eff_id = get_id(effect_desc, scline->tp[2]);
-            if (eff_id == -1)
-            {
-                eff_id = get_id(effectelem_desc, scline->tp[2]);
-                if (eff_id > 0)
-                {
-                    is_element = true;
-                }
-            }
-        }
-        if (eff_id == -1)
+        value1 = effect_or_effect_element_id(scline->tp[2]);
+        if (value1 == 0)
         {
             SCRPTERRLOG("Unknown effect element value for Effect Generator");
             DEALLOCATE_SCRIPT_VALUE
             return;
-        }
-        if (is_element == true)
-        {
-            value1 = -eff_id;
-        }
-        else
-        {
-            value1 = eff_id;
         }
     }
     else
