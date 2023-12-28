@@ -2244,12 +2244,12 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
         }
         if ( (lgt->flags & LgtF_Unkn20) != 0 )
         {
-          if ( lgt->intencity_toggling_field == 1 )
+          if ( lgt->intensity_toggling_field == 1 )
           {
             if ( lgt->intensity_delta + lgt->intensity >= lgt->max_intensity )
             {
               lgt->intensity = lgt->max_intensity;
-              lgt->intencity_toggling_field = 2;
+              lgt->intensity_toggling_field = 2;
             }
             else
             {
@@ -2261,7 +2261,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
             if ( lgt->intensity - lgt->intensity_delta <= lgt->max_intensity )
             {
               lgt->intensity = lgt->max_intensity;
-              lgt->intencity_toggling_field = 1;
+              lgt->intensity_toggling_field = 1;
             }
             else
             {
