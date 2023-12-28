@@ -976,7 +976,12 @@ short good_doing_nothing(struct Thing *creatng)
             cctrl->hero.byte_8C = 1;
         }
         nturns = game.play_gameturn - cctrl->hero.look_for_enemy_dungeon_turn;
-        if (nturns > 64)
+        if ((nturns > 64) && (cctrl->unknown.byte_8B == 1))
+        {
+            cctrl->hero.look_for_enemy_dungeon_turn = game.play_gameturn;
+            cctrl->party.target_plyr_idx = good_find_best_enemy_dungeon(creatng);
+        }
+        else if (nturns > 900)
         {
             cctrl->hero.look_for_enemy_dungeon_turn = game.play_gameturn;
             cctrl->party.target_plyr_idx = good_find_best_enemy_dungeon(creatng);
@@ -986,7 +991,7 @@ short good_doing_nothing(struct Thing *creatng)
         {
             SYNCDBG(4,"No enemy dungeon to perform %s index %d task",
                 thing_model_name(creatng),(int)creatng->index);
-            cctrl->wait_to_turn = game.play_gameturn + 16;
+            cctrl->wait_to_turn = game.play_gameturn + 128;
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
             {
                 creatng->continue_state = CrSt_GoodDoingNothing;
