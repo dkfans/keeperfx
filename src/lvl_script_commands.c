@@ -4236,26 +4236,13 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     } else
     if (property_id == 5) // EFFECTELEMENTMODEL
     {
-        short effelem_id = -1;
-        if (parameter_is_number(scline->tp[2]))
-        {
-            effelem_id = atoi(scline->tp[2]);
-        }
-        else
-        {
-            effelem_id = get_id(effectelem_desc, scline->tp[2]);
-            if (effelem_id == -1)
-            {
-                effelem_id = get_id(effect_desc, scline->tp[2]);
-            }
-        }
-        if (effelem_id == -1)
+        value1 = effect_or_effect_element_id(scline->tp[2]);
+        if (value1 == 0)
         {
             SCRPTERRLOG("Unknown effect element value for Effect Generator");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value1 = effelem_id;
     }
     else
     if ((property_id == 8) || (property_id == 9)) // ACCELERATIONMIN or ACCELERATIONMAX
