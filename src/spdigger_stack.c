@@ -184,7 +184,7 @@ void remove_task_from_all_other_players_digger_stacks(PlayerNumber skip_plyr_idx
 TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(19,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     struct Coord3d pos2;
     pos2.x.val = subtile_coord_center(stl_x);
     pos2.y.val = subtile_coord_center(stl_y);

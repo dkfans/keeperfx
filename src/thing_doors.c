@@ -659,7 +659,7 @@ void update_all_door_stats()
     for(int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
-        i = thing->next_of_class
+        i = thing->next_of_class;
         TRACE_THING(thing);
         struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
         thing->health = doorst->health;
