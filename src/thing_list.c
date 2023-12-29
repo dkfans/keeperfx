@@ -2299,7 +2299,7 @@ long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel)
         }
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER) || (thing->model == crmodel))
+        if (thing_matches_model(thing,crmodel))
         {
             count++;
         }
@@ -2371,7 +2371,7 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
       struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
       i = cctrl->players_next_creature_idx;
       // Per creature code
-      if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER) || (thing->model == crmodel))
+      if (thing_matches_model(thing,crmodel))
           crtr_idx--;
       if (crtr_idx == -1)
           return thing;
