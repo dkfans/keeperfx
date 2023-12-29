@@ -4056,7 +4056,12 @@ static void play_message_check(const struct ScriptLine *scline)
         Ext_Sounds[slot] = Mix_LoadWAV(fname);
         if (Ext_Sounds[slot] != NULL)
         {
-            Mix_VolumeChunk(Ext_Sounds[slot], settings.sound_volume);
+            unsigned char volume = settings.sound_volume;
+            if (msgtype_id = 1) // SPEECH
+            {
+                volume = settings.mentor_volume;
+            }
+            Mix_VolumeChunk(Ext_Sounds[slot],volume);
             game.sounds_count++;
         }
         else
