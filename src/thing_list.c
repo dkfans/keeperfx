@@ -1931,7 +1931,7 @@ long creature_of_model_find_first(ThingModel crmodel)
         }
         i = thing->next_of_class;
         // Thing list loop body
-        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
+        if (thing_matches_model(thing,crmodel))
         {
             return i;
         }
@@ -1961,7 +1961,7 @@ struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel)
         }
         i = thing->next_of_class;
         // Thing list loop body
-        if ((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel))
+        if (thing_matches_model(thing,crmodel))
         {
           if (creature_is_kept_in_prison(thing) || creature_is_being_tortured(thing))
               return thing;
@@ -2165,7 +2165,7 @@ long do_on_player_list_all_creatures_of_model(long thing_idx, int crmodel,
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->players_next_creature_idx;
         // Per creature code
-        if ((thing->model == crmodel) || (crmodel == 0) || (crmodel == CREATURE_ANY))
+        if (thing_matches_model(thing, crmodel))
         {
             if (do_cb(thing))
                 n++;
