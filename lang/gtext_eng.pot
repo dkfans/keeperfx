@@ -6129,3 +6129,18 @@ msgstr ""
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr ""
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: All of your creatures are healed"
+msgstr ""
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury. "
+msgstr ""
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All of your creatures becomes upset."
+msgstr ""

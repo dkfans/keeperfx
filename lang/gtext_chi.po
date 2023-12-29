@@ -6579,3 +6579,18 @@ msgstr "照明术"
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "邪眼术"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: All of your creatures are healed"
+msgstr "治愈全体：你的所有生物都被治愈。"
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury. "
+msgstr "增加黄金：在你的金库中生成黄金。"
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All of your creatures becomes upset."
+msgstr "使不高兴：你的所有生物都变得不高兴。"

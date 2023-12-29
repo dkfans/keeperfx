@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2014-10-28 21:22+0100\n"
-"Last-Translator: Endrix \n"
+"Last-Translator: \n"
 "Language-Team: KeeperFX Team\n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
@@ -7115,12 +7115,12 @@ msgstr "Moo5"
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr "Zerstörungsfalle"
+msgstr "Sprengfalle"
 
 #: guitext:1037
 msgctxt "Trap description"
 msgid "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr "Zerstörungsfalle: Ein Sprengstoff mit unübertroffener Zerstörungskraft."
+msgstr "Sprengfalle: Ein Sprengstoff mit unübertroffener Zerstörungskraft."
 
 #: guitext:1038
 msgctxt "Trap description"
@@ -7196,3 +7196,18 @@ msgstr "Beleuchtung"
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "Sicht"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: All of your creatures are healed"
+msgstr "Kreaturen heilen: Jede eurer Kreaturen wird geheilt"
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury. "
+msgstr "Gold erzeugen: Erzeugt Gold in eurer Schatzkammer"
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All of your creatures becomes upset."
+msgstr "Kreaturen verärgern: Alle deine Kreaturen werden verärgert."

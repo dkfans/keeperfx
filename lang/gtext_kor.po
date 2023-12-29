@@ -6973,3 +6973,18 @@ msgstr "조명"
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "시각"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: All of your creatures are healed"
+msgstr "모두 치료: 모든 크리쳐가 치료됩니다."
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury. "
+msgstr "골드 증가: 국고에서 골드를 생성합니다."
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All of your creatures becomes upset."
+msgstr "불행하게 만들기: 모든 크리쳐가 불만을 품게 됩니다."

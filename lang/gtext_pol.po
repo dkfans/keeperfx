@@ -7050,3 +7050,18 @@ msgstr "Oświecenie"
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "Jasnowidzenie"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: All of your creatures are healed"
+msgstr "Ulecz Wszystko: Wszystkie twoje istoty zostały uleczone."
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "Zwiększ Złoto: Generuje złoto w twojej skarbnicy."
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All of your creatures becomes upset."
+msgstr "Spraw, by były nieszczęśliwe: Wszystkie twoje istoty stają się zaniepokojone."
