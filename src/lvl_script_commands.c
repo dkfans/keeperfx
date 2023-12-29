@@ -4072,7 +4072,7 @@ static void play_message_process(struct ScriptContext *context)
     unsigned char volume = settings.sound_volume;
     unsigned char msgtype_id = context->value->chars[1];
     unsigned char slot = context->value->bytes[2];
-    if (msgtype_id = 1) // SPEECH
+    if (msgtype_id == 1) // SPEECH
     {
         volume = settings.mentor_volume;
     }
