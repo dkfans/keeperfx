@@ -858,7 +858,7 @@ void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
 {
     struct SlabAttr *slbattr;
     slbattr = get_slab_kind_attrs(slbkind);
-    if (slbattr->wlb_type != 3)
+    if (slbattr->wlb_type != WlbT_Bridge)
     {
         struct SlabMap *slb;
         slb = get_slabmap_for_subtile(stl_x, stl_y);
