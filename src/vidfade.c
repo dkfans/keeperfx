@@ -170,7 +170,7 @@ void compute_alpha_tables(struct TbAlphaTables *alphtbls,unsigned char *spal,uns
     // Every color alpha-blended with black
     compute_alpha_table(alphtbls->black,  spal, dpal,-2,-2,-2);
     // Every color alpha-blended with orange
-    compute_alpha_table(alphtbls->orange, spal, dpal, 2, 6, 2);
+    compute_alpha_table(alphtbls->orange, spal, dpal, 6, 3, 1);
 }
 
 void compute_rgb2idx_table(TbRGBColorTable ctab,unsigned char *spal)
