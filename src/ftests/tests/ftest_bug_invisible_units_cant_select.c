@@ -178,7 +178,7 @@ FTestActionResult ftest_bug_invisible_units_cant_select_action003__pickup_unit(s
     // check if creature render flag is set, it shoudln't be, if it is, fail the test
     if(flag_is_set(vars->unit->rendering_flags, TRF_Unknown01))
     {
-        FTEST_FAIL_TEST("Creature %s index %d has render flag %d set when it shouldn't!", thing_model_name(vars->unit), (int)vars->unit->index);
+        FTEST_FAIL_TEST("Creature %s index %d has render flag %d set when it shouldn't!", thing_model_name(vars->unit), (int)vars->unit->index, TRF_Unknown01);
         return FTRs_Go_To_Next_Action;
     }
 
