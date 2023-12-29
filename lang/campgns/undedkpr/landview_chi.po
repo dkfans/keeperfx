@@ -17,6 +17,7 @@
 "Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 
+# Post Undead Campaign
 
 #: landview:10
 msgctxt "Level introduction"
@@ -102,3 +103,64 @@ msgid "The winter wonderland has been turned into a frozen wasteland. The snow i
 "torment. The world is now a frozen hell, where life is a struggle and death is a release."
 msgstr "冬日仙境已变成冰雪荒原。这里的积雪坚硬如冰，树木怪异扭曲。居民们都变成了冰冷的僵尸，他们的身体被冻结在原地，而他们的灵魂陷入了永世的折磨。这个世界已经变成了冰冷的地狱，在这里，活着是一种挣扎， 而死亡是一种解脱。"
 
+# Undead Campaign
+
+#: landview:100
+msgctxt "Level introduction"
+msgid "Winterrage - In the cold and icy mountains that are in the center of the country, is located a big city filled with pesky heroes. A real battlefield awaits you, where the white snow should be soaked of red!"
+msgstr "凛冬之怒-在这个王国中央的冰冷雪山上，有一座城市，充满了讨厌的英雄们。一个真正的战场等待着你，这里的白雪应该被鲜血染红！"
+
+#: landview:101
+msgctxt "Level introduction"
+msgid "Deathmoore - This place has been overwhelmed, Keeper! There are bits and pieces everywhere! Some of our minions even had fun making some bloody snowmen using the remains of the corpses, using them afterwards for training purposes! Marvellous!"
+msgstr "死囚之舞-这片土地已经被你击垮了，守护者！四处都是残破的废墟！你的爪牙们利用积雪和尸体堆起了血腥的雪人，并像击打训练木桩一样击打它们取乐！棒极了！"
+
+#: landview:110
+msgctxt "Level introduction"
+msgid "Rosefield Cathedral - This is a very holy place, which is not good for our undead armies. A lot of paladins and monks are visiting this place, filled with the disgusting smell of flowers. A real place to reduce to ashes!"
+msgstr "罗斯菲尔德大教堂-这是一个十分神圣的地方，但对我们的亡灵军团来说并不是好事。许多圣骑士和僧侣前来拜访，这里充斥着令人厌恶的玫瑰花香。是时候把这里夷为废墟了！"
+
+#: landview:111
+msgctxt "Level introduction"
+msgid "Sundew Ruins - The roses have been trampled and have been replaced with sundews; the kind of flower that entraps and devours insects. It fits perfectly with the scene of the now-desecrated cathedral, I must say!"
+msgstr "苔藓丛生-这里的玫瑰花已经遭到践踏，由食虫花取而代之；它们会困住并吞噬虫子。我不得不说，这些花与现在已经遭到亵渎的大教堂真是绝配！"
+
+#: landview:120
+msgctxt "Level introduction"
+msgid "Arbor Heights - This is an ancient bastion of everlasting happiness, carved into a mountain... bleh. I highly suggest to reduce this pathetic fortress to rumbles by flattening it."
+msgstr "阿勃海茨- 这是一座象征着永恒幸福的古老堡垒，坐落在半山腰......唉。我强烈建议把这座可怜的堡垒夷为平地。"
+
+#: landview:121
+msgctxt "Level introduction"
+msgid "The Low Lands - Nobody survived here. All of the pesky guards were bludgeoned, decapitated and burned! And the fortress has been reduced to a pile of shattered stones. A great victory for us, Master!"
+msgstr "洼地-这里无人生还。所有讨厌的卫兵都被打倒、斩首或烧死了！堡垒也已经变成了一堆碎石块。主人，我们大获全胜！"
+
+#: landview:130
+msgctxt "Level introduction"
+msgid "Drachenfeld - Dragons with a fiery temper rule this realm, stomping and burning everyone foolish enough that stands in their way. It's time someone teaches these overgrown lizards a lesson in humility."
+msgstr "德拉奇菲尔德-脾气暴躁的巨龙统治着这个王国，它们会将所有愚蠢的挑战者踩扁并烧成灰烬。是时候让这些狂妄自大的蜥蜴们明白谦逊是一种美德了。"
+
+#: landview:131
+msgctxt "Level introduction"
+msgid "Dragontooth Wasteland - The great dragons have been torn to bloody shreds. Currently, our minions are collecting what remains of them to collect bones and decorate your dungeon with it, how stylish!"
+msgstr "龙牙荒地-巨龙们已经被撕成了血腥的碎片。现在，我们的爪牙正在拔出它们的骨头和牙齿用来装饰我们的地下城，多么时尚啊！"
+
+#: landview:140
+msgctxt "Level introduction"
+msgid "Ashspire - Of all the places, the enemy make his stand inside a giant volcano with superior numbers and forces. Prepare to flush them all out, one way or another!"
+msgstr "灰烬尖塔-敌人已经在这座巨大的火山中央建立了根据地，而且人数和力量都占据优势。是时候不择手段地将他们一网打尽了！"
+
+#: landview:141
+msgctxt "Level introduction"
+msgid "Burntflesh - This realm has been filled with lava. There's a nice smell of rotten meat everywhere like if the volcano itself became a huge barbecue for all the remaining corpses lying all around!... Now, only one land remains before the total domination. Let's go, Keeper!"
+msgstr "人肉烧烤-这个王国现在被岩浆淹没了。这里随处能闻到一股烤焦的肉味，令人舒适。这座火山现在犹如一个巨大的烧烤架，正在烧烤着附近的所有生灵！现在，距离完全征服这个世界只剩下最后一个王国了。我们去吧，守护者！"
+
+#: landview:150
+msgctxt "Level introduction"
+msgid "Dawnterror - This is truly a forsaken land; you cannot see the sun from this place and the howling wind cuts to the bone, lovely. The only thing I nitpick about the realm is the presence of Keeper Bane, who still sits on a false throne while the realms around it burned down. Have your final vengeance here."
+msgstr "黎明恐惧- 这真是一片废弃的土地；在这里你见不到太阳，只有呼啸的刺骨寒风，令人愉悦。唯一令我不满意的是，守护者贝恩也在这里，正端坐在他虚假的王座上，而周围的王国都已经被他烧毁了。在这里进行你最后的复仇吧。"
+
+#: landview:151
+msgctxt "Level introduction"
+msgid "Deathterror - Finally! Bane is no more! All the surroundings are now piled with tons of bones and skulls into a dark atmosphere of death. The air is filled with ghost's evil screams and skeletons' laughter. After that intense battle, you are now the Keeper that rules the world... and the throne is now yours. Congratulations, Master!"
+msgstr "死亡恐惧-终于！守护者贝恩不复存在了！周围四处堆积着人类的骸骨，散发出一种死亡的邪恶气息。空气中弥漫着鬼魂的嚎叫和骷髅的欢笑。经历了这场苦战，你现在成为了统御这个世界的守护者…荣耀属于你。恭喜你，我的主人！"
