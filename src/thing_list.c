@@ -803,9 +803,9 @@ TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
     else if (crmodel == CREATURE_NONE)
         return false;
     if (crmodel == CREATURE_DIGGER)
-        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
+        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, creatng->model);
     else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel)) && (creatng->model != get_players_spectator_model(creatng->owner)));
+        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, creatng->model)) && (creatng->model != get_players_spectator_model(creatng->owner)));
     else
         ERRORLOG("Invalid model wildcard detected: %d", crmodel);
     return false;
