@@ -2331,7 +2331,7 @@ long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingMode
         i = cctrl->players_next_creature_idx;
         // Per creature code
         int slbwnr = get_slab_owner_thing_is_on(thing);
-        if ( ((thing->model == crmodel) || (crmodel == CREATURE_ANY)) &&
+        if ( thing_matches_model(thing, crmodel) &&
             ( (players_are_enemies(thing->owner,slbwnr) && (friendly == 0)) ||
               (players_are_mutual_allies(thing->owner,slbwnr) && (friendly == 1)) ||
               (slbwnr == game.neutral_player_num && (friendly == 2)) ) )
@@ -2431,7 +2431,7 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
             }
         }
 
-        if (((crmodel == 0) || (crmodel == CREATURE_ANY) || (thing->model == crmodel)) && (match == 1))
+        if ((thing_matches_model(thing, crmodel)) && (match == 1))
         {
             nth_creature = thing; 
             crtr_idx--;
