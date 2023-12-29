@@ -96,7 +96,7 @@ TbBool ftest_bug_invisible_units_cant_select_init()
     {
         ftest_append_action(ftest_bug_invisible_units_cant_select_action001__spawn_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
         ftest_append_action(ftest_bug_invisible_units_cant_select_action002__zoom_to_unit_and_trigger_invisibility_bug, 20, &ftest_bug_invisible_units_cant_select__vars);
-        ftest_append_action(ftest_bug_invisible_units_cant_select_action003__pickup_unit, 200, &ftest_bug_invisible_units_cant_select__vars);
+        ftest_append_action(ftest_bug_invisible_units_cant_select_action003__pickup_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
         ftest_append_action(ftest_bug_invisible_units_cant_select_action004__drop_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
         ftest_append_action(ftest_bug_invisible_units_cant_select_action005__kill_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
     }
