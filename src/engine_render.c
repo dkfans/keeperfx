@@ -42,6 +42,7 @@
 #include "creature_states_mood.h"
 #include "creature_states_gardn.h"
 #include "creature_states_lair.h"
+#include "config_spritecolors.h"
 #include "thing_stats.h"
 #include "thing_traps.h"
 #include "game_lghtshdw.h"
@@ -5206,24 +5207,19 @@ static unsigned short choose_health_sprite(struct Thing* thing)
     cctrl = creature_control_get_from_thing(thing);
     HitPoints health;
     HitPoints maxhealth;
-    int color_idx;
     health = thing->health;
     maxhealth = cctrl->max_health;
-    color_idx = get_player_color_idx(thing->owner);
 
-    if (color_idx == NEUTRAL_PLAYER) {
-        color_idx = game.play_gameturn & 3;
-    }
     if ((maxhealth <= 0) || (health <= 0))
     {
-        return GBS_creature_flower_health_r1 + (8*color_idx);
+        return get_player_colored_button_sprite_idx(GBS_creature_flower_health_r1,thing->owner);
     } else
     if (health >= maxhealth)
     {
-        return GBS_creature_flower_health_r1 + (8*color_idx) - 7;
+        return get_player_colored_button_sprite_idx(GBS_creature_flower_health_r1,thing->owner) - 7;
     } else
     {
-        return GBS_creature_flower_health_r1 + (8*color_idx) - (8 * health / maxhealth);
+        return get_player_colored_button_sprite_idx(GBS_creature_flower_health_r1,thing->owner) - (8 * health / maxhealth);
     }
 }
 
@@ -5425,7 +5421,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         if (flash_color == NEUTRAL_PLAYER) {
             flash_color = game.play_gameturn & 3;
         }
-        spr = get_button_sprite(health_spridx);
+        spr = get_button_sprite_direct(health_spridx);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_color]);

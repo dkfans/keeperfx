@@ -200,7 +200,7 @@ enum GUIButtonSprite {
 	GBS_borders_frame_thck_mr = 213,
 	GBS_creature_portrait_avatr = 214,
 
-	GUI_BUTTON_SPRITES_COUNT = 215,
+	GUI_BUTTON_SPRITES_COUNT = 239,
 };
 
 // Based on gui2-64/filelist_gui2.txt

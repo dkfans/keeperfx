@@ -43,6 +43,7 @@ pointer_sprites = [
 button_sprite = [
     [ 62, 62,127,128,129,130,  0,131,132,133],#creatr_state_cta
     [ 58, 58,134,135,136,137,  0,138,139,140],#creatr_state_lair
+    [ 88, 88, 96,104,112,120,  0,222,230,238],#creature_flower_health
 ]
 
 
