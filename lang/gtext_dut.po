@@ -6953,7 +6953,7 @@ msgstr "Duivelsoog"
 
 #: guitext:1059
 msgctxt "Dungeon special decription"
-msgid "Heal All: All of your creatures are healed"
+msgid "Heal All: All of your creatures are healed."
 msgstr "Genees Allen: Al jouw wezens worden genezen."
 
 #: guitext:1060
@@ -6963,5 +6963,5 @@ msgstr "Verhoog Goud: Genereert goud in jouw schatkist."
 
 #: guitext:1061
 msgctxt "Dungeon special decription"
-msgid "Make Unhappy: All of your creatures becomes upset."
-msgstr "Maak Ongelukkig: Al jouw wezens worden ongelukkig."
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Maak Ongelukkig: Alle wezens van de vijand worden ongelukkig."

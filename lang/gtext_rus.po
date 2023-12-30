@@ -7121,7 +7121,7 @@ msgstr "Видение"
 
 #: guitext:1059
 msgctxt "Dungeon special decription"
-msgid "Heal All: All of your creatures are healed"
+msgid "Heal All: All of your creatures are healed."
 msgstr "Исцеление всех: Все ваши существа исцеляются."
 
 #: guitext:1060
@@ -7131,5 +7131,5 @@ msgstr "Увеличение золота: Генерирует золото в 
 
 #: guitext:1061
 msgctxt "Dungeon special decription"
-msgid "Make Unhappy: All of your creatures becomes upset."
-msgstr "Сделать несчастными: Все ваши существа расстраиваются."
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Сделать несчастными: Все существа врага расстраиваются."

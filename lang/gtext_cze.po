@@ -6936,8 +6936,8 @@ msgstr "Pohled"
 
 #: guitext:1059
 msgctxt "Dungeon special decription"
-msgid "Heal All: All of your creatures are healed"
-msgstr ""Uzdrav všechny: Všechna tvá stvoření jsou vyléčena.""
+msgid "Heal All: All of your creatures are healed."
+msgstr ""Uzdrav všechny: Všechna tvá stvoření jsou vyléčena."
 
 #: guitext:1060
 msgctxt "Dungeon special decription"
@@ -6946,5 +6946,5 @@ msgstr "Zvýšit zlato: Generuje zlato ve tvé pokladně."
 
 #: guitext:1061
 msgctxt "Dungeon special decription"
-msgid "Make Unhappy: All of your creatures becomes upset."
-msgstr "Rozlít nespokojenost: Všechna tvá stvoření jsou rozčílená."
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Rozlít nespokojenost: Všechna stvoření nepřítele jsou rozčílená."

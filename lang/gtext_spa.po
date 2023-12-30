@@ -6107,7 +6107,7 @@ msgstr "Visión"
 
 #: guitext:1059
 msgctxt "Dungeon special decription"
-msgid "Heal All: All of your creatures are healed"
+msgid "Heal All: All of your creatures are healed."
 msgstr "Curar Todos: Todas tus criaturas son curadas."
 
 #: guitext:1060
@@ -6117,5 +6117,5 @@ msgstr "Aumentar Oro: Genera oro en tu tesoro."
 
 #: guitext:1061
 msgctxt "Dungeon special decription"
-msgid "Make Unhappy: All of your creatures becomes upset."
-msgstr "Hacer Infelices: Todas tus criaturas se vuelven infelices."
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Hacer Infelices: Todas las criaturas del enemigo se vuelven infelices."
