@@ -908,7 +908,7 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
         struct CreatureControl *cctrl;
         cctrl = creature_control_get_from_thing(thing);
         // Creatures unaffected by Armageddon
-        if (is_neutral_thing(thing) && !gameadd.armegeddon_teleport_neutrals)
+        if (is_neutral_thing(thing) && !game.conf.rules.magic.armegeddon_teleport_neutrals)
         {
             cctrl->armageddon_teleport_turn = 0;
         } else
@@ -921,9 +921,9 @@ TbResult magic_use_power_armageddon(PlayerNumber plyr_idx, unsigned long mod_fla
         {
             cctrl->armageddon_teleport_turn = your_time_gap;
             if (thing->owner == plyr_idx) {
-                your_time_gap += game.armagedon_teleport_your_time_gap;
+                your_time_gap += game.conf.rules.magic.armagedon_teleport_your_time_gap;
             } else {
-                enemy_time_gap += game.armagedon_teleport_enemy_time_gap;
+                enemy_time_gap += game.conf.rules.magic.armagedon_teleport_enemy_time_gap;
             }
         }
         // Per-thing code ends
@@ -1701,7 +1701,7 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
     pos.y.val = subtile_coord_center(stl_y);
     pos.z.val = get_floor_height_at(&pos);
     struct Thing *objtng;
-    objtng = thing_get(player->field_43C);
+    objtng = thing_get(player->cta_flag_idx);
     if ((dungeon->cta_start_turn == 0) || !thing_is_object(objtng))
     {
           objtng = create_object(&pos, ObjMdl_CTAEnsign, plyr_idx, -1);
@@ -1713,7 +1713,11 @@ TbResult magic_use_power_call_to_arms(PlayerNumber plyr_idx, MapSubtlCoord stl_x
           dungeon->cta_splevel = splevel;
           dungeon->cta_stl_x = stl_x;
           dungeon->cta_stl_y = stl_y;
-          player->field_43C = objtng->index;
+          if (flag_is_set(mod_flags, PwMod_CastForFree))
+          {
+              dungeon->cta_free = 1;
+          }
+          player->cta_flag_idx = objtng->index;
           objtng->mappos.z.val = get_thing_height_at(objtng, &objtng->mappos);
           set_call_to_arms_as_birthing(objtng);
           SYNCDBG(9,"Created birthing CTA");
@@ -1770,10 +1774,9 @@ TbResult magic_use_power_possess_thing(PlayerNumber plyr_idx, struct Thing *thin
     }
     player = get_player(plyr_idx);
     player->influenced_thing_idx = thing->index;
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    playeradd->first_person_dig_claim_mode = false;
-    playeradd->teleport_destination = 18; // reset to default behaviour
-    playeradd->battleid = 1;
+    player->first_person_dig_claim_mode = false;
+    player->teleport_destination = 18; // reset to default behaviour
+    player->battleid = 1;
     // Note that setting Direct Control player instance requires player->influenced_thing_idx to be set correctly
     set_player_instance(player, PI_DirctCtrl, 0);
     if (is_my_player(player)) {
@@ -1787,7 +1790,7 @@ void magic_power_hold_audience_update(PlayerNumber plyr_idx)
     struct Dungeon *dungeon;
     dungeon = get_players_num_dungeon(plyr_idx);
     SYNCDBG(8,"Starting");
-    if ( game.play_gameturn - dungeon->hold_audience_cast_turn <= game.hold_audience_time) {
+    if ( game.play_gameturn - dungeon->hold_audience_cast_turn <= game.conf.rules.magic.hold_audience_time) {
         return;
     }
     // Dispose hold audience effect
@@ -1895,26 +1898,18 @@ void process_magic_power_call_to_arms(PlayerNumber plyr_idx)
     long duration = game.play_gameturn - dungeon->cta_start_turn;
     const struct MagicStats *pwrdynst = get_power_dynamic_stats(PwrK_CALL2ARMS);
     struct SlabMap *slb = get_slabmap_for_subtile(dungeon->cta_stl_x, dungeon->cta_stl_y);
-    TbBool pay_land = (slabmap_owner(slb) != plyr_idx);
-    if (gameadd.allies_share_cta)
+    TbBool free = ((slabmap_owner(slb) == plyr_idx) || dungeon->cta_free);
+    if (!free)
     {
-        for (PlayerNumber i = 0; i < PLAYERS_COUNT; i++)
+        if ((game.conf.rules.game.allies_share_cta) && (players_are_mutual_allies(plyr_idx, slabmap_owner(slb))))
         {
-            if (players_are_mutual_allies(plyr_idx, i))
-            {
-                if (slabmap_owner(slb) == i)
-                {
-                    pay_land = false;
-                    break;
-                }
-            }
+            free = true;
         }
     }
-    if (((pwrdynst->duration < 1) || ((duration % pwrdynst->duration) == 0)) && pay_land)
+    if (((pwrdynst->duration < 1) || ((duration % pwrdynst->duration) == 0)) && !free)
     {
-        if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel)) {
-            if (is_my_player_number(plyr_idx))
-                output_message(SMsg_GoldNotEnough, 0, true);
+        if (!pay_for_spell(plyr_idx, PwrK_CALL2ARMS, dungeon->cta_splevel))
+        {
             turn_off_power_call_to_arms(plyr_idx);
             return;
         }

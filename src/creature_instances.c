@@ -175,7 +175,7 @@ void creature_increase_available_instances(struct Thing *thing)
             if (crstat->learned_instance_level[i] <= cctrl->explevel+1) {
                 cctrl->instance_available[k] = true;
             }
-            else if ( (crstat->learned_instance_level[i] > cctrl->explevel+1) && !(gameadd.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
+            else if ( (crstat->learned_instance_level[i] > cctrl->explevel+1) && !(game.conf.rules.game.classic_bugs_flags & ClscBug_RebirthKeepsSpells) )
             {
                 cctrl->instance_available[k] = false;   
             }
@@ -747,7 +747,7 @@ long instf_eat(struct Thing *creatng, long *param)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     if (cctrl->hunger_amount > 0)
         cctrl->hunger_amount--;
-    apply_health_to_thing_and_display_health(creatng, game.food_health_gain);
+    apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
     cctrl->hunger_level = 0;
     return 1;
 }
@@ -805,8 +805,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
         ahead_stl_x++;
         ahead_slb_x++;
     }
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    if ( (playeradd->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
+    if ( (player->selected_fp_thing_pickup != 0) || (cctrl->dragtng_idx != 0) )
     {
         set_players_packet_action(player, PckA_DirectCtrlDragDrop, 0, 0, 0, 0);
         return 1;
@@ -839,7 +838,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
     slb = get_slabmap_block(slb_x, slb_y);
     if ( check_place_to_convert_excluding(creatng, slb_x, slb_y) )
     {
-        if (!playeradd->first_person_dig_claim_mode)
+        if (!player->first_person_dig_claim_mode)
         {
             struct SlabAttr* slbattr = get_slab_attrs(slb);
             instf_destroy(creatng, NULL);
@@ -877,7 +876,7 @@ long instf_first_person_do_imp_task(struct Thing *creatng, long *param)
             return 1;
         }
     }
-    else if (playeradd->first_person_dig_claim_mode)
+    else if (player->first_person_dig_claim_mode)
     {
         if (slabmap_owner(slb) == creatng->owner)
         {

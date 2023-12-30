@@ -105,7 +105,8 @@ unsigned char const slabs_to_centre_pieces[] = {
  21, 22, 23, 24, 25,
 };
 
-unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_WhiteFlame, TngEffElm_None };
+unsigned short const room_effect_elements[] = { TngEffElm_RedFlame, TngEffElm_BlueFlame, TngEffElm_GreenFlame, TngEffElm_YellowFlame, TngEffElm_WhiteFlame, 
+                                                TngEffElm_None, TngEffElm_PurpleFlame, TngEffElm_BlackFlame, TngEffElm_OrangeFlame };
 /******************************************************************************/
 #ifdef __cplusplus
 }
@@ -449,7 +450,7 @@ void count_gold_hoardes_in_room(struct Room *room)
 {
     GoldAmount all_gold_amount = 0;
     int all_wealth_size = 0;
-    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // First, set the values to something big; this will prevent logging warnings on add/remove_gold_from_hoarde()
     room->used_capacity = room->total_capacity;
@@ -1232,7 +1233,7 @@ TbBool rectreate_repositioned_body_in_room_on_subtile(struct Room *room, MapSubt
             if (!thing_is_invalid(bodytng))
             {
                 bodytng->corpse.laid_to_rest = 1;
-                bodytng->health = game.graveyard_convert_time;
+                bodytng->health = game.conf.rules.rooms.graveyard_convert_time;
                 rrepos->used--;
                 rrepos->models[ri] = 0;
                 rrepos->explevels[ri] = 0;
@@ -2263,7 +2264,7 @@ short room_grow_food(struct Room *room)
         count_food_in_room(room);
     }
     if ((room->used_capacity >= room->total_capacity)
-      || game.play_gameturn % ((game.food_generation_speed / room->total_capacity) + 1))
+      || game.play_gameturn % ((game.conf.rules.rooms.food_generation_speed / room->total_capacity) + 1))
     {
         return 0;
     }
@@ -2404,7 +2405,7 @@ long calculate_room_efficiency(const struct Room *room)
  */
 unsigned long compute_room_max_health(unsigned short slabs_count,unsigned short efficiency)
 {
-  unsigned long max_health = game.hits_per_slab * slabs_count;
+  unsigned long max_health = game.conf.rules.workers.hits_per_slab * slabs_count;
   return saturate_set_unsigned(max_health, 16);
 }
 
@@ -2431,7 +2432,7 @@ TbBool link_room_health(struct Room* linkroom, struct Room* oldroom)
 TbBool recalculate_room_health(struct Room* room)
 {
     SYNCDBG(7, "Starting for %s index %d", room_code_name(room->kind), (int)room->index);
-    int newhealth = (room->health + game.hits_per_slab);
+    int newhealth = (room->health + game.conf.rules.workers.hits_per_slab);
     int maxhealth = compute_room_max_health(room->slabs_count, room->efficiency);
     
     if ((newhealth <= maxhealth) && (newhealth >= 0))
@@ -4812,7 +4813,7 @@ static void change_ownership_or_delete_object_thing_in_room(struct Room *room, s
         destroy_object(thing);
         return;
     }
-    if ((gameadd.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
+    if ((game.conf.rules.game.classic_bugs_flags & ClscBug_ClaimRoomAllThings) != 0) {
         // Preserve classic bug - object is claimed with the room
         thing->owner = newowner;
         return;

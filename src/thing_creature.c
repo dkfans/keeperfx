@@ -241,7 +241,7 @@ long check_for_first_person_barrack_party(struct Thing *grthing)
                 add_creature_to_group(thing, grthing);
             }
             n++;
-            if (n >= game.barrack_max_party_size || n >= GROUP_MEMBERS_COUNT)
+            if (n >= game.conf.rules.rooms.barrack_max_party_size || n >= GROUP_MEMBERS_COUNT)
             {
                 break;
             }
@@ -663,7 +663,7 @@ void food_eaten_by_creature(struct Thing *foodtng, struct Thing *creatng)
         if (cctrl->hunger_loss < 255) {
               cctrl->hunger_loss++;
         }
-        apply_health_to_thing_and_display_health(creatng, game.food_health_gain);
+        apply_health_to_thing_and_display_health(creatng, game.conf.rules.health.food_health_gain);
         cctrl->hunger_level = 0;
     }
     // Food is destroyed just below, so the sound must be made by creature
@@ -1309,7 +1309,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
     if (cspell->duration == spconf->duration / 2)
     {
         PlayerNumber plyr_idx = get_appropriate_player_for_creature(thing);
-        struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+        struct PlayerInfo* player = get_player(plyr_idx);
         struct Coord3d pos;
         pos.x.val = subtile_coord_center(cctrl->teleport_x);
         pos.y.val = subtile_coord_center(cctrl->teleport_y);
@@ -1330,7 +1330,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             }
             const struct Coord3d* newpos = NULL;
             struct Coord3d room_pos;
-            switch(playeradd->teleport_destination)
+            switch(player->teleport_destination)
             {
                 case 6: // Dungeon Heart
                 {
@@ -1342,16 +1342,16 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     if (active_battle_exists(thing->owner))
                     {
                         long count = 0;
-                        if (playeradd->battleid > BATTLES_COUNT)
+                        if (player->battleid > BATTLES_COUNT)
                         {
-                            playeradd->battleid = 1;
+                            player->battleid = 1;
                         }
-                        for (i = playeradd->battleid; i <= BATTLES_COUNT; i++)
+                        for (i = player->battleid; i <= BATTLES_COUNT; i++)
                         {
                             if (i > BATTLES_COUNT)
                             {
                                 i = 1;
-                                playeradd->battleid = 1;
+                                player->battleid = 1;
                             }
                             count++;
                             struct CreatureBattle* battle = creature_battle_get(i);
@@ -1363,19 +1363,19 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                                 {
                                     pos.x.val = tng->mappos.x.val;
                                     pos.y.val = tng->mappos.y.val;
-                                    playeradd->battleid = i + 1;
+                                    player->battleid = i + 1;
                                     break;
                                 }
                             }
                             if (count >= BATTLES_COUNT)
                             {
-                                playeradd->battleid = 1;
+                                player->battleid = 1;
                                 break;
                             }
                             if (i >= BATTLES_COUNT)
                             {
                                 i = 0;
-                                playeradd->battleid = 1;
+                                player->battleid = 1;
                                 continue;
                             }
                         }
@@ -1414,13 +1414,13 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                 }
                 default:
                 {
-                    rkind = zoom_key_room_order[playeradd->teleport_destination];
+                    rkind = zoom_key_room_order[player->teleport_destination];
                 }
             }
             if (rkind > 0)
             {
                 long count = 0;
-                if (playeradd->nearest_teleport)
+                if (player->nearest_teleport)
                 {
                     room = find_room_nearest_to_position(thing->owner, rkind, &thing->mappos, &distance);
                 }
@@ -1509,7 +1509,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             thing->veloc_push_add.z.val += CREATURE_RANDOM(thing, 96) + 40;
             thing->state_flags |= TF1_PushAdd;
         }
-        playeradd->teleport_destination = 18;
+        player->teleport_destination = 18;
     }
 }
 
@@ -2256,6 +2256,16 @@ void creature_rebirth_at_lair(struct Thing *thing)
     if (cctrl->explevel > 0)
         set_creature_level(thing, cctrl->explevel-1);
     thing->health = cctrl->max_health;
+    if (creature_affected_by_spell(thing, SplK_TimeBomb))
+    {
+        cctrl->spell_flags &= ~CSAfF_Timebomb;
+        cctrl->timebomb_target_id = 0;
+        cctrl->timebomb_death = false;
+        thing->veloc_push_add.x.val = 0;
+        thing->veloc_push_add.y.val = 0;
+        thing->state_flags &= ~TF1_PushAdd;
+        cleanup_current_thing_state(thing);
+    }
     if (thing_is_invalid(lairtng))
         return;
     create_effect(&thing->mappos, TngEff_HarmlessGas2, thing->owner);
@@ -2274,7 +2284,7 @@ void throw_out_gold(struct Thing *thing)
     int num_pots_to_drop;
     // Compute if we want bags or pots
     int dropject = 6; //GOLD object
-    if ((game.pot_of_gold_holds > gameadd.bag_gold_hold) && (thing->creature.gold_carried <= gameadd.bag_gold_hold))
+    if ((game.conf.rules.game.pot_of_gold_holds > game.conf.rules.game.bag_gold_hold) && (thing->creature.gold_carried <= game.conf.rules.game.bag_gold_hold))
     {
             dropject = 136; //Drop GOLD_BAG object when we're dealing with small amounts
             num_pots_to_drop = 1;
@@ -2282,7 +2292,7 @@ void throw_out_gold(struct Thing *thing)
     else //drop pots
     {
         // Compute how many pots we want to drop
-        num_pots_to_drop = ((thing->creature.gold_carried + game.pot_of_gold_holds - 1) / game.pot_of_gold_holds);
+        num_pots_to_drop = ((thing->creature.gold_carried + game.conf.rules.game.pot_of_gold_holds - 1) / game.conf.rules.game.pot_of_gold_holds);
         if (num_pots_to_drop > 8)
         {
             num_pots_to_drop = 8;
@@ -2549,7 +2559,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
         return INVALID_THING;
     }
     // Beyond this point, the creature thing is bound to be deleted
-    if (((flags & CrDed_NotReallyDying) == 0) || ((gameadd.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
+    if (((flags & CrDed_NotReallyDying) == 0) || ((game.conf.rules.game.classic_bugs_flags & ClscBug_ResurrectRemoved) != 0))
     {
         // If the creature is leaving dungeon, or being transformed, then CrDed_NotReallyDying should be set
         update_dead_creatures_list_for_owner(thing);
@@ -2725,13 +2735,13 @@ struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
         cctrlgrp->unknown_state.byte_9A++;
     }
     if (!dungeon_invalid(dungeon)) {
-        dungeon->hates_player[killertng->owner] += game.fight_hate_kill_value;
+        dungeon->hates_player[killertng->owner] += game.conf.rules.creature.fight_hate_kill_value;
     }
     SYNCDBG(18,"Almost finished");
     if (((flags & CrDed_NoUnconscious) != 0) || (!player_has_room_of_role(killertng->owner,RoRoF_Prison))
       || (!player_creature_tends_to(killertng->owner,CrTend_Imprison)) ||
-        ((get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= gameadd.stun_enemy_chance_evil)) ||
-        (!(get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= gameadd.stun_enemy_chance_good)) ||
+        ((get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_evil)) ||
+        (!(get_creature_model_flags(creatng) & CMF_IsEvil) && (CREATURE_RANDOM(creatng, 100) >= game.conf.rules.creature.stun_enemy_chance_good)) ||
         (get_creature_model_flags(creatng) & CMF_NoImprisonment) )
     {
         if ((flags & CrDed_NoEffects) == 0) {
@@ -4785,7 +4795,7 @@ long player_list_creature_filter_needs_to_be_placed_in_room_for_job(const struct
     // If it's angry but not furious, or has lost health due to disease,
     // then should be placed in temple
     if ((anger_is_creature_angry(thing) ||
-     (creature_affected_by_spell(thing, SplK_Disease) && (health_permil <= (gameadd.disease_to_temple_pct*10))))
+     (creature_affected_by_spell(thing, SplK_Disease) && (health_permil <= (game.conf.rules.computer.disease_to_temple_pct*10))))
      && creature_can_do_job_for_player(thing, dungeon->owner, Job_TEMPLE_PRAY, JobChk_None))
     {
         // If already at temple, then don't do anything
@@ -5631,7 +5641,7 @@ int claim_neutral_creatures_in_sight(struct Thing *creatng, struct Coord3d *pos,
                 // Unless the relevant classic bug is enabled,
                 // neutral creatures in custody (prison/torture) can only be claimed by the player who holds it captive
                 // and neutral creatures can not be claimed by creatures in custody.
-                if ((gameadd.classic_bugs_flags & ClscBug_PassiveNeutrals)
+                if ((game.conf.rules.game.classic_bugs_flags & ClscBug_PassiveNeutrals)
                     || (get_room_creature_works_in(thing)->owner == creatng->owner && !creature_is_kept_in_custody(creatng))
                     || !(creature_is_kept_in_custody(thing) || creature_is_kept_in_custody(creatng)))
                 {
@@ -5729,7 +5739,7 @@ void create_light_for_possession(struct Thing *creatng)
     ilght.mappos.x.val = creatng->mappos.x.val;
     ilght.mappos.y.val = creatng->mappos.y.val;
     ilght.mappos.z.val = creatng->mappos.z.val;
-    ilght.field_3 = 1;
+    ilght.flags = 1;
     ilght.intensity = 36;
     ilght.radius = 2560;
     ilght.is_dynamic = 1;
@@ -6085,12 +6095,12 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
-    struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
+    struct PlayerInfo* player = get_player(plyr_idx);
     if (!thing_is_invalid(dragtng))
     {
         if (thing_is_trap_crate(dragtng))
         {
-            struct Thing *traptng = thing_get(playeradd->selected_fp_thing_pickup);
+            struct Thing *traptng = thing_get(player->selected_fp_thing_pickup);
             if (!thing_is_invalid(traptng))
             {
                 if (traptng->class_id == TCls_Trap)
@@ -6105,7 +6115,7 @@ void direct_control_pick_up_or_drop(PlayerNumber plyr_idx, struct Thing *creatng
     }
     else
     {
-        struct Thing* picktng = thing_get(playeradd->selected_fp_thing_pickup);
+        struct Thing* picktng = thing_get(player->selected_fp_thing_pickup);
         struct Room* room;
         if (!thing_is_invalid(picktng))
         {

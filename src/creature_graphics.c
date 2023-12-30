@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 
+#include "player_data.h"
 #include "thing_creature.h"
 #include "config_creature.h"
 #include "creature_instances.h"
@@ -336,12 +337,12 @@ short get_creature_anim(struct Thing *thing, unsigned short seq_idx)
 void untint_thing(struct Thing *thing)
 {
     thing->tint_colour = 0;
-    thing->rendering_flags &= ~(TRF_Unknown04|TRF_Unknown08);
+    thing->rendering_flags &= ~(TRF_Tint_1|TRF_Tint_2);
 }
 
 void tint_thing(struct Thing *thing, TbPixel colour, unsigned char tint)
 {
-    thing->rendering_flags ^= (thing->rendering_flags ^ (tint << 2)) & (TRF_Unknown04|TRF_Unknown08);
+    thing->rendering_flags ^= (thing->rendering_flags ^ (tint << 2)) & (TRF_Tint_1|TRF_Tint_2);
     thing->tint_colour = colour;
 }
 
@@ -523,29 +524,12 @@ void update_creature_graphic_tint(struct Thing *thing)
     {
         untint_thing(thing);
     } else
-    if ((game.play_gameturn % 3) == 0)
+    if (((game.play_gameturn % 3) == 0) || is_hero_thing(thing))
     {
         untint_thing(thing);
     } else
     {
-        switch (thing->owner) //TODO: move player colors to array
-        {
-        case 0:
-            tint_thing(thing, colours[15][0][0], 1);
-            break;
-        case 1:
-            tint_thing(thing, colours[0][0][15], 1);
-            break;
-        case 2:
-            tint_thing(thing, colours[0][15][0], 1);
-            break;
-        case 3:
-            tint_thing(thing, colours[13][13][2], 1);
-            break;
-        default:
-            untint_thing(thing);
-            break;
-        }
+        tint_thing(thing, possession_hit_colours[get_player_color_idx(thing->owner)], 1);
     }
 }
 

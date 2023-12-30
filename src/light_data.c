@@ -177,7 +177,7 @@ long light_create_light(struct InitLight *ilght)
     lgt->mappos.z.val = ilght->mappos.z.val;
     lgt->radius = ilght->radius;
     lgt->intensity = ilght->intensity;
-    lgt->flags2 |= ilght->field_3 << 1;
+    lgt->flags2 |= ilght->flags << 1;
 
     set_flag_value(lgt->flags, LgtF_Dynamic, ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
@@ -2244,12 +2244,12 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
         }
         if ( (lgt->flags & LgtF_Unkn20) != 0 )
         {
-          if ( lgt->field_3 == 1 )
+          if ( lgt->intensity_toggling_field == 1 )
           {
             if ( lgt->intensity_delta + lgt->intensity >= lgt->max_intensity )
             {
               lgt->intensity = lgt->max_intensity;
-              lgt->field_3 = 2;
+              lgt->intensity_toggling_field = 2;
             }
             else
             {
@@ -2261,7 +2261,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
             if ( lgt->intensity - lgt->intensity_delta <= lgt->max_intensity )
             {
               lgt->intensity = lgt->max_intensity;
-              lgt->field_3 = 1;
+              lgt->intensity_toggling_field = 1;
             }
             else
             {

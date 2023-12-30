@@ -1011,10 +1011,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (strcasecmp(pr2str, "all") == 0)
             {
-                for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
+                for (PowerKind pw = game.conf.magic_conf.power_types_count - 1; pw > PwrK_HAND; pw--)
                 {
+                    if ( (pw == PwrK_PICKUPCRTR) || (pw == PwrK_PICKUPGOLD) || (pw == PwrK_PICKUPFOOD) )
+                    {
+                        continue;
+                    }
                     if (!set_power_available(plyr_idx, pw, 1, 1))
-                        WARNLOG("Setting power %s availability for player %d failed.", power_code_name(pw), 1);
+                        WARNLOG("Setting power %s availability for player %d failed.", power_code_name(pw), plyr_idx);
                 }
                 update_powers_tab_to_config();
                 return true;
@@ -1027,7 +1031,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     power = atoi(pr2str);
                 }
                 if (!set_power_available(plyr_idx, power, 1, 1))
-                    WARNLOG("Setting power %s availability for player %d failed.", power_code_name(power), 1);
+                    WARNLOG("Setting power %s availability for player %d failed.", power_code_name(power), plyr_idx);
                 update_powers_tab_to_config();
                 return true;
             }
@@ -1510,8 +1514,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     bug = atoi(pr2str);
                 }
                 unsigned long flg = (bug > 2) ? (1 << (bug - 1)) : bug;
-                toggle_flag(gameadd.classic_bugs_flags, flg);
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((gameadd.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
+                toggle_flag(game.conf.rules.game.classic_bugs_flags, flg);
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules.game.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
                 return true;
             }
         }

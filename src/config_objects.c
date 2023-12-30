@@ -716,7 +716,7 @@ void update_all_object_stats()
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
-        i = thing->next_of_class
+        i = thing->next_of_class;
             TRACE_THING(thing);
         struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
         int start_frame = 0;
@@ -753,7 +753,7 @@ void update_all_object_stats()
             LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
             ilight.radius = objst->ilght.radius;
             ilight.intensity = objst->ilght.intensity;
-            ilight.field_3 = objst->ilght.field_3;
+            ilight.flags = objst->ilght.flags;
             ilight.is_dynamic = objst->ilght.is_dynamic;
             thing->light_id = light_create_light(&ilight);
         }
@@ -863,11 +863,11 @@ int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmode
 
 void init_objects(void)
 {
-    game.conf.object_conf.object_cfgstats[ObjMdl_Torch].ilght.field_3 = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_HeroGate].ilght.field_3 = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_StatueLit].ilght.field_3 = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_SoulCountainer].ilght.field_3 = 5;
-    game.conf.object_conf.object_cfgstats[ObjMdl_Candlestick].ilght.field_3 = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_Torch].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_HeroGate].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_StatueLit].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_SoulCountainer].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_Candlestick].ilght.flags = 5;
 }
 
 /******************************************************************************/

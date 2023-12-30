@@ -98,7 +98,7 @@ struct LegacyInitActionPoint { // sizeof = 8
 struct LegacyInitLight { // sizeof=0x14
     short radius;
     unsigned char intensity;
-    unsigned char field_3;
+    unsigned char flags;
     short field_4_unused;
     short field_6_unused;
     short field_8_unused;
@@ -1168,8 +1168,7 @@ TbBool initialise_map_wlb_auto(void)
           n = slb->kind;
         }
         slbattr = get_slab_kind_attrs(n);
-        n = (slbattr->wlb_type << 3);
-        slb->flags ^= (slb->flags ^ n) & (0x10|0x08);
+        slb->wlb_type = slbattr->wlb_type;
       }
     SYNCMSG("Regenerated WLB flags, unsure for %d bridge blocks.",(int)nbridge);
     return true;
@@ -1196,16 +1195,14 @@ TbBool load_map_wlb_file(unsigned long lv_num)
       for (x=0; x < gameadd.map_tiles_x; x++)
       {
         slb = get_slabmap_block(x,y);
-        n = (buf[i] << 3);
-        n = slb->flags ^ ((slb->flags ^ n) & 0x18);
-        slb->flags = n;
-        n &= (0x08|0x10);
-        if ((n != 0x10) || (slb->kind != SlbT_WATER))
-          if ((n != 0x08) || (slb->kind != SlbT_LAVA))
-            if (((n == 0x10) || (n == 0x08)) && (slb->kind != SlbT_BRIDGE))
+        n = buf[i];
+        slb->wlb_type = buf[i];
+        if ((n != WlbT_Water) || (slb->kind != SlbT_WATER))
+          if ((n != WlbT_Lava) || (slb->kind != SlbT_LAVA))
+            if (((n == WlbT_Water) || (n == WlbT_Lava)) && (slb->kind != SlbT_BRIDGE))
             {
                 nfixes++;
-                slb->flags &= ~(0x08|0x10);
+                slb->wlb_type = WlbT_None;
             }
         i++;
       }
@@ -1314,7 +1311,7 @@ static TbBool load_static_light_file(unsigned long lv_num)
         struct InitLight ilght;
         LbMemoryCopy(&legilght, &buf[i], sizeof(struct LegacyInitLight));
         ilght.attached_slb = legilght.attached_slb;
-        ilght.field_3      = legilght.field_3;
+        ilght.flags      = legilght.flags;
         ilght.intensity    = legilght.intensity;
         ilght.is_dynamic   = legilght.is_dynamic;
         ilght.radius       = legilght.radius;
