@@ -836,7 +836,7 @@ TbBool draw_spell_cursor(unsigned char wrkstate, unsigned short tng_idx, MapSubt
         set_pointer_graphic(MousePG_DenyMark);
         return false;
     }
-    Expand_Check_Func chkfunc = powerst->overcharge_check;
+    Expand_Check_Func chkfunc = powermodel_expand_check_func_list[powerst->overcharge_check_idx];
     if (chkfunc != NULL)
     {
         if (chkfunc())
