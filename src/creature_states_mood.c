@@ -358,6 +358,15 @@ TbBool anger_make_creature_angry(struct Thing *creatng, AnnoyMotive reason)
     return true;
 }
 
+TbBool anger_make_creature_very_angry(struct Thing* creatng, AnnoyMotive reason)
+{
+    struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
+    if ((crstat->annoy_level <= 0))
+        return false;
+    anger_increase_creature_anger(creatng, (crstat->annoy_level * 2), reason);
+    return true;
+}
+
 TbBool creature_mark_if_woken_up(struct Thing *creatng)
 {
     if (creature_is_sleeping(creatng))

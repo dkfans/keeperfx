@@ -46,6 +46,7 @@ enum SacrificeAction {
 enum UniqueFunctions {
     UnqF_None = 0,
     UnqF_MkAllAngry,
+    UnqF_MkAllVerAngry,
     UnqF_ComplResrch,
     UnqF_ComplManufc,
     UnqF_KillChickns,
