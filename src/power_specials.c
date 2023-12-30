@@ -450,6 +450,10 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
           break;
         case SpcKind_HealAll:
         case SpcKind_GetGold:
+            throw_out_gold(cratetng, 6666);
+            remove_events_thing_is_attached_to(cratetng);
+            used = 1;
+            delete_thing_structure(cratetng, 0);
         case SpcKind_MakeAngry:
         case SpcKind_Custom:
         default:
