@@ -4023,7 +4023,6 @@ static void play_message_check(const struct ScriptLine *scline)
         return;
     }
     value->chars[0] = scline->np[0];
-    value->chars[1] = msgtype_id;
     if (parameter_is_number(scline->tp[2]))
     {
         value->shorts[1] = atoi(scline->tp[2]);
