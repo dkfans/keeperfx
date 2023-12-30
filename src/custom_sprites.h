@@ -33,6 +33,7 @@ void init_custom_sprites(LevelNumber level_no);
 short get_anim_id(const char *name, struct ObjectConfigStats* objst);
 short get_icon_id(const char *name);
 const struct TbSprite *get_button_sprite(short sprite_idx);
+const struct TbSprite *get_button_sprite_direct(short sprite_idx);
 const struct TbSprite *get_frontend_sprite(short sprite_idx);
 const struct TbSprite *get_new_icon_sprite(short sprite_idx);
 int is_custom_icon(short icon_idx);

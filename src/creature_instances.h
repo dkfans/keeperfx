@@ -101,7 +101,7 @@ struct InstanceInfo {
     short flags;
     short force_visibility;
     unsigned char primary_target;
-    Creature_Instf_Func func_cb;
+    unsigned char func_idx;
     long func_params[2];
     long range_min;
     long range_max;

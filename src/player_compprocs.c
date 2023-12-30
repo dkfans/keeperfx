@@ -1206,7 +1206,7 @@ static long computer_look_for_opponent(struct Computer2 *comp, MapSubtlCoord stl
                 struct SlabAttr *slbattr = get_slab_kind_attrs(slb->kind);
                 if (slab_owner != game.neutral_player_num || (!any_flag_is_set(slbattr->block_flags, (SlbAtFlg_Valuable | SlbAtFlg_Digable | SlbAtFlg_Filled)) && slb->kind != SlbT_LAVA))
                 {
-                    if (!flag_is_set(potential_opponents, to_flag(slab_owner)) && (get_slabmap_for_subtile(stl_x_current,stl_y_current)->flags & 7) == slab_owner)
+                    if (!flag_is_set(potential_opponents, to_flag(slab_owner)) && (get_slabmap_for_subtile(stl_x_current,stl_y_current)->owner) == slab_owner)
                     {
                         if ((block_flags = slbattr->block_flags,
                              (!flag_is_set(block_flags, SlbAtFlg_Blocking)) &&

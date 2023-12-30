@@ -200,7 +200,7 @@ enum GUIButtonSprite {
 	GBS_borders_frame_thck_mr = 213,
 	GBS_creature_portrait_avatr = 214,
 
-	GUI_BUTTON_SPRITES_COUNT = 215,
+	GUI_BUTTON_SPRITES_COUNT = 239,
 };
 
 // Based on gui2-64/filelist_gui2.txt
@@ -738,7 +738,7 @@ enum GUIPanelSprite {
     GPS_keepower_timebomb_std_l = 566,
     GPS_keepower_timebomb_dis_l = 567,
 
-	GUI_PANEL_SPRITES_COUNT = 700,
+	GUI_PANEL_SPRITES_COUNT = 800,
 	GUI_PANEL_SPRITES_NEW = 256,
 	NEW_GUI_PANEL_SPRITES_COUNT = GUI_PANEL_SPRITES_COUNT + GUI_PANEL_SPRITES_NEW,
 };
