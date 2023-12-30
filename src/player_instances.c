@@ -243,7 +243,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
           thing->move_angle_xy = player->acamera->orient_a;
           if (thing->model != ShM_SolidBoulder) //TODO CONFIG shot model dependency, make config option instead
           {
-              thing->health -= game.boulder_reduce_health_slap;
+              thing->health -= game.conf.rules.game.boulder_reduce_health_slap;
           }
       } else
       {
@@ -251,7 +251,7 @@ long pinstfe_hand_whip(struct PlayerInfo *player, long *n)
       }
       break;
   case TCls_Trap:
-      trapst = &gameadd.trapdoor_conf.trap_cfgstats[thing->model];
+      trapst = &game.conf.trapdoor_conf.trap_cfgstats[thing->model];
       if ((trapst->slappable == 1) && trap_is_active(thing))
       {
           external_activate_trap_shot_at_angle(thing, player->acamera->orient_a, thing_get(player->hand_thing_idx));
@@ -828,7 +828,10 @@ long pinstfe_zoom_to_position(struct PlayerInfo *player, long *n)
 {
     player->allocflags &= ~PlaF_MouseInputDisabled;
     player->allocflags &= ~PlaF_KeyboardInputDisabled;
-    player->controlled_thing_idx = player->influenced_thing_idx;
+    if ( (player->work_state == PSt_CreatrInfo) || (player->work_state == PSt_CreatrInfoAll) )
+    {
+        player->controlled_thing_idx = player->influenced_thing_idx;
+    }
     return 0;
 }
 
@@ -1121,8 +1124,7 @@ struct Room *player_build_room_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Play
             room_code_name(rkind),(int)stl_x,(int)stl_y);
         if (is_my_player(player))
         {
-            struct PlayerInfoAdd* playeradd = get_playeradd(plyr_idx);
-            if (!playeradd->roomspace.is_active)
+            if (!player->roomspace.is_active)
             {
                 play_non_3d_sample(119);
             }
@@ -1192,7 +1194,7 @@ TbBool player_place_trap_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumb
     }
     struct Coord3d pos;
     struct PlayerInfo* player = get_player(plyr_idx);
-    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!gameadd.place_traps_on_subtiles))
+    if ((player->chosen_trap_kind == TngTrp_Boulder) || (!game.conf.rules.game.place_traps_on_subtiles))
     {
         set_coords_to_slab_center(&pos,subtile_slab(stl_x),subtile_slab(stl_y));
     }

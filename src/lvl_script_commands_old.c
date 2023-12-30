@@ -1168,7 +1168,7 @@ static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
       SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
       return;
   }
-  struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_id];
+  struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
       SCRPTERRLOG("Unable to swap special diggers");
@@ -1297,15 +1297,6 @@ static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, co
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
   }
-  PowerKind pwr = mag_id;
-  if((PlayerNumber) plr_range_id > PLAYER3)
-  {
-    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
-  }
 
   // encode params: free, magic, level -> into 3xbyte: FML
   long fml_bytes;
@@ -1335,15 +1326,6 @@ static void command_use_power_at_location(long plr_range_id, const char *locname
   {
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
-  }
-  PowerKind pwr = mag_id;
-  if((PlayerNumber) plr_range_id > PLAYER3)
-  {
-    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
   }
 
   TbMapLocation location;

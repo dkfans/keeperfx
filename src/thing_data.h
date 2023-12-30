@@ -60,8 +60,8 @@ enum ThingRenderingFlags {
     TRF_Unknown01     = 0x01, /** Not Drawn **/
     TRF_Unshaded     = 0x02, // Not shaded
 
-    TRF_Unknown04     = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
-    TRF_Unknown08     = 0x08, // Tint2 (not used?)
+    TRF_Tint_1        = 0x04, // Tint1 (used to draw enemy creatures when they are blinking to owners color)
+    TRF_Tint_2        = 0x08, // Tint2 (not used?)
     TRF_Tint_Flags    = 0x0C, // Tint flags
 
     TRF_Transpar_8     = 0x10, // Used on chicken effect when creature is turned to chicken

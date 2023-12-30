@@ -55,11 +55,13 @@ const struct NamedCommand effect_generator_commands[] = {
 };
 
 long const imp_spangle_effects[] = {
-    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite, TngEff_None,
+    TngEff_ImpSpangleRed, TngEff_ImpSpangleBlue, TngEff_ImpSpangleGreen, TngEff_ImpSpangleYellow, TngEff_ImpSpangleWhite, 
+    TngEff_None, TngEff_ImpSpanglePurple, TngEff_ImpSpangleBlack, TngEff_ImpSpangleOrange
 };
 
 long const ball_puff_effects[] = {
-    TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, TngEff_BallPuffWhite,
+    TngEff_BallPuffRed, TngEff_BallPuffBlue, TngEff_BallPuffGreen, TngEff_BallPuffYellow, TngEff_BallPuffWhite, 
+    TngEff_BallPuffWhite, TngEff_BallPuffPurple, TngEff_BallPuffBlack, TngEff_BallPuffOrange
 };
 
 /******************************************************************************/
@@ -80,7 +82,7 @@ static void load_effects(VALUE *value, unsigned short flags)
         }
         if (value_type(section) == VALUE_DICT)
         {
-            struct EffectConfigStats *effcst = &gameadd.effects_conf.effect_cfgstats[id];
+            struct EffectConfigStats *effcst = &game.conf.effects_conf.effect_cfgstats[id];
 
             SET_NAME(section,effect_desc,effcst->code_name);
 
@@ -94,7 +96,7 @@ static void load_effects(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind",effcst->affected_by_wind);
             CONDITIONAL_ASSIGN_INT(section,"LightRadius"   ,effcst->ilght.radius    );
             CONDITIONAL_ASSIGN_INT(section,"LightIntensity",effcst->ilght.intensity );
-            CONDITIONAL_ASSIGN_INT(section,"LightFlags"    ,effcst->ilght.field_3   );
+            CONDITIONAL_ASSIGN_INT(section,"LightFlags"    ,effcst->ilght.flags   );
             CONDITIONAL_ASSIGN_INT(section,"ElementsCount" ,effcst->elements_count  );
             CONDITIONAL_ASSIGN_INT(section,"AlwaysGenerate",effcst->always_generate );
         }
@@ -113,7 +115,7 @@ static void load_effectsgenerators(VALUE *value, unsigned short flags)
         }
         if (value_type(section) == VALUE_DICT)
         {
-            struct EffectGeneratorConfigStats *effgencst = &gameadd.effects_conf.effectgen_cfgstats[id];
+            struct EffectGeneratorConfigStats *effgencst = &game.conf.effects_conf.effectgen_cfgstats[id];
 
             SET_NAME(section,effectgen_desc,effgencst->code_name);
 
@@ -144,7 +146,7 @@ static void load_effectelements(VALUE *value, unsigned short flags)
         }
         if (value_type(section) == VALUE_DICT)
         {
-            struct EffectElementConfigStats *effelcst = &gameadd.effects_conf.effectelement_cfgstats[id];
+            struct EffectElementConfigStats *effelcst = &game.conf.effects_conf.effectelement_cfgstats[id];
 
             SET_NAME(section,effectelem_desc,effelcst->code_name);
 
@@ -187,7 +189,7 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"TransformModel", effelcst->transform_model  );
             CONDITIONAL_ASSIGN_INT(section,"LightRadius",    effelcst->light_radius     );
             CONDITIONAL_ASSIGN_INT(section,"LightIntensity", effelcst->light_intensity  );
-            CONDITIONAL_ASSIGN_INT(section,"LightFlags",     effelcst->light_field_3D   );
+            CONDITIONAL_ASSIGN_INT(section,"LightFlags",     effelcst->light_flags   );
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind", effelcst->affected_by_wind );
         }
     }
@@ -250,15 +252,15 @@ const char *effectgenerator_code_name(ThingModel tngmodel)
 struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel)
 {
     if (tngmodel >= EFFECTSGEN_TYPES_MAX)
-        return &gameadd.effects_conf.effectgen_cfgstats[0];
-    return &gameadd.effects_conf.effectgen_cfgstats[tngmodel];
+        return &game.conf.effects_conf.effectgen_cfgstats[0];
+    return &game.conf.effects_conf.effectgen_cfgstats[tngmodel];
 }
 
 struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel)
 {
     if (tngmodel >= EFFECTS_TYPES_MAX)
-        return &gameadd.effects_conf.effect_cfgstats[0];
-    return &gameadd.effects_conf.effect_cfgstats[tngmodel];
+        return &game.conf.effects_conf.effect_cfgstats[0];
+    return &game.conf.effects_conf.effect_cfgstats[tngmodel];
 }
 
 short effect_or_effect_element_id(const char * code_name)

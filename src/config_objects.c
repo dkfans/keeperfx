@@ -107,23 +107,23 @@ struct NamedCommand object_desc[OBJECT_TYPES_MAX];
 /******************************************************************************/
 struct ObjectConfigStats *get_object_model_stats(ThingModel tngmodel)
 {
-    if (tngmodel >= gameadd.object_conf.object_types_count)
-        return &gameadd.object_conf.object_cfgstats[0];
-    return &gameadd.object_conf.object_cfgstats[tngmodel];
+    if (tngmodel >= game.conf.object_conf.object_types_count)
+        return &game.conf.object_conf.object_cfgstats[0];
+    return &game.conf.object_conf.object_cfgstats[tngmodel];
 }
 
 ThingClass crate_to_workshop_item_class(ThingModel tngmodel)
 {
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.workshop_object_class[0];
-    return gameadd.object_conf.workshop_object_class[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.workshop_object_class[0];
+    return game.conf.object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_to_workshop_item_model(ThingModel tngmodel)
 {
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.object_to_door_or_trap[0];
-    return gameadd.object_conf.object_to_door_or_trap[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.object_to_door_or_trap[0];
+    return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
 ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
@@ -131,19 +131,19 @@ ThingClass crate_thing_to_workshop_item_class(const struct Thing *thing)
     if (!thing_is_workshop_crate(thing))
         return thing->class_id;
     ThingModel tngmodel = thing->model;
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.workshop_object_class[0];
-    return gameadd.object_conf.workshop_object_class[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.workshop_object_class[0];
+    return game.conf.object_conf.workshop_object_class[tngmodel];
 }
 
 ThingModel crate_thing_to_workshop_item_model(const struct Thing *thing)
 {
     if (thing_is_invalid(thing) || (thing->class_id != TCls_Object))
-        return gameadd.object_conf.object_to_door_or_trap[0];
+        return game.conf.object_conf.object_to_door_or_trap[0];
     ThingModel tngmodel = thing->model;
-    if ((tngmodel <= 0) || (tngmodel >= gameadd.object_conf.object_types_count))
-        return gameadd.object_conf.object_to_door_or_trap[0];
-    return gameadd.object_conf.object_to_door_or_trap[tngmodel];
+    if ((tngmodel <= 0) || (tngmodel >= game.conf.object_conf.object_types_count))
+        return game.conf.object_conf.object_to_door_or_trap[0];
+    return game.conf.object_conf.object_to_door_or_trap[tngmodel];
 }
 
 TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -152,7 +152,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        gameadd.object_conf.object_types_count = OBJECT_TYPES_MAX - 1;
+        game.conf.object_conf.object_types_count = OBJECT_TYPES_MAX - 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -183,7 +183,7 @@ TbBool parse_objects_common_blocks(char *buf, long len, const char *config_textn
               k = atoi(word_buf);
               if ((k > 0) && (k <= OBJECT_TYPES_MAX))
               {
-                  gameadd.object_conf.object_types_count = k;
+                  game.conf.object_conf.object_types_count = k;
                   n++;
               }
             }
@@ -218,15 +218,15 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
     int arr_size;
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        arr_size = sizeof(gameadd.object_conf.object_cfgstats)/sizeof(gameadd.object_conf.object_cfgstats[0]);
+        arr_size = sizeof(game.conf.object_conf.object_cfgstats)/sizeof(game.conf.object_conf.object_cfgstats[0]);
         for (tmodel=0; tmodel < arr_size; tmodel++)
         {
-            objst = &gameadd.object_conf.object_cfgstats[tmodel];
+            objst = &game.conf.object_conf.object_cfgstats[tmodel];
             LbMemorySet(objst->code_name, 0, COMMAND_WORD_LEN);
             objst->name_stridx = 201;
             objst->map_icon = 0;
             objst->genre = 0;
-            if (tmodel < gameadd.object_conf.object_types_count)
+            if (tmodel < game.conf.object_conf.object_types_count)
             {
                 object_desc[tmodel].name = objst->code_name;
                 object_desc[tmodel].num = tmodel;
@@ -249,10 +249,10 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             if ((flags & CnfLd_AcceptPartial) == 0)
             {
                 // Just count all found blocks if we didn't that already
-                if (gameadd.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
+                if (game.conf.object_conf.object_types_count == OBJECT_TYPES_MAX - 1)
                 {
-                    gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Loaded %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
+                    game.conf.object_conf.object_types_count = tmodel;
+                    JUSTMSG("Loaded %d object types from %s", game.conf.object_conf.object_types_count, config_textname);
                     break;
                 }
                 WARNMSG("Block [%s] not found in %s file.", block_buf, config_textname);
@@ -260,17 +260,17 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
             }
             else
             {
-                if (tmodel > gameadd.object_conf.object_types_count)
+                if (tmodel > game.conf.object_conf.object_types_count)
                 {
-                    gameadd.object_conf.object_types_count = tmodel;
-                    JUSTMSG("Extended to %d object types from %s", gameadd.object_conf.object_types_count, config_textname);
+                    game.conf.object_conf.object_types_count = tmodel;
+                    JUSTMSG("Extended to %d object types from %s", game.conf.object_conf.object_types_count, config_textname);
                     break;
                 }
             }
             continue;
         }
 
-        objst = &gameadd.object_conf.object_cfgstats[tmodel];
+        objst = &game.conf.object_conf.object_cfgstats[tmodel];
         objst->draw_class = ODC_Default;    
 #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(objects_object_commands,cmd_num)
         while (pos<len)
@@ -716,7 +716,7 @@ void update_all_object_stats()
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
-        i = thing->next_of_class
+        i = thing->next_of_class;
             TRACE_THING(thing);
         struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
         int start_frame = 0;
@@ -753,7 +753,7 @@ void update_all_object_stats()
             LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
             ilight.radius = objst->ilght.radius;
             ilight.intensity = objst->ilght.intensity;
-            ilight.field_3 = objst->ilght.field_3;
+            ilight.flags = objst->ilght.flags;
             ilight.is_dynamic = objst->ilght.is_dynamic;
             thing->light_id = light_create_light(&ilight);
         }
@@ -800,9 +800,9 @@ const char *object_code_name(ThingModel tngmodel)
  */
 ThingModel object_model_id(const char * code_name)
 {
-    for (int i = 0; i < gameadd.object_conf.object_types_count; ++i)
+    for (int i = 0; i < game.conf.object_conf.object_types_count; ++i)
     {
-        if (strncasecmp(gameadd.object_conf.object_cfgstats[i].code_name, code_name,
+        if (strncasecmp(game.conf.object_conf.object_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
         }
@@ -863,11 +863,11 @@ int get_required_room_capacity_for_object(RoomRole room_role, ThingModel objmode
 
 void init_objects(void)
 {
-    gameadd.object_conf.object_cfgstats[ObjMdl_Torch].ilght.field_3 = 5;
-    gameadd.object_conf.object_cfgstats[ObjMdl_HeroGate].ilght.field_3 = 5;
-    gameadd.object_conf.object_cfgstats[ObjMdl_StatueLit].ilght.field_3 = 5;
-    gameadd.object_conf.object_cfgstats[ObjMdl_SoulCountainer].ilght.field_3 = 5;
-    gameadd.object_conf.object_cfgstats[ObjMdl_Candlestick].ilght.field_3 = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_Torch].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_HeroGate].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_StatueLit].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_SoulCountainer].ilght.flags = 5;
+    game.conf.object_conf.object_cfgstats[ObjMdl_Candlestick].ilght.flags = 5;
 }
 
 /******************************************************************************/

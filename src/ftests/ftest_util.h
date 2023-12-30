@@ -150,6 +150,16 @@ void ftest_util_center_cursor_over_dungeon_view();
 TbBool ftest_util_replace_slabs_with_dungeon_hearts(MapSlabCoord slb_x_from, MapSlabCoord slb_y_from, MapSlabCoord slb_x_to, MapSlabCoord slb_y_to, PlayerNumber owner);
 
 /**
+ * @brief Marks the slab with an X pattern that is only used visually (for testing purposes, eg: to visualize areas on the map)
+ * 
+ * @param slb_x 
+ * @param slb_y 
+ * @param plyr_idx 
+ * @return TbBool 
+ */
+TbBool ftest_util_mark_slab_for_highlight(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber plyr_idx);
+
+/**
  * @brief test action to create a torture room for player and fill it with assigned torture creatures
  * 
  * @param args 

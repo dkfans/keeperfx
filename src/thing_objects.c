@@ -98,12 +98,14 @@ static Thing_Class_Func object_update_functions[] = {
 
 /** Guard flag objects model per player index. Originally named guard_post_objects.
  */
-unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole};
+unsigned short player_guardflag_objects[] = {ObjMdl_GuardFlagRed, ObjMdl_GuardFlagBlue, ObjMdl_GuardFlagGreen, ObjMdl_GuardFlagYellow,  ObjMdl_GuardFlagWhite, ObjMdl_GuardFlagPole,
+                                             ObjMdl_GuardFlagPurple,ObjMdl_GuardFlagBlack,ObjMdl_GuardFlagOrange};
 /** Dungeon Heart flame objects model per player index.
  */
-unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  ObjMdl_HeartFlameWhite,   0};
-unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_WhiteTwinkle2, TngEffElm_None};
-unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  TngEffElm_WhiteTwinkle,  TngEffElm_None};
+unsigned short dungeon_flame_objects[] =    {ObjMdl_HeartFlameRed, ObjMdl_HeartFlameBlue, ObjMdl_HeartFlameGreen, ObjMdl_HeartFlameYellow,  ObjMdl_HeartFlameWhite,   0,
+                                             ObjMdl_HeartFlamePurple, ObjMdl_HeartFlameBlack, ObjMdl_HeartFlameOrange};
+unsigned short lightning_spangles[] =   {TngEffElm_RedTwinkle3, TngEffElm_BlueTwinke2, TngEffElm_GreenTwinkle2, TngEffElm_YellowTwinkle2, TngEffElm_WhiteTwinkle2, TngEffElm_None,TngEffElm_PurpleTwinkle2,TngEffElm_BlackTwinkle2,TngEffElm_OrangeTwinkle2,};
+unsigned short twinkle_eff_elements[] = {TngEffElm_RedTwinkle,  TngEffElm_BlueTwinkle, TngEffElm_GreenTwinkle,  TngEffElm_YellowTwinkle,  TngEffElm_WhiteTwinkle,  TngEffElm_None,TngEffElm_PurpleTwinkle, TngEffElm_BlackTwinkle, TngEffElm_OrangeTwinkle, };
 
 unsigned short gold_hoard_objects[] = {ObjMdl_GoldPile, ObjMdl_GoldPile, ObjMdl_GoldHorde1, ObjMdl_GoldHorde2, ObjMdl_GoldHorde3, ObjMdl_GoldHorde4};
 unsigned short food_grow_objects[] = {ObjMdl_ChickenStb, ObjMdl_ChickenWob, ObjMdl_ChickenCrk};
@@ -176,7 +178,7 @@ struct Thing *create_object(const struct Coord3d *pos, unsigned short model, uns
         LbMemoryCopy(&ilight.mappos, &thing->mappos, sizeof(struct Coord3d));
         ilight.radius = objst->ilght.radius;
         ilight.intensity = objst->ilght.intensity;
-        ilight.field_3 = objst->ilght.field_3;
+        ilight.flags = objst->ilght.flags;
         ilight.is_dynamic = objst->ilght.is_dynamic;
         thing->light_id = light_create_light(&ilight);
         if (thing->light_id == 0) {
@@ -263,7 +265,7 @@ void destroy_food(struct Thing *foodtng)
             {
                 room->used_capacity -= required_cap;
             }
-            foodtng->food.life_remaining = game.food_life_out_of_hatchery;
+            foodtng->food.life_remaining = game.conf.rules.game.food_life_out_of_hatchery;
         }
     }
     delete_thing_structure(foodtng, 0);
@@ -315,9 +317,9 @@ PowerKind book_thing_to_power_kind(const struct Thing *thing)
 {
     if (thing_is_invalid(thing))
         return 0;
-    if ( (thing->class_id != TCls_Object) || (thing->model >= gameadd.object_conf.object_types_count) )
+    if ( (thing->class_id != TCls_Object) || (thing->model >= game.conf.object_conf.object_types_count) )
         return 0;
-    return gameadd.object_conf.object_to_power_artifact[thing->model];
+    return game.conf.object_conf.object_to_power_artifact[thing->model];
 }
 
 TbBool thing_is_special_box(const struct Thing *thing)
@@ -490,6 +492,9 @@ TbBool object_is_guard_flag(const struct Thing *thing)
       case ObjMdl_GuardFlagBlue:
       case ObjMdl_GuardFlagGreen:
       case ObjMdl_GuardFlagYellow:
+      case ObjMdl_GuardFlagPurple:
+      case ObjMdl_GuardFlagBlack:
+      case ObjMdl_GuardFlagOrange:
       case ObjMdl_GuardFlagPole:
           return true;
       default:
@@ -719,7 +724,7 @@ static long food_moves(struct Thing *objtng)
       {
             if ( (room_is_invalid(room)) || (!room_role_matches(room->kind, RoRoF_FoodStorage)) || (room->owner != objtng->owner) || (room->used_capacity > room->total_capacity) )
             {
-                objtng->food.life_remaining = game.food_life_out_of_hatchery;
+                objtng->food.life_remaining = game.conf.rules.game.food_life_out_of_hatchery;
                 struct Room* hatchroom = room_get(objtng->parent_idx);
                 if (!room_is_invalid(hatchroom))
                 {
@@ -1229,11 +1234,11 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         dungeon = get_players_num_dungeon(heartng->owner);
     }
 
-    if ((heartng->health > 0) && (game.dungeon_heart_heal_time != 0))
+    if ((heartng->health > 0) && (game.conf.rules.game.dungeon_heart_heal_time != 0))
     {
-        if ((game.play_gameturn % game.dungeon_heart_heal_time) == 0)
+        if ((game.play_gameturn % game.conf.rules.game.dungeon_heart_heal_time) == 0)
         {
-            heartng->health += game.dungeon_heart_heal_health;
+            heartng->health += game.conf.rules.game.dungeon_heart_heal_health;
             if (heartng->health < 0)
             {
               heartng->health = 0;
@@ -1398,7 +1403,7 @@ void set_call_to_arms_as_rebirthing(struct Thing *objtng)
 static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
 {
     struct PlayerInfo* player = get_player(thing->owner);
-    if (thing->index != player->field_43C)
+    if (thing->index != player->cta_flag_idx)
     {
         delete_thing_structure(thing, 0);
         return -1;
@@ -1422,7 +1427,7 @@ static TngUpdateRet object_update_call_to_arms(struct Thing *thing)
     case CTAOL_Dying:
         if (thing->max_frames - 1 == thing->current_frame)
         {
-            player->field_43C = 0;
+            player->cta_flag_idx = 0;
             delete_thing_structure(thing, 0);
             return -1;
         }
@@ -1510,7 +1515,7 @@ static TngUpdateRet object_update_object_scale(struct Thing *objtng)
     int spr_size;
     int start_frame = objtng->current_frame;
     if (objtng->lair.belongs_to) {
-        spr_size = gameadd.crtr_conf.sprite_size + (gameadd.crtr_conf.sprite_size * cctrl->explevel * gameadd.crtr_conf.exp.size_increase_on_exp) / 100;
+        spr_size = game.conf.crtr_conf.sprite_size + (game.conf.crtr_conf.sprite_size * cctrl->explevel * game.conf.crtr_conf.exp.size_increase_on_exp) / 100;
     } else {
         spr_size = objst->sprite_size_max;
     }
@@ -1890,7 +1895,7 @@ int get_wealth_size_of_gold_hoard_object(const struct Thing *objtng)
  */
 int get_wealth_size_of_gold_amount(GoldAmount value)
 {
-    long wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
+    long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
     int wealth_size = (value + wealth_size_holds - 1) / wealth_size_holds;
     if (wealth_size > get_wealth_size_types_count()) {
         WARNLOG("Gold hoard with %d gold would be oversized",(int)value);
@@ -1918,8 +1923,8 @@ int get_wealth_size_types_count(void)
  */
 struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber plyr_idx, GoldAmount value)
 {
-    if (value >= gameadd.gold_per_hoard)
-        value = gameadd.gold_per_hoard;
+    if (value >= game.conf.rules.game.gold_per_hoard)
+        value = game.conf.rules.game.gold_per_hoard;
     int wealth_size = get_wealth_size_of_gold_amount(value);
     struct Thing* gldtng = create_object(pos, gold_hoard_objects[wealth_size], plyr_idx, -1);
     if (thing_is_invalid(gldtng))
@@ -1931,7 +1936,7 @@ struct Thing *create_gold_hoard_object(const struct Coord3d *pos, PlayerNumber p
 struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, GoldAmount value)
 {
     struct Thing* thing = INVALID_THING;
-    GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
     if ((value <= 0) || (room->slabs_count < 1)) {
         ERRORLOG("Attempt to create a gold hoard with %ld gold", (long)value);
         return thing;
@@ -1968,7 +1973,7 @@ struct Thing *create_gold_hoarde(struct Room *room, const struct Coord3d *pos, G
  */
 long add_gold_to_hoarde(struct Thing *gldtng, struct Room *room, GoldAmount amount)
 {
-    GoldAmount wealth_size_holds = gameadd.gold_per_hoard / get_wealth_size_types_count();
+    GoldAmount wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
     GoldAmount max_hoard_size_in_room = wealth_size_holds * room->total_capacity / room->slabs_count;
     // Fix amount
     if (gldtng->valuable.gold_stored + amount > max_hoard_size_in_room)
@@ -2111,15 +2116,15 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel)
     switch (tngmodel)
     {
       case ObjMdl_GoldChest:
-          return game.chest_gold_hold;
+          return game.conf.rules.game.chest_gold_hold;
       case ObjMdl_GoldPot:
-          return game.pot_of_gold_holds;
+          return game.conf.rules.game.pot_of_gold_holds;
       case ObjMdl_Goldl:
-          return game.gold_pile_value;
+          return game.conf.rules.game.gold_pile_value;
       case ObjMdl_GoldBag:
-          return gameadd.bag_gold_hold;
+          return game.conf.rules.game.bag_gold_hold;
       case ObjMdl_SpinningCoin:
-          return game.gold_pile_maximum;
+          return game.conf.rules.game.gold_pile_maximum;
       default:
         break;
     }

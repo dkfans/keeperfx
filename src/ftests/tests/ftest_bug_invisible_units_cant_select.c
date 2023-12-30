@@ -32,8 +32,6 @@ struct ftest_bug_invisible_units_cant_select__variables
     const MapSlabCoord arena_width;
     const MapSlabCoord arena_height;
 
-    SlabKind arena_slab_type;
-
     TbBool is_unit_spawned;
     TbBool is_unit_in_hand;
     TbBool was_unit_dropped;
@@ -45,13 +43,11 @@ struct ftest_bug_invisible_units_cant_select__variables
     GameTurn unit_dropped_at_turn;
 };
 struct ftest_bug_invisible_units_cant_select__variables ftest_bug_invisible_units_cant_select__vars = {
-    .slb_x_arena_start = 25,
-    .slb_y_arena_start = 25,
+    .slb_x_arena_start = 12,
+    .slb_y_arena_start = 50,
 
     .arena_width = 25,
     .arena_height = 25,
-
-    .arena_slab_type = SlbT_PATH,
 
     .is_unit_spawned = false,
     .is_unit_in_hand = false,
@@ -64,28 +60,13 @@ struct ftest_bug_invisible_units_cant_select__variables ftest_bug_invisible_unit
     .unit_dropped_at_turn = ULONG_MAX
 };
 
-struct ftest_util_action__create_and_fill_torture_room__variables ftest_bug_invisible_units_cant_select__torture__vars = {
-    .room_slb_x_start = 28,
-    .room_slb_y_start = 28,
-
-    .room_width = 10,
-    .room_height = 10,
-
-    .room_owner = PLAYER0,
-
-    .victim_creature_model = 17,
-    .victim_player_owner = PLAYER0,
-    .victim_max_lv = 10,
-
-    .only_run_once = true
-};
-
 // forward declarations - tests
-TbBool ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestActionArgs* const args);
-TbBool ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTestActionArgs* const args);
-TbBool ftest_bug_invisible_units_cant_select_action003__drop_unit(struct FTestActionArgs* const args);
-TbBool ftest_bug_invisible_units_cant_select_action004__kill_unit(struct FTestActionArgs* const args);
-TbBool ftest_bug_invisible_units_cant_select_action005__restart_actions(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action002__zoom_to_unit_and_trigger_invisibility_bug(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action003__pickup_unit(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action004__drop_unit(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action005__kill_unit(struct FTestActionArgs* const args);
+FTestActionResult ftest_bug_invisible_units_cant_select_action006__restart_actions(struct FTestActionArgs* const args);
 
 
 TbBool ftest_bug_invisible_units_cant_select_init()
@@ -99,7 +80,8 @@ TbBool ftest_bug_invisible_units_cant_select_init()
         ftest_util_reveal_map(PLAYER0); // we might want to see the entire map for testing purposes
         
         // carve out area
-        ftest_util_replace_slabs(vars->slb_x_arena_start, vars->slb_y_arena_start, vars->slb_x_arena_start + vars->arena_width, vars->slb_y_arena_start + vars->arena_height, vars->arena_slab_type, PLAYER_NEUTRAL);
+        ftest_util_replace_slabs(vars->slb_x_arena_start-1, vars->slb_y_arena_start-1, vars->slb_x_arena_start + vars->arena_width+1, vars->slb_y_arena_start + vars->arena_height+1, SlbT_WALLDRAPE, PLAYER0);
+        ftest_util_replace_slabs(vars->slb_x_arena_start, vars->slb_y_arena_start, vars->slb_x_arena_start + vars->arena_width, vars->slb_y_arena_start + vars->arena_height, SlbT_CLAIMED, PLAYER0);
 
         // 
 
@@ -113,21 +95,22 @@ TbBool ftest_bug_invisible_units_cant_select_init()
     for(int i = 0; i < 10; ++i)
     {
         ftest_append_action(ftest_bug_invisible_units_cant_select_action001__spawn_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
-        ftest_append_action(ftest_bug_invisible_units_cant_select_action002__pickup_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
-        ftest_append_action(ftest_bug_invisible_units_cant_select_action003__drop_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
-        ftest_append_action(ftest_bug_invisible_units_cant_select_action004__kill_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
+        ftest_append_action(ftest_bug_invisible_units_cant_select_action002__zoom_to_unit_and_trigger_invisibility_bug, 20, &ftest_bug_invisible_units_cant_select__vars);
+        ftest_append_action(ftest_bug_invisible_units_cant_select_action003__pickup_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
+        ftest_append_action(ftest_bug_invisible_units_cant_select_action004__drop_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
+        ftest_append_action(ftest_bug_invisible_units_cant_select_action005__kill_unit, 20, &ftest_bug_invisible_units_cant_select__vars);
     }
 
     
 
     //ftest_append_action(ftest_bug_invisible_units_cant_select_action005__restart_actions, 0, NULL);
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
 
 
-TbBool ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestActionArgs* const args)
 {
     struct ftest_bug_invisible_units_cant_select__variables* const vars = args->data;
 
@@ -148,20 +131,43 @@ TbBool ftest_bug_invisible_units_cant_select_action001__spawn_unit(struct FTestA
     if(thing_is_invalid(vars->unit))
     {
         FTEST_FAIL_TEST("Failed to create random creature");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     //center cursor/camera on unit pos (using slight offset for better results)
     ftest_util_center_cursor_over_dungeon_view();
-    ftest_util_move_camera(vars->unit->mappos.x.val, vars->unit->mappos.y.val, PLAYER0);
+    //ftest_util_move_camera(vars->unit->mappos.x.val, vars->unit->mappos.y.val, PLAYER0);
 
     vars->unit_spawned_at_turn = game.play_gameturn;
     vars->is_unit_spawned = true;
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
-TbBool ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_invisible_units_cant_select_action002__zoom_to_unit_and_trigger_invisibility_bug(struct FTestActionArgs* const args)
+{
+    struct ftest_bug_invisible_units_cant_select__variables* const vars = args->data;
+
+    struct PlayerInfo* player = get_my_player();
+    if(player_invalid(player))
+    {
+        FTEST_FAIL_TEST("Failed to find current player!");
+        return FTRs_Go_To_Next_Action;
+    }
+
+    //center cursor on screen and move the camera using PI_ZoomToPos
+    ftest_util_center_cursor_over_dungeon_view();
+    player->zoom_to_pos_x = vars->unit->mappos.x.val;
+    player->zoom_to_pos_y = vars->unit->mappos.y.val;
+    set_player_instance(player, PI_ZoomToPos, 0);
+
+    // slap the creature so the cursor counts as overtop during PI_ZoomToPos, which causes the invisibility bug
+    game_action(PLAYER0, GA_UsePwrSlap, 0, 0, 0, vars->unit->index, 0);
+
+    return FTRs_Go_To_Next_Action;
+}
+
+FTestActionResult ftest_bug_invisible_units_cant_select_action003__pickup_unit(struct FTestActionArgs* const args)
 {
     struct ftest_bug_invisible_units_cant_select__variables* const vars = args->data;
 
@@ -169,18 +175,25 @@ TbBool ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTest
     ftest_util_center_cursor_over_dungeon_view();
     ftest_util_move_camera(vars->unit->mappos.x.val, vars->unit->mappos.y.val, PLAYER0);
 
+    // check if creature render flag is set, it shoudln't be, if it is, fail the test
+    if(flag_is_set(vars->unit->rendering_flags, TRF_Unknown01))
+    {
+        FTEST_FAIL_TEST("Creature %s index %d has render flag %d set when it shouldn't!", thing_model_name(vars->unit), (int)vars->unit->index, TRF_Unknown01);
+        return FTRs_Go_To_Next_Action;
+    }
+
     // check if creature is under cursor
     struct PlayerInfo* player = get_my_player();
     if(player->thing_under_hand == vars->unit->index)
     {
         // FTEST_FAIL_TEST("Did not find %s index %d under mouse cursor", thing_model_name(vars->unit), (int)vars->unit->index);
-        // return true;
+        // return FTRs_Go_To_Next_Action;
 
         // pickup unit without requiring mouse hover (does not require hand over creature)
         // if (!magic_use_available_power_on_thing(PLAYER0, PwrK_HAND, 0, vars->unit->mappos.x.stl.num, vars->unit->mappos.y.stl.num, vars->unit, PwMod_Default))
         // {
         //     FTEST_FAIL_TEST("Cannot pick up %s index %d", thing_model_name(vars->unit), (int)vars->unit->index);
-        //     return true;
+        //     return FTRs_Go_To_Next_Action;
         // }
 
         // try to pickup creature (hand must be over creature for this to work!)
@@ -188,30 +201,30 @@ TbBool ftest_bug_invisible_units_cant_select_action002__pickup_unit(struct FTest
         if(pickup_result != Lb_SUCCESS)
         {
             FTEST_FAIL_TEST("Cannot pick up %s index %d", thing_model_name(vars->unit), (int)vars->unit->index);
-            return true;
+            return FTRs_Go_To_Next_Action;
         }
 
         vars->unit_grabbed_at_turn = game.play_gameturn;
         vars->is_unit_in_hand = true;
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
-    return false;
+    return FTRs_Repeat_Current_Action;
 }
 
-TbBool ftest_bug_invisible_units_cant_select_action003__drop_unit(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_invisible_units_cant_select_action004__drop_unit(struct FTestActionArgs* const args)
 {
     struct ftest_bug_invisible_units_cant_select__variables* const vars = args->data;
 
     if(!vars->is_unit_in_hand)
     {
         FTEST_FAIL_TEST("There is no unit in hand to drop!");
-        return true;
+        return FTRs_Go_To_Next_Action;
     }
 
     // try to drop creature
     struct Coord3d dropPos;
-    set_coords_to_slab_center(&dropPos, slab_subtile_center(1), slab_subtile_center(1));
+    set_coords_to_slab_center(&dropPos, vars->slb_x_arena_start+1, vars->slb_y_arena_start+1);
     if(!dump_first_held_thing_on_map(PLAYER0, dropPos.x.stl.num, dropPos.y.stl.num, 1))
     {
         FTEST_FAIL_TEST("Cannot drop %s index %d", thing_model_name(vars->unit), (int)vars->unit->index);
@@ -222,10 +235,10 @@ TbBool ftest_bug_invisible_units_cant_select_action003__drop_unit(struct FTestAc
         vars->unit_dropped_at_turn = game.play_gameturn;
     }
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
-TbBool ftest_bug_invisible_units_cant_select_action004__kill_unit(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_invisible_units_cant_select_action005__kill_unit(struct FTestActionArgs* const args)
 {
     struct ftest_bug_invisible_units_cant_select__variables* const vars = args->data;
 
@@ -239,15 +252,14 @@ TbBool ftest_bug_invisible_units_cant_select_action004__kill_unit(struct FTestAc
     vars->unit_grabbed_at_turn = ULONG_MAX;
     vars->unit_dropped_at_turn = ULONG_MAX;
 
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
-TbBool ftest_bug_invisible_units_cant_select_action005__restart_actions(struct FTestActionArgs* const args)
+FTestActionResult ftest_bug_invisible_units_cant_select_action006__restart_actions(struct FTestActionArgs* const args)
 {
     ftest_restart_actions();
 
-    //return false;
-    return true;
+    return FTRs_Go_To_Next_Action;
 }
 
 #endif

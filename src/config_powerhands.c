@@ -57,7 +57,7 @@ TbBool load_powerhands_config_file(const char *textname, const char *fname, unsi
         section = value_dict_get(&file_root, key);
         if (value_type(section) == VALUE_DICT)
         {
-            struct PowerHandConfigStats *pwrhnd_cfg_stat = &game.power_hand_conf.pwrhnd_cfg_stats[id];
+            struct PowerHandConfigStats *pwrhnd_cfg_stat = &game.conf.power_hand_conf.pwrhnd_cfg_stats[id];
 
             SET_NAME(section,powerhand_desc,pwrhnd_cfg_stat->code_name);
             
