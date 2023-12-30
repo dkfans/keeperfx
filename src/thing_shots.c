@@ -1727,7 +1727,7 @@ struct Thing *create_shot(struct Coord3d *pos, unsigned short model, unsigned sh
         ilght.radius = shotst->light_radius;
         ilght.intensity = shotst->light_intensity;
         ilght.is_dynamic = 1;
-        ilght.field_3 = shotst->lightf_53;
+        ilght.flags = shotst->lightf_53;
         thing->light_id = light_create_light(&ilght);
         if (thing->light_id == 0) {
             // Being out of free lights is quite common - so info instead of warning here

@@ -508,6 +508,11 @@ TbBool frametime_enabled(void)
   return (debug_display_frametime != 0);
 }
 
+TbBool consolelog_enabled(void)
+{
+    return (debug_display_consolelog != 0);
+}
+
 TbBool script_timer_enabled(void)
 {
   return ((game.flags_gui & GGUI_ScriptTimer) != 0);
@@ -650,6 +655,56 @@ void draw_script_variable(PlayerNumber plyr_idx, unsigned char valtype, unsigned
     }
     LbTextDrawResized(0, y, tx_units_per_px, text);
     LbTextSetWindow(0/pixel_size, 0/pixel_size, MyScreenWidth/pixel_size, MyScreenHeight/pixel_size);
+}
+
+int consolelog_font_size = 11;
+int consolelog_simultaneous_message_count = 21;
+int consolelog_max_line_width = 1250; // Maximum line width
+void draw_consolelog()
+{
+    draw_round_slab64k(0, 0, units_per_pixel, lbDisplay.GraphicsScreenWidth, (lbDisplay.GraphicsScreenHeight/2), ROUNDSLAB64K_DARK);
+    LbTextSetFont(winfont);
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
+
+    int text_height = (consolelog_font_size * units_per_pixel) / LbTextLineHeight();
+    int draw_ypos = text_height / 2; // Starting ypos
+    
+    int totalLinesDrawn = 0;
+
+    size_t startIdx = 0;
+    if (consoleLogArraySize > consolelog_simultaneous_message_count) {
+        startIdx = consoleLogArraySize - consolelog_simultaneous_message_count;
+    }
+
+    for (int i = startIdx; i < consoleLogArraySize && totalLinesDrawn < consolelog_simultaneous_message_count; i++) {
+        char* text = consoleLogArray[i];
+        int offset = 0; // Initialize offset for each text line
+        while (text[offset] != '\0' && totalLinesDrawn < consolelog_simultaneous_message_count) {
+            int currentLineWidth = 0; // Reset line width for each new line
+            int sub_len = 1;
+            
+            // Iterate over the characters in the string to find the substring length
+            while (text[offset + sub_len] != '\0') {
+                int charWidth = LbTextCharWidth(text[offset + sub_len - 1]);
+                if (currentLineWidth + charWidth > consolelog_max_line_width) {
+                    break; // Exit the loop if adding the next character would exceed the line width
+                }
+                
+                currentLineWidth += charWidth; // Add the width of the current character
+                sub_len++; // Move to the next character
+            }
+
+            char line_buffer[sub_len + 1];
+            strncpy(line_buffer, text + offset, sub_len);
+            line_buffer[sub_len] = '\0';
+
+            LbTextDrawResized(text_height, draw_ypos, text_height, line_buffer);
+            draw_ypos += text_height; // Move to the next line position
+            offset += sub_len;
+            totalLinesDrawn++;
+        }
+    }
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
 }
 
 void draw_frametime()

@@ -115,7 +115,7 @@ struct EffectElementConfigStats {
     unsigned short transform_model;
     unsigned short light_radius;
     unsigned char light_intensity;
-    long light_field_3D;
+    long light_flags;
     unsigned char affected_by_wind;
 };
 

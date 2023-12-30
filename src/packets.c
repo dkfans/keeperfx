@@ -1497,7 +1497,7 @@ void process_frontend_packets(void)
   }
   struct ScreenPacket* nspckt = &net_screen_packet[my_player_number];
   set_flag(nspckt->field_4, 0x01);
-  nspckt->field_5 = frontend_alliances;
+  nspckt->frontend_alliances = frontend_alliances;
   set_flag(nspckt->field_4, 0x01);
   nspckt->field_4 ^= ((nspckt->field_4 ^ (fe_computer_players << 1)) & 0x06);
   nspckt->field_6 = VersionMajor;
@@ -1618,8 +1618,8 @@ void process_frontend_packets(void)
       }
       if (frontend_alliances == -1)
       {
-        if (nspckt->field_5 != -1)
-          frontend_alliances = nspckt->field_5;
+        if (nspckt->frontend_alliances != -1)
+          frontend_alliances = nspckt->frontend_alliances;
       }
       if (fe_computer_players == 2)
       {
