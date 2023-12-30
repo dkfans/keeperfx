@@ -4070,7 +4070,6 @@ static void play_message_check(const struct ScriptLine *scline)
 
 static void play_message_process(struct ScriptContext *context)
 {
-    unsigned char slot = context->value->bytes[2];
     if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
     {
         if (!context->value->bytes[4])
@@ -4093,6 +4092,7 @@ static void play_message_process(struct ScriptContext *context)
         {
             if (!SoundDisabled)
             {
+                unsigned char slot = context->value->bytes[2];
                 switch (game.msgtype_id[slot])
                 {
                     case 1:
