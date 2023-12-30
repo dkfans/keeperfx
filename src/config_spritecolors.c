@@ -38,7 +38,7 @@ extern "C" {
 const char keeper_spritecolors_file[]="spritecolors.toml";
 /******************************************************************************/
 #define MAX_COLORED_SPRITES 255
-#define PLAYER_COLORS_COUNT 7+1
+#define PLAYER_COLORS_COUNT (COLOURS_COUNT + 2)
 static short gui_panel_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short pointer_sprites_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
 static short button_sprite_eq[MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT];
@@ -168,9 +168,19 @@ short get_player_colored_pointer_icon_idx(short base_icon_idx,PlayerNumber plyr_
     return get_player_colored_idx(base_icon_idx,get_player_color_idx(plyr_idx) + 1,pointer_sprites_eq);
 }
 
-short get_player_colored_button_sprite_idx(short base_icon_idx,PlayerNumber plyr_idx)
+short get_player_colored_button_sprite_idx(const short base_icon_idx,const PlayerNumber plyr_idx)
 {
-    return get_player_colored_idx(base_icon_idx,get_player_color_idx(plyr_idx) + 1,button_sprite_eq);
+    unsigned char color_idx;
+    if (plyr_idx == NEUTRAL_PLAYER)
+    {
+        color_idx = game.play_gameturn & 3;
+    }
+    else
+    {
+        color_idx = get_player_color_idx(plyr_idx);
+    }
+
+    return get_player_colored_idx(base_icon_idx,color_idx + 1,button_sprite_eq);
 }
 
 /******************************************************************************/
