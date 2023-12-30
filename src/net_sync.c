@@ -25,6 +25,7 @@
 #include "bflib_network.h"
 
 #include "config.h"
+#include "config_effects.h"
 #include "front_network.h"
 #include "player_data.h"
 #include "game_merge.h"
@@ -160,8 +161,8 @@ void resync_game(void)
     }
     recall_localised_game_structure();
     reinit_level_after_load();
-    set_flag_byte(&game.system_flags,GSF_NetGameNoSync,false);
-    set_flag_byte(&game.system_flags,GSF_NetSeedNoSync,false);
+    clear_flag(game.system_flags, GSF_NetGameNoSync);
+    clear_flag(game.system_flags, GSF_NetSeedNoSync);
 }
 
 /**
@@ -303,8 +304,8 @@ TbBigChecksum get_thing_checksum(const struct Thing* thing)
     }
     else if (thing->class_id == TCls_Effect)
     {
-        const struct InitEffect* effnfo = get_effect_info_for_thing(thing);
-        if (effnfo->area_affect_type != AAffT_None)
+        const struct EffectConfigStats* effcst = get_effect_model_stats(thing->model);
+        if (effcst->area_affect_type != AAffT_None)
         {
             csum += (ulong)thing->mappos.z.val +
                 (ulong)thing->mappos.x.val +

@@ -24,6 +24,18 @@
 #include "globals.h"
 
 #include "player_data.h"
+#include "config_campaigns.h"
+#include "config_magic.h"
+#include "config_trapdoor.h"
+#include "config_objects.h"
+#include "config_cubes.h"
+#include "config_powerhands.h"
+#include "config_cubes.h"
+#include "config_creature.h"
+#include "config_crtrmodel.h"
+#include "config_effects.h"
+#include "config_objects.h"
+#include "config_rules.h"
 #include "dungeon_data.h"
 #include "thing_data.h"
 #include "thing_traps.h"
@@ -36,11 +48,6 @@
 #include "actionpt.h"
 #include "creature_control.h"
 #include "creature_battle.h"
-#include "config_campaigns.h"
-#include "config_magic.h"
-#include "config_trapdoor.h"
-#include "config_objects.h"
-#include "config_cubes.h"
 #include "map_columns.h"
 #include "map_events.h"
 #include "music_player.h"
@@ -54,15 +61,9 @@
 #include "sounds.h"
 #include "game_lghtshdw.h"
 #include "game_merge.h"
+#include "engine_textures.h"
 
 #define BOOKMARKS_COUNT               5
-// Static textures
-#define TEXTURE_BLOCKS_STAT_COUNT   544
-// Animated texture frames count
-#define TEXTURE_BLOCKS_ANIM_FRAMES    8
-// Animated textures amount
-#define TEXTURE_BLOCKS_ANIM_COUNT    48
-#define TEXTURE_BLOCKS_COUNT         (TEXTURE_BLOCKS_STAT_COUNT+TEXTURE_BLOCKS_ANIM_COUNT)
 
 #ifdef __cplusplus
 extern "C" {
@@ -110,6 +111,22 @@ struct PerExpLevelValues {
   unsigned char value[10];
 };
 
+struct Configs {
+    struct SlabsConfig slab_conf;
+    struct PowerHandConfig power_hand_conf;
+    struct MagicConfig magic_conf;
+    struct CubesConfig cube_conf;
+    struct ManfctrConfig traps_config[TRAPDOOR_TYPES_MAX];
+    struct ManfctrConfig doors_config[TRAPDOOR_TYPES_MAX];
+    struct TrapStats trap_stats[TRAPDOOR_TYPES_MAX];
+    struct TrapDoorConfig trapdoor_conf;
+    struct EffectsConfig effects_conf;
+    struct CreatureStats creature_stats[CREATURE_TYPES_MAX];
+    struct CreatureConfig crtr_conf;
+    struct ObjectsConfig object_conf;
+    struct CreatureModelConfig swap_creature_models[SWAP_CREATURE_TYPES_MAX];
+    struct RulesConfig rules;
+};
 
 struct Game {
     LevelNumber continue_level_number;
@@ -130,7 +147,6 @@ char numfield_1A;
     unsigned char numfield_1B;
     struct PlayerInfo players[PLAYERS_COUNT];
     struct Column columns_data[COLUMNS_COUNT];
-    struct ObjectConfig objects_config[OBJECT_TYPES_COUNT_ORIGINAL];
     struct Things things;
     struct Persons persons;
     struct Columns columns;
@@ -143,12 +159,11 @@ char numfield_1A;
     struct LightsShadows lish;
     struct CreatureControl cctrl_data[CREATURES_COUNT];
     struct Thing things_data[THINGS_COUNT];
-    unsigned char navigation_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
-    struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y]; // field offset 0xDC157
+    NavColour navigation_map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
+    struct Map map[MAX_SUBTILES_X*MAX_SUBTILES_Y];
     struct ComputerTask computer_task[COMPUTER_TASKS_COUNT];
     struct Computer2 computer[PLAYERS_COUNT];
     struct SlabMap slabmap[MAX_TILES_X*MAX_TILES_Y];
-    struct SlabsConfig slab_conf;
     struct Room rooms[ROOMS_COUNT];
     struct Dungeon dungeon[DUNGEONS_COUNT];
     struct StructureList thing_lists[13];
@@ -180,7 +195,7 @@ unsigned int packet_file_pos;
     short col_static_entries[18];
     //unsigned char level_file_number; // merged with level_number to get maps > 255
     short loaded_level_number;
-    short texture_animation[8*TEXTURE_BLOCKS_ANIM_COUNT];
+    short texture_animation[TEXTURE_BLOCKS_ANIM_FRAMES*TEXTURE_BLOCKS_ANIM_COUNT];
     unsigned short columns_used;
     unsigned char texture_id;
     unsigned short free_things[THINGS_COUNT-1];
@@ -195,81 +210,33 @@ unsigned int packet_file_pos;
     int something_light_x;
     int something_light_y;
     unsigned long time_delta;
-    short top_cube[592];
+    short top_cube[TEXTURE_BLOCKS_COUNT];// if you ask for top cube on a column without cubes, it'll return the first cube it finds with said texture at the top
     unsigned char small_map_state;
     struct Coord3d mouse_light_pos;
     struct Packet packets[PACKETS_COUNT];
-    struct MagicStats keeper_power_stats[POWER_TYPES_MAX];
     char active_players_count;
     PlayerNumber hero_player_num;
     PlayerNumber neutral_player_num;
     struct GoldLookup gold_lookup[GOLD_LOOKUP_COUNT];
     unsigned short ambient_sound_thing_idx;
     unsigned short block_health[9];
-    unsigned short default_generate_speed;
     unsigned short generate_speed;
     unsigned long entrance_last_generate_turn;
     unsigned short entrance_room_id;
     unsigned short entrances_count;
-    GoldAmount gold_per_gold_block;
-    GoldAmount pot_of_gold_holds;
-    GoldAmount chest_gold_hold;
-    GoldAmount gold_pile_value;
-    GoldAmount gold_pile_maximum;
-    unsigned short fight_max_hate;
-    unsigned short fight_borderline;
-    unsigned short fight_max_love;
-    unsigned short food_life_out_of_hatchery;
-    unsigned short fight_hate_kill_value;
-    unsigned short body_remains_for;
-    unsigned short graveyard_convert_time;
-    MapSubtlDelta min_distance_for_teleport;
-    unsigned char recovery_frequency;
     unsigned short nodungeon_creatr_list_start; /**< Linked list of creatures which have no dungeon (neutral and owned by nonexisting players) */
-    GameTurnDelta food_generation_speed;
     enum GameKinds game_kind; /**< Kind of the game being played, from GameKinds enumeration. Originally was GameMode. */
     TbBool map_changed_for_nagivation; // something with navigation
     struct PerExpLevelValues creature_scores[CREATURE_TYPES_MAX];
-    unsigned long default_max_crtrs_gen_entrance;
-    unsigned long default_imp_dig_damage;
-    unsigned long default_imp_dig_own_damage;
-    GameTurnDelta game_turns_in_flee;
-    unsigned short hunger_health_loss;
-    unsigned short turns_per_hunger_health_loss;
-    unsigned short food_health_gain;
-    unsigned char prison_skeleton_chance;
-    unsigned short torture_health_loss;
-    unsigned short turns_per_torture_health_loss;
-    unsigned char ghost_convert_chance;
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
     long frame_skip;
-    GameTurnDelta pay_day_gap;
     GameTurnDelta pay_day_progress;
-    GoldAmount power_hand_gold_grab_amount;
     TbBool no_intro;
-    unsigned long hero_door_wait_time;
-    unsigned long dungeon_heart_heal_time;
-    long dungeon_heart_heal_health;
-    unsigned long dungeon_heart_health;
-    unsigned char disease_transfer_percentage;
-    unsigned char disease_lose_percentage_health;
-    unsigned char disease_lose_health_time;
     GameTurn armageddon_cast_turn;
     GameTurn armageddon_over_turn;
     PlayerNumber armageddon_caster_idx;
-    GameTurnDelta hold_audience_time;
-    unsigned long armagedon_teleport_your_time_gap;
-    unsigned long armagedon_teleport_enemy_time_gap;
-    unsigned char hits_per_slab;
-    long collapse_dungeon_damage;
-    GameTurnDelta turns_per_collapse_dngn_dmg;
     struct SoundSettings sound_settings;
-    long num_fps;
-    GameTurnDelta train_cost_frequency;
-    GameTurnDelta scavenge_cost_frequency;
-    unsigned long temple_scavenge_protection_turns;
-    unsigned char bodies_for_vampire;
     struct CreatureBattle battles[BATTLES_COUNT];
     long music_track_index;
     char evntbox_text_objective[MESSAGE_TEXT_LEN];
@@ -277,9 +244,6 @@ unsigned int packet_file_pos;
     struct TextScrollWindow evntbox_scroll_window;
     long flash_button_index; /**< GUI Button Designation ID of a button which is supposed to flash, as part of tutorial. */
     char loaded_swipe_idx;
-    long boulder_reduce_health_wall;
-    long boulder_reduce_health_slap;
-    long boulder_reduce_health_room;
     unsigned char active_messages_count;
     long bonus_time;
     struct Armageddon armageddon;
@@ -303,13 +267,16 @@ unsigned int packet_file_pos;
     int manufactr_element;
     int manufactr_spridx;
     int manufactr_tooltip;
-    short barrack_max_party_size;
     char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
+    char loaded_sound[EXTERNAL_SOUNDS_COUNT][DISKPATH_SIZE];
+    unsigned char sounds_count;
+    struct Configs conf;
 };
 
 #pragma pack()
 /******************************************************************************/
 extern struct Game game;
+extern long game_num_fps;
 /******************************************************************************/
 #ifdef __cplusplus
 }

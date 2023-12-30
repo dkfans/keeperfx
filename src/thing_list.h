@@ -220,7 +220,8 @@ long count_player_diggers_not_counting_to_total(PlayerNumber plyr_idx);
 struct Thing *get_thing_on_map_block_with_filter(long thing_idx, Thing_Maximizer_Filter filter, MaxTngFilterParam param, long *maximizer);
 struct Thing *get_thing_near_revealed_map_block_with_filter(MapCoord x, MapCoord y, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 struct Thing *get_thing_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
-struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range);
+struct Thing* get_player_creature_in_range_around_any_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range);
+struct Thing* get_player_creature_in_range_around_own_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range);
 long count_things_spiral_near_map_block_with_filter(MapCoord x, MapCoord y, long spiral_len, Thing_Maximizer_Filter filter, MaxTngFilterParam param);
 long do_to_things_on_map_block(long thing_idx, Thing_Bool_Modifier do_cb);
 long do_to_things_with_param_on_map_block(ThingIndex thing_idx, Thing_Modifier_Func do_cb, ModTngFilterParam param);
@@ -288,6 +289,7 @@ void init_player_start(struct PlayerInfo *player, TbBool keep_prev);
 void setup_computer_players(void);
 void setup_zombie_players(void);
 void init_all_creature_states(void);
+TbBool update_creature_speed(struct Thing *thing);
 
 TbBool perform_action_on_all_creatures_in_group(struct Thing *thing, Thing_Bool_Modifier action);
 
@@ -329,8 +331,12 @@ TbBool update_thing(struct Thing *thing);
 TbBigChecksum get_thing_checksum(const struct Thing *thing);
 short update_thing_sound(struct Thing *thing);
 struct Thing* find_players_dungeon_heart(PlayerNumber plyridx);
+struct Thing* find_players_backup_dungeon_heart(PlayerNumber plyridx);
 
 struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel,struct Room *room);
+
+ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player);
+ThingIndex get_index_of_first_creature_of_owner_and_model(PlayerNumber owner, ThingModel crmodel);
 /******************************************************************************/
 #ifdef __cplusplus
 }

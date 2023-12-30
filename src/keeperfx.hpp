@@ -49,6 +49,10 @@
 #include "net_game.h"
 #include "sounds.h"
 
+#ifdef FUNCTESTING
+#include "ftests/ftest.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -62,6 +66,13 @@ extern "C" {
 #define LENSES_COUNT           15
 #define SPELL_POINTER_GROUPS   14
 #define ZOOM_KEY_ROOMS_COUNT   15
+#define CMDLINE_OVERRIDES      2
+
+/** Command Line overrides for config settings. Checked after the config file is loaded. */
+enum CmdLineOverrides {
+    Clo_ConfigFile = 0, /**< Special: handled before the config file is loaded. */
+    Clo_CDMusic,
+};
 
 enum ModeFlags {
     MFlg_IsDemoMode         =  0x01,
@@ -90,12 +101,14 @@ enum DebugFlags {
     DFlg_CreatrPaths        =  0x02,
 };
 
-#ifdef AUTOTESTING
-enum AutotestFlags {
-    ATF_ExitOnTurn          = 0x01, // Exit from a game after some time
-    ATF_FixedSeed           = 0x02, // Set randomseed to 1 on game start
-    ATF_AI_Player           = 0x04, // Activate Ai player on level start
-    ATF_TestsCampaign       = 0x08  // Switch to testing levels
+#ifdef FUNCTESTING
+enum FunctestFlags {
+    FTF_Enabled             = 0x01, // Functional Tests Enabled
+    FTF_TestFailed          = 0x02, // Test failed, causes exit code -1 for cmd line automation
+    FTF_Abort               = 0x04, // Something went wrong, aborting
+    FTF_LevelLoaded         = 0x08, // For tracking if map is ready
+    FTF_ExitOnTestFailure   = 0x10, // If users want to exit on any test failure
+    FTF_IncludeLongTests    = 0x20, // If users want to run the long running test list
 };
 #endif
 
@@ -128,9 +141,12 @@ struct StartupParameters {
     unsigned char force_ppro_poly;
     int frame_skip;
     char selected_campaign[CMDLN_MAXLEN+1];
-#ifdef AUTOTESTING
-    unsigned char autotest_flags;
-    unsigned long autotest_exit_turn;
+    TbBool overrides[CMDLINE_OVERRIDES];
+    char config_file[CMDLN_MAXLEN+1];
+#ifdef FUNCTESTING
+    unsigned char functest_flags;
+    char functest_name[FTEST_MAX_NAME_LENGTH];
+    unsigned int functest_seed;
 #endif
 };
 
@@ -204,8 +220,8 @@ long packet_place_door(MapSubtlCoord stl_x, MapSubtlCoord stl_y, PlayerNumber pl
 TbBool all_dungeons_destroyed(const struct PlayerInfo *win_player);
 void reset_gui_based_on_player_mode(void);
 void reinit_tagged_blocks_for_player(PlayerNumber plyr_idx);
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long a3, long a4);
-void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, long eemodel);
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model);
+void draw_lightning(const struct Coord3d* pos1, const struct Coord3d* pos2, long eeinterspace, short ef_or_efel_model);
 void toggle_hero_health_flowers(void);
 void check_players_won(void);
 void check_players_lost(void);

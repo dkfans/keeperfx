@@ -577,14 +577,14 @@ void init_key_to_strings(void)
  * @param y Pannel map circle start Y coordinate.
  * @return
  */
-TbBool mouse_is_over_pannel_map(ScreenCoord x, ScreenCoord y)
+TbBool mouse_is_over_panel_map(ScreenCoord x, ScreenCoord y)
 {
     long cmx = GetMouseX();
     long cmy = GetMouseY();
     int units_per_px = (16 * status_panel_width + 140 / 2) / 140;
-    long px = (cmx - (x + PANNEL_MAP_RADIUS * units_per_px / 16));
-    long py = (cmy - (y + PANNEL_MAP_RADIUS * units_per_px / 16));
-    return (LbSqrL(px*px + py*py) < PANNEL_MAP_RADIUS*units_per_px/16);
+    long px = (cmx - (x + PANEL_MAP_RADIUS * units_per_px / 16));
+    long py = (cmy - (y + PANEL_MAP_RADIUS * units_per_px / 16));
+    return (LbSqrL(px*px + py*py) < PANEL_MAP_RADIUS*units_per_px/16);
 }
 /******************************************************************************/
 #ifdef __cplusplus

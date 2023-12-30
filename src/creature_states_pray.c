@@ -390,13 +390,13 @@ short cleanup_sacrifice(struct Thing *creatng)
 
 TbBool tally_sacrificed_imps(PlayerNumber plyr_idx, short count)
 {
-    struct DungeonAdd* dungeonadd;
-    dungeonadd = get_dungeonadd(plyr_idx);
-    if (dungeonadd_invalid(dungeonadd)) {
+    struct Dungeon* dungeon;
+    dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon)) {
         ERRORDBG(11, "Can't change imp price, player %d has no dungeon.", (int)plyr_idx);
         return false;
     }
-    dungeonadd->cheaper_diggers += count;
+    dungeon->cheaper_diggers += count;
     return true;
 }
 
@@ -492,14 +492,13 @@ TbBool sacrifice_victim_conditions_met(struct Dungeon *dungeon, struct Sacrifice
 long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
     if (dungeon_invalid(dungeon))
     {
         ERRORLOG("Player %d cannot sacrifice creatures.", (int)plyr_idx);
         return 0;
   }
   long ret = SacR_DontCare;
-  struct SacrificeRecipe* sac = &gameadd.sacrifice_recipes[0];
+  struct SacrificeRecipe* sac = &game.conf.rules.sacrifices.sacrifice_recipes[0];
   do {
     // Check if the just sacrificed creature is in the sacrifice
     if (sacrifice_victim_model_count(sac,model) > 0)
@@ -519,11 +518,11 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
           break;
         }
       }
-      SYNCDBG(8,"Creature %d used in sacrifice %d",(int)model,(int)(sac-&gameadd.sacrifice_recipes[0]));
+      SYNCDBG(8,"Creature %d used in sacrifice %d",(int)model,(int)(sac-&game.conf.rules.sacrifices.sacrifice_recipes[0]));
       // Check if the complete sacrifice condition is met
       if (sacrifice_victim_conditions_met(dungeon, sac))
       {
-        SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&gameadd.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
+        SYNCDBG(6,"Sacrifice recipe %d condition met, action %d for player %d",(int)(sac-&game.conf.rules.sacrifices.sacrifice_recipes[0]),(int)sac->action,(int)plyr_idx);
         long explevel = creature_sacrifice_average_explevel(dungeon, sac);
         switch (sac->action)
         {
@@ -532,7 +531,7 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
             if ( summon_creature(sac->param, pos, plyr_idx, explevel) )
             {
                 dungeon->lvstats.creatures_from_sacrifice++;
-                dungeonadd->creature_awarded[sac->param]++;
+                dungeon->creature_awarded[sac->param]++;
             }
             ret = SacR_Awarded;
             break;
@@ -559,14 +558,14 @@ long process_sacrifice_award(struct Coord3d *pos, long model, PlayerNumber plyr_
         case SacA_CustomReward:
             if (sac->param > 0) // Zero means do nothing
             {
-                dungeonadd->script_flags[sac->param - 1]++;
+                dungeon->script_flags[sac->param - 1]++;
             }
             ret = SacR_Awarded;
             break;
         case SacA_CustomPunish:
             if (sac->param > 0)
             {
-                dungeonadd->script_flags[sac->param - 1]++;
+                dungeon->script_flags[sac->param - 1]++;
             }
             ret = SacR_Punished;
             break;
@@ -731,14 +730,14 @@ TbBool find_temple_pool(int player_idx, struct Coord3d *pos)
 {
     struct Room *best_room = NULL;
     long max_value = 0;
-    struct DungeonAdd *dungeonadd = get_dungeonadd(player_idx);
+    struct Dungeon *dungeon = get_dungeon(player_idx);
 
 
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
-        if(room_role_matches(rkind,RoRoF_CrPoolSpawn))
+        if(room_role_matches(rkind, RoRoF_CrSacrifice))
         {
-            int k = 0, i = dungeonadd->room_kind[rkind];
+            int k = 0, i = dungeon->room_kind[rkind];
             while (i != 0)
             {
                 struct Room* room = room_get(i);

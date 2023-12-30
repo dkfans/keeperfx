@@ -107,14 +107,13 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
     struct PlayerInfo* player;
     struct Dungeon* dungeon;
     long best_score = LONG_MIN;
-    long best_backup_score = LONG_MIN;
     for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
         if (player_is_friendly_or_defeated(plyr_idx, creatng->owner)) {
             continue;
         }
         player = get_player(plyr_idx);
-        if (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
+        if (game.conf.rules.game.classic_bugs_flags & ClscBug_AlwaysTunnelToRed)
         {
             if (creature_can_get_to_dungeon_heart(creatng, plyr_idx))
             {
@@ -141,14 +140,16 @@ long good_find_best_enemy_dungeon(struct Thing* creatng)
                         best_plyr_idx = plyr_idx;
                     }
                 }
-                else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
+                // Disabled for performance reasons
+                /*else if ((has_available_rooms_to_attack(creatng, plyr_idx)) && best_plyr_idx == -1)
                 {
+                    long best_backup_score = LONG_MIN;
                     if (best_backup_score < score)
                     {
                         best_backup_score = score;
                         backup_plyr_idx = plyr_idx;
                     }
-                }
+                }*/
             }
         }
     }
@@ -1012,8 +1013,8 @@ short good_drops_gold(struct Thing *thing)
         erstat_inc(ESE_BadCreatrState);
         return 0;
     }
-    GoldAmount amount = game.pot_of_gold_holds;
-    if (thing->creature.gold_carried <= game.pot_of_gold_holds)
+    GoldAmount amount = game.conf.rules.game.pot_of_gold_holds;
+    if (thing->creature.gold_carried <= game.conf.rules.game.pot_of_gold_holds)
         amount = thing->creature.gold_carried;
     struct Thing* gldtng = create_object(&thing->mappos, ObjMdl_GoldPot, thing->owner, -1);
     if (thing_is_invalid(gldtng)) {
@@ -1044,7 +1045,7 @@ short good_leave_through_exit_door(struct Thing *thing)
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     thing->creature.gold_carried = 0;
-    cctrl->countdown_282 = game.hero_door_wait_time;
+    cctrl->countdown_282 = game.conf.rules.game.hero_door_wait_time;
     cctrl->hero.hero_gate_creation_turn = tmptng->creation_turn;
     struct Thing* dragtng = thing_get(cctrl->dragtng_idx);
     if (cctrl->dragtng_idx != 0)
@@ -1129,7 +1130,7 @@ short creature_hero_entering(struct Thing *thing)
     }
     if (cctrl->countdown_282 == 0)
     {
-        thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->clipbox_size_yz - 1;
+        thing->mappos.z.val = get_ceiling_height(&thing->mappos) - (long)thing->clipbox_size_z - 1;
         cctrl->countdown_282--;
         return CrStRet_Modified;
     }
@@ -1158,7 +1159,7 @@ long get_best_dungeon_to_tunnel_to(struct Thing *creatng)
         if (player_exists(player) && !dungeon_invalid(dungeon) && (creatng->owner != plyr_idx))
         {
             long score = dungeon->total_score; //Original code: = dungeon->total_score -20 * dungeon->total_score * dungeon->field_F7D / 100;
-            if ((score <= 0) || (gameadd.classic_bugs_flags & ClscBug_AlwaysTunnelToRed))
+            if ((score <= 0) || (game.conf.rules.game.classic_bugs_flags & ClscBug_AlwaysTunnelToRed))
             {
                 score = 0;
             }
@@ -1337,7 +1338,6 @@ short tunneller_doing_nothing(struct Thing *creatng)
         return 1;
     }
 
-    // int plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
     int plyr_idx = get_best_dungeon_to_tunnel_to(creatng);
     if (CurrentTarget != -1)
     {
@@ -1377,7 +1377,7 @@ long creature_tunnel_to(struct Thing *creatng, struct Coord3d *pos, short speed)
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     SYNCDBG(6,"Move %s index %d from (%d,%d) to (%d,%d) with speed %d",thing_model_name(creatng),(int)creatng->index,(int)creatng->mappos.x.stl.num,(int)creatng->mappos.y.stl.num,(int)pos->x.stl.num,(int)pos->y.stl.num,(int)speed);
     cctrl->navi.field_19[0] = 0;
-    if (get_2d_box_distance(&creatng->mappos, pos) <= 32)
+    if (get_chessboard_distance(&creatng->mappos, pos) <= 32)
     {
         // We've reached the destination
         creature_set_speed(creatng, 0);

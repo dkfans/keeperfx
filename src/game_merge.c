@@ -42,7 +42,7 @@ unsigned long game_flags2 = 0;
 TbBool emulate_integer_overflow(unsigned short nbits)
 {
     if (nbits == 8)
-        return (gameadd.classic_bugs_flags & ClscBug_Overflow8bitVal) != 0;
+        return (game.conf.rules.game.classic_bugs_flags & ClscBug_Overflow8bitVal) != 0;
     return false;
 }
 
@@ -141,7 +141,7 @@ TbBool set_bonus_level_visibility(LevelNumber bn_lvnum, TbBool visible)
     WARNLOG("Bonus level %d has invalid store position.",(int)bn_lvnum);
     return false;
   }
-  set_flag_byte(&intralvl.bonuses_found[n], k, visible);
+  set_flag_value(intralvl.bonuses_found[n], k, visible);
   return true;
 }
 

@@ -75,6 +75,7 @@ const struct NamedCommand game_rule_desc[] = {
   {"AlliesShareCta",                31},
   {"BarrackMaxPartySize",           32},
   {"MaxThingsInHand",               33},
+  {"TrainingRoomMaxLevel",          34},
   {NULL,                             0},
 };
 
@@ -575,12 +576,11 @@ static void command_add_tunneller_to_level(long plr_range_id, const char *locnam
     } else
     {
         struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
-        set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
+        set_flag_value(tn_trig->flags, TrgF_REUSABLE, next_command_reusable);
+        clear_flag(tn_trig->flags, TrgF_DISABLED);
         tn_trig->plyr_idx = plr_id;
         tn_trig->location = location;
         tn_trig->heading = heading;
-        tn_trig->heading_OLD = 0; //target is now contained in heading and this is unused
         tn_trig->carried_gold = carried_gold;
         tn_trig->crtr_level = crtr_level-1;
         tn_trig->carried_gold = carried_gold;
@@ -636,12 +636,11 @@ static void command_add_tunneller_party_to_level(long plr_range_id, const char *
     } else
     {
         struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
-        set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
+        set_flag_value(tn_trig->flags, TrgF_REUSABLE, next_command_reusable);
+        clear_flag(tn_trig->flags, TrgF_DISABLED);
         tn_trig->plyr_idx = plr_id;
         tn_trig->location = location;
         tn_trig->heading = heading;
-        tn_trig->heading_OLD = 0; //target is now contained in heading and this is unused
         tn_trig->carried_gold = carried_gold;
         tn_trig->crtr_level = crtr_level-1;
         tn_trig->carried_gold = carried_gold;
@@ -721,7 +720,7 @@ static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, lon
     command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
 }
 
-static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6)
+static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6, long val7)
 {
   int plr_start;
   int plr_end;
@@ -746,6 +745,10 @@ static void command_set_computer_globals(long plr_range_id, long val1, long val2
     comp->max_room_build_tasks = val4;
     comp->turn_begin           = val5;
     comp->sim_before_dig       = val6;
+    if (val7 != '\0')
+    {
+        comp->task_delay = val7;
+    }
   }
 }
 
@@ -881,7 +884,7 @@ static void command_set_computer_process(long plr_range_id, const char *procname
       for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
       {
           struct ComputerProcess* cproc = &comp->processes[k];
-          if ((cproc->flags & ComProc_Unkn0002) != 0)
+          if (flag_is_set(cproc->flags, ComProc_Unkn0002))
               break;
           if (cproc->name == NULL)
               break;
@@ -1165,7 +1168,7 @@ static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
       SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
       return;
   }
-  struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_id];
+  struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
       SCRPTERRLOG("Unable to swap special diggers");
@@ -1294,15 +1297,6 @@ static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, co
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
   }
-  PowerKind pwr = mag_id;
-  if((PlayerNumber) plr_range_id > PLAYER3)
-  {
-    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
-  }
 
   // encode params: free, magic, level -> into 3xbyte: FML
   long fml_bytes;
@@ -1332,15 +1326,6 @@ static void command_use_power_at_location(long plr_range_id, const char *locname
   {
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
-  }
-  PowerKind pwr = mag_id;
-  if((PlayerNumber) plr_range_id > PLAYER3)
-  {
-    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
   }
 
   TbMapLocation location;
@@ -1785,7 +1770,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_if_slab_type(scline->np[0], scline->np[1], scline->np[2]);
         break;
     case Cmd_SET_COMPUTER_GLOBALS:
-        command_set_computer_globals(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
+        command_set_computer_globals(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6], scline->np[7]);
         break;
     case Cmd_SET_COMPUTER_CHECKS:
         command_set_computer_checks(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);

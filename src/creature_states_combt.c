@@ -232,6 +232,13 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
     // Neutral creatures are not easily scared, as they shouldn't have enemies
     if (is_neutral_thing(creatng))
         return false;
+    if (creature_affected_by_spell(enmtng, SplK_TimeBomb))
+    {
+        if (creature_has_ranged_weapon(creatng) == false)
+        {
+            return true;
+        }
+    }
     // Creature with fear 101 are scared of everything other that their own model
     if (crstat->fear_wounded >= 101)
     {
@@ -265,7 +272,7 @@ TbBool creature_is_actually_scared(const struct Thing *creatng, const struct Thi
         return true;
     }
     // Units dropped will fight stronger units for a bit
-    if ((cctrl->wait_to_turn > (long)game.play_gameturn))
+    if ((cctrl->dropped_turn + FIGHT_FEAR_DELAY) > game.play_gameturn)
     {
         return false;
     }
@@ -564,7 +571,7 @@ void update_battle_events(BattleIndex battle_id)
     MapCoord map_x = -1;
     MapCoord map_y = -1;
     MapCoord map_z = -1;
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     unsigned long k = 0;
     struct CreatureBattle* battle = creature_battle_get(battle_id);
     int i = battle->first_creatr;
@@ -580,7 +587,7 @@ void update_battle_events(BattleIndex battle_id)
         struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
         i = cctrl->battle_prev_creatr;
         // Per thing code starts
-        owner_flags |= (1 << thing->owner);
+        set_flag(owner_flags, to_flag(thing->owner));
         map_x = thing->mappos.x.val;
         map_y = thing->mappos.y.val;
         map_z = thing->mappos.z.val;
@@ -596,13 +603,13 @@ void update_battle_events(BattleIndex battle_id)
     {
         if ((i == game.hero_player_num) || (i == game.neutral_player_num))
             continue;
-        if ((1 << i) & owner_flags) 
+        if (flag_is_set(owner_flags, to_flag(i)))
         {
-            dungeonadd = get_dungeonadd(i);
-            dungeonadd->last_combat_location.x.val = map_x;
-            dungeonadd->last_combat_location.y.val = map_y;
-            dungeonadd->last_combat_location.z.val = map_z;
-            if ((1 << i) == owner_flags) {
+            dungeon = get_dungeon(i);
+            dungeon->last_combat_location.x.val = map_x;
+            dungeon->last_combat_location.y.val = map_y;
+            dungeon->last_combat_location.z.val = map_z;
+            if (owner_flags == to_flag(i)) { // if the current player (i) is the only player in the fight
                 event_create_event_or_update_old_event(map_x, map_y, EvKind_FriendlyFight, i, 0);
             } else {
                 event_create_event_or_update_old_event(map_x, map_y, EvKind_EnemyFight, i, 0);
@@ -1206,7 +1213,7 @@ TbBool set_creature_in_combat_to_the_death(struct Thing *fighter, struct Thing *
     return true;
 }
 
-CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct Room *room,long crmodel, struct Thing **enemytng)
+CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct Room *room,short crmodel[], struct Thing **enemytng)
 {
     SYNCDBG(8,"Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(fightng->owner);
@@ -1224,19 +1231,24 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        if (thing_is_creature(thing) && (thing->model == crmodel) && (cctrl->combat_flags == 0))
+        for (short j = 0; j < LAIR_ENEMY_MAX; j++)
         {
-            if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
-             && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
+            if (crmodel[j] == 0)
+                break;
+            if (thing_is_creature(thing) && (thing->model == crmodel[j]) && (cctrl->combat_flags == 0))
             {
-                if ((thing->index != fightng->index) && (get_room_thing_is_on(thing)->index == room->index))
+                if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
+                    && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))
                 {
-                    long dist = get_combat_distance(fightng, thing);
-                    CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, dist, 0, 0);
-                    if (attack_type > AttckT_Unset)
+                    if ((thing->index != fightng->index) && (get_room_thing_is_on(thing)->index == room->index))
                     {
-                        *enemytng = thing;
-                        return attack_type;
+                        long dist = get_combat_distance(fightng, thing);
+                        CrAttackType attack_type = creature_can_have_combat_with_creature(fightng, thing, dist, 0, 0);
+                        if (attack_type > AttckT_Unset)
+                        {
+                            *enemytng = thing;
+                            return attack_type;
+                        }
                     }
                 }
             }
@@ -1300,7 +1312,7 @@ short creature_combat_flee(struct Thing *creatng)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     GameTurnDelta turns_in_flee = game.play_gameturn - (GameTurnDelta)cctrl->flee_start_turn;
-    if (get_2d_box_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
+    if (get_chessboard_distance(&creatng->mappos, &cctrl->flee_pos) >= 1536)
     {
         SYNCDBG(8,"Starting distant flee for %s index %d",thing_model_name(creatng),(int)creatng->index);
         if (has_melee_combat_attackers(creatng) || has_ranged_combat_attackers(creatng)
@@ -1314,9 +1326,9 @@ short creature_combat_flee(struct Thing *creatng)
             }
             cctrl->flee_start_turn = game.play_gameturn;
         } else
-        if (turns_in_flee <= game.game_turns_in_flee)
+        if (turns_in_flee <= game.conf.rules.creature.game_turns_in_flee)
         {
-            GameTurnDelta escape_turns = (game.game_turns_in_flee >> 2);
+            GameTurnDelta escape_turns = (game.conf.rules.creature.game_turns_in_flee >> 2);
             if (escape_turns <= 50)
                 escape_turns = 50;
             if (turns_in_flee <= escape_turns)
@@ -1349,7 +1361,7 @@ short creature_combat_flee(struct Thing *creatng)
                 return 1;
             }
         }
-        if (turns_in_flee <= game.game_turns_in_flee)
+        if (turns_in_flee <= game.conf.rules.creature.game_turns_in_flee)
         {
             if (creature_choose_random_destination_on_valid_adjacent_slab(creatng)) {
                 creatng->continue_state = CrSt_CreatureCombatFlee;
@@ -1735,8 +1747,11 @@ long ranged_combat_move(struct Thing *thing, struct Thing *enmtng, MapCoordDelta
     }
     if (cctrl->job_assigned == Job_GUARD)
     {
-        if (guard_post_combat_move(thing, nstat)) {
-            return false;
+        if ((cctrl->turns_at_job > 0))
+        {
+            if (guard_post_combat_move(thing, nstat)) {
+                return false;
+            }
         }
     }
     if (!combat_has_line_of_sight(thing, enmtng, enmdist))
@@ -1781,6 +1796,7 @@ TbBool creature_would_benefit_from_healing(const struct Thing* thing)
  */
 CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
 {
+    struct InstanceInfo* inst_inf;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
     {
@@ -1810,6 +1826,17 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
     }
+    for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
+    {
+        inst_inf = creature_instance_info_get(i);
+        if ((inst_inf->flags & InstPF_SelfBuff))
+        {
+            if (!creature_affected_by_spell(thing, inst_inf->func_params[1]))
+            {
+                INSTANCE_RET_IF_AVAIL(thing, i);
+            }
+        }
+    }
     return CrInst_NULL;
 }
 
@@ -1831,7 +1858,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
 
-        for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
+        for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
             if (i == CrInst_HEAL)
                 continue;
@@ -1915,7 +1942,7 @@ CrInstance get_best_combat_weapon_instance_to_use(const struct Thing *thing, lon
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
-    for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
+    for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
         if (inst_inf->range_min < 0) //instance is not a combat weapon
@@ -1947,7 +1974,7 @@ CrInstance get_best_combat_weapon_instance_to_use_versus_trap(const struct Thing
 {
     CrInstance inst_id = CrInst_NULL;
     struct InstanceInfo* inst_inf;
-    for (short i = 0; i < gameadd.crtr_conf.instances_count; i++)
+    for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
         if (inst_inf->range_min < 0) //instance is not a combat weapon
@@ -2240,8 +2267,11 @@ long melee_combat_move(struct Thing *thing, struct Thing *enmtng, long enmdist, 
     }
     if (cctrl->job_assigned == Job_GUARD)
     {
-        if (guard_post_combat_move(thing, nstat)) {
-            return false;
+        if ((cctrl->turns_at_job > 0))
+        {
+            if (guard_post_combat_move(thing, nstat)) {
+                return false;
+            }
         }
     }
     if (enmdist < 156)
@@ -2317,8 +2347,8 @@ TbBool creature_in_flee_zone(struct Thing *thing)
         ERRORLOG("Creature index %d has invalid control",(int)thing->index);
         return false;
     }
-    unsigned long dist = get_2d_box_distance(&thing->mappos, &cctrl->flee_pos);
-    return (dist < gameadd.flee_zone_radius);
+    unsigned long dist = get_chessboard_distance(&thing->mappos, &cctrl->flee_pos);
+    return (dist < game.conf.rules.creature.flee_zone_radius);
 }
 
 TbBool creature_too_scared_for_combat(struct Thing *thing, struct Thing *enmtng)
@@ -2451,7 +2481,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
 {
     int i;
     struct CreatureControl* cctrl = creature_control_get_from_thing(enemy);
-    MapCoordDelta dist = get_2d_box_distance(&fighter->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + fighter->clipbox_size_xy) / 2;
+    MapCoordDelta dist = get_chessboard_distance(&fighter->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + fighter->clipbox_size_xy) / 2;
     struct Thing* best_fightng = fighter;
     long best_score = get_combat_score(fighter, enemy, attack_type, dist);
     long prev_score = best_score;
@@ -2468,7 +2498,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
           {
               creatng = thing_get(cctrl->opponents_ranged[i]);
               struct CreatureControl* crctrl = creature_control_get_from_thing(creatng);
-              dist = get_2d_box_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
+              dist = get_chessboard_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
               score = get_combat_score(creatng, enemy, crctrl->combat.attack_type, dist);
               if (creature_is_actually_scared(creatng, enemy)) {
                   score -= 512;
@@ -2490,7 +2520,7 @@ long change_creature_with_existing_attacker(struct Thing *fighter, struct Thing 
             {
                 creatng = thing_get(cctrl->opponents_melee[i]);
                 struct CreatureControl* csctrl = creature_control_get_from_thing(creatng);
-                dist = get_2d_box_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
+                dist = get_chessboard_distance(&creatng->mappos, &enemy->mappos) - (enemy->clipbox_size_xy + creatng->clipbox_size_xy) / 2;
                 score = get_combat_score(creatng, enemy, csctrl->combat.attack_type, dist);
                 if (creature_is_actually_scared(creatng, enemy)) {
                     score -= 512;
@@ -2628,8 +2658,11 @@ long waiting_combat_move(struct Thing *figtng, struct Thing *enmtng, long enmdis
     }
     if (figctrl->job_assigned == Job_GUARD)
     {
-        if (guard_post_combat_move(figtng, retreat_crstate)) {
-            return 0;
+        if ((figctrl->turns_at_job > 0))
+        {
+            if (guard_post_combat_move(figtng, retreat_crstate)) {
+                return false;
+            }
         }
     }
     if (enmdist < 768) {
@@ -3014,7 +3047,7 @@ TbBool creature_look_for_combat(struct Thing *creatng)
     }
 
     // If not too scared for combat, then do the combat
-    if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->wait_to_turn > (long)game.play_gameturn) )
+    if ((!creature_too_scared_for_combat(creatng, enmtng)) || (cctrl->dropped_turn + FIGHT_FEAR_DELAY >= game.play_gameturn) )
     {
         set_creature_in_combat(creatng, enmtng, attack_type);
         return true;
@@ -3102,7 +3135,7 @@ struct Thing* check_for_object_to_fight(struct Thing* thing) //just traps now, c
         {
             if (players_are_enemies(thing->owner, trpthing->owner))
             {
-                struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[trpthing->model];
+                struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[trpthing->model];
                 if (creature_can_see_invisible(thing) || (trapst->hidden == 0) || (trpthing->trap.revealed == 1))
                 {
                     return trpthing;
