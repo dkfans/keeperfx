@@ -43,6 +43,9 @@ enum SpecialKinds {
     SpcKind_MakeSafe,
     SpcKind_HiddnWorld,
     SpcKind_Custom,
+    SpcKind_HealAll,
+    SpcKind_GetGold,
+    SpcKind_MakeAngry,
 };
 
 /******************************************************************************/

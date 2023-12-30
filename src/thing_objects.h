@@ -125,6 +125,9 @@ enum ObjectModels
     ObjMdl_HeartFlameBlack = 167,
     ObjMdl_GuardFlagOrange = 168,
     ObjMdl_HeartFlameOrange = 169,
+    ObjMdl_SpecboxHealAll = 170,
+    ObjMdl_SpecboxGetGold = 171,
+    ObjMdl_SpecboxMakeAngry = 172,
 };
 
 /**

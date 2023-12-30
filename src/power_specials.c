@@ -39,6 +39,7 @@
 #include "map_utils.h"
 #include "spdigger_stack.h"
 #include "thing_corpses.h"
+#include "thing_creature.h"
 #include "thing_objects.h"
 #include "front_simple.h"
 #include "frontend.h"
@@ -447,6 +448,9 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
           used = 1;
           delete_thing_structure(cratetng, 0);
           break;
+        case SpcKind_HealAll:
+        case SpcKind_GetGold:
+        case SpcKind_MakeAngry:
         case SpcKind_Custom:
         default:
             if (thing_is_custom_special_box(cratetng))
