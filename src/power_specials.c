@@ -449,11 +449,17 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
           delete_thing_structure(cratetng, 0);
           break;
         case SpcKind_HealAll:
+            do_to_players_all_creatures_of_model(player->id_number, CREATURE_ANY, update_creature_health_to_max_with_heal_effect);
+            remove_events_thing_is_attached_to(cratetng);
+            used = 1;
+            delete_thing_structure(cratetng, 0);
+            break;
         case SpcKind_GetGold:
             throw_out_gold(cratetng, 6666);
             remove_events_thing_is_attached_to(cratetng);
             used = 1;
             delete_thing_structure(cratetng, 0);
+            break;
         case SpcKind_MakeAngry:
         case SpcKind_Custom:
         default:
