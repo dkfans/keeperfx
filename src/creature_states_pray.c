@@ -437,6 +437,7 @@ long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, l
   {
   case UnqF_MkAllAngry:
       make_all_players_creatures_angry(plyr_idx);
+      return SacR_Punished;
   case UnqF_MkAllVerAngry:
       make_all_players_creatures_very_angry(plyr_idx);
       return SacR_Punished;
