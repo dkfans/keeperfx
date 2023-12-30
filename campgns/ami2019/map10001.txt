@@ -7,6 +7,8 @@ REM v2.0 for DAT file objectives (by dayokay)
 REM 14-Nov-2020
 REM ****************************************************
 
+REM WALTER DESKTOP GITHUB TEST
+
 LEVEL_VERSION(1)
 START_MONEY(PLAYER0,3000)
 
