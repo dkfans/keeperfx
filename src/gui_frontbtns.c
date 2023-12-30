@@ -442,17 +442,17 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
     case 3:
         px = gmnu->pos_x;
         py = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + gmnu->pos_y;
-        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height, ROUNDSLAB64K_LIGHT);
         break;
     case 1:
         px = gmnu->pos_x;
         py = MyScreenHeight - fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time);
-        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height, ROUNDSLAB64K_LIGHT);
         break;
     default:
         px = gmnu->pos_x;
         py = gmnu->pos_y;
-        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height, ROUNDSLAB64K_LIGHT);
         break;
     }
 }

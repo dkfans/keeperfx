@@ -154,7 +154,7 @@ long slabmap_owner(const struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
         return NEUTRAL_PLAYER;
-    return slb->flags & 0x07;
+    return slb->owner;
 }
 
 /**
@@ -182,7 +182,7 @@ void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
         }
     }
 
-    slb->flags ^= (slb->flags ^ owner) & 0x07;
+    slb->owner = owner;
 }
 
 /**
@@ -191,18 +191,18 @@ void set_slab_owner(MapSlabCoord slb_x, MapSlabCoord slb_y, PlayerNumber owner)
 unsigned long slabmap_wlb(struct SlabMap *slb)
 {
     if (slabmap_block_invalid(slb))
-        return 0;
-    return (slb->flags >> 3) & 0x03;
+        return WlbT_None;
+    return slb->wlb_type;
 }
 
 /**
  * Sets Water-Lava under Bridge flags for given SlabMap.
  */
-void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlbflag)
+void slabmap_set_wlb(struct SlabMap *slb, unsigned long wlb_type)
 {
     if (slabmap_block_invalid(slb))
         return;
-    slb->flags ^= (slb->flags ^ (wlbflag << 3)) & 0x18;
+    slb->wlb_type = wlb_type;
 }
 
 /**
@@ -551,7 +551,7 @@ void reveal_whole_map(struct PlayerInfo *player)
 {
     clear_dig_for_map_rect(player->id_number,0,gameadd.map_tiles_x,0,gameadd.map_tiles_y);
     reveal_map_rect(player->id_number,1,gameadd.map_subtiles_x,1,gameadd.map_subtiles_y);
-    pannel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
+    panel_map_update(0, 0, gameadd.map_subtiles_x+1, gameadd.map_subtiles_y+1);
 }
 
 void update_blocks_in_area(MapSubtlCoord sx, MapSubtlCoord sy, MapSubtlCoord ex, MapSubtlCoord ey)

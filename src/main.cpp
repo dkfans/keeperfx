@@ -531,7 +531,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     {
       if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
       {
-        thing->health -= game.boulder_reduce_health_wall;
+        thing->health -= game.conf.rules.game.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
       if ( blocked_flags & SlbBloF_WalledX )
@@ -618,7 +618,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
             }
             if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
             {
-                boulder->health -= game.boulder_reduce_health_room; // decrease boulder health
+                boulder->health -= game.conf.rules.game.boulder_reduce_health_room; // decrease boulder health
             }
             return 1; // guardpost destroyed
         }
@@ -985,7 +985,7 @@ void init_keeper(void)
     init_top_texture_to_cube_table();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
-      game.generate_speed = game.default_generate_speed;
+      game.generate_speed = game.conf.rules.rooms.default_generate_speed;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     lbDisplay.DrawColour = colours[15][15][15];
@@ -1312,8 +1312,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
 
 TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     *map_x = 0;
     *map_y = 0;
     if ( (pointer_x >= 0) && (pointer_y >= 0)
@@ -1392,7 +1391,7 @@ void update_creatr_model_activities_list(void)
     int num_breeds;
     num_breeds = no_of_breeds_owned;
     // Add to breed activities
-    for (crmodel=1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
             && (crmodel != get_players_spectator_model(my_player_number)))
@@ -1413,7 +1412,7 @@ void update_creatr_model_activities_list(void)
         }
     }
     // Remove from breed activities
-    for (crmodel=1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
           && (crmodel != get_players_special_digger_model(my_player_number)))
@@ -1843,7 +1842,7 @@ void reset_creature_max_levels(void)
     {
         struct Dungeon *dungeon;
         dungeon = get_dungeon(i);
-        for (k=1; k < gameadd.crtr_conf.model_count; k++)
+        for (k=1; k < game.conf.crtr_conf.model_count; k++)
         {
             dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
         }
@@ -2203,10 +2202,9 @@ void clear_lookups(void)
 void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
 {
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
     struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
-    if (playeradd->mouse_is_offmap == true) {
+    if (player->mouse_is_offmap == true) {
         light->disable_interp_for_turns = 2;
     }
     if (light->disable_interp_for_turns > 0) {
@@ -2420,7 +2418,7 @@ void count_players_creatures_being_paid(int *creatures_count)
 
 void process_payday(void)
 {
-    game.pay_day_progress = game.pay_day_progress + (gameadd.pay_day_speed / 100);
+    game.pay_day_progress = game.pay_day_progress + (game.conf.rules.game.pay_day_speed / 100);
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -2435,7 +2433,7 @@ void process_payday(void)
             compute_and_update_player_backpay_total(plyr_idx);
         }
     }
-    if (game.pay_day_gap <= game.pay_day_progress)
+    if (game.conf.rules.game.pay_day_gap <= game.pay_day_progress)
     {
         output_message(SMsg_Payday, 0, true);
         game.pay_day_progress = 0;
@@ -2621,9 +2619,9 @@ int clear_active_dungeons_stats(void)
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
           break;
-      memset((char *)dungeon->field_64, 0, gameadd.crtr_conf.model_count * 15 * sizeof(unsigned short));
-      memset((char *)dungeon->guijob_all_creatrs_count, 0, gameadd.crtr_conf.model_count *3*sizeof(unsigned short));
-      memset((char *)dungeon->guijob_angry_creatrs_count, 0, gameadd.crtr_conf.model_count *3*sizeof(unsigned short));
+      memset((char *)dungeon->field_64, 0, game.conf.crtr_conf.model_count * 15 * sizeof(unsigned short));
+      memset((char *)dungeon->guijob_all_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
+      memset((char *)dungeon->guijob_angry_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
   }
   return i;
 }
@@ -2713,7 +2711,7 @@ long update_cave_in(struct Thing *thing)
         create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
 
-    if ((turns_alive % game.turns_per_collapse_dngn_dmg) == 0)
+    if ((turns_alive % game.conf.rules.magic.turns_per_collapse_dngn_dmg) == 0)
     {
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
@@ -2724,7 +2722,7 @@ long update_cave_in(struct Thing *thing)
         param.class_id = 0;
         param.model_id = 0;
         param.num1 = thing->owner;
-        param.num2 = game.collapse_dungeon_damage;
+        param.num2 = game.conf.rules.magic.collapse_dungeon_damage;
         param.ptr3 = 0;
         do_cb = damage_creatures_with_physical_force;
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
@@ -3234,8 +3232,7 @@ void update_blocks_pointed(void)
     }
 
     struct PlayerInfo *player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    playeradd->mouse_is_offmap = out_of_bounds;
+    player->mouse_is_offmap = out_of_bounds;
 
     SYNCDBG(19,"Finished");
 }
@@ -4148,7 +4145,7 @@ short process_command_line(unsigned short argc, char *argv[])
         }
 
 #ifdef FUNCTESTING
-        ftest_init(); // initialise test framework on ftest build
+        set_flag(start_params.functest_flags, FTF_Enabled);
 #else
         WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
@@ -4157,6 +4154,14 @@ short process_command_line(unsigned short argc, char *argv[])
       {
 #ifdef FUNCTESTING
         set_flag(start_params.functest_flags, FTF_ExitOnTestFailure);
+#else
+       WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
+      }
+      else if(strcasecmp(parstr, "includelongtests") == 0)
+      {
+#ifdef FUNCTESTING
+        set_flag(start_params.functest_flags, FTF_IncludeLongTests);
 #else
        WARNLOG("Flag '%s' disabled for release builds.", parstr);
 #endif // FUNCTESTING
@@ -4190,6 +4195,10 @@ short process_command_line(unsigned short argc, char *argv[])
   }
   start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
+
+#ifdef FUNCTESTING
+  ftest_init(); // initialise test framework on ftest build
+#endif
 
   if(bad_param != 0)
   {

@@ -1524,6 +1524,11 @@ const struct TbSprite *get_button_sprite(short sprite_idx)
 {
     sprite_idx = get_player_colored_button_sprite_idx(sprite_idx,my_player_number);
 
+    return get_button_sprite_direct(sprite_idx);
+}
+
+const struct TbSprite *get_button_sprite_direct(short sprite_idx)
+{
     if (sprite_idx < GUI_BUTTON_SPRITES_COUNT)
         return &button_sprite[sprite_idx];
     else if (sprite_idx < num_icons_total)
