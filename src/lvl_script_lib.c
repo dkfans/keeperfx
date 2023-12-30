@@ -237,12 +237,9 @@ struct Thing* script_get_creature_by_criteria(PlayerNumber plyr_idx, long crmode
     case CSelCrit_LeastExpFighting:
         return find_players_lowest_level_creature_of_breed_and_gui_job(crmodel, CrGUIJob_Fighting, plyr_idx, 0);
     case CSelCrit_NearOwnHeart:
-    {
-        const struct Coord3d* pos = dungeon_get_essential_pos(plyr_idx);
-        return get_creature_near_and_owned_by(pos->x.val, pos->y.val, plyr_idx, crmodel);
-    }
+        return get_player_creature_in_range_around_own_heart(plyr_idx, crmodel, 11);
     case CSelCrit_NearEnemyHeart:
-        return get_creature_in_range_around_any_of_enemy_heart(plyr_idx, crmodel, 11);
+        return get_player_creature_in_range_around_any_enemy_heart(plyr_idx, crmodel, 11);
     case CSelCrit_OnEnemyGround:
         return get_random_players_creature_of_model_on_territory(plyr_idx, crmodel, 0);
     case CSelCrit_OnFriendlyGround:
