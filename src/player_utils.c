@@ -709,7 +709,7 @@ void init_player_as_single_keeper(struct PlayerInfo *player)
     player->field_4CD = 0;
     ilght.radius = 2560;
     ilght.intensity = 48;
-    ilght.field_3 = 5;
+    ilght.flags = 5;
     ilght.is_dynamic = 1;
     unsigned short idx = light_create_light(&ilght);
     player->cursor_light_idx = idx;

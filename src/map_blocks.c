@@ -950,7 +950,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                 ilght.mappos.z.val = pos.z.val;
                 ilght.radius = sobj->range << 8;
                 ilght.intensity = sobj->model;
-                ilght.field_3 = 0;
+                ilght.flags = 0;
                 ilght.is_dynamic = 0;
                 long lgt_id;
                 lgt_id = light_create_light(&ilght);

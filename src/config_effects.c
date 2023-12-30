@@ -94,7 +94,7 @@ static void load_effects(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind",effcst->affected_by_wind);
             CONDITIONAL_ASSIGN_INT(section,"LightRadius"   ,effcst->ilght.radius    );
             CONDITIONAL_ASSIGN_INT(section,"LightIntensity",effcst->ilght.intensity );
-            CONDITIONAL_ASSIGN_INT(section,"LightFlags"    ,effcst->ilght.field_3   );
+            CONDITIONAL_ASSIGN_INT(section,"LightFlags"    ,effcst->ilght.flags   );
             CONDITIONAL_ASSIGN_INT(section,"ElementsCount" ,effcst->elements_count  );
             CONDITIONAL_ASSIGN_INT(section,"AlwaysGenerate",effcst->always_generate );
         }
@@ -187,7 +187,7 @@ static void load_effectelements(VALUE *value, unsigned short flags)
             CONDITIONAL_ASSIGN_INT(section,"TransformModel", effelcst->transform_model  );
             CONDITIONAL_ASSIGN_INT(section,"LightRadius",    effelcst->light_radius     );
             CONDITIONAL_ASSIGN_INT(section,"LightIntensity", effelcst->light_intensity  );
-            CONDITIONAL_ASSIGN_INT(section,"LightFlags",     effelcst->light_field_3D   );
+            CONDITIONAL_ASSIGN_INT(section,"LightFlags",     effelcst->light_flags   );
             CONDITIONAL_ASSIGN_INT(section,"AffectedByWind", effelcst->affected_by_wind );
         }
     }
