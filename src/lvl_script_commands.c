@@ -4075,7 +4075,7 @@ static void play_message_process(struct ScriptContext *context)
     {
         if (!context->value->bytes[4])
         {
-            switch (game.msgtype_id[slot]) // Speech or Sound
+            switch (context->value->chars[1]) // Speech or Sound
             {
                 case 1:
                 {
