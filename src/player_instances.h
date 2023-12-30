@@ -33,7 +33,10 @@ enum PlayerNames {
     PLAYER3          =  3,
     PLAYER_GOOD      =  4,
     PLAYER_NEUTRAL   =  5,
-    ALL_PLAYERS      =  8,
+    PLAYER4          =  6,
+    PLAYER5          =  7,
+    PLAYER6          =  8,
+    ALL_PLAYERS      =  9,
 };
 
 enum PlayerInstanceNum {
