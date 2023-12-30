@@ -48,7 +48,7 @@
 struct Thing *create_room_surrounding_flame(struct Room *room, const struct Coord3d *pos,
     unsigned short eetype, PlayerNumber owner)
 {
-    struct Thing* eething = create_effect_element(pos, room_effect_elements[eetype & 7], owner);
+    struct Thing* eething = create_effect_element(pos, room_effect_elements[eetype], owner);
     if (!thing_is_invalid(eething))
     {
         eething->mappos.z.val = get_thing_height_at(eething, &eething->mappos);

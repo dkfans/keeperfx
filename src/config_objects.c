@@ -716,7 +716,7 @@ void update_all_object_stats()
     for (int i = slist->index; i > 0;)
     {
         struct Thing* thing = thing_get(i);
-        i = thing->next_of_class
+        i = thing->next_of_class;
             TRACE_THING(thing);
         struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
         int start_frame = 0;

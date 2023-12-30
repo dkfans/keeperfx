@@ -803,9 +803,9 @@ TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
     else if (crmodel == CREATURE_NONE)
         return false;
     if (crmodel == CREATURE_DIGGER)
-        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
+        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, creatng->model);
     else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel)) && (creatng->model != get_players_spectator_model(creatng->owner)));
+        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, creatng->model)) && (creatng->model != get_players_spectator_model(creatng->owner)));
     else
         ERRORLOG("Invalid model wildcard detected: %d", crmodel);
     return false;
@@ -3589,7 +3589,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return false;
 }
 
-struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+struct Thing* get_player_creature_in_range_around_any_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
 {
     int n = GAME_RANDOM(PLAYERS_COUNT);
     for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
@@ -3605,6 +3605,19 @@ struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
             }
         }
     }
+    return INVALID_THING;
+}
+
+struct Thing* get_player_creature_in_range_around_own_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+{
+        struct Thing* heartng = get_player_soul_container(plyr_idx); //todo backup hearts
+        if (thing_exists(heartng))
+        {
+            struct Thing* creatng = get_creature_in_range_of_model_owned_and_controlled_by(heartng->mappos.x.val, heartng->mappos.y.val, range, crmodel, plyr_idx);
+            if (!thing_is_invalid(creatng)) {
+                return creatng;
+            }
+        }
     return INVALID_THING;
 }
 
