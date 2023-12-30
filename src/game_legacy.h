@@ -270,6 +270,7 @@ unsigned int packet_file_pos;
     char loaded_track[MUSIC_TRACKS_COUNT][DISKPATH_SIZE];
     char loaded_sound[EXTERNAL_SOUNDS_COUNT][DISKPATH_SIZE];
     unsigned char sounds_count;
+    unsigned char msgtype_id[EXTERNAL_SOUNDS_COUNT];
     struct Configs conf;
 };
 

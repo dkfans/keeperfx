@@ -4060,6 +4060,7 @@ static void play_message_check(const struct ScriptLine *scline)
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
+        game.msgtype_id[slot] = msgtype_id;
         game.sounds_count++;
         SCRPTLOG("Loaded sound file %s into slot %u.", fname, slot);
         value->bytes[2] = slot;
@@ -4069,15 +4070,12 @@ static void play_message_check(const struct ScriptLine *scline)
 
 static void play_message_process(struct ScriptContext *context)
 {
-    unsigned char msgtype_id = context->value->chars[1];
-    unsigned char volume = (msgtype_id == 1) ? settings.mentor_volume : settings.sound_volume;
     unsigned char slot = context->value->bytes[2];
-    Mix_VolumeChunk(Ext_Sounds[slot], volume);
     if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
     {
         if (!context->value->bytes[4])
         {
-            switch (msgtype_id) // Speech or Sound
+            switch (game.msgtype_id[slot]) // Speech or Sound
             {
                 case 1:
                 {
@@ -4095,15 +4093,17 @@ static void play_message_process(struct ScriptContext *context)
         {
             if (!SoundDisabled)
             {
-                switch (context->value->chars[1])
+                switch (game.msgtype_id[slot])
                 {
                     case 1:
                     {
+                        Mix_VolumeChunk(Ext_Sounds[slot], settings.mentor_volume);
                         output_message(-context->value->bytes[2], 0, true);
                         break;
                     }
                     case 2:
                     {
+                        Mix_VolumeChunk(Ext_Sounds[slot], settings.sound_volume);
                         play_external_sound_sample(context->value->bytes[2]);
                         break;
                     }

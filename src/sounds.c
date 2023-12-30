@@ -644,7 +644,7 @@ void sound_reinit_after_load(void)
             Ext_Sounds[sample] = Mix_LoadWAV(fname);
             if (Ext_Sounds[sample] != NULL)
             {
-                Mix_VolumeChunk(Ext_Sounds[sample], settings.sound_volume);
+                Mix_VolumeChunk(Ext_Sounds[sample], (game.msgtype_id[sample] == 1) ? settings.mentor_volume : settings.sound_volume);
                 SYNCLOG("Loaded sound file %s into slot %u.", fname, sample);
                 game.sounds_count++;
             }
@@ -827,6 +827,7 @@ void free_sound_chunks()
         {
             Mix_FreeChunk(Ext_Sounds[i]);
             Ext_Sounds[i] = NULL;
+            game.msgtype_id[i] = 0;
             memset(game.loaded_sound[i],0,DISKPATH_SIZE);
         }
     }
