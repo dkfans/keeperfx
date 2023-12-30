@@ -4605,7 +4605,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
             }
             break;
         case 15: // Functions
-            powerst->overcharge_check = powermodel_expand_check_func_list[context->value->arg2];
+            powerst->overcharge_check_idx = context->value->arg2;
             break;
         case 16: // PlayerState
             powerst->work_state = context->value->arg2;
