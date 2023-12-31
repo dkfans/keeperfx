@@ -7198,3 +7198,8 @@ msgstr "Augmenter l'or : Génère de l'or dans votre trésorerie."
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
 msgstr "Rendre malheureux : Toutes les créatures de l'ennemi deviennent mécontentes."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Affaiblir les murs : Détruit les fortifications des murs ennemis."

@@ -6968,3 +6968,8 @@ msgstr "Öka Guld: Genererar guld i din skattkammare."
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
 msgstr "Göra Olyckliga: Alla varelser av fienden blir upprörda."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Försvaga väggarna: Förstör befästningarna på fiendens murar."

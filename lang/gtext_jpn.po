@@ -6846,3 +6846,8 @@ msgstr "ゴールド増加：財宝でゴールドを生成します。"
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
 msgstr "不幸にする： 敵のすべてのクリーチャーが不幸になります。"
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "壁を弱める：敵の城壁の防御施設を破壊します。"

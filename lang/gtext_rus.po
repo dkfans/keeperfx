@@ -7133,3 +7133,8 @@ msgstr "Увеличение золота: Генерирует золото в 
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
 msgstr "Сделать несчастными: Все существа врага расстраиваются."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Ослабление стен: Разрушает укрепления вражеских стен."

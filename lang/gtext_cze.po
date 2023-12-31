@@ -6948,3 +6948,8 @@ msgstr "Zvýšit zlato: Generuje zlato ve tvé pokladně."
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
 msgstr "Rozlít nespokojenost: Všechna stvoření nepřítele jsou rozčílená."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Oslabí zdi: Ničí opevnění nepřátelských zdí."

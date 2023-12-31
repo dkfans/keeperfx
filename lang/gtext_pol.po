@@ -7065,3 +7065,8 @@ msgstr "Zwiększ Złoto: Generuje złoto w twojej skarbnicy."
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
 msgstr "Spraw, by były nieszczęśliwe: Wszystkie istoty wroga stają się nieszczęśliwe."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Osłabiaj Ściany: Niszczy umocnienia wrogich murów."

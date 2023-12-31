@@ -6119,3 +6119,8 @@ msgstr "Aumentar Oro: Genera oro en tu tesoro."
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
 msgstr "Hacer Infelices: Todas las criaturas del enemigo se vuelven infelices."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Debilitar Murallas: Destruye las fortificaciones de las murallas enemigas."

@@ -6988,3 +6988,8 @@ msgstr "골드 증가: 국고에서 골드를 생성합니다."
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
 msgstr "불행하게 만들기: 적의 모든 생물이 화가 납니다."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "벽 약화: 적의 벽 방어를 파괴합니다."

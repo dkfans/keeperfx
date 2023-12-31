@@ -6594,3 +6594,8 @@ msgstr "增加黄金：在你的金库中生成黄金。"
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
 msgstr "使不高兴：敌人的所有生物变得不高兴。"
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "削弱城墙: 摧毁敌方城墙的防御工事。"

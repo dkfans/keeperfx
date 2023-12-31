@@ -7211,3 +7211,8 @@ msgstr "Gold erzeugen: Erzeugt Gold in eurer Schatzkammer."
 msgctxt "Dungeon special decription"
 msgid "Make Unhappy: All creatures of the enemy become upset."
 msgstr "Kreaturen verärgern: Alle Kreaturen des Feindes werden ärgerlich."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Mauern Schwächen: Zerstört die Befestigungen der feindlichen Mauern"
