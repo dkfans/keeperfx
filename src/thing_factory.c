@@ -248,10 +248,6 @@ TbBool thing_create_thing_adv(VALUE *init_data)
         ERRORLOG("Thing Ownership is not set");
         return false;
     }
-    /*TODO remove*/
-    /**/if (mappos.y.stl.num > 40*3)
-    /**/    owner +=6;
-    /**/
 
     if (owner > PLAYERS_COUNT)
     {

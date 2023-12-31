@@ -1135,12 +1135,7 @@ short load_map_ownership_file(LevelNumber lv_num)
       {
         if ((x < gameadd.map_subtiles_x) && (y < gameadd.map_subtiles_y))
         {
-            /***********TODO*remove**********/
-            /**/PlayerNumber plr = buf[i];/**/
-            /**/if(plr != 5 && y > (40*3))/**/
-            /**/    plr += 6;             /**/
-            /********************************/
-            set_slab_owner(subtile_slab(x),subtile_slab(y),plr);
+            set_slab_owner(subtile_slab(x),subtile_slab(y),buf[i]);
         }
         else
             set_slab_owner(subtile_slab(x),subtile_slab(y),NEUTRAL_PLAYER);
