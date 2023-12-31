@@ -3963,6 +3963,61 @@ TbBool creature_change_multiple_levels(struct Thing *thing, int count)
     }
 }
 
+void decrease_level(struct PlayerInfo *player, int count)
+{
+    struct CreatureControl *cctrl;
+    struct Thing *thing;
+    struct Dungeon* dungeon = get_dungeon(player->id_number);
+    // Decrease level of normal creatures
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+          ERRORLOG("Jump to invalid creature detected");
+          break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (count != 1) set_creature_level(thing, cctrl->explevel - count);
+        else set_creature_level(thing, cctrl->explevel - 1);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
+    }
+    // Decrease level of special diggers
+    k = 0;
+    i = dungeon->digger_list_start;
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+          ERRORLOG("Jump to invalid creature detected");
+          break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (count > 1) set_creature_level(thing, cctrl->explevel - count);
+        else set_creature_level(thing, cctrl->explevel - 1);
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping creatures list");
+          break;
+        }
+    }
+}
+
 /**
  * Creates creature of random evil kind, and with random experience level.
  * @param x
