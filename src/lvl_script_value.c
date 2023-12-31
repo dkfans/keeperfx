@@ -821,7 +821,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           set_player_ally_locked(val2, i, (val3 & 2) ? true : false);
       }
       break;
-      break;
   case Cmd_DEAD_CREATURES_RETURN_TO_POOL:
       set_flag_value(game.flags_cd, MFlg_DeadBackToPool, val2);
       break;
