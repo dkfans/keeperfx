@@ -398,7 +398,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   struct Dungeon* dungeon = get_dungeon(player->id_number);
   memcpy(&pos,&cratetng->mappos,sizeof(struct Coord3d));
   SpecialKind spkindidx = box_thing_to_special(cratetng);
-  struct SpecialConfigStats* specst = get_special_model_stats(spkindidx);;
+  struct SpecialConfigStats* specst = get_special_model_stats(spkindidx);
   short used = 0;
   TbBool no_speech = false;
   if (thing_exists(cratetng) && thing_is_special_box(cratetng))
