@@ -700,9 +700,8 @@ TbBool update_creature_health_to_max(struct Thing *thing)
     return true;
 }
 
-TbBool update_creature_health_to_max_with_heal_effect(struct Thing* thing)
+TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
 {
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     if (cctrl->max_health > thing->health)
     {
