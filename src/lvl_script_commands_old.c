@@ -1540,6 +1540,22 @@ static void command_creature_entrance_level(long plr_range_id, unsigned char val
   command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
 }
 
+static void command_decrease_level(long plr_range_id, long count)
+{
+    if (count < 1)
+    {
+        SCRPTWRNLOG("Invalid count: %d, setting to 1.", count);
+        count = 1;
+    }
+
+    if (count > 9)
+    {
+        SCRPTWRNLOG("Count too high: %d, setting to 9.", count);
+        count = 9;
+    }
+    command_add_value(Cmd_DECREASE_LEVEL, plr_range_id, count, 0, 0);
+}
+
 static void command_randomise_flag(long plr_range_id, const char *flgname, long val)
 {
     long flg_id;
@@ -1901,6 +1917,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_CREATURE_ENTRANCE_LEVEL:
         command_creature_entrance_level(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_DECREASE_LEVEL:
+        command_decrease_level(scline->np[0], scline->np[1]);
         break;
     case Cmd_RANDOMISE_FLAG:
         command_randomise_flag(scline->np[0], scline->tp[1], scline->np[2]);
