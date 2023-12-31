@@ -398,7 +398,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
   struct Dungeon* dungeon = get_dungeon(player->id_number);
   memcpy(&pos,&cratetng->mappos,sizeof(struct Coord3d));
   SpecialKind spkindidx = box_thing_to_special(cratetng);
-  struct SpecialConfigStats* specst;
+  struct SpecialConfigStats* specst = get_special_model_stats(spkindidx);;
   short used = 0;
   TbBool no_speech = false;
   if (thing_exists(cratetng) && thing_is_special_box(cratetng))
@@ -456,7 +456,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             delete_thing_structure(cratetng, 0);
             break;
         case SpcKind_GetGold:
-            throw_out_gold(cratetng, 6666);
+            throw_out_gold(cratetng, specst->value);
             remove_events_thing_is_attached_to(cratetng);
             used = 1;
             delete_thing_structure(cratetng, 0);
@@ -466,7 +466,7 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
             {
                 if (players_are_enemies(player->id_number, i))
                 {
-                    make_all_players_creatures_very_angry(i);
+                    add_anger_to_all_creatures_of_player(i, specst->value);
                 }
             }
             remove_events_thing_is_attached_to(cratetng);
@@ -501,7 +501,6 @@ void activate_dungeon_special(struct Thing *cratetng, struct PlayerInfo *player)
       }
       if ( used )
       {
-          specst = get_special_model_stats(spkindidx);
           if (is_my_player(player) && !no_speech)
           {
               output_message(specst->speech, 0, true);

@@ -202,7 +202,7 @@ TbBool summon_creature(long model, struct Coord3d *pos, long owner, long expleve
     return true;
 }
 
-TbBool make_all_players_creatures_very_angry(long plyr_idx)
+TbBool add_anger_to_all_creatures_of_player(long plyr_idx, short percentage)
 {
     SYNCDBG(8, "Starting");
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
@@ -220,7 +220,7 @@ TbBool make_all_players_creatures_very_angry(long plyr_idx)
         }
         i = cctrl->players_next_creature_idx;
         // Thing list loop body
-        anger_make_creature_very_angry(thing, AngR_Other);
+        anger_give_creatures_annoyance_percentage(thing, percentage, AngR_Other);
         // Thing list loop body ends
         k++;
         if (k > CREATURES_COUNT)
@@ -439,7 +439,7 @@ long create_sacrifice_unique_award(struct Coord3d *pos, PlayerNumber plyr_idx, l
       make_all_players_creatures_angry(plyr_idx);
       return SacR_Punished;
   case UnqF_MkAllVerAngry:
-      make_all_players_creatures_very_angry(plyr_idx);
+      add_anger_to_all_creatures_of_player(plyr_idx,201);
       return SacR_Punished;
   case UnqF_ComplResrch:
       force_complete_current_research(plyr_idx);

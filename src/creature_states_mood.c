@@ -358,12 +358,12 @@ TbBool anger_make_creature_angry(struct Thing *creatng, AnnoyMotive reason)
     return true;
 }
 
-TbBool anger_make_creature_very_angry(struct Thing* creatng, AnnoyMotive reason)
+TbBool anger_give_creatures_annoyance_percentage(struct Thing* creatng, short percentage, AnnoyMotive reason)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(creatng);
     if ((crstat->annoy_level <= 0))
         return false;
-    anger_increase_creature_anger(creatng, (crstat->annoy_level * 2)+1, reason);
+    anger_increase_creature_anger(creatng, (crstat->annoy_level * percentage/100), reason);
     return true;
 }
 
