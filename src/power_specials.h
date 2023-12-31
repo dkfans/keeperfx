@@ -46,6 +46,7 @@ enum SpecialKinds {
     SpcKind_HealAll,
     SpcKind_GetGold,
     SpcKind_MakeAngry,
+    SpcKind_MakeUnsafe,
 };
 
 /******************************************************************************/
@@ -59,6 +60,7 @@ void multiply_creatures(struct PlayerInfo *player);
 void increase_level(struct PlayerInfo *player, int count);
 TbBool steal_hero(struct PlayerInfo *player, struct Coord3d *pos);
 void make_safe(struct PlayerInfo *player);
+void make_unsafe(PlayerNumber plyr_idx);
 TbBool activate_bonus_level(struct PlayerInfo *player);
 void activate_dungeon_special(struct Thing *thing, struct PlayerInfo *player);
 void resurrect_creature(struct Thing *thing, PlayerNumber owner, ThingModel model, unsigned char crlevel);

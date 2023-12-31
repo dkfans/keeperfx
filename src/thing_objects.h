@@ -128,6 +128,7 @@ enum ObjectModels
     ObjMdl_SpecboxHealAll = 170,
     ObjMdl_SpecboxGetGold = 171,
     ObjMdl_SpecboxMakeAngry = 172,
+    ObjMdl_SpecboxMakeUnsafe = 173,
 };
 
 /**
