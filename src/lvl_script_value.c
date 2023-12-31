@@ -396,6 +396,16 @@ TbBool script_use_special_locate_hidden_world()
 }
 
 /**
+ * Decreases creatures' levels for player.
+ * @param plyr_idx target player
+ * @param count how many times should the level be decreased
+ */
+void script_decrease_level(PlayerNumber plyr_idx, int count)
+{
+    decrease_level(get_player(plyr_idx), count);
+}
+
+/**
  * Processes given VALUE immediately.
  * This processes given script command. It is used to process VALUEs at start when they have
  * no conditions, or during the gameplay when conditions are met.
@@ -996,6 +1006,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     }
     break;
   }
+  case Cmd_DECREASE_LEVEL:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_decrease_level(i, val2);
+      }
+      break;
   case Cmd_RANDOMISE_FLAG:
       for (i=plr_start; i < plr_end; i++)
       {
