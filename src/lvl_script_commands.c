@@ -4834,6 +4834,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_EFFECT_GENERATOR_CONFIGURATION","AAAnn   ", Cmd_SET_EFFECT_GENERATOR_CONFIGURATION, &set_effectgen_configuration_check, &set_effectgen_configuration_process },
   {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
   {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
+  {"DECREASE_LEVEL",                    "PN      ", Cmd_DECREASE_LEVEL, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
