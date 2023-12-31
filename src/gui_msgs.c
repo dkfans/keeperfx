@@ -23,6 +23,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_sprfnt.h"
+#include "config_spritecolors.h"
 #include "creature_graphics.h"
 #include "creature_instances.h"
 #include "gui_draw.h"
@@ -115,20 +116,16 @@ void message_draw(void)
             }
             else
             {
-                if (gameadd.messages[i].plyr_idx == game.hero_player_num)
-                {
-                    spr_idx = GPS_plyrsym_symbol_player_white_std;
-                }
-                else if (gameadd.messages[i].plyr_idx == game.neutral_player_num)
+                if (gameadd.messages[i].plyr_idx == game.neutral_player_num)
                 {
                     spr_idx = ((game.play_gameturn >> 1) & 3) + GPS_plyrsym_symbol_player_red_std_b;
                 }
                 else
                 {
-                    if (player_has_heart(gameadd.messages[i].plyr_idx)) {
-                        spr_idx = GPS_plyrsym_symbol_player_red_std_b + gameadd.messages[i].plyr_idx;
+                    if (player_has_heart(gameadd.messages[i].plyr_idx) || gameadd.messages[i].plyr_idx == game.hero_player_num) {
+                        spr_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_b,gameadd.messages[i].plyr_idx);
                     } else {
-                        spr_idx = GPS_plyrsym_symbol_player_red_dead + gameadd.messages[i].plyr_idx;
+                        spr_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_dead,gameadd.messages[i].plyr_idx);
                     }
                 }
             }
