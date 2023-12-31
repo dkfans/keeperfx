@@ -1784,7 +1784,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               powerst->artifact_model = 0;
               powerst->can_cast_flags = 0;
               powerst->config_flags = 0;
-              powerst->overcharge_check = NULL;
+              powerst->overcharge_check_idx = 0;
               powerst->work_state = 0;
               powerst->bigsym_sprite_idx = 0;
               powerst->medsym_sprite_idx = 0;
@@ -2059,11 +2059,11 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           break;
       case 15: // FUNCTIONS
-          powerst->overcharge_check = NULL;
+          powerst->overcharge_check_idx = 0;
           k = recognize_conf_parameter(buf,&pos,len,powermodel_expand_check_func_type);
           if (k > 0)
           {
-              powerst->overcharge_check = powermodel_expand_check_func_list[k];
+              powerst->overcharge_check_idx = k;
               n++;
           }
           if (n < 1)
