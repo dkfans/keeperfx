@@ -424,7 +424,7 @@ void frontend_draw_high_scores_mappack(struct GuiButton *gbtn)
     LbTextSetFont(frontend_font[2]);
     int tx_units_per_px = gbtn->height * 16 / LbTextLineHeight();
     LbTextSetWindow(gbtn->scr_pos_x, gbtn->scr_pos_y, gbtn->width, gbtn->height);
-    LbTextDrawResized(0, 0, tx_units_per_px, text);
+    LbTextDrawResized((dbc_language > 0) ? -30 : 0, 0, tx_units_per_px, text);
 }
 
 unsigned long count_high_scores()
