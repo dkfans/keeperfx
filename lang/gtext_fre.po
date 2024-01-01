@@ -63,7 +63,7 @@ msgid ""
 "view with the right ctrl key and cursor keys."
 msgstr ""
 "Utilisez les touches directionnelles pour naviguer à travers les zones infernales du sous-sol. "
-"Combinez les touches directionnelles avec Ctrl pour faire tourner la caméra ou pour zoomer."
+"Combinez les touches directionnelles avec la touche CTRL pour faire tourner la caméra ou pour zoomer."
 
 #. Level Eversmile objective when built Treasure Room
 #: guitext:4
