@@ -22,6 +22,8 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
+#include "bflib_sound.h"
 
 #include "thing_creature.h"
 #include "thing_navigate.h"
@@ -396,6 +398,9 @@ void make_unsafe(PlayerNumber plyr_idx)
     SlabCodedCoords slb_num;
     struct SlabMap* slb;
     struct SlabAttr* slbattr;
+    struct PowerConfigStats* powerst;
+    struct Dungeon* dungeon;
+    struct Coord3d pos;
     for (slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
         for (slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
@@ -408,8 +413,25 @@ void make_unsafe(PlayerNumber plyr_idx)
                 if ((slbattr->category == SlbAtCtg_FortifiedWall))
                 {
                     SlabKind newslab = choose_rock_type(plyr_idx, slb_x, slb_y);
+                    if (is_my_player_number(plyr_idx))
+                    {
+                        dungeon = get_dungeon(plyr_idx);
+                        dungeon->camera_deviate_jump = dungeon->camera_deviate_jump + 3; //Bigger jump on more slabs changed
+                        dungeon->camera_deviate_quake = 30; //30 frames of camera shaking
+                    }
+                    set_coords_to_slab_center(&pos, slb_x, slb_y);
+                    powerst = get_power_model_stats(PwrK_DESTRWALLS);
+                    play_sound_if_close_to_receiver(&pos, powerst->select_sound_idx);
                     place_slab_type_on_map(newslab, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 0);
                     do_slab_efficiency_alteration(slb_x, slb_y);
+                    struct Coord3d rcpos;
+                    rcpos.x.val = Receiver.pos.val_x;
+                    rcpos.y.val = Receiver.pos.val_y;
+                    rcpos.z.val = Receiver.pos.val_z;
+                    if (get_chessboard_3d_distance(&rcpos, &pos) < MaxSoundDistance)
+                    {
+                        create_dirt_rubble_for_dug_slab(slb_x, slb_y);
+                    }
                 }
             }
         }
