@@ -413,12 +413,10 @@ void make_unsafe(PlayerNumber plyr_idx)
                 if ((slbattr->category == SlbAtCtg_FortifiedWall))
                 {
                     SlabKind newslab = choose_rock_type(plyr_idx, slb_x, slb_y);
-                    if (is_my_player_number(plyr_idx))
-                    {
-                        dungeon = get_dungeon(plyr_idx);
-                        dungeon->camera_deviate_jump = dungeon->camera_deviate_jump + 3; //Bigger jump on more slabs changed
-                        dungeon->camera_deviate_quake = 30; //30 frames of camera shaking
-                    }
+                    dungeon = get_dungeon(plyr_idx);
+                    dungeon->camera_deviate_jump = dungeon->camera_deviate_jump + 3; //Bigger jump on more slabs changed
+                    dungeon->camera_deviate_quake = 30; //30 frames of camera shaking
+
                     set_coords_to_slab_center(&pos, slb_x, slb_y);
                     powerst = get_power_model_stats(PwrK_DESTRWALLS);
                     play_sound_if_close_to_receiver(&pos, powerst->select_sound_idx);
