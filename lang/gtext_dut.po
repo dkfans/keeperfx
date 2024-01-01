@@ -6950,3 +6950,8 @@ msgstr "Verlichting"
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "Duivelsoog"
+
+#: guitext:1059
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Zuiveren: Geneest alle negatieve effecten die op het wezen zijn toegebracht."

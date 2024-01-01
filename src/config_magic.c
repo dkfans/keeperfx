@@ -69,6 +69,7 @@ const struct NamedCommand magic_spell_commands[] = {
   {"SPELLPOWER",      8},
   {"AURAEFFECT",      9},
   {"SPELLFLAGS",     10},
+  {"DEBUFF",         11},
   {NULL,              0},
   };
 
@@ -286,7 +287,7 @@ struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(int mgc_idx)
 {
-  if ((mgc_idx < 0) || (mgc_idx >= MAGIC_TYPES_COUNT))
+  if ((mgc_idx < 0) || (mgc_idx >= game.conf.magic_conf.spell_types_count))
     return &game.conf.magic_conf.spell_config[0];
   return &game.conf.magic_conf.spell_config[mgc_idx];
 }
@@ -532,6 +533,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             spconf->caster_affected = 0;
             spconf->caster_affect_sound = 0;
             spconf->cast_at_thing = 0;
+            spconf->debuff = 0;
             spconf->shot_model = 0;
             spconf->cast_effect_model = 0;
             spconf->bigsym_sprite_idx = 0;
@@ -540,7 +542,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             spconf->spell_flags = 0;
         }
     }
-    
+
   // Load the file
   arr_size = game.conf.magic_conf.spell_types_count;
   for (i=0; i < arr_size; i++)
@@ -768,6 +770,19 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+      case 11: // DEBUFF
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              spconf->debuff = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -781,7 +796,32 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
     }
 #undef COMMAND_TEXT
   }
+  
   return true;
+}
+
+void load_debuffs() {
+    int count = 0;
+    for (int i = 0; i < game.conf.magic_conf.spell_types_count; ++i) {
+        struct SpellConfig *spconf = get_spell_config(i);
+        if (spconf->debuff == 1) {
+            ++count;
+        }
+    }
+    game.conf.magic_conf.debuff_count = count;
+    if (game.conf.magic_conf.debuff_count > 0) {
+        game.conf.magic_conf.debuffs = malloc(game.conf.magic_conf.debuff_count * sizeof(*game.conf.magic_conf.debuffs));
+        if (game.conf.magic_conf.debuffs == NULL) {
+            fprintf(stderr, "Memory allocation failed for debuffs\n");
+            exit(EXIT_FAILURE);
+        }
+        for (int i = 0, j = 0; i < game.conf.magic_conf.spell_types_count; ++i) {
+            struct SpellConfig *spconf = get_spell_config(i);
+            if (spconf->debuff == 1) {
+                game.conf.magic_conf.debuffs[j++] = i;
+            }
+        }
+    }
 }
 
 TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname, unsigned short flags)

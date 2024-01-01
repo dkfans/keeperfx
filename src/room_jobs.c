@@ -95,6 +95,8 @@ TbBool add_creature_to_torture_room(struct Thing *creatng, const struct Room *ro
     }
     if (creature_affected_by_spell(creatng, SplK_Speed))
         terminate_thing_spell_effect(creatng, SplK_Speed);
+    if (creature_affected_by_spell(creatng, SplK_Cleanse))
+        terminate_thing_spell_effect(creatng, SplK_Cleanse);
     if (creature_affected_by_spell(creatng, SplK_Invisibility))
         terminate_thing_spell_effect(creatng, SplK_Invisibility);
     if (room->owner != game.neutral_player_num)

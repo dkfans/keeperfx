@@ -7039,3 +7039,8 @@ msgstr "Illuminazione"
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "Vista"
+
+#: guitext:1059
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Purifica: Cura tutti gli effetti negativi inflitti alla creatura."

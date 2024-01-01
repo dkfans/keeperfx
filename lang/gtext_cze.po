@@ -6933,3 +6933,9 @@ msgstr "Svetelkovani"
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "Pohled"
+
+#: guitext:1059
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Čištění: Vyléčí všechny negativní účinky postihující bytost."
+

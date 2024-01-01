@@ -7050,3 +7050,8 @@ msgstr "Oświecenie"
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "Jasnowidzenie"
+
+#: guitext:1059
+msgctxt "Creature spell"
+msgid "Cleanse: Cures all negative effects inflicted on the creature."
+msgstr "Oczyszczenie: Leczy wszystkie negatywne efekty zadane stworzeniu."
