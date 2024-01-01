@@ -53,7 +53,7 @@ msgid ""
 msgstr ""
 "Un Gardien doit absolument pouvoir stocker l'or extrait par ses lutins. "
 "Cliquez sur l'icône de la Salle du trésor figurant dans le panneau des salles, "
-"et remplissez la zone vers l'ouest avec des dalles de Salle du trésor."
+"et remplissez la zone Ouest avec des dalles de Salle du trésor."
 
 #. Level Eversmile information when started building Treasure Room
 #: guitext:3
