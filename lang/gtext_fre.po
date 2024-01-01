@@ -8,7 +8,7 @@
 #  @par Comment:
 #      Use this file to improve the translation for specific language.
 #  @author   KeeperFX Team
-#  @date     25 Aug 2012 - 02 Oct 2012
+#  @date     25 Aug 2012 - 02 Oct 2012 // Improved Translation in 2024 by Walter253.
 #  @par  Copying and copyrights:
 #      This program is free software; you can redistribute it and/or modify
 #      it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues/"
 "Date: 2012-09-02 01:12+0200\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
-"PO-Revision-Date: 2021-11-22 14:59+0100\n"
+"PO-Revision-Date: 2024-01-01 21:00+0100\n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -62,9 +62,8 @@ msgid ""
 "Use the cursor keys to see other areas of the underworld. Rotate and zoom the "
 "view with the right ctrl key and cursor keys."
 msgstr ""
-"Utilisez les touches fléchées pour voir les zones infernales du sous-sol. "
-"Appliquez rotations et zooms à l'aide de la touche Ctrl Droite et des touches "
-"fléchées."
+"Utilisez les touches directionnelles pour naviguer à travers les zones infernales du sous-sol. "
+"Combinez les touches directionnelles avec Ctrl pour faire tourner la caméra ou pour zoomer."
 
 #. Level Eversmile objective when built Treasure Room
 #: guitext:4
@@ -75,10 +74,9 @@ msgid ""
 "mouse button. Your Imps will dig out the gold and carry it back to your "
 "Treasure Room."
 msgstr ""
-"Remarquable! Appuyez sur le bouton Droit de la souris pour que le curseur "
-"revienne sur la main. Extrayez de l'or dans la zone Est en faisant glisser le "
-"curseur et en appuyant sur le bouton Gauche de la souris. Vos lutins "
-"extrairont de l'or et le porteront vers la Salle du trésor."
+"Remarquable! Cliquez avec le bouton droit de la souris pour que le curseur revienne sur la main. "
+"Extrayez de l'or dans la zone Est en faisant glisser le curseur et en cliquant sur le bouton gauche de la souris. "
+"Vos lutins extrairont de l'or et le porteront vers la Salle du trésor."
 
 #. Level Eversmile information while digging gold
 #: guitext:5
@@ -87,9 +85,9 @@ msgid ""
 "If you want to make your creatures work harder, slap them by right clicking "
 "the Hand of Evil on them. Slapping will harm your creatures."
 msgstr ""
-"Pour que vos créatures travaillent plus, frappez-les en plaçant la main sur "
-"eux et en cliquant avec le bouton Droit. Quand vous les frappez, vos "
-"créatures ont mal."
+"Si vous désirez que vos créatures travaillent plus rapidement, "
+"frappez-les en plaçant la main sur eux et en cliquant avec le bouton droit de la souris. "
+"Lorsque vous les frappez, vos créatures ont mal."
 
 #. Level Eversmile information while digging gold
 #: guitext:6
