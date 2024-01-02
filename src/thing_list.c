@@ -803,9 +803,9 @@ TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
     else if (crmodel == CREATURE_NONE)
         return false;
     if (crmodel == CREATURE_DIGGER)
-        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel);
+        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, creatng->model);
     else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, crmodel)) && (creatng->model != get_players_spectator_model(creatng->owner)));
+        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, creatng->model)) && (creatng->model != get_players_spectator_model(creatng->owner)));
     else
         ERRORLOG("Invalid model wildcard detected: %d", crmodel);
     return false;
@@ -1999,7 +1999,7 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
 
 struct Thing *lord_of_the_land_find(void)
 {
-    for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 1; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
@@ -2734,7 +2734,7 @@ struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, 
         return retng;
     unsigned long k = 0;
     // Get random index of a thing in list
-    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, 0, PLAYER_RANDOM(plyr_idx, total_count));
+    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, CREATURE_ANY, PLAYER_RANDOM(plyr_idx, total_count));
     long i = thing->index;
     while (k < total_count)
     {
@@ -3589,7 +3589,7 @@ TbBool gold_pile_with_maximum_at_xy(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
   return false;
 }
 
-struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+struct Thing* get_player_creature_in_range_around_any_enemy_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
 {
     int n = GAME_RANDOM(PLAYERS_COUNT);
     for (int i = 0; i < PLAYERS_COUNT; i++, n = (n + 1) % PLAYERS_COUNT)
@@ -3605,6 +3605,19 @@ struct Thing* get_creature_in_range_around_any_of_enemy_heart(PlayerNumber plyr_
             }
         }
     }
+    return INVALID_THING;
+}
+
+struct Thing* get_player_creature_in_range_around_own_heart(PlayerNumber plyr_idx, ThingModel crmodel, MapSubtlDelta range)
+{
+        struct Thing* heartng = get_player_soul_container(plyr_idx); //todo backup hearts
+        if (thing_exists(heartng))
+        {
+            struct Thing* creatng = get_creature_in_range_of_model_owned_and_controlled_by(heartng->mappos.x.val, heartng->mappos.y.val, range, crmodel, plyr_idx);
+            if (!thing_is_invalid(creatng)) {
+                return creatng;
+            }
+        }
     return INVALID_THING;
 }
 

@@ -1364,7 +1364,7 @@ static void command_use_power(long plr_range_id, const char *magname, char free)
 
 static void command_use_special_increase_level(long plr_range_id, long count)
 {
-    if (count < 1)
+    if (count == 0)
     {
         SCRPTWRNLOG("Invalid count: %d, setting to 1.", count);
         count = 1;
@@ -1374,6 +1374,12 @@ static void command_use_special_increase_level(long plr_range_id, long count)
     {
         SCRPTWRNLOG("Count too high: %d, setting to 9.", count);
         count = 9;
+    }
+
+    if (count < -9)
+    {
+        SCRPTWRNLOG("Count too low: %d, setting to -9.", count);
+        count = -9;
     }
     command_add_value(Cmd_USE_SPECIAL_INCREASE_LEVEL, plr_range_id, count, 0, 0);
 }

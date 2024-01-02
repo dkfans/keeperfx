@@ -403,10 +403,10 @@ void process_creature_instance(struct Thing *thing)
         if (cctrl->inst_turn == cctrl->inst_action_turns)
         {
             struct InstanceInfo* inst_inf = creature_instance_info_get(cctrl->instance_id);
-            if (inst_inf->func_cb != NULL)
+            if (creature_instances_func_list[inst_inf->func_idx] != NULL)
             {
                 SYNCDBG(18,"Executing %s for %s index %d.",creature_instance_code_name(cctrl->instance_id),thing_model_name(thing),(int)thing->index);
-                inst_inf->func_cb(thing, inst_inf->func_params);
+                creature_instances_func_list[inst_inf->func_idx](thing, inst_inf->func_params);
             }
         }
         if (cctrl->inst_turn >= cctrl->inst_total_turns)
