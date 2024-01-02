@@ -320,7 +320,10 @@ void gui_set_sound_volume(struct GuiButton *gbtn)
     {
         if (Ext_Sounds[i] != NULL)
         {
-            Mix_VolumeChunk(Ext_Sounds[i], settings.sound_volume);
+            if (game.msgtype_id[i] == 2)
+            {
+                Mix_VolumeChunk(Ext_Sounds[i], settings.sound_volume);
+            }
         }
     }
 }
@@ -336,6 +339,16 @@ void gui_set_mentor_volume(struct GuiButton *gbtn)
 {
     settings.mentor_volume = make_audio_slider_nonlinear(mentor_level_slider);
     save_settings();
+    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
+    {
+        if (Ext_Sounds[i] != NULL)
+        {
+            if (game.msgtype_id[i] == 1)
+            {
+                Mix_VolumeChunk(Ext_Sounds[i], settings.mentor_volume);
+            }
+        }
+    }
 }
 
 void gui_video_cluedo_maintain(struct GuiButton *gbtn)
