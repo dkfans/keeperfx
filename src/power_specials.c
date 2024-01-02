@@ -422,14 +422,6 @@ void make_unsafe(PlayerNumber plyr_idx)
                     play_sound_if_close_to_receiver(&pos, powerst->select_sound_idx);
                     place_slab_type_on_map(newslab, slab_subtile_center(slb_x), slab_subtile_center(slb_y), game.neutral_player_num, 0);
                     do_slab_efficiency_alteration(slb_x, slb_y);
-                    struct Coord3d rcpos;
-                    rcpos.x.val = Receiver.pos.val_x;
-                    rcpos.y.val = Receiver.pos.val_y;
-                    rcpos.z.val = Receiver.pos.val_z;
-                    if (get_chessboard_3d_distance(&rcpos, &pos) < MaxSoundDistance)
-                    {
-                        create_dirt_rubble_for_dug_slab(slb_x, slb_y);
-                    }
                 }
             }
         }
