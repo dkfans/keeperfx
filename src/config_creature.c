@@ -853,7 +853,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
                 game.conf.magic_conf.instance_info[i].flags = 0;
                 game.conf.magic_conf.instance_info[i].force_visibility = 0;
                 game.conf.magic_conf.instance_info[i].primary_target = 0;
-                game.conf.magic_conf.instance_info[i].func_cb = 0;
+                game.conf.magic_conf.instance_info[i].func_idx = 0;
                 game.conf.magic_conf.instance_info[i].func_params[0] = 0;
                 game.conf.magic_conf.instance_info[i].func_params[1] = 0;
                 game.conf.magic_conf.instance_info[i].symbol_spridx = 0;
@@ -1061,7 +1061,7 @@ TbBool parse_creaturetype_instance_blocks(char *buf, long len, const char *confi
             k = recognize_conf_parameter(buf,&pos,len,creature_instances_func_type);
             if (k > 0)
             {
-                inst_inf->func_cb = creature_instances_func_list[k];
+                inst_inf->func_idx = k;
                 n++;
                 //JUSTLOG("Function = %s %s %d",creature_instances_func_type[k-1].name,spell_code_name(inst_inf->func_params[0]),inst_inf->func_params[1]);
             }
