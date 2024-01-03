@@ -1471,8 +1471,6 @@ void draw_map_level_descriptions(void)
       boxY = textY - scale_value_menu(padding);
       borderBoxY = boxY + scale_value_menu(border);
 
-      // optional dropshadow
-      // LbDrawBox(scale_value_for_resolution(borderBoxX+1), scale_value_for_resolution(borderBoxY+1), scale_value_for_resolution(borderBoxWidth), scale_value_for_resolution(borderBoxHeight), 0);
       LbDrawBox(borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight, borderColour);
       LbDrawBox(boxX, textY, boxWidth, boxHeight, boxColour);
       LbTextDrawResized(textX, textY, units_per_pixel_menu, level_description);
