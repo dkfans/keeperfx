@@ -95,9 +95,9 @@ struct Event { // sizeof=0x15
     unsigned char falling_button; // Old way - make it unused when only EvF_BtnFirstFall is used
 };
 
-struct Bookmark { // sizeof = 3
-  unsigned char x;
-  unsigned char y;
+struct Bookmark {
+  MapSubtlCoord x;
+  MapSubtlCoord y;
   unsigned char flags;
 };
 
