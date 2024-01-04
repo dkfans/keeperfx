@@ -115,6 +115,7 @@ long get_radially_decaying_value(long magnitude,long decay_start,long decay_leng
 long get_radially_growing_value(long magnitude, long decay_start, long decay_length, long distance, long acceleration);
 
 TbBool update_creature_health_to_max(struct Thing *thing);
+TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing);
 TbBool apply_health_to_thing(struct Thing *thing, long amount);
 void apply_health_to_thing_and_display_health(struct Thing *thing, long amount);
 HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType damage_type, PlayerNumber dealing_plyr_idx);

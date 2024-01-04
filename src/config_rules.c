@@ -224,12 +224,13 @@ const struct NamedCommand rules_sacrifices_commands[] = {
   };
 
 const struct NamedCommand sacrifice_unique_desc[] = {
-  {"ALL_CREATRS_ANGRY",   UnqF_MkAllAngry},
-  {"COMPLETE_RESEARCH",   UnqF_ComplResrch},
-  {"COMPLETE_MANUFACTR",  UnqF_ComplManufc},
-  {"KILL_ALL_CHICKENS",   UnqF_KillChickns},
-  {"CHEAPER_IMPS",        UnqF_CheaperImp},
-  {"COSTLIER_IMPS",       UnqF_CostlierImp},
+  {"ALL_CREATRS_ANGRY",     UnqF_MkAllAngry},
+  {"COMPLETE_RESEARCH",     UnqF_ComplResrch},
+  {"COMPLETE_MANUFACTR",    UnqF_ComplManufc},
+  {"KILL_ALL_CHICKENS",     UnqF_KillChickns},
+  {"CHEAPER_IMPS",          UnqF_CheaperImp},
+  {"COSTLIER_IMPS",         UnqF_CostlierImp},
+  {"ALL_CREATRS_VER_ANGRY", UnqF_MkAllVerAngry},
   {NULL,                  0},
   };
 /******************************************************************************/

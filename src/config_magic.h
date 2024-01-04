@@ -348,6 +348,7 @@ struct SpecialConfigStats {
     TextStringId tooltip_stridx;
     short speech;
     short effect_id;
+    short value;
 };
 
  /**

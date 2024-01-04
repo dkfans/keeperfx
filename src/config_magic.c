@@ -157,6 +157,7 @@ const struct NamedCommand magic_special_commands[] = {
   {"TOOLTIPTEXTID",    3},
   {"SPEECHPLAYED",     4},
   {"ACTIVATIONEFFECT", 5},
+  {"VALUE",            6},
   {NULL,               0},
   };
 
@@ -2297,6 +2298,13 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 6: // VALUE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              specst->value = k;
           }
           break;
       case 0: // comment
