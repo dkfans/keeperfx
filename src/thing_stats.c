@@ -700,6 +700,17 @@ TbBool update_creature_health_to_max(struct Thing *thing)
     return true;
 }
 
+TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->max_health > thing->health)
+    {
+        apply_spell_effect_to_thing(thing, SplK_Heal, 1);
+        thing->health = cctrl->max_health;
+    }
+    return true;
+}
+
 TbBool apply_health_to_thing(struct Thing *thing, long amount)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
