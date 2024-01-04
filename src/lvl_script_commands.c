@@ -4054,16 +4054,13 @@ static void play_message_check(const struct ScriptLine *scline)
         }
         char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &game.loaded_sound[slot][0]);
         Ext_Sounds[slot] = Mix_LoadWAV(fname);
-        if (Ext_Sounds[slot] != NULL)
-        {
-            Mix_VolumeChunk(Ext_Sounds[slot], settings.sound_volume);
-            game.sounds_count++;
-        }
-        else
+        if (Ext_Sounds[slot] == NULL)
         {
             SCRPTERRLOG("Could not load sound %s: %s", fname, Mix_GetError());
+            DEALLOCATE_SCRIPT_VALUE
             return;
         }
+        game.sounds_count++;
         SCRPTLOG("Loaded sound file %s into slot %u.", fname, slot);
         value->bytes[2] = slot;
     }
@@ -4072,11 +4069,19 @@ static void play_message_check(const struct ScriptLine *scline)
 
 static void play_message_process(struct ScriptContext *context)
 {
+    unsigned char volume = settings.sound_volume;
+    unsigned char msgtype_id = context->value->chars[1];
+    unsigned char slot = context->value->bytes[2];
+    if (msgtype_id == 1) // SPEECH
+    {
+        volume = settings.mentor_volume;
+    }
+    Mix_VolumeChunk(Ext_Sounds[slot], volume);
     if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
     {
         if (!context->value->bytes[4])
         {
-            switch (context->value->chars[1])
+            switch (msgtype_id) // Speech or Sound
             {
                 case 1:
                 {

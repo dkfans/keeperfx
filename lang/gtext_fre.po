@@ -7182,3 +7182,23 @@ msgstr "Illumination"
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "Vision"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr "Soigner tous : Toutes vos créatures sont guéries."
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "Augmenter l'or : Génère de l'or dans votre trésorerie."
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Rendre malheureux : Toutes les créatures de l'ennemi deviennent mécontentes."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Affaiblir les murs : Détruit les fortifications des murs ennemis."
