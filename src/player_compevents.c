@@ -614,7 +614,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
         return CTaskRet_Unk1;
     }
 
-    if (dungeon_has_room(dungeon, RoK_TORTURE) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
+    if (dungeon_has_room_of_role(dungeon, RoRoF_Torture) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
     {
         if (!creature_would_benefit_from_healing(creatng))
         {
