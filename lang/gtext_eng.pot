@@ -6137,7 +6137,7 @@ msgstr ""
 
 #: guitext:1060
 msgctxt "Dungeon special decription"
-msgid "Increase Gold: Generates gold in your treasury. "
+msgid "Increase Gold: Generates gold in your treasury."
 msgstr ""
 
 #: guitext:1061
