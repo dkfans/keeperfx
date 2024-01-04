@@ -9,7 +9,7 @@
             "args": [
                 "-level", "00001",
                 "-campaign", "keeporig",
-                "-nointro","-alex", "-nocd"
+                "-nointro","-alex"
             ],
             "windows": {
                 "miDebuggerPath": "${workspaceFolder}/.vscode/gdb.exe"
