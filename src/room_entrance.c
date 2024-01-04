@@ -344,7 +344,7 @@ void generate_creature_for_dungeon(struct Dungeon * dungeon)
             generate_creature_at_random_entrance(dungeon, crmodel);
             RoomKind rkind = find_first_available_roomkind_with_role(dungeon->owner,RoRoF_LairStorage);
             if (rkind == RoK_NONE)
-            {//
+            {
                 rkind = find_first_roomkind_with_role(RoRoF_LairStorage);
             }
             if (dungeon_has_room_of_role(dungeon, RoRoF_LairStorage))

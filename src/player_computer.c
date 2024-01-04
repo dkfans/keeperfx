@@ -220,10 +220,6 @@ struct ComputerTask * able_to_build_room_from_room(struct Computer2 *comp, RoomK
 
 struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind rkind, long width_slabs, long height_slabs, long look_randstart)
 {
-    if (rkind == 14)
-    {
-        JUSTMSG("Comp %d check for room %d BUILD", comp->dungeon->owner, rkind);
-    }
     struct Dungeon* dungeon = comp->dungeon;
     long i;
     long max_slabs = height_slabs;
@@ -233,17 +229,12 @@ struct ComputerTask *computer_setup_build_room(struct Computer2 *comp, RoomKind 
     long area_max = area_min / 3 + 2 * area_min;
     if (room_role_matches(rkind,RoRoF_LairStorage))
     {
-        JUSTMSG("try lair size: %d < %d", (width_slabs * height_slabs), dungeon->max_creatures_attracted);
         if (width_slabs*height_slabs < dungeon->max_creatures_attracted)
         {
             i = LbSqrL(dungeon->max_creatures_attracted);
             width_slabs = i + 1;
             height_slabs = i + 1;
         }
-    }
-    if (rkind == 14)
-    {
-        JUSTMSG("room needs to be %d,%d", width_slabs, height_slabs);
     }
     const long arr_length = sizeof(look_through_rooms)/sizeof(look_through_rooms[0]);
     for (long area = area_min; area < area_max; area++)
