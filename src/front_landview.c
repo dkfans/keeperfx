@@ -1418,9 +1418,8 @@ const char* get_level_description(struct LevelInformation *lvinfo)
 
   if (lvinfo->options & LvOp_IsBonus)
   {
-    // TODO: Implement translation / get_string
     static char name_and_num[32];
-    snprintf(name_and_num, sizeof(name_and_num), "%s %d", "Bonus", (int)order_number_for_bonus_level(lvinfo->lvnum));
+    snprintf(name_and_num, sizeof(name_and_num), "%s %d", get_string(CpgStr_BonusLevel), (int)order_number_for_bonus_level(lvinfo->lvnum));
     return name_and_num;
   }
 
