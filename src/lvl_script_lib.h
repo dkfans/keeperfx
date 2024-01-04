@@ -178,6 +178,7 @@ enum TbScriptCommands {
     Cmd_SET_EFFECT_GENERATOR_CONFIGURATION = 165,
     Cmd_SET_POWER_CONFIGURATION           = 166,
     Cmd_SET_PLAYER_COLOR                  = 167,
+    Cmd_USE_SPECIAL_MAKE_UNSAFE           = 168,
 };
 
 struct ScriptLine {
