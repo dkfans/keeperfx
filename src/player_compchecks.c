@@ -1120,8 +1120,13 @@ TbBool computer_check_for_expand_specific_room(struct Computer2 *comp, struct Co
     return false;
 }
 
+
 TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct ComputerCheck * check, RoomKind rkind, long max_slabs, long around_start)
 {
+    if (rkind == 14)
+    {
+        JUSTMSG("Comp %d check for room %d expand", comp->dungeon->owner, rkind);
+    }
     struct Dungeon* dungeon = comp->dungeon;
     {
         struct RoomConfigStats* roomst = get_room_kind_stats(rkind);
@@ -1145,9 +1150,15 @@ TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct Comput
         }
         i = room->next_of_owner;
         // Per-room code
-        if ((room->slabs_count > 0) && (room->slabs_count < max_slabs)) {
+        if ((room->slabs_count > 0) && (room->slabs_count < max_slabs)) 
+        {
+            JUSTMSG("Comp %d will try to expand room %d", comp->dungeon->owner, rkind);
             if (computer_check_for_expand_specific_room(comp, check, room, max_radius, around_start)) {
                 SYNCDBG(6,"The %s index %d will be expanded",room_code_name(room->kind),(int)room->index);
+                if (rkind == 14)
+                {
+                    JUSTMSG("Comp %d will expand room %d", comp->dungeon->owner, rkind);
+                }
                 return true;
             }
         }
@@ -1158,6 +1169,11 @@ TbBool computer_check_for_expand_room_kind(struct Computer2 *comp, struct Comput
           ERRORLOG("Infinite loop detected when sweeping rooms list");
           break;
         }
+    }
+    //reactivate_build_process(comp, rkind);
+    if (rkind == 14)
+    {
+        JUSTMSG("Comp %d won't expand room %d", comp->dungeon->owner, rkind);
     }
     return false;
 }

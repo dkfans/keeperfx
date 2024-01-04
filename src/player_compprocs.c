@@ -267,6 +267,10 @@ Comp_Process_Func computer_process_func_list[] = {
 long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
     struct ComputerTask* ctask = computer_setup_build_room(comp, cproc->confval_4, cproc->confval_2, cproc->confval_3, cproc->confval_5);
+    if (cproc->confval_4 == 14)
+    {
+        JUSTMSG("testlog: setting up building a lair");
+    }
     if (!computer_task_invalid(ctask))
     {
         SYNCDBG(8,"Computer %d created task for \"%s\"",(int)comp->dungeon->owner,cproc->name);
@@ -284,12 +288,20 @@ long computer_setup_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
     if (cproc->confval_2 > cproc->confval_3)
     {
         if (cproc->confval_2 <= 2) {
+            if (cproc->confval_4 == 14)
+            {
+                JUSTMSG("testlog: setting up building a lair - fail 2");
+            }
             return CProcRet_Fail;
         }
         cproc->confval_2--;
     } else
     {
         if (cproc->confval_3 <= 2) {
+            if (cproc->confval_4 == 14)
+            {
+                JUSTMSG("testlog: setting up building a lair - fail 3");
+            }
             return CProcRet_Fail;
         }
         cproc->confval_3--;
@@ -494,27 +506,46 @@ long computer_get_room_kind_free_capacity(struct Computer2 *comp, RoomKind room_
 
 long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cproc)
 {
+    if (cproc->confval_4 == 14)
+    {
+        JUSTMSG("Comp %d check any room %d", comp->dungeon->owner, cproc->confval_4);
+    }
     struct Dungeon* dungeon = comp->dungeon;
     ItemAvailability is_avail = computer_check_room_available(comp, cproc->confval_4);
     if (is_avail != IAvail_Now)
     {
         if (is_avail == IAvail_Never) {
             set_flag(cproc->flags, ComProc_Unkn0004);
+            if (cproc->confval_4 == 14)
+            {
+                JUSTMSG("Comp %d check any room %d FAIL1", comp->dungeon->owner, cproc->confval_4);
+            }
             return CProcRet_Fail;
+        }
+        if (cproc->confval_4 == 14)
+        {
+            JUSTMSG("Comp %d check any room %d WAIT1 ", comp->dungeon->owner, cproc->confval_4);
         }
         return CProcRet_Wait;
     }
     long num_build_tasks = count_no_room_build_tasks(comp);
     if (num_build_tasks >= comp->max_room_build_tasks) {
-        SYNCDBG(19,"Not building \"%s\" because already doing %d build tasks",room_code_name(cproc->confval_4),(int)num_build_tasks);
+        JUSTMSG("Not building \"%s\" because already doing %d build tasks",room_code_name(cproc->confval_4),(int)num_build_tasks);
         return CProcRet_Wait;
     }
     long used_capacity;
     long total_capacity;
     get_room_kind_total_and_used_capacity(dungeon, cproc->confval_4, &total_capacity, &used_capacity);
     if (total_capacity <= 0) {
-        SYNCDBG(8,"Need \"%s\" because do not have any",room_code_name(cproc->confval_4));
+        JUSTMSG("Need \"%s\" because do not have any",room_code_name(cproc->confval_4));
         return CProcRet_Continue;
+    }
+    else
+    {
+        if (cproc->confval_4 == 14)
+        {
+            JUSTMSG("Comp %d check any room %d capacity left", comp->dungeon->owner, cproc->confval_4);
+        }
     }
     long free_capacity = computer_get_room_kind_free_capacity(comp, cproc->confval_4);
     if (free_capacity == 9999)
@@ -529,11 +560,18 @@ long computer_check_any_room(struct Computer2 *comp, struct ComputerProcess *cpr
         // On higher capacities it doesn't make much difference, but highly increases chance
         // of building new room if existing capacity is low.
         if (free_capacity <= 10*total_capacity/100 + 1) {
-            SYNCDBG(8,"Need \"%s\" because of low free capacity",room_code_name(cproc->confval_4));
+            JUSTMSG("Need \"%s\" because of low free capacity",room_code_name(cproc->confval_4));
             return CProcRet_Continue;
         }
+        else
+        {
+            if (cproc->confval_4 == 14)
+            {
+                JUSTMSG("Comp %d check any room %d not continue because capacity plenty", comp->dungeon->owner, cproc->confval_4);
+            }
+        }
     }
-    SYNCDBG(9,"Not building \"%s\" because free capacity is %d/%d",room_code_name(cproc->confval_4),(int)free_capacity, (int)total_capacity);
+    JUSTMSG("Not building \"%s\" because free capacity is %d/%d",room_code_name(cproc->confval_4),(int)free_capacity, (int)total_capacity);
     return CProcRet_Wait;
 }
 
@@ -1391,6 +1429,21 @@ void suspend_process(struct Computer2 *comp, struct ComputerProcess *cproc)
     } else {
         WARNLOG("Invalid computer process referenced");
     }
+}
+
+TbBool reactivate_build_process(struct Computer2* comp, RoomKind rkind)
+{
+    for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
+    {
+        struct ComputerProcess* cproc = &comp->processes[i];
+        if ((cproc->func_check == &computer_check_any_room) && (cproc->confval_4 == rkind))
+        {
+            clear_flag(cproc->flags, ComProc_Unkn0004);
+            cproc->last_run_turn = 0;
+            return true;
+        }
+    }
+    return false;
 }
 
 void reset_process(struct Computer2 *comp, struct ComputerProcess *cproc)

@@ -225,13 +225,14 @@ long computer_event_find_link(struct Computer2 *comp, struct ComputerEvent *ceve
     for (int i = 0; i < COMPUTER_PROCESSES_COUNT + 1; i++)
     {
         struct ComputerProcess* cproc = &comp->processes[i];
-        if (flag_is_set(cproc->flags, ComProc_Unkn0002))
+        if (flag_is_set(cproc->flags, ComProc_Unkn0002)) //this seems key
             break;
         if (cproc->parent == cevent->process)
         {
-            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
+            JUSTMSG("reactive process %s", cproc->name);
+            clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001|ComProc_Unkn0004));
             cproc->last_run_turn = 0;
-            cproc_idx = 1;
+            cproc_idx = true;
         }
     }
     return cproc_idx;
@@ -501,7 +502,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
             if (emergency_state && ((roomst->flags & RoCFlg_BuildTillBroke) == 0)) {
                 continue;
             }
-            SYNCDBG(8,"Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
+            JUSTMSG("Player %d needs %s",(int)comp->dungeon->owner,room_code_name(bldroom->rkind));
             // Find the corresponding build process and mark it as needed
             for (long i = 0; i <= COMPUTER_PROCESSES_COUNT; i++)
             {
@@ -510,11 +511,25 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                     break;
                 if (cproc->parent == bldroom->process)
                 {
-                    SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
+                    if (bldroom->rkind == 14)
+                    {
+                       // cproc->parent = cevent->process;
+                        JUSTMSG("Player %d will allow process \"%s\"", (int)comp->dungeon->owner, cproc->name);
+                    }
                     ret = 1;
-                    clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
-                    cproc->last_run_turn = 0;
-                    cproc->param_3 = 0;
+                    //clear_flag(cproc->flags, (ComProc_Unkn0020 | ComProc_Unkn0010 | ComProc_Unkn0008 | ComProc_Unkn0004 | ComProc_Unkn0001));
+                    //clear_flag(cproc->flags, ComProc_Unkn0008);
+                    //clear_flag(cproc->flags, ComProc_Unkn0020); // now this one set or clear?
+                    //cproc->param_2 = game.play_gameturn;
+                    //cproc->last_run_turn = 0;
+                    //cproc->param_3 = 0;
+                    //cproc->param_2 = 0;
+
+                    //set_flag(cproc->flags, ComProc_Unkn0008);
+                    //clear_flag(cproc->flags, ComProc_Unkn0020);
+                    //cproc->param_2 = game.play_gameturn;
+
+                    reactivate_build_process(comp, bldroom->rkind);
                 }
             }
         }
@@ -616,7 +631,7 @@ long computer_event_handle_prisoner(struct Computer2* comp, struct ComputerEvent
         return CTaskRet_Unk1;
     }
 
-    if (dungeon_has_room(dungeon, RoK_TORTURE) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
+    if (dungeon_has_room_of_role(dungeon, RoRoF_Torture) && (!creature_is_being_tortured(creatng)))//avoid repeated action on same unit)
     {
         if (!creature_would_benefit_from_healing(creatng))
         {
