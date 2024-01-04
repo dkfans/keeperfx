@@ -83,7 +83,7 @@ enum ThingEffectKind {
     TngEff_DeathIceExplosion,
     TngEff_RockChips, // less dirt
     TngEff_DirtRubble,
-    TngEff_Unknown27, // more dirt
+    TngEff_DirtRubbleBig, // more dirt
     TngEff_ImpSpangleRed,
     TngEff_Drip4, // ice drip?
     TngEff_Cloud, // super long cloud?

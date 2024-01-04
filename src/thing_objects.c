@@ -343,7 +343,11 @@ TbBool thing_is_hardcoded_special_box(const struct Thing* thing)
     case ObjMdl_SpecboxMultiply:
     case ObjMdl_SpecboxIncreaseLevel:
     case ObjMdl_SpecboxMakeSafe:
+    case ObjMdl_SpecboxMakeUnsafe:
     case ObjMdl_SpecboxHiddenWorld:
+    case ObjMdl_SpecboxHealAll:
+    case ObjMdl_SpecboxGetGold:
+    case ObjMdl_SpecboxMakeAngry:
         return true;
     default:
         return false;
