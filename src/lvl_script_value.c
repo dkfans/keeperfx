@@ -393,7 +393,7 @@ void script_use_special_make_safe(PlayerNumber plyr_idx)
  */
 void script_use_special_make_unsafe(PlayerNumber plyr_idx)
 {
-    make_unsafe(get_player(plyr_idx));
+    make_unsafe(plyr_idx);
 }
 
 /**
