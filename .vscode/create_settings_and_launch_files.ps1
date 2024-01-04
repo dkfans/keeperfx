@@ -71,7 +71,7 @@ else
             Title = "Please select the installed Game executable (keeperfx.exe)"
         }
 
-        $FileBrowserResult = $FileBrowser.ShowDialog()
+        $FileBrowserResult = $FileBrowser.ShowDialog((New-Object System.Windows.Forms.Form -Property @{TopMost = $true }))
         Write-Host "User selected '$FileBrowserResult'" -ForegroundColor DarkGray
         if( $FileBrowserResult -ne "OK" )
         {
