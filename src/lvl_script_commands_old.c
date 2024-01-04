@@ -1405,6 +1405,11 @@ static void command_use_special_make_safe(long plr_range_id)
     command_add_value(Cmd_USE_SPECIAL_MAKE_SAFE, plr_range_id, 0, 0, 0);
 }
 
+static void command_use_special_make_unsafe(long plr_range_id)
+{
+    command_add_value(Cmd_USE_SPECIAL_MAKE_UNSAFE, plr_range_id, 0, 0, 0);
+}
+
 static void command_use_special_locate_hidden_world()
 {
     command_add_value(Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
@@ -1426,7 +1431,6 @@ static void command_change_creature_owner(long origin_plyr_idx, const char *crtr
   }
   command_add_value(Cmd_CHANGE_CREATURE_OWNER, origin_plyr_idx, crtr_id, select_id, dest_plyr_idx);
 }
-
 
 static void command_computer_dig_to_location(long plr_range_id, const char* origin, const char* destination)
 {
@@ -1870,6 +1874,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_USE_SPECIAL_MAKE_SAFE:
         command_use_special_make_safe(scline->np[0]);
+        break;
+    case Cmd_USE_SPECIAL_MAKE_UNSAFE:
+        command_use_special_make_unsafe(scline->np[0]);
         break;
     case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
         command_use_special_locate_hidden_world();
