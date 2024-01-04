@@ -388,6 +388,15 @@ void script_use_special_make_safe(PlayerNumber plyr_idx)
 }
 
 /**
+ * Defortifies dungeon's ennemies of the target player.
+ * @param plyr_idx target player
+ */
+void script_use_special_make_unsafe(PlayerNumber plyr_idx)
+{
+    make_unsafe(get_player(plyr_idx));
+}
+
+/**
  * Enables bonus level for current player.
  */
 TbBool script_use_special_locate_hidden_world()
@@ -929,6 +938,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_use_special_make_safe(i);
+      }
+      break;
+    case Cmd_USE_SPECIAL_MAKE_UNSAFE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_use_special_make_unsafe(i);
       }
       break;
     case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
