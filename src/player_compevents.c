@@ -512,9 +512,7 @@ long computer_event_check_rooms_full(struct Computer2 *comp, struct ComputerEven
                 {
                     SYNCDBG(8,"Player %d will allow process \"%s\"",(int)comp->dungeon->owner,cproc->name);
                     ret = 1;
-                    clear_flag(cproc->flags, (ComProc_Unkn0008|ComProc_Unkn0001));
-                    cproc->last_run_turn = 0;
-                    cproc->param_3 = 0;
+                    reactivate_build_process(comp, bldroom->rkind);
                 }
             }
         }
