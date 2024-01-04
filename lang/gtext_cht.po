@@ -6684,7 +6684,7 @@ msgstr "恶魔之眼"
 
 #: guitext:1059
 msgctxt "Dungeon special decription"
-msgid "Heal All: All of your creatures are healed."
+msgid "Heal All: Restore full health to all your creatures."
 msgstr "治癒所有：你的所有生物都被治癒。"
 
 #: guitext:1060

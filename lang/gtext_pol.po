@@ -7053,7 +7053,7 @@ msgstr "Jasnowidzenie"
 
 #: guitext:1059
 msgctxt "Dungeon special decription"
-msgid "Heal All: All of your creatures are healed."
+msgid "Heal All: Restore full health to all your creatures."
 msgstr "Ulecz Wszystko: Wszystkie twoje istoty zostały uleczone."
 
 #: guitext:1060

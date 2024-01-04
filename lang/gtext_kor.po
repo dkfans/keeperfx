@@ -6976,7 +6976,7 @@ msgstr "시각"
 
 #: guitext:1059
 msgctxt "Dungeon special decription"
-msgid "Heal All: All of your creatures are healed."
+msgid "Heal All: Restore full health to all your creatures."
 msgstr "모두 치료: 모든 크리쳐가 치료됩니다."
 
 #: guitext:1060

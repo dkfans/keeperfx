@@ -7186,7 +7186,7 @@ msgstr "Vision"
 
 #: guitext:1059
 msgctxt "Dungeon special decription"
-msgid "Heal All: All of your creatures are healed."
+msgid "Heal All: Restore full health to all your creatures."
 msgstr "Soigner tous : Toutes vos créatures sont guéries."
 
 #: guitext:1060

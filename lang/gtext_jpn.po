@@ -6834,7 +6834,7 @@ msgstr "照準"
 
 #: guitext:1059
 msgctxt "Dungeon special decription"
-msgid "Heal All: All of your creatures are healed."
+msgid "Heal All: Restore full health to all your creatures."
 msgstr "全員回復：すべてのクリーチャーが回復します。"
 
 #: guitext:1060
