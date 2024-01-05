@@ -1239,9 +1239,9 @@ GenerationKindRange = [11,11]
 AreaAffectType = 0
 Sound = 48
 AffectedByWind = 0
-LightRadius = 256
-LightIntensity = 255
-LightFlags = 1
+LightRadius = 0
+LightIntensity = 0
+LightFlags = 0
 ElementsCount = 20
 AlwaysGenerate = 0
 
