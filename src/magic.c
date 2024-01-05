@@ -1401,11 +1401,6 @@ TbResult magic_use_power_freeze(PlayerNumber plyr_idx, struct Thing *thing, MapS
     struct Coord3d effpos = thing->mappos;
     effpos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
     create_effect(&effpos, TngEff_FallingIceBlocks, thing->owner);
-    if ((get_creature_model_flags(thing) & CMF_NeverFrozen) != 0)
-    {
-        thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
-        return Lb_SUCCESS;
-    }
     struct PowerConfigStats *powerst;
     powerst = get_power_model_stats(PwrK_FREEZE);
     thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
