@@ -1717,6 +1717,13 @@ unsigned long get_creature_model_flags(const struct Thing *thing)
   return game.conf.crtr_conf.model[thing->model].model_flags;
 }
 
+unsigned long get_creature_immunity_flags(const struct Thing* thing)
+{
+    if ((thing->model < 1) || (thing->model >= game.conf.crtr_conf.model_count))
+        return 0;
+    return game.conf.crtr_conf.model[thing->model].immunity_flags;
+}
+
 ThingModel get_creature_model_with_model_flags(unsigned long needflags)
 {
     for (ThingModel crmodel = 0; crmodel < game.conf.crtr_conf.model_count; crmodel++)

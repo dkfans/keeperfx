@@ -1084,7 +1084,7 @@ TbResult magic_use_power_chicken(PlayerNumber plyr_idx, struct Thing *thing, Map
         }
     }
     // Check if the creature kind isn't affected by that spell
-    if ((get_creature_model_flags(thing) & CMF_NeverChickens) != 0)
+    if (flag_is_set(get_creature_immunity_flags(thing), CSAfF_Chicken))
     {
         thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;
@@ -1110,7 +1110,7 @@ TbResult magic_use_power_disease(PlayerNumber plyr_idx, struct Thing *thing, Map
         }
     }
     // Check if the creature kind isn't affected by that spell
-    if ((get_creature_model_flags(thing) & CMF_NeverSick) != 0)
+    if (flag_is_set(get_creature_immunity_flags(thing), CSAfF_Disease))
     {
         thing_play_sample(thing, 58, 20, 0, 3, 0, 2, 128);
         return Lb_SUCCESS;
