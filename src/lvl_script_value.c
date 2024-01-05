@@ -391,7 +391,7 @@ void script_use_special_make_safe(PlayerNumber plyr_idx)
  * Defortifies dungeon's ennemies of the target player.
  * @param plyr_idx target player
  */
-void script_use_special_make_unsafe(PlayerNumber plyr_idx)
+void script_defortify_player(PlayerNumber plyr_idx)
 {
     make_unsafe(plyr_idx);
 }
@@ -940,10 +940,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           script_use_special_make_safe(i);
       }
       break;
-    case Cmd_USE_SPECIAL_MAKE_UNSAFE:
+    case Cmd_DEFORTIFY_PLAYER:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_special_make_unsafe(i);
+          script_defortify_player(i);
       }
       break;
     case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
