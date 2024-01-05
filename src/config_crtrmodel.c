@@ -84,6 +84,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"CORPSEVANISHEFFECT", 32},
   {"FOOTSTEPPITCH",      33},
   {"LAIROBJECT",         34},
+  {"SPELLIMMUNITIES",    35},
   {NULL,                  0},
   };
 
@@ -116,6 +117,27 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"ALLURING_SCVNGR",   27},
   {NULL,                 0},
   };
+
+const struct NamedCommand creatmodel_spell_immunity_commands[] = {
+    {"SLOW",          CSAfF_Slow},
+    {"SPEED",         CSAfF_Speed},
+    {"ARMOUR",        CSAfF_Armour},
+    {"REBOUND",       CSAfF_Rebound},
+    {"FLYING",        CSAfF_Flying},
+    {"INVISIBILITY",  CSAfF_Invisibility},
+    {"SIGHT",         CSAfF_Sight},
+    {"LIGHT",         CSAfF_Light},
+    {"DISEASE",       CSAfF_Disease},
+    {"CHICKEN",       CSAfF_Chicken},
+    {"GAS",           CSAfF_PoisonCloud},
+    {"CALL_TO_ARMS",  CSAfF_CalledToArms},
+    {"MAD_PSYCHO",    CSAfF_MadKilling},
+    {"FALLING",       CSAfF_MagicFall},
+    {"LEVELUP",       CSAfF_ExpLevelUp},
+    {"GROUNDED",      CSAfF_Grounded},
+    {"TIMEBOMB",      CSAfF_Timebomb},
+  {NULL,              0},
+};
 
 const struct NamedCommand creatmodel_attraction_commands[] = {
   {"ENTRANCEROOM",       1},
@@ -273,6 +295,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->can_go_locked_doors = false;
       crconf->namestr_idx = 0;
       crconf->model_flags = 0;
+      crconf->immunity_flags = 0;
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -645,7 +668,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 3: // IMMUNE_TO_GAS
-              crstat->immune_to_gas = true;
+              set_flag(crconf->immunity_flags, CSAfF_PoisonCloud); // legacy, used to be a model flag
               n++;
               break;
             case 4: // HUMANOID_SKELETON
@@ -693,7 +716,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
               n++;
               break;
             case 16: // NEVER_CHICKENS
-              crconf->model_flags |= CMF_NeverChickens;
+              set_flag(crconf->immunity_flags, CSAfF_Chicken); // legacy, used to be a model flag
               n++;
               break;
             case 17: // IMMUNE_TO_BOULDER
@@ -729,7 +752,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 25: // IMMUNE_TO_DISEASE
-                crconf->model_flags |= CMF_NeverSick;
+                set_flag(crconf->immunity_flags, CSAfF_Disease); // legacy, used to be a model flag
                 n++;
                 break;
             case 26: // ILLUMINATED
@@ -805,6 +828,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+          //case 35 // SPELL_IMMUNITIES
       case 0: // comment
           break;
       case -1: // end of buffer

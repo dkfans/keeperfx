@@ -956,7 +956,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     } else
     if (spell_idx == SplK_Disease)
     {
-        if ((get_creature_model_flags(thing) & CMF_NeverSick) == 0)
+        if ((get_creature_immunity_flags(thing) & CSAfF_Disease) == 0)
         {
             if (i != -1)
             {
@@ -1003,7 +1003,7 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
     } else
     if (spell_idx == SplK_Chicken)
     {
-        if ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0)
+        if (!flag_is_set(get_creature_immunity_flags(thing), CSAfF_Chicken))
         {
             if (i != -1)
             {

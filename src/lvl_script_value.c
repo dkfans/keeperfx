@@ -213,9 +213,10 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
     const struct SpellConfig* spconf = get_spell_config(spkind);
 
     if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These four should be also marked at configs somehow
-            ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
-            ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
+            ( (spkind == SplK_Freeze)  ) || // This one should be also marked at configs somehow
+            ( (spkind == SplK_Disease) && (!flag_is_set(get_creature_model_flags(thing), CSAfF_Disease)) ) ||
+            ( (spkind == SplK_Slow)    && (!flag_is_set(get_creature_model_flags(thing), CSAfF_Slow   )) ) ||
+            ( (spkind == SplK_Chicken) && (!flag_is_set(get_creature_model_flags(thing), CSAfF_Chicken)) )  )
     {
         if (thing_is_picked_up(thing))
         {
@@ -691,11 +692,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 16: // NEVER_CHICKENS
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NeverChickens;
+              //legacy, used to be model_flags
+              set_flag(crconf->immunity_flags, CSAfF_Chicken);
           }
           else
           {
-              crconf->model_flags ^= CMF_NeverChickens;
+              clear_flag(crconf->immunity_flags, CSAfF_Chicken);
           }
           break;
       case 17: // IMMUNE_TO_BOULDER
@@ -781,11 +783,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 25: // NEVER_SICK
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_NeverSick;
+              //legacy, used to be model_flags
+              set_flag(crconf->immunity_flags, CSAfF_Disease);
           }
           else
           {
-              crconf->model_flags ^= CMF_NeverSick;
+              clear_flag(crconf->immunity_flags, CSAfF_Disease);
           }
           break;
       case 26: // ILLUMINATED

@@ -47,7 +47,6 @@ enum CreatureModelFlags {
     CMF_IsLordOTLand     = 0x0008, // simply, Knight
     CMF_IsSpectator      = 0x0010, // simply, Floating spirit
     CMF_IsEvil           = 0x0020, // All evil creatures
-    CMF_NeverChickens    = 0x0040, // Cannot be affected by Chicken (for Avatar)
     CMF_ImmuneToBoulder  = 0x0080, // Boulder traps are destroyed at the moment they touch the creature
     CMF_NoCorpseRotting  = 0x0100, // Corpse cannot rot in graveyard
     CMF_NoEnmHeartAttack = 0x0200, // Creature will not attack enemy heart on sight
@@ -56,7 +55,6 @@ enum CreatureModelFlags {
     CMF_Insect           = 0x1000, // Creature is kind of insect
     CMF_OneOfKind        = 0x2000, // Only one creature of that kind may exist on one level. Unit name is type name.
     CMF_NoImprisonment   = 0x4000, // Creature will not faint.
-    CMF_NeverSick        = 0x8000, // Creature will not get disease.
 };
 
 enum CreatureJobFlags {
@@ -223,6 +221,7 @@ struct CreatureModelConfig {
     char name[COMMAND_WORD_LEN];
     long namestr_idx;
     unsigned long model_flags;
+    unsigned long immunity_flags;
 };
 
 /**
@@ -293,6 +292,7 @@ TbBool is_creature_model_wildcard(ThingModel crmodel);
 TbBool load_creaturetypes_config(const char *conf_fname, unsigned short flags);
 /******************************************************************************/
 unsigned long get_creature_model_flags(const struct Thing *thing);
+unsigned long get_creature_immunity_flags(const struct Thing* thing);
 TbBool set_creature_available(PlayerNumber plyr_idx, ThingModel crtr_model, long can_be_avail, long force_avail);
 ThingModel get_players_special_digger_model(PlayerNumber plyr_idx);
 ThingModel get_players_spectator_model(PlayerNumber plyr_idx);
