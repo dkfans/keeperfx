@@ -388,7 +388,7 @@ void script_use_special_make_safe(PlayerNumber plyr_idx)
 }
 
 /**
- * Defortifies dungeon's ennemies of the target player.
+ * Defortifies player's dungeon.
  * @param plyr_idx target player
  */
 void script_defortify_player(PlayerNumber plyr_idx)
@@ -940,12 +940,6 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           script_use_special_make_safe(i);
       }
       break;
-    case Cmd_DEFORTIFY_PLAYER:
-      for (i=plr_start; i < plr_end; i++)
-      {
-          script_defortify_player(i);
-      }
-      break;
     case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
       script_use_special_locate_hidden_world();
       break;
@@ -953,6 +947,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_change_creature_owner_with_criteria(i, val2, val3, val4);
+      }
+      break;
+    case Cmd_DEFORTIFY_PLAYER:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_defortify_player(i);
       }
       break;
   case Cmd_SET_CAMPAIGN_FLAG:
