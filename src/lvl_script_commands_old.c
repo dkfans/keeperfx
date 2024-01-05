@@ -1545,9 +1545,9 @@ static void command_creature_entrance_level(long plr_range_id, unsigned char val
   command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
 }
 
-static void command_defortify_player(long plr_range_id)
+static void command_make_unsafe(long plr_range_id)
 {
-    command_add_value(Cmd_DEFORTIFY_PLAYER, plr_range_id, 0, 0, 0);
+    command_add_value(Cmd_MAKE_UNSAFE, plr_range_id, 0, 0, 0);
 }
 
 static void command_randomise_flag(long plr_range_id, const char *flgname, long val)
@@ -1912,8 +1912,8 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_CREATURE_ENTRANCE_LEVEL:
         command_creature_entrance_level(scline->np[0], scline->np[1]);
         break;
-    case Cmd_DEFORTIFY_PLAYER:
-        command_defortify_player(scline->np[0]);
+    case Cmd_MAKE_UNSAFE:
+        command_make_unsafe(scline->np[0]);
         break;
     case Cmd_RANDOMISE_FLAG:
         command_randomise_flag(scline->np[0], scline->tp[1], scline->np[2]);
