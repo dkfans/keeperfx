@@ -1913,7 +1913,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_creature_entrance_level(scline->np[0], scline->np[1]);
         break;
     case Cmd_DEFORTIFY_PLAYER:
-        command_use_defortify_player(scline->np[0]);
+        command_defortify_player(scline->np[0]);
         break;
     case Cmd_RANDOMISE_FLAG:
         command_randomise_flag(scline->np[0], scline->tp[1], scline->np[2]);
