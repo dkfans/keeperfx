@@ -57,7 +57,6 @@ enum CreatureModelFlags {
     CMF_OneOfKind        = 0x02000, // Only one creature of that kind may exist on one level. Unit name is type name.
     CMF_NoImprisonment   = 0x04000, // Creature will not faint.
     CMF_NeverSick        = 0x08000, // Creature will not get disease.
-    CMF_NeverFrozen      = 0x10000, // Creature will not get frozen.
 };
 
 enum CreatureJobFlags {
