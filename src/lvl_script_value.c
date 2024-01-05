@@ -391,7 +391,7 @@ void script_use_special_make_safe(PlayerNumber plyr_idx)
  * Defortifies player's dungeon.
  * @param plyr_idx target player
  */
-void script_defortify_player(PlayerNumber plyr_idx)
+void script_make_unsafe(PlayerNumber plyr_idx)
 {
     make_unsafe(plyr_idx);
 }
@@ -949,10 +949,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           script_change_creature_owner_with_criteria(i, val2, val3, val4);
       }
       break;
-    case Cmd_DEFORTIFY_PLAYER:
+    case Cmd_MAKE_UNSAFE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_defortify_player(i);
+          script_make_unsafe(i);
       }
       break;
   case Cmd_SET_CAMPAIGN_FLAG:
