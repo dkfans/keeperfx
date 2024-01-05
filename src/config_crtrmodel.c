@@ -828,7 +828,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-          //case 35 // SPELL_IMMUNITIES
+      case 35: // SPELL_IMMUNITIES
+          crconf->immunity_flags = 0;
+          while (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creatmodel_spell_immunity_commands, word_buf);
+              set_flag(crconf->immunity_flags, k);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
