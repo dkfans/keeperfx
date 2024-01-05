@@ -1060,16 +1060,13 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         switch (spell_idx)
         {
         case SplK_Freeze:
-            if ((get_creature_model_flags(thing) & CMF_NeverFrozen) == 0)
-            {
-                cctrl->stateblock_flags |= CCSpl_Freeze;
-                if ((thing->movement_flags & TMvF_Flying) != 0)
+            cctrl->stateblock_flags |= CCSpl_Freeze;
+            if ((thing->movement_flags & TMvF_Flying) != 0)
                 {
                     cctrl->spell_flags |= CSAfF_Grounded;
                     thing->movement_flags &= ~TMvF_Flying;
                 }
-                creature_set_speed(thing, 0);
-            }
+            creature_set_speed(thing, 0);
             break;
         case SplK_Armour:
             n = 0;
