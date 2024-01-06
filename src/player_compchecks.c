@@ -85,7 +85,9 @@ const struct NamedCommand computer_check_func_type[] = {
   {"check_for_expand_room",  13,},
   {"check_for_money",        14,},
   {"check_prison_tendency",  15,},
-  {"none",                   16,},
+  {"check_for_flight",       16,},
+  {"check_for_vision",       17,},
+  {"none",                   18,},
   {NULL,                      0,},
 };
 
@@ -106,6 +108,8 @@ Comp_Check_Func computer_check_func_list[] = {
   computer_check_for_expand_room,
   computer_check_for_money,
   computer_check_prison_tendency,
+  computer_check_for_flight,
+  computer_check_for_vision,
   NULL,
   NULL,
 };
@@ -736,6 +740,84 @@ struct Thing *computer_check_creatures_in_room_for_accelerate(struct Computer2 *
     return INVALID_THING;
 }
 
+struct Thing *computer_check_creatures_in_room_for_flight(struct Computer2 *comp, struct Room *room)
+{
+    struct Dungeon* dungeon = comp->dungeon;
+    long i = room->creatures_list;
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature %ld detected",i);
+            break;
+        }
+        i = cctrl->next_in_room;
+        // Per creature code
+        if (!thing_affected_by_spell(thing, SplK_Fly))
+        {
+            long n = get_creature_state_besides_move(thing);
+            struct StateInfo* stati = get_thing_state_info_num(n);
+            if (stati->state_type == CrStTyp_Work)
+            {
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                {
+                    return thing;
+                }
+            }
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
+struct Thing *computer_check_creatures_in_room_for_vision(struct Computer2 *comp, struct Room *room)
+{
+    struct Dungeon* dungeon = comp->dungeon;
+    long i = room->creatures_list;
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature %ld detected",i);
+            break;
+        }
+        i = cctrl->next_in_room;
+        // Per creature code
+        if (!thing_affected_by_spell(thing, SplK_Sight))
+        {
+            long n = get_creature_state_besides_move(thing);
+            struct StateInfo* stati = get_thing_state_info_num(n);
+            if (stati->state_type == CrStTyp_Work)
+            {
+                if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, SPELL_MAX_LEVEL, 0, 0, thing->index, 0) > Lb_OK)
+                {
+                    return thing;
+                }
+            }
+        }
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break;
+        }
+    }
+    return INVALID_THING;
+}
+
 struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(struct Computer2 *comp, RoomKind rkind)
 {
     if ((rkind < 1) || (rkind > game.conf.slab_conf.room_types_count))
@@ -775,6 +857,84 @@ struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(s
     return INVALID_THING;
 }
 
+struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_flight(struct Computer2 *comp, RoomKind rkind)
+{
+    if ((rkind < 1) || (rkind > game.conf.slab_conf.room_types_count))
+    {
+        ERRORLOG("Invalid room kind %d",(int)rkind);
+        return INVALID_THING;
+    }
+    struct Dungeon* dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Invalid computer players dungeon");
+        return INVALID_THING;
+    }
+    long i = dungeon->room_kind[rkind];
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Room* room = room_get(i);
+        if (room_is_invalid(room))
+        {
+          ERRORLOG("Jump to invalid room detected");
+          break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        struct Thing* thing = computer_check_creatures_in_room_for_flight(comp, room);
+        if (!thing_is_invalid(thing))
+            return thing;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    return INVALID_THING;
+}
+
+struct Thing *computer_check_creatures_in_dungeon_rooms_of_kind_for_vision(struct Computer2 *comp, RoomKind rkind)
+{
+    if ((rkind < 1) || (rkind > game.conf.slab_conf.room_types_count))
+    {
+        ERRORLOG("Invalid room kind %d",(int)rkind);
+        return INVALID_THING;
+    }
+    struct Dungeon* dungeon = comp->dungeon;
+    if (dungeon_invalid(dungeon))
+    {
+        ERRORLOG("Invalid computer players dungeon");
+        return INVALID_THING;
+    }
+    long i = dungeon->room_kind[rkind];
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Room* room = room_get(i);
+        if (room_is_invalid(room))
+        {
+          ERRORLOG("Jump to invalid room detected");
+          break;
+        }
+        i = room->next_of_owner;
+        // Per-room code
+        struct Thing* thing = computer_check_creatures_in_room_for_vision(comp, room);
+        if (!thing_is_invalid(thing))
+            return thing;
+        // Per-room code ends
+        k++;
+        if (k > ROOMS_COUNT)
+        {
+          ERRORLOG("Infinite loop detected when sweeping rooms list");
+          break;
+        }
+    }
+    return INVALID_THING;
+}
+
 long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck * check)
 {
     static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
@@ -791,6 +951,58 @@ long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck 
     for (long i = 0; i < sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]); i++)
     {
         struct Thing* thing = computer_check_creatures_in_dungeon_rooms_of_kind_for_accelerate(comp, workers_in_rooms[n]);
+        if (!thing_is_invalid(thing))
+        {
+            SYNCDBG(8,"Cast on thing %d",(int)thing->index);
+            return CTaskRet_Unk1;
+        }
+        n = (n+1) % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+    }
+    return CTaskRet_Unk4;
+}
+
+long computer_check_for_flight(struct Computer2 *comp, struct ComputerCheck * check)
+{
+    static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
+    SYNCDBG(8,"Starting");
+    int power_level = check->param2;
+    int amount = check->param3;
+    if (!computer_able_to_use_power(comp, PwrK_FLIGHT, power_level, amount))
+    {
+        return CTaskRet_Unk4;
+    }
+    long n = check->param1 % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
+    if (n <= 0)
+        n = PLAYER_RANDOM(comp->dungeon->owner, sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+    for (long i = 0; i < sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]); i++)
+    {
+        struct Thing* thing = computer_check_creatures_in_dungeon_rooms_of_kind_for_flight(comp, workers_in_rooms[n]);
+        if (!thing_is_invalid(thing))
+        {
+            SYNCDBG(8,"Cast on thing %d",(int)thing->index);
+            return CTaskRet_Unk1;
+        }
+        n = (n+1) % (sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+    }
+    return CTaskRet_Unk4;
+}
+
+long computer_check_for_vision(struct Computer2 *comp, struct ComputerCheck * check)
+{
+    static RoomKind workers_in_rooms[] = {RoK_LIBRARY,RoK_LIBRARY,RoK_WORKSHOP,RoK_TRAINING,RoK_SCAVENGER};
+    SYNCDBG(8,"Starting");
+    int power_level = check->param2;
+    int amount = check->param3;
+    if (!computer_able_to_use_power(comp, PwrK_VISION, power_level, amount))
+    {
+        return CTaskRet_Unk4;
+    }
+    long n = check->param1 % (sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]));
+    if (n <= 0)
+        n = PLAYER_RANDOM(comp->dungeon->owner, sizeof(workers_in_rooms)/sizeof(workers_in_rooms[0]));
+    for (long i = 0; i < sizeof(workers_in_rooms) / sizeof(workers_in_rooms[0]); i++)
+    {
+        struct Thing* thing = computer_check_creatures_in_dungeon_rooms_of_kind_for_vision(comp, workers_in_rooms[n]);
         if (!thing_is_invalid(thing))
         {
             SYNCDBG(8,"Cast on thing %d",(int)thing->index);
