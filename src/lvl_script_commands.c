@@ -238,6 +238,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"PlaceOnBridge",       35},
   {"ShotOrigin",          36},
   {"PlaceSound",          37},
+  {"TriggerSound",        38},
   {NULL,                   0},
 };
 
@@ -1766,6 +1767,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 37: // PlaceSound
             trapst->place_sound_idx = value;
+            break;
+        case 38: // TriggerSound
+            trapst->trigger_sound_idx = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
