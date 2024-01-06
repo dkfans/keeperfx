@@ -1785,6 +1785,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             game.conf.trap_stats[trap_type].recharge_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             refresh_trap_anim(trap_type);
         }
+            break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;
