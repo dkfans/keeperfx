@@ -3806,8 +3806,8 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
     return true;
 }
 
-//task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units. Not to be confused
-//with check_for_accelerate which cast speed outside of combat
+//Task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_accelerate which cast speed outside of combat.
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
 {
     struct ComputerTask *ctask;
@@ -3817,9 +3817,49 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "I should buff my fighters.");
+        message_add_fmt(comp->dungeon->owner, "I should speed up my fighters.");
     }
     ctask->ttype = CTT_MagicSpeedUp;
+    ctask->attack_magic.target_thing_idx = creatng->index;
+    ctask->attack_magic.splevel = splevel;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+//Task is named 'flight up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_flight which cast flight outside of combat.
+TbBool create_task_magic_flight_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
+        message_add_fmt(comp->dungeon->owner, "I should flight up my fighters.");
+    }
+    ctask->ttype = CTT_MagicFlightUp;
+    ctask->attack_magic.target_thing_idx = creatng->index;
+    ctask->attack_magic.splevel = splevel;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+//Task is named 'vision up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_vision which cast vision outside of combat.
+TbBool create_task_magic_vision_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
+        message_add_fmt(comp->dungeon->owner, "I should vision up my fighters.");
+    }
+    ctask->ttype = CTT_MagicVisionUp;
     ctask->attack_magic.target_thing_idx = creatng->index;
     ctask->attack_magic.splevel = splevel;
     ctask->created_turn = game.play_gameturn;
