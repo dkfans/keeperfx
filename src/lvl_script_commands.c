@@ -239,6 +239,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"ShotOrigin",          36},
   {"PlaceSound",          37},
   {"TriggerSound",        38},
+  {"RechargeModel",       39},
   {NULL,                   0},
 };
 
@@ -1576,7 +1577,14 @@ void refresh_trap_anim(long trap_id)
         // Per thing code
         if (traptng->model == trap_id)
         {
-            traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
+            if ((traptng->trap.deactivated == 1) || (game.conf.trap_stats[trap_id].recharge_sprite_anim_idx == 0))
+            {
+                traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
+            }
+            else 
+            {
+                traptng->anim_sprite = game.conf.trap_stats[trap_id].recharge_sprite_anim_idx;
+            }
             struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
             char start_frame;
             if (trapstat->random_start_frame) {
@@ -1771,6 +1779,12 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 38: // TriggerSound
             trapst->trigger_sound_idx = value;
             break;
+        case 39: // RechargeModel
+        {
+            struct ObjectConfigStats obj_tmp;
+            game.conf.trap_stats[trap_type].recharge_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            refresh_trap_anim(trap_type);
+        }
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
             break;

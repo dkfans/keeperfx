@@ -219,6 +219,7 @@ struct Thing {
         unsigned char num_shots;
         long rearm_turn;
         unsigned char revealed;
+        unsigned char deactivated;
       } trap;
 //TCls_Door
       struct {

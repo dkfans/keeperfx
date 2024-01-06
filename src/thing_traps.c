@@ -38,6 +38,7 @@
 #include "room_util.h"
 #include "game_legacy.h"
 #include "frontend.h"
+#include "engine_arrays.h"
 #include "engine_render.h"
 #include "gui_topmsg.h"
 
@@ -714,6 +715,13 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     if (traptng->trap.num_shots <= 0) {
         return TUFRet_Unchanged;
     }
+    if ((traptng->trap.rearm_turn <= game.play_gameturn) && (traptng->trap.deactivated == 1))
+    {
+        //back to regular anim
+        traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].sprite_anim_idx);
+        traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+        traptng->trap.deactivated = 0;
+    }
     TbBool do_trig;
     switch (game.conf.trap_stats[traptng->model].trigger_type)
     {
@@ -741,6 +749,12 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     {
         const struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
         traptng->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
+        if (game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx != 0)
+        {
+            traptng->trap.deactivated = 1;
+            traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx);
+            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+        }
         int n = traptng->trap.num_shots;
         if ((n > 0) && (n != 255))
         {
