@@ -179,6 +179,7 @@ enum TbScriptCommands {
     Cmd_SET_POWER_CONFIGURATION           = 166,
     Cmd_SET_PLAYER_COLOR                  = 167,
     Cmd_MAKE_UNSAFE                       = 168,
+    Cmd_LEVEL_UP_PLAYERS_CREATURES        = 169,
 };
 
 struct ScriptLine {
