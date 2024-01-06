@@ -122,6 +122,7 @@ struct ComputerSpells computer_attack_spells[] = {
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0,  1, 8, 2},
   {PwrK_CHICKEN,   GA_UsePwrChicken,   1,  1, 2, 1},
   {PwrK_FREEZE,    GA_UsePwrFreeze,    1,  1, 1, 1},
+  {PwrK_SLOW,      GA_UsePwrSlow,      1,  1, 1, 1},
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0, -1, 1, 1},
   {PwrK_None,      GA_None,            0,  0, 0, 0},
 };
@@ -367,10 +368,12 @@ struct Thing *computer_get_creature_in_fight(struct Computer2 *comp, PowerKind p
 
 long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent *cevent)
 {
-    if (comp->dungeon->fights_num <= 0) {
+    if (comp->dungeon->fights_num <= 0)
+    {
         return 4;
     }
-    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1))) {
+    if (!(computer_able_to_use_power(comp, PwrK_SPEEDCRTR, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_PROTECT, cevent->param1, 1) || computer_able_to_use_power(comp, PwrK_REBOUND, cevent->param1, 1) ||  computer_able_to_use_power(comp, PwrK_VISION, cevent->param1, 1)))
+    {
         return 4;
     }
     struct Thing* fightng = computer_get_creature_in_fight(comp, PwrK_SPEEDCRTR);
@@ -382,11 +385,16 @@ long computer_event_check_fighters(struct Computer2 *comp, struct ComputerEvent 
             fightng = computer_get_creature_in_fight(comp, PwrK_REBOUND);
             if (thing_is_invalid(fightng))
             {
-                return 4;
+                fightng = computer_get_creature_in_fight(comp, PwrK_VISION);
+                if (thing_is_invalid(fightng))
+                {
+                    return 4;
+                }
             }
         }
     }
-    if (!create_task_magic_speed_up(comp, fightng, cevent->param1)) {
+    if (!create_task_magic_speed_up(comp, fightng, cevent->param1))
+    {
         return 4;
     }
     return 1;
