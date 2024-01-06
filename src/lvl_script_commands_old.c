@@ -1405,9 +1405,9 @@ static void make_safe(long plr_range_id)
     command_add_value(Cmd_MAKE_SAFE, plr_range_id, 0, 0, 0);
 }
 
-static void command_use_special_locate_hidden_world()
+static void command_locate_hidden_world()
 {
-    command_add_value(Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
+    command_add_value(Cmd_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
 }
 
 static void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
@@ -1875,8 +1875,8 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_MAKE_SAFE:
         make_safe(scline->np[0]);
         break;
-    case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
-        command_use_special_locate_hidden_world();
+    case Cmd_LOCATE_HIDDEN_WORLD:
+        command_locate_hidden_world();
         break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);

@@ -401,7 +401,7 @@ void script_make_unsafe(PlayerNumber plyr_idx)
 /**
  * Enables bonus level for current player.
  */
-TbBool script_use_special_locate_hidden_world()
+TbBool script_locate_hidden_world()
 {
     return activate_bonus_level(get_player(my_player_number));
 }
@@ -942,8 +942,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           script_make_safe(i);
       }
       break;
-    case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
-      script_use_special_locate_hidden_world();
+    case Cmd_LOCATE_HIDDEN_WORLD:
+      script_locate_hidden_world();
       break;
     case Cmd_CHANGE_CREATURE_OWNER:
       for (i=plr_start; i < plr_end; i++)

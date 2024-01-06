@@ -128,7 +128,7 @@ enum TbScriptCommands {
     Cmd_USE_SPECIAL_INCREASE_LEVEL        = 115,
     Cmd_USE_SPECIAL_MULTIPLY_CREATURES    = 116,
     Cmd_MAKE_SAFE                         = 117,
-    Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 118,
+    Cmd_LOCATE_HIDDEN_WORLD               = 118,
     Cmd_USE_SPECIAL_TRANSFER_CREATURE     = 119,
     Cmd_CHANGE_CREATURES_ANNOYANCE        = 120,
     Cmd_COMPUTER_DIG_TO_LOCATION          = 121,
