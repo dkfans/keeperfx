@@ -1427,7 +1427,6 @@ static void command_change_creature_owner(long origin_plyr_idx, const char *crtr
   command_add_value(Cmd_CHANGE_CREATURE_OWNER, origin_plyr_idx, crtr_id, select_id, dest_plyr_idx);
 }
 
-
 static void command_computer_dig_to_location(long plr_range_id, const char* origin, const char* destination)
 {
     TbMapLocation orig_loc;
@@ -1544,6 +1543,11 @@ static void command_use_spell_on_creature(long plr_range_id, const char *crtr_na
 static void command_creature_entrance_level(long plr_range_id, unsigned char val)
 {
   command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
+}
+
+static void command_make_unsafe(long plr_range_id)
+{
+    command_add_value(Cmd_MAKE_UNSAFE, plr_range_id, 0, 0, 0);
 }
 
 static void command_randomise_flag(long plr_range_id, const char *flgname, long val)
@@ -1907,6 +1911,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_CREATURE_ENTRANCE_LEVEL:
         command_creature_entrance_level(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_MAKE_UNSAFE:
+        command_make_unsafe(scline->np[0]);
         break;
     case Cmd_RANDOMISE_FLAG:
         command_randomise_flag(scline->np[0], scline->tp[1], scline->np[2]);
