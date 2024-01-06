@@ -1400,9 +1400,9 @@ static void command_use_special_multiply_creatures(long plr_range_id, long count
     command_add_value(Cmd_USE_SPECIAL_MULTIPLY_CREATURES, plr_range_id, count, 0, 0);
 }
 
-static void command_use_special_make_safe(long plr_range_id)
+static void make_safe(long plr_range_id)
 {
-    command_add_value(Cmd_USE_SPECIAL_MAKE_SAFE, plr_range_id, 0, 0, 0);
+    command_add_value(Cmd_MAKE_SAFE, plr_range_id, 0, 0, 0);
 }
 
 static void command_use_special_locate_hidden_world()
@@ -1872,8 +1872,8 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_USE_SPECIAL_MULTIPLY_CREATURES:
         command_use_special_multiply_creatures(scline->np[0], scline->np[1]);
         break;
-    case Cmd_USE_SPECIAL_MAKE_SAFE:
-        command_use_special_make_safe(scline->np[0]);
+    case Cmd_MAKE_SAFE:
+        make_safe(scline->np[0]);
         break;
     case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
         command_use_special_locate_hidden_world();

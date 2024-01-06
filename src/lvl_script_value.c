@@ -384,7 +384,7 @@ void script_use_special_multiply_creatures(PlayerNumber plyr_idx)
  * Fortifies player's dungeon.
  * @param plyr_idx target player
  */
-void script_use_special_make_safe(PlayerNumber plyr_idx)
+void script_make_safe(PlayerNumber plyr_idx)
 {
     make_safe(get_player(plyr_idx));
 }
@@ -936,10 +936,10 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
       }
       break;
-    case Cmd_USE_SPECIAL_MAKE_SAFE:
+    case Cmd_MAKE_SAFE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_special_make_safe(i);
+          script_make_safe(i);
       }
       break;
     case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
