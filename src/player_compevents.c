@@ -121,6 +121,7 @@ struct ComputerSpells computer_attack_spells[] = {
   {PwrK_DISEASE,   GA_UsePwrDisease,   1,  1, 2, 4},
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0,  1, 8, 2},
   {PwrK_CHICKEN,   GA_UsePwrChicken,   1,  1, 2, 1},
+  {PwrK_FREEZE,    GA_UsePwrFreeze,    1,  1, 1, 1},
   {PwrK_LIGHTNING, GA_UsePwrLightning, 0, -1, 1, 1},
   {PwrK_None,      GA_None,            0,  0, 0, 0},
 };
