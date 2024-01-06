@@ -386,6 +386,9 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrConceal:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrFlight:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FLIGHT, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrVision:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_VISION, alevel, stl_x, stl_y, thing, PwMod_Default);
@@ -3117,6 +3120,13 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
     else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_REBOUND))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_FLIGHT))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
