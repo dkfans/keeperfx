@@ -57,6 +57,8 @@ long computer_check_no_imps(struct Computer2 *comp, struct ComputerCheck * check
 long computer_check_for_pretty(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_quick_attack(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_accelerate(struct Computer2 *comp, struct ComputerCheck * check);
+long computer_check_for_flight(struct Computer2 *comp, struct ComputerCheck * check);
+long computer_check_for_vision(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_slap_imps(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_enemy_entrances(struct Computer2 *comp, struct ComputerCheck * check);
 long computer_check_for_place_door(struct Computer2 *comp, struct ComputerCheck * check);
