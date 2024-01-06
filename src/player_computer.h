@@ -124,6 +124,7 @@ enum GameActionTypes {
     GA_UsePwrArmour,
     GA_UsePwrRebound,
     GA_UsePwrConceal,
+    GA_UsePwrFlight,
     GA_UsePwrVision,
     GA_UsePwrHoldAudnc,
     GA_UsePwrDisease,
