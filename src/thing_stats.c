@@ -404,6 +404,36 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool
 }
 
 /**
+ * Computes training cost of a creature on given level.
+ */
+long compute_creature_max_training_cost(long base_param,unsigned short crlevel)
+{
+  if (base_param <= 0)
+    return 0;
+  if (base_param > 100000)
+    base_param = 100000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  long max_param = base_param + (game.conf.crtr_conf.exp.training_cost_increase_on_exp * base_param * (long)crlevel) / 100;
+  return saturate_set_signed(max_param, 16);
+}
+
+/**
+ * Computes training cost of a creature on given level.
+ */
+long compute_creature_max_scavenging_cost(long base_param,unsigned short crlevel)
+{
+  if (base_param <= 0)
+    return 0;
+  if (base_param > 100000)
+    base_param = 100000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  long max_param = base_param + (game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp * base_param * (long)crlevel) / 100;
+  return saturate_set_signed(max_param, 16);
+}
+
+/**
  * Projects expected damage of a melee attack, taking luck and creature level into account.
  * Uses no random factors - instead, projects a best estimate.
  * This function allows evaluating damage creature can make. It shouldn't be used
@@ -615,10 +645,34 @@ long calculate_correct_creature_pay(const struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
-    // If torturing creature of that model, halve the salary
-    if (dungeon->tortured_creatures[thing->model] > 0)
+    // If torturing creature of that model, halves the salary if the rule is enabled.
+    if ((dungeon->tortured_creatures[thing->model] > 0) && (game.conf.rules.game.torture_payday == 1))
         pay /= 2;
     return pay;
+}
+
+long calculate_correct_creature_training_cost(const struct Thing *thing)
+{
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
+    // If torturing creature of that model, halves the training cost if the rule is enabled.
+    if ((dungeon->tortured_creatures[thing->model] > 0) && (game.conf.rules.game.torture_training_cost == 1))
+        training_cost /= 2;
+    return training_cost;
+}
+
+long calculate_correct_creature_scavenging_cost(const struct Thing *thing)
+{
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
+    // If torturing creature of that model, halves the scavenging cost if the rule is enabled.
+    if ((dungeon->tortured_creatures[thing->model] > 0) && (game.conf.rules.game.torture_scavenging_cost == 1))
+        scavenger_cost /= 2;
+    return scavenger_cost;
 }
 
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx)
@@ -1040,12 +1094,12 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_TrainingCost:
-        i = crstat->training_cost;
+        i = calculate_correct_creature_training_cost(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;
     case CrLStat_ScavengeCost:
-        i = crstat->scavenger_cost;
+        i = calculate_correct_creature_scavenging_cost(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;
