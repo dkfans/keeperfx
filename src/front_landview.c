@@ -274,16 +274,16 @@ void update_frontmap_ambient_sound(void)
           long i = compute_sound_good_to_bad_factor();
           SYNCDBG(18, "Volume factor is %ld", i);
           SetSampleVolume(0, campaign.ambient_good, map_sound_fade * (i) / 256, 0);
-          SetSampleVolume(0, campaign.ambient_bad, map_sound_fade * (127 - i) / 256, 0);
+          SetSampleVolume(0, campaign.ambient_bad, map_sound_fade * (settings.sound_volume - i) / 256, 0);
     } else
     if (lvidx > 13)
     {
-      SetSampleVolume(0, campaign.ambient_bad, 127*map_sound_fade/256, 0);
+      SetSampleVolume(0, campaign.ambient_bad, settings.sound_volume *map_sound_fade/256, 0);
     } else
     {
-      SetSampleVolume(0, campaign.ambient_good, 127*map_sound_fade/256, 0);
+      SetSampleVolume(0, campaign.ambient_good, settings.sound_volume *map_sound_fade/256, 0);
     }
-    Mix_VolumeChunk(streamed_sample, 127*map_sound_fade/256);
+    Mix_VolumeChunk(streamed_sample, settings.sound_volume *map_sound_fade/256);
     SetMusicPlayerVolume(map_sound_fade*(long)settings.redbook_volume/256);
   } else
   {
@@ -705,7 +705,8 @@ TbBool play_description_speech(LevelNumber lvnum, short play_good)
     }
     playing_speech_lvnum = lvnum;
     SYNCMSG("Playing %s", fname);
-    return play_streamed_sample(fname, 127, 0);
+    //volume is overwritten in update_frontmap_ambient_sound
+    return play_streamed_sample(fname, settings.sound_volume, 0);
 }
 
 TbBool set_pointer_graphic_spland(long frame)

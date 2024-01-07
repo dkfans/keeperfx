@@ -182,6 +182,8 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_CHICKEN:
         return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_FREEZE:
+        return magic_use_power_freeze(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_SLAP:
         return magic_use_power_slap_thing(caster, thing, spell_flags);
       case PwrK_CALL2ARMS:
@@ -213,7 +215,7 @@ TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long 
     const struct SpellConfig* spconf = get_spell_config(spkind);
 
     if (spconf->caster_affected ||
-            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These four should be also marked at configs somehow
+            (spkind == SplK_Freeze) || (spkind == SplK_Slow) || // These two should be also marked at configs somehow?
             ( (spkind == SplK_Disease) && ((get_creature_model_flags(thing) & CMF_NeverSick) == 0) ) ||
             ( (spkind == SplK_Chicken) && ((get_creature_model_flags(thing) & CMF_NeverChickens) == 0) ) )
     {
@@ -385,6 +387,15 @@ void script_use_special_multiply_creatures(PlayerNumber plyr_idx)
 void script_use_special_make_safe(PlayerNumber plyr_idx)
 {
     make_safe(get_player(plyr_idx));
+}
+
+/**
+ * Defortifies player's dungeon.
+ * @param plyr_idx target player
+ */
+void script_make_unsafe(PlayerNumber plyr_idx)
+{
+    make_unsafe(plyr_idx);
 }
 
 /**
@@ -938,6 +949,12 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       for (i=plr_start; i < plr_end; i++)
       {
           script_change_creature_owner_with_criteria(i, val2, val3, val4);
+      }
+      break;
+    case Cmd_MAKE_UNSAFE:
+      for (i=plr_start; i < plr_end; i++)
+      {
+          script_make_unsafe(i);
       }
       break;
   case Cmd_SET_CAMPAIGN_FLAG:

@@ -238,6 +238,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"PlaceOnBridge",       35},
   {"ShotOrigin",          36},
   {"PlaceSound",          37},
+  {"TriggerSound",        38},
   {NULL,                   0},
 };
 
@@ -1766,6 +1767,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 37: // PlaceSound
             trapst->place_sound_idx = value;
+            break;
+        case 38: // TriggerSound
+            trapst->trigger_sound_idx = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -4839,6 +4843,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_EFFECT_GENERATOR_CONFIGURATION","AAAnn   ", Cmd_SET_EFFECT_GENERATOR_CONFIGURATION, &set_effectgen_configuration_check, &set_effectgen_configuration_process },
   {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
   {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
+  {"MAKE_UNSAFE",                       "P       ", Cmd_MAKE_UNSAFE, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
