@@ -647,7 +647,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
     GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
     // If torturing creature of that model, changes the salary with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
-        pay *= (game.conf.rules.game.torture_payday) / 100;
+        pay = (pay * game.conf.rules.game.torture_payday) / 100;
     return pay;
 }
 
@@ -659,7 +659,7 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
     GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
     // If torturing creature of that model, changes the training cost with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
-        training_cost *= (game.conf.rules.game.torture_training_cost) / 100;
+        training_cost = (training_cost * game.conf.rules.game.torture_training_cost) / 100;
     return training_cost;
 }
 
@@ -671,7 +671,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
     // If torturing creature of that model, changes the scavenging cost with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
-        scavenger_cost *= (game.conf.rules.game.torture_scavenging_cost) / 100;
+        scavenger_cost = (scavenger_cost * game.conf.rules.game.torture_scavenging_cost) / 100;
     return scavenger_cost;
 }
 
