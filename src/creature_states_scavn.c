@@ -73,7 +73,7 @@ short at_scavenger_room(struct Thing *thing)
         return 0;
     }
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    long scavenger_cost = calculate_correct_creature_scavenging_cost(thing);
+    GoldAmount scavenger_cost = calculate_correct_creature_scavenging_cost(thing);
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     if (scavenger_cost >= dungeon->total_money_owned)
     {
@@ -224,7 +224,7 @@ short creature_scavenged_reappear(struct Thing *thing)
 TbBool player_can_afford_to_scavenge_creature(const struct Thing *creatng)
 {
     struct Dungeon* dungeon = get_dungeon(creatng->owner);
-    long scavenger_cost = calculate_correct_creature_scavenging_cost(creatng);
+    GoldAmount scavenger_cost = calculate_correct_creature_scavenging_cost(creatng);
     return (scavenger_cost < dungeon->total_money_owned);
 }
 
@@ -543,7 +543,7 @@ CrCheckRet process_scavenge_function(struct Thing *calltng)
     if (callctrl->turns_at_job > game.conf.rules.rooms.scavenge_cost_frequency)
     {
         callctrl->turns_at_job -= game.conf.rules.rooms.scavenge_cost_frequency;
-        long scavenger_cost = calculate_correct_creature_scavenging_cost(calltng);
+        GoldAmount scavenger_cost = calculate_correct_creature_scavenging_cost(calltng);
         if (take_money_from_dungeon(calltng->owner, scavenger_cost, 1) < 0) {
             ERRORLOG("Cannot take %d gold from dungeon %d",(int)scavenger_cost,(int)calltng->owner);
         }
