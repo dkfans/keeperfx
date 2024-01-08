@@ -407,11 +407,7 @@ short get_packet_load_game_control_inputs(void)
   if (is_key_pressed(KC_T,KMod_ALT))
   {
     clear_key_pressed(KC_T);
-    close_packet_file();
-    game.packet_load_enable = false;
-    game.packet_save_enable = false;
-    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
-    set_gui_visible(true);
+    disable_packet_mode();
     return true;
   }
   return false;
@@ -3069,6 +3065,15 @@ TbBool process_cheat_heart_health_inputs(short *value, long max_health)
         return true;
     }
     return false;
+}
+
+void disable_packet_mode()
+{
+    close_packet_file();
+    game.packet_load_enable = false;
+    game.packet_save_enable = false;
+    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
+    set_gui_visible(true);
 }
 
 /******************************************************************************/

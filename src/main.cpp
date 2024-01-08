@@ -3409,6 +3409,10 @@ void gameplay_loop_logic()
                 paused_at_gameturn = true;
 
                 game.frame_skip = 0;
+                if(game.packet_load_enable)
+                {
+                    disable_packet_mode();
+                }
                 set_packet_pause_toggle();
             }
         }
@@ -4085,7 +4089,6 @@ short process_command_line(unsigned short argc, char *argv[])
          start_params.packet_load_enable = false;
          start_params.packet_save_enable = true;
          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
-         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
          narg++;
       } else
       if (strcasecmp(parstr,"pause_at_gameturn") == 0)
