@@ -1291,8 +1291,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 35: //TorturePayday
           if (val3 >= 0 && val3 <= SHRT_MAX)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.torture_payday, val3);
-              game.conf.rules.rooms.torture_payday = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.torture_payday, val3);
+              game.conf.rules.game.torture_payday = val3;
           }
           else
           {
@@ -1302,8 +1302,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 36: //TortureTrainingCost
           if (val3 >= 0 && val3 <= SHRT_MAX)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.torture_training_cost, val3);
-              game.conf.rules.rooms.torture_training_cost = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.torture_training_cost, val3);
+              game.conf.rules.game.torture_training_cost = val3;
           }
           else
           {
@@ -1313,8 +1313,8 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 37: //TortureScavengingCost
           if (val3 >= 0 && val3 <= SHRT_MAX)
           {
-              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.torture_scavenging_cost, val3);
-              game.conf.rules.rooms.torture_scavenging_cost = val3;
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.torture_scavenging_cost, val3);
+              game.conf.rules.game.torture_scavenging_cost = val3;
           }
           else
           {
