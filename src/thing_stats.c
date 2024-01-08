@@ -309,7 +309,7 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
 /**
  * Computes gold pay of a creature on given level.
  */
-long compute_creature_max_pay(long base_param,unsigned short crlevel)
+GoldAmount compute_creature_max_pay(GoldAmount base_param,unsigned short crlevel)
 {
   if (base_param <= 0)
     return 0;
@@ -317,7 +317,7 @@ long compute_creature_max_pay(long base_param,unsigned short crlevel)
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (game.conf.crtr_conf.exp.pay_increase_on_exp * base_param * (long)crlevel) / 100;
+  GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.pay_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -406,7 +406,7 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool
 /**
  * Computes training cost of a creature on given level.
  */
-long compute_creature_max_training_cost(long base_param,unsigned short crlevel)
+GoldAmount compute_creature_max_training_cost(GoldAmount base_param,unsigned short crlevel)
 {
   if (base_param <= 0)
     return 0;
@@ -414,14 +414,14 @@ long compute_creature_max_training_cost(long base_param,unsigned short crlevel)
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (game.conf.crtr_conf.exp.training_cost_increase_on_exp * base_param * (long)crlevel) / 100;
+  GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.training_cost_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_signed(max_param, 16);
 }
 
 /**
  * Computes training cost of a creature on given level.
  */
-long compute_creature_max_scavenging_cost(long base_param,unsigned short crlevel)
+GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param,unsigned short crlevel)
 {
   if (base_param <= 0)
     return 0;
@@ -429,7 +429,7 @@ long compute_creature_max_scavenging_cost(long base_param,unsigned short crlevel
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp * base_param * (long)crlevel) / 100;
+  GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -639,39 +639,39 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     return speed;
 }
 
-long calculate_correct_creature_pay(const struct Thing *thing)
+GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
+    GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
     // If torturing creature of that model, changes the salary with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
-        pay *= (game.conf.rules.game.torture_payday / 100);
+        pay *= (game.conf.rules.game.torture_payday) / 100;
     return pay;
 }
 
-long calculate_correct_creature_training_cost(const struct Thing *thing)
+GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
+    GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
     // If torturing creature of that model, changes the training cost with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
-        training_cost *= (game.conf.rules.game.torture_training_cost / 100);
+        training_cost *= (game.conf.rules.game.torture_training_cost) / 100;
     return training_cost;
 }
 
-long calculate_correct_creature_scavenging_cost(const struct Thing *thing)
+GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
+    GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
     // If torturing creature of that model, changes the scavenging cost with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
-        scavenger_cost *= (game.conf.rules.game.torture_scavenging_cost / 100);
+        scavenger_cost *= (game.conf.rules.game.torture_scavenging_cost) / 100;
     return scavenger_cost;
 }
 
