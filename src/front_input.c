@@ -630,6 +630,15 @@ short get_global_inputs(void)
         clear_key_pressed(keycode);
         return true;
       }
+      else if( flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
+      {
+        if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+        {
+            game.frame_step = true;
+            set_packet_pause_toggle();
+            clear_key_pressed(KC_PERIOD);
+        }
+      }
   }
   if ((game.operation_flags & GOF_Paused) != 0)
       return true;
@@ -2476,7 +2485,16 @@ short get_inputs(void)
             {
                 lbKeyOn[keycode] = 0;
                 set_packet_pause_toggle();
-          }
+            }
+            else if( flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
+            {
+                if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+                {
+                    game.frame_step = true;
+                    set_packet_pause_toggle();
+                    clear_key_pressed(KC_PERIOD);
+                }
+            }
         }
         return false;
     }
