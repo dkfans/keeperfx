@@ -67,7 +67,7 @@ TbBool creature_can_be_trained(const struct Thing *thing)
 TbBool player_can_afford_to_train_creature(const struct Thing *thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
-    long training_cost = calculate_correct_creature_training_cost(thing);
+    GoldAmount training_cost = calculate_correct_creature_training_cost(thing);
     return (dungeon->total_money_owned >= training_cost);
 }
 
@@ -573,7 +573,7 @@ CrStateRet training(struct Thing *thing)
         return CrStRet_ResetFail;
     }
     struct Dungeon* dungeon = get_dungeon(thing->owner);
-    long training_cost = calculate_correct_creature_training_cost(thing);
+    GoldAmount training_cost = calculate_correct_creature_training_cost(thing);
     // Pay for the training
     cctrl->turns_at_job++;
     if (cctrl->turns_at_job >= game.conf.rules.rooms.train_cost_frequency)
