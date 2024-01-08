@@ -4113,7 +4113,7 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           set_flag(start_params.debug_flags, DFlg_CreatrPaths);
       } else
-      if (strcasecmp(parstr, "dbggameturns") == 0)
+      if (strcasecmp(parstr, "show_game_turns") == 0)
       {
           set_flag(start_params.debug_flags, DFlg_ShowGameTurns);
       } else
