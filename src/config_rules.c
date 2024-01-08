@@ -766,7 +766,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                game.conf.rules.game.torture_payday = (TbBool)k;
+                game.conf.rules.game.torture_payday = k;
                 n++;
             }
             if (n < 1)
@@ -779,7 +779,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                game.conf.rules.game.torture_training_cost = (TbBool)k;
+                game.conf.rules.game.torture_training_cost = k;
                 n++;
             }
             if (n < 1)
@@ -792,7 +792,7 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
             if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                game.conf.rules.game.torture_scavenging_cost = (TbBool)k;
+                game.conf.rules.game.torture_scavenging_cost = k;
                 n++;
             }
             if (n < 1)
