@@ -88,7 +88,6 @@ enum PlayerStates {
     PSt_Slow,
     PSt_Flight,
     PSt_Vision,
-    PSt_Illumination, // 55
     PSt_ListEnd
 };
 
