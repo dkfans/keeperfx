@@ -4154,14 +4154,14 @@ static void play_message_process(struct ScriptContext *context)
     unsigned char volume = settings.sound_volume;
     unsigned char msgtype_id = context->value->chars[1];
     unsigned char slot = context->value->bytes[2];
+    TbBool external = context->value->bytes[4];
     if (msgtype_id == 1) // SPEECH
     {
         volume = settings.mentor_volume;
     }
-    Mix_VolumeChunk(Ext_Sounds[slot], volume);
     if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
     {
-        if (!context->value->bytes[4])
+        if (!external)
         {
             switch (msgtype_id) // Speech or Sound
             {
@@ -4185,6 +4185,10 @@ static void play_message_process(struct ScriptContext *context)
                 {
                     case 1:
                     {
+                        if (Ext_Sounds[slot] != NULL)
+                        {
+                            Mix_VolumeChunk(Ext_Sounds[slot], volume);
+                        }
                         output_message(-context->value->bytes[2], 0, true);
                         break;
                     }
