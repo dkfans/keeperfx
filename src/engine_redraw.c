@@ -1148,6 +1148,10 @@ void redraw_display(void)
     {
         draw_script_timer(gameadd.script_player, gameadd.script_timer_id, gameadd.script_timer_limit, gameadd.timer_real);
     }
+    if (gameturn_timer_enabled())
+    {
+        draw_gameturn_timer();
+    }
     if (display_variable_enabled())
     {
         draw_script_variable(gameadd.script_player, gameadd.script_value_type, gameadd.script_value_id, gameadd.script_variable_target, gameadd.script_variable_target_type);
