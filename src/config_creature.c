@@ -629,8 +629,8 @@ TbBool parse_creaturetype_experience_blocks(char *buf, long len, const char *con
         game.conf.crtr_conf.exp.loyalty_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
         game.conf.crtr_conf.exp.armour_increase_on_exp = 0;
-        game.conf.crtr_conf.exp.training_cost_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
-        game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = CREATURE_PROPERTY_INCREASE_ON_EXP;
+        game.conf.crtr_conf.exp.training_cost_increase_on_exp = 0;
+        game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = 0;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
