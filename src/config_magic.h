@@ -115,7 +115,8 @@ enum PowerKinds {
     PwrK_PICKUPCRTR, // 20
     PwrK_PICKUPGOLD,
     PwrK_PICKUPFOOD,
-    PwrK_REBOUND, // 23
+    PwrK_REBOUND,
+    PwrK_FREEZE, // 24
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -323,7 +324,7 @@ struct PowerConfigStats {
     ThingModel artifact_model;
     unsigned long long can_cast_flags;
     unsigned long config_flags;
-    Expand_Check_Func overcharge_check;
+    unsigned char overcharge_check_idx;
     long work_state;
     PowerKind parent_power;
     /** Sprite index of big symbol icon representing the power. */
@@ -348,6 +349,7 @@ struct SpecialConfigStats {
     TextStringId tooltip_stridx;
     short speech;
     short effect_id;
+    short value;
 };
 
  /**

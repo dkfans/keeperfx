@@ -1062,10 +1062,10 @@ void first_apply_spell_effect_to_thing(struct Thing *thing, SpellKind spell_idx,
         case SplK_Freeze:
             cctrl->stateblock_flags |= CCSpl_Freeze;
             if ((thing->movement_flags & TMvF_Flying) != 0)
-            {
-                cctrl->spell_flags |= CSAfF_Grounded;
-                thing->movement_flags &= ~TMvF_Flying;
-            }
+                {
+                    cctrl->spell_flags |= CSAfF_Grounded;
+                    thing->movement_flags &= ~TMvF_Flying;
+                }
             creature_set_speed(thing, 0);
             break;
         case SplK_Armour:
@@ -2274,17 +2274,12 @@ void creature_rebirth_at_lair(struct Thing *thing)
     create_effect(&lairtng->mappos, TngEff_HarmlessGas2, thing->owner);
 }
 
-void throw_out_gold(struct Thing *thing)
+void throw_out_gold(struct Thing* thing, long amount)
 {
-    if (thing->creature.gold_carried <= 0)
-    {
-        return;
-    }
-
     int num_pots_to_drop;
     // Compute if we want bags or pots
     int dropject = 6; //GOLD object
-    if ((game.conf.rules.game.pot_of_gold_holds > game.conf.rules.game.bag_gold_hold) && (thing->creature.gold_carried <= game.conf.rules.game.bag_gold_hold))
+    if ((game.conf.rules.game.pot_of_gold_holds > game.conf.rules.game.bag_gold_hold) && (amount <= game.conf.rules.game.bag_gold_hold))
     {
             dropject = 136; //Drop GOLD_BAG object when we're dealing with small amounts
             num_pots_to_drop = 1;
@@ -2292,7 +2287,7 @@ void throw_out_gold(struct Thing *thing)
     else //drop pots
     {
         // Compute how many pots we want to drop
-        num_pots_to_drop = ((thing->creature.gold_carried + game.conf.rules.game.pot_of_gold_holds - 1) / game.conf.rules.game.pot_of_gold_holds);
+        num_pots_to_drop = ((amount + game.conf.rules.game.pot_of_gold_holds - 1) / game.conf.rules.game.pot_of_gold_holds);
         if (num_pots_to_drop > 8)
         {
             num_pots_to_drop = 8;
@@ -2317,12 +2312,21 @@ void throw_out_gold(struct Thing *thing)
         gldtng->veloc_push_add.z.val += CREATURE_RANDOM(thing, 64) + 96;
         gldtng->state_flags |= TF1_PushAdd;
         // Set the amount of gold and mark that we've dropped that gold
-        GoldAmount delta = (thing->creature.gold_carried - gold_dropped) / (num_pots_to_drop - npot);
+        GoldAmount delta = (amount - gold_dropped) / (num_pots_to_drop - npot);
         gldtng->valuable.gold_stored = delta;
         // Update size of the gold object
         add_gold_to_pile(gldtng, 0);
         gold_dropped += delta;
     }
+}
+
+void creature_throw_out_gold(struct Thing* creatng)
+{
+    if (creatng->creature.gold_carried <= 0)
+    {
+        return;
+    }
+    throw_out_gold(creatng, creatng->creature.gold_carried);
 }
 
 struct Thing* thing_death_normal(struct Thing *thing)
@@ -2543,7 +2547,7 @@ struct Thing* cause_creature_death(struct Thing *thing, CrDeathFlags flags)
 {
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     anger_set_creature_anger_all_types(thing, 0);
-    throw_out_gold(thing);
+    creature_throw_out_gold(thing);
     remove_parent_thing_from_things_in_list(&game.thing_lists[TngList_Shots],thing->index);
 
     long crmodel = thing->model;
@@ -5739,7 +5743,7 @@ void create_light_for_possession(struct Thing *creatng)
     ilght.mappos.x.val = creatng->mappos.x.val;
     ilght.mappos.y.val = creatng->mappos.y.val;
     ilght.mappos.z.val = creatng->mappos.z.val;
-    ilght.field_3 = 1;
+    ilght.flags = 1;
     ilght.intensity = 36;
     ilght.radius = 2560;
     ilght.is_dynamic = 1;

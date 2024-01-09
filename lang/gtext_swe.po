@@ -6953,3 +6953,23 @@ msgstr "Belysning"
 msgctxt "Keeper spell name"
 msgid "Sight"
 msgstr "Syn"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr "Hela Alla: Alla dina varelser läks."
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "Öka Guld: Genererar guld i din skattkammare."
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Göra Olyckliga: Alla varelser av fienden blir upprörda."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Försvaga väggarna: Förstör befästningarna på fiendens murar."

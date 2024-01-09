@@ -858,7 +858,7 @@ void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
 {
     struct SlabAttr *slbattr;
     slbattr = get_slab_kind_attrs(slbkind);
-    if (slbattr->wlb_type != 3)
+    if (slbattr->wlb_type != WlbT_Bridge)
     {
         struct SlabMap *slb;
         slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -950,7 +950,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                 ilght.mappos.z.val = pos.z.val;
                 ilght.radius = sobj->range << 8;
                 ilght.intensity = sobj->model;
-                ilght.field_3 = 0;
+                ilght.flags = 0;
                 ilght.is_dynamic = 0;
                 long lgt_id;
                 lgt_id = light_create_light(&ilght);

@@ -238,6 +238,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"PlaceOnBridge",       35},
   {"ShotOrigin",          36},
   {"PlaceSound",          37},
+  {"TriggerSound",        38},
   {NULL,                   0},
 };
 
@@ -1766,6 +1767,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 37: // PlaceSound
             trapst->place_sound_idx = value;
+            break;
+        case 38: // TriggerSound
+            trapst->trigger_sound_idx = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -4054,16 +4058,13 @@ static void play_message_check(const struct ScriptLine *scline)
         }
         char *fname = prepare_file_fmtpath(FGrp_CmpgMedia,"%s", &game.loaded_sound[slot][0]);
         Ext_Sounds[slot] = Mix_LoadWAV(fname);
-        if (Ext_Sounds[slot] != NULL)
-        {
-            Mix_VolumeChunk(Ext_Sounds[slot], settings.sound_volume);
-            game.sounds_count++;
-        }
-        else
+        if (Ext_Sounds[slot] == NULL)
         {
             SCRPTERRLOG("Could not load sound %s: %s", fname, Mix_GetError());
+            DEALLOCATE_SCRIPT_VALUE
             return;
         }
+        game.sounds_count++;
         SCRPTLOG("Loaded sound file %s into slot %u.", fname, slot);
         value->bytes[2] = slot;
     }
@@ -4072,11 +4073,19 @@ static void play_message_check(const struct ScriptLine *scline)
 
 static void play_message_process(struct ScriptContext *context)
 {
+    unsigned char volume = settings.sound_volume;
+    unsigned char msgtype_id = context->value->chars[1];
+    unsigned char slot = context->value->bytes[2];
+    if (msgtype_id == 1) // SPEECH
+    {
+        volume = settings.mentor_volume;
+    }
+    Mix_VolumeChunk(Ext_Sounds[slot], volume);
     if ((context->value->chars[0] == my_player_number) || (context->value->chars[0] == ALL_PLAYERS))
     {
         if (!context->value->bytes[4])
         {
-            switch (context->value->chars[1])
+            switch (msgtype_id) // Speech or Sound
             {
                 case 1:
                 {
@@ -4236,26 +4245,13 @@ static void set_effectgen_configuration_check(const struct ScriptLine* scline)
     } else
     if (property_id == 5) // EFFECTELEMENTMODEL
     {
-        short effelem_id = -1;
-        if (parameter_is_number(scline->tp[2]))
-        {
-            effelem_id = atoi(scline->tp[2]);
-        }
-        else
-        {
-            effelem_id = get_id(effectelem_desc, scline->tp[2]);
-            if (effelem_id == -1)
-            {
-                effelem_id = get_id(effect_desc, scline->tp[2]);
-            }
-        }
-        if (effelem_id == -1)
+        value1 = effect_or_effect_element_id(scline->tp[2]);
+        if (value1 == 0)
         {
             SCRPTERRLOG("Unknown effect element value for Effect Generator");
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
-        value1 = effelem_id;
     }
     else
     if ((property_id == 8) || (property_id == 9)) // ACCELERATIONMIN or ACCELERATIONMAX
@@ -4618,7 +4614,7 @@ static void set_power_configuration_process(struct ScriptContext *context)
             }
             break;
         case 15: // Functions
-            powerst->overcharge_check = powermodel_expand_check_func_list[context->value->arg2];
+            powerst->overcharge_check_idx = context->value->arg2;
             break;
         case 16: // PlayerState
             powerst->work_state = context->value->arg2;
@@ -4847,6 +4843,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_EFFECT_GENERATOR_CONFIGURATION","AAAnn   ", Cmd_SET_EFFECT_GENERATOR_CONFIGURATION, &set_effectgen_configuration_check, &set_effectgen_configuration_process },
   {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
   {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
+  {"MAKE_UNSAFE",                       "P       ", Cmd_MAKE_UNSAFE, NULL, NULL},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
