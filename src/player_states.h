@@ -85,6 +85,10 @@ enum PlayerStates {
     PSt_CreatrInfoAll,
     PSt_Rebound, // 50
     PSt_Freeze,
+    PSt_Slow,
+    PSt_Flight,
+    PSt_Vision,
+    PSt_Illumination, // 55
     PSt_ListEnd
 };
 

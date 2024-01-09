@@ -184,6 +184,14 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_FREEZE:
         return magic_use_power_freeze(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_SLOW:
+        return magic_use_power_slow(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_FLIGHT:
+        return magic_use_power_flight(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_VISION:
+        return magic_use_power_vision(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_ILLUMINATION:
+        return magic_use_power_illumination(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_SLAP:
         return magic_use_power_slap_thing(caster, thing, spell_flags);
       case PwrK_CALL2ARMS:
