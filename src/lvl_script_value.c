@@ -184,6 +184,14 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_FREEZE:
         return magic_use_power_freeze(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_SLOW:
+        return magic_use_power_slow(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_FLIGHT:
+        return magic_use_power_flight(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_VISION:
+        return magic_use_power_vision(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_ILLUMINATION:
+        return magic_use_power_illumination(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_SLAP:
         return magic_use_power_slap_thing(caster, thing, spell_flags);
       case PwrK_CALL2ARMS:
@@ -1282,6 +1290,39 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           {
               SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.rooms.training_room_max_level, val3);
               game.conf.rules.rooms.training_room_max_level = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 35: //TorturePayday
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.torture_payday, val3);
+              game.conf.rules.game.torture_payday = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 36: //TortureTrainingCost
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.torture_training_cost, val3);
+              game.conf.rules.game.torture_training_cost = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 37: //TortureScavengingCost
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.torture_scavenging_cost, val3);
+              game.conf.rules.game.torture_scavenging_cost = val3;
           }
           else
           {
