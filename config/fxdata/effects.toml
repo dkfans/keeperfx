@@ -1245,22 +1245,6 @@ LightFlags = 0
 ElementsCount = 20
 AlwaysGenerate = 0
 
-[effect77]
-Name = "EFFECT_SLOW_KEEPER_POWER"
-Health = 8
-GenerationType = 1
-GenerationAccelXYRange = [16,40]
-GenerationAccelZRange = [-1024,-512]
-GenerationKindRange = [93,93]
-AreaAffectType = 0
-Sound = 48
-AffectedByWind = 0
-LightRadius = 0
-LightIntensity = 0
-LightFlags = 0
-ElementsCount = 16
-AlwaysGenerate = 0
-
 #EffectGenerators
 
 [effectGenerator0]
