@@ -241,6 +241,8 @@ struct CreatureExperience {
     long loyalty_increase_on_exp;
     long armour_increase_on_exp;
     long exp_on_hitting_increase_on_exp;
+    long training_cost_increase_on_exp;
+    long scavenging_cost_increase_on_exp;
 };
 
 struct CreatureConfig {
