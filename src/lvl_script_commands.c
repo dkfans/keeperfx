@@ -212,7 +212,8 @@ const struct NamedCommand trap_config_desc[] = {
   {"Shots",                9},
   {"TimeBetweenShots",    10},
   {"SellingValue",        11},
-  {"Model",               12},
+  {"AnimationID",         12},
+  {"Model",               12}, //legacy name
   {"ModelSize",           13},
   {"AnimationSpeed",      14},
   {"TriggerType",         15},
@@ -239,7 +240,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"ShotOrigin",          36},
   {"PlaceSound",          37},
   {"TriggerSound",        38},
-  {"RechargeModel",       39},
+  {"RechargeAnimationID", 39},
   {NULL,                   0},
 };
 

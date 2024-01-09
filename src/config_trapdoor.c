@@ -84,7 +84,8 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"TRIGGERTYPE",          13},
   {"ACTIVATIONTYPE",       14},
   {"EFFECTTYPE",           15},
-  {"MODEL",                16},
+  {"ANIMATIONID",          16},
+  {"MODEL",                16},//backward compatibility
   {"MODELSIZE",            17},
   {"ANIMATIONSPEED",       18},
   {"UNANIMATED",           19},
@@ -108,7 +109,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"SHOTORIGIN",           37},
   {"PLACESOUND",           38},
   {"TRIGGERSOUND",         39},
-  {"RECHARGEMODEL",        40},
+  {"RECHARGEANIMATIONID",  40},
   {NULL,                    0},
 };
 
@@ -600,7 +601,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 16: // MODEL
+      case 16: // ANIMATIONID
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             struct ObjectConfigStats obj_tmp;
@@ -1024,7 +1025,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               }
           }
           break;
-      case 40: // RECHARGE_MODEL
+      case 40: // RECHARGEANIMATIONID
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               struct ObjectConfigStats obj_tmp;
