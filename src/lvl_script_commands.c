@@ -994,7 +994,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if ((trapvar != 4) && (trapvar != 12))  // PointerSprites && Model
+    else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39))  // PointerSprites && AnimationID
     {
         if (parameter_is_number(valuestring))
         {
