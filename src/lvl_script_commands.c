@@ -3399,6 +3399,84 @@ static void reveal_map_location_process(struct ScriptContext *context)
         reveal_map_area(context->player_idx, x-(r>>1), x+(r>>1)+(r&1), y-(r>>1), y+(r>>1)+(r&1));
 }
 
+static void level_up_players_creatures_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    long crmodel = parse_creature_name(scline->tp[1]);
+    char count = scline->np[2];
+
+    if (crmodel == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    } 
+    if (scline->np[2] == '\0')
+    {
+        count = 1;
+    }
+    if (count == 0)
+    {
+        SCRPTERRLOG("Trying to level up %d times '%s'", scline->np[2]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    
+    value->shorts[1] = crmodel;
+    value->shorts[2] = count;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void level_up_players_creatures_process(struct ScriptContext* context)
+{
+    long crmodel = context->value->shorts[1];
+    long count = context->value->shorts[2];
+
+    for (int plyridx = context->plr_start; plyridx < context->plr_end; plyridx++)
+    {
+        struct Dungeon* dungeon = get_players_num_dungeon(plyridx);
+        unsigned long k = 0;
+
+        TbBool need_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(dungeon->owner, crmodel);
+        struct Thing* thing = INVALID_THING;
+        int i;
+        if ((!need_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
+        {
+            i = dungeon->creatr_list_start;
+        }
+        else
+        {
+            i = dungeon->digger_list_start;
+        }
+
+        while (i != 0)
+        {
+            thing = thing_get(i);
+            TRACE_THING(thing);
+            struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+            if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+            {
+                ERRORLOG("Jump to invalid creature detected");
+                break;
+            }
+            i = cctrl->players_next_creature_idx;
+            // Thing list loop body
+            if (creature_matches_model(thing, crmodel))
+            {
+                creature_change_multiple_levels(thing, count);
+            }
+            // Thing list loop body ends
+            k++;
+            if (k > CREATURES_COUNT)
+            {
+                ERRORLOG("Infinite loop detected when sweeping creatures list");
+                break;
+            }
+        }
+    }
+    SYNCDBG(19, "Finished");
+}
+
 static void use_spell_on_creature_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
@@ -4779,8 +4857,10 @@ const struct CommandDesc command_desc[] = {
   {"USE_POWER",                         "PAN     ", Cmd_USE_POWER, NULL, NULL},
   {"USE_SPECIAL_INCREASE_LEVEL",        "PN      ", Cmd_USE_SPECIAL_INCREASE_LEVEL, NULL, NULL},
   {"USE_SPECIAL_MULTIPLY_CREATURES",    "PN      ", Cmd_USE_SPECIAL_MULTIPLY_CREATURES, NULL, NULL},
-  {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_USE_SPECIAL_MAKE_SAFE, NULL, NULL},
-  {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, NULL, NULL},
+  {"MAKE_SAFE",                         "P       ", Cmd_MAKE_SAFE, NULL, NULL},
+  {"USE_SPECIAL_MAKE_SAFE",             "P       ", Cmd_MAKE_SAFE, NULL, NULL}, // Legacy command
+  {"LOCATE_HIDDEN_WORLD",               "        ", Cmd_LOCATE_HIDDEN_WORLD, NULL, NULL},
+  {"USE_SPECIAL_LOCATE_HIDDEN_WORLD",   "        ", Cmd_LOCATE_HIDDEN_WORLD, NULL, NULL}, // Legacy command
   {"USE_SPECIAL_TRANSFER_CREATURE",     "P       ", Cmd_USE_SPECIAL_TRANSFER_CREATURE, &special_transfer_creature_check, &special_transfer_creature_process},
   {"TRANSFER_CREATURE",                 "PC!An   ", Cmd_TRANSFER_CREATURE, &script_transfer_creature_check, &script_transfer_creature_process},
   {"CHANGE_CREATURES_ANNOYANCE",        "PC!AN   ", Cmd_CHANGE_CREATURES_ANNOYANCE, &change_creatures_annoyance_check, &change_creatures_annoyance_process},
@@ -4790,6 +4870,7 @@ const struct CommandDesc command_desc[] = {
   {"EXPORT_VARIABLE",                   "PAA     ", Cmd_EXPORT_VARIABLE, NULL, NULL},
   {"RUN_AFTER_VICTORY",                 "N       ", Cmd_RUN_AFTER_VICTORY, NULL, NULL},
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
+  {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
   {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
   {"SET_ROOM_CONFIGURATION",            "AAAa!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
