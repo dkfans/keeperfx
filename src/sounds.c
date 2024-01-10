@@ -96,6 +96,22 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
     }
 }
 
+void play_sound_if_close_to_receiver(struct Coord3d *soundpos, short smptbl_idx)
+{
+    if (SoundDisabled)
+        return;
+    if (GetCurrentSoundMasterVolume() <= 0)
+        return;
+    struct Coord3d rcpos;
+    rcpos.x.val = Receiver.pos.val_x;
+    rcpos.y.val = Receiver.pos.val_y;
+    rcpos.z.val = Receiver.pos.val_z;
+    if (get_chessboard_3d_distance(&rcpos, soundpos) < MaxSoundDistance)
+    {
+        play_non_3d_sample(smptbl_idx);
+    }
+}
+
 void play_thing_walking(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();

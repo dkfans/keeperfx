@@ -46,6 +46,7 @@ enum SacrificeAction {
 enum UniqueFunctions {
     UnqF_None = 0,
     UnqF_MkAllAngry,
+    UnqF_MkAllVerAngry,
     UnqF_ComplResrch,
     UnqF_ComplManufc,
     UnqF_KillChickns,
@@ -94,6 +95,9 @@ struct GameRulesConfig {
     TbBool allies_share_drop;
     TbBool allies_share_cta;
     unsigned char max_things_in_hand;
+    short torture_payday;
+    short torture_training_cost;
+    short torture_scavenging_cost;
 };
 
 struct ComputerRulesConfig {

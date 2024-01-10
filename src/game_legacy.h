@@ -231,6 +231,7 @@ unsigned int packet_file_pos;
     struct Bookmark bookmark[BOOKMARKS_COUNT];
     struct CreaturePool pool;
     long frame_skip;
+    TbBool frame_step;
     GameTurnDelta pay_day_progress;
     TbBool no_intro;
     GameTurn armageddon_cast_turn;
