@@ -4803,6 +4803,8 @@ static void set_increase_on_experience_check(const struct ScriptLine* scline)
     {
         SCRPTERRLOG("Unknown increase on experience variable.", scline->tp[0]);
         DEALLOCATE_SCRIPT_VALUE
+        return;
+        return;
     }
     value->shorts[0] = onexpdesc;
     value->shorts[1] = scline->np[1];
