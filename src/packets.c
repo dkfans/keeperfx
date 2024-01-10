@@ -201,6 +201,9 @@ TbBool process_dungeon_control_packet_spell_overcharge(long plyr_idx)
       case PSt_Rebound:
           update_power_overcharge(player, PwrK_REBOUND);
           break;
+      case PSt_Freeze:
+          update_power_overcharge(player, PwrK_FREEZE);
+          break;
       default:
           player->cast_expand_level++;
           break;

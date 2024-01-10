@@ -248,7 +248,7 @@ void select_transfer_creature(struct GuiButton *gbtn)
     int listitm_idx = selected_transfer_creature(dungeon, gbtn);
     if (listitm_idx != -1)
     {
-        thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, listitm_idx);
+        thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, CREATURE_ANY, listitm_idx);
     }
     if (thing_exists(thing))
     {
@@ -276,7 +276,7 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : ((gbtn->height * 22 / 26) * 16) / LbTextLineHeight();
     if (listitm_idx != -1)
     {
-        thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, listitm_idx);
+        thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, CREATURE_ANY, listitm_idx);
     }
     if (!thing_is_invalid(thing))
     {

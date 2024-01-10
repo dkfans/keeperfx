@@ -107,6 +107,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"PLACEONBRIDGE",        36},
   {"SHOTORIGIN",           37},
   {"PLACESOUND",           38},
+  {"TRIGGERSOUND",         39},
   {NULL,                    0},
 };
 
@@ -272,8 +273,9 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->bigsym_sprite_idx = 0;
           trapst->medsym_sprite_idx = 0;
           trapst->pointer_sprite_idx = 0;
-          // Default trap placement sound, so that placement sound isn't broken if custom traps is bundled into maps
+          // Default trap sounds, so that they aren't broken if custom trap is bundled into map
           trapst->place_sound_idx = 117; 
+          trapst->trigger_sound_idx = 176;
           trapst->panel_tab_idx = 0;
           trapst->hidden = 0;
           trapst->slappable = 0;
@@ -1002,6 +1004,21 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               else
               {
                   trapst->place_sound_idx = n;
+              }
+          }
+          break;
+      case 39: // TRIGGERSOUND
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              n = atoi(word_buf);
+              if (n < 0 || n > samples_in_bank - 1)
+              {
+                  CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                      COMMAND_TEXT(cmd_num), block_buf, config_textname);
+              }
+              else
+              {
+                  trapst->trigger_sound_idx = n;
               }
           }
           break;

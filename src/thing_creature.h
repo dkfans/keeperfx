@@ -206,6 +206,8 @@ struct Thing *script_create_creature_at_location(PlayerNumber plyr_idx, ThingMod
 void script_process_new_creatures(PlayerNumber plyr_idx, long crmodel, long location, long copies_num, long carried_gold, long crtr_level);
 PlayerNumber get_appropriate_player_for_creature(struct Thing *creatng);
 /******************************************************************************/
+void throw_out_gold(struct Thing* thing, long amount);
+/******************************************************************************/
 #ifdef __cplusplus
 }
 #endif

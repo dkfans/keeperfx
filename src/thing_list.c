@@ -1999,7 +1999,7 @@ TbBool lord_of_the_land_in_prison_or_tortured(void)
 
 struct Thing *lord_of_the_land_find(void)
 {
-    for (long crtr_model = 0; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
+    for (long crtr_model = 1; crtr_model < game.conf.crtr_conf.model_count; crtr_model++)
     {
         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
         if ((crconf->model_flags & CMF_IsLordOTLand) != 0)
@@ -2734,7 +2734,7 @@ struct Thing *get_player_list_random_creature_with_filter(ThingIndex thing_idx, 
         return retng;
     unsigned long k = 0;
     // Get random index of a thing in list
-    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, 0, PLAYER_RANDOM(plyr_idx, total_count));
+    struct Thing* thing = get_player_list_nth_creature_of_model(thing_idx, CREATURE_ANY, PLAYER_RANDOM(plyr_idx, total_count));
     long i = thing->index;
     while (k < total_count)
     {
