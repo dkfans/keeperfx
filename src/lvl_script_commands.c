@@ -262,6 +262,23 @@ const struct NamedCommand room_config_desc[] = {
   {NULL,                   0},
 };
 
+const struct NamedCommand on_experience_desc[] = {
+  {"SizeIncreaseOnExp",            1},
+  {"PayIncreaseOnExp",             2},
+  {"SpellDamageIncreaseOnExp",     3},
+  {"RangeIncreaseOnExp",           4},
+  {"JobValueIncreaseOnExp",        5},
+  {"HealthIncreaseOnExp",          6},
+  {"StrengthIncreaseOnExp",        7},
+  {"DexterityIncreaseOnExp",       8},
+  {"DefenseIncreaseOnExp",         9},
+  {"LoyaltyIncreaseOnExp",        10},
+  {"ExpForHittingIncreaseOnExp",  11},
+  {"TrainingCostIncreaseOnExp",   12},
+  {"ScavengingCostIncreaseOnExp", 13},
+  {NULL,                           0},
+};
+
 /**
  * Text names of groups of GUI Buttons.
  */
@@ -4774,6 +4791,87 @@ static void set_player_color_process(struct ScriptContext *context)
     }  
 }
 
+static void set_increase_on_experience_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long onexpdesc = get_id(on_experience_desc, scline->tp[0]);
+    if (onexpdesc == -1)
+    {
+        SCRPTERRLOG("Unknown increase on experience variable.", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+    }
+    value->shorts[0] = onexpdesc;
+    value->shorts[1] = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_increase_on_experience_process(struct ScriptContext* context)
+{
+    if (context->value->shorts[1] >= 0)
+    {
+        switch (context->value->shorts[0])
+        {
+        case 1: //SizeIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.size_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.size_increase_on_exp = context->value->shorts[1];
+            break;
+        case 2: //PayIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.pay_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.pay_increase_on_exp = context->value->shorts[1];
+            break;
+        case 3: //SpellDamageIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.spell_damage_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.spell_damage_increase_on_exp = context->value->shorts[1];
+            break;
+        case 4: //RangeIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.range_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.range_increase_on_exp = context->value->shorts[1];
+            break;
+        case 5: //JobValueIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.job_value_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.job_value_increase_on_exp = context->value->shorts[1];
+            break;
+        case 6: //HealthIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.health_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.health_increase_on_exp = context->value->shorts[1];
+            break;
+        case 7: //StrengthIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.strength_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.strength_increase_on_exp = context->value->shorts[1];
+            break;
+        case 8: //DexterityIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.dexterity_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.dexterity_increase_on_exp = context->value->shorts[1];
+            break;
+        case 9: //DefenseIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.defense_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.defense_increase_on_exp = context->value->shorts[1];
+            break;
+        case 10: //LoyaltyIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.loyalty_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.loyalty_increase_on_exp = context->value->shorts[1];
+            break;
+        case 11: //ExpForHittingIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = context->value->shorts[1];
+            break;
+        case 12: //TrainingCostIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.training_cost_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.training_cost_increase_on_exp = context->value->shorts[1];
+            break;
+        case 13: //ScavengingCostIncreaseOnExp
+            SCRIPTDBG(7,"Changing variable %d from %d to %d.", context->value->shorts[0], game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp, context->value->shorts[1]);
+            game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = context->value->shorts[1];
+            break;
+        default:
+            WARNMSG("Unsupported variable, command %d.", context->value->shorts[0]);
+            break;
+        }
+    } else {
+        SCRPTERRLOG("Variable '%d' value %d out of range.", context->value->shorts[0], context->value->shorts[1]);
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -4925,7 +5023,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
   {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
   {"MAKE_UNSAFE",                       "P       ", Cmd_MAKE_UNSAFE, NULL, NULL},
-  {"SET_INCREASE_ON_EXPERIENCE",        "AN      ", Cmd_SET_INCREASE_ON_EXPERIENCE, NULL, NULL},
+  {"SET_INCREASE_ON_EXPERIENCE",        "AN      ", Cmd_SET_INCREASE_ON_EXPERIENCE, &set_increase_on_experience_check, &set_increase_on_experience_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
