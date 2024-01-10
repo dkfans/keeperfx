@@ -365,7 +365,7 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
             break;
         return Lb_SUCCESS;
     case GA_PlaceDoor:
-        k = tag_cursor_blocks_place_door(plyr_idx, stl_x, stl_y);
+        k = tag_cursor_blocks_place_door(plyr_idx, stl_x, stl_y,param1);
         i = packet_place_door(stl_x, stl_y, plyr_idx, param1, k);
         return i;
     case GA_SellTrap:

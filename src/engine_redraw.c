@@ -803,9 +803,9 @@ int get_place_trap_pointer_graphics(ThingModel trmodel)
     return trapst->pointer_sprite_idx;
 }
 
-int get_place_door_pointer_graphics(ThingModel drmodel)
+int get_place_door_pointer_graphics(ThingModel doorkind)
 {
-    struct DoorConfigStats* doorst = get_door_model_stats(drmodel);
+    struct DoorConfigStats* doorst = get_door_model_stats(doorkind);
     return doorst->pointer_sprite_idx;
 }
 
