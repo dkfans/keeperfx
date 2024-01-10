@@ -4801,12 +4801,13 @@ static void set_increase_on_experience_check(const struct ScriptLine* scline)
     long onexpdesc = get_id(on_experience_desc, scline->tp[0]);
     if (onexpdesc == -1)
     {
-        SCRPTERRLOG("Unknown increase on experience variable.", scline->tp[0]);
+        SCRPTERRLOG("Unknown variable '%s'.", scline->tp[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
     if (scline->np[1] < 0)
     {
+        SCRPTERRLOG("Value %d out of range for variable '%s'.", scline->np[1], scline->tp[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
