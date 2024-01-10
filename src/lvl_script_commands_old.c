@@ -42,29 +42,29 @@ extern "C" {
 
 
 const struct NamedCommand game_rule_desc[] = {
-  {"BodiesForVampire",           1},
-  {"PrisonSkeletonChance",       2},
-  {"GhostConvertChance",         3},
-  {"TortureConvertChance",       4},
-  {"TortureDeathChance",         5},
-  {"FoodGenerationSpeed",        6},
-  {"StunEvilEnemyChance",        7},
-  {"StunGoodEnemyChance",        8},
-  {"BodyRemainsFor",             9},
-  {"FightHateKillValue",        10},
-  {"PreserveClassicBugs",       11},
-  {"DungeonHeartHealHealth",    12},
-  {"ImpWorkExperience",         13},
-  {"GemEffectiveness",          14},
-  {"RoomSellGoldBackPercent",   15},
-  {"DoorSellValuePercent",      16},
-  {"TrapSellValuePercent",      17},
-  {"PayDayGap",                 18},
-  {"PayDaySpeed",               19},
-  {"PayDayProgress",            20},
-  {"PlaceTrapsOnSubtiles",      21},
-  {"DiseaseHPTemplePercentage", 22},
-  {"DungeonHeartHealth",        23},
+  {"BodiesForVampire",               1},
+  {"PrisonSkeletonChance",           2},
+  {"GhostConvertChance",             3},
+  {"TortureConvertChance",           4},
+  {"TortureDeathChance",             5},
+  {"FoodGenerationSpeed",            6},
+  {"StunEvilEnemyChance",            7},
+  {"StunGoodEnemyChance",            8},
+  {"BodyRemainsFor",                 9},
+  {"FightHateKillValue",            10},
+  {"PreserveClassicBugs",           11},
+  {"DungeonHeartHealHealth",        12},
+  {"ImpWorkExperience",             13},
+  {"GemEffectiveness",              14},
+  {"RoomSellGoldBackPercent",       15},
+  {"DoorSellValuePercent",          16},
+  {"TrapSellValuePercent",          17},
+  {"PayDayGap",                     18},
+  {"PayDaySpeed",                   19},
+  {"PayDayProgress",                20},
+  {"PlaceTrapsOnSubtiles",          21},
+  {"DiseaseHPTemplePercentage",     22},
+  {"DungeonHeartHealth",            23},
   {"HungerHealthLoss",              24},
   {"GameTurnsPerHungerHealthLoss",  25},
   {"FoodHealthGain",                26},
@@ -76,6 +76,9 @@ const struct NamedCommand game_rule_desc[] = {
   {"BarrackMaxPartySize",           32},
   {"MaxThingsInHand",               33},
   {"TrainingRoomMaxLevel",          34},
+  {"TorturePayday",                 35},
+  {"TortureTrainingCost",           36},
+  {"TortureScavengingCost",         37},
   {NULL,                             0},
 };
 
@@ -1926,7 +1929,3 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     }
 }
-
-
-
-

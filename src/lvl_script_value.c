@@ -1288,6 +1288,39 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
               SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
           }
           break;
+      case 35: //TorturePayday
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.torture_payday, val3);
+              game.conf.rules.game.torture_payday = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 36: //TortureTrainingCost
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.torture_training_cost, val3);
+              game.conf.rules.game.torture_training_cost = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
+      case 37: //TortureScavengingCost
+          if (val3 >= 0 && val3 <= SHRT_MAX)
+          {
+              SCRIPTDBG(7, "Changing rule %d from %d to %d", val2, game.conf.rules.game.torture_scavenging_cost, val3);
+              game.conf.rules.game.torture_scavenging_cost = val3;
+          }
+          else
+          {
+              SCRPTERRLOG("Rule '%d' value %d out of range", val2, val3);
+          }
+          break;
       case 23:  //DungeonHeartHealth
       default:
           WARNMSG("Unsupported Game RULE, command %d.", val2);
