@@ -99,6 +99,9 @@ enum FFlags {
 enum DebugFlags {
     DFlg_ShotsDamage        =  0x01,
     DFlg_CreatrPaths        =  0x02,
+    DFlg_ShowGameTurns      =  0x04,
+    DFlg_FrameStep          =  0x08,
+    DFlg_PauseAtGameTurn    =  0x10,
 };
 
 #ifdef FUNCTESTING
@@ -143,6 +146,7 @@ struct StartupParameters {
     char selected_campaign[CMDLN_MAXLEN+1];
     TbBool overrides[CMDLINE_OVERRIDES];
     char config_file[CMDLN_MAXLEN+1];
+    GameTurn pause_at_gameturn;
 #ifdef FUNCTESTING
     unsigned char functest_flags;
     char functest_name[FTEST_MAX_NAME_LENGTH];

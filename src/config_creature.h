@@ -41,22 +41,22 @@ extern "C" {
 #define CREATURE_PROPERTY_INCREASE_ON_EXP  35
 /******************************************************************************/
 enum CreatureModelFlags {
-    CMF_IsSpecDigger     = 0x0001, // Imp and Tunneler
-    CMF_IsArachnid       = 0x0002, // simply, Spider
-    CMF_IsDiptera        = 0x0004, // simply, Fly
-    CMF_IsLordOTLand     = 0x0008, // simply, Knight
-    CMF_IsSpectator      = 0x0010, // simply, Floating spirit
-    CMF_IsEvil           = 0x0020, // All evil creatures
-    CMF_NeverChickens    = 0x0040, // Cannot be affected by Chicken (for Avatar)
-    CMF_ImmuneToBoulder  = 0x0080, // Boulder traps are destroyed at the moment they touch the creature
-    CMF_NoCorpseRotting  = 0x0100, // Corpse cannot rot in graveyard
-    CMF_NoEnmHeartAttack = 0x0200, // Creature will not attack enemy heart on sight
-    CMF_TremblingFat     = 0x0400, // Creature causes ground to tremble when dropped
-    CMF_Female           = 0x0800, // Creature is female
-    CMF_Insect           = 0x1000, // Creature is kind of insect
-    CMF_OneOfKind        = 0x2000, // Only one creature of that kind may exist on one level. Unit name is type name.
-    CMF_NoImprisonment   = 0x4000, // Creature will not faint.
-    CMF_NeverSick        = 0x8000, // Creature will not get disease.
+    CMF_IsSpecDigger     = 0x00001, // Imp and Tunneller.
+    CMF_IsArachnid       = 0x00002, // simply, Spider.
+    CMF_IsDiptera        = 0x00004, // simply, Fly.
+    CMF_IsLordOTLand     = 0x00008, // simply, Knight and Avatar.
+    CMF_IsSpectator      = 0x00010, // simply, Floating Spirit.
+    CMF_IsEvil           = 0x00020, // All evil creatures.
+    CMF_NeverChickens    = 0x00040, // Cannot be affected by Chicken (for Avatar).
+    CMF_ImmuneToBoulder  = 0x00080, // Boulder traps are destroyed at the moment they touch the creature.
+    CMF_NoCorpseRotting  = 0x00100, // Corpse cannot rot in graveyard.
+    CMF_NoEnmHeartAttack = 0x00200, // Creature will not attack enemy heart on sight.
+    CMF_TremblingFat     = 0x00400, // Creature causes ground to tremble when dropped.
+    CMF_Female           = 0x00800, // Creature is female.
+    CMF_Insect           = 0x01000, // Creature is kind of insect.
+    CMF_OneOfKind        = 0x02000, // Only one creature of that kind may exist on one level. Unit name is type name.
+    CMF_NoImprisonment   = 0x04000, // Creature will not faint.
+    CMF_NeverSick        = 0x08000, // Creature will not get disease.
 };
 
 enum CreatureJobFlags {
@@ -241,6 +241,8 @@ struct CreatureExperience {
     long loyalty_increase_on_exp;
     long armour_increase_on_exp;
     long exp_on_hitting_increase_on_exp;
+    long training_cost_increase_on_exp;
+    long scavenging_cost_increase_on_exp;
 };
 
 struct CreatureConfig {

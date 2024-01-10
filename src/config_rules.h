@@ -95,6 +95,9 @@ struct GameRulesConfig {
     TbBool allies_share_drop;
     TbBool allies_share_cta;
     unsigned char max_things_in_hand;
+    short torture_payday;
+    short torture_training_cost;
+    short torture_scavenging_cost;
 };
 
 struct ComputerRulesConfig {

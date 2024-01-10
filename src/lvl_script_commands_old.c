@@ -42,29 +42,29 @@ extern "C" {
 
 
 const struct NamedCommand game_rule_desc[] = {
-  {"BodiesForVampire",           1},
-  {"PrisonSkeletonChance",       2},
-  {"GhostConvertChance",         3},
-  {"TortureConvertChance",       4},
-  {"TortureDeathChance",         5},
-  {"FoodGenerationSpeed",        6},
-  {"StunEvilEnemyChance",        7},
-  {"StunGoodEnemyChance",        8},
-  {"BodyRemainsFor",             9},
-  {"FightHateKillValue",        10},
-  {"PreserveClassicBugs",       11},
-  {"DungeonHeartHealHealth",    12},
-  {"ImpWorkExperience",         13},
-  {"GemEffectiveness",          14},
-  {"RoomSellGoldBackPercent",   15},
-  {"DoorSellValuePercent",      16},
-  {"TrapSellValuePercent",      17},
-  {"PayDayGap",                 18},
-  {"PayDaySpeed",               19},
-  {"PayDayProgress",            20},
-  {"PlaceTrapsOnSubtiles",      21},
-  {"DiseaseHPTemplePercentage", 22},
-  {"DungeonHeartHealth",        23},
+  {"BodiesForVampire",               1},
+  {"PrisonSkeletonChance",           2},
+  {"GhostConvertChance",             3},
+  {"TortureConvertChance",           4},
+  {"TortureDeathChance",             5},
+  {"FoodGenerationSpeed",            6},
+  {"StunEvilEnemyChance",            7},
+  {"StunGoodEnemyChance",            8},
+  {"BodyRemainsFor",                 9},
+  {"FightHateKillValue",            10},
+  {"PreserveClassicBugs",           11},
+  {"DungeonHeartHealHealth",        12},
+  {"ImpWorkExperience",             13},
+  {"GemEffectiveness",              14},
+  {"RoomSellGoldBackPercent",       15},
+  {"DoorSellValuePercent",          16},
+  {"TrapSellValuePercent",          17},
+  {"PayDayGap",                     18},
+  {"PayDaySpeed",                   19},
+  {"PayDayProgress",                20},
+  {"PlaceTrapsOnSubtiles",          21},
+  {"DiseaseHPTemplePercentage",     22},
+  {"DungeonHeartHealth",            23},
   {"HungerHealthLoss",              24},
   {"GameTurnsPerHungerHealthLoss",  25},
   {"FoodHealthGain",                26},
@@ -76,6 +76,9 @@ const struct NamedCommand game_rule_desc[] = {
   {"BarrackMaxPartySize",           32},
   {"MaxThingsInHand",               33},
   {"TrainingRoomMaxLevel",          34},
+  {"TorturePayday",                 35},
+  {"TortureTrainingCost",           36},
+  {"TortureScavengingCost",         37},
   {NULL,                             0},
 };
 
@@ -1400,14 +1403,14 @@ static void command_use_special_multiply_creatures(long plr_range_id, long count
     command_add_value(Cmd_USE_SPECIAL_MULTIPLY_CREATURES, plr_range_id, count, 0, 0);
 }
 
-static void command_use_special_make_safe(long plr_range_id)
+static void make_safe(long plr_range_id)
 {
-    command_add_value(Cmd_USE_SPECIAL_MAKE_SAFE, plr_range_id, 0, 0, 0);
+    command_add_value(Cmd_MAKE_SAFE, plr_range_id, 0, 0, 0);
 }
 
-static void command_use_special_locate_hidden_world()
+static void command_locate_hidden_world()
 {
-    command_add_value(Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
+    command_add_value(Cmd_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
 }
 
 static void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
@@ -1426,7 +1429,6 @@ static void command_change_creature_owner(long origin_plyr_idx, const char *crtr
   }
   command_add_value(Cmd_CHANGE_CREATURE_OWNER, origin_plyr_idx, crtr_id, select_id, dest_plyr_idx);
 }
-
 
 static void command_computer_dig_to_location(long plr_range_id, const char* origin, const char* destination)
 {
@@ -1544,6 +1546,11 @@ static void command_use_spell_on_creature(long plr_range_id, const char *crtr_na
 static void command_creature_entrance_level(long plr_range_id, unsigned char val)
 {
   command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
+}
+
+static void command_make_unsafe(long plr_range_id)
+{
+    command_add_value(Cmd_MAKE_UNSAFE, plr_range_id, 0, 0, 0);
 }
 
 static void command_randomise_flag(long plr_range_id, const char *flgname, long val)
@@ -1868,11 +1875,11 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_USE_SPECIAL_MULTIPLY_CREATURES:
         command_use_special_multiply_creatures(scline->np[0], scline->np[1]);
         break;
-    case Cmd_USE_SPECIAL_MAKE_SAFE:
-        command_use_special_make_safe(scline->np[0]);
+    case Cmd_MAKE_SAFE:
+        make_safe(scline->np[0]);
         break;
-    case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
-        command_use_special_locate_hidden_world();
+    case Cmd_LOCATE_HIDDEN_WORLD:
+        command_locate_hidden_world();
         break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -1908,6 +1915,9 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_CREATURE_ENTRANCE_LEVEL:
         command_creature_entrance_level(scline->np[0], scline->np[1]);
         break;
+    case Cmd_MAKE_UNSAFE:
+        command_make_unsafe(scline->np[0]);
+        break;
     case Cmd_RANDOMISE_FLAG:
         command_randomise_flag(scline->np[0], scline->tp[1], scline->np[2]);
         break;
@@ -1919,7 +1929,3 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     }
 }
-
-
-
-

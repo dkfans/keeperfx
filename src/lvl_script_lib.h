@@ -127,8 +127,8 @@ enum TbScriptCommands {
     Cmd_ADD_OBJECT_TO_LEVEL               = 114,
     Cmd_USE_SPECIAL_INCREASE_LEVEL        = 115,
     Cmd_USE_SPECIAL_MULTIPLY_CREATURES    = 116,
-    Cmd_USE_SPECIAL_MAKE_SAFE             = 117,
-    Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD   = 118,
+    Cmd_MAKE_SAFE                         = 117,
+    Cmd_LOCATE_HIDDEN_WORLD               = 118,
     Cmd_USE_SPECIAL_TRANSFER_CREATURE     = 119,
     Cmd_CHANGE_CREATURES_ANNOYANCE        = 120,
     Cmd_COMPUTER_DIG_TO_LOCATION          = 121,
@@ -178,6 +178,8 @@ enum TbScriptCommands {
     Cmd_SET_EFFECT_GENERATOR_CONFIGURATION = 165,
     Cmd_SET_POWER_CONFIGURATION           = 166,
     Cmd_SET_PLAYER_COLOR                  = 167,
+    Cmd_MAKE_UNSAFE                       = 168,
+    Cmd_LEVEL_UP_PLAYERS_CREATURES        = 169,
 };
 
 struct ScriptLine {
