@@ -66,6 +66,7 @@ enum DoorModelFlags {
     DoMF_ResistNonMagic = 0x0001,
     DoMF_Secret         = 0x0002,
     DoMF_Thick          = 0x0004,
+    DoMF_Freestanding   = 0x0008,
 };
 
 struct TrapConfigStats {

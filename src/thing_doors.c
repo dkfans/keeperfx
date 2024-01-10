@@ -330,6 +330,13 @@ TbBool slab_has_sellable_door(MapSlabCoord slb_x, MapSlabCoord slb_y)
 TbBool door_can_stand(struct Thing *thing)
 {
     unsigned int wall_flags = 0;
+    
+    const struct DoorConfigStats* doorst = get_door_model_stats(thing->model);
+    if ( (doorst->model_flags & DoMF_Freestanding))
+    {
+        return true;
+    }
+
     for (int i = 0; i < SMALL_AROUND_LENGTH; i++)
     {
         wall_flags *= 2;
