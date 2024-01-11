@@ -4854,7 +4854,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
         {
             SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc - 1].name, ruleval);
             DEALLOCATE_SCRIPT_VALUE
-                return;
+            return;
         }
         break;
     case 11:
@@ -4862,7 +4862,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
         {
             SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc - 1].name, ruleval);
             DEALLOCATE_SCRIPT_VALUE
-                return;
+            return;
         }
         break;
     case 32:
