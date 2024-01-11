@@ -4915,7 +4915,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     case 35:
     case 36:
     case 37:
-        if ((ruleval < 0) || (ruleval > 100))
+        if (ruleval < 0)
         {
             SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc - 1].name, ruleval);
             DEALLOCATE_SCRIPT_VALUE
