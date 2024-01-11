@@ -4841,7 +4841,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     long ruledesc = get_id(game_rule_desc, scline->tp[0]);
     long ruleval = scline->np[1];
-    char* rulename = game_rule_desc[ruledesc - 1].name;
+    const char *rulename = game_rule_desc[ruledesc - 1].name;
     if (ruledesc == -1)
     {
         SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
@@ -4939,7 +4939,9 @@ static void set_game_rule_process(struct ScriptContext* context)
 {
     short ruledesc = context->value->shorts[0];
     long rulevalue = context->value->arg1;
-    char* rulename = game_rule_desc[ruledesc - 1].name;
+  #if (BFDEBUG_LEVEL >= 7)
+    const char *rulename = game_rule_desc[ruledesc - 1].name;
+  #endif
     switch (ruledesc)
     {
     case 1: //BodiesForVampire
@@ -5116,7 +5118,9 @@ static void set_increase_on_experience_check(const struct ScriptLine* scline)
 static void set_increase_on_experience_process(struct ScriptContext* context)
 {
     short variable = context->value->shorts[0];
-    char varname = on_experience_desc[variable - 1].name;
+  #if (BFDEBUG_LEVEL >= 7)
+    const char *varname = on_experience_desc[variable - 1].name;
+  #endif
 
     switch (variable)
     {
