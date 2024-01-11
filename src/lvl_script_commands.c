@@ -5054,6 +5054,7 @@ static void set_game_rule_process(struct ScriptContext* context)
     case 29: //AlliesShareVision
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
+        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
         break;
     case 30: //AlliesShareDrop
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_drop, rulevalue);
