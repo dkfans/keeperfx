@@ -4841,6 +4841,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     long ruledesc = get_id(game_rule_desc, scline->tp[0]);
     long ruleval = scline->np[1];
+    char* rulename = game_rule_desc[ruledesc - 1].name;
     if (ruledesc == -1)
     {
         SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
@@ -4852,7 +4853,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     case 1:
         if ((ruleval < 0) || (ruleval > UCHAR_MAX))
         {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc - 1].name, ruleval);
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
@@ -4860,15 +4861,15 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     case 11:
         if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
         {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc - 1].name, ruleval);
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
         break;
     case 32:
-        if ((ruleval < 0) || (ruleval > GROUP_MEMBERS_COUNT)) // No more than 30 barracks party members.
+        if ((ruleval < 0) || (ruleval > GROUP_MEMBERS_COUNT)) // No more than 30 barracks party members defined with GROUP_MEMBERS_COUNT.
         {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range, max 30.", game_rule_desc[ruledesc - 1].name, ruleval);
+            SCRPTERRLOG("Game Rule '%s' value %d out of range, max %d.", rulename, ruleval, GROUP_MEMBERS_COUNT);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
@@ -4876,7 +4877,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     case 33:
         if ((ruleval < 0) || (ruleval > MAX_THINGS_IN_HAND))
         {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range, max %d.", game_rule_desc[ruledesc - 1].name, ruleval, MAX_THINGS_IN_HAND);
+            SCRPTERRLOG("Game Rule '%s' value %d out of range, max %d.", rulename, ruleval, MAX_THINGS_IN_HAND);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
@@ -4890,7 +4891,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     case 22:
         if ((ruleval < 0) || (ruleval > 100))
         {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc - 1].name, ruleval);
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
@@ -4917,7 +4918,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     case 37:
         if (ruleval < 0)
         {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc - 1].name, ruleval);
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
@@ -4939,7 +4940,6 @@ static void set_game_rule_process(struct ScriptContext* context)
     short ruledesc = context->value->shorts[0];
     long rulevalue = context->value->arg1;
     char* rulename = game_rule_desc[ruledesc - 1].name;
-
     switch (ruledesc)
     {
     case 1: //BodiesForVampire
