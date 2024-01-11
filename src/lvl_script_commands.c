@@ -4840,11 +4840,27 @@ static void set_game_rule_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     long ruledesc = get_id(game_rule_desc, scline->tp[0]);
+    long ruleval = scline->np[1];
     if (ruledesc == -1)
     {
         SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
+    }
+    switch (ruledesc)
+    {
+    case 2:
+    case 3:
+    case 4:
+    case 5:
+    case 7:
+    case 8:
+        if ((ruleval < 0) || (ruleval > 100))
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc - 1].name, ruleval);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
     }
     value->shorts[0] = ruledesc;
     value->shorts[1] = scline->np[1];
@@ -4868,48 +4884,20 @@ static void set_game_rule_process(struct ScriptContext* context)
         }
         break;
     case 2: //PrisonSkeletonChance
-        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
-        {
-            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.rooms.prison_skeleton_chance, context->value->shorts[1]);
-            game.conf.rules.rooms.prison_skeleton_chance = context->value->shorts[1];
-        }
-        else
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc-1].name, context->value->shorts[1]);
-        }
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.rooms.prison_skeleton_chance, context->value->shorts[1]);
+        game.conf.rules.rooms.prison_skeleton_chance = context->value->shorts[1];
         break;
     case 3: //GhostConvertChance
-        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
-        {
-            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.rooms.ghost_convert_chance, context->value->shorts[1]);
-            game.conf.rules.rooms.ghost_convert_chance = context->value->shorts[1];
-        }
-        else
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc-1].name, context->value->shorts[1]);
-        }
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.rooms.ghost_convert_chance, context->value->shorts[1]);
+        game.conf.rules.rooms.ghost_convert_chance = context->value->shorts[1];
         break;
     case 4: //TortureConvertChance
-        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
-        {
-            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.rooms.torture_convert_chance, context->value->shorts[1]);
-            game.conf.rules.rooms.torture_convert_chance = context->value->shorts[1];
-        }
-        else
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc-1].name, context->value->shorts[1]);
-        }
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.rooms.torture_convert_chance, context->value->shorts[1]);
+        game.conf.rules.rooms.torture_convert_chance = context->value->shorts[1];
         break;
     case 5: //TortureDeathChance
-        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
-        {
-            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.rooms.torture_death_chance, context->value->shorts[1]);
-            game.conf.rules.rooms.torture_death_chance = context->value->shorts[1];
-        }
-        else
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc-1].name, context->value->shorts[1]);
-        }
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.rooms.torture_death_chance, context->value->shorts[1]);
+        game.conf.rules.rooms.torture_death_chance = context->value->shorts[1];
         break;
     case 6: //FoodGenerationSpeed
         if (context->value->shorts[1] >= 0)
@@ -4923,26 +4911,12 @@ static void set_game_rule_process(struct ScriptContext* context)
         }
         break;
     case 7: //StunEvilEnemyChance
-        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
-        {
-            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.creature.stun_enemy_chance_evil, context->value->shorts[1]);
-            game.conf.rules.creature.stun_enemy_chance_evil = context->value->shorts[1];
-        }
-        else
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc-1].name, context->value->shorts[1]);
-        }
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.creature.stun_enemy_chance_evil, context->value->shorts[1]);
+        game.conf.rules.creature.stun_enemy_chance_evil = context->value->shorts[1];
         break;
     case 8: //StunGoodEnemyChance
-        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
-        {
-            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.creature.stun_enemy_chance_good, context->value->shorts[1]);
-            game.conf.rules.creature.stun_enemy_chance_good = context->value->shorts[1];
-        }
-        else
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc-1].name, context->value->shorts[1]);
-        }
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.creature.stun_enemy_chance_good, context->value->shorts[1]);
+        game.conf.rules.creature.stun_enemy_chance_good = context->value->shorts[1];
         break;
     case 9: //BodyRemainsFor
         if (context->value->shorts[1] >= 0)
