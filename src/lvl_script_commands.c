@@ -4866,7 +4866,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
         }
         break;
     case 32:
-        if ((ruleval < 0) || (ruleval > 30)) // No more than 30 barracks party members
+        if ((ruleval < 0) || (ruleval > GROUP_MEMBERS_COUNT)) // No more than 30 barracks party members.
         {
             SCRPTERRLOG("Game Rule '%s' value %d out of range, max 30.", game_rule_desc[ruledesc - 1].name, ruleval);
             DEALLOCATE_SCRIPT_VALUE
