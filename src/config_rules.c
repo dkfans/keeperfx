@@ -133,23 +133,23 @@ const struct NamedCommand rules_creatures_commands[] = {
 
 
 const struct NamedField rules_magic_commands[] = {
-  {"HOLDAUDIENCETIME",              &game.conf.rules.magic.hold_audience_time,               var_type(game.conf.rules.magic.hold_audience_time)}},
+  {"HOLDAUDIENCETIME",              &game.conf.rules.magic.hold_audience_time,               var_type(game.conf.rules.magic.hold_audience_time)},
   {"ARMAGEDONTELEPORTYOURTIMEGAP",  &game.conf.rules.magic.armagedon_teleport_your_time_gap, var_type(game.conf.rules.magic.armagedon_teleport_your_time_gap)},
   {"ARMAGEDONTELEPORTENEMYTIMEGAP", &game.conf.rules.magic.armagedon_teleport_enemy_time_gap,var_type(game.conf.rules.magic.armagedon_teleport_enemy_time_gap)},
-  {"ARMEGEDDONTELEPORTNEUTRALS",    &game.conf.rules.magic.armegeddon_teleport_neutrals,     var_type(game.conf.rules.magic.armegeddon_teleport_neutrals,    )},
-  {"ARMEGEDDONCOUNTDOWN",           &game.armageddon.count_down,                             var_type(game.armageddon.count_down,                            )},
-  {"ARMEGEDDONDURATION",            &game.armageddon.duration,                               var_type(game.armageddon.duration,                              )},
-  {"DISEASETRANSFERPERCENTAGE",     &game.conf.rules.magic.disease_transfer_percentage,      var_type(game.conf.rules.magic.disease_transfer_percentage,     )},
-  {"DISEASELOSEPERCENTAGEHEALTH",   &game.conf.rules.magic.disease_lose_percentage_health,   var_type(game.conf.rules.magic.disease_lose_percentage_health,  )},
-  {"DISEASELOSEHEALTHTIME",         &game.conf.rules.magic.disease_lose_health_time,         var_type(game.conf.rules.magic.disease_lose_health_time,        )},
-  {"MINDISTANCEFORTELEPORT",        &game.conf.rules.magic.min_distance_for_teleport,        var_type(game.conf.rules.magic.min_distance_for_teleport,       )},
-  {"COLLAPSEDUNGEONDAMAGE",         &game.conf.rules.magic.collapse_dungeon_damage,          var_type(game.conf.rules.magic.collapse_dungeon_damage,         )},
-  {"TURNSPERCOLLAPSEDUNGEONDAMAGE", &game.conf.rules.magic.turns_per_collapse_dngn_dmg,      var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg,     )},
+  {"ARMEGEDDONTELEPORTNEUTRALS",    &game.conf.rules.magic.armegeddon_teleport_neutrals,     var_type(game.conf.rules.magic.armegeddon_teleport_neutrals     )},
+  {"ARMEGEDDONCOUNTDOWN",           &game.armageddon.count_down,                             var_type(game.armageddon.count_down                             )},
+  {"ARMEGEDDONDURATION",            &game.armageddon.duration,                               var_type(game.armageddon.duration                               )},
+  {"DISEASETRANSFERPERCENTAGE",     &game.conf.rules.magic.disease_transfer_percentage,      var_type(game.conf.rules.magic.disease_transfer_percentage      )},
+  {"DISEASELOSEPERCENTAGEHEALTH",   &game.conf.rules.magic.disease_lose_percentage_health,   var_type(game.conf.rules.magic.disease_lose_percentage_health   )},
+  {"DISEASELOSEHEALTHTIME",         &game.conf.rules.magic.disease_lose_health_time,         var_type(game.conf.rules.magic.disease_lose_health_time         )},
+  {"MINDISTANCEFORTELEPORT",        &game.conf.rules.magic.min_distance_for_teleport,        var_type(game.conf.rules.magic.min_distance_for_teleport        )},
+  {"COLLAPSEDUNGEONDAMAGE",         &game.conf.rules.magic.collapse_dungeon_damage,          var_type(game.conf.rules.magic.collapse_dungeon_damage          )},
+  {"TURNSPERCOLLAPSEDUNGEONDAMAGE", &game.conf.rules.magic.turns_per_collapse_dngn_dmg,      var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg      )},
   //{"DEFAULTSACRIFICESCOREFORHORNY", &game.conf.rules.magic.,                               var_type( &game.conf.rules.magic.,                              )},
-  {"POWERHANDGOLDGRABAMOUNT",       &game.conf.rules.magic.power_hand_gold_grab_amount,      var_type(game.conf.rules.magic.power_hand_gold_grab_amount,     )},
-  {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_permil, var_type(game.conf.rules.magic.friendly_fight_area_range_permil,)},
+  {"POWERHANDGOLDGRABAMOUNT",       &game.conf.rules.magic.power_hand_gold_grab_amount,      var_type(game.conf.rules.magic.power_hand_gold_grab_amount      )},
+  {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_permil, var_type(game.conf.rules.magic.friendly_fight_area_range_permil )},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_permil,var_type(game.conf.rules.magic.friendly_fight_area_damage_permil)},
-  {NULL,                           ,NULL, },
+  {NULL,                            NULL,0 },
   };
 
 const struct NamedCommand rules_rooms_commands[] = {
@@ -1126,22 +1126,37 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       return false;
   }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_magic_commands,cmd_num)
+
   while (pos<len)
   {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, rules_magic_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-    
-      }
-      skip_conf_to_next_line(buf,&pos,len);
+        // Finding command number in this line
+        int assignresult = assign_conf_command_field(buf, &pos, len, rules_magic_commands);
+        if( assignresult == 1)
+        {
+            skip_conf_to_next_line(buf,&pos,len);
+            continue;
+        }
+        else if( assignresult == -3)
+        {
+            break; // if next block starts
+        }
+        // non simple field params would be handled here
+/*
+        int cmd_num = recognize_conf_command(buf, &pos, len, rules_magic_commands);
+
+        // Now store the config item in correct place
+        if (cmd_num == -3) break; // if next block starts
+        int n = 0;
+        char word_buf[COMMAND_WORD_LEN];
+        switch (cmd_num)
+        {
+        
+        }
+        */
+        skip_conf_to_next_line(buf,&pos,len);
   }
-#undef COMMAND_TEXT
+
+  
   return true;
 }
 

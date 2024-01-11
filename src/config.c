@@ -435,6 +435,128 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
     return -2;
 }
 
+/**
+ * Recognizes config command and returns its number, or negative status code.
+ * @param buf
+ * @param pos
+ * @param buflen
+ * @param commands
+ * @return If positive integer is returned, it is the command number recognized in the line.
+ * If 0 is returned, that means the current line did not contained any command and should be skipped.
+ * If -1 is returned, that means we've reached end of file.
+ * If -2 is returned, that means the command wasn't recognized.
+ * If -3 is returned, that means we've reached end of the INI block.
+ */
+int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField commands[])
+{
+    SYNCDBG(19,"Starting");
+    if ((*pos) >= buflen) return -1;
+    // Skipping starting spaces
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
+    {
+        (*pos)++;
+        if ((*pos) >= buflen) return -1;
+    }
+    // Checking if this line is a comment
+    if (buf[*pos] == ';')
+        return 0;
+    // Checking if this line is start of a block
+    if (buf[*pos] == '[')
+        return -3;
+    // Finding command number
+    int i = 0;
+    while (commands[i].name != NULL)
+    {
+        int cmdname_len = strlen(commands[i].name);
+        if ((*pos)+cmdname_len > buflen) {
+            i++;
+            continue;
+        }
+        // Find a matching command
+        if (strnicmp(buf+(*pos), commands[i].name, cmdname_len) == 0)
+        {
+            (*pos) += cmdname_len;
+            // if we're not at end of input buffer..
+            if ((*pos) < buflen)
+            {
+                // make sure it's whole command, not just start of different one
+               if ((buf[(*pos)] != ' ') && (buf[(*pos)] != '\t')
+                && (buf[(*pos)] != '=')  && ((unsigned char)buf[(*pos)] >= 7))
+               {
+                  (*pos) -= cmdname_len;
+                  i++;
+                  continue;
+               }
+               // Skipping spaces between command and parameters
+               while ((buf[*pos] == ' ') || (buf[*pos] == '\t')
+                || (buf[*pos] == '=')  || ((unsigned char)buf[*pos] < 7))
+               {
+                 (*pos)++;
+                 if ((*pos) >= buflen) break;
+               }
+            }
+
+            char word_buf[COMMAND_WORD_LEN];
+            if (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
+            {
+                int64_t k = atoi(word_buf);
+                
+                switch (commands[i].type)
+                {
+                case dt_uchar:
+                    *(unsigned char*)commands[i].field = k;
+                    break;
+                case dt_schar:
+                    *(signed char*)commands[i].field = k;
+                    break;
+                case dt_short:
+                    *(signed short*)commands[i].field = k;
+                    break;
+                case dt_ushort:
+                    *(unsigned short*)commands[i].field = k;
+                    break;
+                case dt_int:
+                    *(signed int*)commands[i].field = k;
+                    break;
+                case dt_uint:
+                    *(unsigned int*)commands[i].field = k;
+                    break;
+                case dt_long:
+                    *(signed long*)commands[i].field = k;
+                    break;
+                case dt_ulong:
+                    *(unsigned long*)commands[i].field = k;
+                    break;
+                case dt_longlong:
+                    *(signed long long*)commands[i].field = k;
+                    break;
+                case dt_ulonglong:
+                    *(unsigned long long*)commands[i].field = k;
+                    break;
+                case dt_float:
+                    *(float*)commands[i].field = k;
+                    break;
+                case dt_double:
+                    *(double*)commands[i].field = k;
+                    break;
+                case dt_longdouble:
+                    *(long double*)commands[i].field = k;
+                    break;
+                case dt_default:
+                case dt_void:
+                default:
+                    ERRORLOG("unexpected datatype for field %s",commands[i].name);
+                    return -1;
+                    break;
+                }
+                return 1;
+            }
+        }
+        i++;
+    }
+    return -2;
+}
+
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen)
 {
   int i;

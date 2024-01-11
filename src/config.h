@@ -188,7 +188,7 @@ int main(void) {
 
 enum dataTypes
 {
-    dt_char,
+    dt_default,
     dt_uchar,
     dt_schar,
     dt_short,
@@ -203,20 +203,19 @@ enum dataTypes
     dt_double,
     dt_longdouble,
     dt_void,
-    dt_default,
-}
+};
 
-#define var_type(expr) \ 
-    (_Generic((expr), \ 
-              char: dt_char, unsigned char: dt_uchar, signed char: dt_schar, \ 
-              short: dt_short, unsigned short: dt_ushort, \ 
-              int: dt_int, unsigned int: dt_uint, \ 
-              long: dt_long, unsigned long: dt_ulong, \ 
-              long long: dt_longlong, unsigned long long: dt_ulonglong, \ 
-              float: dt_float, \ 
-              double: dt_double, \ 
-              long double: dt_longdouble, \ 
-              void*: dt_void, \ 
+#define var_type(expr)\
+    (_Generic((expr),\
+              unsigned char: dt_uchar, signed char: dt_schar, \
+              short: dt_short, unsigned short: dt_ushort, \
+              int: dt_int, unsigned int: dt_uint, \
+              long: dt_long, unsigned long: dt_ulong, \
+              long long: dt_longlong, unsigned long long: dt_ulonglong, \
+              float: dt_float, \
+              double: dt_double, \
+              long double: dt_longdouble, \
+              void*: dt_void, \
               default: dt_default))
 
 /******************************************************************************/
@@ -356,6 +355,7 @@ int get_conf_parameter_quoted(const char *buf,long *pos,long buflen,char *dst,lo
 int get_conf_list_int(const char *buf, const char **state, int *dst);
 
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
+int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField *commands);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_id(const struct NamedCommand *desc, const char *itmname);
 long long get_long_id(const struct LongNamedCommand* desc, const char* itmname);
