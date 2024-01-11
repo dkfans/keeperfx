@@ -4925,7 +4925,8 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     case 23: //DungeonHeartHealth
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
-        break;
+        DEALLOCATE_SCRIPT_VALUE
+        return;
     }
 
     value->shorts[0] = ruledesc;
@@ -5062,6 +5063,7 @@ static void set_game_rule_process(struct ScriptContext* context)
     case 32: //BarrackMaxPartySize
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.rooms.barrack_max_party_size, rulevalue);
         game.conf.rules.rooms.barrack_max_party_size = rulevalue;
+        break;
     case 33: //MaxThingsInHand
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc-1].name, game.conf.rules.game.max_things_in_hand, rulevalue);
         game.conf.rules.game.max_things_in_hand = rulevalue;
