@@ -262,6 +262,47 @@ const struct NamedCommand room_config_desc[] = {
   {NULL,                   0},
 };
 
+const struct NamedCommand game_rule_desc[] = {
+  {"BodiesForVampire",               1},
+  {"PrisonSkeletonChance",           2},
+  {"GhostConvertChance",             3},
+  {"TortureConvertChance",           4},
+  {"TortureDeathChance",             5},
+  {"FoodGenerationSpeed",            6},
+  {"StunEvilEnemyChance",            7},
+  {"StunGoodEnemyChance",            8},
+  {"BodyRemainsFor",                 9},
+  {"FightHateKillValue",            10},
+  {"PreserveClassicBugs",           11},
+  {"DungeonHeartHealHealth",        12},
+  {"ImpWorkExperience",             13},
+  {"GemEffectiveness",              14},
+  {"RoomSellGoldBackPercent",       15},
+  {"DoorSellValuePercent",          16},
+  {"TrapSellValuePercent",          17},
+  {"PayDayGap",                     18},
+  {"PayDaySpeed",                   19},
+  {"PayDayProgress",                20},
+  {"PlaceTrapsOnSubtiles",          21},
+  {"DiseaseHPTemplePercentage",     22},
+  {"DungeonHeartHealth",            23},
+  {"HungerHealthLoss",              24},
+  {"GameTurnsPerHungerHealthLoss",  25},
+  {"FoodHealthGain",                26},
+  {"TortureHealthLoss",             27},
+  {"GameTurnsPerTortureHealthLoss", 28},
+  {"AlliesShareVision",             29},
+  {"AlliesShareDrop",               30},
+  {"AlliesShareCta",                31},
+  {"BarrackMaxPartySize",           32},
+  {"MaxThingsInHand",               33},
+  {"TrainingRoomMaxLevel",          34},
+  {"TorturePayday",                 35},
+  {"TortureTrainingCost",           36},
+  {"TortureScavengingCost",         37},
+  {NULL,                             0},
+};
+
 const struct NamedCommand on_experience_desc[] = {
   {"SizeIncreaseOnExp",            1},
   {"PayIncreaseOnExp",             2},
@@ -4795,6 +4836,394 @@ static void set_player_color_process(struct ScriptContext *context)
     }  
 }
 
+static void set_game_rule_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long ruledesc = get_id(game_rule_desc, scline->tp[0]);
+    if (ruledesc == -1)
+    {
+        SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = ruledesc;
+    value->shorts[1] = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_game_rule_process(struct ScriptContext* context)
+{
+    short ruledesc = context->value->shorts[0];
+    switch (ruledesc)
+    {
+    case 1: //BodiesForVampire
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= UCHAR_MAX))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.rooms.bodies_for_vampire, context->value->shorts[1]);
+            game.conf.rules.rooms.bodies_for_vampire = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 2: //PrisonSkeletonChance
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.rooms.prison_skeleton_chance, context->value->shorts[1]);
+            game.conf.rules.rooms.prison_skeleton_chance = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 3: //GhostConvertChance
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.rooms.ghost_convert_chance, context->value->shorts[1]);
+            game.conf.rules.rooms.ghost_convert_chance = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 4: //TortureConvertChance
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.rooms.torture_convert_chance, context->value->shorts[1]);
+            game.conf.rules.rooms.torture_convert_chance = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 5: //TortureDeathChance
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.rooms.torture_death_chance, context->value->shorts[1]);
+            game.conf.rules.rooms.torture_death_chance = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 6: //FoodGenerationSpeed
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.rooms.food_generation_speed, context->value->shorts[1]);
+            game.conf.rules.rooms.food_generation_speed = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 7: //StunEvilEnemyChance
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.creature.stun_enemy_chance_evil, context->value->shorts[1]);
+            game.conf.rules.creature.stun_enemy_chance_evil = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 8: //StunGoodEnemyChance
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.creature.stun_enemy_chance_good, context->value->shorts[1]);
+            game.conf.rules.creature.stun_enemy_chance_good = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 9: //BodyRemainsFor
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.creature.body_remains_for, context->value->shorts[1]);
+            game.conf.rules.creature.body_remains_for = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 10: //FightHateKillValue
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.creature.fight_hate_kill_value, context->value->shorts[1]);
+        game.conf.rules.creature.fight_hate_kill_value = context->value->shorts[1];
+        break;
+    case 11: //PreserveClassicBugs
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= ClscBug_ListEnd))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.classic_bugs_flags, context->value->shorts[1]);
+            game.conf.rules.game.classic_bugs_flags = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 12: //DungeonHeartHealHealth
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.dungeon_heart_heal_health, context->value->shorts[1]);
+        game.conf.rules.game.dungeon_heart_heal_health = context->value->shorts[1];
+        break;
+    case 13: //ImpWorkExperience
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.workers.digger_work_experience, context->value->shorts[1]);
+            game.conf.rules.workers.digger_work_experience = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 14: //GemEffectiveness
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.gem_effectiveness, context->value->shorts[1]);
+            game.conf.rules.game.gem_effectiveness = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 15: //RoomSellGoldBackPercent
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.room_sale_percent, context->value->shorts[1]);
+            game.conf.rules.game.room_sale_percent = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 16: //DoorSellGoldBackPercent
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.door_sale_percent, context->value->shorts[1]);
+            game.conf.rules.game.door_sale_percent = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 17: //TrapSellGoldBackPercent
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.trap_sale_percent, context->value->shorts[1]);
+            game.conf.rules.game.trap_sale_percent = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 18: //PayDayGap
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.pay_day_gap, context->value->shorts[1]);
+            game.conf.rules.game.pay_day_gap = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 19: //PayDaySpeed
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.pay_day_speed, context->value->shorts[1]);
+            game.conf.rules.game.pay_day_speed = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 20: //PayDayProgress
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.pay_day_progress, context->value->shorts[1]);
+            game.pay_day_progress = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 21: //PlaceTrapsOnSubtiles
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.place_traps_on_subtiles, context->value->shorts[1]);
+            game.conf.rules.game.place_traps_on_subtiles = (TbBool)context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 22: //DiseaseHPTemplePercentage
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 100))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.computer.disease_to_temple_pct, context->value->shorts[1]);
+            game.conf.rules.computer.disease_to_temple_pct = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 24: //HungerHealthLoss
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.health.hunger_health_loss, context->value->shorts[1]);
+        game.conf.rules.health.hunger_health_loss = context->value->shorts[1];
+        break;
+    case 25: //GameTurnsPerHungerHealthLoss
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.health.turns_per_hunger_health_loss, context->value->shorts[1]);
+            game.conf.rules.health.turns_per_hunger_health_loss = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 26: //FoodHealthGain
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.health.food_health_gain, context->value->shorts[1]);
+        game.conf.rules.health.food_health_gain = context->value->shorts[1];
+        break;
+    case 27: //TortureHealthLoss
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.health.torture_health_loss, context->value->shorts[1]);
+        game.conf.rules.health.torture_health_loss = context->value->shorts[1];
+        break;
+    case 28: //GameTurnsPerTortureHealthLoss
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.health.turns_per_torture_health_loss, context->value->shorts[1]);
+            game.conf.rules.health.turns_per_torture_health_loss = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 29: //AlliesShareVision
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.allies_share_vision, context->value->shorts[1]);
+            game.conf.rules.game.allies_share_vision = (TbBool)context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 30: //AlliesShareDrop
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.allies_share_drop, context->value->shorts[1]);
+            game.conf.rules.game.allies_share_drop = (TbBool)context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 31: //AlliesShareCta
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.allies_share_cta, context->value->shorts[1]);
+            game.conf.rules.game.allies_share_cta = (TbBool)context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 32: //BarrackMaxPartySize
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= 30))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.rooms.barrack_max_party_size, context->value->shorts[1]);
+            game.conf.rules.rooms.barrack_max_party_size = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 33: //MaxThingsInHand
+        if ((context->value->shorts[1] >= 0) && (context->value->shorts[1] <= MAX_THINGS_IN_HAND))
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.max_things_in_hand, context->value->shorts[1]);
+            game.conf.rules.game.max_things_in_hand = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 34: //TrainingRoomMaxLevel
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.rooms.training_room_max_level, context->value->shorts[1]);
+            game.conf.rules.rooms.training_room_max_level = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 35: //TorturePayday
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.torture_payday, context->value->shorts[1]);
+            game.conf.rules.game.torture_payday = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 36: //TortureTrainingCost
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.torture_training_cost, context->value->shorts[1]);
+            game.conf.rules.game.torture_training_cost = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 37: //TortureScavengingCost
+        if (context->value->shorts[1] >= 0)
+        {
+            SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", game_rule_desc[ruledesc].name, game.conf.rules.game.torture_scavenging_cost, context->value->shorts[1]);
+            game.conf.rules.game.torture_scavenging_cost = context->value->shorts[1];
+        }
+        else
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", game_rule_desc[ruledesc].name, context->value->shorts[1]);
+        }
+        break;
+    case 23: //DungeonHeartHealth
+    default:
+        WARNMSG("Unsupported Game Rule, command %d.", context->value->shorts[0]);
+        break;
+    }
+}
+
 static void set_increase_on_experience_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -4977,7 +5406,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
-  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
+  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
   {"SET_ROOM_CONFIGURATION",            "AAAa!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
