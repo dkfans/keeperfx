@@ -147,11 +147,79 @@ enum TbConfigLoadFlags {
     CnfLd_IgnoreErrors  =  0x04, /**< Do not log error message on failures (still, return with error). */
 };
 
-/******************************************************************************/
-
-/******************************************************************************/
 #pragma pack(1)
 
+
+/******************************************************************************/
+
+/*
+
+#include <stdio.h> 
+#include <time.h> 
+ 
+#define type_name(expr) \ 
+    (_Generic((expr), \ 
+              char: "char", unsigned char: "unsigned char", signed char: "signed char", \ 
+              short: "short", unsigned short: "unsigned short", \ 
+              int: "int", unsigned int: "unsigned int", \ 
+              long: "long", unsigned long: "unsigned long", \ 
+              long long: "long long", unsigned long long: "unsigned long long", \ 
+              float: "float", \ 
+              double: "double", \ 
+              long double: "long double", \ 
+              void*: "void*", \ 
+              default: "?")) 
+ 
+int main(void) { 
+    enum { foo, bar }; 
+    printf("%s is of type %s\n", "'a'", type_name('a')); 
+    printf("%d is of type %s\n", 42, type_name(42)); 
+    printf("%f is of type %s\n", 1.5, type_name(1.5)); 
+    printf("%s is of type %s\n", "foo", type_name(foo)); 
+    printf("%s is of type %s\n", "foo", type_name(foo)); 
+    putchar('\n'); 
+    printf("%s is of type %s\n", "NULL", type_name(NULL)); 
+    printf("%s is of type %s\n", "sizeof foo", type_name(sizeof foo)); 
+    printf("%s is of type %s\n", "time(NULL)", type_name(time(NULL))); 
+} 
+
+*/
+
+
+enum dataTypes
+{
+    dt_char,
+    dt_uchar,
+    dt_schar,
+    dt_short,
+    dt_ushort,
+    dt_int,
+    dt_uint,
+    dt_long,
+    dt_ulong,
+    dt_longlong,
+    dt_ulonglong,
+    dt_float,
+    dt_double,
+    dt_longdouble,
+    dt_void,
+    dt_default,
+}
+
+#define var_type(expr) \ 
+    (_Generic((expr), \ 
+              char: dt_char, unsigned char: dt_uchar, signed char: dt_schar, \ 
+              short: dt_short, unsigned short: dt_ushort, \ 
+              int: dt_int, unsigned int: dt_uint, \ 
+              long: dt_long, unsigned long: dt_ulong, \ 
+              long long: dt_longlong, unsigned long long: dt_ulonglong, \ 
+              float: dt_float, \ 
+              double: dt_double, \ 
+              long double: dt_longdouble, \ 
+              void*: dt_void, \ 
+              default: dt_default))
+
+/******************************************************************************/
 struct CommandWord {
     char text[COMMAND_WORD_LEN];
 };
@@ -164,6 +232,12 @@ struct NamedCommand {
 struct LongNamedCommand {
     const char* name;
     long long num;
+};
+
+struct NamedField {
+    const char *name;
+    void* field;
+    uchar type;
 };
 
 struct InstallInfo {

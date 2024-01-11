@@ -129,24 +129,27 @@ const struct NamedCommand rules_creatures_commands[] = {
   {NULL,                            0},
   };
 
-const struct NamedCommand rules_magic_commands[] = {
-  {"HOLDAUDIENCETIME",              1},
-  {"ARMAGEDONTELEPORTYOURTIMEGAP",  2},
-  {"ARMAGEDONTELEPORTENEMYTIMEGAP", 3},
-  {"ARMEGEDDONTELEPORTNEUTRALS",    4},
-  {"ARMEGEDDONCOUNTDOWN",           5},
-  {"ARMEGEDDONDURATION",            6},
-  {"DISEASETRANSFERPERCENTAGE",     7},
-  {"DISEASELOSEPERCENTAGEHEALTH",   8},
-  {"DISEASELOSEHEALTHTIME",         9},
-  {"MINDISTANCEFORTELEPORT",       10},
-  {"COLLAPSEDUNGEONDAMAGE",        11},
-  {"TURNSPERCOLLAPSEDUNGEONDAMAGE",12},
-  {"DEFAULTSACRIFICESCOREFORHORNY",13},
-  {"POWERHANDGOLDGRABAMOUNT",      14},
-  {"FRIENDLYFIGHTAREARANGEPERCENT",15},
-  {"FRIENDLYFIGHTAREADAMAGEPERCENT",16},
-  {NULL,                            0},
+
+
+
+const struct NamedField rules_magic_commands[] = {
+  {"HOLDAUDIENCETIME",              &game.conf.rules.magic.hold_audience_time,               var_type(game.conf.rules.magic.hold_audience_time)}},
+  {"ARMAGEDONTELEPORTYOURTIMEGAP",  &game.conf.rules.magic.armagedon_teleport_your_time_gap, var_type(game.conf.rules.magic.armagedon_teleport_your_time_gap)},
+  {"ARMAGEDONTELEPORTENEMYTIMEGAP", &game.conf.rules.magic.armagedon_teleport_enemy_time_gap,var_type(game.conf.rules.magic.armagedon_teleport_enemy_time_gap)},
+  {"ARMEGEDDONTELEPORTNEUTRALS",    &game.conf.rules.magic.armegeddon_teleport_neutrals,     var_type(game.conf.rules.magic.armegeddon_teleport_neutrals,    )},
+  {"ARMEGEDDONCOUNTDOWN",           &game.armageddon.count_down,                             var_type(game.armageddon.count_down,                            )},
+  {"ARMEGEDDONDURATION",            &game.armageddon.duration,                               var_type(game.armageddon.duration,                              )},
+  {"DISEASETRANSFERPERCENTAGE",     &game.conf.rules.magic.disease_transfer_percentage,      var_type(game.conf.rules.magic.disease_transfer_percentage,     )},
+  {"DISEASELOSEPERCENTAGEHEALTH",   &game.conf.rules.magic.disease_lose_percentage_health,   var_type(game.conf.rules.magic.disease_lose_percentage_health,  )},
+  {"DISEASELOSEHEALTHTIME",         &game.conf.rules.magic.disease_lose_health_time,         var_type(game.conf.rules.magic.disease_lose_health_time,        )},
+  {"MINDISTANCEFORTELEPORT",        &game.conf.rules.magic.min_distance_for_teleport,        var_type(game.conf.rules.magic.min_distance_for_teleport,       )},
+  {"COLLAPSEDUNGEONDAMAGE",         &game.conf.rules.magic.collapse_dungeon_damage,          var_type(game.conf.rules.magic.collapse_dungeon_damage,         )},
+  {"TURNSPERCOLLAPSEDUNGEONDAMAGE", &game.conf.rules.magic.turns_per_collapse_dngn_dmg,      var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg,     )},
+  //{"DEFAULTSACRIFICESCOREFORHORNY", &game.conf.rules.magic.,                               var_type( &game.conf.rules.magic.,                              )},
+  {"POWERHANDGOLDGRABAMOUNT",       &game.conf.rules.magic.power_hand_gold_grab_amount,      var_type(game.conf.rules.magic.power_hand_gold_grab_amount,     )},
+  {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_permil, var_type(game.conf.rules.magic.friendly_fight_area_range_permil,)},
+  {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_permil,var_type(game.conf.rules.magic.friendly_fight_area_damage_permil)},
+  {NULL,                           ,NULL, },
   };
 
 const struct NamedCommand rules_rooms_commands[] = {
@@ -1134,212 +1137,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
       char word_buf[COMMAND_WORD_LEN];
       switch (cmd_num)
       {
-      case 1: // HOLDAUDIENCETIME
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.hold_audience_time = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // ARMAGEDONTELEPORTYOURTIMEGAP
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.armagedon_teleport_your_time_gap = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // ARMAGEDONTELEPORTENEMYTIMEGAP
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.armagedon_teleport_enemy_time_gap = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // ARMEGEDDONTELEPORTNEUTRALS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.armegeddon_teleport_neutrals = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 5: // ARMEGEDDONCOUNTDOWN
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.armageddon.count_down = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 6: // ARMEGEDDONDURATION
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.armageddon.duration = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // DISEASETRANSFERPERCENTAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.disease_transfer_percentage = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 8: // DISEASELOSEPERCENTAGEHEALTH
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.disease_lose_percentage_health = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 9: // DISEASELOSEHEALTHTIME
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.disease_lose_health_time = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 10: // MINDISTANCEFORTELEPORT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.min_distance_for_teleport = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 11: // COLLAPSEDUNGEONDAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.collapse_dungeon_damage = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 12: // TURNSPERCOLLAPSEDUNGEONDAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.turns_per_collapse_dngn_dmg = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 13: // DEFAULTSACRIFICESCOREFORHORNY
-          //Unused - scores are computed automatically
-          break;
-      case 14: // POWERHANDGOLDGRABAMOUNT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.power_hand_gold_grab_amount = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 15: // FRIENDLYFIGHTAREARANGEPERCENT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.friendly_fight_area_range_permil = k * 10;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 16: // FRIENDLYFIGHTAREADAMAGEPERCENT
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.magic.friendly_fight_area_damage_permil = k * 10;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
+    
       }
       skip_conf_to_next_line(buf,&pos,len);
   }
