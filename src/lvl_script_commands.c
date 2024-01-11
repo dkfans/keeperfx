@@ -4850,7 +4850,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     }
     switch (ruledesc)
     {
-    case 1:
+    case 1: //BodiesForVampire
         if ((ruleval < 0) || (ruleval > UCHAR_MAX))
         {
             SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
@@ -4858,7 +4858,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
             return;
         }
         break;
-    case 11:
+    case 11: //PreserveClassicBugs
         if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
         {
             SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
@@ -4866,29 +4866,29 @@ static void set_game_rule_check(const struct ScriptLine* scline)
             return;
         }
         break;
-    case 32:
-        if ((ruleval < 0) || (ruleval > GROUP_MEMBERS_COUNT)) // No more than 30 barracks party members defined with GROUP_MEMBERS_COUNT.
+    case 32: //BarrackMaxPartySize
+        if ((ruleval < 0) || (ruleval > GROUP_MEMBERS_COUNT)) // No more than 30 barracks party members, defined with GROUP_MEMBERS_COUNT.
         {
             SCRPTERRLOG("Game Rule '%s' value %d out of range, max %d.", rulename, ruleval, GROUP_MEMBERS_COUNT);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
         break;
-    case 33:
-        if ((ruleval < 0) || (ruleval > MAX_THINGS_IN_HAND))
+    case 33: //MaxThingsInHand
+        if ((ruleval < 0) || (ruleval > MAX_THINGS_IN_HAND)) // No more than 64 things in hand, defined with MAX_THINGS_IN_HAND.
         {
             SCRPTERRLOG("Game Rule '%s' value %d out of range, max %d.", rulename, ruleval, MAX_THINGS_IN_HAND);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
         break;
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 7:
-    case 8:
-    case 22:
+    case 2: //PrisonSkeletonChance
+    case 3: //GhostConvertChance
+    case 4: //TortureConvertChance
+    case 5: //TortureDeathChance
+    case 7: //StunEvilEnemyChance
+    case 8: //StunGoodEnemyChance
+    case 22: //DiseaseHPTemplePercentage
         if ((ruleval < 0) || (ruleval > 100))
         {
             SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
@@ -4896,26 +4896,26 @@ static void set_game_rule_check(const struct ScriptLine* scline)
             return;
         }
         break;
-    case 6:
-    case 9:
-    case 13:
-    case 14:
-    case 15:
-    case 16:
-    case 17:
-    case 18:
-    case 19:
-    case 20:
-    case 21:
-    case 25:
-    case 28:
-    case 29:
-    case 30:
-    case 31:
-    case 34:
-    case 35:
-    case 36:
-    case 37:
+    case 6: //FoodGenerationSpeed
+    case 9: //BodyRemainsFor
+    case 13: //ImpWorkExperience
+    case 14: //GemEffectiveness
+    case 15: //RoomSellGoldBackPercent
+    case 16: //DoorSellValuePercent
+    case 17: //TrapSellValuePercent
+    case 18: //PayDayGap
+    case 19: //PayDaySpeed
+    case 20: //PayDayProgress
+    case 21: //PlaceTrapsOnSubtiles
+    case 25: //GameTurnsPerHungerHealthLoss
+    case 28: //GameTurnsPerTortureHealthLoss
+    case 29: //AlliesShareVision
+    case 30: //AlliesShareDrop
+    case 31: //AlliesShareCta
+    case 34: //TrainingRoomMaxLevel
+    case 35: //TorturePayday
+    case 36: //TortureTrainingCost
+    case 37: //TortureScavengingCost
         if (ruleval < 0)
         {
             SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
@@ -4929,7 +4929,6 @@ static void set_game_rule_check(const struct ScriptLine* scline)
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-
     value->shorts[0] = ruledesc;
     value->arg1 = scline->np[1];
     PROCESS_SCRIPT_VALUE(scline->command);
@@ -5121,7 +5120,6 @@ static void set_increase_on_experience_process(struct ScriptContext* context)
   #if (BFDEBUG_LEVEL >= 7)
     const char *varname = on_experience_desc[variable - 1].name;
   #endif
-
     switch (variable)
     {
     case 1: //SizeIncreaseOnExp
