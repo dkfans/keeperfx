@@ -5087,7 +5087,7 @@ static void set_game_rule_process(struct ScriptContext* context)
         game.conf.rules.game.torture_scavenging_cost = rulevalue;
         break;
     default:
-        WARNMSG("Unsupported Game Rule, command %d.", context->value->shorts[0]);
+        WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
         break;
     }
 }
