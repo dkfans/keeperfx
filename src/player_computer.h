@@ -125,6 +125,7 @@ enum GameActionTypes {
     GA_UsePwrHoldAudnc,
     GA_UsePwrDisease,
     GA_UsePwrChicken,
+    GA_UsePwrFreeze,
     GA_Unk27,
     GA_UsePwrSlap,
     GA_SellTrap,

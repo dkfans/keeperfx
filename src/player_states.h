@@ -61,7 +61,7 @@ enum PlayerStates {
     PSt_DestroyWalls, // 25
     PSt_CastDisease,
     PSt_TurnChicken,
-    PSt_MkGoldPot, // 28
+    PSt_MkGoldPot,
     PSt_TimeBomb,
     PSt_FreeDestroyWalls, // 30
     PSt_FreeCastDisease,
@@ -84,6 +84,7 @@ enum PlayerStates {
     PSt_DestroyThing,
     PSt_CreatrInfoAll,
     PSt_Rebound, // 50
+    PSt_Freeze,
     PSt_ListEnd
 };
 

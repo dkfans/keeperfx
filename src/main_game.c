@@ -28,6 +28,7 @@
 #include "engine_textures.h"
 #include "frontend.h"
 #include "frontmenu_ingame_tabs.h"
+#include "frontmenu_ingame_map.h"
 #include "game_heap.h"
 #include "game_legacy.h"
 #include "game_merge.h"
@@ -164,6 +165,7 @@ static void init_level(void)
 
     erstats_clear();
     init_dungeons();
+    setup_panel_colors();
     init_map_size(get_selected_level_number());
     clear_messages();
     init_seeds();
