@@ -263,7 +263,7 @@ const struct NamedCommand room_config_desc[] = {
 };
 
 
-static const struct *NamedField ruleblocks[] = {rules_rooms_named_fields,rules_magic_named_fields};
+static const struct NamedField* ruleblocks[] = {rules_rooms_named_fields,rules_magic_named_fields};
 static const struct NamedCommand game_rule_desc[] = {
   {"StunEvilEnemyChance",            7},
   {"StunGoodEnemyChance",            8},
@@ -4840,19 +4840,19 @@ static void set_game_rule_check(const struct ScriptLine* scline)
 
     for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
     {
-        long ruledesc = get_named_field_id(*ruleblocks[i], scline->tp[0]);
+        ruledesc = get_named_field_id(ruleblocks[i], scline->tp[0]);
         if (ruledesc != -1)
         {
             rulegroup = i;
-            if (ruleval < &ruleblocks[i].min)
+            if (ruleval < (ruleblocks[i]+ruledesc)->min)
             {
-                ruleval = &ruleblocks[i].min;
-                SCRPTERRLOG("Game Rule '%s' value %d is smaller then minimum of %d", scline->tp[0], ruleval,ruleblocks[i].min);
+                ruleval = (ruleblocks[i]+ruledesc)->min;
+                SCRPTERRLOG("Game Rule '%s' value %d is smaller then minimum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
             }
-            else if(ruleval > &ruleblocks[i].max)
+            else if(ruleval > (ruleblocks[i]+ruledesc)->max)
             {
-                ruleval = &ruleblocks[i].max;
-                SCRPTERRLOG("Game Rule '%s' value %d is bigger then maximum of %d", scline->tp[0], ruleval,ruleblocks[i].max);
+                ruleval = (ruleblocks[i]+ruledesc)->max;
+                SCRPTERRLOG("Game Rule '%s' value %d is bigger then maximum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
             }
             break;
         }
@@ -4946,55 +4946,55 @@ static void set_game_rule_process(struct ScriptContext* context)
 
     if(rulegroup != -1)
     {
-        ruleblocks[rulegroup].
-                switch (commands[i].type)
-                {
-                case dt_uchar:
-                    *(unsigned char*)commands[i].field = k;
-                    break;
-                case dt_schar:
-                    *(signed char*)commands[i].field = k;
-                    break;
-                case dt_short:
-                    *(signed short*)commands[i].field = k;
-                    break;
-                case dt_ushort:
-                    *(unsigned short*)commands[i].field = k;
-                    break;
-                case dt_int:
-                    *(signed int*)commands[i].field = k;
-                    break;
-                case dt_uint:
-                    *(unsigned int*)commands[i].field = k;
-                    break;
-                case dt_long:
-                    *(signed long*)commands[i].field = k;
-                    break;
-                case dt_ulong:
-                    *(unsigned long*)commands[i].field = k;
-                    break;
-                case dt_longlong:
-                    *(signed long long*)commands[i].field = k;
-                    break;
-                case dt_ulonglong:
-                    *(unsigned long long*)commands[i].field = k;
-                    break;
-                case dt_float:
-                    *(float*)commands[i].field = k;
-                    break;
-                case dt_double:
-                    *(double*)commands[i].field = k;
-                    break;
-                case dt_longdouble:
-                    *(long double*)commands[i].field = k;
-                    break;
-                case dt_default:
-                case dt_void:
-                default:
-                    ERRORLOG("unexpected datatype for field %s",commands[i].name);
-                    return ccr_error;
-                    break;
-                }
+        int8_t type = (ruleblocks[rulegroup]+ruledesc)->type;
+        switch (type)
+        {
+        case dt_uchar:
+            *(unsigned char*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_schar:
+            *(signed char*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_short:
+            *(signed short*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_ushort:
+            *(unsigned short*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_int:
+            *(signed int*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_uint:
+            *(unsigned int*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_long:
+            *(signed long*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_ulong:
+            *(unsigned long*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_longlong:
+            *(signed long long*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_ulonglong:
+            *(unsigned long long*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_float:
+            *(float*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_double:
+            *(double*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_longdouble:
+            *(long double*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
+            break;
+        case dt_default:
+        case dt_void:
+        default:
+            ERRORLOG("unexpected datatype for field %s",(ruleblocks[rulegroup]+ruledesc)->name);
+            return ccr_error;
+            break;
+        }
     }
 
 

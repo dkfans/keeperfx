@@ -156,12 +156,12 @@ const struct NamedField rules_magic_named_fields[] = {
 const struct NamedField rules_rooms_named_fields[] = {
     //name                                //field                                                  //field type                                                     //min    //max  
   {"SCAVENGECOSTFREQUENCY",               &game.conf.rules.rooms.scavenge_cost_frequency,         var_type(game.conf.rules.rooms.scavenge_cost_frequency         ),LONG_MIN, LONG_MAX},
-  {"TEMPLESCAVENGEPROTECTIONTIME",        &game.conf.rules.rooms.temple_scavenge_protection_turns var_type(game.conf.rules.rooms.temple_scavenge_protection_turns),       0,ULONG_MAX},
+  {"TEMPLESCAVENGEPROTECTIONTIME",        &game.conf.rules.rooms.temple_scavenge_protection_turns,var_type(game.conf.rules.rooms.temple_scavenge_protection_turns),       0,ULONG_MAX},
   {"TRAINCOSTFREQUENCY",                  &game.conf.rules.rooms.train_cost_frequency,            var_type(game.conf.rules.rooms.train_cost_frequency            ),LONG_MIN, LONG_MAX},
   {"TORTURECONVERTCHANCE",                &game.conf.rules.rooms.torture_convert_chance,          var_type(game.conf.rules.rooms.torture_convert_chance          ),       0,      100},
   {"TIMESPENTINPRISONWITHOUTBREAK",       &game.conf.rules.rooms.time_in_prison_without_break,    var_type(game.conf.rules.rooms.time_in_prison_without_break    ),       0,ULONG_MAX},
   {"GHOSTCONVERTCHANCE",                  &game.conf.rules.rooms.ghost_convert_chance,            var_type(game.conf.rules.rooms.ghost_convert_chance            ),       0,      100},
-  {"DEFAULTGENERATESPEED",                &game.conf.rules.rooms.default_generate_speed,          var_type(game.conf.rules.rooms.default_generate_speed,         ),       0,USHRT_MAX},
+  {"DEFAULTGENERATESPEED",                &game.conf.rules.rooms.default_generate_speed,          var_type(game.conf.rules.rooms.default_generate_speed          ),       0,USHRT_MAX},
   {"DEFAULTMAXCREATURESGENERATEENTRANCE", &game.conf.rules.rooms.default_max_crtrs_gen_entrance,  var_type(game.conf.rules.rooms.default_max_crtrs_gen_entrance  ),       0,ULONG_MAX},
   {"FOODGENERATIONSPEED",                 &game.conf.rules.rooms.food_generation_speed,           var_type(game.conf.rules.rooms.food_generation_speed           ),LONG_MIN, LONG_MAX},
   {"PRISONSKELETONCHANCE",                &game.conf.rules.rooms.prison_skeleton_chance,          var_type(game.conf.rules.rooms.prison_skeleton_chance          ),       0,      100},
