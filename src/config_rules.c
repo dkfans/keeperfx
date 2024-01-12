@@ -146,7 +146,6 @@ const struct NamedField rules_magic_named_fields[] = {
   {"MINDISTANCEFORTELEPORT",        &game.conf.rules.magic.min_distance_for_teleport,        var_type(game.conf.rules.magic.min_distance_for_teleport        ),LONG_MIN,LONG_MAX},
   {"COLLAPSEDUNGEONDAMAGE",         &game.conf.rules.magic.collapse_dungeon_damage,          var_type(game.conf.rules.magic.collapse_dungeon_damage          ),LONG_MIN,LONG_MAX},
   {"TURNSPERCOLLAPSEDUNGEONDAMAGE", &game.conf.rules.magic.turns_per_collapse_dngn_dmg,      var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg      ),LONG_MIN,LONG_MAX},
-  //{"DEFAULTSACRIFICESCOREFORHORNY", &game.conf.rules.magic.,                               var_type( &game.conf.rules.magic.,                              ),LONG_MIN,LONG_MAX},
   {"POWERHANDGOLDGRABAMOUNT",       &game.conf.rules.magic.power_hand_gold_grab_amount,      var_type(game.conf.rules.magic.power_hand_gold_grab_amount      ),LONG_MIN,LONG_MAX},
   {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_permil, var_type(game.conf.rules.magic.friendly_fight_area_range_permil ),LONG_MIN,LONG_MAX},
   {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_permil,var_type(game.conf.rules.magic.friendly_fight_area_damage_permil),LONG_MIN,LONG_MAX},
@@ -1123,7 +1122,6 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
           WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
       return false;
   }
-
   while (pos<len)
   {
         // Finding command number in this line
@@ -1135,7 +1133,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
         }
         else if( assignresult == ccr_unrecognised)
         {
-            //if fields weren't simple assigns they could be handled here trough recognize_conf_command and rules_magic_commands
+            //if fields weren't simple assigns they could be handled here trough recognize_conf_command and a rules_magic_commands NamedCommand
             skip_conf_to_next_line(buf,&pos,len);
             continue;
         }
@@ -1192,7 +1190,7 @@ TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname
         }
         else if( assignresult == ccr_unrecognised)
         {
-            //if fields weren't simple assigns they could be handled here trough recognize_conf_command and rules_magic_commands
+            //if fields weren't simple assigns they could be handled here trough recognize_conf_command and a rules_room_commands NamedCommand
             skip_conf_to_next_line(buf,&pos,len);
             continue;
         }
