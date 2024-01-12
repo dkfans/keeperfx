@@ -262,6 +262,47 @@ const struct NamedCommand room_config_desc[] = {
   {NULL,                   0},
 };
 
+const struct NamedCommand game_rule_desc[] = {
+  {"BodiesForVampire",               1},
+  {"PrisonSkeletonChance",           2},
+  {"GhostConvertChance",             3},
+  {"TortureConvertChance",           4},
+  {"TortureDeathChance",             5},
+  {"FoodGenerationSpeed",            6},
+  {"StunEvilEnemyChance",            7},
+  {"StunGoodEnemyChance",            8},
+  {"BodyRemainsFor",                 9},
+  {"FightHateKillValue",            10},
+  {"PreserveClassicBugs",           11},
+  {"DungeonHeartHealHealth",        12},
+  {"ImpWorkExperience",             13},
+  {"GemEffectiveness",              14},
+  {"RoomSellGoldBackPercent",       15},
+  {"DoorSellValuePercent",          16},
+  {"TrapSellValuePercent",          17},
+  {"PayDayGap",                     18},
+  {"PayDaySpeed",                   19},
+  {"PayDayProgress",                20},
+  {"PlaceTrapsOnSubtiles",          21},
+  {"DiseaseHPTemplePercentage",     22},
+  {"DungeonHeartHealth",            23},
+  {"HungerHealthLoss",              24},
+  {"GameTurnsPerHungerHealthLoss",  25},
+  {"FoodHealthGain",                26},
+  {"TortureHealthLoss",             27},
+  {"GameTurnsPerTortureHealthLoss", 28},
+  {"AlliesShareVision",             29},
+  {"AlliesShareDrop",               30},
+  {"AlliesShareCta",                31},
+  {"BarrackMaxPartySize",           32},
+  {"MaxThingsInHand",               33},
+  {"TrainingRoomMaxLevel",          34},
+  {"TorturePayday",                 35},
+  {"TortureTrainingCost",           36},
+  {"TortureScavengingCost",         37},
+  {NULL,                             0},
+};
+
 const struct NamedCommand on_experience_desc[] = {
   {"SizeIncreaseOnExp",            1},
   {"PayIncreaseOnExp",             2},
@@ -4795,6 +4836,264 @@ static void set_player_color_process(struct ScriptContext *context)
     }  
 }
 
+static void set_game_rule_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long ruledesc = get_id(game_rule_desc, scline->tp[0]);
+    long ruleval = scline->np[1];
+    const char *rulename = game_rule_desc[ruledesc - 1].name;
+    if (ruledesc == -1)
+    {
+        SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    switch (ruledesc)
+    {
+    case 1: //BodiesForVampire
+        if ((ruleval < 0) || (ruleval > UCHAR_MAX))
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        break;
+    case 11: //PreserveClassicBugs
+        if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        break;
+    case 32: //BarrackMaxPartySize
+        if ((ruleval < 0) || (ruleval > GROUP_MEMBERS_COUNT)) // No more than 30 barracks party members, defined with GROUP_MEMBERS_COUNT.
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range, max %d.", rulename, ruleval, GROUP_MEMBERS_COUNT);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        break;
+    case 33: //MaxThingsInHand
+        if ((ruleval < 0) || (ruleval > MAX_THINGS_IN_HAND)) // No more than 64 things in hand, defined with MAX_THINGS_IN_HAND.
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range, max %d.", rulename, ruleval, MAX_THINGS_IN_HAND);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        break;
+    case 2: //PrisonSkeletonChance
+    case 3: //GhostConvertChance
+    case 4: //TortureConvertChance
+    case 5: //TortureDeathChance
+    case 7: //StunEvilEnemyChance
+    case 8: //StunGoodEnemyChance
+    case 22: //DiseaseHPTemplePercentage
+        if ((ruleval < 0) || (ruleval > 100))
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        break;
+    case 6: //FoodGenerationSpeed
+    case 9: //BodyRemainsFor
+    case 13: //ImpWorkExperience
+    case 14: //GemEffectiveness
+    case 15: //RoomSellGoldBackPercent
+    case 16: //DoorSellValuePercent
+    case 17: //TrapSellValuePercent
+    case 18: //PayDayGap
+    case 19: //PayDaySpeed
+    case 20: //PayDayProgress
+    case 21: //PlaceTrapsOnSubtiles
+    case 25: //GameTurnsPerHungerHealthLoss
+    case 28: //GameTurnsPerTortureHealthLoss
+    case 29: //AlliesShareVision
+    case 30: //AlliesShareDrop
+    case 31: //AlliesShareCta
+    case 34: //TrainingRoomMaxLevel
+    case 35: //TorturePayday
+    case 36: //TortureTrainingCost
+    case 37: //TortureScavengingCost
+        if (ruleval < 0)
+        {
+            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        break;
+    case 23: //DungeonHeartHealth
+    default:
+        WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = ruledesc;
+    value->arg1 = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_game_rule_process(struct ScriptContext* context)
+{
+    short ruledesc = context->value->shorts[0];
+    long rulevalue = context->value->arg1;
+  #if (BFDEBUG_LEVEL >= 7)
+    const char *rulename = game_rule_desc[ruledesc - 1].name;
+  #endif
+    switch (ruledesc)
+    {
+    case 1: //BodiesForVampire
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.bodies_for_vampire, rulevalue);
+        game.conf.rules.rooms.bodies_for_vampire = rulevalue;
+        break;
+    case 2: //PrisonSkeletonChance
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.prison_skeleton_chance, rulevalue);
+        game.conf.rules.rooms.prison_skeleton_chance = rulevalue;
+        break;
+    case 3: //GhostConvertChance
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.ghost_convert_chance, rulevalue);
+        game.conf.rules.rooms.ghost_convert_chance = rulevalue;
+        break;
+    case 4: //TortureConvertChance
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.torture_convert_chance, rulevalue);
+        game.conf.rules.rooms.torture_convert_chance = rulevalue;
+        break;
+    case 5: //TortureDeathChance
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.torture_death_chance, rulevalue);
+        game.conf.rules.rooms.torture_death_chance = rulevalue;
+        break;
+    case 6: //FoodGenerationSpeed
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.food_generation_speed, rulevalue);
+        game.conf.rules.rooms.food_generation_speed = rulevalue;
+        break;
+    case 7: //StunEvilEnemyChance
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.stun_enemy_chance_evil, rulevalue);
+        game.conf.rules.creature.stun_enemy_chance_evil = rulevalue;
+        break;
+    case 8: //StunGoodEnemyChance
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.stun_enemy_chance_good, rulevalue);
+        game.conf.rules.creature.stun_enemy_chance_good = rulevalue;
+        break;
+    case 9: //BodyRemainsFor
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.body_remains_for, rulevalue);
+        game.conf.rules.creature.body_remains_for = rulevalue;
+        break;
+    case 10: //FightHateKillValue
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.fight_hate_kill_value, rulevalue);
+        game.conf.rules.creature.fight_hate_kill_value = rulevalue;
+        break;
+    case 11: //PreserveClassicBugs
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
+        game.conf.rules.game.classic_bugs_flags = rulevalue;
+        break;
+    case 12: //DungeonHeartHealHealth
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.dungeon_heart_heal_health, rulevalue);
+        game.conf.rules.game.dungeon_heart_heal_health = rulevalue;
+        break;
+    case 13: //ImpWorkExperience
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.workers.digger_work_experience, rulevalue);
+        game.conf.rules.workers.digger_work_experience = rulevalue;
+        break;
+    case 14: //GemEffectiveness
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.gem_effectiveness, rulevalue);
+        game.conf.rules.game.gem_effectiveness = rulevalue;
+        break;
+    case 15: //RoomSellGoldBackPercent
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.room_sale_percent, rulevalue);
+        game.conf.rules.game.room_sale_percent = rulevalue;
+        break;
+    case 16: //DoorSellGoldBackPercent
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.door_sale_percent, rulevalue);
+        game.conf.rules.game.door_sale_percent = rulevalue;
+        break;
+    case 17: //TrapSellGoldBackPercent
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.trap_sale_percent, rulevalue);
+        game.conf.rules.game.trap_sale_percent = rulevalue;
+        break;
+    case 18: //PayDayGap
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.pay_day_gap, rulevalue);
+        game.conf.rules.game.pay_day_gap = rulevalue;
+        break;
+    case 19: //PayDaySpeed
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.pay_day_speed, rulevalue);
+        game.conf.rules.game.pay_day_speed = rulevalue;
+        break;
+    case 20: //PayDayProgress
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.pay_day_progress, rulevalue);
+        game.pay_day_progress = rulevalue;
+        break;
+    case 21: //PlaceTrapsOnSubtiles
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.place_traps_on_subtiles, rulevalue);
+        game.conf.rules.game.place_traps_on_subtiles = (TbBool)rulevalue;
+        break;
+    case 22: //DiseaseHPTemplePercentage
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.computer.disease_to_temple_pct, rulevalue);
+        game.conf.rules.computer.disease_to_temple_pct = rulevalue;
+        break;
+    case 24: //HungerHealthLoss
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.hunger_health_loss, rulevalue);
+        game.conf.rules.health.hunger_health_loss = rulevalue;
+        break;
+    case 25: //GameTurnsPerHungerHealthLoss
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.turns_per_hunger_health_loss, rulevalue);
+        game.conf.rules.health.turns_per_hunger_health_loss = rulevalue;
+        break;
+    case 26: //FoodHealthGain
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.food_health_gain, rulevalue);
+        game.conf.rules.health.food_health_gain = rulevalue;
+        break;
+    case 27: //TortureHealthLoss
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.torture_health_loss, rulevalue);
+        game.conf.rules.health.torture_health_loss = rulevalue;
+        break;
+    case 28: //GameTurnsPerTortureHealthLoss
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.turns_per_torture_health_loss, rulevalue);
+        game.conf.rules.health.turns_per_torture_health_loss = rulevalue;
+        break;
+    case 29: //AlliesShareVision
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
+        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
+        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+        break;
+    case 30: //AlliesShareDrop
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_drop, rulevalue);
+        game.conf.rules.game.allies_share_drop = (TbBool)rulevalue;
+        break;
+    case 31: //AlliesShareCta
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_cta, rulevalue);
+        game.conf.rules.game.allies_share_cta = (TbBool)rulevalue;
+        break;
+    case 32: //BarrackMaxPartySize
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.barrack_max_party_size, rulevalue);
+        game.conf.rules.rooms.barrack_max_party_size = rulevalue;
+        break;
+    case 33: //MaxThingsInHand
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.max_things_in_hand, rulevalue);
+        game.conf.rules.game.max_things_in_hand = rulevalue;
+        break;
+    case 34: //TrainingRoomMaxLevel
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.training_room_max_level, rulevalue);
+        game.conf.rules.rooms.training_room_max_level = rulevalue;
+        break;
+    case 35: //TorturePayday
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.torture_payday, rulevalue);
+        game.conf.rules.game.torture_payday = rulevalue;
+        break;
+    case 36: //TortureTrainingCost
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.torture_training_cost, rulevalue);
+        game.conf.rules.game.torture_training_cost = rulevalue;
+        break;
+    case 37: //TortureScavengingCost
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.torture_scavenging_cost, rulevalue);
+        game.conf.rules.game.torture_scavenging_cost = rulevalue;
+        break;
+    default:
+        WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
+        break;
+    }
+}
+
 static void set_increase_on_experience_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
@@ -4819,58 +5118,61 @@ static void set_increase_on_experience_check(const struct ScriptLine* scline)
 static void set_increase_on_experience_process(struct ScriptContext* context)
 {
     short variable = context->value->shorts[0];
+  #if (BFDEBUG_LEVEL >= 7)
+    const char *varname = on_experience_desc[variable - 1].name;
+  #endif
     switch (variable)
     {
     case 1: //SizeIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.size_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.size_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.size_increase_on_exp = context->value->shorts[1];
         break;
     case 2: //PayIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.pay_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.pay_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.pay_increase_on_exp = context->value->shorts[1];
         break;
     case 3: //SpellDamageIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.spell_damage_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.spell_damage_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.spell_damage_increase_on_exp = context->value->shorts[1];
         break;
     case 4: //RangeIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.range_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.range_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.range_increase_on_exp = context->value->shorts[1];
         break;
     case 5: //JobValueIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.job_value_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.job_value_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.job_value_increase_on_exp = context->value->shorts[1];
         break;
     case 6: //HealthIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.health_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.health_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.health_increase_on_exp = context->value->shorts[1];
         break;
     case 7: //StrengthIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.strength_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.strength_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.strength_increase_on_exp = context->value->shorts[1];
         break;
     case 8: //DexterityIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.dexterity_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.dexterity_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.dexterity_increase_on_exp = context->value->shorts[1];
         break;
     case 9: //DefenseIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.defense_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.defense_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.defense_increase_on_exp = context->value->shorts[1];
         break;
     case 10: //LoyaltyIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.loyalty_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.loyalty_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.loyalty_increase_on_exp = context->value->shorts[1];
         break;
     case 11: //ExpForHittingIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = context->value->shorts[1];
         break;
     case 12: //TrainingCostIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.training_cost_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.training_cost_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.training_cost_increase_on_exp = context->value->shorts[1];
         break;
     case 13: //ScavengingCostIncreaseOnExp
-        SCRIPTDBG(7,"Changing variable %s from %d to %d.", on_experience_desc[variable].name, game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp, context->value->shorts[1]);
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp, context->value->shorts[1]);
         game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = context->value->shorts[1];
         break;
     default:
@@ -4977,7 +5279,7 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
-  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
+  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
   {"SET_ROOM_CONFIGURATION",            "AAAa!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
