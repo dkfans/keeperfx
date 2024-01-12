@@ -775,6 +775,22 @@ const char *get_language_lwrstr(int lang_id)
 }
 
 /**
+ * Returns ID of given item using NamedField list.
+ * If not found, returns -1.
+ */
+long get_named_field_id(const struct NamedField *desc, const char *itmname)
+{
+  if ((desc == NULL) || (itmname == NULL))
+    return -1;
+  for (long i = 0; desc[i].name != NULL; i++)
+  {
+    if (strcasecmp(desc[i].name, itmname) == 0)
+      return i;
+  }
+  return -1;
+}
+
+/**
  * Returns ID of given item using NamedCommands list.
  * Similar to recognize_conf_parameter(), but for use only if the buffer stores
  * one word, ended with "\0".
