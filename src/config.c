@@ -435,6 +435,59 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
     return ccr_unrecognised;
 }
 
+int assign_named_field_value(const struct NamedField* named_field, int64_t value)
+{
+    switch (named_field->type)
+    {
+    case dt_uchar:
+        *(unsigned char*)named_field->field = value;
+        break;
+    case dt_schar:
+        *(signed char*)named_field->field = value;
+        break;
+    case dt_short:
+        *(signed short*)named_field->field = value;
+        break;
+    case dt_ushort:
+        *(unsigned short*)named_field->field = value;
+        break;
+    case dt_int:
+        *(signed int*)named_field->field = value;
+        break;
+    case dt_uint:
+        *(unsigned int*)named_field->field = value;
+        break;
+    case dt_long:
+        *(signed long*)named_field->field = value;
+        break;
+    case dt_ulong:
+        *(unsigned long*)named_field->field = value;
+        break;
+    case dt_longlong:
+        *(signed long long*)named_field->field = value;
+        break;
+    case dt_ulonglong:
+        *(unsigned long long*)named_field->field = value;
+        break;
+    case dt_float:
+        *(float*)named_field->field = value;
+        break;
+    case dt_double:
+        *(double*)named_field->field = value;
+        break;
+    case dt_longdouble:
+        *(long double*)named_field->field = value;
+        break;
+    case dt_default:
+    case dt_void:
+    default:
+        ERRORLOG("unexpected datatype for field %s",named_field->name);
+        return ccr_error;
+        break;
+    }
+    return ccr_ok;
+}
+
 /**
  * Recognizes config command and returns its number, or negative status code.
  * @param buf
@@ -514,55 +567,7 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                     k = commands[i].max;
                 }
                 
-                switch (commands[i].type)
-                {
-                case dt_uchar:
-                    *(unsigned char*)commands[i].field = k;
-                    break;
-                case dt_schar:
-                    *(signed char*)commands[i].field = k;
-                    break;
-                case dt_short:
-                    *(signed short*)commands[i].field = k;
-                    break;
-                case dt_ushort:
-                    *(unsigned short*)commands[i].field = k;
-                    break;
-                case dt_int:
-                    *(signed int*)commands[i].field = k;
-                    break;
-                case dt_uint:
-                    *(unsigned int*)commands[i].field = k;
-                    break;
-                case dt_long:
-                    *(signed long*)commands[i].field = k;
-                    break;
-                case dt_ulong:
-                    *(unsigned long*)commands[i].field = k;
-                    break;
-                case dt_longlong:
-                    *(signed long long*)commands[i].field = k;
-                    break;
-                case dt_ulonglong:
-                    *(unsigned long long*)commands[i].field = k;
-                    break;
-                case dt_float:
-                    *(float*)commands[i].field = k;
-                    break;
-                case dt_double:
-                    *(double*)commands[i].field = k;
-                    break;
-                case dt_longdouble:
-                    *(long double*)commands[i].field = k;
-                    break;
-                case dt_default:
-                case dt_void:
-                default:
-                    ERRORLOG("unexpected datatype for field %s",commands[i].name);
-                    return ccr_error;
-                    break;
-                }
-                return ccr_ok;
+                return assign_named_field_value(&commands[i],k);
             }
         }
         i++;

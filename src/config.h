@@ -334,6 +334,7 @@ int get_conf_list_int(const char *buf, const char **state, int *dst);
 
 int recognize_conf_parameter(const char *buf,long *pos,long buflen,const struct NamedCommand *commands);
 int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField *commands);
+int assign_named_field_value(const struct NamedField* named_field, int64_t value);
 const char *get_conf_parameter_text(const struct NamedCommand commands[],int num);
 long get_named_field_id(const struct NamedField *desc, const char *itmname);
 long get_id(const struct NamedCommand *desc, const char *itmname);

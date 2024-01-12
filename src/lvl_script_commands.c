@@ -4946,54 +4946,8 @@ static void set_game_rule_process(struct ScriptContext* context)
 
     if(rulegroup != -1)
     {
-        int8_t type = (ruleblocks[rulegroup]+ruledesc)->type;
-        switch (type)
-        {
-        case dt_uchar:
-            *(unsigned char*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_schar:
-            *(signed char*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_short:
-            *(signed short*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_ushort:
-            *(unsigned short*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_int:
-            *(signed int*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_uint:
-            *(unsigned int*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_long:
-            *(signed long*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_ulong:
-            *(unsigned long*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_longlong:
-            *(signed long long*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_ulonglong:
-            *(unsigned long long*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_float:
-            *(float*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_double:
-            *(double*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_longdouble:
-            *(long double*)(ruleblocks[rulegroup]+ruledesc)->field = rulevalue;
-            break;
-        case dt_default:
-        case dt_void:
-        default:
-            ERRORLOG("unexpected datatype for field %s",(ruleblocks[rulegroup]+ruledesc)->name);
-            break;
-        }
+        assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
+        return;
     }
 
 
