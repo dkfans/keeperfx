@@ -368,6 +368,17 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
   return -1;
 }
 
+enum confCommandResults
+{
+    ccr_comment = 0,
+    ccr_ok = 1,
+    ccr_endOfFile = -1,
+    ccr_unrecognised = -2,
+    ccr_endOfBlock = -3,
+    ccr_error = -4,
+};
+
+
 /**
  * Recognizes config command and returns its number, or negative status code.
  * @param buf
@@ -375,27 +386,27 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
  * @param buflen
  * @param commands
  * @return If positive integer is returned, it is the command number recognized in the line.
- * If 0 is returned, that means the current line did not contained any command and should be skipped.
- * If -1 is returned, that means we've reached end of file.
- * If -2 is returned, that means the command wasn't recognized.
- * If -3 is returned, that means we've reached end of the INI block.
+ * If ccr_comment      is returned, that means the current line did not contained any command and should be skipped.
+ * If ccr_endOfFile    is returned, that means we've reached end of file.
+ * If ccr_unrecognised is returned, that means the command wasn't recognized.
+ * If ccr_endOfBlock   is returned, that means we've reached end of the INI block.
  */
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
 {
     SYNCDBG(19,"Starting");
-    if ((*pos) >= buflen) return -1;
+    if ((*pos) >= buflen) return ccr_endOfFile;
     // Skipping starting spaces
     while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
     {
         (*pos)++;
-        if ((*pos) >= buflen) return -1;
+        if ((*pos) >= buflen) return ccr_endOfFile;
     }
     // Checking if this line is a comment
     if (buf[*pos] == ';')
-        return 0;
+        return ccr_comment;
     // Checking if this line is start of a block
     if (buf[*pos] == '[')
-        return -3;
+        return ccr_endOfBlock;
     // Finding command number
     int i = 0;
     while (commands[i].num > 0)
@@ -432,7 +443,7 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
         }
         i++;
     }
-    return -2;
+    return ccr_unrecognised;
 }
 
 /**
@@ -441,12 +452,14 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
  * @param pos
  * @param buflen
  * @param commands
- * @return If positive integer is returned, it is the command number recognized in the line.
- * If 0 is returned, that means the current line did not contained any command and should be skipped.
- * If -1 is returned, that means we've reached end of file.
- * If -2 is returned, that means the command wasn't recognized.
- * If -3 is returned, that means we've reached end of the INI block.
+ * @return If ccr_ok is returned the field has been correctly assigned
+ * If ccr_comment      is returned, that means the current line did not contained any command and should be skipped.
+ * If ccr_endOfFile    is returned, that means we've reached end of file.
+ * If ccr_unrecognised is returned, that means the command wasn't recognized.
+ * If ccr_endOfBlock   is returned, that means we've reached end of the INI block.
+ * If ccr_error        is returned, that means something went wrong.
  */
+
 int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField commands[])
 {
     SYNCDBG(19,"Starting");
@@ -459,10 +472,10 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
     }
     // Checking if this line is a comment
     if (buf[*pos] == ';')
-        return 0;
+        return ccr_comment;
     // Checking if this line is start of a block
     if (buf[*pos] == '[')
-        return -3;
+        return ccr_endOfBlock;
     // Finding command number
     int i = 0;
     while (commands[i].name != NULL)
@@ -546,15 +559,15 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
                 case dt_void:
                 default:
                     ERRORLOG("unexpected datatype for field %s",commands[i].name);
-                    return -1;
+                    return ccr_error;
                     break;
                 }
-                return 1;
+                return ccr_ok;
             }
         }
         i++;
     }
-    return -2;
+    return ccr_unrecognised;
 }
 
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen)

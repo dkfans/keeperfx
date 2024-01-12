@@ -152,6 +152,16 @@ enum TbConfigLoadFlags {
 
 /******************************************************************************/
 
+enum confCommandResults
+{
+    ccr_comment = 0,
+    ccr_ok = 1,
+    ccr_endOfFile = -1,
+    ccr_unrecognised = -2,
+    ccr_endOfBlock = -3,
+    ccr_error = -4,
+};
+
 enum dataTypes
 {
     dt_default,

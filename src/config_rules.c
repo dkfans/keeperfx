@@ -132,7 +132,7 @@ const struct NamedCommand rules_creatures_commands[] = {
 
 
 
-const struct NamedField rules_magic_commands[] = {
+const struct NamedField rules_magic_named_fields[] = {
   {"HOLDAUDIENCETIME",              &game.conf.rules.magic.hold_audience_time,               var_type(game.conf.rules.magic.hold_audience_time)},
   {"ARMAGEDONTELEPORTYOURTIMEGAP",  &game.conf.rules.magic.armagedon_teleport_your_time_gap, var_type(game.conf.rules.magic.armagedon_teleport_your_time_gap)},
   {"ARMAGEDONTELEPORTENEMYTIMEGAP", &game.conf.rules.magic.armagedon_teleport_enemy_time_gap,var_type(game.conf.rules.magic.armagedon_teleport_enemy_time_gap)},
@@ -1130,33 +1130,24 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
   while (pos<len)
   {
         // Finding command number in this line
-        int assignresult = assign_conf_command_field(buf, &pos, len, rules_magic_commands);
-        if( assignresult == 1)
+        int assignresult = assign_conf_command_field(buf, &pos, len, rules_magic_named_fields);
+        if( assignresult == ccr_ok || assignresult == ccr_comment )
         {
             skip_conf_to_next_line(buf,&pos,len);
             continue;
         }
-        else if( assignresult == -3)
+        else if( assignresult == ccr_unrecognised)
         {
-            break; // if next block starts
+            //if fields weren't simple assigns they could be handled here
+            skip_conf_to_next_line(buf,&pos,len);
+            continue;
         }
-        // non simple field params would be handled here
-/*
-        int cmd_num = recognize_conf_command(buf, &pos, len, rules_magic_commands);
-
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        int n = 0;
-        char word_buf[COMMAND_WORD_LEN];
-        switch (cmd_num)
+        else if( assignresult == ccr_endOfBlock || assignresult == ccr_error || assignresult == ccr_endOfFile)
         {
-        
+            break;
         }
-        */
-        skip_conf_to_next_line(buf,&pos,len);
   }
 
-  
   return true;
 }
 
