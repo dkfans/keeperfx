@@ -407,11 +407,7 @@ short get_packet_load_game_control_inputs(void)
   if (is_key_pressed(KC_T,KMod_ALT))
   {
     clear_key_pressed(KC_T);
-    close_packet_file();
-    game.packet_load_enable = false;
-    game.packet_save_enable = false;
-    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
-    set_gui_visible(true);
+    disable_packet_mode();
     return true;
   }
   return false;
@@ -629,6 +625,15 @@ short get_global_inputs(void)
         set_packet_pause_toggle();
         clear_key_pressed(keycode);
         return true;
+      }
+      else if( flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
+      {
+        if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+        {
+            game.frame_step = true;
+            set_packet_pause_toggle();
+            clear_key_pressed(KC_PERIOD);
+        }
       }
   }
   if ((game.operation_flags & GOF_Paused) != 0)
@@ -2476,7 +2481,16 @@ short get_inputs(void)
             {
                 lbKeyOn[keycode] = 0;
                 set_packet_pause_toggle();
-          }
+            }
+            else if( flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
+            {
+                if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+                {
+                    game.frame_step = true;
+                    set_packet_pause_toggle();
+                    clear_key_pressed(KC_PERIOD);
+                }
+            }
         }
         return false;
     }
@@ -3051,6 +3065,15 @@ TbBool process_cheat_heart_health_inputs(short *value, long max_health)
         return true;
     }
     return false;
+}
+
+void disable_packet_mode()
+{
+    close_packet_file();
+    game.packet_load_enable = false;
+    game.packet_save_enable = false;
+    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
+    set_gui_visible(true);
 }
 
 /******************************************************************************/

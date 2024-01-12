@@ -40,48 +40,7 @@ extern "C" {
 
 /******************************************************************************/
 
-
-const struct NamedCommand game_rule_desc[] = {
-  {"BodiesForVampire",           1},
-  {"PrisonSkeletonChance",       2},
-  {"GhostConvertChance",         3},
-  {"TortureConvertChance",       4},
-  {"TortureDeathChance",         5},
-  {"FoodGenerationSpeed",        6},
-  {"StunEvilEnemyChance",        7},
-  {"StunGoodEnemyChance",        8},
-  {"BodyRemainsFor",             9},
-  {"FightHateKillValue",        10},
-  {"PreserveClassicBugs",       11},
-  {"DungeonHeartHealHealth",    12},
-  {"ImpWorkExperience",         13},
-  {"GemEffectiveness",          14},
-  {"RoomSellGoldBackPercent",   15},
-  {"DoorSellValuePercent",      16},
-  {"TrapSellValuePercent",      17},
-  {"PayDayGap",                 18},
-  {"PayDaySpeed",               19},
-  {"PayDayProgress",            20},
-  {"PlaceTrapsOnSubtiles",      21},
-  {"DiseaseHPTemplePercentage", 22},
-  {"DungeonHeartHealth",        23},
-  {"HungerHealthLoss",              24},
-  {"GameTurnsPerHungerHealthLoss",  25},
-  {"FoodHealthGain",                26},
-  {"TortureHealthLoss",             27},
-  {"GameTurnsPerTortureHealthLoss", 28},
-  {"AlliesShareVision",             29},
-  {"AlliesShareDrop",               30},
-  {"AlliesShareCta",                31},
-  {"BarrackMaxPartySize",           32},
-  {"MaxThingsInHand",               33},
-  {"TrainingRoomMaxLevel",          34},
-  {NULL,                             0},
-};
-
-
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
-
 
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
@@ -1400,14 +1359,14 @@ static void command_use_special_multiply_creatures(long plr_range_id, long count
     command_add_value(Cmd_USE_SPECIAL_MULTIPLY_CREATURES, plr_range_id, count, 0, 0);
 }
 
-static void command_use_special_make_safe(long plr_range_id)
+static void make_safe(long plr_range_id)
 {
-    command_add_value(Cmd_USE_SPECIAL_MAKE_SAFE, plr_range_id, 0, 0, 0);
+    command_add_value(Cmd_MAKE_SAFE, plr_range_id, 0, 0, 0);
 }
 
-static void command_use_special_locate_hidden_world()
+static void command_locate_hidden_world()
 {
-    command_add_value(Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
+    command_add_value(Cmd_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
 }
 
 static void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
@@ -1484,17 +1443,6 @@ static void command_export_variable(long plr_range_id, const char *varib_name, c
         return;
     }
     command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, src_type, src_id, flg_id);
-}
-
-static void command_set_game_rule(const char* objectv, unsigned long roomvar)
-{
-    long ruledesc = get_id(game_rule_desc, objectv);
-    if (ruledesc == -1)
-    {
-        SCRPTERRLOG("Unknown game rule variable");
-        return;
-    }
-    command_add_value(Cmd_SET_GAME_RULE, 0, ruledesc, roomvar, 0);
 }
 
 static void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, int splevel)
@@ -1872,11 +1820,11 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_USE_SPECIAL_MULTIPLY_CREATURES:
         command_use_special_multiply_creatures(scline->np[0], scline->np[1]);
         break;
-    case Cmd_USE_SPECIAL_MAKE_SAFE:
-        command_use_special_make_safe(scline->np[0]);
+    case Cmd_MAKE_SAFE:
+        make_safe(scline->np[0]);
         break;
-    case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
-        command_use_special_locate_hidden_world();
+    case Cmd_LOCATE_HIDDEN_WORLD:
+        command_locate_hidden_world();
         break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -1903,9 +1851,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
             game.system_flags |= GSF_RunAfterVictory;
         }
         break;
-    case Cmd_SET_GAME_RULE:
-        command_set_game_rule(scline->tp[0], scline->np[1]);
-        break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
         break;
@@ -1926,7 +1871,3 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     }
 }
-
-
-
-
