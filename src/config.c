@@ -513,6 +513,17 @@ int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct
             if (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
             {
                 int64_t k = atoi(word_buf);
+
+                if( k < commands[i].min)
+                {
+                    CONFWRNLOG("field '%s' smaller then min value '%d', was '%d'",commands[i].name,commands[i].min,k);
+                    k = commands[i].min;
+                }
+                else if( k > commands[i].max)
+                {
+                    CONFWRNLOG("field '%s' bigger then max value '%d', was '%d'",commands[i].name,commands[i].max,k);
+                    k = commands[i].max;
+                }
                 
                 switch (commands[i].type)
                 {

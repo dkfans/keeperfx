@@ -213,6 +213,8 @@ struct NamedField {
     const char *name;
     void* field;
     uchar type;
+    int64_t min;
+    int64_t max;
 };
 
 struct InstallInfo {
