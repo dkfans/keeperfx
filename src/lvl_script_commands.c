@@ -4992,7 +4992,6 @@ static void set_game_rule_process(struct ScriptContext* context)
         case dt_void:
         default:
             ERRORLOG("unexpected datatype for field %s",(ruleblocks[rulegroup]+ruledesc)->name);
-            return ccr_error;
             break;
         }
     }
