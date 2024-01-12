@@ -1138,7 +1138,7 @@ TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname
         }
         else if( assignresult == ccr_unrecognised)
         {
-            //if fields weren't simple assigns they could be handled here
+            //if fields weren't simple assigns they could be handled here trough recognize_conf_command and rules_magic_commands
             skip_conf_to_next_line(buf,&pos,len);
             continue;
         }
