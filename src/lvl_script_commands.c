@@ -1631,7 +1631,7 @@ void refresh_trap_anim(long trap_id)
         // Per thing code
         if (traptng->model == trap_id)
         {
-            if ((traptng->trap.armstate == 1) || (game.conf.trap_stats[trap_id].recharge_sprite_anim_idx == 0))
+            if ((traptng->trap.wait_for_rearm == true) || (game.conf.trap_stats[trap_id].recharge_sprite_anim_idx == 0))
             {
                 traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
             }
