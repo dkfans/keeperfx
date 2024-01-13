@@ -1630,7 +1630,7 @@ void refresh_trap_anim(long trap_id)
         // Per thing code
         if (traptng->model == trap_id)
         {
-            if ((traptng->trap.deactivated == 1) || (game.conf.trap_stats[trap_id].recharge_sprite_anim_idx == 0))
+            if ((traptng->trap.armstate == 1) || (game.conf.trap_stats[trap_id].recharge_sprite_anim_idx == 0))
             {
                 traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
             }
@@ -1646,7 +1646,7 @@ void refresh_trap_anim(long trap_id)
             else {
                 start_frame = 0;
             }
-            set_thing_draw(traptng, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, ODC_Default);
+            set_thing_draw(traptng, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, ODC_Default); //todo: unanimated only for base anim.
         }
         // Per thing code ends
         k++;

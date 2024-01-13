@@ -623,6 +623,7 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         ERRORLOG("Illegal trap activation type %d (idx=%d)",(int)trapstat->activation_type, traptng->index);
         break;
     }
+    //set_thing_draw(traptng, convert_td_iso(game.conf.trap_stats[traptng->model].attack_sprite_anim_idx), 256, -1, 1, 1, ODC_Default);
 }
 
 TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing **found_thing)
@@ -712,16 +713,11 @@ TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
 
 TngUpdateRet update_trap_trigger(struct Thing *traptng)
 {
+    const struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
     if (traptng->trap.num_shots <= 0) {
         return TUFRet_Unchanged;
     }
-    if ((traptng->trap.rearm_turn <= game.play_gameturn) && (traptng->trap.deactivated == 1))
-    {
-        //back to regular anim
-        traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].sprite_anim_idx);
-        traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
-        traptng->trap.deactivated = 0;
-    }
+  
     TbBool do_trig;
     switch (game.conf.trap_stats[traptng->model].trigger_type)
     {
@@ -747,13 +743,10 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
     }
     if (do_trig)
     {
-        const struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
         traptng->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
         if (game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx != 0)
         {
-            traptng->trap.deactivated = 1;
-            traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx);
-            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+            traptng->trap.armstate = 1;
         }
         int n = traptng->trap.num_shots;
         if ((n > 0) && (n != 255))
@@ -808,6 +801,29 @@ TngUpdateRet update_trap(struct Thing *traptng)
         destroy_trap(traptng);
         return TUFRet_Deleted;
     }
+
+    if (traptng->trap.armstate == 1) //Trap rearming, so either 'shooting' anim or 'recharch' anim.
+    {
+        const struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
+        if ((traptng->trap.rearm_turn <= game.play_gameturn)) 
+        {
+            //back to regular anim
+            traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].sprite_anim_idx);
+            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+            traptng->trap.armstate = 0;
+        }
+        else if ((traptng->trap.rearm_turn - mconf->shots_delay + keepersprite_frames(game.conf.trap_stats[traptng->model].attack_sprite_anim_idx)) > (game.play_gameturn))
+        {
+            traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].attack_sprite_anim_idx);
+            traptng->max_frames = keepersprite_frames(traptng->anim_sprite); //todo animationspeed
+        }
+        else
+        {
+            traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx);
+            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+        }
+    }
+
     if (trap_is_active(traptng))
     {
         update_trap_trigger(traptng);
