@@ -86,8 +86,8 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_scavenging_cost,
 long compute_creature_max_health(long base_health,unsigned short crlevel);
 long compute_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
 long compute_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
-long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel);
-long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel);
+long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing);
+long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing);
 long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
 long compute_creature_work_value(long base_param,long efficiency,unsigned short crlevel);
 long compute_creature_max_dexterity(long base_param,unsigned short crlevel);

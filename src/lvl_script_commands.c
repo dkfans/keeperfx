@@ -314,6 +314,18 @@ const struct NamedCommand on_experience_desc[] = {
   {NULL,                           0},
 };
 
+const struct NamedCommand modifier_desc[] = {
+  {"MeleeDamage",     1},
+  {"SpellDamage",     2},
+  {"DamageReduction", 3},
+  {"Speed",           4},
+  {"Salary",          5},
+  {"TrainingCost",    6},
+  {"ScavengingCost",  7},
+  {"Loyalty",         8},
+  {NULL,              0},
+};
+
 /**
  * Text names of groups of GUI Buttons.
  */
@@ -5162,6 +5174,87 @@ static void set_increase_on_experience_process(struct ScriptContext* context)
     }
 }
 
+static void set_player_modifier_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    PlayerNumber plyr_idx = scline->np[0];
+    short mdfrdesc = get_id(modifier_desc, scline->tp[1]);
+    short mdfrval = scline->np[2];
+    const char *mdfrname = modifier_desc[mdfrdesc - 1].name;
+    if (mdfrdesc == -1)
+    {
+        SCRPTERRLOG("Unknown Player Modifier '%s'.", mdfrname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if (mdfrval < 0)
+    {
+        SCRPTERRLOG("Value %d out of range for Player Modifier '%s'.", mdfrval, mdfrname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    if (dungeon_invalid(dungeon))
+    {
+        SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %d has no dungeon.", mdfrname, (int)plyr_idx);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = plyr_idx;
+    value->shorts[1] = mdfrdesc;
+    value->shorts[2] = mdfrval;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_player_modifier_process(struct ScriptContext* context)
+{
+    PlayerNumber plyr_idx = context->value->shorts[0];
+    short mdfrdesc = context->value->shorts[1];
+    short mdfrval = context->value->shorts[2];
+  #if (BFDEBUG_LEVEL >= 7)
+    const char *mdfrname = modifier_desc[mdfrdesc - 1].name;
+  #endif
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    switch (mdfrdesc)
+    {
+        case 1: // MeleeDamage
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_melee_damage, mdfrval);
+            dungeon->modifier_melee_damage = mdfrval;
+            break;
+        case 2: // SpellDamage
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_spell_damage, mdfrval);
+            dungeon->modifier_spell_damage = mdfrval;
+            break;
+        case 3: // DamageReduction
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_damage_reduction, mdfrval);
+            dungeon->modifier_damage_reduction = mdfrval;
+            break;
+        case 4: // Speed
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_speed, mdfrval);
+            dungeon->modifier_speed = mdfrval;
+            break;
+        case 5: // Salary
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_pay, mdfrval);
+            dungeon->modifier_pay = mdfrval;
+            break;
+        case 6: // TrainingCost
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_training_cost, mdfrval);
+            dungeon->modifier_training_cost = mdfrval;
+            break;
+        case 7: // ScavengingCost
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_scavenging_cost, mdfrval);
+            dungeon->modifier_scavenging_cost = mdfrval;
+            break;
+        case 8: // Loyalty
+            SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier_loyalty, mdfrval);
+            dungeon->modifier_loyalty = mdfrval;
+            break;
+        default:
+            WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
+            break;
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5314,6 +5407,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
   {"MAKE_UNSAFE",                       "P       ", Cmd_MAKE_UNSAFE, NULL, NULL},
   {"SET_INCREASE_ON_EXPERIENCE",        "AN      ", Cmd_SET_INCREASE_ON_EXPERIENCE, &set_increase_on_experience_check, &set_increase_on_experience_process},
+  {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
