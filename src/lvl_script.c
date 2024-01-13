@@ -348,7 +348,7 @@ static TbBool script_command_param_to_number(char type_chr, struct ScriptLine *s
             {
                 if (0 == strcmp(scline->tp[idx], "ANY_CREATURE"))
                 {
-                    crtr_id = 0;
+                    crtr_id = CREATURE_ANY;
                 }
             }
         }
