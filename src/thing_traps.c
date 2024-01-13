@@ -804,22 +804,29 @@ TngUpdateRet update_trap(struct Thing *traptng)
     if (traptng->trap.armstate == 1) //Trap rearming, so either 'shooting' anim or 'recharch' anim.
     {
         const struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
-        if ((traptng->trap.rearm_turn <= game.play_gameturn)) 
+        if ((traptng->trap.rearm_turn <= game.play_gameturn)) //Recharge complete, rearm
         {
             //back to regular anim
             traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].sprite_anim_idx);
             traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
             traptng->trap.armstate = 0;
         }
-        else if ((traptng->trap.rearm_turn - mconf->shots_delay + keepersprite_frames(game.conf.trap_stats[traptng->model].attack_sprite_anim_idx)) > (game.play_gameturn))
+        else if (traptng->trap.rearm_turn - mconf->shots_delay + 
+            get_lifespan_of_animation((game.conf.trap_stats[traptng->model].attack_sprite_anim_idx), game.conf.trap_stats[traptng->model].anim_speed) > (game.play_gameturn)) //Shot anim is playing
         {
-            traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].attack_sprite_anim_idx);
-            traptng->max_frames = keepersprite_frames(traptng->anim_sprite); //todo animationspeed
+            if (game.conf.trap_stats[traptng->model].attack_sprite_anim_idx != 0)
+            {
+                traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].attack_sprite_anim_idx);
+                traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+            }
         }
-        else
+        else //Done shooting, still recharging. Show recharge animation.
         {
-            traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx);
-            traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
+            if (game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx != 0)
+            {
+                traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx);
+                traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, game.conf.trap_stats[traptng->model].anim_speed);
+            }
         }
     }
 
