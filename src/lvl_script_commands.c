@@ -241,6 +241,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"PlaceSound",          37},
   {"TriggerSound",        38},
   {"RechargeAnimationID", 39},
+  {"AttackAnimationID",   40},
   {NULL,                   0},
 };
 
@@ -1646,7 +1647,7 @@ void refresh_trap_anim(long trap_id)
             else {
                 start_frame = 0;
             }
-            set_thing_draw(traptng, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, ODC_Default); //todo: unanimated only for base anim.
+            set_thing_draw(traptng, trapstat->sprite_anim_idx, trapstat->anim_speed, trapstat->sprite_size_max, trapstat->unanimated, start_frame, ODC_Default);
         }
         // Per thing code ends
         k++;
@@ -1664,6 +1665,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     struct TrapConfigStats *trapst = &game.conf.trapdoor_conf.trap_cfgstats[trap_type];
     struct ManfctrConfig *mconf = &game.conf.traps_config[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
+    struct ObjectConfigStats obj_tmp;
     long value = context->value->uarg1;
     short value2 = context->value->shorts[4];
     short value3 = context->value->shorts[5];
@@ -1739,12 +1741,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 11: // SellingValue
             mconf->selling_value = value;
             break;
-        case 12: // Model
-        {
-            struct ObjectConfigStats obj_tmp;
+        case 12: // AnimationID
             game.conf.trap_stats[trap_type].sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             refresh_trap_anim(trap_type);
-        }
             break;
         case 13: // ModelSize
             game.conf.trap_stats[trap_type].sprite_size_max = value;
@@ -1832,12 +1831,13 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 38: // TriggerSound
             trapst->trigger_sound_idx = value;
             break;
-        case 39: // RechargeModel
-        {
-            struct ObjectConfigStats obj_tmp;
+        case 39: // RechargeAnimationID
             game.conf.trap_stats[trap_type].recharge_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             refresh_trap_anim(trap_type);
-        }
+            break;
+        case 40: // RechargeAnimationID
+            game.conf.trap_stats[trap_type].attack_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            refresh_trap_anim(trap_type);
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);

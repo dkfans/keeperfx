@@ -623,7 +623,6 @@ void activate_trap(struct Thing *traptng, struct Thing *creatng)
         ERRORLOG("Illegal trap activation type %d (idx=%d)",(int)trapstat->activation_type, traptng->index);
         break;
     }
-    //set_thing_draw(traptng, convert_td_iso(game.conf.trap_stats[traptng->model].attack_sprite_anim_idx), 256, -1, 1, 1, ODC_Default);
 }
 
 TbBool find_pressure_trigger_trap_target_passing_by_subtile(const struct Thing *traptng, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct Thing **found_thing)

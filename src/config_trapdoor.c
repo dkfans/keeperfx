@@ -291,6 +291,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           game.conf.trap_stats[i].health = 0;
           game.conf.trap_stats[i].sprite_anim_idx = 0;
           game.conf.trap_stats[i].recharge_sprite_anim_idx = 0;
+          game.conf.trap_stats[i].attack_sprite_anim_idx = 0;
           game.conf.trap_stats[i].sprite_size_max = 0;
           game.conf.trap_stats[i].unanimated = 0;
           game.conf.trap_stats[i].anim_speed = 0;
