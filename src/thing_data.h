@@ -217,8 +217,9 @@ struct Thing {
 //TCls_Trap
       struct {
         unsigned char num_shots;
-        long rearm_turn;
+        GameTurn rearm_turn;
         unsigned char revealed;
+        GameTurn shooting_finished_turn;
         TbBool wait_for_rearm;
       } trap;
 //TCls_Door

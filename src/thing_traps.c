@@ -713,12 +713,13 @@ TbBool update_trap_trigger_line_of_sight(struct Thing* traptng)
 TngUpdateRet update_trap_trigger(struct Thing *traptng)
 {
     const struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
+    struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
     if (traptng->trap.num_shots <= 0) {
         return TUFRet_Unchanged;
     }
   
     TbBool do_trig;
-    switch (game.conf.trap_stats[traptng->model].trigger_type)
+    switch (trapstat->trigger_type)
     {
     case TrpTrg_LineOfSight90:
         do_trig = update_trap_trigger_line_of_sight_90(traptng);
@@ -736,14 +737,19 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
         do_trig = false;
         break;
     default:
-        ERRORLOG("Illegal trap trigger type %d",(int)game.conf.trap_stats[traptng->model].trigger_type);
+        ERRORLOG("Illegal trap trigger type %d",trapstat->trigger_type);
         do_trig = false;
         break;
     }
     if (do_trig)
     {
         traptng->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
-        if (game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx != 0)
+        if (game.conf.trap_stats[traptng->model].attack_sprite_anim_idx != 0)
+        {
+            GameTurnDelta trigger_duration = get_lifespan_of_animation(trapstat->attack_sprite_anim_idx, trapstat->anim_speed);
+            traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
+        }
+        if (trapstat->recharge_sprite_anim_idx != 0)
         {
             traptng->trap.wait_for_rearm = true;
         }
@@ -803,20 +809,19 @@ TngUpdateRet update_trap(struct Thing *traptng)
 
     if (traptng->trap.wait_for_rearm == true) //Trap rearming, so either 'shooting' anim or 'recharch' anim.
     {
-        const struct ManfctrConfig* mconf = &game.conf.traps_config[traptng->model];
+        struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
         if ((traptng->trap.rearm_turn <= game.play_gameturn)) //Recharge complete, rearm
         {
             //back to regular anim
-            traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].sprite_anim_idx);
+            traptng->anim_sprite = convert_td_iso(trapstat->sprite_anim_idx);
             traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
             traptng->trap.wait_for_rearm = false;
         }
-        else if (traptng->trap.rearm_turn - mconf->shots_delay + 
-            get_lifespan_of_animation((game.conf.trap_stats[traptng->model].attack_sprite_anim_idx), game.conf.trap_stats[traptng->model].anim_speed) > (game.play_gameturn)) //Shot anim is playing
+        else if (traptng->trap.shooting_finished_turn > (game.play_gameturn)) //Shot anim is playing
         {
             if (game.conf.trap_stats[traptng->model].attack_sprite_anim_idx != 0)
             {
-                traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].attack_sprite_anim_idx);
+                traptng->anim_sprite = convert_td_iso(trapstat->attack_sprite_anim_idx);
                 traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
             }
         }
@@ -824,8 +829,8 @@ TngUpdateRet update_trap(struct Thing *traptng)
         {
             if (game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx != 0)
             {
-                traptng->anim_sprite = convert_td_iso(game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx);
-                traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, game.conf.trap_stats[traptng->model].anim_speed);
+                traptng->anim_sprite = convert_td_iso(trapstat->recharge_sprite_anim_idx);
+                traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, trapstat->anim_speed);
             }
         }
     }
