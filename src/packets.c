@@ -1262,37 +1262,69 @@ void process_players_creature_control_packet_control(long idx)
             }
         }
     }
+    
+    // First person looking speed and limits are adjusted here. (pckt contains the base mouse movement inputs)
     struct CreatureStats* crstat = creature_stats_get_from_thing(cctng);
-    i = pckt->pos_y;
-    if (i < 5)
-        i = 5;
-    else
-    if (i > 250)
-        i = 250;
-    long k = i - 127;
-    long angle = (pckt->pos_x - 127) / player->field_14;
-    if (angle != 0)
-    {
-        if (angle < -32)
-            angle = -32;
-        else
-        if (angle > 32)
-            angle = 32;
-        ccctrl->view_angle += 56 * angle / 32;
+    long maxTurnSpeed = crstat->max_turning_speed;
+    if (maxTurnSpeed < 1) {
+        maxTurnSpeed = 1;
     }
-    long angle_limit = crstat->max_angle_change;
-    if (angle_limit < 1)
-        angle_limit = 1;
-    angle = ccctrl->view_angle;
-    if (angle < -angle_limit)
-        angle = -angle_limit;
-    else
-    if (angle > angle_limit)
-        angle = angle_limit;
-    cctng->move_angle_xy = (cctng->move_angle_xy + angle) & LbFPMath_AngleMask;
-    cctng->move_angle_z = (227 * k / 127) & LbFPMath_AngleMask;
-    ccctrl->field_CC = 170 * angle / angle_limit;
-    ccctrl->view_angle = 4 * angle / 8;
+    
+    // Horizontal look
+    long horizontalTurnSpeed = (pckt->pos_x - 127) / player->field_14;
+    if (horizontalTurnSpeed != 0) {
+        if (horizontalTurnSpeed < -32) {
+            horizontalTurnSpeed = -32;
+        } else if (horizontalTurnSpeed > 32) {
+            horizontalTurnSpeed = 32;
+        }
+        ccctrl->view_angle_x += 56 * horizontalTurnSpeed / 32;
+    }
+    horizontalTurnSpeed = ccctrl->view_angle_x;
+    if (horizontalTurnSpeed < -maxTurnSpeed) {
+        horizontalTurnSpeed = -maxTurnSpeed;
+    } else if (horizontalTurnSpeed > maxTurnSpeed) {
+        horizontalTurnSpeed = maxTurnSpeed;
+    }
+
+    // Vertical look
+    long verticalTurnSpeed = (pckt->pos_y - 127) / player->field_14;
+    if (verticalTurnSpeed != 0) {
+        if (verticalTurnSpeed < -32) {
+            verticalTurnSpeed = -32;
+        } else if (verticalTurnSpeed > 32) {
+            verticalTurnSpeed = 32;
+        }
+        ccctrl->view_angle_y += 56 * verticalTurnSpeed / 32;
+    }
+    verticalTurnSpeed = ccctrl->view_angle_y;
+    if (verticalTurnSpeed < -maxTurnSpeed) {
+        verticalTurnSpeed = -maxTurnSpeed;
+    } else if (verticalTurnSpeed > maxTurnSpeed) {
+        verticalTurnSpeed = maxTurnSpeed;
+    }
+    
+    // Limits the vertical view.
+    // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
+    // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
+    long viewable_angle = 227;
+    long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
+    
+    long lowerLimit = LbFPMath_AngleMask - viewable_angle;
+    long upperLimit = viewable_angle;
+    if (verticalPos > upperLimit && verticalPos < lowerLimit) {
+        if (abs(verticalPos - upperLimit) < abs(verticalPos - lowerLimit)) {
+            verticalPos = upperLimit;
+        } else {
+            verticalPos = lowerLimit;
+        }
+    }
+
+    cctng->move_angle_z = verticalPos; // Sets the vertical look
+    cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & LbFPMath_AngleMask; // Sets the horizontal look
+    ccctrl->field_CC = 170 * horizontalTurnSpeed / maxTurnSpeed;
+    ccctrl->view_angle_x = 4 * horizontalTurnSpeed / 8;
+    ccctrl->view_angle_y = 4 * verticalTurnSpeed / 8;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)

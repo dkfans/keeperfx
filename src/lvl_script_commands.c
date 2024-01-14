@@ -4862,7 +4862,7 @@ static void set_game_rule_check(const struct ScriptLine* scline)
     if(ruledesc == -1)
     {
         ruledesc = get_id(game_rule_desc, scline->tp[0]);
-        const char *rulename = game_rule_desc[ruledesc - 1].name;
+        const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
         if (ruledesc == -1)
         {
             SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
@@ -4952,7 +4952,7 @@ static void set_game_rule_process(struct ScriptContext* context)
 
 
   #if (BFDEBUG_LEVEL >= 7)
-    const char *rulename = game_rule_desc[ruledesc - 1].name;
+    const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
   #endif
     switch (ruledesc)
     {
