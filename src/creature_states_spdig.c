@@ -940,7 +940,7 @@ short imp_birth(struct Thing *thing)
     }
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     thing->movement_flags &= ~TMvF_Flying;
-    creature_turn_to_face_angle(thing, i * (long)crstat->max_angle_change);
+    creature_turn_to_face_angle(thing, i * (long)crstat->max_turning_speed);
     return 0;
 }
 
