@@ -4928,7 +4928,7 @@ static void set_game_rule_process(struct ScriptContext* context)
 
 
   #if (BFDEBUG_LEVEL >= 7)
-    const char *rulename = game_rule_desc[ruledesc - 1].name;
+    const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
   #endif
     switch (ruledesc)
     {
