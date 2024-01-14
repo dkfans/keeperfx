@@ -196,8 +196,6 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_LIGHTNING:
         return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_METEOR:
-        return magic_use_power_meteor(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_CAVEIN:
         return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
       case PwrK_MKDIGGER:
