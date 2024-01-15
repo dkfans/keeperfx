@@ -819,7 +819,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
         }
         else if (traptng->trap.shooting_finished_turn > (game.play_gameturn)) //Shot anim is playing
         {
-            if (game.conf.trap_stats[traptng->model].attack_sprite_anim_idx != 0)
+            if (trapstat->attack_sprite_anim_idx != 0)
             {
                 traptng->anim_sprite = convert_td_iso(trapstat->attack_sprite_anim_idx);
                 traptng->max_frames = keepersprite_frames(traptng->anim_sprite);
@@ -827,7 +827,7 @@ TngUpdateRet update_trap(struct Thing *traptng)
         }
         else //Done shooting, still recharging. Show recharge animation.
         {
-            if (game.conf.trap_stats[traptng->model].recharge_sprite_anim_idx != 0)
+            if (trapstat->recharge_sprite_anim_idx != 0)
             {
                 traptng->anim_sprite = convert_td_iso(trapstat->recharge_sprite_anim_idx);
                 traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, trapstat->anim_speed);

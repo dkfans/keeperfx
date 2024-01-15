@@ -1664,6 +1664,7 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     long trap_type = context->value->shorts[0];
     struct TrapConfigStats *trapst = &game.conf.trapdoor_conf.trap_cfgstats[trap_type];
     struct ManfctrConfig *mconf = &game.conf.traps_config[trap_type];
+    struct TrapStats* trapstat = &game.conf.trap_stats[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
     struct ObjectConfigStats obj_tmp;
     long value = context->value->uarg1;
@@ -1742,25 +1743,25 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             mconf->selling_value = value;
             break;
         case 12: // AnimationID
-            game.conf.trap_stats[trap_type].sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            trapstat->sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             refresh_trap_anim(trap_type);
             break;
         case 13: // ModelSize
-            game.conf.trap_stats[trap_type].sprite_size_max = value;
+            trapstat->sprite_size_max = value;
             refresh_trap_anim(trap_type);
             break;
         case 14: // AnimationSpeed
-            game.conf.trap_stats[trap_type].anim_speed = value;
+            trapstat->anim_speed = value;
             refresh_trap_anim(trap_type);
             break;
         case 15: // TriggerType
-            game.conf.trap_stats[trap_type].trigger_type = value;
+            trapstat->trigger_type = value;
             break;
         case 16: // ActivationType
-            game.conf.trap_stats[trap_type].activation_type = value;
+            trapstat->activation_type = value;
             break;
         case 17: // EffectType
-            game.conf.trap_stats[trap_type].created_itm_model = value;
+            trapstat->created_itm_model = value;
             break;
         case 18: // Hidden
             trapst->hidden = value;
@@ -1772,41 +1773,41 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->slappable = value;
             break;
         case 21: // Unanimated
-            game.conf.trap_stats[trap_type].unanimated = value;
+            trapstat->unanimated = value;
             refresh_trap_anim(trap_type);
             break;
         case 22: // Health
-            game.conf.trap_stats[trap_type].health = value;
+            trapstat->health = value;
             break;
         case 23: // Unshaded
-            game.conf.trap_stats[trap_type].unshaded = value;
+            trapstat->unshaded = value;
             break;
         case 24: // RandomStartFrame
-            game.conf.trap_stats[trap_type].random_start_frame = value;
+            trapstat->random_start_frame = value;
             break;
         case 25: // ThingSize
-            game.conf.trap_stats[trap_type].size_xy = value; // First
-            game.conf.trap_stats[trap_type].size_z = value2; // Second
+            trapstat->size_xy = value; // First
+            trapstat->size_z = value2; // Second
             break;
         case 26: // HitType
-            game.conf.trap_stats[trap_type].hit_type = value;
+            trapstat->hit_type = value;
             break;
         case 27: // LightRadius
-            game.conf.trap_stats[trap_type].light_radius = value * COORD_PER_STL;
+            trapstat->light_radius = value * COORD_PER_STL;
             break;
         case 28: // LightIntensity
-            game.conf.trap_stats[trap_type].light_intensity = value;
+            trapstat->light_intensity = value;
             break;
         case 29: // LightFlags
-            game.conf.trap_stats[trap_type].light_flag = value;
+            trapstat->light_flag = value;
             break;
         case 30: // TransparencyFlags
-            game.conf.trap_stats[trap_type].transparency_flag = value;
+            trapstat->transparency_flag = value;
             break;
         case 31: // ShotVector
-            game.conf.trap_stats[trap_type].shotvector.x = value;
-            game.conf.trap_stats[trap_type].shotvector.y = value2;
-            game.conf.trap_stats[trap_type].shotvector.z = value3;
+            trapstat->shotvector.x = value;
+            trapstat->shotvector.y = value2;
+            trapstat->shotvector.z = value3;
             break;
         case 32: // Destructible
             trapst->destructible = value;
@@ -1821,9 +1822,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->placeonbridge = value;
             break;
         case 36: // ShotOrigin
-            game.conf.trap_stats[trap_type].shot_shift_x = value;
-            game.conf.trap_stats[trap_type].shot_shift_y = value2;
-            game.conf.trap_stats[trap_type].shot_shift_z = value3;
+            trapstat->shot_shift_x = value;
+            trapstat->shot_shift_y = value2;
+            trapstat->shot_shift_z = value3;
             break;
         case 37: // PlaceSound
             trapst->place_sound_idx = value;
@@ -1832,11 +1833,11 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->trigger_sound_idx = value;
             break;
         case 39: // RechargeAnimationID
-            game.conf.trap_stats[trap_type].recharge_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            trapstat->recharge_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             refresh_trap_anim(trap_type);
             break;
         case 40: // AttackAnimationID
-            game.conf.trap_stats[trap_type].attack_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            trapstat->attack_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
