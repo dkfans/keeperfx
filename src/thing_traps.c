@@ -749,7 +749,7 @@ TngUpdateRet update_trap_trigger(struct Thing *traptng)
             GameTurnDelta trigger_duration = get_lifespan_of_animation(trapstat->attack_sprite_anim_idx, trapstat->anim_speed);
             traptng->trap.shooting_finished_turn = (game.play_gameturn + trigger_duration);
         }
-        if (trapstat->recharge_sprite_anim_idx != 0)
+        if ((trapstat->recharge_sprite_anim_idx != 0) || (trapstat->attack_sprite_anim_idx != 0))
         {
             traptng->trap.wait_for_rearm = true;
         }
@@ -830,8 +830,12 @@ TngUpdateRet update_trap(struct Thing *traptng)
             if (trapstat->recharge_sprite_anim_idx != 0)
             {
                 traptng->anim_sprite = convert_td_iso(trapstat->recharge_sprite_anim_idx);
-                traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, trapstat->anim_speed);
             }
+            else
+            {
+                traptng->anim_sprite = convert_td_iso(trapstat->sprite_anim_idx);
+            }
+            traptng->max_frames = get_lifespan_of_animation(traptng->anim_sprite, trapstat->anim_speed);
         }
     }
 
