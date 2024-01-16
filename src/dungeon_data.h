@@ -128,6 +128,19 @@ struct ComputerInfo
     struct ComputerCheck checks[COMPUTER_CHECKS_COUNT];
 };
 
+/** Used to set player modifier with script command. */
+struct Modifiers
+{
+    unsigned short melee_damage;
+    unsigned short spell_damage;
+    unsigned short damage_reduction;
+    unsigned short speed;
+    unsigned short pay;
+    unsigned short training_cost;
+    unsigned short scavenging_cost;
+    unsigned short loyalty;
+};
+
 struct Dungeon {
     unsigned short dnheart_idx;
     struct Coord3d mappos;
@@ -262,17 +275,9 @@ struct Dungeon {
     unsigned short selected_creatures_of_model[CREATURE_TYPES_MAX];
     /** Index of last creature picked up of given GUI Job. */
     unsigned short selected_creatures_of_gui_job[CREATURE_GUI_JOBS_COUNT];
-    /** Used to set player modifier with script command. */
-    unsigned short modifier_melee_damage;
-    unsigned short modifier_spell_damage;
-    unsigned short modifier_damage_reduction;
-    unsigned short modifier_speed;
-    unsigned short modifier_pay;
-    unsigned short modifier_training_cost;
-    unsigned short modifier_scavenging_cost;
-    unsigned short modifier_loyalty;
     unsigned char texture_pack;
     unsigned char color_idx;
+    struct Modifiers      modifier;
     struct TrapInfo       mnfct_info;
     struct BoxInfo        box_info;
     struct Coord3d        last_combat_location;

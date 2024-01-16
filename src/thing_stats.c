@@ -445,7 +445,7 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param,unsigned s
 long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
-    unsigned short modifier = dungeon->modifier_melee_damage;
+    unsigned short modifier = dungeon->modifier.melee_damage;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
@@ -473,7 +473,7 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
 long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
-    unsigned short modifier = dungeon->modifier_spell_damage;
+    unsigned short modifier = dungeon->modifier.spell_damage;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
@@ -500,7 +500,7 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
 long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
-    unsigned short modifier = dungeon->modifier_melee_damage;
+    unsigned short modifier = dungeon->modifier.melee_damage;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
@@ -525,7 +525,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
 long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
-    unsigned short modifier = dungeon->modifier_spell_damage;
+    unsigned short modifier = dungeon->modifier.spell_damage;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
@@ -638,7 +638,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier_speed;
+    unsigned short modifier = dungeon->modifier.speed;
     long speed = crstat->base_speed;
     if(!dungeon_invalid(dungeon))
         speed = (speed * modifier) / 100;
@@ -663,7 +663,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier_pay;
+    unsigned short modifier = dungeon->modifier.pay;
     GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
     if(!dungeon_invalid(dungeon))
         pay = (pay * modifier) / 100;
@@ -678,7 +678,7 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier_training_cost;
+    unsigned short modifier = dungeon->modifier.training_cost;
     GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
     if(!dungeon_invalid(dungeon))
         training_cost = (training_cost * modifier) / 100;
@@ -693,7 +693,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier_scavenging_cost;
+    unsigned short modifier = dungeon->modifier.scavenging_cost;
     GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
     if(!dungeon_invalid(dungeon))
         scavenger_cost = (scavenger_cost * modifier) / 100;
@@ -708,7 +708,7 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
     struct Dungeon* dungeon = get_dungeon(callplyr_idx);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier_loyalty;
+    unsigned short modifier = dungeon->modifier.loyalty;
     long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
     if(!dungeon_invalid(dungeon))
         scavngpts = (scavngpts * modifier) / 100;
@@ -829,7 +829,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier_damage_reduction;
+    unsigned short modifier = dungeon->modifier.damage_reduction;
     if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
         return 0;
     }
