@@ -89,6 +89,7 @@ const struct NamedField rules_game_named_fields[] = {
   {"TORTUREPAYDAY",              &game.conf.rules.game.torture_payday,             var_type(game.conf.rules.game.torture_payday            ),SHRT_MIN,SHRT_MAX},
   {"TORTURETRAININGCOST",        &game.conf.rules.game.torture_training_cost,      var_type(game.conf.rules.game.torture_training_cost     ),SHRT_MIN,SHRT_MAX},
   {"TORTURESCAVENGINGCOST",      &game.conf.rules.game.torture_scavenging_cost,    var_type(game.conf.rules.game.torture_scavenging_cost   ),SHRT_MIN,SHRT_MAX},
+  {NULL,                            NULL,0,0,0 },
 };
 
 //special cases rules_game
