@@ -2290,41 +2290,51 @@ void get_creature_control_nonaction_inputs(void)
     long y = GetMouseY();
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     TRACE_THING(thing);
-    pckt->pos_x = 127;
-    pckt->pos_y = 127;
+
     if ((player->allocflags & PlaF_Unknown8) != 0)
         return;
-    if (((MyScreenWidth >> 1) != GetMouseX()) || ((MyScreenHeight >> 1) != GetMouseY()))
-    {
-        LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, (MyScreenHeight/pixel_size) >> 1); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
+
+    if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y)) {
+        LbMouseSetPositionInitial((MyScreenWidth / pixel_size) >> 1, (MyScreenHeight / pixel_size) >> 1);
     }
+
+    long centerX = MyScreenWidth / 2;
+    long centerY = MyScreenHeight / 2;
+    long deltaX = x - centerX;
+    long deltaY = y - centerY;
+
+    // Map to the range -255 to 255
+    pckt->pos_x = 255 * deltaX / centerX;
     if (settings.first_person_move_invert) {
-        pckt->pos_y = 255 * y / MyScreenHeight;
+        pckt->pos_y = 255 * deltaY / centerY;
     } else {
-        pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
+        pckt->pos_y = -255 * deltaY / centerY;
     }
-    pckt->pos_x = 255 * x / MyScreenWidth;
-    // Update the position based on current settings
+
     long i = settings.first_person_move_sensitivity + 1;
-    x = pckt->pos_x - 127;
-    y = pckt->pos_y - 127;
-    if (i < 6)
-    {
+    x = pckt->pos_x;
+    y = pckt->pos_y;
+
+    if (i < 6) {
         k = 5 - settings.first_person_move_sensitivity;
-        pckt->pos_x = x/k + 127;
-        pckt->pos_y = y/k + 127;
-    } else
-    if (i > 6)
-    {
+        pckt->pos_x = x / k;
+        pckt->pos_y = y / k;
+    } else if (i > 6) {
         k = settings.first_person_move_sensitivity - 5;
-        pckt->pos_x = k*x + 127;
-        pckt->pos_y = k*y + 127;
+        pckt->pos_x = k * x;
+        pckt->pos_y = k * y;
     }
-    // Bound posx and pos_y
-    if (pckt->pos_x > 255)
-    pckt->pos_x = 255;
-    if (pckt->pos_y > 255)
-    pckt->pos_y = 255;
+
+    if (pckt->pos_x < -255) {
+        pckt->pos_x = -255;
+    } else if (pckt->pos_x > 255) {
+        pckt->pos_x = 255;
+    }
+    if (pckt->pos_y < -255) {
+        pckt->pos_y = -255;
+    } else if (pckt->pos_y > 255) {
+        pckt->pos_y = 255;
+    }
 
     // Now do user actions
     if (thing_is_invalid(thing))
@@ -2473,7 +2483,7 @@ short get_inputs(void)
     if ((player->allocflags & PlaF_MouseInputDisabled) != 0)
     {
         SYNCDBG(5,"Starting for creature fade");
-        set_players_packet_position(get_packet(my_player_number), 127, 127 , 0);
+        set_players_packet_position(get_packet(my_player_number), 0, 0 , 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
             long keycode;
