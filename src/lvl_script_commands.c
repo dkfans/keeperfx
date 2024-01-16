@@ -4938,7 +4938,7 @@ static void set_game_rule_process(struct ScriptContext* context)
         game.conf.rules.game.classic_bugs_flags = rulevalue;
         break;
     case 2: //AlliesShareVision
-        //this one is a special case because iT updates minimap
+        //this one is a special case because it updates minimap
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
         panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
