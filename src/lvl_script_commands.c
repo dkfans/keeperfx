@@ -5180,7 +5180,7 @@ static void set_player_modifier_check(const struct ScriptLine* scline)
     PlayerNumber plyr_idx = scline->np[0];
     short mdfrdesc = get_id(modifier_desc, scline->tp[1]);
     short mdfrval = scline->np[2];
-    const char *mdfrname = modifier_desc[mdfrdesc - 1].name;
+    const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
     if (mdfrdesc == -1)
     {
         SCRPTERRLOG("Unknown Player Modifier '%s'.", mdfrname);
@@ -5212,7 +5212,7 @@ static void set_player_modifier_process(struct ScriptContext* context)
     short mdfrdesc = context->value->shorts[1];
     short mdfrval = context->value->shorts[2];
   #if (BFDEBUG_LEVEL >= 7)
-    const char *mdfrname = modifier_desc[mdfrdesc - 1].name;
+    const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
   #endif
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
     switch (mdfrdesc)
