@@ -166,7 +166,6 @@ struct PlayerInfo {
     unsigned char packet_num;
     long hand_animationId;
     unsigned int hand_busy_until_turn;
-unsigned char field_14;
     char player_name[20];
     unsigned char victory_state;
     PlayerBitFlags allied_players;
