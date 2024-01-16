@@ -444,7 +444,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long angle_diff = get_angle_difference(thing->move_angle_xy, angle);
     long angle_sign = get_angle_sign(thing->move_angle_xy, angle);
-    int angle_delta = crstat->max_angle_change;
+    int angle_delta = crstat->max_turning_speed;
 
     if (angle_delta > angle_diff) {
         angle_delta = angle_diff;
