@@ -2336,8 +2336,6 @@ void get_creature_control_nonaction_inputs(void)
         pckt->pos_y = 255;
     }
 
-    JUSTLOG("%d", pckt->pos_x);
-
     // Now do user actions
     if (thing_is_invalid(thing))
     return;
