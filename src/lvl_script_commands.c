@@ -266,23 +266,24 @@ const struct NamedCommand room_config_desc[] = {
 };
 
 
-static const struct NamedField* ruleblocks[] = {rules_rooms_named_fields,rules_magic_named_fields};
+
+static const struct NamedField rules_script_only_named_fields[] = {
+    //name            //field                //field type                   //min //max     
+  {"PayDayProgress",&game.pay_day_progress,var_type(game.pay_day_progress),0,LONG_MAX},
+  {NULL,                            NULL,0,0,0 },
+};
+
+static const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,rules_script_only_named_fields};
+
 static const struct NamedCommand game_rule_desc[] = {
+  {"PreserveClassicBugs",            1},
+  {"AlliesShareVision",              2},
+//ones below still need to be moved to NamedField
   {"StunEvilEnemyChance",            7},
   {"StunGoodEnemyChance",            8},
   {"BodyRemainsFor",                 9},
   {"FightHateKillValue",            10},
-  {"PreserveClassicBugs",           11},
-  {"DungeonHeartHealHealth",        12},
   {"ImpWorkExperience",             13},
-  {"GemEffectiveness",              14},
-  {"RoomSellGoldBackPercent",       15},
-  {"DoorSellValuePercent",          16},
-  {"TrapSellValuePercent",          17},
-  {"PayDayGap",                     18},
-  {"PayDaySpeed",                   19},
-  {"PayDayProgress",                20},
-  {"PlaceTrapsOnSubtiles",          21},
   {"DiseaseHPTemplePercentage",     22},
   {"DungeonHeartHealth",            23},
   {"HungerHealthLoss",              24},
@@ -290,13 +291,6 @@ static const struct NamedCommand game_rule_desc[] = {
   {"FoodHealthGain",                26},
   {"TortureHealthLoss",             27},
   {"GameTurnsPerTortureHealthLoss", 28},
-  {"AlliesShareVision",             29},
-  {"AlliesShareDrop",               30},
-  {"AlliesShareCta",                31},
-  {"MaxThingsInHand",               33},
-  {"TorturePayday",                 35},
-  {"TortureTrainingCost",           36},
-  {"TortureScavengingCost",         37},
   {NULL,                             0},
 };
 
@@ -4850,101 +4844,84 @@ static void set_game_rule_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
 
-    long rulegroup = -1;
-    long ruledesc  = -1;
+    long rulegroup = 0;
     long ruleval = scline->np[1];
 
-    for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
+    long ruledesc = get_id(game_rule_desc, scline->tp[0]);
+    if(ruledesc != -1)
     {
-        ruledesc = get_named_field_id(ruleblocks[i], scline->tp[0]);
-        if (ruledesc != -1)
-        {
-            rulegroup = i;
-            if (ruleval < (ruleblocks[i]+ruledesc)->min)
-            {
-                ruleval = (ruleblocks[i]+ruledesc)->min;
-                SCRPTERRLOG("Game Rule '%s' value %d is smaller then minimum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
-            }
-            else if(ruleval > (ruleblocks[i]+ruledesc)->max)
-            {
-                ruleval = (ruleblocks[i]+ruledesc)->max;
-                SCRPTERRLOG("Game Rule '%s' value %d is bigger then maximum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
-            }
-            break;
-        }
-    }
-    
-
-    if(ruledesc == -1)
-    {
-        ruledesc = get_id(game_rule_desc, scline->tp[0]);
-        const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
-        if (ruledesc == -1)
-        {
-            SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
+        rulegroup = -1;
         switch (ruledesc)
         {
-        case 11: //PreserveClassicBugs
-            if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
-            {
-                SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
+            case 1: //PreserveClassicBugs
+                //this one is a special case because in the cfg it's not done trough number
+                if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
+                {
+                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                break;
+
+
+            case 7: //StunEvilEnemyChance
+            case 8: //StunGoodEnemyChance
+            case 22: //DiseaseHPTemplePercentage
+                if ((ruleval < 0) || (ruleval > 100))
+                {
+                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                break;
+            case 2: //AlliesShareVision
+            case 6: //FoodGenerationSpeed
+            case 9: //BodyRemainsFor
+            case 13: //ImpWorkExperience
+            case 25: //GameTurnsPerHungerHealthLoss
+            case 28: //GameTurnsPerTortureHealthLoss
+                if (ruleval < 0)
+                {
+                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                break;
+            case 23: //DungeonHeartHealth
+            default:
+                WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
-            }
-            break;
-        case 33: //MaxThingsInHand
-            if ((ruleval < 0) || (ruleval > MAX_THINGS_IN_HAND)) // No more than 64 things in hand, defined with MAX_THINGS_IN_HAND.
-            {
-                SCRPTERRLOG("Game Rule '%s' value %d out of range, max %d.", rulename, ruleval, MAX_THINGS_IN_HAND);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            break;
-        case 7: //StunEvilEnemyChance
-        case 8: //StunGoodEnemyChance
-        case 22: //DiseaseHPTemplePercentage
-            if ((ruleval < 0) || (ruleval > 100))
-            {
-                SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            break;
-        case 6: //FoodGenerationSpeed
-        case 9: //BodyRemainsFor
-        case 13: //ImpWorkExperience
-        case 14: //GemEffectiveness
-        case 15: //RoomSellGoldBackPercent
-        case 16: //DoorSellValuePercent
-        case 17: //TrapSellValuePercent
-        case 18: //PayDayGap
-        case 19: //PayDaySpeed
-        case 20: //PayDayProgress
-        case 21: //PlaceTrapsOnSubtiles
-        case 25: //GameTurnsPerHungerHealthLoss
-        case 28: //GameTurnsPerTortureHealthLoss
-        case 29: //AlliesShareVision
-        case 30: //AlliesShareDrop
-        case 31: //AlliesShareCta
-        case 35: //TorturePayday
-        case 36: //TortureTrainingCost
-        case 37: //TortureScavengingCost
-            if (ruleval < 0)
-            {
-                SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
-            break;
-        case 23: //DungeonHeartHealth
-        default:
-            WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
         }
+    }
+    else
+    {
+        for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
+        {
+            ruledesc = get_named_field_id(ruleblocks[i], scline->tp[0]);
+            if (ruledesc != -1)
+            {
+                rulegroup = i;
+                if (ruleval < (ruleblocks[i]+ruledesc)->min)
+                {
+                    ruleval = (ruleblocks[i]+ruledesc)->min;
+                    SCRPTERRLOG("Game Rule '%s' value %d is smaller then minimum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
+                }
+                else if(ruleval > (ruleblocks[i]+ruledesc)->max)
+                {
+                    ruleval = (ruleblocks[i]+ruledesc)->max;
+                    SCRPTERRLOG("Game Rule '%s' value %d is bigger then maximum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
+                }
+                break;
+            }
+        }
+    }
+
+    if (ruledesc == -1)
+    {
+        SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
     }
 
     value->shorts[0] = rulegroup;
@@ -4962,6 +4939,7 @@ static void set_game_rule_process(struct ScriptContext* context)
 
     if(rulegroup != -1)
     {
+        SCRIPTDBG(7,"Changing Game Rule '%s' to %d", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
         assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
         return;
     }
@@ -4972,6 +4950,19 @@ static void set_game_rule_process(struct ScriptContext* context)
   #endif
     switch (ruledesc)
     {
+    case 1: //PreserveClassicBugs
+        //this one is a special case because in the cfg it's not done trough number
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
+        game.conf.rules.game.classic_bugs_flags = rulevalue;
+        break;
+    case 2: //AlliesShareVision
+        //this one is a special case because it updates minimap
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
+        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
+        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+        break;
+
+//ones below here still need to be moved to NamedField
     case 7: //StunEvilEnemyChance
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.stun_enemy_chance_evil, rulevalue);
         game.conf.rules.creature.stun_enemy_chance_evil = rulevalue;
@@ -4988,49 +4979,9 @@ static void set_game_rule_process(struct ScriptContext* context)
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.fight_hate_kill_value, rulevalue);
         game.conf.rules.creature.fight_hate_kill_value = rulevalue;
         break;
-    case 11: //PreserveClassicBugs
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
-        game.conf.rules.game.classic_bugs_flags = rulevalue;
-        break;
-    case 12: //DungeonHeartHealHealth
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.dungeon_heart_heal_health, rulevalue);
-        game.conf.rules.game.dungeon_heart_heal_health = rulevalue;
-        break;
     case 13: //ImpWorkExperience
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.workers.digger_work_experience, rulevalue);
         game.conf.rules.workers.digger_work_experience = rulevalue;
-        break;
-    case 14: //GemEffectiveness
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.gem_effectiveness, rulevalue);
-        game.conf.rules.game.gem_effectiveness = rulevalue;
-        break;
-    case 15: //RoomSellGoldBackPercent
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.room_sale_percent, rulevalue);
-        game.conf.rules.game.room_sale_percent = rulevalue;
-        break;
-    case 16: //DoorSellGoldBackPercent
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.door_sale_percent, rulevalue);
-        game.conf.rules.game.door_sale_percent = rulevalue;
-        break;
-    case 17: //TrapSellGoldBackPercent
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.trap_sale_percent, rulevalue);
-        game.conf.rules.game.trap_sale_percent = rulevalue;
-        break;
-    case 18: //PayDayGap
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.pay_day_gap, rulevalue);
-        game.conf.rules.game.pay_day_gap = rulevalue;
-        break;
-    case 19: //PayDaySpeed
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.pay_day_speed, rulevalue);
-        game.conf.rules.game.pay_day_speed = rulevalue;
-        break;
-    case 20: //PayDayProgress
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.pay_day_progress, rulevalue);
-        game.pay_day_progress = rulevalue;
-        break;
-    case 21: //PlaceTrapsOnSubtiles
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.place_traps_on_subtiles, rulevalue);
-        game.conf.rules.game.place_traps_on_subtiles = (TbBool)rulevalue;
         break;
     case 22: //DiseaseHPTemplePercentage
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.computer.disease_to_temple_pct, rulevalue);
@@ -5056,35 +5007,7 @@ static void set_game_rule_process(struct ScriptContext* context)
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.turns_per_torture_health_loss, rulevalue);
         game.conf.rules.health.turns_per_torture_health_loss = rulevalue;
         break;
-    case 29: //AlliesShareVision
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
-        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
-        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
-        break;
-    case 30: //AlliesShareDrop
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_drop, rulevalue);
-        game.conf.rules.game.allies_share_drop = (TbBool)rulevalue;
-        break;
-    case 31: //AlliesShareCta
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_cta, rulevalue);
-        game.conf.rules.game.allies_share_cta = (TbBool)rulevalue;
-        break;
-    case 33: //MaxThingsInHand
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.max_things_in_hand, rulevalue);
-        game.conf.rules.game.max_things_in_hand = rulevalue;
-        break;
-    case 35: //TorturePayday
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.torture_payday, rulevalue);
-        game.conf.rules.game.torture_payday = rulevalue;
-        break;
-    case 36: //TortureTrainingCost
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.torture_training_cost, rulevalue);
-        game.conf.rules.game.torture_training_cost = rulevalue;
-        break;
-    case 37: //TortureScavengingCost
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.torture_scavenging_cost, rulevalue);
-        game.conf.rules.game.torture_scavenging_cost = rulevalue;
-        break;
+
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
         break;
