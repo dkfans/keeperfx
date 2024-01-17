@@ -725,7 +725,7 @@ void process_trap_charge(struct Thing* traptng)
         traptng->trap.wait_for_rearm = true;
     }
     int n = traptng->trap.num_shots;
-    if ((n > 0) && (n != 255))
+    if ((n > 0) && (n != INFINITE_CHARGES))
     {
         traptng->trap.num_shots = n - 1;
         if (traptng->trap.num_shots == 0)
@@ -1028,7 +1028,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     {
         activate_trap(thing, hand);
         process_trap_charge(thing);
-        if (thing->trap.num_shots != 255)
+        if (thing->trap.num_shots != INFINITE_CHARGES)
         {
             if (thing->trap.num_shots > 0) {
                 thing->trap.num_shots--;
@@ -1055,7 +1055,7 @@ void external_activate_trap_shot_at_angle(struct Thing *thing, long a2, struct T
     shotng->shot.hit_type = trapstat->hit_type;
     const struct ManfctrConfig* mconf = &game.conf.traps_config[thing->model];
     thing->trap.rearm_turn = game.play_gameturn + mconf->shots_delay;
-    if (thing->trap.num_shots != 255)
+    if (thing->trap.num_shots != INFINITE_CHARGES)
     {
         if (thing->trap.num_shots > 0) {
             thing->trap.num_shots--;
