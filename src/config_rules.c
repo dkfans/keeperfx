@@ -107,26 +107,27 @@ const struct NamedCommand rules_computer_commands[] = {
   {"WAITAFTERROOMAREA",          5},
   {"DISEASEHPTEMPLEPERCENTAGE",  6},
   {NULL,                         0},
-  };
+};
 
-const struct NamedCommand rules_creatures_commands[] = {
-  {"RECOVERYFREQUENCY",             1},
-  {"FIGHTMAXHATE",                  2},
-  {"FIGHTBORDERLINE",               3},
-  {"FIGHTMAXLOVE",                  4},
-  {"BODYREMAINSFOR",                5},
-  {"FIGHTHATEKILLVALUE",            6},
-  {"FLEEZONERADIUS",                7},
-  {"GAMETURNSINFLEE",               8},
-  {"GAMETURNSUNCONSCIOUS",          9},
-  {"CRITICALHEALTHPERCENTAGE",     10},
-  {"STUNEVILENEMYCHANCE",          11},
-  {"STUNGOODENEMYCHANCE",          12},
-  {NULL,                            0},
-  };
+const struct NamedField rules_creatures_named_fields[] = {
+  {"RECOVERYFREQUENCY",         &game.conf.rules.creature.recovery_frequency,    var_type(game.conf.rules.creature.recovery_frequency    ),       0,UCHAR_MAX},
+  {"FIGHTMAXHATE",              &game.conf.rules.creature.fight_max_hate,        var_type(game.conf.rules.creature.fight_max_hate        ),       0,USHRT_MAX},
+  {"FIGHTBORDERLINE",           &game.conf.rules.creature.fight_borderline,      var_type(game.conf.rules.creature.fight_borderline      ),       0,USHRT_MAX},
+  {"FIGHTMAXLOVE",              &game.conf.rules.creature.fight_max_love,        var_type(game.conf.rules.creature.fight_max_love        ),       0,USHRT_MAX},
+  {"BODYREMAINSFOR",            &game.conf.rules.creature.body_remains_for,      var_type(game.conf.rules.creature.body_remains_for      ),       0,USHRT_MAX},
+  {"FIGHTHATEKILLVALUE",        &game.conf.rules.creature.fight_hate_kill_value, var_type(game.conf.rules.creature.fight_hate_kill_value ),       0,USHRT_MAX},
+  {"FLEEZONERADIUS",            &game.conf.rules.creature.flee_zone_radius,      var_type(game.conf.rules.creature.flee_zone_radius      ),       0,ULONG_MAX},
+  {"GAMETURNSINFLEE",           &game.conf.rules.creature.game_turns_in_flee,    var_type(game.conf.rules.creature.game_turns_in_flee    ),       0,LONG_MAX},
+  {"GAMETURNSUNCONSCIOUS",      &game.conf.rules.creature.game_turns_unconscious,var_type(game.conf.rules.creature.game_turns_unconscious),       0,LONG_MAX},
+  {"STUNEVILENEMYCHANCE",       &game.conf.rules.creature.stun_enemy_chance_evil,var_type(game.conf.rules.creature.stun_enemy_chance_evil),       0, 100},
+  {"STUNGOODENEMYCHANCE",       &game.conf.rules.creature.stun_enemy_chance_good,var_type(game.conf.rules.creature.stun_enemy_chance_good),       0, 100},
+  {NULL,NULL,0,0,0 },
+};
 
-
-
+const struct NamedCommand rules_creature_commands[] = {
+  {"CRITICALHEALTHPERCENTAGE",  1},
+  {NULL,0},
+};
 
 const struct NamedField rules_magic_named_fields[] = {
     //name                           //field                                                  //field type                                                     //min    //max                                   
@@ -266,6 +267,65 @@ static int long_compare_fn(const void *ptr_a, const void *ptr_b)
     return *a < *b;
 }
 
+static void set_defaults()
+{
+    game.conf.rules.game.gold_per_gold_block = 1000;
+    game.conf.rules.game.pot_of_gold_holds = 1000;
+    game.conf.rules.game.gold_pile_value = 500;
+    game.conf.rules.game.gold_pile_maximum = 5000;
+    game.conf.rules.game.food_life_out_of_hatchery = 100;
+    game.conf.rules.game.boulder_reduce_health_slap = 10;
+    game.conf.rules.game.boulder_reduce_health_wall = 10;
+    game.conf.rules.game.boulder_reduce_health_room = 10;
+    game.conf.rules.game.pay_day_gap = 5000;
+    game.conf.rules.game.chest_gold_hold = 1000;
+    game.conf.rules.game.dungeon_heart_heal_time = 10;
+    game.conf.rules.game.dungeon_heart_heal_health = 1;
+    game.conf.rules.game.hero_door_wait_time = 100;
+    game.conf.rules.game.bag_gold_hold = 200;
+    game.conf.rules.game.classic_bugs_flags = ClscBug_None;
+    game.conf.rules.game.door_sale_percent = 100;
+    game.conf.rules.game.room_sale_percent = 50;
+    game.conf.rules.game.trap_sale_percent = 100;
+    game.conf.rules.game.gem_effectiveness = 17;
+    game.conf.rules.game.pay_day_speed = 100;
+    game.conf.rules.game.place_traps_on_subtiles = false;
+    game.conf.rules.game.gold_per_hoard = 2000;
+
+    game.conf.rules.creature.recovery_frequency = 10;
+    game.conf.rules.creature.fight_max_hate = 200;
+    game.conf.rules.creature.fight_borderline = 0;
+    game.conf.rules.creature.fight_max_love = -100;
+    game.conf.rules.creature.body_remains_for = 1000;
+    game.conf.rules.creature.fight_hate_kill_value = -5;
+    game.conf.rules.creature.flee_zone_radius = 2048;
+    game.conf.rules.creature.game_turns_in_flee = 200;
+    game.conf.rules.creature.game_turns_unconscious = 2000;
+    game.conf.rules.creature.critical_health_permil = 125;
+    game.conf.rules.creature.stun_enemy_chance_good = 100;
+    game.conf.rules.creature.stun_enemy_chance_evil = 100;
+
+    game.conf.rules.magic.hold_audience_time = 500;
+    game.conf.rules.magic.armagedon_teleport_your_time_gap = 10;
+    game.conf.rules.magic.armagedon_teleport_enemy_time_gap = 10;
+    game.armageddon.count_down = 500;
+    game.armageddon.duration = 4000;
+    game.conf.rules.magic.disease_transfer_percentage = 15;
+    game.conf.rules.magic.disease_lose_percentage_health = 8;
+    game.conf.rules.magic.disease_lose_health_time = 200;
+    game.conf.rules.magic.min_distance_for_teleport = 20;
+    game.conf.rules.magic.collapse_dungeon_damage = 10;
+    game.conf.rules.magic.turns_per_collapse_dngn_dmg = 4;
+    game.conf.rules.magic.power_hand_gold_grab_amount = 100;
+
+    game.conf.rules.health.hunger_health_loss = 1;
+    game.conf.rules.health.turns_per_hunger_health_loss = 100;
+    game.conf.rules.health.food_health_gain = 10;
+    game.conf.rules.health.torture_health_loss = 5;
+    game.conf.rules.health.turns_per_torture_health_loss = 100;
+
+}
+
 TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
 {
     // If all slots are taken, then just drop it.
@@ -284,53 +344,102 @@ TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
   return false;
 }
 
-TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
+static void game_block_special_cases(int cmd_num,const char *buf,long *pos,long len)
 {
-    // Block name and parameter word store variables
-    // Initialize block data
-    if ((flags & CnfLd_AcceptPartial) == 0)
+    #define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_game_commands,cmd_num)
+    char word_buf[COMMAND_WORD_LEN];
+    switch (cmd_num)
     {
-        game.conf.rules.game.gold_per_gold_block = 1000;
-        game.conf.rules.game.pot_of_gold_holds = 1000;
-        game.conf.rules.game.gold_pile_value = 500;
-        game.conf.rules.game.gold_pile_maximum = 5000;
-        game.conf.rules.game.food_life_out_of_hatchery = 100;
-        game.conf.rules.game.boulder_reduce_health_slap = 10;
-        game.conf.rules.game.boulder_reduce_health_wall = 10;
-        game.conf.rules.game.boulder_reduce_health_room = 10;
-        game.conf.rules.game.pay_day_gap = 5000;
-        game.conf.rules.game.chest_gold_hold = 1000;
-        game.conf.rules.game.dungeon_heart_heal_time = 10;
-        game.conf.rules.game.dungeon_heart_heal_health = 1;
-        game.conf.rules.game.hero_door_wait_time = 100;
-        game.conf.rules.game.bag_gold_hold = 200;
-        game.conf.rules.game.classic_bugs_flags = ClscBug_None;
-        game.conf.rules.game.door_sale_percent = 100;
-        game.conf.rules.game.room_sale_percent = 50;
-        game.conf.rules.game.trap_sale_percent = 100;
-        game.conf.rules.game.gem_effectiveness = 17;
-        game.conf.rules.game.pay_day_speed = 100;
-        game.conf.rules.game.place_traps_on_subtiles = false;
-        game.conf.rules.game.gold_per_hoard = 2000;
+        case 1: // PRESERVECLASSICBUGS
+            game.conf.rules.game.classic_bugs_flags = ClscBug_None;
+            while (get_conf_parameter_single(buf,pos,len,word_buf,sizeof(word_buf)) > 0)
+            {
+                int k = get_id(rules_game_classicbugs_commands, word_buf);
+                switch (k)
+                {
+                case 1: // RESURRECT_FOREVER
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_ResurrectForever;
+                    break;
+                case 2: // OVERFLOW_8BIT
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_Overflow8bitVal;
+                    break;
+                case 3: // CLAIM_ROOM_ALL_THINGS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_ClaimRoomAllThings;
+                    break;
+                case 4: // RESURRECT_REMOVED
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_ResurrectRemoved;
+                    break;
+                case 5: // NO_HAND_PURGE_ON_DEFEAT
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_NoHandPurgeOnDefeat;
+                    break;
+                case 6: // MUST_OBEY_KEEPS_NOT_DO_JOBS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_MustObeyKeepsNotDoJobs;
+                    break;
+                case 7: // BREAK_NEUTRAL_WALLS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_BreakNeutralWalls;
+                    break;
+                case 8: // ALWAYS_TUNNEL_TO_RED
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_AlwaysTunnelToRed;
+                    break;
+                case 9: // FULLY_HAPPY_WITH_GOLD
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_FullyHappyWithGold;
+                    break;
+                case 10: // FAINTED_IMMUNE_TO_BOULDER
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_FaintedImmuneToBoulder;
+                    break;
+                case 11: // REBIRTH_KEEPS_SPELLS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
+                    break;
+                case 12: // STUN_FRIENDLY_UNITS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_FriendlyFaint;
+                    break;
+                case 13: // PASSIVE_NEUTRALS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_PassiveNeutrals;
+                    break;
+                case 14: // NEUTRAL_TORTURE_CONVERTS
+                    game.conf.rules.game.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
+                    break;
+                default:
+
+                    break;
+                }
+            }
+            break;
     }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "game");
+#undef COMMAND_TEXT
+}
+
+static void creatures_block_special_cases(int cmd_num,const char *buf,long *pos,long len)
+{
+    char word_buf[COMMAND_WORD_LEN];
+    switch (cmd_num)
+    {
+       case 1: // CRITICALHEALTHPERCENTAGE
+          if (get_conf_parameter_single(buf,pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            int k = atoi(word_buf);
+            game.conf.rules.creature.critical_health_permil = k*10;
+          }
+          break;
+    }
+}
+
+TbBool parse_rules_block(const char *buf, long len, const char *config_textname, unsigned short flags,const char* blockname,
+                         const struct NamedField named_field[],const struct NamedCommand *named_command,void (*specialCases)(int cmd_num,const char *bf,long *ps,long ln))
+{
     long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
+    int k = find_conf_block(buf, &pos, len, blockname);
     if (k < 0)
     {
         if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
+            WARNMSG("Block [%s] not found in %s file.",blockname,config_textname);
         return false;
     }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_game_commands,cmd_num)
 
-
-  while (pos<len)
-  {
+    while (pos<len)
+    {
         // Finding command number in this line
-        int assignresult = assign_conf_command_field(buf, &pos, len, rules_game_named_fields);
+        int assignresult = assign_conf_command_field(buf, &pos, len, named_field);
         if( assignresult == ccr_ok || assignresult == ccr_comment )
         {
             skip_conf_to_next_line(buf,&pos,len);
@@ -339,91 +448,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         else if( assignresult == ccr_unrecognised)
         {
             // Finding command number in this line
-            int cmd_num = recognize_conf_command(buf, &pos, len, rules_game_commands);
-            // Now store the config item in correct place
-            if (cmd_num == -3) break; // if next block starts
-            int n = 0;
-            char word_buf[COMMAND_WORD_LEN];
-            switch (cmd_num)
+            if (named_command != NULL)
             {
-                case 1: // PRESERVECLASSICBUGS
-                    game.conf.rules.game.classic_bugs_flags = ClscBug_None;
-                    while (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-                    {
-                        k = get_id(rules_game_classicbugs_commands, word_buf);
-                        switch (k)
-                        {
-                        case 1: // RESURRECT_FOREVER
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_ResurrectForever;
-                            n++;
-                            break;
-                        case 2: // OVERFLOW_8BIT
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_Overflow8bitVal;
-                            n++;
-                            break;
-                        case 3: // CLAIM_ROOM_ALL_THINGS
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_ClaimRoomAllThings;
-                            n++;
-                            break;
-                        case 4: // RESURRECT_REMOVED
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_ResurrectRemoved;
-                            n++;
-                            break;
-                        case 5: // NO_HAND_PURGE_ON_DEFEAT
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_NoHandPurgeOnDefeat;
-                            n++;
-                            break;
-                        case 6: // MUST_OBEY_KEEPS_NOT_DO_JOBS
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_MustObeyKeepsNotDoJobs;
-                            n++;
-                            break;
-                        case 7: // BREAK_NEUTRAL_WALLS
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_BreakNeutralWalls;
-                            n++;
-                            break;
-                        case 8: // ALWAYS_TUNNEL_TO_RED
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_AlwaysTunnelToRed;
-                            n++;
-                            break;
-                        case 9: // FULLY_HAPPY_WITH_GOLD
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_FullyHappyWithGold;
-                            n++;
-                            break;
-                        case 10: // FAINTED_IMMUNE_TO_BOULDER
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_FaintedImmuneToBoulder;
-                            n++;
-                            break;
-                        case 11: // REBIRTH_KEEPS_SPELLS
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_RebirthKeepsSpells;
-                            n++;
-                            break;
-                        case 12: // STUN_FRIENDLY_UNITS
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_FriendlyFaint;
-                            n++;
-                            break;
-                        case 13: // PASSIVE_NEUTRALS
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_PassiveNeutrals;
-                            n++;
-                            break;
-                        case 14: // NEUTRAL_TORTURE_CONVERTS
-                            game.conf.rules.game.classic_bugs_flags |= ClscBug_NeutralTortureConverts;
-                            n++;
-                            break;
-                        default:
-                            CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                                COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
-                            break;
-                        }
-                    }
-                    break;
-                case 0: // comment
-                    break;
-                case -1: // end of buffer
-                    break;
-                default:
-                CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                    cmd_num,block_buf,config_textname);
-                break;
+                int cmd_num = recognize_conf_command(buf, &pos, len, named_command);
+                specialCases(cmd_num,buf,&pos,len);
             }
             skip_conf_to_next_line(buf,&pos,len);
             continue;
@@ -432,10 +460,10 @@ TbBool parse_rules_game_blocks(char *buf, long len, const char *config_textname,
         {
             break;
         }
-  }
-#undef COMMAND_TEXT
+    }
     return true;
 }
+
 
 TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
 {
@@ -500,271 +528,6 @@ TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textn
     }
 #undef COMMAND_TEXT
     return true;
-}
-
-TbBool parse_rules_creatures_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  // Block name and parameter word store variables
-  // Default values
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      game.conf.rules.creature.recovery_frequency = 10;
-      game.conf.rules.creature.fight_max_hate = 200;
-      game.conf.rules.creature.fight_borderline = 0;
-      game.conf.rules.creature.fight_max_love = -100;
-      game.conf.rules.creature.body_remains_for = 1000;
-      game.conf.rules.creature.fight_hate_kill_value = -5;
-      game.conf.rules.creature.flee_zone_radius = 2048;
-      game.conf.rules.creature.game_turns_in_flee = 200;
-      game.conf.rules.creature.game_turns_unconscious = 2000;
-      game.conf.rules.creature.critical_health_permil = 125;
-      game.conf.rules.creature.stun_enemy_chance_good = 100;
-      game.conf.rules.creature.stun_enemy_chance_evil = 100;
-  }
-  // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "creatures");
-  long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
-  }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_creatures_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, rules_creatures_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // RECOVERYFREQUENCY
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.creature.recovery_frequency = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // FIGHTMAXHATE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.creature.fight_max_hate = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // FIGHTBORDERLINE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.creature.fight_borderline = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // FIGHTMAXLOVE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.creature.fight_max_love = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 5: // BODYREMAINSFOR
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.creature.body_remains_for = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 6: // FIGHTHATEKILLVALUE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.creature.fight_hate_kill_value = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // FLEEZONERADIUS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.creature.flee_zone_radius = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 8: // GAMETURNSINFLEE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.creature.game_turns_in_flee = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 9: // GAMETURNSUNCONSCIOUS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.creature.game_turns_unconscious = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 10: // CRITICALHEALTHPERCENTAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.creature.critical_health_permil = k*10;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 11: // STUNEVILENEMYCHANCE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              game.conf.rules.creature.stun_enemy_chance_evil = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 12: // STUNGOODENEMYCHANCE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              game.conf.rules.creature.stun_enemy_chance_good = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
-#undef COMMAND_TEXT
-  return true;
-}
-
-TbBool parse_rules_magic_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  // Block name and parameter word store variables
-  // Default values
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      game.conf.rules.magic.hold_audience_time = 500;
-      game.conf.rules.magic.armagedon_teleport_your_time_gap = 10;
-      game.conf.rules.magic.armagedon_teleport_enemy_time_gap = 10;
-      game.armageddon.count_down = 500;
-      game.armageddon.duration = 4000;
-      game.conf.rules.magic.disease_transfer_percentage = 15;
-      game.conf.rules.magic.disease_lose_percentage_health = 8;
-      game.conf.rules.magic.disease_lose_health_time = 200;
-      game.conf.rules.magic.min_distance_for_teleport = 20;
-      game.conf.rules.magic.collapse_dungeon_damage = 10;
-      game.conf.rules.magic.turns_per_collapse_dngn_dmg = 4;
-      game.conf.rules.magic.power_hand_gold_grab_amount = 100;
-  }
-  // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "magic");
-  long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
-  }
-  while (pos<len)
-  {
-        // Finding command number in this line
-        int assignresult = assign_conf_command_field(buf, &pos, len, rules_magic_named_fields);
-        if( assignresult == ccr_ok || assignresult == ccr_comment )
-        {
-            skip_conf_to_next_line(buf,&pos,len);
-            continue;
-        }
-        else if( assignresult == ccr_unrecognised)
-        {
-            //if fields weren't simple assigns they could be handled here trough recognize_conf_command and a rules_magic_commands NamedCommand
-            skip_conf_to_next_line(buf,&pos,len);
-            continue;
-        }
-        else if( assignresult == ccr_endOfBlock || assignresult == ccr_error || assignresult == ccr_endOfFile)
-        {
-            break;
-        }
-  }
-  return true;
 }
 
 TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -943,11 +706,7 @@ TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textnam
   // Default values
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      game.conf.rules.health.hunger_health_loss = 1;
-      game.conf.rules.health.turns_per_hunger_health_loss = 100;
-      game.conf.rules.health.food_health_gain = 10;
-      game.conf.rules.health.torture_health_loss = 5;
-      game.conf.rules.health.turns_per_torture_health_loss = 100;
+
   }
   // Find the block
   char block_buf[COMMAND_WORD_LEN];
@@ -1402,14 +1161,11 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
     len = LbFileLoadAt(fname, buf);
     TbBool result = (len > 0);
     // Parse blocks of the config file
-    if (result)
-    {
-        result = parse_rules_game_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" game blocks failed.",textname,fname);
-    }
+
+    parse_rules_block(buf, len, textname, flags,"game",     rules_game_named_fields,     rules_game_commands,    &game_block_special_cases);
+    parse_rules_block(buf, len, textname, flags,"creatures",rules_creatures_named_fields,rules_creature_commands,&creatures_block_special_cases);
+    parse_rules_block(buf, len, textname, flags,"magic",    rules_magic_named_fields,    NULL,                   NULL);
+
     if (result)
     {
         result = parse_rules_computer_blocks(buf, len, textname, flags);
@@ -1417,22 +1173,6 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
             result = true;
         if (!result)
             WARNMSG("Parsing %s file \"%s\" computer blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_creatures_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" creatures blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_magic_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" magic blocks failed.",textname,fname);
     }
     if (result)
     {
@@ -1484,6 +1224,9 @@ TbBool load_rules_config(const char *conf_fname, unsigned short flags)
     static const char config_global_textname[] = "global rules config";
     static const char config_campgn_textname[] = "campaign rules config";
     static const char config_level_textname[] = "level rules config";
+
+    set_defaults();
+
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_rules_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
