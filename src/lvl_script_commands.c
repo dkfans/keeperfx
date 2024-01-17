@@ -2972,6 +2972,24 @@ static void set_object_configuration_process(struct ScriptContext *context)
         case 26: // TRANSPARENCYFLAGS
             objst->transparancy_flags = context->value->arg2;
             break;
+        case 27: // EFFECTBEAM
+            objst->effect.beam = context->value->arg2;
+            break;
+        case 28: // EFFECTPARTICLE
+            objst->effect.particle = context->value->arg2;
+            break;
+        case 29: // EFFECTEXPLOSION1
+            objst->effect.explosion1 = context->value->arg2;
+            break;
+        case 30: // EFFECTEXPLOSION2
+            objst->effect.explosion2 = context->value->arg2;
+            break;
+        case 31: // EFFECTSPACING
+            objst->effect.spacing = context->value->arg2;
+            break;
+        case 32: // EFFECTSOUND
+            objst->effect.sound = context->value->arg2;
+            break;
         default:
             WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
             break;
