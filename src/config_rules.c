@@ -112,7 +112,7 @@ const struct NamedField rules_creatures_named_fields[] = {
   {"FIGHTHATEKILLVALUE",        &game.conf.rules.creature.fight_hate_kill_value, var_type(game.conf.rules.creature.fight_hate_kill_value ),       0,USHRT_MAX},
   {"FLEEZONERADIUS",            &game.conf.rules.creature.flee_zone_radius,      var_type(game.conf.rules.creature.flee_zone_radius      ),       0,ULONG_MAX},
   {"GAMETURNSINFLEE",           &game.conf.rules.creature.game_turns_in_flee,    var_type(game.conf.rules.creature.game_turns_in_flee    ),       0,LONG_MAX},
-  {"GAMETURNSUNCONSCIOUS",      &game.conf.rules.creature.game_turns_unconscious,var_type(game.conf.rules.creature.game_turns_unconscious),       0,LONG_MAX},
+  {"GAMETURNSUNCONSCIOUS",      &game.conf.rules.creature.game_turns_unconscious,var_type(game.conf.rules.creature.game_turns_unconscious),       0,USHRT_MAX},
   {"STUNEVILENEMYCHANCE",       &game.conf.rules.creature.stun_enemy_chance_evil,var_type(game.conf.rules.creature.stun_enemy_chance_evil),       0, 100},
   {"STUNGOODENEMYCHANCE",       &game.conf.rules.creature.stun_enemy_chance_good,var_type(game.conf.rules.creature.stun_enemy_chance_good),       0, 100},
   {NULL,NULL,0,0,0 },
@@ -168,28 +168,21 @@ const struct NamedField rules_rooms_named_fields[] = {
   
   };
 
-const struct NamedCommand rules_workers_commands[] = {
-  {"HITSPERSLAB",                1},
-  {"IMPJOBNOTSOCLOSE",           2},
-  {"IMPJOBFARAWAY",              3},
-  {"IMPGENERATETIME",            4},
-  {"IMPROVEAREA",                5},
-  {"DEFAULTIMPDIGDAMAGE",        6},
-  {"DEFAULTIMPDIGOWNDAMAGE",     7},
-  {"PERIMPGOLDDIGSIZE",          8},
-  {"IMPWORKEXPERIENCE",          9},
-  {NULL,                         0},
-  };
+const struct NamedField rules_workers_named_fields[] = {
+  {"HITSPERSLAB",                &game.conf.rules.workers.hits_per_slab,              var_type(game.conf.rules.workers.hits_per_slab              ), 0, UCHAR_MAX},
+  {"DEFAULTIMPDIGDAMAGE",        &game.conf.rules.workers.default_imp_dig_damage,     var_type(game.conf.rules.workers.default_imp_dig_damage     ), 0, ULONG_MAX},
+  {"DEFAULTIMPDIGOWNDAMAGE",     &game.conf.rules.workers.default_imp_dig_own_damage, var_type(game.conf.rules.workers.default_imp_dig_own_damage ), 0, ULONG_MAX},
+  {"IMPWORKEXPERIENCE",          &game.conf.rules.workers.digger_work_experience,     var_type(game.conf.rules.workers.digger_work_experience     ), 0, LONG_MAX},
+  {NULL,NULL,0,0,0 },
+};
 
-const struct NamedCommand rules_health_commands[] = {
-  {"HUNGERHEALTHLOSS",              1},
-  {"GAMETURNSPERHUNGERHEALTHLOSS",  2},
-  {"FOODHEALTHGAIN",                3},
-  {"PRISONHEALTHGAIN",              4},
-  {"GAMETURNSPERPRISONHEALTHGAIN",  5},
-  {"TORTUREHEALTHLOSS",             6},
-  {"GAMETURNSPERTORTUREHEALTHLOSS", 7},
-  {NULL,                            0},
+const struct NamedField rules_health_named_fields[] = {
+  {"HUNGERHEALTHLOSS",              &game.conf.rules.health.hunger_health_loss,            var_type(game.conf.rules.health.hunger_health_loss           ), 0, USHRT_MAX},
+  {"GAMETURNSPERHUNGERHEALTHLOSS",  &game.conf.rules.health.turns_per_hunger_health_loss,  var_type(game.conf.rules.health.turns_per_hunger_health_loss ), 0, USHRT_MAX},
+  {"FOODHEALTHGAIN",                &game.conf.rules.health.food_health_gain,              var_type(game.conf.rules.health.food_health_gain             ), 0, USHRT_MAX},
+  {"TORTUREHEALTHLOSS",             &game.conf.rules.health.torture_health_loss,           var_type(game.conf.rules.health.torture_health_loss          ), 0, USHRT_MAX},
+  {"GAMETURNSPERTORTUREHEALTHLOSS", &game.conf.rules.health.turns_per_torture_health_loss, var_type(game.conf.rules.health.turns_per_torture_health_loss), 0, USHRT_MAX},
+  {NULL,NULL,0,0,0 },
   };
 
 const struct NamedCommand rules_research_commands[] = {
@@ -335,6 +328,10 @@ static void set_defaults()
     game.conf.rules.rooms.time_between_prison_break = 64;
 
     game.conf.rules.computer.disease_to_temple_pct = 500;
+
+    game.conf.rules.workers.hits_per_slab = 2;
+    game.conf.rules.workers.default_imp_dig_damage = 1;
+    game.conf.rules.workers.default_imp_dig_own_damage = 2;
 }
 
 TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
@@ -474,237 +471,6 @@ TbBool parse_rules_block(const char *buf, long len, const char *config_textname,
     }
     return true;
 }
-
-TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  // Block name and parameter word store variables
-  // Default values
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      game.conf.rules.workers.hits_per_slab = 2;
-      game.conf.rules.workers.default_imp_dig_damage = 1;
-      game.conf.rules.workers.default_imp_dig_own_damage = 2;
-  }
-  // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "workers");
-  long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
-  }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_workers_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, rules_workers_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // HITSPERSLAB
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.workers.hits_per_slab = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // IMPJOBNOTSOCLOSE
-          //Unused
-          break;
-      case 3: // IMPJOBFARAWAY
-          //Unused
-          break;
-      case 4: // IMPGENERATETIME
-          //Unused
-          break;
-      case 5: // IMPROVEAREA
-          //Unused
-          break;
-      case 6: // DEFAULTIMPDIGDAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.workers.default_imp_dig_damage = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // DEFAULTIMPDIGOWNDAMAGE
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.workers.default_imp_dig_own_damage = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 8: // PERIMPGOLDDIGSIZE
-            //unused
-          break;
-      case 9: // IMPWORKEXPERIENCE
-          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-          {
-              k = atoi(word_buf);
-              game.conf.rules.workers.digger_work_experience = k;
-              n++;
-          }
-          if (n < 1)
-          {
-              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
-#undef COMMAND_TEXT
-  return true;
-}
-
-TbBool parse_rules_health_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  // Block name and parameter word store variables
-  // Default values
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-
-  }
-  // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "health");
-  long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
-  }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_health_commands,cmd_num)
-  while (pos<len)
-  {
-      // Finding command number in this line
-      int cmd_num = recognize_conf_command(buf, &pos, len, rules_health_commands);
-      // Now store the config item in correct place
-      if (cmd_num == -3) break; // if next block starts
-      int n = 0;
-      char word_buf[COMMAND_WORD_LEN];
-      switch (cmd_num)
-      {
-      case 1: // HUNGERHEALTHLOSS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.health.hunger_health_loss = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 2: // GAMETURNSPERHUNGERHEALTHLOSS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.health.turns_per_hunger_health_loss = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 3: // FOODHEALTHGAIN
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.health.food_health_gain = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 4: // PRISONHEALTHGAIN
-          //Unused
-          break;
-      case 5: // GAMETURNSPERPRISONHEALTHGAIN
-          //Unused
-          break;
-      case 6: // TORTUREHEALTHLOSS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.health.torture_health_loss = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 7: // GAMETURNSPERTORTUREHEALTHLOSS
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            game.conf.rules.health.turns_per_torture_health_loss = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
-          break;
-      case 0: // comment
-          break;
-      case -1: // end of buffer
-          break;
-      default:
-          CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-              cmd_num,block_buf,config_textname);
-          break;
-      }
-      skip_conf_to_next_line(buf,&pos,len);
-  }
-#undef COMMAND_TEXT
-  return true;
-}
-
 long get_research_id(long item_type, const char *trg_name, const char *func_name)
 {
   long item_id;
@@ -1056,23 +822,11 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
     parse_rules_block(buf, len, textname, flags,"rooms",    rules_rooms_named_fields,    NULL,                   NULL);
     parse_rules_block(buf, len, textname, flags,"magic",    rules_magic_named_fields,    NULL,                   NULL);
     parse_rules_block(buf, len, textname, flags,"computer", rules_computer_named_fields, NULL,                   NULL);
+    parse_rules_block(buf, len, textname, flags,"workers",  rules_workers_named_fields,  NULL,                   NULL);
+    parse_rules_block(buf, len, textname, flags,"health",   rules_health_named_fields,   NULL,                   NULL);
 
-    if (result)
-    {
-        result = parse_rules_workers_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" workers blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_health_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" health blocks failed.",textname,fname);
-    }
+    
+
     if (result)
     {
         result = parse_rules_research_blocks(buf, len, textname, flags);
