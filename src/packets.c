@@ -1269,47 +1269,29 @@ void process_players_creature_control_packet_control(long idx)
     if (maxTurnSpeed < 1) {
         maxTurnSpeed = 1;
     }
-    
+
     // Horizontal look
-    long horizontalTurnSpeed = (pckt->pos_x - 127) / player->field_14;
-    if (horizontalTurnSpeed != 0) {
-        if (horizontalTurnSpeed < -32) {
-            horizontalTurnSpeed = -32;
-        } else if (horizontalTurnSpeed > 32) {
-            horizontalTurnSpeed = 32;
-        }
-        ccctrl->view_angle_x += 56 * horizontalTurnSpeed / 32;
-    }
-    horizontalTurnSpeed = ccctrl->view_angle_x;
+    long horizontalTurnSpeed = pckt->pos_x;
     if (horizontalTurnSpeed < -maxTurnSpeed) {
         horizontalTurnSpeed = -maxTurnSpeed;
     } else if (horizontalTurnSpeed > maxTurnSpeed) {
         horizontalTurnSpeed = maxTurnSpeed;
     }
-
+    
     // Vertical look
-    long verticalTurnSpeed = (pckt->pos_y - 127) / player->field_14;
-    if (verticalTurnSpeed != 0) {
-        if (verticalTurnSpeed < -32) {
-            verticalTurnSpeed = -32;
-        } else if (verticalTurnSpeed > 32) {
-            verticalTurnSpeed = 32;
-        }
-        ccctrl->view_angle_y += 56 * verticalTurnSpeed / 32;
-    }
-    verticalTurnSpeed = ccctrl->view_angle_y;
+    long verticalTurnSpeed = pckt->pos_y;
     if (verticalTurnSpeed < -maxTurnSpeed) {
         verticalTurnSpeed = -maxTurnSpeed;
     } else if (verticalTurnSpeed > maxTurnSpeed) {
         verticalTurnSpeed = maxTurnSpeed;
     }
-    
+
     // Limits the vertical view.
     // 227 is default. To support anything above this we need to adjust the terrain culling. (when you look at the ceiling for example)
     // 512 allows for looking straight up and down. 360+ is about where sprite glitches become more obvious.
     long viewable_angle = 227;
     long verticalPos = (cctng->move_angle_z + verticalTurnSpeed) & LbFPMath_AngleMask;
-    
+
     long lowerLimit = LbFPMath_AngleMask - viewable_angle;
     long upperLimit = viewable_angle;
     if (verticalPos > upperLimit && verticalPos < lowerLimit) {
@@ -1319,12 +1301,9 @@ void process_players_creature_control_packet_control(long idx)
             verticalPos = lowerLimit;
         }
     }
-
     cctng->move_angle_z = verticalPos; // Sets the vertical look
     cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & LbFPMath_AngleMask; // Sets the horizontal look
     ccctrl->field_CC = 170 * horizontalTurnSpeed / maxTurnSpeed;
-    ccctrl->view_angle_x = 4 * horizontalTurnSpeed / 8;
-    ccctrl->view_angle_y = 4 * verticalTurnSpeed / 8;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)

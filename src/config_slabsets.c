@@ -107,12 +107,15 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
                 struct SlabObj* slabobj = &game.slabobjs[game.slabobjs_num];
 
                 int slabset_no = slab_kind * SLABSETS_PER_SLAB + slabstyle_no;
-                
-                for (size_t col_no = 0; col_no < 9; col_no++)
+
+                VALUE *col_arr = value_dict_get(section, "Columns");
+                if (value_type(col_arr) == VALUE_ARRAY)
                 {
-                    VALUE *col_arr = value_dict_get(section, "Columns");
-                    ColumnIndex col_idx = value_int32(value_array_get(col_arr, col_no));
-                    game.slabset[slabset_no].col_idx[col_no] = -col_idx;
+                    for (size_t col_no = 0; col_no < 9; col_no++)
+                    {
+                        ColumnIndex col_idx = value_int32(value_array_get(col_arr, col_no));
+                        game.slabset[slabset_no].col_idx[col_no] = -col_idx;
+                    }
                 }
 
                 sprintf(key, "%s_objects", slab_styles_commands[slabstyle_no].name);

@@ -67,6 +67,8 @@ struct Thing;
 struct TrapStats {
   unsigned long health;
   unsigned long sprite_anim_idx;
+  unsigned long recharge_sprite_anim_idx;
+  unsigned long attack_sprite_anim_idx;
   unsigned long sprite_size_max;
   unsigned char unanimated;
   unsigned long anim_speed;
