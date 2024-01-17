@@ -98,15 +98,9 @@ const struct NamedCommand rules_game_commands[] = {
   {NULL,                          0},
 };
 
-
-const struct NamedCommand rules_computer_commands[] = {
-  {"AUTODIGLIMIT",               1},
-  {"WAITFORROOMTIME",            2},
-  {"CHECKEXPANDTIME",            3},
-  {"MAXDISTANCETODIG",           4},
-  {"WAITAFTERROOMAREA",          5},
-  {"DISEASEHPTEMPLEPERCENTAGE",  6},
-  {NULL,                         0},
+const struct NamedField rules_computer_named_fields[] = {
+  {"DISEASEHPTEMPLEPERCENTAGE",  &game.conf.rules.computer.disease_to_temple_pct,    var_type(game.conf.rules.computer.disease_to_temple_pct),     0,USHRT_MAX},
+  {NULL,NULL,0,0,0 },
 };
 
 const struct NamedField rules_creatures_named_fields[] = {
@@ -324,6 +318,23 @@ static void set_defaults()
     game.conf.rules.health.torture_health_loss = 5;
     game.conf.rules.health.turns_per_torture_health_loss = 100;
 
+    game.conf.rules.rooms.scavenge_cost_frequency = 64;
+    game.conf.rules.rooms.temple_scavenge_protection_turns = 1000;
+    game.conf.rules.rooms.train_cost_frequency = 64;
+    game.conf.rules.rooms.ghost_convert_chance = 10;
+    game.conf.rules.rooms.default_generate_speed = 500;
+    game.conf.rules.rooms.default_max_crtrs_gen_entrance = 200;
+    game.conf.rules.rooms.food_generation_speed = 2000;
+    game.conf.rules.rooms.prison_skeleton_chance = 100;
+    game.conf.rules.rooms.bodies_for_vampire = 6;
+    game.conf.rules.rooms.graveyard_convert_time = 300;
+    game.conf.rules.rooms.barrack_max_party_size = 10;
+    game.conf.rules.rooms.training_room_max_level = 0;
+    game.conf.rules.rooms.scavenge_good_allowed = 1;
+    game.conf.rules.rooms.scavenge_neutral_allowed = 1;
+    game.conf.rules.rooms.time_between_prison_break = 64;
+
+    game.conf.rules.computer.disease_to_temple_pct = 500;
 }
 
 TbBool add_sacrifice_victim(struct SacrificeRecipe *sac, long crtr_idx)
@@ -462,128 +473,6 @@ TbBool parse_rules_block(const char *buf, long len, const char *config_textname,
         }
     }
     return true;
-}
-
-
-TbBool parse_rules_computer_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-    // Block name and parameter word store variables
-    // Default values
-    if ((flags & CnfLd_AcceptPartial) == 0)
-    {
-        game.conf.rules.computer.disease_to_temple_pct = 500;
-    }
-    // Find the block
-    char block_buf[COMMAND_WORD_LEN];
-    sprintf(block_buf, "computer");
-    long pos = 0;
-    int k = find_conf_block(buf, &pos, len, block_buf);
-    if (k < 0)
-    {
-        if ((flags & CnfLd_AcceptPartial) == 0)
-            WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-        return false;
-    }
-#define COMMAND_TEXT(cmd_num) get_conf_parameter_text(rules_computer_commands,cmd_num)
-    while (pos<len)
-    {
-        // Finding command number in this line
-        int cmd_num = recognize_conf_command(buf, &pos, len, rules_computer_commands);
-        // Now store the config item in correct place
-        if (cmd_num == -3) break; // if next block starts
-        int n = 0;
-        char word_buf[COMMAND_WORD_LEN];
-        switch (cmd_num)
-        {
-        case 1: // AUTODIGLIMIT
-        case 2: // WAITFORROOMTIME
-        case 3: // CHECKEXPANDTIME
-        case 4: // MAXDISTANCETODIG
-        case 5: // WAITAFTERROOMAREA
-            //Unused
-            break;
-        case 6: // DISEASEHPTEMPLEPERCENTAGE
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                game.conf.rules.computer.disease_to_temple_pct = k;
-                n++;
-            }
-            if (n < 1)
-            {
-                CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                    COMMAND_TEXT(cmd_num), block_buf, config_textname);
-            }
-            break;
-        case 0: // comment
-            break;
-        case -1: // end of buffer
-            break;
-        default:
-            CONFWRNLOG("Unrecognized command (%d) in [%s] block of %s file.",
-                cmd_num,block_buf,config_textname);
-            break;
-        }
-        skip_conf_to_next_line(buf,&pos,len);
-    }
-#undef COMMAND_TEXT
-    return true;
-}
-
-TbBool parse_rules_rooms_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
-{
-  // Block name and parameter word store variables
-  // Default values
-  if ((flags & CnfLd_AcceptPartial) == 0)
-  {
-      game.conf.rules.rooms.scavenge_cost_frequency = 64;
-      game.conf.rules.rooms.temple_scavenge_protection_turns = 1000;
-      game.conf.rules.rooms.train_cost_frequency = 64;
-      game.conf.rules.rooms.ghost_convert_chance = 10;
-      game.conf.rules.rooms.default_generate_speed = 500;
-      game.conf.rules.rooms.default_max_crtrs_gen_entrance = 200;
-      game.conf.rules.rooms.food_generation_speed = 2000;
-      game.conf.rules.rooms.prison_skeleton_chance = 100;
-      game.conf.rules.rooms.bodies_for_vampire = 6;
-      game.conf.rules.rooms.graveyard_convert_time = 300;
-      game.conf.rules.rooms.barrack_max_party_size = 10;
-      game.conf.rules.rooms.training_room_max_level = 0;
-      game.conf.rules.rooms.scavenge_good_allowed = 1;
-      game.conf.rules.rooms.scavenge_neutral_allowed = 1;
-      game.conf.rules.rooms.time_between_prison_break = 64;
-  }
-  // Find the block
-  char block_buf[COMMAND_WORD_LEN];
-  sprintf(block_buf, "rooms");
-  long pos = 0;
-  int k = find_conf_block(buf, &pos, len, block_buf);
-  if (k < 0)
-  {
-      if ((flags & CnfLd_AcceptPartial) == 0)
-          WARNMSG("Block [%s] not found in %s file.",block_buf,config_textname);
-      return false;
-  }
-  while (pos<len)
-  {
-        // Finding command number in this line
-        int assignresult = assign_conf_command_field(buf, &pos, len, rules_rooms_named_fields);
-        if( assignresult == ccr_ok || assignresult == ccr_comment )
-        {
-            skip_conf_to_next_line(buf,&pos,len);
-            continue;
-        }
-        else if( assignresult == ccr_unrecognised)
-        {
-            //if fields weren't simple assigns they could be handled here trough recognize_conf_command and a rules_room_commands NamedCommand
-            skip_conf_to_next_line(buf,&pos,len);
-            continue;
-        }
-        else if( assignresult == ccr_endOfBlock || assignresult == ccr_error || assignresult == ccr_endOfFile)
-        {
-            break;
-        }
-  }
-  return true;
 }
 
 TbBool parse_rules_workers_blocks(char *buf, long len, const char *config_textname, unsigned short flags)
@@ -1164,24 +1053,10 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
 
     parse_rules_block(buf, len, textname, flags,"game",     rules_game_named_fields,     rules_game_commands,    &game_block_special_cases);
     parse_rules_block(buf, len, textname, flags,"creatures",rules_creatures_named_fields,rules_creature_commands,&creatures_block_special_cases);
+    parse_rules_block(buf, len, textname, flags,"rooms",    rules_rooms_named_fields,    NULL,                   NULL);
     parse_rules_block(buf, len, textname, flags,"magic",    rules_magic_named_fields,    NULL,                   NULL);
+    parse_rules_block(buf, len, textname, flags,"computer", rules_computer_named_fields, NULL,                   NULL);
 
-    if (result)
-    {
-        result = parse_rules_computer_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" computer blocks failed.",textname,fname);
-    }
-    if (result)
-    {
-        result = parse_rules_rooms_blocks(buf, len, textname, flags);
-        if ((flags & CnfLd_AcceptPartial) != 0)
-            result = true;
-        if (!result)
-            WARNMSG("Parsing %s file \"%s\" rooms blocks failed.",textname,fname);
-    }
     if (result)
     {
         result = parse_rules_workers_blocks(buf, len, textname, flags);
