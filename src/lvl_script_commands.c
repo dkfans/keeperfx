@@ -212,7 +212,8 @@ const struct NamedCommand trap_config_desc[] = {
   {"Shots",                9},
   {"TimeBetweenShots",    10},
   {"SellingValue",        11},
-  {"Model",               12},
+  {"AnimationID",         12},
+  {"Model",               12}, //legacy name
   {"ModelSize",           13},
   {"AnimationSpeed",      14},
   {"TriggerType",         15},
@@ -239,6 +240,8 @@ const struct NamedCommand trap_config_desc[] = {
   {"ShotOrigin",          36},
   {"PlaceSound",          37},
   {"TriggerSound",        38},
+  {"RechargeAnimationID", 39},
+  {"AttackAnimationID",   40},
   {NULL,                   0},
 };
 
@@ -262,28 +265,25 @@ const struct NamedCommand room_config_desc[] = {
   {NULL,                   0},
 };
 
-const struct NamedCommand game_rule_desc[] = {
-  {"BodiesForVampire",               1},
-  {"PrisonSkeletonChance",           2},
-  {"GhostConvertChance",             3},
-  {"TortureConvertChance",           4},
-  {"TortureDeathChance",             5},
-  {"FoodGenerationSpeed",            6},
+
+
+static const struct NamedField rules_script_only_named_fields[] = {
+    //name            //field                //field type                   //min //max     
+  {"PayDayProgress",&game.pay_day_progress,var_type(game.pay_day_progress),0,LONG_MAX},
+  {NULL,                            NULL,0,0,0 },
+};
+
+static const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,rules_script_only_named_fields};
+
+static const struct NamedCommand game_rule_desc[] = {
+  {"PreserveClassicBugs",            1},
+  {"AlliesShareVision",              2},
+//ones below still need to be moved to NamedField
   {"StunEvilEnemyChance",            7},
   {"StunGoodEnemyChance",            8},
   {"BodyRemainsFor",                 9},
   {"FightHateKillValue",            10},
-  {"PreserveClassicBugs",           11},
-  {"DungeonHeartHealHealth",        12},
   {"ImpWorkExperience",             13},
-  {"GemEffectiveness",              14},
-  {"RoomSellGoldBackPercent",       15},
-  {"DoorSellValuePercent",          16},
-  {"TrapSellValuePercent",          17},
-  {"PayDayGap",                     18},
-  {"PayDaySpeed",                   19},
-  {"PayDayProgress",                20},
-  {"PlaceTrapsOnSubtiles",          21},
   {"DiseaseHPTemplePercentage",     22},
   {"DungeonHeartHealth",            23},
   {"HungerHealthLoss",              24},
@@ -291,15 +291,6 @@ const struct NamedCommand game_rule_desc[] = {
   {"FoodHealthGain",                26},
   {"TortureHealthLoss",             27},
   {"GameTurnsPerTortureHealthLoss", 28},
-  {"AlliesShareVision",             29},
-  {"AlliesShareDrop",               30},
-  {"AlliesShareCta",                31},
-  {"BarrackMaxPartySize",           32},
-  {"MaxThingsInHand",               33},
-  {"TrainingRoomMaxLevel",          34},
-  {"TorturePayday",                 35},
-  {"TortureTrainingCost",           36},
-  {"TortureScavengingCost",         37},
   {NULL,                             0},
 };
 
@@ -1050,7 +1041,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if ((trapvar != 4) && (trapvar != 12))  // PointerSprites && Model
+    else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
         if (parameter_is_number(valuestring))
         {
@@ -1634,7 +1625,14 @@ void refresh_trap_anim(long trap_id)
         // Per thing code
         if (traptng->model == trap_id)
         {
-            traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
+            if ((traptng->trap.wait_for_rearm == true) || (game.conf.trap_stats[trap_id].recharge_sprite_anim_idx == 0))
+            {
+                traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
+            }
+            else 
+            {
+                traptng->anim_sprite = game.conf.trap_stats[trap_id].recharge_sprite_anim_idx;
+            }
             struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
             char start_frame;
             if (trapstat->random_start_frame) {
@@ -1660,7 +1658,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     long trap_type = context->value->shorts[0];
     struct TrapConfigStats *trapst = &game.conf.trapdoor_conf.trap_cfgstats[trap_type];
     struct ManfctrConfig *mconf = &game.conf.traps_config[trap_type];
+    struct TrapStats* trapstat = &game.conf.trap_stats[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
+    struct ObjectConfigStats obj_tmp;
     long value = context->value->uarg1;
     short value2 = context->value->shorts[4];
     short value3 = context->value->shorts[5];
@@ -1736,29 +1736,26 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 11: // SellingValue
             mconf->selling_value = value;
             break;
-        case 12: // Model
-        {
-            struct ObjectConfigStats obj_tmp;
-            game.conf.trap_stats[trap_type].sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+        case 12: // AnimationID
+            trapstat->sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             refresh_trap_anim(trap_type);
-        }
             break;
         case 13: // ModelSize
-            game.conf.trap_stats[trap_type].sprite_size_max = value;
+            trapstat->sprite_size_max = value;
             refresh_trap_anim(trap_type);
             break;
         case 14: // AnimationSpeed
-            game.conf.trap_stats[trap_type].anim_speed = value;
+            trapstat->anim_speed = value;
             refresh_trap_anim(trap_type);
             break;
         case 15: // TriggerType
-            game.conf.trap_stats[trap_type].trigger_type = value;
+            trapstat->trigger_type = value;
             break;
         case 16: // ActivationType
-            game.conf.trap_stats[trap_type].activation_type = value;
+            trapstat->activation_type = value;
             break;
         case 17: // EffectType
-            game.conf.trap_stats[trap_type].created_itm_model = value;
+            trapstat->created_itm_model = value;
             break;
         case 18: // Hidden
             trapst->hidden = value;
@@ -1770,41 +1767,41 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->slappable = value;
             break;
         case 21: // Unanimated
-            game.conf.trap_stats[trap_type].unanimated = value;
+            trapstat->unanimated = value;
             refresh_trap_anim(trap_type);
             break;
         case 22: // Health
-            game.conf.trap_stats[trap_type].health = value;
+            trapstat->health = value;
             break;
         case 23: // Unshaded
-            game.conf.trap_stats[trap_type].unshaded = value;
+            trapstat->unshaded = value;
             break;
         case 24: // RandomStartFrame
-            game.conf.trap_stats[trap_type].random_start_frame = value;
+            trapstat->random_start_frame = value;
             break;
         case 25: // ThingSize
-            game.conf.trap_stats[trap_type].size_xy = value; // First
-            game.conf.trap_stats[trap_type].size_z = value2; // Second
+            trapstat->size_xy = value; // First
+            trapstat->size_z = value2; // Second
             break;
         case 26: // HitType
-            game.conf.trap_stats[trap_type].hit_type = value;
+            trapstat->hit_type = value;
             break;
         case 27: // LightRadius
-            game.conf.trap_stats[trap_type].light_radius = value * COORD_PER_STL;
+            trapstat->light_radius = value * COORD_PER_STL;
             break;
         case 28: // LightIntensity
-            game.conf.trap_stats[trap_type].light_intensity = value;
+            trapstat->light_intensity = value;
             break;
         case 29: // LightFlags
-            game.conf.trap_stats[trap_type].light_flag = value;
+            trapstat->light_flag = value;
             break;
         case 30: // TransparencyFlags
-            game.conf.trap_stats[trap_type].transparency_flag = value;
+            trapstat->transparency_flag = value;
             break;
         case 31: // ShotVector
-            game.conf.trap_stats[trap_type].shotvector.x = value;
-            game.conf.trap_stats[trap_type].shotvector.y = value2;
-            game.conf.trap_stats[trap_type].shotvector.z = value3;
+            trapstat->shotvector.x = value;
+            trapstat->shotvector.y = value2;
+            trapstat->shotvector.z = value3;
             break;
         case 32: // Destructible
             trapst->destructible = value;
@@ -1819,15 +1816,22 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->placeonbridge = value;
             break;
         case 36: // ShotOrigin
-            game.conf.trap_stats[trap_type].shot_shift_x = value;
-            game.conf.trap_stats[trap_type].shot_shift_y = value2;
-            game.conf.trap_stats[trap_type].shot_shift_z = value3;
+            trapstat->shot_shift_x = value;
+            trapstat->shot_shift_y = value2;
+            trapstat->shot_shift_z = value3;
             break;
         case 37: // PlaceSound
             trapst->place_sound_idx = value;
             break;
         case 38: // TriggerSound
             trapst->trigger_sound_idx = value;
+            break;
+        case 39: // RechargeAnimationID
+            trapstat->recharge_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            refresh_trap_anim(trap_type);
+            break;
+        case 40: // AttackAnimationID
+            trapstat->attack_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -4839,134 +4843,126 @@ static void set_player_color_process(struct ScriptContext *context)
 static void set_game_rule_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
-    long ruledesc = get_id(game_rule_desc, scline->tp[0]);
+
+    long rulegroup = 0;
     long ruleval = scline->np[1];
-    const char *rulename = game_rule_desc[ruledesc - 1].name;
+
+    long ruledesc = get_id(game_rule_desc, scline->tp[0]);
+    if(ruledesc != -1)
+    {
+        rulegroup = -1;
+        switch (ruledesc)
+        {
+            case 1: //PreserveClassicBugs
+                //this one is a special case because in the cfg it's not done trough number
+                if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
+                {
+                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                break;
+
+
+            case 7: //StunEvilEnemyChance
+            case 8: //StunGoodEnemyChance
+            case 22: //DiseaseHPTemplePercentage
+                if ((ruleval < 0) || (ruleval > 100))
+                {
+                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                break;
+            case 2: //AlliesShareVision
+            case 6: //FoodGenerationSpeed
+            case 9: //BodyRemainsFor
+            case 13: //ImpWorkExperience
+            case 25: //GameTurnsPerHungerHealthLoss
+            case 28: //GameTurnsPerTortureHealthLoss
+                if (ruleval < 0)
+                {
+                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                break;
+            case 23: //DungeonHeartHealth
+            default:
+                WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
+        {
+            ruledesc = get_named_field_id(ruleblocks[i], scline->tp[0]);
+            if (ruledesc != -1)
+            {
+                rulegroup = i;
+                if (ruleval < (ruleblocks[i]+ruledesc)->min)
+                {
+                    ruleval = (ruleblocks[i]+ruledesc)->min;
+                    SCRPTERRLOG("Game Rule '%s' value %d is smaller then minimum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
+                }
+                else if(ruleval > (ruleblocks[i]+ruledesc)->max)
+                {
+                    ruleval = (ruleblocks[i]+ruledesc)->max;
+                    SCRPTERRLOG("Game Rule '%s' value %d is bigger then maximum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
+                }
+                break;
+            }
+        }
+    }
+
     if (ruledesc == -1)
     {
         SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
-    switch (ruledesc)
-    {
-    case 1: //BodiesForVampire
-        if ((ruleval < 0) || (ruleval > UCHAR_MAX))
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        break;
-    case 11: //PreserveClassicBugs
-        if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        break;
-    case 32: //BarrackMaxPartySize
-        if ((ruleval < 0) || (ruleval > GROUP_MEMBERS_COUNT)) // No more than 30 barracks party members, defined with GROUP_MEMBERS_COUNT.
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range, max %d.", rulename, ruleval, GROUP_MEMBERS_COUNT);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        break;
-    case 33: //MaxThingsInHand
-        if ((ruleval < 0) || (ruleval > MAX_THINGS_IN_HAND)) // No more than 64 things in hand, defined with MAX_THINGS_IN_HAND.
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range, max %d.", rulename, ruleval, MAX_THINGS_IN_HAND);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        break;
-    case 2: //PrisonSkeletonChance
-    case 3: //GhostConvertChance
-    case 4: //TortureConvertChance
-    case 5: //TortureDeathChance
-    case 7: //StunEvilEnemyChance
-    case 8: //StunGoodEnemyChance
-    case 22: //DiseaseHPTemplePercentage
-        if ((ruleval < 0) || (ruleval > 100))
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        break;
-    case 6: //FoodGenerationSpeed
-    case 9: //BodyRemainsFor
-    case 13: //ImpWorkExperience
-    case 14: //GemEffectiveness
-    case 15: //RoomSellGoldBackPercent
-    case 16: //DoorSellValuePercent
-    case 17: //TrapSellValuePercent
-    case 18: //PayDayGap
-    case 19: //PayDaySpeed
-    case 20: //PayDayProgress
-    case 21: //PlaceTrapsOnSubtiles
-    case 25: //GameTurnsPerHungerHealthLoss
-    case 28: //GameTurnsPerTortureHealthLoss
-    case 29: //AlliesShareVision
-    case 30: //AlliesShareDrop
-    case 31: //AlliesShareCta
-    case 34: //TrainingRoomMaxLevel
-    case 35: //TorturePayday
-    case 36: //TortureTrainingCost
-    case 37: //TortureScavengingCost
-        if (ruleval < 0)
-        {
-            SCRPTERRLOG("Game Rule '%s' value %d out of range", rulename, ruleval);
-            DEALLOCATE_SCRIPT_VALUE
-            return;
-        }
-        break;
-    case 23: //DungeonHeartHealth
-    default:
-        WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
-        DEALLOCATE_SCRIPT_VALUE
-        return;
-    }
-    value->shorts[0] = ruledesc;
-    value->arg1 = scline->np[1];
+
+    value->shorts[0] = rulegroup;
+    value->shorts[1] = ruledesc;
+    value->arg1 = ruleval;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
 static void set_game_rule_process(struct ScriptContext* context)
 {
-    short ruledesc = context->value->shorts[0];
-    long rulevalue = context->value->arg1;
+    short rulegroup = context->value->shorts[0];
+    short ruledesc  = context->value->shorts[1];
+    long rulevalue  = context->value->arg1;
+
+
+    if(rulegroup != -1)
+    {
+        SCRIPTDBG(7,"Changing Game Rule '%s' to %d", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
+        assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
+        return;
+    }
+
+
   #if (BFDEBUG_LEVEL >= 7)
-    const char *rulename = game_rule_desc[ruledesc - 1].name;
+    const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
   #endif
     switch (ruledesc)
     {
-    case 1: //BodiesForVampire
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.bodies_for_vampire, rulevalue);
-        game.conf.rules.rooms.bodies_for_vampire = rulevalue;
+    case 1: //PreserveClassicBugs
+        //this one is a special case because in the cfg it's not done trough number
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
+        game.conf.rules.game.classic_bugs_flags = rulevalue;
         break;
-    case 2: //PrisonSkeletonChance
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.prison_skeleton_chance, rulevalue);
-        game.conf.rules.rooms.prison_skeleton_chance = rulevalue;
+    case 2: //AlliesShareVision
+        //this one is a special case because it updates minimap
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
+        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
+        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
         break;
-    case 3: //GhostConvertChance
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.ghost_convert_chance, rulevalue);
-        game.conf.rules.rooms.ghost_convert_chance = rulevalue;
-        break;
-    case 4: //TortureConvertChance
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.torture_convert_chance, rulevalue);
-        game.conf.rules.rooms.torture_convert_chance = rulevalue;
-        break;
-    case 5: //TortureDeathChance
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.torture_death_chance, rulevalue);
-        game.conf.rules.rooms.torture_death_chance = rulevalue;
-        break;
-    case 6: //FoodGenerationSpeed
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.food_generation_speed, rulevalue);
-        game.conf.rules.rooms.food_generation_speed = rulevalue;
-        break;
+
+//ones below here still need to be moved to NamedField
     case 7: //StunEvilEnemyChance
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.stun_enemy_chance_evil, rulevalue);
         game.conf.rules.creature.stun_enemy_chance_evil = rulevalue;
@@ -4983,49 +4979,9 @@ static void set_game_rule_process(struct ScriptContext* context)
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.fight_hate_kill_value, rulevalue);
         game.conf.rules.creature.fight_hate_kill_value = rulevalue;
         break;
-    case 11: //PreserveClassicBugs
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
-        game.conf.rules.game.classic_bugs_flags = rulevalue;
-        break;
-    case 12: //DungeonHeartHealHealth
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.dungeon_heart_heal_health, rulevalue);
-        game.conf.rules.game.dungeon_heart_heal_health = rulevalue;
-        break;
     case 13: //ImpWorkExperience
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.workers.digger_work_experience, rulevalue);
         game.conf.rules.workers.digger_work_experience = rulevalue;
-        break;
-    case 14: //GemEffectiveness
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.gem_effectiveness, rulevalue);
-        game.conf.rules.game.gem_effectiveness = rulevalue;
-        break;
-    case 15: //RoomSellGoldBackPercent
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.room_sale_percent, rulevalue);
-        game.conf.rules.game.room_sale_percent = rulevalue;
-        break;
-    case 16: //DoorSellGoldBackPercent
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.door_sale_percent, rulevalue);
-        game.conf.rules.game.door_sale_percent = rulevalue;
-        break;
-    case 17: //TrapSellGoldBackPercent
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.trap_sale_percent, rulevalue);
-        game.conf.rules.game.trap_sale_percent = rulevalue;
-        break;
-    case 18: //PayDayGap
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.pay_day_gap, rulevalue);
-        game.conf.rules.game.pay_day_gap = rulevalue;
-        break;
-    case 19: //PayDaySpeed
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.pay_day_speed, rulevalue);
-        game.conf.rules.game.pay_day_speed = rulevalue;
-        break;
-    case 20: //PayDayProgress
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.pay_day_progress, rulevalue);
-        game.pay_day_progress = rulevalue;
-        break;
-    case 21: //PlaceTrapsOnSubtiles
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.place_traps_on_subtiles, rulevalue);
-        game.conf.rules.game.place_traps_on_subtiles = (TbBool)rulevalue;
         break;
     case 22: //DiseaseHPTemplePercentage
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.computer.disease_to_temple_pct, rulevalue);
@@ -5051,43 +5007,7 @@ static void set_game_rule_process(struct ScriptContext* context)
         SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.turns_per_torture_health_loss, rulevalue);
         game.conf.rules.health.turns_per_torture_health_loss = rulevalue;
         break;
-    case 29: //AlliesShareVision
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
-        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
-        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
-        break;
-    case 30: //AlliesShareDrop
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_drop, rulevalue);
-        game.conf.rules.game.allies_share_drop = (TbBool)rulevalue;
-        break;
-    case 31: //AlliesShareCta
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_cta, rulevalue);
-        game.conf.rules.game.allies_share_cta = (TbBool)rulevalue;
-        break;
-    case 32: //BarrackMaxPartySize
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.barrack_max_party_size, rulevalue);
-        game.conf.rules.rooms.barrack_max_party_size = rulevalue;
-        break;
-    case 33: //MaxThingsInHand
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.max_things_in_hand, rulevalue);
-        game.conf.rules.game.max_things_in_hand = rulevalue;
-        break;
-    case 34: //TrainingRoomMaxLevel
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.rooms.training_room_max_level, rulevalue);
-        game.conf.rules.rooms.training_room_max_level = rulevalue;
-        break;
-    case 35: //TorturePayday
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.torture_payday, rulevalue);
-        game.conf.rules.game.torture_payday = rulevalue;
-        break;
-    case 36: //TortureTrainingCost
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.torture_training_cost, rulevalue);
-        game.conf.rules.game.torture_training_cost = rulevalue;
-        break;
-    case 37: //TortureScavengingCost
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.torture_scavenging_cost, rulevalue);
-        game.conf.rules.game.torture_scavenging_cost = rulevalue;
-        break;
+
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
         break;
