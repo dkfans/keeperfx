@@ -375,27 +375,27 @@ short find_conf_block(const char *buf,long *pos,long buflen,const char *blocknam
  * @param buflen
  * @param commands
  * @return If positive integer is returned, it is the command number recognized in the line.
- * If 0 is returned, that means the current line did not contained any command and should be skipped.
- * If -1 is returned, that means we've reached end of file.
- * If -2 is returned, that means the command wasn't recognized.
- * If -3 is returned, that means we've reached end of the INI block.
+ * If ccr_comment      is returned, that means the current line did not contained any command and should be skipped.
+ * If ccr_endOfFile    is returned, that means we've reached end of file.
+ * If ccr_unrecognised is returned, that means the command wasn't recognized.
+ * If ccr_endOfBlock   is returned, that means we've reached end of the INI block.
  */
 int recognize_conf_command(const char *buf,long *pos,long buflen,const struct NamedCommand commands[])
 {
     SYNCDBG(19,"Starting");
-    if ((*pos) >= buflen) return -1;
+    if ((*pos) >= buflen) return ccr_endOfFile;
     // Skipping starting spaces
     while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
     {
         (*pos)++;
-        if ((*pos) >= buflen) return -1;
+        if ((*pos) >= buflen) return ccr_endOfFile;
     }
     // Checking if this line is a comment
     if (buf[*pos] == ';')
-        return 0;
+        return ccr_comment;
     // Checking if this line is start of a block
     if (buf[*pos] == '[')
-        return -3;
+        return ccr_endOfBlock;
     // Finding command number
     int i = 0;
     while (commands[i].num > 0)
@@ -432,7 +432,147 @@ int recognize_conf_command(const char *buf,long *pos,long buflen,const struct Na
         }
         i++;
     }
-    return -2;
+    return ccr_unrecognised;
+}
+
+int assign_named_field_value(const struct NamedField* named_field, int64_t value)
+{
+    switch (named_field->type)
+    {
+    case dt_uchar:
+        *(unsigned char*)named_field->field = value;
+        break;
+    case dt_schar:
+        *(signed char*)named_field->field = value;
+        break;
+    case dt_short:
+        *(signed short*)named_field->field = value;
+        break;
+    case dt_ushort:
+        *(unsigned short*)named_field->field = value;
+        break;
+    case dt_int:
+        *(signed int*)named_field->field = value;
+        break;
+    case dt_uint:
+        *(unsigned int*)named_field->field = value;
+        break;
+    case dt_long:
+        *(signed long*)named_field->field = value;
+        break;
+    case dt_ulong:
+        *(unsigned long*)named_field->field = value;
+        break;
+    case dt_longlong:
+        *(signed long long*)named_field->field = value;
+        break;
+    case dt_ulonglong:
+        *(unsigned long long*)named_field->field = value;
+        break;
+    case dt_float:
+        *(float*)named_field->field = value;
+        break;
+    case dt_double:
+        *(double*)named_field->field = value;
+        break;
+    case dt_longdouble:
+        *(long double*)named_field->field = value;
+        break;
+    case dt_default:
+    case dt_void:
+    default:
+        ERRORLOG("unexpected datatype for field %s",named_field->name);
+        return ccr_error;
+        break;
+    }
+    return ccr_ok;
+}
+
+/**
+ * Recognizes config command and returns its number, or negative status code.
+ * @param buf
+ * @param pos
+ * @param buflen
+ * @param commands
+ * @return If ccr_ok is returned the field has been correctly assigned
+ * If ccr_comment      is returned, that means the current line did not contained any command and should be skipped.
+ * If ccr_endOfFile    is returned, that means we've reached end of file.
+ * If ccr_unrecognised is returned, that means the command wasn't recognized.
+ * If ccr_endOfBlock   is returned, that means we've reached end of the INI block.
+ * If ccr_error        is returned, that means something went wrong.
+ */
+
+int assign_conf_command_field(const char *buf,long *pos,long buflen,const struct NamedField commands[])
+{
+    SYNCDBG(19,"Starting");
+    if ((*pos) >= buflen) return -1;
+    // Skipping starting spaces
+    while ((buf[*pos] == ' ') || (buf[*pos] == '\t') || (buf[*pos] == '\n') || (buf[*pos] == '\r') || (buf[*pos] == 26) || ((unsigned char)buf[*pos] < 7))
+    {
+        (*pos)++;
+        if ((*pos) >= buflen) return -1;
+    }
+    // Checking if this line is a comment
+    if (buf[*pos] == ';')
+        return ccr_comment;
+    // Checking if this line is start of a block
+    if (buf[*pos] == '[')
+        return ccr_endOfBlock;
+    // Finding command number
+    int i = 0;
+    while (commands[i].name != NULL)
+    {
+        int cmdname_len = strlen(commands[i].name);
+        if ((*pos)+cmdname_len > buflen) {
+            i++;
+            continue;
+        }
+        // Find a matching command
+        if (strnicmp(buf+(*pos), commands[i].name, cmdname_len) == 0)
+        {
+            (*pos) += cmdname_len;
+            // if we're not at end of input buffer..
+            if ((*pos) < buflen)
+            {
+                // make sure it's whole command, not just start of different one
+               if ((buf[(*pos)] != ' ') && (buf[(*pos)] != '\t')
+                && (buf[(*pos)] != '=')  && ((unsigned char)buf[(*pos)] >= 7))
+               {
+                  (*pos) -= cmdname_len;
+                  i++;
+                  continue;
+               }
+               // Skipping spaces between command and parameters
+               while ((buf[*pos] == ' ') || (buf[*pos] == '\t')
+                || (buf[*pos] == '=')  || ((unsigned char)buf[*pos] < 7))
+               {
+                 (*pos)++;
+                 if ((*pos) >= buflen) break;
+               }
+            }
+
+            char word_buf[COMMAND_WORD_LEN];
+            if (get_conf_parameter_single(buf,pos,buflen,word_buf,sizeof(word_buf)) > 0)
+            {
+                int64_t k = atoi(word_buf);
+
+                if( k < commands[i].min)
+                {
+                    CONFWRNLOG("field '%s' smaller then min value '%d', was '%d'",commands[i].name,commands[i].min,k);
+                    k = commands[i].min;
+                }
+                else if( k > commands[i].max)
+                {
+                    CONFWRNLOG("field '%s' bigger then max value '%d', was '%d'",commands[i].name,commands[i].max,k);
+                    k = commands[i].max;
+                }
+                
+                return assign_named_field_value(&commands[i],k);
+            }
+        }
+        i++;
+    }
+    return ccr_unrecognised;
 }
 
 int get_conf_parameter_whole(const char *buf,long *pos,long buflen,char *dst,long dstlen)
@@ -626,6 +766,22 @@ const char *get_language_lwrstr(int lang_id)
   snprintf(lang_str, 4, "%s", src);
   make_lowercase(lang_str);
   return lang_str;
+}
+
+/**
+ * Returns ID of given item using NamedField list.
+ * If not found, returns -1.
+ */
+long get_named_field_id(const struct NamedField *desc, const char *itmname)
+{
+  if ((desc == NULL) || (itmname == NULL))
+    return -1;
+  for (long i = 0; desc[i].name != NULL; i++)
+  {
+    if (strcasecmp(desc[i].name, itmname) == 0)
+      return i;
+  }
+  return -1;
 }
 
 /**

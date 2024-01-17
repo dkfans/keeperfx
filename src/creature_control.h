@@ -181,7 +181,6 @@ unsigned char sound_flag;
     unsigned short lair_room_id;
     /** Lair object thing index. */
     unsigned short lairtng_idx;
-    short view_angle;
     /** Index of a thing being dragged by the creature, or index of a thing which is dragging this thing.
      *  Specific case is determined by flags. */
     short dragtng_idx;
@@ -449,7 +448,7 @@ struct CreatureStats { // These stats are not compatible with original DK - they
     short grow_up;
     unsigned char grow_up_level;
     TbBool entrance_force;
-    short max_angle_change;
+    short max_turning_speed;
     short base_eye_height;
     unsigned short size_xy;
     unsigned short size_z;
