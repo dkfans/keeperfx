@@ -386,6 +386,12 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrConceal:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrFlight:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FLIGHT, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrVision:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_VISION, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrHoldAudnc:
         return magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, alevel, PwMod_Default);
     case GA_UsePwrDisease:
@@ -397,6 +403,9 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrFreeze:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_FREEZE, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrSlow:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLOW, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UseSlap:
     case GA_UsePwrSlap:
         thing = thing_get(param1);
@@ -3100,7 +3109,7 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         {
             k = 1;
         }
-    } 
+    }
     else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_PROTECT))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
@@ -3111,6 +3120,20 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
     else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_REBOUND))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_FLIGHT))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_VISION))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
@@ -3793,8 +3816,8 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
     return true;
 }
 
-//task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units. Not to be confused
-//with check_for_accelerate which cast speed outside of combat
+//Task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_accelerate which cast speed outside of combat.
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
 {
     struct ComputerTask *ctask;
@@ -3804,9 +3827,49 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
         return false;
     }
     if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "I should buff my fighters.");
+        message_add_fmt(comp->dungeon->owner, "I should speed up my fighters.");
     }
     ctask->ttype = CTT_MagicSpeedUp;
+    ctask->attack_magic.target_thing_idx = creatng->index;
+    ctask->attack_magic.splevel = splevel;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+//Task is named 'flight up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_flight which cast flight outside of combat.
+TbBool create_task_magic_flight_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
+        message_add_fmt(comp->dungeon->owner, "I should flight up my fighters.");
+    }
+    ctask->ttype = CTT_MagicFlightUp;
+    ctask->attack_magic.target_thing_idx = creatng->index;
+    ctask->attack_magic.splevel = splevel;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+//Task is named 'vision up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_vision which cast vision outside of combat.
+TbBool create_task_magic_vision_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
+        message_add_fmt(comp->dungeon->owner, "I should vision up my fighters.");
+    }
+    ctask->ttype = CTT_MagicVisionUp;
     ctask->attack_magic.target_thing_idx = creatng->index;
     ctask->attack_magic.splevel = splevel;
     ctask->created_turn = game.play_gameturn;
