@@ -82,6 +82,9 @@ const struct NamedCommand player_state_commands[] = {
     {"PLAYER_STATE_PLACETERRAIN",     PSt_PlaceTerrain},
     {"PLAYER_STATE_REBOUND",          PSt_Rebound},
     {"PLAYER_STATE_FREEZE",           PSt_Freeze},
+    {"PLAYER_STATE_SLOW",             PSt_Slow},
+    {"PLAYER_STATE_FLIGHT",           PSt_Flight},
+    {"PLAYER_STATE_VISION",           PSt_Vision},
     {NULL,                            0},  
 };
 /******************************************************************************/
