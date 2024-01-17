@@ -203,6 +203,10 @@ extern const struct NamedCommand sacrifice_unique_desc[];
 extern const struct NamedField rules_magic_named_fields[];
 extern const struct NamedField rules_rooms_named_fields[];
 extern const struct NamedField rules_game_named_fields[];
+extern const struct NamedField rules_creatures_named_fields[];
+extern const struct NamedField rules_computer_named_fields[];
+extern const struct NamedField rules_workers_named_fields[];
+extern const struct NamedField rules_health_named_fields[];
 
 /******************************************************************************/
 #ifdef __cplusplus
