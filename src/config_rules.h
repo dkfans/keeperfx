@@ -121,8 +121,8 @@ struct CreatureRulesConfig {
 
 struct MagicRulesConfig {
     GameTurnDelta hold_audience_time;
-    unsigned long armagedon_teleport_your_time_gap;
-    unsigned long armagedon_teleport_enemy_time_gap;
+    unsigned long armageddon_teleport_your_time_gap;
+    unsigned long armageddon_teleport_enemy_time_gap;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
@@ -132,7 +132,7 @@ struct MagicRulesConfig {
     GoldAmount power_hand_gold_grab_amount;
     long friendly_fight_area_damage_permil;
     long friendly_fight_area_range_permil;
-    TbBool armegeddon_teleport_neutrals;
+    TbBool armageddon_teleport_neutrals;
 };
 
 struct RoomRulesConfig {

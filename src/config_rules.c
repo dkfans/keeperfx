@@ -125,21 +125,21 @@ const struct NamedCommand rules_creature_commands[] = {
 
 const struct NamedField rules_magic_named_fields[] = {
     //name                           //field                                                  //field type                                                     //min    //max                                   
-  {"HOLDAUDIENCETIME",              &game.conf.rules.magic.hold_audience_time,               var_type(game.conf.rules.magic.hold_audience_time               ),       0,LONG_MAX},
-  {"ARMAGEDONTELEPORTYOURTIMEGAP",  &game.conf.rules.magic.armagedon_teleport_your_time_gap, var_type(game.conf.rules.magic.armagedon_teleport_your_time_gap ),LONG_MIN,LONG_MAX},
-  {"ARMAGEDONTELEPORTENEMYTIMEGAP", &game.conf.rules.magic.armagedon_teleport_enemy_time_gap,var_type(game.conf.rules.magic.armagedon_teleport_enemy_time_gap),       0,LONG_MAX},
-  {"ARMEGEDDONTELEPORTNEUTRALS",    &game.conf.rules.magic.armegeddon_teleport_neutrals,     var_type(game.conf.rules.magic.armegeddon_teleport_neutrals     ),       0,       1},
-  {"ARMEGEDDONCOUNTDOWN",           &game.armageddon.count_down,                             var_type(game.armageddon.count_down                             ),LONG_MIN,LONG_MAX},
-  {"ARMEGEDDONDURATION",            &game.armageddon.duration,                               var_type(game.armageddon.duration                               ),LONG_MIN,LONG_MAX},
-  {"DISEASETRANSFERPERCENTAGE",     &game.conf.rules.magic.disease_transfer_percentage,      var_type(game.conf.rules.magic.disease_transfer_percentage      ),       0,CHAR_MAX},
-  {"DISEASELOSEPERCENTAGEHEALTH",   &game.conf.rules.magic.disease_lose_percentage_health,   var_type(game.conf.rules.magic.disease_lose_percentage_health   ),LONG_MIN,LONG_MAX},
-  {"DISEASELOSEHEALTHTIME",         &game.conf.rules.magic.disease_lose_health_time,         var_type(game.conf.rules.magic.disease_lose_health_time         ),LONG_MIN,LONG_MAX},
-  {"MINDISTANCEFORTELEPORT",        &game.conf.rules.magic.min_distance_for_teleport,        var_type(game.conf.rules.magic.min_distance_for_teleport        ),LONG_MIN,LONG_MAX},
-  {"COLLAPSEDUNGEONDAMAGE",         &game.conf.rules.magic.collapse_dungeon_damage,          var_type(game.conf.rules.magic.collapse_dungeon_damage          ),LONG_MIN,LONG_MAX},
-  {"TURNSPERCOLLAPSEDUNGEONDAMAGE", &game.conf.rules.magic.turns_per_collapse_dngn_dmg,      var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg      ),LONG_MIN,LONG_MAX},
-  {"POWERHANDGOLDGRABAMOUNT",       &game.conf.rules.magic.power_hand_gold_grab_amount,      var_type(game.conf.rules.magic.power_hand_gold_grab_amount      ),LONG_MIN,LONG_MAX},
-  {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_permil, var_type(game.conf.rules.magic.friendly_fight_area_range_permil ),LONG_MIN,LONG_MAX},
-  {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_permil,var_type(game.conf.rules.magic.friendly_fight_area_damage_permil),LONG_MIN,LONG_MAX},
+  {"HOLDAUDIENCETIME",              &game.conf.rules.magic.hold_audience_time,                var_type(game.conf.rules.magic.hold_audience_time                ),       0,LONG_MAX},
+  {"ARMAGEDDONTELEPORTYOURTIMEGAP", &game.conf.rules.magic.armageddon_teleport_your_time_gap, var_type(game.conf.rules.magic.armageddon_teleport_your_time_gap ),LONG_MIN,LONG_MAX},
+  {"ARMAGEDDONTELEPORTENEMYTIMEGAP",&game.conf.rules.magic.armageddon_teleport_enemy_time_gap,var_type(game.conf.rules.magic.armageddon_teleport_enemy_time_gap),       0,LONG_MAX},
+  {"ARMAGEDDONTELEPORTNEUTRALS",    &game.conf.rules.magic.armageddon_teleport_neutrals,      var_type(game.conf.rules.magic.armageddon_teleport_neutrals      ),       0,       1},
+  {"ARMAGEDDONCOUNTDOWN",           &game.armageddon.count_down,                              var_type(game.armageddon.count_down                              ),LONG_MIN,LONG_MAX},
+  {"ARMAGEDDONDURATION",            &game.armageddon.duration,                                var_type(game.armageddon.duration                                ),LONG_MIN,LONG_MAX},
+  {"DISEASETRANSFERPERCENTAGE",     &game.conf.rules.magic.disease_transfer_percentage,       var_type(game.conf.rules.magic.disease_transfer_percentage       ),       0,CHAR_MAX},
+  {"DISEASELOSEPERCENTAGEHEALTH",   &game.conf.rules.magic.disease_lose_percentage_health,    var_type(game.conf.rules.magic.disease_lose_percentage_health    ),LONG_MIN,LONG_MAX},
+  {"DISEASELOSEHEALTHTIME",         &game.conf.rules.magic.disease_lose_health_time,          var_type(game.conf.rules.magic.disease_lose_health_time          ),LONG_MIN,LONG_MAX},
+  {"MINDISTANCEFORTELEPORT",        &game.conf.rules.magic.min_distance_for_teleport,         var_type(game.conf.rules.magic.min_distance_for_teleport         ),LONG_MIN,LONG_MAX},
+  {"COLLAPSEDUNGEONDAMAGE",         &game.conf.rules.magic.collapse_dungeon_damage,           var_type(game.conf.rules.magic.collapse_dungeon_damage           ),LONG_MIN,LONG_MAX},
+  {"TURNSPERCOLLAPSEDUNGEONDAMAGE", &game.conf.rules.magic.turns_per_collapse_dngn_dmg,       var_type(game.conf.rules.magic.turns_per_collapse_dngn_dmg       ),LONG_MIN,LONG_MAX},
+  {"POWERHANDGOLDGRABAMOUNT",       &game.conf.rules.magic.power_hand_gold_grab_amount,       var_type(game.conf.rules.magic.power_hand_gold_grab_amount       ),LONG_MIN,LONG_MAX},
+  {"FRIENDLYFIGHTAREARANGEPERCENT", &game.conf.rules.magic.friendly_fight_area_range_permil,  var_type(game.conf.rules.magic.friendly_fight_area_range_permil  ),LONG_MIN,LONG_MAX},
+  {"FRIENDLYFIGHTAREADAMAGEPERCENT",&game.conf.rules.magic.friendly_fight_area_damage_permil, var_type(game.conf.rules.magic.friendly_fight_area_damage_permil ),LONG_MIN,LONG_MAX},
   {NULL,                            NULL,0,0,0 },
   };
 
@@ -293,8 +293,8 @@ static void set_defaults()
     game.conf.rules.creature.stun_enemy_chance_evil = 100;
 
     game.conf.rules.magic.hold_audience_time = 500;
-    game.conf.rules.magic.armagedon_teleport_your_time_gap = 10;
-    game.conf.rules.magic.armagedon_teleport_enemy_time_gap = 10;
+    game.conf.rules.magic.armageddon_teleport_your_time_gap = 10;
+    game.conf.rules.magic.armageddon_teleport_enemy_time_gap = 10;
     game.armageddon.count_down = 500;
     game.armageddon.duration = 4000;
     game.conf.rules.magic.disease_transfer_percentage = 15;
