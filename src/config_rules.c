@@ -825,8 +825,6 @@ TbBool load_rules_config_file(const char *textname, const char *fname, unsigned 
     parse_rules_block(buf, len, textname, flags,"workers",  rules_workers_named_fields,  NULL,                   NULL);
     parse_rules_block(buf, len, textname, flags,"health",   rules_health_named_fields,   NULL,                   NULL);
 
-    
-
     if (result)
     {
         result = parse_rules_research_blocks(buf, len, textname, flags);
