@@ -336,7 +336,7 @@ msgid ""
 msgstr ""
 "Erinnert Euch daran, was Ihr in Dunkelbach gelernt habt. Ihr müsst eine "
 "Schatzkammer, ein Versteck und eine Hühnerfarm bauen sowie einen Eingang "
-"benutzen. Baut Räume von mindestens 3x3 Fliesen, um ihre "
+"benutzen. Baut Räume von mindestens neun Fliesen, um ihre "
 "Effektivität zu steigern."
 
 #. Level Cosyton objective after basic rooms built
@@ -2314,7 +2314,7 @@ msgstr "Flammenatem: [26.6]"
 #: guitext:242
 msgctxt "Creature spell"
 msgid ""
-"Illuminate: Brings light onto darkness, allowing the creature to see but "
+"Illumination: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
 msgstr "Beleuchten: Bringt Licht ins Dunkel; erlaubt der Kreatur zu sehen, aber auch von anderen gesehen zu werden."
 
@@ -7190,8 +7190,8 @@ msgstr "Flug"
 
 #: guitext:1057
 msgctxt "Keeper spell name"
-msgid "Illuminate"
-msgstr "Beleuchten"
+msgid "Illumination"
+msgstr "Beleuchtung"
 
 #: guitext:1058
 msgctxt "Keeper spell name"
