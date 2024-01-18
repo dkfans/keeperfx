@@ -757,7 +757,7 @@ void update_first_person_object_ambience(struct Thing *thing)
              objtng = thing_get(objtng->next_of_class))
         {
             objst = get_object_model_stats(objtng->model);
-            if ((objst->fp_smpl_idx != 0) && !thing_is_in_limbo(objtng))
+            if ((objst->fp_smpl_idx != 0) && !thing_is_picked_up(objtng))
             {
                 new_distance = get_chessboard_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)
