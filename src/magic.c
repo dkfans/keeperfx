@@ -1384,6 +1384,100 @@ TbResult magic_use_power_speed(PlayerNumber plyr_idx, struct Thing *thing, MapSu
     return Lb_SUCCESS;
 }
 
+TbResult magic_use_power_freeze(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Freeze)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_FREEZE, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct Coord3d effpos = thing->mappos;
+    effpos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
+    create_effect(&effpos, TngEff_FallingIceBlocks, thing->owner);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_FREEZE);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Freeze, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_slow(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Slow)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_SLOW, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct Coord3d effpos = thing->mappos;
+    effpos.z.val = get_ceiling_height_above_thing_at(thing, &thing->mappos);
+    create_effect(&effpos, TngEff_SlowKeeperPower, thing->owner);
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_SLOW);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Slow, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_flight(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Fly)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_FLIGHT, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_FLIGHT);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Fly, splevel);
+    return Lb_SUCCESS;
+}
+
+TbResult magic_use_power_vision(PlayerNumber plyr_idx, struct Thing *thing, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
+{
+    if (!thing_is_creature(thing)) {
+        ERRORLOG("Tried to apply spell to invalid creature.");
+        return Lb_FAIL;
+    }
+    // If this spell is already casted at that creature, do nothing
+    if (thing_affected_by_spell(thing, SplK_Sight)) {
+        return Lb_OK;
+    }
+    if ((mod_flags & PwMod_CastForFree) == 0)
+    {
+        // If we can't afford the spell, fail
+        if (!pay_for_spell(plyr_idx, PwrK_VISION, splevel)) {
+            return Lb_FAIL;
+        }
+    }
+    struct PowerConfigStats *powerst;
+    powerst = get_power_model_stats(PwrK_VISION);
+    thing_play_sample(thing, powerst->select_sound_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+    apply_spell_effect_to_thing(thing, SplK_Sight, splevel);
+    return Lb_SUCCESS;
+}
+
 TbResult magic_use_power_lightning(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSubtlCoord stl_y, long splevel, unsigned long mod_flags)
 {
     struct PlayerInfo *player;
@@ -2083,6 +2177,18 @@ TbResult magic_use_power_on_thing(PlayerNumber plyr_idx, PowerKind pwkind,
             break;
         case PwrK_CHICKEN:
             ret = magic_use_power_chicken(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_FREEZE:
+            ret = magic_use_power_freeze(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_SLOW:
+            ret = magic_use_power_slow(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_FLIGHT:
+            ret = magic_use_power_flight(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
+            break;
+        case PwrK_VISION:
+            ret = magic_use_power_vision(plyr_idx, thing, stl_x, stl_y, splevel, allow_flags);
             break;
         case PwrK_SLAP:
             ret = magic_use_power_slap_thing(plyr_idx, thing, allow_flags);

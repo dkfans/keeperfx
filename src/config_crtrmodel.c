@@ -1305,6 +1305,10 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                         crstat->lair_enemy[i] = k;
                         n++;
                     }
+                    else if (0 == strcmp(word_buf, "ANY_CREATURE"))
+                    {
+                        crstat->lair_enemy[i] = CREATURE_ANY;
+                    }
                     else
                     {
                         crstat->lair_enemy[i] = 0;
@@ -1387,7 +1391,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
         crstat->base_eye_height = 0;
         crstat->field_of_view = 0;
         crstat->eye_effect = 0;
-        crstat->max_angle_change = 1;
+        crstat->max_turning_speed = 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -1472,7 +1476,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = atoi(word_buf);
               if (k > 0)
               {
-                  crstat->max_angle_change = (k * LbFPMath_PI) / 180;
+                  crstat->max_turning_speed = (k * LbFPMath_PI) / 180;
                   n++;
               }
             }
