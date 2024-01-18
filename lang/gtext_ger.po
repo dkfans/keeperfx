@@ -296,7 +296,7 @@ msgid ""
 "domain. Remember, each Imp you create is more expensive than the last."
 msgstr ""
 "Ihr braucht mehr Imps. Benutzt den Zauberspruch IMP ERSTELLEN, um sie in "
-"Euren Einfluß zu zaubern. Bedenkt, daß jeder Imp, den Ihr erstellt, teurer "
+"Euren Einfluss zu zaubern. Bedenkt, dass jeder Imp, den Ihr erstellt, teurer "
 "ist als der vorherige."
 
 #. Level Cosyton information soon after start
@@ -335,8 +335,8 @@ msgid ""
 "in squares of at least nine tiles to increase the efficiency of the room."
 msgstr ""
 "Erinnert Euch daran, was Ihr in Dunkelbach gelernt habt. Ihr müsst eine "
-"Schatzkammer, ein Versteck und eine Hühnerfarm bauen und einen Eingang "
-"benutzen. Baut Räume von mindestens neun Fliesen im Quadrat, um die "
+"Schatzkammer, ein Versteck und eine Hühnerfarm bauen sowie einen Eingang "
+"benutzen. Baut Räume von mindestens 3x3 Fliesen, um ihre "
 "Effektivität zu steigern."
 
 #. Level Cosyton objective after basic rooms built
@@ -347,7 +347,7 @@ msgid ""
 "creatures can hone their fighting skills, gain new abilities and learn more "
 "powerful spells."
 msgstr ""
-"Eure Kreaturen müssen gestärkt werden. In einem Trainingsraum können sie "
+"Eure Kreaturen müssen gestärkt werden. In einem TRAININGSRAUM können sie "
 "ihre kämpferischen Fähigkeiten verbessern, sich neue Kentnisse aneignen und "
 "wirkungsvolle Zaubersprüche lernen."
 
@@ -371,7 +371,7 @@ msgid ""
 "Spawn. Build it and they will come."
 msgstr ""
 "Ein Trainingsraum zieht noch grimmigere Kreaturen an, zum Beispiel "
-"Dämonenechsen. Baut einen TRAININGSRAUM, und diese Kreaturen werden kommen."
+"Dämonenechsen. Baut einen Trainingsraum, und diese Kreaturen werden kommen."
 
 #. Level Cosyton information after attracting Demon Spawn
 #: guitext:28
@@ -393,7 +393,7 @@ msgid ""
 "the Training Room."
 msgstr ""
 "Ihr könnt Kreaturen schneller trainieren, indem Ihr sie im Trainingsraum "
-"vertrimmt."
+"vermöbelt."
 
 #. Level Cosyton objective soon after 2nd Demon Spawn
 #: guitext:30
@@ -403,7 +403,7 @@ msgid ""
 "and ready for the attack. The heroes you will face in this realm are tougher "
 "than those you met beneath Brana Hauk."
 msgstr ""
-"Es sind bereits ein paar Helden unterwegs. Vergewissert Euch, daß Eure "
+"Es sind bereits ein paar Helden unterwegs. Vergewissert Euch, dass Eure "
 "Kreaturen gut trainiert sind und sich für den Angriff bereithalten. Die "
 "Helden, denen Ihr dieses mal gegenübersteht, sind stärker als die von "
 "Dunkelbach."
@@ -456,9 +456,9 @@ msgid ""
 "off the side of a corridor."
 msgstr ""
 "Die Zeit ist gekommen, eine BIBLIOTHEK zu bauen. Bibliotheken sind Räume, in "
-"denen Gegenstände, Raum-Modelle und Zaubersprüche erforscht werden. "
+"denen Gegenstände, Raummodelle und Zaubersprüche erforscht werden. "
 "Bibliotheken müssen mindestens genauso groß sein wie die anderen Räume. Da "
-"Forscher Ruhe bevorzugen, solltet Ihr die Bibliothek an einem Flur bauen."
+"Forscher Ruhe bevorzugen, solltet Ihr die Bibliothek flurseitig bauen."
 
 #. Level Waterdream Warm information after started building library
 #: guitext:36
@@ -470,7 +470,7 @@ msgid ""
 msgstr ""
 "Eure neue Bibliothek wird Kreaturen wie Zauberer anlocken, die daran "
 "interessiert sind, Zaubereien und Dungeon-Modelle zu erforschen. Diese üblen "
-"Burschen sind wahre Bücherwürmer und fähige Magier."
+"Burschen sind wahre Bücherwürmer und magisch veranlagt."
 
 #. Level Waterdream Warm objective after finished building library
 #: guitext:37
@@ -496,7 +496,7 @@ msgid ""
 msgstr ""
 "Der Duft obskuren Wissens hat einen begierigen Zauberer in Euren Dungeon "
 "gelockt. Vergesst nicht, Eure Zauberer von Zeit zu Zeit zu trainieren. Ihre "
-"Sprücheklopferei macht sie nämlich zu ziemlich guten Distanz-Kämpfern."
+"Sprücheklopferei macht sie nämlich zu ziemlich guten Fernkämpfern."
 
 #. Level Waterdream Warm objective
 #: guitext:39
@@ -520,7 +520,7 @@ msgid ""
 msgstr ""
 "Und wieder ein Treffer, Keeper. All diese Teile werden den Boden Eurer "
 "Hühnerfarm gut düngen. Davon abgesehen sind sie natürlich eine gute "
-"Abschreckung für andere Schwachköpfige Abenteurer."
+"Abschreckung für andere schwachköpfige Abenteurer."
 
 #. Level Waterdream Warm objective
 #: guitext:41
@@ -538,13 +538,13 @@ msgstr ""
 msgctxt "In-game message"
 msgid ""
 "Is that Imp playing football with a decapitated head? Stay alert, Keeper."
-msgstr "Schaut mal, Keeper! Spielt dieser Imp nicht gerade Kopfball? Vorsicht!"
+msgstr "Spielt dieser Imp gerade Fußball mit einem enthaupteten Kopf? Vorsicht, Keeper!"
 
 #. Level Waterdream Warm objective
 #: guitext:43
 msgctxt "In-game message"
 msgid "Now would be an excellent time to train a Warlock."
-msgstr "Es ist genau die richtige Zeit, um einen Zauberer zu trainieren."
+msgstr "Es ist genau die richtige Zeit, einen Zauberer zu trainieren."
 
 #. Level Waterdream Warm information
 #: guitext:44
@@ -592,7 +592,7 @@ msgid ""
 "least nine tiles, its mere presence will lure the underworld's finest "
 "artisans into your dungeon."
 msgstr ""
-"Eine Studie über Dungeon-Modelle besagt, daß HANDWERKSKAMMERN geeignetes "
+"Eine Studie über Dungeon-Modelle besagt, dass HANDWERKSKAMMERN geeignetes "
 "Mobiliar anfertigen, zum Beispiel Türen und Fallen. Wenn Eure "
 "Handwerkskammer mindestens neun Fliesen im Quadrat groß ist, wird ihre bloße "
 "Präsenz die besten Designer der Unterwelt in Euren Dungeon locken."
@@ -672,7 +672,7 @@ msgid ""
 "access to the enemy. Your creatures may pass freely. Lock or unlock Doors by "
 "clicking over them with the left mouse button."
 msgstr ""
-"In Eurer Handwerkskammer wurde eine Holztür gebaut. Wenn Ihr sie im Flur "
+"In Eurer Handwerkskammer wurde eine HOLZTÜR gebaut. Wenn Ihr sie im Flur "
 "plaziert, kann der Gegner nicht weiter, wohl aber Eure Kreaturen. Türen "
 "werden über einen Linksklick auf- oder abgeschlossen."
 
@@ -683,7 +683,7 @@ msgid ""
 "Your Workshop has produced a Poison Gas trap. Position it and, when an "
 "intruder sets it off, it will envelop the area in deadly vapours."
 msgstr ""
-"In Eurer Handwerkskammer ist eine Giftgas-Falle erstellt worden. Plaziert "
+"In Eurer Handwerkskammer ist eine GIFTGAS-FALLE erstellt worden. Plaziert "
 "sie, und wenn ein Eindringling hineintappt, wird die Umgebung in giftige "
 "Gase gehüllt."
 
@@ -744,7 +744,7 @@ msgid ""
 "Your loyal researchers have perfected the Sight of Evil spell. Cast it on an "
 "unexplored area and it will be revealed to you for a moment."
 msgstr ""
-"Eure ergebenen Forscher haben den BÖSEN BLICK  perfektioniert. Probiert ihn "
+"Eure ergebenen Forscher haben den BÖSEN BLICK perfektioniert. Probiert ihn "
 "in einem unerforschten Gebiet aus, und Ihr werdet einen kurzen Moment den "
 "Überblick haben."
 
@@ -846,7 +846,7 @@ msgid ""
 "be sure when you buy a Braced Door. You couldn't be certain with only a "
 "curtain and a hole in the wall is no help at all."
 msgstr ""
-"Eure Handwerker haben eine verstärkte Tür gebaut. Aus Sicherheitsgründen "
+"Eure Handwerker haben eine VERSTÄRKTE TÜR gebaut. Aus Sicherheitsgründen "
 "solltet Ihr Euch eine solche Tür anschaffen, ein Vorhang oder ein Loch in "
 "der Wand sind nun wirklich kein Schutz."
 
@@ -859,8 +859,8 @@ msgid ""
 "hostile creature and flash-fry him with a Lightning Strike."
 msgstr ""
 "Eure Forscher haben einen Spruch erforscht, der einen Gewittersturm auf ein "
-"Ziel Eurer Wahl loslässt. Wählt den Spruch BLITZ, richtet ihn auf eine "
-"gegnerische Kreatur und elektrisiert sie mit dem Blitzschlag."
+"Ziel Eurer Wahl loslässt. Wählt den Spruch BLITZSCHLAG, richtet ihn auf eine "
+"gegnerische Kreatur und elektrisiert sie mit dem Blitz."
 
 #. Level Snuggledell information
 #: guitext:70
@@ -869,7 +869,7 @@ msgid ""
 "You have manufactured a powerful Lightning Trap. Try it out. It's bound to "
 "give someone a shock."
 msgstr ""
-"Ihr habt eine wirkungsvolle Blitz-Falle erstellt. Probiert sie aus, dann "
+"Ihr habt eine wirkungsvolle BLITZ-FALLE erstellt. Probiert sie aus, dann "
 "trifft jemanden der Schlag."
 
 #. Level Wishvale objective
@@ -891,7 +891,7 @@ msgid ""
 "An Orc warlord joins you and brings with him the plans for building a "
 "Barracks. In this room you can form creatures into teams."
 msgstr ""
-"Ein Orc-Krieger ist zu Euch gekommen und bringt Pläne für den Barrackenbau "
+"Ein Orc-Krieger ist zu Euch gekommen und bringt Pläne für die BARRACKEN "
 "mit. In diesen Räumen könnt Ihr Kreaturen zu Teams zusammenstellen."
 
 #. Level Wishvale objective
@@ -957,7 +957,7 @@ msgid ""
 "The Protect Creature spell has been researched at last. Cast it on a "
 "creature to increase its toughness."
 msgstr ""
-"Ihr habt den Zauberspruch KREATUREN SCHÜTZEN erforscht. Damit könnt Ihr die "
+"Ihr habt den Zauberspruch SCHUTZSCHILD erforscht. Damit könnt Ihr die "
 "Stärke einer Kreatur erhöhen."
 
 #. Level Tickle objective
@@ -983,7 +983,7 @@ msgid ""
 msgstr ""
 "Die Forscher haben eine Anweisung gefunden, um einen Tempel für die dunklen "
 "Götter zu bauen. Durch Opferung Eurer Kreaturen im Pool des Tempels könnt "
-"Ihr kleine Gaben der Götter erwarten. Ihr müßt ein wenig "
+"Ihr kleine Gaben der Götter erwarten. Ihr müsst ein wenig "
 "herumexperimentieren, da es nicht leicht ist, den Göttern ein geeignetes "
 "Angebot zu machen."
 
@@ -1020,7 +1020,7 @@ msgid ""
 msgstr ""
 "Gebt acht, ein Horny ist im Dungeon angekommen. Laßt bloß die Finger von "
 "ihm. Ihr zieht den kürzeren, denn eigentlich macht Horny alles wütend. "
-"Kümmert Euch nur darum, daß alles in seiner Umgebung eine gegnerische "
+"Kümmert Euch nur darum, dass alles in seiner Umgebung eine gegnerische "
 "Kreatur ist, wenn es zum Schlimmsten kommen sollte."
 
 #. Level Moonbrush Wood information
@@ -1031,7 +1031,7 @@ msgid ""
 "and watch the affliction spread like the plague."
 msgstr ""
 "Eure Forscher haben einen VIRUS-SPRUCH ausgebrütet. Auf eine gegnerische "
-"Kreatur angewandt, könnt Ihr genußvoll die Auswirkung von Plagen betrachten."
+"Kreatur angewandt, könnt Ihr genussvoll die Auswirkung von Plagen betrachten."
 
 #. Level Moonbrush Wood information
 #: guitext:85
@@ -1043,7 +1043,7 @@ msgid ""
 "your employ."
 msgstr ""
 "Ein Vampir ist auf Eurem Friedhof auferstanden, genährt von den Seelen der "
-"Verstorbenen, die hier ruhen. Ihr müßt vor Vampiren kriechen, sonst sind sie "
+"Verstorbenen, die hier ruhen. Ihr müsst vor Vampiren kriechen, sonst sind sie "
 "beleidigt. Dennoch sind sie gewinnbringende und furchteinflößende "
 "Untergebene."
 
@@ -1065,7 +1065,7 @@ msgctxt "In-game message"
 msgid ""
 "You have manufactured an Iron Door. It's a formidable barrier. Use it well."
 msgstr ""
-"Ihr habt eine eiserne Tür gebaut. Das ist eine ziemlich gute Barriere. "
+"Ihr habt eine EISENTÜR gebaut. Das ist eine ziemlich gute Barriere. "
 "Benutzt sie wohlüberlegt."
 
 #. Level Elf's Dance objective
@@ -1195,7 +1195,7 @@ msgid ""
 "You have created a Magic Door. These are almost impregnable to all but "
 "magical attacks. I recommend sealing off your Treasure Room or Dungeon Heart."
 msgstr ""
-"Ihr habt eine magische Tür erstellt. Magische Türen zeichnen sich durch eine "
+"Ihr habt eine MAGISCHE TÜR erstellt. Magische Türen zeichnen sich durch eine "
 "enorme Resistenz aus. Sie sind nur durch Zauberei angreifbar. Ich empfehle "
 "sie zum Einsatz vor Schatzkammern oder dem Dungeon-Herz."
 
@@ -1207,7 +1207,7 @@ msgid ""
 "advise extreme antisocial behaviour on your part."
 msgstr ""
 "Irgendwo hier in der Umgebung gibt es einen Rivalen, mit dem Ihr "
-"zurechtkommen müßt. Ich empfehle Euch grob asoziales Verhalten."
+"zurechtkommen müsst. Ich empfehle Euch grob asoziales Verhalten."
 
 #. Level Nevergrim objective
 #: guitext:101
@@ -1287,7 +1287,7 @@ msgid ""
 "it."
 msgstr ""
 "Der AUDIENZ-SPRUCH ist erforscht worden. Durch ihn werden sofort alle "
-"Kreaturen zurück zum Dungeon-Herz gerufen. Wollen wir mal hoffen, daß Ihr "
+"Kreaturen zurück zum Dungeon-Herz gerufen. Wollen wir mal hoffen, dass Ihr "
 "den nie braucht!"
 
 #. Level Sleepiburgh objective
@@ -1309,7 +1309,7 @@ msgid ""
 "any creature to instantly transform the target into poultry. It's a fowl "
 "weapon."
 msgstr ""
-"Eure Forscher haben den unvergleichlichen HÜHNERMORPH-SPRUCH erforscht. Auf "
+"Eure Forscher haben den unvergleichlichen HUHN-SPRUCH erforscht. Auf "
 "eine Kreatur angewandt, bewirkt er die appetitanregende Metamorphose in "
 "Brathähnchen. Tolle Waffe."
 
@@ -1322,7 +1322,7 @@ msgid ""
 "power. This could still turn out to be one of those days."
 msgstr ""
 "So, jetzt habt Ihr einen Spruch, der verstärkte Wände in Staub verwandelt. "
-"Er ist teuer in der Anwendung, und es besteht die Möglichkeit, daß Euer "
+"Er ist teuer in der Anwendung, und es besteht die Möglichkeit, dass Euer "
 "Gegner die gleiche Macht besitzt. Und es könnte ja sein, daß es einer dieser "
 "Tage ist, an denen ..."
 
@@ -1382,7 +1382,7 @@ msgid ""
 "that's what I call practical archaeology."
 msgstr ""
 "Dieser antike Dungeon birgt einige großartige archäologische Ausgrabungen. "
-"Das heißt nichts anderes, als daß es da einige wertvolle Dinge gibt, die es "
+"Das heißt nichts anderes, als dass es da einige wertvolle Dinge gibt, die es "
 "sich zu stehlen lohnt. Das nenne ich angewandte Archäologie."
 
 #. Level Woodly Rhyme information
@@ -1414,7 +1414,7 @@ msgid ""
 "Make sure you're the most powerful force in the region before casting it."
 msgstr ""
 "Ihr habt den ARMAGEDDON-SPRUCH entwickelt. Damit kann man schon etwas "
-"anfangen. Ihr solltet Euch aber vergewissern, daß Ihr die mächtigsten "
+"anfangen. Ihr solltet Euch aber vergewissern, dass Ihr die mächtigsten "
 "Truppen in dieser Region habt, bevor Ihr den Spruch anwendet."
 
 #. Level Tulipscent information
@@ -1471,7 +1471,7 @@ msgid ""
 "ownership in your own way."
 msgstr ""
 "Die Helden dieses Reiches besitzen Schätze von großer Macht. "
-"Selbstverständlich gehören diese Dinge ein Eure Hände. Ich bin sicher, daß "
+"Selbstverständlich gehören diese Dinge ein Eure Hände. Ich bin sicher, dass "
 "Ihr die Besitzverhältnisse auf Eure Weise klären werdet."
 
 #. Level Tulipscent objective
@@ -1512,8 +1512,8 @@ msgid ""
 "escape. Otherwise your presence will be revealed and then you will be in "
 "trouble."
 msgstr ""
-"Solltet Ihr Helden-Patroullien entdecken, sorgt dafür, daß keiner von Ihnen "
-"entkommt. Sonst wird Eure Anwesenheit aufgedeckt, und daß kann Ärger geben."
+"Solltet Ihr Helden-Patroullien entdecken, sorgt dafür, dass keiner von Ihnen "
+"entkommt. Sonst wird Eure Anwesenheit aufgedeckt, und dass kann Ärger geben."
 
 #. Level Blaise End information
 #: guitext:129
@@ -1755,7 +1755,7 @@ msgid ""
 "Your time is up. You have failed. I'm embarrassed to come from the same "
 "inter-dimensional void as you."
 msgstr ""
-"Eure Zeit ist abgelaufen. Ihr habt versagt. Es erschüttert mich, daß ich aus "
+"Eure Zeit ist abgelaufen. Ihr habt versagt. Es erschüttert mich, dass ich aus "
 "der gleichen interdimensionalen Leere komme wie Ihr."
 
 #. Level Bonus 4 objective
@@ -1783,7 +1783,7 @@ msgid ""
 msgstr ""
 "Dieses Gebiet der Unterwelt wird Eure Fähigkeiten testen, ein Labyrinth von "
 "Höhlen zu überbrücken. Die Zeit wird Euer größter Feind sein. Wenn Ihr es "
-"schafft, werdet Ihr die Stelle finden, an der der legendäre Krieger, KAI, "
+"schafft, werdet Ihr die Stelle finden, an der der legendäre Krieger, Kai, "
 "der Barbar, gefangen ist. Kai wird Euch in Zukunft gut dienen."
 
 #. Level Mistle objective
@@ -1795,7 +1795,7 @@ msgid ""
 "history. This will be no mean feat. Resources are scarce because of his "
 "activities."
 msgstr ""
-"Die Leute in diesem Reiche reden von einem Dungeon Keeper, der ABSZESS "
+"Die Leute in diesem Reiche reden von einem Dungeon Keeper, der Wiesel "
 "genannt wird. Er ist historisch verpflichtet, sich Euch in den Weg zu "
 "stellen. Wenn er das tut, dürft Ihr ihn getrost der Geschichte anvertrauen. "
 "Das wird kein großes Kunststück sein. Nachschub ist wegen seiner Aktivitäten "
@@ -1808,7 +1808,7 @@ msgid ""
 "Wisel is defeated. The land is yours to plunder and despoil for all "
 "eternity. Give 'em hell, master."
 msgstr ""
-"Abszess ist besiegt. Das Land steht Euch nun zur Plünderung und Verwüstung "
+"Wiesel ist besiegt. Das Land steht Euch nun zur Plünderung und Verwüstung "
 "in alle Ewigkeit offen. Jagt's zur Hölle, Meister."
 
 #. Level Mistle information
@@ -1823,7 +1823,7 @@ msgstr ""
 "Eure Bösartigkeit hat einen Samurai-Krieger gefügig gemacht. Er hat seine "
 "Ehre aufgegeben, um Euch zu folgen. Sollten Eure Untergebenen einmal große "
 "Opfer erleiden, wird dieser Krieger sogar seine Waffenbrüder zu Hilfe rufen. "
-"Nett und Dumm!"
+"Nett und dumm!"
 
 #. Level Mistle information
 #: guitext:157
@@ -1833,7 +1833,7 @@ msgid ""
 "explore their labyrinthine ways. No-one said being evil would be easy."
 msgstr ""
 "Diese Gegend der Unterwelt ist mit Tunneln durchzogen, und viele Helden "
-"erforschen die Wege des Labyrinths. Niemand hat behauptet, daß bösesein "
+"erforschen die Wege des Labyrinths. Niemand hat behauptet, dass böse sein "
 "einfach ist ..."
 
 #. Level Mistle information
@@ -1843,7 +1843,7 @@ msgid ""
 "It is rumoured that two Dragons are held captive somewhere east of here. "
 "Were you to find them and free them, they would make powerful servants."
 msgstr ""
-"Es hält sich die Legende, daß zwei Drachen irgendwo im Osten "
+"Es hält sich die Legende, dass zwei Drachen irgendwo im Osten "
 "gefangengehalten werden. Wenn Ihr sie finden und befreien könntet, hättet "
 "Ihr zwei feurige Diener."
 
@@ -1890,7 +1890,7 @@ msgstr ""
 #: guitext:163
 msgctxt "In-game message"
 msgid "You have failed. This is a grim day for evil."
-msgstr "Ihr habt versagt! Böser Tag für das Böse!"
+msgstr "Ihr habt versagt! Heute ist ein schlechter Tag für das Böse!"
 
 #: guitext:164
 msgctxt "In-game message"
@@ -1984,7 +1984,7 @@ msgid ""
 msgstr ""
 "Wunderbar, Keeper! Der Avatar und seine ganze erbärmliche Armee sind endlich tot!"
 "Es gibt nur einen Keeper, den man loswerden muss, bevor man der absolute Meister wird!"
-"Also, worauf wartest Du?"
+"Also, worauf wartet Ihr?"
 
 #. Levels Moonbrush Wood and Bonus 1 information
 #: guitext:174
@@ -1993,8 +1993,8 @@ msgid ""
 "Did you see? Your Demon Spawn has evolved to become a powerful Dragon ready "
 "to reduce your enemies into ashes!"
 msgstr ""
-"Hast du gesehen? Deine Dämonenechse hat sich zu einem mächtigen Drachen entwickelt."
-"um deine Feinde in Asche zu verwandeln!"
+"Habt Ihr gesehen? Eure Dämonenechse hat sich zu einem mächtigen Drachen entwickelt,"
+"um Eure Feinde in Asche zu verwandeln!"
 
 #. Level Bonus 6 objective
 #: guitext:175
@@ -2004,7 +2004,7 @@ msgid ""
 "serve you well in the next realm!"
 msgstr ""
 "Gut gemacht! Ihr immenser Reichtum hat die Aufmerksamkeit eines Diebes auf sich gezogen. Er wird"
-"dir gut Dienen im nächsten Reich!"
+"Euch gut Dienen im nächsten Reich!"
 
 #. Level Flowerhat information
 #: guitext:176
@@ -2014,8 +2014,8 @@ msgid ""
 "replenish the health of your creatures and keep them from dying for a while "
 "longer."
 msgstr ""
-"Ihre Forscher haben den Zauber" Kreatur heilen "entdeckt, der es ermöglicht"
-"die Gesundheit deiner Kreaturen wieder aufzufüllen und sie für eine Weile vom Sterben"
+"Eure Forscher haben den Zauber 'Kreatur heilen' entdeckt, der es ermöglicht,"
+"die Gesundheit Eurer Kreaturen wieder aufzufüllen und sie für eine Weile vom Sterben"
 "abzuhalten."
 
 #. Level Tulipscent information
@@ -2027,10 +2027,10 @@ msgid ""
 "possibility for them to take a nap. Be sure to have plenty of money so that "
 "the spell will stay activated."
 msgstr ""
-"Versuchen Sie den Zauber Gehorsam. Wenn er aktiviert ist, werden Ihre Kreaturen ständig gezwungen."
-"all Ihren Befehlen Folge zu leisten und sie alle schneller arbeiten zu lassen, ohne die"
-"Möglichkeit für sie, ein Nickerchen zu machen. Stellen Sie sicher, dass Sie genügend Geld haben, damit"
-"Der Zauber aktiviert bleibt."
+"Versucht den Gehorsamszauber. Wenn er aktiviert ist, werden Eure Kreaturen ständig gezwungen,"
+"all Euren Befehlen Folge zu leisten und sie alle schneller arbeiten zu lassen, ohne die"
+"Möglichkeit für ein Nickerchen. Stellt sicher, dass Ihr genügend Geld habt, damit"
+"der Zauber aktiviert bleibt."
 
 #. Level Tulipscent information
 #: guitext:178
@@ -2077,7 +2077,7 @@ msgstr "Nettstadt"
 #: guitext:204
 msgctxt "Level name"
 msgid "Waterdream Warm"
-msgstr "Herzlich Holstein"
+msgstr "Herzlich-Holstein"
 
 #: guitext:205
 msgctxt "Level name"
@@ -2092,7 +2092,7 @@ msgstr "Rosenburg ob der Zauber"
 #: guitext:207
 msgctxt "Level name"
 msgid "Snuggledell"
-msgstr "Lieblichknuffeltal"
+msgstr "Lieblich-Knuffeltal"
 
 #: guitext:208
 msgctxt "Level name"
@@ -2286,7 +2286,7 @@ msgstr "Giftwolke: Bildet eine Wolke aus schädlichem Gas, die beide schädigen 
 #: guitext:238
 msgctxt "Creature spell"
 msgid "Group: Not used"
-msgstr "Gruppenführer: Nicht in Gebrauch"
+msgstr "Gruppe: Ungebraucht"
 
 #: guitext:239
 #, fuzzy
@@ -2314,9 +2314,9 @@ msgstr "Flammenatem: [26.6]"
 #: guitext:242
 msgctxt "Creature spell"
 msgid ""
-"Illumination: Brings light onto darkness, allowing the creature to see but "
+"Illuminate: Brings light onto darkness, allowing the creature to see but "
 "also be seen by others."
-msgstr "Beleuchtung: Nicht in Gebrauch"
+msgstr "Beleuchten: Bringt Licht ins Dunkel; erlaubt der Kreatur zu sehen, aber auch von anderen gesehen zu werden."
 
 #: guitext:243
 #, fuzzy
@@ -2354,7 +2354,7 @@ msgid ""
 "Word of Power: Causes rings of demonic energy to emanate from the creature's body and "
 "inflicts massive damage on the vicinity. Very effective against crowded hordes of enemies, "
 "also pushes them back."
-msgstr "Wort der Macht: [26.23]"
+msgstr "Machtwort: [26.23]"
 
 #: guitext:248
 #, fuzzy
@@ -2431,7 +2431,7 @@ msgstr "Huhn: [26.2]"
 #, fuzzy
 msgctxt "Creature spell"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "Zeitbombe:"
+msgstr "Zeitbombe: Verwandelt Eure Kreatur in einen Selbstmordbomber."
 
 #: guitext:258
 msgctxt "Creature name"
@@ -2596,7 +2596,7 @@ msgstr "Spiel wählen"
 #: guitext:289
 msgctxt "Menu interface item"
 msgid "Network Menu"
-msgstr "Netzwerk-Menü"
+msgstr "Netzwerkmenü"
 
 #: guitext:290
 msgctxt "Menu interface item"
@@ -2615,13 +2615,13 @@ msgctxt "In-game interface description"
 msgid ""
 "Anger: How angry the creature is. The higher the bar is, the angrier the "
 "creature is."
-msgstr "Ärger: Wie ärgerlich eine Kreatur ist. [23.2]"
+msgstr "Ärger: Wie verärgert eine Kreatur ist. Je voller die Anzeige, desto verärgerter die Kreatur. [23.2]"
 
 #: guitext:292
 #, fuzzy
 msgctxt "In-game interface description"
 msgid "Creature Kills: The total number of enemies the creature has slain."
-msgstr "Kreatur-Erfolg: Wieviele Gegner eine Kreatur geschlagen hat. [23.7]"
+msgstr "Kreaturen getötet: Wieviele Gegner eine Kreatur geschlagen hat. [23.7]"
 
 #: guitext:293
 #, fuzzy
@@ -2668,7 +2668,7 @@ msgstr "Fähigkeit: Die Fähigkeit der Kreatur, Aufgaben zu erfüllen. [23.14]"
 msgctxt "In-game interface description"
 msgid "Age/Time In Dungeon: The length of time you have employed the creature."
 msgstr ""
-"Alter/Dungeon-Jahre: Der Zeitraum, über den die Kreatur im "
+"Alter / Dungeon-Jahre: Der Zeitraum, über den die Kreatur im "
 "Angestelltenverhältnis ist. [23.10]"
 
 #: guitext:299
@@ -2782,7 +2782,7 @@ msgstr "Nein"
 #: guitext:312
 msgctxt "In-game interface item"
 msgid "For"
-msgstr "FÜR"
+msgstr "Für"
 
 #: guitext:313
 #, fuzzy
@@ -2820,7 +2820,7 @@ msgid ""
 "View Distance: The amount of dungeon drawn. This directly affects the speed "
 "of the game. LMB toggle."
 msgstr ""
-"Distanz-Ansicht: Die Größe der Dungeon-Ansicht. Hat direkten Einfluß auf die "
+"Distanz-Ansicht: Die Größe der Dungeon-Ansicht. Hat direkten Einfluss auf die "
 "Spielgeschwindigkeit. Mit der linken Maustaste umschalten. [3.2.2]"
 
 #: guitext:317
@@ -2959,12 +2959,12 @@ msgstr "Mehr..."
 #: guitext:334
 msgctxt "In-game message"
 msgid "Level completed - press Escape to continue"
-msgstr "Level abgeschlossen - zum fortfahren Leertaste drücken"
+msgstr "Level abgeschlossen - zum Fortfahren Leertaste drücken"
 
 #: guitext:335
 msgctxt "In-game message"
 msgid "You have been defeated. Press Space to restart."
-msgstr "Level verloren - zum neustarten Leertaste drücken"
+msgstr "Level verloren - zum Neustart Leertaste drücken"
 
 #: guitext:336
 msgctxt "On-screen message"
@@ -2999,7 +2999,7 @@ msgstr "Musik"
 #: guitext:342
 msgctxt "In-game interface item"
 msgid "UNUSED"
-msgstr "LEER"
+msgstr "Leer"
 
 #: guitext:344
 msgctxt "Menu interface item"
@@ -3034,12 +3034,12 @@ msgstr "Intro"
 #: guitext:350
 msgctxt "Menu interface item"
 msgid "Service Menu"
-msgstr "Mehrspieler-menü"
+msgstr "Mehrspielermenü"
 
 #: guitext:351
 msgctxt "Menu interface item"
 msgid "Session Menu"
-msgstr "Sitzungs-menü"
+msgstr "Sitzungsmenü"
 
 #: guitext:352
 msgctxt "Menu interface item"
@@ -3054,7 +3054,7 @@ msgstr "COM-Port"
 #: guitext:354
 msgctxt "Menu interface item"
 msgid "Phone Number"
-msgstr "Tel.-Nummer"
+msgstr "Telefonnummer"
 
 #: guitext:355
 msgctxt "Menu interface item"
@@ -3074,7 +3074,7 @@ msgstr "Level abgeschlossen"
 #: guitext:358
 msgctxt "Menu interface item"
 msgid "UNUSED"
-msgstr "LEER"
+msgstr "Leer"
 
 #: guitext:359
 msgctxt "Menu interface, Main Menu item"
@@ -3095,182 +3095,182 @@ msgstr ""
 #: guitext:362
 msgctxt "Credits"
 msgid "Designed By"
-msgstr "ENTWORFEN VON"
+msgstr "Entworfen von"
 
 #: guitext:363
 msgctxt "Credits"
 msgid "Project Leader"
-msgstr "PROJEKTLEITUNG"
+msgstr "Projektleitung"
 
 #: guitext:364
 msgctxt "Credits"
 msgid "Lead Programmer"
-msgstr "CHEF-PROGRAMMIERER"
+msgstr "Leitender Programmierer"
 
 #: guitext:365
 msgctxt "Credits"
 msgid "Lead Artist"
-msgstr "KÜNSTLERISCHE LEITUNG"
+msgstr "Künstlerische Leitung"
 
 #: guitext:366
 msgctxt "Credits"
 msgid "Programming"
-msgstr "PROGRAMMIERUNG"
+msgstr "Programmierung"
 
 #: guitext:367
 msgctxt "Credits"
 msgid "Engine Design"
-msgstr "ENGINE-DESIGN"
+msgstr "Engine-Design"
 
 #: guitext:368
 msgctxt "Credits"
 msgid "Music and Sfx"
-msgstr "MUSIK UND SOUNDEFFEKTE"
+msgstr "Musik und Soundeffekte"
 
 #: guitext:369
 msgctxt "Credits"
 msgid "Graphics Programmers"
-msgstr "GRAFIK-PROGRAMMIERUNG"
+msgstr "Grafik-Programmierung"
 
 #: guitext:370
 msgctxt "Credits"
 msgid "Artists"
-msgstr "KÜNSTLER"
+msgstr "Künstler"
 
 #: guitext:371
 msgctxt "Credits"
 msgid "Network Programming"
-msgstr "NETZWERK-PROGRAMMIERUNG"
+msgstr "Netzwerk-Programmierung"
 
 #: guitext:372
 msgctxt "Credits"
 msgid "Testing Manager"
-msgstr "TEST-MANAGER"
+msgstr "Test-Manager"
 
 #: guitext:373
 msgctxt "Credits"
 msgid "Lead Testers"
-msgstr "LEITENDE TESTER"
+msgstr "Leitende Tester"
 
 #: guitext:374
 msgctxt "Credits"
 msgid "Lead Tester"
-msgstr "TEST-LEITUNG"
+msgstr "Leitender Tester"
 
 #: guitext:375
 msgctxt "Credits"
 msgid "Management"
-msgstr "MANAGEMENT"
+msgstr "Management"
 
 #: guitext:376
 msgctxt "Credits"
 msgid "Marketing and PR"
-msgstr "MARKETING UND PR"
+msgstr "Marketing und PR"
 
 #: guitext:377
 msgctxt "Credits"
 msgid "Tech Support"
-msgstr "TECHNISCHE UNTERSTÜTZUNG"
+msgstr "Technischer Support"
 
 #: guitext:378
 msgctxt "Credits"
 msgid "Administration"
-msgstr "VERWALTUNG"
+msgstr "Verwaltung"
 
 #: guitext:379
 msgctxt "Credits"
 msgid "Thanks To"
-msgstr "DANK AN"
+msgstr "Dank an"
 
 #: guitext:380
 msgctxt "Credits"
 msgid "Producer"
-msgstr "PRODUZENT"
+msgstr "Produzent"
 
 #: guitext:381
 msgctxt "Credits"
 msgid "Level Design"
-msgstr "LEVEL-DESIGN"
+msgstr "Level-Design"
 
 #: guitext:382
 msgctxt "Credits"
 msgid "Script By"
-msgstr "SKRIPT"
+msgstr "Skript von"
 
 #: guitext:383
 msgctxt "Credits"
 msgid "Libraries and Tools"
-msgstr "LIBRARIES UND TOOLS"
+msgstr "Libraries und Tools"
 
 #: guitext:384
 msgctxt "Credits"
 msgid "Playtesters"
-msgstr "SPIEL-TESTER"
+msgstr "Spieltester"
 
 #: guitext:385
 msgctxt "Credits"
 msgid "Localisation"
-msgstr "LOKALISIERUNG"
+msgstr "Übersetzung"
 
 #: guitext:386
 msgctxt "Credits"
 msgid "Special Thanks To"
-msgstr "BESONDERER DANK AN"
+msgstr "Besonderer Dank an"
 
 #: guitext:387
 msgctxt "Credits"
 msgid "Package Design"
-msgstr "VERPACKUNGSDESIGN"
+msgstr "Verpackungs-Design"
 
 #: guitext:388
 msgctxt "Credits"
 msgid "Documentation"
-msgstr "DOKUMENTATION"
+msgstr "Dokumentation"
 
 #: guitext:389
 msgctxt "Credits"
 msgid "Documentation Layout"
-msgstr "DOKUMENTATIONSLAYOUT"
+msgstr "Dokumentations-Layout"
 
 #: guitext:390
 msgctxt "Credits"
 msgid "Production"
-msgstr "PRODUKTION"
+msgstr "Produktion"
 
 #: guitext:391
 msgctxt "Credits"
 msgid "Quality Assurance"
-msgstr "QUALITÄTSSICHERUNG"
+msgstr "Qualitätssicherung"
 
 #: guitext:392
 msgctxt "Credits"
 msgid "Lead Level Design"
-msgstr "LEITUNG LEVEL-DESIGN"
+msgstr "Leitung Level-Design"
 
 #: guitext:393
 msgctxt "Credits"
 msgid "Intro"
-msgstr "INTRO"
+msgstr "Intro"
 
 #: guitext:394
 msgctxt "Credits"
 msgid "Testers"
-msgstr "TESTER"
+msgstr "Tester"
 
 #: guitext:395
 msgctxt "Menu interface item"
 msgid "Sessions"
-msgstr "SPIELE"
+msgstr "Sitzungen"
 
 #: guitext:396
 msgctxt "Menu interface item"
 msgid "Name"
-msgstr "NAME"
+msgstr "Name"
 
 #: guitext:397
 msgctxt "Menu interface item"
 msgid "Services"
-msgstr "ART DER VERBINDUNG"
+msgstr "Verbindungsart"
 
 #: guitext:398
 msgctxt "Menu interface item"
@@ -3295,7 +3295,7 @@ msgstr "Spiel starten"
 #: guitext:402
 msgctxt "Menu interface item"
 msgid "Game Menu"
-msgstr "Spiele-session"
+msgstr "Spiele-Session"
 
 #: guitext:403
 msgctxt "Menu interface item"
@@ -3305,7 +3305,7 @@ msgstr "Abbrechen"
 #: guitext:404
 msgctxt "Menu interface item"
 msgid "No Name"
-msgstr "Kein name"
+msgstr "Kein Name"
 
 #: guitext:405
 msgctxt "Menu interface item"
@@ -3321,7 +3321,7 @@ msgstr "Level"
 #: guitext:407
 msgctxt "Menu interface item"
 msgid "Levels"
-msgstr "Level"
+msgstr "Levels"
 
 #: guitext:408
 msgctxt "Menu interface item"
@@ -3331,7 +3331,7 @@ msgstr "Spiele"
 #: guitext:409
 msgctxt "Menu interface item"
 msgid "Modem Menu"
-msgstr "MODEM-MENÜ"
+msgstr "Modem-Menü"
 
 #: guitext:410
 msgctxt "Menu interface item"
@@ -3346,17 +3346,17 @@ msgstr "Initialisieren"
 #: guitext:412
 msgctxt "Menu interface item"
 msgid "Hangup"
-msgstr "AUFLEGEN"
+msgstr "Auflegen"
 
 #: guitext:413
 msgctxt "Menu interface item"
 msgid "Clear"
-msgstr "LÖSCHEN"
+msgstr "Löschen"
 
 #: guitext:414
 msgctxt "Menu interface item"
 msgid "Answer"
-msgstr "ANNEHMEN"
+msgstr "Antworten"
 
 #: guitext:415
 msgctxt "Menu interface item"
@@ -3507,7 +3507,7 @@ msgstr "Verfügbares Gold"
 #: guitext:442
 msgctxt "Menu interface item"
 msgid "Leader"
-msgstr "Leiter"
+msgstr "Anführer"
 
 #: guitext:443
 msgctxt "Menu interface item"
@@ -3610,7 +3610,7 @@ msgstr ""
 #: guitext:457
 msgctxt "Menu interface item"
 msgid "Choose game"
-msgstr "SPIEL WÄHLEN"
+msgstr "Spielauswahl"
 
 #: guitext:458
 msgctxt "Menu interface item"
@@ -3630,7 +3630,7 @@ msgstr "Keeper gegen Helden"
 #: guitext:461
 msgctxt "Menu interface item"
 msgid "Deathmatch"
-msgstr "Gefährliches Spiel"
+msgstr "Todesspiel"
 
 #: guitext:462
 #, fuzzy
@@ -3654,7 +3654,7 @@ msgstr ""
 msgctxt "In-game interface description"
 msgid "Next Battle: Zoom to the next battle. LMB select."
 msgstr ""
-"Der Nächste bitte: Zum nächsten Kampf zoomen. Mit der linken Maustaste "
+"Nächster Kampf: Zum nächsten Kampf zoomen. Mit der linken Maustaste "
 "wählen."
 
 #: guitext:465
@@ -4198,47 +4198,47 @@ msgstr "Verärgert"
 #: guitext:569
 msgctxt "Keyboard"
 msgid "Shift"
-msgstr "SHIFT"
+msgstr "Shift"
 
 #: guitext:570
 msgctxt "Keyboard"
 msgid "Control"
-msgstr "STRG"
+msgstr "Strg"
 
 #: guitext:571
 msgctxt "Keyboard"
 msgid "Alt"
-msgstr "ALT"
+msgstr "Alt"
 
 #: guitext:572
 msgctxt "Credits"
 msgid "Additional Artwork"
-msgstr "ZUSÄTZLICHES ARTWORK"
+msgstr "Zusätzliches Artwork"
 
 #: guitext:573
 msgctxt "Credits"
 msgid "Additional Programming"
-msgstr "ZUSÄTZLICHE PROGRAMMIERUNG"
+msgstr "Zusätzliche Programmierung"
 
 #: guitext:574
 msgctxt "Credits"
 msgid "Manual And Documentation"
-msgstr "DOKUMENTATION"
+msgstr "Handbuch und Dokumentation"
 
 #: guitext:575
 msgctxt "Credits"
 msgid "Installer"
-msgstr "INSTALLATION"
+msgstr "Installation"
 
 #: guitext:576
 msgctxt "Credits"
 msgid "Additional Level Design"
-msgstr "ZUSÄTZLICHES LEVEL-DESIGN"
+msgstr "Zusätzliches Level-Design"
 
 #: guitext:577 guitext:863
 msgctxt "Credits"
 msgid "Additional Thanks"
-msgstr "WEITERER DANK AN"
+msgstr "Weiterer Dank an"
 
 #: guitext:578
 msgctxt "Trap names"
@@ -4524,7 +4524,7 @@ msgstr ""
 #: guitext:620
 msgctxt "Room description"
 msgid "Dungeon Heart: The life force of your dungeon. [11.2]"
-msgstr "Dungeon-Herz: Die Lebensquelle Eures Dungeon. [11.2]"
+msgstr "Dungeon-Herz: Die Lebensquelle Eures Dungeons. [11.2]"
 
 #: guitext:621
 msgctxt "Room description"
@@ -4559,7 +4559,7 @@ msgid ""
 "Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
 "RMB zoom. [17.3]"
 msgstr ""
-"Hühnerfarm: Der Schnellimbiß an der Ecke sozusagen. Spezialiät: Hühner. Mit "
+"Hühnerfarm: Der 'KFC' an der Ecke sozusagen. Spezialiät: Hühner. Mit "
 "der linken Maustaste wählen. Mit der rechten Maustaste zoomen. [17.3]"
 
 #: guitext:625
@@ -4654,7 +4654,7 @@ msgstr "Monster beschleunigen"
 #: guitext:638
 msgctxt "Keeper spell name"
 msgid "Protect Monster"
-msgstr "Schild"
+msgstr "Schutzschild"
 
 #: guitext:639
 msgctxt "Keeper spell name"
@@ -4768,7 +4768,7 @@ msgctxt "Keeper spell description"
 msgid ""
 "Protect Monster: Shields your creatures from attack. LBM select. [18.11]"
 msgstr ""
-"Schild: Bewahrt Eure Kreaturen vor Schaden. Mit der linken Maustaste wählen. "
+"Schutzschild: Bewahrt Eure Kreaturen vor Schaden. Mit der linken Maustaste wählen. "
 "[18.11]"
 
 #: guitext:656
@@ -4825,7 +4825,7 @@ msgstr ""
 #, fuzzy
 msgctxt "Keeper spell description"
 msgid "Time Bomb: Turns your creature into a suicidal bomber."
-msgstr "Zeitbombe:"
+msgstr "Zeitbombe: Macht Eure Kreatur zu einem Selbstmordbomber."
 
 #: guitext:663
 msgctxt "Keeper spell description"
@@ -4839,7 +4839,7 @@ msgstr ""
 #: guitext:664
 msgctxt "Game event name"
 msgid "Treasure Room full"
-msgstr "Schatzkammer gefüllt"
+msgstr "Schatzkammer voll!"
 
 #: guitext:665
 msgctxt "Game event name"
@@ -4849,7 +4849,7 @@ msgstr "Kreatur geködert"
 #: guitext:666
 msgctxt "Game event name"
 msgid "Creature Payday"
-msgstr "ZAHLTAG"
+msgstr "Zahltag!"
 
 #: guitext:667
 msgctxt "Game event name"
@@ -4879,7 +4879,7 @@ msgstr "Raum verloren"
 #: guitext:672
 msgctxt "Game event name"
 msgid "Heart attacked"
-msgstr "HERZ-ATTACKE"
+msgstr "Dungeon-Herzattacke!"
 
 #: guitext:673
 msgctxt "Game event name"
@@ -4894,7 +4894,7 @@ msgstr "Ziel"
 #: guitext:675
 msgctxt "Game event name"
 msgid "Breach"
-msgstr "Jemand bricht in Ihren Dungeon ein!"
+msgstr "Einbruch!"
 
 #: guitext:676
 msgctxt "Game event name"
@@ -4939,7 +4939,7 @@ msgstr "Alarm ausgelöst"
 #: guitext:684
 msgctxt "Game event name"
 msgid "Room under attack"
-msgstr "Ein Raum wird angegriffen"
+msgstr "Raum wird angegriffen"
 
 #: guitext:685
 msgctxt "Game event name"
@@ -5289,7 +5289,7 @@ msgid ""
 "Possess Creature mouse sensitivity: Adjusts the sensitivity of the mouse "
 "movements when in Possess Creature mode. LMB toggle."
 msgstr ""
-"Maus-Empfindlichkeit bei Symbiose: Paßt die Empfindlichkeit der Mausbewegung "
+"Maus-Empfindlichkeit bei Symbiose: Passt die Empfindlichkeit der Mausbewegung "
 "im Symbiose-Modus an. Mit der linken Maustaste umschalten."
 
 #: guitext:739
@@ -5360,7 +5360,7 @@ msgstr "Niederlagen"
 #: guitext:752
 msgctxt "Statistic name"
 msgid "Times Dungeon Breached"
-msgstr "Anzahl Dungeon-Schäden"
+msgstr "Anzahl Dungeon-Einbrüche"
 
 #: guitext:753
 msgctxt "Statistic name"
@@ -5610,7 +5610,7 @@ msgstr "Friedhof: Häupterzählung"
 #: guitext:802
 msgctxt "Statistic name"
 msgid "Vampires Created"
-msgstr "Geschaffene Vampire"
+msgstr "Erschaffene Vampire"
 
 #: guitext:803
 msgctxt "Easter egg"
@@ -5739,7 +5739,7 @@ msgstr ""
 msgctxt "Easter egg"
 msgid "Wizard in your dungeon grim? A trap will make short work of him."
 msgstr ""
-"Ein Magier in Eures Dungeons Rachen? 'ne Falle kurzen Prozeß wird machen."
+"Ein Magier in Eures Dungeons Rachen? Eine Falle kurzen Prozeß wird machen."
 
 #: guitext:824
 msgctxt "Easter egg"
@@ -5757,7 +5757,7 @@ msgstr ""
 #: guitext:826
 msgctxt "Easter egg"
 msgid "You are the Keeper, chosen one, And being evil is great fun."
-msgstr "Ihr seid der Keeper, jetzt und ewig, und Böse sein ist einfach riesig."
+msgstr "Ihr seid der Keeper, jetzt und ewig, und böse sein ist einfach riesig."
 
 #: guitext:827
 msgctxt "Easter egg"
@@ -5786,7 +5786,7 @@ msgid ""
 "spend some time torturing..."
 msgstr ""
 "Ihr fühlt Euch schäbig? Dann steckt Eure Untergebenen ins Gefängnis und "
-"quält sie ein bißchen, wenn Eure Zellen voll sein sollten."
+"quält sie ein bisschen, wenn Eure Zellen voll sein sollten."
 
 #: guitext:831
 msgctxt "In-game hint message"
@@ -5861,7 +5861,7 @@ msgid ""
 "creatures."
 msgstr ""
 "Dumm ist der Keeper, der all seine Räume verkauft und sich weigert, seine "
-"Kreaturen  zu entlohnen."
+"Kreaturen zu entlohnen."
 
 #: guitext:840
 msgctxt "Menu interface item"
@@ -5946,7 +5946,7 @@ msgstr "Unzureichender Speicher"
 #: guitext:856
 msgctxt "On-screen message"
 msgid "Unable To Change Screen Resolution"
-msgstr "Auflösung kann nicht geändert werden"
+msgstr "Auflösung kann nicht geändert werden."
 
 #: guitext:857
 msgctxt "Menu interface item"
@@ -5956,47 +5956,47 @@ msgstr "Info"
 #: guitext:858
 msgctxt "Credits"
 msgid "Support Art"
-msgstr "GRAFISCHE UNTERSTÜTZUNG"
+msgstr "Grafische Unterstützung"
 
 #: guitext:859
 msgctxt "Credits"
 msgid "Navigation System"
-msgstr "NAVIGATIONS-SYSTEM"
+msgstr "Navigations-System"
 
 #: guitext:860
 msgctxt "Credits"
 msgid "Script"
-msgstr "MANUSKRIPT"
+msgstr "Skript"
 
 #: guitext:861
 msgctxt "Credits"
 msgid "Voice Over"
-msgstr "STIMME VON"
+msgstr "Stimme von"
 
 #: guitext:862
 msgctxt "Credits"
 msgid "Finance"
-msgstr "FINANZEN"
+msgstr "Finanzen"
 
 #: guitext:864
 msgctxt "Credits"
 msgid "Localisation Management"
-msgstr "LOKALISATION MANAGEMENT"
+msgstr "Übersetzungs-Management"
 
 #: guitext:865
 msgctxt "Credits"
 msgid "Language Test Supervisor"
-msgstr "LEITUNG SPRACH-TEST"
+msgstr "Leitung Sprach-Test"
 
 #: guitext:866
 msgctxt "Credits"
 msgid "Language Testers"
-msgstr "SPRACH-TESTER"
+msgstr "Sprach-Tester"
 
 #: guitext:867
 msgctxt "Credits"
 msgid "Localisation Audio Management"
-msgstr "LOKALISATION AUDIO MANAGEMENT"
+msgstr "Audio-Übersetzungs-Management"
 
 #: guitext:868
 msgctxt "Network game message"
@@ -6071,17 +6071,17 @@ msgstr ":"
 #: guitext:882
 msgctxt "Credits"
 msgid "Game design"
-msgstr "SPIELE-DESIGN"
+msgstr "Spieldesign"
 
 #: guitext:883
 msgctxt "Credits"
 msgid "Associate Producer"
-msgstr "PRODUKTIONS-ASSISTENT"
+msgstr "Produktions-Assistent"
 
 #: guitext:884
 msgctxt "Credits"
 msgid "Additional Script"
-msgstr "ZUSÄTZLICHES SKRIPT"
+msgstr "Zusätzliches Skript"
 
 #: guitext:885
 msgctxt "Easter egg"
@@ -6154,7 +6154,7 @@ msgid ""
 "any rogue bands of heroes waiting to ambush a careless Keeper."
 msgstr ""
 "Dieses Land wird unter den Bösewichten hoch gehandelt, und es gibt drei "
-"gegnerische Dungeon Keeper, gegen die Ihr antreten müßt im Kampf um die "
+"gegnerische Dungeon Keeper, gegen die Ihr antreten müsst im Kampf um die "
 "Vorherrschaft. Aber seid wachsam, dieses elende Heldenpack wartet nur "
 "darauf, einem achtlosen Keeper eins auszuwischen."
 
@@ -6167,7 +6167,7 @@ msgid ""
 "attack your rival Keeper. Domination awaits."
 msgstr ""
 "Der Ritter des Landes und seine armselige Untertanen-Bande sind vernichtet. "
-"Gut, daß wir sie mitsamt ihren trübsinnig glücklichen Leben losgeworden "
+"Gut, dass wir sie mitsamt ihren trübsinnig glücklichen Leben losgeworden "
 "sind. Nutzt jetzt Eure Chance und greift Euren Rivalen an. Die Herrschaft "
 "über dieses Land erwartet Euch."
 
@@ -6247,7 +6247,7 @@ msgid ""
 "A foolish challenger stands between you and total dominance. Annihilate his "
 "forces and feed his body to your ravenous minions."
 msgstr ""
-"Ein Trottel steht zwischen Euch und der Alleinherrschaft. Vernichtet seine "
+"Ein närrischer Herausforderer steht zwischen Euch und der Alleinherrschaft. Vernichtet seine "
 "Truppen und verfüttert die Überreste an Eure hungrigen Untergebenen."
 
 #. DD Level Daka-Gorn information after AP reached
@@ -6398,7 +6398,7 @@ msgid ""
 "domination."
 msgstr ""
 "Der Herrscher diese Landes ist ein sensibler Kerl mit einer Vorliebe für "
-"plüschige Langohren. Macht kurzen Prozeß mit ihm und knöpft Euch dann den "
+"plüschige Langohren. Macht kurzen Prozess mit ihm und knöpft Euch dann den "
 "anderen Keeper vor, damit Ihr hier endlich der Alleinherrscher werdet."
 
 #. DD Level Kanasko first objective
@@ -6409,7 +6409,7 @@ msgid ""
 "your forces well or face a humiliating defeat ..."
 msgstr ""
 "Beeilung, Keeper. In diesem Land gibt es viele starke Helden. Bereitet Eure "
-"Truppen gut vor und macht Euch auf einen heißen Kampf gefaßt ..."
+"Truppen gut vor und macht Euch auf einen heißen Kampf gefasst ..."
 
 #. DD Level Belial first objective
 #: guitext:918
@@ -6593,33 +6593,33 @@ msgstr "Geheime Tür"
 #: guitext:936
 msgctxt "Door description"
 msgid ""
-"Secret Door: This door remains hidden to enemies unless they observe it closely or see it "
+"Secret Door: This door remains hidden to enemies unless they observe it closely or see it."
 "opening. RMB zoom."
 msgstr ""
-"Geheim Tür: Eine spezielle Tür, die für Feinde unsichtbar ist, aber bei genauerem Hinsehen entdeckt werden kann oder wenn die eigenen Einheiten sie öffnet, während der Feind hinsieht"
+"Geheime Tür: Eine spezielle Tür, die für Feinde unsichtbar ist, aber bei genauerem Hinsehen entdeckt werden kann oder wenn Eure Kreaturen sie öffnet, während der Feind hinsieht."
 "Mit der rechten Maustaste zoomt Ihr sie heran."
 
 #: guitext:937
 msgctxt "Game event description"
 msgid "Secret Door discovered: LMB toggle. RMB delete."
-msgstr "Geheime Tür entdeckt: Mit der linken Maustaste lesen. Mit der rechten "
+msgstr "Geheime Tür entdeckt: Mit der linken Maustaste umschalten. Mit der rechten "
 "Maustaste löschen."
 
 #: guitext:938
 msgctxt "Game event name"
-msgid "Secret Door discovered"
-msgstr "Geheime Tür entdeckt"
+msgid "Secret Door discovered!"
+msgstr "Geheime Tür entdeckt!"
 
 #: guitext:939
 msgctxt "Game event description"
 msgid "Enemy spotted your Secret Door: LMB toggle. RMB delete."
-msgstr "der Feind hat deine Geheimtür entdeckt: Mit der linken Maustaste lesen. Mit der rechten "
+msgstr "Der Feind hat Eure Geheimtür entdeckt: Mit der linken Maustaste umschalten. Mit der rechten "
 "Maustaste löschen."
 
 #: guitext:940
 msgctxt "Game event name"
-msgid "Enemy spotted your secret door"
-msgstr "der Feind hat deine Geheimtür entdeckt"
+msgid "Enemy spotted your secret door!"
+msgstr "Der Feind hat Eure Geheimtür entdeckt!"
 
 #: guitext:941
 #, fuzzy
@@ -6645,21 +6645,21 @@ msgstr "Computer hinzufügen"
 
 #: guitext:945
 msgctxt "Game event name"
-msgid "Your creature cannot reach the room it needs"
-msgstr "Deine Kreatur kann den Raum, den sie benötigt, nicht erreichen"
+msgid "Your creature cannot reach the room it needs."
+msgstr "Eure Kreatur kann den Raum, den sie benötigt, nicht erreichen."
 
 #: guitext:946
 #, fuzzy
 msgctxt "Game event description"
 msgid "Work room unreachable: LMB toggle. RMB delete."
 msgstr ""
-"Work room unreachable: Mit der linken Maustaste lesen. Mit der rechten "
+"Arbeitsraum nicht erreichbar: Mit der linken Maustaste umschalten. Mit der rechten "
 "Maustaste löschen."
 
 #: guitext:947
 msgctxt "Game event name"
-msgid "Your Imp cannot reach a room to drag something into"
-msgstr "Dein Imp kann keinen Raum erreichen, in den er etwas bringen kann"
+msgid "Your Imp cannot reach a room to drag something into."
+msgstr "Euer Imp kann keinen Raum erreichen, in den er etwas bringen kann."
 
 #: guitext:948
 #, fuzzy
@@ -6674,25 +6674,25 @@ msgctxt "In-game interface description"
 msgid ""
 "Armour: Part of the damage which won't affect creature health. The higher "
 "the number, the larger part of damage is discarded."
-msgstr "Rüstung: Ein Teil des Schadens, der die Gesundheit der Kreaturen nicht beeinträchtigt. Der höhere "
-"Die Zahl, der größte Teil des Schadens wird verworfen."
+msgstr "Rüstung: Ein Teil des Schadens, der die Gesundheit der Kreaturen nicht beeinträchtigt. Je mehr "
+"Lebenspunkte, desto größer der Anteil absorbierten Schadens."
 
 #: guitext:950
 msgctxt "In-game interface description"
 msgid "Speed: How fast the creature moves and perform its dungeon tasks."
-msgstr "Geschwindigkeit: Wie schnell sich die Kreatur bewegt und ihre Dungeonaufgaben ausführt."
+msgstr "Geschwindigkeit: Wie schnell sich die Kreatur bewegt und ihre Aufgaben im Dungeon ausführt."
 
 #: guitext:951
 msgctxt "In-game interface description"
 msgid "Loyalty: How resistant the creature is against scavenging by the enemy."
-msgstr "Loyalität: Wie widerstandsfähig die Kreatur gegen das Anschließen des Feindes ist."
+msgstr "Loyalität: Wie widerstandsfähig die Kreatur gegen das Überlaufen zum Feind ist."
 
 #: guitext:952
 msgctxt "In-game interface description"
 msgid "Research Skill: How fast the creature works in Library. The higher the Skill level, "
 "the better the creature's performance."
-msgstr "Forschungsfähigkeit: Wie schnell die Kreatur in der Bibliothek arbeitet. Je höher die Fähigkeitsstufe "
-"Je besser die Leistung der Kreatur."
+msgstr "Forschungsfähigkeit: Wie schnell die Kreatur in der Bibliothek arbeitet. Je höher die Fähigkeitsstufe, "
+"desto besser die Leistung der Kreatur."
 
 #: guitext:953
 msgctxt "In-game interface description"
@@ -6701,14 +6701,14 @@ msgid ""
 "Skill level, the better the creature's performance."
 msgstr ""
 "Fertigkeit herstellen: Wie schnell die Kreatur in der Werkstatt arbeitet. Je höher die"
-"Fähigkeitsstufe, je besser die Leistung der Kreatur ist." 
+"Fähigkeitsstufe, desto besser die Leistung der Kreatur." 
 
 #: guitext:954
 msgctxt "In-game interface description"
 msgid ""
 "Training Skill: How fast the creature works on training. The higher the "
 "Skill level, the better the creature's performance."
-msgstr "Trainingsfähigkeit: Wie schnell die Kreatur am Training arbeitet."
+msgstr "Trainingsfähigkeit: Wie schnell die Kreatur trainiert."
 
 #: guitext:955
 msgctxt "In-game interface description"
@@ -6716,8 +6716,8 @@ msgid ""
 "Scavenge Skill: How fast the creature works on scavenging. The higher the "
 "Skill level, the better the creature's performance."
 msgstr ""
-"Köderfähigkeit: Wie schnell die Kreatur am Scavenging arbeitet. Je höher die"
-"Fähigkeitsstufe, je besser die Leistung der Kreatur ist."
+"Köderfähigkeit: Wie schnell die Kreatur beim Ködern arbeitet. Je höher die"
+"Fähigkeitsstufe, desto besser die Leistung der Kreatur."
 
 #: guitext:956
 msgctxt "In-game interface description"
@@ -6727,7 +6727,7 @@ msgstr "Trainingskosten: Gold, das zum Trainieren der Kreatur verwendet wird."
 #: guitext:957
 msgctxt "In-game interface description"
 msgid "Scavenge Cost: Gold used for scavenging by the creature."
-msgstr "Köderkosten: Gold, das zum Trainieren der Kreatur verwendet wird."
+msgstr "Köderkosten: Gold, das zum Ködern der Kreatur verwendet wird."
 
 #: guitext:958
 msgctxt "In-game interface description"
@@ -6744,7 +6744,7 @@ msgid ""
 "Weight: Mass of the creature. Some people say overweight can lead to heart "
 "attack."
 msgstr ""
-"Gewicht: Masse der Kreatur. Einige Leute sagen, Übergewicht führt zu Herz "
+"Gewicht: Masse der Kreatur. Einige Leute sagen, Übergewicht führt zu Herz-"
 "Attacken."
 
 #: guitext:960
@@ -6766,8 +6766,8 @@ msgstr "Schläge"
 msgctxt "Keeper spell description"
 msgid "Hand Of Evil: Ability to pick up your creatures and hold them in your hand. "
 "Just don't hold them forever or they may get irritated."
-msgstr "Hand des Bösen: Fähigkeit, deine Kreaturen aufzunehmen und in deiner Hand zu halten."
-"Halte sie einfach nicht für immer fest, sonst könnten sie gereizt werden."
+msgstr "Hand des Bösen: Fähigkeit, Eure Kreaturen aufzunehmen und in Eurer Hand zu halten."
+"Haltet sie einfach nicht für immer fest, sonst könnten sie gereizt werden."
 
 #: guitext:964
 msgctxt "Keeper spell description"
@@ -6796,7 +6796,7 @@ msgstr ""
 #: guitext:967
 msgctxt "Menu interface item"
 msgid "Toggle Message"
-msgstr "Nachricht Wechseln"
+msgstr "Nachricht wechseln"
 
 #: guitext:968
 msgctxt "Menu interface item"
@@ -6816,7 +6816,7 @@ msgstr "The Deeper Dungeons"
 #: guitext:971
 msgctxt "Menu interface item"
 msgid "Standard Levels"
-msgstr "Standard Levels"
+msgstr "Standard-Levels"
 
 #: guitext:972
 msgctxt "Menu interface item"
@@ -6851,7 +6851,7 @@ msgstr "Spezial-Falle"
 #: guitext:982
 msgctxt "Trap names"
 msgid "Freeze Trap"
-msgstr "Einfrier-Falle"
+msgstr "Frost-Falle"
 
 #: guitext:983
 msgctxt "Trap names"
@@ -6891,12 +6891,12 @@ msgstr "Hühnchen-Falle"
 #: guitext:990
 msgctxt "Trap names"
 msgid "Disease Trap"
-msgstr "Krankheit-Falle"
+msgstr "Virus-Falle"
 
 #: guitext:991
 msgctxt "Trap names"
 msgid "Power Trap"
-msgstr "Power-Falle"
+msgstr "Kraft-Falle"
 
 #: guitext:992
 msgctxt "Trap names"
@@ -6936,7 +6936,7 @@ msgstr "Maustaste"
 #: guitext:999
 msgctxt "Game controls"
 msgid "Build Square Room"
-msgstr "Baue einen quadratischen Raum"
+msgstr "Quadratischen Raum bauen"
 
 #: guitext:1000
 msgctxt "Game controls"
@@ -6966,16 +6966,17 @@ msgstr "Kamera einrasten"
 #: guitext:1005
 msgctxt "Dungeon special decription"
 msgid "Mysterious Box: There's no telling what this will do."
-msgstr "Mysteriöse Box: Es ist nicht abzusehen, was dies bewirken wird."
+msgstr "Mysteriöse Box: Es ist nicht abzusehen, was passieren wird."
 
 #: guitext:1006
 msgctxt "Network game message"
 msgid "Joined player has different map version from host."
+msgstr "Beigetretener Spieler hat eine andere Kartenversion als der Host."
 
 #: guitext:1007
 msgctxt "In-game interface description"
 msgid "Display Resolution: Switch to the next configured display resolution. LMB toggle. RMB display current resolution."
-msgstr "Anzeigeauflösung: Wechseln Sie zur nächsten konfigurierten Anzeigeauflösung. LMT umschalten. RMT zeigt die aktuelle Auflösung an."
+msgstr "Anzeigeauflösung: Wechselt zur nächsten konfigurierten Anzeigeauflösung. LMT umschalten. RMT zeigt die aktuelle Auflösung an."
 
 #: guitext:1008
 msgctxt "In-game interface item"
@@ -7000,112 +7001,112 @@ msgstr "Dungeon Keeper - Original-Kampagne"
 #: guitext:1012
 msgctxt "Menu interface item""
 msgid "Assmist Isle"
-msgstr ""
+msgstr "Arschnebelinsel"
 
 #: guitext:1013
 msgctxt "Menu interface item""
 msgid "Ancient Keeper campaign"
-msgstr ""
+msgstr "Kampagne - Antiker Keeper"
 
 #: guitext:1014
 msgctxt "Menu interface item""
 msgid "Burdened Imps' Level Pack"
-msgstr ""
+msgstr "Levelpaket - Belastete Imps"
 
 #: guitext:1015
 msgctxt "Menu interface item""
 msgid "Conquest of the Arctic"
-msgstr ""
+msgstr "Eroberung der Arktis"
 
 #: guitext:1016
 msgctxt "Menu interface item""
 msgid "The Destiny of Ninja"
-msgstr ""
+msgstr "Das Schicksal des Ninja"
 
 #: guitext:1017
 msgctxt "Menu interface item""
 msgid "DzjeeAr's  6-level campaign"
-msgstr ""
+msgstr "Kampagne - DzjeeArs mit 6 Levels"
 
 #: guitext:1018
 msgctxt "Menu interface item""
 msgid "DzjeeAr's 10-level campaign"
-msgstr ""
+msgstr "Kampagne - DzjeeArs mit 10 Levels"
 
 #: guitext:1019
 msgctxt "Menu interface item""
 msgid "DzjeeAr's 25-level campaign"
-msgstr ""
+msgstr "Kampagne - DzjeeArs mit 25 Levels"
 
 #: guitext:1020
 msgctxt "Menu interface item""
 msgid "Evil Keeper campaign"
-msgstr ""
+msgstr "Kampagne - Böser Keeper"
 
 #: guitext:1021
 msgctxt "Menu interface item""
 msgid "Grinics' KReign campaign"
-msgstr ""
+msgstr "Kampagne - Grinics KReign"
 
 #: guitext:1022
 msgctxt "Menu interface item""
 msgid "Japanese DKMaps8 pack"
-msgstr ""
+msgstr "Japanisches 8-Karten-Paket"
 
 #: guitext:1023
 msgctxt "Menu interface item""
 msgid "KDK Levels"
-msgstr ""
+msgstr "KDK Levels"
 
 #: guitext:1024
 msgctxt "Menu interface item""
 msgid "Good Campaign"
-msgstr ""
+msgstr "Gute Kampagne"
 
 #: guitext:1025
 msgctxt "Menu interface item""
 msgid "Lord Vexer campaign"
-msgstr ""
+msgstr "Kampagne - Lord Vexer"
 
 #: guitext:1026
 msgctxt "Menu interface item""
 msgid "Nikolai's Castles campaign"
-msgstr ""
+msgstr "Kampagne - Nikolais Schlösser"
 
 #: guitext:1027
 msgctxt "Menu interface item""
 msgid "Dungeon Keeper - NG+"
-msgstr ""
+msgstr "Dungeon Keeper - Schwere Kampagne (NG+)"
 
 #: guitext:1028
 msgctxt "Menu interface item""
 msgid "Post Ancient Keeper campaign"
-msgstr ""
+msgstr "Kampagne - Antiker Keeper Danach"
 
 #: guitext:1029
 msgctxt "Menu interface item""
 msgid "Post Undead Keeper campaign"
-msgstr ""
+msgstr "Kampagne - Untoter Keeper Danach"
 
 #: guitext:1030
 msgctxt "Menu interface item""
 msgid "Quest for the Hero campaign"
-msgstr ""
+msgstr "Kampagne - Suche nach dem Helden"
 
 #: guitext:1031
 msgctxt "Menu interface item""
 msgid "Revenge of the Lord"
-msgstr ""
+msgstr "Rache des Ritters"
 
 #: guitext:1032
 msgctxt "Menu interface item""
 msgid "Twin Keepers Campaign"
-msgstr ""
+msgstr "Kampagne - Zwillingskeeper"
 
 #: guitext:1033
 msgctxt "Menu interface item""
 msgid "Undead Keeper campaign"
-msgstr ""
+msgstr "Kampagne - Untoter Keeper"
 
 #: guitext:1034 guitext:1035
 msgctxt "Unused"
@@ -7125,7 +7126,7 @@ msgstr "Sprengfalle: Ein Sprengstoff mit unübertroffener Zerstörungskraft."
 #: guitext:1038
 msgctxt "Trap description"
 msgid "Sentry Trap: Stands guard and shoots at enemies in sight."
-msgstr "Wächterfalle: Steht Wache und schießt auf Feinde in Sichtweite"
+msgstr "Wächterfalle: Steht Wache und schießt auf Feinde in Sichtweite."
 
 #: guitext:1039 guitext:1040
 msgctxt "Unused"
@@ -7160,12 +7161,12 @@ msgstr "Felsformation."
 #: guitext:1051
 msgctxt "Slab description"
 msgid "Bedrock: Unclaimed rock floor. You cannot claim it or build on it."
-msgstr "Felsboden: Unbeanspruchter Felsenboden. Du kannst ihn nicht beanspruchen oder darauf bauen."
+msgstr "Felsboden: Unbeanspruchter Felsenboden. Ihr könnt ihn nicht beanspruchen oder darauf bauen."
 
 #: guitext:1052
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
-msgstr "Dichte Goldader: Enthält viel Reichtum, den deine Imps abbauen können."
+msgstr "Dichte Goldader: Enthält viel Reichtum, den Eure Imps abbauen können."
 
 #: guitext:1053
 msgctxt "Keeper spell name"
@@ -7189,8 +7190,8 @@ msgstr "Flug"
 
 #: guitext:1057
 msgctxt "Keeper spell name"
-msgid "Illumination"
-msgstr "Beleuchtung"
+msgid "Illuminate"
+msgstr "Beleuchten"
 
 #: guitext:1058
 msgctxt "Keeper spell name"
@@ -7200,12 +7201,12 @@ msgstr "Sicht"
 #: guitext:1059
 msgctxt "Dungeon special decription"
 msgid "Heal All: Restore full health to all your creatures."
-msgstr "Kreaturen heilen: Jede eurer Kreaturen wird geheilt."
+msgstr "Kreaturen heilen: Jede Eurer Kreaturen wird geheilt."
 
 #: guitext:1060
 msgctxt "Dungeon special decription"
 msgid "Increase Gold: Generates gold in your treasury."
-msgstr "Gold erzeugen: Erzeugt Gold in eurer Schatzkammer."
+msgstr "Gold erzeugen: Erzeugt Gold in Eurer Schatzkammer."
 
 #: guitext:1061
 msgctxt "Dungeon special decription"
@@ -7215,4 +7216,4 @@ msgstr "Kreaturen verärgern: Alle Kreaturen des Feindes werden ärgerlich."
 #: guitext:1062
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
-msgstr "Mauern Schwächen: Zerstört die Befestigungen der feindlichen Mauern"
+msgstr "Mauern schwächen: Zerstört die Befestigungen der feindlichen Mauern."
