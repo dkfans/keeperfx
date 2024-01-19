@@ -283,9 +283,9 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
 
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 {
-    //modifier shouldn't affect the computation for the creature kind score, compute_creature_max_health has'5' as last argument to get an invalid dungeon.
+    //modifier shouldn't affect the computation for the creature kind score so compute_creature_max_health has 'game.neutral_player_num' as last argument.
     struct CreatureStats* crstat = creature_stats_get(crkind);
-    return compute_creature_max_health(crstat->health,crlevel,5)
+    return compute_creature_max_health(crstat->health,crlevel,game.neutral_player_num)
         + compute_creature_max_defense(crstat->defense,crlevel)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
         + compute_creature_max_armour(crstat->armour,crlevel,false)
@@ -297,8 +297,7 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
  */
 long compute_creature_max_health(long base_health,unsigned short crlevel, PlayerNumber plyr_idx)
 {
-    struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    unsigned short modifier = dungeon->modifier.health;
+    struct Dungeon* dungeon;
     if (base_health < -100000)
         base_health = -100000;
     if (base_health > 100000)
@@ -306,8 +305,11 @@ long compute_creature_max_health(long base_health,unsigned short crlevel, Player
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
-    if (!dungeon_invalid(dungeon))
+    if (plyr_idx != game.neutral_player_num) {
+        dungeon = get_dungeon(plyr_idx);
+        unsigned short modifier = dungeon->modifier.health;
         max_health = (max_health * modifier) / 100;
+    }
     return saturate_set_signed(max_health, 16);
 }
 
@@ -449,15 +451,17 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param,unsigned s
  */
 long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
-    unsigned short modifier = dungeon->modifier.melee_damage;
+    struct Dungeon* dungeon;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
-    if (!dungeon_invalid(dungeon))
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.melee_damage;
         max_param = (max_param * modifier) / 100;
+    }
     if (luck > 0)
     {
         if (luck > 100) luck = 100;
@@ -477,8 +481,7 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
  */
 long project_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
-    unsigned short modifier = dungeon->modifier.spell_damage;
+    struct Dungeon* dungeon;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
@@ -486,8 +489,11 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    if (!dungeon_invalid(dungeon))
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.spell_damage;
         max_param = (max_param * modifier) / 100;
+    }
     if (luck > 0)
     {
         if (luck > 100) luck = 100;
@@ -504,15 +510,17 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
  */
 long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
-    unsigned short modifier = dungeon->modifier.melee_damage;
+    struct Dungeon* dungeon;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
-    if (!dungeon_invalid(dungeon))
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.melee_damage;
         max_param = (max_param * modifier) / 100;
+    }
     if (luck > 0)
     {
         if (CREATURE_RANDOM(thing, 100) < luck)
@@ -529,8 +537,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
  */
 long compute_creature_attack_spell_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
-    unsigned short modifier = dungeon->modifier.spell_damage;
+    struct Dungeon* dungeon;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
@@ -538,8 +545,11 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    if (!dungeon_invalid(dungeon))
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.spell_damage;
         max_param = (max_param * modifier) / 100;
+    }
     if (luck > 0)
     {
         if (CREATURE_RANDOM(thing, 100) < luck)
@@ -641,13 +651,10 @@ long compute_controlled_speed_decrease(long prev_speed, long speed_limit)
 
 long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct Dungeon* dungeon;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier.speed;
     long speed = crstat->base_speed;
-    if (!dungeon_invalid(dungeon))
-        speed = (speed * modifier) / 100;
-    if ( (creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)) )
+    if ((creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)))
         speed *= 2;
     if (creature_affected_by_spell(thing, SplK_Speed))
         speed *= 2;
@@ -655,6 +662,9 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
         speed /= 2;
     if (!is_neutral_thing(thing))
     {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.speed;
+        speed = (speed * modifier) / 100;
         if (dungeon->tortured_creatures[thing->model] > 0)
             speed = 5 * speed / 4;
         if (player_uses_power_obey(thing->owner))
@@ -665,46 +675,52 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
 
 GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier.pay;
     GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
-    if (!dungeon_invalid(dungeon))
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.pay;
         pay = (pay * modifier) / 100;
-    // If torturing creature of that model, changes the salary with a percentage set in rules.cfg.
-    if (dungeon->tortured_creatures[thing->model] > 0)
-        pay = (pay * game.conf.rules.game.torture_payday) / 100;
+        // If torturing creature of that model, changes the salary with a percentage set in rules.cfg.
+        if (dungeon->tortured_creatures[thing->model] > 0)
+            pay = (pay * game.conf.rules.game.torture_payday) / 100;
+    }
     return pay;
 }
 
 GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier.training_cost;
     GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
-    if (!dungeon_invalid(dungeon))
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.training_cost;
         training_cost = (training_cost * modifier) / 100;
-    // If torturing creature of that model, changes the training cost with a percentage set in rules.cfg.
-    if (dungeon->tortured_creatures[thing->model] > 0)
-        training_cost = (training_cost * game.conf.rules.game.torture_training_cost) / 100;
+        // If torturing creature of that model, changes the training cost with a percentage set in rules.cfg.
+        if (dungeon->tortured_creatures[thing->model] > 0)
+            training_cost = (training_cost * game.conf.rules.game.torture_training_cost) / 100;
+    }
     return training_cost;
 }
 
 GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier.scavenging_cost;
     GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
-    if (!dungeon_invalid(dungeon))
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.scavenging_cost;
         scavenger_cost = (scavenger_cost * modifier) / 100;
-    // If torturing creature of that model, changes the scavenging cost with a percentage set in rules.cfg.
-    if (dungeon->tortured_creatures[thing->model] > 0)
-        scavenger_cost = (scavenger_cost * game.conf.rules.game.torture_scavenging_cost) / 100;
+        // If torturing creature of that model, changes the scavenging cost with a percentage set in rules.cfg.
+        if (dungeon->tortured_creatures[thing->model] > 0)
+            scavenger_cost = (scavenger_cost * game.conf.rules.game.torture_scavenging_cost) / 100;
+    }
     return scavenger_cost;
 }
 
@@ -713,10 +729,11 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
     struct Dungeon* dungeon = get_dungeon(callplyr_idx);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier.loyalty;
     long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
-    if (!dungeon_invalid(dungeon))
+    if (!is_neutral_thing(thing)) {
+        unsigned short modifier = dungeon->modifier.loyalty;
         scavngpts = (scavngpts * modifier) / 100;
+    }
     return scavngpts;
 }
 
@@ -831,27 +848,30 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
  */
 static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
-    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    unsigned short modifier = dungeon->modifier.damage_reduction;
     if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
         return 0;
     }
-    // Compute armor value
+    // Compute armor value.
     long carmor = compute_creature_max_armour(crstat->armour, cctrl->explevel, creature_affected_by_spell(thing, SplK_Armour));
-    if (!dungeon_invalid(dungeon))
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.damage_reduction;
         carmor = (carmor * modifier) / 100;
-    if(carmor >= 255)
+    }
+    // Value cannot exceed 255.
+    if (carmor >= 255)
         carmor = 255;
-    // Now compute damage
+    // Now compute damage.
     HitPoints cdamage = (dmg * (256 - carmor)) / 256;
     if (cdamage <= 0)
       cdamage = 1;
-    // Apply damage to the thing
+    // Apply damage to the thing.
     thing->health -= cdamage;
     thing->rendering_flags |= TRF_BeingHit;
-    // Red palette if the possessed creature is hit very strong
+    // Red palette if the possessed creature is hit very strong.
     if (is_thing_some_way_controlled(thing))
     {
         struct PlayerInfo* player = get_player(thing->owner);
