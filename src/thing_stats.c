@@ -283,8 +283,9 @@ long get_radially_growing_value(long magnitude, long decay_start, long decay_len
 
 long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 {
+    //modifier shouldn't affect the computation for the creature kind score, compute_creature_max_health has'5' as last argument to get an invalid dungeon.
     struct CreatureStats* crstat = creature_stats_get(crkind);
-    return compute_creature_max_health(crstat->health,crlevel)
+    return compute_creature_max_health(crstat->health,crlevel,5)
         + compute_creature_max_defense(crstat->defense,crlevel)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
         + compute_creature_max_armour(crstat->armour,crlevel,false)
@@ -294,16 +295,20 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel)
 /**
  * Computes max health of a creature on given level.
  */
-long compute_creature_max_health(long base_health,unsigned short crlevel)
+long compute_creature_max_health(long base_health,unsigned short crlevel, PlayerNumber plyr_idx)
 {
-  if (base_health < -100000)
-    base_health = -100000;
-  if (base_health > 100000)
-    base_health = 100000;
-  if (crlevel >= CREATURE_MAX_LEVEL)
-    crlevel = CREATURE_MAX_LEVEL-1;
-  long max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
-  return saturate_set_signed(max_health, 16);
+    struct Dungeon* dungeon = get_dungeon(plyr_idx);
+    unsigned short modifier = dungeon->modifier.health;
+    if (base_health < -100000)
+        base_health = -100000;
+    if (base_health > 100000)
+        base_health = 100000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    long max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+    if (!dungeon_invalid(dungeon))
+        max_health = (max_health * modifier) / 100;
+    return saturate_set_signed(max_health, 16);
 }
 
 /**
@@ -451,7 +456,7 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
-    if(!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon))
         max_param = (max_param * modifier) / 100;
     if (luck > 0)
     {
@@ -481,7 +486,7 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    if(!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon))
         max_param = (max_param * modifier) / 100;
     if (luck > 0)
     {
@@ -506,7 +511,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
-    if(!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon))
         max_param = (max_param * modifier) / 100;
     if (luck > 0)
     {
@@ -533,7 +538,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
-    if(!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon))
         max_param = (max_param * modifier) / 100;
     if (luck > 0)
     {
@@ -640,7 +645,7 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     unsigned short modifier = dungeon->modifier.speed;
     long speed = crstat->base_speed;
-    if(!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon))
         speed = (speed * modifier) / 100;
     if ( (creature_affected_by_slap(thing)) || (creature_affected_by_spell(thing, SplK_TimeBomb)) )
         speed *= 2;
@@ -665,7 +670,7 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     unsigned short modifier = dungeon->modifier.pay;
     GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
-    if(!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon))
         pay = (pay * modifier) / 100;
     // If torturing creature of that model, changes the salary with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
@@ -680,7 +685,7 @@ GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     unsigned short modifier = dungeon->modifier.training_cost;
     GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
-    if(!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon))
         training_cost = (training_cost * modifier) / 100;
     // If torturing creature of that model, changes the training cost with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
@@ -695,7 +700,7 @@ GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     unsigned short modifier = dungeon->modifier.scavenging_cost;
     GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
-    if(!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon))
         scavenger_cost = (scavenger_cost * modifier) / 100;
     // If torturing creature of that model, changes the scavenging cost with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
@@ -710,7 +715,7 @@ long calculate_correct_creature_scavenge_required(const struct Thing *thing, Pla
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     unsigned short modifier = dungeon->modifier.loyalty;
     long scavngpts = (dungeon->creatures_scavenged[thing->model] + 1) * compute_creature_max_loyalty(crstat->scavenge_require, cctrl->explevel);
-    if(!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon))
         scavngpts = (scavngpts * modifier) / 100;
     return scavngpts;
 }
@@ -779,7 +784,7 @@ TbBool update_creature_health_to_max(struct Thing *thing)
 {
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel,thing->owner);
     thing->health = cctrl->max_health;
     return true;
 }
@@ -835,7 +840,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     }
     // Compute armor value
     long carmor = compute_creature_max_armour(crstat->armour, cctrl->explevel, creature_affected_by_spell(thing, SplK_Armour));
-    if(!dungeon_invalid(dungeon))
+    if (!dungeon_invalid(dungeon))
         carmor = (carmor * modifier) / 100;
     if(carmor >= 255)
         carmor = 255;
@@ -1043,7 +1048,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_MaxHealth:
-        i = compute_creature_max_health(crstat->health,cctrl->explevel);
+        i = compute_creature_max_health(crstat->health,cctrl->explevel,creatng->owner);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;

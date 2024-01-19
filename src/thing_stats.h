@@ -83,7 +83,7 @@ long compute_creature_kind_score(ThingModel crkind,unsigned short crlevel);
 GoldAmount compute_creature_max_pay(GoldAmount base_pay,unsigned short crlevel);
 GoldAmount compute_creature_max_training_cost(GoldAmount base_training_cost,unsigned short crlevel);
 GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_scavenging_cost,unsigned short crlevel);
-long compute_creature_max_health(long base_health,unsigned short crlevel);
+long compute_creature_max_health(long base_health,unsigned short crlevel, PlayerNumber plyr_idx);
 long compute_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
 long compute_creature_attack_spell_damage(long base_param,long luck,unsigned short crlevel, struct Thing* thing);
 long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing);

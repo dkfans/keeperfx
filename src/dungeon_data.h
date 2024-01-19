@@ -131,6 +131,7 @@ struct ComputerInfo
 /** Used to set player modifier with script command. */
 struct Modifiers
 {
+    unsigned short health;
     unsigned short melee_damage;
     unsigned short spell_damage;
     unsigned short damage_reduction;

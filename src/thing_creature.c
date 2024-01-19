@@ -3104,11 +3104,11 @@ void set_creature_level(struct Thing *thing, long nlvl)
         ERRORLOG("Level %d too low, bounding",(int)nlvl);
         nlvl = 0;
     }
-    long old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
+    long old_max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
     if (old_max_health < 1)
         old_max_health = 1;
     cctrl->explevel = nlvl;
-    long max_health = compute_creature_max_health(crstat->health, cctrl->explevel);
+    long max_health = compute_creature_max_health(crstat->health, cctrl->explevel, thing->owner);
     cctrl->max_health = max_health;
     set_creature_size_stuff(thing);
     if (old_max_health > 0)
@@ -3864,7 +3864,7 @@ struct Thing *create_creature(struct Coord3d *pos, ThingModel model, PlayerNumbe
     set_thing_draw(crtng, i, 256, game.conf.crtr_conf.sprite_size, 0, 0, ODC_Default);
     cctrl->explevel = 1;
     crtng->health = crstat->health;
-    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
+    cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel, owner);
     crtng->owner = owner;
     crtng->mappos.x.val = pos->x.val;
     crtng->mappos.y.val = pos->y.val;

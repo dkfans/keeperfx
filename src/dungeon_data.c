@@ -529,6 +529,7 @@ void init_dungeons(void)
             dungeon->hates_player[k] = game.conf.rules.creature.fight_max_hate;
         }
         /** Player modifier default value is set to 100. */
+        dungeon->modifier.health = 100;
         dungeon->modifier.melee_damage = 100;
         dungeon->modifier.spell_damage = 100;
         dungeon->modifier.damage_reduction = 100;
