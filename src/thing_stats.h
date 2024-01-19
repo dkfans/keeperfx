@@ -105,7 +105,10 @@ GoldAmount calculate_correct_creature_pay(const struct Thing *thing);
 GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing);
 GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing);
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx);
+long calculate_correct_creature_strength(const struct Thing *thing);
+long calculate_correct_creature_armour(const struct Thing *thing);
 long calculate_correct_creature_maxspeed(const struct Thing *thing);
+long calculate_correct_creature_loyalty(const struct Thing *thing);
 long compute_creature_work_value_for_room_role(const struct Thing *creatng, RoomRole rrole, long efficiency);
 long compute_creature_weight(const struct Thing* creatng);
 

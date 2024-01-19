@@ -649,6 +649,34 @@ long compute_controlled_speed_decrease(long prev_speed, long speed_limit)
     return speed;
 }
 
+long calculate_correct_creature_strength(const struct Thing *thing)
+{
+    struct Dungeon* dungeon;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.melee_damage;
+        max_param = (max_param * modifier) / 100;
+    }
+    return max_param;
+}
+
+long calculate_correct_creature_armour(const struct Thing *thing)
+{
+    struct Dungeon* dungeon;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(thing, SplK_Armour));
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.damage_reduction;
+        max_param = (max_param * modifier) / 100;
+    }
+    return max_param;
+}
+
 long calculate_correct_creature_maxspeed(const struct Thing *thing)
 {
     struct Dungeon* dungeon;
@@ -671,6 +699,20 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
             speed = 5 * speed / 4;
     }
     return speed;
+}
+
+long calculate_correct_creature_loyalty(const struct Thing *thing)
+{
+    struct Dungeon* dungeon;
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_loyalty(crstat->scavenge_require,cctrl->explevel);
+    if (!is_neutral_thing(thing)) {
+        dungeon = get_dungeon(thing->owner);
+        unsigned short modifier = dungeon->modifier.loyalty;
+        max_param = (max_param * modifier) / 100;
+    }
+    return max_param;
 }
 
 GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
@@ -1073,12 +1115,12 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_Strength:
-        i = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+        i = calculate_correct_creature_strength(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;
     case CrLStat_Armour:
-        i = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(creatng, SplK_Armour));
+        i = calculate_correct_creature_armour(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;
@@ -1103,7 +1145,7 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_Loyalty:
-        i = compute_creature_max_loyalty(crstat->scavenge_require,cctrl->explevel);
+        i = calculate_correct_creature_loyalty(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i/256);
         text = loc_text;
         break;
