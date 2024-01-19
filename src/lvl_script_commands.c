@@ -5056,9 +5056,9 @@ static void set_player_modifier_process(struct ScriptContext* context)
     const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
-        dungeon = get_dungeon(plyr_idx);
-        if (!dungeon_invalid(dungeon))
+        if (plyr_idx != game.neutral_player_num)
         {
+            dungeon = get_dungeon(plyr_idx);
             switch (mdfrdesc)
             {
                 case 1: // Health
