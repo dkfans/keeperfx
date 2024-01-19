@@ -757,6 +757,8 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
     int delta_x;
     int delta_y;
     int delta_z;
+    if (eeinterspace <= 0)
+        eeinterspace = 1;
     if (dist_x >= 0) {
         delta_x = eeinterspace;
     } else {
