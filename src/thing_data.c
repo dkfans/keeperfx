@@ -226,6 +226,9 @@ TbBool thing_exists(const struct Thing *thing)
     return true;
 }
 
+/**
+ * @param In a player hand, excludes creature controlled limbo like hero gates
+  */
 TbBool thing_is_in_limbo(const struct Thing* thing)
 {
     return (thing->alloc_flags & TAlF_IsInLimbo);

@@ -745,7 +745,7 @@ void panel_map_update_subtile(PlayerNumber plyr_idx, MapSubtlCoord stl_x, MapSub
         } else
         if (slb->kind == SlbT_ROCK_FLOOR)
         {
-            col = 2;
+            col = 179;
         }
         else
         if ((mapblk->flags & SlbAtFlg_Filled) != 0)
@@ -1028,6 +1028,7 @@ void setup_panel_colors(void)
         PanelColours[n + 7] = 85;
         PanelColours[n + 176] = 255;
         PanelColours[n + 178] = 102 + (pixmap.ghost[bkcol] >> 6);
+        PanelColours[n + 179] = 145;
         n = pncol_idx + 8;
         int i;
         int k;

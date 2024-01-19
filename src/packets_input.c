@@ -882,6 +882,9 @@ TbBool process_dungeon_control_packet_clicks(long plyr_idx)
         case PSt_Heal:
         case PSt_Rebound:
         case PSt_Freeze:
+        case PSt_Slow:
+        case PSt_Flight:
+        case PSt_Vision:
         case PSt_TimeBomb:
             influence_own_creatures = true;
             pwkind = player_state_to_power_kind[player->work_state];
