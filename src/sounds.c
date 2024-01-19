@@ -96,6 +96,22 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
     }
 }
 
+void play_sound_if_close_to_receiver(struct Coord3d *soundpos, short smptbl_idx)
+{
+    if (SoundDisabled)
+        return;
+    if (GetCurrentSoundMasterVolume() <= 0)
+        return;
+    struct Coord3d rcpos;
+    rcpos.x.val = Receiver.pos.val_x;
+    rcpos.y.val = Receiver.pos.val_y;
+    rcpos.z.val = Receiver.pos.val_z;
+    if (get_chessboard_3d_distance(&rcpos, soundpos) < MaxSoundDistance)
+    {
+        play_non_3d_sample(smptbl_idx);
+    }
+}
+
 void play_thing_walking(struct Thing *thing)
 {
     struct PlayerInfo* myplyr = get_my_player();
@@ -741,7 +757,7 @@ void update_first_person_object_ambience(struct Thing *thing)
              objtng = thing_get(objtng->next_of_class))
         {
             objst = get_object_model_stats(objtng->model);
-            if ((objst->fp_smpl_idx != 0) && !thing_is_in_limbo(objtng))
+            if ((objst->fp_smpl_idx != 0) && !thing_is_picked_up(objtng))
             {
                 new_distance = get_chessboard_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)

@@ -2214,7 +2214,7 @@ short creature_kill_creatures(struct Thing *creatng)
         return 0;
     }
     long crtr_idx = CREATURE_RANDOM(creatng, dungeon->num_active_creatrs);
-    struct Thing* thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, crtr_idx);
+    struct Thing* thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, CREATURE_ANY, crtr_idx);
     if (thing_is_invalid(thing)) {
         set_start_state(creatng);
         return 0;

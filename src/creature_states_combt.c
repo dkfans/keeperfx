@@ -1235,7 +1235,7 @@ CrAttackType find_fellow_creature_to_fight_in_room(struct Thing *fightng, struct
         {
             if (crmodel[j] == 0)
                 break;
-            if (thing_is_creature(thing) && (thing->model == crmodel[j]) && (cctrl->combat_flags == 0))
+            if (thing_is_creature(thing) && (thing_matches_model(thing,crmodel[j])) && (cctrl->combat_flags == 0))
             {
                 if (!thing_is_picked_up(thing) && !creature_is_kept_in_custody(thing)
                     && !creature_is_being_unconscious(thing) && !creature_is_dying(thing))

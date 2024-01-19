@@ -46,6 +46,7 @@ enum SacrificeAction {
 enum UniqueFunctions {
     UnqF_None = 0,
     UnqF_MkAllAngry,
+    UnqF_MkAllVerAngry,
     UnqF_ComplResrch,
     UnqF_ComplManufc,
     UnqF_KillChickns,
@@ -94,6 +95,9 @@ struct GameRulesConfig {
     TbBool allies_share_drop;
     TbBool allies_share_cta;
     unsigned char max_things_in_hand;
+    short torture_payday;
+    short torture_training_cost;
+    short torture_scavenging_cost;
 };
 
 struct ComputerRulesConfig {
@@ -117,8 +121,8 @@ struct CreatureRulesConfig {
 
 struct MagicRulesConfig {
     GameTurnDelta hold_audience_time;
-    unsigned long armagedon_teleport_your_time_gap;
-    unsigned long armagedon_teleport_enemy_time_gap;
+    unsigned long armageddon_teleport_your_time_gap;
+    unsigned long armageddon_teleport_enemy_time_gap;
     unsigned char disease_transfer_percentage;
     unsigned char disease_lose_percentage_health;
     unsigned char disease_lose_health_time;
@@ -128,7 +132,7 @@ struct MagicRulesConfig {
     GoldAmount power_hand_gold_grab_amount;
     long friendly_fight_area_damage_permil;
     long friendly_fight_area_range_permil;
-    TbBool armegeddon_teleport_neutrals;
+    TbBool armageddon_teleport_neutrals;
 };
 
 struct RoomRulesConfig {
@@ -195,6 +199,15 @@ const char *player_code_name(PlayerNumber plyr_idx);
 
 extern const struct NamedCommand rules_sacrifices_commands[];
 extern const struct NamedCommand sacrifice_unique_desc[];
+
+extern const struct NamedField rules_magic_named_fields[];
+extern const struct NamedField rules_rooms_named_fields[];
+extern const struct NamedField rules_game_named_fields[];
+extern const struct NamedField rules_creatures_named_fields[];
+extern const struct NamedField rules_computer_named_fields[];
+extern const struct NamedField rules_workers_named_fields[];
+extern const struct NamedField rules_health_named_fields[];
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
