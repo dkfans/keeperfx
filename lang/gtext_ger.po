@@ -4458,8 +4458,9 @@ msgid ""
 "Hatchery: Where creatures feast on cute, helpless little chicks. LMB select. "
 "RMB zoom. [17.3]"
 msgstr ""
-"Hühnerfarm: msgstr "Hühnerfarm: Wo sich Kreaturen an niedlichen hilflosen Hühnchen laben, ein 'KFC' sozusagen. Spezialiät: Hühner. Mit "
-"der linken Maustaste wählen. Mit der rechten Maustaste zoomen. [17.3]"
+"Hühnerfarm: Wo sich Kreaturen an niedlichen hilflosen Hühnchen laben, ein 'KFC' "
+"sozusagen. Spezialiät: Hühner. Mit der linken Maustaste wählen. Mit der rechten "
+"Maustaste zoomen. [17.3]"
 
 #: guitext:625
 msgctxt "Room description"
