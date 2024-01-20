@@ -301,9 +301,9 @@ const struct NamedCommand on_experience_desc[] = {
 
 const struct NamedCommand modifier_desc[] = {
   {"Health",          1},
-  {"MeleeDamage",     2},
-  {"SpellDamage",     3},
-  {"DamageReduction", 4},
+  {"Strength",        2},
+  {"Armour",          3},
+  {"SpellDamage",     4},
   {"Speed",           5},
   {"Salary",          6},
   {"TrainingCost",    7},
@@ -5065,17 +5065,17 @@ static void set_player_modifier_process(struct ScriptContext* context)
                     SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.health, mdfrval);
                     dungeon->modifier.health = mdfrval;
                     break;
-                case 2: // MeleeDamage
-                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.melee_damage, mdfrval);
+                case 2: // Strength
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.strength, mdfrval);
                     dungeon->modifier.melee_damage = mdfrval;
                     break;
-                case 3: // SpellDamage
+                case 3: // Armour
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.armour, mdfrval);
+                    dungeon->modifier.damage_reduction = mdfrval;
+                    break;
+                case 4: // SpellDamage
                     SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.spell_damage, mdfrval);
                     dungeon->modifier.spell_damage = mdfrval;
-                    break;
-                case 4: // DamageReduction
-                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.damage_reduction, mdfrval);
-                    dungeon->modifier.damage_reduction = mdfrval;
                     break;
                 case 5: // Speed
                     SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.speed, mdfrval);
