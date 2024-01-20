@@ -5067,11 +5067,11 @@ static void set_player_modifier_process(struct ScriptContext* context)
                     break;
                 case 2: // Strength
                     SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.strength, mdfrval);
-                    dungeon->modifier.melee_damage = mdfrval;
+                    dungeon->modifier.strength = mdfrval;
                     break;
                 case 3: // Armour
                     SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.armour, mdfrval);
-                    dungeon->modifier.damage_reduction = mdfrval;
+                    dungeon->modifier.armour = mdfrval;
                     break;
                 case 4: // SpellDamage
                     SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.spell_damage, mdfrval);
