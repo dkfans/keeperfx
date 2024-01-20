@@ -674,6 +674,9 @@ long calculate_correct_creature_armour(const struct Thing *thing)
         unsigned short modifier = dungeon->modifier.damage_reduction;
         max_param = (max_param * modifier) / 100;
     }
+    // Value cannot exceed 255.
+    if (max_param >= 255)
+        max_param = 255;
     return max_param;
 }
 
