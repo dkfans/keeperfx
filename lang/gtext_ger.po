@@ -2304,7 +2304,7 @@ msgstr "Flug: Bringt die Kreatur zum Fliegen und damit sicheren Überwinden von 
 #: guitext:244
 msgctxt "Creature spell"
 msgid "Hail Storm: Creates a fury of hailstones."
-msgstr "Hagelsturm: Entfesselt einen sturm aus Hagelsteinen. [26.10]"
+msgstr "Hagelsturm: Entfesselt einen Sturm aus Hagelkörnern. [26.10]"
 
 #: guitext:245
 msgctxt "Creature spell"
@@ -2870,7 +2870,7 @@ msgctxt "Slab description"
 msgid ""
 "Path: Unclaimed earth floor. You can claim it if it is connected to already "
 "claimed territory."
-msgstr "Pfad: Unbenutzter Trampelpfad. Kann von Euren Imps beansprucht werden, falls eine Verbindung zu Ihrem Gebiet besteht. [12.1]"
+msgstr "Pfad: Unbenutzter Trampelpfad. Kann von Euren Imps beansprucht werden, falls eine Verbindung zu Eurem Gebiet besteht. [12.1]"
 
 #: guitext:332
 msgctxt "Slab description"
