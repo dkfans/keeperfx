@@ -459,7 +459,7 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
     long max_param = base_param;
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.melee_damage;
+        unsigned short modifier = dungeon->modifier.strength;
         max_param = (max_param * modifier) / 100;
     }
     if (luck > 0)
@@ -518,7 +518,7 @@ long compute_creature_attack_melee_damage(long base_param, long luck, unsigned s
     long max_param = base_param;
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.melee_damage;
+        unsigned short modifier = dungeon->modifier.strength;
         max_param = (max_param * modifier) / 100;
     }
     if (luck > 0)
@@ -657,7 +657,7 @@ long calculate_correct_creature_strength(const struct Thing *thing)
     long max_param = compute_creature_max_strength(crstat->strength,cctrl->explevel);
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.melee_damage;
+        unsigned short modifier = dungeon->modifier.strength;
         max_param = (max_param * modifier) / 100;
     }
     return max_param;
@@ -671,7 +671,7 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     long max_param = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(thing, SplK_Armour));
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.damage_reduction;
+        unsigned short modifier = dungeon->modifier.armour;
         max_param = (max_param * modifier) / 100;
     }
     // Value cannot exceed 255.
@@ -903,7 +903,7 @@ static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
     long carmor = compute_creature_max_armour(crstat->armour, cctrl->explevel, creature_affected_by_spell(thing, SplK_Armour));
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.damage_reduction;
+        unsigned short modifier = dungeon->modifier.armour;
         carmor = (carmor * modifier) / 100;
     }
     // Value cannot exceed 255.
