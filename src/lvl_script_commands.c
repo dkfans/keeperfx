@@ -273,24 +273,12 @@ static const struct NamedField rules_script_only_named_fields[] = {
   {NULL,                            NULL,0,0,0 },
 };
 
-static const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,rules_script_only_named_fields};
+static const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
+rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields};
 
 static const struct NamedCommand game_rule_desc[] = {
   {"PreserveClassicBugs",            1},
   {"AlliesShareVision",              2},
-//ones below still need to be moved to NamedField
-  {"StunEvilEnemyChance",            7},
-  {"StunGoodEnemyChance",            8},
-  {"BodyRemainsFor",                 9},
-  {"FightHateKillValue",            10},
-  {"ImpWorkExperience",             13},
-  {"DiseaseHPTemplePercentage",     22},
-  {"DungeonHeartHealth",            23},
-  {"HungerHealthLoss",              24},
-  {"GameTurnsPerHungerHealthLoss",  25},
-  {"FoodHealthGain",                26},
-  {"TortureHealthLoss",             27},
-  {"GameTurnsPerTortureHealthLoss", 28},
   {NULL,                             0},
 };
 
@@ -4880,36 +4868,6 @@ static void set_game_rule_check(const struct ScriptLine* scline)
                     return;
                 }
                 break;
-
-
-            case 7: //StunEvilEnemyChance
-            case 8: //StunGoodEnemyChance
-            case 22: //DiseaseHPTemplePercentage
-                if ((ruleval < 0) || (ruleval > 100))
-                {
-                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                break;
-            case 2: //AlliesShareVision
-            case 6: //FoodGenerationSpeed
-            case 9: //BodyRemainsFor
-            case 13: //ImpWorkExperience
-            case 25: //GameTurnsPerHungerHealthLoss
-            case 28: //GameTurnsPerTortureHealthLoss
-                if (ruleval < 0)
-                {
-                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
-                    DEALLOCATE_SCRIPT_VALUE
-                    return;
-                }
-                break;
-            case 23: //DungeonHeartHealth
-            default:
-                WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
-                DEALLOCATE_SCRIPT_VALUE
-                return;
         }
     }
     else
@@ -4979,53 +4937,6 @@ static void set_game_rule_process(struct ScriptContext* context)
         game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
         panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
         break;
-
-//ones below here still need to be moved to NamedField
-    case 7: //StunEvilEnemyChance
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.stun_enemy_chance_evil, rulevalue);
-        game.conf.rules.creature.stun_enemy_chance_evil = rulevalue;
-        break;
-    case 8: //StunGoodEnemyChance
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.stun_enemy_chance_good, rulevalue);
-        game.conf.rules.creature.stun_enemy_chance_good = rulevalue;
-        break;
-    case 9: //BodyRemainsFor
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.body_remains_for, rulevalue);
-        game.conf.rules.creature.body_remains_for = rulevalue;
-        break;
-    case 10: //FightHateKillValue
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.creature.fight_hate_kill_value, rulevalue);
-        game.conf.rules.creature.fight_hate_kill_value = rulevalue;
-        break;
-    case 13: //ImpWorkExperience
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.workers.digger_work_experience, rulevalue);
-        game.conf.rules.workers.digger_work_experience = rulevalue;
-        break;
-    case 22: //DiseaseHPTemplePercentage
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.computer.disease_to_temple_pct, rulevalue);
-        game.conf.rules.computer.disease_to_temple_pct = rulevalue;
-        break;
-    case 24: //HungerHealthLoss
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.hunger_health_loss, rulevalue);
-        game.conf.rules.health.hunger_health_loss = rulevalue;
-        break;
-    case 25: //GameTurnsPerHungerHealthLoss
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.turns_per_hunger_health_loss, rulevalue);
-        game.conf.rules.health.turns_per_hunger_health_loss = rulevalue;
-        break;
-    case 26: //FoodHealthGain
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.food_health_gain, rulevalue);
-        game.conf.rules.health.food_health_gain = rulevalue;
-        break;
-    case 27: //TortureHealthLoss
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.torture_health_loss, rulevalue);
-        game.conf.rules.health.torture_health_loss = rulevalue;
-        break;
-    case 28: //GameTurnsPerTortureHealthLoss
-        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.health.turns_per_torture_health_loss, rulevalue);
-        game.conf.rules.health.turns_per_torture_health_loss = rulevalue;
-        break;
-
     default:
         WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
         break;
