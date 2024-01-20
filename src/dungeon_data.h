@@ -132,9 +132,9 @@ struct ComputerInfo
 struct Modifiers
 {
     unsigned short health;
-    unsigned short melee_damage;
+    unsigned short strength;
+    unsigned short armour;
     unsigned short spell_damage;
-    unsigned short damage_reduction;
     unsigned short speed;
     unsigned short pay;
     unsigned short training_cost;
