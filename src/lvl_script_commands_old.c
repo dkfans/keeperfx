@@ -40,51 +40,7 @@ extern "C" {
 
 /******************************************************************************/
 
-
-const struct NamedCommand game_rule_desc[] = {
-  {"BodiesForVampire",               1},
-  {"PrisonSkeletonChance",           2},
-  {"GhostConvertChance",             3},
-  {"TortureConvertChance",           4},
-  {"TortureDeathChance",             5},
-  {"FoodGenerationSpeed",            6},
-  {"StunEvilEnemyChance",            7},
-  {"StunGoodEnemyChance",            8},
-  {"BodyRemainsFor",                 9},
-  {"FightHateKillValue",            10},
-  {"PreserveClassicBugs",           11},
-  {"DungeonHeartHealHealth",        12},
-  {"ImpWorkExperience",             13},
-  {"GemEffectiveness",              14},
-  {"RoomSellGoldBackPercent",       15},
-  {"DoorSellValuePercent",          16},
-  {"TrapSellValuePercent",          17},
-  {"PayDayGap",                     18},
-  {"PayDaySpeed",                   19},
-  {"PayDayProgress",                20},
-  {"PlaceTrapsOnSubtiles",          21},
-  {"DiseaseHPTemplePercentage",     22},
-  {"DungeonHeartHealth",            23},
-  {"HungerHealthLoss",              24},
-  {"GameTurnsPerHungerHealthLoss",  25},
-  {"FoodHealthGain",                26},
-  {"TortureHealthLoss",             27},
-  {"GameTurnsPerTortureHealthLoss", 28},
-  {"AlliesShareVision",             29},
-  {"AlliesShareDrop",               30},
-  {"AlliesShareCta",                31},
-  {"BarrackMaxPartySize",           32},
-  {"MaxThingsInHand",               33},
-  {"TrainingRoomMaxLevel",          34},
-  {"TorturePayday",                 35},
-  {"TortureTrainingCost",           36},
-  {"TortureScavengingCost",         37},
-  {NULL,                             0},
-};
-
-
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
-
 
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
@@ -1489,17 +1445,6 @@ static void command_export_variable(long plr_range_id, const char *varib_name, c
     command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, src_type, src_id, flg_id);
 }
 
-static void command_set_game_rule(const char* objectv, unsigned long roomvar)
-{
-    long ruledesc = get_id(game_rule_desc, objectv);
-    if (ruledesc == -1)
-    {
-        SCRPTERRLOG("Unknown game rule variable");
-        return;
-    }
-    command_add_value(Cmd_SET_GAME_RULE, 0, ruledesc, roomvar, 0);
-}
-
 static void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, int splevel)
 {
   SCRIPTDBG(11, "Starting");
@@ -1905,9 +1850,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         {
             game.system_flags |= GSF_RunAfterVictory;
         }
-        break;
-    case Cmd_SET_GAME_RULE:
-        command_set_game_rule(scline->tp[0], scline->np[1]);
         break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);

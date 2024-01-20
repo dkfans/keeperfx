@@ -269,7 +269,7 @@ struct Thing *find_hero_door_hero_can_navigate_to(struct Thing *herotng)
         }
         i = thing->next_of_class;
         // Per thing code
-        if (object_is_hero_gate(thing) && !thing_is_in_limbo(thing))
+        if (object_is_hero_gate(thing) && !thing_is_picked_up(thing))
         {
             if (creature_can_navigate_to_with_storage(herotng, &thing->mappos, NavRtF_Default)) {
                 return thing;
@@ -444,7 +444,7 @@ long creature_turn_to_face_angle(struct Thing *thing, long angle)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     long angle_diff = get_angle_difference(thing->move_angle_xy, angle);
     long angle_sign = get_angle_sign(thing->move_angle_xy, angle);
-    int angle_delta = crstat->max_angle_change;
+    int angle_delta = crstat->max_turning_speed;
 
     if (angle_delta > angle_diff) {
         angle_delta = angle_diff;

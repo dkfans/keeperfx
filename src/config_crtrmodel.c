@@ -1391,7 +1391,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
         crstat->base_eye_height = 0;
         crstat->field_of_view = 0;
         crstat->eye_effect = 0;
-        crstat->max_angle_change = 1;
+        crstat->max_turning_speed = 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -1476,7 +1476,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = atoi(word_buf);
               if (k > 0)
               {
-                  crstat->max_angle_change = (k * LbFPMath_PI) / 180;
+                  crstat->max_turning_speed = (k * LbFPMath_PI) / 180;
                   n++;
               }
             }
