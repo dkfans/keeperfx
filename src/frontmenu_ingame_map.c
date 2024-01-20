@@ -1341,7 +1341,7 @@ void panel_map_draw_slabs(long x, long y, long units_per_px, long zoom)
             pnmap_idx = ((precor_x>>16)) + (((precor_y>>16)) * (gameadd.map_subtiles_x + 1) );
             int pncol_idx;
             //TODO reenable background
-            pncol_idx = PanelMap[pnmap_idx] /*| (*bkgnd << 8)*/;
+            pncol_idx = PanelMap[pnmap_idx] + (*bkgnd * PnC_End);
             *out = PanelColours[pncol_idx];
             precor_x += shift_y;
             precor_y -= shift_x;
