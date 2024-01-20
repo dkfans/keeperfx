@@ -23,6 +23,7 @@
 #include "config_creature.h"
 #include "globals.h"
 #include "config_creature.h"
+#include "player_data.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -90,13 +91,13 @@ struct Room {
     RoomIndex next_of_owner;
     MapSubtlCoord central_stl_x;
     MapSubtlCoord central_stl_y;
-    unsigned short kind;
+    RoomKind kind;
     unsigned short health;
     unsigned short total_capacity;
     unsigned short used_capacity;
     /* Informs whether players are interested in that room.
      * Usually used for neutral rooms, set if a player is starting to dig to that room. */
-    unsigned char player_interested[5];
+    unsigned char player_interested[PLAYERS_COUNT];
     union {
     /** For rooms which can store things, amount of storage space, or sum of gold, used by them.
      *  Rooms which can store things are workshops, libraries, treasure rooms etc. */
