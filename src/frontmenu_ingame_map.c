@@ -75,7 +75,7 @@ enum PanelColourIds
     PnC_Gems          = 11,
     //12-255 left free for future use
     PnC_RoomsStart    = 256,  //rooms 256-2559  (9*256 entries) TERRAIN_ITEMS_MAX
-    PnC_DoorsStart    = 2560, //doors 2560-270 (9*128*2 entries) TRAPDOOR_TYPES_MAX
+    PnC_DoorsStart    = 2560, //doors 2560-4863 (9*128*2 entries) TRAPDOOR_TYPES_MAX
     PnC_DoorsStartLocked  = 2569,
     PnC_PathStart = 4864, //path (9 entries)
     PnC_End = 4873,
