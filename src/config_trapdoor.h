@@ -57,6 +57,7 @@ struct DoorConfigStats {
     long health;
     unsigned short open_speed;
     unsigned short model_flags;
+    short unsellable;
 };
 
   /** Contains properties of a door model, to be stored in DoorConfigStats.
@@ -75,7 +76,8 @@ struct TrapConfigStats {
     long bigsym_sprite_idx;
     long medsym_sprite_idx;
     long pointer_sprite_idx;
-    long place_sound_idx;
+    short place_sound_idx;
+    short trigger_sound_idx;
     short hidden;
     short slappable;
     short destructible;

@@ -226,6 +226,9 @@ TbBool thing_exists(const struct Thing *thing)
     return true;
 }
 
+/**
+ * @param In a player hand, excludes creature controlled limbo like hero gates
+  */
 TbBool thing_is_in_limbo(const struct Thing* thing)
 {
     return (thing->alloc_flags & TAlF_IsInLimbo);
@@ -261,7 +264,7 @@ void set_thing_draw(struct Thing *thing, long anim, long speed, long scale, char
         }
     }
     if (animate_once != -1) {
-        set_flag_byte(&thing->rendering_flags, TRF_AnimateOnce, animate_once);
+        set_flag_value(thing->rendering_flags, TRF_AnimateOnce, animate_once);
     }
     if (start_frame == -2)
     {
@@ -307,7 +310,7 @@ void query_thing(struct Thing *thing)
         sprintf((char*)position, "Pos: X:%d Y:%d Z:%d", querytng->mappos.x.stl.num, querytng->mappos.y.stl.num, querytng->mappos.z.stl.num);
         if (querytng->class_id == TCls_Trap)
         {
-            struct ManfctrConfig *mconf = &gameadd.traps_config[querytng->model];
+            struct ManfctrConfig *mconf = &game.conf.traps_config[querytng->model];
             sprintf((char*)health, "Health: %ld", querytng->health);
             sprintf((char*)amount, "Shots: %d/%d", querytng->trap.num_shots, mconf->shots);
         }
@@ -325,7 +328,7 @@ void query_thing(struct Thing *thing)
             else 
             if (querytng->class_id == TCls_Door)
             {
-                sprintf(output, "%s/%ln", health, &gameadd.trapdoor_conf.door_cfgstats[querytng->model].health);
+                sprintf(output, "%s/%ln", health, &game.conf.trapdoor_conf.door_cfgstats[querytng->model].health);
             }
             else
             {

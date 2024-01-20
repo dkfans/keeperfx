@@ -177,9 +177,9 @@ long light_create_light(struct InitLight *ilght)
     lgt->mappos.z.val = ilght->mappos.z.val;
     lgt->radius = ilght->radius;
     lgt->intensity = ilght->intensity;
-    lgt->flags2 |= ilght->field_3 << 1;
+    lgt->flags2 |= ilght->flags << 1;
 
-    set_flag_byte(&lgt->flags,LgtF_Dynamic,ilght->is_dynamic);
+    set_flag_value(lgt->flags, LgtF_Dynamic, ilght->is_dynamic);
     lgt->attached_slb = ilght->attached_slb;
     return lgt->index;
 }
@@ -202,14 +202,14 @@ TbBool light_create_light_adv(VALUE *init_data)
         light_total_dynamic_lights++;
         lgt->shadow_index = light_shadow_cache_index(shdc);
         light_add_light_to_list(lgt, &game.thing_lists[TngList_DynamLights]);
-        set_flag_byte(&lgt->flags, LgtF_Dynamic, true);
+        set_flag(lgt->flags, LgtF_Dynamic);
     }
     else
     {
         light_total_stat_lights++;
         light_add_light_to_list(lgt, &game.thing_lists[TngList_StaticLights]);
         stat_light_needs_updating = 1;
-        set_flag_byte(&lgt->flags, LgtF_Dynamic, false);
+        clear_flag(lgt->flags, LgtF_Dynamic);
     }
     lgt->flags |= LgtF_Unkn02;
     lgt->flags |= LgtF_Unkn08;
@@ -2244,12 +2244,12 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
         }
         if ( (lgt->flags & LgtF_Unkn20) != 0 )
         {
-          if ( lgt->field_3 == 1 )
+          if ( lgt->intensity_toggling_field == 1 )
           {
             if ( lgt->intensity_delta + lgt->intensity >= lgt->max_intensity )
             {
               lgt->intensity = lgt->max_intensity;
-              lgt->field_3 = 2;
+              lgt->intensity_toggling_field = 2;
             }
             else
             {
@@ -2261,7 +2261,7 @@ static void light_render_area(MapSubtlCoord startx, MapSubtlCoord starty, MapSub
             if ( lgt->intensity - lgt->intensity_delta <= lgt->max_intensity )
             {
               lgt->intensity = lgt->max_intensity;
-              lgt->field_3 = 1;
+              lgt->intensity_toggling_field = 1;
             }
             else
             {

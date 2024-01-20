@@ -23,6 +23,7 @@
 #include "bflib_basics.h"
 
 #include "bflib_math.h"
+#include "thing_navigate.h"
 #include "thing_list.h"
 #include "thing_creature.h"
 #include "thing_physics.h"

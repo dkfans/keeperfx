@@ -36,6 +36,7 @@ extern "C" {
 
 /******************************************************************************/
 
+extern const struct NamedCommand effect_generator_commands[];
 
 struct EffectConfigStats {
     char code_name[COMMAND_WORD_LEN];
@@ -58,10 +59,10 @@ struct EffectConfigStats {
 
 struct EffectGeneratorConfigStats {
     char code_name[COMMAND_WORD_LEN];
-    long genation_delay_min;
-    long genation_delay_max;
-    long genation_amount;
-    long effect_element_model;
+    long generation_delay_min;
+    long generation_delay_max;
+    long generation_amount;
+    long effect_model;
     unsigned char ignore_terrain;
     long spawn_height;
     long acc_x_min;
@@ -75,7 +76,7 @@ struct EffectGeneratorConfigStats {
 };
 
 struct EffectElementConfigStats {
-    char code_name[COMMAND_WORD_LEN * 2];
+    char code_name[COMMAND_WORD_LEN];
     unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
     unsigned char move_type;
     unsigned char unanimated;
@@ -88,9 +89,9 @@ struct EffectElementConfigStats {
     unsigned short sprite_speed_min;
     unsigned short sprite_speed_max;
     TbBool animate_on_floor;
-    unsigned char unshaded;
+    TbBool unshaded;
     unsigned char transparant;  // transparency flags in bits 4-5
-    unsigned char movable;
+    TbBool movable;
     unsigned char movement_flags;
     unsigned char size_change; /**< See enum ThingSizeChange. */
     unsigned char fall_acceleration;
@@ -98,23 +99,23 @@ struct EffectElementConfigStats {
     short inertia_air;
     unsigned short subeffect_model;
     unsigned short subeffect_delay;
-    unsigned char impacts;
+    TbBool impacts;
     unsigned short solidgnd_effmodel;
     unsigned short solidgnd_snd_smpid;
     unsigned short solidgnd_loudness;
-    unsigned char solidgnd_destroy_on_impact;
+    TbBool solidgnd_destroy_on_impact;
     unsigned short water_effmodel;
     unsigned short water_snd_smpid;
     unsigned short water_loudness;
-    unsigned char water_destroy_on_impact;
+    TbBool water_destroy_on_impact;
     unsigned short lava_effmodel;
     unsigned short lava_snd_smpid;
     unsigned short lava_loudness;
-    unsigned char lava_destroy_on_impact;
+    TbBool lava_destroy_on_impact;
     unsigned short transform_model;
     unsigned short light_radius;
     unsigned char light_intensity;
-    long light_field_3D;
+    long light_flags;
     unsigned char affected_by_wind;
 };
 
@@ -138,6 +139,7 @@ struct EffectConfigStats *get_effect_model_stats(ThingModel tngmodel);
 struct EffectGeneratorConfigStats *get_effectgenerator_model_stats(ThingModel tngmodel);
 const char *effect_code_name(ThingModel tngmodel);
 const char *effectgenerator_code_name(ThingModel tngmodel);
+short effect_or_effect_element_id(const char * code_name);
 /******************************************************************************/
 #ifdef __cplusplus
 }

@@ -302,14 +302,14 @@ long compute_creature_max_health(long base_health,unsigned short crlevel)
     base_health = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_health = base_health + (gameadd.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
+  long max_health = base_health + (game.conf.crtr_conf.exp.health_increase_on_exp * base_health * (long)crlevel) / 100;
   return saturate_set_signed(max_health, 16);
 }
 
 /**
  * Computes gold pay of a creature on given level.
  */
-long compute_creature_max_pay(long base_param,unsigned short crlevel)
+GoldAmount compute_creature_max_pay(GoldAmount base_param,unsigned short crlevel)
 {
   if (base_param <= 0)
     return 0;
@@ -317,7 +317,7 @@ long compute_creature_max_pay(long base_param,unsigned short crlevel)
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.pay_increase_on_exp * base_param * (long)crlevel) / 100;
+  GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.pay_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -332,7 +332,7 @@ long compute_creature_max_defense(long base_param,unsigned short crlevel)
       base_param = 10000;
     if (crlevel >= CREATURE_MAX_LEVEL)
       crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (gameadd.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
+    long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
     return saturate_set_unsigned(max_param, 8);
 }
 
@@ -347,7 +347,7 @@ long compute_creature_max_dexterity(long base_param,unsigned short crlevel)
     base_param = 10000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.dexterity_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.dexterity_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_unsigned(max_param, 8);
 }
 
@@ -362,7 +362,7 @@ long compute_creature_max_strength(long base_param,unsigned short crlevel)
         base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_unsigned(max_param, 15);
 }
 
@@ -377,7 +377,7 @@ long compute_creature_max_loyalty(long base_param,unsigned short crlevel)
       base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.loyalty_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.loyalty_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_unsigned(max_param, 24);
 }
 
@@ -392,7 +392,7 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool
      base_param = 60000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.armour_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.armour_increase_on_exp * base_param * (long)crlevel) / 100;
   if (armour_spell)
       max_param = (320 * max_param) / 256;
   // This limit makes armor absorb up to 80% of damage, never more
@@ -401,6 +401,36 @@ long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool
   if (max_param < 0)
       max_param = 0;
   return max_param;
+}
+
+/**
+ * Computes training cost of a creature on given level.
+ */
+GoldAmount compute_creature_max_training_cost(GoldAmount base_param,unsigned short crlevel)
+{
+  if (base_param <= 0)
+    return 0;
+  if (base_param > 100000)
+    base_param = 100000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.training_cost_increase_on_exp * base_param * (long)crlevel) / 100;
+  return saturate_set_signed(max_param, 16);
+}
+
+/**
+ * Computes training cost of a creature on given level.
+ */
+GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param,unsigned short crlevel)
+{
+  if (base_param <= 0)
+    return 0;
+  if (base_param > 100000)
+    base_param = 100000;
+  if (crlevel >= CREATURE_MAX_LEVEL)
+    crlevel = CREATURE_MAX_LEVEL-1;
+  GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp * base_param * (long)crlevel) / 100;
+  return saturate_set_signed(max_param, 16);
 }
 
 /**
@@ -444,7 +474,7 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (gameadd.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
+    long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (luck > 0)
     {
         if (luck > 100) luck = 100;
@@ -488,7 +518,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
         base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (gameadd.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
+    long max_param = base_param + (game.conf.crtr_conf.exp.spell_damage_increase_on_exp * base_param * (long)crlevel) / 100;
     if (luck > 0)
     {
         if (CREATURE_RANDOM(thing, 100) < luck)
@@ -508,7 +538,7 @@ long compute_creature_attack_range(long base_param, long luck, unsigned short cr
     base_param = 100000;
   if (crlevel >= CREATURE_MAX_LEVEL)
     crlevel = CREATURE_MAX_LEVEL-1;
-  long max_param = base_param + (gameadd.crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.range_increase_on_exp * base_param * (long)crlevel) / 100;
   return saturate_set_signed(max_param, 16);
 }
 
@@ -529,7 +559,7 @@ long compute_creature_work_value(long base_param,long efficiency,unsigned short 
       crlevel = CREATURE_MAX_LEVEL-1;
   if (efficiency > 1024)
       efficiency = 1024;
-  long max_param = base_param + (gameadd.crtr_conf.exp.job_value_increase_on_exp * base_param * (long)crlevel) / 100;
+  long max_param = base_param + (game.conf.crtr_conf.exp.job_value_increase_on_exp * base_param * (long)crlevel) / 100;
   return (max_param * efficiency) / ROOM_EFFICIENCY_MAX;
 }
 
@@ -609,16 +639,40 @@ long calculate_correct_creature_maxspeed(const struct Thing *thing)
     return speed;
 }
 
-long calculate_correct_creature_pay(const struct Thing *thing)
+GoldAmount calculate_correct_creature_pay(const struct Thing *thing)
 {
     struct Dungeon* dungeon = get_dungeon(thing->owner);
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
-    // If torturing creature of that model, halve the salary
+    GoldAmount pay = compute_creature_max_pay(crstat->pay, cctrl->explevel);
+    // If torturing creature of that model, changes the salary with a percentage set in rules.cfg.
     if (dungeon->tortured_creatures[thing->model] > 0)
-        pay /= 2;
+        pay = (pay * game.conf.rules.game.torture_payday) / 100;
     return pay;
+}
+
+GoldAmount calculate_correct_creature_training_cost(const struct Thing *thing)
+{
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    GoldAmount training_cost = compute_creature_max_training_cost(crstat->training_cost, cctrl->explevel);
+    // If torturing creature of that model, changes the training cost with a percentage set in rules.cfg.
+    if (dungeon->tortured_creatures[thing->model] > 0)
+        training_cost = (training_cost * game.conf.rules.game.torture_training_cost) / 100;
+    return training_cost;
+}
+
+GoldAmount calculate_correct_creature_scavenging_cost(const struct Thing *thing)
+{
+    struct Dungeon* dungeon = get_dungeon(thing->owner);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    GoldAmount scavenger_cost = compute_creature_max_scavenging_cost(crstat->scavenger_cost, cctrl->explevel);
+    // If torturing creature of that model, changes the scavenging cost with a percentage set in rules.cfg.
+    if (dungeon->tortured_creatures[thing->model] > 0)
+        scavenger_cost = (scavenger_cost * game.conf.rules.game.torture_scavenging_cost) / 100;
+    return scavenger_cost;
 }
 
 long calculate_correct_creature_scavenge_required(const struct Thing *thing, PlayerNumber callplyr_idx)
@@ -697,6 +751,17 @@ TbBool update_creature_health_to_max(struct Thing *thing)
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     cctrl->max_health = compute_creature_max_health(crstat->health,cctrl->explevel);
     thing->health = cctrl->max_health;
+    return true;
+}
+
+TbBool set_creature_health_to_max_with_heal_effect(struct Thing* thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    if (cctrl->max_health > thing->health)
+    {
+        apply_spell_effect_to_thing(thing, SplK_Heal, 1);
+        thing->health = cctrl->max_health;
+    }
     return true;
 }
 
@@ -850,31 +915,31 @@ long calculate_damage_did_to_slab_with_single_hit(const struct Thing *diggertng,
 {
     long dig_damage;
     if (slabmap_owner(slb) == diggertng->owner)
-        dig_damage = game.default_imp_dig_own_damage;
+        dig_damage = game.conf.rules.workers.default_imp_dig_own_damage;
     else
-        dig_damage = game.default_imp_dig_damage;
+        dig_damage = game.conf.rules.workers.default_imp_dig_damage;
     return dig_damage;
 }
 
 GoldAmount calculate_gold_digged_out_of_slab_with_single_hit(long damage_did_to_slab, const struct SlabMap *slb)
 {
     struct SlabAttr *slbattr = get_slab_attrs(slb);
-    GoldAmount gold = (damage_did_to_slab * game.gold_per_gold_block) / game.block_health[slbattr->block_health_index];
+    GoldAmount gold = (damage_did_to_slab * game.conf.rules.game.gold_per_gold_block) / game.block_health[slbattr->block_health_index];
     // Returns gold-per-hit as an integer
     if (slb->kind == SlbT_GEMS)
     {
-        gold = gold * gameadd.gem_effectiveness / 100;
+        gold = gold * game.conf.rules.game.gem_effectiveness / 100;
     }
     else if (slb->health == 0)
     // if the last hit deals the damage exactly, just drop a pile and the remainder
     {
-        gold += (game.gold_per_gold_block % gold);
+        gold += (game.conf.rules.game.gold_per_gold_block % gold);
     }
     else if (slb->health < 0)
     // If the damage dealt is more than the remaining health, then health is not divisible by damage, so this 
     // should return whatever is left, as this is less than the gold given for a full hit.
     {
-        gold = game.gold_per_gold_block - (game.block_health[slbattr->block_health_index] / damage_did_to_slab) * gold;
+        gold = game.conf.rules.game.gold_per_gold_block - (game.block_health[slbattr->block_health_index] / damage_did_to_slab) * gold;
     // subtract all of the "full hits" and return what's left.
     }
     if (gold < 1)
@@ -1029,12 +1094,12 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_TrainingCost:
-        i = crstat->training_cost;
+        i = calculate_correct_creature_training_cost(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;
     case CrLStat_ScavengeCost:
-        i = crstat->scavenger_cost;
+        i = calculate_correct_creature_scavenging_cost(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;

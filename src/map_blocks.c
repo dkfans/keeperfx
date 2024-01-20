@@ -223,7 +223,7 @@ TbBool tag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
               }
           }
       }
-      pannel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
+      panel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
     }
     return task_added;
 }
@@ -266,7 +266,7 @@ long untag_blocks_for_digging_in_area(MapSubtlCoord stl_x, MapSubtlCoord stl_y, 
             }
         }
     }
-    pannel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(x, y, STL_PER_SLB, STL_PER_SLB);
     return num_untagged;
 }
 
@@ -310,7 +310,7 @@ void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoo
 
 TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    if ( (plyr_idx == game.neutral_player_num) || subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) )
+    if ( (plyr_idx == game.neutral_player_num) || subtile_revealed_directly(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) )
     {
         return false;
     }
@@ -323,7 +323,7 @@ TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord
     reveal_map_subtile(slab_subtile(slb_x,0), slab_subtile(slb_y,2), plyr_idx);
     reveal_map_subtile(slab_subtile(slb_x,1), slab_subtile(slb_y,2), plyr_idx);
     reveal_map_subtile(slab_subtile(slb_x,2), slab_subtile(slb_y,2), plyr_idx);
-    pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
     return true;
 }
 
@@ -347,7 +347,7 @@ void set_slab_explored_flags(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabC
         get_map_block_at(stl_x + 1, stl_y + 2)->revealed = flag;
         get_map_block_at(stl_x + 2, stl_y + 2)->revealed = flag;
 
-        pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
+        panel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
     }
 }
 
@@ -461,7 +461,6 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
     SubtlCodedCoords stl_num;
     struct Thing *thing;
     struct Map *mapblk;
-    struct Objects *objdat;
     struct Coord3d pos;
     unsigned long removed_num;
     unsigned long k;
@@ -486,8 +485,8 @@ unsigned long delete_unwanted_things_from_liquid_slab(MapSlabCoord slb_x, MapSla
             // Per thing code
             if (thing->class_id == TCls_Object)
             {
-                objdat = get_objects_data_for_thing(thing);
-                if (objdat->destroy_on_liquid)
+                struct ObjectConfigStats *objst = get_object_model_stats(thing->model);
+                if (objst->destroy_on_liquid)
                 {
                     if (rmeffect > 0)
                     {
@@ -788,7 +787,7 @@ void copy_block_with_cube_groups(short itm_idx, MapSubtlCoord stl_x, MapSubtlCoo
                 found = true;
                 struct SlabMap *slb;
                 slb = get_slabmap_for_subtile(stl_x, stl_y);
-                col.cubes[i] = gameadd.cube_conf.cube_bits[cubed->ownershipGroup][slabmap_owner(slb)];
+                col.cubes[i] = game.conf.cube_conf.cube_bits[cubed->ownershipGroup][get_player_color_idx(slabmap_owner(slb))];
             }
         }
     }
@@ -859,7 +858,7 @@ void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
 {
     struct SlabAttr *slbattr;
     slbattr = get_slab_kind_attrs(slbkind);
-    if (slbattr->wlb_type != 3)
+    if (slbattr->wlb_type != WlbT_Bridge)
     {
         struct SlabMap *slb;
         slb = get_slabmap_for_subtile(stl_x, stl_y);
@@ -889,7 +888,7 @@ void place_slab_columns(SlabKind slbkind, MapSubtlCoord stl_x, MapSubtlCoord stl
 #define get_slabset_index(slbkind, style, pick) get_slabset_index_f(slbkind, style, pick, __func__)
 unsigned short get_slabset_index_f(SlabKind slbkind, unsigned char style, unsigned char pick, const char *func_name)
 {
-    if (slbkind >= game.slab_conf.slab_types_count) {
+    if (slbkind >= game.conf.slab_conf.slab_types_count) {
         ERRORLOG("%s: Illegal animating slab kind: %d", func_name, (int)slbkind);
         slbkind = 0;
     }
@@ -951,7 +950,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                 ilght.mappos.z.val = pos.z.val;
                 ilght.radius = sobj->range << 8;
                 ilght.intensity = sobj->model;
-                ilght.field_3 = 0;
+                ilght.flags = 0;
                 ilght.is_dynamic = 0;
                 long lgt_id;
                 lgt_id = light_create_light(&ilght);
@@ -970,10 +969,10 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                     ThingModel tngmodel;
                     tngmodel = sobj->model;
                     if (tngmodel == dungeon_flame_objects[0]) {
-                        tngmodel = dungeon_flame_objects[plyr_idx];
+                        tngmodel = dungeon_flame_objects[get_player_color_idx(plyr_idx)];
                     } else
                     if (tngmodel == player_guardflag_objects[0]) {
-                        tngmodel = player_guardflag_objects[plyr_idx];
+                        tngmodel = player_guardflag_objects[get_player_color_idx(plyr_idx)];
                     }
                     if (tngmodel <= 0)
                         continue;
@@ -1490,9 +1489,9 @@ static void shuffle_unattached_things_on_slab(MapSlabCoord slb_x, MapSlabCoord s
                     TbBool delete_thing = true;
                     if (thing_is_object(thing))
                     {
-                        struct Objects *objdat = get_objects_data_for_thing(thing);
+                        struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
 
-                        persistence = objdat->persistence;
+                        persistence = objst->persistence;
                         if (persistence == ObPer_Move)
                         {
                             if ((get_map_floor_filled_subtiles(mapblk) <= 4) || move_object_to_nearest_free_position(thing))
@@ -1613,7 +1612,7 @@ void dump_slab_on_map(SlabKind slbkind, long slabset_id, MapSubtlCoord stl_x, Ma
 
     slb = get_slabmap_block(slb_x, slb_y);
     slb->kind = slbkind;
-    pannel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(stl_xa, stl_ya, STL_PER_SLB, STL_PER_SLB);
     if (slab_kind_is_animated(slbkind) && !slab_kind_is_door(slbkind))
     {
         MapSubtlCoord stl_xb;
@@ -1818,7 +1817,7 @@ void place_slab_type_on_map_f(SlabKind nslab, MapSubtlCoord stl_x, MapSubtlCoord
       }
     }
 
-    pannel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(slab_subtile(slb_x,0), slab_subtile(slb_y,0), STL_PER_SLB, STL_PER_SLB);
 
     for (i = 0; i < AROUND_EIGHT_LENGTH; i++)
     {
@@ -2742,7 +2741,7 @@ void pretty_map_remove_flags_and_update(MapSlabCoord slb_x, MapSlabCoord slb_y)
         mapblk->flags &= ~SlbAtFlg_TaggedValuable;
         mapblk->flags &= ~SlbAtFlg_Unexplored;
     }
-    pannel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
+    panel_map_update(stl_x, stl_y, STL_PER_SLB, STL_PER_SLB);
 }
 
 void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
@@ -2753,7 +2752,6 @@ void place_and_process_pretty_wall_slab(struct Thing *creatng, MapSlabCoord slb_
     unsigned char pretty_type;
     pretty_type = choose_pretty_type(creatng->owner, slb_x, slb_y);
     place_slab_type_on_map(pretty_type, slab_subtile_center(slb_x), slab_subtile_center(slb_y), creatng->owner, 0);
-    EVM_MAP_EVENT("reinforced", creatng->owner, slb_x, slb_y, "");
     do_slab_efficiency_alteration(slb_x, slb_y);
     MapSubtlCoord wrkstl_x;
     MapSubtlCoord wrkstl_y;

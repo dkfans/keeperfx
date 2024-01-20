@@ -27,6 +27,7 @@
 #include "frontend.h"
 #include "bflib_dernc.h"
 #include "sprites.h"
+#include "config_spritecolors.h"
 
 #include <spng.h>
 #include <json.h>
@@ -229,6 +230,7 @@ static int cmp_named_command(const void *a, const void *b)
 
 static void load_system_sprites(short fgroup)
 {
+    SYNCDBG(8, "Starting");
     struct TbFileFind fileinfo;
     int cnt = 0, cnt_ok = 0, cnt_icons = 0;
     char *fname = prepare_file_path(fgroup, "*.zip");
@@ -262,6 +264,7 @@ static void load_system_sprites(short fgroup)
 
 void init_custom_sprites(LevelNumber lvnum)
 {
+    SYNCDBG(8, "Starting");
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {
@@ -351,13 +354,14 @@ void init_custom_sprites(LevelNumber lvnum)
  */
 static void init_pal_conversion()
 {
+    SYNCDBG(8, "Starting");
     // 1. Loading palette into pal_records
     memset(pal_records, 0, sizeof(pal_records));
 
     struct PaletteNode pal_tree_tmp[MAX_COLOR_VALUE] = {0}; // one color
     char* fname;
     TbBool result = true;
-    fname = prepare_file_fmtpath(FGrp_StdData, "pal%05d.dat", 0);
+    fname = prepare_file_fmtpath(FGrp_StdData, "png_conv_pal.dat");
     if (!LbFileExists(fname))
     {
         WARNMSG("Palette file \"%s\" doesn't exist.", fname);
@@ -417,6 +421,7 @@ static void init_pal_conversion()
         }
     }
 #undef NEAREST_DEPTH
+    SYNCDBG(8, "Finished");
 }
 
 /**
@@ -1215,6 +1220,7 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
 static TbBool
 add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root))
 {
+    SYNCDBG(8, "Starting");
     unz_file_info64 zip_info = {0};
     VALUE root;
     JSON_INPUT_POS json_input_pos;
@@ -1443,7 +1449,7 @@ short get_icon_id(const char *name)
     return -2; // -1 is used by SPELLBOOK_POSS etc
 }
 
-short get_anim_id(const char *name, struct Objects *objdat)
+short get_anim_id(const char *name, struct ObjectConfigStats *objst)
 {
     short ret = atoi(name);
     struct NamedCommand key = {name, 0};
@@ -1478,35 +1484,35 @@ short get_anim_id(const char *name, struct Objects *objdat)
         }
         if (0 == strcmp(P, "NORTH"))
         {
-            objdat->rotation_flag = 0;
+            objst->rotation_flag = 0;
         }
         else if (0 == strcmp(P, "NORTHEAST"))
         {
-            objdat->rotation_flag = 1;
+            objst->rotation_flag = 1;
         }
         else if (0 == strcmp(P, "EAST"))
         {
-            objdat->rotation_flag = 2;
+            objst->rotation_flag = 2;
         }
         else if (0 == strcmp(P, "SOUTHEAST"))
         {
-            objdat->rotation_flag = 3;
+            objst->rotation_flag = 3;
         }
         else if (0 == strcmp(P, "SOUTH"))
         {
-            objdat->rotation_flag = 4;
+            objst->rotation_flag = 4;
         }
         else if (0 == strcmp(P, "SOUTHWEST"))
         {
-            objdat->rotation_flag = 5;
+            objst->rotation_flag = 5;
         }
         else if (0 == strcmp(P, "WEST"))
         {
-            objdat->rotation_flag = 6;
+            objst->rotation_flag = 6;
         }
         else if (0 == strcmp(P, "NORTHWEST"))
         {
-            objdat->rotation_flag = 7;
+            objst->rotation_flag = 7;
         }
         else
         {
@@ -1520,6 +1526,13 @@ short get_anim_id(const char *name, struct Objects *objdat)
 }
 
 const struct TbSprite *get_button_sprite(short sprite_idx)
+{
+    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx,my_player_number);
+
+    return get_button_sprite_direct(sprite_idx);
+}
+
+const struct TbSprite *get_button_sprite_direct(short sprite_idx)
 {
     if (sprite_idx < GUI_BUTTON_SPRITES_COUNT)
         return &button_sprite[sprite_idx];

@@ -41,15 +41,15 @@ NGSOUNDLISTS = $(patsubst %,sfx/%/filelist.txt,$(NGSPEECHBANKS) sound)
 LANDVIEWSPEECH = \
 $(foreach lng,eng chi,ancntkpr_$(lng)) \
 $(foreach lng,eng chi,burdnimp_$(lng)) \
-$(foreach lng,eng dut,dzjr06lv_$(lng)) \
+$(foreach lng,eng chi dut,dzjr06lv_$(lng)) \
 $(foreach lng,eng chi,jdkmaps8_$(lng)) \
 $(foreach lng,eng chi cht dut fre ger ita jpn kor pol rus spa swe,keeporig_$(lng)) \
-$(foreach lng,eng dut,lqizgood_$(lng)) \
-$(foreach lng,eng,postanck_$(lng)) \
-$(foreach lng,eng,pstunded_$(lng)) \
-$(foreach lng,eng,revlord_$(lng)) \
+$(foreach lng,eng chi dut,lqizgood_$(lng)) \
+$(foreach lng,eng chi,postanck_$(lng)) \
+$(foreach lng,eng chi,pstunded_$(lng)) \
+$(foreach lng,eng chi,revlord_$(lng)) \
 $(foreach lng,eng dut,twinkprs_$(lng)) \
-$(foreach lng,eng,undedkpr_$(lng))
+$(foreach lng,eng chi,undedkpr_$(lng))
 
 LANDVIEWSPEECHDIRS = $(patsubst %,pkg/campgns/%,$(LANDVIEWSPEECH))
 

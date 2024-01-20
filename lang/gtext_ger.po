@@ -22,7 +22,7 @@ msgstr ""
 "Report-Msgid-Bugs-To: https://github.com/dkfans/keeperfx/issues\n"
 "POT-Creation-Date: 2012-09-02 01:12+0200\n"
 "PO-Revision-Date: 2014-10-28 21:22+0100\n"
-"Last-Translator: Endrix \n"
+"Last-Translator: \n"
 "Language-Team: KeeperFX Team\n"
 "Language: de_DE\n"
 "MIME-Version: 1.0\n"
@@ -7115,12 +7115,12 @@ msgstr "Moo5"
 #: guitext:1036
 msgctxt "Trap names"
 msgid "Demolition Trap"
-msgstr "Zerstörungsfalle"
+msgstr "Sprengfalle"
 
 #: guitext:1037
 msgctxt "Trap description"
 msgid "Demolition Trap: An explosive with unrivaled destructive power."
-msgstr "Zerstörungsfalle: Ein Sprengstoff mit unübertroffener Zerstörungskraft."
+msgstr "Sprengfalle: Ein Sprengstoff mit unübertroffener Zerstörungskraft."
 
 #: guitext:1038
 msgctxt "Trap description"
@@ -7166,3 +7166,53 @@ msgstr "Felsboden: Unbeanspruchter Felsenboden. Du kannst ihn nicht beanspruchen
 msgctxt "Slab description"
 msgid "Dense Gold Seam: Holds a lot of wealth for your Imps to extract. "
 msgstr "Dichte Goldader: Enthält viel Reichtum, den deine Imps abbauen können."
+
+#: guitext:1053
+msgctxt "Keeper spell name"
+msgid "Rebound"
+msgstr "Abprall"
+
+#: guitext:1054
+msgctxt "Keeper spell name"
+msgid "Freeze"
+msgstr "Einfrieren"
+
+#: guitext:1055
+msgctxt "Keeper spell name"
+msgid "Slow"
+msgstr "Bremsen"
+
+#: guitext:1056
+msgctxt "Keeper spell name"
+msgid "Flight"
+msgstr "Flug"
+
+#: guitext:1057
+msgctxt "Keeper spell name"
+msgid "Illumination"
+msgstr "Beleuchtung"
+
+#: guitext:1058
+msgctxt "Keeper spell name"
+msgid "Sight"
+msgstr "Sicht"
+
+#: guitext:1059
+msgctxt "Dungeon special decription"
+msgid "Heal All: Restore full health to all your creatures."
+msgstr "Kreaturen heilen: Jede eurer Kreaturen wird geheilt."
+
+#: guitext:1060
+msgctxt "Dungeon special decription"
+msgid "Increase Gold: Generates gold in your treasury."
+msgstr "Gold erzeugen: Erzeugt Gold in eurer Schatzkammer."
+
+#: guitext:1061
+msgctxt "Dungeon special decription"
+msgid "Make Unhappy: All creatures of the enemy become upset."
+msgstr "Kreaturen verärgern: Alle Kreaturen des Feindes werden ärgerlich."
+
+#: guitext:1062
+msgctxt "Dungeon special decription"
+msgid "Weaken Walls: Destroys the fortifications of enemy walls."
+msgstr "Mauern Schwächen: Zerstört die Befestigungen der feindlichen Mauern"

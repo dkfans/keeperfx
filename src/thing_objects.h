@@ -78,6 +78,9 @@ enum ObjectModels
     ObjMdl_PowerHand = 37,
     ObjMdl_PowerHandGrab = 38,
     ObjMdl_PowerHandWhip = 39,
+    ObjMdl_ChickenStb = 40,
+    ObjMdl_ChickenWob = 41,
+    ObjMdl_ChickenCrk = 42,
     ObjMdl_Goldl = 43,
     ObjMdl_SpinningKey = 44,
     ObjMdl_HeroGate = 49,
@@ -113,7 +116,19 @@ enum ObjectModels
     ObjMdl_PowerHandWithGold = 127,
     ObjMdl_SpinningCoin = 128,
     ObjMdl_SpecboxCustom = 133,
-    ObjMdl_GoldBag = 136
+    ObjMdl_GoldBag = 136,
+    ObjMdl_GuardFlagWhite = 161,
+    ObjMdl_HeartFlameWhite = 162,
+    ObjMdl_GuardFlagPurple = 164,
+    ObjMdl_HeartFlamePurple = 165,
+    ObjMdl_GuardFlagBlack = 166,
+    ObjMdl_HeartFlameBlack = 167,
+    ObjMdl_GuardFlagOrange = 168,
+    ObjMdl_HeartFlameOrange = 169,
+    ObjMdl_SpecboxHealAll = 170,
+    ObjMdl_SpecboxGetGold = 171,
+    ObjMdl_SpecboxMakeAngry = 172,
+    ObjMdl_SpecboxMakeUnsafe = 173,
 };
 
 /**
@@ -132,36 +147,12 @@ enum ObjectsDrawClasses {
   ODC_SpinningKey    = 0x06, /**< Used by SPINNING_KEY. */
 };
 /******************************************************************************/
-#pragma pack(1)
-
-struct Objects {
-    unsigned char initial_state;
-    unsigned char start_frame_to_minus1;
-    unsigned char not_drawn;
-    short sprite_anim_idx;
-    short anim_speed;
-    short size_xy;
-    short size_z;
-    short sprite_size_max;
-    unsigned char field_F;      // Lower 2 bits are transparency flags
-    unsigned short fp_smpl_idx;
-    unsigned char draw_class; /**< See enum ObjectsDrawClasses. */
-    unsigned char destroy_on_lava;
-    /** Creature model related to the object, ie for lairs - which creature lair it is. */
-    unsigned char related_creatr_model;
-    unsigned char persistence;
-    unsigned char destroy_on_liquid;
-    unsigned char rotation_flag;
-    unsigned char updatefn_idx;
-};
-
 struct CallToArmsGraphics {
     int birth_anim_idx;
     int alive_anim_idx;
     int leave_anim_idx;
 };
 
-#pragma pack()
 /******************************************************************************/
 extern unsigned short player_guardflag_objects[];
 extern unsigned short dungeon_flame_objects[];
@@ -175,8 +166,6 @@ TbBool thing_is_object(const struct Thing *thing);
 void change_object_owner(struct Thing *objtng, PlayerNumber nowner);
 void destroy_food(struct Thing *foodtng);
 
-struct Objects *get_objects_data_for_thing(struct Thing *thing);
-struct Objects *get_objects_data(unsigned int tmodel);
 struct Thing *get_spellbook_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_special_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
 struct Thing *get_crate_at_position(MapSubtlCoord stl_x, MapSubtlCoord stl_y);
@@ -236,8 +225,6 @@ GoldAmount gold_object_typical_value(ThingModel tngmodel);
 void set_call_to_arms_as_birthing(struct Thing *objtng);
 void set_call_to_arms_as_dying(struct Thing *objtng);
 void set_call_to_arms_as_rebirthing(struct Thing *objtng);
-
-void init_thing_objects();
 /******************************************************************************/
 #ifdef __cplusplus
 }

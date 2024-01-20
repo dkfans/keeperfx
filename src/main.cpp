@@ -121,9 +121,10 @@
 #include "game_loop.h"
 #include "music_player.h"
 
-#ifdef AUTOTESTING
-#include "event_monitoring.h"
+#ifdef FUNCTESTING
+  #include "ftests/ftest.h"
 #endif
+
 #include "post_inc.h"
 
 #ifdef _MSC_VER
@@ -214,7 +215,7 @@ TbBool TimerFreeze = false;
 
 TbPixel get_player_path_colour(unsigned short owner)
 {
-  return player_path_colours[player_colors_map[owner % PLAYERS_EXT_COUNT]];
+  return player_path_colours[get_player_color_idx(owner % PLAYERS_EXT_COUNT)];
 }
 
 void setup_stuff(void)
@@ -530,7 +531,7 @@ long apply_wallhug_force_to_boulder(struct Thing *thing)
     {
       if ( (thing->model != ShM_SolidBoulder) && (collide == 0) )
       {
-        thing->health -= game.boulder_reduce_health_wall;
+        thing->health -= game.conf.rules.game.boulder_reduce_health_wall;
       }
       slide_thing_against_wall_at(thing, &pos, blocked_flags);
       if ( blocked_flags & SlbBloF_WalledX )
@@ -617,7 +618,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
             }
             if (boulder->model != ShM_SolidBoulder) // Solid Boulder (shot20) takes no damage when destroying guardposts
             {
-                boulder->health -= game.boulder_reduce_health_room; // decrease boulder health
+                boulder->health -= game.conf.rules.game.boulder_reduce_health_room; // decrease boulder health
             }
             return 1; // guardpost destroyed
         }
@@ -639,7 +640,7 @@ long process_boulder_collision(struct Thing *boulder, struct Coord3d *pos, int d
     return 0; // Default: No collision OR boulder destroyed on door
 }
 
-void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step)
+void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_step, long num_per_step, short ef_or_efel_model)
 {
   MapCoordDelta dist_x;
   MapCoordDelta dist_y;
@@ -699,12 +700,18 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             delta_y = dist_y * delta_y / (dist_x + dist_y + dist_z);
             delta_z = dist_z * delta_z / (dist_x + dist_y + dist_z);
         }
+        
+        int sprsize = 0;
+        int delta_size = 0;
+
         struct EffectElementConfigStats *eestat;
-        eestat = get_effect_element_model_stats(9);
-        int sprsize;
-        int delta_size;
-        delta_size = ((eestat->sprite_size_max - eestat->sprite_size_min) << 8) / (nsteps+1);
-        sprsize = (eestat->sprite_size_min << 8);
+        if (ef_or_efel_model < 0)
+        {
+            eestat = get_effect_element_model_stats(ef_or_efel_model * -1);
+            delta_size = ((eestat->sprite_size_max - eestat->sprite_size_min) << 8) / (nsteps+1);
+            sprsize = (eestat->sprite_size_min << 8);
+        }
+
         int deviat;
         deviat = 1;
         struct Coord3d curpos;
@@ -720,13 +727,14 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
             for (k = num_per_step; k > 0; k--)
             {
                 struct Coord3d tngpos;
-                tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange); // I hope it is only visual
+                tngpos.x.val = curpos.x.val + deviat - UNSYNC_RANDOM(devrange);
                 tngpos.y.val = curpos.y.val + deviat - UNSYNC_RANDOM(devrange);
                 tngpos.z.val = curpos.z.val + deviat - UNSYNC_RANDOM(devrange);
                 if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
                 {
                     struct Thing *eelemtng;
-                    eelemtng = create_thing(&tngpos, TCls_EffectElem, TngEffElm_BallOfLight, game.neutral_player_num, -1);
+
+                    eelemtng = create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
                     if (!thing_is_invalid(eelemtng)) {
                         eelemtng->sprite_size = sprsize >> 8;
                     }
@@ -741,7 +749,7 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
     }
 }
 
-void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, long eemodel)
+void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long eeinterspace, EffectOrEffElModel ef_or_efel_model)
 {
     MapCoordDelta dist_x = pos2->x.val - pos1->x.val;
     MapCoordDelta dist_y = pos2->y.val - pos1->y.val;
@@ -749,6 +757,8 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
     int delta_x;
     int delta_y;
     int delta_z;
+    if (eeinterspace <= 0)
+        eeinterspace = 1;
     if (dist_x >= 0) {
         delta_x = eeinterspace;
     } else {
@@ -802,7 +812,7 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
             tngpos.z.val = curpos.z.val + deviat_z;
             if ((tngpos.x.val < subtile_coord(gameadd.map_subtiles_x,0)) && (tngpos.y.val < subtile_coord(gameadd.map_subtiles_y,0)))
             {
-                create_thing(&tngpos, TCls_EffectElem, eemodel, game.neutral_player_num, -1);
+                create_used_effect_or_element(&tngpos, ef_or_efel_model, game.neutral_player_num);
             }
             if (UNSYNC_RANDOM(6) >= 3) {
                 deviat_x -= 32;
@@ -977,7 +987,7 @@ void init_keeper(void)
     init_top_texture_to_cube_table();
     game.neutral_player_num = neutral_player_number;
     if (game.generate_speed <= 0)
-      game.generate_speed = game.default_generate_speed;
+      game.generate_speed = game.conf.rules.rooms.default_generate_speed;
     poly_pool_end = &poly_pool[sizeof(poly_pool)-128];
     lbDisplay.GlassMap = pixmap.ghost;
     lbDisplay.DrawColour = colours[15][15][15];
@@ -1103,6 +1113,11 @@ short setup_game(void)
       return 0;
   }
 
+  #ifdef FUNCTESTING
+    features_enabled |= Ft_SkipSplashScreens;
+    features_enabled |= Ft_SkipHeartZoom;
+  #endif
+
   // Process CmdLine overrides
   process_cmdline_overrides();
 
@@ -1113,6 +1128,9 @@ short setup_game(void)
       ERRORLOG("Error on allocation/loading of legal_load_files.");
       return 0;
   }
+
+  // Setup polyscans
+  setup_bflib_render();
 
   // View the legal screen
   if (!setup_screen_mode_zero(get_frontend_vidmode()))
@@ -1296,8 +1314,7 @@ TbBool players_cursor_is_at_top_of_view(struct PlayerInfo *player)
 
 TbBool engine_point_to_map(struct Camera *camera, long screen_x, long screen_y, long *map_x, long *map_y)
 {
-    struct PlayerInfo *player;
-    player = get_my_player();
+    struct PlayerInfo *player = get_my_player();
     *map_x = 0;
     *map_y = 0;
     if ( (pointer_x >= 0) && (pointer_y >= 0)
@@ -1376,7 +1393,7 @@ void update_creatr_model_activities_list(void)
     int num_breeds;
     num_breeds = no_of_breeds_owned;
     // Add to breed activities
-    for (crmodel=1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] > 0)
             && (crmodel != get_players_spectator_model(my_player_number)))
@@ -1397,7 +1414,7 @@ void update_creatr_model_activities_list(void)
         }
     }
     // Remove from breed activities
-    for (crmodel=1; crmodel < gameadd.crtr_conf.model_count; crmodel++)
+    for (crmodel=1; crmodel < game.conf.crtr_conf.model_count; crmodel++)
     {
         if ((dungeon->owned_creatures_of_model[crmodel] <= 0)
           && (crmodel != get_players_special_digger_model(my_player_number)))
@@ -1423,7 +1440,7 @@ void update_creatr_model_activities_list(void)
 void toggle_hero_health_flowers(void)
 {
     const char *statstr;
-    toggle_flag_byte(&game.flags_cd,MFlg_NoHeroHealthFlower);
+    toggle_flag(game.flags_cd, MFlg_NoHeroHealthFlower);
     if (game.flags_cd & MFlg_NoHeroHealthFlower)
     {
       statstr = "off";
@@ -1643,14 +1660,14 @@ TbBool set_default_startup_parameters(void)
 {
     memset(&start_params, 0, sizeof(struct StartupParameters));
     start_params.packet_checksum_verify = 1;
-    set_flag_byte(&start_params.flags_font,FFlg_unk01,false);
+    clear_flag(start_params.flags_font, FFlg_unk01);
     // Set levels to 0, as we may not have the campaign loaded yet
     start_params.selected_level_number = 0;
     start_params.num_fps = 20;
     start_params.one_player = 1;
     start_params.computer_chat_flags = CChat_None;
-    set_flag_byte(&start_params.flags_cd,MFlg_IsDemoMode,false);
-    set_flag_byte(&start_params.flags_cd,MFlg_unk40,true);
+    clear_flag(start_params.flags_cd, MFlg_IsDemoMode);
+    set_flag(start_params.flags_cd, MFlg_unk40);
     start_params.force_ppro_poly = 0;
     return true;
 }
@@ -1734,8 +1751,8 @@ void clear_players_for_save(void)
       memset(player, 0, sizeof(struct PlayerInfo));
       player->id_number = id_mem;
       player->is_active = mem2;
-      set_flag_byte(&player->allocflags,PlaF_Allocated,((memflg & PlaF_Allocated) != 0));
-      set_flag_byte(&player->allocflags,PlaF_CompCtrl,((memflg & PlaF_CompCtrl) != 0));
+      set_flag_value(player->allocflags, PlaF_Allocated, ((memflg & PlaF_Allocated) != 0));
+      set_flag_value(player->allocflags, PlaF_CompCtrl, ((memflg & PlaF_CompCtrl) != 0));
       LbMemoryCopy(&player->cameras[CamIV_FirstPerson],&cammem,sizeof(struct Camera));
       player->acamera = &player->cameras[CamIV_FirstPerson];
     }
@@ -1802,7 +1819,6 @@ void clear_game(void)
     clear_things_and_persons_data();
     ceiling_set_info(12, 4, 1);
     init_animating_texture_maps();
-    init_thing_objects();
     clear_slabsets();
 }
 
@@ -1814,7 +1830,7 @@ void clear_game_for_save(void)
     clear_mapwho();
     game.entrance_room_id = 0;
     game.action_rand_seed = 0;
-    set_flag_byte(&game.operation_flags,GOF_Unkn04,false);
+    clear_flag(game.operation_flags, GOF_Unkn04);
     clear_columns();
     clear_players_for_save();
     clear_dungeons();
@@ -1828,7 +1844,7 @@ void reset_creature_max_levels(void)
     {
         struct Dungeon *dungeon;
         dungeon = get_dungeon(i);
-        for (k=1; k < gameadd.crtr_conf.model_count; k++)
+        for (k=1; k < game.conf.crtr_conf.model_count; k++)
         {
             dungeon->creature_max_level[k] = CREATURE_MAX_LEVEL+1;
         }
@@ -1837,11 +1853,11 @@ void reset_creature_max_levels(void)
 
 void reset_hand_rules(void)
 {
-    struct DungeonAdd* dungeonadd;
+    struct Dungeon* dungeon;
     for (int i = 0; i < DUNGEONS_COUNT; i++)
     {
-        dungeonadd = get_dungeonadd(i);
-        memset(dungeonadd->hand_rules, 0, sizeof(dungeonadd->hand_rules));
+        dungeon = get_dungeon(i);
+        memset(dungeon->hand_rules, 0, sizeof(dungeon->hand_rules));
     }
 }
 
@@ -2188,10 +2204,9 @@ void clear_lookups(void)
 void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
 {
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
     struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
-    if (playeradd->mouse_is_offmap == true) {
+    if (player->mouse_is_offmap == true) {
         light->disable_interp_for_turns = 2;
     }
     if (light->disable_interp_for_turns > 0) {
@@ -2267,16 +2282,16 @@ void check_players_lost(void)
   long i;
   SYNCDBG(8,"Starting");
   struct PlayerInfo* player;
-  struct DungeonAdd* dungeonadd;
+  struct Dungeon* dungeon;
   for (i=0; i < PLAYERS_COUNT; i++)
   {
       player = get_player(i);
-      dungeonadd = get_players_dungeonadd(player);
+      dungeon = get_players_dungeon(player);
       if (player_exists(player) && (player->is_active == 1))
       {
           struct Thing *heartng;
           heartng = get_player_soul_container(i);
-          if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeonadd->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
+          if ((!thing_exists(heartng) || ((heartng->active_state == ObSt_BeingDestroyed) && !(dungeon->backup_heart_idx > 0))) && (player->victory_state == VicS_Undecided))
           {
             event_kill_all_players_events(i);
             set_player_as_lost_level(player);
@@ -2405,7 +2420,7 @@ void count_players_creatures_being_paid(int *creatures_count)
 
 void process_payday(void)
 {
-    game.pay_day_progress = game.pay_day_progress + (gameadd.pay_day_speed / 100);
+    game.pay_day_progress = game.pay_day_progress + (game.conf.rules.game.pay_day_speed / 100);
     PlayerNumber plyr_idx;
     for (plyr_idx=0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
     {
@@ -2420,7 +2435,7 @@ void process_payday(void)
             compute_and_update_player_backpay_total(plyr_idx);
         }
     }
-    if (game.pay_day_gap <= game.pay_day_progress)
+    if (game.conf.rules.game.pay_day_gap <= game.pay_day_progress)
     {
         output_message(SMsg_Payday, 0, true);
         game.pay_day_progress = 0;
@@ -2606,9 +2621,9 @@ int clear_active_dungeons_stats(void)
       dungeon = get_dungeon(i);
       if (dungeon_invalid(dungeon))
           break;
-      memset((char *)dungeon->field_64, 0, gameadd.crtr_conf.model_count * 15 * sizeof(unsigned short));
-      memset((char *)dungeon->guijob_all_creatrs_count, 0, gameadd.crtr_conf.model_count *3*sizeof(unsigned short));
-      memset((char *)dungeon->guijob_angry_creatrs_count, 0, gameadd.crtr_conf.model_count *3*sizeof(unsigned short));
+      memset((char *)dungeon->field_64, 0, game.conf.crtr_conf.model_count * 15 * sizeof(unsigned short));
+      memset((char *)dungeon->guijob_all_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
+      memset((char *)dungeon->guijob_angry_creatrs_count, 0, game.conf.crtr_conf.model_count *3*sizeof(unsigned short));
   }
   return i;
 }
@@ -2698,7 +2713,7 @@ long update_cave_in(struct Thing *thing)
         create_effect(&pos, TngEff_HarmlessGas4, owner);
     }
 
-    if ((turns_alive % game.turns_per_collapse_dngn_dmg) == 0)
+    if ((turns_alive % game.conf.rules.magic.turns_per_collapse_dngn_dmg) == 0)
     {
         pos.x.val = thing->mappos.x.val;
         pos.y.val = thing->mappos.y.val;
@@ -2709,7 +2724,7 @@ long update_cave_in(struct Thing *thing)
         param.class_id = 0;
         param.model_id = 0;
         param.num1 = thing->owner;
-        param.num2 = game.collapse_dungeon_damage;
+        param.num2 = game.conf.rules.magic.collapse_dungeon_damage;
         param.ptr3 = 0;
         do_cb = damage_creatures_with_physical_force;
         do_to_things_with_param_around_map_block(&pos, do_cb, &param);
@@ -2776,7 +2791,7 @@ void update(void)
         if (player->additional_flags & PlaAF_LightningPaletteIsActive)
         {
             PaletteSetPlayerPalette(player, engine_palette);
-            set_flag_byte(&player->additional_flags,PlaAF_LightningPaletteIsActive,false);
+            clear_flag(player->additional_flags, PlaAF_LightningPaletteIsActive);
         }
         clear_active_dungeons_stats();
         update_creature_pool_state();
@@ -3219,8 +3234,7 @@ void update_blocks_pointed(void)
     }
 
     struct PlayerInfo *player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    playeradd->mouse_is_offmap = out_of_bounds;
+    player->mouse_is_offmap = out_of_bounds;
 
     SYNCDBG(19,"Finished");
 }
@@ -3386,6 +3400,27 @@ TbBool keeper_wait_for_screen_focus(void)
 
 void gameplay_loop_logic()
 {
+    if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
+    {
+        static TbBool paused_at_gameturn = false;
+        static GameTurn previous_gameturn = 0;
+        if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
+        {
+            if(!paused_at_gameturn)
+            {
+                paused_at_gameturn = true;
+
+                game.frame_skip = 0;
+                if(game.packet_load_enable)
+                {
+                    disable_packet_mode();
+                }
+                set_packet_pause_toggle();
+            }
+        }
+        previous_gameturn = game.play_gameturn;
+    }
+
     if (is_feature_on(Ft_DeltaTime) == true) {
         if (gameadd.process_turn_time < 1.0) {
             return;
@@ -3399,27 +3434,30 @@ void gameplay_loop_logic()
         if (game.play_gameturn == 4)
             LbNetwork_ChangeExchangeTimeout(0);
     }
-#ifdef AUTOTESTING
-    if ((start_params.autotest_flags & ATF_ExitOnTurn) && (start_params.autotest_exit_turn == game.play_gameturn))
+#ifdef FUNCTESTING
+    if(flag_is_set(start_params.functest_flags, FTF_Enabled))
     {
-        quit_game = true;
-        exit_keeper = true;
-        return;
+        FTestFrameworkState ftstate = ftest_update(NULL);
+        if(ftstate == FTSt_InvalidState || ftstate == FTSt_TestsCompletedSuccessfully)
+        {
+            quit_game = true;
+            exit_keeper = true;
+            return;
+        }
     }
-    evm_stat(1, "turn val=%ld,action_seed=%ld,unsync_seed=%ld", game.play_gameturn, game.action_rand_seed, game.unsync_rand_seed);
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    {
-        game.action_rand_seed = game.play_gameturn;
-        game.unsync_rand_seed = game.play_gameturn;
-        srand(game.play_gameturn);
-    }
-#endif
+#endif // FUNCTESTING
     do_draw = display_should_be_updated_this_turn() || (!LbIsActive());
     LbWindowsControl();
     input_eastegg();
     input();
     update();
     frametime_end_measurement(Frametime_Logic);
+
+    if(game.frame_step)
+    {
+        game.frame_step = false;
+        set_packet_pause_toggle();
+    }
 }
 
 void gameplay_loop_draw()
@@ -3484,12 +3522,6 @@ void keeper_gameplay_loop(void)
     if ((game.operation_flags & GOF_SingleLevel) != 0) {
         initialise_eye_lenses();
     }
-#ifdef AUTOTESTING
-    if ((start_params.autotest_flags & ATF_AI_Player) != 0)
-    {
-        toggle_computer_player(player->id_number);
-    }
-#endif
     SYNCDBG(0,"Entering the gameplay loop for level %d",(int)get_loaded_level_number());
     KeeperSpeechClearEvents();
     LbErrorParachuteUpdate(); // For some reasone parachute keeps changing; Remove when won't be needed anymore
@@ -3647,6 +3679,31 @@ static TbBool wait_at_frontend(void)
     }
     // Init load/save catalogue
     initialise_load_game_slots();
+
+    #ifdef FUNCTESTING
+    if(flag_is_set(start_params.functest_flags, FTF_Enabled)) //override for functional tests
+    {
+        FTestFrameworkState ft_prev_state = FTSt_InvalidState;
+        FTestFrameworkState ft_current_state = ftest_update(&ft_prev_state);
+
+        TbBool user_aborted_tests = ft_prev_state == FTSt_TestIsProcessingActions && ft_current_state == FTSt_TestIsProcessingActions;
+        if(user_aborted_tests)
+        {
+            FTEST_FAIL_TEST("User aborted tests");
+        }
+
+        if(ft_current_state == FTSt_InvalidState || ft_current_state == FTSt_TestsCompletedSuccessfully || user_aborted_tests)
+        {
+            quit_game = true;
+            exit_keeper = true;
+            return true;
+        }
+        faststartup_network_game(&loop);
+        coroutine_process(&loop);
+        return true;
+    }
+    #endif
+
     // Prepare to enter PacketLoad game
     if ((game.packet_load_enable) && (!game.numfield_149F47))
     {
@@ -3681,7 +3738,7 @@ static TbBool wait_at_frontend(void)
     try_restore_frontend_error_box();
 
     short finish_menu = 0;
-    set_flag_byte(&game.flags_cd,MFlg_unk40,false);
+    clear_flag(game.flags_cd, MFlg_unk40);
     // TODO move to separate function
     // Begin the frontend loop
     long fe_last_loop_time = LbTimerClock();
@@ -3761,13 +3818,13 @@ static TbBool wait_at_frontend(void)
     case FeSt_START_KPRLEVEL:
           my_player_number = default_loc_player;
           game.game_kind = GKind_LocalGame;
-          set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           player = get_my_player();
           player->is_active = 1;
           startup_network_game(&loop, true);
           break;
     case FeSt_START_MPLEVEL:
-          set_flag_byte(&game.system_flags,GSF_NetworkActive,true);
+          set_flag(game.system_flags, GSF_NetworkActive);
           game.game_kind = GKind_MultiGame;
           player = get_my_player();
           player->is_active = 1;
@@ -3775,7 +3832,7 @@ static TbBool wait_at_frontend(void)
           break;
     case FeSt_LOAD_GAME:
           flgmem = game.numfield_15;
-          set_flag_byte(&game.system_flags,GSF_NetworkActive,false);
+          clear_flag(game.system_flags, GSF_NetworkActive);
           LbScreenClear(0);
           LbScreenSwap();
           if (!load_game(game.numfield_15))
@@ -3789,7 +3846,7 @@ static TbBool wait_at_frontend(void)
           game.flags_cd |= MFlg_IsDemoMode;
           startup_saved_packet_game();
           set_gui_visible(false);
-          set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+          clear_flag(game.operation_flags, GOF_ShowPanel);
           break;
     }
 
@@ -3835,7 +3892,7 @@ void game_loop(void)
         } else
         {
           game.numfield_15 = -1;
-          set_flag_byte(&game.operation_flags,GOF_Paused,false);
+          clear_flag(game.operation_flags, GOF_Paused);
         }
       } else {
           toggle_status_menu(1); // Required when skipping PI_HeartZoom
@@ -3896,7 +3953,7 @@ short reset_game(void)
 
     LbMouseSuspend();
     LbIKeyboardClose();
-    LbScreenReset();
+    LbScreenReset(false);
     LbDataFreeAll(game_load_files);
     free_gui_strings_data();
     FreeAudio();
@@ -3930,6 +3987,7 @@ short process_command_line(unsigned short argc, char *argv[])
   level_num = LEVELNUMBER_ERROR;
   TbBool one_player_mode = 0;
   narg = 1;
+  char bad_params[TEXT_BUFFER_LENGTH] = "\0";
   while ( narg < argc )
   {
       char *par;
@@ -3962,6 +4020,11 @@ short process_command_line(unsigned short argc, char *argv[])
       {
           WARNLOG("The -nocd commandline parameter is no longer functional. Game music from CD is a setting in keeperfx.cfg instead.");
       } else
+      if (strcasecmp(parstr, "columnconvert") == 0) //todo remove once it's no longer in the launcher
+      {
+          WARNLOG("The -%s commandline parameter is no longer functional.", parstr);
+      }
+      else
       if (strcasecmp(parstr, "cd") == 0)
       {
           start_params.overrides[Clo_CDMusic] = true;
@@ -3992,7 +4055,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if ( strcasecmp(parstr,"level") == 0 )
       {
-        set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
+        set_flag(start_params.operation_flags, GOF_SingleLevel);
         level_num = atoi(pr2str);
         narg++;
       } else
@@ -4018,6 +4081,7 @@ short process_command_line(unsigned short argc, char *argv[])
          start_params.packet_load_enable = true;
          start_params.packet_save_enable = false;
          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
          narg++;
       } else
       if (strcasecmp(parstr,"packetsave") == 0)
@@ -4029,21 +4093,31 @@ short process_command_line(unsigned short argc, char *argv[])
          snprintf(start_params.packet_fname, sizeof(start_params.packet_fname), "%s", pr2str);
          narg++;
       } else
+      if (strcasecmp(parstr,"pause_at_gameturn") == 0)
+      {
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep | DFlg_PauseAtGameTurn);
+         start_params.pause_at_gameturn = atoi(pr2str);
+         narg++;
+      } else
       if (strcasecmp(parstr,"q") == 0)
       {
-         set_flag_byte(&start_params.operation_flags,GOF_SingleLevel,true);
+         set_flag(start_params.operation_flags, GOF_SingleLevel);
       } else
       if (strcasecmp(parstr,"lightconvert") == 0)
       {
-         set_flag_byte(&start_params.operation_flags,GOF_LightConvert,true);
+         set_flag(start_params.operation_flags, GOF_LightConvert);
       } else
       if (strcasecmp(parstr, "dbgshots") == 0)
       {
-          start_params.debug_flags |= DFlg_ShotsDamage;
+          set_flag(start_params.debug_flags, DFlg_ShotsDamage);
       } else
       if (strcasecmp(parstr, "dbgpathfind") == 0)
       {
-	      start_params.debug_flags |= DFlg_CreatrPaths;
+          set_flag(start_params.debug_flags, DFlg_CreatrPaths);
+      } else
+      if (strcasecmp(parstr, "show_game_turns") == 0)
+      {
+          set_flag(start_params.debug_flags, DFlg_ShowGameTurns);
       } else
       if (strcasecmp(parstr, "compuchat") == 0)
       {
@@ -4063,7 +4137,7 @@ short process_command_line(unsigned short argc, char *argv[])
       } else
       if (strcasecmp(parstr,"alex") == 0)
       {
-         set_flag_byte(&start_params.flags_font,FFlg_AlexCheat,true);
+         set_flag(start_params.flags_font, FFlg_AlexCheat);
       } else
       if (strcasecmp(parstr,"connect") == 0)
       {
@@ -4079,6 +4153,10 @@ short process_command_line(unsigned short argc, char *argv[])
       {
          start_params.frame_skip = atoi(pr2str);
          narg++;
+      } else
+      if (strcasecmp(parstr,"framestep") == 0)
+      {
+         set_flag(start_params.debug_flags, DFlg_ShowGameTurns | DFlg_FrameStep);
       }
       else if (strcasecmp(parstr, "timer") == 0)
       {
@@ -4099,44 +4177,45 @@ short process_command_line(unsigned short argc, char *argv[])
         start_params.overrides[Clo_ConfigFile] = true;
         narg++;
       }
-#ifdef AUTOTESTING
-      else if (strcasecmp(parstr, "exit_at_turn") == 0)
+      else if (strcasecmp(parstr, "ftests") == 0)
       {
-         set_flag_byte(&start_params.autotest_flags, ATF_ExitOnTurn, true);
-         start_params.autotest_exit_turn = atol(pr2str);
-         narg++;
-      } else
-      if (strcasecmp(parstr, "fixed_seed") == 0)
-      {
-         set_flag_byte(&start_params.autotest_flags, ATF_FixedSeed, true);
-      } else
-      if (strcasecmp(parstr, "tests") == 0)
-      {
-        set_flag_byte(&start_params.autotest_flags, ATF_TestsCampaign, true);
-
-        if (!change_campaign("../tests/campaign.cfg"))
+#ifdef FUNCTESTING
+        if(ftest_parse_arg(pr2str)) // handle arg on ftest build
+#else
+        if(strlen(pr2str) > 0 && pr2str[0] != '-') // ignore arg on regular build
+#endif // FUNCTESTING
         {
-          ERRORLOG("Unable to load tests campaign");
-          bad_param=narg;
+            ++narg;
         }
-      } else
-      if (strcasecmp(parstr, "ai_player") == 0)
-      {
-         set_flag_byte(&start_params.autotest_flags, ATF_AI_Player, true);
-         fe_computer_players = 1;
-      } else
-      if (strcasecmp(parstr, "monitoring") == 0)
-      {
-          int instance_no = atoi(pr3str);
-          evm_init(pr2str, instance_no);
-          narg++;
-          if ((instance_no > 0) || (strcmp(pr3str, "0") == 0))
-              narg++;
+
+#ifdef FUNCTESTING
+        set_flag(start_params.functest_flags, FTF_Enabled);
+#else
+        WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
       }
-#endif
+      else if(strcasecmp(parstr, "exitonfailedtest") == 0)
+      {
+#ifdef FUNCTESTING
+        set_flag(start_params.functest_flags, FTF_ExitOnTestFailure);
+#else
+       WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
+      }
+      else if(strcasecmp(parstr, "includelongtests") == 0)
+      {
+#ifdef FUNCTESTING
+        set_flag(start_params.functest_flags, FTF_IncludeLongTests);
+#else
+       WARNLOG("Flag '%s' disabled for release builds.", parstr);
+#endif // FUNCTESTING
+      }
       else
       {
-        WARNMSG("Unrecognized command line parameter '%s'.",parstr);
+        // append bad parstr to bad_params string
+        char param_buffer[128] = "\0";
+        Lbvsprintf(param_buffer, "%s%s", strnlen(bad_params, TEXT_BUFFER_LENGTH) > 0 ? ", " : "" , parstr);
+        strcat(bad_params, param_buffer);
         bad_param=narg;
       }
       narg++;
@@ -4160,6 +4239,18 @@ short process_command_line(unsigned short argc, char *argv[])
   }
   start_params.selected_level_number = level_num;
   my_player_number = default_loc_player;
+
+#ifdef FUNCTESTING
+  ftest_init(); // initialise test framework on ftest build
+#endif
+
+  if(bad_param != 0)
+  {
+    int res = 0;
+    WARNING_DIALOG(res, "Incorrect command line parameters: '%s'.\nPlease correct your Run options.", bad_params);
+    return res;
+  }
+
   return (bad_param==0);
 }
 
@@ -4172,8 +4263,6 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     retval = process_command_line(argc,argv);
     if (retval < 1)
     {
-        static const char *msg_text="Command line parameters analysis failed.\n";
-        error_dialog_fatal(__func__, 1, msg_text);
         LbErrorLogClose();
         return 0;
     }
@@ -4184,15 +4273,13 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     LbSetTitle(PROGRAM_NAME);
     LbSetIcon(1);
     LbScreenSetDoubleBuffering(true);
-#ifdef AUTOTESTING
-    if (start_params.autotest_flags & ATF_FixedSeed)
-    {
-      srand(1);
-    }
-    else
-#else
+
     srand(LbTimerClock());
-#endif
+
+#ifdef FUNCTESTING
+    ftest_srand();
+#endif // FUNCTESTING
+
     if (!retval)
     {
         static const char *msg_text="Basic engine initialization failed.\n";
@@ -4234,16 +4321,14 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     {
         game_loop();
     }
-#ifdef AUTO_TESTING
-    ev_done();
-#endif
     reset_game();
-    LbScreenReset();
+    LbScreenReset(true);
     if ( !retval )
     {
         static const char *msg_text="Setting up game failed.\n";
         error_dialog_fatal(__func__, 2, msg_text);
-    } else
+    }
+    else
     {
         SYNCDBG(0,"finished properly");
     }
@@ -4321,6 +4406,14 @@ int main(int argc, char *argv[])
       error_dialog(__func__, 1, text);
       return 1;
   }
+
+#ifdef FUNCTESTING
+  TbBool should_report_failure = flag_is_set(start_params.functest_flags, FTF_TestFailed) && flag_is_set(start_params.functest_flags, FTF_ExitOnTestFailure);
+  if(flag_is_set(start_params.functest_flags, FTF_Enabled) && (flag_is_set(start_params.functest_flags, FTF_Abort) || should_report_failure))
+  {
+      return -1;
+  }
+#endif
 
   return 0;
 }

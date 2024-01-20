@@ -23,7 +23,7 @@
 #include "bflib_basics.h"
 
 #define LIGHT_MAX_RANGE       256 // Large enough to cover the whole map
-#define LIGHTS_COUNT          400
+#define LIGHTS_COUNT         2048
 #define MINIMUM_LIGHTNESS    8192
 
 #ifdef __cplusplus
@@ -58,7 +58,7 @@ struct Light {
   unsigned char flags;
   unsigned char flags2;
   unsigned char intensity;
-  unsigned char field_3;
+  unsigned char intensity_toggling_field;//toggles between 1 and 2 when flags has LgtF_Unkn20
   unsigned char intensity_delta;//seems never assigned
   unsigned char range;
   unsigned char field_6;
@@ -85,7 +85,7 @@ struct Light {
 struct InitLight { // sizeof=0x14
     short radius;
     unsigned char intensity;
-    unsigned char field_3;
+    unsigned char flags;
     struct Coord3d mappos;
     unsigned char is_dynamic;
     SlabCodedCoords attached_slb;
