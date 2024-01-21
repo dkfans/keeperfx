@@ -150,6 +150,9 @@ unsigned long object_is_pickable_by_hand_for_use(const struct Thing *thing, long
     return false;
 }
 
+/**
+ * @param In a player hand or in limbo (out through hero gate)
+  */
 TbBool thing_is_picked_up(const struct Thing *thing)
 {
     return (((thing->alloc_flags & TAlF_IsInLimbo) != 0) || ((thing->state_flags & TF1_InCtrldLimbo) != 0));
@@ -157,7 +160,7 @@ TbBool thing_is_picked_up(const struct Thing *thing)
 
 TbBool thing_is_picked_up_by_player(const struct Thing *thing, PlayerNumber plyr_idx)
 {
-    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
+    if ((thing->alloc_flags & TAlF_IsInLimbo) == 0)
         return false;
     if (thing_is_in_power_hand_list(thing, plyr_idx))
         return true;
@@ -171,9 +174,9 @@ TbBool thing_is_picked_up_by_owner(const struct Thing *thing)
 
 TbBool thing_is_picked_up_by_enemy(const struct Thing *thing)
 {
-    if (((thing->alloc_flags & TAlF_IsInLimbo) == 0) && ((thing->state_flags & TF1_InCtrldLimbo) == 0))
+    if ((thing->alloc_flags & TAlF_IsInLimbo) == 0)
         return false;
-    return !thing_is_in_power_hand_list(thing, thing->owner) && !thing_is_in_computer_power_hand_list(thing, thing->owner);
+    return !thing_is_in_power_hand_list(thing, thing->owner) && !thing_is_in_computer_power_hand_list(thing, thing->owner) && ((thing->state_flags & TF1_InCtrldLimbo) == 0);
 }
 
 /**

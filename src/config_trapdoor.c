@@ -84,7 +84,8 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"TRIGGERTYPE",          13},
   {"ACTIVATIONTYPE",       14},
   {"EFFECTTYPE",           15},
-  {"MODEL",                16},
+  {"ANIMATIONID",          16},
+  {"MODEL",                16},//backward compatibility
   {"MODELSIZE",            17},
   {"ANIMATIONSPEED",       18},
   {"UNANIMATED",           19},
@@ -108,6 +109,8 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"SHOTORIGIN",           37},
   {"PLACESOUND",           38},
   {"TRIGGERSOUND",         39},
+  {"RECHARGEANIMATIONID",  40},
+  {"ATTACKANIMATIONID",    41},
   {NULL,                    0},
 };
 
@@ -287,6 +290,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
 
           game.conf.trap_stats[i].health = 0;
           game.conf.trap_stats[i].sprite_anim_idx = 0;
+          game.conf.trap_stats[i].recharge_sprite_anim_idx = 0;
+          game.conf.trap_stats[i].attack_sprite_anim_idx = 0;
           game.conf.trap_stats[i].sprite_size_max = 0;
           game.conf.trap_stats[i].unanimated = 0;
           game.conf.trap_stats[i].anim_speed = 0;
@@ -598,7 +603,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
-      case 16: // MODEL
+      case 16: // ANIMATIONID
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             struct ObjectConfigStats obj_tmp;
@@ -1020,6 +1025,40 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               {
                   trapst->trigger_sound_idx = n;
               }
+          }
+          break;
+      case 40: // RECHARGEANIMATIONID
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              struct ObjectConfigStats obj_tmp;
+              k = get_anim_id(word_buf, &obj_tmp);
+              if (k >= 0)
+              {
+                  game.conf.trap_stats[i].recharge_sprite_anim_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 41: // ATTACKANIMATIONID
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              struct ObjectConfigStats obj_tmp;
+              k = get_anim_id(word_buf, &obj_tmp);
+              if (k >= 0)
+              {
+                  game.conf.trap_stats[i].attack_sprite_anim_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
       case 0: // comment

@@ -104,28 +104,30 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
             for (int slabstyle_no = 0; slabstyle_no < SLABSETS_PER_SLAB; slabstyle_no++)
             {
                 VALUE * section = value_dict_get(slb_section, slab_styles_commands[slabstyle_no].name);
-                struct SlabObj* slabobj = &game.slabobjs[game.slabobjs_num];
 
                 int slabset_no = slab_kind * SLABSETS_PER_SLAB + slabstyle_no;
-                
-                for (size_t col_no = 0; col_no < 9; col_no++)
+
+                VALUE *col_arr = value_dict_get(section, "Columns");
+                if (value_type(col_arr) == VALUE_ARRAY)
                 {
-                    VALUE *col_arr = value_dict_get(section, "Columns");
-                    ColumnIndex col_idx = value_int32(value_array_get(col_arr, col_no));
-                    game.slabset[slabset_no].col_idx[col_no] = -col_idx;
+                    for (size_t col_no = 0; col_no < 9; col_no++)
+                    {
+                        ColumnIndex col_idx = value_int32(value_array_get(col_arr, col_no));
+                        game.slabset[slabset_no].col_idx[col_no] = -col_idx;
+                    }
                 }
 
                 sprintf(key, "%s_objects", slab_styles_commands[slabstyle_no].name);
                 VALUE * objects_arr = value_dict_get(slb_section, key);
                 for (size_t i = 0; i < value_array_size(objects_arr); i++)
                 {
-                    if(game.slabobjs_num >= SLABOBJS_COUNT)
+                    if (game.slabobjs_num >= SLABOBJS_COUNT)
                     {
-                        ERRORLOG("exceeding max of %d slabobjects",SLABOBJS_COUNT);
+                        ERRORLOG("Exceeding max of %d slabobjects",SLABOBJS_COUNT);
                         break;
                     }
+                    struct SlabObj* slabobj = &game.slabobjs[game.slabobjs_num];
                     VALUE * object = value_array_get(objects_arr, i);
-
                     CONDITIONAL_ASSIGN_CLASS(object,"ThingType",slabobj->class_id);
                     CONDITIONAL_ASSIGN_BOOL(object, "IsLight", slabobj->isLight);
                     CONDITIONAL_ASSIGN_MODEL(object,"Subtype",slabobj->model,slabobj->class_id);
@@ -134,7 +136,7 @@ TbBool load_slabset_config_file(const char *textname, const char *fname, unsigne
                     CONDITIONAL_ASSIGN_INT(object, "Subtile",     slabobj->stl_id);
 
                     slabobj->slabset_id = slabset_no;
-                    if(i == 0)
+                    if (i == 0)
                     {
                         game.slabobjs_idx[slabset_no] = game.slabobjs_num;
                     }
