@@ -2331,7 +2331,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
 
         if ( flag_is_set(i->alloc_flags, TAlF_IsInLimbo) )
             continue;
-        if (flag_is_set(i->state_flags, TAlF_IsInMapWho) )
+        if (flag_is_set(i->state_flags, TF1_InCtrldLimbo) )
             continue;
         if ( i->active_state == CrSt_CreatureUnconscious )
             continue;
