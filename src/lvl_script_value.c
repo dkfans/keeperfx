@@ -1049,7 +1049,17 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
             if (operation == SOpr_INCREASE) computed = current_flag_val + sum;
             else if (operation == SOpr_DECREASE) computed = current_flag_val - sum;
             else if (operation == SOpr_MULTIPLY) computed = current_flag_val * sum;
-            else if (operation == SOpr_DIVIDE) computed = current_flag_val / sum;
+            else if (operation == SOpr_DIVIDE)
+            {
+                if(sum == 0)
+                {
+                    WARNMSG("COMPUTE_FLAG tried to divide by 0.");
+                    return;
+                }
+                
+                computed = current_flag_val / sum;
+            } 
+                
             SCRIPTDBG(7,"Changing player%d's %d flag from %d to %d based on flag of type %d.", i, val3, current_flag_val, computed, src_flag_type);
             set_variable(i, flag_type, val3, computed);
         }
