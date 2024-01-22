@@ -65,7 +65,8 @@ struct Effects {
     EffectOrEffElModel explosion1;
     EffectOrEffElModel explosion2;
     unsigned short spacing;
-    unsigned short sound;
+    unsigned short sound_idx;
+    unsigned char sound_range;
 };
 
 struct ObjectConfigStats {

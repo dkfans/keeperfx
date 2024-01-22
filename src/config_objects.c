@@ -738,7 +738,19 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     }
                     else
                     {
-                        objst->effect.sound = n;
+                        objst->effect.sound_idx = n;
+                    }
+                }
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+                {
+                    n = atoi(word_buf);
+                    if ((!SoundDisabled) && ((n < 0) || (n > (samples_in_bank - 1))))
+                    {
+                        objst->effect.sound_range = 1;
+                    }
+                    else
+                    {
+                        objst->effect.sound_range = n;
                     }
                 }
                 break;
