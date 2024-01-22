@@ -49,6 +49,7 @@ enum ScriptOperator {
     SOpr_INCREASE,
     SOpr_DECREASE,
     SOpr_MULTIPLY,
+    SOpr_DIVIDE,
 };
 
 enum {
