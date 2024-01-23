@@ -788,31 +788,39 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 }
 
 /**
- * returns if the creature thing matches the model from the filter, considering possible wildcards.
- * @param creatng The creature being checked.
- * @param crmodel model to compare it to, possible wildcard.
-  */
-TbBool creature_model_matches_model(ThingModel model_b, PlayerNumber plyr_idx, ThingModel crmodel)
+ * returns if a specific creature model matches a target model, considering all the wildcards.
+ * @param creatng_model The creature model being checked.
+ * @param plyr_idx The player id so we can exclude diggers and spectators.
+ * @param target_model model to compare it to, possible wildcard.
+ */
+TbBool creature_model_matches_model(ThingModel creatng_model, PlayerNumber plyr_idx, ThingModel target_model)
 {
-    if (!is_creature_model_wildcard(crmodel))
-        return crmodel == model_b;
-    else if (crmodel == CREATURE_ANY)
-        return (model_b != get_players_spectator_model(plyr_idx)); //we can assume we do not want to cast on the floating spirit
-    else if (crmodel == CREATURE_NONE)
+    if (!is_creature_model_wildcard(target_model))
+        return target_model == creatng_model;
+    else if (target_model == CREATURE_ANY)
+        return (creatng_model != get_players_spectator_model(plyr_idx)); //we can assume we do not want to cast on the floating spirit
+    else if (target_model == CREATURE_NONE)
         return false;
-    if (crmodel == CREATURE_DIGGER)
-        return creature_kind_is_for_dungeon_diggers_list(plyr_idx, model_b);
-    else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return ((!creature_kind_is_for_dungeon_diggers_list(plyr_idx, model_b)) && (model_b != get_players_spectator_model(plyr_idx)));
+    if (target_model == CREATURE_DIGGER)
+        return creature_kind_is_for_dungeon_diggers_list(plyr_idx, creatng_model);
+    else if (target_model == CREATURE_NOT_A_DIGGER)
+        return ((!creature_kind_is_for_dungeon_diggers_list(plyr_idx, creatng_model)) && (creatng_model != get_players_spectator_model(plyr_idx)));
     else
-        ERRORLOG("Invalid model wildcard detected: %d", crmodel);
+        ERRORLOG("Invalid model wildcard detected: %d", target_model);
     return false;
 }
 
+/**
+ * returns if the creature thing matches the model from the filter, considering possible wildcards.
+ * @param creatng The creature being checked.
+ * @param crmodel model to compare it to, possible wildcard.
+ */
 TbBool creature_matches_model(const struct Thing* creatng, ThingModel crmodel)
 {
     if (creatng->class_id != TCls_Creature)
+    {
         return false;
+    }
     return creature_model_matches_model(creatng->model, creatng->owner, crmodel);
 }
 

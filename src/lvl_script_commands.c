@@ -5152,7 +5152,8 @@ static void set_creature_max_level_process(struct ScriptContext* context)
                     dungeon->creature_max_level[crtr_id%game.conf.crtr_conf.model_count] = crtr_lvl-1;
                     SCRIPTDBG(7,"Max level of creature '%s' set to %d for player %d.", creature_code_name(crtr_id), crtr_lvl, (int)plyr_idx);
                 }
-            } else {
+            } else
+            {
                 for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
                 {
                     if (creature_model_matches_model(i, plyr_idx , crtr_id))

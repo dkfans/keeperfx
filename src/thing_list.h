@@ -279,7 +279,7 @@ long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, un
 long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);
 
 TbBool creature_matches_model(const struct Thing* creatng, ThingModel crmodel);
-TbBool creature_model_matches_model(ThingModel model_b, PlayerNumber plyr_idx, ThingModel crmodel);
+TbBool creature_model_matches_model(ThingModel creatng_model, PlayerNumber plyr_idx, ThingModel target_model);
 TbBool thing_matches_model(const struct Thing* thing, long crmodel);
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
