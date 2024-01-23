@@ -349,6 +349,7 @@ const struct NamedCommand script_operator_desc[] = {
   {"DECREASE",    SOpr_DECREASE},
   {"MULTIPLY",    SOpr_MULTIPLY},
   {"DIVIDE",      SOpr_DIVIDE},
+  {"SQUARE",      SOpr_SQUARE},
   {NULL,          0},
 };
 
