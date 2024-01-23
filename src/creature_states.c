@@ -461,7 +461,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, GBS_creature_states_sleep, 1, 0, 1},
   {creature_timebomb, cleanup_hold_audience, NULL, NULL,
-    1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Move, 0, 0, 1, 0, 0, 1, 0, 0},
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Move, 1, 0, 1, 0, 0, 1, 0, 0},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -4604,6 +4604,13 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
             return false;
         }
     }
+    if (curr_state == CrSt_Timebomb)
+    {
+        if (next_stati->state_type == CrStTyp_FightDoor)
+        {
+            return true;
+        }
+    }
     if ((curr_stati->transition) && (!next_stati->override_transition))
         return false;
     if ((curr_stati->captive) && (!next_stati->override_captive))
@@ -4611,53 +4618,29 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     switch (curr_stati->state_type)
     {
     case CrStTyp_OwnNeeds:
-        if (next_stati->override_own_needs)
-            return true;
-        break;
+        return (next_stati->override_own_needs);
     case CrStTyp_Sleep:
-        if (next_stati->override_sleep)
-            return true;
-        break;
+        return (next_stati->override_sleep);
     case CrStTyp_Feed:
-        if (next_stati->override_feed)
-            return true;
-        break;
+        return (next_stati->override_feed);
     case CrStTyp_FightCrtr:
-        if (next_stati->override_fight_crtr)
-            return true;
-        break;
+        return (next_stati->override_fight_crtr);
     case CrStTyp_GetsSalary:
-        if (next_stati->override_gets_salary)
-            return true;
-        break;
+        return (next_stati->override_gets_salary);
     case CrStTyp_Escape:
-        if (next_stati->override_escape)
-            return true;
-        break;
+        return (next_stati->override_escape);
     case CrStTyp_Unconscious:
-        if (next_stati->override_unconscious)
-            return true;
-        break;
+        return (next_stati->override_unconscious);
     case CrStTyp_AngerJob:
-        if (next_stati->override_anger_job)
-            return true;
-        break;
+        return (next_stati->override_anger_job);
     case CrStTyp_FightDoor:
-        if (next_stati->override_fight_door)
-            return true;
-        break;
+        return (next_stati->override_fight_door);
     case CrStTyp_FightObj:
-        if (next_stati->override_fight_object)
-            return true;
-        break;
+        return (next_stati->override_fight_object);
     case CrStTyp_Called2Arms:
-        if (next_stati->override_call2arms)
-            return true;
-        break;
+        return (next_stati->override_call2arms);
     case CrStTyp_Follow:
-        if (next_stati->override_follow)
-            return true;
-        break;
+        return (next_stati->override_follow);
     default:
         return true;
     }
