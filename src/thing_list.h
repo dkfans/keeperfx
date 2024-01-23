@@ -278,7 +278,8 @@ struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creat
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);
 long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);
 
-TbBool creature_matches_model(const struct Thing* creatng, long crmodel);
+TbBool creature_matches_model(const struct Thing* creatng, ThingModel crmodel);
+TbBool creature_model_matches_model(ThingModel creatng_model, PlayerNumber plyr_idx, ThingModel target_model);
 TbBool thing_matches_model(const struct Thing* thing, long crmodel);
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);

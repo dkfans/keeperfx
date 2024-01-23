@@ -5129,6 +5129,75 @@ static void set_player_modifier_process(struct ScriptContext* context)
     }
 }
 
+static void set_creature_max_level_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    short crtr_id = parse_creature_name(scline->tp[1]);
+    short crtr_lvl = scline->np[2];
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unable to manipulate max level of creature '%s', creature doesn't exist.", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if ((crtr_lvl < -1) || (crtr_lvl > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Unable to set max level of creature '%s' to %d, value is out of range.", creature_code_name(crtr_id), crtr_lvl);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = crtr_id;
+    value->shorts[1] = crtr_lvl;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_creature_max_level_process(struct ScriptContext* context)
+{
+    struct Dungeon* dungeon;
+    short crtr_id = context->value->shorts[0];
+    short crtr_lvl = context->value->shorts[1];
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    {
+        if (plyr_idx != game.neutral_player_num)
+        {
+            dungeon = get_dungeon(plyr_idx);
+            if (!is_creature_model_wildcard(crtr_id))
+            {
+                if (crtr_lvl < 0)
+                {
+                    crtr_lvl = CREATURE_MAX_LEVEL + 1;
+                    dungeon->creature_max_level[crtr_id%game.conf.crtr_conf.model_count] = crtr_lvl;
+                    SCRIPTDBG(7,"Max level of creature '%s' set to default for player %d.", creature_code_name(crtr_id), (int)plyr_idx);
+                } else {
+                    dungeon->creature_max_level[crtr_id%game.conf.crtr_conf.model_count] = crtr_lvl-1;
+                    SCRIPTDBG(7,"Max level of creature '%s' set to %d for player %d.", creature_code_name(crtr_id), crtr_lvl, (int)plyr_idx);
+                }
+            } else
+            {
+                for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
+                {
+                    if (creature_model_matches_model(i, plyr_idx , crtr_id))
+                    {
+                        if (crtr_lvl < 0)
+                        {
+                            crtr_lvl = CREATURE_MAX_LEVEL + 1;
+                            dungeon->creature_max_level[i%game.conf.crtr_conf.model_count] = crtr_lvl;
+                            SCRIPTDBG(7,"Max level of creature '%s' set to default for player %d.", creature_code_name(i), (int)plyr_idx);
+                        } else {
+                            dungeon->creature_max_level[i%game.conf.crtr_conf.model_count] = crtr_lvl-1;
+                            SCRIPTDBG(7,"Max level of creature '%s' set to %d for player %d.", creature_code_name(i), crtr_lvl, (int)plyr_idx);
+                        }
+                    }
+                }
+            }
+        } else
+        {
+            SCRPTERRLOG("Unable to manipulate max level of creature '%s', player %d has no dungeon.", creature_code_name(crtr_id), (int)plyr_idx);
+            break;
+        }
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -5170,7 +5239,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TUNNELLER_PARTY_TO_LEVEL",      "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
-  {"SET_CREATURE_MAX_LEVEL",            "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
+  {"SET_CREATURE_MAX_LEVEL",            "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
   {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
@@ -5318,7 +5387,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
-  {"SET_CREATURE_MAX_LEVEL",       "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
+  {"SET_CREATURE_MAX_LEVEL",       "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC, NULL, NULL},
   {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
   {"SET_CREATURE_STRENGTH",        "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
@@ -5341,7 +5410,6 @@ const struct CommandDesc dk1_command_desc[] = {
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {NULL,                           "        ", Cmd_NONE, NULL, NULL},
 };
-
 
 #ifdef __cplusplus
 }
