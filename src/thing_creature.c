@@ -2265,6 +2265,7 @@ void creature_rebirth_at_lair(struct Thing *thing)
         thing->veloc_push_add.y.val = 0;
         thing->state_flags &= ~TF1_PushAdd;
         cleanup_current_thing_state(thing);
+        set_start_state(thing);
     }
     if (thing_is_invalid(lairtng))
         return;
