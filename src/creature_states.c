@@ -134,6 +134,7 @@ CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng);
 CrCheckRet move_check_on_head_for_room(struct Thing *creatng);
 CrCheckRet move_check_persuade(struct Thing *creatng);
 CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng);
+short cleanup_timebomb(struct Thing *creatng);
 
 short move_to_position(struct Thing *creatng);
 char new_slab_tunneller_check_for_breaches(struct Thing *creatng);
@@ -460,7 +461,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1},
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, GBS_creature_states_sleep, 1, 0, 1},
-  {creature_timebomb, cleanup_hold_audience, NULL, NULL,
+  {creature_timebomb, cleanup_timebomb, NULL, NULL,
     1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Move, 1, 0, 1, 0, 0, 1, 0, 0},
 };
 
@@ -1395,6 +1396,16 @@ short cleanup_seek_the_enemy(struct Thing *creatng)
     cctrl->seek_enemy.enemy_idx = 0;
     cctrl->seek_enemy.enemy_creation_turn = 0;
     return 1;
+}
+
+short cleanup_timebomb(struct Thing *creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
+    cctrl->timebomb_target_id = 0;
+    cctrl->timebomb_death = false;
+    return 0;
 }
 
 short creature_being_dropped(struct Thing *creatng)
