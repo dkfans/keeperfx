@@ -5362,21 +5362,26 @@ short creature_timebomb(struct Thing *creatng)
     }
     if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
     {
-        struct Thing* trgtng = find_nearest_enemy_creature(creatng);
-        if ( (!thing_is_invalid(trgtng)) && (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default)) )
+        typedef struct Thing* (*f)(struct Thing*);
+        #define target_get_functions 2
+        static const f func[target_get_functions] = {&get_nearest_enemy_creature_possible_to_attack_by, &get_nearest_enemy_object_possible_to_attack_by};
+        for (unsigned int i = 0; i < target_get_functions; i++)
         {
-            cctrl->timebomb_target_id = trgtng->index;
-            cctrl->moveto_pos.x.val = trgtng->mappos.x.val;
-            cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
-            cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
-            cctrl->move_flags = NavRtF_Default;
-            creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
+            struct Thing* trgtng = func[i](creatng);
+            if ( (!thing_is_invalid(trgtng)) && (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default)) )
+            {
+                cctrl->timebomb_target_id = trgtng->index;
+                cctrl->moveto_pos.x.val = trgtng->mappos.x.val;
+                cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
+                cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
+                cctrl->move_flags = NavRtF_Default;
+                creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
+                creatng->continue_state = CrSt_Timebomb;
+                return CrStRet_Modified;
+            }
         }
-        else
-        {
-            cctrl->timebomb_target_id = 0;
-            creature_choose_random_destination_on_valid_adjacent_slab(creatng);
-        }
+        cctrl->timebomb_target_id = 0;
+        creature_choose_random_destination_on_valid_adjacent_slab(creatng);
         creatng->continue_state = CrSt_Timebomb;
         return CrStRet_Modified;
     }
