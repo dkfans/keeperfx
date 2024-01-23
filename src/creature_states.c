@@ -461,7 +461,7 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, GBS_creature_states_sleep, 1, 0, 1},
   {creature_timebomb, cleanup_hold_audience, NULL, NULL,
-    1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Idle, 1, 1, 1, 0, 0, 1, 0, 0},
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Move, 0, 0, 1, 0, 0, 1, 0, 0},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -5375,7 +5375,11 @@ short creature_timebomb(struct Thing *creatng)
                 cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
                 cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
                 cctrl->move_flags = NavRtF_Default;
-                creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
+                struct Thing *enmtng = thing_get(cctrl->combat.battle_enemy_idx);
+                if (!thing_is_deployed_door(enmtng))
+                {
+                    creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
+                }
                 creatng->continue_state = CrSt_Timebomb;
                 return CrStRet_Modified;
             }
