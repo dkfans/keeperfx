@@ -5356,27 +5356,21 @@ short creature_timebomb(struct Thing *creatng)
     }
     if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
     {
-        typedef struct Thing* (*f)(struct Thing*);
-        #define target_get_functions 2
-        static const f func[target_get_functions] = {&get_nearest_enemy_creature_possible_to_attack_by, &get_nearest_enemy_object_possible_to_attack_by};
-        for (unsigned int i = 0; i < target_get_functions; i++)
+        struct Thing* trgtng = get_timebomb_target(creatng);
+        if (!thing_is_invalid(trgtng))
         {
-            struct Thing* trgtng = func[i](creatng);
-            if ( (!thing_is_invalid(trgtng)) && (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default)) )
+            cctrl->timebomb_target_id = trgtng->index;
+            cctrl->moveto_pos.x.val = trgtng->mappos.x.val;
+            cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
+            cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
+            cctrl->move_flags = NavRtF_Default;
+            struct Thing *enmtng = thing_get(cctrl->combat.battle_enemy_idx);
+            if (!thing_is_deployed_door(enmtng))
             {
-                cctrl->timebomb_target_id = trgtng->index;
-                cctrl->moveto_pos.x.val = trgtng->mappos.x.val;
-                cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
-                cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
-                cctrl->move_flags = NavRtF_Default;
-                struct Thing *enmtng = thing_get(cctrl->combat.battle_enemy_idx);
-                if (!thing_is_deployed_door(enmtng))
-                {
-                    creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
-                }
-                creatng->continue_state = CrSt_Timebomb;
-                return CrStRet_Modified;
+                creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
             }
+            creatng->continue_state = CrSt_Timebomb;
+            return CrStRet_Modified;
         }
         cctrl->timebomb_target_id = 0;
         creature_choose_random_destination_on_valid_adjacent_slab(creatng);
