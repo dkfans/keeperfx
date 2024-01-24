@@ -5369,11 +5369,12 @@ short creature_timebomb(struct Thing *creatng)
             {
                 creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
             }
-            creatng->continue_state = CrSt_Timebomb;
-            return CrStRet_Modified;
         }
-        cctrl->timebomb_target_id = 0;
-        creature_choose_random_destination_on_valid_adjacent_slab(creatng);
+        else
+        {
+            cctrl->timebomb_target_id = 0;
+            creature_choose_random_destination_on_valid_adjacent_slab(creatng);
+        }
         creatng->continue_state = CrSt_Timebomb;
         return CrStRet_Modified;
     }
