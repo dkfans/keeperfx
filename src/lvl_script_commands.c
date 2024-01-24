@@ -2897,7 +2897,7 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 static void set_object_configuration_process(struct ScriptContext *context)
 {
     struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->arg0];
-    switch (context->value->shorts[5])
+    switch (context->value->shorts[4])
     {
         case 2: // GENRE
             objst->genre = context->value->arg1;
