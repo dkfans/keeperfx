@@ -2597,6 +2597,13 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
+            value->str2 = script_strdup(new_value);
+            if (value->str2 == NULL)
+            {
+                SCRPTERRLOG("Run out script strings space");
+                DEALLOCATE_SCRIPT_VALUE
+                return;
+            }
             value->arg1 = number_value;
             break;
         }
