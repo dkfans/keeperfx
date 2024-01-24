@@ -147,7 +147,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         if (dungeon->heart_destroy_turn < 32)
         {
             if (GAME_RANDOM(96) < (dungeon->heart_destroy_turn << 6) / 32 + 32) {
-                create_effect(central_pos, objst->effect.particle, plyr_idx);
+                create_used_effect_or_element(central_pos, objst->effect.particle, plyr_idx);
             }
         }
         else
@@ -160,7 +160,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         dungeon->heart_destroy_turn++;
         if (dungeon->heart_destroy_turn < 32)
         {
-            create_effect(central_pos, objst->effect.particle, plyr_idx);
+            create_used_effect_or_element(central_pos, objst->effect.particle, plyr_idx);
         }
         else
         { // Got to next phase
@@ -189,10 +189,10 @@ void process_dungeon_destroy(struct Thing* heartng)
         // Final phase - destroy the heart, both pedestal room and container thing
     {
         struct Thing* efftng;
-        efftng = create_effect(central_pos, objst->effect.explosion1, plyr_idx);
+        efftng = create_used_effect_or_element(central_pos, objst->effect.explosion1, plyr_idx);
         if (!thing_is_invalid(efftng))
             efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-        efftng = create_effect(central_pos, objst->effect.explosion2, plyr_idx);
+        efftng = create_used_effect_or_element(central_pos, objst->effect.explosion2, plyr_idx);
         if (!thing_is_invalid(efftng))
             efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
         destroy_dungeon_heart_room(plyr_idx, heartng);
