@@ -12,7 +12,8 @@ fi
 
 echo "Game directory: $game_directory"
 
-make all -j$(nproc) DEBUG=1
+#make all -j$(nproc) DEBUG=1
+make all -j$(nproc)
 
 if [ $? -eq 0 ]; then
     echo 'Compilation successful!'
@@ -25,8 +26,8 @@ cp $workspaceFolder/bin/* "$game_directory"
 
 cd $game_directory
 
-# Use winedbg instead of wine if you want to see the line number that causes the crash. However, normal wine will launch the game faster.
+# Use winedbg instead of wine if you want to see the line number that causes the crash (be sure to use DEBUG=1 too).  However, normal wine will launch the game faster.
 # When launching with winedbg, press 'C' then 'Enter' when prompted.
 
-#wine keeperfx.exe $game_arguments
-winedbg --gdb keeperfx.exe $game_arguments
+wine keeperfx.exe $game_arguments
+#winedbg --gdb keeperfx.exe $game_arguments

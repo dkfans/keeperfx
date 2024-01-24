@@ -22,21 +22,11 @@ LANDVIEWRAWS = \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/keeporig_lnd/rgmap$(num).raw pkg/campgns/keeporig_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/ancntkpr_lnd/rgmap$(num).raw pkg/campgns/ancntkpr_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/burdnimp_lnd/rgmap$(num).raw pkg/campgns/burdnimp_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/cqarctic_lnd/rgmap$(num).raw pkg/campgns/cqarctic_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/dstninja_lnd/rgmap$(num).raw pkg/campgns/dstninja_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/dzjr06lv_lnd/rgmap$(num).raw pkg/campgns/dzjr06lv_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/dzjr10lv_lnd/rgmap$(num).raw pkg/campgns/dzjr10lv_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/dzjr25lv_lnd/rgmap$(num).raw pkg/campgns/dzjr25lv_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18 19 20 21,pkg/campgns/evilkeep_lnd/rgmap$(num).raw pkg/campgns/evilkeep_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/grkreign_lnd/rgmap$(num).raw pkg/campgns/grkreign_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10,pkg/campgns/jdkmaps8_lnd/rgmap$(num).raw pkg/campgns/jdkmaps8_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12 13 14 15 16 17 18,pkg/campgns/kdklvpck_lnd/rgmap$(num).raw pkg/campgns/kdklvpck_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08 09 10 11 12,pkg/campgns/lqizgood_lnd/rgmap$(num).raw pkg/campgns/lqizgood_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/lrdvexer_lnd/rgmap$(num).raw pkg/campgns/lrdvexer_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09 10 11,pkg/campgns/ncastles_lnd/rgmap$(num).raw pkg/campgns/ncastles_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07 08,pkg/campgns/postanck_lnd/rgmap$(num).raw pkg/campgns/postanck_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/pstunded_lnd/rgmap$(num).raw pkg/campgns/pstunded_lnd/viframe$(num).dat) \
-$(foreach num,00 01 02 03 04 05 06 07 08 09,pkg/campgns/questfth_lnd/rgmap$(num).raw pkg/campgns/questfth_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/twinkprs_lnd/rgmap$(num).raw pkg/campgns/twinkprs_lnd/viframe$(num).dat) \
 $(foreach num,00 01 02 03 04 05 06 07,pkg/campgns/undedkpr_lnd/rgmap$(num).raw pkg/campgns/undedkpr_lnd/viframe$(num).dat)
 
@@ -92,9 +82,6 @@ pkg/data/gui2-32.dat \
 pkg/data/gui1-64.dat \
 pkg/data/gui1-32.dat \
 pkg/data/pointer64.dat \
-pkg/data/pointer32.dat \
-pkg/data/points64.dat \
-pkg/data/points32.dat \
 pkg/data/font1-64.dat \
 pkg/data/font1-32.dat \
 pkg/data/font2-32.dat \
@@ -113,6 +100,20 @@ pkg/data/tmapa010.dat \
 pkg/data/tmapa011.dat \
 pkg/data/tmapa012.dat \
 pkg/data/tmapa013.dat \
+pkg/data/tmapb000.dat \
+pkg/data/tmapb001.dat \
+pkg/data/tmapb002.dat \
+pkg/data/tmapb003.dat \
+pkg/data/tmapb004.dat \
+pkg/data/tmapb005.dat \
+pkg/data/tmapb006.dat \
+pkg/data/tmapb007.dat \
+pkg/data/tmapb008.dat \
+pkg/data/tmapb009.dat \
+pkg/data/tmapb010.dat \
+pkg/data/tmapb011.dat \
+pkg/data/tmapb012.dat \
+pkg/data/tmapb013.dat \
 pkg/data/swipe01.dat \
 pkg/data/swipe02.dat \
 pkg/data/swipe03.dat \
@@ -199,7 +200,7 @@ pkg/ldata/netflag_ens.dat: gfx/landviewdattabs/landview_ensign/filelist_netflag.
 pkg/ldata/lndflag_pin.dat: gfx/landviewdattabs/landview_pinpnt/filelist_lndflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
 pkg/ldata/netflag_pin.dat: gfx/landviewdattabs/landview_pinpnt/filelist_netflag.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
 pkg/ldata/maphand.dat:     gfx/landviewdattabs/landview_hand/filelist_maphand.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
-pkg/ldata/netfont.dat:     gfx/landviewdattabs/font_net/filelist_netfont.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
+pkg/ldata/netfont.dat:     gfx/menufx/font_net/filelist_netfont.txt pkg/campgns/keeporig_lnd/rgmap00.pal $(PNGTORAW)
 
 pkg/ldata/fronttor.dat: gfx/menufx/torturescr/filelist_fronttor.txt pkg/ldata/torture.pal $(PNGTORAW)
 pkg/ldata/door01.dat:   gfx/menufx/torturescr/filelist_tortr_doora.txt pkg/ldata/torture.pal $(PNGTORAW)
@@ -245,6 +246,21 @@ pkg/data/tmapa011.dat: gfx/enginefx/textures-32/filelist_tmapa011.txt pkg/data/p
 pkg/data/tmapa012.dat: gfx/enginefx/textures-32/filelist_tmapa012.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/tmapa013.dat: gfx/enginefx/textures-32/filelist_tmapa013.txt pkg/data/palette.dat $(PNGTORAW)
 
+pkg/data/tmapb000.dat: gfx/enginefx/textures-32/filelist_tmapb000.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb001.dat: gfx/enginefx/textures-32/filelist_tmapb001.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb002.dat: gfx/enginefx/textures-32/filelist_tmapb002.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb003.dat: gfx/enginefx/textures-32/filelist_tmapb003.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb004.dat: gfx/enginefx/textures-32/filelist_tmapb004.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb005.dat: gfx/enginefx/textures-32/filelist_tmapb005.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb006.dat: gfx/enginefx/textures-32/filelist_tmapb006.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb007.dat: gfx/enginefx/textures-32/filelist_tmapb007.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb008.dat: gfx/enginefx/textures-32/filelist_tmapb008.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb009.dat: gfx/enginefx/textures-32/filelist_tmapb009.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb010.dat: gfx/enginefx/textures-32/filelist_tmapb010.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb011.dat: gfx/enginefx/textures-32/filelist_tmapb011.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb012.dat: gfx/enginefx/textures-32/filelist_tmapb012.txt pkg/data/palette.dat $(PNGTORAW)
+pkg/data/tmapb013.dat: gfx/enginefx/textures-32/filelist_tmapb013.txt pkg/data/palette.dat $(PNGTORAW)
+
 pkg/data/gmap32.raw:    gfx/enginefx/guimap/gmap-32.png pkg/data/palette.dat $(PNGTORAW)
 pkg/data/gmap64.raw:    gfx/enginefx/guimap/gmap-64.png pkg/data/palette.dat $(PNGTORAW)
 pkg/data/gmapbug.dat:   gfx/enginefx/parchmentbug/filelist-gbug.txt pkg/data/palette.dat $(PNGTORAW)
@@ -262,9 +278,6 @@ pkg/data/gui1-64.dat:   gfx/menufx/gui1-64/filelist_gui1.txt pkg/data/palette.da
 pkg/data/gui1-32.dat:   gfx/menufx/gui1-32/filelist_gui1.txt pkg/data/palette.dat $(PNGTORAW)
 
 pkg/data/pointer64.dat: gfx/enginefx/pointer-64/filelist_pointer.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/pointer32.dat: gfx/enginefx/pointer-64/filelist_lpointer.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/points64.dat:  gfx/enginefx/pointer-64/filelist_points.txt pkg/data/palette.dat $(PNGTORAW)
-pkg/data/points32.dat:  gfx/enginefx/pointer-64/filelist_lpoints.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/font1-64.dat:  gfx/enginefx/font_simp-64/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
 pkg/data/font1-32.dat:  gfx/enginefx/font_simp-32/filelist_font1.txt pkg/data/palette.dat $(PNGTORAW)
 
@@ -285,7 +298,7 @@ pkg/data/frac%.raw:
 	-$(ECHO) 'Finished building: $@'
 	-$(ECHO) ' '
 
-pkg/data/tmapa%.dat:
+pkg/data/tmap%.dat:
 	-$(ECHO) 'Building RAW texture: $@'
 	$(PNGTORAW) -b -o "$@" -p "$(word 2,$^)" -f raw -l 0 "$<"
 	-$(ECHO) 'Finished building: $@'

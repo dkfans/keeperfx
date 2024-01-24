@@ -111,17 +111,17 @@ TbBool cumulative_screen_shot(void)
     }
     if (i >= 10000)
     {
-        show_onscreen_msg(game.num_fps, "No free filename for screenshot.");
+        show_onscreen_msg(game_num_fps, "No free filename for screenshot.");
         return false;
     }
     TbBool ret = take_screenshot(fname);
     if (ret)
     {
-        show_onscreen_msg(game.num_fps, "File \"%s\" saved.", fname);
+        show_onscreen_msg(game_num_fps, "File \"%s\" saved.", fname);
     }
     else
     {
-        show_onscreen_msg(game.num_fps, "Cannot save \"%s\".", fname);
+        show_onscreen_msg(game_num_fps, "Cannot save \"%s\".", fname);
     }
     return ret;
 }
@@ -130,7 +130,7 @@ TbBool movie_record_start(void)
 {
   if ( anim_record() )
   {
-      set_flag_byte(&game.system_flags,GSF_CaptureMovie,true);
+      set_flag(game.system_flags, GSF_CaptureMovie);
       return true;
   }
   return false;
@@ -138,7 +138,7 @@ TbBool movie_record_start(void)
 
 TbBool movie_record_stop(void)
 {
-    set_flag_byte(&game.system_flags,GSF_CaptureMovie,false);
+    clear_flag(game.system_flags, GSF_CaptureMovie);
     anim_stop();
     return true;
 }
@@ -168,7 +168,7 @@ TbBool perform_any_screen_capturing(void)
     if ((game.system_flags & GSF_CaptureSShot) != 0)
     {
       captured |= cumulative_screen_shot();
-      set_flag_byte(&game.system_flags,GSF_CaptureSShot,false);
+      clear_flag(game.system_flags, GSF_CaptureSShot);
     }
     if ((game.system_flags & GSF_CaptureMovie) != 0)
     {

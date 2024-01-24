@@ -25,6 +25,7 @@
 
 #include "globals.h"
 #include "bflib_basics.h"
+#include "bflib_planar.h"
 #include "bflib_fileio.h"
 #include "bflib_dernc.h"
 #include "bflib_memory.h"
@@ -101,7 +102,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_attack_magic(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctask);
 long task_move_gold_to_treasury(struct Computer2 *comp, struct ComputerTask *ctask);
-long find_next_gold(struct Computer2 *, struct ComputerTask *);
+TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask);
 long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_idx);
 /******************************************************************************/
 /**
@@ -234,7 +235,7 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
         //Removing first task in list
         comp->task_idx = ctask->next_task;
         ctask->next_task = 0;
-        ctask->flags &= ~ComTsk_Unkn0001;
+        clear_flag(ctask->flags, ComTsk_Unkn0001);
         return true;
     }
     nxctask = get_computer_task(i);
@@ -245,7 +246,7 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
         {
           nxctask->next_task = ctask->next_task;
           ctask->next_task = 0;
-          ctask->flags &= ~ComTsk_Unkn0001;
+          clear_flag(ctask->flags, ComTsk_Unkn0001);
           return true;
         }
         nxctask = get_computer_task(i);
@@ -256,20 +257,19 @@ TbBool remove_task(struct Computer2 *comp, struct ComputerTask *ctask)
 void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct ComputerProcess *cproc;
-    cproc = get_computer_process(comp, ctask->field_8C);
+    cproc = get_computer_process(comp, ctask->cproc_idx);
     if (cproc != NULL)
     {
         struct ComputerProcess *onproc;
         onproc = get_computer_process(comp, comp->ongoing_process);
         if (onproc != cproc)
         {
-            cproc->flags &= ~ComProc_Unkn0020;
-            cproc->flags &= ~ComProc_Unkn0008;
+            clear_flag(cproc->flags, (ComProc_Unkn0020|ComProc_Unkn0008));
         }
     } 
     else 
     {
-        ERRORLOG("Invalid computer process %d referenced",(int)ctask->field_8C);
+        ERRORLOG("Invalid computer process %d referenced",(int)ctask->cproc_idx);
     }
     remove_task(comp, ctask);
 }
@@ -277,7 +277,7 @@ void restart_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 void suspend_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct ComputerProcess *cproc;
-    cproc = get_computer_process(comp, ctask->field_8C);
+    cproc = get_computer_process(comp, ctask->cproc_idx);
     suspend_process(comp, cproc);
     remove_task(comp, ctask);
 }
@@ -380,9 +380,18 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrArmour:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_PROTECT, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrRebound:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_REBOUND, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrConceal:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_CONCEAL, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrFlight:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FLIGHT, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrVision:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_VISION, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UsePwrHoldAudnc:
         return magic_use_available_power_on_level(plyr_idx, PwrK_HOLDAUDNC, alevel, PwMod_Default);
     case GA_UsePwrDisease:
@@ -391,6 +400,12 @@ TbResult game_action(PlayerNumber plyr_idx, unsigned short gaction, unsigned sho
     case GA_UsePwrChicken:
         thing = thing_get(param1);
         return magic_use_available_power_on_thing(plyr_idx, PwrK_CHICKEN, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrFreeze:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_FREEZE, alevel, stl_x, stl_y, thing, PwMod_Default);
+    case GA_UsePwrSlow:
+        thing = thing_get(param1);
+        return magic_use_available_power_on_thing(plyr_idx, PwrK_SLOW, alevel, stl_x, stl_y, thing, PwMod_Default);
     case GA_UseSlap:
     case GA_UsePwrSlap:
         thing = thing_get(param1);
@@ -436,7 +451,7 @@ struct ComputerTask *get_task_in_progress(struct Computer2 *comp, ComputerTaskTy
         }
         ctask = &game.computer_task[i];
         i = ctask->next_task;
-        if ((ctask->flags & ComTsk_Unkn0001) != 0)
+        if (flag_is_set(ctask->flags, ComTsk_Unkn0001))
         {
             long n;
             n = ctask->ttype;
@@ -480,7 +495,7 @@ struct ComputerTask *get_task_in_progress_in_list(const struct Computer2 *comp, 
         }
         ctask = &game.computer_task[i];
         i = ctask->next_task;
-        if ((ctask->flags & ComTsk_Unkn0001) != 0)
+        if (flag_is_set(ctask->flags, ComTsk_Unkn0001))
         {
             long n;
             n = ctask->ttype;
@@ -527,7 +542,7 @@ static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool use_com
     int next_task;
 
     task_result = &game.computer_task[1];
-    while ((task_result->flags & ComTsk_Unkn0001) != 0)
+    while (flag_is_set(task_result->flags, ComTsk_Unkn0001))
     {
         if (++task_result >= (struct ComputerTask *)&game.computer)
             return 0;
@@ -548,7 +563,7 @@ static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool use_com
             }
             current_task->next_task = task_result - game.computer_task;
 
-            task_result->flags |= ComTsk_Unkn0001;
+            set_flag(task_result->flags, ComTsk_Unkn0001);
             task_result->created_turn = game.play_gameturn;
             return task_result;
         }
@@ -556,7 +571,7 @@ static struct ComputerTask *get_free_task(struct Computer2 *comp, TbBool use_com
     }
     comp->task_idx = task_result - game.computer_task;
 
-    task_result->flags |= ComTsk_Unkn0001;
+    set_flag(task_result->flags, ComTsk_Unkn0001);
     task_result->created_turn = game.play_gameturn;
     return task_result;
 }
@@ -637,7 +652,7 @@ short computer_dump_held_things_on_map(struct Computer2 *comp, struct Thing *dro
     int height;
     int max_height;
     max_height = get_ceiling_height_above_thing_at(droptng, &locpos);
-    height = locpos.z.val + droptng->clipbox_size_yz;
+    height = locpos.z.val + droptng->clipbox_size_z;
     if (max_height <= height) {
         ERRORLOG("Ceiling is too low to drop %s at (%d,%d)", thing_model_name(droptng),(int)locpos.x.stl.num,(int)locpos.y.stl.num);
         return 0;
@@ -674,7 +689,7 @@ long computer_place_thing_in_power_hand(struct Computer2 *comp, struct Thing *th
         ERRORLOG("Computer tries to pick up %s index %d which is not pickable", thing_model_name(thing),(int)thing->index);
         return 0;
     }
-    if ((thing->alloc_flags & TAlF_IsControlled) != 0) {
+    if (flag_is_set(thing->alloc_flags, TAlF_IsControlled)) {
         SYNCDBG(7,"Computer tries to pick up %s index %d which is being controlled", thing_model_name(thing),(int)thing->index);
         return 0;
     }
@@ -783,7 +798,6 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
     long k;
 
     const struct Dungeon *dungeon = comp->dungeon;
-    const struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
 
     chosen_job = Job_NULL;
     chosen_priority = LONG_MIN;
@@ -803,7 +817,7 @@ CreatureJob get_job_to_place_creature_in_room(const struct Computer2 *comp, cons
             continue;
         }
         // Find specific room which meets capacity demands
-        room = find_room_of_role_with_most_spare_capacity(dungeonadd,rrole,&total_spare_cap);
+        room = find_room_of_role_with_most_spare_capacity(dungeon,rrole,&total_spare_cap);
         if (room_is_invalid(room)) {
             SYNCDBG(9,"Cannot assign %s for %s index %d; no room with spares",creature_job_code_name(mvto->job_kind),thing_model_name(thing),(int)thing->index);
             continue;
@@ -873,129 +887,127 @@ CreatureJob find_creature_to_be_placed_in_room_for_job(struct Computer2 *comp, s
     return param.num2;
 }
 
-void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos, long a3)
+void setup_computer_dig_room(struct ComputerDig *cdig, const struct Coord3d *pos, long room_area)
 {
     cdig->pos_begin.x.val = pos->x.val;
     cdig->pos_begin.y.val = pos->y.val;
     cdig->pos_begin.z.val = pos->z.val;
-    cdig->subfield_30 = 0;
-    cdig->subfield_34 = 0;
-    cdig->subfield_38 = 0;
-    cdig->subfield_3C = 0;
-    cdig->subfield_40 = a3;
-    cdig->subfield_44 = 0;
+    cdig->room.spiral.turns_made = 0;
+    cdig->room.spiral.steps_to_take_before_turning = 0;
+    cdig->room.spiral.steps_remaining_before_turn = 0;
+    cdig->room.spiral.forward_direction = 0; // start facing NORTH
+    cdig->room.area = room_area;
+    cdig->room.slabs_processed = 0;
     cdig->subfield_2C = 1;
 }
 
+/** Dig a passage, to connect a new roomspace to the dungeon. */
 long task_dig_room_passage(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     struct Coord3d pos;
-    switch (tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly))
+    switch(tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly))
     {
-    case -5:
-        ctask->ottype = ctask->ttype;
-        ctask->ttype = CTT_WaitForBridge;
-        return CTaskRet_Unk4;
-    case -3:
-    case -2:
-        shut_down_task_process(comp, ctask);
-        return 0;
-    case -1:
-        pos.x.val = ctask->pos_6A.x.val;
-        pos.y.val = ctask->pos_6A.y.val;
-        pos.z.val = ctask->pos_6A.z.val;
-        {
-            long round_directn;
-            round_directn = small_around_index_towards_destination(ctask->pos_6A.x.stl.num,ctask->pos_6A.y.stl.num,
-                ctask->new_room_pos.x.stl.num,ctask->new_room_pos.y.stl.num);
-            pos_move_in_direction_to_last_allowing_drop(&pos, round_directn, comp->dungeon->owner, ctask->create_room.width+ctask->create_room.height);
-        }
-        move_imp_to_dig_here(comp, &pos, 1);
-        pos.x.val = ctask->new_room_pos.x.val;
-        pos.y.val = ctask->new_room_pos.y.val;
-        pos.z.val = ctask->new_room_pos.z.val;
-        setup_computer_dig_room(&ctask->dig, &pos, ctask->create_room.area);
-        ctask->ttype = CTT_DigRoom;
-        return 1;
-    default:
-        if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
-        {
-            ctask->flags &= ~ComTsk_AddTrapLocation;
-            add_to_trap_location(comp, &ctask->dig.pos_next);
-        }
-        return 2;
+        case TDR_ReachedDestination:
+            // now we move on to build the room
+            pos.x.val = ctask->pos_6A.x.val;
+            pos.y.val = ctask->pos_6A.y.val;
+            pos.z.val = ctask->pos_6A.z.val;
+            {
+                SmallAroundIndex round_directn = small_around_index_towards_destination(ctask->pos_6A.x.stl.num,ctask->pos_6A.y.stl.num,
+                    ctask->new_room_pos.x.stl.num,ctask->new_room_pos.y.stl.num);
+                pos_move_in_direction_to_last_allowing_drop(&pos, round_directn, comp->dungeon->owner, ctask->create_room.width+ctask->create_room.height);
+            }
+            move_imp_to_dig_here(comp, &pos, 1);
+            pos.x.val = ctask->new_room_pos.x.val;
+            pos.y.val = ctask->new_room_pos.y.val;
+            pos.z.val = ctask->new_room_pos.z.val;
+            setup_computer_dig_room(&ctask->dig, &pos, ctask->create_room.area);
+            ctask->ttype = CTT_DigRoom;
+            return CTaskRet_Unk1;
+        case TDR_DigSlab:
+            // a slab has been marked for digging
+            if (flag_is_set(ctask->flags, ComTsk_AddTrapLocation))
+            {
+                add_to_trap_locations(comp, &ctask->dig.pos_next); // add the dug slab to the list of potential trap locations
+                clear_flag(ctask->flags, ComTsk_AddTrapLocation); // only add the first dug slab to the list
+            }
+            return CTaskRet_Unk2;
+        case TDR_BuildBridgeOnSlab:
+            // make the task a "wait for bridge" task, and park the dig task for later
+            ctask->ottype = ctask->ttype;
+            ctask->ttype = CTT_WaitForBridge;
+            return CTaskRet_Unk4;
+        case TDR_ToolDigError:
+        default:
+            // we can't go on to build a room
+            shut_down_task_process(comp, ctask);
+            return CTaskRet_Unk0;
     }
 }
 
+/** Dig a roomspace. */
 long task_dig_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    struct Dungeon *dungeon;
-    dungeon = comp->dungeon;
+    struct Dungeon *dungeon = comp->dungeon;
     {
-        int digger_tasks;
-        digger_tasks = dungeon->digger_stack_length;
+        int digger_tasks = dungeon->digger_stack_length;
         if ((digger_tasks > 0) && (comp->dig_stack_size * dungeon->total_area / 100 <= digger_tasks)) {
-            return 2;
+            return CTaskRet_Unk2;
         }
     }
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    stl_x = stl_slab_center_subtile(ctask->dig.pos_begin.x.stl.num);
-    stl_y = stl_slab_center_subtile(ctask->dig.pos_begin.y.stl.num);
-    int i;
-    for (i=ctask->dig.subfield_2C; i > 0; i--)
+    MapSubtlCoord stl_x = stl_slab_center_subtile(ctask->dig.pos_begin.x.stl.num);
+    MapSubtlCoord stl_y = stl_slab_center_subtile(ctask->dig.pos_begin.y.stl.num);
+    if (ctask->dig.subfield_2C == 1) // this check might be unneeded, can't see when subfield_2C != 1
     {
-        if (ctask->dig.subfield_38 > 0)
+        if (ctask->dig.room.spiral.steps_remaining_before_turn > 0)
         {
             if ((stl_x < gameadd.map_subtiles_x) && (stl_y < gameadd.map_subtiles_y))
             {
-                struct SlabMap *slb;
-                slb = get_slabmap_for_subtile(stl_x, stl_y);
-                const struct SlabAttr *slbattr;
-                slbattr = get_slab_attrs(slb);
-                struct Map *mapblk;
-                mapblk = get_map_block_at(stl_x, stl_y);
+                struct SlabMap *slb = get_slabmap_for_subtile(stl_x, stl_y);
+                const struct SlabAttr *slbattr = get_slab_attrs(slb);
+                struct Map *mapblk = get_map_block_at(stl_x, stl_y);
                 if (slbattr->is_diggable && (slb->kind != SlbT_GEMS))
                 {
-                    if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == dungeon->owner))
+                    if (!flag_is_set(mapblk->flags, SlbAtFlg_Filled) || (slabmap_owner(slb) == dungeon->owner))
                     {
                         if (find_from_task_list(dungeon->owner, get_subtile_number(stl_x,stl_y)) < 0)
                         {
                             if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1) <= Lb_OK)
                             {
                                 shut_down_task_process(comp, ctask);
-                                return 0;
+                                return CTaskRet_Unk0;
                             }
                         }
                     }
                 }
-                ctask->dig.subfield_44++;
-                if (ctask->dig.subfield_44 >= ctask->dig.subfield_40) {
+                ctask->dig.room.slabs_processed++;
+                if (ctask->dig.room.slabs_processed >= ctask->dig.room.area)
+                {
                     ctask->ttype = CTT_CheckRoomDug;
-                    return 1;
+                    return CTaskRet_Unk1;
                 }
             }
-            const struct MyLookup *lkp;
-            lkp = &lookup[ctask->dig.subfield_3C];
+            const struct MyLookup *lkp = &lookup[ctask->dig.room.spiral.forward_direction];
             stl_x += lkp->delta_x;
             stl_y += lkp->delta_y;
         }
-        ctask->dig.subfield_38--;
-        if (ctask->dig.subfield_38 <= 0)
+        ctask->dig.room.spiral.steps_remaining_before_turn--;
+        if (ctask->dig.room.spiral.steps_remaining_before_turn <= 0)
         {
-            ctask->dig.subfield_30++;
-            if ((ctask->dig.subfield_30 & 1) != 0) {
-                ctask->dig.subfield_34++;
+            ctask->dig.room.spiral.turns_made++;
+            if (ctask->dig.room.spiral.turns_made & 1)
+            {
+                ctask->dig.room.spiral.steps_to_take_before_turning++;
             }
-            ctask->dig.subfield_38 = ctask->dig.subfield_34;
-            ctask->dig.subfield_3C = (ctask->dig.subfield_3C + 1) & 3;
+            ctask->dig.room.spiral.steps_remaining_before_turn = ctask->dig.room.spiral.steps_to_take_before_turning;
+            ctask->dig.room.spiral.forward_direction = (ctask->dig.room.spiral.forward_direction + 1) & 3; // rotate clockwise
         }
     }
     ctask->dig.pos_begin.x.stl.num = stl_x;
     ctask->dig.pos_begin.y.stl.num = stl_y;
-    return 2;
+    return CTaskRet_Unk2;
 }
 
 /**
@@ -1065,82 +1077,77 @@ long task_check_room_dug(struct Computer2 *comp, struct ComputerTask *ctask)
     if (game.play_gameturn - ctask->created_turn > COMPUTER_DIG_ROOM_TIMEOUT) {
         WARNLOG("Task %s couldn't be completed in reasonable time, reset",computer_task_code_name(ctask->ttype));
         restart_task_process(comp, ctask);
-        return 0;
+        return CTaskRet_Unk0;
     }
     long waiting_slabs;
     long wrong_slabs;
     waiting_slabs = 0; wrong_slabs = 0;
     count_slabs_where_room_cannot_be_built(comp->dungeon->owner, ctask->new_room_pos.x.stl.num, ctask->new_room_pos.y.stl.num,
-        ctask->create_room.long_80, ctask->create_room.area, &waiting_slabs, &wrong_slabs);
+        ctask->create_room.kind, ctask->create_room.area, &waiting_slabs, &wrong_slabs);
     if (wrong_slabs > 0) {
         WARNLOG("Task %s couldn't be completed as %d wrong slabs are in destination area, reset",computer_task_code_name(ctask->ttype),(int)wrong_slabs);
         restart_task_process(comp, ctask);
-        return 0;
+        return CTaskRet_Unk0;
     }
     if (waiting_slabs > 0) {
         SYNCDBG(9,"The %d/%d tiles around %d,%d are not ready to place room",(int)wrong_slabs,
             (int)ctask->create_room.area, (int)ctask->new_room_pos.x.stl.num, (int)ctask->new_room_pos.y.stl.num);
-        return 4;
+        return CTaskRet_Unk4;
     }
     // The room digging task is complete - change it to room placing task
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
-        roomst = &game.slab_conf.room_cfgstats[ctask->rkind];
+        roomst = &game.conf.slab_conf.room_cfgstats[ctask->rkind];
         message_add_fmt(comp->dungeon->owner, "Now I can place the %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_PlaceRoom;
     setup_computer_dig_room(&ctask->dig, &ctask->new_room_pos, ctask->create_room.area);
-    return 1;
+    return CTaskRet_Unk1;
 }
 
 void shut_down_task_process(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     struct ComputerProcess *cproc;
     SYNCDBG(9,"Starting");
-    cproc = get_computer_process(comp, ctask->field_8C);
+    cproc = get_computer_process(comp, ctask->cproc_idx);
     if (cproc != NULL)
     {
-        if ((cproc->flags & ComProc_Unkn0020) != 0) {
+        if (flag_is_set(cproc->flags, ComProc_Unkn0020)) {
             shut_down_process(comp, cproc);
         }
     } else {
-        ERRORLOG("Invalid computer process %d referenced",(int)ctask->field_8C);
+        ERRORLOG("Invalid computer process %d referenced",(int)ctask->cproc_idx);
     }
     if (!computer_task_invalid(ctask)) {
         remove_task(comp, ctask);
     }
 }
 
+/** Place a room. */
 long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
 {
-    struct Dungeon *dungeon;
-    RoomKind rkind;
-    MapSubtlCoord stl_x;
-    MapSubtlCoord stl_y;
-    int i;
     SYNCDBG(9,"Starting");
-    dungeon = comp->dungeon;
-    rkind = ctask->create_room.long_80;
-    struct RoomConfigStats *roomst;
-    roomst = &game.slab_conf.room_cfgstats[rkind];
+    struct Dungeon *dungeon = comp->dungeon;
+    RoomKind rkind = ctask->create_room.kind;
+    struct RoomConfigStats *roomst = &game.conf.slab_conf.room_cfgstats[rkind];
     // If we don't have money for the room - don't even try
     if (roomst->cost + 1000 >= dungeon->total_money_owned)
     {
         // Prefer leaving some gold, unless a flag is forcing us to build
-        if (((roomst->flags & RoCFlg_BuildTillBroke) == 0) || (roomst->cost >= dungeon->total_money_owned)) {
-            return 0;
+        if (!flag_is_set(roomst->flags, RoCFlg_BuildTillBroke) || (roomst->cost >= dungeon->total_money_owned)) {
+            return CTaskRet_Unk0;
         }
     }
     // If we've lost the ability to build that room - kill the process and remove task (should we really remove task?)
     if (!is_room_available(dungeon->owner, rkind)) {
         shut_down_task_process(comp, ctask);
-        return 1;
+        return CTaskRet_Unk1;
     }
-    stl_x = ctask->dig.pos_begin.x.stl.num;
-    stl_y = ctask->dig.pos_begin.y.stl.num;
-    for (i = ctask->dig.subfield_2C; i > 0; i--)
+    MapSubtlCoord stl_x = ctask->dig.pos_begin.x.stl.num;
+    MapSubtlCoord stl_y = ctask->dig.pos_begin.y.stl.num;
+    if (ctask->dig.subfield_2C == 1) // this check might be unneeded, can't see when subfield_2C != 1
     {
-        if (ctask->dig.subfield_38 > 0)
+        if (ctask->dig.room.spiral.steps_remaining_before_turn > 0)
         {
             if (slab_has_trap_on(subtile_slab(stl_x), subtile_slab(stl_y))) {
                 try_game_action(comp, dungeon->owner, GA_SellTrap, 0, stl_x, stl_y, 1, 0);
@@ -1149,43 +1156,46 @@ long task_place_room(struct Computer2 *comp, struct ComputerTask *ctask)
             {
                 if (try_game_action(comp, dungeon->owner, GA_PlaceRoom, 0, stl_x, stl_y, 1, rkind) > Lb_OK)
                 {
-                    ctask->dig.subfield_44++;
-                    if (ctask->dig.subfield_40 <= ctask->dig.subfield_44) {
+                    ctask->dig.room.slabs_processed++;
+                    if (ctask->dig.room.slabs_processed >= ctask->dig.room.area)
+                    {
                         shut_down_task_process(comp, ctask);
-                        return 1;
+                        return CTaskRet_Unk1;
                     }
                 }
             }
-            const struct MyLookup *lkp;
-            lkp = &lookup[ctask->dig.subfield_3C];
+            const struct MyLookup *lkp = &lookup[ctask->dig.room.spiral.forward_direction];
             stl_x += lkp->delta_x;
             stl_y += lkp->delta_y;
         }
-        ctask->dig.subfield_38--;
-        if (ctask->dig.subfield_38 <= 0)
+        
+        ctask->dig.room.spiral.steps_remaining_before_turn--;
+        if (ctask->dig.room.spiral.steps_remaining_before_turn <= 0)
         {
-            ctask->dig.subfield_30++;
-            if (ctask->dig.subfield_30 & 1)
-                ctask->dig.subfield_34++;
-            ctask->dig.subfield_38 = ctask->dig.subfield_34;
-            ctask->dig.subfield_3C = (ctask->dig.subfield_3C + 1) & 3;
+            ctask->dig.room.spiral.turns_made++;
+            if (ctask->dig.room.spiral.turns_made & 1)
+            {
+                ctask->dig.room.spiral.steps_to_take_before_turning++;
+            }
+            ctask->dig.room.spiral.steps_remaining_before_turn = ctask->dig.room.spiral.steps_to_take_before_turning;
+            ctask->dig.room.spiral.forward_direction = (ctask->dig.room.spiral.forward_direction + 1) & 3; // rotate clockwise
         }
     }
     ctask->dig.pos_begin.x.stl.num = stl_x;
     ctask->dig.pos_begin.y.stl.num = stl_y;
-    return 0;
+    return CTaskRet_Unk0;
 }
 
+/** Dig a path to an entrance portal. */
 long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     struct Room *room;
-    long dig_ret;
-    dig_ret = 0;
-    int n;
-    for (n=0; n < SMALL_AROUND_LENGTH; n++)
+    
+    // check the surrounding subtiles to see if they are the requested room
+    for (SmallAroundIndex n = 0; n < SMALL_AROUND_LENGTH; n++)
     {
         MapSubtlCoord stl_x;
         MapSubtlCoord stl_y;
@@ -1194,44 +1204,40 @@ long task_dig_to_entrance(struct Computer2 *comp, struct ComputerTask *ctask)
         room = subtile_room_get(stl_x, stl_y);
         if (!room_is_invalid(room))
         {
-            if (room->index == ctask->dig_to_room.target_room_idx) {
-                dig_ret = -1;
-                break;
+            if (room->index == ctask->dig_to_room.target_room_idx)
+            {
+                remove_task(comp, ctask);
+                return TDR_ReachedDestination;
             }
         }
     }
-    struct ComputerTask *curtask;
-    if (dig_ret == 0)
+    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
+    if (flag_is_set(ctask->flags, ComTsk_AddTrapLocation))
     {
-        dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
-        if ((ctask->flags & ComTsk_AddTrapLocation) != 0) {
-            ctask->flags &= ~ComTsk_AddTrapLocation;
-            add_to_trap_location(comp, &ctask->dig.pos_next);
-        }
+        add_to_trap_locations(comp, &ctask->dig.pos_next); // add the dug slab to the list of potential trap locations
+        clear_flag(ctask->flags, ComTsk_AddTrapLocation); // only add the first dug slab to the list
     }
-    switch ( dig_ret )
+    switch(dig_result)
     {
-    case -5:
-        ctask->ottype = ctask->ttype;
-        ctask->ttype = CTT_WaitForBridge;
-        return 4;
-    case -3:
-    case -2:
-        room = room_get(ctask->dig_to_room.target_room_idx);
-        room->player_interested[dungeon->owner] |= 0x02;
-        curtask = get_computer_task(comp->task_idx);
-        if (!computer_task_invalid(curtask)) {
-            remove_task(comp, curtask);
-        }
-        return dig_ret;
-    case -1:
-        curtask = get_computer_task(comp->task_idx);
-        if (!computer_task_invalid(curtask)) {
-            remove_task(comp, curtask);
-        }
-        return dig_ret;
-    default:
-        return dig_ret;
+        case TDR_ReachedDestination:
+            // we reached the room
+            remove_task(comp, ctask);
+            return dig_result;
+        case TDR_BuildBridgeOnSlab:
+            // make the task a "wait for bridge" task, and park the dig task for later
+            ctask->ottype = ctask->ttype;
+            ctask->ttype = CTT_WaitForBridge;
+            return CTaskRet_Unk4;
+        case TDR_ToolDigError:
+            // we can't reach the room, so say we are disinterested in that room
+            room = room_get(ctask->dig_to_room.target_room_idx);
+            room->player_interested[dungeon->owner] |= 0x02;
+            remove_task(comp, ctask);
+            return dig_result;
+        case TDR_DigSlab:
+            // a slab has been marked for digging
+        default:
+            return dig_result;
     }
 }
 
@@ -1245,17 +1251,16 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
-    const struct DungeonAdd* dungeonadd = get_dungeonadd_by_dungeon(dungeon);
-    if ((rkind < 1) || (rkind >= game.slab_conf.room_types_count)) {
+    if ((rkind < 1) || (rkind >= game.conf.slab_conf.room_types_count)) {
         return IAvail_Never;
     }
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player.");
         return IAvail_Never;
     }
-    if (!dungeonadd->room_resrchable[rkind])
+    if (!dungeon->room_resrchable[rkind])
         return IAvail_Never;
-    if ((dungeonadd->room_buildable[rkind] & 1) == 0)
+    if ((dungeon->room_buildable[rkind] & 1) == 0)
         return IAvail_NeedResearch;
     return IAvail_Now;
 }
@@ -1269,7 +1274,7 @@ ItemAvailability computer_check_room_available(const struct Computer2 * comp, Ro
 ItemAvailability computer_check_room_of_role_available(const struct Computer2 * comp, RoomRole rrole)
 {
     ItemAvailability result = IAvail_Never;
-    for (RoomKind rkind = 0; rkind < game.slab_conf.room_types_count; rkind++)
+    for (RoomKind rkind = 0; rkind < game.conf.slab_conf.room_types_count; rkind++)
     {
         if(room_role_matches(rkind,rrole))
         {
@@ -1291,10 +1296,10 @@ long xy_walkable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
     slbattr = get_slab_attrs(slb);
     if ((slabmap_owner(slb) == plyr_idx) || (plyr_idx == -1))
     {
-        if (((slbattr->block_flags & SlbAtFlg_Blocking) == 0) && (slb->kind != SlbT_LAVA)) {
+        if (!flag_is_set(slbattr->block_flags, SlbAtFlg_Blocking) && (slb->kind != SlbT_LAVA)) {
             return true;
         }
-        if ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0) {
+        if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsRoom)) {
             return true;
         }
     }
@@ -1315,7 +1320,7 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
     if (slbattr->category == SlbAtCtg_RoomInterior) {
         return -1;
     }
-    if ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0) {
+    if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsRoom)) {
         return -1;
     }
     if (!slab_good_for_computer_dig_path(slb) || (slb->kind == SlbT_WATER)) {
@@ -1325,7 +1330,7 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
     if (find_from_task_list(plyr_idx, stl_num) >= 0) {
         return -1;
     }
-    if ((slbattr->block_flags & SlbAtFlg_Valuable) != 0) {
+    if (flag_is_set(slbattr->block_flags, SlbAtFlg_Valuable)) {
         return -1;
     }
     if (slab_kind_is_liquid(slb->kind)) {
@@ -1335,7 +1340,7 @@ long check_for_perfect_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long 
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
-    return ((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx);
+    return (flag_is_set(mapblk->flags, SlbAtFlg_Filled) && (slabmap_owner(slb) != plyr_idx));
 }
 
 long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx)
@@ -1349,7 +1354,7 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
     if (slbattr->category == SlbAtCtg_RoomInterior) {
         return -1;
     }
-    if ((slbattr->block_flags & SlbAtFlg_IsRoom) != 0) {
+    if (flag_is_set(slbattr->block_flags, SlbAtFlg_IsRoom)) {
         return -1;
     }
     if (slb->kind == SlbT_GEMS) {
@@ -1369,7 +1374,7 @@ long check_for_buildable(MapSubtlCoord stl_x, MapSubtlCoord stl_y, long plyr_idx
         return 1;
     }
     mapblk = get_map_block_at_pos(stl_num);
-    return ((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != plyr_idx);
+    return (flag_is_set(mapblk->flags, SlbAtFlg_Filled) && (slabmap_owner(slb) != plyr_idx));
 }
 
 long get_corridor(struct Coord3d *pos1, struct Coord3d * pos2, unsigned char round_directn, PlayerNumber plyr_idx, unsigned short slabs_dist)
@@ -1519,9 +1524,9 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
     ctask = get_free_task(comp, 0);
     if (!computer_task_invalid(ctask))
     {
-        if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+        if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
             struct RoomConfigStats *roomst;
-            roomst = &game.slab_conf.room_cfgstats[rkind];
+            roomst = &game.conf.slab_conf.room_cfgstats[rkind];
             message_add_fmt(comp->dungeon->owner, "It is time to build %s.",get_string(roomst->name_stridx));
         }
         ctask->ttype = CTT_DigRoomPassage;
@@ -1538,10 +1543,8 @@ struct ComputerTask * able_to_build_room(struct Computer2 *comp, struct Coord3d 
         ctask->create_room.width = width_slabs;
         ctask->create_room.height = height_slabs;
         ctask->create_room.area = area_buildable;
-        ctask->create_room.long_80 = rkind;
-        ctask->flags |= ComTsk_Unkn0002;
-        ctask->flags |= ComTsk_AddTrapLocation;
-        ctask->flags |= ComTsk_Urgent;
+        ctask->create_room.kind = rkind;
+        set_flag(ctask->flags, (ComTsk_Unkn0002|ComTsk_AddTrapLocation|ComTsk_Urgent));
         setup_dig_to(&ctask->dig, ctask->create_room.startpos, ctask->new_room_pos);
     }
     return ctask;
@@ -1563,10 +1566,8 @@ short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoor
     if ((i == 0) || (i == 1)) {
         return i;
     }
-    int dist_a;
-    int dist_b;
-    dist_a = abs(stl_a_y - stl2_y) + abs(stl_a_x - stl1_x);
-    dist_b = abs(stl_b_y - stl2_y) + abs(stl_b_x - stl1_x);
+    int dist_a = grid_distance(stl_a_x, stl_a_y, stl1_x, stl2_y);
+    int dist_b = grid_distance(stl_b_x, stl_b_y, stl1_x, stl2_y);
     if (dist_b > dist_a) {
         return 1;
     }
@@ -1577,16 +1578,16 @@ short get_hug_side(struct ComputerDig * cdig, MapSubtlCoord stl1_x, MapSubtlCoor
     return ((stl2_x+stl2_y)>>1)%2;
 }
 
-short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Computer2 * comp, struct ComputerDig * cdig, unsigned short digflags,
+ToolDigResult tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Computer2 * comp, struct ComputerDig * cdig, DigFlags digflags,
     MapSubtlCoord *nextstl_x, MapSubtlCoord *nextstl_y, const char *func_name)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     MapSlabCoord nextslb_x;
     MapSlabCoord nextslb_y;
-    long around_index;
-    long i;
-    for (i = 0; ; i++)
+    SmallAroundIndex around_index;
+    ToolDigResult dig_result;
+    for (dig_result = TDR_DigSlab; ; dig_result++)
     {
         struct SlabMap *slb;
         nextslb_x = subtile_slab(*nextstl_x);
@@ -1623,19 +1624,19 @@ short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Compute
         if ((subtile_slab(cdig->pos_dest.x.stl.num) == nextslb_x) && (subtile_slab(cdig->pos_dest.y.stl.num) == nextslb_y))
         {
             SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)nextslb_x,(int)nextslb_y);
-            return -1;
+            return TDR_ReachedDestination;
         }
         // Move position towards the target subtile, shortest way
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
         (*nextstl_x) += STL_PER_SLB * small_around[around_index].delta_x;
         (*nextstl_y) += STL_PER_SLB * small_around[around_index].delta_y;
-        if (i > gameadd.map_tiles_x+gameadd.map_tiles_y)
+        if (dig_result > gameadd.map_tiles_x+gameadd.map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
-            return -2;
+            return TDR_ToolDigError;
         }
     }
-    return i;
+    return dig_result;
 }
 
 /**
@@ -1651,16 +1652,16 @@ short tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(const struct Compute
  * @param nextstl_y
  * @param func_name
  */
-short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags,
+ToolDigResult tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags digflags,
     MapSubtlCoord *nextstl_x, MapSubtlCoord *nextstl_y, const char *func_name)
 {
     struct Dungeon *dungeon;
     dungeon = comp->dungeon;
     MapSlabCoord nextslb_x;
     MapSlabCoord nextslb_y;
-    long around_index;
-    long i;
-    for (i = 0; i < cdig->subfield_2C; i++)
+    SmallAroundIndex around_index;
+    ToolDigResult dig_result;
+    for (dig_result = TDR_DigSlab; dig_result < cdig->subfield_2C; dig_result++)
     {
         struct SlabAttr *slbattr;
         struct SlabMap *slb;
@@ -1673,7 +1674,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         if ( (slbattr->is_diggable == 0) || (slb->kind == SlbT_GEMS)
           || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) != dungeon->owner)) )
         {
-            if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || (digflags == 0) ) {
+            if ( ((slbattr->block_flags & SlbAtFlg_Valuable) == 0) || ((digflags & ToolDig_AllowValuable) == 0) ) {
                 break;
             }
         }
@@ -1683,7 +1684,7 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
                 ERRORLOG("%s: Could not do game action at subtile (%d,%d)",func_name,(int)*nextstl_x,(int)*nextstl_y);
                 break;
             }
-            if (digflags != 0)
+            if (digflags & ToolDig_AllowValuable)
             {
                 if ((slbattr->block_flags & SlbAtFlg_Valuable) != 0) {
                     cdig->valuable_slabs_tagged++;
@@ -1695,16 +1696,16 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         if ((subtile_slab(cdig->pos_dest.x.stl.num) == nextslb_x) && (subtile_slab(cdig->pos_dest.y.stl.num) == nextslb_y))
         {
             SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)nextslb_x,(int)nextslb_y);
-            return -1;
+            return TDR_ReachedDestination;
         }
         // Move position towards the target subtile, shortest way
         around_index = small_around_index_towards_destination(*nextstl_x,*nextstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
         (*nextstl_x) += STL_PER_SLB * small_around[around_index].delta_x;
         (*nextstl_y) += STL_PER_SLB * small_around[around_index].delta_y;
-        if (i > gameadd.map_tiles_x*gameadd.map_tiles_y)
+        if (dig_result > gameadd.map_tiles_x*gameadd.map_tiles_y)
         {
             ERRORLOG("%s: Infinite loop while finding path to dig gold",func_name);
-            return -2;
+            return TDR_ToolDigError;
         }
     }
     nextslb_x = subtile_slab(*nextstl_x);
@@ -1714,20 +1715,29 @@ short tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(struct Computer2 * com
         cdig->pos_next.x.stl.num = *nextstl_x;
         cdig->pos_next.y.stl.num = *nextstl_y;
         SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)nextslb_x,(int)nextslb_y);
-        return -1;
+        return TDR_ReachedDestination;
     }
-    return i;
+    return dig_result;
 }
 
 /**
- * Tool function to do (or simulate) computer player digging.
- * @param comp Computer player which is doing the task.
- * @param cdig The ComputerDig structure to be changed. Should be dummy if simulating.
- * @param simulation Indicates if we're simulating or doing the real thing.
- * @param digflags These are not really flags, but should be changed into flags when all calls to this func are rewritten. Use values from ToolDigFlags enum.
- * @return
+ * Tool function to do (or simulate) computer player "mark for digging".
+ * 
+ * The tool finds a path from the start to the destination, and marks any dirt found for digging. 
+ * It will continue to plot a path until it either:
+ * reaches the destination, reaches a slab that requires an action, or hits some sort of error.
+ * This function will be called again if the path was not completed (after any pending action has been completed).
+ *  
+ * @param comp The Computer player that started the task.
+ * @param cdig The ComputerDig structure that will store all of the data for the computer digging task. Should be dummy if simulating.
+ * @param simulation If true: we're only simulating, or if false: we're doing the real thing.
+ * @param digflags Signifies what actions are allowed for the current digging task e.g. 
+ *                  whether bridges are allowed to be placed over water or lava, if valuables are allowed to be dug, or if only dirt can be dug. 
+ *                  Uses values from ToolDigFlags enum.
+ * @return Returns a ToolDigResult which is e.g. "Destination Reached", "Slab needs to be marked for digging", "Bridge needs to be built". 
+ *         See enum ToolDigResults for the full list.
  */
-short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, unsigned short digflags, const char *func_name)
+ToolDigResult tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbBool simulation, DigFlags digflags, const char *func_name)
 {
     struct Dungeon *dungeon;
     struct SlabMap *slb;
@@ -1740,8 +1750,8 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     MapSubtlCoord digstl_y;
     MapSlabCoord digslb_x;
     MapSlabCoord digslb_y;
-    long counter1;
-    long i;
+    ToolDigResult dig_result;
+    SubtlCodedCoords stl_num;
     SYNCDBG(14,"%s: Starting",func_name);
     dungeon = comp->dungeon;
     // Limit amount of calls
@@ -1750,7 +1760,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         WARNLOG("%s: Player %d ComputerDig calls count (%d) exceeds limit for path from (%d,%d) to (%d,%d)",func_name,
             (int)dungeon->owner,(int)cdig->calls_count,(int)coord_slab(cdig->pos_begin.x.val),(int)coord_slab(cdig->pos_begin.y.val),
             (int)coord_slab(cdig->pos_dest.x.val),(int)coord_slab(cdig->pos_dest.y.val));
-        return -2;
+        return TDR_ToolDigError;
     }
     gldstl_x = stl_slab_center_subtile(cdig->pos_begin.x.stl.num);
     gldstl_y = stl_slab_center_subtile(cdig->pos_begin.y.stl.num);
@@ -1758,9 +1768,9 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     if (get_2d_distance(&cdig->pos_begin, &cdig->pos_dest) <= cdig->distance)
     {
         SYNCDBG(4,"%s: Player %d does small distance digging",func_name,(int)dungeon->owner);
-        counter1 = tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(comp, cdig, digflags, &gldstl_x, &gldstl_y, func_name);
-        if (counter1 < 0) {
-            return counter1;
+        dig_result = tool_dig_to_pos2_skip_slabs_which_dont_need_digging_f(comp, cdig, digflags, &gldstl_x, &gldstl_y, func_name);
+        if (dig_result < TDR_DigSlab) {
+            return dig_result;
         }
         // Being here means we didn't reached the destination - we must do some kind of action
         struct SlabMap* action_slb = get_slabmap_block(subtile_slab(gldstl_x), subtile_slab(gldstl_y));
@@ -1771,17 +1781,16 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             cdig->pos_next.y.stl.num = gldstl_y;
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid slab (%d,%d)",func_name,
                 (int)dungeon->owner,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
-            return -5;
+            return TDR_BuildBridgeOnSlab;
         }
         
-        counter1 = tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(comp, cdig, simulation, digflags, &gldstl_x, &gldstl_y, func_name);
-        if (counter1 < 0) {
-            return counter1;
+        dig_result = tool_dig_to_pos2_do_action_on_slab_which_needs_it_f(comp, cdig, simulation, digflags, &gldstl_x, &gldstl_y, func_name);
+        if (dig_result < TDR_DigSlab) {
+            return dig_result;
         }
         // If the straight road stopped and we were not able to find anything to dig, check other directions
-        long around_index;
-        around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
-        if (counter1 > 0)
+        SmallAroundIndex around_index = small_around_index_towards_destination(gldstl_x,gldstl_y,cdig->pos_dest.x.stl.num,cdig->pos_dest.y.stl.num);
+        if (dig_result > TDR_DigSlab)
         {
             cdig->pos_begin.x.stl.num = gldstl_x;
             cdig->pos_begin.y.stl.num = gldstl_y;
@@ -1791,7 +1800,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                 cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner);
             cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
             SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)subtile_slab(gldstl_x),(int)subtile_slab(gldstl_y));
-            return 0;
+            return TDR_DigSlab;
         }
         if (cdig->subfield_2C == comp->field_C)
         {
@@ -1810,25 +1819,25 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             cdig->pos_next.y.val = cdig->pos_E.y.val;
             cdig->pos_next.z.val = cdig->pos_E.z.val;
         }
-        cdig->subfield_48++;
-        if ((cdig->subfield_48 > 10) && (cdig->sub4C_stl_x == gldstl_x) && (cdig->sub4C_stl_y == gldstl_y)) {
+        cdig->number_of_failed_actions++;
+        if ((cdig->number_of_failed_actions > COMPUTER_TOOL_FAILED_DIG_LIMIT) && (cdig->last_backwards_step_stl_x == gldstl_x) && (cdig->last_backwards_step_stl_y == gldstl_y)) {
             SYNCDBG(5,"%s: Positions are equal at subtile (%d,%d)",func_name,(int)gldstl_x,(int)gldstl_y);
-            return -2;
+            return TDR_ToolDigError;
         }
-        cdig->sub4C_stl_x = gldstl_x;
-        cdig->sub4C_stl_y = gldstl_y;
+        cdig->last_backwards_step_stl_x = gldstl_x;
+        cdig->last_backwards_step_stl_y = gldstl_y;
         cdig->distance = get_2d_distance(&cdig->pos_next, &cdig->pos_dest);
         cdig->hug_side = get_hug_side(cdig, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
                            cdig->pos_dest.x.stl.num, cdig->pos_dest.y.stl.num, around_index, dungeon->owner);
         cdig->direction_around = (around_index + (cdig->hug_side < 1 ? 3 : 1)) & 3;
-        i = dig_to_position(dungeon->owner, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
+        stl_num = dig_to_position(dungeon->owner, cdig->pos_next.x.stl.num, cdig->pos_next.y.stl.num,
             cdig->direction_around, cdig->hug_side);
-        if (i == -1) {
+        if (stl_num == -1) {
             SYNCDBG(5,"%s: Player %d short digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)cdig->pos_next.x.stl.num,(int)cdig->pos_next.y.stl.num);
-            return -2;
+            return TDR_ToolDigError;
         }
-        digstl_x = stl_num_decode_x(i);
-        digstl_y = stl_num_decode_y(i);
+        digstl_x = stl_num_decode_x(stl_num);
+        digstl_y = stl_num_decode_y(stl_num);
         digslb_x = subtile_slab(digstl_x);
         digslb_y = subtile_slab(digstl_y);
         action_slb = get_slabmap_block(digslb_x, digslb_y);
@@ -1838,18 +1847,18 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
             cdig->pos_next.y.stl.num = digstl_y;
             cdig->pos_next.x.stl.num = digstl_x;
             SYNCDBG(5,"%s: Player %d has bridge, so is going through liquid subtile (%d,%d)",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
-            return -5;
+            return TDR_BuildBridgeOnSlab;
         }
     } else
     {
         SYNCDBG(4,"%s: Player %d does long distance digging",func_name,(int)dungeon->owner);
-        i = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->hug_side);
-        if (i == -1) {
+        stl_num = dig_to_position(dungeon->owner, gldstl_x, gldstl_y, cdig->direction_around, cdig->hug_side);
+        if (stl_num == -1) {
             SYNCDBG(5,"%s: Player %d long digging to subtile (%d,%d) preparations failed",func_name,(int)dungeon->owner,(int)gldstl_x,(int)gldstl_y);
-            return -2;
+            return TDR_ToolDigError;
         }
-        digstl_x = stl_num_decode_x(i);
-        digstl_y = stl_num_decode_y(i);
+        digstl_x = stl_num_decode_x(stl_num);
+        digstl_y = stl_num_decode_y(stl_num);
         digslb_x = subtile_slab(digstl_x);
         digslb_y = subtile_slab(digstl_y);
     }
@@ -1861,8 +1870,8 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
         mapblk = get_map_block_at(digstl_x, digstl_y);
         if (((mapblk->flags & SlbAtFlg_Filled) == 0) || (slabmap_owner(slb) == dungeon->owner))
         {
-            i = get_subtile_number_at_slab_center(digslb_x,digslb_y);
-            if ((find_from_task_list(dungeon->owner, i) < 0) && (!simulation))
+            stl_num = get_subtile_number_at_slab_center(digslb_x,digslb_y);
+            if ((find_from_task_list(dungeon->owner, stl_num) < 0) && (!simulation))
             {
                 // Only when the computer has enough gold to cast lvl8, will he consider casting lvl3 power, so he has some gold left.
                 if( computer_able_to_use_power(comp, PwrK_DESTRWALLS, 8, 1))
@@ -1872,7 +1881,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                     if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                     {
                         magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y-3, PwCast_Unrevealed);
-                        return -5;
+                        return TDR_BuildBridgeOnSlab;
                     }
                     else
                     {
@@ -1881,7 +1890,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                         if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                         {
                             magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x, digstl_y+3, PwCast_Unrevealed);
-                            return -5;
+                            return TDR_BuildBridgeOnSlab;
                         }
                         else
                         {
@@ -1890,7 +1899,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                             if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                             {
                                 magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x-3, digstl_y, PwCast_Unrevealed);
-                                return -5;
+                                return TDR_BuildBridgeOnSlab;
                             }
                             else
                             {
@@ -1899,7 +1908,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                                 if(((mapblkw->flags & SlbAtFlg_Filled) >= 1) && (slabmap_owner(slbw) != dungeon->owner))
                                 {
                                     magic_use_available_power_on_subtile(dungeon->owner, PwrK_DESTRWALLS, 3, digstl_x+3, digstl_y, PwCast_Unrevealed);
-                                    return -5;
+                                    return TDR_BuildBridgeOnSlab;
                                 }
                             }
                         }
@@ -1908,7 +1917,7 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
                 if (try_game_action(comp, dungeon->owner, GA_MarkDig, 0, digstl_x, digstl_y, 1, 1) <= Lb_OK) 
                 {
                     ERRORLOG("%s: Couldn't do game action - cannot dig",func_name);
-                    return -2;
+                    return TDR_ToolDigError;
                 }
             }
         }
@@ -1919,12 +1928,12 @@ short tool_dig_to_pos2_f(struct Computer2 * comp, struct ComputerDig * cdig, TbB
     if ((subtile_slab(cdig->pos_dest.x.stl.num) == digslb_x) && (subtile_slab(cdig->pos_dest.y.stl.num) == digslb_y))
     {
         SYNCDBG(5,"%s: Reached destination slab (%d,%d)",func_name,(int)digslb_x,(int)digslb_y);
-        return -1;
+        return TDR_ReachedDestination;
     }
     cdig->pos_begin.x.stl.num = digstl_x;
     cdig->pos_begin.y.stl.num = digstl_y;
     SYNCDBG(5,"%s: Going through slab (%d,%d)",func_name,(int)digslb_x,(int)digslb_y);
-    return 0;
+    return TDR_DigSlab;
 }
 
 int find_trap_location_index(const struct Computer2 * comp, const struct Coord3d * coord)
@@ -1944,8 +1953,8 @@ int find_trap_location_index(const struct Computer2 * comp, const struct Coord3d
     }
     return -1;
 }
-
-long add_to_trap_location(struct Computer2 * comp, struct Coord3d * coord)
+/** Add a position to the computer player's list of potential trap locations (the trap_locations[] array). */
+long add_to_trap_locations(struct Computer2 * comp, struct Coord3d * coord)
 {
     SYNCDBG(6,"Starting");
     // Avoid duplicating entries
@@ -1980,7 +1989,7 @@ long check_for_gold(MapSubtlCoord basestl_x, MapSubtlCoord basestl_y, long plyr_
     stl_num = get_subtile_number(basestl_x,basestl_y);
     slb = get_slabmap_for_subtile(basestl_x,basestl_y);
     slbattr = get_slab_attrs(slb);
-    if ((slbattr->block_flags & SlbAtFlg_Valuable) != 0) {
+    if (flag_is_set(slbattr->block_flags, SlbAtFlg_Valuable)) {
         return (find_from_task_list(plyr_idx, stl_num) < 0);
     }
     return 0;
@@ -2032,7 +2041,10 @@ int search_spiral_f(struct Coord3d *pos, PlayerNumber owner, int area_total, lon
     }
 }
 
-long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
+/** Find the next valuable slab to dig to.
+ * @return Returns true if we can reach the selected valuable slab, false if we can't reach it.
+ */
+TbBool find_next_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(5,"Starting");
 
@@ -2041,7 +2053,7 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     // Try to find gold tiles around current position
     if (search_spiral(&ctask->dig.pos_dest, comp->dungeon->owner, 25, check_for_gold) == 25) {
         SYNCDBG(5,"Player %d did not found next gold",(int)comp->dungeon->owner);
-        return 0;
+        return false;
     }
 
     memcpy(&ctask->dig.pos_begin, &ctask->dig.pos_next, sizeof(struct Coord3d));
@@ -2051,22 +2063,27 @@ long find_next_gold(struct Computer2 * comp, struct ComputerTask * ctask)
     struct ComputerDig cdig;
     memcpy(&cdig, &ctask->dig, sizeof(struct ComputerDig));
 
-    long retval;
+    ToolDigResult dig_result;
+    // see if we can reach the gold
     do
     {
-        retval = tool_dig_to_pos2(comp, &cdig, 1, ToolDig_BasicOnly);
-        SYNCDBG(5,"retval=%d, dig.distance=%d, dig.subfield_54=%d",
-            retval, cdig.distance, cdig.calls_count);
-    } while (retval == 0);
+        dig_result = tool_dig_to_pos2(comp, &cdig, true, ToolDig_BasicOnly); // actions are simulated
+        SYNCDBG(5,"retval=%d, dig.distance=%d, dig.calls_count=%d",
+            dig_result, cdig.distance, cdig.calls_count);
+    } while (dig_result == TDR_DigSlab); // loop until we have reached our destination, or an error has occurred
 
     SYNCDBG(6,"Finished");
-    if ((retval != -1) && (retval != -5)) {
-        return 0;
-    } else {
-        return 1;
+    switch(dig_result)
+    {
+        case TDR_ReachedDestination:
+        case TDR_BuildBridgeOnSlab:
+            return true;
+        default:
+            return false;
     }
 }
 
+/** Dig a path to get access to gold. */
 long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     long i;
@@ -2077,19 +2094,19 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
     if ((dungeon->digger_stack_length > 0) && (dungeon->digger_stack_length >= i))
     {
         SYNCDBG(6,"Player %d did nothing because digger stack length is over %d",(int)dungeon->owner,(int)i);
-        return 0;
+        return CTaskRet_Unk0;
     }
 
     if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.slabs_dig_count)
     {
         struct SlabMap* slb = get_slabmap_for_subtile(ctask->dig.pos_next.x.stl.num, ctask->dig.pos_next.y.stl.num);
 
-        if ((get_slab_attrs(slb)->block_flags & SlbAtFlg_Valuable) != 0)
+        if (flag_is_set(get_slab_attrs(slb)->block_flags, SlbAtFlg_Valuable))
         {
-            ctask->field_60--;
-            if (ctask->field_60 > 0) {
-                SYNCDBG(6,"Player %d needs to dig %d more",(int)dungeon->owner,(int)ctask->field_60);
-                return 0;
+            ctask->delay--;
+            if (ctask->delay > 0) {
+                SYNCDBG(6,"Player %d needs to dig %d more",(int)dungeon->owner,(int)ctask->delay);
+                return CTaskRet_Unk0;
             }
         }
         ctask->dig.valuable_slabs_tagged = 0;
@@ -2118,7 +2135,7 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
                         struct Map* mapblk = get_map_block_at(stl_x, stl_y);
                         struct SlabAttr *slbattr = get_slab_attrs(slb);
                         if ( (slbattr->is_diggable != 0)
-                          || (((mapblk->flags & SlbAtFlg_Filled) != 0) && (slabmap_owner(slb) == dungeon->owner)) )
+                          || (flag_is_set(mapblk->flags, SlbAtFlg_Filled) && (slabmap_owner(slb) == dungeon->owner)) )
                         {
                             TbResult res = game_action(dungeon->owner, GA_MarkDig, 0, stl_x, stl_y, 1, 1);
                             if (res <= Lb_OK)
@@ -2132,38 +2149,37 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         }
     }
 
-    long retval = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_AllowValuable);
+    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_AllowValuable);
 
-    if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
+    if (flag_is_set(ctask->flags, ComTsk_AddTrapLocation))
     {
-        ctask->flags &= ~ComTsk_AddTrapLocation;
-        add_to_trap_location(comp, &ctask->dig.pos_next);
+        add_to_trap_locations(comp, &ctask->dig.pos_next); // add the dug slab to the list of potential trap locations
+        clear_flag(ctask->flags, ComTsk_AddTrapLocation); // only add the first dug slab to the list
     }
 
     if (ctask->dig.valuable_slabs_tagged >= ctask->dig_to_gold.slabs_dig_count)
     {
-        ctask->field_60 = 700 / comp->click_rate;
+        ctask->delay = 700 / comp->click_rate;
     }
 
-    if (retval == -5)
+    switch(dig_result)
     {
-        ctask->ottype = ctask->ttype;
-        ctask->ttype = CTT_WaitForBridge;
-
-        SYNCDBG(6,"Player %d is waiting for bridge",(int)dungeon->owner);
-        return CTaskRet_Unk4;
+        case TDR_DigSlab:
+            SYNCDBG(6,"Player %d finished, code %d",(int)dungeon->owner,(int)dig_result);
+            return dig_result;
+        case TDR_BuildBridgeOnSlab:
+            ctask->ottype = ctask->ttype;
+            ctask->ttype = CTT_WaitForBridge;
+            SYNCDBG(6,"Player %d is waiting for bridge",(int)dungeon->owner);
+            return CTaskRet_Unk4;
+        default:
+            break;
     }
 
-    if ((retval < -3) || (retval > -1))
-    {
-        SYNCDBG(6,"Player %d finished, code %d",(int)dungeon->owner,(int)retval);
-        return retval;
-    }
-
-    if (find_next_gold(comp, ctask) != 0)
+    if (find_next_gold(comp, ctask))
     {
         SYNCDBG(7,"Player %d found next slab",(int)dungeon->owner);
-        return 0;
+        return CTaskRet_Unk0;
     }
 
     struct GoldLookup* gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
@@ -2183,97 +2199,98 @@ long task_dig_to_gold(struct Computer2 *comp, struct ComputerTask *ctask)
         ctask->dig.pos_begin.x.stl.num = gldstl_x;
         ctask->dig.pos_begin.y.stl.num = gldstl_y;
 
-        if (find_next_gold(comp, ctask) != 0) // || (retval < -3) -- Already returned
+        if (find_next_gold(comp, ctask)) // || (dig_result < -3) -- Already returned
         {
             SYNCDBG(7,"Player %d found next slab",(int)dungeon->owner);
-            return retval;
+            return dig_result;
         }
     }
-
+    
     // move to next task or return to enclosing task or return to try again later
-    if ((retval == -3) || (retval == -2))
+    switch(dig_result)
     {
-        gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
-        gold_lookup->player_interested[dungeon->owner] |= 0x02;
-        remove_task(comp, ctask);
-    } else
-    if (retval == -1) // unnecessary check as retval < -3 and retval > -1 did return before
-    {
-        remove_task(comp, ctask);
+        case TDR_ReachedDestination:
+            remove_task(comp, ctask);
+            SYNCDBG(5,"Player %d task finished",(int)dungeon->owner);
+            return dig_result;
+        case TDR_ToolDigError:
+            gold_lookup = get_gold_lookup(ctask->dig_to_gold.target_lookup_idx);
+            gold_lookup->player_interested[dungeon->owner] |= 0x02;
+            remove_task(comp, ctask);
+            SYNCDBG(5,"Player %d task finished",(int)dungeon->owner);
+            return dig_result;
+        default:
+            return dig_result;
     }
-
-    SYNCDBG(5,"Player %d task finished",(int)dungeon->owner);
-    return retval;
 }
 
+/** Dig a path to be able to attack another player. */
 long task_dig_to_attack(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    if ((game.play_gameturn - ctask->created_turn) > 7500) {
+    if ((game.play_gameturn - ctask->created_turn) > COMPUTER_DIG_ROOM_TIMEOUT)
+    {
       comp->task_state = CTaskSt_Select;
       remove_task(comp, ctask);
       return CTaskRet_Unk0;
     }
     if (ctask->dig.pos_next.x.val > 0)
     {
-        struct SlabMap *slb;
-        slb = get_slabmap_for_subtile(ctask->dig.pos_next.x.stl.num, ctask->dig.pos_next.y.stl.num);
-        if (slabmap_owner(slb) != comp->dungeon->owner) {
+        struct SlabMap *slb = get_slabmap_for_subtile(ctask->dig.pos_next.x.stl.num, ctask->dig.pos_next.y.stl.num);
+        if (slabmap_owner(slb) != comp->dungeon->owner)
+        {
             return CTaskRet_Unk4;
         }
-        if ((ctask->flags & ComTsk_AddTrapLocation) != 0)
+        if (flag_is_set(ctask->flags, ComTsk_AddTrapLocation))
         {
-          ctask->lastrun_turn++;
-          if (ctask->lastrun_turn > 5)
-              ctask->flags &= ~ComTsk_AddTrapLocation;
-          add_to_trap_location(comp, &ctask->dig.pos_next);
-        }
-    }
-    long dig_ret;
-    dig_ret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
-    int i;
-    switch (dig_ret)
-    {
-    case -5:
-        ctask->ottype = ctask->ttype;
-        ctask->ttype = CTT_WaitForBridge;
-        dig_ret = CTaskRet_Unk4;
-        break;
-    case -3:
-    case -2:
-        comp->task_state = CTaskSt_Select;
-        suspend_task_process(comp, ctask);
-        break;
-    case 0:
-        for (i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
-        {
-            MapSubtlCoord stl_x;
-            MapSubtlCoord stl_y;
-            stl_x = ctask->dig.pos_next.x.stl.num + (long)slab_subtile(small_around_mid[i].delta_x,0);
-            stl_y = ctask->dig.pos_next.y.stl.num + (long)slab_subtile(small_around_mid[i].delta_y,0);
-            if (xy_walkable(stl_x, stl_y, ctask->dig_somewhere.target_plyr_idx)) {
-                remove_task(comp, ctask);
-                break;
+            add_to_trap_locations(comp, &ctask->dig.pos_next); // add the dug slab to the list of potential trap locations
+            ctask->lastrun_turn++;
+            if (ctask->lastrun_turn > 5)
+            {
+                clear_flag(ctask->flags, ComTsk_AddTrapLocation);  // add the first 5 dug slabs to the list
             }
         }
-        if (i == SMALL_AROUND_MID_LENGTH)
-        {
-            break;
-        }
-        // fall through
-    case -1:
-        {
-            struct ComputerProcess *cproc;
-            cproc = get_computer_process(comp, ctask->field_8C);
-            cproc->param_5 = computer_task_index(ctask);
-            cproc->func_complete(comp, cproc);
-        }
-        suspend_task_process(comp, ctask);
-        break;
-    default:
-        break;
     }
-    return dig_ret;
+    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
+    switch(dig_result)
+    {
+        case TDR_ReachedDestination:
+            {
+                struct ComputerProcess *cproc;
+                cproc = get_computer_process(comp, ctask->cproc_idx);
+                cproc->param_5 = computer_task_index(ctask);
+                cproc->func_complete(comp, cproc);
+            }
+            suspend_task_process(comp, ctask);
+            return TDR_ReachedDestination;
+        case TDR_DigSlab:
+            for (int i = 0; i < SMALL_AROUND_MID_LENGTH; i++)
+            {
+                MapSubtlCoord stl_x = ctask->dig.pos_next.x.stl.num + slab_subtile(small_around_mid[i].delta_x,0);
+                MapSubtlCoord stl_y = ctask->dig.pos_next.y.stl.num + slab_subtile(small_around_mid[i].delta_y,0);
+                if (xy_walkable(stl_x, stl_y, ctask->dig_somewhere.target_plyr_idx)) {
+                    remove_task(comp, ctask);
+                    {
+                        struct ComputerProcess *cproc;
+                        cproc = get_computer_process(comp, ctask->cproc_idx);
+                        cproc->param_5 = computer_task_index(ctask);
+                        cproc->func_complete(comp, cproc);
+                    }
+                    suspend_task_process(comp, ctask);
+                    return CTaskRet_Unk0;
+                }
+            }
+            return CTaskRet_Unk0;   
+        case TDR_BuildBridgeOnSlab:
+            ctask->ottype = ctask->ttype;
+            ctask->ttype = CTT_WaitForBridge;
+            return CTaskRet_Unk4;
+        case TDR_ToolDigError:
+        default:
+            comp->task_state = CTaskSt_Select;
+            suspend_task_process(comp, ctask);
+            return dig_result;
+    }
 }
 
 long count_creatures_at_call_to_arms(struct Computer2 *comp)
@@ -2312,9 +2329,9 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
     {
         struct CreatureControl *cctrl = creature_control_get_from_thing(i);
 
-        if ( (i->alloc_flags & TAlF_IsInLimbo) != 0 )
+        if ( flag_is_set(i->alloc_flags, TAlF_IsInLimbo) )
             continue;
-        if ( (i->state_flags & TAlF_IsInMapWho) != 0 )
+        if (flag_is_set(i->state_flags, TF1_InCtrldLimbo) )
             continue;
         if ( i->active_state == CrSt_CreatureUnconscious )
             continue;
@@ -2325,7 +2342,7 @@ static struct Thing *find_creature_for_call_to_arms(struct Computer2 *comp, TbBo
             state = i->active_state;
         struct StateInfo *stati = get_thing_state_info_num(state);
 
-        if ( (cctrl->spell_flags & CSAfF_CalledToArms) != 0 )
+        if (flag_is_set(cctrl->spell_flags, CSAfF_CalledToArms))
         {
             if ( !stati->react_to_cta )
                 continue;
@@ -2360,10 +2377,10 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
     switch (ctask->task_state)
     {
     case 0:
-        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->field_60) {
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->delay) {
             return CTaskRet_Unk4;
         }
-        ctask->field_60 = 18;
+        ctask->delay = 18;
         ctask->lastrun_turn = game.play_gameturn;
         // If gathered enough creatures, go to next task state
         if (count_creatures_in_call_to_arms(comp) >= ctask->magic_cta.repeat_num) {
@@ -2396,13 +2413,13 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     case 1:
-        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->field_60) {
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->delay) {
             return CTaskRet_Unk2;
         }
         SYNCDBG(7,"Player %d casts CTA at (%d,%d)",(int)dungeon->owner, (int)ctask->magic_cta.target_pos.x.stl.num, (int)ctask->magic_cta.target_pos.y.stl.num);
         if (try_game_action(comp, dungeon->owner, GA_UsePwrCall2Arms, 5, ctask->magic_cta.target_pos.x.stl.num, ctask->magic_cta.target_pos.y.stl.num, 1, 1) >= Lb_OK) {
             ctask->task_state = CTaskSt_Select;
-            ctask->field_60 = ctask->field_8E;
+            ctask->delay = ctask->field_8E;
             return CTaskRet_Unk2;
         }
         SYNCDBG(7,"Player %d cannot cast CTA at (%d,%d), cancelling task",(int)dungeon->owner, (int)ctask->magic_cta.target_pos.x.stl.num, (int)ctask->magic_cta.target_pos.y.stl.num);
@@ -2416,13 +2433,13 @@ long task_magic_call_to_arms(struct Computer2 *comp, struct ComputerTask *ctask)
         if (count_creatures_at_call_to_arms(comp) < ctask->magic_cta.repeat_num - ctask->magic_cta.repeat_num / 4) 
         {
             // For a minimum amount of time
-            if ((game.play_gameturn - ctask->lastrun_turn) < (ctask->field_60 / 10)) 
+            if ((game.play_gameturn - ctask->lastrun_turn) < (ctask->delay / 10)) 
             {
                 return CTaskRet_Unk1;
             }
         }
         // There's a time limit for how long CTA may run
-        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->field_60) 
+        if ((game.play_gameturn - ctask->lastrun_turn) < ctask->delay) 
             {
                 return CTaskRet_Unk1;
             }
@@ -2520,11 +2537,7 @@ struct Thing *find_creature_for_pickup(struct Computer2 *comp, struct Coord3d *p
                     }
                 } else
                 {
-                    long delta_x;
-                    long delta_y;
-                    delta_x = thing->mappos.x.stl.num - stl_x;
-                    delta_y = thing->mappos.y.stl.num - stl_y;
-                    if (abs(delta_x) + abs(delta_y) >= 2)
+                    if (grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, stl_x, stl_y) >= 2)
                     {
                         if (best_score) {
                             score = get_creature_thing_score(thing);
@@ -2599,7 +2612,7 @@ long count_creatures_for_pickup(struct Computer2 *comp, struct Coord3d *pos, str
                     {
                         if (room_is_invalid(room))
                         {
-                            if (abs(thing->mappos.x.stl.num - stl_x) + abs(thing->mappos.y.stl.num - stl_y) < 2 )
+                            if (grid_distance(thing->mappos.x.stl.num, thing->mappos.y.stl.num, stl_x, stl_y) < 2)
                               continue;
                         } else
                         {
@@ -2814,18 +2827,21 @@ struct Thing *find_creature_for_defend_pickup(struct Computer2 *comp)
                     {
                         if (!creature_is_doing_lair_activity(thing) && !creature_is_being_dropped(thing))
                         {
-                            struct PerExpLevelValues *expvalues;
-                            expvalues = &game.creature_scores[thing->model];
-                            long expval;
-                            long healthprm;
-                            long new_factor;
-                            expval = expvalues->value[cctrl->explevel];
-                            healthprm = get_creature_health_permil(thing);
-                            new_factor = healthprm * expval / 1000;
-                            if ((new_factor > best_factor) && (healthprm > 20))
+                            if (cctrl->dropped_turn < (COMPUTER_REDROP_DELAY + game.play_gameturn))
                             {
-                                best_factor = new_factor;
-                                best_creatng = thing;
+                                struct PerExpLevelValues* expvalues;
+                                expvalues = &game.creature_scores[thing->model];
+                                long expval;
+                                long healthprm;
+                                long new_factor;
+                                expval = expvalues->value[cctrl->explevel];
+                                healthprm = get_creature_health_permil(thing);
+                                new_factor = healthprm * expval / 1000;
+                                if ((new_factor > best_factor) && (healthprm > 20))
+                                {
+                                    best_factor = new_factor;
+                                    best_creatng = thing;
+                                }
                             }
                         }
                     }
@@ -2882,7 +2898,7 @@ long task_move_creatures_to_defend(struct Computer2 *comp, struct ComputerTask *
         remove_task(comp, ctask);
         return CTaskRet_Unk0;
     }
-    if (game.play_gameturn - ctask->lastrun_turn < ctask->field_60) {
+    if (game.play_gameturn - ctask->lastrun_turn < ctask->delay) {
         return CTaskRet_Unk4;
     }
     ctask->lastrun_turn = game.play_gameturn;
@@ -3041,27 +3057,34 @@ long task_slap_imps(struct Computer2 *comp, struct ComputerTask *ctask)
     return CTaskRet_Unk0;
 }
 
+/** Dig a path with no particular agenda. */
 long task_dig_to_neutral(struct Computer2 *comp, struct ComputerTask *ctask)
 {
     SYNCDBG(9,"Starting");
-    short digret;
-    digret = tool_dig_to_pos2(comp, &ctask->dig, 0, ToolDig_BasicOnly);
-    if (digret == -5)
+    ToolDigResult dig_result = tool_dig_to_pos2(comp, &ctask->dig, false, ToolDig_BasicOnly);
+    switch(dig_result)
     {
-        ctask->ottype = ctask->ttype;
-        ctask->ttype = CTT_WaitForBridge;
-        return CTaskRet_Unk4;
+        case TDR_DigSlab:
+            // a slab has been marked for digging
+            if (flag_is_set(ctask->flags, ComTsk_AddTrapLocation))
+            {
+                add_to_trap_locations(comp, &ctask->dig.pos_next); // add the dug slab to the list of potential trap locations
+                clear_flag(ctask->flags, ComTsk_AddTrapLocation); // only add the first dug slab to the list
+            }
+            return CTaskRet_Unk0;
+
+        case TDR_BuildBridgeOnSlab:
+            // make the task a "wait for bridge" task, and park the dig task for later
+            ctask->ottype = ctask->ttype;
+            ctask->ttype = CTT_WaitForBridge;
+            return CTaskRet_Unk4;
+        case TDR_ReachedDestination:
+        case TDR_ToolDigError:
+        default:
+            // suspend the task process (which removes the task)
+            suspend_task_process(comp,ctask);
+            return dig_result;
     }
-    if ((digret >= -3) && (digret <= -1))
-    {
-        suspend_task_process(comp,ctask);
-        return digret;
-    }
-    if ((ctask->flags & ComTsk_AddTrapLocation) != 0) {
-        ctask->flags &= ~ComTsk_AddTrapLocation;
-        add_to_trap_location(comp, &ctask->dig.pos_next);
-    }
-    return digret;
 }
 
 long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
@@ -3088,10 +3111,31 @@ long task_magic_speed_up(struct Computer2 *comp, struct ComputerTask *ctask)
         {
             k = 1;
         }
-    } 
+    }
     else if (computer_able_to_use_power(comp, PwrK_PROTECT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_PROTECT))
     {
         if (try_game_action(comp, dungeon->owner, GA_UsePwrArmour, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    else if (computer_able_to_use_power(comp, PwrK_REBOUND, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_REBOUND))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrRebound, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    if (computer_able_to_use_power(comp, PwrK_FLIGHT, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_FLIGHT))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrFlight, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
+        {
+            k = 1;
+        }
+    }
+    if (computer_able_to_use_power(comp, PwrK_VISION, ctask->attack_magic.splevel, 1) && !thing_affected_by_spell(creatng, PwrK_VISION))
+    {
+        if (try_game_action(comp, dungeon->owner, GA_UsePwrVision, ctask->attack_magic.splevel, 0, 0, ctask->attack_magic.target_thing_idx, 0) > Lb_OK)
         {
             k = 1;
         }
@@ -3122,7 +3166,7 @@ long task_wait_for_bridge(struct Computer2 *comp, struct ComputerTask *ctask)
     }
     if (game.play_gameturn - ctask->created_turn > COMPUTER_URGENT_BRIDGE_TIMEOUT)
     {
-        if ((is_room_available(plyr_idx, RoK_BRIDGE)) || (ctask->flags & ComTsk_Urgent))
+        if ((is_room_available(plyr_idx, RoK_BRIDGE)) || flag_is_set(ctask->flags, ComTsk_Urgent))
         {
             //When the player already has the bridge available, or is doing an urgent task, don't keep the task active as long.
             ctask->ttype = ctask->ottype;
@@ -3197,11 +3241,10 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
     long value;
     long model;
     long i;
-    struct DungeonAdd *dungeonadd = get_dungeonadd(dungeon->owner);
 
     if (dungeon_invalid(dungeon)) {
         ERRORLOG("Invalid dungeon in computer player");
-        return 0;
+        return CTaskRet_Unk0;
     }
     SYNCDBG(19,"Starting for player %d",(int)dungeon->owner);
     if ((ctask->sell_traps_doors.gold_gain <= ctask->sell_traps_doors.gold_gain_limit) && (dungeon->total_money_owned <= ctask->sell_traps_doors.total_money_limit))
@@ -3216,11 +3259,11 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
             {
             case TDSC_DoorCrate:
                 model = tdsell->model;
-                if ((model <= 0) || (model >= gameadd.trapdoor_conf.door_types_count)) {
+                if ((model <= 0) || (model >= game.conf.trapdoor_conf.door_types_count)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                if (dungeonadd->mnfct_info.door_amount_placeable[model] > 0)
+                if (dungeon->mnfct_info.door_amount_placeable[model] > 0)
                 {
                     int crate_source;
                     crate_source = remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Door, model, WrkCrtF_Default);
@@ -3229,31 +3272,31 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         item_sold = true;
-                        value = compute_value_percentage(gameadd.doors_config[model].selling_value,gameadd.door_sale_percent);
+                        value = compute_value_percentage(game.conf.doors_config[model].selling_value,game.conf.rules.game.door_sale_percent);
                         SYNCDBG(9,"Offmap door %s crate sold for %d gold",door_code_name(model),(int)value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Door, model);
                         remove_workshop_object_from_player(dungeon->owner, door_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(gameadd.doors_config[model].selling_value, gameadd.door_sale_percent);
+                        value = compute_value_percentage(game.conf.doors_config[model].selling_value, game.conf.rules.game.door_sale_percent);
                         SYNCDBG(9,"Stored door %s crate sold for %ld gold by player %d",door_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
                         WARNLOG("Placeable door %s amount for player %d was incorrect; fixed",door_code_name(model),(int)dungeon->owner);
-                        dungeonadd->mnfct_info.door_amount_placeable[model] = 0;
+                        dungeon->mnfct_info.door_amount_placeable[model] = 0;
                         break;
                     }
                 }
                 break;
             case TDSC_TrapCrate:
                 model = tdsell->model;
-                if ((model <= 0) || (model >= gameadd.trapdoor_conf.trap_types_count)) {
+                if ((model <= 0) || (model >= game.conf.trapdoor_conf.trap_types_count)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
-                struct TrapConfigStats* trapst = &gameadd.trapdoor_conf.trap_cfgstats[model];
-                if ((dungeonadd->mnfct_info.trap_amount_placeable[model] > 0) && (trapst->unsellable == 0))
+                struct TrapConfigStats* trapst = &game.conf.trapdoor_conf.trap_cfgstats[model];
+                if ((dungeon->mnfct_info.trap_amount_placeable[model] > 0) && (trapst->unsellable == 0))
                 {
                     int crate_source;
                     crate_source = remove_workshop_item_from_amount_stored(dungeon->owner, TCls_Trap, model, WrkCrtF_Default);
@@ -3262,19 +3305,19 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                     case WrkCrtS_Offmap:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         item_sold = true;
-                        value = compute_value_percentage(gameadd.traps_config[model].selling_value, gameadd.trap_sale_percent);
+                        value = compute_value_percentage(game.conf.traps_config[model].selling_value, game.conf.rules.game.trap_sale_percent);
                         SYNCDBG(9,"Offmap trap %s crate sold for %ld gold",trap_code_name(model),value);
                         break;
                     case WrkCrtS_Stored:
                         remove_workshop_item_from_amount_placeable(dungeon->owner, TCls_Trap, model);
                         remove_workshop_object_from_player(dungeon->owner, trap_crate_object_model(model));
                         item_sold = true;
-                        value = compute_value_percentage(gameadd.traps_config[model].selling_value, gameadd.trap_sale_percent);
+                        value = compute_value_percentage(game.conf.traps_config[model].selling_value, game.conf.rules.game.trap_sale_percent);
                         SYNCDBG(9,"Stored trap %s crate sold for %ld gold by player %d",trap_code_name(model),(long)value,(int)dungeon->owner);
                         break;
                     default:
                         WARNLOG("Placeable trap %s amount for player %d was incorrect; fixed",trap_code_name(model),(int)dungeon->owner);
-                        dungeonadd->mnfct_info.trap_amount_placeable[model] = 0;
+                        dungeon->mnfct_info.trap_amount_placeable[model] = 0;
                         break;
                     }
                 }
@@ -3283,7 +3326,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 if (!ctask->sell_traps_doors.allow_deployed)
                     break;
                 model = tdsell->model;
-                if ((model <= 0) || (model >= gameadd.trapdoor_conf.door_types_count)) {
+                if ((model <= 0) || (model >= game.conf.trapdoor_conf.door_types_count)) {
                     ERRORLOG("Internal error - invalid door model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3296,7 +3339,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                         item_sold = true;
                         stl_x = stl_slab_center_subtile(doortng->mappos.x.stl.num);
                         stl_y = stl_slab_center_subtile(doortng->mappos.y.stl.num);
-                        value = compute_value_percentage(gameadd.doors_config[model].selling_value, gameadd.door_sale_percent);
+                        value = compute_value_percentage(game.conf.doors_config[model].selling_value, game.conf.rules.game.door_sale_percent);
                         destroy_door(doortng);
                         if (is_my_player_number(dungeon->owner))
                             play_non_3d_sample(115);
@@ -3306,7 +3349,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             struct Coord3d pos;
                             set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
                             create_price_effect(&pos, dungeon->owner, value);
-                            add_to_trap_location(comp, &pos);
+                            add_to_trap_locations(comp, &pos);
                             SYNCDBG(4,"Placed door at (%d,%d) sold for %d gold by player %d",(int)stl_x,(int)stl_y,(int)value,(int)dungeon->owner);
                         } else
                         {
@@ -3319,7 +3362,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 if (!ctask->sell_traps_doors.allow_deployed)
                     break;
                 model = tdsell->model;
-                if ((model <= 0) || (model >= gameadd.trapdoor_conf.trap_types_count)) {
+                if ((model <= 0) || (model >= game.conf.trapdoor_conf.trap_types_count)) {
                     ERRORLOG("Internal error - invalid trap model %d in slot %d",(int)model,(int)i);
                     break;
                 }
@@ -3342,7 +3385,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                             struct Coord3d pos;
                             set_coords_to_subtile_center(&pos,stl_x,stl_y,1);
                             create_price_effect(&pos, dungeon->owner, value);
-                            add_to_trap_location(comp, &pos);
+                            add_to_trap_locations(comp, &pos);
                             SYNCDBG(4,"Placed traps at (%d,%d) sold for %d gold by player %d",(int)stl_x,(int)stl_y,(int)value,(int)dungeon->owner);
                         } else
                         {
@@ -3366,9 +3409,9 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
                 ctask->sell_traps_doors.items_amount--;
                 if (ctask->sell_traps_doors.items_amount <= 0) {
                     remove_task(comp, ctask);
-                    return 1;
+                    return CTaskRet_Unk1;
                 }
-                return 1;
+                return CTaskRet_Unk1;
             }
         }
         SYNCDBG(9,"Could not sell anything, aborting.");
@@ -3377,7 +3420,7 @@ long task_sell_traps_and_doors(struct Computer2 *comp, struct ComputerTask *ctas
         SYNCDBG(9,"Initial conditions not met, aborting.");
     }
     remove_task(comp, ctask);
-    return 0;
+    return CTaskRet_Unk0;
 }
 
 void setup_dig_to(struct ComputerDig *cdig, const struct Coord3d startpos, const struct Coord3d endpos)
@@ -3417,8 +3460,8 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[thing->model];
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent)) {
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[thing->model];
 
         switch (dst_state)
         {
@@ -3436,7 +3479,7 @@ TbBool create_task_move_creature_to_pos(struct Computer2 *comp, const struct Thi
             message_add_fmt(comp->dungeon->owner, "This %s should stop doing that.",get_string(crconf->namestr_idx));
             break;
         case CrSt_CreatureSacrifice:
-            if (thing->model == gameadd.cheaper_diggers_sacrifice_model) {
+            if (thing->model == game.conf.rules.sacrifices.cheaper_diggers_sacrifice_model) {
                 struct PowerConfigStats *powerst;
                 powerst = get_power_model_stats(PwrK_MKDIGGER);
                 message_add_fmt(comp->dungeon->owner, "Sacrificing %s to reduce %s price.",get_string(crconf->namestr_idx),get_string(powerst->name_stridx));
@@ -3473,7 +3516,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Minions, defend this place!");
     }
     ctask->ttype = CTT_MoveCreaturesToDefend;
@@ -3484,7 +3527,7 @@ TbBool create_task_move_creatures_to_defend(struct Computer2 *comp, struct Coord
     ctask->move_to_defend.field_70 = evflags;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
-    ctask->field_60 = comp->field_34;
+    ctask->delay = comp->task_delay;
     return true;
 }
 
@@ -3496,15 +3539,15 @@ TbBool create_task_move_creatures_to_room(struct Computer2 *comp, int room_idx, 
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct Room *room;
         room = room_get(room_idx);
         if (room_exists(room)) {
             struct RoomConfigStats *roomst;
-            roomst = &game.slab_conf.room_cfgstats[room->kind];
+            roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
             message_add_fmt(comp->dungeon->owner, "Time to put some creatures into %s.",get_string(roomst->name_stridx));
         } else {
-            if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0)
+            if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent))
                 message_add_fmt(comp->dungeon->owner, "Time to put some creatures into rooms.");
         }
     }
@@ -3524,7 +3567,7 @@ TbBool create_task_pickup_for_attack(struct Computer2 *comp, struct Coord3d *pos
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Minions, attack now!");
     }
     ctask->ttype = CTT_PickupForAttack;
@@ -3546,14 +3589,14 @@ TbBool create_task_magic_battle_call_to_arms(struct Computer2 *comp, struct Coor
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Minions, call to arms! Join the battle!");
     }
     ctask->ttype = CTT_MagicCallToArms;
     ctask->task_state = CTaskSt_None;
     ctask->created_turn = game.play_gameturn;
     // Initial wait before start of casting
-    ctask->field_60 = 25;
+    ctask->delay = 25;
     ctask->lastrun_turn = game.play_gameturn - 25;
     ctask->magic_cta.target_pos.x.val = pos->x.val;
     ctask->magic_cta.target_pos.y.val = pos->y.val;
@@ -3571,14 +3614,14 @@ TbBool create_task_magic_support_call_to_arms(struct Computer2 *comp, struct Coo
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Minions, call to arms! Attack!");
     }
     ctask->ttype = CTT_MagicCallToArms;
     ctask->task_state = CTaskSt_None;
     ctask->created_turn = game.play_gameturn;
     // Initial wait before start of casting
-    ctask->field_60 = 25;
+    ctask->delay = 25;
     ctask->lastrun_turn = game.play_gameturn - 25;
     ctask->magic_cta.target_pos.x.val = pos->x.val;
     ctask->magic_cta.target_pos.y.val = pos->y.val;
@@ -3606,13 +3649,13 @@ TbBool create_task_sell_traps_and_doors(struct Computer2 *comp, long num_to_sell
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(dungeon->owner, "I will sell some traps and doors.");
     }
     ctask->ttype = CTT_SellTrapsAndDoors;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
-    ctask->field_60 = 1;
+    ctask->delay = comp->task_delay;
     ctask->sell_traps_doors.items_amount = num_to_sell;
     ctask->sell_traps_doors.gold_gain = 0;
     ctask->sell_traps_doors.gold_gain_limit = gold_up_to;
@@ -3637,13 +3680,13 @@ TbBool create_task_move_gold_to_treasury(struct Computer2 *comp, long num_to_mov
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent)) {
         message_add_fmt(comp->dungeon->owner, "Gold should not lay around outside treasury.");
     }
     ctask->ttype = CTT_MoveGoldToTreasury;
     ctask->created_turn = game.play_gameturn;
     ctask->lastrun_turn = game.play_gameturn;
-    ctask->field_60 = 1;
+    ctask->delay = comp->task_delay;
     ctask->move_gold.items_amount = num_to_move;
     ctask->move_gold.gold_gain = 0;
     ctask->move_gold.gold_gain_limit = gold_up_to;
@@ -3659,7 +3702,7 @@ TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d st
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Player %d looks like he need a kick.",(int)victim_plyr_idx);
     }
     ctask->ttype = CTT_DigToAttack;
@@ -3669,10 +3712,10 @@ TbBool create_task_dig_to_attack(struct Computer2 *comp, const struct Coord3d st
     ctask->dig_somewhere.endpos.x.val = endpos.x.val;
     ctask->dig_somewhere.endpos.y.val = endpos.y.val;
     ctask->dig_somewhere.endpos.z.val = endpos.z.val;
-    ctask->field_8C = parent_cproc_idx;
+    ctask->cproc_idx = parent_cproc_idx;
     ctask->dig_somewhere.target_plyr_idx = victim_plyr_idx;
     ctask->lastrun_turn = 0;
-    ctask->flags |= ComTsk_AddTrapLocation;
+    set_flag(ctask->flags, ComTsk_AddTrapLocation);
     // Setup the digging
     setup_dig_to(&ctask->dig, startpos, endpos);
     return true;
@@ -3686,7 +3729,7 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Localized neutral place, hopefully with loot.");
     }
     ctask->ttype = CTT_DigToNeutral;
@@ -3697,7 +3740,7 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
     ctask->dig_somewhere.endpos.x.val = endpos.x.val;
     ctask->dig_somewhere.endpos.y.val = endpos.y.val;
     ctask->dig_somewhere.endpos.z.val = endpos.z.val;
-    ctask->flags |= ComTsk_AddTrapLocation;
+    set_flag(ctask->flags, ComTsk_AddTrapLocation);
     ctask->created_turn = game.play_gameturn;
     setup_dig_to(&ctask->dig, startpos, endpos);
     return true;
@@ -3711,11 +3754,11 @@ TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d star
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         message_add_fmt(comp->dungeon->owner, "Time to dig more gold.");
     }
     ctask->ttype = CTT_DigToGold;
-    ctask->flags |= ComTsk_AddTrapLocation;
+    set_flag(ctask->flags, ComTsk_AddTrapLocation);
     ctask->dig_to_gold.startpos.x.val = startpos.x.val;
     ctask->dig_to_gold.startpos.y.val = startpos.y.val;
     ctask->dig_to_gold.startpos.z.val = startpos.z.val;
@@ -3723,7 +3766,7 @@ TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d star
     ctask->dig_to_gold.endpos.y.val = endpos.y.val;
     ctask->dig_to_gold.endpos.z.val = endpos.z.val;
     ctask->dig_to_gold.slabs_dig_count = count_slabs_to_dig;
-    ctask->field_8C = parent_cproc_idx;
+    ctask->cproc_idx = parent_cproc_idx;
     ctask->dig_to_gold.target_lookup_idx = gold_lookup_idx;
     // Setup the digging
     setup_dig_to(&ctask->dig, startpos, endpos);
@@ -3738,21 +3781,20 @@ TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d 
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct RoomConfigStats *roomst;
-        roomst = &game.slab_conf.room_cfgstats[RoK_ENTRANCE];
+        roomst = &game.conf.slab_conf.room_cfgstats[RoK_ENTRANCE];
         message_add_fmt(comp->dungeon->owner, "I will take that %s.",get_string(roomst->name_stridx));
     }
     ctask->ttype = CTT_DigToEntrance;
-    ctask->flags |= ComTsk_AddTrapLocation;
-    ctask->flags |= ComTsk_Urgent;
+    set_flag(ctask->flags, (ComTsk_AddTrapLocation|ComTsk_Urgent));
     ctask->dig_to_room.startpos.x.val = startpos.x.val;
     ctask->dig_to_room.startpos.y.val = startpos.y.val;
     ctask->dig_to_room.startpos.z.val = startpos.z.val;
     ctask->dig_to_room.endpos.x.val = endpos.x.val;
     ctask->dig_to_room.endpos.y.val = endpos.y.val;
     ctask->dig_to_room.endpos.z.val = endpos.z.val;
-    ctask->field_8C = parent_cproc_idx;
+    ctask->cproc_idx = parent_cproc_idx;
     ctask->dig_to_room.target_room_idx = entroom_idx;
     // Setup the digging
     setup_dig_to(&ctask->dig, startpos, endpos);
@@ -3767,7 +3809,7 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksFrequent) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksFrequent)) {
         message_add_fmt(comp->dungeon->owner, "Work harder, minions!");
     }
     ctask->ttype = CTT_SlapDiggers;
@@ -3776,8 +3818,8 @@ TbBool create_task_slap_imps(struct Computer2 *comp, long creatrs_num)
     return true;
 }
 
-//task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units. Not to be confused
-//with check_for_accelerate which cast speed outside of combat
+//Task is named 'speed up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_accelerate which cast speed outside of combat.
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
 {
     struct ComputerTask *ctask;
@@ -3786,10 +3828,50 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
-        message_add_fmt(comp->dungeon->owner, "I should buff my fighters.");
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
+        message_add_fmt(comp->dungeon->owner, "I should speed up my fighters.");
     }
     ctask->ttype = CTT_MagicSpeedUp;
+    ctask->attack_magic.target_thing_idx = creatng->index;
+    ctask->attack_magic.splevel = splevel;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+//Task is named 'flight up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_flight which cast flight outside of combat.
+TbBool create_task_magic_flight_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
+        message_add_fmt(comp->dungeon->owner, "I should flight up my fighters.");
+    }
+    ctask->ttype = CTT_MagicFlightUp;
+    ctask->attack_magic.target_thing_idx = creatng->index;
+    ctask->attack_magic.splevel = splevel;
+    ctask->created_turn = game.play_gameturn;
+    return true;
+}
+
+//Task is named 'vision up', but it's generated from 'check fighter' event and all round buffs units.
+//Not to be confused with check_for_vision which cast vision outside of combat.
+TbBool create_task_magic_vision_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
+{
+    struct ComputerTask *ctask;
+    SYNCDBG(7,"Starting");
+    ctask = get_free_task(comp, 1);
+    if (computer_task_invalid(ctask)) {
+        return false;
+    }
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
+        message_add_fmt(comp->dungeon->owner, "I should vision up my fighters.");
+    }
+    ctask->ttype = CTT_MagicVisionUp;
     ctask->attack_magic.target_thing_idx = creatng->index;
     ctask->attack_magic.splevel = splevel;
     ctask->created_turn = game.play_gameturn;
@@ -3804,10 +3886,10 @@ TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *crea
     if (computer_task_invalid(ctask)) {
         return false;
     }
-    if ((gameadd.computer_chat_flags & CChat_TasksScarce) != 0) {
+    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
         struct PowerConfigStats *powerst;
         powerst = get_power_model_stats(pwkind);
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[creatng->model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[creatng->model];
         message_add_fmt(comp->dungeon->owner, "Casting %s on %s!",get_string(powerst->name_stridx),get_string(crconf->namestr_idx));
     }
     ctask->ttype = CTT_AttackMagic;
@@ -3841,7 +3923,7 @@ long process_tasks(struct Computer2 *comp)
             break;
         ctask = &game.computer_task[i];
         i = ctask->next_task;
-        if ((ctask->flags & ComTsk_Unkn0001) != 0)
+        if (flag_is_set(ctask->flags, ComTsk_Unkn0001))
         {
             n = ctask->ttype;
             if ((n > 0) && (n < sizeof(task_function)/sizeof(task_function[0])))

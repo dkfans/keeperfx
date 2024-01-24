@@ -207,8 +207,8 @@ TbBool delaunay_add(long itm_pos)
 
 TbBool delaunay_add_triangle(long tri_idx)
 {
-    long i = get_triangle_tree_alt(tri_idx);
-    if (i != -1)
+    NavColour i = get_triangle_tree_alt(tri_idx);
+    if (i != NAV_COL_UNSET)
     {
         if (!is_current_tag(tri_idx))
         {

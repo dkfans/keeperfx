@@ -171,6 +171,7 @@ void init_inputcontrol(void)
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_CARET, KC_UNASSIGNED));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_UNDERSCORE, KC_UNDERLINE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_BACKQUOTE, KC_GRAVE));
+    keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(178, KC_GRAVE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_DELETE, KC_DELETE));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_0, KC_NUMPAD0));
     keymap_sdl_to_bf.insert(pair<int, TbKeyCode>(SDLK_KP_1, KC_NUMPAD1));
@@ -378,6 +379,9 @@ static void process_event(const SDL_Event *ev)
         {
             isMouseActive = false;
         }
+        /* else if (ev->window.event == SDL_WINDOWEVENT_SIZE_CHANGED) {
+             // todo (allow window to be freely scaled): add window resize function that does what is needed, and call this new function from window init function too
+        } */
         break;
     case SDL_JOYAXISMOTION:
     case SDL_JOYBALLMOTION:

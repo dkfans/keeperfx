@@ -26,6 +26,7 @@
 #include "bflib_fileio.h"
 #include "bflib_memory.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "bflib_bufrw.h"
 #include "engine_render.h"
 #include "map_utils.h"
@@ -80,7 +81,7 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
     rcpos.x.val = Receiver.pos.val_x;
     rcpos.y.val = Receiver.pos.val_y;
     rcpos.z.val = Receiver.pos.val_z;
-    if (get_3d_box_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
+    if (get_chessboard_3d_distance(&rcpos, &thing->mappos) < MaxSoundDistance)
     {
         long eidx = thing->snd_emitter_id;
         if (eidx > 0)
@@ -92,6 +93,22 @@ void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pit
                smptbl_idx, 0, pitch, loudness, a4, a6 | 0x01, priority);
            thing->snd_emitter_id = eidx;
         }
+    }
+}
+
+void play_sound_if_close_to_receiver(struct Coord3d *soundpos, short smptbl_idx)
+{
+    if (SoundDisabled)
+        return;
+    if (GetCurrentSoundMasterVolume() <= 0)
+        return;
+    struct Coord3d rcpos;
+    rcpos.x.val = Receiver.pos.val_x;
+    rcpos.y.val = Receiver.pos.val_y;
+    rcpos.z.val = Receiver.pos.val_z;
+    if (get_chessboard_3d_distance(&rcpos, soundpos) < MaxSoundDistance)
+    {
+        play_non_3d_sample(smptbl_idx);
     }
 }
 
@@ -221,7 +238,7 @@ void find_nearest_rooms_for_ambient_sound(void)
             struct Room* room = subtile_room_get(stl_x, stl_y);
             if (room_is_invalid(room))
                 continue;
-            struct RoomConfigStats* roomst = &game.slab_conf.room_cfgstats[room->kind];
+            struct RoomConfigStats* roomst = &game.conf.slab_conf.room_cfgstats[room->kind];
             long k = roomst->ambient_snd_smp_id;
             if (k > 0)
             {
@@ -718,7 +735,7 @@ void update_first_person_object_ambience(struct Thing *thing)
     ThingIndex nearest_sounds[3];
     MapCoordDelta sound_distances[3];
     long hearing_range;
-    struct Objects* objdat;
+    struct ObjectConfigStats* objst;
     if (thing->class_id == TCls_Creature)
     {
         struct CreatureStats* crstat = creature_stats_get(thing->model);
@@ -739,10 +756,10 @@ void update_first_person_object_ambience(struct Thing *thing)
              !thing_is_invalid(objtng);
              objtng = thing_get(objtng->next_of_class))
         {
-            objdat = get_objects_data_for_thing(objtng);
-            if ((objdat->fp_smpl_idx != 0) && !thing_is_in_limbo(objtng))
+            objst = get_object_model_stats(objtng->model);
+            if ((objst->fp_smpl_idx != 0) && !thing_is_picked_up(objtng))
             {
-                new_distance = get_2d_box_distance(&thing->mappos, &objtng->mappos);
+                new_distance = get_chessboard_distance(&thing->mappos, &objtng->mappos);
                 if (new_distance <= hearing_range)
                 {
                     if (new_distance <= sound_distances[0])
@@ -759,7 +776,7 @@ void update_first_person_object_ambience(struct Thing *thing)
                 }
                 else
                 {
-                    stop_thing_playing_sample(objtng, objdat->fp_smpl_idx);
+                    stop_thing_playing_sample(objtng, objst->fp_smpl_idx);
                 }
             }
         }
@@ -768,11 +785,11 @@ void update_first_person_object_ambience(struct Thing *thing)
             audtng = thing_get(nearest_sounds[i]);
             if (!thing_is_invalid(audtng))
             {
-                objdat = get_objects_data_for_thing(audtng);
-                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objdat->fp_smpl_idx, 0))
+                objst = get_object_model_stats(audtng->model);
+                if (!S3DEmitterIsPlayingSample(audtng->snd_emitter_id, objst->fp_smpl_idx, 0))
                 {
                     long volume = line_of_sight_2d(&thing->mappos, &audtng->mappos) ? FULL_LOUDNESS : 128;
-                    thing_play_sample(audtng, objdat->fp_smpl_idx, NORMAL_PITCH, -1, 3, 1, 2, volume);
+                    thing_play_sample(audtng, objst->fp_smpl_idx, NORMAL_PITCH, -1, 3, 1, 2, volume);
                 }
             }
         }
@@ -826,6 +843,7 @@ void free_sound_chunks()
         {
             Mix_FreeChunk(Ext_Sounds[i]);
             Ext_Sounds[i] = NULL;
+            memset(game.loaded_sound[i],0,DISKPATH_SIZE);
         }
     }
     game.sounds_count = 0;

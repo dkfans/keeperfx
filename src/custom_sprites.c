@@ -27,11 +27,19 @@
 #include "frontend.h"
 #include "bflib_dernc.h"
 #include "sprites.h"
+#include "config_spritecolors.h"
 
 #include <spng.h>
 #include <json.h>
 #include <json-dom.h>
 #include "post_inc.h"
+
+// Performance tests
+// #define OUTER
+// #define INNER
+#if defined(OUTER) || defined(INNER)
+#include <SDL2/SDL.h>
+#endif
 
 // Each part of RGB tuple of palette file is 1-63 actually
 #define MAX_COLOR_VALUE 64
@@ -130,6 +138,74 @@ static const unsigned char bad_icon_data[] = // 16x16
 
 short bad_icon_id = GUI_PANEL_SPRITES_COUNT;
 
+/*
+ * Speedup zip stuff
+ * We postulate only one zip file loaded at once
+ */
+static VALUE zip_cache_v;
+static VALUE *zip_cache = &zip_cache_v;
+
+static int fastUnzLocateFile(unzFile zip, const char *szFileName, int iCaseSensitivity)
+{
+    //return unzLocateFile(file, szFileName, iCaseSensitivity);
+    char seek_for[PATH_MAX];
+    strncpy(seek_for, szFileName, PATH_MAX - 1);
+    make_lowercase(seek_for);
+    VALUE *rec = value_dict_get(zip_cache, seek_for);
+    if (rec == NULL)
+        return UNZ_END_OF_LIST_OF_FILE;
+    unz64_file_pos file_pos = {
+            .pos_in_zip_directory = value_int64(value_array_get(rec, 0)),
+            .num_of_file = value_int64(value_array_get(rec, 1))
+    };
+    return unzGoToFilePos64(zip, &file_pos);
+}
+
+/*
+ * Construct a cache for files.
+ * Also if there is no indexFile just return instead
+ * */
+static int fastUnzConstructCache(unzFile zip)
+{
+    char szCurrentFileName[PATH_MAX];
+    if (value_type(zip_cache) != VALUE_NULL)
+    {
+        ERRORLOG("Zip cache is not clear!");
+    }
+    value_init_dict(zip_cache);
+
+    for (int err = unzGoToFirstFile(zip);
+         err == UNZ_OK;
+         err = unzGoToNextFile(zip))
+    {
+        if (UNZ_OK != unzGetCurrentFileInfo64(zip, NULL,
+                                              szCurrentFileName, sizeof(szCurrentFileName) - 1,
+                                              NULL, 0, NULL, 0)
+                )
+        {
+            continue;
+        }
+        make_lowercase(szCurrentFileName);
+
+        unz64_file_pos file_pos;
+        unzGetFilePos64(zip, &file_pos);
+
+        VALUE *rec = value_dict_add(zip_cache, szCurrentFileName);
+        value_init_array(rec);
+        value_init_int64(value_array_append(rec), file_pos.pos_in_zip_directory);
+        value_init_int64(value_array_append(rec), file_pos.num_of_file);
+    }
+    return UNZ_OK;
+}
+
+static int fastUnzClearCache()
+{
+    value_fini(zip_cache);
+    return 0;
+}
+
+/* end of zip stuff */
+
 static int pal_compare_fn(const void *a, const void *b)
 {
     const struct PaletteRecord *rec_a = a;
@@ -154,6 +230,7 @@ static int cmp_named_command(const void *a, const void *b)
 
 static void load_system_sprites(short fgroup)
 {
+    SYNCDBG(8, "Starting");
     struct TbFileFind fileinfo;
     int cnt = 0, cnt_ok = 0, cnt_icons = 0;
     char *fname = prepare_file_path(fgroup, "*.zip");
@@ -165,10 +242,17 @@ static void load_system_sprites(short fgroup)
          rc = LbFileFindNext(&fileinfo))
     {
         path = prepare_file_path(fgroup, fileinfo.Filename);
+#ifdef OUTER
+        fprintf(stderr, "F:%s\n", path);
+        fprintf(stderr, "A:%d\n", SDL_GetTicks());
+#endif
         if (add_custom_sprite(path))
         {
             cnt_ok++;
         }
+#ifdef OUTER
+        fprintf(stderr, "B:%d\n", SDL_GetTicks());
+#endif
         if (add_custom_json(path, "icons.json", &process_icon))
         {
             cnt_icons++;
@@ -180,6 +264,7 @@ static void load_system_sprites(short fgroup)
 
 void init_custom_sprites(LevelNumber lvnum)
 {
+    SYNCDBG(8, "Starting");
     // This is a workaround because get_selected_level_number is zeroed on res change
     if (lvnum == SPRITE_LAST_LEVEL)
     {
@@ -269,13 +354,14 @@ void init_custom_sprites(LevelNumber lvnum)
  */
 static void init_pal_conversion()
 {
+    SYNCDBG(8, "Starting");
     // 1. Loading palette into pal_records
     memset(pal_records, 0, sizeof(pal_records));
 
     struct PaletteNode pal_tree_tmp[MAX_COLOR_VALUE] = {0}; // one color
     char* fname;
     TbBool result = true;
-    fname = prepare_file_fmtpath(FGrp_StdData, "pal%05d.dat", 0);
+    fname = prepare_file_fmtpath(FGrp_StdData, "png_conv_pal.dat");
     if (!LbFileExists(fname))
     {
         WARNMSG("Palette file \"%s\" doesn't exist.", fname);
@@ -335,6 +421,7 @@ static void init_pal_conversion()
         }
     }
 #undef NEAREST_DEPTH
+    SYNCDBG(8, "Finished");
 }
 
 /**
@@ -899,7 +986,9 @@ struct StrBuf
     char *ptr;
     size_t size;
 };
+#endif
 
+#if BFDEBUG_LEVEL > 10
 static int dump_callback(const char *str, size_t size, void *user_data)
 {
     struct StrBuf *buf = user_data;
@@ -1003,7 +1092,7 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                     WARNLOG("Invalid sprite file record in '%s/sprites.json'", path);
                     return 1;
                 }
-                if (unzLocateFile(zip, name, 0))
+                if (fastUnzLocateFile(zip, name, 0))
                 {
                     WARNLOG("Png '%s' not found in '%s'", name, path);
                     return 1;
@@ -1019,7 +1108,10 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                 unsigned char store_ksp_fc = 0;
                 if (store_ksp)
                     store_ksp_fc = context->ksp_first->FramesCount;
-
+#ifdef INNER
+                fprintf(stderr, "F:%s/%s\n", path, name);
+                fprintf(stderr, "A:%d\n", SDL_GetTicks());
+#endif
                 if (!read_png_data(zip, path, context, name, fp, node, itm))
                 {
                     // Reverting possible changes
@@ -1033,6 +1125,9 @@ collect_sprites(const char *path, unzFile zip, const char *blender_scene, struct
                     WARNLOG("Unable to read '%s/%s'", path, name);
                     return 1;
                 }
+#ifdef INNER
+                fprintf(stderr, "B:%d\n", SDL_GetTicks());
+#endif
                 if (UNZ_OK != unzCloseCurrentFile(zip))
                 {
                     return 1;
@@ -1125,6 +1220,7 @@ static int process_sprite_from_list(const char *path, unzFile zip, int idx, VALU
 static TbBool
 add_custom_json(const char *path, const char *name, TbBool (*process)(const char *path, unzFile zip, VALUE *root))
 {
+    SYNCDBG(8, "Starting");
     unz_file_info64 zip_info = {0};
     VALUE root;
     JSON_INPUT_POS json_input_pos;
@@ -1133,44 +1229,43 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
     if (zip == NULL)
         return 0;
 
-    if (UNZ_OK != unzLocateFile(zip, name, 0))
+    if (UNZ_OK != fastUnzConstructCache(zip))
     {
-        unzClose(zip);
-        return 0;
+        goto end;
+    }
+
+    if (UNZ_OK != fastUnzLocateFile(zip, name, 0))
+    {
+        goto end;
     }
 
     if (UNZ_OK != unzGetCurrentFileInfo64(zip, &zip_info, NULL, 0, NULL, 0, NULL, 0)
             )
     {
-        unzClose(zip);
-        return 0;
+        goto end;
     }
 
     if (zip_info.uncompressed_size >= 1024 * 1024)
     {
         WARNLOG("File too big %s/%s", path, name);
-        unzClose(zip);
-        return 0;
+        goto end;
     }
 
     if (UNZ_OK != unzOpenCurrentFile(zip))
     {
-        unzClose(zip);
-        return 0;
+        goto end;
     }
 
     if (unzReadCurrentFile(zip, big_scratch, zip_info.uncompressed_size) != zip_info.uncompressed_size)
     {
         WARNLOG("Unable to read %s/%s", path, name);
-        unzClose(zip);
-        return 0;
+        goto end;
     }
     big_scratch[zip_info.uncompressed_size] = 0;
 
     if (UNZ_OK != unzCloseCurrentFile(zip))
     {
-        unzClose(zip);
-        return 0;
+        goto end;
     }
 
     int ret = json_dom_parse((char *) big_scratch, zip_info.uncompressed_size, NULL, 0, &root, &json_input_pos);
@@ -1179,23 +1274,26 @@ add_custom_json(const char *path, const char *name, TbBool (*process)(const char
 
         WARNLOG("Incorrect %s/%s line:%d col:%d", path, name, json_input_pos.line_number,
                 json_input_pos.column_number);
-        unzClose(zip);
-        return 0;
+        goto end;
     }
 
     if (VALUE_ARRAY != value_type(&root))
     {
         WARNLOG("%s/%s should be array of dictionaries", path, name);
-        unzClose(zip);
-        return 0;
+        goto end;
     }
     TbBool ret_ok = process(path, zip, &root);
 
     value_fini(&root);
 
+    fastUnzClearCache();
     unzClose(zip);
 
     return ret_ok;
+end:
+    fastUnzClearCache();
+    unzClose(zip);
+    return 0;
 }
 
 static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE *root)
@@ -1243,7 +1341,7 @@ static int process_icon_from_list(const char *path, unzFile zip, int idx, VALUE 
         const char *file = value_string(value_array_get(file_value, i));
 
 
-        if (unzLocateFile(zip, file, 0))
+        if (fastUnzLocateFile(zip, file, 0))
         {
             WARNLOG("Png '%s' not found in '%s'", file, path);
             return 0;
@@ -1351,7 +1449,7 @@ short get_icon_id(const char *name)
     return -2; // -1 is used by SPELLBOOK_POSS etc
 }
 
-short get_anim_id(const char *name, struct Objects *objdat)
+short get_anim_id(const char *name, struct ObjectConfigStats *objst)
 {
     short ret = atoi(name);
     struct NamedCommand key = {name, 0};
@@ -1386,35 +1484,35 @@ short get_anim_id(const char *name, struct Objects *objdat)
         }
         if (0 == strcmp(P, "NORTH"))
         {
-            objdat->rotation_flag = 0;
+            objst->rotation_flag = 0;
         }
         else if (0 == strcmp(P, "NORTHEAST"))
         {
-            objdat->rotation_flag = 1;
+            objst->rotation_flag = 1;
         }
         else if (0 == strcmp(P, "EAST"))
         {
-            objdat->rotation_flag = 2;
+            objst->rotation_flag = 2;
         }
         else if (0 == strcmp(P, "SOUTHEAST"))
         {
-            objdat->rotation_flag = 3;
+            objst->rotation_flag = 3;
         }
         else if (0 == strcmp(P, "SOUTH"))
         {
-            objdat->rotation_flag = 4;
+            objst->rotation_flag = 4;
         }
         else if (0 == strcmp(P, "SOUTHWEST"))
         {
-            objdat->rotation_flag = 5;
+            objst->rotation_flag = 5;
         }
         else if (0 == strcmp(P, "WEST"))
         {
-            objdat->rotation_flag = 6;
+            objst->rotation_flag = 6;
         }
         else if (0 == strcmp(P, "NORTHWEST"))
         {
-            objdat->rotation_flag = 7;
+            objst->rotation_flag = 7;
         }
         else
         {
@@ -1428,6 +1526,13 @@ short get_anim_id(const char *name, struct Objects *objdat)
 }
 
 const struct TbSprite *get_button_sprite(short sprite_idx)
+{
+    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx,my_player_number);
+
+    return get_button_sprite_direct(sprite_idx);
+}
+
+const struct TbSprite *get_button_sprite_direct(short sprite_idx)
 {
     if (sprite_idx < GUI_BUTTON_SPRITES_COUNT)
         return &button_sprite[sprite_idx];

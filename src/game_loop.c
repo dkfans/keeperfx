@@ -48,7 +48,7 @@ static void powerful_magic_breaking_sparks(struct Thing* breaktng)
     pos.x.val = subtile_coord_center(breaktng->mappos.x.stl.num + GAME_RANDOM(11) - 5);
     pos.y.val = subtile_coord_center(breaktng->mappos.y.stl.num + GAME_RANDOM(11) - 5);
     pos.z.val = get_floor_height_at(&pos);
-    draw_lightning(&breaktng->mappos, &pos, 96, TngEffElm_ElectricBall3);
+    draw_lightning(&breaktng->mappos, &pos, 96, -TngEffElm_ElectricBall3);
     if (!S3DEmitterIsPlayingSample(breaktng->snd_emitter_id, 157, 0)) {
         thing_play_sample(breaktng, 157, NORMAL_PITCH, -1, 3, 1, 6, FULL_LOUDNESS);
     }
@@ -82,8 +82,7 @@ void process_dungeon_destroy(struct Thing* heartng)
 
     long plyr_idx = heartng->owner;
     struct Dungeon* dungeon = get_dungeon(plyr_idx);
-    struct DungeonAdd* dungeonadd = get_dungeonadd(plyr_idx);
-    struct Thing* soultng = thing_get(dungeonadd->free_soul_idx);
+    struct Thing* soultng = thing_get(dungeon->free_soul_idx);
 
     if (dungeon->heart_destroy_state == 0)
     {
@@ -94,7 +93,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         return;
     }
 
-    TbBool no_backup = !(dungeonadd->backup_heart_idx > 0);
+    TbBool no_backup = !(dungeon->backup_heart_idx > 0);
 
     powerful_magic_breaking_sparks(heartng);
     const struct Coord3d* central_pos;
@@ -108,14 +107,14 @@ void process_dungeon_destroy(struct Thing* heartng)
         }
         else
         {
-            if ((dungeon->heart_destroy_turn == 10) && (dungeonadd->free_soul_idx == 0))
+            if ((dungeon->heart_destroy_turn == 10) && (dungeon->free_soul_idx == 0))
             {
                 soultng = create_creature(&dungeon->mappos, get_players_spectator_model(plyr_idx), plyr_idx);
                 if (!thing_is_invalid(soultng))
                 {
                     dungeon->num_active_creatrs--;
                     dungeon->owned_creatures_of_model[soultng->model]--;
-                    dungeonadd->free_soul_idx = soultng->index;
+                    dungeon->free_soul_idx = soultng->index;
                     short xplevel = 0;
                     if (dungeon->lvstats.player_score > 1000)
                     {
@@ -131,7 +130,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 25)
             {
-                struct Thing* bheartng = thing_get(dungeonadd->backup_heart_idx);
+                struct Thing* bheartng = thing_get(dungeon->backup_heart_idx);
                 soultng->mappos = bheartng->mappos;
                 soultng->mappos.z.val = get_ceiling_height_at(&bheartng->mappos);
             }
@@ -141,7 +140,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             else if (dungeon->heart_destroy_turn == 30)
             {
-                dungeonadd->free_soul_idx = 0; 
+                dungeon->free_soul_idx = 0; 
                 delete_thing_structure(soultng, 0);
             }
         }
@@ -173,7 +172,7 @@ void process_dungeon_destroy(struct Thing* heartng)
         break;
     case 3:
         // Drop all held things, by keeper
-        if ((dungeon->num_things_in_hand > 0) && ((gameadd.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
+        if ((dungeon->num_things_in_hand > 0) && ((game.conf.rules.game.classic_bugs_flags & ClscBug_NoHandPurgeOnDefeat) == 0))
         {
             if (no_backup)
                 dump_all_held_things_on_map(plyr_idx, central_pos->x.stl.num, central_pos->y.stl.num);
@@ -222,7 +221,7 @@ void process_dungeon_destroy(struct Thing* heartng)
             }
             // If this is the last heart the player had, finish him
             setup_all_player_creatures_and_diggers_leave_or_die(plyr_idx);
-            player->allied_players = (1 << player->id_number);
+            player->allied_players = to_flag(player->id_number);
         }
     }
     dungeon->heart_destroy_state = 0;

@@ -150,7 +150,7 @@ void draw_resurrect_creature(struct GuiButton *gbtn)
     if (i != -1)
     {
         struct CreatureStorage* cstore = &dungeon->dead_creatures[i];
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[cstore->model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[cstore->model];
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(cstore->model, CGI_HandSymbol);
         struct TbSprite* spr = &gui_panel_sprites[spr_idx];
@@ -248,7 +248,7 @@ void select_transfer_creature(struct GuiButton *gbtn)
     int listitm_idx = selected_transfer_creature(dungeon, gbtn);
     if (listitm_idx != -1)
     {
-        thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, listitm_idx);
+        thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, CREATURE_ANY, listitm_idx);
     }
     if (thing_exists(thing))
     {
@@ -276,12 +276,12 @@ void draw_transfer_creature(struct GuiButton *gbtn)
     int tx_units_per_px = ( (MyScreenHeight < 400) && (dbc_language > 0) ) ? scale_ui_value(32) : ((gbtn->height * 22 / 26) * 16) / LbTextLineHeight();
     if (listitm_idx != -1)
     {
-        thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, 0, listitm_idx);
+        thing = get_player_list_nth_creature_of_model(dungeon->creatr_list_start, CREATURE_ANY, listitm_idx);
     }
     if (!thing_is_invalid(thing))
     {
         const struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-        struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[thing->model];
+        struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[thing->model];
         lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
         long spr_idx = get_creature_model_graphics(thing->model, CGI_HandSymbol);
         struct TbSprite* spr = &gui_panel_sprites[spr_idx];

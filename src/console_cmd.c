@@ -95,12 +95,12 @@ static long cmd_comp_procs_click(struct GuiBox *gbox, struct GuiBoxOption *goptn
     comp = get_computer_player(args[0]);
     struct ComputerProcess* cproc = &comp->processes[args[1]];
 
-    if (cproc->flags & ComProc_Unkn0020)
+    if (flag_is_set(cproc->flags, ComProc_Unkn0020))
         message_add_fmt(args[0], "resuming %s", cproc->name?cproc->name:"(null)");
     else
         message_add_fmt(args[0], "suspending %s", cproc->name?cproc->name:"(null)");
 
-    cproc->flags ^= ComProc_Unkn0020; // Suspend, but do not update running time
+    toggle_flag(cproc->flags, ComProc_Unkn0020); // Suspend, but do not update running time
     return 1;
 }
 
@@ -228,14 +228,14 @@ static long cmd_comp_checks_click(struct GuiBox *gbox, struct GuiBoxOption *gopt
 {
     struct Computer2 *comp;
     comp = get_computer_player(args[0]);
-    struct ComputerCheck* cproc = &comp->checks[args[1]];
+    struct ComputerCheck* ccheck = &comp->checks[args[1]];
 
-    if (cproc->flags & ComChk_Unkn0001)
-        message_add_fmt(args[0], "resuming %s", cproc->name?cproc->name:"(null)");
+    if (flag_is_set(ccheck->flags, ComChk_Unkn0001))
+        message_add_fmt(args[0], "resuming %s", ccheck->name?ccheck->name:"(null)");
     else
-        message_add_fmt(args[0], "suspending %s", cproc->name?cproc->name:"(null)");
+        message_add_fmt(args[0], "suspending %s", ccheck->name?ccheck->name:"(null)");
 
-    cproc->flags ^= ComChk_Unkn0001;
+    ccheck->flags ^= ComChk_Unkn0001;
     return 1;
 }
 static const char *get_check_name(struct Computer2 *comp, int i)
@@ -339,7 +339,6 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     struct PlayerInfo* player;
     struct Thing* thing;
     struct Dungeon* dungeon;
-    struct DungeonAdd* dungeonadd;
     struct Room* room;
     struct Packet* pckt;
     struct SlabMap *slb;
@@ -347,18 +346,19 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     if (strcasecmp(parstr, "stats") == 0)
     {
       targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Now time is %d, last loop time was %d",LbTimerClock(),last_loop_time);
-      targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d",clock(),game.num_fps);
+      targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "clock is %d, requested fps is %d",clock(),game_num_fps);
       return true;
     }
     else if (strcasecmp(parstr, "fps") == 0)
     {
         if (pr2str == NULL)
         {
-            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate is %d fps", game.num_fps);
+            game_num_fps = start_params.num_fps;
+            targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Framerate is %d fps", game_num_fps);
         }
         else
         {
-            game.num_fps = atoi(pr2str);
+            game_num_fps = atoi(pr2str);
         }
         return true;
     }
@@ -389,7 +389,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     else if (strcasecmp(parstr, "time") == 0)
     {
         unsigned long turn = (pr2str != NULL) ? atoi(pr2str) : game.play_gameturn;
-        unsigned char frames = (pr3str != NULL) ? atoi(pr3str) : game.num_fps;
+        unsigned char frames = (pr3str != NULL) ? atoi(pr3str) : game_num_fps;
         show_game_time_taken(frames, turn);
         return true;
     }
@@ -428,7 +428,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             fill_game_catalogue_slot(slot_num, pr3str);
         }
         player = get_player(plyr_idx);
-        set_flag_byte(&game.operation_flags,GOF_Paused,true); // games are saved in a paused state
+        set_flag(game.operation_flags, GOF_Paused); // games are saved in a paused state
         TbBool result = save_game(slot_num);
         if (result)
         {
@@ -439,7 +439,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
           ERRORLOG("Error in save!");
           create_error_box(GUIStr_ErrorSaving);
         }
-        set_flag_byte(&game.operation_flags,GOF_Paused,false); // unpause after save attempt
+        clear_flag(game.operation_flags, GOF_Paused); // unpause after save attempt
         return result;
     }
     else if (strcasecmp(parstr, "game.load") == 0)
@@ -450,7 +450,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (load_game(slot_num))
             {
-                set_flag_byte(&game.operation_flags,GOF_Paused,Pause); // unpause, because games are saved whilst paused
+                set_flag_value(game.operation_flags, GOF_Paused, Pause); // unpause, because games are saved whilst paused
                 return true;
             }
             else
@@ -595,7 +595,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                                        subtile_slab(stl_y + r - r2)
                 );
                 reveal_map_rect(player->id_number, stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
-                pannel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
+                panel_map_update(stl_x - r2, stl_x + r - r2, stl_y - r2, stl_y + r - r2);
             }
             else
             {
@@ -656,15 +656,15 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                 dungeon = get_dungeon(id);
                 if (!dungeon_invalid(dungeon))
                 {
-                    dungeonadd = get_dungeonadd(id);
+                    dungeon = get_dungeon(id);
                     if (pr4str == NULL)
                     {
                         targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "Player %d flag %d value: %d", id,
-                                             flg_id, dungeonadd->script_flags[flg_id]);
+                                             flg_id, dungeon->script_flags[flg_id]);
                     }
                     else
                     {
-                        dungeonadd->script_flags[flg_id] = atoi(pr4str);
+                        dungeon->script_flags[flg_id] = atoi(pr4str);
                     }
                     return true;
                 }
@@ -689,7 +689,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if ((strcasecmp(parstr, "give.trap") == 0) || (strcasecmp(parstr, "trap.give") == 0))
         {
             long id = get_trap_number_for_command(pr2str);
-            if (id <= 0 || id > gameadd.trapdoor_conf.trap_types_count)
+            if (id <= 0 || id > game.conf.trapdoor_conf.trap_types_count)
             {
                 return false;
             }
@@ -702,7 +702,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         else if ((strcasecmp(parstr, "give.door") == 0) || (strcasecmp(parstr, "door.give") == 0))
         {
             long id = get_door_number_for_command(pr2str);
-            if (id <= 0 || id > gameadd.trapdoor_conf.door_types_count)
+            if (id <= 0 || id > game.conf.trapdoor_conf.door_types_count)
             {
                 return false;
             }
@@ -791,7 +791,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         crmodel = atoi(pr2str);
                     }
                 }
-                if ((crmodel > 0) && (crmodel < gameadd.crtr_conf.model_count))
+                if ((crmodel > 0) && (crmodel < game.conf.crtr_conf.model_count))
                 {
                     player = get_player(plyr_idx);
                     pckt = get_packet_direct(player->packet_num);
@@ -949,7 +949,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                             }
                         }
                     }
-                    if ((slbkind >= 0) && (slbkind <= game.slab_conf.slab_types_count))
+                    if ((slbkind >= 0) && (slbkind <= game.conf.slab_conf.slab_types_count))
                     {
                         if (subtile_is_room(stl_x, stl_y))
                         {
@@ -1011,10 +1011,14 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
         {
             if (strcasecmp(pr2str, "all") == 0)
             {
-                for (PowerKind pw = PwrK_ARMAGEDDON; pw > PwrK_HAND; pw--)
+                for (PowerKind pw = game.conf.magic_conf.power_types_count - 1; pw > PwrK_HAND; pw--)
                 {
+                    if ( (pw == PwrK_PICKUPCRTR) || (pw == PwrK_PICKUPGOLD) || (pw == PwrK_PICKUPFOOD) )
+                    {
+                        continue;
+                    }
                     if (!set_power_available(plyr_idx, pw, 1, 1))
-                        WARNLOG("Setting power %s availability for player %d failed.", power_code_name(pw), 1);
+                        WARNLOG("Setting power %s availability for player %d failed.", power_code_name(pw), plyr_idx);
                 }
                 update_powers_tab_to_config();
                 return true;
@@ -1027,7 +1031,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     power = atoi(pr2str);
                 }
                 if (!set_power_available(plyr_idx, power, 1, 1))
-                    WARNLOG("Setting power %s availability for player %d failed.", power_code_name(power), 1);
+                    WARNLOG("Setting power %s availability for player %d failed.", power_code_name(power), plyr_idx);
                 update_powers_tab_to_config();
                 return true;
             }
@@ -1038,9 +1042,10 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
             thing = get_player_soul_container(id);
             if (thing_is_dungeon_heart(thing))
             {
+                struct ObjectConfigStats* objst = get_object_model_stats(thing->model);
                 if (pr3str == NULL)
                 {
-                    float percent = ((float) thing->health / (float) game.dungeon_heart_health) * 100;
+                    float percent = ((float) thing->health / (float)objst->health) * 100;
                     targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY,
                                          "Player %d heart health: %ld (%.2f per cent)", id, thing->health, percent);
                     return true;
@@ -1509,8 +1514,8 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                     bug = atoi(pr2str);
                 }
                 unsigned long flg = (bug > 2) ? (1 << (bug - 1)) : bug;
-                toggle_flag_dword(&gameadd.classic_bugs_flags, flg);
-                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((gameadd.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
+                toggle_flag(game.conf.rules.game.classic_bugs_flags, flg);
+                targeted_message_add(plyr_idx, plyr_idx, GUI_MESSAGES_DELAY, "%s %s", get_conf_parameter_text(rules_game_classicbugs_commands, bug), ((game.conf.rules.game.classic_bugs_flags & flg) != 0) ? "enabled" : "disabled");
                 return true;
             }
         }
@@ -1687,6 +1692,10 @@ PlayerNumber get_player_number_for_command(char *msg)
 
 TbBool parameter_is_number(const char* parstr)
 {
+    if (parstr == NULL)
+    {
+        return false;
+    }
     for (int i = 0; parstr[i] != '\0'; i++)
     {
         TbBool digit = (i == 0) ? ( (parstr[i] == 0x2D) || (isdigit(parstr[i])) ) : (isdigit(parstr[i]));

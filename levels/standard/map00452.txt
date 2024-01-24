@@ -30,6 +30,8 @@ MAX_CREATURES(PLAYER1,6)
 SET_CREATURE_ARMOUR(DRAGON,160)
 SET_CREATURE_HEALTH(DRAGON,1200)
 
+SET_OBJECT_CONFIGURATION(TORCH,AnimationID,VINE_TORCH)
+
 REM ****************************************************************************
 REM Flags used:
 REM  PLAYER0,FLAG0		- Horny summoned
@@ -339,6 +341,13 @@ IF(PLAYER_GOOD,BARRACKS >= 1)
 		NEXT_COMMAND_REUSABLE
 		SET_TIMER(PLAYER_GOOD,TIMER1)
 	ENDIF
+ENDIF
+REM Hide the Hero Gate once it no longer spawns, but with a small delay.
+IF(PLAYER_GOOD,BARRACKS == 0)
+	SET_TIMER(PLAYER_GOOD,TIMER3)
+ENDIF
+IF(PLAYER_GOOD,TIMER3 > 50)
+	HIDE_HERO_GATE(-1,1)
 ENDIF
 
 REM After 20 minutes spawn some heroes from southern waterway

@@ -36,111 +36,111 @@ msgstr "Kampania Dobrych"
 
 #: landview:10
 msgctxt "Level introduction"
-msgid "First step. The land ruled by bad, angry keeper, who tortures his subordinates for fun. Children are terribly afraid of him, because he eats one for dinner every day. Apparently we have to change his taste, my lord."
-msgstr "Pierwszy krok. Tą krainą włada bardzo zły strażnik, torturuje on swoich podwładnych dla zabawy, dzieci strasznie się go boją, gdyż bowiem strażnik ten codziennie jedno dziecko je na kolacje. Podobno mu bardzo smakują, musimy to zmienić mój panie."
+msgid "First step. This land is ruled by a cruel and wrathful keeper who tortures his subjects for fun. The children live in terror as he devours one of them for dinner every day. It seems we must change his taste, my lord."
+msgstr "Pierwszy krok. Ten obszar rządzi okrutny i gniewny strażnikiem, który torturuje swoich poddanych dla zabawy. Dzieci żyją w strachu, ponieważ codziennie pożera jedno z nich na obiad. Wygląda na to, że musimy zmienić jego upodobania, mój panie."
 
 #: landview:11
 msgctxt "Level summary"
-msgid "We've quickly got rid of the keeper; he had no chances against You, lord. Local children are now happiest in the world. Excellent job."
-msgstr "Spokojowo. szybko uporaliśmy się ze strażnikiem nie miał on najmniejszych szans wygrać z tobą panie, tutejsze dzieci są teraz najszczęśliwszymi dziećmi na świecie. Doskonała robota."
+msgid "We swiftly dealt with the keeper; he stood no chance against you, my lord. The local children are now the happiest in the world. Excellent work."
+msgstr "Szybko uporaliśmy się z strażnikiem; nie miał on szans przeciwko tobie, mój panie. Miejscowe dzieci są teraz najszczęśliwsze na świecie. Doskonała praca."
 
 #: landview:20
 msgctxt "Level introduction"
-msgid "Offspring. Abominately evil Reaper governs here. Over a wing, he prefers leg for lunch. Fresh leg of a plump peasant. Beat him and win the next kingdom!"
-msgstr "Potomstwo. Tą krainą włada obrzydliwie zły rogaty kosiarz, który codziennie je kogoś z pobliskich wiosek na obiad. Pokonaj go a zdobędziemy następne królestwo!"
+msgid "Offspring. This land is governed by an abominably evil Reaper. He prefers a leg for lunch and has a particular taste for the fresh leg of a plump peasant. Defeat him and claim the next kingdom!"
+msgstr "Potomstwo. Ten obszar rządzi okropnie zły Żniwiarz. Preferuje nogę na lunch i ma szczególne upodobanie do świeżej nogi pulchnej chłopi. Pokonaj go i zdobądź kolejne królestwo!"
 
 #: landview:21
 msgctxt "Level summary"
-msgid "We have captured the Reaper and handed over to the local inhabitants. They hanged him, then burried. Rumours has it that when there's no moon in night, his floating spirit can still be seen near his grave."
-msgstr "Łąkowice. Schwytaliśmy Rogatego Kosiarza i oddaliśmy go w ręce mieszkańcom wioski. Mieszkańcy powiesili go i potem zakopali, podobno teraz w nocy gdy przechodzi się obok jego grobu można można tam zobaczyć jego ducha."
+msgid "We have captured the Reaper and handed him over to the local inhabitants. They hanged and buried him. Rumor has it that when there's no moon at night, his wandering spirit can still be seen near his grave."
+msgstr "Schwytaliśmy Żniwiarza i przekazaliśmy go miejscowym mieszkańcom. Powiesili go, a następnie pochowali. Plotka głosi, że gdy nie ma księżyca w nocy, jego błądzący duch wciąż można zobaczyć w pobliżu jego grobu."
 
 #: landview:30
 msgctxt "Level introduction"
-msgid "Snow white and dwarves. Once this has been very quiet, but one day keeper came and destroyed everything on his way. All the residents are now kept in prison. There's no time to wait, get a sword and go liberate them!"
-msgstr "Królewna śnieżka i krasnale. Kiedyś ta kraina była bardzo spokojna, lecz pewnego dnia przybył tam strażnik i zniszczył wszystko co stanęło mu na drodze. Wszystkich mieszkańców tamtejszych terenów trzyma w więzieniu. Panie nie ma na co czekać, chwytamy za miecz i wyruszamy odbić naszych!"
+msgid "Snow White and the Dwarves. This land was once peaceful, but a keeper arrived one day and laid waste to everything in his path. All the residents are now imprisoned. There's no time to waste—take up your sword and liberate them!"
+msgstr "Królewna Śnieżka i Krasnoludki. Ten obszar był kiedyś spokojny, ale pewnego dnia pojawił się strażnik i zniszczył wszystko na swojej drodze. Wszyscy mieszkańcy są teraz więzieni. Nie ma czasu do stracenia - weź swój miecz i uwolnij ich!"
 
 #: landview:31
 msgctxt "Level summary"
-msgid "The land has returned to its original look; there's peace and quiet one again. Residents of the surrounding estate are very grateful to you. Excellent job, my lord."
-msgstr "Świerkowo. Kraina powróciła do dawnych czasów, znów jest tutaj spokój i cisza, mieszkańcy okolicznych włości są ci bardzo wdzięczni. Doskonała robota mój panie."
+msgid "The land has returned to its former serenity. Peace reigns once more, and the residents of the surrounding estate are immensely grateful to you. Excellent work, my lord."
+msgstr "Ziemie powróciły do dawnej spokojnej atmosfery. Pokój ponownie zapanował, a mieszkańcy okolicznych ziem są ogromnie wdzięczni. Doskonała praca, mój panie."
 
 #: landview:40
 msgctxt "Level introduction"
-msgid "Warlocks slave. This land is controlled by a foul warlock, which uses powerful black magic. He has charmed souls of the dead to fight on his side. We need to eliminate him as soon as possible!"
-msgstr "Kochanica maga. Tą krainą włada obrzydliwy czarnoksiężnik, posługuje się on czarami czarnej magii. Przywołał mnóstwo martwych dusz aby walczyli oni po jego stronie. Musimy jak najszybciej zlikwidować tego maga!"
+msgid "Warlock's Slave. This land is controlled by a despicable warlock who wields powerful black magic. He has enslaved the souls of the dead to fight on his side. We must make him see the error of his ways as soon as possible!"
+msgstr "Niewolnik Czarownika. Ten obszar kontrolowany jest przez podłego czarnoksiężnika, który posługuje się potężną czarną magią. Uwięził dusze zmarłych, by walczyły po jego stronie. Musimy jak najszybciej uświadomić mu jego błędy!"
 
 #: landview:41
 msgctxt "Level summary"
-msgid "Torturing the magician took some time, but after a few hours the light of wisdom has descended on him. Now he's teaching basics of white magic to the residing people. Excellent job, Master!"
-msgstr "Czarodziejow. przez pewien czas torturowaliśmy maga, po 2 godzinach przeszedł na naszą stronę teraz uczy on ludu zamieszkującego te tereny białej magii. Doskonała robota Panie!"
+msgid "It took some time to break the warlock's spirit, but eventually, the light of wisdom shone upon him. He is now teaching the basics of white magic to the local people. Excellent work, Master!"
+msgstr "Zajęło trochę czasu, aby złamać ducha czarnoksiężnika, ale ostatecznie na niego spadło światło mądrości. Obecnie uczy miejscowych ludzi podstaw białej magii. Doskonała praca, Mistrzu!"
 
 #: landview:50
 msgctxt "Level introduction"
-msgid "Ug the Barbarian. Ruthless barbarian with his band of criminals is forcing poor peasants to pay him a tribute. Another keeper has also came here to corrupt villagers. We should give him a lesson he will not forget!"
-msgstr "Ug Barbarzyńca. Tą krainą włada pewien barbarzyńca o imieniu Ug. Stworzył on grupkę osób która przeciwstawia opór tamtejszemu ludowi, wymusza on haracze na mieszkańcach tej krainy. Przybył także inny strażnik, powinniśmy mu dać lekcje której nie zapomni."
+msgid "Ug the Barbarian. A ruthless barbarian and his band of criminals are extorting tribute from poor peasants. Another keeper has also arrived to corrupt the villagers. We must teach them a lesson they will not forget!"
+msgstr "Ug Barbarzyńca. Bezlitosny barbarzyńca i jego banda przestępców wymuszają trybut od biednych chłopów. Inny strażnik również przybył, aby skorumpować mieszkańców wsi. Musimy dać im nauczkę, której nie zapomną!"
 
 #: landview:51
 msgctxt "Level summary"
-msgid "Ug has joined our side, we just had to help him a little bit. Now he's helping local people to train an army of defenders in use of battle hammers, and self defense."
-msgstr "Wojskowo. Ug przeszedł na naszą stronę, musieliśmy mu tylko troszeczkę w tym pomóc. Uczy on teraz tutejszej ludności jak walczyć młotami bojowymi i samobrony."
+msgid "Ug has joined our cause; we just needed to guide him a little. He is currently assisting the local people in forming an army of defenders trained in the use of battle hammers and self-defense."
+msgstr "Ug dołączył do naszej sprawy; musieliśmy go tylko trochę pokierować. Obecnie pomaga miejscowym ludziom w tworzeniu armii obrońców wyszkolonych w użyciu młotów bojowych i samoobrony."
 
 #: landview:60
 msgctxt "Level introduction"
-msgid "Power of Faith. Evil guardian of this land is totally devoted to his faith in demons. May his demons eat him alive, but first, let's desecrate his damned temples, my Lord!"
-msgstr "Moc wiary. Tą krainą włada zły strażnik, jest on całkowicie oddany swojej wierze w demony. Oby te jego demony go zjadły, ale póki co zbeszczeszczamy jego świątynie mój Panie!"
+msgid "Power of Faith. The evil guardian of this land is entirely devoted to his faith in demons. May his demons consume him, but first, let us desecrate his accursed temples, my Lord!"
+msgstr "Moc Wiary. Zły strażnik tego obszaru całkowicie oddał się swojej wierze w demony. Niech jego demony go pochłoną, ale najpierw splugawmy jego przeklęte świątynie, mój Panie!"
 
 #: landview:61
 msgctxt "Level summary"
-msgid "Residents thank you, lord, for being freed from the evil guardian. They've raised a great monument so that your bravery would never be forgotten. Exordinary style!"
-msgstr "Podziękowo. mieszkańcy dziękują ci panie za uwolnienie od złego strażnika, tak teraz na też nazywa się ta miejscowość, aby nikt nie zapomniał o tobie. Wyśmienita robota Panie!"
+msgid "The residents thank you, lord, for liberating them from the evil guardian. They have erected a grand monument in your honor, so that your bravery will never be forgotten. Extraordinary style!"
+msgstr "Mieszkańcy dziękują ci, panie, za uwolnienie ich od złego strażnika. Wzniesili wspaniały pomnik ku twojej czci, aby twoja odwaga nigdy nie została zapomniana. Nadzwyczajny styl!"
 
 #: landview:70
 msgctxt "Level introduction"
-msgid "Indoctrination. There's still ongoing fight for this land between two keepers. We'll jump in as a third power, to fight for peace in this area."
-msgstr "Indoktrynacja. O tą krainę ciągle toczy się walka między dwoma strażnikami, teraz to my się jeszcze dorzucimy do walki o te tereny!"
+msgid "Indoctrination. There is an ongoing struggle for this land between two keepers. We will step in as a third party to fight for peace in this region."
+msgstr "Indoktrynacja. To terytorium toczą walkę dwaj strażnicy. Wkraczamy jako trzecia strona, by walczyć o pokój w tej krainie."
 
 #: landview:71
 msgctxt "Level summary"
-msgid "Of the 3 powers, you have proved to be the one worth controlling this area. People here can finally live in peace. So this is, where two fights each other, the third benefits."
-msgstr "Kwiatowo. Ty jako jedyny z 3 wygrałeś. Kraina nareszcie może zaznać spokoju. Tak to już jest gdzie dwóch się bije tam trzeci korzysta."
+msgid "Among the three powers, you have proven to be the one worthy of controlling this area. The people can finally live in peace. As they say, when two dogs fight over a bone, the third one takes it home."
+msgstr "Spośród trzech sił udowodniłeś, że jesteś godny kontrolowania tego obszaru. Ludzie wreszcie mogą żyć w pokoju. Jak mówi przysłowie, gdy dwa psy walczą o kość, trzeci zabiera ją do domu."
 
 #: landview:80
 msgctxt "Level introduction"
-msgid "Three on One. This land is ruled by three evil keepers, who intend to stand against you together. Show them what a real war is!"
-msgstr "Trzech na jednego. Tą krainą włada trzech złych strażników, którzy mają zamiar stawić tobie czoło. Pokaż im panie co znaczy prawdziwa wojna!"
+msgid "Three on One. This land is ruled by three evil keepers who have joined forces to stand against you. Show them what real war is!"
+msgstr "Trzy na Jednego. Ten obszar rządzą trzej zły strażnicy, którzy połączyli siły, by stanąć przeciw tobie. Pokaż im, co to jest prawdziwa wojna!"
 
 #: landview:81
 msgctxt "Level summary"
-msgid "Pitiful tactics of the enemies were real act of desperation. This is the first time I've seen so short and sharp clashes, commanded by your hand. Now the population is finally happy. You're a growing legend!"
-msgstr "Żałościowo. Wróg żałośnie z tobą walczył mój Panie. Tak szybkiej potyczki z Twej strony jeszcze nie widziałem. Teraz ludność w końcu jest szczęsliwa. Doskonała robota Bohaterze!"
+msgid "The pitiful tactics of the enemies were acts of desperation. It was the first time I witnessed such swift and decisive clashes under your command. Now, the population can finally find happiness. You are becoming a legend!"
+msgstr "Zalne taktyki wrogów były aktami desperacji. To był pierwszy raz, kiedy widziałem tak szybkie i zdecydowane starcia pod twoim dowództwem. Teraz mieszkańcy mogą wreszcie odnaleźć szczęście. Zaczynasz stawać się legendą!"
 
 #: landview:90
 msgctxt "Level introduction"
-msgid "Impure Blood. Evil spirits and demons are in control of this area. Some time ago, a noble king tried to recapture it. He have failed, but he left a dungeon completely built. This means we may quickly get to work."
-msgstr "Nieczysta krew. Tą krainą władają złe duchy oraz demony. Już kiedyś król próbował odbić tę krainę z rąk demonów, lecz nie udało mu się ale zostawił on za to cały loch jaki tam zbudował. Więc możemy szybko brać się do roboty."
+msgid "Impure Blood. Evil spirits and demons control this area. Some time ago, a noble king attempted to reclaim it. He failed, but he left behind a fully equipped dungeon. This means we can get to work quickly."
+msgstr "Złe Krwi. Ten obszar kontrolowany jest przez złe duchy i demony. Jakiś czas temu szlachetny król próbował go odzyskać. Nie udało mu się, ale zostawił w pełni wyposażone lochy. To oznacza, że możemy szybko zabrać się do pracy."
 
 #: landview:91
 msgctxt "Level summary"
-msgid "Clear water flows through this land once again. People there have already forgotten how good it tastes, but can now learn this once again. thanks to you. Well done!"
-msgstr "Błękitowo. Teraz w krainie płynie czysta woda, ludzie tam już zapomnieli jak smakuje taka woda, teraz im to udostępniłeś Panie. Świetna Robota!"
+msgid "Pure water flows through this land once again. The people had already forgotten how good it tasted, but they can now rediscover it thanks to you. Excellent work!"
+msgstr "Czysta woda znów płynie przez ten obszar. Ludzie już zapomnieli, jak dobrze smakuje, ale teraz mogą odkryć to ponownie dzięki tobie. Doskonała praca!"
 
 #: landview:100
 msgctxt "Level introduction"
-msgid "Save the Savior. The black blood brothers are governing here. They've captured our best warrior, the Avatar. We need to send them to the beyond, as soon as possible!"
-msgstr "Zbawić zbawcę. Ta krainą władają bracia czarnej krwi. Schwytali oni naszego najlepszego wojownika Avatara. Musimy jak najszybciej odesłać ich w zaświaty!"
+msgid "Save the Savior. The Black Blood Brothers reign here. They have captured our finest warrior, the Avatar. We must send them to their doom as soon as possible!"
+msgstr "Ratuj Zbawcę. Tu panują Bracia Czarnych Krwi. Schwytali naszego najlepszego wojownika, Awatara. Musimy jak najszybciej posłać ich na zagładę!"
 
 #: landview:101
 msgctxt "Level summary"
-msgid "After capturing the local vampires, we've tortured them until they could see the light. Then we've given them a choice. to go to temple as sacrifices, or as priests. They've chosen the second, and are now very successful religion teachers."
-msgstr "Kapłanowo. Schwytaliśmy tamtejsze Wampiry i torturowaliśmy ich aż będą po naszej stronie. Po paru godzinach przeszli na naszą stronę. Daliśmy im wybór albo wrzucamy ich do świątyni albo zostaną tutejszymi kapłanami. Wybrali to drugie, podobno dobrze nauczają religii mój panie."
+msgid "After capturing the local vampires, we tortured them until they saw the light. Then we gave them a choice: to go to the temple as sacrifices or as priests. They chose the latter and are now highly successful religious teachers."
+msgstr "Po schwytaniu miejscowych wampirów torturowaliśmy ich, aż zobaczyli światło. Następnie daliśmy im wybór: pójść do świątyni jako ofiara czy jako kapłani. Wybrali to drugie i są teraz bardzo skutecznymi nauczycielami religii."
 
 #: landview:110
 msgctxt "Level introduction"
-msgid "Do or die. This last task can only be completed by our great hero, the Avatar. Former vampires have agreed to teach you the possession spell. Use it to reach the heart of the enemy dungeon."
-msgstr "Utrzymać lub polec. Do tego zadania potrzebujemy jednej osoby Avatara. Byłe wampiry zgodziły nauczyć cię czaru opętania. Użyj go aby dotrzeć do wrogiego serca lochu."
+msgid "Do or Die. This final task can only be accomplished by our great hero, the Avatar. Former vampires have agreed to teach you the possession spell. Use it to reach the heart of the enemy's dungeon."
+msgstr "Życie albo Śmierć. Tę ostatnią zadanie może wykonać tylko nasz wielki bohater, Awatar. Byli wampiry zgodzili się nauczyć cię zaklęcia posiadania. Użyj go, by dotrzeć do serca wroga w lochach."
 
 #: landview:111
 msgctxt "Level summary"
-msgid "Hurray, victory! At last, the whole world is at peace of with we dreamed through whole life. With you, dreams have became reality. All hail the new king!"
-msgstr "Ścięśliwce. Brawo wygraliśmy. Udało się nam. Nareszcie w świecie zapanował spokój o jakim marzyliśmy przez całe życie. Gratuluję spełnienia marzenia Panie!"
+msgid "Hurray, victory! Finally, the whole world is at peace, just as we dreamed throughout our lives. With you, dreams have become reality. Long live the new king!"
+msgstr "Hurra, zwycięstwo! Wreszcie cały świat jest w pokoju, tak jak marzyliśmy przez całe życie. Z tobą marzenia stały się rzeczywistością. Niech żyje nowy król!"
 

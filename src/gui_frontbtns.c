@@ -442,17 +442,17 @@ void gui_round_glass_background(struct GuiMenu *gmnu)
     case 3:
         px = gmnu->pos_x;
         py = fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time) + gmnu->pos_y;
-        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height, ROUNDSLAB64K_LIGHT);
         break;
     case 1:
         px = gmnu->pos_x;
         py = MyScreenHeight - fade_h * (gmnu->menu_init->fade_time - gmnu->fade_time);
-        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height, ROUNDSLAB64K_LIGHT);
         break;
     default:
         px = gmnu->pos_x;
         py = gmnu->pos_y;
-        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height);
+        draw_round_slab64k(px, py, units_per_pixel, gmnu->width, gmnu->height, ROUNDSLAB64K_LIGHT);
         break;
     }
 }
@@ -1032,7 +1032,15 @@ void reset_scroll_window(struct GuiMenu *gmnu)
 
 void gui_set_menu_mode(struct GuiButton *gbtn)
 {
-    set_menu_mode(gbtn->btype_value & LbBFeF_IntValueMask);
+    long mnu_idx = gbtn->btype_value & LbBFeF_IntValueMask;
+    if (mnu_idx == GMnu_SPELL)
+    {
+        if (menu_is_active(GMnu_SPELL2))
+        {
+            mnu_idx = GMnu_SPELL2;
+        }
+    }
+    set_menu_mode(mnu_idx);
 }
 
 void gui_area_flash_cycle_button(struct GuiButton *gbtn)
@@ -1065,6 +1073,19 @@ void gui_area_flash_cycle_button(struct GuiButton *gbtn)
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 12);
     }
     SYNCDBG(12,"Finished");
+}
+
+struct GuiButton* get_gui_button(int btn_idx)
+{
+    for (int i=0; i < ACTIVE_BUTTONS_COUNT; i++)
+    {
+        struct GuiButton *gbtn = &active_buttons[i];
+        if (gbtn->id_num == btn_idx)
+        {
+            return gbtn;
+        }
+    }
+    return NULL;
 }
 
 /******************************************************************************/

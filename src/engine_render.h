@@ -97,6 +97,7 @@ extern unsigned char *poly_pool_end;
 extern long cells_away;
 extern float hud_scale;
 extern int creature_status_size;
+extern int line_box_size;
 
 extern struct MapVolumeBox map_volume_box;
 extern long view_height_over_2;
@@ -114,8 +115,6 @@ extern long floor_pointed_at_y;
 extern Offset vert_offset[3];
 extern Offset hori_offset[3];
 extern Offset high_offset[3];
-
-extern unsigned char player_bit;
 
 extern TbSpriteData *keepsprite[KEEPSPRITE_LENGTH];
 extern TbSpriteData sprite_heap_handle[KEEPSPRITE_LENGTH];

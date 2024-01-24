@@ -117,6 +117,26 @@ long get_distance_xy(long x1, long y1, long x2, long y2)
 }
 
 /**
+ * This distance is "the number of moves needed by a king to move from one tile to another on a chess board".
+ * 
+ * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance for details).
+ */
+MapCoordDelta get_chessboard_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+    return chessboard_distance(pos1->x.val, pos1->y.val, pos2->x.val, pos2->y.val);
+}
+
+/**
+ * This distance is "the number of moves needed by a king to move from one cube to another on a 3d chess board".
+ * 
+ * This is known as Chebyshev distance (see https://en.wikipedia.org/wiki/Chebyshev_distance and https://en.wikipedia.org/wiki/Three-dimensional_chess for details).
+ */
+MapCoordDelta get_chessboard_3d_distance(const struct Coord3d *pos1, const struct Coord3d *pos2)
+{
+    return chessboard_3d_distance(pos1->x.val, pos1->y.val, pos1->z.val, pos2->x.val, pos2->y.val, pos2->z.val);
+}
+
+/**
  * Gives X coordinate of a 3D position shift by given distance into given direction.
  * @param distance Specifies the distance to move.
  * @param angle_a Specifies the movement rotation a.
