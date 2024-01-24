@@ -2994,7 +2994,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->effect.sound_range = (unsigned char)context->value->shorts[5];
             break;
         default:
-            WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
+            WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
             break;
     }
     update_all_object_stats();
