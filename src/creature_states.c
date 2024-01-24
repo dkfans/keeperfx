@@ -565,27 +565,27 @@ TbBool creature_model_bleeds(unsigned long crmodel)
 long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
   long state_type;
-  long state = thing->active_state;
-  if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
+  CrtrStateId state = thing->active_state;
+  if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
   {
       state_type = states[state].state_type;
   } else
   {
       state_type = states[0].state_type;
-      WARNLOG("%s: The %s index %d active state %d is out of range",func_name,thing_model_name(thing),(int)thing->index,(int)state);
+      WARNLOG("%s: The %s index %d active state %u (%s) is out of range",func_name,thing_model_name(thing),(int)thing->index,state,creature_state_code_name(state));
   }
   if (state_type == CrStTyp_Move)
   {
       state = thing->continue_state;
-      if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
+      if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
       {
           state_type = states[state].state_type;
       } else
       {
           state_type = states[0].state_type;
           // Show message with text name of active state - it's good as the state was checked before
-          WARNLOG("%s: The %s index %d owner %d continue state %d is out of range; active state %s",func_name,
-              thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)state,creature_state_code_name(thing->active_state));
+          WARNLOG("%s: The %s index %d owner %d continue state %u (%s) is out of range; active state %u (%s)",func_name,
+              thing_model_name(thing),(int)thing->index,(int)thing->owner,state,creature_state_code_name(state),thing->active_state,creature_state_code_name(thing->active_state));
       }
   }
   return state_type;
