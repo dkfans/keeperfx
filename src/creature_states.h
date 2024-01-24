@@ -260,7 +260,7 @@ struct StateInfo {
     TbBool override_fight_door;
     TbBool override_call2arms;
     TbBool override_follow;
-    TbBool state_type;
+    unsigned char state_type;
     TbBool captive;
     TbBool transition;
     unsigned short follow_behavior;
