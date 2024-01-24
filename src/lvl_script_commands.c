@@ -2597,14 +2597,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-
-            value->str2 = script_strdup(new_value);
-            if (value->str2 == NULL)
-            {
-                SCRPTERRLOG("Run out script strings space");
-                DEALLOCATE_SCRIPT_VALUE
-                return;
-            }
+            value->arg1 = number_value;
             break;
         }
         case 18: // MapIcon
@@ -2909,7 +2902,7 @@ static void set_object_configuration_process(struct ScriptContext *context)
             objst->model_flags = context->value->arg1;
             break;
         case 5: // ANIMATIONID
-            objst->sprite_anim_idx = get_anim_id(context->value->str2, objst);
+            objst->sprite_anim_idx = context->value->arg1;
             break;
         case 6: // ANIMATIONSPEED
             objst->anim_speed = context->value->arg1;
