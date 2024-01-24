@@ -669,7 +669,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     objst->effect.beam = n;
                     n++;
                 }
-                if (n < 0)
+                if (n == 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -682,7 +682,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     objst->effect.particle = n;
                     n++;
                 }
-                if (n < 0)
+                if (n == 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -695,7 +695,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     objst->effect.explosion1 = n;
                     n++;
                 }
-                if (n < 0)
+                if (n == 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -708,7 +708,7 @@ TbBool parse_objects_object_blocks(char *buf, long len, const char *config_textn
                     objst->effect.explosion2 = n;
                     n++;
                 }
-                if (n < 0)
+                if (n == 0)
                 {
                     CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                         COMMAND_TEXT(cmd_num), block_buf, config_textname);
