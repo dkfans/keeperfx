@@ -548,7 +548,7 @@ void slap_creature(struct PlayerInfo *player, struct Thing *thing)
     anger_apply_anger_to_creature(thing, crstat->annoy_slapped, AngR_Other, 1);
     if (crstat->slaps_to_kill > 0)
     {
-      i = compute_creature_max_health(crstat->health,cctrl->explevel) / crstat->slaps_to_kill;
+      i = compute_creature_max_health(crstat->health,cctrl->explevel,thing->owner) / crstat->slaps_to_kill;
       apply_damage_to_thing_and_display_health(thing, i, DmgT_Physical, player->id_number);
     }
     pwrdynst = get_power_dynamic_stats(PwrK_SLAP);
