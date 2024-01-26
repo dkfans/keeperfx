@@ -42,7 +42,7 @@ extern "C" {
 #define COMPUTER_TRAP_LOC_COUNT      20
 
 #define COMPUTER_PROCESS_TYPES_COUNT 26
-#define COMPUTER_CHECKS_TYPES_COUNT  51
+#define COMPUTER_CHECKS_TYPES_COUNT  52
 #define COMPUTER_EVENTS_TYPES_COUNT  31
 #define COMPUTER_SPARK_POSITIONS_COUNT 64
 #define COMPUTER_SOE_GRID_SIZE        8
@@ -82,6 +82,8 @@ enum ComputerTaskTypes {
     CTT_SlapDiggers,
     CTT_DigToNeutral,
     CTT_MagicSpeedUp,
+    CTT_MagicFlightUp,
+    CTT_MagicVisionUp,
     CTT_WaitForBridge,
     CTT_AttackMagic,
     CTT_SellTrapsAndDoors,
@@ -122,10 +124,13 @@ enum GameActionTypes {
     GA_UsePwrArmour,
     GA_UsePwrRebound,
     GA_UsePwrConceal,
+    GA_UsePwrFlight,
+    GA_UsePwrVision,
     GA_UsePwrHoldAudnc,
     GA_UsePwrDisease,
     GA_UsePwrChicken,
     GA_UsePwrFreeze,
+    GA_UsePwrSlow,
     GA_Unk27,
     GA_UsePwrSlap,
     GA_SellTrap,
@@ -680,6 +685,8 @@ TbBool create_task_dig_to_neutral(struct Computer2 *comp, const struct Coord3d s
 TbBool create_task_dig_to_gold(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long count_slabs_to_dig, long gold_lookup_idx);
 TbBool create_task_dig_to_entrance(struct Computer2 *comp, const struct Coord3d startpos, const struct Coord3d endpos, long parent_cproc_idx, long entroom_idx);
 TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
+TbBool create_task_magic_flight_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
+TbBool create_task_magic_vision_up(struct Computer2 *comp, const struct Thing *creatng, long splevel);
 TbBool create_task_attack_magic(struct Computer2 *comp, const struct Thing *creatng, PowerKind pwkind, int repeat_num, int splevel, int gaction);
 
 TbBool computer_able_to_use_power(struct Computer2 *comp, PowerKind pwkind, long pwlevel, long amount);

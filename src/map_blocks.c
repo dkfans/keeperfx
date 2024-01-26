@@ -310,7 +310,7 @@ void all_players_untag_blocks_for_digging_in_area(MapSlabCoord slb_x, MapSlabCoo
 
 TbBool set_slab_explored(PlayerNumber plyr_idx, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    if ( (plyr_idx == game.neutral_player_num) || subtile_revealed(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) )
+    if ( (plyr_idx == game.neutral_player_num) || subtile_revealed_directly(slab_subtile_center(slb_x), slab_subtile_center(slb_y), plyr_idx) )
     {
         return false;
     }

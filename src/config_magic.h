@@ -116,7 +116,10 @@ enum PowerKinds {
     PwrK_PICKUPGOLD,
     PwrK_PICKUPFOOD,
     PwrK_REBOUND,
-    PwrK_FREEZE, // 24
+    PwrK_FREEZE,
+    PwrK_SLOW, // 25
+    PwrK_FLIGHT,
+    PwrK_VISION,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -309,9 +312,8 @@ struct ShotConfigStats {
     EffectOrEffElModel effect_id;
     unsigned char fire_logic; // see enum ShotFireLogics
     unsigned char update_logic; // see enum ShotUpdateLogics
-    unsigned char effect_spacing;
+    unsigned short effect_spacing;
     unsigned char effect_amount;
-
 };
 
 typedef unsigned char (*Expand_Check_Func)(void);

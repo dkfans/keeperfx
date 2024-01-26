@@ -212,7 +212,8 @@ const struct NamedCommand trap_config_desc[] = {
   {"Shots",                9},
   {"TimeBetweenShots",    10},
   {"SellingValue",        11},
-  {"Model",               12},
+  {"AnimationID",         12},
+  {"Model",               12}, //legacy name
   {"ModelSize",           13},
   {"AnimationSpeed",      14},
   {"TriggerType",         15},
@@ -239,6 +240,8 @@ const struct NamedCommand trap_config_desc[] = {
   {"ShotOrigin",          36},
   {"PlaceSound",          37},
   {"TriggerSound",        38},
+  {"RechargeAnimationID", 39},
+  {"AttackAnimationID",   40},
   {NULL,                   0},
 };
 
@@ -260,6 +263,53 @@ const struct NamedCommand room_config_desc[] = {
   {"UsedCapacity",        15},
   {"StorageHeight",       16},
   {NULL,                   0},
+};
+
+
+
+static const struct NamedField rules_script_only_named_fields[] = {
+    //name            //field                //field type                   //min //max     
+  {"PayDayProgress",&game.pay_day_progress,var_type(game.pay_day_progress),0,LONG_MAX},
+  {NULL,                            NULL,0,0,0 },
+};
+
+static const struct NamedField* ruleblocks[] = {rules_game_named_fields,rules_rooms_named_fields,rules_magic_named_fields,
+rules_creatures_named_fields,rules_computer_named_fields,rules_workers_named_fields,rules_health_named_fields,rules_script_only_named_fields};
+
+static const struct NamedCommand game_rule_desc[] = {
+  {"PreserveClassicBugs",            1},
+  {"AlliesShareVision",              2},
+  {NULL,                             0},
+};
+
+const struct NamedCommand on_experience_desc[] = {
+  {"SizeIncreaseOnExp",            1},
+  {"PayIncreaseOnExp",             2},
+  {"SpellDamageIncreaseOnExp",     3},
+  {"RangeIncreaseOnExp",           4},
+  {"JobValueIncreaseOnExp",        5},
+  {"HealthIncreaseOnExp",          6},
+  {"StrengthIncreaseOnExp",        7},
+  {"DexterityIncreaseOnExp",       8},
+  {"DefenseIncreaseOnExp",         9},
+  {"LoyaltyIncreaseOnExp",        10},
+  {"ExpForHittingIncreaseOnExp",  11},
+  {"TrainingCostIncreaseOnExp",   12},
+  {"ScavengingCostIncreaseOnExp", 13},
+  {NULL,                           0},
+};
+
+const struct NamedCommand modifier_desc[] = {
+  {"Health",          1},
+  {"Strength",        2},
+  {"Armour",          3},
+  {"SpellDamage",     4},
+  {"Speed",           5},
+  {"Salary",          6},
+  {"TrainingCost",    7},
+  {"ScavengingCost",  8},
+  {"Loyalty",         9},
+  {NULL,              0},
 };
 
 /**
@@ -992,7 +1042,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
-    else if ((trapvar != 4) && (trapvar != 12))  // PointerSprites && Model
+    else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
         if (parameter_is_number(valuestring))
         {
@@ -1576,7 +1626,14 @@ void refresh_trap_anim(long trap_id)
         // Per thing code
         if (traptng->model == trap_id)
         {
-            traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
+            if ((traptng->trap.wait_for_rearm == true) || (game.conf.trap_stats[trap_id].recharge_sprite_anim_idx == 0))
+            {
+                traptng->anim_sprite = game.conf.trap_stats[trap_id].sprite_anim_idx;
+            }
+            else 
+            {
+                traptng->anim_sprite = game.conf.trap_stats[trap_id].recharge_sprite_anim_idx;
+            }
             struct TrapStats* trapstat = &game.conf.trap_stats[traptng->model];
             char start_frame;
             if (trapstat->random_start_frame) {
@@ -1602,7 +1659,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
     long trap_type = context->value->shorts[0];
     struct TrapConfigStats *trapst = &game.conf.trapdoor_conf.trap_cfgstats[trap_type];
     struct ManfctrConfig *mconf = &game.conf.traps_config[trap_type];
+    struct TrapStats* trapstat = &game.conf.trap_stats[trap_type];
     struct ManufactureData *manufctr = get_manufacture_data(trap_type);
+    struct ObjectConfigStats obj_tmp;
     long value = context->value->uarg1;
     short value2 = context->value->shorts[4];
     short value3 = context->value->shorts[5];
@@ -1678,29 +1737,26 @@ static void set_trap_configuration_process(struct ScriptContext *context)
         case 11: // SellingValue
             mconf->selling_value = value;
             break;
-        case 12: // Model
-        {
-            struct ObjectConfigStats obj_tmp;
-            game.conf.trap_stats[trap_type].sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+        case 12: // AnimationID
+            trapstat->sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             refresh_trap_anim(trap_type);
-        }
             break;
         case 13: // ModelSize
-            game.conf.trap_stats[trap_type].sprite_size_max = value;
+            trapstat->sprite_size_max = value;
             refresh_trap_anim(trap_type);
             break;
         case 14: // AnimationSpeed
-            game.conf.trap_stats[trap_type].anim_speed = value;
+            trapstat->anim_speed = value;
             refresh_trap_anim(trap_type);
             break;
         case 15: // TriggerType
-            game.conf.trap_stats[trap_type].trigger_type = value;
+            trapstat->trigger_type = value;
             break;
         case 16: // ActivationType
-            game.conf.trap_stats[trap_type].activation_type = value;
+            trapstat->activation_type = value;
             break;
         case 17: // EffectType
-            game.conf.trap_stats[trap_type].created_itm_model = value;
+            trapstat->created_itm_model = value;
             break;
         case 18: // Hidden
             trapst->hidden = value;
@@ -1712,41 +1768,41 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->slappable = value;
             break;
         case 21: // Unanimated
-            game.conf.trap_stats[trap_type].unanimated = value;
+            trapstat->unanimated = value;
             refresh_trap_anim(trap_type);
             break;
         case 22: // Health
-            game.conf.trap_stats[trap_type].health = value;
+            trapstat->health = value;
             break;
         case 23: // Unshaded
-            game.conf.trap_stats[trap_type].unshaded = value;
+            trapstat->unshaded = value;
             break;
         case 24: // RandomStartFrame
-            game.conf.trap_stats[trap_type].random_start_frame = value;
+            trapstat->random_start_frame = value;
             break;
         case 25: // ThingSize
-            game.conf.trap_stats[trap_type].size_xy = value; // First
-            game.conf.trap_stats[trap_type].size_z = value2; // Second
+            trapstat->size_xy = value; // First
+            trapstat->size_z = value2; // Second
             break;
         case 26: // HitType
-            game.conf.trap_stats[trap_type].hit_type = value;
+            trapstat->hit_type = value;
             break;
         case 27: // LightRadius
-            game.conf.trap_stats[trap_type].light_radius = value * COORD_PER_STL;
+            trapstat->light_radius = value * COORD_PER_STL;
             break;
         case 28: // LightIntensity
-            game.conf.trap_stats[trap_type].light_intensity = value;
+            trapstat->light_intensity = value;
             break;
         case 29: // LightFlags
-            game.conf.trap_stats[trap_type].light_flag = value;
+            trapstat->light_flag = value;
             break;
         case 30: // TransparencyFlags
-            game.conf.trap_stats[trap_type].transparency_flag = value;
+            trapstat->transparency_flag = value;
             break;
         case 31: // ShotVector
-            game.conf.trap_stats[trap_type].shotvector.x = value;
-            game.conf.trap_stats[trap_type].shotvector.y = value2;
-            game.conf.trap_stats[trap_type].shotvector.z = value3;
+            trapstat->shotvector.x = value;
+            trapstat->shotvector.y = value2;
+            trapstat->shotvector.z = value3;
             break;
         case 32: // Destructible
             trapst->destructible = value;
@@ -1761,15 +1817,22 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             trapst->placeonbridge = value;
             break;
         case 36: // ShotOrigin
-            game.conf.trap_stats[trap_type].shot_shift_x = value;
-            game.conf.trap_stats[trap_type].shot_shift_y = value2;
-            game.conf.trap_stats[trap_type].shot_shift_z = value3;
+            trapstat->shot_shift_x = value;
+            trapstat->shot_shift_y = value2;
+            trapstat->shot_shift_z = value3;
             break;
         case 37: // PlaceSound
             trapst->place_sound_idx = value;
             break;
         case 38: // TriggerSound
             trapst->trigger_sound_idx = value;
+            break;
+        case 39: // RechargeAnimationID
+            trapstat->recharge_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            refresh_trap_anim(trap_type);
+            break;
+        case 40: // AttackAnimationID
+            trapstat->attack_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -2484,6 +2547,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     const char *objectname = scline->tp[0];
     const char *property = scline->tp[1];
     const char *new_value = scline->tp[2];
+    short second_value = scline->np[3];
 
     long objct_id = get_id(object_desc, objectname);
     if (objct_id == -1)
@@ -2511,7 +2575,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg2 = number_value;
+            value->arg1 = number_value;
             break;
         case 3: // RELATEDCREATURE
             number_value = get_id(creature_desc, new_value);
@@ -2521,7 +2585,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-            value->arg2 = number_value;
+            value->arg1 = number_value;
             break;
         case  5: // AnimId
         {
@@ -2533,7 +2597,6 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-
             value->str2 = script_strdup(new_value);
             if (value->str2 == NULL)
             {
@@ -2541,6 +2604,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
+            value->arg1 = number_value;
             break;
         }
         case 18: // MapIcon
@@ -2552,7 +2616,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg2 = number_value;
+            value->arg1 = number_value;
             break;
         }
         case 20: // UPDATEFUNCTION
@@ -2564,17 +2628,17 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg2 = number_value;
+            value->arg1 = number_value;
             break;
         }
         default:
-            value->arg2 = atoi(new_value);
+            value->arg1 = atoi(new_value);
     }
     
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
     value->arg0 = objct_id;
-    value->arg1 = objectvar;
-
+    value->shorts[4] = objectvar;
+    value->shorts[5] = second_value;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2833,85 +2897,104 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 static void set_object_configuration_process(struct ScriptContext *context)
 {
     struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->arg0];
-    switch (context->value->arg1)
+    switch (context->value->shorts[4])
     {
         case 2: // GENRE
-            objst->genre = context->value->arg2;
+            objst->genre = context->value->arg1;
             break;
         case 3: // RELATEDCREATURE
-            objst->related_creatr_model = context->value->arg2;
+            objst->related_creatr_model = context->value->arg1;
             break;
         case 4: // PROPERTIES
-            objst->model_flags = context->value->arg2;
+            objst->model_flags = context->value->arg1;
             break;
         case 5: // ANIMATIONID
-            objst->sprite_anim_idx = get_anim_id(context->value->str2, objst);
+            objst->sprite_anim_idx = context->value->arg1;
             break;
         case 6: // ANIMATIONSPEED
-            objst->anim_speed = context->value->arg2;
+            objst->anim_speed = context->value->arg1;
             break;
         case 7: //SIZE_XY
-            objst->size_xy = context->value->arg2;
+            objst->size_xy = context->value->arg1;
             break;
         case 8: // SIZE_Z
-            objst->size_z = context->value->arg2;
+            objst->size_z = context->value->arg1;
             break;
         case 9: // MAXIMUMSIZE
-            objst->sprite_size_max = context->value->arg2;
+            objst->sprite_size_max = context->value->arg1;
             break;
         case 10: // DESTROYONLIQUID
-            objst->destroy_on_liquid = context->value->arg2;
+            objst->destroy_on_liquid = context->value->arg1;
             break;
         case 11: // DESTROYONLAVA
-            objst->destroy_on_lava = context->value->arg2;
+            objst->destroy_on_lava = context->value->arg1;
             break;
         case 12: // HEALTH
-            objst->health = context->value->arg2;
+            objst->health = context->value->arg1;
             break;
         case 13: // FALLACCELERATION
-            objst->fall_acceleration = context->value->arg2;
+            objst->fall_acceleration = context->value->arg1;
             break;
         case 14: // LIGHTUNAFFECTED
-            objst->light_unaffected = context->value->arg2;
+            objst->light_unaffected = context->value->arg1;
             break;
         case 15: // LIGHTINTENSITY
-            objst->ilght.intensity = context->value->arg2;
+            objst->ilght.intensity = context->value->arg1;
             break;
         case 16: // LIGHTRADIUS
-            objst->ilght.radius = context->value->arg2 * COORD_PER_STL;
+            objst->ilght.radius = context->value->arg1 * COORD_PER_STL;
             break;
         case 17: // LIGHTISDYNAMIC
-            objst->ilght.is_dynamic = context->value->arg2;
+            objst->ilght.is_dynamic = context->value->arg1;
             break;
         case 18: // MAPICON
-            objst->map_icon = context->value->arg2;
+            objst->map_icon = context->value->arg1;
             break;
         case 19: // AMBIENCESOUND
-            objst->fp_smpl_idx = context->value->arg2;
+            objst->fp_smpl_idx = context->value->arg1;
             break;
         case 20: // UPDATEFUNCTION
-            objst->updatefn_idx = context->value->arg2;
+            objst->updatefn_idx = context->value->arg1;
             break;
         case 21: // DRAWCLASS
-            objst->draw_class = context->value->arg2;
+            objst->draw_class = context->value->arg1;
             break;
         case 22: // PERSISTENCE
-            objst->persistence = context->value->arg2;
+            objst->persistence = context->value->arg1;
             break;
         case 23: // Immobile
-            objst->immobile = context->value->arg2;
+            objst->immobile = context->value->arg1;
             break;
         case 24: // INITIALSTATE
-            objst->initial_state = context->value->arg2;
+            objst->initial_state = context->value->arg1;
             break;
         case 25: // RANDOMSTARTFRAME
-            objst->random_start_frame = context->value->arg2;
+            objst->random_start_frame = context->value->arg1;
             break;
         case 26: // TRANSPARENCYFLAGS
-            objst->transparancy_flags = context->value->arg2;
+            objst->transparancy_flags = context->value->arg1;
+            break;
+        case 27: // EFFECTBEAM
+            objst->effect.beam = context->value->arg1;
+            break;
+        case 28: // EFFECTPARTICLE
+            objst->effect.particle = context->value->arg1;
+            break;
+        case 29: // EFFECTEXPLOSION1
+            objst->effect.explosion1 = context->value->arg1;
+            break;
+        case 30: // EFFECTEXPLOSION2
+            objst->effect.explosion2 = context->value->arg1;
+            break;
+        case 31: // EFFECTSPACING
+            objst->effect.spacing = context->value->arg1;
+            break;
+        case 32: // EFFECTSOUND
+            objst->effect.sound_idx = context->value->arg1;
+            objst->effect.sound_range = (unsigned char)context->value->shorts[5];
             break;
         default:
-            WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
+            WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
             break;
     }
     update_all_object_stats();
@@ -4778,6 +4861,343 @@ static void set_player_color_process(struct ScriptContext *context)
     }  
 }
 
+static void set_game_rule_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+
+    long rulegroup = 0;
+    long ruleval = scline->np[1];
+
+    long ruledesc = get_id(game_rule_desc, scline->tp[0]);
+    if(ruledesc != -1)
+    {
+        rulegroup = -1;
+        switch (ruledesc)
+        {
+            case 1: //PreserveClassicBugs
+                //this one is a special case because in the cfg it's not done trough number
+                if ((ruleval < 0) || (ruleval >= ClscBug_ListEnd))
+                {
+                    SCRPTERRLOG("Game Rule '%s' value %d out of range", scline->tp[0], ruleval);
+                    DEALLOCATE_SCRIPT_VALUE
+                    return;
+                }
+                break;
+        }
+    }
+    else
+    {
+        for (size_t i = 0; i < sizeof(ruleblocks)/sizeof(ruleblocks[0]); i++)
+        {
+            ruledesc = get_named_field_id(ruleblocks[i], scline->tp[0]);
+            if (ruledesc != -1)
+            {
+                rulegroup = i;
+                if (ruleval < (ruleblocks[i]+ruledesc)->min)
+                {
+                    ruleval = (ruleblocks[i]+ruledesc)->min;
+                    SCRPTERRLOG("Game Rule '%s' value %d is smaller then minimum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->min);
+                }
+                else if(ruleval > (ruleblocks[i]+ruledesc)->max)
+                {
+                    ruleval = (ruleblocks[i]+ruledesc)->max;
+                    SCRPTERRLOG("Game Rule '%s' value %d is bigger then maximum of %d", scline->tp[0], ruleval,(ruleblocks[i]+ruledesc)->max);
+                }
+                break;
+            }
+        }
+    }
+
+    if (ruledesc == -1)
+    {
+        SCRPTERRLOG("Unknown Game Rule '%s'.", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+
+    value->shorts[0] = rulegroup;
+    value->shorts[1] = ruledesc;
+    value->arg1 = ruleval;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_game_rule_process(struct ScriptContext* context)
+{
+    short rulegroup = context->value->shorts[0];
+    short ruledesc  = context->value->shorts[1];
+    long rulevalue  = context->value->arg1;
+
+
+    if(rulegroup != -1)
+    {
+        SCRIPTDBG(7,"Changing Game Rule '%s' to %d", (ruleblocks[rulegroup]+ruledesc)->name, rulevalue);
+        assign_named_field_value((ruleblocks[rulegroup]+ruledesc),rulevalue);
+        return;
+    }
+
+
+  #if (BFDEBUG_LEVEL >= 7)
+    const char *rulename = get_conf_parameter_text(game_rule_desc,ruledesc);
+  #endif
+    switch (ruledesc)
+    {
+    case 1: //PreserveClassicBugs
+        //this one is a special case because in the cfg it's not done trough number
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.classic_bugs_flags, rulevalue);
+        game.conf.rules.game.classic_bugs_flags = rulevalue;
+        break;
+    case 2: //AlliesShareVision
+        //this one is a special case because it updates minimap
+        SCRIPTDBG(7,"Changing Game Rule '%s' from %d to %d", rulename, game.conf.rules.game.allies_share_vision, rulevalue);
+        game.conf.rules.game.allies_share_vision = (TbBool)rulevalue;
+        panel_map_update(0, 0, gameadd.map_subtiles_x + 1, gameadd.map_subtiles_y + 1);
+        break;
+    default:
+        WARNMSG("Unsupported Game Rule, command %d.", ruledesc);
+        break;
+    }
+}
+
+static void set_increase_on_experience_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, 0);
+    long onexpdesc = get_id(on_experience_desc, scline->tp[0]);
+    if (onexpdesc == -1)
+    {
+        SCRPTERRLOG("Unknown variable '%s'.", scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if (scline->np[1] < 0)
+    {
+        SCRPTERRLOG("Value %d out of range for variable '%s'.", scline->np[1], scline->tp[0]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = onexpdesc;
+    value->shorts[1] = scline->np[1];
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_increase_on_experience_process(struct ScriptContext* context)
+{
+    short variable = context->value->shorts[0];
+  #if (BFDEBUG_LEVEL >= 7)
+    const char *varname = on_experience_desc[variable - 1].name;
+  #endif
+    switch (variable)
+    {
+    case 1: //SizeIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.size_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.size_increase_on_exp = context->value->shorts[1];
+        break;
+    case 2: //PayIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.pay_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.pay_increase_on_exp = context->value->shorts[1];
+        break;
+    case 3: //SpellDamageIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.spell_damage_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.spell_damage_increase_on_exp = context->value->shorts[1];
+        break;
+    case 4: //RangeIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.range_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.range_increase_on_exp = context->value->shorts[1];
+        break;
+    case 5: //JobValueIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.job_value_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.job_value_increase_on_exp = context->value->shorts[1];
+        break;
+    case 6: //HealthIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.health_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.health_increase_on_exp = context->value->shorts[1];
+        break;
+    case 7: //StrengthIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.strength_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.strength_increase_on_exp = context->value->shorts[1];
+        break;
+    case 8: //DexterityIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.dexterity_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.dexterity_increase_on_exp = context->value->shorts[1];
+        break;
+    case 9: //DefenseIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.defense_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.defense_increase_on_exp = context->value->shorts[1];
+        break;
+    case 10: //LoyaltyIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.loyalty_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.loyalty_increase_on_exp = context->value->shorts[1];
+        break;
+    case 11: //ExpForHittingIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.exp_on_hitting_increase_on_exp = context->value->shorts[1];
+        break;
+    case 12: //TrainingCostIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.training_cost_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.training_cost_increase_on_exp = context->value->shorts[1];
+        break;
+    case 13: //ScavengingCostIncreaseOnExp
+        SCRIPTDBG(7,"Changing variable %s from %d to %d.", varname, game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp, context->value->shorts[1]);
+        game.conf.crtr_conf.exp.scavenging_cost_increase_on_exp = context->value->shorts[1];
+        break;
+    default:
+        WARNMSG("Unsupported variable, command %d.", context->value->shorts[0]);
+        break;
+    }
+}
+
+static void set_player_modifier_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    short mdfrdesc = get_id(modifier_desc, scline->tp[1]);
+    short mdfrval = scline->np[2];
+    const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
+    if (mdfrdesc == -1)
+    {
+        SCRPTERRLOG("Unknown Player Modifier '%s'.", mdfrname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if (mdfrval < 0)
+    {
+        SCRPTERRLOG("Value %d out of range for Player Modifier '%s'.", mdfrval, mdfrname);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = mdfrdesc;
+    value->shorts[1] = mdfrval;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_player_modifier_process(struct ScriptContext* context)
+{
+    struct Dungeon* dungeon;
+    short mdfrdesc = context->value->shorts[0];
+    short mdfrval = context->value->shorts[1];
+    const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    {
+        if (plyr_idx != game.neutral_player_num)
+        {
+            dungeon = get_dungeon(plyr_idx);
+            switch (mdfrdesc)
+            {
+                case 1: // Health
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.health, mdfrval);
+                    dungeon->modifier.health = mdfrval;
+                    break;
+                case 2: // Strength
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.strength, mdfrval);
+                    dungeon->modifier.strength = mdfrval;
+                    break;
+                case 3: // Armour
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.armour, mdfrval);
+                    dungeon->modifier.armour = mdfrval;
+                    break;
+                case 4: // SpellDamage
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.spell_damage, mdfrval);
+                    dungeon->modifier.spell_damage = mdfrval;
+                    break;
+                case 5: // Speed
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.speed, mdfrval);
+                    dungeon->modifier.speed = mdfrval;
+                    break;
+                case 6: // Salary
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.pay, mdfrval);
+                    dungeon->modifier.pay = mdfrval;
+                    break;
+                case 7: // TrainingCost
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.training_cost, mdfrval);
+                    dungeon->modifier.training_cost = mdfrval;
+                    break;
+                case 8: // ScavengingCost
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.scavenging_cost, mdfrval);
+                       dungeon->modifier.scavenging_cost = mdfrval;
+                break;
+                case 9: // Loyalty
+                    SCRIPTDBG(7,"Changing Player Modifier '%s' of player %d from %d to %d.", mdfrname, (int)plyr_idx, dungeon->modifier.loyalty, mdfrval);
+                    dungeon->modifier.loyalty = mdfrval;
+                    break;
+                default:
+                    WARNMSG("Unsupported Player Modifier, command %d.", mdfrdesc);
+                    break;
+            }
+        } else
+        {
+            SCRPTERRLOG("Can't manipulate Player Modifier '%s', player %d has no dungeon.", mdfrname, (int)plyr_idx);
+            break;
+        }
+    }
+}
+
+static void set_creature_max_level_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    short crtr_id = parse_creature_name(scline->tp[1]);
+    short crtr_lvl = scline->np[2];
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unable to manipulate max level of creature '%s', creature doesn't exist.", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    if ((crtr_lvl < -1) || (crtr_lvl > CREATURE_MAX_LEVEL))
+    {
+        SCRPTERRLOG("Unable to set max level of creature '%s' to %d, value is out of range.", creature_code_name(crtr_id), crtr_lvl);
+        DEALLOCATE_SCRIPT_VALUE
+        return;
+    }
+    value->shorts[0] = crtr_id;
+    value->shorts[1] = crtr_lvl;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+static void set_creature_max_level_process(struct ScriptContext* context)
+{
+    struct Dungeon* dungeon;
+    short crtr_id = context->value->shorts[0];
+    short crtr_lvl = context->value->shorts[1];
+    for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
+    {
+        if (plyr_idx != game.neutral_player_num)
+        {
+            dungeon = get_dungeon(plyr_idx);
+            if (!is_creature_model_wildcard(crtr_id))
+            {
+                if (crtr_lvl < 0)
+                {
+                    crtr_lvl = CREATURE_MAX_LEVEL + 1;
+                    dungeon->creature_max_level[crtr_id%game.conf.crtr_conf.model_count] = crtr_lvl;
+                    SCRIPTDBG(7,"Max level of creature '%s' set to default for player %d.", creature_code_name(crtr_id), (int)plyr_idx);
+                } else {
+                    dungeon->creature_max_level[crtr_id%game.conf.crtr_conf.model_count] = crtr_lvl-1;
+                    SCRIPTDBG(7,"Max level of creature '%s' set to %d for player %d.", creature_code_name(crtr_id), crtr_lvl, (int)plyr_idx);
+                }
+            } else
+            {
+                for (int i = 1; i < game.conf.crtr_conf.model_count; i++)
+                {
+                    if (creature_model_matches_model(i, plyr_idx , crtr_id))
+                    {
+                        if (crtr_lvl < 0)
+                        {
+                            crtr_lvl = CREATURE_MAX_LEVEL + 1;
+                            dungeon->creature_max_level[i%game.conf.crtr_conf.model_count] = crtr_lvl;
+                            SCRIPTDBG(7,"Max level of creature '%s' set to default for player %d.", creature_code_name(i), (int)plyr_idx);
+                        } else {
+                            dungeon->creature_max_level[i%game.conf.crtr_conf.model_count] = crtr_lvl-1;
+                            SCRIPTDBG(7,"Max level of creature '%s' set to %d for player %d.", creature_code_name(i), crtr_lvl, (int)plyr_idx);
+                        }
+                    }
+                }
+            }
+        } else
+        {
+            SCRPTERRLOG("Unable to manipulate max level of creature '%s', player %d has no dungeon.", creature_code_name(crtr_id), (int)plyr_idx);
+            break;
+        }
+    }
+}
+
 /**
  * Descriptions of script commands for parser.
  * Arguments are: A-string, N-integer, C-creature model, P- player, R- room kind, L- location, O- operator, S- slab kind
@@ -4819,7 +5239,7 @@ const struct CommandDesc command_desc[] = {
   {"ADD_TUNNELLER_PARTY_TO_LEVEL",      "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",              "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",                "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
-  {"SET_CREATURE_MAX_LEVEL",            "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
+  {"SET_CREATURE_MAX_LEVEL",            "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                         "A       ", Cmd_SET_MUSIC, &set_music_check, &set_music_process},
   {"TUTORIAL_FLASH_BUTTON",             "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
   {"SET_CREATURE_STRENGTH",             "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
@@ -4876,11 +5296,11 @@ const struct CommandDesc command_desc[] = {
   {"LEVEL_UP_CREATURE",                 "PC!AN   ", Cmd_LEVEL_UP_CREATURE, NULL, NULL},
   {"LEVEL_UP_PLAYERS_CREATURES",        "PC!n    ", Cmd_LEVEL_UP_PLAYERS_CREATURES, &level_up_players_creatures_check, level_up_players_creatures_process},
   {"CHANGE_CREATURE_OWNER",             "PC!AP   ", Cmd_CHANGE_CREATURE_OWNER, NULL, NULL},
-  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, NULL, NULL},
+  {"SET_GAME_RULE",                     "AN      ", Cmd_SET_GAME_RULE, &set_game_rule_check, &set_game_rule_process},
   {"SET_ROOM_CONFIGURATION",            "AAAa!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
-  {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
+  {"SET_OBJECT_CONFIGURATION",          "AAAn!   ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_CREATURE_CONFIGURATION",        "CAAa    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
@@ -4898,8 +5318,8 @@ const struct CommandDesc command_desc[] = {
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
   {"ADD_HEART_HEALTH",                  "PNn     ", Cmd_ADD_HEART_HEALTH, &add_heart_health_check, &add_heart_health_process},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},
-  {"RANDOMISE_FLAG",                    "PAN     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
-  {"COMPUTE_FLAG",                      "PAAPAN  ", Cmd_COMPUTE_FLAG, NULL, NULL},
+  {"RANDOMISE_FLAG",                    "PAn     ", Cmd_RANDOMISE_FLAG, NULL, NULL},
+  {"COMPUTE_FLAG",                      "PAAPAn  ", Cmd_COMPUTE_FLAG, NULL, NULL},
   {"DISPLAY_TIMER",                     "PAn     ", Cmd_DISPLAY_TIMER, &display_timer_check, &display_timer_process},
   {"ADD_TO_TIMER",                      "PAN     ", Cmd_ADD_TO_TIMER, &add_to_timer_check, &add_to_timer_process},
   {"ADD_BONUS_TIME",                    "N       ", Cmd_ADD_BONUS_TIME, &add_bonus_time_check, &add_bonus_time_process},
@@ -4929,6 +5349,8 @@ const struct CommandDesc command_desc[] = {
   {"SET_POWER_CONFIGURATION",           "AAAa    ", Cmd_SET_POWER_CONFIGURATION, &set_power_configuration_check, &set_power_configuration_process},
   {"SET_PLAYER_COLOR",                  "PA      ", Cmd_SET_PLAYER_COLOR, &set_player_color_check, &set_player_color_process },
   {"MAKE_UNSAFE",                       "P       ", Cmd_MAKE_UNSAFE, NULL, NULL},
+  {"SET_INCREASE_ON_EXPERIENCE",        "AN      ", Cmd_SET_INCREASE_ON_EXPERIENCE, &set_increase_on_experience_check, &set_increase_on_experience_process},
+  {"SET_PLAYER_MODIFIER",               "PAN     ", Cmd_SET_PLAYER_MODIFIER, &set_player_modifier_check, &set_player_modifier_process},
   {NULL,                                "        ", Cmd_NONE, NULL, NULL},
 };
 
@@ -4965,7 +5387,7 @@ const struct CommandDesc dk1_command_desc[] = {
   {"ADD_TUNNELLER_PARTY_TO_LEVEL", "PAAANNN ", Cmd_ADD_TUNNELLER_PARTY_TO_LEVEL, NULL, NULL},
   {"ADD_CREATURE_TO_POOL",         "CN      ", Cmd_ADD_CREATURE_TO_POOL, NULL, NULL},
   {"RESET_ACTION_POINT",           "N       ", Cmd_RESET_ACTION_POINT, NULL, NULL},
-  {"SET_CREATURE_MAX_LEVEL",       "PCN     ", Cmd_SET_CREATURE_MAX_LEVEL, NULL, NULL},
+  {"SET_CREATURE_MAX_LEVEL",       "PC!N    ", Cmd_SET_CREATURE_MAX_LEVEL, &set_creature_max_level_check, &set_creature_max_level_process},
   {"SET_MUSIC",                    "N       ", Cmd_SET_MUSIC, NULL, NULL},
   {"TUTORIAL_FLASH_BUTTON",        "NN      ", Cmd_TUTORIAL_FLASH_BUTTON, NULL, NULL},
   {"SET_CREATURE_STRENGTH",        "CN      ", Cmd_SET_CREATURE_STRENGTH, NULL, NULL},
@@ -4988,7 +5410,6 @@ const struct CommandDesc dk1_command_desc[] = {
   {"LEVEL_VERSION",                "N       ", Cmd_LEVEL_VERSION, NULL, NULL},
   {NULL,                           "        ", Cmd_NONE, NULL, NULL},
 };
-
 
 #ifdef __cplusplus
 }

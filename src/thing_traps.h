@@ -29,6 +29,7 @@ extern "C" {
 /******************************************************************************/
 /******************************************************************************/
 #pragma pack(1)
+#define INFINITE_CHARGES 255
 
 enum ThingTrapModels {
     TngTrp_None = 0,
@@ -67,6 +68,8 @@ struct Thing;
 struct TrapStats {
   unsigned long health;
   unsigned long sprite_anim_idx;
+  unsigned long recharge_sprite_anim_idx;
+  unsigned long attack_sprite_anim_idx;
   unsigned long sprite_size_max;
   unsigned char unanimated;
   unsigned long anim_speed;
