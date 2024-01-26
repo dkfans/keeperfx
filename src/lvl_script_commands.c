@@ -2547,6 +2547,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
     const char *objectname = scline->tp[0];
     const char *property = scline->tp[1];
     const char *new_value = scline->tp[2];
+    short second_value = scline->np[3];
 
     long objct_id = get_id(object_desc, objectname);
     if (objct_id == -1)
@@ -2574,7 +2575,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg2 = number_value;
+            value->arg1 = number_value;
             break;
         case 3: // RELATEDCREATURE
             number_value = get_id(creature_desc, new_value);
@@ -2584,7 +2585,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                     return;
             }
-            value->arg2 = number_value;
+            value->arg1 = number_value;
             break;
         case  5: // AnimId
         {
@@ -2596,7 +2597,6 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-
             value->str2 = script_strdup(new_value);
             if (value->str2 == NULL)
             {
@@ -2604,6 +2604,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
+            value->arg1 = number_value;
             break;
         }
         case 18: // MapIcon
@@ -2615,7 +2616,7 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg2 = number_value;
+            value->arg1 = number_value;
             break;
         }
         case 20: // UPDATEFUNCTION
@@ -2627,17 +2628,17 @@ static void set_object_configuration_check(const struct ScriptLine *scline)
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
-            value->arg2 = number_value;
+            value->arg1 = number_value;
             break;
         }
         default:
-            value->arg2 = atoi(new_value);
+            value->arg1 = atoi(new_value);
     }
     
     SCRIPTDBG(7, "Setting object %s property %s to %d", objectname, property, number_value);
     value->arg0 = objct_id;
-    value->arg1 = objectvar;
-
+    value->shorts[4] = objectvar;
+    value->shorts[5] = second_value;
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
@@ -2896,85 +2897,104 @@ static void set_creature_configuration_process(struct ScriptContext* context)
 static void set_object_configuration_process(struct ScriptContext *context)
 {
     struct ObjectConfigStats* objst = &game.conf.object_conf.object_cfgstats[context->value->arg0];
-    switch (context->value->arg1)
+    switch (context->value->shorts[4])
     {
         case 2: // GENRE
-            objst->genre = context->value->arg2;
+            objst->genre = context->value->arg1;
             break;
         case 3: // RELATEDCREATURE
-            objst->related_creatr_model = context->value->arg2;
+            objst->related_creatr_model = context->value->arg1;
             break;
         case 4: // PROPERTIES
-            objst->model_flags = context->value->arg2;
+            objst->model_flags = context->value->arg1;
             break;
         case 5: // ANIMATIONID
-            objst->sprite_anim_idx = get_anim_id(context->value->str2, objst);
+            objst->sprite_anim_idx = context->value->arg1;
             break;
         case 6: // ANIMATIONSPEED
-            objst->anim_speed = context->value->arg2;
+            objst->anim_speed = context->value->arg1;
             break;
         case 7: //SIZE_XY
-            objst->size_xy = context->value->arg2;
+            objst->size_xy = context->value->arg1;
             break;
         case 8: // SIZE_Z
-            objst->size_z = context->value->arg2;
+            objst->size_z = context->value->arg1;
             break;
         case 9: // MAXIMUMSIZE
-            objst->sprite_size_max = context->value->arg2;
+            objst->sprite_size_max = context->value->arg1;
             break;
         case 10: // DESTROYONLIQUID
-            objst->destroy_on_liquid = context->value->arg2;
+            objst->destroy_on_liquid = context->value->arg1;
             break;
         case 11: // DESTROYONLAVA
-            objst->destroy_on_lava = context->value->arg2;
+            objst->destroy_on_lava = context->value->arg1;
             break;
         case 12: // HEALTH
-            objst->health = context->value->arg2;
+            objst->health = context->value->arg1;
             break;
         case 13: // FALLACCELERATION
-            objst->fall_acceleration = context->value->arg2;
+            objst->fall_acceleration = context->value->arg1;
             break;
         case 14: // LIGHTUNAFFECTED
-            objst->light_unaffected = context->value->arg2;
+            objst->light_unaffected = context->value->arg1;
             break;
         case 15: // LIGHTINTENSITY
-            objst->ilght.intensity = context->value->arg2;
+            objst->ilght.intensity = context->value->arg1;
             break;
         case 16: // LIGHTRADIUS
-            objst->ilght.radius = context->value->arg2 * COORD_PER_STL;
+            objst->ilght.radius = context->value->arg1 * COORD_PER_STL;
             break;
         case 17: // LIGHTISDYNAMIC
-            objst->ilght.is_dynamic = context->value->arg2;
+            objst->ilght.is_dynamic = context->value->arg1;
             break;
         case 18: // MAPICON
-            objst->map_icon = context->value->arg2;
+            objst->map_icon = context->value->arg1;
             break;
         case 19: // AMBIENCESOUND
-            objst->fp_smpl_idx = context->value->arg2;
+            objst->fp_smpl_idx = context->value->arg1;
             break;
         case 20: // UPDATEFUNCTION
-            objst->updatefn_idx = context->value->arg2;
+            objst->updatefn_idx = context->value->arg1;
             break;
         case 21: // DRAWCLASS
-            objst->draw_class = context->value->arg2;
+            objst->draw_class = context->value->arg1;
             break;
         case 22: // PERSISTENCE
-            objst->persistence = context->value->arg2;
+            objst->persistence = context->value->arg1;
             break;
         case 23: // Immobile
-            objst->immobile = context->value->arg2;
+            objst->immobile = context->value->arg1;
             break;
         case 24: // INITIALSTATE
-            objst->initial_state = context->value->arg2;
+            objst->initial_state = context->value->arg1;
             break;
         case 25: // RANDOMSTARTFRAME
-            objst->random_start_frame = context->value->arg2;
+            objst->random_start_frame = context->value->arg1;
             break;
         case 26: // TRANSPARENCYFLAGS
-            objst->transparancy_flags = context->value->arg2;
+            objst->transparancy_flags = context->value->arg1;
+            break;
+        case 27: // EFFECTBEAM
+            objst->effect.beam = context->value->arg1;
+            break;
+        case 28: // EFFECTPARTICLE
+            objst->effect.particle = context->value->arg1;
+            break;
+        case 29: // EFFECTEXPLOSION1
+            objst->effect.explosion1 = context->value->arg1;
+            break;
+        case 30: // EFFECTEXPLOSION2
+            objst->effect.explosion2 = context->value->arg1;
+            break;
+        case 31: // EFFECTSPACING
+            objst->effect.spacing = context->value->arg1;
+            break;
+        case 32: // EFFECTSOUND
+            objst->effect.sound_idx = context->value->arg1;
+            objst->effect.sound_range = (unsigned char)context->value->shorts[5];
             break;
         default:
-            WARNMSG("Unsupported Object configuration, variable %d.", context->value->arg1);
+            WARNMSG("Unsupported Object configuration, variable %d.", context->value->shorts[4]);
             break;
     }
     update_all_object_stats();
@@ -5280,7 +5300,7 @@ const struct CommandDesc command_desc[] = {
   {"SET_ROOM_CONFIGURATION",            "AAAa!n! ", Cmd_SET_ROOM_CONFIGURATION, &set_room_configuration_check, &set_room_configuration_process},
   {"SET_TRAP_CONFIGURATION",            "AAAn!n! ", Cmd_SET_TRAP_CONFIGURATION, &set_trap_configuration_check, &set_trap_configuration_process},
   {"SET_DOOR_CONFIGURATION",            "AAAn!   ", Cmd_SET_DOOR_CONFIGURATION, &set_door_configuration_check, &set_door_configuration_process},
-  {"SET_OBJECT_CONFIGURATION",          "AAA     ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
+  {"SET_OBJECT_CONFIGURATION",          "AAAn!   ", Cmd_SET_OBJECT_CONFIGURATION, &set_object_configuration_check, &set_object_configuration_process},
   {"SET_CREATURE_CONFIGURATION",        "CAAa    ", Cmd_SET_CREATURE_CONFIGURATION, &set_creature_configuration_check, &set_creature_configuration_process},
   {"SET_SACRIFICE_RECIPE",              "AAA+    ", Cmd_SET_SACRIFICE_RECIPE, &set_sacrifice_recipe_check, &set_sacrifice_recipe_process},
   {"REMOVE_SACRIFICE_RECIPE",           "A+      ", Cmd_REMOVE_SACRIFICE_RECIPE, &remove_sacrifice_recipe_check, &set_sacrifice_recipe_process},
