@@ -87,6 +87,7 @@
     <ClCompile Include="src\config_rules.c" />
     <ClCompile Include="src\config_settings.c" />
     <ClCompile Include="src\config_slabsets.c" />
+    <ClCompile Include="src\config_spritecolors.c" />
     <ClCompile Include="src\config_strings.c" />
     <ClCompile Include="src\config_terrain.c" />
     <ClCompile Include="src\config_textures.c" />
@@ -323,6 +324,7 @@
     <ClInclude Include="src\config_rules.h" />
     <ClInclude Include="src\config_settings.h" />
     <ClInclude Include="src\config_slabsets.h" />
+    <ClInclude Include="src\config_spritecolors.h" />
     <ClInclude Include="src\config_strings.h" />
     <ClInclude Include="src\config_terrain.h" />
     <ClInclude Include="src\config_textures.h" />

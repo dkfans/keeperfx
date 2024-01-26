@@ -468,7 +468,7 @@ short creature_sleep(struct Thing *thing)
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
     {
-        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel);
+        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
         apply_health_to_thing_and_display_health(thing, recover);
     }
     anger_set_creature_anger(thing, 0, AngR_NoLair);
