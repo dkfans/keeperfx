@@ -5931,17 +5931,17 @@ msgstr "El Destino del Ninja"
 #: guitext:1017
 msgctxt "Menu interface item"
 msgid "DzjeeAr's  6-level campaign"
-msgstr "DzjeeAr's : Nivel 6"
+msgstr "DzjeeAr's - Nivel 6"
 
 #: guitext:1018
 msgctxt "Menu interface item"
 msgid "DzjeeAr's 10-level campaign"
-msgstr "DzjeeAr's : Nivel 10"
+msgstr "DzjeeAr's - Nivel 10"
 
 #: guitext:1019
 msgctxt "Menu interface item"
 msgid "DzjeeAr's 25-level campaign"
-msgstr "DzjeeAr's : Nivel 25"
+msgstr "DzjeeAr's - Nivel 25"
 
 #: guitext:1020
 msgctxt "Menu interface item"
@@ -6124,3 +6124,13 @@ msgstr "Hacer Infelices: Todas las criaturas del enemigo se vuelven infelices."
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Debilitar Murallas: Destruye las fortificaciones de las murallas enemigas."
+
+#: guitext:1063
+msgctxt "Keeper spell name"
+msgid "Rage"
+msgstr "Furia"
+
+#: guitext:1064
+msgctxt "Creature spell"
+msgid "Rage: Makes the creature attack recklessly, hitting harder and faster without dodging."
+msgstr "Furia: Hace que la criatura ataque imprudentemente, golpeando más fuerte y más rápido sin esquivar."

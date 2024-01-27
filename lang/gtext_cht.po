@@ -6701,3 +6701,13 @@ msgstr "使不高興：敵人的所有生物變得不高興。"
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "削弱城牆: 摧毁敵方城牆的防禦工事。"
+
+#: guitext:1063
+msgctxt "Keeper spell name"
+msgid "Rage"
+msgstr "憤怒"
+
+#: guitext:1064
+msgctxt "Creature spell"
+msgid "Rage: Makes the creature attack recklessly, hitting harder and faster without dodging."
+msgstr "憤怒: 使該生物魯莽地攻擊，攻擊更猛烈、更快且不閃避。"

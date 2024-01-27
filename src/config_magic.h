@@ -22,7 +22,6 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "creature_instances.h"
-
 #include "config.h"
 
 #ifdef __cplusplus
@@ -30,11 +29,11 @@ extern "C" {
 #endif
 
 /******************************************************************************/
-#define MAGIC_ITEMS_MAX        255
+#define MAGIC_ITEMS_MAX         255
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define MAGIC_TYPES_COUNT      30
-#define POWER_TYPES_MAX      64
+#define MAGIC_TYPES_COUNT       31
+#define POWER_TYPES_MAX         64
 
 enum SpellKinds {
     SplK_None = 0,
@@ -42,53 +41,55 @@ enum SpellKinds {
     SplK_FireBomb,
     SplK_Freeze,
     SplK_Armour,
-    SplK_Lightning,
+    SplK_Lightning, // 5
     SplK_Rebound,
     SplK_Heal,
     SplK_PoisonCloud,
     SplK_Invisibility,
-    SplK_Teleport,//[10]
+    SplK_Teleport, // 10
     SplK_Speed,
     SplK_Slow,
     SplK_Drain,
     SplK_Fear,
-    SplK_Missile,//[15]
+    SplK_Missile, // 15
     SplK_NavigMissile,
     SplK_FlameBreath,
     SplK_Wind,
     SplK_Light,
-    SplK_Fly,//[20]
+    SplK_Fly, // 20
     SplK_Sight,
     SplK_Grenade,
     SplK_Hailstorm,
-    SplK_WordOfPower,//[24]
-    SplK_CrazyGas,
+    SplK_WordOfPower,
+    SplK_CrazyGas, // 25
     SplK_Disease,
     SplK_Chicken,
-    SplK_TimeBomb,//[28]
+    SplK_TimeBomb,
     SplK_Lizard,
+    SplK_Rage, // 30
 };
 
 enum CreatureSpellAffectedFlags {
-    CSAfF_Slow         = 0x0001,
-    CSAfF_Speed        = 0x0002,
-    CSAfF_Armour       = 0x0004,
-    CSAfF_Rebound      = 0x0008,
-    CSAfF_Flying       = 0x0010,
-    CSAfF_Invisibility = 0x0020,
-    CSAfF_Sight        = 0x0040,
-    CSAfF_Light        = 0x0080, // this was originally Freeze, but that is now done via stateblock_flags
-    CSAfF_Disease      = 0x0100,
-    CSAfF_Chicken      = 0x0200,
-    CSAfF_PoisonCloud  = 0x0400,
-    CSAfF_CalledToArms = 0x0800,
-    CSAfF_MadKilling   = 0x1000,
+    CSAfF_Slow         = 0x00001,
+    CSAfF_Speed        = 0x00002,
+    CSAfF_Armour       = 0x00004,
+    CSAfF_Rebound      = 0x00008,
+    CSAfF_Flying       = 0x00010,
+    CSAfF_Invisibility = 0x00020,
+    CSAfF_Sight        = 0x00040,
+    CSAfF_Light        = 0x00080, // This was originally Freeze, but that is now done via stateblock_flags.
+    CSAfF_Disease      = 0x00100,
+    CSAfF_Chicken      = 0x00200,
+    CSAfF_PoisonCloud  = 0x00400,
+    CSAfF_CalledToArms = 0x00800,
+    CSAfF_MadKilling   = 0x01000,
     /** The creature does a free fall with magical effect, ie. it was just created with some initial velocity. */
-    CSAfF_MagicFall    = 0x2000,
-    CSAfF_ExpLevelUp   = 0x4000,
+    CSAfF_MagicFall    = 0x02000,
+    CSAfF_ExpLevelUp   = 0x04000,
     /** For creature which are normally flying, this informs that its grounded due to spells or its condition. */
-    CSAfF_Grounded     = 0x8000,
+    CSAfF_Grounded     = 0x08000,
     CSAfF_Timebomb     = 0x10000,
+    CSAfF_Rage         = 0x20000,
 };
 
 enum PowerKinds {
@@ -120,6 +121,7 @@ enum PowerKinds {
     PwrK_SLOW, // 25
     PwrK_FLIGHT,
     PwrK_VISION,
+    PwrK_RAGE,
 };
 
 /** Contains properties of a shot model, to be stored in ShotConfigStats.
@@ -158,7 +160,6 @@ enum PowerCanCastFlags {
     PwCast_NConscCrtrs   = 0x0000000010,
     /** Allow casting the spell on creatures which are bound by state (dragged, being sacrificed, teleported etc.). */
     PwCast_BoundCrtrs    = 0x0000000020,
-
     /** Allow casting the spell on neutral walkable tiles - path, water, lava. */
     PwCast_UnclmdGround  = 0x0000000080,
     /** Allow casting the spell on neutral ground - rooms floor and neutral claimed ground. */
@@ -169,7 +170,6 @@ enum PowerCanCastFlags {
     PwCast_AlliedGround  = 0x0000000400,
     /** Allow casting the spell on enemy players ground - rooms floor and claimed ground. */
     PwCast_EnemyGround   = 0x0000000800,
-
     /** Allow casting the spell on neutral tall slabs - earth, wall, gold. */
     PwCast_NeutrlTall    = 0x0000001000,
     /** Allow casting the spell on owned tall slabs - own fortified wall. */
@@ -178,7 +178,6 @@ enum PowerCanCastFlags {
     PwCast_AlliedTall    = 0x0000004000,
     /** Allow casting the spell on tall slabs owned by enemies - their fortified walls. */
     PwCast_EnemyTall     = 0x0000008000,
-
     /** Allow casting the spell on owned food things (chickens). */
     PwCast_OwnedFood     = 0x0000020000,
     /** Allow casting the spell on neutral food things. */
@@ -230,7 +229,6 @@ enum PowerConfigFlags {
 struct SpellConfigStats {
     char code_name[COMMAND_WORD_LEN];
 };
-
 
 struct ShotHitConfig {
     short effect_model; /**< Effect kind to be created when the shot hits. */
@@ -378,7 +376,7 @@ struct SpellConfig {
     short linked_power;
     short duration;
     short aura_effect;
-    unsigned short spell_flags;
+    unsigned long spell_flags;
 };
 
 struct MagicStats {

@@ -35,7 +35,7 @@ enum CreatureInstances {
     CrInst_SWING_WEAPON_FIST,
     CrInst_ESCAPE,
     CrInst_FIRE_ARROW,
-    CrInst_FIREBALL,
+    CrInst_FIREBALL, // 5
     CrInst_FIRE_BOMB,
     CrInst_FREEZE,
     CrInst_ARMOUR,
@@ -45,7 +45,7 @@ enum CreatureInstances {
     CrInst_POISON_CLOUD,
     CrInst_INVISIBILITY,
     CrInst_TELEPORT,
-    CrInst_SPEED,
+    CrInst_SPEED, // 15
     CrInst_SLOW,
     CrInst_DRAIN,
     CrInst_FEAR,
@@ -55,7 +55,7 @@ enum CreatureInstances {
     CrInst_WIND,
     CrInst_LIGHT,
     CrInst_FLY,
-    CrInst_SIGHT,
+    CrInst_SIGHT, // 25
     CrInst_GRENADE,
     CrInst_HAILSTORM,
     CrInst_WORD_OF_POWER,
@@ -65,20 +65,21 @@ enum CreatureInstances {
     CrInst_DESTROY_AREA,
     CrInst_TUNNEL,
     CrInst_CELEBRATE_SHORT,
-    CrInst_REINFORCE,
+    CrInst_REINFORCE, // 35
     CrInst_EAT,
     CrInst_ATTACK_ROOM_SLAB,
     CrInst_DAMAGE_WALL,
     CrInst_FIRST_PERSON_DIG,
     CrInst_LIZARD, // 40
-    //CrInst_CAST_SPELL_GROUP,
-    CrInst_CAST_SPELL_DISEASE, // 41
+    CrInst_CAST_SPELL_DISEASE,
     CrInst_CAST_SPELL_CHICKEN,
     CrInst_CAST_SPELL_TIME_BOMB,
     CrInst_MOAN,
-    CrInst_TORTURED,
+    CrInst_TORTURED, // 45
     CrInst_TOKING,
     CrInst_RELAXING,
+    CrInst_RAGE, // 48
+    //CrInst_CAST_SPELL_GROUP,
     CrInst_LISTEND,
 };
 

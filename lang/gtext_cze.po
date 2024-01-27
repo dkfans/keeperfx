@@ -6953,3 +6953,13 @@ msgstr "Rozlít nespokojenost: Všechna stvoření nepřítele jsou rozčílená
 msgctxt "Dungeon special decription"
 msgid "Weaken Walls: Destroys the fortifications of enemy walls."
 msgstr "Oslabí zdi: Ničí opevnění nepřátelských zdí."
+
+#: guitext:1063
+msgctxt "Keeper spell name"
+msgid "Rage"
+msgstr "Vztek"
+
+#: guitext:1064
+msgctxt "Creature spell"
+msgid "Rage: Makes the creature attack recklessly, hitting harder and faster without dodging."
+msgstr "Vztek: Přinutí tvora bezohledně zaútočit, udeřit tvrději a rychleji bez uhýbání."

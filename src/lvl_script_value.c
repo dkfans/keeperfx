@@ -172,6 +172,8 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
         return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_SPEEDCRTR:
         return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
+      case PwrK_RAGE:
+        return magic_use_power_rage(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_PROTECT:
         return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
       case PwrK_REBOUND:

@@ -1826,6 +1826,10 @@ CrInstance get_best_self_preservation_instance_to_use(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
     }
+    if (!creature_affected_by_spell(thing, SplK_Rage))
+    {
+        INSTANCE_RET_IF_AVAIL(thing, CrInst_RAGE);
+    }
     for (int i = CrInst_LISTEND; i < game.conf.crtr_conf.instances_count; i++)
     {
         inst_inf = creature_instance_info_get(i);
@@ -1848,16 +1852,14 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     {
         INSTANCE_RET_IF_AVAIL(thing, CrInst_HEAL);
     }
-
+    // Check if thing is a digger doing digger activity.
     if (thing_is_creature_special_digger(thing) && creature_is_doing_digger_activity(thing))
     {
-        
-        // casting wind when under influence of gas
+        // Casting Wind when under influence of gas.
         if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
         }
-
         for (short i = 0; i < game.conf.crtr_conf.instances_count; i++)
         {
             if (i == CrInst_HEAL)
@@ -1875,15 +1877,18 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
     }
     else
     {
+        if (!creature_affected_by_spell(thing, SplK_Light))
+        {
+            INSTANCE_RET_IF_AVAIL(thing, CrInst_LIGHT);
+        }
         if (!creature_affected_by_spell(thing, SplK_Sight))
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
         }
-
         long state_type = get_creature_state_type(thing);
         if (!creature_is_kept_in_custody(thing))
         {
-            // casting wind when under influence of gas
+            // Casting Wind when under influence of gas.
             if ((cctrl->spell_flags & CSAfF_PoisonCloud) != 0)
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
@@ -1896,7 +1901,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_FLY);
             }
-            //TODO CREATURE_AI allow using invisibility when creature is being attacked or escaping
+            //TODO CREATURE_AI allow using invisibility when creature is being attacked or escaping.
             if (!creature_affected_by_spell(thing, SplK_Invisibility) && (state_type != CrStTyp_Idle))
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);

@@ -91,8 +91,8 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
 long compute_creature_attack_range(long base_param,long luck,unsigned short crlevel);
 long compute_creature_work_value(long base_param,long efficiency,unsigned short crlevel);
 long compute_creature_max_dexterity(long base_param,unsigned short crlevel);
-long compute_creature_max_defense(long base_param,unsigned short crlevel);
-long compute_creature_max_strength(long base_param,unsigned short crlevel);
+long compute_creature_max_defense(long base_param,unsigned short crlevel, TbBool rage_spell);
+long compute_creature_max_strength(long base_param,unsigned short crlevel, TbBool rage_spell);
 long compute_creature_max_loyalty(long base_param,unsigned short crlevel);
 long compute_creature_max_armour(long base_param,unsigned short crlevel, TbBool armour_spell);
 long compute_creature_max_unaffected(long base_param,unsigned short crlevel);
