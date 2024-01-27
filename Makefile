@@ -351,7 +351,7 @@ CU_OBJS = \
 
 # include and library directories
 LINKLIB =  -L"sdl/lib" -mwindows obj/enet.a \
-	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image \
+	-lwinmm -lmingw32 -limagehlp -lSDL2main -lSDL2 -lSDL2_mixer -lSDL2_net -lSDL2_image -lSDL2_ttf \
 	-L"deps/zlib" -lz -lws2_32 -ldbghelp
 INCS =  -I"sdl/include" -I"sdl/include/SDL2" -I"deps/enet/include" -I"deps/centijson/src" -I"deps/centitoml"
 CXXINCS =  $(INCS)
