@@ -1308,6 +1308,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                     else if (0 == strcmp(word_buf, "ANY_CREATURE"))
                     {
                         crstat->lair_enemy[i] = CREATURE_ANY;
+                        n++;
                     }
                     else
                     {
