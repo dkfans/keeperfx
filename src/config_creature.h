@@ -58,6 +58,7 @@ enum CreatureModelFlags {
     CMF_NoImprisonment   = 0x04000, // Creature will not faint.
     CMF_NeverSick        = 0x08000, // Creature will not get disease.
     CMF_NoResurrect      = 0x10000, // Creature will not resurrect.
+    CMF_NoTransfer       = 0x20000, // Creature cannot be transferred.
 };
 
 enum CreatureJobFlags {

@@ -115,6 +115,7 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"ILLUMINATED",       26},
   {"ALLURING_SCVNGR",   27},
   {"NO_RESURRECT",      28},
+  {"NO_TRANSFER",       29},
   {NULL,                 0},
   };
 
@@ -743,6 +744,10 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 28: // NO_RESURRECT
                 crconf->model_flags |= CMF_NoResurrect;
+                n++;
+                break;
+            case 29: // NO_TRANSFER
+                crconf->model_flags |= CMF_NoTransfer;
                 n++;
                 break;
             default:
