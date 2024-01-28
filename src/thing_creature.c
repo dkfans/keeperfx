@@ -1676,7 +1676,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         {
             if (j > FAMILIAR_MAX)
             {
-                //todo handle too many creatures for summon max
+                WARNLOG("Trying to summon creature beyond max %d", FAMILIAR_MAX);
                 break;
             }
             if (cctrl->familiar_idx[j] == 0)

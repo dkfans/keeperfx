@@ -415,7 +415,7 @@ unsigned char cowers_from_slap_turns;
     TbBool timebomb_death;
     GameTurn unsummon_turn;
     ThingIndex summoner_idx;
-    ThingIndex familiar_idx[FAMILIAR_MAX]; //todo magic number
+    ThingIndex familiar_idx[FAMILIAR_MAX];
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
