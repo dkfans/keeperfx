@@ -200,6 +200,7 @@ TbBool thing_is_creature_special_digger(const struct Thing *thing);
 TbBool creature_is_slappable(const struct Thing *thing, PlayerNumber plyr_idx);
 TbBool creature_is_invisible(const struct Thing *thing);
 TbBool creature_can_see_invisible(const struct Thing *thing);
+TbBool creature_can_be_transferred(const struct Thing* thing);
 int get_creature_health_permil(const struct Thing *thing);
 /******************************************************************************/
 struct Thing *script_create_new_creature(PlayerNumber plyr_idx, ThingModel crmodel, TbMapLocation location, long carried_gold, long crtr_level);
