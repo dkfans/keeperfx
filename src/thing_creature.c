@@ -1724,6 +1724,20 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
                 {
                     famcctrl = creature_control_get_from_thing(famlrtng);
                     famcctrl->unsummon_turn = game.play_gameturn + spconf->duration;
+                    if (famcctrl->follow_leader_fails > 0) // if it's not getting to the summoner, teleport it there
+                    {
+                        create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
+                        move_thing_in_map(famlrtng, &castng->mappos);
+                        cleanup_current_thing_state(famlrtng);
+                        reset_interpolation_of_thing(famlrtng);
+
+                        famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+                        famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+                        famlrtng->veloc_push_add.z.val += 0;
+                        famlrtng->state_flags |= TF1_PushAdd;
+                        famcctrl->spell_flags |= CSAfF_MagicFall;
+                        famlrtng->move_angle_xy = 0;
+                    }
                 }
                 else
                 {
