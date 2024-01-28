@@ -1775,7 +1775,7 @@ void update_creature_count(struct Thing *creatng)
         return;
     }
     cctrl = creature_control_get_from_thing(creatng);
-    if (flag_is_set(cctrl->flgfield_2, TF2_Spectator)){
+    if (flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)){
         return;
     }
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
