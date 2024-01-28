@@ -5654,6 +5654,17 @@ TngUpdateRet update_creature(struct Thing *thing)
             leader_find_positions_for_followers(thing);
         }
     }
+    else
+    {
+        if (((game.play_gameturn + thing->index) % 41) == 0) //Check sometimes to move the familiar back into the group
+        {
+            if (cctrl->summoner_idx > 0)
+            {
+                struct Thing* summoner = thing_get(cctrl->summoner_idx);
+                add_creature_to_group(thing, summoner);
+            }
+        }
+    }
 
     if (cctrl->dragtng_idx > 0)
     {
