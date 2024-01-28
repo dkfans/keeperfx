@@ -1692,6 +1692,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
                     if (spconf->duration > 0)
                     {
                         famcctrl->unsummon_turn = game.play_gameturn + spconf->duration;
+                        set_flag(famcctrl->flgfield_2, TF2_SummonedCreature);
                     }
                     struct Thing* leadtng = get_group_leader(castng);
                     if (leadtng == castng)
@@ -3686,10 +3687,13 @@ void set_first_creature(struct Thing *creatng)
             cctrl->players_prev_creature_idx = 0;
             dungeon->creatr_list_start = creatng->index;
         }
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator))
         {
-            dungeon->num_active_creatrs++;
             dungeon->owned_creatures_of_model[creatng->model]++;
+            if (!flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
+            {
+                dungeon->num_active_creatrs++;
+            }
         }
         creatng->alloc_flags |= TAlF_InDungeonList;
     }
@@ -3760,8 +3764,11 @@ void remove_first_creature(struct Thing *creatng)
         }
         if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
         {
-            dungeon->num_active_diggers--;
             dungeon->owned_creatures_of_model[creatng->model]--;
+            if (!flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
+            {
+                dungeon->num_active_diggers--;  
+            }
         }
     } else
     {
@@ -3778,10 +3785,13 @@ void remove_first_creature(struct Thing *creatng)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator))
         {
-            dungeon->num_active_creatrs--;
             dungeon->owned_creatures_of_model[creatng->model]--;
+            if (!flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
+            {
+                dungeon->num_active_creatrs--;
+            }
         }
     }
     cctrl->players_prev_creature_idx = 0;
