@@ -1750,6 +1750,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
 void update_creature_count(struct Thing *creatng)
 {
     TRACE_THING(creatng);
+    struct CreatureControl* cctrl;
     if (!thing_exists(creatng)) {
         return;
     }
@@ -1757,6 +1758,10 @@ void update_creature_count(struct Thing *creatng)
         return;
     }
     if (thing_is_picked_up(creatng) || creature_is_being_unconscious(creatng)) {
+        return;
+    }
+    cctrl = creature_control_get_from_thing(creatng);
+    if (flag_is_set(cctrl->flgfield_2, TF2_Spectator)){
         return;
     }
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
@@ -3688,13 +3693,10 @@ void set_first_creature(struct Thing *creatng)
             cctrl->players_prev_creature_idx = 0;
             dungeon->creatr_list_start = creatng->index;
         }
-        if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator))
+        if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
         {
             dungeon->owned_creatures_of_model[creatng->model]++;
-            if (!flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
-            {
-                dungeon->num_active_creatrs++;
-            }
+            dungeon->num_active_creatrs++;
         }
         creatng->alloc_flags |= TAlF_InDungeonList;
     }
@@ -3716,8 +3718,11 @@ void set_first_creature(struct Thing *creatng)
             cctrl->players_prev_creature_idx = 0;
             dungeon->digger_list_start = creatng->index;
         }
-        dungeon->num_active_diggers++;
-        dungeon->owned_creatures_of_model[creatng->model]++;
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
+        {
+            dungeon->num_active_diggers++;
+            dungeon->owned_creatures_of_model[creatng->model]++;
+        }
         creatng->alloc_flags |= TAlF_InDungeonList;
     }
 }
@@ -3763,13 +3768,10 @@ void remove_first_creature(struct Thing *creatng)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
         {
             dungeon->owned_creatures_of_model[creatng->model]--;
-            if (!flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
-            {
-                dungeon->num_active_diggers--;  
-            }
+            dungeon->num_active_diggers--;  
         }
     } else
     {
@@ -3786,13 +3788,10 @@ void remove_first_creature(struct Thing *creatng)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator))
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
         {
             dungeon->owned_creatures_of_model[creatng->model]--;
-            if (!flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
-            {
-                dungeon->num_active_creatrs--;
-            }
+            dungeon->num_active_creatrs--;
         }
     }
     cctrl->players_prev_creature_idx = 0;
