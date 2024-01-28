@@ -1691,6 +1691,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
                     summoned++;
                     if (spconf->duration > 0)
                     {
+                        remove_first_creature(famlrtng); //temporary units are not real creatures
                         famcctrl->unsummon_turn = game.play_gameturn + spconf->duration;
                         set_flag(famcctrl->flgfield_2, TF2_SummonedCreature);
                     }
