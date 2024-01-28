@@ -1674,7 +1674,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
 
         for (int j=0; j < spconf->crtr_summon_amount; j++)
         {
-            if (j > 8) //todo magic number
+            if (j > FAMILIAR_MAX)
             {
                 //todo handle too many creatures for summon max
                 break;
@@ -2736,7 +2736,7 @@ void delete_familiars_attached_to_creature(struct Thing* sumntng)
     if (creature_control_invalid(scctrl)) {
         return;
     }
-    for (short i = 0; i < 8; i++) //todo magic number
+    for (short i = 0; i < FAMILIAR_MAX; i++)
     {
         if (scctrl->familiar_idx[i])
         {
