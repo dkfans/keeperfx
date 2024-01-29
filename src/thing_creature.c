@@ -1726,7 +1726,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
                 {
                     famcctrl = creature_control_get_from_thing(famlrtng);
                     famcctrl->unsummon_turn = game.play_gameturn + spconf->duration;
-                    if (famcctrl->follow_leader_fails > 0) // if it's not getting to the summoner, teleport it there
+                    if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&castng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
                     {
                         create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
                         move_thing_in_map(famlrtng, &castng->mappos);
