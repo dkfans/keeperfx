@@ -1669,9 +1669,11 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         struct Thing* famlrtng;
         struct CreatureControl* famcctrl;
         short summoned;
-        // todo duration
-        // todo sound
-
+        short sumxp = spconf->crtr_summon_level - 1;
+        if (spconf->crtr_summon_level < 0)
+        {
+            sumxp = cctrl->explevel + spconf->crtr_summon_level;
+        }
         for (int j=0; j < spconf->crtr_summon_amount; j++)
         {
             if (j > FAMILIAR_MAX)
@@ -1687,7 +1689,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
                     cctrl->familiar_idx[j] = famlrtng->index;
                     famcctrl = creature_control_get_from_thing(famlrtng);
                     famcctrl->summoner_idx = castng->index;
-                    creature_change_multiple_levels(famlrtng, spconf->crtr_summon_level - 1);
+                    creature_change_multiple_levels(famlrtng, sumxp);
                     summoned++;
                     if (spconf->duration > 0)
                     {
