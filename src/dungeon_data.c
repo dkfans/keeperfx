@@ -528,6 +528,16 @@ void init_dungeons(void)
           else
             dungeon->hates_player[k] = game.conf.rules.creature.fight_max_hate;
         }
+        /** Player modifier default value is set to 100. */
+        dungeon->modifier.health = 100;
+        dungeon->modifier.strength = 100;
+        dungeon->modifier.armour = 100;
+        dungeon->modifier.spell_damage = 100;
+        dungeon->modifier.speed = 100;
+        dungeon->modifier.pay = 100;
+        dungeon->modifier.training_cost = 100;
+        dungeon->modifier.scavenging_cost = 100;
+        dungeon->modifier.loyalty = 100;
         dungeon->color_idx = i;
         LbMemorySet(dungeon->creature_models_joined, 0, CREATURE_TYPES_MAX);
     }

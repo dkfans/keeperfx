@@ -205,6 +205,7 @@ long count_player_list_creatures_of_model_matching_bool_filter(PlayerNumber plyr
 // Final routines to select creature anywhere on map but belonging to given player
 struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel crmodel, long crtr_idx);
 struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx, ThingModel crmodel, long crtr_idx, int friendly);
+struct Thing* get_player_list_nth_creature_with_property(long thing_idx, unsigned long crmodelflag, long crtr_idx);
 struct Thing *get_random_players_creature_of_model(PlayerNumber plyr_idx, ThingModel crmodel);
 struct Thing *get_random_players_creature_of_model_on_territory(PlayerNumber plyr_idx, ThingModel crmodel,int friendly);
 struct Thing *find_players_highest_level_creature_of_breed_and_gui_job(long crmodel, long job_idx, PlayerNumber plyr_idx, unsigned char pick_check);
@@ -278,7 +279,8 @@ struct Thing* get_nearest_enemy_object_possible_to_attack_by(struct Thing* creat
 long count_creatures_in_dungeon_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);
 long count_creatures_in_dungeon_controlled_and_of_model_flags(const struct Dungeon *dungeon, unsigned long need_mdflags, unsigned long excl_mdflags);
 
-TbBool creature_matches_model(const struct Thing* creatng, long crmodel);
+TbBool creature_matches_model(const struct Thing* creatng, ThingModel crmodel);
+TbBool creature_model_matches_model(ThingModel creatng_model, PlayerNumber plyr_idx, ThingModel target_model);
 TbBool thing_matches_model(const struct Thing* thing, long crmodel);
 unsigned long update_things_sounds_in_list(struct StructureList *list);
 void stop_all_things_playing_samples(void);
@@ -295,6 +297,7 @@ TbBool perform_action_on_all_creatures_in_group(struct Thing *thing, Thing_Bool_
 
 struct Thing *creature_of_model_in_prison_or_tortured(ThingModel crmodel);
 long count_player_creatures_of_model(PlayerNumber plyr_idx, int crmodel);
+long count_player_creatures_for_transfer(PlayerNumber plyr_idx);
 long count_player_creatures_of_model_in_action_point(PlayerNumber plyr_idx, int crmodel, long apt_index);
 long count_player_list_creatures_of_model(long thing_idx, ThingModel crmodel);
 long count_player_list_creatures_of_model_on_territory(long thing_idx, ThingModel crmodel, int friendly);

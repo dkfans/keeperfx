@@ -788,27 +788,40 @@ long anywhere_thing_filter_is_creature_of_model_training_and_owned_by(const stru
 }
 
 /**
+ * returns if a specific creature model matches a target model, considering all the wildcards.
+ * @param creatng_model The creature model being checked.
+ * @param plyr_idx The player id so we can exclude diggers and spectators.
+ * @param target_model model to compare it to, possible wildcard.
+ */
+TbBool creature_model_matches_model(ThingModel creatng_model, PlayerNumber plyr_idx, ThingModel target_model)
+{
+    if (!is_creature_model_wildcard(target_model))
+        return target_model == creatng_model;
+    else if (target_model == CREATURE_ANY)
+        return (creatng_model != get_players_spectator_model(plyr_idx)); //we can assume we do not want to cast on the floating spirit
+    else if (target_model == CREATURE_NONE)
+        return false;
+    if (target_model == CREATURE_DIGGER)
+        return creature_kind_is_for_dungeon_diggers_list(plyr_idx, creatng_model);
+    else if (target_model == CREATURE_NOT_A_DIGGER)
+        return ((!creature_kind_is_for_dungeon_diggers_list(plyr_idx, creatng_model)) && (creatng_model != get_players_spectator_model(plyr_idx)));
+    else
+        ERRORLOG("Invalid model wildcard detected: %d", target_model);
+    return false;
+}
+
+/**
  * returns if the creature thing matches the model from the filter, considering possible wildcards.
  * @param creatng The creature being checked.
  * @param crmodel model to compare it to, possible wildcard.
-  */
-TbBool creature_matches_model(const struct Thing* creatng, long crmodel)
+ */
+TbBool creature_matches_model(const struct Thing* creatng, ThingModel crmodel)
 {
     if (creatng->class_id != TCls_Creature)
+    {
         return false;
-    if (!is_creature_model_wildcard(crmodel))
-        return crmodel == creatng->model;
-    else if (crmodel == CREATURE_ANY)
-        return (creatng->model != get_players_spectator_model(creatng->owner)); //we can assume we do not want to cast on the floating spirit
-    else if (crmodel == CREATURE_NONE)
-        return false;
-    if (crmodel == CREATURE_DIGGER)
-        return creature_kind_is_for_dungeon_diggers_list(creatng->owner, creatng->model);
-    else if (crmodel == CREATURE_NOT_A_DIGGER)
-        return ((!creature_kind_is_for_dungeon_diggers_list(creatng->owner, creatng->model)) && (creatng->model != get_players_spectator_model(creatng->owner)));
-    else
-        ERRORLOG("Invalid model wildcard detected: %d", crmodel);
-    return false;
+    }
+    return creature_model_matches_model(creatng->model, creatng->owner, crmodel);
 }
 
 /**
@@ -2387,6 +2400,37 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
     return INVALID_THING;
 }
 
+struct Thing* get_player_list_nth_creature_with_property(long thing_idx, unsigned long crmodelflag, long crtr_idx)
+{
+    long i = thing_idx;
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            return INVALID_THING;
+        }
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        if ((get_creature_model_flags(thing) & crmodelflag) == 0)
+            crtr_idx--;
+        if (crtr_idx == -1)
+            return thing;
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            return INVALID_THING;
+        }
+    }
+    ERRORLOG("Tried to get creature of index exceeding list");
+    return INVALID_THING;
+}
+
 struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx, ThingModel crmodel, long crtr_idx, int friendly)
 {
     long i = thing_idx;
@@ -2445,6 +2489,15 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
         }
     }
     return nth_creature;
+}
+
+/**
+ * Counts player creatures (not diggers) which are kept out of players control.
+ * @param plyr_idx
+ */
+long count_player_creatures_for_transfer(PlayerNumber plyr_idx)
+{
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_NOT_A_DIGGER, creature_can_be_transferred);
 }
 
 /**

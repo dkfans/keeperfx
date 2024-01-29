@@ -398,6 +398,11 @@ TbBool update_dead_creatures_list(struct Dungeon *dungeon, const struct Thing *t
     return add_item_to_dead_creature_list(dungeon, thing->model, cctrl->explevel);
 }
 
+TbBool creature_can_be_resurrected(const struct Thing* thing)
+{
+    return ((get_creature_model_flags(thing) & CMF_NoResurrect) == 0);
+}
+
 TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -406,6 +411,10 @@ TbBool update_dead_creatures_list_for_owner(const struct Thing *thing)
         dungeon = get_players_num_dungeon(thing->owner);
     }
     if (dungeon_invalid(dungeon)) {
+        return false;
+    }
+    if (!creature_can_be_resurrected(thing))
+    {
         return false;
     }
     return update_dead_creatures_list(dungeon, thing);
