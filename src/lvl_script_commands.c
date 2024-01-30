@@ -4211,7 +4211,7 @@ static void play_message_check(const struct ScriptLine *scline)
             ERRORLOG("All external sounds slots are used.");
             return;
         }
-        unsigned char slot = game.sounds_count+1;
+        unsigned char slot = game.sounds_count;
         if (sprintf(&game.loaded_sound[slot][0], "%s", script_strdup(scline->tp[2])) < 0)
         {
             SCRPTERRLOG("Unable to store filename for external sound %s", scline->tp[1]);
@@ -4226,7 +4226,7 @@ static void play_message_check(const struct ScriptLine *scline)
             return;
         }
         game.sounds_count++;
-        SCRPTLOG("Loaded sound file %s into slot %u.", fname, slot);
+        SCRPTLOG("Loaded sound file %s into slot %u.", fname, slot + 1);
         value->bytes[2] = slot;
     }
     PROCESS_SCRIPT_VALUE(scline->command);
