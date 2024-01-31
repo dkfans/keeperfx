@@ -4206,9 +4206,9 @@ static void play_message_check(const struct ScriptLine *scline)
                 return;
             }
         }
-        if (game.sounds_count >= (EXTERNAL_SOUNDS_COUNT - 1))
+        if (game.sounds_count >= (EXTERNAL_SOUNDS_COUNT))
         {
-            ERRORLOG("All external sounds slots are used.");
+            SCRPTERRLOG("All external sounds slots are used.");
             return;
         }
         unsigned char slot = game.sounds_count + 1;
