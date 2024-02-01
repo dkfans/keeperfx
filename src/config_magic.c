@@ -776,6 +776,7 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
         case 11: // SUMMONCREATURE
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
+              struct SpellConfig* spcond = get_spell_config(i - 1);
               k = get_id(creature_desc, word_buf);
               if (k < 0)
               {
@@ -788,7 +789,10 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
               }
               else
               {
+                  JUSTMSG("TESTLOG Previous creature (i-1) %d = is %d", i - 1, spcond->crtr_summon_model);
+                  JUSTMSG("TESTLOG Gonna set new i %d = to %d", i, k);
                   spconf->crtr_summon_model = k;
+                  JUSTMSG("TESTLOG Previous creature (i-1) %d = now is %d", i - 1, spcond->crtr_summon_model);
                   n++;
               }
           }
