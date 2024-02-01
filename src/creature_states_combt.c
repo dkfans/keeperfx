@@ -1901,6 +1901,10 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_INVISIBILITY);
             }
+            if (state_type != CrStTyp_Idle)
+            {
+                INSTANCE_RET_IF_AVAIL(thing, CrInst_FAMILIAR);
+            }
         }
     }
     return CrInst_NULL;
