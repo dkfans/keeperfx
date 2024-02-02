@@ -1670,7 +1670,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         struct CreatureControl* famcctrl;
         short summoned;
         short sumxp = spconf->crtr_summon_level - 1;
-        if (spconf->crtr_summon_level < 0)
+        if (spconf->crtr_summon_level <= 0)
         {
             sumxp = cctrl->explevel + spconf->crtr_summon_level;
         }
