@@ -1669,12 +1669,13 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
         struct Thing* famlrtng;
         struct CreatureControl* famcctrl;
         short summoned;
+        short count = spconf->crtr_summon_amount;
         short sumxp = spconf->crtr_summon_level - 1;
         if (spconf->crtr_summon_level <= 0)
         {
             sumxp = cctrl->explevel + spconf->crtr_summon_level;
         }
-        for (int j=0; j < spconf->crtr_summon_amount; j++)
+        for (int j=0; j < count; j++)
         {
             if (j > FAMILIAR_MAX)
             {
@@ -1724,26 +1725,34 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
                 famlrtng = thing_get(cctrl->familiar_idx[j]);
                 if (thing_is_creature(famlrtng))
                 {
-                    famcctrl = creature_control_get_from_thing(famlrtng);
-                    famcctrl->unsummon_turn = game.play_gameturn + spconf->duration;
-                    char expdiff = sumxp - famcctrl->explevel;
-                    if (expdiff > 0)
+                    if (famlrtng->model == spconf->crtr_summon_model)
                     {
-                        creature_change_multiple_levels(famlrtng, expdiff);
-                    }
-                    if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&castng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
-                    {
-                        create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
-                        move_thing_in_map(famlrtng, &castng->mappos);
-                        cleanup_current_thing_state(famlrtng);
-                        reset_interpolation_of_thing(famlrtng);
+                        famcctrl = creature_control_get_from_thing(famlrtng);
+                        famcctrl->unsummon_turn = game.play_gameturn + spconf->duration;
+                        char expdiff = sumxp - famcctrl->explevel;
+                        if (expdiff > 0)
+                        {
+                            creature_change_multiple_levels(famlrtng, expdiff);
+                        }
+                        if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&castng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
+                        {
+                            create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
+                            move_thing_in_map(famlrtng, &castng->mappos);
+                            cleanup_current_thing_state(famlrtng);
+                            reset_interpolation_of_thing(famlrtng);
 
-                        famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
-                        famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
-                        famlrtng->veloc_push_add.z.val += 0;
-                        famlrtng->state_flags |= TF1_PushAdd;
-                        famcctrl->spell_flags |= CSAfF_MagicFall;
-                        famlrtng->move_angle_xy = 0;
+                            famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+                            famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+                            famlrtng->veloc_push_add.z.val += 0;
+                            famlrtng->state_flags |= TF1_PushAdd;
+                            famcctrl->spell_flags |= CSAfF_MagicFall;
+                            famlrtng->move_angle_xy = 0;
+                        }
+                    }
+                    else
+                    {
+                        // there's multiple summon types on this creature.
+                        count++;
                     }
                 }
                 else
