@@ -287,7 +287,7 @@ struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(int mgc_idx)
 {
-  if ((mgc_idx < 0) || (mgc_idx >= MAGIC_TYPES_COUNT))
+  if ((mgc_idx < 0) || (mgc_idx >= game.conf.magic_conf.spell_types_count))
     return &game.conf.magic_conf.spell_config[0];
   return &game.conf.magic_conf.spell_config[mgc_idx];
 }

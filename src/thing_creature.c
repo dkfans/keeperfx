@@ -6544,6 +6544,11 @@ TbBool creature_can_be_queried(struct PlayerInfo *player, struct Thing *creatng)
     return true;
 }
 
+TbBool creature_can_be_transferred(const struct Thing* thing)
+{
+    return ((get_creature_model_flags(thing) & CMF_NoTransfer) == 0);
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
