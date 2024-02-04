@@ -651,7 +651,7 @@ void sound_reinit_after_load(void)
     ambient_sound_stop();
     init_messages();
     free_sound_chunks();
-    for (unsigned int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
+    for (unsigned int sample = 0; sample <= EXTERNAL_SOUNDS_COUNT; sample++)
     {
         char *sound = &game.loaded_sound[sample][0];
         if (sound[0] != '\0')
@@ -837,13 +837,12 @@ void ShutDownSDLAudio()
 void free_sound_chunks()
 {
     Mix_HaltChannel(-1);
-    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
+    for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
     {
         if (Ext_Sounds[i] != NULL)
         {
             Mix_FreeChunk(Ext_Sounds[i]);
             Ext_Sounds[i] = NULL;
-            memset(game.loaded_sound[i],0,DISKPATH_SIZE);
         }
     }
     game.sounds_count = 0;
