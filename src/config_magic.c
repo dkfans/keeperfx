@@ -69,6 +69,7 @@ const struct NamedCommand magic_spell_commands[] = {
   {"SPELLPOWER",      8},
   {"AURAEFFECT",      9},
   {"SPELLFLAGS",     10},
+  {"SUMMONCREATURE", 11},
   {NULL,              0},
   };
 
@@ -537,6 +538,9 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             spconf->cast_effect_model = 0;
             spconf->bigsym_sprite_idx = 0;
             spconf->medsym_sprite_idx = 0;
+            spconf->crtr_summon_model = 0;
+            spconf->crtr_summon_level = 0;
+            spconf->crtr_summon_amount = 0;
             spconf->aura_effect = 0;
             spconf->spell_flags = 0;
         }
@@ -767,6 +771,43 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
           {
               CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+        case 11: // SUMMONCREATURE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc, word_buf);
+              if (k < 0)
+              {
+                  if (parameter_is_number(word_buf))
+                  {
+                      k = atoi(word_buf);
+                      spconf->crtr_summon_model = k;
+                      n++;
+                  }
+              }
+              else
+              {
+                  spconf->crtr_summon_model = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              spconf->crtr_summon_level = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              spconf->crtr_summon_amount = k;
+              n++;
+          }
+          if (n < 3)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
           }
           break;
       case 0: // comment

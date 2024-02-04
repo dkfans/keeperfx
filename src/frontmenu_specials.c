@@ -438,7 +438,7 @@ void maintain_transfer_creature_scroll(struct GuiButton *gbtn)
     }
     if (wheel_scrolled_down)
     {
-        if (transfer_creature_scroll_offset < count-transfer_creature_items_visible+1) 
+        if (transfer_creature_scroll_offset < count-transfer_creature_items_visible+1)
         {
             transfer_creature_scroll_offset++;
         }
