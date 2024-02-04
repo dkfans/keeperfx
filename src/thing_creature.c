@@ -1628,6 +1628,116 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
 }
 
 /**
+ * Spell creates creatures to help the caster. When the creatures have a limited duration they will group up with caster.
+ * @param model The creature kind to be creates.
+ * @param level The creature experience level.
+ * @param count How many creatures are created.
+ * @param duration How many gameturns the creatures will live. Set to 0 for infinite.
+ */
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* famlrtng;
+    struct CreatureControl* famcctrl;
+    short sumxp = level - 1;
+    if (level <= 0)
+    {
+        sumxp = cctrl->explevel + level;
+    }
+    if (duration == 0)
+    {
+        famlrtng = activate_trap_spawn_creature(creatng, model);
+    }
+    else
+    {
+        for (int j = 0; j < count; j++)
+        {
+            if (j > FAMILIAR_MAX)
+            {
+                WARNLOG("Trying to summon creature beyond max %d", FAMILIAR_MAX);
+                break;
+            }
+            if (cctrl->familiar_idx[j] == 0)
+            {
+                famlrtng = activate_trap_spawn_creature(creatng, model);
+                if (!thing_is_invalid(famlrtng))
+                {
+                    cctrl->familiar_idx[j] = famlrtng->index;
+                    famcctrl = creature_control_get_from_thing(famlrtng);
+                    famcctrl->summoner_idx = creatng->index;
+                    creature_change_multiple_levels(famlrtng, sumxp);
+                    remove_first_creature(famlrtng); //temporary units are not real creatures
+                    famcctrl->unsummon_turn = game.play_gameturn + duration;
+                    set_flag(famcctrl->flgfield_2, TF2_SummonedCreature);
+                    struct Thing* leadtng = get_group_leader(creatng);
+                    if (leadtng == creatng)
+                    {
+                        if (get_no_creatures_in_group(creatng) < GROUP_MEMBERS_COUNT)
+                        {
+                            add_creature_to_group(famlrtng, creatng);
+                        }
+                    }
+                    else
+                    {
+                        if (get_no_creatures_in_group(creatng) == 0) //Only make the caster a party leader if he is not already a member of another party
+                        {
+                            add_creature_to_group_as_leader(creatng, famlrtng);
+                        }
+                        if (get_no_creatures_in_group(creatng) < GROUP_MEMBERS_COUNT)
+                        {
+                            add_creature_to_group(famlrtng, creatng);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //reset the creature duration
+                famlrtng = thing_get(cctrl->familiar_idx[j]);
+                if (thing_is_creature(famlrtng))
+                {
+                    if (famlrtng->model == model)
+                    {
+                        famcctrl = creature_control_get_from_thing(famlrtng);
+                        famcctrl->unsummon_turn = game.play_gameturn + duration;
+                        char expdiff = sumxp - famcctrl->explevel;
+                        if (expdiff > 0)
+                        {
+                            creature_change_multiple_levels(famlrtng, expdiff);
+                        }
+                        if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
+                        {
+                            create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
+                            move_thing_in_map(famlrtng, &creatng->mappos);
+                            cleanup_current_thing_state(famlrtng);
+                            reset_interpolation_of_thing(famlrtng);
+
+                            famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+                            famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+                            famlrtng->veloc_push_add.z.val += 0;
+                            famlrtng->state_flags |= TF1_PushAdd;
+                            famcctrl->spell_flags |= CSAfF_MagicFall;
+                            famlrtng->move_angle_xy = 0;
+                        }
+                    }
+                    else
+                    {
+                        // there's multiple summon types on this creature.
+                        count++;
+                    }
+                }
+                else
+                {
+                    //creature has already died, clear it and go again.
+                    cctrl->familiar_idx[j] = 0;
+                    j--;
+                }
+            }
+        }
+    }
+}
+
+/**
  * Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
  * @param castng The caster creature.
  * @param spl_idx Spell index to be casted.
@@ -1666,105 +1776,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
     }
     if (spconf->crtr_summon_model > 0)
     {
-        struct Thing* famlrtng;
-        struct CreatureControl* famcctrl;
-        short count = spconf->crtr_summon_amount;
-        short sumxp = spconf->crtr_summon_level - 1;
-        if (spconf->crtr_summon_level <= 0)
-        {
-            sumxp = cctrl->explevel + spconf->crtr_summon_level;
-        }
-        if (spconf->duration == 0)
-        {
-            famlrtng = activate_trap_spawn_creature(castng, spconf->crtr_summon_model);
-        }
-        else
-        {
-            for (int j = 0; j < count; j++)
-            {
-                if (j > FAMILIAR_MAX)
-                {
-                    WARNLOG("Trying to summon creature beyond max %d", FAMILIAR_MAX);
-                    break;
-                }
-                if (cctrl->familiar_idx[j] == 0)
-                {
-                    famlrtng = activate_trap_spawn_creature(castng, spconf->crtr_summon_model);
-                    if (!thing_is_invalid(famlrtng))
-                    {
-                        cctrl->familiar_idx[j] = famlrtng->index;
-                        famcctrl = creature_control_get_from_thing(famlrtng);
-                        famcctrl->summoner_idx = castng->index;
-                        creature_change_multiple_levels(famlrtng, sumxp);
-                        remove_first_creature(famlrtng); //temporary units are not real creatures
-                        famcctrl->unsummon_turn = game.play_gameturn + spconf->duration;
-                        set_flag(famcctrl->flgfield_2, TF2_SummonedCreature);
-                        struct Thing* leadtng = get_group_leader(castng);
-                        if (leadtng == castng)
-                        {
-                            if (get_no_creatures_in_group(castng) < GROUP_MEMBERS_COUNT)
-                            {
-                                add_creature_to_group(famlrtng, castng);
-                            }
-                        }
-                        else
-                        {
-                            if (get_no_creatures_in_group(castng) == 0) //Only make the caster a party leader if he is not already a member of another party
-                            {
-                                add_creature_to_group_as_leader(castng, famlrtng);
-                            }
-                            if (get_no_creatures_in_group(castng) < GROUP_MEMBERS_COUNT)
-                            {
-                                add_creature_to_group(famlrtng, castng);
-                            }
-                        }
-                    }
-                }
-                else
-                {
-                    //reset the creature duration
-                    famlrtng = thing_get(cctrl->familiar_idx[j]);
-                    if (thing_is_creature(famlrtng))
-                    {
-                        if (famlrtng->model == spconf->crtr_summon_model)
-                        {
-                            famcctrl = creature_control_get_from_thing(famlrtng);
-                            famcctrl->unsummon_turn = game.play_gameturn + spconf->duration;
-                            char expdiff = sumxp - famcctrl->explevel;
-                            if (expdiff > 0)
-                            {
-                                creature_change_multiple_levels(famlrtng, expdiff);
-                            }
-                            if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&castng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
-                            {
-                                create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
-                                move_thing_in_map(famlrtng, &castng->mappos);
-                                cleanup_current_thing_state(famlrtng);
-                                reset_interpolation_of_thing(famlrtng);
-
-                                famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
-                                famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
-                                famlrtng->veloc_push_add.z.val += 0;
-                                famlrtng->state_flags |= TF1_PushAdd;
-                                famcctrl->spell_flags |= CSAfF_MagicFall;
-                                famlrtng->move_angle_xy = 0;
-                            }
-                        }
-                        else
-                        {
-                            // there's multiple summon types on this creature.
-                            count++;
-                        }
-                    }
-                    else
-                    {
-                        //creature has already died, clear it and go again.
-                        cctrl->familiar_idx[j] = 0;
-                        j--;
-                    }
-                }
-            }
-        }
+        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration);
     }
     // Check if the spell has an effect associated
     if (spconf->cast_effect_model != 0)
