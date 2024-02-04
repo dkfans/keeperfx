@@ -78,7 +78,9 @@ enum CreatureInstances {
     CrInst_TORTURED, // 45
     CrInst_TOKING,
     CrInst_RELAXING,
-    CrInst_RAGE, // 48
+    CrInst_FAMILIAR,
+    CrInst_SUMMON,
+    CrInst_RAGE, // 50
     //CrInst_CAST_SPELL_GROUP,
     CrInst_LISTEND,
 };

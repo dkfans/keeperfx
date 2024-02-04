@@ -2400,6 +2400,37 @@ struct Thing *get_player_list_nth_creature_of_model(long thing_idx, ThingModel c
     return INVALID_THING;
 }
 
+struct Thing* get_player_list_nth_creature_with_property(long thing_idx, unsigned long crmodelflag, long crtr_idx)
+{
+    long i = thing_idx;
+    unsigned long k = 0;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        if (thing_is_invalid(thing))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            return INVALID_THING;
+        }
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        i = cctrl->players_next_creature_idx;
+        // Per creature code
+        if ((get_creature_model_flags(thing) & crmodelflag) == 0)
+            crtr_idx--;
+        if (crtr_idx == -1)
+            return thing;
+        // Per creature code ends
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            return INVALID_THING;
+        }
+    }
+    ERRORLOG("Tried to get creature of index exceeding list");
+    return INVALID_THING;
+}
+
 struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx, ThingModel crmodel, long crtr_idx, int friendly)
 {
     long i = thing_idx;
@@ -2458,6 +2489,15 @@ struct Thing *get_player_list_nth_creature_of_model_on_territory(long thing_idx,
         }
     }
     return nth_creature;
+}
+
+/**
+ * Counts player creatures (not diggers) which are kept out of players control.
+ * @param plyr_idx
+ */
+long count_player_creatures_for_transfer(PlayerNumber plyr_idx)
+{
+    return count_player_list_creatures_of_model_matching_bool_filter(plyr_idx, CREATURE_NOT_A_DIGGER, creature_can_be_transferred);
 }
 
 /**
