@@ -31,64 +31,65 @@
 #include "bflib_sound.h"
 #include "bflib_fileio.h"
 
-#include "engine_lenses.h"
-#include "engine_arrays.h"
 #include "config_creature.h"
-#include "config_effects.h"
-#include "config_terrain.h"
-#include "config_lenses.h"
 #include "config_crtrstates.h"
+#include "config_effects.h"
+#include "config_lenses.h"
 #include "config_magic.h"
-#include "creature_states.h"
-#include "creature_states_combt.h"
-#include "creature_states_lair.h"
-#include "creature_states_mood.h"
-#include "creature_states_gardn.h"
-#include "creature_states_train.h"
-#include "creature_states_spdig.h"
-#include "creature_states_hero.h"
-#include "creature_states_prisn.h"
-#include "creature_instances.h"
-#include "creature_graphics.h"
+#include "config_terrain.h"
 #include "creature_battle.h"
+#include "creature_graphics.h"
 #include "creature_groups.h"
+#include "creature_instances.h"
 #include "creature_jobs.h"
 #include "creature_senses.h"
-#include "thing_stats.h"
-#include "thing_factory.h"
-#include "thing_effects.h"
-#include "thing_objects.h"
-#include "thing_navigate.h"
-#include "thing_shots.h"
-#include "thing_creature.h"
-#include "thing_corpses.h"
-#include "thing_physics.h"
-#include "lens_api.h"
-#include "light_data.h"
-#include "room_list.h"
-#include "room_jobs.h"
-#include "room_graveyard.h"
-#include "room_library.h"
-#include "map_utils.h"
-#include "map_blocks.h"
-#include "gui_topmsg.h"
+#include "creature_states.h"
+#include "creature_states_combt.h"
+#include "creature_states_gardn.h"
+#include "creature_states_hero.h"
+#include "creature_states_lair.h"
+#include "creature_states_mood.h"
+#include "creature_states_prisn.h"
+#include "creature_states_spdig.h"
+#include "creature_states_train.h"
+#include "engine_arrays.h"
+#include "engine_lenses.h"
+#include "engine_redraw.h"
+#include "front_input.h"
 #include "front_simple.h"
 #include "frontend.h"
+#include "frontmenu_ingame_tabs.h"
+#include "game_legacy.h"
+#include "gui_frontmenu.h"
+#include "gui_soundmsgs.h"
+#include "gui_topmsg.h"
+#include "kjm_input.h"
+#include "lens_api.h"
+#include "light_data.h"
 #include "magic.h"
+#include "map_blocks.h"
+#include "map_utils.h"
 #include "player_instances.h"
 #include "player_states.h"
 #include "power_hand.h"
 #include "power_process.h"
-#include "gui_frontmenu.h"
-#include "gui_soundmsgs.h"
-#include "engine_redraw.h"
+#include "room_graveyard.h"
+#include "room_jobs.h"
+#include "room_library.h"
+#include "room_list.h"
 #include "sounds.h"
-#include "game_legacy.h"
-#include "kjm_input.h"
-#include "front_input.h"
-#include "frontmenu_ingame_tabs.h"
-#include "thing_navigate.h"
 #include "spdigger_stack.h"
+#include "thing_corpses.h"
+#include "thing_creature.h"
+#include "thing_effects.h"
+#include "thing_factory.h"
+#include "thing_navigate.h"
+#include "thing_navigate.h"
+#include "thing_objects.h"
+#include "thing_physics.h"
+#include "thing_shots.h"
+#include "thing_stats.h"
+#include "thing_traps.h"
 
 #include "keeperfx.hpp"
 #include "post_inc.h"
@@ -1627,6 +1628,116 @@ void creature_cast_spell_at_thing(struct Thing *castng, struct Thing *targetng, 
 }
 
 /**
+ * Spell creates creatures to help the caster. When the creatures have a limited duration they will group up with caster.
+ * @param model The creature kind to be creates.
+ * @param level The creature experience level.
+ * @param count How many creatures are created.
+ * @param duration How many gameturns the creatures will live. Set to 0 for infinite.
+ */
+void thing_summon_temporary_creature(struct Thing* creatng, ThingModel model, char level, char count, GameTurn duration)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    struct Thing* famlrtng;
+    struct CreatureControl* famcctrl;
+    short sumxp = level - 1;
+    if (level <= 0)
+    {
+        sumxp = cctrl->explevel + level;
+    }
+    if (duration == 0)
+    {
+        famlrtng = activate_trap_spawn_creature(creatng, model);
+    }
+    else
+    {
+        for (int j = 0; j < count; j++)
+        {
+            if (j > FAMILIAR_MAX)
+            {
+                WARNLOG("Trying to summon creature beyond max %d", FAMILIAR_MAX);
+                break;
+            }
+            if (cctrl->familiar_idx[j] == 0)
+            {
+                famlrtng = activate_trap_spawn_creature(creatng, model);
+                if (!thing_is_invalid(famlrtng))
+                {
+                    cctrl->familiar_idx[j] = famlrtng->index;
+                    famcctrl = creature_control_get_from_thing(famlrtng);
+                    famcctrl->summoner_idx = creatng->index;
+                    creature_change_multiple_levels(famlrtng, sumxp);
+                    remove_first_creature(famlrtng); //temporary units are not real creatures
+                    famcctrl->unsummon_turn = game.play_gameturn + duration;
+                    set_flag(famcctrl->flgfield_2, TF2_SummonedCreature);
+                    struct Thing* leadtng = get_group_leader(creatng);
+                    if (leadtng == creatng)
+                    {
+                        if (get_no_creatures_in_group(creatng) < GROUP_MEMBERS_COUNT)
+                        {
+                            add_creature_to_group(famlrtng, creatng);
+                        }
+                    }
+                    else
+                    {
+                        if (get_no_creatures_in_group(creatng) == 0) //Only make the caster a party leader if he is not already a member of another party
+                        {
+                            add_creature_to_group_as_leader(creatng, famlrtng);
+                        }
+                        if (get_no_creatures_in_group(creatng) < GROUP_MEMBERS_COUNT)
+                        {
+                            add_creature_to_group(famlrtng, creatng);
+                        }
+                    }
+                }
+            }
+            else
+            {
+                //reset the creature duration
+                famlrtng = thing_get(cctrl->familiar_idx[j]);
+                if (thing_is_creature(famlrtng))
+                {
+                    if (famlrtng->model == model)
+                    {
+                        famcctrl = creature_control_get_from_thing(famlrtng);
+                        famcctrl->unsummon_turn = game.play_gameturn + duration;
+                        char expdiff = sumxp - famcctrl->explevel;
+                        if (expdiff > 0)
+                        {
+                            creature_change_multiple_levels(famlrtng, expdiff);
+                        }
+                        if ((famcctrl->follow_leader_fails > 0) || (get_chessboard_distance(&creatng->mappos, &famlrtng->mappos) > subtile_coord(12, 0))) // if it's not getting to the summoner, teleport it there
+                        {
+                            create_effect(&famlrtng->mappos, imp_spangle_effects[get_player_color_idx(famlrtng->owner)], famlrtng->owner);
+                            move_thing_in_map(famlrtng, &creatng->mappos);
+                            cleanup_current_thing_state(famlrtng);
+                            reset_interpolation_of_thing(famlrtng);
+
+                            famlrtng->veloc_push_add.x.val += CREATURE_RANDOM(thing, 161) - 80;
+                            famlrtng->veloc_push_add.y.val += CREATURE_RANDOM(thing, 161) - 80;
+                            famlrtng->veloc_push_add.z.val += 0;
+                            famlrtng->state_flags |= TF1_PushAdd;
+                            famcctrl->spell_flags |= CSAfF_MagicFall;
+                            famlrtng->move_angle_xy = 0;
+                        }
+                    }
+                    else
+                    {
+                        // there's multiple summon types on this creature.
+                        count++;
+                    }
+                }
+                else
+                {
+                    //creature has already died, clear it and go again.
+                    cctrl->familiar_idx[j] = 0;
+                    j--;
+                }
+            }
+        }
+    }
+}
+
+/**
  * Casts a spell by caster creature targeted at given coordinates, most likely using shot to transfer the spell.
  * @param castng The caster creature.
  * @param spl_idx Spell index to be casted.
@@ -1663,6 +1774,10 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
           thing_play_sample(castng, spconf->caster_affect_sound, NORMAL_PITCH, 0, 3, 0, 4, FULL_LOUDNESS);
         apply_spell_effect_to_thing(castng, spl_idx, cctrl->explevel);
     }
+    if (spconf->crtr_summon_model > 0)
+    {
+        thing_summon_temporary_creature(castng, spconf->crtr_summon_model, spconf->crtr_summon_level, spconf->crtr_summon_amount, spconf->duration);
+    }
     // Check if the spell has an effect associated
     if (spconf->cast_effect_model != 0)
     {
@@ -1679,6 +1794,7 @@ void creature_cast_spell(struct Thing *castng, long spl_idx, long shot_lvl, long
 void update_creature_count(struct Thing *creatng)
 {
     TRACE_THING(creatng);
+    struct CreatureControl* cctrl;
     if (!thing_exists(creatng)) {
         return;
     }
@@ -1686,6 +1802,10 @@ void update_creature_count(struct Thing *creatng)
         return;
     }
     if (thing_is_picked_up(creatng) || creature_is_being_unconscious(creatng)) {
+        return;
+    }
+    cctrl = creature_control_get_from_thing(creatng);
+    if (flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)){
         return;
     }
     struct Dungeon* dungeon = get_players_num_dungeon(creatng->owner);
@@ -2657,8 +2777,26 @@ void delete_effects_attached_to_creature(struct Thing *creatng)
     }
 }
 
-struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng,
-    PlayerNumber killer_plyr_idx, CrDeathFlags flags)
+void delete_familiars_attached_to_creature(struct Thing* sumntng)
+{
+    struct Thing* famlrtng;
+    struct CreatureControl* scctrl = creature_control_get_from_thing(sumntng);
+    struct CreatureControl* fcctrl;
+    if (creature_control_invalid(scctrl)) {
+        return;
+    }
+    for (short i = 0; i < FAMILIAR_MAX; i++)
+    {
+        if (scctrl->familiar_idx[i])
+        {
+            famlrtng = thing_get(scctrl->familiar_idx[i]);
+            fcctrl = creature_control_get_from_thing(famlrtng);
+            fcctrl->unsummon_turn = game.play_gameturn;
+        }
+    }
+}
+
+struct Thing* kill_creature(struct Thing *creatng, struct Thing *killertng, PlayerNumber killer_plyr_idx, CrDeathFlags flags)
 {
     SYNCDBG(18,"Starting");
     TRACE_THING(creatng);
@@ -3598,10 +3736,10 @@ void set_first_creature(struct Thing *creatng)
             cctrl->players_prev_creature_idx = 0;
             dungeon->creatr_list_start = creatng->index;
         }
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if (!flag_is_set(cctrl->flgfield_2,TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
         {
-            dungeon->num_active_creatrs++;
             dungeon->owned_creatures_of_model[creatng->model]++;
+            dungeon->num_active_creatrs++;
         }
         creatng->alloc_flags |= TAlF_InDungeonList;
     }
@@ -3623,8 +3761,11 @@ void set_first_creature(struct Thing *creatng)
             cctrl->players_prev_creature_idx = 0;
             dungeon->digger_list_start = creatng->index;
         }
-        dungeon->num_active_diggers++;
-        dungeon->owned_creatures_of_model[creatng->model]++;
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !(flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature)))
+        {
+            dungeon->num_active_diggers++;
+            dungeon->owned_creatures_of_model[creatng->model]++;
+        }
         creatng->alloc_flags |= TAlF_InDungeonList;
     }
 }
@@ -3670,10 +3811,10 @@ void remove_first_creature(struct Thing *creatng)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
         {
-            dungeon->num_active_diggers--;
             dungeon->owned_creatures_of_model[creatng->model]--;
+            dungeon->num_active_diggers--;  
         }
     } else
     {
@@ -3690,10 +3831,10 @@ void remove_first_creature(struct Thing *creatng)
             secctrl = creature_control_get_from_thing(sectng);
             secctrl->players_prev_creature_idx = cctrl->players_prev_creature_idx;
         }
-        if ((cctrl->flgfield_2 & TF2_Spectator) == 0)
+        if (!flag_is_set(cctrl->flgfield_2, TF2_Spectator) && !flag_is_set(cctrl->flgfield_2, TF2_SummonedCreature))
         {
-            dungeon->num_active_creatrs--;
             dungeon->owned_creatures_of_model[creatng->model]--;
+            dungeon->num_active_creatrs--;
         }
     }
     cctrl->players_prev_creature_idx = 0;
@@ -5460,6 +5601,12 @@ TngUpdateRet update_creature(struct Thing *thing)
         kill_creature(thing, INVALID_THING, -1, CrDed_Default);
         return TUFRet_Deleted;
     }
+    if ((cctrl->unsummon_turn > 0) && (cctrl->unsummon_turn < game.play_gameturn))
+    {
+        create_effect_around_thing(thing, (TngEff_BallPuffRed + thing->owner));
+        kill_creature(thing, INVALID_THING, -1, CrDed_NotReallyDying| CrDed_NoEffects);
+        return TUFRet_Deleted;
+    }
     process_armageddon_influencing_creature(thing);
 
     if (cctrl->frozen_on_hit > 0)
@@ -5548,6 +5695,17 @@ TngUpdateRet update_creature(struct Thing *thing)
     {
         if (creature_is_group_leader(thing)) {
             leader_find_positions_for_followers(thing);
+        }
+    }
+    else
+    {
+        if (((game.play_gameturn + thing->index) % 41) == 0) //Check sometimes to move the familiar back into the group
+        {
+            if (cctrl->summoner_idx > 0)
+            {
+                struct Thing* summoner = thing_get(cctrl->summoner_idx);
+                add_creature_to_group(thing, summoner);
+            }
         }
     }
 
