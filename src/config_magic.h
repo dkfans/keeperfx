@@ -32,7 +32,7 @@ extern "C" {
 #define MAGIC_ITEMS_MAX         255
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define POWER_TYPES_MAX      64
+#define POWER_TYPES_MAX         64
 
 enum SpellKinds {
     SplK_None = 0,
@@ -65,7 +65,9 @@ enum SpellKinds {
     SplK_Chicken,
     SplK_TimeBomb,
     SplK_Lizard,
-    SplK_Rage, // 30
+    SplK_Familiar, // 30
+    SplK_Summon,
+    SplK_Rage, // 32
 };
 
 enum CreatureSpellAffectedFlags {
