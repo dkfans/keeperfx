@@ -33,6 +33,7 @@
 #include "thing_stats.h"
 #include "thing_physics.h"
 #include "thing_creature.h"
+#include "thing_navigate.h"
 #include "creature_senses.h"
 #include "spdigger_stack.h"
 #include "power_hand.h"
@@ -4339,6 +4340,76 @@ ThingIndex get_index_of_first_creature_of_owner_and_model(PlayerNumber owner, Th
         i++;
     }
     return 0;
+}
+
+struct Thing* get_timebomb_target(struct Thing *creatng)
+{
+    struct Thing *retng = NULL;
+    MapCoordDelta dist, new_dist;
+    struct Thing* thing;
+    struct StructureList* slist = get_list_for_thing_class(TCls_Creature);
+    if (slist != NULL) 
+    {
+        dist = LONG_MAX;
+        unsigned long i = slist->index;
+        unsigned long k = 0;
+        while (i != 0)
+        {
+            thing = thing_get(i);
+            if (thing_is_invalid(thing))
+            {
+                ERRORLOG("Jump to invalid thing detected");
+                break;
+            }
+            if (players_are_enemies(creatng->owner, thing->owner))
+            {
+                if (creature_will_attack_creature(creatng, thing))
+                {
+                    new_dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+                    if (new_dist < dist)
+                    {
+                        if (creature_can_navigate_to(creatng, &thing->mappos, NavRtF_Default))
+                        {
+                            dist = new_dist;
+                            retng = thing;
+                        }
+                    }
+                }
+            }
+            // Per-thing code ends
+            k++;
+            if (k > slist->count)
+            {
+                ERRORLOG("Infinite loop detected when sweeping things list");
+                break;
+            }
+            i = thing->next_of_class;
+        }
+    }
+    if (thing_is_invalid(retng))
+    {
+        dist = LONG_MAX;
+        for (PlayerNumber plyr_idx = 0; plyr_idx < PLAYERS_COUNT; plyr_idx++)
+        {
+            if (players_are_enemies(creatng->owner, plyr_idx))
+            {
+                thing = get_player_soul_container(plyr_idx);
+                if (thing_exists(thing))
+                {
+                    new_dist = get_2d_distance(&creatng->mappos, &thing->mappos);
+                    if (new_dist < dist)
+                    {
+                        if (creature_can_navigate_to(creatng, &thing->mappos, NavRtF_Default))
+                        {
+                            dist = new_dist;
+                            retng = thing;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return retng;
 }
 /******************************************************************************/
 #ifdef __cplusplus

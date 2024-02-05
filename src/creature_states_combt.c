@@ -1887,7 +1887,6 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
         {
             INSTANCE_RET_IF_AVAIL(thing, CrInst_SIGHT);
         }
-        long state_type = get_creature_state_type(thing);
         if (!creature_is_kept_in_custody(thing))
         {
             // Casting Wind when under influence of gas.
@@ -1895,6 +1894,7 @@ CrInstance get_self_spell_casting(const struct Thing *thing)
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_WIND);
             }
+            long state_type = get_creature_state_type(thing);
             if (!creature_affected_by_spell(thing, SplK_Speed) && (state_type != CrStTyp_Idle))
             {
                 INSTANCE_RET_IF_AVAIL(thing, CrInst_SPEED);

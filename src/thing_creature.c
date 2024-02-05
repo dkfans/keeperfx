@@ -2385,12 +2385,11 @@ void creature_rebirth_at_lair(struct Thing *thing)
     if (creature_affected_by_spell(thing, SplK_TimeBomb))
     {
         cctrl->spell_flags &= ~CSAfF_Timebomb;
-        cctrl->timebomb_target_id = 0;
-        cctrl->timebomb_death = false;
         thing->veloc_push_add.x.val = 0;
         thing->veloc_push_add.y.val = 0;
         thing->state_flags &= ~TF1_PushAdd;
         cleanup_current_thing_state(thing);
+        set_start_state(thing);
     }
     if (thing_is_invalid(lairtng))
         return;
