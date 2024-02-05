@@ -131,7 +131,6 @@ void play_thing_walking(struct Thing *thing)
         return;
     }
     long loudness = (myplyr->view_mode == PVM_CreatureView) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
-    
     if (((thing->movement_flags & TMvF_Flying) != 0) && (thing->floor_height < (int)thing->mappos.z.val))
     {
         // Flying diptera has a buzzing noise sound
