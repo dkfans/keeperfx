@@ -339,6 +339,7 @@ struct PowerConfigStats {
     long panel_tab_idx;
     unsigned short select_sound_idx;
     short cast_cooldown;
+    unsigned char health_cost;
 };
 
 /**
