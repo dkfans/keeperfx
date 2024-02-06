@@ -862,9 +862,7 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
 
 long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target)
 {
-    const struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
-    const struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
-    long crdefense = compute_creature_max_defense(tgcrstat->defense, tgcctrl->explevel, creature_affected_by_spell(target, SplK_Rage));
+    long crdefense = calculate_correct_creature_defense(target);
     long hitchance = ((long)shotng->shot.dexterity - crdefense) / 2;
     if (hitchance < -96)
     {
@@ -883,9 +881,7 @@ long get_damage_of_melee_shot(struct Thing *shotng, const struct Thing *target)
 
 long project_damage_of_melee_shot(long shot_dexterity, long shot_damage, const struct Thing *target)
 {
-    const struct CreatureStats* tgcrstat = creature_stats_get_from_thing(target);
-    const struct CreatureControl* tgcctrl = creature_control_get_from_thing(target);
-    long crdefense = compute_creature_max_defense(tgcrstat->defense, tgcctrl->explevel, creature_affected_by_spell(target, SplK_Rage));
+    long crdefense = calculate_correct_creature_defense(target);
     long hitchance = (shot_dexterity - crdefense) / 2;
     if (hitchance < -96) {
         hitchance = -96;

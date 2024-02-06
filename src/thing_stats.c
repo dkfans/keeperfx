@@ -286,10 +286,10 @@ long compute_creature_kind_score(ThingModel crkind, unsigned short crlevel)
     //modifier shouldn't affect the computation for the creature kind score so compute_creature_max_health has 'game.neutral_player_num' as last argument.
     struct CreatureStats* crstat = creature_stats_get(crkind);
     return compute_creature_max_health(crstat->health,crlevel,game.neutral_player_num)
-        + compute_creature_max_defense(crstat->defense,crlevel,false)
+        + compute_creature_max_defense(crstat->defense,crlevel)
         + compute_creature_max_dexterity(crstat->dexterity,crlevel)
-        + compute_creature_max_armour(crstat->armour,crlevel,false)
-        + compute_creature_max_strength(crstat->strength,crlevel,false);
+        + compute_creature_max_armour(crstat->armour,crlevel)
+        + compute_creature_max_strength(crstat->strength,crlevel);
 }
 
 /**
@@ -314,24 +314,39 @@ long compute_creature_max_health(long base_health, unsigned short crlevel, Playe
 }
 
 /**
- * Computes gold pay of a creature on given level.
+ * Computes strength of a creature on given level.
  */
-GoldAmount compute_creature_max_pay(GoldAmount base_param, unsigned short crlevel)
+long compute_creature_max_strength(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
         return 0;
-    if (base_param > 100000)
-        base_param = 100000;
+    if (base_param > 60000)
+        base_param = 60000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.pay_increase_on_exp * base_param * (long)crlevel) / 100;
-    return saturate_set_signed(max_param, 16);
+    long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
+    return saturate_set_unsigned(max_param, 15);
+}
+
+/**
+ * Computes armour of a creature on given level.
+ */
+long compute_creature_max_armour(long base_param, unsigned short crlevel)
+{
+    if (base_param <= 0)
+        return 0;
+    if (base_param > 60000)
+        base_param = 60000;
+    if (crlevel >= CREATURE_MAX_LEVEL)
+        crlevel = CREATURE_MAX_LEVEL-1;
+    long max_param = base_param + (game.conf.crtr_conf.exp.armour_increase_on_exp * base_param * (long)crlevel) / 100;
+    return max_param;
 }
 
 /**
  * Computes defense of a creature on given level.
  */
-long compute_creature_max_defense(long base_param, unsigned short crlevel, TbBool rage_spell)
+long compute_creature_max_defense(long base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
         return 0;
@@ -340,8 +355,6 @@ long compute_creature_max_defense(long base_param, unsigned short crlevel, TbBoo
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
     long max_param = base_param + (game.conf.crtr_conf.exp.defense_increase_on_exp * base_param * (long)crlevel) / 100;
-    if (rage_spell)
-        max_param = 0;
     return saturate_set_unsigned(max_param, 8);
 }
 
@@ -361,23 +374,6 @@ long compute_creature_max_dexterity(long base_param, unsigned short crlevel)
 }
 
 /**
- * Computes strength of a creature on given level.
- */
-long compute_creature_max_strength(long base_param, unsigned short crlevel, TbBool rage_spell)
-{
-    if (base_param <= 0)
-        return 0;
-    if (base_param > 60000)
-        base_param = 60000;
-    if (crlevel >= CREATURE_MAX_LEVEL)
-        crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (game.conf.crtr_conf.exp.strength_increase_on_exp * base_param * (long)crlevel) / 100;
-    if (rage_spell)
-        max_param = (384 * max_param) / 256;
-    return saturate_set_unsigned(max_param, 15);
-}
-
-/**
  * Computes loyalty of a creature on given level.
  */
 long compute_creature_max_loyalty(long base_param, unsigned short crlevel)
@@ -393,25 +389,18 @@ long compute_creature_max_loyalty(long base_param, unsigned short crlevel)
 }
 
 /**
- * Computes armour of a creature on given level.
+ * Computes gold pay of a creature on given level.
  */
-long compute_creature_max_armour(long base_param, unsigned short crlevel, TbBool armour_spell)
+GoldAmount compute_creature_max_pay(GoldAmount base_param, unsigned short crlevel)
 {
     if (base_param <= 0)
         return 0;
-    if (base_param > 60000)
-        base_param = 60000;
+    if (base_param > 100000)
+        base_param = 100000;
     if (crlevel >= CREATURE_MAX_LEVEL)
         crlevel = CREATURE_MAX_LEVEL-1;
-    long max_param = base_param + (game.conf.crtr_conf.exp.armour_increase_on_exp * base_param * (long)crlevel) / 100;
-    if (armour_spell)
-        max_param = (320 * max_param) / 256;
-    // This limit makes armor absorb up to 80% of damage, never more
-    if (max_param > 204)
-        max_param = 204;
-    if (max_param < 0)
-        max_param = 0;
-    return max_param;
+    GoldAmount max_param = base_param + (game.conf.crtr_conf.exp.pay_increase_on_exp * base_param * (long)crlevel) / 100;
+    return saturate_set_signed(max_param, 16);
 }
 
 /**
@@ -447,29 +436,22 @@ GoldAmount compute_creature_max_scavenging_cost(GoldAmount base_param, unsigned 
 /**
  * Projects expected damage of a melee attack, taking luck and creature level into account.
  * Uses no random factors - instead, projects a best estimate.
- * This function allows evaluating damage creature can make. It shouldn't be used
- * to actually inflict the damage.
+ * This function allows evaluating damage creature can make. It shouldn't be used to actually inflict the damage.
  * @param base_param Base damage.
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
  */
 long project_creature_attack_melee_damage(long base_param,long luck,unsigned short crlevel, const struct Thing* thing)
 {
-    struct Dungeon* dungeon;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
-    if (!is_neutral_thing(thing)) {
-        dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.strength;
-        max_param = (max_param * modifier) / 100;
-    }
     if (luck > 0)
     {
         if (luck > 100) luck = 100;
-          max_param += luck*max_param/100;
+            max_param += luck*max_param/100;
     }
     return saturate_set_signed(max_param, 16);
 }
@@ -477,8 +459,7 @@ long project_creature_attack_melee_damage(long base_param,long luck,unsigned sho
 /**
  * Projects expected damage of an attack shot, taking luck and creature level into account.
  * Uses no random factors - instead, projects a best estimate.
- * This function allows evaluating damage creature can make. It shouldn't be used
- * to actually inflict the damage.
+ * This function allows evaluating damage creature can make. It shouldn't be used to actually inflict the damage.
  * @param base_param Base damage.
  * @param luck Creature luck, scaled 0..100.
  * @param crlevel Creature level, 0..9.
@@ -501,7 +482,7 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
     if (luck > 0)
     {
         if (luck > 100) luck = 100;
-          max_param += luck*max_param/100;
+            max_param += luck*max_param/100;
     }
     return saturate_set_signed(max_param, 16);
 }
@@ -514,21 +495,15 @@ long project_creature_attack_spell_damage(long base_param,long luck,unsigned sho
  */
 long compute_creature_attack_melee_damage(long base_param, long luck, unsigned short crlevel, struct Thing* thing)
 {
-    struct Dungeon* dungeon;
     if (base_param < -60000)
         base_param = -60000;
     if (base_param > 60000)
         base_param = 60000;
     long max_param = base_param;
-    if (!is_neutral_thing(thing)) {
-        dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.strength;
-        max_param = (max_param * modifier) / 100;
-    }
     if (luck > 0)
     {
         if (CREATURE_RANDOM(thing, 100) < luck)
-          max_param *= 2;
+            max_param *= 2;
     }
     return saturate_set_signed(max_param, 16);
 }
@@ -557,7 +532,7 @@ long compute_creature_attack_spell_damage(long base_param, long luck, unsigned s
     if (luck > 0)
     {
         if (CREATURE_RANDOM(thing, 100) < luck)
-          max_param *= 2;
+            max_param *= 2;
     }
     return saturate_set_signed(max_param, 16);
 }
@@ -658,7 +633,9 @@ long calculate_correct_creature_strength(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long max_param = compute_creature_max_strength(crstat->strength,cctrl->explevel,creature_affected_by_spell(thing, SplK_Rage));
+    long max_param = compute_creature_max_strength(crstat->strength,cctrl->explevel);
+    if (creature_affected_by_spell(thing, SplK_Rage))
+        max_param = (384 * max_param) / 256;
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.strength;
@@ -672,15 +649,41 @@ long calculate_correct_creature_armour(const struct Thing *thing)
     struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    long max_param = compute_creature_max_armour(crstat->armour,cctrl->explevel,creature_affected_by_spell(thing, SplK_Armour));
+    long max_param = compute_creature_max_armour(crstat->armour,cctrl->explevel);
+    if (creature_affected_by_spell(thing, SplK_Armour))
+        max_param = (320 * max_param) / 256;
+    // This limit makes armour absorb up to 80% of damage even with buff.
+    if (max_param > 204)
+        max_param = 204;
+    if (max_param < 0)
+        max_param = 0;
+    // Apply modifier after the buff.
     if (!is_neutral_thing(thing)) {
         dungeon = get_dungeon(thing->owner);
         unsigned short modifier = dungeon->modifier.armour;
         max_param = (max_param * modifier) / 100;
     }
-    // Value cannot exceed 255.
+    // Value cannot exceed 255 with modifier.
     if (max_param >= 255)
         max_param = 255;
+    return max_param;
+}
+
+long calculate_correct_creature_defense(const struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_defense(crstat->defense,cctrl->explevel);
+    if (creature_affected_by_spell(thing, SplK_Rage))
+        max_param = 0;
+    return max_param;
+}
+
+long calculate_correct_creature_dexterity(const struct Thing *thing)
+{
+    struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+    long max_param = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
     return max_param;
 }
 
@@ -899,22 +902,12 @@ void apply_health_to_thing_and_display_health(struct Thing *thing, long amount)
  */
 static HitPoints apply_damage_to_creature(struct Thing *thing, HitPoints dmg)
 {
-    struct Dungeon* dungeon;
     struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
-    struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     if ((cctrl->flgfield_1 & CCFlg_PreventDamage) != 0) {
         return 0;
     }
     // Compute armor value.
-    long carmor = compute_creature_max_armour(crstat->armour, cctrl->explevel, creature_affected_by_spell(thing, SplK_Armour));
-    if (!is_neutral_thing(thing)) {
-        dungeon = get_dungeon(thing->owner);
-        unsigned short modifier = dungeon->modifier.armour;
-        carmor = (carmor * modifier) / 100;
-    }
-    // Value cannot exceed 255.
-    if (carmor >= 255)
-        carmor = 255;
+    long carmor = calculate_correct_creature_armour(thing);
     // Now compute damage.
     HitPoints cdamage = (dmg * (256 - carmor)) / 256;
     if (cdamage <= 0)
@@ -1134,12 +1127,12 @@ const char *creature_statistic_text(const struct Thing *creatng, CreatureLiveSta
         text = loc_text;
         break;
     case CrLStat_Defence:
-        i = compute_creature_max_defense(crstat->defense,cctrl->explevel,creature_affected_by_spell(creatng, SplK_Rage));
+        i = calculate_correct_creature_defense(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;
     case CrLStat_Dexterity:
-        i = compute_creature_max_dexterity(crstat->dexterity,cctrl->explevel);
+        i = calculate_correct_creature_dexterity(creatng);
         snprintf(loc_text,sizeof(loc_text),"%ld", i);
         text = loc_text;
         break;
