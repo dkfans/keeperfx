@@ -998,6 +998,7 @@ HitPoints apply_damage_to_thing(struct Thing *thing, HitPoints dmg, DamageType d
     case TCls_Object:
     case TCls_Trap:
         cdamage = apply_damage_to_object(thing, dmg);
+        activate_trap(thing, thing);//todo only if unstable
         break;
     case TCls_Door:
         cdamage = apply_damage_to_door(thing, dmg);
