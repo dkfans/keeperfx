@@ -3923,6 +3923,7 @@ void game_loop(void)
       StopMusicPlayer();
       free_custom_music();
       free_sound_chunks();
+      memset(&game.loaded_sound,0,DISKPATH_SIZE * EXTERNAL_SOUNDS_COUNT+1);
       turn_off_all_menus();
       delete_all_structures();
       clear_mapwho();

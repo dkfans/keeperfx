@@ -33,7 +33,6 @@ extern "C" {
 #define MAGIC_ITEMS_MAX        255
 #define SPELL_MAX_LEVEL         8
 #define MAGIC_OVERCHARGE_LEVELS (SPELL_MAX_LEVEL+1)
-#define MAGIC_TYPES_COUNT      30
 #define POWER_TYPES_MAX      64
 
 enum SpellKinds {
@@ -375,6 +374,9 @@ struct SpellConfig {
     /** Sprite index of medium symbol icon representing the spell. */
     short medsym_sprite_idx;
     short cast_sound;
+    short crtr_summon_model;
+    short crtr_summon_level;
+    short crtr_summon_amount;
     short linked_power;
     short duration;
     short aura_effect;
