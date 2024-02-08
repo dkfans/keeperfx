@@ -1306,7 +1306,7 @@ void process_players_creature_control_packet_control(long idx)
     }
     cctng->move_angle_z = verticalPos; // Sets the vertical look
     cctng->move_angle_xy = (cctng->move_angle_xy + horizontalTurnSpeed) & LbFPMath_AngleMask; // Sets the horizontal look
-    ccctrl->field_CC = 170 * horizontalTurnSpeed / maxTurnSpeed;
+    ccctrl->roll = 170 * horizontalTurnSpeed / maxTurnSpeed;
 }
 
 void process_players_creature_control_packet_action(long plyr_idx)
