@@ -4206,12 +4206,12 @@ static void play_message_check(const struct ScriptLine *scline)
                 return;
             }
         }
-        if (game.sounds_count >= EXTERNAL_SOUNDS_COUNT)
+        if (game.sounds_count >= (EXTERNAL_SOUNDS_COUNT))
         {
-            ERRORLOG("All external sounds slots are used.");
+            SCRPTERRLOG("All external sounds slots are used.");
             return;
         }
-        unsigned char slot = game.sounds_count+1;
+        unsigned char slot = game.sounds_count + 1;
         if (sprintf(&game.loaded_sound[slot][0], "%s", script_strdup(scline->tp[2])) < 0)
         {
             SCRPTERRLOG("Unable to store filename for external sound %s", scline->tp[1]);
