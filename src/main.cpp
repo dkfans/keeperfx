@@ -1458,13 +1458,9 @@ void reset_gui_based_on_player_mode(void)
     if (player->view_type == PVT_CreatureContrl)
     {
         turn_on_menu(vid_change_query_menu);
-        struct Thing *creatng = thing_get(player->controlled_thing_idx);
-        if (thing_is_creature(creatng))
+        if (player->victory_state == VicS_LostLevel)
         {
-            if ((get_creature_model_flags(creatng) & CMF_IsSpectator) != 0)
-            {
-                turn_off_query_menus();
-            }
+            turn_off_query_menus();
         }
     }
     else if (player->view_type == PVT_CreaturePasngr)
