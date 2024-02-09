@@ -4705,9 +4705,13 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     }
     if (player->victory_state == VicS_LostLevel)
     {
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
-        return thing->active_state;
+        // TODO: Correctly deal with possession of creatures not owned by the player
+        if (thing->model != get_players_special_digger_model(player->id_number))
+        {
+            cleanup_current_thing_state(thing);
+            initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
+            return thing->active_state;
+        }
     }
     i = creatures[thing->model%game.conf.crtr_conf.model_count].evil_start_state;
     cleanup_current_thing_state(thing);
