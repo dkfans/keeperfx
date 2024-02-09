@@ -1458,6 +1458,10 @@ void reset_gui_based_on_player_mode(void)
     if (player->view_type == PVT_CreatureContrl)
     {
         turn_on_menu(vid_change_query_menu);
+        if (player->victory_state == VicS_LostLevel)
+        {
+            turn_off_query_menus();
+        }
     }
     else if (player->view_type == PVT_CreaturePasngr)
     {
