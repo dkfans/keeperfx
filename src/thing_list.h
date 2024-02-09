@@ -341,6 +341,8 @@ struct Thing *find_random_thing_in_room(ThingClass tngclass, ThingModel tngmodel
 ThingIndex get_index_of_next_creature_of_owner_and_model(struct Thing *current_creature, PlayerNumber owner, ThingModel crmodel, struct PlayerInfo *player);
 ThingIndex get_index_of_first_creature_of_owner_and_model(PlayerNumber owner, ThingModel crmodel);
 struct Thing* get_timebomb_target(struct Thing *creatng);
+
+TbBool setup_creature_leave_or_die_if_possible(struct Thing *thing);
 /******************************************************************************/
 #ifdef __cplusplus
 }
