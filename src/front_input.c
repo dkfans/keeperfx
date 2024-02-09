@@ -1563,31 +1563,33 @@ short get_creature_control_action_inputs(void)
             {
                 clear_key_pressed(val);
                 set_players_packet_action(player, PckA_SwitchTeleportDest, i, 0, 0, 0);
-                if (i == 15)
-                {
-                    StrID = 567;
-                }
-                else
-                {
-                    struct RoomConfigStats* roomst = get_room_kind_stats(zoom_key_room_order[i]);
-                    StrID = roomst->name_stridx;
-                }
+                struct RoomConfigStats* roomst = get_room_kind_stats(zoom_key_room_order[i]);
+                StrID = roomst->name_stridx;
             }
 
         }
-        if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
         {
-            set_players_packet_action(player, PckA_SwitchTeleportDest, 16, 0, 0, 0);; // Last work room
+            clear_key_pressed(val);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 16, 0, 0, 0);
+            StrID = 567;
+        }
+        else if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
+        {
+            clear_key_pressed(KC_SEMICOLON);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 17, 0, 0, 0);; // Last work room
         }
         else if (is_key_pressed(KC_SLASH,KMod_DONTCARE))
         {
-            set_players_packet_action(player, PckA_SwitchTeleportDest, 17, 0, 0, 0);; // Call to Arms
+            clear_key_pressed(KC_SLASH);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 18, 0, 0, 0);; // Call to Arms
             struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
             StrID = powerst->name_stridx;
         }
         else if (is_key_pressed(KC_COMMA,KMod_DONTCARE))
         {
-            set_players_packet_action(player, PckA_SwitchTeleportDest, 18, 0, 0, 0); // default behaviour
+            clear_key_pressed(KC_COMMA);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 19, 0, 0, 0); // default behaviour
             StrID = 609;
         }
         struct Thing* creatng = thing_get(player->controlled_thing_idx);
