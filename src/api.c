@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <winbase.h>
+#include "api.h"
 
 #define PIPE_NAME L"\\\\.\\pipe\\KeeperFX-API"
 
@@ -8,9 +9,9 @@ HANDLE hPipe;
 HANDLE hThread;
 
 // Function prototypes
-DWORD WINAPI PipeThread(LPVOID lpParam);
-void ClosePipeThread();
-void InitializeServer();
+DWORD WINAPI api_server_thread(LPVOID lpParam);
+void close_api_server();
+void init_api_server();
 
 // Function to initialize the named pipe server and create the thread
 void init_api_server()
@@ -70,7 +71,9 @@ DWORD WINAPI api_server_thread(LPVOID lpParam)
         if (ReadFile(hPipe, buffer, sizeof(buffer), &dwRead, NULL))
         {
             JUSTLOG("Received message from client: %s\n", buffer);
+
             // Execute commands here...
+            // script_process_value() ??
         }
         else
         {
