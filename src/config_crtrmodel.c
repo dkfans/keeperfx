@@ -114,6 +114,8 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"IMMUNE_TO_DISEASE", 25},
   {"ILLUMINATED",       26},
   {"ALLURING_SCVNGR",   27},
+  {"NO_RESURRECT",      28},
+  {"NO_TRANSFER",       29},
   {NULL,                 0},
   };
 
@@ -740,6 +742,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crstat->entrance_force = true;
                 n++;
                 break;
+            case 28: // NO_RESURRECT
+                crconf->model_flags |= CMF_NoResurrect;
+                n++;
+                break;
+            case 29: // NO_TRANSFER
+                crconf->model_flags |= CMF_NoTransfer;
+                n++;
+                break;
             default:
               CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
                   COMMAND_TEXT(cmd_num),word_buf,block_buf, creature_code_name(crtr_model), config_textname);
@@ -1308,6 +1318,7 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
                     else if (0 == strcmp(word_buf, "ANY_CREATURE"))
                     {
                         crstat->lair_enemy[i] = CREATURE_ANY;
+                        n++;
                     }
                     else
                     {

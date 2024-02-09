@@ -340,8 +340,8 @@ unsigned char sound_flag;
     short max_health;
     short move_speed;
     short orthogn_speed;
-    short field_CC;
-    unsigned long field_CE;
+    short roll;
+    unsigned long anim_time;
     unsigned char instance_id;
     unsigned char inst_repeat;
     unsigned short inst_turn;
@@ -413,6 +413,9 @@ unsigned char cowers_from_slap_turns;
     ThingIndex timebomb_countdown_id;
     ThingIndex timebomb_target_id;
     TbBool timebomb_death;
+    GameTurn unsummon_turn;
+    ThingIndex summoner_idx;
+    ThingIndex familiar_idx[FAMILIAR_MAX];
 };
 
 struct CreatureStats { // These stats are not compatible with original DK - they have more fields
