@@ -134,6 +134,7 @@ CrCheckRet move_check_near_dungeon_heart(struct Thing *creatng);
 CrCheckRet move_check_on_head_for_room(struct Thing *creatng);
 CrCheckRet move_check_persuade(struct Thing *creatng);
 CrCheckRet move_check_wait_at_door_for_wage(struct Thing *creatng);
+short cleanup_timebomb(struct Thing *creatng);
 
 short move_to_position(struct Thing *creatng);
 char new_slab_tunneller_check_for_breaches(struct Thing *creatng);
@@ -460,8 +461,8 @@ struct StateInfo states[CREATURE_STATES_COUNT] = {
     0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, CrStTyp_AngerJob, 0, 0, 0, 0, GBS_creature_states_angry, 1, 0, 1},
   {creature_going_to_safety_for_toking, NULL, NULL, NULL,
     0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,  CrStTyp_Sleep, 0, 0, 1, 0, GBS_creature_states_sleep, 1, 0, 1},
-  {creature_timebomb, cleanup_hold_audience, NULL, NULL,
-    1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Idle, 1, 1, 1, 0, 0, 1, 0, 0},
+  {creature_timebomb, cleanup_timebomb, NULL, NULL,
+    1, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1,  CrStTyp_Move, 1, 0, 1, 0, 0, 1, 0, 0},
 };
 
 /** GUI States of creatures - from "Creatures" Tab in UI.
@@ -564,27 +565,27 @@ TbBool creature_model_bleeds(unsigned long crmodel)
 long get_creature_state_type_f(const struct Thing *thing, const char *func_name)
 {
   long state_type;
-  long state = thing->active_state;
-  if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
+  unsigned long state = thing->active_state;
+  if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
   {
       state_type = states[state].state_type;
   } else
   {
       state_type = states[0].state_type;
-      WARNLOG("%s: The %s index %d active state %d is out of range",func_name,thing_model_name(thing),(int)thing->index,(int)state);
+      WARNLOG("%s: The %s index %d active state %u (%s) is out of range",func_name,thing_model_name(thing),(int)thing->index,state,creature_state_code_name(state));
   }
   if (state_type == CrStTyp_Move)
   {
       state = thing->continue_state;
-      if ( (state > 0) && (state < sizeof(states)/sizeof(states[0])) )
+      if ( (state > 0) && (state < CREATURE_STATES_COUNT) )
       {
           state_type = states[state].state_type;
       } else
       {
           state_type = states[0].state_type;
           // Show message with text name of active state - it's good as the state was checked before
-          WARNLOG("%s: The %s index %d owner %d continue state %d is out of range; active state %s",func_name,
-              thing_model_name(thing),(int)thing->index,(int)thing->owner,(int)state,creature_state_code_name(thing->active_state));
+          WARNLOG("%s: The %s index %d owner %d continue state %u (%s) is out of range; active state %u (%s)",func_name,
+              thing_model_name(thing),(int)thing->index,(int)thing->owner,state,creature_state_code_name(state),thing->active_state,creature_state_code_name(thing->active_state));
       }
   }
   return state_type;
@@ -1395,6 +1396,16 @@ short cleanup_seek_the_enemy(struct Thing *creatng)
     cctrl->seek_enemy.enemy_idx = 0;
     cctrl->seek_enemy.enemy_creation_turn = 0;
     return 1;
+}
+
+short cleanup_timebomb(struct Thing *creatng)
+{
+    TRACE_THING(creatng);
+    struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
+    cctrl->max_speed = calculate_correct_creature_maxspeed(creatng);
+    cctrl->timebomb_target_id = 0;
+    cctrl->timebomb_death = false;
+    return 0;
 }
 
 short creature_being_dropped(struct Thing *creatng)
@@ -4586,6 +4597,7 @@ TbBool cleanup_creature_state_and_interactions(struct Thing *creatng)
     }
     remove_events_thing_is_attached_to(creatng);
     delete_effects_attached_to_creature(creatng);
+    delete_familiars_attached_to_creature(creatng);
     state_cleanup_dragging_body(creatng);
     state_cleanup_dragging_object(creatng);
     return true;
@@ -4604,6 +4616,13 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
             return false;
         }
     }
+    if (curr_state == CrSt_Timebomb)
+    {
+        if (next_stati->state_type == CrStTyp_FightDoor)
+        {
+            return true;
+        }
+    }
     if ((curr_stati->transition) && (!next_stati->override_transition))
         return false;
     if ((curr_stati->captive) && (!next_stati->override_captive))
@@ -4611,53 +4630,29 @@ TbBool can_change_from_state_to(const struct Thing *thing, CrtrStateId curr_stat
     switch (curr_stati->state_type)
     {
     case CrStTyp_OwnNeeds:
-        if (next_stati->override_own_needs)
-            return true;
-        break;
+        return (next_stati->override_own_needs);
     case CrStTyp_Sleep:
-        if (next_stati->override_sleep)
-            return true;
-        break;
+        return (next_stati->override_sleep);
     case CrStTyp_Feed:
-        if (next_stati->override_feed)
-            return true;
-        break;
+        return (next_stati->override_feed);
     case CrStTyp_FightCrtr:
-        if (next_stati->override_fight_crtr)
-            return true;
-        break;
+        return (next_stati->override_fight_crtr);
     case CrStTyp_GetsSalary:
-        if (next_stati->override_gets_salary)
-            return true;
-        break;
+        return (next_stati->override_gets_salary);
     case CrStTyp_Escape:
-        if (next_stati->override_escape)
-            return true;
-        break;
+        return (next_stati->override_escape);
     case CrStTyp_Unconscious:
-        if (next_stati->override_unconscious)
-            return true;
-        break;
+        return (next_stati->override_unconscious);
     case CrStTyp_AngerJob:
-        if (next_stati->override_anger_job)
-            return true;
-        break;
+        return (next_stati->override_anger_job);
     case CrStTyp_FightDoor:
-        if (next_stati->override_fight_door)
-            return true;
-        break;
+        return (next_stati->override_fight_door);
     case CrStTyp_FightObj:
-        if (next_stati->override_fight_object)
-            return true;
-        break;
+        return (next_stati->override_fight_object);
     case CrStTyp_Called2Arms:
-        if (next_stati->override_call2arms)
-            return true;
-        break;
+        return (next_stati->override_call2arms);
     case CrStTyp_Follow:
-        if (next_stati->override_follow)
-            return true;
-        break;
+        return (next_stati->override_follow);
     default:
         return true;
     }
@@ -4710,9 +4705,13 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     }
     if (player->victory_state == VicS_LostLevel)
     {
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
-        return thing->active_state;
+        // TODO: Correctly deal with possession of creatures not owned by the player
+        if (thing->model != get_players_special_digger_model(player->id_number))
+        {
+            cleanup_current_thing_state(thing);
+            initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
+            return thing->active_state;
+        }
     }
     i = creatures[thing->model%game.conf.crtr_conf.model_count].evil_start_state;
     cleanup_current_thing_state(thing);
@@ -5362,15 +5361,19 @@ short creature_timebomb(struct Thing *creatng)
     }
     if ((creatng->alloc_flags & TAlF_IsControlled) == 0)
     {
-        struct Thing* trgtng = find_nearest_enemy_creature(creatng);
-        if ( (!thing_is_invalid(trgtng)) && (creature_can_navigate_to(creatng, &trgtng->mappos, NavRtF_Default)) )
+        struct Thing* trgtng = get_timebomb_target(creatng);
+        if (!thing_is_invalid(trgtng))
         {
             cctrl->timebomb_target_id = trgtng->index;
             cctrl->moveto_pos.x.val = trgtng->mappos.x.val;
             cctrl->moveto_pos.y.val = trgtng->mappos.y.val;
             cctrl->moveto_pos.z.val = trgtng->mappos.z.val;
             cctrl->move_flags = NavRtF_Default;
-            creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
+            struct Thing *enmtng = thing_get(cctrl->combat.battle_enemy_idx);
+            if (!thing_is_deployed_door(enmtng))
+            {
+                creature_move_to(creatng, &cctrl->moveto_pos, cctrl->max_speed, NavRtF_Default, false);
+            }
         }
         else
         {
