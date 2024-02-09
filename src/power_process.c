@@ -675,6 +675,10 @@ void process_timebomb(struct Thing *creatng)
     if (!creature_affected_by_spell(creatng, SplK_TimeBomb)) {
         return;
     }
+    if (thing_is_picked_up(creatng))
+    {
+        return;
+    }
     update_creature_speed(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* timetng = thing_get(cctrl->timebomb_countdown_id);
