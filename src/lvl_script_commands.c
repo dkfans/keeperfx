@@ -5133,6 +5133,7 @@ static void add_to_player_modifier_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     short mdfrdesc = get_id(modifier_desc, scline->tp[1]);
     short mdfrval = scline->np[2];
+    const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
     if (mdfrdesc == -1)
     {
         SCRPTERRLOG("Unknown Player Modifier '%s'.", scline->tp[1]);
