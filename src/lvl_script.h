@@ -230,6 +230,7 @@ extern const struct NamedCommand player_desc[];
 /******************************************************************************/
 short clear_script(void);
 short load_script(long lvl_num);
+long script_scan_line(char *line,TbBool preloaded);
 TbBool preload_script(long lvnum);
 /******************************************************************************/
 

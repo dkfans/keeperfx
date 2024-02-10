@@ -1,8 +1,11 @@
+#include "pre_inc.h"
+#define WIN32_LEAN_AND_MEAN 1
 #include <windows.h>
-#include <winbase.h>
 #include "api.h"
+#include "lvl_script.h"
+#include "post_inc.h"
 
-#define PIPE_NAME L"\\\\.\\pipe\\KeeperFX-API"
+#define PIPE_NAME "\\\\.\\pipe\\KEEPERFX"
 
 // Global variables
 HANDLE hPipe;
@@ -31,26 +34,45 @@ void init_api_server()
 
     if (hPipe == INVALID_HANDLE_VALUE)
     {
-        JUSTLOG("Failed to create named pipe. Error code: %d\n", GetLastError());
-        exit(1);
+
+        DWORD errorMessageID = GetLastError();
+        if (errorMessageID == 0)
+            return; // No error message, don't print anything
+
+        LPSTR messageBuffer = NULL;
+        size_t size = FormatMessageA(
+            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+            NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+        if (size != 0)
+        {
+            WARNLOG("Failed to setup named pipe: %s (%lu)\n", messageBuffer, errorMessageID);
+            LocalFree(messageBuffer);
+        }
+        else
+        {
+            WARNLOG("Failed to setup named pipe: %lu\n", errorMessageID);
+        }
+
+        return;
     }
 
-    JUSTLOG("Named pipe server listening for clients...\n");
+    JUSTLOG("Named API pipe server listening for client...\n");
 
     // Spawn a thread to handle incoming messages
     hThread = CreateThread(NULL, 0, api_server_thread, (LPVOID)hPipe, 0, &dwThreadId);
     if (hThread == NULL)
     {
-        JUSTLOG("Failed to create thread. Error code: %d\n", GetLastError());
+        WARNLOG("Failed to create a thread for the API server");
         CloseHandle(hPipe);
-        exit(1);
+        return;
     }
 }
 
 // Thread function to handle incoming messages
 DWORD WINAPI api_server_thread(LPVOID lpParam)
 {
-    HANDLE hPipe = (HANDLE)lpParam;
+    hPipe = (HANDLE)lpParam;
     BOOL bConnected;
     DWORD dwRead;
     CHAR buffer[1024];
@@ -74,13 +96,21 @@ DWORD WINAPI api_server_thread(LPVOID lpParam)
 
             // Execute commands here...
             // script_process_value() ??
+            // parse_txt_data(buffer, sizeof(buffer));
+
+            // script_scan_line(buffer, false);
         }
         else
         {
-            JUSTLOG("Failed to read from pipe. Error code: %d\n", GetLastError());
+            WARNLOG("Failed to read from pipe. Error code: %d\n", GetLastError());
             break;
         }
     }
+
+    WARNLOG("Named API pipe thread terminating...");
+
+    // Close the pipe handle
+    CloseHandle(hPipe);
 
     return 0;
 }
@@ -89,9 +119,11 @@ DWORD WINAPI api_server_thread(LPVOID lpParam)
 void close_api_server()
 {
     // Terminate the thread
+    JUSTLOG("Terminating Named API pipe thread...");
     TerminateThread(hThread, 0);
 
     // Close the pipe handle
+    JUSTLOG("Terminating Named API pipe handle...");
     CloseHandle(hPipe);
 
     JUSTLOG("API server closed");
