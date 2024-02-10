@@ -5160,8 +5160,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
             switch (mdfrdesc)
             {
                 case 1: // Health
-                    mdfradd = dungeon->modifier.health;
-                    mdfradd = mdfradd + mdfrval;
+                    mdfradd = dungeon->modifier.health + mdfrval;
                     if (mdfradd >= 0) {
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.health = mdfradd;
@@ -5170,8 +5169,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     }
                     break;
                 case 2: // Strength
-                    mdfradd = dungeon->modifier.strength;
-                    mdfradd = mdfradd + mdfrval;
+                    mdfradd = dungeon->modifier.strength + mdfrval;
                     if (mdfradd >= 0) {
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.strength = mdfradd;
@@ -5180,8 +5178,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     }
                     break;
                 case 3: // Armour
-                    mdfradd = dungeon->modifier.armour;
-                    mdfradd = mdfradd + mdfrval;
+                    mdfradd = dungeon->modifier.armour + mdfrval;
                     if (mdfradd >= 0) {
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.armour = mdfradd;
@@ -5190,8 +5187,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     }
                     break;
                 case 4: // SpellDamage
-                    mdfradd = dungeon->modifier.spell_damage;
-                    mdfradd = mdfradd + mdfrval;
+                    mdfradd = dungeon->modifier.spell_damage + mdfrval;
                     if (mdfradd >= 0) {
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.spell_damage = mdfradd;
@@ -5200,8 +5196,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     }
                     break;
                 case 5: // Speed
-                    mdfradd = dungeon->modifier.speed;
-                    mdfradd = mdfradd + mdfrval;
+                    mdfradd = dungeon->modifier.speed + mdfrval;
                     if (mdfradd >= 0) {
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.speed = mdfradd;
@@ -5210,8 +5205,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     }
                     break;
                 case 6: // Salary
-                    mdfradd = dungeon->modifier.pay;
-                    mdfradd = mdfradd + mdfrval;
+                    mdfradd = dungeon->modifier.pay + mdfrval;
                     if (mdfradd >= 0) {
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.pay = mdfradd;
@@ -5220,8 +5214,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     }
                     break;
                 case 7: // TrainingCost
-                    mdfradd = dungeon->modifier.training_cost;
-                    mdfradd = mdfradd + mdfrval;
+                    mdfradd = dungeon->modifier.training_cost + mdfrval;
                     if (mdfradd >= 0) {
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.training_cost = mdfradd;
@@ -5230,8 +5223,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     }
                     break;
                 case 8: // ScavengingCost
-                    mdfradd = dungeon->modifier.scavenging_cost;
-                    mdfradd = mdfradd + mdfrval;
+                    mdfradd = dungeon->modifier.scavenging_cost + mdfrval;
                     if (mdfradd >= 0) {
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.scavenging_cost = mdfradd;
@@ -5240,8 +5232,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                     }
                 break;
                 case 9: // Loyalty
-                    mdfradd = dungeon->modifier.loyalty;
-                    mdfradd = mdfradd + mdfrval;
+                    mdfradd = dungeon->modifier.loyalty + mdfrval;
                     if (mdfradd >= 0) {
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.loyalty = mdfradd;
