@@ -5079,7 +5079,9 @@ static void set_player_modifier_process(struct ScriptContext* context)
     struct Dungeon* dungeon;
     short mdfrdesc = context->value->shorts[0];
     short mdfrval = context->value->shorts[1];
-    const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
+    #if (BFDEBUG_LEVEL > 0)
+        const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
+    #endif
     for (int plyr_idx = context->plr_start; plyr_idx < context->plr_end; plyr_idx++)
     {
         dungeon = get_dungeon(plyr_idx);
