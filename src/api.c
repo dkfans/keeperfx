@@ -93,12 +93,7 @@ DWORD WINAPI api_server_thread(LPVOID lpParam)
         if (ReadFile(hPipe, buffer, sizeof(buffer), &dwRead, NULL))
         {
             JUSTLOG("Received message from client: %s\n", buffer);
-
-            // Execute commands here...
-            // script_process_value() ??
-            // parse_txt_data(buffer, sizeof(buffer));
-
-            // script_scan_line(buffer, false);
+            script_scan_line(buffer, false);
         }
         else
         {
