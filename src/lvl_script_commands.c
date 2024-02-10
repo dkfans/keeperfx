@@ -5053,7 +5053,7 @@ static void set_player_modifier_check(const struct ScriptLine* scline)
     const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
     if (mdfrdesc == -1)
     {
-        SCRPTERRLOG("Unknown Player Modifier '%s'.", mdfrname);
+        SCRPTERRLOG("Unknown Player Modifier '%s'.", scline->tp[1]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
@@ -5137,7 +5137,7 @@ static void add_to_player_modifier_check(const struct ScriptLine* scline)
     const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
     if (mdfrdesc == -1)
     {
-        SCRPTERRLOG("Unknown Player Modifier '%s'.", mdfrname);
+        SCRPTERRLOG("Unknown Player Modifier '%s'.", scline->tp[1]);
         DEALLOCATE_SCRIPT_VALUE
         return;
     }
