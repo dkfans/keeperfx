@@ -5134,7 +5134,6 @@ static void add_to_player_modifier_check(const struct ScriptLine* scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     short mdfrdesc = get_id(modifier_desc, scline->tp[1]);
     short mdfrval = scline->np[2];
-    const char *mdfrname = get_conf_parameter_text(modifier_desc,mdfrdesc);
     if (mdfrdesc == -1)
     {
         SCRPTERRLOG("Unknown Player Modifier '%s'.", scline->tp[1]);
@@ -5167,7 +5166,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.health = mdfradd;
                     } else {
-                        SCRPTERRLOG("Unable to add %d to Player Modifier of player %d: final value of '%s' cannot be negative.", mdfrval, (int)plyr_idx, mdfrname);
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.health);
                     }
                     break;
                 case 2: // Strength
@@ -5177,7 +5176,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.strength = mdfradd;
                     } else {
-                        SCRPTERRLOG("Unable to add %d to Player Modifier of player %d: final value of '%s' cannot be negative.", mdfrval, (int)plyr_idx, mdfrname);
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.strength);
                     }
                     break;
                 case 3: // Armour
@@ -5187,7 +5186,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.armour = mdfradd;
                     } else {
-                        SCRPTERRLOG("Unable to add %d to Player Modifier of player %d: final value of '%s' cannot be negative.", mdfrval, (int)plyr_idx, mdfrname);
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.armour);
                     }
                     break;
                 case 4: // SpellDamage
@@ -5197,7 +5196,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.spell_damage = mdfradd;
                     } else {
-                        SCRPTERRLOG("Unable to add %d to Player Modifier of player %d: final value of '%s' cannot be negative.", mdfrval, (int)plyr_idx, mdfrname);
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.spell_damage);
                     }
                     break;
                 case 5: // Speed
@@ -5207,7 +5206,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.speed = mdfradd;
                     } else {
-                        SCRPTERRLOG("Unable to add %d to Player Modifier of player %d: final value of '%s' cannot be negative.", mdfrval, (int)plyr_idx, mdfrname);
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.speed);
                     }
                     break;
                 case 6: // Salary
@@ -5217,7 +5216,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.pay = mdfradd;
                     } else {
-                        SCRPTERRLOG("Unable to add %d to Player Modifier of player %d: final value of '%s' cannot be negative.", mdfrval, (int)plyr_idx, mdfrname);
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.pay);
                     }
                     break;
                 case 7: // TrainingCost
@@ -5227,7 +5226,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.training_cost = mdfradd;
                     } else {
-                        SCRPTERRLOG("Unable to add %d to Player Modifier of player %d: final value of '%s' cannot be negative.", mdfrval, (int)plyr_idx, mdfrname);
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.training_cost);
                     }
                     break;
                 case 8: // ScavengingCost
@@ -5237,7 +5236,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.scavenging_cost = mdfradd;
                     } else {
-                        SCRPTERRLOG("Unable to add %d to Player Modifier of player %d: final value of '%s' cannot be negative.", mdfrval, (int)plyr_idx, mdfrname);
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.scavenging_cost);
                     }
                 break;
                 case 9: // Loyalty
@@ -5247,7 +5246,7 @@ static void add_to_player_modifier_process(struct ScriptContext* context)
                         SCRIPTDBG(7,"Adding %d to Player Modifier '%s' of player %d.", mdfrval, mdfrname, (int)plyr_idx);
                         dungeon->modifier.loyalty = mdfradd;
                     } else {
-                        SCRPTERRLOG("Unable to add %d to Player Modifier of player %d: final value of '%s' cannot be negative.", mdfrval, (int)plyr_idx, mdfrname);
+                        SCRPTERRLOG("Player %d Modifier '%s' may not be negative. Tried to add %d to value %d", (int)plyr_idx, mdfrname, mdfrval, dungeon->modifier.loyalty);
                     }
                     break;
                 default:
