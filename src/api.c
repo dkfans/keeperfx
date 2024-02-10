@@ -88,8 +88,10 @@ DWORD WINAPI api_server_thread(LPVOID lpParam)
             // Read data from the pipe
             while (ReadFile(hPipe, buffer, sizeof(buffer), &dwRead, NULL) && dwRead > 0)
             {
-                // Handle a MAP SCRIPT COMMAND
+
                 JUSTLOG("Received message from client: %s", buffer);
+
+                // Handle a MAP SCRIPT COMMAND
                 script_scan_line(buffer, false);
 
                 // Clear the buffer after we are done with it
@@ -120,15 +122,22 @@ void close_api_server()
 // Log the last API error
 void log_last_api_error()
 {
+    // Get last error
     DWORD errorMessageID = GetLastError();
-    if (errorMessageID == 0)
-        return; // No error message, don't print anything
 
+    // Check if there was an error
+    if (errorMessageID == 0)
+    {
+        return;
+    }
+
+    // Create a readable string from the error code
     LPSTR messageBuffer = NULL;
     size_t size = FormatMessageA(
         FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,
         NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
 
+    // Log the error
     if (size != 0)
     {
         WARNLOG("%s (Error Code: %lu)", messageBuffer, errorMessageID);
