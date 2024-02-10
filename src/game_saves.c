@@ -44,6 +44,7 @@
 #include "frontmenu_ingame_map.h"
 #include "gui_boxmenu.h"
 #include "keeperfx.hpp"
+#include "api.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
