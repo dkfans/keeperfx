@@ -7,5 +7,6 @@
 
 void init_api_server();
 void close_api_server();
+void log_last_api_error();
 DWORD WINAPI api_server_thread(LPVOID lpParam);
 #endif

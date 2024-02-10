@@ -5,62 +5,24 @@
 #include "lvl_script.h"
 #include "post_inc.h"
 
-#define PIPE_NAME "\\\\.\\pipe\\KEEPERFX"
+#define PIPE_NAME "\\\\.\\pipe\\keeperfx"
+#define PIPE_BUFFER_SIZE 1024
 
 // Global variables
 HANDLE hPipe;
 HANDLE hThread;
+DWORD dwThreadId;
 
 // Function prototypes
 DWORD WINAPI api_server_thread(LPVOID lpParam);
 void close_api_server();
 void init_api_server();
+void log_last_api_error();
 
-// Function to initialize the named pipe server and create the thread
+// Initialize API server using a thread and named pipe
 void init_api_server()
 {
-    DWORD dwThreadId;
-
-    // Create the named pipe
-    hPipe = CreateNamedPipe(
-        PIPE_NAME,
-        PIPE_ACCESS_DUPLEX,
-        PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
-        1,
-        1024,
-        1024,
-        NMPWAIT_USE_DEFAULT_WAIT,
-        NULL);
-
-    if (hPipe == INVALID_HANDLE_VALUE)
-    {
-
-        DWORD errorMessageID = GetLastError();
-        if (errorMessageID == 0)
-            return; // No error message, don't print anything
-
-        LPSTR messageBuffer = NULL;
-        size_t size = FormatMessageA(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
-
-        if (size != 0)
-        {
-            WARNLOG("Failed to setup named pipe: %s (%lu)\n", messageBuffer, errorMessageID);
-            LocalFree(messageBuffer);
-        }
-        else
-        {
-            WARNLOG("Failed to setup named pipe: %lu\n", errorMessageID);
-        }
-
-        return;
-    }
-
-    JUSTLOG("Named API pipe server listening for client...\n");
-
-    // Spawn a thread to handle incoming messages
-    hThread = CreateThread(NULL, 0, api_server_thread, (LPVOID)hPipe, 0, &dwThreadId);
+    hThread = CreateThread(NULL, 0, api_server_thread, NULL, 0, &dwThreadId);
     if (hThread == NULL)
     {
         WARNLOG("Failed to create a thread for the API server");
@@ -69,45 +31,76 @@ void init_api_server()
     }
 }
 
-// Thread function to handle incoming messages
+// Thread that listens using the named pipe
 DWORD WINAPI api_server_thread(LPVOID lpParam)
 {
-    hPipe = (HANDLE)lpParam;
-    BOOL bConnected;
+    // CHAR buffer[1024];
+    CHAR buffer[PIPE_BUFFER_SIZE];
     DWORD dwRead;
-    CHAR buffer[1024];
+    BOOL bConnected;
 
-    // Wait for a client to connect
-    bConnected = ConnectNamedPipe(hPipe, NULL);
-    if (!bConnected)
+    // Create named pipe
+    hPipe = CreateNamedPipe(
+        PIPE_NAME,
+        PIPE_ACCESS_DUPLEX,
+        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
+        1,
+        PIPE_BUFFER_SIZE,
+        PIPE_BUFFER_SIZE,
+        NMPWAIT_WAIT_FOREVER,
+        NULL);
+
+    if (hPipe == INVALID_HANDLE_VALUE)
     {
-        JUSTLOG("Failed to connect to client. Error code: %d\n", GetLastError());
+        log_last_api_error();
         return 1;
     }
 
-    JUSTLOG("Client connected. Listening for messages...\n");
+    JUSTLOG("API server listening on: %s", PIPE_NAME);
 
-    // Read data from the pipe
+    // Continuously accept client connections and handle data
     while (1)
     {
-        if (ReadFile(hPipe, buffer, sizeof(buffer), &dwRead, NULL))
+        // Wait for client to connect
+        bConnected = ConnectNamedPipe(hPipe, NULL);
+        if (!bConnected)
         {
-            JUSTLOG("Received message from client: %s\n", buffer);
-            script_scan_line(buffer, false);
+            // Check if the client disconnected
+            DWORD dwError = GetLastError();
+            if (dwError == ERROR_PIPE_CONNECTED)
+            {
+                // Client connected before ConnectNamedPipe was called
+                bConnected = true;
+            }
+            else
+            {
+                // Handle error
+                log_last_api_error();
+                CloseHandle(hPipe);
+                return dwError;
+            }
         }
-        else
+
+        if (bConnected)
         {
-            WARNLOG("Failed to read from pipe. Error code: %d\n", GetLastError());
-            break;
+            SYNCDBG(1, "Client connected...");
+
+            // Read data from the pipe
+            while (ReadFile(hPipe, buffer, sizeof(buffer), &dwRead, NULL) && dwRead > 0)
+            {
+                // Handle a MAP SCRIPT COMMAND
+                JUSTLOG("Received message from client: %s", buffer);
+                script_scan_line(buffer, false);
+
+                // Clear the buffer after we are done with it
+                memset(buffer, 0, sizeof(buffer));
+            }
+
+            // Disconnect the client when ReadFile fails (e.g., client disconnects)
+            DisconnectNamedPipe(hPipe);
+            SYNCDBG(1, "Client disconnected...");
         }
     }
-
-    WARNLOG("Named API pipe thread terminating...");
-
-    // Close the pipe handle
-    CloseHandle(hPipe);
-
-    return 0;
 }
 
 // Function to close the pipe thread
@@ -122,4 +115,27 @@ void close_api_server()
     CloseHandle(hPipe);
 
     JUSTLOG("API server closed");
+}
+
+// Log the last API error
+void log_last_api_error()
+{
+    DWORD errorMessageID = GetLastError();
+    if (errorMessageID == 0)
+        return; // No error message, don't print anything
+
+    LPSTR messageBuffer = NULL;
+    size_t size = FormatMessageA(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,
+        NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
+
+    if (size != 0)
+    {
+        WARNLOG("%s (Error Code: %lu)", messageBuffer, errorMessageID);
+        LocalFree(messageBuffer);
+    }
+    else
+    {
+        WARNLOG("Unknown error (Error Code: %lu)", errorMessageID);
+    }
 }
