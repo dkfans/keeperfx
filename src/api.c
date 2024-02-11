@@ -1,32 +1,31 @@
 #include "pre_inc.h"
 #define WIN32_LEAN_AND_MEAN 1
 #include <windows.h>
+#include <SDL2/SDL_net.h>
 #include "api.h"
 #include "lvl_script.h"
 #include "post_inc.h"
 
-#define PIPE_NAME "\\\\.\\pipe\\keeperfx"
-#define PIPE_BUFFER_SIZE 1024
+#define API_SERVER_PORT 5599
+#define API_SERVER_BUFFER 1024
 
-// Global variables
-HANDLE hPipe;
-HANDLE hThread;
+// Thread vars
 DWORD dwThreadId;
+HANDLE hThread;
 
 // Function prototypes
 DWORD WINAPI api_server_thread(LPVOID lpParam);
 void close_api_server();
 void init_api_server();
-void log_last_api_error();
 
 // Initialize API server using a thread and named pipe
 void init_api_server()
 {
+    // Create the API thread
     hThread = CreateThread(NULL, 0, api_server_thread, NULL, 0, &dwThreadId);
     if (hThread == NULL)
     {
-        WARNLOG("Failed to create a thread for the API server");
-        CloseHandle(hPipe);
+        ERRORLOG("Failed to create a thread for the API server");
         return;
     }
 }
@@ -34,131 +33,105 @@ void init_api_server()
 // Thread that listens using the named pipe
 DWORD WINAPI api_server_thread(LPVOID lpParam)
 {
-    // CHAR buffer[1024];
-    CHAR buffer[PIPE_BUFFER_SIZE];
-    DWORD dwRead;
-    BOOL bConnected;
 
-    // Create named pipe
-    hPipe = CreateNamedPipe(
-        PIPE_NAME,
-        PIPE_ACCESS_DUPLEX,
-        PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
-        1,
-        PIPE_BUFFER_SIZE,
-        PIPE_BUFFER_SIZE,
-        NMPWAIT_WAIT_FOREVER,
-        NULL);
-
-    if (hPipe == INVALID_HANDLE_VALUE)
+    if (SDLNet_Init() < 0)
     {
-        log_last_api_error();
+        JUSTLOG("SDLNet could not initialize! SDLNet_Error: %s", SDLNet_GetError());
         return 1;
     }
 
-    JUSTLOG("API server listening on: %s", PIPE_NAME);
+    SDLNet_SocketSet serverSocketSet = SDLNet_AllocSocketSet(1);
+    if (!serverSocketSet)
+    {
+        JUSTLOG("SDLNet_AllocSocketSet failed! SDLNet_Error: %s", SDLNet_GetError());
+        return 1;
+    }
 
-    // Continuously accept client connections and handle data
+    IPaddress ip;
+    if (SDLNet_ResolveHost(&ip, NULL, API_SERVER_PORT) < 0)
+    {
+        JUSTLOG("SDLNet_ResolveHost failed! SDLNet_Error: %s", SDLNet_GetError());
+        return 1;
+    }
+
+    TCPsocket serverSocket = SDLNet_TCP_Open(&ip);
+    if (!serverSocket)
+    {
+        JUSTLOG("SDLNet_TCP_Open failed! SDLNet_Error: %s", SDLNet_GetError());
+        return 1;
+    }
+
+    if (SDLNet_TCP_AddSocket(serverSocketSet, serverSocket) == -1)
+    {
+        JUSTLOG("SDLNet_TCP_AddSocket failed! SDLNet_Error: %s", SDLNet_GetError());
+        return 1;
+    }
+
+    char buffer[API_SERVER_BUFFER];
+    memset(buffer, 0, API_SERVER_BUFFER);
+
+    JUSTLOG("API Server started. Waiting for connections...");
+
     while (1)
     {
-        // Wait for client to connect
-        bConnected = ConnectNamedPipe(hPipe, NULL);
-        if (!bConnected)
+        int numReady = SDLNet_CheckSockets(serverSocketSet, -1);
+
+        JUSTLOG("numReady %d", numReady);
+
+        if (numReady < 0)
         {
-            // Check if the client disconnected
-            DWORD dwError = GetLastError();
-            if (dwError == ERROR_PIPE_CONNECTED)
-            {
-                // Client connected before ConnectNamedPipe was called
-                bConnected = true;
-            }
-            else
-            {
-                // Handle error
-                log_last_api_error();
-                // CloseHandle(hPipe);
-                // return dwError;
-                continue;
-            }
+            JUSTLOG("SDLNet_CheckSockets failed! SDLNet_Error: %s", SDLNet_GetError());
+            break;
         }
 
-        if (bConnected)
+        if (numReady > 0)
         {
-            SYNCDBG(1, "Client connected...");
-
-            // Read data from the pipe
-            while (ReadFile(hPipe, buffer, sizeof(buffer), &dwRead, NULL) && dwRead > 0)
+            if (SDLNet_SocketReady(serverSocket))
             {
-                // Null-terminate the string
-                // This is required because ReadFile does not do this automatically
-                buffer[dwRead] = '\0';
-
-                JUSTLOG("Received message from client: %s", buffer);
-
-                // Handle a MAP SCRIPT COMMAND
-                script_scan_line(buffer, false);
-
-                // Clear the buffer after we are done with it
-                // memset(buffer, 0, sizeof(buffer));
-
-                DWORD dwBytesWritten;
-                char response[512] = "Test reply";
-
-                // Write to the pipe
-                if (!WriteFile(hPipe, response, sizeof(response), &dwBytesWritten, NULL))
+                TCPsocket clientSocket = SDLNet_TCP_Accept(serverSocket);
+                if (clientSocket)
                 {
-                    log_last_api_error();
-                    break;
+                    JUSTLOG("Client connected");
+
+                    while (1)
+                    {
+                        int received = SDLNet_TCP_Recv(clientSocket, buffer, API_SERVER_BUFFER);
+                        if (received > 0)
+                        {
+                            // Remove any possible trailing newline from the data
+                            // This makes it work with a Telnet connection as well
+                            if (strlen(buffer) > 0 && buffer[strlen(buffer) - 1] == '\n')
+                            {
+                                buffer[strlen(buffer) - 1] = '\0';
+                            }
+
+                            JUSTLOG("Received message from client: %s", buffer);
+
+                            // Run the received data as a MAP SCRIPT COMMAND
+                            script_scan_line(buffer, false);
+                        }
+
+                        SDLNet_TCP_Send(clientSocket, buffer, received); // Echo back
+                    }
                 }
             }
-
-            // Disconnect the client when ReadFile fails (e.g., client disconnects)
-            DisconnectNamedPipe(hPipe);
-            SYNCDBG(1, "Client disconnected...");
         }
+
+        SDL_Delay(100); // Adjust as needed for performance
     }
+
+    JUSTLOG("API server stopped listening to messages");
+
+    SDLNet_FreeSocketSet(serverSocketSet);
+    SDLNet_Quit();
+    SDL_Quit();
+
+    return 0;
 }
 
-// Function to close the pipe thread
 void close_api_server()
 {
     // Terminate the thread
-    JUSTLOG("Terminating Named API pipe thread...");
+    JUSTLOG("Terminating API server...");
     TerminateThread(hThread, 0);
-
-    // Close the pipe handle
-    JUSTLOG("Terminating Named API pipe handle...");
-    CloseHandle(hPipe);
-
-    JUSTLOG("API server closed");
-}
-
-// Log the last API error
-void log_last_api_error()
-{
-    // Get last error
-    DWORD errorMessageID = GetLastError();
-
-    // Check if there was an error
-    if (errorMessageID == 0)
-    {
-        return;
-    }
-
-    // Create a readable string from the error code
-    LPSTR messageBuffer = NULL;
-    size_t size = FormatMessageA(
-        FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_MAX_WIDTH_MASK,
-        NULL, errorMessageID, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPSTR)&messageBuffer, 0, NULL);
-
-    // Log the error
-    if (size != 0)
-    {
-        WARNLOG("%s(Error Code: %lu)", messageBuffer, errorMessageID);
-        LocalFree(messageBuffer);
-    }
-    else
-    {
-        WARNLOG("Unknown error (Error Code: %lu)", errorMessageID);
-    }
 }
