@@ -76,8 +76,9 @@ DWORD WINAPI api_server_thread(LPVOID lpParam)
             {
                 // Handle error
                 log_last_api_error();
-                CloseHandle(hPipe);
-                return dwError;
+                // CloseHandle(hPipe);
+                // return dwError;
+                continue;
             }
         }
 
@@ -88,6 +89,9 @@ DWORD WINAPI api_server_thread(LPVOID lpParam)
             // Read data from the pipe
             while (ReadFile(hPipe, buffer, sizeof(buffer), &dwRead, NULL) && dwRead > 0)
             {
+                // Null-terminate the string
+                // This is required because ReadFile does not do this automatically
+                buffer[dwRead] = '\0';
 
                 JUSTLOG("Received message from client: %s", buffer);
 
@@ -95,7 +99,17 @@ DWORD WINAPI api_server_thread(LPVOID lpParam)
                 script_scan_line(buffer, false);
 
                 // Clear the buffer after we are done with it
-                memset(buffer, 0, sizeof(buffer));
+                // memset(buffer, 0, sizeof(buffer));
+
+                DWORD dwBytesWritten;
+                char response[512] = "Test reply";
+
+                // Write to the pipe
+                if (!WriteFile(hPipe, response, sizeof(response), &dwBytesWritten, NULL))
+                {
+                    log_last_api_error();
+                    break;
+                }
             }
 
             // Disconnect the client when ReadFile fails (e.g., client disconnects)
@@ -140,7 +154,7 @@ void log_last_api_error()
     // Log the error
     if (size != 0)
     {
-        WARNLOG("%s (Error Code: %lu)", messageBuffer, errorMessageID);
+        WARNLOG("%s(Error Code: %lu)", messageBuffer, errorMessageID);
         LocalFree(messageBuffer);
     }
     else
