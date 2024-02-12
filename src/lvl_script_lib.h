@@ -182,6 +182,7 @@ enum TbScriptCommands {
     Cmd_LEVEL_UP_PLAYERS_CREATURES         = 169,
     Cmd_SET_INCREASE_ON_EXPERIENCE         = 170,
     Cmd_SET_PLAYER_MODIFIER                = 171,
+    Cmd_ADD_TO_PLAYER_MODIFIER             = 172,
 };
 
 struct ScriptLine {
