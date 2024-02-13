@@ -804,7 +804,7 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
                         good = true;
                     }
                     while (1) {
-                        crmodel = rand() % game.conf.crtr_conf.model_count + 1;
+                        crmodel = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;
                         // Accept only evil creatures
                         struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crmodel];
                         if ((crconf->model_flags & CMF_IsSpectator) != 0) {
@@ -1700,7 +1700,7 @@ long get_creature_model_for_command(char *msg)
         {
             return 31;
         }
-        else if (strcasecmp( (msg, "any_creature") == 0) || (strcasecmp(msg, "any") == 0))
+        else if ( (strcasecmp (msg, "any_creature") == 0) || (strcasecmp(msg, "any") == 0))
         {
             return CREATURE_ANY;
         }
