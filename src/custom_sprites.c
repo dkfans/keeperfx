@@ -259,7 +259,7 @@ static void load_system_sprites(short fgroup)
         }
         cnt++;
     }
-    LbJustLog("Found %d sprite zip file(s), loaded %d with animations and %d with icons.\n", cnt, cnt_ok, cnt_icons);
+    LbJustLog("Found %d sprite zip file(s), loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt, cnt_ok, cnt_icons, next_free_sprite, KEEPERSPRITE_ADD_NUM);
 }
 
 void init_custom_sprites(LevelNumber lvnum)
