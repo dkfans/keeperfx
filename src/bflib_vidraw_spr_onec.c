@@ -1241,11 +1241,22 @@ TbResult LbSpriteDrawOneColourUsingScalingDownDataSolidLR(uchar *outbuf, int sca
                         if (xcurstep[1] > 0)
                         {
                             unsigned char pxval;
-                            pxval = (colour);
+                            switch (frontend_menu_state)
                             {
-                                *out_end = pxval;
-                                out_end++;
+                                case FeSt_LAND_VIEW:
+                                case FeSt_NETLAND_VIEW:
+                                {
+                                    pxval = (*sprdata == 250) ? *sprdata : colour; // leave shadows in landview text alone
+                                    break;
+                                }
+                                default:
+                                {
+                                    pxval = colour;
+                                    break;
+                                }
                             }
+                            *out_end = pxval;
+                            out_end++;
                         }
                         sprdata++;
                         xcurstep += 2;
