@@ -1473,6 +1473,8 @@ void draw_map_level_descriptions(void)
 
       LbDrawBox(borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight, borderColour);
       LbDrawBox(boxX, textY, boxWidth, boxHeight, boxColour);
+      set_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
+      lbDisplay.DrawColour = 1;
       LbTextDrawResized(textX, textY, units_per_pixel_menu, level_description);
     }
 }

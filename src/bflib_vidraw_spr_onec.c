@@ -665,8 +665,7 @@ TbResult LbSpriteDrawOneColourUsingScalingUpDataSolidLR(uchar *outbuf, int scanl
                             xdup = abs(scanline)-xcurstep[0];
                         if (xdup > 0)
                         {
-                            unsigned char pxval;
-                            pxval = (colour);
+                            unsigned char pxval = (*sprdata == 250) ? *sprdata : colour; // leave shadows in landview text alone
                             for (;xdup > 0; xdup--)
                             {
                                 *out_end = pxval;
