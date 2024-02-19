@@ -24,9 +24,9 @@ include prebuilds.mk
 
 .PHONY: clean-libsdl deep-clean-libsdl
 
-.INTERMEDIATE: libsdl libsdlnet libsdlmixer libsdlimage libsdlttf
+.INTERMEDIATE: libsdl libsdlnet libsdlmixer libsdlimage
 
-libexterns: libsdl libsdlnet libsdlmixer libsdlimage libsdlttf
+libexterns: libsdl libsdlnet libsdlmixer libsdlimage
 	touch libexterns
 
 clean-libexterns: clean-libsdl
@@ -210,57 +210,6 @@ sdl/$(SDL_IMAGE_PACKAGE):
 	-$(ECHO) 'Downloading package: $@'
 	$(MKDIR) "$(@D)"
 	curl -L -o "$@.dl" "$(SDL_IMAGE_DOWNLOAD)"
-	unzip -qt "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
-
-endif
-
-##################
-
-ifneq (,$(findstring .tar.gz,$(SDL_TTF_PACKAGE)))
-
-libsdlttf: sdl/lib/libSDL2_ttf.lib
-
-sdl/lib/libSDL2_ttf.lib: sdl/$(SDL_TTF_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include/SDL2
-	cd "$(<D)"; \
-	tar -xzf "$(<F)"
-	$(MV) sdl/SDL2_ttf-*/$(ARCH)/include/SDL2/* sdl/include/SDL2/
-	$(CP) -r sdl/SDL2_ttf-*/$(ARCH)/lib/* sdl/lib/
-	$(CP) sdl/SDL2_ttf-*/$(ARCH)/bin/SDL2_ttf.dll sdl/for_final_package/
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-sdl/$(SDL_TTF_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(SDL_TTF_DOWNLOAD)"
-	tar -tzf "$@.dl"
-	$(MV) "$@.dl" "$@"
-	-$(ECHO) 'Finished downloading: $@'
-	-$(ECHO) ' '
-
-else
-
-libsdlttf: sdl/lib/SDL2_ttf.lib
-
-sdl/lib/SDL2_ttf.lib: sdl/$(SDL_TTF_PACKAGE)
-	-$(ECHO) 'Extracting package: $<'
-	$(MKDIR) sdl/lib sdl/include/SDL2
-	cd "$(<D)"; \
-	unzip -DD -qo "$(<F)"
-	$(MV) sdl/SDL2_ttf-*/include/* sdl/include/SDL2/
-	$(MV) sdl/SDL2_ttf-*/lib/x86/* sdl/lib/
-	-$(ECHO) 'Finished extracting: $<'
-	-$(ECHO) ' '
-
-sdl/$(SDL_TTF_PACKAGE):
-	-$(ECHO) 'Downloading package: $@'
-	$(MKDIR) "$(@D)"
-	curl -L -o "$@.dl" "$(SDL_TTF_DOWNLOAD)"
 	unzip -qt "$@.dl"
 	$(MV) "$@.dl" "$@"
 	-$(ECHO) 'Finished downloading: $@'

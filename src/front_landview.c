@@ -37,7 +37,6 @@
 #include "bflib_sound.h"
 #include "bflib_vidraw.h"
 #include "bflib_network.h"
-#include "bflib_vidsurface.h"
 
 #include "config.h"
 #include "config_strings.h"
@@ -62,9 +61,6 @@
 
 #include "music_player.h"
 #include "post_inc.h"
-
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -106,7 +102,6 @@ long fe_net_level_selected;
 long net_map_limp_time;
 struct ScreenPacket net_screen_packet[NET_PLAYERS_COUNT];
 long players_currently_in_session;
-TTF_Font* text_font;
 /******************************************************************************/
 extern struct TbSetupSprite map_flag_setup_sprites[];
 extern struct TbSetupSprite netmap_flag_setup_sprites[];
@@ -951,17 +946,11 @@ void frontnetmap_unload(void)
     fe_network_active = 0;
     StopMusicPlayer();
     SetMusicPlayerVolume(settings.redbook_volume);
-    TTF_CloseFont(text_font);
 }
 
 TbBool frontnetmap_load(void)
 {
     SYNCDBG(8,"Starting");
-    text_font = TTF_OpenFont("unitblock.ttf", scale_ui_value(12));
-    if (text_font == NULL)
-    {
-        ERRORLOG("Unable to load font: %s", TTF_GetError() );
-    }
     if (fe_network_active)
     {
       if (LbNetwork_EnableNewPlayers(0))
@@ -1104,11 +1093,6 @@ TbBool frontmap_load(void)
     mouse_over_lvnum = SINGLEPLAYER_NOTSTARTED;
     wait_for_cd_to_be_available();
     frontend_load_data_from_cd();
-    text_font = TTF_OpenFont("unitblock.ttf", scale_ui_value(12));
-    if (text_font == NULL)
-    {
-        ERRORLOG("Unable to load font: %s", TTF_GetError() );
-    }
     switch (campaign.land_markers)
     {
     case LndMk_PINPOINTS:
@@ -1486,35 +1470,10 @@ void draw_map_level_descriptions(void)
       textY = scale_value_landview(lvinfo->ensign_y - map_info.screen_shift_y) - textHeight - scale_value_landview(yOffset);
       boxY = textY - scale_value_menu(padding);
       borderBoxY = boxY + scale_value_menu(border);
-      if (dbc_language > 0)
-      {
-          LbDrawBox(borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight, borderColour);
-          LbDrawBox(boxX, textY, boxWidth, boxHeight, boxColour);
-          LbTextDrawResized(textX, textY, units_per_pixel_menu, level_description);
-      }
-      else
-      {
-          static const SDL_Colour colour = {0xFC, 0xFC, 0xAC, 255};
-          struct SDL_Surface* tooltip = TTF_RenderText_Solid(text_font, level_description, colour);
-          if ( tooltip == NULL )
-          {
-              ERRORLOG( "Unable to render text surface: %s", TTF_GetError() );
-          }
-          LbDrawBox(borderBoxX, borderBoxY, tooltip->w + scale_value_menu(padding * 2), tooltip->h + scale_value_menu(padding), borderColour);
-          LbDrawBox(boxX, textY, tooltip->w + scale_value_menu(padding) , tooltip->h, boxColour);
-          SDL_Rect Message_rect;
-          Message_rect.x = textX; 
-          Message_rect.y = textY;
-          Message_rect.w = textWidth;
-          Message_rect.h = textHeight;
-          LbScreenUnlock();
-          if (SDL_BlitSurface(tooltip, NULL, lbDrawSurface, &Message_rect) < 0)
-          {
-              ERRORLOG("Unable to blit surface: %s", SDL_GetError());
-          }
-          LbScreenLock();
-          SDL_FreeSurface(tooltip);
-      }
+
+      LbDrawBox(borderBoxX, borderBoxY, borderBoxWidth, borderBoxHeight, borderColour);
+      LbDrawBox(boxX, textY, boxWidth, boxHeight, boxColour);
+      LbTextDrawResized(textX, textY, units_per_pixel_menu, level_description);
     }
 }
 
@@ -1523,6 +1482,7 @@ void frontnetmap_draw(void)
     SYNCDBG(8,"Starting");
     LbTextSetFont(map_font);
     LbTextSetWindow(0, 0, lbDisplay.PhysicalScreenWidth, lbDisplay.PhysicalScreenHeight);
+
     if ((map_info.fadeflags & MLInfoFlg_Zooming) != 0)
     {
         frontzoom_to_point(map_info.hotspot_imgpos_x, map_info.hotspot_imgpos_y, map_info.fade_pos);
@@ -1684,7 +1644,6 @@ void frontmap_unload(void)
     stop_description_speech();
     StopMusicPlayer();
     SetMusicPlayerVolume(settings.redbook_volume);
-    TTF_CloseFont(text_font);
 }
 
 long frontmap_update(void)

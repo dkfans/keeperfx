@@ -14,8 +14,6 @@
 #include "pre_inc.h"
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_ttf.h>
 
 #include "keeperfx.hpp"
 
@@ -1163,7 +1161,6 @@ short setup_game(void)
   // Start the sound system
   if (!init_sound())
     WARNMSG("Sound system disabled.");
-  TTF_Init();
   // Note: for some reason, signal handlers must be installed AFTER
   // init_sound(). This will probably change when we'll move sound
   // to SDL - then we'll put that line earlier, before setup_game().
@@ -3946,8 +3943,6 @@ void game_loop(void)
         movie_record_stop();
     }
     ShutDownSDLAudio();
-    TTF_Quit();
-    SDL_Quit();
     SYNCDBG(7,"Done");
 }
 
