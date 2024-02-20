@@ -4385,8 +4385,11 @@ short seek_the_enemy(struct Thing *creatng)
             {
               if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
               {
+                struct CreatureSound* crsound = get_creature_sound(creatng, CrSnd_Fight);
+                unsigned short sound_idx = crsound->index;
+                unsigned char sound_var = crsound->count;
                 set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
-                thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                thing_play_sample(creatng, sound_idx+UNSYNC_RANDOM(sound_var), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
                 return 1;
               }
               if (CREATURE_RANDOM(creatng, 4) != 0)
