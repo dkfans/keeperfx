@@ -12,12 +12,11 @@
 struct ApiGlobals
 {
     TCPsocket serverSocket;
-
     TCPsocket activeSocket; // Only one client each time
     SDLNet_SocketSet socketSet;
 } api;
 
-// Initialize API server using a thread and named pipe
+// Initialize the TCP API server
 int api_init_server()
 {
     if (SDLNet_Init() < 0)
