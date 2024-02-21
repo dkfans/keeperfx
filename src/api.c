@@ -75,7 +75,7 @@ void api_update_server()
     int numReady;
     do
     {
-        numReady = SDLNet_CheckSockets(api.socketSet, -1);
+        numReady = SDLNet_CheckSockets(api.socketSet, 0);
         if (numReady < 0)
         {
             JUSTLOG("SDLNet_CheckSockets failed! SDLNet_Error: %s", SDLNet_GetError());
