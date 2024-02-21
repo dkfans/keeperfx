@@ -27,7 +27,7 @@ int api_init_server()
 
     memset(&api, 0, sizeof(api));
 
-    api.socketSet = SDLNet_AllocSocketSet(1);
+    api.socketSet = SDLNet_AllocSocketSet(2);
     if (!api.socketSet)
     {
         JUSTLOG("SDLNet_AllocSocketSet failed! SDLNet_Error: %s", SDLNet_GetError());
