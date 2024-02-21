@@ -447,7 +447,7 @@ TbBool load_game(long slot_num)
     game.loaded_swipe_idx = -1;
     JUSTMSG("Loaded level %d from %s", game.continue_level_number, campaign.name);
 
-    init_api_server();
+    api_init_server(); // TODO: why here?
 
     return true;
 }
