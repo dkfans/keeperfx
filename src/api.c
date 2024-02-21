@@ -63,8 +63,11 @@ int api_init_server()
 
 void api_update_server()
 {
-    if (api.serverSocket == 0) // It seems we don't wait anyone
+    // Return if the TCP server is not listening
+    if (api.serverSocket == 0)
+    {
         return;
+    }
 
     char buffer[API_SERVER_BUFFER];
     memset(buffer, 0, API_SERVER_BUFFER);
@@ -89,7 +92,7 @@ void api_update_server()
                 {
                     TCPsocket tmp = SDLNet_TCP_Accept(api.serverSocket);
                     SDLNet_TCP_Close(tmp);
-                    WARNLOG("Got another connection while Api connection is still active");
+                    WARNLOG("Got another connection while API connection is still active");
                 }
                 else
                 {
@@ -108,6 +111,7 @@ void api_update_server()
                     }
                 }
             } // \serverSocket
+
             if (SDLNet_SocketReady(api.activeSocket))
             {
                 int received = SDLNet_TCP_Recv(api.activeSocket, buffer, API_SERVER_BUFFER);
@@ -125,11 +129,12 @@ void api_update_server()
                     // Run the received data as a MAP SCRIPT COMMAND
                     script_scan_line(buffer, false);
 
-                    SDLNet_TCP_Send(api.activeSocket, buffer, received); // Echo back
+                    // Echo back the data for now
+                    SDLNet_TCP_Send(api.activeSocket, buffer, received);
                 }
                 else
                 {
-                    WARNLOG("Api connection closed");
+                    WARNLOG("API connection closed");
                     SDLNet_TCP_DelSocket(api.socketSet, api.activeSocket);
                     SDLNet_TCP_Close(api.activeSocket);
                     api.activeSocket = 0;
