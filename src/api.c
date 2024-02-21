@@ -9,7 +9,8 @@
 #define API_SERVER_PORT 5599
 #define API_SERVER_BUFFER 1024
 
-struct ApiGlobals {
+struct ApiGlobals
+{
     TCPsocket serverSocket;
 
     TCPsocket activeSocket; // Only one client each time
@@ -61,7 +62,6 @@ int api_init_server()
     return 0;
 }
 
-
 void api_update_server()
 {
     if (api.serverSocket == 0) // It seems we don't wait anyone
@@ -71,7 +71,7 @@ void api_update_server()
     memset(buffer, 0, API_SERVER_BUFFER);
 
     JUSTLOG("API Server started. Waiting for connections...");
-    
+
     int numReady;
     do
     {
@@ -137,8 +137,7 @@ void api_update_server()
                 }
             } // \activeSocket
         }
-    }
-    while(numReady > 0); // To have break instead of goto
+    } while (numReady > 0); // To have break instead of goto
 }
 
 void api_close_server()
