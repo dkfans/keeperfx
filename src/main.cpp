@@ -38,6 +38,7 @@
 #include "bflib_network.h"
 #include "bflib_planar.h"
 
+#include "api.h"
 #include "custom_sprites.h"
 #include "version.h"
 #include "front_simple.h"
@@ -2779,6 +2780,7 @@ void update(void)
     SYNCDBG(4,"Starting for turn %ld",(long)game.play_gameturn);
 
     process_packets();
+    api_update_server();
     if (quit_game || exit_keeper) {
         return;
     }
