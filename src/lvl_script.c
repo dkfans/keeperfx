@@ -467,7 +467,7 @@ static int count_required_parameters(const char *args)
     return required;
 }
 
-int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level)
+static int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, struct ScriptLine *scline, int *para_level, int expect_level, long file_version)
 {
     int dst, src;
     for (dst = 0, src = 0; dst <= COMMANDDESC_ARGS_COUNT; dst++, src++)
@@ -517,7 +517,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
             }
             LbMemorySet(funscline, 0, sizeof(struct ScriptLine));
             LbMemoryCopy(funscline->tcmnd, scline->tp[dst], MAX_TEXT_LENGTH);
-            int args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level);
+            int args_count = script_recognize_params(line, funcmd_desc, funscline, para_level, *para_level, file_version);
             if (args_count < 0)
             {
                 LbMemoryFree(funscline);
@@ -543,7 +543,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                 int fi;
                 struct MinMax ranges[COMMANDDESC_ARGS_COUNT];
                 TbBool is_if_statement = ((scline->command == Cmd_IF) || (scline->command == Cmd_IF_AVAILABLE) || (scline->command == Cmd_IF_CONTROLS));
-                if (level_file_version > 0)
+                if (file_version > 0)
                 {
                     chr = cmd_desc->args[src];
                     int ri;
@@ -621,12 +621,12 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
                     SCRPTERRLOG("Arguments of function \"%s\" within command \"%s\" define no values to select from", funcmd_desc->textptr, scline->tcmnd);
                     break;
                 }
-                if ((funcmd_desc->index != Cmd_RANDOM) && (level_file_version == 0)) {
+                if ((funcmd_desc->index != Cmd_RANDOM) && (file_version == 0)) {
                     SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported in old level format", funcmd_desc->textptr, scline->tcmnd);
                     break;
                 }
                 // The new RANDOM command stores values to allow selecting different one every turn during gameplay
-                if ((funcmd_desc->index == Cmd_RANDOM) && (level_file_version > 0))
+                if ((funcmd_desc->index == Cmd_RANDOM) && (file_version > 0))
                 {
                     //TODO RANDOM make implementation - store ranges as variable to be used for selecting random value during gameplay
                     SCRPTERRLOG("The function \"%s\" used within command \"%s\" is not supported yet", funcmd_desc->textptr, scline->tcmnd);
@@ -712,7 +712,7 @@ int script_recognize_params(char **line, const struct CommandDesc *cmd_desc, str
     return dst;
 }
 
-long script_scan_line(char *line,TbBool preloaded)
+long script_scan_line(char *line, TbBool preloaded, long file_version)
 {
     const struct CommandDesc *cmd_desc;
     SCRIPTDBG(12,"Starting");
@@ -726,7 +726,7 @@ long script_scan_line(char *line,TbBool preloaded)
     LbMemorySet(scline, 0, sizeof(struct ScriptLine));
     if (next_command_reusable > 0)
         next_command_reusable--;
-    if (level_file_version > 0)
+    if (file_version > 0)
     {
         cmd_desc = get_next_word(&line, scline->tcmnd, &para_level, command_desc);
     } else
@@ -736,7 +736,7 @@ long script_scan_line(char *line,TbBool preloaded)
     if (cmd_desc == NULL)
     {
         if (isalnum(scline->tcmnd[0])) {
-          SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd,level_file_version);
+          SCRPTERRLOG("Invalid command, '%s' (lev ver %d)", scline->tcmnd, file_version);
         }
         LbMemoryFree(scline);
         return 0;
@@ -756,7 +756,7 @@ long script_scan_line(char *line,TbBool preloaded)
         return 0;
     }
     // Recognizing parameters
-    int args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0);
+    int args_count = script_recognize_params(&line, cmd_desc, scline, &para_level, 0, file_version);
     if (args_count < 0)
     {
         LbMemoryFree(scline);
@@ -772,7 +772,7 @@ long script_scan_line(char *line,TbBool preloaded)
             return -1;
         }
     }
-    script_add_command(cmd_desc, scline);
+    script_add_command(cmd_desc, scline, file_version);
     LbMemoryFree(scline);
     SCRIPTDBG(13,"Finished");
     return 0;
@@ -821,7 +821,7 @@ static char* process_multiline_comment(char *buf, char *buf_end)
     return buf;
 }
 
-static void parse_txt_data(char *script_data, long script_len)
+static void parse_txt_data(char *script_data, long script_len, long file_version)
 {// Process the file lines
     char* buf = script_data;
     char* buf_end = script_data + script_len;
@@ -847,7 +847,7 @@ static void parse_txt_data(char *script_data, long script_len)
       }
       //SCRPTLOG("Analyse");
       // Analyze the line
-      script_scan_line(buf, true);
+      script_scan_line(buf, true, file_version);
       // Set new line start
       text_line_number++;
       buf += lnlen;
@@ -871,7 +871,7 @@ TbBool preload_script(long lvnum)
       // Here we could load lua instead
       return false;
   }
-  parse_txt_data(script_data, script_len);
+  parse_txt_data(script_data, script_len, level_file_version);
   SYNCDBG(8,"Finished");
   return true;
 }
@@ -920,7 +920,7 @@ short load_script(long lvnum)
           lnlen++;
       }
       // Analyze the line
-      script_scan_line(buf, false);
+      script_scan_line(buf, false, level_file_version);
       // Set new line start
       text_line_number++;
       buf += lnlen;

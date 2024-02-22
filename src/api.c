@@ -128,7 +128,7 @@ void api_update_server()
                     JUSTLOG("Received message from client: %s", buffer);
 
                     // Run the received data as a MAP SCRIPT COMMAND
-                    script_scan_line(buffer, false);
+                    script_scan_line(buffer, false, 99); // Maximum level of a command support
 
                     // Echo back the data for now
                     SDLNet_TCP_Send(api.activeSocket, buffer, received);

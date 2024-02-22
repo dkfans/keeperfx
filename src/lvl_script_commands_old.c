@@ -1564,7 +1564,7 @@ static void command_compute_flag(long plr_range_id, const char *flgname, const c
  * @param cmd_desc
  * @param scline
  */
-void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptLine *scline)
+void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptLine *scline, long file_version)
 {
     if (cmd_desc->check_fn != NULL)
     {
@@ -1601,7 +1601,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_room_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
     case Cmd_CREATURE_AVAILABLE:
-        if (level_file_version > 0) {
+        if (file_version > 0) {
             command_creature_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
         } else {
             command_creature_available(scline->np[0], scline->tp[1], scline->np[3], 0);
@@ -1650,7 +1650,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_door_available(scline->np[0], scline->tp[1], scline->np[2], scline->np[3]);
         break;
     case Cmd_DISPLAY_INFORMATION:
-        if (level_file_version > 0)
+        if (file_version > 0)
           command_display_information(scline->np[0], scline->tp[1], 0, 0);
         else
           command_display_information(scline->np[0], "ALL_PLAYERS", 0, 0);
@@ -1680,7 +1680,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_creature_armour(scline->tp[0], scline->np[1]);
         break;
     case Cmd_SET_CREATURE_FEAR_WOUNDED:
-        if (level_file_version > 0)
+        if (file_version > 0)
             command_set_creature_fear_wounded(scline->tp[0], scline->np[1]);
         else
             command_set_creature_fear_wounded(scline->tp[0], 101*scline->np[1]/255); // old fear was scaled 0..255
@@ -1713,7 +1713,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_set_computer_process(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
         break;
     case Cmd_ALLY_PLAYERS:
-        if (level_file_version > 0)
+        if (file_version > 0)
             command_ally_players(scline->np[0], scline->np[1], scline->np[2]);
         else
             command_ally_players(scline->np[0], scline->np[1], true);
@@ -1731,7 +1731,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_quick_objective(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
         break;
     case Cmd_QUICK_INFORMATION:
-        if (level_file_version > 0)
+        if (file_version > 0)
           command_quick_information(scline->np[0], scline->tp[1], scline->tp[2], 0, 0);
         else
           command_quick_information(scline->np[0], scline->tp[1], "ALL_PLAYERS", 0, 0);
