@@ -14,11 +14,14 @@ struct ApiGlobals
     TCPsocket serverSocket;
     TCPsocket activeSocket; // Only one client each time
     SDLNet_SocketSet socketSet;
-} api;
+} api = { 0 };
 
 // Initialize the TCP API server
 int api_init_server()
 {
+    if (api.serverSocket) // Already inited
+        return 0;
+
     if (SDLNet_Init() < 0)
     {
         JUSTLOG("SDLNet could not initialize! SDLNet_Error: %s", SDLNet_GetError());
@@ -71,8 +74,6 @@ void api_update_server()
 
     char buffer[API_SERVER_BUFFER];
     memset(buffer, 0, API_SERVER_BUFFER);
-
-    JUSTLOG("API Server started. Waiting for connections...");
 
     int numReady;
     do
