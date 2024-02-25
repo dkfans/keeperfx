@@ -3560,7 +3560,7 @@ static void level_up_players_creatures_process(struct ScriptContext* context)
     SYNCDBG(19, "Finished");
 }
 
-static void use_spell_on_creature_check(const struct ScriptLine* scline)
+static void use_spell_on_players_creatures_check(const struct ScriptLine* scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
     long crtr_id = parse_creature_name(scline->tp[1]);
@@ -3604,7 +3604,7 @@ static void use_spell_on_creature_check(const struct ScriptLine* scline)
     PROCESS_SCRIPT_VALUE(scline->command);
 }
 
-static void use_spell_on_creature_process(struct ScriptContext* context)
+static void use_spell_on_players_creatures_process(struct ScriptContext* context)
 {
     long crmodel = context->value->shorts[1];
     long spl_idx = context->value->shorts[2];
@@ -3613,6 +3613,133 @@ static void use_spell_on_creature_process(struct ScriptContext* context)
     for (int i = context->plr_start; i < context->plr_end; i++)
     {
         apply_spell_effect_to_players_creatures(i, crmodel, spl_idx, overchrg);
+    }
+}
+
+static void use_power_on_players_creatures_check(const struct ScriptLine* scline)
+{
+    ALLOCATE_SCRIPT_VALUE(scline->command, scline->np[0]);
+    long crtr_id = parse_creature_name(scline->tp[1]);
+    PlayerNumber caster_player = scline->np[2];
+    const char* pwr_name = scline->tp[3];
+    short pwr_id = get_rid(power_desc, pwr_name);
+    short splevel = scline->np[4];
+    TbBool free = scline->np[5];
+
+    if (crtr_id == CREATURE_NONE)
+    {
+        SCRPTERRLOG("Unknown creature, '%s'", scline->tp[1]);
+        DEALLOCATE_SCRIPT_VALUE
+    }
+    if (pwr_id == -1)
+    {
+        SCRPTERRLOG("Invalid power: %s", pwr_name);
+        DEALLOCATE_SCRIPT_VALUE
+    }
+    switch (pwr_id)
+    {
+    case PwrK_HEALCRTR:
+    case PwrK_SPEEDCRTR:
+    case PwrK_PROTECT:
+    case PwrK_REBOUND:
+    case PwrK_CONCEAL:
+    case PwrK_DISEASE:
+    case PwrK_CHICKEN:
+    case PwrK_FREEZE:
+    case PwrK_SLOW:
+    case PwrK_FLIGHT:
+    case PwrK_VISION:
+    case PwrK_CALL2ARMS:
+    case PwrK_LIGHTNING:
+    case PwrK_CAVEIN:
+    case PwrK_SIGHT:
+    case PwrK_TIMEBOMB:
+        if ((splevel < 1) || (splevel > MAGIC_OVERCHARGE_LEVELS))
+        {
+            SCRPTERRLOG("Power %s level %d out of range. Acceptible values are %d~%d", pwr_name, splevel, 1, MAGIC_OVERCHARGE_LEVELS);
+            DEALLOCATE_SCRIPT_VALUE
+        }
+        splevel--; // transform human 1~9 range into computer 0~8 range
+        break;
+    case PwrK_SLAP:
+    case PwrK_MKDIGGER:
+        break;
+    default:
+        SCRPTERRLOG("Power not supported for this command: %s", power_code_name(pwr_id));
+        DEALLOCATE_SCRIPT_VALUE
+    }
+    value->shorts[1] = crtr_id;
+    value->shorts[2] = pwr_id;
+    value->shorts[3] = splevel;
+    value->shorts[4] = caster_player;
+    value->shorts[5] = free;
+    PROCESS_SCRIPT_VALUE(scline->command);
+}
+
+/**
+ * Casts a keeper power on all creatures of a specific model, or positions of all creatures depending on the power.
+ * @param crmodel The creature model to target, accepts wildcards.
+ * @param pwr_idx The ID of the Keeper Power.
+ * @param overchrg The overcharge level of the keeperpower. Is ignored when not applicable.
+ * @param caster The player number of the player who is made to cast the spell.
+ * @param free If gold is used when casting the spell. It will fail to cast if it is not free and money is not available.
+ */
+void cast_power_on_players_creatures(PlayerNumber plyr_idx, ThingModel crmodel, short pwr_idx, short overchrg, PlayerNumber caster, TbBool free)
+{
+    SYNCDBG(8, "Starting");
+    struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
+    unsigned long k = 0;
+
+    TbBool need_spec_digger = (crmodel > 0) && creature_kind_is_for_dungeon_diggers_list(plyr_idx, crmodel);
+    struct Thing* thing = INVALID_THING;
+    int i;
+    if ((!need_spec_digger) || (crmodel == CREATURE_ANY) || (crmodel == CREATURE_NOT_A_DIGGER))
+    {
+        i = dungeon->creatr_list_start;
+    }
+    else
+    {
+        i = dungeon->digger_list_start;
+    }
+
+    while (i != 0)
+    {
+        thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        // Thing list loop body
+        if (creature_matches_model(thing, crmodel))
+        {
+            script_use_power_on_creature(thing, pwr_idx, overchrg, caster, free);
+        }
+        // Thing list loop body ends
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    SYNCDBG(19, "Finished");
+}
+
+static void use_power_on_players_creatures_process(struct ScriptContext* context)
+{
+    short crmodel = context->value->shorts[1];
+    short pwr_idx = context->value->shorts[2];
+    short overchrg = context->value->shorts[3];
+    PlayerNumber caster = context->value->shorts[4];
+    TbBool free = context->value->shorts[5];
+
+    for (int i = context->plr_start; i < context->plr_end; i++)
+    {
+        cast_power_on_players_creatures(i, crmodel, pwr_idx, overchrg, caster, free);
     }
 }
 
@@ -5399,6 +5526,7 @@ const struct CommandDesc command_desc[] = {
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
   {"USE_POWER_ON_CREATURE",             "PC!APANN", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
+  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANN ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
   {"USE_POWER_AT_POS",                  "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
   {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
   {"USE_POWER_AT_LOCATION",             "PLANN   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},
@@ -5438,7 +5566,7 @@ const struct CommandDesc command_desc[] = {
   {"QUICK_MESSAGE",                     "NAA     ", Cmd_QUICK_MESSAGE, NULL, NULL},
   {"DISPLAY_MESSAGE",                   "NA      ", Cmd_DISPLAY_MESSAGE, NULL, NULL},
   {"USE_SPELL_ON_CREATURE",             "PC!AAn  ", Cmd_USE_SPELL_ON_CREATURE, NULL, NULL},
-  {"USE_SPELL_ON_PLAYERS_CREATURES",    "PC!An   ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_spell_on_creature_check, &use_spell_on_creature_process },
+  {"USE_SPELL_ON_PLAYERS_CREATURES",    "PC!An   ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_spell_on_players_creatures_check, &use_spell_on_players_creatures_process },
   {"SET_HEART_HEALTH",                  "PN      ", Cmd_SET_HEART_HEALTH, &set_heart_health_check, &set_heart_health_process},
   {"ADD_HEART_HEALTH",                  "PNn     ", Cmd_ADD_HEART_HEALTH, &add_heart_health_check, &add_heart_health_process},
   {"CREATURE_ENTRANCE_LEVEL",           "PN      ", Cmd_CREATURE_ENTRANCE_LEVEL, NULL, NULL},

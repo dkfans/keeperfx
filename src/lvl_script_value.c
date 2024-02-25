@@ -127,13 +127,28 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
 }
 
 /**
- * Cast a spell on a creature which meets given criteria.
+ * Cast a keeper power on a creature which meets given criteria.
  * @param plyr_idx The player whose creature will be affected.
  * @param crmodel Model of the creature to find.
  * @param criteria Criteria, from CreatureSelectCriteria enumeration.
  * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
+TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing* thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use power on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
+        return Lb_FAIL;
+    }
+
+    char is_free = (fmcl_bytes >> 24) != 0;
+    PowerKind pwkind = (fmcl_bytes >> 16) & 255;
+    PlayerNumber caster = (fmcl_bytes >> 8) & 255;
+    long splevel = fmcl_bytes & 255;
+    return script_use_power_on_creature(thing, pwkind, splevel, caster, is_free);
+}
+
 TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
@@ -212,6 +227,14 @@ TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long 
     }
 }
 
+/**
+ * Cast a spell on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
 TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
@@ -888,7 +911,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_USE_POWER_ON_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_power_on_creature(i, val2, val3, val4);
+          script_use_power_on_creature_matching_criterion(i, val2, val3, val4);
       }
       break;
     case Cmd_USE_SPELL_ON_CREATURE:

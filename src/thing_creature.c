@@ -5509,7 +5509,7 @@ long update_creature_levels(struct Thing *thing)
     // Transforming
     struct CreatureModelConfig* oriconf = &game.conf.crtr_conf.model[thing->model];
     ThingModel model = crstat->grow_up;
-    if (model == CREATURE_ANY)
+    if (model == CREATURE_NOT_A_DIGGER)
     {
         while (1) {
             model = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;

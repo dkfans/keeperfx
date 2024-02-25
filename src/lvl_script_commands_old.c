@@ -1202,15 +1202,6 @@ static void command_use_power_on_creature(long plr_range_id, const char *crtr_na
     SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
     return;
   }
-  PowerKind pwr = mag_id;
-  if((PlayerNumber) caster_plyr_idx > PLAYER3)
-  {
-    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
-  }
 
   // encode params: free, magic, caster, level -> into 4xbyte: FMCL
   long fmcl_bytes;
