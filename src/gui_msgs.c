@@ -119,17 +119,16 @@ void message_draw(void)
             {
                 if (gameadd.messages[i].plyr_idx == game.hero_player_num)
                 {
-                    spr_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_b,game.hero_player_num);
+                    spr_idx = GPS_plyrsym_symbol_player_red_std_b;
                 }
                 else if (gameadd.messages[i].plyr_idx == game.neutral_player_num)
                 {
-                    spr_idx = get_player_colored_icon_idx(GPS_plyrsym_symbol_player_red_std_b,((game.play_gameturn >> 1) & 3));
+                    spr_idx = ((game.play_gameturn >> 1) & 3) + GPS_plyrsym_symbol_player_red_std_b;
                     plyr_idx = 0;
                 }
                 else
                 {
-                    short base_icon_idx = (player_has_heart(gameadd.messages[i].plyr_idx)) ? GPS_plyrsym_symbol_player_red_std_b : GPS_plyrsym_symbol_player_red_dead;
-                    spr_idx = get_player_colored_icon_idx(base_icon_idx,gameadd.messages[i].plyr_idx);
+                    spr_idx = (player_has_heart(gameadd.messages[i].plyr_idx)) ? GPS_plyrsym_symbol_player_red_std_b : GPS_plyrsym_symbol_player_red_dead;
                 }
             }
             if (gameadd.messages[i].plyr_idx != 127)
