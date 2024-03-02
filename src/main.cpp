@@ -862,20 +862,24 @@ void draw_lightning(const struct Coord3d *pos1, const struct Coord3d *pos2, long
 TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
 {
     struct PlayerInfo *player;
+    struct Coord3d campos;
     int i;
     short limit = 24 * COORD_PER_STL;
     for (i=0; i < PLAYERS_COUNT; i++)
     {
         player = get_player(i);
+
         if ( (player_exists(player)) && ((player->allocflags & PlaF_CompCtrl) == 0))
         {
             if (player->acamera == NULL)
                 continue;
+            set_coords_to_subtile_center(&campos, player->acamera->mappos.x.stl.num, player->acamera->mappos.y.stl.num, 1);
             if (player->acamera->view_mode != PVM_FrontView)
             {
                 if (player->acamera->zoom >= CAMERA_ZOOM_MIN)
                 {
-                    limit = SHRT_MAX - (2 * player->acamera->zoom);
+                    limit = USHRT_MAX - (2 * player->acamera->zoom);
+                    JUSTMSG("limit top = %d, zoom = %d", limit, player->acamera->zoom);
                 }
             }
             else
@@ -883,11 +887,16 @@ TbBool any_player_close_enough_to_see(const struct Coord3d *pos)
                 if (player->acamera->zoom >= FRONTVIEW_CAMERA_ZOOM_MIN)
                 {
                     limit = SHRT_MAX - (player->acamera->zoom / 3);
+                    JUSTMSG("limit bottom = %d", limit);
                 }
             }
-            if (get_chessboard_distance(&player->acamera->mappos, pos) <= limit)
+            if (get_chessboard_distance(&campos, pos) <= limit)
             {
                 return true;
+            }
+            else
+            {
+                JUSTMSG("testlog distance %d (%d,%d to %d,%d) compared to %d", coord_subtile(get_chessboard_distance(&campos, pos)), player->acamera->mappos.x.stl.num, player->acamera->mappos.y.stl.num, pos->x.stl.num, pos->y.stl.num, limit);
             }
         }
     }
