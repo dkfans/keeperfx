@@ -1525,9 +1525,9 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
     return 0;
 }
 
-const struct TbSprite *get_button_sprite(short sprite_idx)
+const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx)
 {
-    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx,my_player_number);
+    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx, plyr_idx);
 
     return get_button_sprite_direct(sprite_idx);
 }
