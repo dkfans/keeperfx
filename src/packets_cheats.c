@@ -665,7 +665,13 @@ TbBool packets_process_cheats(
                 const char* msg = get_string(slbattr->tooltip_stridx);
                 strcpy(str, msg);
                 char* dis_msg = strtok(str, ":");
+                if (dis_msg == NULL)
+                {
+                    dis_msg = malloc(strlen(str) + 1);
+                    strcpy(dis_msg, str);
+                }
                 targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
+                free(dis_msg);
             }
             else
             {
