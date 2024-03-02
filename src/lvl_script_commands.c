@@ -2272,9 +2272,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
 static void create_effect_process(struct ScriptContext *context)
 {
     struct Coord3d pos;
-    pos.x.stl.num = (MapSubtlCoord)context->value->bytes[1];
-    pos.y.stl.num = (MapSubtlCoord)context->value->bytes[2];
-    pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
+    set_coords_to_subtile_center(&pos, context->value->bytes[1], context->value->bytes[2], 0);
+    pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
     TbBool Price = (context->value->chars[0] == -(TngEffElm_Price));
     if (Price)
     {
