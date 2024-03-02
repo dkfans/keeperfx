@@ -367,7 +367,7 @@ TbBool packets_process_cheats(
         {
             if (allowed)
             {
-                destroy_room_leaving_unclaimed_ground(room);
+                destroy_room_leaving_unclaimed_ground(room, false);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }

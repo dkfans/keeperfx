@@ -5189,7 +5189,7 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
  * @param room The room structure which slabs are to be destroyed.
  * @note The room structure is freed before this function end.
  */
-void destroy_room_leaving_unclaimed_ground(struct Room *room)
+void destroy_room_leaving_unclaimed_ground(struct Room *room, TbBool create_rubble)
 {
     unsigned long k = 0;
     unsigned long count = room->slabs_count;
@@ -5210,8 +5210,11 @@ void destroy_room_leaving_unclaimed_ground(struct Room *room)
         }
         MapSlabCoord slb_x = slb_num_decode_x(slbs[k]);
         MapSlabCoord slb_y = slb_num_decode_y(slbs[k]);
-        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room
-        create_dirt_rubble_for_dug_slab(slb_x, slb_y); 
+        if (create_rubble)
+        {
+            create_dirt_rubble_for_dug_slab(slb_x, slb_y);
+        }
+        delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room 
     }
     free(slbs);
 }
@@ -5234,6 +5237,6 @@ void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heart
         return;
     }
     remove_room_from_players_list(room, plyr_idx);
-    destroy_room_leaving_unclaimed_ground(room);
+    destroy_room_leaving_unclaimed_ground(room, true);
 }
 /******************************************************************************/
