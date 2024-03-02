@@ -29,7 +29,6 @@
 #include "room_jobs.h"
 #include "room_library.h"
 #include "room_workshop.h"
-#include "thing_objects.h"
 #include "thing_navigate.h"
 #include "thing_list.h"
 #include "thing_stats.h"
@@ -350,43 +349,9 @@ long get_room_kind_used_capacity_fraction(PlayerNumber plyr_idx, RoomKind room_k
     return (used_capacity * 256) / total_capacity;
 }
 
-
-
 void set_room_efficiency(struct Room *room)
 {
     room->efficiency = calculate_room_efficiency(room);
-}
-
-struct Thing *find_gold_hoarde_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
-{
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
-    {
-        struct Thing* thing = thing_get(i);
-        TRACE_THING(thing);
-        if (thing_is_invalid(thing))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        i = thing->next_on_mapblk;
-        // Per thing code start
-        if (thing_is_object(thing) && object_is_gold_hoard(thing))
-        {
-            return thing;
-        }
-        // Per thing code end
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break_mapwho_infinite_chain(mapblk);
-            break;
-        }
-    }
-    return INVALID_THING;
 }
 
 struct Thing *treasure_room_eats_gold_piles(struct Room *room, MapSlabCoord slb_x,  MapSlabCoord slb_y, struct Thing *hoardtng)
@@ -461,7 +426,7 @@ void count_gold_hoardes_in_room(struct Room *room)
     {
         MapSlabCoord slb_x = slb_num_decode_x(i);
         MapSlabCoord slb_y = slb_num_decode_y(i);
-        struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        struct Thing* gldtng = find_gold_hoard_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         GoldAmount gold_amount;
         if (!thing_is_invalid(gldtng) && (gldtng->valuable.gold_stored > max_hoard_size_in_room))
         {
@@ -556,69 +521,58 @@ TbBool store_creature_reposition_entry(struct RoomReposition * rrepos, ThingMode
     return true;
 }
 
-void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+ThingLoop_CallbackResult if__thing_is_spellbook__reposition_in_room(struct Thing* thing, void* optional_data)
 {
-    struct Dungeon* dungeon;
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    if (map_block_invalid(mapblk))
-        return;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
+    struct ThingLoop_RepositionInRoomArgs* args = optional_data;
+
+    if (thing_is_spellbook(thing))
     {
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing))
+        ThingModel objkind = thing->model;
+        PowerKind spl_idx = book_thing_to_power_kind(thing);
+        if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
         {
-            WARNLOG("Jump out of things array");
-            break;
-        }
-        i = thing->next_on_mapblk;
-        // Per thing code
-        if (thing_is_spellbook(thing))
-        {
-            ThingModel objkind = thing->model;
-            PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0))
+            if (game.play_gameturn > 10) //Function is used to place books in rooms before dungeons are intialized
             {
-                if (game.play_gameturn > 10) //Function is used to place books in rooms before dungeons are intialized
+                struct Dungeon* dungeon = get_players_num_dungeon(args->room->owner);
+                if (dungeon->magic_level[spl_idx] < 2)
                 {
-                    dungeon = get_players_num_dungeon(room->owner);
-                    if (dungeon->magic_level[spl_idx] < 2)
-                    {
-                        if (!store_reposition_entry(rrepos, objkind)) {
-                            WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
-                        }
-                    }
-                    if (!is_neutral_thing(thing))
-                    {
-                        remove_power_from_player(spl_idx, room->owner);
-                        dungeon = get_dungeon(room->owner);
-                        dungeon->magic_resrchable[spl_idx] = 1;
+                    if (!store_reposition_entry(args->rrepos, objkind)) {
+                        WARNLOG("Too many things to reposition in %s.", room_code_name(args->room->kind));
                     }
                 }
-                else
+                if (!is_neutral_thing(thing))
                 {
-                    if (!store_reposition_entry(rrepos, objkind))
-                    {
-                        WARNLOG("Too many things to reposition in %s.", room_code_name(room->kind));
-                    }
-                    if (!is_neutral_thing(thing))
-                    {
-                        remove_power_from_player(spl_idx, room->owner);
-                    }
+                    remove_power_from_player(spl_idx, args->room->owner);
+                    dungeon = get_dungeon(args->room->owner);
+                    dungeon->magic_resrchable[spl_idx] = 1;
                 }
-                delete_thing_structure(thing, 0);
             }
-        }
-        // Per thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break_mapwho_infinite_chain(mapblk);
-            break;
+            else
+            {
+                if (!store_reposition_entry(args->rrepos, objkind))
+                {
+                    WARNLOG("Too many things to reposition in %s.", room_code_name(args->room->kind));
+                }
+                if (!is_neutral_thing(thing))
+                {
+                    remove_power_from_player(spl_idx, args->room->owner);
+                }
+            }
+            delete_thing_structure(thing, 0);
         }
     }
+
+    return TLRs_Continue_Iterating;
+}
+
+void reposition_all_books_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
+{
+    struct ThingLoop_RepositionInRoomArgs args = {
+        .room = room,
+        .rrepos = rrepos
+    };
+
+    foreach_thing_on_subtile(stl_x, stl_y, if__thing_is_spellbook__reposition_in_room, &args);
 }
 
 TbBool recreate_repositioned_book_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
@@ -738,6 +692,58 @@ int position_books_in_room_with_capacity(PlayerNumber plyr_idx, RoomKind rkind, 
     return count;
 }
 
+ThingLoop_CallbackResult if__thing_is_spellbook__check_books_on_subtile_for_reposition_in_room(struct Thing* thing, void* optional_data)
+{
+    struct ThingLoop_CheckForRepositionInRoomArgs* args = optional_data;
+
+    if (thing_is_spellbook(thing))
+    {
+        PowerKind spl_idx = book_thing_to_power_kind(thing);
+        if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == args->room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
+        {
+            // If exceeded capacity of the library
+            if (args->room->used_capacity > args->room->total_capacity)
+            {
+                SYNCDBG(7,"Room %d type %s capacity %d exceeded; space used is %d", args->room->index, room_code_name(args->room->kind), (int)args->room->total_capacity, (int)args->room->used_capacity);
+                struct Dungeon* dungeon = get_players_num_dungeon(args->room->owner);
+                if (dungeon->magic_level[spl_idx] <= 1)
+                { 
+                    // We have a single copy, but nowhere to place it. -1 will handle the rest.
+                    (*args->matching_things_at_subtile) = -1;
+                    return TLRs_Found_Result_Stop_Iterating; //break out of callback loop early
+                }
+                else // We have more than one copy, so we can just delete the book.
+                {
+                    if (!is_neutral_thing(thing))
+                    {
+                        remove_power_from_player(spl_idx, thing->owner);
+                    }
+                    SYNCLOG("Deleting from %s of player %d duplicate object %s", room_code_name(args->room->kind), (int)thing->owner, object_code_name(thing->model));
+                    delete_thing_structure(thing, 0);
+                }
+
+            } else // we have capacity to spare, so it can stay unless it's stuck
+            if (thing_in_wall_at(thing, &thing->mappos)) 
+            {
+                if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
+                {
+                    args->matching_things_at_subtile++; 
+                }
+                else
+                {
+                    (*args->matching_things_at_subtile) = -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                    return TLRs_Found_Result_Stop_Iterating; //break out of callback loop early
+                }
+            } else
+            {
+                args->matching_things_at_subtile++;
+            }
+        }
+    }
+
+    return TLRs_Continue_Iterating;
+}
+
 int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
@@ -748,69 +754,13 @@ int check_books_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoo
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
-    {
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            WARNLOG("Jump out of things array");
-            break;
-        }
-        i = thing->next_on_mapblk;
-        // Per thing code
-        if (thing_is_spellbook(thing))
-        {
-            PowerKind spl_idx = book_thing_to_power_kind(thing);
-            if ((spl_idx > 0) && ((thing->alloc_flags & TAlF_IsDragged) == 0) && ((thing->owner == room->owner) || game.play_gameturn < 10))//Function is used to integrate preplaced books at map startup too.
-            {
-                // If exceeded capacity of the library
-                if (room->used_capacity > room->total_capacity)
-                {
-                    SYNCDBG(7,"Room %d type %s capacity %d exceeded; space used is %d", room->index, room_code_name(room->kind), (int)room->total_capacity, (int)room->used_capacity);
-                    struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
-                    if (dungeon->magic_level[spl_idx] <= 1)
-                    { 
-                        // We have a single copy, but nowhere to place it. -1 will handle the rest.
-                        return -1;
-                    }
-                    else // We have more than one copy, so we can just delete the book.
-                    {
-                        if (!is_neutral_thing(thing))
-                        {
-                            remove_power_from_player(spl_idx, thing->owner);
-                        }
-                        SYNCLOG("Deleting from %s of player %d duplicate object %s", room_code_name(room->kind), (int)thing->owner, object_code_name(thing->model));
-                        delete_thing_structure(thing, 0);
-                    }
 
-                } else // we have capacity to spare, so it can stay unless it's stuck
-                if (thing_in_wall_at(thing, &thing->mappos)) 
-                {
-                    if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
-                    {
-                        matching_things_at_subtile++; 
-                    }
-                    else
-                    {
-                        return -1; // If it's inside the wall or cannot be moved up, recreate all items.
-                    }
-                } else
-                {
-                    matching_things_at_subtile++;
-                }
-            }
-        }
-        // Per thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break_mapwho_infinite_chain(mapblk);
-            break;
-        }
-    }
+    struct ThingLoop_CheckForRepositionInRoomArgs args = {
+        .room = room,
+        .matching_things_at_subtile = &matching_things_at_subtile
+    };
+    foreach_thing_on_subtile(stl_x, stl_y, if__thing_is_spellbook__check_books_on_subtile_for_reposition_in_room, &args);
+
     if (matching_things_at_subtile == 0)
     {
         if (room->used_capacity == room->total_capacity) // When 0 is returned, it would try to place books at this subtile. When at capacity already, return -2 to refuse that.
@@ -1001,6 +951,40 @@ TbBool recreate_repositioned_crate_in_room_on_subtile(struct Room *room, MapSubt
     return false;
 }
 
+ThingLoop_CallbackResult if__thing_is_crate__check_crates_on_subtile_for_reposition_in_room(struct Thing* thing, void* optional_data)
+{
+    struct ThingLoop_CheckForRepositionInRoomArgs* args = optional_data;
+
+    if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == args->room->owner))
+    {
+        // If exceeded capacity of the library
+        if (args->room->used_capacity >= args->room->total_capacity)
+        {
+            WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(args->room->kind),(int)args->room->total_capacity,(int)args->room->used_capacity);
+            (*args->matching_things_at_subtile) = -1; // re-create all (this could save the object if there are duplicates)
+            return TLRs_Found_Result_Stop_Iterating; // break out of callback loop early
+        } else
+        // If the thing is in wall, remove it but store to re-create later
+        if (thing_in_wall_at(thing, &thing->mappos))
+        {
+            if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
+            {
+                args->matching_things_at_subtile++;
+            }
+            else
+            {
+                (*args->matching_things_at_subtile) = -1; // If it's inside the wall or cannot be moved up, recreate all items.
+                return TLRs_Found_Result_Stop_Iterating; // break out of callback loop early
+            }
+        } else
+        {
+            args->matching_things_at_subtile++;
+        }
+    }
+
+    return TLRs_Continue_Iterating;
+}
+
 int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     struct Map* mapblk = get_map_block_at(stl_x, stl_y);
@@ -1011,96 +995,48 @@ int check_crates_on_subtile_for_reposition_in_room(struct Room *room, MapSubtlCo
         return -1; // re-create all
     }
     int matching_things_at_subtile = 0;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
+    
+    struct ThingLoop_CheckForRepositionInRoomArgs args = {
+        .room = room,
+        .matching_things_at_subtile = &matching_things_at_subtile
+    };
+    foreach_thing_on_subtile(stl_x, stl_y, if__thing_is_crate__check_crates_on_subtile_for_reposition_in_room, &args);
+
+    return matching_things_at_subtile; // Increase used capacity
+}
+
+ThingLoop_CallbackResult if__thing_is_crate__reposition_in_room(struct Thing* thing, void* optional_data)
+{
+    struct ThingLoop_RepositionInRoomArgs* args = optional_data;
+
+    if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == args->room->owner))
     {
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            WARNLOG("Jump out of things array");
-            break;
+        ThingModel objkind = thing->model;
+        ThingClass tngclass = crate_thing_to_workshop_item_class(thing);
+        ThingModel tngmodel = crate_thing_to_workshop_item_model(thing);
+        if (!store_reposition_entry(args->rrepos, objkind)) {
+            WARNLOG("Too many things to reposition in %s index %d",room_code_name(args->room->kind),(int)args->room->index);
         }
-        i = thing->next_on_mapblk;
-        // Per thing code
-        if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == room->owner))
+        if (!is_neutral_thing(thing) && player_exists(get_player(thing->owner)))
         {
-            // If exceeded capacity of the library
-            if (room->used_capacity >= room->total_capacity)
-            {
-                WARNLOG("The %s capacity %d exceeded; space used is %d",room_code_name(room->kind),(int)room->total_capacity,(int)room->used_capacity);
-                return -1; // re-create all (this could save the object if there are duplicates)
-            } else
-            // If the thing is in wall, remove it but store to re-create later
-            if (thing_in_wall_at(thing, &thing->mappos))
-            {
-                if (position_over_floor_level(thing, &thing->mappos)) //If it's inside the floors, simply move it up and count it.
-                {
-                    matching_things_at_subtile++;
-                }
-                else
-                {
-                    return -1; // If it's inside the wall or cannot be moved up, recreate all items.
-                }
-            } else
-            {
-                matching_things_at_subtile++;
+            if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None) {
+                remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
             }
         }
-        // Per thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break_mapwho_infinite_chain(mapblk);
-            break;
-        }
+        delete_thing_structure(thing, 0);
     }
-    return matching_things_at_subtile; // Increase used capacity
+
+    return TLRs_Continue_Iterating;
 }
 
 void reposition_all_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)
 {
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    if (map_block_invalid(mapblk))
-        return;
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
-    {
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            WARNLOG("Jump out of things array");
-            break;
-        }
-        i = thing->next_on_mapblk;
-        // Per thing code
-        if (thing_is_workshop_crate(thing) && !thing_is_dragged_or_pulled(thing) && (thing->owner == room->owner))
-        {
-            ThingModel objkind = thing->model;
-            ThingClass tngclass = crate_thing_to_workshop_item_class(thing);
-            ThingModel tngmodel = crate_thing_to_workshop_item_model(thing);
-            if (!store_reposition_entry(rrepos, objkind)) {
-                WARNLOG("Too many things to reposition in %s index %d",room_code_name(room->kind),(int)room->index);
-            }
-            if (!is_neutral_thing(thing) && player_exists(get_player(thing->owner)))
-            {
-                if (remove_workshop_item_from_amount_stored(thing->owner, tngclass, tngmodel, WrkCrtF_NoOffmap) > WrkCrtS_None) {
-                    remove_workshop_item_from_amount_placeable(thing->owner, tngclass, tngmodel);
-                }
-            }
-            delete_thing_structure(thing, 0);
-        }
-        // Per thing code ends
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break_mapwho_infinite_chain(mapblk);
-            break;
-        }
-    }
+    struct ThingLoop_RepositionInRoomArgs args = {
+        .room = room,
+        .rrepos = rrepos
+    };
+
+    foreach_thing_on_subtile(stl_x, stl_y, if__thing_is_crate__reposition_in_room, &args);
 }
 
 void count_and_reposition_crates_in_room_on_subtile(struct Room *room, MapSubtlCoord stl_x, MapSubtlCoord stl_y, struct RoomReposition * rrepos)

@@ -3329,7 +3329,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     SlabCodedCoords slbnum = start_slbnum;
     MapSlabCoord slb_x = slb_num_decode_x(slbnum);
     MapSlabCoord slb_y = slb_num_decode_y(slbnum);
-    struct Thing* gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    struct Thing* gldtng = find_gold_hoard_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
 
     // If the random slab has enough space to drop all gold, go there to drop it
     long wealth_size_holds = game.conf.rules.game.gold_per_hoard / get_wealth_size_types_count();
@@ -3350,7 +3350,7 @@ long setup_head_for_empty_treasure_space(struct Thing *thing, struct Room *room)
     {
         slb_x = slb_num_decode_x(slbnum);
         slb_y = slb_num_decode_y(slbnum);
-        gldtng = find_gold_hoarde_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+        gldtng = find_gold_hoard_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
         gold_amount = gldtng->valuable.gold_stored;
         if (gold_amount <= 0) //Any empty slab will do
         {

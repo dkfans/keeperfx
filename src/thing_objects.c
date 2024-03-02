@@ -1077,6 +1077,28 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
     }
 }
 
+/**
+ * @brief Callback that determines if Thing is the same class and model as Thing provided in optional_data.
+ * If class && model are equal, signals to stop iterating (returns 1).
+ * If class && model are NOT equal, signals to continue iterating (returns 0).
+ * 
+ * @param thing the current Thing we are checking
+ * @param optional_data the Thing we provided
+ * @return ThingLoop_CallbackResult 
+ */
+ThingLoop_CallbackResult if__thing_is_same_class_and_model__select_first(struct Thing* thing, void* optional_data)
+{
+    struct Thing* other_thing = optional_data; // grab other thing from optional_data
+
+    if (thing->class_id == other_thing->class_id &&
+        thing->model == other_thing->model &&
+        thing != other_thing)
+    {
+        return TLRs_Found_Result_Stop_Iterating;
+    }
+
+    return TLRs_Continue_Iterating;
+}
 
 /**
  * Finds a thing with the same location, class and model as the provided thing
@@ -1085,34 +1107,7 @@ void process_object_sacrifice(struct Thing *thing, long sacowner)
  */
 struct Thing *find_base_thing_on_mapwho_excluding_self(struct Thing *thing)
 {
-    struct Map* mapblk = get_map_block_at(thing->mappos.x.stl.num, thing->mappos.y.stl.num);
-    unsigned long k = 0;
-    long i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
-    {
-        struct Thing* result = thing_get(i);
-        TRACE_THING(result);
-        if (thing_is_invalid(result))
-        {
-            ERRORLOG("Jump to invalid thing detected");
-            break;
-        }
-        i = result->next_on_mapblk;
-        // Per thing code start
-        if (result->class_id == thing->class_id && thing->model == result->model && thing != result)
-        {
-            return result;
-        }
-        // Per thing code end
-        k++;
-        if (k > THINGS_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping things list");
-            break_mapwho_infinite_chain(mapblk);
-            break;
-        }
-    }
-    return INVALID_THING;
+    return foreach_thing_on_subtile(thing->mappos.x.stl.num, thing->mappos.y.stl.num, if__thing_is_same_class_and_model__select_first, thing);
 }
 
 static long object_being_dropped(struct Thing *thing)
@@ -2086,33 +2081,28 @@ TbBool thing_is_gold_hoard(const struct Thing *thing)
     return object_is_gold_hoard(thing);
 }
 
+/**
+ * @brief Callback that determines if Thing is a gold hoard.
+ * If gold hoard is found, signals to stop iterating (returns 1).
+ * If gold hoard is NOT found, signals to continue iterating (returns 0).
+ * 
+ * @param thing the current Thing we are checking
+ * @param optional_data not used
+ * @return ThingLoop_CallbackResult 
+ */
+ThingLoop_CallbackResult if__thing_is_gold_hoard__select_first(struct Thing* thing, void* optional_data)
+{
+    if(thing_is_gold_hoard(thing))
+    {
+        return TLRs_Found_Result_Stop_Iterating;
+    }
+
+    return TLRs_Continue_Iterating;
+}
+
 struct Thing *find_gold_hoard_at(MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
-    unsigned long k = 0;
-    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
-    long i = get_mapwho_thing_index(mapblk);
-    while (i != 0)
-    {
-        struct Thing* thing = thing_get(i);
-        if (thing_is_invalid(thing))
-        {
-            WARNLOG("Jump out of things array");
-            break;
-      }
-      i = thing->next_on_mapblk;
-      // Per-thing block
-      if (thing_is_gold_hoard(thing))
-          return thing;
-      // Per-thing block ends
-      k++;
-      if (k > THINGS_COUNT)
-      {
-        ERRORLOG("Infinite loop detected when sweeping things list");
-        break_mapwho_infinite_chain(mapblk);
-        break;
-      }
-    }
-    return INVALID_THING;
+    return foreach_thing_on_subtile(stl_x, stl_y, if__thing_is_gold_hoard__select_first, NULL);
 }
 
 GoldAmount gold_object_typical_value(ThingModel tngmodel)
@@ -2191,6 +2181,63 @@ struct Thing *drop_gold_pile(long value, struct Coord3d *pos)
     }
     return thing;
 }
+/******************************************************************************/
+
+/**
+ * @brief Iterates over all Things on a subtile, executes the provided callback with optional_data.
+ * This can be used to find specific Things or to perform any logic with Thing and optional_data.
+ * 
+ * @param stl_x subtile x
+ * @param stl_y subtile y
+ * @param callback this callback determines whether to continue iterating or to break early.
+ * @param optional_data this should be NULL or point to any custom data that we want passed to the callback
+ * @return struct Thing* - if the loop exits early this will be the found Thing, otherwise INVALID_THING
+ */
+struct Thing* foreach_thing_on_subtile(MapSubtlCoord stl_x, MapSubtlCoord stl_y, Thing_Loop_Callback_Func callback, void* optional_data)
+{
+    if(callback == NULL)
+    {
+        ERRORLOG("Must provide valid callback");
+        return INVALID_THING;
+    }
+
+    struct Map* mapblk = get_map_block_at(stl_x, stl_y);
+    if(map_block_invalid(mapblk))
+    {
+        ERRORLOG("Invalid map block at (%ld,%ld)", stl_x, stl_y);
+        return INVALID_THING;
+    }
+    
+    unsigned long k = 0;
+    long i = get_mapwho_thing_index(mapblk);
+    while (i != 0)
+    {
+        struct Thing* result = thing_get(i);
+        TRACE_THING(result);
+        if (thing_is_invalid(result))
+        {
+            ERRORLOG("Jump to invalid thing detected");
+            break;
+        }
+        i = result->next_on_mapblk;
+        // Per thing code start
+        if(callback(result, optional_data))
+        {
+            return result;
+        }
+        // Per thing code end
+        k++;
+        if (k > THINGS_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping things list");
+            break_mapwho_infinite_chain(mapblk);
+            break;
+        }
+    }
+    
+    return INVALID_THING;
+}
+
 /******************************************************************************/
 #ifdef __cplusplus
 }
