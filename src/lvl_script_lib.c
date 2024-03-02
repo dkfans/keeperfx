@@ -23,6 +23,7 @@
 #include "dungeon_data.h"
 #include "lvl_filesdk1.h"
 #include "creature_states_pray.h"
+#include "magic.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -127,6 +128,80 @@ struct Thing* script_process_new_effectgen(long tngmodel, TbMapLocation location
         }
     }
     return thing;
+}
+
+/**
+ * Casts keeper power on a specific creature, or position of the creature depending on the power.
+ * @param thing The creature to target.
+ * @param pwkind The ID of the Keeper Power.
+ * @param splevel The overcharge level of the keeperpower. Is ignored when not applicable.
+ * @param caster The player number of the player who is made to cast the spell.
+ * @param is_free If gold is used when casting the spell. It will fail to cast if it is not free and money is not available.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short splevel, PlayerNumber caster, TbBool is_free)
+{
+    if (thing_is_in_power_hand_list(thing, thing->owner))
+    {
+        char block = pwkind == PwrK_SLAP;
+        block |= pwkind == PwrK_CALL2ARMS;
+        block |= pwkind == PwrK_CAVEIN;
+        block |= pwkind == PwrK_LIGHTNING;
+        block |= pwkind == PwrK_MKDIGGER;
+        block |= pwkind == PwrK_SIGHT;
+        if (block)
+        {
+            SYNCDBG(5, "Found creature to use power on but it is being held.");
+            return Lb_FAIL;
+        }
+    }
+
+    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
+    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
+    unsigned long spell_flags = is_free ? PwMod_CastForFree : 0;
+
+    switch (pwkind)
+    {
+    case PwrK_HEALCRTR:
+        return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_SPEEDCRTR:
+        return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_PROTECT:
+        return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_REBOUND:
+        return magic_use_power_rebound(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_CONCEAL:
+        return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_DISEASE:
+        return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_CHICKEN:
+        return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_FREEZE:
+        return magic_use_power_freeze(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_SLOW:
+        return magic_use_power_slow(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_FLIGHT:
+        return magic_use_power_flight(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_VISION:
+        return magic_use_power_vision(caster, thing, 0, 0, splevel, spell_flags);
+    case PwrK_SLAP:
+        return magic_use_power_slap_thing(caster, thing, spell_flags);
+    case PwrK_CALL2ARMS:
+        return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
+    case PwrK_LIGHTNING:
+        return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
+    case PwrK_CAVEIN:
+        return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
+    case PwrK_MKDIGGER:
+        return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
+    case PwrK_SIGHT:
+        return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
+    case PwrK_TIMEBOMB:
+        return magic_use_power_time_bomb(caster, thing, splevel, spell_flags);
+    default:
+        SCRPTERRLOG("Power not supported for this command: %s", power_code_name(pwkind));
+        return Lb_FAIL;
+    }
 }
 
 void set_variable(int player_idx, long var_type, long var_idx, long new_val)

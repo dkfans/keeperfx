@@ -466,10 +466,14 @@ short creature_sleep(struct Thing *thing)
     }
     thing->movement_flags &= ~0x0020;
     struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
-    if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+    // Recovery is disabled if frequency is set to 0 on rules.cfg.
+    if (game.conf.rules.creature.recovery_frequency > 0)
     {
-        HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel);
-        apply_health_to_thing_and_display_health(thing, recover);
+        if (((game.play_gameturn + thing->index) % game.conf.rules.creature.recovery_frequency) == 0)
+        {
+            HitPoints recover = compute_creature_max_health(crstat->sleep_recovery, cctrl->explevel, thing->owner);
+            apply_health_to_thing_and_display_health(thing, recover);
+        }
     }
     anger_set_creature_anger(thing, 0, AngR_NoLair);
     anger_apply_anger_to_creature(thing, crstat->annoy_sleeping, AngR_Other, 1);

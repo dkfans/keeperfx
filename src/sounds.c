@@ -131,11 +131,15 @@ void play_thing_walking(struct Thing *thing)
         return;
     }
     long loudness = (myplyr->view_mode == PVM_CreatureView) ? (FULL_LOUDNESS) : (FULL_LOUDNESS / 5);
-    // Flying diptera has a buzzing noise sound
-    if ((get_creature_model_flags(thing) & CMF_IsDiptera) && ((thing->movement_flags & TMvF_Flying) != 0) && (thing->floor_height < (int)thing->mappos.z.val))
+    if (((thing->movement_flags & TMvF_Flying) != 0) && (thing->floor_height < (int)thing->mappos.z.val))
     {
-        if ( !S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0) ) {
-            thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);
+        // Flying diptera has a buzzing noise sound
+        if (get_creature_model_flags(thing) & CMF_IsDiptera)
+        {
+            if (!S3DEmitterIsPlayingSample(thing->snd_emitter_id, 25, 0))
+            {
+                thing_play_sample(thing, 25, 100, -1, 2, 0, 2, loudness);
+            }
         }
     }
     else
@@ -651,7 +655,7 @@ void sound_reinit_after_load(void)
     ambient_sound_stop();
     init_messages();
     free_sound_chunks();
-    for (unsigned int sample = 0; sample < EXTERNAL_SOUNDS_COUNT; sample++)
+    for (unsigned int sample = 0; sample <= EXTERNAL_SOUNDS_COUNT; sample++)
     {
         char *sound = &game.loaded_sound[sample][0];
         if (sound[0] != '\0')
@@ -837,13 +841,12 @@ void ShutDownSDLAudio()
 void free_sound_chunks()
 {
     Mix_HaltChannel(-1);
-    for (int i = 0; i < EXTERNAL_SOUNDS_COUNT; i++)
+    for (int i = 0; i <= EXTERNAL_SOUNDS_COUNT; i++)
     {
         if (Ext_Sounds[i] != NULL)
         {
             Mix_FreeChunk(Ext_Sounds[i]);
             Ext_Sounds[i] = NULL;
-            memset(game.loaded_sound[i],0,DISKPATH_SIZE);
         }
     }
     game.sounds_count = 0;

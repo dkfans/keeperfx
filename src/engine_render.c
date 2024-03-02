@@ -412,7 +412,7 @@ struct EngineCol *front_ec;
 struct EngineCol *back_ec;
 float hud_scale;
 
-int line_box_size = 200; // Default value, overwritten by cfg setting
+int line_box_size = 150; // Default value, overwritten by cfg setting
 int creature_status_size = 16; // Default value, overwritten by cfg setting
 static int water_wibble_angle = 0;
 static float render_water_wibble = 0; // Rendering float
@@ -5362,11 +5362,11 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
-        spr = get_button_sprite(state_spridx);
+        spr = get_button_sprite_for_player(state_spridx, thing->owner);
         h_add += spr->SHeight * bs_units_per_px/16;
     } else if ( state_spridx )
     {
-        spr = get_button_sprite(state_spridx);
+        spr = get_button_sprite_for_player(state_spridx, thing->owner);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h, spr, w, h);
@@ -5379,7 +5379,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         if (flash_color == NEUTRAL_PLAYER) {
             flash_color = game.play_gameturn & 3;
         }
-        spr = get_button_sprite_direct(health_spridx);
+        spr = get_button_sprite_for_player(health_spridx, thing->owner);
         w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
         h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
         LbSpriteDrawScaledOneColour(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h, player_flash_colours[flash_color]);
@@ -5393,7 +5393,7 @@ void draw_status_sprites(long scrpos_x, long scrpos_y, struct Thing *thing)
         || (cam->view_mode == PVM_ParchmentView))
       {
           if (health_spridx > 0) {
-              spr = get_button_sprite(health_spridx);
+              spr = get_button_sprite_for_player(health_spridx, thing->owner);
               w = (base_size * spr->SWidth * bs_units_per_px/16) >> 13;
               h = (base_size * spr->SHeight * bs_units_per_px/16) >> 13;
               LbSpriteDrawScaled(scrpos_x - w / 2, scrpos_y - h - h_add, spr, w, h);

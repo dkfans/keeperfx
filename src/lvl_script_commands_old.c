@@ -636,21 +636,6 @@ static void command_reset_action_point(long apt_num)
   command_add_value(Cmd_RESET_ACTION_POINT, ALL_PLAYERS, apt_idx, 0, 0);
 }
 
-static void command_set_creature_max_level(long plr_range_id, const char *crtr_name, long crtr_level)
-{
-    long crtr_id = get_rid(creature_desc, crtr_name);
-    if (crtr_id == -1)
-    {
-        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-        return;
-  }
-  if ((crtr_level < 0) || (crtr_level > CREATURE_MAX_LEVEL))
-  {
-    SCRPTERRLOG("Invalid '%s' experience level, %d", crtr_name, crtr_level);
-  }
-  command_add_value(Cmd_SET_CREATURE_MAX_LEVEL, plr_range_id, crtr_id, crtr_level-1, 0);
-}
-
 static void command_set_music(long val)
 {
   if (get_script_current_condition() != CONDITION_ALWAYS)
@@ -1217,15 +1202,6 @@ static void command_use_power_on_creature(long plr_range_id, const char *crtr_na
     SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
     return;
   }
-  PowerKind pwr = mag_id;
-  if((PlayerNumber) caster_plyr_idx > PLAYER3)
-  {
-    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
-  }
 
   // encode params: free, magic, caster, level -> into 4xbyte: FMCL
   long fmcl_bytes;
@@ -1690,9 +1666,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     case Cmd_TUTORIAL_FLASH_BUTTON:
         command_tutorial_flash_button(scline->np[0], scline->np[1]);
-        break;
-    case Cmd_SET_CREATURE_MAX_LEVEL:
-        command_set_creature_max_level(scline->np[0], scline->tp[1], scline->np[2]);
         break;
     case Cmd_SET_MUSIC:
         command_set_music(scline->np[0]);
