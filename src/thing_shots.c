@@ -811,9 +811,9 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
         {
             if (shotst->hit_heart.effect_model > 0)
             {
-                create_effect(&target->mappos, shotst->hit_heart.effect_model, shotng->owner);
+                create_effect(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
             } else {
-                create_effect_element(&target->mappos, shotst->hit_heart.effect_model, shotng->owner);
+                create_effect_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
             }
         }
         if (shotst->hit_heart.sndsample_idx > 0)
