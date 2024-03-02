@@ -2272,9 +2272,8 @@ static void set_door_configuration_process(struct ScriptContext *context)
 static void create_effect_process(struct ScriptContext *context)
 {
     struct Coord3d pos;
-    pos.x.stl.num = (MapSubtlCoord)context->value->bytes[1];
-    pos.y.stl.num = (MapSubtlCoord)context->value->bytes[2];
-    pos.z.val = get_floor_height(pos.x.stl.num, pos.y.stl.num);
+    set_coords_to_subtile_center(&pos, context->value->bytes[1], context->value->bytes[2], 0);
+    pos.z.val += get_floor_height(pos.x.stl.num, pos.y.stl.num);
     TbBool Price = (context->value->chars[0] == -(TngEffElm_Price));
     if (Price)
     {
@@ -2469,20 +2468,13 @@ static void create_effects_line_check(const struct ScriptLine *scline)
     value->chars[8] = scline->np[2]; // curvature
     value->bytes[9] = scline->np[3]; // spatial stepping
     value->bytes[10] = scline->np[4]; // temporal stepping
-
     const char* effect_name = scline->tp[5];
-    long effct_id = get_rid(effect_desc, effect_name);
-    if (effct_id == -1)
+
+    long effct_id = effect_or_effect_element_id(effect_name);
+    if (effct_id == 0)
     {
-        if (parameter_is_number(effect_name))
-        {
-            effct_id = atoi(effect_name);
-        }
-        else
-        {
-            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
-            return;
-        }
+        SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+        return;
     }
 
     value->chars[11] = effct_id; // effect
@@ -3129,18 +3121,11 @@ static void create_effect_check(const struct ScriptLine *scline)
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     TbMapLocation location;
     const char *effect_name = scline->tp[0];
-    long effct_id = get_rid(effect_desc, effect_name);
-    if (effct_id == -1)
+    long effct_id = effect_or_effect_element_id(effect_name);
+    if (effct_id == 0)
     {
-        if (parameter_is_number(effect_name))
-        {
-            effct_id = atoi(effect_name);
-        }
-        else
-        {
-            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
-            return;
-        }
+        SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+        return;
     }
     value->chars[0] = effct_id;
     const char *locname = scline->tp[1];
@@ -3161,18 +3146,11 @@ static void create_effect_at_pos_check(const struct ScriptLine *scline)
 {
     ALLOCATE_SCRIPT_VALUE(scline->command, 0);
     const char *effect_name = scline->tp[0];
-    long effct_id = get_rid(effect_desc, effect_name);
-    if (effct_id == -1)
+    long effct_id = effect_or_effect_element_id(effect_name);
+    if (effct_id == 0)
     {
-        if (parameter_is_number(effect_name))
-        {
-            effct_id = atoi(effect_name);
-        }
-        else
-        {
-            SCRPTERRLOG("Unrecognised effect: %s", effect_name);
-            return;
-        }
+        SCRPTERRLOG("Unrecognised effect: %s", effect_name);
+        return;
     }
     value->chars[0] = effct_id;
     if (subtile_coords_invalid(scline->np[1], scline->np[2]))

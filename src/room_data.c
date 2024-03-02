@@ -5192,28 +5192,28 @@ long take_over_room(struct Room* room, PlayerNumber newowner)
 void destroy_room_leaving_unclaimed_ground(struct Room *room)
 {
     unsigned long k = 0;
-    long i = room->slabs_list;
+    unsigned long count = room->slabs_count;
+    SlabCodedCoords* slbs = malloc(count * sizeof(SlabCodedCoords));
+    SlabCodedCoords i = room->slabs_list;
     while (i != 0)
     {
-        long slb_x = slb_num_decode_x(i);
-        long slb_y = slb_num_decode_y(i);
+        slbs[k] = i;
         i = get_next_slab_number_in_room(i);
-        // Per room tile code
+        k++;
+    }
+    for (k = 0; k < count; k++)
+    {
         if (room->owner != game.neutral_player_num)
         {
             struct Dungeon* dungeon = get_players_num_dungeon(room->owner);
             dungeon->rooms_destroyed++;
         }
+        MapSlabCoord slb_x = slb_num_decode_x(slbs[k]);
+        MapSlabCoord slb_y = slb_num_decode_y(slbs[k]);
         delete_room_slab(slb_x, slb_y, 1); // Note that this function might also delete the whole room
-        create_dirt_rubble_for_dug_slab(slb_x, slb_y);
-        // Per room tile code ends
-        k++;
-        if (k > gameadd.map_tiles_x*gameadd.map_tiles_y) // we can't use room->slabs_count as room may be deleted
-        {
-            ERRORLOG("Room slabs list length exceeded when sweeping");
-            break;
-        }
+        create_dirt_rubble_for_dug_slab(slb_x, slb_y); 
     }
+    free(slbs);
 }
 
 void destroy_dungeon_heart_room(PlayerNumber plyr_idx, const struct Thing *heartng)
