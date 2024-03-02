@@ -4071,11 +4071,15 @@ TbBool process_creature_hunger(struct Thing *thing)
     cctrl->hunger_level++;
     if (!hunger_is_creature_hungry(thing))
         return false;
-    // Make sure every creature loses health on different turn
-    if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
-        SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
-        remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
-        return true;
+    // HungerHealthLoss is disabled if set to 0 on rules.cfg.
+    if (game.conf.rules.health.turns_per_hunger_health_loss > 0)
+    {
+        // Make sure every creature loses health on different turn.
+        if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
+            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
+            remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
+            return true;
+        }
     }
     return false;
 }
@@ -4376,6 +4380,7 @@ short seek_the_enemy(struct Thing *creatng)
     TRACE_THING(creatng);
     struct CreatureControl* cctrl = creature_control_get_from_thing(creatng);
     struct Thing* enemytng = thing_update_enemy_to_fight_with(creatng);
+    struct CreatureSound* crsound;
     if (!thing_is_invalid(enemytng))
     {
         MapCoordDelta dist = get_chessboard_distance(&enemytng->mappos, &creatng->mappos);
@@ -4383,26 +4388,27 @@ short seek_the_enemy(struct Thing *creatng)
         {
             if (cctrl->instance_id == CrInst_NULL)
             {
-              if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
-              {
-                set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
-                thing_play_sample(creatng, 168+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-                return 1;
-              }
-              if (CREATURE_RANDOM(creatng, 4) != 0)
-              {
-                  if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
-                  {
+                if ((dist < 2304) && (game.play_gameturn-cctrl->countdown_282 < 20))
+                {
+                    crsound = get_creature_sound(creatng, CrSnd_Fight);
+                    thing_play_sample(creatng, crsound->index + UNSYNC_RANDOM(crsound->count), NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
+                    set_creature_instance(creatng, CrInst_CELEBRATE_SHORT, 0, 0);
+                    return 1;
+                }
+                if (CREATURE_RANDOM(creatng, 4) != 0)
+                {
+                    if (setup_person_move_close_to_position(creatng, enemytng->mappos.x.stl.num, enemytng->mappos.y.stl.num, NavRtF_Default))
+                    {
+                        creatng->continue_state = CrSt_SeekTheEnemy;
+                        cctrl->countdown_282 = game.play_gameturn;
+                        return 1;
+                    }
+                }
+                if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
+                {
                     creatng->continue_state = CrSt_SeekTheEnemy;
                     cctrl->countdown_282 = game.play_gameturn;
-                    return 1;
-                  }
-              }
-              if (creature_choose_random_destination_on_valid_adjacent_slab(creatng))
-              {
-                  creatng->continue_state = CrSt_SeekTheEnemy;
-                  cctrl->countdown_282 = game.play_gameturn;
-              }
+                }
             }
             return 1;
         }
@@ -4705,9 +4711,13 @@ short set_start_state_f(struct Thing *thing,const char *func_name)
     }
     if (player->victory_state == VicS_LostLevel)
     {
-        cleanup_current_thing_state(thing);
-        initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
-        return thing->active_state;
+        // TODO: Correctly deal with possession of creatures not owned by the player
+        if (thing->model != get_players_special_digger_model(player->id_number))
+        {
+            cleanup_current_thing_state(thing);
+            initialise_thing_state(thing, CrSt_LeavesBecauseOwnerLost);
+            return thing->active_state;
+        }
     }
     i = creatures[thing->model%game.conf.crtr_conf.model_count].evil_start_state;
     cleanup_current_thing_state(thing);

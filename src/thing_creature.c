@@ -1338,7 +1338,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     newpos = dungeon_get_essential_pos(thing->owner);
                     break;
                 }
-                case 15: // Fight
+                case 16: // Fight
                 {
                     if (active_battle_exists(thing->owner))
                     {
@@ -1387,12 +1387,12 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     }
                     break;
                 }
-                case 16: // Last work room
+                case 17: // Last work room
                 {
                     room = room_get(cctrl->last_work_room_id);
                     break;
                 }
-                case 17: // Call to Arms
+                case 18: // Call to Arms
                 {
                     struct Coord3d cta_pos;
                     cta_pos.x.val = subtile_coord_center(dungeon->cta_stl_x);
@@ -1408,7 +1408,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
                     }
                     break;
                 }
-                case 18: // Lair
+                case 19: // Lair
                 {
                     desttng = thing_get(cctrl->lairtng_idx);
                     break;
@@ -1510,7 +1510,7 @@ void process_thing_spell_teleport_effects(struct Thing *thing, struct CastedSpel
             thing->veloc_push_add.z.val += CREATURE_RANDOM(thing, 96) + 40;
             thing->state_flags |= TF1_PushAdd;
         }
-        player->teleport_destination = 18;
+        player->teleport_destination = 19;
     }
 }
 
@@ -5498,7 +5498,7 @@ long update_creature_levels(struct Thing *thing)
     // Transforming
     struct CreatureModelConfig* oriconf = &game.conf.crtr_conf.model[thing->model];
     ThingModel model = crstat->grow_up;
-    if (model == CREATURE_ANY)
+    if (model == CREATURE_NOT_A_DIGGER)
     {
         while (1) {
             model = GAME_RANDOM(game.conf.crtr_conf.model_count) + 1;

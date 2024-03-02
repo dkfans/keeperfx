@@ -840,6 +840,16 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
             player->cheatselection.chosen_experience_level = pckt->actn_par1;
             return false;
         }
+        case PckA_CheatAllDoors:
+        {
+            make_available_all_doors(plyr_idx);
+            return false;
+        }
+        case PckA_CheatAllTraps:
+        {
+            make_available_all_traps(plyr_idx);
+            return false;
+        }
         default:
           return false;
   }
@@ -1003,16 +1013,6 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             {
                 change_creature_owner(thing, pckt->actn_par1);
             }
-            break;
-        }
-        case PckA_CheatAllDoors:
-        {
-            make_available_all_doors(plyr_idx);
-            break;
-        }
-        case PckA_CheatAllTraps:
-        {
-            make_available_all_traps(plyr_idx);
             break;
         }
         default:
