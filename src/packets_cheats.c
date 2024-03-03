@@ -367,7 +367,7 @@ TbBool packets_process_cheats(
         {
             if (allowed)
             {
-                destroy_room_leaving_unclaimed_ground(room);
+                destroy_room_leaving_unclaimed_ground(room, false);
             }
             unset_packet_control(pckt, PCtr_LBtnRelease);
         }
@@ -665,7 +665,13 @@ TbBool packets_process_cheats(
                 const char* msg = get_string(slbattr->tooltip_stridx);
                 strcpy(str, msg);
                 char* dis_msg = strtok(str, ":");
+                if (dis_msg == NULL)
+                {
+                    dis_msg = malloc(strlen(str) + 1);
+                    strcpy(dis_msg, str);
+                }
                 targeted_message_add(player->cheatselection.chosen_player, plyr_idx, 1, dis_msg);
+                free(dis_msg);
             }
             else
             {
@@ -840,6 +846,16 @@ TbBool process_players_global_cheats_packet_action(PlayerNumber plyr_idx, struct
             player->cheatselection.chosen_experience_level = pckt->actn_par1;
             return false;
         }
+        case PckA_CheatAllDoors:
+        {
+            make_available_all_doors(plyr_idx);
+            return false;
+        }
+        case PckA_CheatAllTraps:
+        {
+            make_available_all_traps(plyr_idx);
+            return false;
+        }
         default:
           return false;
   }
@@ -1003,16 +1019,6 @@ TbBool process_players_dungeon_control_cheats_packet_action(PlayerNumber plyr_id
             {
                 change_creature_owner(thing, pckt->actn_par1);
             }
-            break;
-        }
-        case PckA_CheatAllDoors:
-        {
-            make_available_all_doors(plyr_idx);
-            break;
-        }
-        case PckA_CheatAllTraps:
-        {
-            make_available_all_traps(plyr_idx);
             break;
         }
         default:

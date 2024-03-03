@@ -748,11 +748,11 @@ void draw_gui_panel_sprite_left_player(long x, long y, int units_per_px, long sp
     LbSpriteDrawResized(x, y, units_per_px, spr);
 }
 
-void draw_gui_panel_sprite_rmleft(long x, long y, int units_per_px, long spridx, unsigned long remap)
+void draw_gui_panel_sprite_rmleft_player(long x, long y, int units_per_px, long spridx, unsigned long remap, PlayerNumber plyr_idx)
 {
     if ((spridx <= 0) || (spridx >= num_icons_total))
       return;
-    spridx = get_player_colored_icon_idx(spridx,my_player_number);
+    spridx = get_player_colored_icon_idx(spridx, plyr_idx);
     struct TbSprite* spr = &gui_panel_sprites[spridx];
     LbSpriteDrawResizedRemap(x, y, units_per_px, spr, &pixmap.fade_tables[remap*256]);
 }

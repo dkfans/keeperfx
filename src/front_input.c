@@ -1563,31 +1563,33 @@ short get_creature_control_action_inputs(void)
             {
                 clear_key_pressed(val);
                 set_players_packet_action(player, PckA_SwitchTeleportDest, i, 0, 0, 0);
-                if (i == 15)
-                {
-                    StrID = 567;
-                }
-                else
-                {
-                    struct RoomConfigStats* roomst = get_room_kind_stats(zoom_key_room_order[i]);
-                    StrID = roomst->name_stridx;
-                }
+                struct RoomConfigStats* roomst = get_room_kind_stats(zoom_key_room_order[i]);
+                StrID = roomst->name_stridx;
             }
 
         }
-        if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
         {
-            set_players_packet_action(player, PckA_SwitchTeleportDest, 16, 0, 0, 0);; // Last work room
+            clear_key_pressed(val);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 16, 0, 0, 0);
+            StrID = 567;
+        }
+        else if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
+        {
+            clear_key_pressed(KC_SEMICOLON);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 17, 0, 0, 0);; // Last work room
         }
         else if (is_key_pressed(KC_SLASH,KMod_DONTCARE))
         {
-            set_players_packet_action(player, PckA_SwitchTeleportDest, 17, 0, 0, 0);; // Call to Arms
+            clear_key_pressed(KC_SLASH);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 18, 0, 0, 0);; // Call to Arms
             struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
             StrID = powerst->name_stridx;
         }
         else if (is_key_pressed(KC_COMMA,KMod_DONTCARE))
         {
-            set_players_packet_action(player, PckA_SwitchTeleportDest, 18, 0, 0, 0); // default behaviour
+            clear_key_pressed(KC_COMMA);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 19, 0, 0, 0); // default behaviour
             StrID = 609;
         }
         struct Thing* creatng = thing_get(player->controlled_thing_idx);
@@ -2281,65 +2283,68 @@ TbBool get_packet_load_demo_inputs(void)
 }
 
 void get_creature_control_nonaction_inputs(void)
-{
-    long k;
+{ 
     struct PlayerInfo* player = get_my_player();
+    if ((player->allocflags & PlaF_Unknown8) != 0)
+    {
+        return;
+    }
     struct Packet* pckt = get_packet(my_player_number);
-
     long x = GetMouseX();
     long y = GetMouseY();
     struct Thing* thing = thing_get(player->controlled_thing_idx);
     TRACE_THING(thing);
-
-    if ((player->allocflags & PlaF_Unknown8) != 0)
-        return;
-
-    if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y)) {
-        LbMouseSetPositionInitial((MyScreenWidth / pixel_size) >> 1, (MyScreenHeight / pixel_size) >> 1);
+    TbBool cheat_menu_active = cheat_menu_is_active();
+    if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y)) 
+    {
+        if (!cheat_menu_active)
+        {
+            LbMouseSetPositionInitial((MyScreenWidth / pixel_size) >> 1, (MyScreenHeight / pixel_size) >> 1);
+        }
     }
+    if (!cheat_menu_active)
+    {
+        long centerX = MyScreenWidth / 2;
+        long centerY = MyScreenHeight / 2;
+        long deltaX = x - centerX;
+        long deltaY = y - centerY;
+        long k;
 
-    long centerX = MyScreenWidth / 2;
-    long centerY = MyScreenHeight / 2;
-    long deltaX = x - centerX;
-    long deltaY = y - centerY;
+        // Map to the range -255 to 255
+        pckt->pos_x = 255 * deltaX / centerX;
+        if (settings.first_person_move_invert) {
+            pckt->pos_y = 255 * deltaY / centerY;
+        } else {
+            pckt->pos_y = -255 * deltaY / centerY;
+        }
 
-    // Map to the range -255 to 255
-    pckt->pos_x = 255 * deltaX / centerX;
-    if (settings.first_person_move_invert) {
-        pckt->pos_y = 255 * deltaY / centerY;
-    } else {
-        pckt->pos_y = -255 * deltaY / centerY;
+        long i = settings.first_person_move_sensitivity + 1;
+        x = pckt->pos_x;
+        y = pckt->pos_y;
+
+        if (i < 6) {
+            k = 5 - settings.first_person_move_sensitivity;
+            pckt->pos_x = x / k;
+            pckt->pos_y = y / k;
+        } else if (i > 6) {
+            k = settings.first_person_move_sensitivity - 5;
+            pckt->pos_x = k * x;
+            pckt->pos_y = k * y;
+        }
+
+        if (pckt->pos_x < -255) {
+            pckt->pos_x = -255;
+        } else if (pckt->pos_x > 255) {
+            pckt->pos_x = 255;
+        }
+        if (pckt->pos_y < -255) {
+            pckt->pos_y = -255;
+        } else if (pckt->pos_y > 255) {
+            pckt->pos_y = 255;
+        }
     }
-
-    long i = settings.first_person_move_sensitivity + 1;
-    x = pckt->pos_x;
-    y = pckt->pos_y;
-
-    if (i < 6) {
-        k = 5 - settings.first_person_move_sensitivity;
-        pckt->pos_x = x / k;
-        pckt->pos_y = y / k;
-    } else if (i > 6) {
-        k = settings.first_person_move_sensitivity - 5;
-        pckt->pos_x = k * x;
-        pckt->pos_y = k * y;
-    }
-
-    if (pckt->pos_x < -255) {
-        pckt->pos_x = -255;
-    } else if (pckt->pos_x > 255) {
-        pckt->pos_x = 255;
-    }
-    if (pckt->pos_y < -255) {
-        pckt->pos_y = -255;
-    } else if (pckt->pos_y > 255) {
-        pckt->pos_y = 255;
-    }
-
     // Now do user actions
-    if (thing_is_invalid(thing))
-    return;
-    if (thing->class_id == TCls_Creature)
+    if (thing_is_creature(thing))
     {
         if (left_button_clicked)
         {
