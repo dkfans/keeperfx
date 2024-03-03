@@ -89,7 +89,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
         }
     } else
     {
-        LbTextStringDraw(i, pos_y, units_per_px, hscore->name, Fnt_CenterPos);
+        LbTextStringDraw(i, pos_y, units_per_px, hscore->name, Fnt_LeftJustify);
     }
 }
 
@@ -117,10 +117,10 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     int pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
     int tx_units_per_px = (dbc_language > 0) ? units_per_pixel_ui : gbtn->height * 16 / (11 * (LbTextLineHeight()));
     // The GUI item height should be 11 lines of text
-    long col1_width = LbTextStringWidthM("99", tx_units_per_px);
-    long col2_width = LbTextStringWidthM(" 99999", tx_units_per_px);
-    long col3_width = col2_width + (col2_width / 4);
-    long col4_width = col3_width + (col3_width / 4);
+    long col1_width = LbTextStringWidthM("999", tx_units_per_px);
+    long col2_width = LbTextStringWidthM(" 99999999", tx_units_per_px);
+    long col3_width = LbTextStringWidthM("  99999", tx_units_per_px);
+    long col4_width = LbTextCharWidthM('-', tx_units_per_px);
     int k;
     visible_entries = 0;
     for (k=highscore_scroll_offset; k < (highscore_scroll_offset+VISIBLE_HIGH_SCORES_COUNT)-1; k++)
