@@ -3,11 +3,15 @@
 #include <windows.h>
 #include <SDL2/SDL_net.h>
 #include "api.h"
+#include <json.h>
+#include <json-dom.h>
 #include "lvl_script.h"
 #include "post_inc.h"
+#include "value_util.h"
 
 #define API_SERVER_PORT 5599
 #define API_SERVER_BUFFER 1024
+#define API_CONFIG_KEY "api"
 
 struct ApiGlobals
 {
@@ -21,6 +25,11 @@ int api_init_server()
 {
     if (api.serverSocket) // Already inited
         return 0;
+
+// TODO: where is keeperfx.cfg dict????
+
+//    if (value_dict_get(global_config, API_CONFIG_KEY) == NULL)
+//        return 0;
 
     if (SDLNet_Init() < 0)
     {
@@ -62,6 +71,71 @@ int api_init_server()
     }
 
     return 0;
+}
+
+static void api_err(const char *err)
+{
+    char buf[256];
+    int len = snprintf(buf, sizeof(buf)-1, "[\"ERR\", \"%s\"]\r\n", err);
+    // Echo back the data for now
+    SDLNet_TCP_Send(api.activeSocket, buf, len);
+}
+
+static void api_ok()
+{
+    const char msg[] = "[\"OK\"]\r\n";
+    SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
+}
+
+static void process_buffer(const char *buffer, size_t buf_size)
+{
+    VALUE data, *value = &data;
+    if (buffer[buf_size - 1] == 0)
+        buf_size -=1;
+
+    int ret = json_dom_parse(buffer, buf_size, NULL, 0, value, NULL);
+
+    if (ret != 0)
+    {
+        api_err("invalid json");
+        return;
+    }
+
+    if (value_type(value) != VALUE_ARRAY)
+    {
+        api_err("invalid json");
+        goto end;
+    }
+    const char *api_cmd = value_string(value_array_get(value, 0));
+
+    if (api_cmd == NULL)
+    {
+        api_err("invalid json");
+    }
+    else if (0 == strcasecmp("CMD", api_cmd))
+    {
+        char *cmd_data = (char*) value_string(value_array_get(value, 1));
+        if (cmd_data == NULL)
+        {
+            api_err("invalid json");
+        }
+        else if (script_scan_line(cmd_data, false, 99)) // Maximum level of a command support
+        {
+            api_ok();
+        }
+        else
+        {
+            api_err("unable to process");
+        }
+
+    }
+    else
+    {
+        api_err("unknown command");
+    }
+
+    end:
+    value_fini(&data);
 }
 
 void api_update_server()
@@ -126,12 +200,7 @@ void api_update_server()
                     }
 
                     JUSTLOG("Received message from client: %s", buffer);
-
-                    // Run the received data as a MAP SCRIPT COMMAND
-                    script_scan_line(buffer, false, 99); // Maximum level of a command support
-
-                    // Echo back the data for now
-                    SDLNet_TCP_Send(api.activeSocket, buffer, received);
+                    process_buffer(buffer, received);
                 }
                 else
                 {
