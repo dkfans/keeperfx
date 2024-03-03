@@ -59,11 +59,11 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     struct HighScore* hscore = &campaign.hiscore_table[idx];
     lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
     int i = pos_x + col1_width;
-    LbTextNumberDraw(i, pos_y, units_per_px, idx+1, Fnt_CenterPos);
+    LbTextNumberDraw(i, pos_y, units_per_px, idx+1, Fnt_RightJustify);
     i += col2_width;
-    LbTextNumberDraw(i, pos_y, units_per_px, hscore->score, Fnt_CenterPos);
+    LbTextNumberDraw(i, pos_y, units_per_px, hscore->score, Fnt_RightJustify);
     i += col3_width;
-    LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_CenterPos);
+    LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_RightJustify);
     i += col4_width;
     if (idx == high_score_entry_input_active)
     {
