@@ -82,12 +82,12 @@ enum ComputerTaskTypes {
     CTT_SlapDiggers,
     CTT_DigToNeutral,
     CTT_MagicSpeedUp,
-    CTT_MagicFlightUp,
-    CTT_MagicVisionUp,
     CTT_WaitForBridge,
     CTT_AttackMagic,
     CTT_SellTrapsAndDoors,
     CTT_MoveGoldToTreasury,
+    CTT_MagicFlightUp,
+    CTT_MagicVisionUp,
 };
 
 enum TrapDoorSellingCategory {
