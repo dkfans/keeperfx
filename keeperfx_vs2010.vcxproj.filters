@@ -726,10 +726,19 @@
     <ClCompile Include="src\cursor_tag.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\event_monitoring.c">
+    <ClCompile Include="src\map_ceiling.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\map_ceiling.c">
+    <ClCompile Include="src\config_slabsets.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config_textures.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ftests\ftest.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\config_spritecolors.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -1364,13 +1373,22 @@
     <ClInclude Include="src\cursor_tag.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\event_monitoring.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\sprites.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\map_ceiling.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config_slabsets.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config_textures.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ftests\ftest.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\config_spritecolors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

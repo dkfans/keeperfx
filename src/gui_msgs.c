@@ -42,7 +42,8 @@ void message_draw(void)
     LbTextSetFont(winfont);
     int ps_units_per_px;
     {
-        struct TbSprite* spr = &gui_panel_sprites[488];
+        //just used for height, color irrelevant here
+        struct TbSprite* spr = &gui_panel_sprites[GPS_plyrsym_symbol_player_red_std_b];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     TbBool low_res = (MyScreenHeight < 400);
@@ -62,7 +63,7 @@ void message_draw(void)
         {
             long x = 148 * units_per_pixel / 16;
             LbTextSetWindow(0, 0, MyScreenWidth, MyScreenHeight);
-            set_flag_word(&lbDisplay.DrawFlags,Lb_TEXT_ONE_COLOR,false);
+            clear_flag(lbDisplay.DrawFlags, Lb_TEXT_ONE_COLOR);
             LbTextDrawResized(x+32*units_per_pixel/16, y, tx_units_per_px, gameadd.messages[i].text);
             unsigned long spr_idx = 0;
             TbBool IsCreature = false;

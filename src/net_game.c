@@ -41,9 +41,6 @@
 extern "C" {
 #endif
 /******************************************************************************/
-char net_current_message[64];
-long net_current_message_index;
-
 struct TbNetworkPlayerInfo net_player_info[NET_PLAYERS_COUNT];
 struct TbNetworkSessionNameEntry *net_session[32];
 long net_number_of_sessions;
@@ -56,7 +53,7 @@ char net_player_name[20];
 short setup_network_service(int srvidx)
 {
   struct ServiceInitData *init_data = NULL;
-  set_flag_byte(&game.flags_font,FFlg_unk10,false);
+  clear_flag(game.flags_font, FFlg_unk10);
   SYNCMSG("Initializing 4-players type %d network",srvidx);
   LbMemorySet(&net_player_info[0], 0, sizeof(struct TbNetworkPlayerInfo));
   if ( LbNetwork_Init(srvidx, NET_PLAYERS_COUNT, &net_player_info[0], init_data) )

@@ -21,6 +21,7 @@
 #include "globals.h"
 
 #include "bflib_math.h"
+#include "bflib_planar.h"
 #include "creature_states.h"
 #include "creature_states_spdig.h"
 #include "thing_list.h"
@@ -189,7 +190,7 @@ struct Thing *find_prisoner_for_thing(struct Thing *creatng)
         }
         i = cctrl->next_in_room;
         // Per creature code
-        long dist = get_2d_box_distance(&creatng->mappos, &thing->mappos);
+        long dist = get_chessboard_distance(&creatng->mappos, &thing->mappos);
         if (out_delay < 0)
         {
             // If we have a victim which isn't frozen, accept only other unfrozen creatures
@@ -340,7 +341,7 @@ TbBool process_prisoner_skelification(struct Thing *thing, struct Room *room)
         return false;
     }
     //TODO CONFIG Allow skeletification only if spent specific amount of turns in prison (set low value)
-    if (CREATURE_RANDOM(thing, 101) > game.prison_skeleton_chance)
+    if (CREATURE_RANDOM(thing, 101) > game.conf.rules.rooms.prison_skeleton_chance)
       return false;
     if (prison_convert_creature_to_skeleton(room, thing))
     {
@@ -453,11 +454,11 @@ CrCheckRet process_prison_function(struct Thing *creatng)
         return CrCkRet_Continue;
     // Breaking from jail is only possible once per some amount of turns,
     // and only if creature sits in jail for long enough
-    if (((game.play_gameturn % gameadd.time_between_prison_break) == 0) &&
-        (game.play_gameturn > cctrl->imprison.start_gameturn + gameadd.time_in_prison_without_break))
+    if (((game.play_gameturn % game.conf.rules.rooms.time_between_prison_break) == 0) &&
+        (game.play_gameturn > cctrl->imprison.start_gameturn + game.conf.rules.rooms.time_in_prison_without_break))
     {
         // Check the base jail break condition - whether prison touches enemy land
-        if (jailbreak_possible(room, creatng->owner) && (CREATURE_RANDOM(creatng, 100) < gameadd.prison_break_chance))
+        if (jailbreak_possible(room, creatng->owner) && (CREATURE_RANDOM(creatng, 100) < game.conf.rules.rooms.prison_break_chance))
         {
             if (is_my_player_number(room->owner))
                 output_message(SMsg_PrisonersEscaping, 40, true);

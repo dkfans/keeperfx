@@ -41,6 +41,7 @@
 #include "creature_states.h"
 #include "player_data.h"
 #include "custom_sprites.h"
+#include "lvl_script_lib.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -70,7 +71,7 @@ const struct NamedCommand creatmodel_attributes_commands[] = {
   {"SIZE",               19},
   {"ATTACKPREFERENCE",   20},
   {"PAY",                21},
-  {"HEROVSKEEPERCOST",   22},
+  {"HEROVSKEEPERCOST",   22},//removed
   {"SLAPSTOKILL",        23},
   {"CREATURELOYALTY",    24},
   {"LOYALTYLEVEL",       25},
@@ -113,6 +114,8 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"IMMUNE_TO_DISEASE", 25},
   {"ILLUMINATED",       26},
   {"ALLURING_SCVNGR",   27},
+  {"NO_RESURRECT",      28},
+  {"NO_TRANSFER",       29},
   {NULL,                 0},
   };
 
@@ -233,7 +236,7 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   // Block name and parameter word store variables
   // Initialize block data
   struct CreatureStats* crstat = creature_stats_get(crtr_model);
-  struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_model];
+  struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_model];
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
       crstat->health = 1;
@@ -256,14 +259,13 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
       crstat->base_speed = 1;
       crstat->gold_hold = 100;
       crstat->size_xy = 1;
-      crstat->size_yz = 1;
+      crstat->size_z = 1;
       crstat->attack_preference = 0;
       crstat->pay = 1;
-      crstat->hero_vs_keeper_cost = 0;
       crstat->slaps_to_kill = 10;
       crstat->damage_to_boulder = 4;
       crstat->thing_size_xy = 128;
-      crstat->thing_size_yz = 64;
+      crstat->thing_size_z = 64;
       crstat->bleeds = false;
       crstat->affected_by_wind = true;
       crstat->immune_to_gas = false;
@@ -309,8 +311,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 3: // HEALREQUIREMENT
@@ -322,8 +324,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 4: // HEALTHRESHOLD
@@ -335,8 +337,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 5: // STRENGTH
@@ -348,8 +350,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 6: // ARMOUR
@@ -361,8 +363,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 7: // DEXTERITY
@@ -374,8 +376,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 8: // FEARWOUNDED
@@ -387,8 +389,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 9: // FEARSTRONGER
@@ -400,8 +402,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 10: // DEFENCE
@@ -413,8 +415,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 11: // LUCK
@@ -426,8 +428,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 12: // RECOVERY
@@ -439,8 +441,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 13: // HUNGERRATE
@@ -452,8 +454,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 14: // HUNGERFILL
@@ -465,8 +467,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 15: // LAIRSIZE
@@ -478,8 +480,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 16: // HURTBYLAVA
@@ -491,8 +493,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 17: // BASESPEED
@@ -504,8 +506,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 18: // GOLDHOLD
@@ -517,8 +519,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 19: // SIZE
@@ -531,13 +533,13 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->size_yz = k;
+            crstat->size_z = k;
             n++;
           }
           if (n < 2)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 20: // ATTACKPREFERENCE
@@ -552,8 +554,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 21: // PAY
@@ -565,22 +567,11 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 22: // HEROVSKEEPERCOST
-          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
-          {
-            k = atoi(word_buf);
-            crstat->hero_vs_keeper_cost = k;
-            n++;
-          }
-          if (n < 1)
-          {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
-          }
           break;
       case 23: // SLAPSTOKILL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
@@ -591,8 +582,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 24: // CREATURELOYALTY
@@ -610,8 +601,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           }
           if (n < 1)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 27: // THINGSIZE
@@ -624,13 +615,13 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
             k = atoi(word_buf);
-            crstat->thing_size_yz = k;
+            crstat->thing_size_z = k;
             n++;
           }
           if (n < 2)
           {
-            CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
-                COMMAND_TEXT(cmd_num),block_buf,config_textname);
+            CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s %s file.",
+                COMMAND_TEXT(cmd_num),block_buf, creature_code_name(crtr_model), config_textname);
           }
           break;
       case 28: // PROPERTIES
@@ -752,9 +743,17 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 crstat->entrance_force = true;
                 n++;
                 break;
+            case 28: // NO_RESURRECT
+                crconf->model_flags |= CMF_NoResurrect;
+                n++;
+                break;
+            case 29: // NO_TRANSFER
+                crconf->model_flags |= CMF_NoTransfer;
+                n++;
+                break;
             default:
-              CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
-                  COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
+              CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s %s file.",
+                  COMMAND_TEXT(cmd_num),word_buf,block_buf, creature_code_name(crtr_model), config_textname);
               break;
             }
           }
@@ -833,14 +832,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
       if ((crconf->model_flags & CMF_IsEvil) != 0) {
-          gameadd.crtr_conf.special_digger_evil = crtr_model;
+          game.conf.crtr_conf.special_digger_evil = crtr_model;
       } else {
-          gameadd.crtr_conf.special_digger_good = crtr_model;
+          game.conf.crtr_conf.special_digger_good = crtr_model;
       }
   }
   if ((crconf->model_flags & CMF_IsSpectator) != 0)
   {
-      gameadd.crtr_conf.spectator_breed = crtr_model;
+      game.conf.crtr_conf.spectator_breed = crtr_model;
   }
   // Set creature start states based on the flags
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
@@ -1011,7 +1010,10 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
         crstat->annoy_job_stress = 0;
         crstat->annoy_going_postal = 0;
         crstat->annoy_queue = 0;
-        crstat->lair_enemy = 0;
+        for (int i = 0; i < LAIR_ENEMY_MAX; i++)
+        {
+            crstat->lair_enemy[i] = 0;
+        }
         crstat->annoy_level = 0;
         crstat->jobs_anger = 0;
     }
@@ -1304,18 +1306,27 @@ TbBool parse_creaturemodel_annoyance_blocks(long crtr_model,char *buf,long len,c
             }
             break;
         case 21: // LAIRENEMY
-            if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+            for (int i = 0; i < LAIR_ENEMY_MAX; i++)
             {
-                k = get_id(creature_desc, word_buf);
-                if (k >= 0)
+                if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
                 {
-                  crstat->lair_enemy = k;
-                  n++;
-                } else
-                {
-                  crstat->lair_enemy = 0;
-                  if (strcasecmp(word_buf,"NULL") == 0)
-                    n++;
+                    k = get_id(creature_desc, word_buf);
+                    if (k >= 0)
+                    {
+                        crstat->lair_enemy[i] = k;
+                        n++;
+                    }
+                    else if (0 == strcmp(word_buf, "ANY_CREATURE"))
+                    {
+                        crstat->lair_enemy[i] = CREATURE_ANY;
+                        n++;
+                    }
+                    else
+                    {
+                        crstat->lair_enemy[i] = 0;
+                        if (strcasecmp(word_buf, "NULL") == 0)
+                            n++;
+                    }
                 }
             }
             if (n < 1)
@@ -1392,7 +1403,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
         crstat->base_eye_height = 0;
         crstat->field_of_view = 0;
         crstat->eye_effect = 0;
-        crstat->max_angle_change = 1;
+        crstat->max_turning_speed = 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -1477,7 +1488,7 @@ TbBool parse_creaturemodel_senses_blocks(long crtr_model,char *buf,long len,cons
               k = atoi(word_buf);
               if (k > 0)
               {
-                  crstat->max_angle_change = (k * LbFPMath_PI) / 180;
+                  crstat->max_turning_speed = (k * LbFPMath_PI) / 180;
                   n++;
               }
             }
@@ -1654,19 +1665,7 @@ TbBool parse_creaturemodel_appearance_blocks(long crtr_model,char *buf,long len,
                 crstat->creature_picked_up_offset.delta_y = k;
                 n++;
             }
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                crstat->creature_picked_up_offset.field_4 = k;
-                n++;
-            }
-            if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
-            {
-                k = atoi(word_buf);
-                crstat->creature_picked_up_offset.field_6 = k;
-                n++;
-            }
-            if (n < 4)
+            if (n < 2)
             {
                 CONFWRNLOG("Incorrect value of \"%s\" parameters in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num), block_buf, config_textname);
@@ -1803,7 +1802,7 @@ TbBool parse_creaturemodel_experience_blocks(long crtr_model,char *buf,long len,
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
-              k = get_id(creature_desc, word_buf);
+              k = parse_creature_name(word_buf);
               if (k >= 0)
               {
                 crstat->grow_up = k;
@@ -2158,7 +2157,7 @@ TbBool parse_creaturemodel_sprites_blocks(long crtr_model,char *buf,long len,con
           char word_buf[COMMAND_WORD_LEN];
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-            struct Objects obj_tmp;
+            struct ObjectConfigStats obj_tmp;
             k = get_anim_id(word_buf, &obj_tmp);
             set_creature_model_graphics(crtr_model, cmd_num-1, k);
             n++;
@@ -2214,13 +2213,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.creature_sounds[crtr_model].hurt.index = k;
+                game.conf.crtr_conf.creature_sounds[crtr_model].hurt.index = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
+                game.conf.crtr_conf.creature_sounds[crtr_model].hurt.count = k;
                 n++;
             }            
             if (n < 1)
@@ -2233,13 +2232,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.creature_sounds[crtr_model].hit.index = k;
+                game.conf.crtr_conf.creature_sounds[crtr_model].hit.index = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.creature_sounds[crtr_model].hit.count = k;
+                game.conf.crtr_conf.creature_sounds[crtr_model].hit.count = k;
                 n++;
             }
             if (n < 1)
@@ -2252,13 +2251,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.creature_sounds[crtr_model].happy.index = k;
+                game.conf.crtr_conf.creature_sounds[crtr_model].happy.index = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.creature_sounds[crtr_model].happy.count = k;
+                game.conf.crtr_conf.creature_sounds[crtr_model].happy.count = k;
                 n++;
             }            
             if (n < 1)
@@ -2271,13 +2270,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.creature_sounds[crtr_model].sad.index = k;
+                game.conf.crtr_conf.creature_sounds[crtr_model].sad.index = k;
                 n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
                 k = atoi(word_buf);
-                gameadd.crtr_conf.creature_sounds[crtr_model].sad.count = k;
+                game.conf.crtr_conf.creature_sounds[crtr_model].sad.count = k;
                 n++;
             }            
             if (n < 1)
@@ -2290,13 +2289,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].hang.index = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].hang.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].hang.count = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].hang.count = k;
               n++;
             }
             if (n < 1)
@@ -2309,13 +2308,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].drop.index = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].drop.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].drop.count = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].drop.count = k;
               n++;
             }
             if (n < 1)
@@ -2328,13 +2327,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].torture.index = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].torture.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].torture.count = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].torture.count = k;
               n++;
             }
             if (n < 1)
@@ -2347,13 +2346,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].slap.index = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].slap.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].slap.count = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].slap.count = k;
               n++;
             }
             if (n < 1)
@@ -2366,13 +2365,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].die.index = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].die.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].die.count = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].die.count = k;
               n++;
             }
             if (n < 1)
@@ -2385,13 +2384,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].foot.index = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].foot.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].foot.count = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].foot.count = k;
               n++;
             }
             if (n < 1)
@@ -2404,13 +2403,13 @@ TbBool parse_creaturemodel_sounds_blocks(long crtr_model,char *buf,long len,cons
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].fight.index = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].fight.index = k;
               n++;
             }
             if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
             {
               k = atoi(word_buf);
-              gameadd.crtr_conf.creature_sounds[crtr_model].fight.count = k;
+              game.conf.crtr_conf.creature_sounds[crtr_model].fight.count = k;
               n++;
             }
             if (n < 1)
@@ -2540,6 +2539,7 @@ TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
 {
     static const char config_global_textname[] = "global creature model config";
     static const char config_campgn_textname[] = "campaign creature model config";
+    static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     LbStringToLowerCopy(conf_fnstr,get_conf_parameter_text(creature_desc,crmodel),COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
@@ -2554,6 +2554,11 @@ TbBool load_creaturemodel_config(long crmodel, unsigned short flags)
     {
         load_creaturemodel_config_file(crmodel,config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+    if (strlen(fname) > 0)
+    {
+        load_creaturemodel_config_file(crmodel,config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
     //Freeing and exiting
     return result;
 }
@@ -2562,6 +2567,7 @@ TbBool swap_creaturemodel_config(long nwcrmodel, long crmodel, unsigned short fl
 {
     static const char config_global_textname[] = "global creature model config";
     static const char config_campgn_textname[] = "campaing creature model config";
+    static const char config_level_textname[] = "level creature model config";
     char conf_fnstr[COMMAND_WORD_LEN];
     LbStringToLowerCopy(conf_fnstr, get_conf_parameter_text(newcrtr_desc, nwcrmodel), COMMAND_WORD_LEN);
     if (strlen(conf_fnstr) == 0)
@@ -2576,6 +2582,11 @@ TbBool swap_creaturemodel_config(long nwcrmodel, long crmodel, unsigned short fl
     {
         load_creaturemodel_config_file(crmodel, config_campgn_textname, fname, flags | CnfLd_AcceptPartial | CnfLd_IgnoreErrors);
     }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s.cfg", get_selected_level_number(), conf_fnstr);
+    if (strlen(fname) > 0)
+    {
+        load_creaturemodel_config_file(crmodel, config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
     //Freeing and exiting
     return result;
 }
@@ -2588,7 +2599,7 @@ void do_creature_swap(long ncrt_id, long crtr_id)
 
 TbBool swap_creature(long ncrt_id, long crtr_id)
 {
-    if ((crtr_id < 0) || (crtr_id >= gameadd.crtr_conf.model_count))
+    if ((crtr_id < 0) || (crtr_id >= game.conf.crtr_conf.model_count))
     {
         ERRORLOG("Creature index %d is invalid", crtr_id);
         return false;
@@ -2607,7 +2618,7 @@ TbBool swap_creature(long ncrt_id, long crtr_id)
  */
 TbBool make_all_creatures_free(void)
 {
-    for (long i = 0; i < gameadd.crtr_conf.model_count; i++)
+    for (long i = 0; i < game.conf.crtr_conf.model_count; i++)
     {
         struct CreatureStats* crstat = creature_stats_get(i);
         crstat->training_cost = 0;

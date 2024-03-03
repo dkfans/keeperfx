@@ -159,11 +159,10 @@ void update_gui_layer()
     }
 
     struct PlayerInfo* player = get_my_player();
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
-    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (playeradd->render_roomspace.highlight_mode))  &&
+    if ( ((player->work_state == PSt_Sell) || (player->work_state == PSt_BuildRoom) || (player->render_roomspace.highlight_mode))  &&
          (is_game_key_pressed(Gkey_BestRoomSpace, NULL, true) || is_game_key_pressed(Gkey_SquareRoomSpace, NULL, true)) )
     {
-        if (playeradd->render_roomspace.one_click_mode_exclusive)
+        if (player->render_roomspace.one_click_mode_exclusive)
         {
             // Is the user in "one-click bridge building" mode
             set_current_gui_layer(GuiLayer_OneClickBridgeBuild);
@@ -300,7 +299,7 @@ short get_screen_capture_inputs(void)
   }
   if (is_key_pressed(KC_C,KMod_SHIFT))
   {
-      set_flag_byte(&game.system_flags,GSF_CaptureSShot,true);
+      set_flag(game.system_flags, GSF_CaptureSShot);
       clear_key_pressed(KC_C);
   }
   return false;
@@ -341,7 +340,7 @@ void increaseFrameskip(void)
         game.frame_skip += (game.frame_skip/3);
     }
     clip_frame_skip();
-    show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+    show_onscreen_msg(game_num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
 }
 
 void decreaseFrameskip(void)
@@ -359,7 +358,7 @@ void decreaseFrameskip(void)
         game.frame_skip -= (game.frame_skip/4);
     }
     clip_frame_skip();
-    show_onscreen_msg(game.num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
+    show_onscreen_msg(game_num_fps+game.frame_skip, "Frame skip %d",game.frame_skip);
 }
 
 /**
@@ -408,11 +407,7 @@ short get_packet_load_game_control_inputs(void)
   if (is_key_pressed(KC_T,KMod_ALT))
   {
     clear_key_pressed(KC_T);
-    close_packet_file();
-    game.packet_load_enable = false;
-    game.packet_save_enable = false;
-    show_onscreen_msg(2*game.num_fps, "Packet mode disabled");
-    set_gui_visible(true);
+    disable_packet_mode();
     return true;
   }
   return false;
@@ -426,7 +421,7 @@ long get_small_map_inputs(long x, long y, long zoom)
   long curr_my = GetMouseY();
   if (!grabbed_small_map)
     game.small_map_state = 0;
-  if (((game.operation_flags & GOF_ShowGui) != 0) && (mouse_is_over_pannel_map(x,y) || grabbed_small_map))
+  if (((game.operation_flags & GOF_ShowGui) != 0) && (mouse_is_over_panel_map(x,y) || grabbed_small_map))
   {
     if (left_button_clicked)
     {
@@ -469,7 +464,7 @@ short get_bookmark_inputs(void)
                 bmark->x = player->acamera->mappos.x.stl.num;
                 bmark->y = player->acamera->mappos.y.stl.num;
                 bmark->flags |= 0x01;
-                show_onscreen_msg(game.num_fps, "Bookmark %d stored", i + 1);
+                show_onscreen_msg(game_num_fps, "Bookmark %d stored", i + 1);
             }
             return true;
         }
@@ -594,7 +589,7 @@ short get_global_inputs(void)
   {
     JUSTMSG("REPORT for gameturn %d",game.play_gameturn);
     // Timing report
-    JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game.num_fps);
+    JUSTMSG("Now time is %d, last loop time was %d, clock is %d, requested fps is %d",LbTimerClock(),last_loop_time,clock(),game_num_fps);
     test_variable = !test_variable;
   }
 
@@ -631,6 +626,15 @@ short get_global_inputs(void)
         clear_key_pressed(keycode);
         return true;
       }
+      else if( flag_is_set(game.operation_flags, GOF_Paused) && flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
+      {
+        if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+        {
+            game.frame_step = true;
+            set_packet_pause_toggle();
+            clear_key_pressed(KC_PERIOD);
+        }
+      }
   }
   if ((game.operation_flags & GOF_Paused) != 0)
       return true;
@@ -649,8 +653,8 @@ short get_global_inputs(void)
         if ( timer_enabled() )
         {
             update_time();
-            struct GameTime GameT = get_game_time(game.play_gameturn, game.num_fps);
-            SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.",game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game.num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
+            struct GameTime GameT = get_game_time(game.play_gameturn, game_num_fps);
+            SYNCMSG("Finished level %ld. Total turns taken: %ld (%02d:%02d:%02d at %d fps). Real time elapsed: %02d:%02d:%02d:%03d.",game.loaded_level_number, game.play_gameturn, GameT.Hours, GameT.Minutes, GameT.Seconds, game_num_fps, Timer.Hours, Timer.Minutes, Timer.Seconds, Timer.MSeconds);
         }
         set_players_packet_action(player, PckA_FinishGame, 0, 0, 0, 0);
         clear_key_pressed(KC_SPACE);
@@ -661,6 +665,10 @@ short get_global_inputs(void)
   {
       set_players_packet_action(player, PckA_DumpHeldThingToOldPos, 0, 0, 0, 0);
       clear_key_pressed(keycode);
+  }
+  if (is_key_pressed(KC_GRAVE, KMod_DONTCARE)) {
+    debug_display_consolelog = !debug_display_consolelog;
+    clear_key_pressed(KC_GRAVE);
   }
   return false;
 }
@@ -744,14 +752,14 @@ TbBool get_level_lost_inputs(void)
         if (player->view_mode != PVM_ParchFadeOut)
         {
           turn_off_all_window_menus();
-          set_flag_byte(&game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
+          set_flag_value(game.operation_flags, GOF_ShowPanel, (game.operation_flags & GOF_ShowGui) != 0);
           if (((game.system_flags & GSF_NetworkActive) != 0)
             || (lbDisplay.PhysicalScreenWidth > 320))
           {
                 if (toggle_status_menu(0))
-                  set_flag_byte(&game.operation_flags,GOF_ShowPanel,true);
+                  set_flag(game.operation_flags, GOF_ShowPanel);
                 else
-                  set_flag_byte(&game.operation_flags,GOF_ShowPanel,false);
+                  clear_flag(game.operation_flags, GOF_ShowPanel);
                 set_players_packet_action(player, PckA_SaveViewType, PVT_MapScreen, 0,0,0);
           } else
           {
@@ -866,27 +874,57 @@ short get_status_panel_keyboard_action_inputs(void)
   if (is_key_pressed(KC_1, KMod_NONE))
   {
     clear_key_pressed(KC_1);
-    fake_button_click(1);
+    fake_button_click(BID_INFO_TAB);
   }
   if (is_key_pressed(KC_2, KMod_NONE))
   {
     clear_key_pressed(KC_2);
-    fake_button_click(2);
+    fake_button_click(BID_ROOM_TAB);
   }
   if (is_key_pressed(KC_3, KMod_NONE))
   {
     clear_key_pressed(KC_3);
-    fake_button_click(3);
+    struct GuiButton *gbtn = get_gui_button(BID_POWER_NXPG);
+    if (gbtn != NULL)
+    {
+        if ((gbtn->flags & (LbBtnF_Visible|LbBtnF_Enabled)) != 0)
+        {
+            if (menu_is_active(GMnu_SPELL))
+            {
+                turn_off_menu(GMnu_SPELL);
+                turn_on_menu(GMnu_SPELL2);
+                fake_button_click(BID_POWER_NXPG);
+            }
+            else if (menu_is_active(GMnu_SPELL2))
+            {
+                turn_off_menu(GMnu_SPELL2);
+                turn_on_menu(GMnu_SPELL);
+                fake_button_click(BID_POWER_NXPG);
+            }
+            else
+            {
+                fake_button_click(BID_SPELL_TAB);
+            }
+        }
+        else
+        {
+            fake_button_click(BID_SPELL_TAB);
+        }
+    }
+    else
+    {
+        fake_button_click(BID_SPELL_TAB);
+    }
   }
   if (is_key_pressed(KC_4, KMod_NONE))
   {
     clear_key_pressed(KC_4);
-    fake_button_click(4);
+    fake_button_click(BID_MNFCT_TAB);
   }
   if (is_key_pressed(KC_5, KMod_NONE))
   {
     clear_key_pressed(KC_5);
-    fake_button_click(5);
+    fake_button_click(BID_CREATR_TAB);
   }
   return false;
 }
@@ -1525,31 +1563,33 @@ short get_creature_control_action_inputs(void)
             {
                 clear_key_pressed(val);
                 set_players_packet_action(player, PckA_SwitchTeleportDest, i, 0, 0, 0);
-                if (i == 15)
-                {
-                    StrID = 567;
-                }
-                else
-                {
-                    struct RoomConfigStats* roomst = get_room_kind_stats(zoom_key_room_order[i]);
-                    StrID = roomst->name_stridx;
-                }
+                struct RoomConfigStats* roomst = get_room_kind_stats(zoom_key_room_order[i]);
+                StrID = roomst->name_stridx;
             }
 
         }
-        if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
+        if (is_game_key_pressed(Gkey_ZoomToFight, &val, false))
         {
-            set_players_packet_action(player, PckA_SwitchTeleportDest, 16, 0, 0, 0);; // Last work room
+            clear_key_pressed(val);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 16, 0, 0, 0);
+            StrID = 567;
+        }
+        else if (is_key_pressed(KC_SEMICOLON,KMod_DONTCARE))
+        {
+            clear_key_pressed(KC_SEMICOLON);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 17, 0, 0, 0);; // Last work room
         }
         else if (is_key_pressed(KC_SLASH,KMod_DONTCARE))
         {
-            set_players_packet_action(player, PckA_SwitchTeleportDest, 17, 0, 0, 0);; // Call to Arms
+            clear_key_pressed(KC_SLASH);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 18, 0, 0, 0);; // Call to Arms
             struct PowerConfigStats *powerst = get_power_model_stats(PwrK_CALL2ARMS);
             StrID = powerst->name_stridx;
         }
         else if (is_key_pressed(KC_COMMA,KMod_DONTCARE))
         {
-            set_players_packet_action(player, PckA_SwitchTeleportDest, 18, 0, 0, 0); // default behaviour
+            clear_key_pressed(KC_COMMA);
+            set_players_packet_action(player, PckA_SwitchTeleportDest, 19, 0, 0, 0); // default behaviour
             StrID = 609;
         }
         struct Thing* creatng = thing_get(player->controlled_thing_idx);
@@ -1562,31 +1602,30 @@ short get_creature_control_action_inputs(void)
             }
             message_add(CrInst, get_string(StrID));
         }
-        struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
         if (is_game_key_pressed(Gkey_CrtrContrlMod, &val, false))
         {
-            if (!playeradd->first_person_dig_claim_mode)
+            if (!player->first_person_dig_claim_mode)
             {
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, true, 0, 0, 0);
             }
         }
         else
         {
-            if (playeradd->first_person_dig_claim_mode)
+            if (player->first_person_dig_claim_mode)
             {
                 set_players_packet_action(player, PckA_SetFirstPersonDigMode, false, 0, 0, 0);
             }
         }
         if (is_key_pressed(KC_LALT,KMod_DONTCARE))
         {
-            if (!playeradd->nearest_teleport)
+            if (!player->nearest_teleport)
             {
                 set_players_packet_action(player, PckA_SetNearestTeleport, true, 0, 0, 0);
             }
         }
         else
         {
-            if (playeradd->nearest_teleport)
+            if (player->nearest_teleport)
             {
                 set_players_packet_action(player, PckA_SetNearestTeleport, false, 0, 0, 0);
             }
@@ -1640,7 +1679,7 @@ short get_creature_control_action_inputs(void)
                     }
                 }
             }
-            if (playeradd->selected_fp_thing_pickup != player->thing_under_hand)
+            if (player->selected_fp_thing_pickup != player->thing_under_hand)
             {
                 set_players_packet_action(player, PckA_SelectFPPickup, player->thing_under_hand, 0, 0, 0);
             }
@@ -2077,7 +2116,6 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
   unsigned long x;
   unsigned long y;
   struct PlayerInfo* player = get_my_player();
-  struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
   if ((pointer_x < 0) || (pointer_y < 0)
    || (pointer_x >= player->engine_window_width/pixel_size)
    || (pointer_y >= player->engine_window_height/pixel_size))
@@ -2095,7 +2133,7 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
 
   struct SlabMap* slb = get_slabmap_block(slb_x, slb_y);
   struct SlabAttr* slbattr = get_slab_attrs(slb);
-  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!playeradd->one_click_lock_cursor))
+  if (slab_kind_is_door(slb->kind) && (slabmap_owner(slb) == player->id_number) && (!player->one_click_lock_cursor))
   {
     *context = CSt_DoorKey;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -2113,13 +2151,13 @@ TbBool get_player_coords_and_context(struct Coord3d *pos, unsigned char *context
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
     pos->y.val = (y<<8) + top_pointed_at_frac_y;
   } else
-  if (((slb_x >= gameadd.map_tiles_x) || (slb_y >= gameadd.map_tiles_y)) && (!playeradd->one_click_lock_cursor))
+  if (((slb_x >= gameadd.map_tiles_x) || (slb_y >= gameadd.map_tiles_y)) && (!player->one_click_lock_cursor))
   {
     *context = CSt_DefaultArrow;
     pos->x.val = (block_pointed_at_x<<8) + pointed_at_frac_x;
     pos->y.val = (block_pointed_at_y<<8) + pointed_at_frac_y;
   } else
-  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (playeradd->one_click_lock_cursor))
+  if (((slbattr->block_flags & (SlbAtFlg_Filled|SlbAtFlg_Digable|SlbAtFlg_Valuable)) != 0) || (player->one_click_lock_cursor))
   {
     *context = CSt_PickAxe;
     pos->x.val = (x<<8) + top_pointed_at_frac_x;
@@ -2245,55 +2283,68 @@ TbBool get_packet_load_demo_inputs(void)
 }
 
 void get_creature_control_nonaction_inputs(void)
-{
-  long k;
-  struct PlayerInfo* player = get_my_player();
-  struct Packet* pckt = get_packet(my_player_number);
-
-  long x = GetMouseX();
-  long y = GetMouseY();
-  struct Thing* thing = thing_get(player->controlled_thing_idx);
-  TRACE_THING(thing);
-  pckt->pos_x = 127;
-  pckt->pos_y = 127;
-  if ((player->allocflags & PlaF_Unknown8) != 0)
-    return;
-if (((MyScreenWidth >> 1) != GetMouseX()) || (GetMouseY() != y))
-  {
-    LbMouseSetPositionInitial((MyScreenWidth/pixel_size) >> 1, y/pixel_size); // use LbMouseSetPositionInitial because we don't want to keep moving the host cursor
-  }
-    if (settings.first_person_move_invert) {
-        pckt->pos_y = 255 * y / MyScreenHeight;
-    } else {
-        pckt->pos_y = 255 * ((long)MyScreenHeight - y) / MyScreenHeight;
-    }
-    pckt->pos_x = 255 * x / MyScreenWidth;
-    // Update the position based on current settings
-    long i = settings.first_person_move_sensitivity + 1;
-    x = pckt->pos_x - 127;
-    y = pckt->pos_y - 127;
-    if (i < 6)
+{ 
+    struct PlayerInfo* player = get_my_player();
+    if ((player->allocflags & PlaF_Unknown8) != 0)
     {
-        k = 5 - settings.first_person_move_sensitivity;
-        pckt->pos_x = x/k + 127;
-        pckt->pos_y = y/k + 127;
-    } else
-    if (i > 6)
-    {
-        k = settings.first_person_move_sensitivity - 5;
-        pckt->pos_x = k*x + 127;
-        pckt->pos_y = k*y + 127;
+        return;
     }
-    // Bound posx and pos_y
-    if (pckt->pos_x > 255)
-    pckt->pos_x = 255;
-    if (pckt->pos_y > 255)
-    pckt->pos_y = 255;
+    struct Packet* pckt = get_packet(my_player_number);
+    long x = GetMouseX();
+    long y = GetMouseY();
+    struct Thing* thing = thing_get(player->controlled_thing_idx);
+    TRACE_THING(thing);
+    TbBool cheat_menu_active = cheat_menu_is_active();
+    if (((MyScreenWidth >> 1) != x) || ((MyScreenHeight >> 1) != y)) 
+    {
+        if (!cheat_menu_active)
+        {
+            LbMouseSetPositionInitial((MyScreenWidth / pixel_size) >> 1, (MyScreenHeight / pixel_size) >> 1);
+        }
+    }
+    if (!cheat_menu_active)
+    {
+        long centerX = MyScreenWidth / 2;
+        long centerY = MyScreenHeight / 2;
+        long deltaX = x - centerX;
+        long deltaY = y - centerY;
+        long k;
 
+        // Map to the range -255 to 255
+        pckt->pos_x = 255 * deltaX / centerX;
+        if (settings.first_person_move_invert) {
+            pckt->pos_y = 255 * deltaY / centerY;
+        } else {
+            pckt->pos_y = -255 * deltaY / centerY;
+        }
+
+        long i = settings.first_person_move_sensitivity + 1;
+        x = pckt->pos_x;
+        y = pckt->pos_y;
+
+        if (i < 6) {
+            k = 5 - settings.first_person_move_sensitivity;
+            pckt->pos_x = x / k;
+            pckt->pos_y = y / k;
+        } else if (i > 6) {
+            k = settings.first_person_move_sensitivity - 5;
+            pckt->pos_x = k * x;
+            pckt->pos_y = k * y;
+        }
+
+        if (pckt->pos_x < -255) {
+            pckt->pos_x = -255;
+        } else if (pckt->pos_x > 255) {
+            pckt->pos_x = 255;
+        }
+        if (pckt->pos_y < -255) {
+            pckt->pos_y = -255;
+        } else if (pckt->pos_y > 255) {
+            pckt->pos_y = 255;
+        }
+    }
     // Now do user actions
-    if (thing_is_invalid(thing))
-    return;
-    if (thing->class_id == TCls_Creature)
+    if (thing_is_creature(thing))
     {
         if (left_button_clicked)
         {
@@ -2437,7 +2488,7 @@ short get_inputs(void)
     if ((player->allocflags & PlaF_MouseInputDisabled) != 0)
     {
         SYNCDBG(5,"Starting for creature fade");
-        set_players_packet_position(get_packet(my_player_number), 127, 127 , 0);
+        set_players_packet_position(get_packet(my_player_number), 0, 0 , 0);
         if ((!game_is_busy_doing_gui_string_input()) && ((game.operation_flags & GOF_Paused) != 0))
         {
             long keycode;
@@ -2445,7 +2496,16 @@ short get_inputs(void)
             {
                 lbKeyOn[keycode] = 0;
                 set_packet_pause_toggle();
-          }
+            }
+            else if( flag_is_set(start_params.debug_flags, DFlg_FrameStep) )
+            {
+                if( is_key_pressed(KC_PERIOD, KMOD_NONE) )
+                {
+                    game.frame_step = true;
+                    set_packet_pause_toggle();
+                    clear_key_pressed(KC_PERIOD);
+                }
+            }
         }
         return false;
     }
@@ -2520,10 +2580,7 @@ short get_inputs(void)
         {
           if ((game.system_flags & GSF_NetworkActive) == 0)
             game.operation_flags &= ~GOF_Paused;
-          if (toggle_status_menu(0))
-            player->field_1 |= 0x01;
-          else
-            player->field_1 &= ~0x01;
+          player->status_menu_restore = toggle_status_menu(0); // store current status menu visibility, and hide the status menu (when the map is visible) [duplicate? unneeded?]
           set_players_packet_action(player, PckA_SetViewType, PVT_MapScreen, 0,0,0);
         }
         return false;
@@ -2618,7 +2675,7 @@ short get_gui_inputs(short gameplay_on)
       if ((gbtn->btype_value & LbBFeF_NoMouseOver) != 0)
           continue;
       // TODO GUI Introduce circular buttons instead of specific condition for pannel map
-      if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_pannel_map(player->minimap_pos_x,player->minimap_pos_y))
+      if ((menu_id_to_number(GMnu_MAIN) >= 0) && mouse_is_over_panel_map(player->minimap_pos_x,player->minimap_pos_y))
           continue;
       if ( (check_if_mouse_is_over_button(gbtn) && !game_is_busy_doing_gui_string_input())
         || ((gbtn->gbtype == LbBtnT_Unknown6) && (gbtn->gbactn_1 != 0)) )
@@ -2679,7 +2736,7 @@ short get_gui_inputs(short gameplay_on)
       over_slider_button = -1;
       do_sound_menu_click();
   }
-  set_flag_byte(&tool_tip_box.flags,TTip_Visible,false);
+  clear_flag(tool_tip_box.flags, TTip_Visible);
   gui_button_tooltip_update(gmbtn_idx);
   if (gui_slider_button_inputs(over_slider_button))
       return true;
@@ -2695,12 +2752,11 @@ void process_cheat_mode_selection_inputs()
 {
     struct PlayerInfo *player = get_my_player();
     unsigned char new_value;
-    struct PlayerInfoAdd* playeradd = get_playeradd(player->id_number);
     struct CreatureModelConfig* crconf;
     // player selection
     if (player->work_state == PSt_PlaceTerrain)
     {
-        if (slab_kind_has_no_ownership(playeradd->cheatselection.chosen_terrain_kind))
+        if (slab_kind_has_no_ownership(player->cheatselection.chosen_terrain_kind))
         {
             goto INPUTS;
         }
@@ -2812,7 +2868,7 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_EQUALS, KMod_DONTCARE))
             {
 
-                new_value = playeradd->cheatselection.chosen_experience_level;
+                new_value = player->cheatselection.chosen_experience_level;
                 if (new_value < 9)
                 {
                     new_value++;
@@ -2822,7 +2878,7 @@ void process_cheat_mode_selection_inputs()
             }
             else if (is_key_pressed(KC_MINUS, KMod_DONTCARE))
             {
-                new_value = playeradd->cheatselection.chosen_experience_level;
+                new_value = player->cheatselection.chosen_experience_level;
                 if (new_value > 0)
                 {
                     new_value--;
@@ -2834,32 +2890,32 @@ void process_cheat_mode_selection_inputs()
             {
                 if (player->work_state == PSt_MkGoodCreatr)
                 {
-                    new_value = playeradd->cheatselection.chosen_hero_kind;
+                    new_value = player->cheatselection.chosen_hero_kind;
                     do
                     {
                         new_value++;
-                        if (new_value >= gameadd.crtr_conf.model_count)
+                        if (new_value >= game.conf.crtr_conf.model_count)
                         {
                             new_value = 0;
                             break;
                         }
-                        crconf = &gameadd.crtr_conf.model[new_value];
+                        crconf = &game.conf.crtr_conf.model[new_value];
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) != 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchHero, new_value, 0, 0, 0);
                 }
                 else if (player->work_state == PSt_MkBadCreatr)
                 {
-                    new_value = playeradd->cheatselection.chosen_creature_kind;
+                    new_value = player->cheatselection.chosen_creature_kind;
                     do
                     {
                         new_value++;
-                        if (new_value >= gameadd.crtr_conf.model_count)
+                        if (new_value >= game.conf.crtr_conf.model_count)
                         {
                             new_value = 0;
                             break;
                         }
-                        crconf = &gameadd.crtr_conf.model[new_value];
+                        crconf = &game.conf.crtr_conf.model[new_value];
                     }
                     while ( ((crconf->model_flags & CMF_IsEvil) == 0) || ((crconf->model_flags & CMF_IsSpectator) != 0) );
                     set_players_packet_action(player, PckA_CheatSwitchCreature, new_value, 0, 0, 0);
@@ -2870,7 +2926,7 @@ void process_cheat_mode_selection_inputs()
         }
         case PSt_PlaceTerrain:
         {
-            new_value = playeradd->cheatselection.chosen_terrain_kind;
+            new_value = player->cheatselection.chosen_terrain_kind;
             if (is_key_pressed(KC_0, KMod_NONE))
             {
                 new_value = SlbT_ROCK;
@@ -2946,14 +3002,14 @@ void process_cheat_mode_selection_inputs()
             else if (is_key_pressed(KC_LSHIFT, KMod_DONTCARE))
             {
                 new_value++;
-                if (new_value > SlbT_PURPLE)
+                if (new_value >= game.conf.slab_conf.slab_types_count)
                 {
                     new_value = SlbT_ROCK;
                 }
                 set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
                 clear_key_pressed(KC_LSHIFT);
             }
-            if ( (playeradd->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (playeradd->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
+            if ( (player->cheatselection.chosen_terrain_kind >= SlbT_WALLDRAPE) && (player->cheatselection.chosen_terrain_kind <= SlbT_WALLPAIRSHR) )
             {
                 if (is_key_pressed(KC_LALT, KMod_DONTCARE))
                 {
@@ -2970,7 +3026,7 @@ void process_cheat_mode_selection_inputs()
                         }
                         else
                         {
-                            id = playeradd->cheatselection.chosen_player;
+                            id = player->cheatselection.chosen_player;
                         }
                         new_value = choose_pretty_type(id, slb_x, slb_y);
                         set_players_packet_action(player, PckA_CheatSwitchTerrain, new_value, 0, 0, 0);
@@ -2987,12 +3043,12 @@ void process_cheat_mode_selection_inputs()
     }
 }
 
-TbBool process_cheat_heart_health_inputs(short *value)
+TbBool process_cheat_heart_health_inputs(short *value, long max_health)
 {
    short new_health = *value;
    if ( (is_key_pressed(KC_ADD, KMod_ALT)) || (is_key_pressed(KC_EQUALS, KMod_SHIFT)) || (is_key_pressed(KC_EQUALS, KMod_NONE)) )
    {
-        if (new_health < game.dungeon_heart_health)
+        if (new_health < max_health) 
         {
             new_health++;
             *value = new_health;
@@ -3024,6 +3080,15 @@ TbBool process_cheat_heart_health_inputs(short *value)
         return true;
     }
     return false;
+}
+
+void disable_packet_mode()
+{
+    close_packet_file();
+    game.packet_load_enable = false;
+    game.packet_save_enable = false;
+    show_onscreen_msg(2*game_num_fps, "Packet mode disabled");
+    set_gui_visible(true);
 }
 
 /******************************************************************************/

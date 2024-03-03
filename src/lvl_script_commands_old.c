@@ -40,47 +40,7 @@ extern "C" {
 
 /******************************************************************************/
 
-
-const struct NamedCommand game_rule_desc[] = {
-  {"BodiesForVampire",           1},
-  {"PrisonSkeletonChance",       2},
-  {"GhostConvertChance",         3},
-  {"TortureConvertChance",       4},
-  {"TortureDeathChance",         5},
-  {"FoodGenerationSpeed",        6},
-  {"StunEvilEnemyChance",        7},
-  {"StunGoodEnemyChance",        8},
-  {"BodyRemainsFor",             9},
-  {"FightHateKillValue",        10},
-  {"PreserveClassicBugs",       11},
-  {"DungeonHeartHealHealth",    12},
-  {"ImpWorkExperience",         13},
-  {"GemEffectiveness",          14},
-  {"RoomSellGoldBackPercent",   15},
-  {"DoorSellValuePercent",      16},
-  {"TrapSellValuePercent",      17},
-  {"PayDayGap",                 18},
-  {"PayDaySpeed",               19},
-  {"PayDayProgress",            20},
-  {"PlaceTrapsOnSubtiles",      21},
-  {"DiseaseHPTemplePercentage", 22},
-  {"DungeonHeartHealth",        23},
-  {"HungerHealthLoss",              24},
-  {"GameTurnsPerHungerHealthLoss",  25},
-  {"FoodHealthGain",                26},
-  {"TortureHealthLoss",             27},
-  {"GameTurnsPerTortureHealthLoss", 28},
-  {"AlliesShareVision",             29},
-  {"AlliesShareDrop",               30},
-  {"AlliesShareCta",                31},
-  {"BarrackMaxPartySize",           32},
-  {"MaxThingsInHand",               33},
-  {NULL,                             0},
-};
-
-
 #define CONDITION_ALWAYS (CONDITIONS_COUNT)
-
 
 void command_add_value(unsigned long var_index, unsigned long plr_range_id, long val2, long val3, long val4)
 {
@@ -575,12 +535,11 @@ static void command_add_tunneller_to_level(long plr_range_id, const char *locnam
     } else
     {
         struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
-        set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
+        set_flag_value(tn_trig->flags, TrgF_REUSABLE, next_command_reusable);
+        clear_flag(tn_trig->flags, TrgF_DISABLED);
         tn_trig->plyr_idx = plr_id;
         tn_trig->location = location;
         tn_trig->heading = heading;
-        tn_trig->heading_OLD = 0; //target is now contained in heading and this is unused
         tn_trig->carried_gold = carried_gold;
         tn_trig->crtr_level = crtr_level-1;
         tn_trig->carried_gold = carried_gold;
@@ -636,12 +595,11 @@ static void command_add_tunneller_party_to_level(long plr_range_id, const char *
     } else
     {
         struct TunnellerTrigger* tn_trig = &gameadd.script.tunneller_triggers[gameadd.script.tunneller_triggers_num % TUNNELLER_TRIGGERS_COUNT];
-        set_flag_byte(&(tn_trig->flags), TrgF_REUSABLE, next_command_reusable);
-        set_flag_byte(&(tn_trig->flags), TrgF_DISABLED, false);
+        set_flag_value(tn_trig->flags, TrgF_REUSABLE, next_command_reusable);
+        clear_flag(tn_trig->flags, TrgF_DISABLED);
         tn_trig->plyr_idx = plr_id;
         tn_trig->location = location;
         tn_trig->heading = heading;
-        tn_trig->heading_OLD = 0; //target is now contained in heading and this is unused
         tn_trig->carried_gold = carried_gold;
         tn_trig->crtr_level = crtr_level-1;
         tn_trig->carried_gold = carried_gold;
@@ -678,21 +636,6 @@ static void command_reset_action_point(long apt_num)
   command_add_value(Cmd_RESET_ACTION_POINT, ALL_PLAYERS, apt_idx, 0, 0);
 }
 
-static void command_set_creature_max_level(long plr_range_id, const char *crtr_name, long crtr_level)
-{
-    long crtr_id = get_rid(creature_desc, crtr_name);
-    if (crtr_id == -1)
-    {
-        SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
-        return;
-  }
-  if ((crtr_level < 0) || (crtr_level > CREATURE_MAX_LEVEL))
-  {
-    SCRPTERRLOG("Invalid '%s' experience level, %d", crtr_name, crtr_level);
-  }
-  command_add_value(Cmd_SET_CREATURE_MAX_LEVEL, plr_range_id, crtr_id, crtr_level-1, 0);
-}
-
 static void command_set_music(long val)
 {
   if (get_script_current_condition() != CONDITION_ALWAYS)
@@ -721,7 +664,7 @@ static void command_set_hate(long trgt_plr_range_id, long enmy_plr_range_id, lon
     command_add_value(Cmd_SET_HATE, trgt_plr_range_id, enmy_plr_id, hate_val, 0);
 }
 
-static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6)
+static void command_set_computer_globals(long plr_range_id, long val1, long val2, long val3, long val4, long val5, long val6, long val7)
 {
   int plr_start;
   int plr_end;
@@ -746,6 +689,10 @@ static void command_set_computer_globals(long plr_range_id, long val1, long val2
     comp->max_room_build_tasks = val4;
     comp->turn_begin           = val5;
     comp->sim_before_dig       = val6;
+    if (val7 != '\0')
+    {
+        comp->task_delay = val7;
+    }
   }
 }
 
@@ -881,7 +828,7 @@ static void command_set_computer_process(long plr_range_id, const char *procname
       for (long k = 0; k < COMPUTER_PROCESSES_COUNT; k++)
       {
           struct ComputerProcess* cproc = &comp->processes[k];
-          if ((cproc->flags & ComProc_Unkn0002) != 0)
+          if (flag_is_set(cproc->flags, ComProc_Unkn0002))
               break;
           if (cproc->name == NULL)
               break;
@@ -1165,7 +1112,7 @@ static void command_swap_creature(const char *ncrt_name, const char *crtr_name)
       SCRPTERRLOG("Unknown creature, '%s'", crtr_name);
       return;
   }
-  struct CreatureModelConfig* crconf = &gameadd.crtr_conf.model[crtr_id];
+  struct CreatureModelConfig* crconf = &game.conf.crtr_conf.model[crtr_id];
   if ((crconf->model_flags & CMF_IsSpecDigger) != 0)
   {
       SCRPTERRLOG("Unable to swap special diggers");
@@ -1255,15 +1202,6 @@ static void command_use_power_on_creature(long plr_range_id, const char *crtr_na
     SCRPTERRLOG("Unknown select criteria, '%s'", criteria);
     return;
   }
-  PowerKind pwr = mag_id;
-  if((PlayerNumber) caster_plyr_idx > PLAYER3)
-  {
-    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
-  }
 
   // encode params: free, magic, caster, level -> into 4xbyte: FMCL
   long fmcl_bytes;
@@ -1294,15 +1232,6 @@ static void command_use_power_at_pos(long plr_range_id, int stl_x, int stl_y, co
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
   }
-  PowerKind pwr = mag_id;
-  if((PlayerNumber) plr_range_id > PLAYER3)
-  {
-    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
-  }
 
   // encode params: free, magic, level -> into 3xbyte: FML
   long fml_bytes;
@@ -1332,15 +1261,6 @@ static void command_use_power_at_location(long plr_range_id, const char *locname
   {
     SCRPTERRLOG("Unknown magic, '%s'", magname);
     return;
-  }
-  PowerKind pwr = mag_id;
-  if((PlayerNumber) plr_range_id > PLAYER3)
-  {
-    if(pwr == PwrK_CALL2ARMS || pwr == PwrK_LIGHTNING)
-    {
-        SCRPTERRLOG("Only players 0-3 can cast %s", magname);
-        return;
-    }
   }
 
   TbMapLocation location;
@@ -1379,7 +1299,7 @@ static void command_use_power(long plr_range_id, const char *magname, char free)
 
 static void command_use_special_increase_level(long plr_range_id, long count)
 {
-    if (count < 1)
+    if (count == 0)
     {
         SCRPTWRNLOG("Invalid count: %d, setting to 1.", count);
         count = 1;
@@ -1389,6 +1309,12 @@ static void command_use_special_increase_level(long plr_range_id, long count)
     {
         SCRPTWRNLOG("Count too high: %d, setting to 9.", count);
         count = 9;
+    }
+
+    if (count < -9)
+    {
+        SCRPTWRNLOG("Count too low: %d, setting to -9.", count);
+        count = -9;
     }
     command_add_value(Cmd_USE_SPECIAL_INCREASE_LEVEL, plr_range_id, count, 0, 0);
 }
@@ -1409,14 +1335,14 @@ static void command_use_special_multiply_creatures(long plr_range_id, long count
     command_add_value(Cmd_USE_SPECIAL_MULTIPLY_CREATURES, plr_range_id, count, 0, 0);
 }
 
-static void command_use_special_make_safe(long plr_range_id)
+static void make_safe(long plr_range_id)
 {
-    command_add_value(Cmd_USE_SPECIAL_MAKE_SAFE, plr_range_id, 0, 0, 0);
+    command_add_value(Cmd_MAKE_SAFE, plr_range_id, 0, 0, 0);
 }
 
-static void command_use_special_locate_hidden_world()
+static void command_locate_hidden_world()
 {
-    command_add_value(Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
+    command_add_value(Cmd_LOCATE_HIDDEN_WORLD, 0, 0, 0, 0);
 }
 
 static void command_change_creature_owner(long origin_plyr_idx, const char *crtr_name, const char *criteria, long dest_plyr_idx)
@@ -1435,7 +1361,6 @@ static void command_change_creature_owner(long origin_plyr_idx, const char *crtr
   }
   command_add_value(Cmd_CHANGE_CREATURE_OWNER, origin_plyr_idx, crtr_id, select_id, dest_plyr_idx);
 }
-
 
 static void command_computer_dig_to_location(long plr_range_id, const char* origin, const char* destination)
 {
@@ -1496,17 +1421,6 @@ static void command_export_variable(long plr_range_id, const char *varib_name, c
     command_add_value(Cmd_EXPORT_VARIABLE, plr_range_id, src_type, src_id, flg_id);
 }
 
-static void command_set_game_rule(const char* objectv, unsigned long roomvar)
-{
-    long ruledesc = get_id(game_rule_desc, objectv);
-    if (ruledesc == -1)
-    {
-        SCRPTERRLOG("Unknown game rule variable");
-        return;
-    }
-    command_add_value(Cmd_SET_GAME_RULE, 0, ruledesc, roomvar, 0);
-}
-
 static void command_use_spell_on_creature(long plr_range_id, const char *crtr_name, const char *criteria, const char *magname, int splevel)
 {
   SCRIPTDBG(11, "Starting");
@@ -1553,6 +1467,11 @@ static void command_use_spell_on_creature(long plr_range_id, const char *crtr_na
 static void command_creature_entrance_level(long plr_range_id, unsigned char val)
 {
   command_add_value(Cmd_CREATURE_ENTRANCE_LEVEL, plr_range_id, val, 0, 0);
+}
+
+static void command_make_unsafe(long plr_range_id)
+{
+    command_add_value(Cmd_MAKE_UNSAFE, plr_range_id, 0, 0, 0);
 }
 
 static void command_randomise_flag(long plr_range_id, const char *flgname, long val)
@@ -1748,9 +1667,6 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_TUTORIAL_FLASH_BUTTON:
         command_tutorial_flash_button(scline->np[0], scline->np[1]);
         break;
-    case Cmd_SET_CREATURE_MAX_LEVEL:
-        command_set_creature_max_level(scline->np[0], scline->tp[1], scline->np[2]);
-        break;
     case Cmd_SET_MUSIC:
         command_set_music(scline->np[0]);
         break;
@@ -1785,7 +1701,7 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         command_if_slab_type(scline->np[0], scline->np[1], scline->np[2]);
         break;
     case Cmd_SET_COMPUTER_GLOBALS:
-        command_set_computer_globals(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
+        command_set_computer_globals(scline->np[0], scline->np[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6], scline->np[7]);
         break;
     case Cmd_SET_COMPUTER_CHECKS:
         command_set_computer_checks(scline->np[0], scline->tp[1], scline->np[2], scline->np[3], scline->np[4], scline->np[5], scline->np[6]);
@@ -1877,11 +1793,11 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
     case Cmd_USE_SPECIAL_MULTIPLY_CREATURES:
         command_use_special_multiply_creatures(scline->np[0], scline->np[1]);
         break;
-    case Cmd_USE_SPECIAL_MAKE_SAFE:
-        command_use_special_make_safe(scline->np[0]);
+    case Cmd_MAKE_SAFE:
+        make_safe(scline->np[0]);
         break;
-    case Cmd_USE_SPECIAL_LOCATE_HIDDEN_WORLD:
-        command_use_special_locate_hidden_world();
+    case Cmd_LOCATE_HIDDEN_WORLD:
+        command_locate_hidden_world();
         break;
     case Cmd_CHANGE_CREATURE_OWNER:
         command_change_creature_owner(scline->np[0], scline->tp[1], scline->tp[2], scline->np[3]);
@@ -1908,14 +1824,14 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
             game.system_flags |= GSF_RunAfterVictory;
         }
         break;
-    case Cmd_SET_GAME_RULE:
-        command_set_game_rule(scline->tp[0], scline->np[1]);
-        break;
     case Cmd_COMPUTER_DIG_TO_LOCATION:
         command_computer_dig_to_location(scline->np[0], scline->tp[1], scline->tp[2]);
         break;
     case Cmd_CREATURE_ENTRANCE_LEVEL:
         command_creature_entrance_level(scline->np[0], scline->np[1]);
+        break;
+    case Cmd_MAKE_UNSAFE:
+        command_make_unsafe(scline->np[0]);
         break;
     case Cmd_RANDOMISE_FLAG:
         command_randomise_flag(scline->np[0], scline->tp[1], scline->np[2]);
@@ -1928,7 +1844,3 @@ void script_add_command(const struct CommandDesc *cmd_desc, const struct ScriptL
         break;
     }
 }
-
-
-
-

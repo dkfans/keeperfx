@@ -101,7 +101,7 @@ void setup_default_settings(void)
           {KC_MOUSEWHEEL_UP, KMod_NONE},     // Gkey_RoomSpaceDecSize
           {KC_LALT, KMod_NONE},              // Gkey_SellTrapOnSubtile
      },                         // kbkeys
-     1,                         // tooltips_on
+     true,                      // tooltips_on
      0,                         // first_person_move_invert
      6,                         // first_person_move_sensitivity
      256,                       // minimap_zoom
@@ -110,14 +110,7 @@ void setup_default_settings(void)
      127,                       // mentor_volume
     };
     LbMemoryCopy(&settings, &default_settings, sizeof(struct GameSettings));
-    struct CPU_INFO cpu_info;
-    cpu_detect(&cpu_info);
-    settings.video_scrnmode = get_next_vidmode(Lb_SCREEN_MODE_INVALID);
-    if ((cpu_get_family(&cpu_info) > CPUID_FAMILY_PENTIUM) && (is_feature_on(Ft_HiResVideo)))
-    {
-        SYNCDBG(6,"Updating to hires video mode");
-        settings.video_scrnmode = get_higher_vidmode(settings.video_scrnmode);
-    }
+    settings.switching_vidmodes_index = 0;
 }
 
 TbBool load_settings(void)

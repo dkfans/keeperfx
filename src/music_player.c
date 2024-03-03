@@ -25,6 +25,7 @@
 #include "game_legacy.h"
 #include "keeperfx.hpp"
 #include "config.h"
+#include "sounds.h"
 #include "post_inc.h"
 
 #ifdef __cplusplus
@@ -49,27 +50,19 @@ int InitializeMusicPlayer(void)
     }
 
     current_track = -1;
-    int initted = Mix_Init(MIX_INIT_OGG);
-    if((initted & MIX_INIT_OGG) == MIX_INIT_OGG)
+    if ((sdl_flags & MIX_INIT_OGG) == MIX_INIT_OGG)
     {
-        if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024) >= 0)
+        tracks[0] = NULL;
+        tracks[1] = NULL;
+        // There is no keeper01.ogg. FIRST_TRACK defined as 2.
+        for (int i = FIRST_TRACK; i <= max_track; i++)
         {
-            tracks[0] = NULL;
-            tracks[1] = NULL;
-            // There is no keeper01.ogg. FIRST_TRACK defined as 2.
-            for (int i = FIRST_TRACK; i <= max_track; i++)
+            const char* fname = prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", i);
+            tracks[i] = Mix_LoadMUS(fname);
+            if (tracks[i] == NULL)
             {
-                const char* fname = prepare_file_fmtpath(FGrp_Music, "keeper%02d.ogg", i);
-                tracks[i] = Mix_LoadMUS(fname);
-                if (tracks[i] == NULL)
-                {
-                    WARNLOG("Can't load track %d: %s", i, Mix_GetError());
-                }
+                WARNLOG("Can't load track %d: %s", i, Mix_GetError());
             }
-        }
-        else
-        {
-            SYNCLOG("Can't open music device: %s", Mix_GetError());
         }
     }
     else
@@ -86,11 +79,6 @@ void ShutdownMusicPlayer(void)
     {
         return;
     }
-
-    while(Mix_Init(0))
-    {
-        Mix_Quit();
-    }
     Mix_HaltMusic();
     for (int i = 0; i < max_track; i++)
     {
@@ -99,7 +87,6 @@ void ShutdownMusicPlayer(void)
             Mix_FreeMusic(tracks[i]);
         }
     }
-    Mix_CloseAudio();
 }
 
 void PlayMusicPlayer(int track)
@@ -202,7 +189,7 @@ void music_reinit_after_load()
 
 void free_custom_music()
 {
-    for (int i = (max_track + 1); i <= MUSIC_TRACKS_COUNT; i++)
+    for (int i = (max_track + 1); i < MUSIC_TRACKS_COUNT; i++)
     {
         Mix_Music *music = tracks[i];
         if (music != NULL)

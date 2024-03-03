@@ -28,7 +28,7 @@ extern "C" {
 /******************************************************************************/
 #define STRINGS_MAX       2000
 #define DK_STRINGS_MAX     941
-#define GUI_STRINGS_COUNT 1044
+#define GUI_STRINGS_COUNT 1063
 
 struct GameCampaign;
 
@@ -383,6 +383,10 @@ enum GUIStrings {
     GUIStr_InsertKeeperCD,
     GUIStr_InbsertDeeperCD,
     GUIStr_LevelEventMessageDD = STRINGS_MAX+892, // range 892..940, Deeper Dungeons
+    GUIStr_EventSecretDoorDiscovDesc = STRINGS_MAX+937,
+    GUIStr_EventSecretDoorDiscovered,
+    GUIStr_EventSecretDoorSpottedDesc,
+    GUIStr_EventSecretDoorSpotted,
     GUIStr_MnuFreePlayLevels = STRINGS_MAX+941,
     GUIStr_MnuLandSelection = STRINGS_MAX+942,
     GUIStr_MnuCampaigns = STRINGS_MAX+943,

@@ -28,6 +28,7 @@ extern "C" {
 #endif
 
 #define GROUP_MEMBERS_COUNT 30
+#define FAMILIAR_MAX 8
 
 enum TriggerFlags {
     TrgF_CREATE_PARTY                  =  0x00,
@@ -35,6 +36,7 @@ enum TriggerFlags {
     TrgF_CREATE_OBJECT                 =  0x02,
     TrgF_ADD_TO_PARTY                  =  0x03,
     TrgF_DELETE_FROM_PARTY             =  0x04,
+    TrgF_CREATE_EFFECT_GENERATOR       =  0x05,
     TrgF_COMMAND_MASK                  =  0x0F,
 
     TrgF_DISABLED                      =  0x40,

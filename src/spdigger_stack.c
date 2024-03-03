@@ -22,6 +22,7 @@
 #include "globals.h"
 #include "bflib_basics.h"
 #include "bflib_math.h"
+#include "bflib_planar.h"
 
 #include "creature_jobs.h"
 #include "creature_states.h"
@@ -183,7 +184,7 @@ void remove_task_from_all_other_players_digger_stacks(PlayerNumber skip_plyr_idx
 TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSubtlCoord stl_x, MapSubtlCoord stl_y)
 {
     SYNCDBG(19,"Starting");
-    TRACE_THING(thing);
+    TRACE_THING(creatng);
     struct Coord3d pos2;
     pos2.x.val = subtile_coord_center(stl_x);
     pos2.y.val = subtile_coord_center(stl_y);
@@ -216,8 +217,8 @@ TbBool imp_will_soon_be_working_at_excluding(const struct Thing *creatng, MapSub
               {
                   MapCoordDelta dist_other;
                   MapCoordDelta dist_creatng;
-                  dist_other = get_2d_box_distance(&thing->mappos, &pos2);
-                  dist_creatng = get_2d_box_distance(&creatng->mappos, &pos2);
+                  dist_other = get_chessboard_distance(&thing->mappos, &pos2);
+                  dist_creatng = get_chessboard_distance(&creatng->mappos, &pos2);
                   if (dist_other <= dist_creatng)
                       return true;
                   if (dist_other - dist_creatng <= subtile_coord(6,0))
@@ -425,7 +426,7 @@ long check_out_unprettied_or_unconverted_area(struct Thing *thing)
         slb_x = subtile_slab(stl_x);
         slb_y = subtile_slab(stl_y);
         int new_dist;
-        new_dist = get_2d_box_distance_xy(srcstl_x, srcstl_y, stl_x, stl_y);
+        new_dist = chessboard_distance(srcstl_x, srcstl_y, stl_x, stl_y);
         if (new_dist >= min_dist) {
             continue;
         }
@@ -527,8 +528,8 @@ static TbBool imp_will_soon_be_converting_at_excluding(struct Thing *creatng, Ma
               cctrl = creature_control_get_from_thing(thing);
               if (cctrl->moveto_pos.x.stl.num == stl_x && cctrl->moveto_pos.y.stl.num == stl_y)
               {
-                  MapCoordDelta loop_distance = get_2d_box_distance(&thing->mappos, &pos2);
-                  MapCoordDelta imp_distance = get_2d_box_distance(&creatng->mappos, &pos2);
+                  MapCoordDelta loop_distance = get_chessboard_distance(&thing->mappos, &pos2);
+                  MapCoordDelta imp_distance = get_chessboard_distance(&creatng->mappos, &pos2);
                   if (loop_distance <= imp_distance || loop_distance - imp_distance <= 6 * COORD_PER_STL)
                       return true;
               }
@@ -701,42 +702,17 @@ long check_out_unprettied_spiral(struct Thing *thing, long nslabs)
 
 long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x, MapSlabCoord slb_y)
 {
-    struct SlabMap *slb;
-    PlayerNumber prev_owner;
+    if (!player_can_claim_slab(creatng->owner, slb_x, slb_y))
+    {
+        return 0;
+    }
     TRACE_THING(creatng);
-    slb = get_slabmap_block(slb_x, slb_y);
-    prev_owner = slabmap_owner(slb);
-    if (prev_owner == creatng->owner)
-        return 0;
-    if (players_are_mutual_allies(creatng->owner, prev_owner)) {
-        SYNCDBG(8,"The slab %d,%d is owned by ally, so cannot be converted",(int)slb_x, (int)slb_y);
-        return 0;
-    }
-
-    struct Room *room;
-    room = room_get(slb->room_index);
-    if ((slb->kind != SlbT_CLAIMED) && (room_is_invalid(room) || (room->kind == RoK_DUNGHEART))) {
-        SYNCDBG(8,"The slab %d,%d is not a valid kind %d to be converted",(int)slb_x, (int)slb_y, (int)slb->kind);
-        return 0;
-    }
-    struct Map *mapblk;
-    mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
-    if (!map_block_revealed(mapblk, creatng->owner)) {
-        SYNCDBG(8,"The slab %d,%d is not revealed",(int)slb_x, (int)slb_y);
-        return 0;
-    }
-    if (!slab_by_players_land(creatng->owner, slb_x, slb_y)) {
-        SYNCDBG(8,"The slab %d,%d is not by players land",(int)slb_x, (int)slb_y);
-        return 0;
-    }
-    struct Thing *thing;
-    long i;
-    unsigned long k;
-    k = 0;
-    i = get_mapwho_thing_index(mapblk);
+    unsigned long k = 0;
+    struct Map *mapblk = get_map_block_at(slab_subtile_center(slb_x), slab_subtile_center(slb_y));
+    long i = get_mapwho_thing_index(mapblk);
     while (i != 0)
     {
-        thing = thing_get(i);
+        struct Thing *thing = thing_get(i);
         TRACE_THING(thing);
         if (thing_is_invalid(thing))
         {
@@ -751,6 +727,21 @@ long check_place_to_convert_excluding(struct Thing *creatng, MapSlabCoord slb_x,
                 SYNCDBG(8,"The slab %d,%d is already being converted by %s index %d",
                     (int)slb_x,(int)slb_y,thing_model_name(thing),(int)thing->index);
                 return 0;
+            }
+            else if ((thing->alloc_flags & TAlF_IsControlled) != 0)
+            {
+                if (players_are_mutual_allies(thing->owner, creatng->owner))
+                {
+                    TbBool claimable = (thing->owner == creatng->owner) ? true : player_can_claim_slab(thing->owner, slb_x, slb_y);
+                    if (claimable)
+                    {
+                        struct CreatureControl *cctrl = creature_control_get_from_thing(thing);
+                        if (cctrl->active_instance_id == CrInst_FIRST_PERSON_DIG)
+                        {
+                            return 0;
+                        }
+                    }
+                }
             }
         }
         // Per thing code end
@@ -975,7 +966,7 @@ static TbBool check_out_unreinforced_area(struct Thing *spdigtng)
             MapSlabCoord wall_slb_x = subtile_slab(wall_stl_x);
             MapSlabCoord wall_slb_y = subtile_slab(wall_stl_y);
 
-            distance = get_2d_box_distance_xy(spdig_stl_x, spdig_stl_y, wall_stl_x,wall_stl_y);
+            distance = chessboard_distance(spdig_stl_x, spdig_stl_y, wall_stl_x, wall_stl_y);
             if ( min_distance > distance )
             {
                 MapSubtlCoord reinforce_stl_x;
@@ -1208,7 +1199,7 @@ long get_nearest_undug_area_position_for_digger(struct Thing *thing, MapSubtlCoo
             SubtlCodedCoords tsk_stl_num;
             MapSubtlCoord tsk_dist;
             tsk_stl_num = mtask->coords;
-            tsk_dist = get_2d_box_distance_xy(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
+            tsk_dist = chessboard_distance(digstl_x, digstl_y, stl_num_decode_x(tsk_stl_num), stl_num_decode_y(tsk_stl_num));
             if (tsk_dist < best_dist)
             {
                 MapSubtlCoord tsk_stl_x;
@@ -1607,8 +1598,8 @@ int add_pretty_and_convert_to_imp_stack(struct Dungeon *dungeon, int max_tasks)
     remain_num = max_tasks;
     unsigned char *slbopt;
     struct SlabCoord *slblist;
-    slbopt = scratch;
-    slblist = (struct SlabCoord *)(scratch + gameadd.map_tiles_x*gameadd.map_tiles_y);
+    slbopt = big_scratch;
+    slblist = (struct SlabCoord *)(big_scratch + gameadd.map_tiles_x*gameadd.map_tiles_y);
     add_pretty_and_convert_to_imp_stack_prepare(dungeon, slbopt);
     add_pretty_and_convert_to_imp_stack_starting_from_pos(dungeon, slbopt, slblist, &heartng->mappos, &remain_num);
     SYNCDBG(8,"Done, added %d tasks",(int)(max_tasks-remain_num));

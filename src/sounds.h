@@ -22,6 +22,8 @@
 #include "bflib_basics.h"
 #include "globals.h"
 
+#include <SDL2/SDL_mixer.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -83,6 +85,8 @@ enum SoundSettingsFlags {
 };
 
 extern int atmos_sound_frequency;
+extern int sdl_flags;
+extern Mix_Chunk* streamed_sample;
 
 #pragma pack()
 
@@ -95,7 +99,8 @@ void update_player_sounds(void);
 void process_3d_sounds(void);
 void process_sound_heap(void);
 
-void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short a3, char a4, unsigned char a5, unsigned char a6, long a7, long loudness);
+void thing_play_sample(struct Thing *thing, short smptbl_idx, unsigned short pitch, char a4, unsigned char a5, unsigned char a6, long priority, long loudness);
+void play_sound_if_close_to_receiver(struct Coord3d* pos, short smptbl_idx);
 void stop_thing_playing_sample(struct Thing *thing, short smpl_idx);
 void play_thing_walking(struct Thing *thing);
 
@@ -107,6 +112,13 @@ void mute_audio(TbBool mute);
 void pause_music(TbBool pause);
 
 void update_first_person_object_ambience(struct Thing *thing);
+
+int InitialiseSDLAudio();
+void ShutDownSDLAudio();
+void free_sound_chunks();
+void play_external_sound_sample(unsigned char smpl_id);
+TbBool play_streamed_sample(char* fname, int volume, int loops);
+void stop_streamed_sample();
 /******************************************************************************/
 #ifdef __cplusplus
 }

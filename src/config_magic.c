@@ -28,6 +28,12 @@
 #include "config_effects.h"
 #include "config_objects.h"
 #include "config_players.h"
+#include "config_cubes.h"
+#include "config_creature.h"
+#include "config_crtrmodel.h"
+#include "config_effects.h"
+#include "config_objects.h"
+#include "config_rules.h"
 #include "custom_sprites.h"
 #include "thing_physics.h"
 #include "thing_effects.h"
@@ -63,6 +69,7 @@ const struct NamedCommand magic_spell_commands[] = {
   {"SPELLPOWER",      8},
   {"AURAEFFECT",      9},
   {"SPELLFLAGS",     10},
+  {"SUMMONCREATURE", 11},
   {NULL,              0},
   };
 
@@ -86,6 +93,7 @@ const struct NamedCommand magic_shot_commands[] = {
   {"BOUNCEANGLE",           17},
   {"SIZE_XY",               18},
   {"SIZE_YZ",               19},
+  {"SIZE_Z",                19},
   {"FALLACCELERATION",      20},
   {"VISUALEFFECT",          21},
   {"VISUALEFFECTAMOUNT",    22},
@@ -114,6 +122,11 @@ const struct NamedCommand magic_shot_commands[] = {
   {"INERTIA",               45},
   {"UNSHADED",              46},
   {"SOFTLANDING",           47},
+  {"EFFECTMODEL",           48},
+  {"FIRELOGIC",             49},
+  {"UPDATELOGIC",           50},
+  {"EFFECTSPACING",         51},
+  {"EFFECTAMOUNT",          52},
   {NULL,                     0},
   };
 
@@ -145,6 +158,7 @@ const struct NamedCommand magic_special_commands[] = {
   {"TOOLTIPTEXTID",    3},
   {"SPEECHPLAYED",     4},
   {"ACTIVATIONEFFECT", 5},
+  {"VALUE",            6},
   {NULL,               0},
   };
 
@@ -178,6 +192,8 @@ const struct NamedCommand shotmodel_properties_commands[] = {
   {"FIXED_DAMAGE",        16},
   {"HIDDEN_PROJECTILE",   17},
   {"DISARMING",           18},
+  {"BLOCKS_REBIRTH",      19},
+  {"PENETRATING",         20},
   {NULL,                   0},
   };
 
@@ -261,7 +277,6 @@ const Expand_Check_Func powermodel_expand_check_func_list[] = {
 };
 
 /******************************************************************************/
-struct MagicConfig magic_conf;
 struct NamedCommand spell_desc[MAGIC_ITEMS_MAX];
 struct NamedCommand shot_desc[MAGIC_ITEMS_MAX];
 struct NamedCommand power_desc[MAGIC_ITEMS_MAX];
@@ -273,53 +288,44 @@ struct NamedCommand special_desc[MAGIC_ITEMS_MAX];
 /******************************************************************************/
 struct SpellConfig *get_spell_config(int mgc_idx)
 {
-  if ((mgc_idx < 0) || (mgc_idx >= MAGIC_TYPES_COUNT))
-    return &magic_conf.spell_config[0];
-  return &magic_conf.spell_config[mgc_idx];
+  if ((mgc_idx < 0) || (mgc_idx >= game.conf.magic_conf.spell_types_count))
+    return &game.conf.magic_conf.spell_config[0];
+  return &game.conf.magic_conf.spell_config[mgc_idx];
 }
 
 TbBool spell_config_is_invalid(const struct SpellConfig *mgcinfo)
 {
-  if (mgcinfo <= &magic_conf.spell_config[0])
+  if (mgcinfo <= &game.conf.magic_conf.spell_config[0])
     return true;
   return false;
 }
 
-struct SpellData *get_power_data(int pwkind)
-{
-  if ((pwkind > 0) && (pwkind < magic_conf.power_types_count))
-    return &spell_data[pwkind];
-  if ((pwkind < -1) || (pwkind >= magic_conf.power_types_count))
-    ERRORLOG("Request of invalid power (no %d) intercepted",pwkind);
-  return &spell_data[0];
-}
-
 TextStringId get_power_name_strindex(PowerKind pwkind)
 {
-    if (pwkind >= magic_conf.power_types_count)
-        return magic_conf.power_cfgstats[0].name_stridx;
-    return magic_conf.power_cfgstats[pwkind].name_stridx;
+    if (pwkind >= game.conf.magic_conf.power_types_count)
+        return game.conf.magic_conf.power_cfgstats[0].name_stridx;
+    return game.conf.magic_conf.power_cfgstats[pwkind].name_stridx;
 }
 
 TextStringId get_power_description_strindex(PowerKind pwkind)
 {
-  if (pwkind >= magic_conf.power_types_count)
-    return magic_conf.power_cfgstats[0].tooltip_stridx;
-  return magic_conf.power_cfgstats[pwkind].tooltip_stridx;
+  if (pwkind >= game.conf.magic_conf.power_types_count)
+    return game.conf.magic_conf.power_cfgstats[0].tooltip_stridx;
+  return game.conf.magic_conf.power_cfgstats[pwkind].tooltip_stridx;
 }
 
 long get_special_description_strindex(int spckind)
 {
-  if ((spckind < 0) || (spckind >= magic_conf.power_types_count))
-    return magic_conf.special_cfgstats[0].tooltip_stridx;
-  return magic_conf.special_cfgstats[spckind].tooltip_stridx;
+  if ((spckind < 0) || (spckind >= game.conf.magic_conf.power_types_count))
+    return game.conf.magic_conf.special_cfgstats[0].tooltip_stridx;
+  return game.conf.magic_conf.special_cfgstats[spckind].tooltip_stridx;
 }
 
 long get_power_index_for_work_state(long work_state)
 {
-    for (long i = 0; i < magic_conf.power_types_count; i++)
+    for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
-        if (magic_conf.power_cfgstats[i].work_state == work_state) {
+        if (game.conf.magic_conf.power_cfgstats[i].work_state == work_state) {
             return i;
         }
     }
@@ -328,37 +334,37 @@ long get_power_index_for_work_state(long work_state)
 
 struct SpellConfigStats *get_spell_model_stats(SpellKind spmodel)
 {
-    if (spmodel >= magic_conf.spell_types_count)
-        return &magic_conf.spell_cfgstats[0];
-    return &magic_conf.spell_cfgstats[spmodel];
+    if (spmodel >= game.conf.magic_conf.spell_types_count)
+        return &game.conf.magic_conf.spell_cfgstats[0];
+    return &game.conf.magic_conf.spell_cfgstats[spmodel];
 }
 
 struct ShotConfigStats *get_shot_model_stats(ThingModel tngmodel)
 {
-    if (tngmodel >= magic_conf.shot_types_count)
-        return &magic_conf.shot_cfgstats[0];
-    return &magic_conf.shot_cfgstats[tngmodel];
+    if (tngmodel >= game.conf.magic_conf.shot_types_count)
+        return &game.conf.magic_conf.shot_cfgstats[0];
+    return &game.conf.magic_conf.shot_cfgstats[tngmodel];
 }
 
 struct PowerConfigStats *get_power_model_stats(PowerKind pwkind)
 {
-    if (pwkind >= magic_conf.power_types_count)
-        return &magic_conf.power_cfgstats[0];
-    return &magic_conf.power_cfgstats[pwkind];
+    if (pwkind >= game.conf.magic_conf.power_types_count)
+        return &game.conf.magic_conf.power_cfgstats[0];
+    return &game.conf.magic_conf.power_cfgstats[pwkind];
 }
 
 TbBool power_model_stats_invalid(const struct PowerConfigStats *powerst)
 {
-  if (powerst <= &magic_conf.power_cfgstats[0])
+  if (powerst <= &game.conf.magic_conf.power_cfgstats[0])
     return true;
   return false;
 }
 
 struct MagicStats *get_power_dynamic_stats(PowerKind pwkind)
 {
-    if (pwkind >= magic_conf.power_types_count)
-        return &game.keeper_power_stats[0];
-    return &game.keeper_power_stats[pwkind];
+    if (pwkind >= game.conf.magic_conf.power_types_count)
+        return &game.conf.magic_conf.keeper_power_stats[0];
+    return &game.conf.magic_conf.keeper_power_stats[pwkind];
 }
 
 TbBool power_is_instinctive(int pwkind)
@@ -372,9 +378,9 @@ TbBool power_is_instinctive(int pwkind)
 
 struct SpecialConfigStats *get_special_model_stats(SpecialKind spckind)
 {
-    if (spckind >= magic_conf.special_types_count)
-        return &magic_conf.special_cfgstats[0];
-    return &magic_conf.special_cfgstats[spckind];
+    if (spckind >= game.conf.magic_conf.special_types_count)
+        return &game.conf.magic_conf.special_cfgstats[0];
+    return &game.conf.magic_conf.special_cfgstats[spckind];
 }
 
 short write_magic_shot_to_log(const struct ShotConfigStats *shotst, int num)
@@ -391,10 +397,10 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
     // Initialize block data
     if ((flags & CnfLd_AcceptPartial) == 0)
     {
-        magic_conf.spell_types_count = 1;
-        magic_conf.shot_types_count = 1;
-        magic_conf.power_types_count = 1;
-        magic_conf.special_types_count = 1;
+        game.conf.magic_conf.spell_types_count = 1;
+        game.conf.magic_conf.shot_types_count = 1;
+        game.conf.magic_conf.power_types_count = 1;
+        game.conf.magic_conf.special_types_count = 1;
     }
     // Find the block
     char block_buf[COMMAND_WORD_LEN];
@@ -424,7 +430,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
               k = atoi(word_buf);
               if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
               {
-                magic_conf.spell_types_count = k;
+                game.conf.magic_conf.spell_types_count = k;
                 n++;
               }
             }
@@ -440,7 +446,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
               k = atoi(word_buf);
               if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
               {
-                magic_conf.shot_types_count = k;
+                game.conf.magic_conf.shot_types_count = k;
                 n++;
               }
             }
@@ -456,7 +462,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
               k = atoi(word_buf);
               if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
               {
-                magic_conf.power_types_count = k;
+                game.conf.magic_conf.power_types_count = k;
                 n++;
               }
             }
@@ -472,7 +478,7 @@ TbBool parse_magic_common_blocks(char *buf, long len, const char *config_textnam
               k = atoi(word_buf);
               if ((k > 0) && (k <= MAGIC_ITEMS_MAX))
               {
-                magic_conf.special_types_count = k;
+                game.conf.magic_conf.special_types_count = k;
                 n++;
               }
             }
@@ -504,16 +510,16 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
   int i;
   // Block name and parameter word store variables
   // Initialize the array
-  int arr_size = sizeof(magic_conf.spell_cfgstats) / sizeof(magic_conf.spell_cfgstats[0]);
+  int arr_size = sizeof(game.conf.magic_conf.spell_cfgstats) / sizeof(game.conf.magic_conf.spell_cfgstats[0]);
     for (i=0; i < arr_size; i++)
     {
-        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(magic_conf.spell_cfgstats[i].code_name) <= 0))
+        if (((flags & CnfLd_AcceptPartial) == 0) || (strlen(game.conf.magic_conf.spell_cfgstats[i].code_name) <= 0))
         {
             spellst = get_spell_model_stats(i);
-            LbMemorySet(&magic_conf.spell_cfgstats[i].code_name, 0, COMMAND_WORD_LEN);
-            if (i < magic_conf.spell_types_count)
+            LbMemorySet(&game.conf.magic_conf.spell_cfgstats[i].code_name, 0, COMMAND_WORD_LEN);
+            if (i < game.conf.magic_conf.spell_types_count)
             {
-                spell_desc[i].name = magic_conf.spell_cfgstats[i].code_name;
+                spell_desc[i].name = game.conf.magic_conf.spell_cfgstats[i].code_name;
                 spell_desc[i].num = i;
             }
             else
@@ -532,13 +538,16 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
             spconf->cast_effect_model = 0;
             spconf->bigsym_sprite_idx = 0;
             spconf->medsym_sprite_idx = 0;
+            spconf->crtr_summon_model = 0;
+            spconf->crtr_summon_level = 0;
+            spconf->crtr_summon_amount = 0;
             spconf->aura_effect = 0;
             spconf->spell_flags = 0;
         }
     }
     
   // Load the file
-  arr_size = magic_conf.spell_types_count;
+  arr_size = game.conf.magic_conf.spell_types_count;
   for (i=0; i < arr_size; i++)
   {
       char block_buf[COMMAND_WORD_LEN];
@@ -764,6 +773,43 @@ TbBool parse_magic_spell_blocks(char *buf, long len, const char *config_textname
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+        case 11: // SUMMONCREATURE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = get_id(creature_desc, word_buf);
+              if (k < 0)
+              {
+                  if (parameter_is_number(word_buf))
+                  {
+                      k = atoi(word_buf);
+                      spconf->crtr_summon_model = k;
+                      n++;
+                  }
+              }
+              else
+              {
+                  spconf->crtr_summon_model = k;
+                  n++;
+              }
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              spconf->crtr_summon_level = k;
+              n++;
+          }
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              spconf->crtr_summon_amount = k;
+              n++;
+          }
+          if (n < 3)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num),block_buf,config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -786,7 +832,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
   int i;
   // Block name and parameter word store variables
   // Initialize the array
-  int arr_size = sizeof(magic_conf.shot_cfgstats) / sizeof(magic_conf.shot_cfgstats[0]);
+  int arr_size = sizeof(game.conf.magic_conf.shot_cfgstats) / sizeof(game.conf.magic_conf.shot_cfgstats[0]);
     for (i = 0; i < arr_size; i++)
     {
         shotst = get_shot_model_stats(i);
@@ -794,7 +840,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
         {
             LbMemorySet(shotst->code_name, 0, COMMAND_WORD_LEN);
             shotst->model_flags = 0;
-            if (i < magic_conf.shot_types_count)
+            if (i < game.conf.magic_conf.shot_types_count)
             {
                 shot_desc[i].name = shotst->code_name;
                 shot_desc[i].num = i;
@@ -820,7 +866,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
             shotst->push_on_hit = 0;
             shotst->max_range = 0;
             shotst->size_xy = 0;
-            shotst->size_yz = 0;
+            shotst->size_z = 0;
             shotst->speed = 0;
             shotst->destroy_on_first_hit = 0;
             shotst->experience_given_to_shooter = 0;
@@ -838,7 +884,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
         }
     }
   // Load the file
-  arr_size = magic_conf.shot_types_count;
+  arr_size = game.conf.magic_conf.shot_types_count;
   for (i=0; i < arr_size; i++)
   {
       char block_buf[COMMAND_WORD_LEN];
@@ -1061,6 +1107,14 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                 shotst->model_flags |= ShMF_Disarming;
                 n++;
                 break;
+            case 19: // BlocksRebirth
+                shotst->model_flags |= ShMF_BlocksRebirth;
+                n++;
+                break;
+            case 20: // Penetrating
+                shotst->model_flags |= ShMF_Penetrating;
+                n++;
+                break;
             default:
                 CONFWRNLOG("Incorrect value of \"%s\" parameter \"%s\" in [%s] block of %s file.",
                     COMMAND_TEXT(cmd_num),word_buf,block_buf,config_textname);
@@ -1135,7 +1189,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
       case 14: //ANIMATION
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              struct Objects obj_tmp;
+              struct ObjectConfigStats obj_tmp;
               k = get_anim_id(word_buf, &obj_tmp);
               shotst->sprite_anim_idx = k;
               n++;
@@ -1198,11 +1252,11 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
-      case 19: //SIZE_YZ
+      case 19: //SIZE_Z
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->size_yz = k;
+              shotst->size_z = k;
               n++;
           }
           if (n < 1)
@@ -1604,7 +1658,7 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
               k = atoi(word_buf);
-              shotst->light_radius = k << 8;
+              shotst->light_radius = k * COORD_PER_STL;
               n++;
           }
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
@@ -1670,6 +1724,71 @@ TbBool parse_magic_shot_blocks(char *buf, long len, const char *config_textname,
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
           }
           break;
+      case 48: //EFFECTMODEL
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              shotst->effect_id = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 49: //FIRELOGIC
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->fire_logic = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 50: //UPDATELOGIC
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->update_logic = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 51: //EFFECTSPACING
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->effect_spacing = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 52: //EFFECTAMOUNT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              shotst->effect_amount = k;
+              n++;
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Couldn't read \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
       case 0: // comment
           break;
       case -1: // end of buffer
@@ -1694,19 +1813,19 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   // Block name and parameter word store variables
   // Initialize the array
   int arr_size;
-  arr_size = sizeof(magic_conf.power_cfgstats) / sizeof(magic_conf.power_cfgstats[0]);
+  arr_size = sizeof(game.conf.magic_conf.power_cfgstats) / sizeof(game.conf.magic_conf.power_cfgstats[0]);
   for (i = 0; i < arr_size; i++)
   {
       if ((flags & CnfLd_AcceptPartial) == 0)
       {
-          if ((i < magic_conf.power_types_count) || (strlen(power_desc[i].name) <= 0))
+          if ((i < game.conf.magic_conf.power_types_count) || (strlen(power_desc[i].name) <= 0))
           {
               powerst = get_power_model_stats(i);
               LbMemorySet(powerst->code_name, 0, COMMAND_WORD_LEN);
               powerst->artifact_model = 0;
               powerst->can_cast_flags = 0;
               powerst->config_flags = 0;
-              powerst->overcharge_check = NULL;
+              powerst->overcharge_check_idx = 0;
               powerst->work_state = 0;
               powerst->bigsym_sprite_idx = 0;
               powerst->medsym_sprite_idx = 0;
@@ -1725,16 +1844,16 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               power_desc[i].num = 0;
           }
       }
-      arr_size = sizeof(gameadd.object_conf.object_to_power_artifact)/sizeof(gameadd.object_conf.object_to_power_artifact[0]);
+      arr_size = sizeof(game.conf.object_conf.object_to_power_artifact)/sizeof(game.conf.object_conf.object_to_power_artifact[0]);
       for (i = 0; i < arr_size; i++)
       {
           if ((flags & CnfLd_AcceptPartial) == 0)
           {
-              gameadd.object_conf.object_to_power_artifact[i] = 0;
+              game.conf.object_conf.object_to_power_artifact[i] = 0;
           }
       }
   }
-  arr_size = magic_conf.power_types_count;
+  arr_size = game.conf.magic_conf.power_types_count;
   // Load the file
   for (i=0; i < arr_size; i++)
   {
@@ -1853,7 +1972,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
               k = get_id(object_desc, word_buf);
               if (k >= 0) {
                   powerst->artifact_model = k;
-                  gameadd.object_conf.object_to_power_artifact[k] = i;
+                  game.conf.object_conf.object_to_power_artifact[k] = i;
                   n++;
               }
           }
@@ -1981,11 +2100,11 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
           }
           break;
       case 15: // FUNCTIONS
-          powerst->overcharge_check = NULL;
+          powerst->overcharge_check_idx = 0;
           k = recognize_conf_parameter(buf,&pos,len,powermodel_expand_check_func_type);
           if (k > 0)
           {
-              powerst->overcharge_check = powermodel_expand_check_func_list[k];
+              powerst->overcharge_check_idx = k;
               n++;
           }
           if (n < 1)
@@ -2074,7 +2193,7 @@ TbBool parse_magic_power_blocks(char *buf, long len, const char *config_textname
   if ((flags & CnfLd_ListOnly) == 0)
   {
     // Mark powers which have children
-    for (i = 0; i < magic_conf.power_types_count; i++)
+    for (i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         powerst = get_power_model_stats(i);
         struct PowerConfigStats* parent_powerst = get_power_model_stats(powerst->parent_power);
@@ -2095,14 +2214,14 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
   int arr_size;
   if ((flags & CnfLd_AcceptPartial) == 0)
   {
-      arr_size = sizeof(magic_conf.special_cfgstats)/sizeof(magic_conf.special_cfgstats[0]);
+      arr_size = sizeof(game.conf.magic_conf.special_cfgstats)/sizeof(game.conf.magic_conf.special_cfgstats[0]);
       for (i=0; i < arr_size; i++)
       {
           specst = get_special_model_stats(i);
           LbMemorySet(specst->code_name, 0, COMMAND_WORD_LEN);
           specst->artifact_model = 0;
           specst->tooltip_stridx = 0;
-          if (i < magic_conf.special_types_count)
+          if (i < game.conf.magic_conf.special_types_count)
           {
               special_desc[i].name = specst->code_name;
               special_desc[i].num = i;
@@ -2112,12 +2231,12 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               special_desc[i].num = 0;
           }
       }
-      arr_size = sizeof(gameadd.object_conf.object_to_special_artifact)/sizeof(gameadd.object_conf.object_to_special_artifact[0]);
+      arr_size = sizeof(game.conf.object_conf.object_to_special_artifact)/sizeof(game.conf.object_conf.object_to_special_artifact[0]);
       for (i=0; i < arr_size; i++) {
-          gameadd.object_conf.object_to_special_artifact[i] = 0;
+          game.conf.object_conf.object_to_special_artifact[i] = 0;
       }
   }
-  arr_size = magic_conf.special_types_count;
+  arr_size = game.conf.magic_conf.special_types_count;
   // Load the file
   for (i=0; i < arr_size; i++)
   {
@@ -2166,7 +2285,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
               k = get_id(object_desc, word_buf);
               if (k >= 0) {
                   specst->artifact_model = k;
-                  gameadd.object_conf.object_to_special_artifact[k] = i;
+                  game.conf.object_conf.object_to_special_artifact[k] = i;
                   n++;
               }
           }
@@ -2212,7 +2331,7 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
       case 5: // ACTIVATIONEFFECT
           if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
           {
-              k = atoi(word_buf);
+              k = effect_or_effect_element_id(word_buf);
               specst->effect_id = k;
               n++;
           }
@@ -2220,6 +2339,13 @@ TbBool parse_magic_special_blocks(char *buf, long len, const char *config_textna
           {
               CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
                   COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 6: // VALUE
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = atoi(word_buf);
+              specst->value = k;
           }
           break;
       case 0: // comment
@@ -2304,12 +2430,18 @@ TbBool load_magic_config(const char *conf_fname, unsigned short flags)
 {
     static const char config_global_textname[] = "global magic config";
     static const char config_campgn_textname[] = "campaign magic config";
+    static const char config_level_textname[] = "level magic config";
     char* fname = prepare_file_path(FGrp_FxData, conf_fname);
     TbBool result = load_magic_config_file(config_global_textname, fname, flags);
     fname = prepare_file_path(FGrp_CmpgConfig,conf_fname);
     if (strlen(fname) > 0)
     {
         load_magic_config_file(config_campgn_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
+    }
+    fname = prepare_file_fmtpath(FGrp_CmpgLvls, "map%05lu.%s", get_selected_level_number(), conf_fname);
+    if (strlen(fname) > 0)
+    {
+        load_magic_config_file(config_level_textname,fname,flags|CnfLd_AcceptPartial|CnfLd_IgnoreErrors);
     }
     //Freeing and exiting
     return result;
@@ -2356,9 +2488,9 @@ const char *power_code_name(PowerKind pwkind)
  */
 int power_model_id(const char * code_name)
 {
-    for (int i = 0; i < magic_conf.power_types_count; ++i)
+    for (int i = 0; i < game.conf.magic_conf.power_types_count; ++i)
     {
-        if (strncmp(magic_conf.power_cfgstats[i].code_name, code_name,
+        if (strncmp(game.conf.magic_conf.power_cfgstats[i].code_name, code_name,
                 COMMAND_WORD_LEN) == 0) {
             return i;
         }
@@ -2377,7 +2509,7 @@ int power_model_id(const char * code_name)
  */
 TbBool add_power_to_player(PowerKind pwkind, PlayerNumber plyr_idx)
 {
-    if (pwkind >= magic_conf.power_types_count)
+    if (pwkind >= game.conf.magic_conf.power_types_count)
     {
         ERRORLOG("Can't add incorrect power %d to player %d",(int)pwkind, (int)plyr_idx);
         return false;
@@ -2440,7 +2572,7 @@ void remove_power_from_player(PowerKind pwkind, PlayerNumber plyr_idx)
  */
 TbBool make_all_powers_cost_free(void)
 {
-    for (long i = 0; i < magic_conf.power_types_count; i++)
+    for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         struct MagicStats* pwrdynst = get_power_dynamic_stats(i);
         for (long n = 0; n < MAGIC_OVERCHARGE_LEVELS; n++)
@@ -2455,7 +2587,7 @@ TbBool make_all_powers_cost_free(void)
 TbBool make_all_powers_researchable(PlayerNumber plyr_idx)
 {
     struct Dungeon* dungeon = get_players_num_dungeon(plyr_idx);
-    for (long i = 0; i < magic_conf.power_types_count; i++)
+    for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
     {
         dungeon->magic_resrchable[i] = 1;
     }
@@ -2513,7 +2645,7 @@ TbBool is_power_available(PlayerNumber plyr_idx, PowerKind pwkind)
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if (pwkind >= magic_conf.power_types_count)
+    if (pwkind >= game.conf.magic_conf.power_types_count)
     {
         ERRORLOG("Incorrect power %ld (player %ld)", pwkind, plyr_idx);
         return false;
@@ -2544,7 +2676,7 @@ TbBool is_power_obtainable(PlayerNumber plyr_idx, PowerKind pwkind)
     if (!player_has_heart(plyr_idx) && (pwkind != PwrK_POSSESS)) {
         return false;
     }
-    if (pwkind >= magic_conf.power_types_count) {
+    if (pwkind >= game.conf.magic_conf.power_types_count) {
         ERRORLOG("Incorrect power %ld (player %ld)",pwkind, plyr_idx);
         return false;
     }
@@ -2563,7 +2695,7 @@ TbBool make_available_all_researchable_powers(PlayerNumber plyr_idx)
       ERRORDBG(11,"Cannot make research available; player %d has no dungeon",(int)plyr_idx);
       return false;
   }
-  for (long i = 0; i < magic_conf.power_types_count; i++)
+  for (long i = 0; i < game.conf.magic_conf.power_types_count; i++)
   {
     if (dungeon->magic_resrchable[i])
     {

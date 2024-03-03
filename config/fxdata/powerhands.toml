@@ -1,0 +1,21 @@
+#custom looks for the keeperhand
+#can be set with the SET_HAND_GRAPHIC command
+#e.g. SET_HAND_GRAPHIC(PLAYER0,HeroHand)
+
+[hand0]
+Name = "Default"
+
+HoldAnim  = 784
+HoldSpeed = 256
+HoldGoldAnim  = 781
+HoldGoldSpeed = 256
+HoverAnim  = 782
+HoverSpeed = 256
+PickupAnim  = 783
+PickupSpeed = 256
+SideHoverAnim  = 785
+SideHoverSpeed = 256
+SideSlapAnim  = 787
+SideSlapSpeed = 256
+SlapAnim  = 786
+SlapSpeed = 256

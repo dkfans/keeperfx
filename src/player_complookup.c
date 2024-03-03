@@ -187,8 +187,8 @@ void check_map_for_gold(void)
         LbMemorySet(&game.gold_lookup[i], 0, sizeof(struct GoldLookup));
     }
     // Make a map with treasure areas marked
-    unsigned char* treasure_map = (unsigned char*)scratch;
-    unsigned short* vein_list = (unsigned short*)&scratch[gameadd.map_tiles_x * gameadd.map_tiles_y];
+    unsigned char* treasure_map = (unsigned char*)big_scratch;
+    unsigned short* vein_list = (unsigned short*)&big_scratch[gameadd.map_tiles_x * gameadd.map_tiles_y];
     for (slb_y = 0; slb_y < gameadd.map_tiles_y; slb_y++)
     {
         for (slb_x = 0; slb_x < gameadd.map_tiles_x; slb_x++)
