@@ -2787,31 +2787,31 @@ void process_cheat_mode_selection_inputs()
     }
     else if (is_key_pressed(KC_NUMPAD4, KMod_DONTCARE))
     {
-        new_value = PLAYER_GOOD;
+        new_value = PLAYER4;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD4);
     }
     else if (is_key_pressed(KC_NUMPAD5, KMod_DONTCARE))
     {
-        new_value = PLAYER_NEUTRAL;
+        new_value = PLAYER5;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD5);
     }
     else if (is_key_pressed(KC_NUMPAD6, KMod_DONTCARE))
     {
-        new_value = PLAYER4;
+        new_value = PLAYER6;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD6);
     }
     else if (is_key_pressed(KC_NUMPAD7, KMod_DONTCARE))
     {
-        new_value = PLAYER5;
+        new_value = PLAYER_GOOD;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD7);
     }
     else if (is_key_pressed(KC_NUMPAD8, KMod_DONTCARE))
     {
-        new_value = PLAYER6;
+        new_value = PLAYER_NEUTRAL;
         set_players_packet_action(player, PckA_CheatSwitchPlayer, new_value, 0, 0, 0);
         clear_key_pressed(KC_NUMPAD8);
     }
