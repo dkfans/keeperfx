@@ -9,6 +9,9 @@ int api_init_server();
 void api_update_server();
 void api_close_server();
 
+void api_on_win_game();
+void api_on_lose_game();
+
 #ifdef __cplusplus
 }
 #endif
