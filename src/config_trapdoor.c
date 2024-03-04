@@ -111,6 +111,7 @@ const struct NamedCommand trapdoor_trap_commands[] = {
   {"TRIGGERSOUND",         39},
   {"RECHARGEANIMATIONID",  40},
   {"ATTACKANIMATIONID",    41},
+  {"DESTROYEDEFFECT",      42},
   {NULL,                    0},
 };
 
@@ -276,7 +277,7 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->bigsym_sprite_idx = 0;
           trapst->medsym_sprite_idx = 0;
           trapst->pointer_sprite_idx = 0;
-          // Default trap sounds, so that they aren't broken if custom trap is bundled into map
+          // Default trap sounds, so that they aren't broken if custom trap is bundled into map.
           trapst->place_sound_idx = 117; 
           trapst->trigger_sound_idx = 176;
           trapst->panel_tab_idx = 0;
@@ -287,6 +288,8 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
           trapst->unsellable = 0;
           trapst->notify = 0;
           trapst->placeonbridge = 0;
+          // Default destroyed_effect is TngEffElm_Blast2.
+          trapst->destroyed_effect = -39;
 
           game.conf.trap_stats[i].health = 0;
           game.conf.trap_stats[i].sprite_anim_idx = 0;
@@ -1052,6 +1055,22 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
               if (k >= 0)
               {
                   game.conf.trap_stats[i].attack_sprite_anim_idx = k;
+                  n++;
+              }
+          }
+          if (n < 1)
+          {
+              CONFWRNLOG("Incorrect value of \"%s\" parameter in [%s] block of %s file.",
+                  COMMAND_TEXT(cmd_num), block_buf, config_textname);
+          }
+          break;
+      case 42: // DESTROYEDEFFECT
+          if (get_conf_parameter_single(buf, &pos, len, word_buf, sizeof(word_buf)) > 0)
+          {
+              k = effect_or_effect_element_id(word_buf);
+              if (k != 0)
+              {
+                  trapst->destroyed_effect = k;
                   n++;
               }
           }
