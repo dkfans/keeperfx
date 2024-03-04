@@ -18,7 +18,7 @@ struct ApiGlobals
     TCPsocket serverSocket;
     TCPsocket activeSocket; // Only one client each time
     SDLNet_SocketSet socketSet;
-} api = { 0 };
+} api = {0};
 
 // Initialize the TCP API server
 int api_init_server()
@@ -26,10 +26,10 @@ int api_init_server()
     if (api.serverSocket) // Already inited
         return 0;
 
-// TODO: where is keeperfx.cfg dict????
+    // TODO: where is keeperfx.cfg dict????
 
-//    if (value_dict_get(global_config, API_CONFIG_KEY) == NULL)
-//        return 0;
+    //    if (value_dict_get(global_config, API_CONFIG_KEY) == NULL)
+    //        return 0;
 
     if (SDLNet_Init() < 0)
     {
@@ -89,7 +89,7 @@ void api_event(char eventName)
 static void api_err(const char *err)
 {
     char buf[256];
-    int len = snprintf(buf, sizeof(buf)-1, "[\"ERR\", \"%s\"]\r\n", err);
+    int len = snprintf(buf, sizeof(buf) - 1, "[\"ERR\", \"%s\"]\r\n", err);
     // Echo back the data for now
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
@@ -104,7 +104,7 @@ static void process_buffer(const char *buffer, size_t buf_size)
 {
     VALUE data, *value = &data;
     if (buffer[buf_size - 1] == 0)
-        buf_size -=1;
+        buf_size -= 1;
 
     int ret = json_dom_parse(buffer, buf_size, NULL, 0, value, NULL);
 
@@ -127,7 +127,7 @@ static void process_buffer(const char *buffer, size_t buf_size)
     }
     else if (0 == strcasecmp("CMD", api_cmd))
     {
-        char *cmd_data = (char*) value_string(value_array_get(value, 1));
+        char *cmd_data = (char *)value_string(value_array_get(value, 1));
         if (cmd_data == NULL)
         {
             api_err("invalid json");
@@ -140,14 +140,13 @@ static void process_buffer(const char *buffer, size_t buf_size)
         {
             api_err("unable to process");
         }
-
     }
     else
     {
         api_err("unknown command");
     }
 
-    end:
+end:
     value_fini(&data);
 }
 
