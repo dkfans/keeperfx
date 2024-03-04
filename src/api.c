@@ -88,6 +88,12 @@ void api_event(char eventName)
 
 static void api_err(const char *err)
 {
+    // Do nothing if API server is not active
+    if (!api.activeSocket)
+    {
+        return;
+    }
+
     char buf[256];
     int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":false,\"error\":\"%s\"}", err);
     SDLNet_TCP_Send(api.activeSocket, buf, len);
@@ -95,6 +101,12 @@ static void api_err(const char *err)
 
 static void api_ok()
 {
+    // Do nothing if API server is not active
+    if (!api.activeSocket)
+    {
+        return;
+    }
+
     const char msg[] = "{\"success\":true}";
     SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
 }
