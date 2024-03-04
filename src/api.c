@@ -82,21 +82,20 @@ void api_event(char eventName)
     }
 
     // Create the JSON response and send it to the client
-    const char jsonResponse = sprintf("{event:\"%s\"}", eventName);
+    const char jsonResponse = sprintf("{\"event\":\"%s\"}", eventName);
     SDLNet_TCP_Send(api.activeSocket, jsonResponse, strlen(jsonResponse));
 }
 
 static void api_err(const char *err)
 {
     char buf[256];
-    int len = snprintf(buf, sizeof(buf) - 1, "[\"ERR\", \"%s\"]\r\n", err);
-    // Echo back the data for now
+    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":false,\"error\":\"%s\"}", err);
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
 static void api_ok()
 {
-    const char msg[] = "[\"OK\"]\r\n";
+    const char msg[] = "{\"success\":true}";
     SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
 }
 
