@@ -2,15 +2,15 @@
 #define API_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
-int api_init_server();
-void api_update_server();
-void api_close_server();
+    int api_init_server();
+    void api_update_server();
+    void api_close_server();
 
-void api_on_win_game();
-void api_on_lose_game();
+    void api_event();
 
 #ifdef __cplusplus
 }

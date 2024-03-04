@@ -73,20 +73,17 @@ int api_init_server()
     return 0;
 }
 
-void api_on_win_game()
+void api_event(char eventName)
 {
+    // Do nothing if API server is not active
     if (!api.activeSocket)
+    {
         return;
-    const char msg[] = "[\"ON_WIN\"]\r\n";
-    SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
-}
+    }
 
-void api_on_lose_game()
-{
-    if (!api.activeSocket)
-        return;
-    const char msg[] = "[\"ON_LOSE\"]\r\n";
-    SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
+    // Create the JSON response and send it to the client
+    const char jsonResponse = sprintf("{event:\"%s\"}", eventName);
+    SDLNet_TCP_Send(api.activeSocket, jsonResponse, strlen(jsonResponse));
 }
 
 static void api_err(const char *err)
