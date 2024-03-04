@@ -775,7 +775,7 @@ long script_scan_line(char *line, TbBool preloaded, long file_version)
     script_add_command(cmd_desc, scline, file_version);
     LbMemoryFree(scline);
     SCRIPTDBG(13,"Finished");
-    return 0;
+    return 1;
 }
 
 short clear_script(void)
