@@ -83,6 +83,7 @@ const struct NamedCommand object_update_functions_desc[] = {
   {"UPDATE_OBJECT_SCALE",    4},
   {"UPDATE_POWER_SIGHT",     5},
   {"UPDATE_POWER_LIGHTNING", 6},
+  {"NULL",                   0},
   {NULL,                  0},
   };
 
@@ -1257,7 +1258,8 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
             long long k = ((heartng->health << 8) / objst->health) << 7;
             long i = (saturate_set_signed(k, 32) >> 8) + 128;
             heartng->sprite_size = i * (long)objst->sprite_size_max >> 8;
-            heartng->clipbox_size_xy = i * (long)objst->size_xy >> 8;
+            heartng->solid_size_xy = i * (long)objst->size_xy >> 8;
+            heartng->solid_size_z = i * (long)objst->size_z >> 8;
         }
     }
     else if (!dungeon_invalid(dungeon) && (heartng->index == dungeon->dnheart_idx))
@@ -1277,10 +1279,10 @@ static TngUpdateRet object_update_dungeon_heart(struct Thing *heartng)
         if (heartng->health <= 0)
         {
             struct Thing* efftng;
-            efftng = create_effect(&heartng->mappos, TngEff_Explosion4, heartng->owner);
+            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion1, heartng->owner);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
-            efftng = create_effect(&heartng->mappos, TngEff_WoPExplosion, heartng->owner);
+            efftng = create_used_effect_or_element(&heartng->mappos, objst->effect.explosion2, heartng->owner);
             if (!thing_is_invalid(efftng))
                 efftng->shot_effect.hit_type = THit_HeartOnlyNotOwn;
             destroy_dungeon_heart_room(heartng->owner, heartng);
