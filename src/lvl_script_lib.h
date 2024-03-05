@@ -183,6 +183,7 @@ enum TbScriptCommands {
     Cmd_SET_INCREASE_ON_EXPERIENCE         = 170,
     Cmd_SET_PLAYER_MODIFIER                = 171,
     Cmd_ADD_TO_PLAYER_MODIFIER             = 172,
+    Cmd_USE_POWER_ON_PLAYERS_CREATURES     = 173,
 };
 
 struct ScriptLine {
@@ -304,6 +305,7 @@ TbBool parse_get_varib(const char *varib_name, long *varib_id, long *varib_type)
 char get_player_number_from_value(const char* txt);
 #define get_player_id(plrname, plr_range_id) get_player_id_f(plrname, plr_range_id, __func__, text_line_number)
 TbBool get_player_id_f(const char *plrname, long *plr_range_id, const char *func_name, long ln_num);
+TbResult script_use_power_on_creature(struct Thing* thing, short pwkind, short splevel, PlayerNumber caster, TbBool is_free);
 
 #define ALLOCATE_SCRIPT_VALUE(var_index, plr_range_id) \
     struct ScriptValue tmp_value = {0}; \

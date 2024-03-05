@@ -129,7 +129,7 @@ const struct TaskFunctions task_function[] = {
     {"COMPUTER_WAIT_FOR_BRIDGE",  task_wait_for_bridge},
     {"COMPUTER_ATTACK_MAGIC",     task_attack_magic},
     {"COMPUTER_SELL_TRAPS_AND_DOORS", task_sell_traps_and_doors},
-    {"COMPUTER_MOVE_GOLD_TO_TREASURY",task_move_gold_to_treasury},
+    {"COMPUTER_MOVE_GOLD_TO_TREASURY", task_move_gold_to_treasury},
 };
 
 const struct TrapDoorSelling trapdoor_sell[] = {
@@ -3832,46 +3832,6 @@ TbBool create_task_magic_speed_up(struct Computer2 *comp, const struct Thing *cr
         message_add_fmt(comp->dungeon->owner, "I should speed up my fighters.");
     }
     ctask->ttype = CTT_MagicSpeedUp;
-    ctask->attack_magic.target_thing_idx = creatng->index;
-    ctask->attack_magic.splevel = splevel;
-    ctask->created_turn = game.play_gameturn;
-    return true;
-}
-
-//Task is named 'flight up', but it's generated from 'check fighter' event and all round buffs units.
-//Not to be confused with check_for_flight which cast flight outside of combat.
-TbBool create_task_magic_flight_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
-{
-    struct ComputerTask *ctask;
-    SYNCDBG(7,"Starting");
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
-        return false;
-    }
-    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "I should flight up my fighters.");
-    }
-    ctask->ttype = CTT_MagicFlightUp;
-    ctask->attack_magic.target_thing_idx = creatng->index;
-    ctask->attack_magic.splevel = splevel;
-    ctask->created_turn = game.play_gameturn;
-    return true;
-}
-
-//Task is named 'vision up', but it's generated from 'check fighter' event and all round buffs units.
-//Not to be confused with check_for_vision which cast vision outside of combat.
-TbBool create_task_magic_vision_up(struct Computer2 *comp, const struct Thing *creatng, long splevel)
-{
-    struct ComputerTask *ctask;
-    SYNCDBG(7,"Starting");
-    ctask = get_free_task(comp, 1);
-    if (computer_task_invalid(ctask)) {
-        return false;
-    }
-    if (flag_is_set(gameadd.computer_chat_flags, CChat_TasksScarce)) {
-        message_add_fmt(comp->dungeon->owner, "I should vision up my fighters.");
-    }
-    ctask->ttype = CTT_MagicVisionUp;
     ctask->attack_magic.target_thing_idx = creatng->index;
     ctask->attack_magic.splevel = splevel;
     ctask->created_turn = game.play_gameturn;

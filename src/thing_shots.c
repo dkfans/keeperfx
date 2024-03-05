@@ -807,13 +807,18 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     }
     if (thing_is_dungeon_heart(target))
     {
-        if (shotng->model == ShM_SwingSword) //TODO CONFIG shot model dependency, make config option instead
+        if (shotst->hit_heart.effect_model != 0)
         {
-            thing_play_sample(target, 136, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-        } else
-        if (shotng->model == ShM_SwingFist) //TODO CONFIG shot model dependency, make config option instead
+            if (shotst->hit_heart.effect_model > 0)
+            {
+                create_effect(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
+            } else {
+                create_effect_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
+            }
+        }
+        if (shotst->hit_heart.sndsample_idx > 0)
         {
-            thing_play_sample(target, 144+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+            thing_play_sample(target, shotst->hit_heart.sndsample_idx + UNSYNC_RANDOM(shotst->hit_heart.sndsample_range), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
         event_create_event_or_update_nearby_existing_event(
             shootertng->mappos.x.val, shootertng->mappos.y.val,

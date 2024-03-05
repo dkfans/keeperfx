@@ -60,28 +60,29 @@ static void load_array(VALUE* file_root, const char *arr_name,short *arr, unsign
         memset(arr,0,sizeof(short) * MAX_COLORED_SPRITES * PLAYER_COLORS_COUNT );
     }
     VALUE *toml_arr = value_dict_get(file_root, arr_name);
-    if(value_array_size(toml_arr) > MAX_COLORED_SPRITES)
+    if (value_array_size(toml_arr) > MAX_COLORED_SPRITES)
     {
-        WARNLOG("to many colored frames, max %d got %d",MAX_COLORED_SPRITES,value_array_size(toml_arr));
+        WARNLOG("too many colored frames, max %d got %d",MAX_COLORED_SPRITES,value_array_size(toml_arr));
     }
     for (size_t sprite_no = 0; sprite_no < value_array_size(toml_arr); sprite_no++)
     {
         VALUE *col_arr = value_array_get(toml_arr, sprite_no);
         if (value_array_size(col_arr) > PLAYER_COLORS_COUNT)
         {
-            WARNLOG("to many colors for %s, max %d got %d",arr_name,PLAYER_COLORS_COUNT,value_array_size(col_arr));
+            WARNLOG("too many colors for %s, max %d got %d",arr_name,PLAYER_COLORS_COUNT,value_array_size(col_arr));
             continue;
         }
-
         for (size_t plr_idx = 0; plr_idx < value_array_size(col_arr); plr_idx++)
         {
             VALUE * entry = value_array_get(col_arr, plr_idx);
-            if(value_type(entry) == VALUE_INT32)
+            if (value_type(entry) == VALUE_INT32)
+            {
                 arr[sprite_no * PLAYER_COLORS_COUNT + plr_idx] = value_int32(entry);
+            }
             else
             {
                 short icon_id = string_to_id_f(value_string(entry));
-                if(icon_id == -2)
+                if (icon_id == -2)
                 {
                     WARNLOG("unknown sprite %s",value_string(entry));
                 }
@@ -141,13 +142,13 @@ TbBool load_spritecolors_config(const char *conf_fname,unsigned short flags)
 
 static short get_player_colored_idx(short base_icon_idx,unsigned char color_idx,short *arr)
 {
-    if(color_idx >= PLAYER_COLORS_COUNT)
+    if (color_idx >= PLAYER_COLORS_COUNT)
     {
         return base_icon_idx;
     }
     for (size_t i = 0; i < MAX_COLORED_SPRITES; i++)
     {
-        if(arr[i * PLAYER_COLORS_COUNT] == base_icon_idx)
+        if (arr[i * PLAYER_COLORS_COUNT] == base_icon_idx)
         {
             return arr[i * PLAYER_COLORS_COUNT + color_idx];
         }

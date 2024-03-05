@@ -1155,6 +1155,8 @@ TbBool parse_trapdoor_door_blocks(char *buf, long len, const char *config_textna
                 COMMAND_TEXT(cmd_num),block_buf,config_textname);
             break;
           }
+          door_desc[i].name = doorst->code_name;
+          door_desc[i].num = i;
           break;
       case 2: // MANUFACTURELEVEL
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
