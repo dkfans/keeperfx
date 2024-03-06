@@ -248,8 +248,17 @@ TbBool thing_create_thing_adv(VALUE *init_data)
         ERRORLOG("Thing Ownership is not set");
         return false;
     }
-
-    if (owner > PLAYERS_COUNT)
+    else if (owner == 7)
+    {
+        ERRORLOG("Invalid owning player %d, fixing to %d", owner, (int)game.hero_player_num);
+        owner = game.hero_player_num;
+    }
+    else if (owner == 8)
+    {
+        ERRORLOG("Invalid owning player %d, fixing to %d", owner, (int)game.neutral_player_num);
+        owner = game.neutral_player_num;
+    }
+    if (owner > 5)
     {
         ERRORLOG("Invalid owning player %d, thing discarded", owner);
         return false;

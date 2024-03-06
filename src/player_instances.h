@@ -27,16 +27,13 @@ extern "C" {
 #endif
 /******************************************************************************/
 enum PlayerNames {
-    PLAYER0          =  0,//red
-    PLAYER1          =  1,//blue
-    PLAYER2          =  2,//green
-    PLAYER3          =  3,//yellow
-    PLAYER_GOOD      =  4,//white
+    PLAYER0          =  0,
+    PLAYER1          =  1,
+    PLAYER2          =  2,
+    PLAYER3          =  3,
+    PLAYER_GOOD      =  4,
     PLAYER_NEUTRAL   =  5,
-    PLAYER4          =  6,//purple
-    PLAYER5          =  7,//black
-    PLAYER6          =  8,//orange
-    ALL_PLAYERS      =  9,
+    ALL_PLAYERS      =  8,
 };
 
 enum PlayerInstanceNum {

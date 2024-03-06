@@ -74,9 +74,6 @@ const struct NamedCommand player_desc[] = {
   {"PLAYER_GOOD",      PLAYER_GOOD},
   {"ALL_PLAYERS",      ALL_PLAYERS},
   {"PLAYER_NEUTRAL",   PLAYER_NEUTRAL},
-  {"PLAYER4",          PLAYER4},
-  {"PLAYER5",          PLAYER5},
-  {"PLAYER6",          PLAYER6},
   {NULL,               0},
 };
 
