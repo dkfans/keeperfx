@@ -1073,6 +1073,11 @@ TbBool parse_trapdoor_trap_blocks(char *buf, long len, const char *config_textna
                   trapst->destroyed_effect = k;
                   n++;
               }
+              else if (parameter_is_number(word_buf))
+              {
+                  //No error when it is set to 0
+                  n++;
+              }
           }
           if (n < 1)
           {

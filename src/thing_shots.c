@@ -774,7 +774,10 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     if (target->health < 0) 
     {
         struct TrapConfigStats* trapst = get_trap_model_stats(target->model);
-        create_used_effect_or_element(&target->mappos, trapst->destroyed_effect, target->owner);
+        if (trapst->destroyed_effect != 0)
+        {
+            create_used_effect_or_element(&target->mappos, trapst->destroyed_effect, target->owner);
+        }
         if (((trapst->unstable == 1) && !(shotst->model_flags & ShMF_Disarming)) || trapst->unstable == 2)
         {
             activate_trap(target, target);
