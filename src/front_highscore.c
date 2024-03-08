@@ -76,11 +76,11 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
         {
             highscore_scroll_offset = idx - visible_entries;
         }
-        LbTextStringDraw(i, pos_y, units_per_px, high_score_entry, Fnt_LeftJustify);
+        i += LbTextStringDraw(i, pos_y, units_per_px, high_score_entry, Fnt_LeftJustify);
         // Blinking cursor
         if ((LbTimerClock() & 0x0100) != 0)
         {
-            LbTextStringDraw(i + LbTextStringWidthM(high_score_entry, units_per_px), pos_y, units_per_px, "_", Fnt_LeftJustify);
+            LbTextStringDraw(i, pos_y, units_per_px, "_", Fnt_LeftJustify);
         }
     } else
     {
