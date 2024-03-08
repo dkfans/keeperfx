@@ -115,7 +115,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     long col1_width = LbTextStringWidthM("999", tx_units_per_px);
     long col2_width = LbTextStringWidthM(" 99999999", tx_units_per_px);
     long col3_width = LbTextStringWidthM("  99999", tx_units_per_px);
-    long col4_width = LbTextCharWidthM('-', tx_units_per_px);
+    long col4_width = LbTextCharWidthM('-', tx_units_per_px) * 2;
     int k;
     visible_entries = 0;
     for (k=highscore_scroll_offset; k < (highscore_scroll_offset+VISIBLE_HIGH_SCORES_COUNT)-1; k++)
