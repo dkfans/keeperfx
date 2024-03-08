@@ -42,7 +42,7 @@
 /******************************************************************************/
 static long high_score_entry_index;
 
-char high_score_entry[64];
+char high_score_entry[HISCORE_NAME_LENGTH];
 int fe_high_score_table_from_main_menu;
 long high_score_entry_input_active = -1;
 int highscore_scroll_offset = 0;
@@ -64,7 +64,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     LbTextNumberDraw(i, pos_y, units_per_px, hscore->score, Fnt_RightJustify);
     i += col3_width;
     LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_RightJustify);
-    i += (col4_width * 2);
+    i += col4_width;
     if (idx == high_score_entry_input_active)
     {
         if (idx <= visible_entries)
@@ -75,17 +75,11 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
         {
             highscore_scroll_offset = idx - visible_entries;
         }
-        char str[64];
-        memcpy(str, high_score_entry, sizeof(str));
-        str[sizeof(str)-1] = '\0';
-        i -= (col4_width / 4);
-        LbTextStringDraw(i, pos_y, units_per_px, str, Fnt_LeftJustify);
-        str[high_score_entry_index] = '\0';
-        i += LbTextStringWidthM(str, units_per_px);
+        LbTextStringDraw(i, pos_y, units_per_px, high_score_entry, Fnt_LeftJustify);
         // Blinking cursor
         if ((LbTimerClock() & 0x0100) != 0)
         {
-            LbTextStringDraw(i, pos_y, units_per_px, "_", Fnt_LeftJustify);
+            LbTextStringDraw(i + LbTextStringWidthM(high_score_entry, units_per_px), pos_y, units_per_px, "_", Fnt_LeftJustify);
         }
     } else
     {
@@ -161,7 +155,7 @@ TbBool frontend_high_score_table_input(void)
 {
     long i;
     if (high_score_entry_input_active >= campaign.hiscore_count)
-        high_score_entry_input_active  = -1;
+        high_score_entry_input_active = -1;
     if (high_score_entry_input_active < 0)
         return false;
     if (lbInkey == KC_BACK)
