@@ -2026,8 +2026,8 @@ static char light_render_light(struct Light* lgt)
   }
   if ( is_dynamic )
   {
-    if ( radius < lgt->min_radius << 8 )
-      render_radius = lgt->min_radius << 8;
+    if ( radius < lgt->min_radius * COORD_PER_STL)
+      render_radius = lgt->min_radius * COORD_PER_STL;
     if ( intensity < lgt->min_intensity << 8 )
       intensity = lgt->min_intensity << 8;
   }
