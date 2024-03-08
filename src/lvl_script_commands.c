@@ -1048,10 +1048,10 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
     }
     else if (trapvar == 41)  // DestroyedEffect
     {
-        newvalue = effect_or_effect_element_id(scline->tp[2]);
-        if ((newvalue == 0) && (!parameter_is_number(scline->tp[2])))
+        newvalue = effect_or_effect_element_id(valuestring);
+        if ((newvalue == 0) && (!parameter_is_number(valuestring)))
         {
-            SCRPTERRLOG("Unknown effect or effect element.");
+            SCRPTERRLOG("Unknown effect or effect element: '%s'", valuestring);
             DEALLOCATE_SCRIPT_VALUE
             return;
         }
@@ -1075,7 +1075,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             newvalue = get_id(object_desc, valuestring);
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
             {
-                SCRPTERRLOG("Unknown crate object: %s", valuestring);
+                SCRPTERRLOG("Unknown crate object: '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
