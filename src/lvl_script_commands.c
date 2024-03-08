@@ -1046,6 +1046,17 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
+    else if (trapvar == 41)  // DestroyedEffect
+    {
+        newvalue = effect_or_effect_element_id(scline->tp[2]);
+        if ((newvalue == 0) && (!parameter_is_number(scline->tp[2])))
+        {
+            SCRPTERRLOG("Unknown effect or effect element.");
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->uarg1 = newvalue;
+    }
     else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
         if (parameter_is_number(valuestring))
