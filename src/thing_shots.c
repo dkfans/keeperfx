@@ -773,8 +773,11 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
     if (target->health < 0) 
     {
-        create_effect_element(&target->mappos, TngEffElm_Blast2, target->owner);
         struct TrapConfigStats* trapst = get_trap_model_stats(target->model);
+        if (trapst->destroyed_effect != 0)
+        {
+            create_used_effect_or_element(&target->mappos, trapst->destroyed_effect, target->owner);
+        }
         if (((trapst->unstable == 1) && !(shotst->model_flags & ShMF_Disarming)) || trapst->unstable == 2)
         {
             activate_trap(target, target);
