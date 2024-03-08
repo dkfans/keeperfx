@@ -65,6 +65,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     i += col3_width;
     LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_RightJustify);
     i += col4_width;
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     if (idx == high_score_entry_input_active)
     {
         if (idx <= visible_entries)
