@@ -232,7 +232,7 @@ TbBool frontend_high_score_table_input(void)
         clear_key_pressed(lbInkey);
         return true;
     }
-    #define HISCORE_INPUT_LENGTH 30
+    #define HISCORE_INPUT_LENGTH 20
     if (high_score_entry_index < HISCORE_INPUT_LENGTH)
     {
         char chr = key_to_ascii(lbInkey, key_modifiers);
