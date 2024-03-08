@@ -64,7 +64,7 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     LbTextNumberDraw(i, pos_y, units_per_px, hscore->score, Fnt_RightJustify);
     i += col3_width;
     LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_RightJustify);
-    i += col4_width;
+    i += (col4_width * 2);
     if (idx == high_score_entry_input_active)
     {
         if (idx <= visible_entries)
@@ -115,7 +115,7 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     int pos_x = gbtn->scr_pos_x + spr->SWidth * fs_units_per_px / 16;
     spr = &frontend_sprite[GFS_hugearea_thn_cor_tl];
     int pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
-    int tx_units_per_px = (dbc_language > 0) ? units_per_pixel_ui : gbtn->height * 16 / (11 * (LbTextLineHeight()));
+    int tx_units_per_px = scale_value_menu(16);
     // The GUI item height should be 11 lines of text
     long col1_width = LbTextStringWidthM("999", tx_units_per_px);
     long col2_width = LbTextStringWidthM(" 99999999", tx_units_per_px);
@@ -128,6 +128,10 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
         draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
         visible_entries++;
         pos_y += LbTextLineHeight() * tx_units_per_px / 16;
+        if (dbc_language > 0)
+        {
+            pos_y += scale_value_menu(4);
+        }
     }
     if (high_score_entry_input_active > k)
     {
