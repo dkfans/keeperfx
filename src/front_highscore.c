@@ -76,12 +76,16 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
         {
             highscore_scroll_offset = idx - visible_entries;
         }
-        i += LbTextStringDraw(i, pos_y, units_per_px, high_score_entry, Fnt_LeftJustify);
+        char str[HISCORE_NAME_LENGTH];
+        sprintf(str, "%s", high_score_entry);
         // Blinking cursor
         if ((LbTimerClock() & 0x0100) != 0)
         {
-            LbTextStringDraw(i, pos_y, units_per_px, "_", Fnt_LeftJustify);
+            size_t len = strlen(str);
+            str[len] = '_';
+            str[len+1] = '\0';
         }
+        LbTextStringDraw(i, pos_y, units_per_px, str, Fnt_LeftJustify);
     } else
     {
         LbTextStringDraw(i, pos_y, units_per_px, hscore->name, Fnt_LeftJustify);
@@ -232,7 +236,7 @@ TbBool frontend_high_score_table_input(void)
         clear_key_pressed(lbInkey);
         return true;
     }
-    #define HISCORE_INPUT_LENGTH 30
+    #define HISCORE_INPUT_LENGTH 20
     if (high_score_entry_index < HISCORE_INPUT_LENGTH)
     {
         char chr = key_to_ascii(lbInkey, key_modifiers);
