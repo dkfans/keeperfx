@@ -948,7 +948,7 @@ void place_slab_object(SlabCodedCoords slb_num, MapSubtlCoord stl_x,MapSubtlCoor
                 ilght.mappos.x.val = pos.x.val;
                 ilght.mappos.y.val = pos.y.val;
                 ilght.mappos.z.val = pos.z.val;
-                ilght.radius = sobj->range << 8;
+                ilght.radius = sobj->range * COORD_PER_STL;
                 ilght.intensity = sobj->model;
                 ilght.flags = 0;
                 ilght.is_dynamic = 0;
