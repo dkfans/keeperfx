@@ -221,7 +221,7 @@ struct TbLoadFilesV2 game_load_files[] = {
 #ifdef SPRITE_FORMAT_V2
     {"data/thingspr-32.tab",(unsigned char**)&creature_table,                                              0, nullptr, nullptr},
 #else
-    {"data/creature.tab",(unsigned char**)&creature_table,                                               0, nullptr, nullptr},
+    {"data/creature.tab",(unsigned char**)&creature_table,                                               0, &creature_table_load_get_size, &creature_table_load_unpack},
 #endif
     {"data/palette.dat", &engine_palette,                                                                  0, nullptr, nullptr},
     {"data/bluepal.dat", &blue_palette,                                                                    0, nullptr, nullptr},

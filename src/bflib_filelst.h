@@ -32,8 +32,8 @@ struct TbLoadFiles;
 
 typedef char *ModifyDataLoadFnameFunc(struct TbLoadFiles *);
 
-typedef long (*LoadFilesGetSizeFunc)(long data);
-typedef void (*LoadFilesUnpackFunc)(unsigned char *data, long size);
+typedef size_t (*LoadFilesGetSizeFunc)(size_t data);
+typedef void (*LoadFilesUnpackFunc)(unsigned char *data, size_t size);
 
 struct TbLoadFiles {
         char FName[DISKPATH_SIZE];
@@ -60,6 +60,7 @@ ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFname
 /******************************************************************************/
 
 short LbDataFree(struct TbLoadFiles *load_file);
+int LbDataLoad(struct TbLoadFiles *load_file, LoadFilesGetSizeFunc get_size_fn, LoadFilesUnpackFunc unpack_fn);
 void LbDataFreeAll(struct TbLoadFiles load_files[]);
 void LbDataFreeAllV2(struct TbLoadFilesV2 load_files[]);
 

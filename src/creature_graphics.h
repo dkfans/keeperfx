@@ -70,7 +70,7 @@ struct CreaturePickedUpOffset
  */
 struct KeeperSprite { // sizeof = 16
   unsigned long DataOffset;
-#ifdef SPRITE_FORMAT_V2
+
   unsigned short SWidth;
   unsigned short SHeight;
   unsigned short FrameWidth;
@@ -79,29 +79,29 @@ struct KeeperSprite { // sizeof = 16
   unsigned char FramesCount;
   unsigned short FrameOffsW;
   unsigned short FrameOffsH;
-#else
-  unsigned char SWidth;
-  unsigned char SHeight;
-  unsigned char FrameWidth;
-  unsigned char FrameHeight;
-  unsigned char Rotable;
-  unsigned char FramesCount;
-  unsigned char FrameOffsW;
-  unsigned char FrameOffsH;
-#endif
+
   short offset_x;
   short offset_y;
 };
 
-struct KeeperSpriteExt // More info for custom sprites
-{
-    unsigned char rotation; // Used to implement rotated statues from rotatable
+struct KeeperSpriteDisk {
+    unsigned long DataOffset;
+    unsigned char SWidth;
+    unsigned char SHeight;
+    unsigned char FrameWidth;
+    unsigned char FrameHeight;
+    unsigned char Rotable;
+    unsigned char FramesCount;
+    unsigned char FrameOffsW;
+    unsigned char FrameOffsH;
+    short offset_x;
+    short offset_y;
 };
+
 /******************************************************************************/
 //extern unsigned short creature_graphics[][22];
 extern struct KeeperSprite *creature_table;
 extern struct KeeperSprite creature_table_add[];
-extern struct KeeperSpriteExt creatures_table_ext[];
 /******************************************************************************/
 
 #pragma pack()
@@ -120,6 +120,8 @@ void set_creature_model_graphics(long crmodel, unsigned short frame, unsigned lo
 void set_creature_graphic(struct Thing *thing);
 void update_creature_rendering_flags(struct Thing *thing);
 
+size_t creature_table_load_get_size(size_t disk_size);
+void creature_table_load_unpack(unsigned char *src, size_t disk_size);
 /******************************************************************************/
 #ifdef __cplusplus
 }

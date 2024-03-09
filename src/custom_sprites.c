@@ -61,8 +61,6 @@ struct KeeperSprite creature_table_add[KEEPERSPRITE_ADD_NUM] = {
         {0}
 };
 
-struct KeeperSpriteExt creatures_table_ext[KEEPERSPRITE_ADD_NUM] = {{0}};
-
 struct SpriteContext
 {
     struct TbHugeSprite sprite;
@@ -880,6 +878,8 @@ static int read_png_data(unzFile zip, const char *path, struct SpriteContext *co
     READ_WITH_DEFAULT(FrameOffsH, "offset_h", "fp_offset_h", "td_offset_h", 0, value_uint32)
     READ_WITH_DEFAULT(offset_x, "offset_x", "fp_offset_x", "td_offset_x", -dst_w / 2, -value_int32)
     READ_WITH_DEFAULT(offset_y, "offset_y", "fp_offset_y", "td_offset_y", 1 - dst_h, -value_int32)
+
+    READ_WITH_DEFAULT(offset_y, "shadow_fix", "shadow_fix", "shadow_fix", 0, value_int32)
 
 #undef READ_WITH_DEFAULT
 
