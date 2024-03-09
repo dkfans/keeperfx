@@ -240,18 +240,18 @@ TbBool frontend_high_score_table_input(void)
         return true;
     }
     char chr = key_to_ascii(lbInkey, key_modifiers);
-    int tx_units_per_px;
-    if (dbc_language > 0)
-    {
-        tx_units_per_px = scale_value_menu(24);
-    }
-    else
-    {
-        tx_units_per_px = scale_value_menu(16);
-    }
     if (chr != 0)
     {
         LbTextSetFont(frontend_font[1]);
+        int tx_units_per_px;
+        if (dbc_language > 0)
+        {
+            tx_units_per_px = scale_value_menu(24);
+        }
+        else
+        {
+            tx_units_per_px = scale_value_menu(16);
+        }
         i = LbTextCharWidthM(chr, tx_units_per_px);
         size_t entry_len = strlen(high_score_entry);
         if ((entry_len < (HISCORE_NAME_LENGTH - 1)) &&
