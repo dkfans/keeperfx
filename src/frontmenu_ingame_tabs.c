@@ -957,11 +957,7 @@ void gui_over_door_button(struct GuiButton *gbtn)
     int manufctr_idx = (long)gbtn->content;
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
 
-    //todo support more then 5 doors
-    if (manufctr->tngmodel >= 5)
-        gui_door_type_highlighted = 0;
-    else
-        gui_door_type_highlighted = manufctr->tngmodel;
+    gui_door_type_highlighted = manufctr->tngmodel;
 }
 
 void gui_remove_area_for_traps(struct GuiButton *gbtn)
