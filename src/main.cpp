@@ -651,6 +651,8 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
   int delta_x;
   int delta_y;
   int delta_z;
+  if (delta_step <= 0)
+      delta_step = 1;
   if (dist_x >= 0)
   {
       delta_x = delta_step;
