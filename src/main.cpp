@@ -3406,13 +3406,12 @@ void gameplay_loop_logic()
 {
     if(flag_is_set(start_params.debug_flags, DFlg_PauseAtGameTurn))
     {
-        static TbBool paused_at_gameturn = false;
         static GameTurn previous_gameturn = 0;
         if(game.play_gameturn >= start_params.pause_at_gameturn && game.play_gameturn != previous_gameturn)
         {
-            if(!paused_at_gameturn)
+            if(!game.paused_at_gameturn)
             {
-                paused_at_gameturn = true;
+                game.paused_at_gameturn = true;
 
                 game.frame_skip = 0;
                 if(game.packet_load_enable)

@@ -422,7 +422,12 @@ TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
     }
     else if (strcasecmp(parstr, "pause") == 0)
     {
-        toggle_flag(game.operation_flags, GOF_Paused); // games are saved in a paused state
+        toggle_flag(game.operation_flags, GOF_Paused);
+    }
+    else if (strcasecmp(parstr, "step") == 0)
+    {
+        game.frame_step = true;
+        clear_flag(game.operation_flags, GOF_Paused);
     }
     else if (strcasecmp(parstr, "game.save") == 0)
     {
