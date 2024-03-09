@@ -82,8 +82,11 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
         if ((LbTimerClock() & 0x0100) != 0)
         {
             size_t len = strlen(str);
-            str[len] = '_';
-            str[len+1] = '\0';
+            if (len < (HISCORE_NAME_LENGTH - 1))
+            {
+                str[len] = '_';
+                str[len+1] = '\0';
+            }
         }
         LbTextStringDraw(i, pos_y, units_per_px, str, Fnt_LeftJustify);
     } else
@@ -236,12 +239,12 @@ TbBool frontend_high_score_table_input(void)
         clear_key_pressed(lbInkey);
         return true;
     }
-    int entry_len = strlen(high_score_entry);
     char chr = key_to_ascii(lbInkey, key_modifiers);
     if (chr != 0)
     {
         LbTextSetFont(frontend_font[1]);
         i = LbTextCharWidth(chr);
+        int entry_len = strlen(high_score_entry);
         if ((entry_len < (HISCORE_NAME_LENGTH - 1)) &&
             ((i > 0) && (i + LbTextStringWidth(high_score_entry) < 260)))
         {
