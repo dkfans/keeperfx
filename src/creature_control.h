@@ -358,7 +358,7 @@ unsigned char sound_flag;
     unsigned char shot_model;
     struct CastedSpellData casted_spells[CREATURE_MAX_SPELLS_CASTED_AT];
     /** Current active skill instance. */
-    char active_instance_id;
+    unsigned char active_instance_id;
     char head_bob;
     struct Navigation navi;
     /* Creature movement path data. */
@@ -367,7 +367,7 @@ unsigned char sound_flag;
     unsigned char active_state_bkp;
     /* State backup when a creature temporarily changes its state due to being slapped. */
     unsigned char continue_state_bkp;
-unsigned char cowers_from_slap_turns;
+    unsigned char cowers_from_slap_turns;
     short conscious_back_turns;
     short countdown_282; // signed
     unsigned short damage_wall_coords;
