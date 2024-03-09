@@ -240,7 +240,15 @@ TbBool frontend_high_score_table_input(void)
         return true;
     }
     char chr = key_to_ascii(lbInkey, key_modifiers);
-    int tx_units_per_px = scale_value_menu(16);
+    int tx_units_per_px;
+    if (dbc_language > 0)
+    {
+        tx_units_per_px = scale_value_menu(24);
+    }
+    else
+    {
+        tx_units_per_px = scale_value_menu(16);
+    }
     if (chr != 0)
     {
         LbTextSetFont(frontend_font[1]);
