@@ -278,6 +278,7 @@ struct ShotConfigStats {
     struct ShotHitConfig hit_lava;
     struct ShotHitConfig hit_creature;
     struct ShotHitConfig dig;
+    struct ShotHitConfig hit_heart;
     struct ShotDetonateConfig explode;
     struct ShotVisualConfig visual;
     short firing_sound;
