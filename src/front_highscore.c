@@ -236,29 +236,25 @@ TbBool frontend_high_score_table_input(void)
         clear_key_pressed(lbInkey);
         return true;
     }
-    #define HISCORE_INPUT_LENGTH 20
-    if (high_score_entry_index < HISCORE_INPUT_LENGTH)
+    int entry_len = strlen(high_score_entry);
+    char chr = key_to_ascii(lbInkey, key_modifiers);
+    if (chr != 0)
     {
-        char chr = key_to_ascii(lbInkey, key_modifiers);
-        if (chr != 0)
+        LbTextSetFont(frontend_font[1]);
+        i = LbTextCharWidth(chr);
+        if ((entry_len < (HISCORE_NAME_LENGTH - 1)) &&
+            ((i > 0) && (i + LbTextStringWidth(high_score_entry) < 260)))
         {
-            int entry_len = strlen(high_score_entry);
-            LbTextSetFont(frontend_font[1]);
-            i = LbTextCharWidth(chr);
-            if ((entry_len < (HISCORE_NAME_LENGTH - 1)) &&
-                ((i > 0) && (i + LbTextStringWidth(high_score_entry) < 308)))
-            {
-                i = entry_len;
-                high_score_entry[i+1] = '\0';
-                while (i > high_score_entry_index) {
-                    high_score_entry[i] = high_score_entry[i-1];
-                    i--;
-                }
-                high_score_entry[i] = chr;
-                high_score_entry_index = i + 1;
-                clear_key_pressed(lbInkey);
-                return true;
+            i = entry_len;
+            high_score_entry[i+1] = '\0';
+            while (i > high_score_entry_index) {
+                high_score_entry[i] = high_score_entry[i-1];
+                i--;
             }
+            high_score_entry[i] = chr;
+            high_score_entry_index = i + 1;
+            clear_key_pressed(lbInkey);
+            return true;
         }
     }
     // No input, but return true to make sure other input functions are skipped
