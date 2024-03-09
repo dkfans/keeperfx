@@ -244,7 +244,7 @@ TbBool frontend_high_score_table_input(void)
     {
         LbTextSetFont(frontend_font[1]);
         i = LbTextCharWidth(chr);
-        int entry_len = strlen(high_score_entry);
+        size_t entry_len = strlen(high_score_entry);
         if ((entry_len < (HISCORE_NAME_LENGTH - 1)) &&
             ((i > 0) && (i + LbTextStringWidth(high_score_entry) < 260)))
         {
