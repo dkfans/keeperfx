@@ -82,6 +82,8 @@ struct KeeperSprite { // sizeof = 16
 
   short offset_x;
   short offset_y;
+
+  short shadow_offset;
 };
 
 struct KeeperSpriteDisk {
@@ -110,7 +112,7 @@ struct CreaturePickedUpOffset *get_creature_picked_up_offset(struct Thing *thing
 
 unsigned long keepersprite_index(unsigned short n);
 struct KeeperSprite * keepersprite_array(unsigned short n);
-unsigned char keepersprite_frames(unsigned short n);
+unsigned char keepersprite_frames(unsigned short n); // This returns number of frames in animation
 unsigned char keepersprite_rotable(unsigned short n);
 void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, short *orig_w, short *orig_h, short *unsc_w, short *unsc_h);
 long get_lifespan_of_animation(long ani, long speed);

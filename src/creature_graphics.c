@@ -569,6 +569,7 @@ void creature_table_load_unpack(unsigned char *src_buf, size_t disk_size)
         tmp[i].FrameOffsH = src->FrameOffsH;
         tmp[i].offset_x = src->offset_x;
         tmp[i].offset_y = src->offset_y;
+        tmp[i].shadow_offset = 0;
     }
     memcpy(src_buf, tmp, items * sizeof(struct KeeperSprite));
     free(tmp);

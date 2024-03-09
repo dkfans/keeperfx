@@ -3933,6 +3933,8 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     struct EngineCoord ecor3;
     struct EngineCoord ecor4;
 
+    struct KeeperSprite *spr = keepersprite_array(thing->anim_sprite);
+
     mv_angle = thing->move_angle_xy;
     sh_angle = get_angle_xy_to(pos, &thing->mappos);
     sprite_angle = (mv_angle - sh_angle) & LbFPMath_AngleMask;
@@ -3952,40 +3954,46 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
         int sh_angle_sin = LbSinL(sh_angle);
         int sh_angle_cos = LbCosL(sh_angle);
 
-        int base_y2 = 8 * (6 - dim_oh - dim_th);
+        int base_y2 = 8 * (6 - dim_oh - dim_th + spr->shadow_offset);
         int base_z2 = 8 * dim_upward_aka_z;
         int base_th = 8 * (dim_th - 4 * dist_sq) + 560;
         int base_tw = 8 * (dim_upward_aka_z + dim_ow);
-
-        int shift_a = base_z2 * sh_angle_cos;
-        int shift_b = base_y2 * sh_angle_sin;
-        int shift_c = base_y2 * sh_angle_cos;
-        int shift_d = base_z2 * sh_angle_sin;
-        int shift_e = base_th * sh_angle_sin;
-        int shift_f = base_th * sh_angle_cos;
-        int shift_g = base_tw * sh_angle_cos;
-        int shift_h = base_tw * sh_angle_sin;
 
         int base_x = ecor->x;
         int base_y = ecor->y;
         int base_z = ecor->z;
 
-        ecor1.x = base_x + FROM_FIXED(shift_a - shift_b);
+        // near and far are measured from origin of thing
+        int near_x = base_y2 * sh_angle_sin;
+        int near_yr = base_y2 * sh_angle_cos;
+        int near_y2 = base_y * sh_angle_cos;
+
+        int left_x = base_z2 * sh_angle_cos;
+        int left_y = base_z2 * sh_angle_sin;
+        int far_x = base_th * sh_angle_sin;
+        int far_y = base_th * sh_angle_cos;
+        int right_x = base_tw * sh_angle_cos;
+        int right_y = base_tw * sh_angle_sin;
+
+        // near/left
+        ecor1.x = base_x + FROM_FIXED(left_x - near_x);
         ecor1.y = base_y;
-        ecor1.z = base_z - FROM_FIXED(base_y * sh_angle_cos + shift_d);
+        ecor1.z = base_z - FROM_FIXED(left_y + near_y2);
 
-        ecor2.x = base_x + FROM_FIXED(shift_a - shift_e);
+        // far/left
+        ecor2.x = base_x + FROM_FIXED(left_x - far_x);
         ecor2.y = base_y;
-        ecor2.z = base_z - FROM_FIXED(shift_f + shift_d);
+        ecor2.z = base_z - FROM_FIXED(left_y + far_y);
 
-
-        ecor3.x = base_x + FROM_FIXED(shift_g - shift_e);
+        // far/right
+        ecor3.x = base_x + FROM_FIXED(right_x - far_x);
         ecor3.y = base_y;
-        ecor3.z = base_z - FROM_FIXED(shift_h + shift_f);
+        ecor3.z = base_z - FROM_FIXED(right_y + far_y);
 
-        ecor4.x = base_x + FROM_FIXED(shift_g - shift_b);
+        // near/right
+        ecor4.x = base_x + FROM_FIXED(right_x - near_x);
         ecor4.y = base_y;
-        ecor4.z = base_z - FROM_FIXED(shift_h + shift_c);
+        ecor4.z = base_z - FROM_FIXED(right_y + near_yr);
     }
     rotpers(&ecor1, &camera_matrix);
     rotpers(&ecor2, &camera_matrix);
@@ -6655,37 +6663,6 @@ static void display_drawlist(void) // Draws isometric and 1st person view. Not f
                 vec_colour = item.creatureShadow->p1.S;
                 trig(&item.creatureShadow->p1, &item.creatureShadow->p2, &item.creatureShadow->p3);
                 trig(&item.creatureShadow->p1, &item.creatureShadow->p3, &item.creatureShadow->p4);
-                const int clr = 0x8D;
-                draw_clipped_line(
-                        item.creatureShadow->p1.X,
-                        item.creatureShadow->p1.Y,
-                        item.creatureShadow->p2.X,
-                        item.creatureShadow->p2.Y,
-                        clr);
-                draw_clipped_line(
-                        item.creatureShadow->p2.X,
-                        item.creatureShadow->p2.Y,
-                        item.creatureShadow->p3.X,
-                        item.creatureShadow->p3.Y,
-                        clr);
-                draw_clipped_line(
-                        item.creatureShadow->p2.X,
-                        item.creatureShadow->p2.Y,
-                        item.creatureShadow->p3.X,
-                        item.creatureShadow->p3.Y,
-                        clr);
-                draw_clipped_line(
-                        item.creatureShadow->p3.X,
-                        item.creatureShadow->p3.Y,
-                        item.creatureShadow->p4.X,
-                        item.creatureShadow->p4.Y,
-                        clr);
-                draw_clipped_line(
-                        item.creatureShadow->p1.X,
-                        item.creatureShadow->p1.Y,
-                        item.creatureShadow->p4.X,
-                        item.creatureShadow->p4.Y,
-                        clr);
                 break;
             case QK_SlabSelector: // Selection outline box for placing/digging slabs
                 draw_clipped_line(
