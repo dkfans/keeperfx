@@ -4071,11 +4071,15 @@ TbBool process_creature_hunger(struct Thing *thing)
     cctrl->hunger_level++;
     if (!hunger_is_creature_hungry(thing))
         return false;
-    // Make sure every creature loses health on different turn
-    if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
-        SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
-        remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
-        return true;
+    // HungerHealthLoss is disabled if set to 0 on rules.cfg.
+    if (game.conf.rules.health.turns_per_hunger_health_loss > 0)
+    {
+        // Make sure every creature loses health on different turn.
+        if (((game.play_gameturn + thing->index) % game.conf.rules.health.turns_per_hunger_health_loss) == 0) {
+            SYNCDBG(9,"The %s index %d lost %d health due to hunger",thing_model_name(thing), (int)thing->index, (int)game.conf.rules.health.hunger_health_loss);
+            remove_health_from_thing_and_display_health(thing, game.conf.rules.health.hunger_health_loss);
+            return true;
+        }
     }
     return false;
 }
