@@ -240,10 +240,11 @@ TbBool frontend_high_score_table_input(void)
         return true;
     }
     char chr = key_to_ascii(lbInkey, key_modifiers);
+    int tx_units_per_px = scale_value_menu(16);
     if (chr != 0)
     {
         LbTextSetFont(frontend_font[1]);
-        i = LbTextCharWidth(chr);
+        i = LbTextCharWidthM(chr, tx_units_per_px);
         size_t entry_len = strlen(high_score_entry);
         if ((entry_len < (HISCORE_NAME_LENGTH - 1)) &&
             ((i > 0) && (i + LbTextStringWidth(high_score_entry) < 260)))
