@@ -66,6 +66,8 @@
 extern "C" {
 #endif
 
+#define TO_FIXED(x)    ((x) << 16)
+
 enum QKinds {
     QK_PolygonStandard = 0,
     QK_PolygonSimple,
@@ -946,6 +948,26 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
         }
     }
     return &blank_wibble_table[table_index];
+}
+
+static struct BasicQ *get_bucket_item(int min_cor_z, size_t size)
+{
+    int bckt_idx = min_cor_z / 16;
+    if (bckt_idx < 0)
+    {
+        bckt_idx = 0;
+    }
+    else if (bckt_idx > BUCKETS_COUNT-2)
+    {
+        bckt_idx = BUCKETS_COUNT-2;
+    }
+    struct BasicQ * kspr;
+    kspr = (struct BasicQ *)getpoly;
+    getpoly += size;
+    kspr->next = buckets[bckt_idx];
+    kspr->kind = QK_CreatureShadow;
+    buckets[bckt_idx] = (struct BasicQ *)kspr;
+    return kspr;
 }
 
 static void fill_in_points_perspective(struct Camera *cam, long bstl_x, long bstl_y, struct MinMax *mm)
@@ -3882,11 +3904,23 @@ static long find_closest_lights(const struct Coord3d* pos, struct NearestLights*
     return count;
 }
 
+static long find_fade_S(struct EngineCoord *ecor)
+{
+    if (ecor->field_C <= fade_min) {
+        return ecor->field_A << 8;
+    }
+    else if (ecor->field_C >= fade_max) {
+        return 32768;
+    } else {
+        return ecor->field_A * (fade_scaler - ecor->field_C) / fade_range + 32768;
+    }
+}
+
 static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct Coord3d *pos)
 {
     short mv_angle;
     short sh_angle;
-    short angle;
+    short sprite_angle;
     long dist_sq;
     struct EngineCoord ecor1;
     struct EngineCoord ecor2;
@@ -3895,29 +3929,25 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
 
     mv_angle = thing->move_angle_xy;
     sh_angle = get_angle_xy_to(pos, &thing->mappos);
-    angle = (mv_angle - sh_angle) & LbFPMath_AngleMask;
+    sprite_angle = (mv_angle - sh_angle) & LbFPMath_AngleMask;
     dist_sq = (get_2d_distance_squared(&thing->mappos, pos) >> 17) + 16;
     if (dist_sq < 16) {
         dist_sq = 16;
-    } else
-    if (dist_sq > 31) {
+    }
+    else if (dist_sq > 31) {
         dist_sq = 31;
     }
     short dim_ow;
     short dim_oh;
     short dim_th;
-    short dim_tw;
-    get_keepsprite_unscaled_dimensions(thing->anim_sprite, angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
+    short dim_upward_aka_z;
+    get_keepsprite_unscaled_dimensions(thing->anim_sprite, sprite_angle, thing->current_frame, &dim_ow, &dim_oh, &dim_upward_aka_z, &dim_th);
     {
         int base_x;
         int base_y;
         int base_z;
-        int angle_sin;
-        int angle_cos;
-        base_z = 8 * dim_tw;
-        base_y = 8 * (6 - dim_oh - dim_th);
-        angle_cos = LbCosL(sh_angle);
-        angle_sin = LbSinL(sh_angle);
+        int sh_angle_sin = LbSinL(sh_angle);
+        int sh_angle_cos = LbCosL(sh_angle);
         int base_th;
         int base_tw;
         int shift_a;
@@ -3928,30 +3958,41 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
         int shift_f;
         int shift_g;
         int shift_h;
-        shift_a = base_z * angle_cos;
-        shift_b = base_y * angle_sin;
+
+        int base_y2 = 8 * (6 - dim_oh - dim_th);
+        int base_z2 = 8 * dim_upward_aka_z;
+
+        shift_a = base_z2 * sh_angle_cos;
+        shift_b = base_y2 * sh_angle_sin;
+        shift_c = base_y2 * sh_angle_cos;
+        shift_d = base_z2 * sh_angle_sin;
+
         base_x = ecor->x;
-        ecor1.x = base_x + ((shift_a - shift_b) >> 16);
-        shift_c = base_y * angle_cos;
-        shift_d = base_z * angle_sin;
-        base_z = ecor->z;
-        ecor1.z = base_z + (-(base_y * angle_cos + shift_d) >> 16);
         base_y = ecor->y;
+        base_z = ecor->z;
+
+        ecor1.x = base_x + ((shift_a - shift_b) >> 16);
         ecor1.y = base_y;
+        ecor1.z = base_z + (-(base_y * sh_angle_cos + shift_d) >> 16);
+
         base_th = 8 * (dim_th - 4 * dist_sq) + 560;
-        shift_e = base_th * angle_sin;
+        shift_e = base_th * sh_angle_sin;
+        shift_f = base_th * sh_angle_cos;
+
         ecor2.x = base_x + ((shift_a - shift_e) >> 16);
-        shift_f = base_th * angle_cos;
-        ecor2.z = base_z + (-(shift_f + shift_d) >> 16);
         ecor2.y = base_y;
-        base_tw = 8 * (dim_tw + dim_ow);
-        shift_g = base_tw * angle_cos;
-        shift_h = base_tw * angle_sin;
+        ecor2.z = base_z + (-(shift_f + shift_d) >> 16);
+
+        base_tw = 8 * (dim_upward_aka_z + dim_ow);
+        shift_g = base_tw * sh_angle_cos;
+        shift_h = base_tw * sh_angle_sin;
+
         ecor3.x = base_x + ((shift_g - shift_e) >> 16);
-        ecor3.z = base_z + (-(shift_h + shift_f) >> 16);
         ecor3.y = base_y;
-        ecor4.y = base_y;
+        ecor3.z = base_z + (-(shift_h + shift_f) >> 16);
+
         ecor4.x = base_x + ((shift_g - shift_b) >> 16);
+        ecor4.y = base_y;
         ecor4.z = base_z + (-(shift_h + shift_c) >> 16);
     }
     rotpers(&ecor1, &camera_matrix);
@@ -3963,89 +4004,39 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     if (getpoly >= poly_pool_end) {
         return;
     }
-    int bckt_idx;
-    bckt_idx = min_cor_z / 16;
-    if (bckt_idx < 0) {
-        bckt_idx = 0;
-    } else
-    if (bckt_idx > BUCKETS_COUNT-2) {
-        bckt_idx = BUCKETS_COUNT-2;
-    }
-    struct BucketKindCreatureShadow * kspr;
-    kspr = (struct BucketKindCreatureShadow *)getpoly;
-    getpoly += sizeof(struct BucketKindCreatureShadow);
-    kspr->b.next = buckets[bckt_idx];
-    kspr->b.kind = QK_CreatureShadow;
-    buckets[bckt_idx] = (struct BasicQ *)kspr;
+    struct BucketKindCreatureShadow *kspr = (struct BucketKindCreatureShadow *)get_bucket_item(min_cor_z, sizeof(struct BucketKindCreatureShadow));
 
-    int pdim_w;
-    int pdim_h;
-    pdim_w = 0;
-    pdim_h = (dim_oh - 1) << 16;
+    // P1
     kspr->p1.X = ecor1.view_width;
     kspr->p1.Y = ecor1.view_height;
-    kspr->p1.U = pdim_w;
-    kspr->p1.V = pdim_h;
-    if (ecor1.field_C <= fade_min) {
-        kspr->p1.S = ecor1.field_A << 8;
-    } else
-    if (ecor1.field_C >= fade_max) {
-        kspr->p1.S = 32768;
-    } else {
-        kspr->p1.S = ecor1.field_A * (fade_scaler - ecor1.field_C) / fade_range + 32768;
-    }
+    kspr->p1.U = 0;
+    kspr->p1.V = TO_FIXED(dim_oh - 1);
+    kspr->p1.S = find_fade_S(&ecor1);
 
-    pdim_w = 0;
-    pdim_h = 0;
+    // P2
     kspr->p2.X = ecor2.view_width;
     kspr->p2.Y = ecor2.view_height;
-    kspr->p2.U = pdim_w;
-    kspr->p2.V = pdim_h;
-    if (fade_min >= ecor2.field_C)
-    {
-        kspr->p2.S = ecor2.field_A << 8;
-    } else
-    if (fade_max <= ecor2.field_C)
-    {
-        kspr->p2.S = 32768;
-    } else {
-        kspr->p2.S = ecor2.field_A * (fade_scaler - ecor2.field_C) / fade_range + 32768;
-    }
+    kspr->p2.U = 0;
+    kspr->p2.V = 0;
+    kspr->p2.S = find_fade_S(&ecor2);
 
-    pdim_w = (dim_ow - 1)  << 16;
-    pdim_h = 0;
+    // P3
     kspr->p3.X = ecor3.view_width;
     kspr->p3.Y = ecor3.view_height;
-    kspr->p3.U = pdim_w;
-    kspr->p3.V = pdim_h;
-    if (ecor3.field_C <= fade_min)
-    {
-        kspr->p3.S = ecor3.field_A << 8;
-    } else
-    if (ecor3.field_C >= fade_max)
-    {
-        kspr->p3.S = 32768;
-    } else {
-        kspr->p3.S = ecor3.field_A * (fade_scaler - ecor3.field_C) / fade_range + 32768;
-    }
+    kspr->p3.U = TO_FIXED(dim_ow - 1);
+    kspr->p3.V = 0;
+    kspr->p3.S = find_fade_S(&ecor3);
 
-    pdim_h = (dim_oh - 1) << 16;
-    pdim_w = (dim_ow - 1) << 16;
+    // P4
     kspr->p4.X = ecor4.view_width;
     kspr->p4.Y = ecor4.view_height;
-    kspr->p4.U = pdim_w;
-    kspr->p4.V = pdim_h;
-    if (ecor4.field_C <= fade_min) {
-        kspr->p4.S = ecor4.field_A << 8;
-    } else
-    if (ecor4.field_C >= fade_max) {
-        kspr->p4.S = 32768;
-    } else {
-        kspr->p4.S = ecor4.field_A * (fade_scaler - ecor4.field_C) / fade_range + 32768;
-    }
+    kspr->p4.U = TO_FIXED(dim_ow - 1);
+    kspr->p4.V = TO_FIXED(dim_oh - 1);
+    kspr->p4.S = find_fade_S(&ecor4);
 
+    // overall
     kspr->p1.S = dist_sq;
-    kspr->angle = angle;
+    kspr->angle = sprite_angle;
     kspr->anim_sprite = thing->anim_sprite;
     kspr->current_frame = thing->current_frame;
 }

@@ -280,8 +280,8 @@ void get_keepsprite_unscaled_dimensions(long kspr_anim, long angle, long frame, 
           *unsc_w = kspr->FrameOffsW;
           *unsc_h = kspr->FrameOffsH;
         }
-    } else
-    if (kspr->Rotable == 2)
+    }
+    else if (kspr->Rotable == 2)
     {
         kspr += frame + abs(4 - (((angle + 128) & 0x7FF) >> 8)) * kspr->FramesCount;
         *orig_w = kspr->SWidth;
