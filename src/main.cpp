@@ -1013,7 +1013,7 @@ TbBool initial_setup(void)
     MinimalResolutionSetup = true;
     // Set size of static textures buffer
     game_load_files[1].SLength = max((ulong)TEXTURE_BLOCKS_STAT_COUNT_A*block_dimension*block_dimension,(ulong)LANDVIEW_MAP_WIDTH*LANDVIEW_MAP_HEIGHT);
-    if (LbDataLoadAll(game_load_files))
+    if (LbDataLoadAllV2(game_load_files))
     {
         ERRORLOG("Unable to load game_load_files");
         return false;
@@ -3958,7 +3958,7 @@ short reset_game(void)
     LbMouseSuspend();
     LbIKeyboardClose();
     LbScreenReset(false);
-    LbDataFreeAll(game_load_files);
+    LbDataFreeAllV2(game_load_files);
     free_gui_strings_data();
     FreeAudio();
     return LbMemoryReset();

@@ -32,6 +32,9 @@ struct TbLoadFiles;
 
 typedef char *ModifyDataLoadFnameFunc(struct TbLoadFiles *);
 
+typedef long (*LoadFilesGetSizeFunc)(long data);
+typedef void (*LoadFilesUnpackFunc)(unsigned char *data, long size);
+
 struct TbLoadFiles {
         char FName[DISKPATH_SIZE];
         unsigned char **Start;
@@ -39,6 +42,14 @@ struct TbLoadFiles {
         unsigned long SLength;
         unsigned short Flags;
         unsigned short Spare;
+};
+
+struct TbLoadFilesV2 {
+    char FName[DISKPATH_SIZE];
+    unsigned char **Start;
+    unsigned long SLength; // Actual size of data in memory
+    LoadFilesGetSizeFunc GetSizeFunc;
+    LoadFilesUnpackFunc UnpackFunc;
 };
 
 #pragma pack()
@@ -49,10 +60,11 @@ ModifyDataLoadFnameFunc *LbDataLoadSetModifyFilenameFunction(ModifyDataLoadFname
 /******************************************************************************/
 
 short LbDataFree(struct TbLoadFiles *load_file);
-short LbDataFreeAll(struct TbLoadFiles load_files[]);
+void LbDataFreeAll(struct TbLoadFiles load_files[]);
+void LbDataFreeAllV2(struct TbLoadFilesV2 load_files[]);
 
-short LbDataLoad(struct TbLoadFiles *load_file);
-short LbDataLoadAll(struct TbLoadFiles load_files[]);
+int LbDataLoadAll(struct TbLoadFiles load_files[]);
+int LbDataLoadAllV2(struct TbLoadFilesV2 load_files[]);
 
 int LbDataFindNameIndex(struct TbLoadFiles load_files[],char *fname);
 int LbDataFindStartIndex(struct TbLoadFiles load_files[],unsigned char **start);

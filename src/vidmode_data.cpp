@@ -215,21 +215,21 @@ struct TbLoadFiles legal_load_files[] = {
     {"",                 NULL,                                   NULL,                                          0, 0, 0},
 };
 
-struct TbLoadFiles game_load_files[] = {
-    {"*SCRATCH",         &scratch,                               NULL,                                    0x10000, 0, 0},
-    {"*TEXTURE_PAGE",    (unsigned char **)&block_mem, NULL, max(sizeof(block_mem), size_t(960*720)), 0, 0},// Store whole texture image or land view image
+struct TbLoadFilesV2 game_load_files[] = {
+    {"*SCRATCH",         &scratch,                                                                   0x10000, nullptr, nullptr},
+    {"*TEXTURE_PAGE",    (unsigned char **)&block_mem,  max(sizeof(block_mem), size_t(960*720)), nullptr, nullptr},// Store whole texture image or land view image
 #ifdef SPRITE_FORMAT_V2
-    {"data/thingspr-32.tab",(unsigned char**)&creature_table,    NULL,                                          0, 0, 0},
+    {"data/thingspr-32.tab",(unsigned char**)&creature_table,                                              0, nullptr, nullptr},
 #else
-    {"data/creature.tab",(unsigned char**)&creature_table,       NULL,                                          0, 0, 0},
+    {"data/creature.tab",(unsigned char**)&creature_table,                                               0, nullptr, nullptr},
 #endif
-    {"data/palette.dat", &engine_palette,                        NULL,                                          0, 0, 0},
-    {"data/bluepal.dat", &blue_palette,                          NULL,                                          0, 0, 0},
-    {"data/redpall.dat", &red_palette,                           NULL,                                          0, 0, 0},
-    {"data/lightng.pal", &lightning_palette,                     NULL,                                          0, 0, 0},
-    {"data/dogpal.pal",  &dog_palette,                           NULL,                                          0, 0, 0},
-    {"data/vampal.pal",  &vampire_palette,                       NULL,                                          0, 0, 0},
-    {"",                 NULL,                                   NULL,                                          0, 0, 0},
+    {"data/palette.dat", &engine_palette,                                                                  0, nullptr, nullptr},
+    {"data/bluepal.dat", &blue_palette,                                                                    0, nullptr, nullptr},
+    {"data/redpall.dat", &red_palette,                                                                     0, nullptr, nullptr},
+    {"data/lightng.pal", &lightning_palette,                                                               0, nullptr, nullptr},
+    {"data/dogpal.pal",  &dog_palette,                                                                     0, nullptr, nullptr},
+    {"data/vampal.pal",  &vampire_palette,                                                                 0, nullptr, nullptr},
+    {"",                 NULL,                                                                             0, nullptr, nullptr},
 };
 
 struct TbLoadFiles map_flag_load_files[] = {
