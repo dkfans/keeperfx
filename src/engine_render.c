@@ -67,6 +67,7 @@ extern "C" {
 #endif
 
 #define TO_FIXED(x)    ((x) << 16)
+#define FROM_FIXED(x)    ((x) >> 16)
 
 enum QKinds {
     QK_PolygonStandard = 0,
@@ -950,9 +951,14 @@ struct WibbleTable *get_wibble_from_table(struct Camera *cam, long table_index, 
     return &blank_wibble_table[table_index];
 }
 
-static struct BasicQ *get_bucket_item(int min_cor_z, size_t size)
+static struct BasicQ *get_bucket_item(int min_cor_z, enum QKinds kind, size_t size)
 {
-    int bckt_idx = min_cor_z / 16;
+    if (getpoly >= poly_pool_end)
+    {
+        return NULL;
+    }
+
+    int bckt_idx = min_cor_z / BUCKETS_STEP;
     if (bckt_idx < 0)
     {
         bckt_idx = 0;
@@ -965,7 +971,7 @@ static struct BasicQ *get_bucket_item(int min_cor_z, size_t size)
     kspr = (struct BasicQ *)getpoly;
     getpoly += size;
     kspr->next = buckets[bckt_idx];
-    kspr->kind = QK_CreatureShadow;
+    kspr->kind = kind;
     buckets[bckt_idx] = (struct BasicQ *)kspr;
     return kspr;
 }
@@ -3943,68 +3949,53 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     short dim_upward_aka_z;
     get_keepsprite_unscaled_dimensions(thing->anim_sprite, sprite_angle, thing->current_frame, &dim_ow, &dim_oh, &dim_upward_aka_z, &dim_th);
     {
-        int base_x;
-        int base_y;
-        int base_z;
         int sh_angle_sin = LbSinL(sh_angle);
         int sh_angle_cos = LbCosL(sh_angle);
-        int base_th;
-        int base_tw;
-        int shift_a;
-        int shift_b;
-        int shift_c;
-        int shift_d;
-        int shift_e;
-        int shift_f;
-        int shift_g;
-        int shift_h;
 
         int base_y2 = 8 * (6 - dim_oh - dim_th);
         int base_z2 = 8 * dim_upward_aka_z;
+        int base_th = 8 * (dim_th - 4 * dist_sq) + 560;
+        int base_tw = 8 * (dim_upward_aka_z + dim_ow);
 
-        shift_a = base_z2 * sh_angle_cos;
-        shift_b = base_y2 * sh_angle_sin;
-        shift_c = base_y2 * sh_angle_cos;
-        shift_d = base_z2 * sh_angle_sin;
+        int shift_a = base_z2 * sh_angle_cos;
+        int shift_b = base_y2 * sh_angle_sin;
+        int shift_c = base_y2 * sh_angle_cos;
+        int shift_d = base_z2 * sh_angle_sin;
+        int shift_e = base_th * sh_angle_sin;
+        int shift_f = base_th * sh_angle_cos;
+        int shift_g = base_tw * sh_angle_cos;
+        int shift_h = base_tw * sh_angle_sin;
 
-        base_x = ecor->x;
-        base_y = ecor->y;
-        base_z = ecor->z;
+        int base_x = ecor->x;
+        int base_y = ecor->y;
+        int base_z = ecor->z;
 
-        ecor1.x = base_x + ((shift_a - shift_b) >> 16);
+        ecor1.x = base_x + FROM_FIXED(shift_a - shift_b);
         ecor1.y = base_y;
-        ecor1.z = base_z + (-(base_y * sh_angle_cos + shift_d) >> 16);
+        ecor1.z = base_z - FROM_FIXED(base_y * sh_angle_cos + shift_d);
 
-        base_th = 8 * (dim_th - 4 * dist_sq) + 560;
-        shift_e = base_th * sh_angle_sin;
-        shift_f = base_th * sh_angle_cos;
-
-        ecor2.x = base_x + ((shift_a - shift_e) >> 16);
+        ecor2.x = base_x + FROM_FIXED(shift_a - shift_e);
         ecor2.y = base_y;
-        ecor2.z = base_z + (-(shift_f + shift_d) >> 16);
+        ecor2.z = base_z - FROM_FIXED(shift_f + shift_d);
 
-        base_tw = 8 * (dim_upward_aka_z + dim_ow);
-        shift_g = base_tw * sh_angle_cos;
-        shift_h = base_tw * sh_angle_sin;
 
-        ecor3.x = base_x + ((shift_g - shift_e) >> 16);
+        ecor3.x = base_x + FROM_FIXED(shift_g - shift_e);
         ecor3.y = base_y;
-        ecor3.z = base_z + (-(shift_h + shift_f) >> 16);
+        ecor3.z = base_z - FROM_FIXED(shift_h + shift_f);
 
-        ecor4.x = base_x + ((shift_g - shift_b) >> 16);
+        ecor4.x = base_x + FROM_FIXED(shift_g - shift_b);
         ecor4.y = base_y;
-        ecor4.z = base_z + (-(shift_h + shift_c) >> 16);
+        ecor4.z = base_z - FROM_FIXED(shift_h + shift_c);
     }
     rotpers(&ecor1, &camera_matrix);
     rotpers(&ecor2, &camera_matrix);
     rotpers(&ecor3, &camera_matrix);
     rotpers(&ecor4, &camera_matrix);
-    int min_cor_z;
-    min_cor_z = min(min(ecor1.z,ecor2.z),min(ecor3.z,ecor4.z));
-    if (getpoly >= poly_pool_end) {
+
+    int min_cor_z = min(min(ecor1.z,ecor2.z),min(ecor3.z,ecor4.z));
+    struct BucketKindCreatureShadow *kspr = (struct BucketKindCreatureShadow *)get_bucket_item(min_cor_z, QK_CreatureShadow, sizeof(struct BucketKindCreatureShadow));
+    if (kspr == NULL)
         return;
-    }
-    struct BucketKindCreatureShadow *kspr = (struct BucketKindCreatureShadow *)get_bucket_item(min_cor_z, sizeof(struct BucketKindCreatureShadow));
 
     // P1
     kspr->p1.X = ecor1.view_width;
@@ -4048,23 +4039,15 @@ static void add_draw_status_box(struct Thing *thing, struct EngineCoord *ecor)
     const struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
     coord.y += thing->clipbox_size_z + crstat->status_offset; 
     rotpers(&coord, &camera_matrix);
-    if (getpoly >= poly_pool_end)
-        return;
-    int bckt_idx = coord.z / 16;
-    if (!lens_mode)
-        bckt_idx = 1;
-    if (bckt_idx < 0)
-        bckt_idx = 0;
-    else if (bckt_idx > BUCKETS_COUNT-2)
-        bckt_idx = BUCKETS_COUNT-2;
 
-    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)getpoly;
-    if (getpoly >= poly_pool_end)
+    int z_val = coord.z;
+    if (!lens_mode)
+        z_val = BUCKETS_STEP; // should get into bucket 1
+
+    struct BucketKindCreatureStatus* poly = (struct BucketKindCreatureStatus*)get_bucket_item(z_val, QK_CreatureStatus, sizeof(struct BucketKindCreatureStatus));
+    if (poly == NULL)
         return;
-    getpoly += sizeof(struct BucketKindCreatureStatus);
-    poly->b.next = buckets[bckt_idx];
-    poly->b.kind = QK_CreatureStatus;
-    buckets[bckt_idx] = (struct BasicQ *)poly;
+
     poly->thing = thing;
     poly->x = coord.view_width;
     poly->y = coord.view_height;
