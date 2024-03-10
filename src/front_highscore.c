@@ -40,7 +40,7 @@
 #include "post_inc.h"
 
 /******************************************************************************/
-static long high_score_entry_index;
+static unsigned long high_score_entry_index;
 
 char high_score_entry[HISCORE_NAME_LENGTH];
 int fe_high_score_table_from_main_menu;
@@ -161,7 +161,7 @@ void frontend_quit_high_score_table(struct GuiButton *gbtn)
  */
 TbBool frontend_high_score_table_input(void)
 {
-    long i;
+    unsigned long i;
     if (high_score_entry_input_active >= campaign.hiscore_count)
         high_score_entry_input_active = -1;
     if (high_score_entry_input_active < 0)
@@ -176,7 +176,7 @@ TbBool frontend_high_score_table_input(void)
                 high_score_entry[i] = high_score_entry[i+1];
                 i++;
             }
-            high_score_entry_index -= 1;
+            high_score_entry_index--;
         }
         clear_key_pressed(KC_BACK);
         return true;
