@@ -6,6 +6,7 @@
 #include <json.h>
 #include <json-dom.h>
 #include "lvl_script.h"
+#include "console_cmd.h"
 #include "post_inc.h"
 #include "value_util.h"
 
@@ -171,10 +172,39 @@ static void process_buffer(const char *buffer, size_t buf_size)
             api_err("Failed to execute map command");
         }
 
+        // End
         value_fini(&data);
         return;
     }
 
+    // Handle console command
+    if (strcasecmp("console_command", action) == 0)
+    {
+        // Get console command
+        char *console_command = (char *)value_string(value_dict_get(value, "command"));
+        if (console_command == NULL)
+        {
+            api_err("A 'command' must be given when using the 'console_command' action");
+            value_fini(&data);
+            return;
+        }
+
+        // Execute console command
+        if (cmd_exec(player_id, console_command))
+        {
+            api_ok();
+        }
+        else
+        {
+            api_err("Failed to execute console command");
+        }
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
+    // Return unknown action
     api_err("Unknown action");
     value_fini(&data);
 }
