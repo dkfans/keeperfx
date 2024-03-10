@@ -3948,16 +3948,16 @@ static void create_shadows(struct Thing *thing, struct EngineCoord *ecor, struct
     short dim_ow;
     short dim_oh;
     short dim_th;
-    short dim_upward_aka_z;
-    get_keepsprite_unscaled_dimensions(thing->anim_sprite, sprite_angle, thing->current_frame, &dim_ow, &dim_oh, &dim_upward_aka_z, &dim_th);
+    short dim_tw;
+    get_keepsprite_unscaled_dimensions(thing->anim_sprite, sprite_angle, thing->current_frame, &dim_ow, &dim_oh, &dim_tw, &dim_th);
     {
         int sh_angle_sin = LbSinL(sh_angle);
         int sh_angle_cos = LbCosL(sh_angle);
 
         int base_y2 = 8 * (6 - dim_oh - dim_th + spr->shadow_offset);
-        int base_z2 = 8 * dim_upward_aka_z;
+        int base_z2 = 8 * dim_tw;
         int base_th = 8 * (dim_th - 4 * dist_sq) + 560;
-        int base_tw = 8 * (dim_upward_aka_z + dim_ow);
+        int base_tw = 8 * (dim_tw + dim_ow);
 
         int base_x = ecor->x;
         int base_y = ecor->y;
