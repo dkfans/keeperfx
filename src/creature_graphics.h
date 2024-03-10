@@ -68,6 +68,10 @@ struct CreaturePickedUpOffset
 /**
  * Enhanced TbSprite structure, with additional fields for thing animation sprites.
  */
+enum FrameFlags {
+    FFL_NoShadows = 1,
+};
+
 struct KeeperSprite { // sizeof = 16
   unsigned long DataOffset;
 
@@ -84,6 +88,7 @@ struct KeeperSprite { // sizeof = 16
   short offset_y;
 
   short shadow_offset;
+  short frame_flags;
 };
 
 struct KeeperSpriteDisk {

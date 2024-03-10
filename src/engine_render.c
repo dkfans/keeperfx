@@ -8832,9 +8832,15 @@ static void do_map_who_for_thing(struct Thing *thing)
         {
             int count;
             int i;
-            count = find_closest_lights(&thing->mappos, &nearlgt);
-            for (i=0; i < count; i++) {
-                create_shadows(thing, &ecor, &nearlgt.coord[i]);
+
+            struct KeeperSprite *spr = keepersprite_array(thing->anim_sprite);
+            if ((spr->frame_flags & FFL_NoShadows) == 0)
+            {
+                count = find_closest_lights(&thing->mappos, &nearlgt);
+                for (i = 0; i < count; i++)
+                {
+                    create_shadows(thing, &ecor, &nearlgt.coord[i]);
+                }
             }
         }
         // Height movement, falling or going up steps. This is applied after shadows, because shadows are always drawn at the floor height.
