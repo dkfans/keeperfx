@@ -657,7 +657,6 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
                   colour = lbDisplay.DrawColour;
 
                 unsigned char dest_pixel[1024] = { 0 };
-                int iDstSizeW = 0;
                 int iDstSizeH = 0;
 
                 if (units_per_px % 8 != 0) // Needs to be a multiple of 8
@@ -669,10 +668,10 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
                     iDstSizeH = units_per_px;
                 }
 
-                iDstSizeW = iDstSizeH;
+                int iDstSizeW = iDstSizeH;
                 if (!is_wide_charcode(chr))
                 {
-                    iDstSizeW -= 8;//ANSI is small size
+                    iDstSizeW -= 8; //ANSI is small size
                 }
 
                 float scale_factorX = (float)adraw.bits_width / (float)iDstSizeW;
