@@ -125,39 +125,49 @@ static void process_buffer(const char *buffer, size_t buf_size)
         return;
     }
 
-    if (value_type(value) != VALUE_ARRAY)
+    if (value_type(value) != VALUE_DICT)
     {
         api_err("invalid json");
-        goto end;
+        value_fini(&data);
+        return;
     }
-    const char *api_cmd = value_string(value_array_get(value, 0));
 
-    if (api_cmd == NULL)
+    // Get the action the user wants to do
+    const char *action = value_string(value_dict_get(value, "action"));
+    if (action == NULL)
     {
-        api_err("invalid json");
+        api_err("An 'action' must be given");
+        value_fini(&data);
+        return;
     }
-    else if (0 == strcasecmp("CMD", api_cmd))
+
+    // Handle map commands
+    if (strcasecmp("map_command", action) == 0)
     {
-        char *cmd_data = (char *)value_string(value_array_get(value, 1));
-        if (cmd_data == NULL)
+        // Get map command
+        char *map_command = (char *)value_string(value_dict_get(value, "command"));
+        if (map_command == NULL)
         {
-            api_err("invalid json");
+            api_err("A 'command' must be given when using the 'map_command' action");
+            value_fini(&data);
+            return;
         }
-        else if (script_scan_line(cmd_data, false, 99)) // Maximum level of a command support
+
+        // Execute map command
+        if (script_scan_line(map_command, false, 99)) // Maximum level of a command support
         {
             api_ok();
         }
         else
         {
-            api_err("unable to process");
+            api_err("Failed to execute map command");
         }
-    }
-    else
-    {
-        api_err("unknown command");
+
+        value_fini(&data);
+        return;
     }
 
-end:
+    api_err("Unknown action");
     value_fini(&data);
 }
 
