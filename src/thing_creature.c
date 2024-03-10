@@ -5721,6 +5721,7 @@ TngUpdateRet update_creature(struct Thing *thing)
             pvpos.z.val = tngpos->z.val;
 
             move_thing_in_map(tngp, &pvpos);
+            tngp->move_angle_xy = thing->move_angle_xy; //corpse gets rotated along with creature
         }
     }
     if (update_creature_levels(thing) == -1)
