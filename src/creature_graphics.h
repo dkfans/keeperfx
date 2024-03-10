@@ -77,8 +77,8 @@ struct KeeperSprite { // sizeof = 16
   unsigned short FrameHeight;
   unsigned char Rotable;
   unsigned char FramesCount;
-  unsigned short FrameOffsW;
-  unsigned short FrameOffsH;
+  short FrameOffsW;
+  short FrameOffsH;
 
   short offset_x;
   short offset_y;
