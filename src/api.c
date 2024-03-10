@@ -6,6 +6,7 @@
 #include <json.h>
 #include <json-dom.h>
 #include "lvl_script.h"
+#include "player_data.h"
 #include "console_cmd.h"
 #include "post_inc.h"
 #include "value_util.h"
@@ -116,20 +117,32 @@ static void api_ok()
 static void process_buffer(const char *buffer, size_t buf_size)
 {
     VALUE data, *value = &data;
+
+    // Handle closing null byte
     if (buffer[buf_size - 1] == 0)
+    {
         buf_size -= 1;
+    }
 
+    // Check if something is actually sent
+    if (strlen(buffer) < 1)
+    {
+        api_err("no json sent");
+        return;
+    }
+
+    // Decode the json object
     int ret = json_dom_parse(buffer, buf_size, NULL, 0, value, NULL);
-
     if (ret != 0)
     {
         api_err("invalid json");
         return;
     }
 
+    // Make sure we have a json object
     if (value_type(value) != VALUE_DICT)
     {
-        api_err("invalid json");
+        api_err("invalid json object");
         value_fini(&data);
         return;
     }
@@ -138,17 +151,21 @@ static void process_buffer(const char *buffer, size_t buf_size)
     const char *action = value_string(value_dict_get(value, "action"));
     if (action == NULL)
     {
-        api_err("An 'action' must be given");
+        api_err("an 'action' must be given");
         value_fini(&data);
         return;
     }
 
-    // Get player number for the action (Default: PLAYER0)
-    PlayerNumber player_id = 0;
+    // Get player for the action (Default is current player)
+    PlayerNumber player_id = my_player_number;
     VALUE *player = value_dict_get(value, "player");
     if (value_type(player) == VALUE_INT32)
     {
         player_id = (PlayerNumber)value_int32(player);
+    }
+    else if (value_type(player) == VALUE_STRING)
+    {
+        player_id = get_rid(player_desc, (char *)value_string(player));
     }
 
     // Handle map command
@@ -158,7 +175,7 @@ static void process_buffer(const char *buffer, size_t buf_size)
         char *map_command = (char *)value_string(value_dict_get(value, "command"));
         if (map_command == NULL)
         {
-            api_err("A 'command' must be given when using the 'map_command' action");
+            api_err("a 'command' must be given when using the 'map_command' action");
             value_fini(&data);
             return;
         }
@@ -170,7 +187,7 @@ static void process_buffer(const char *buffer, size_t buf_size)
         }
         else
         {
-            api_err("Failed to execute map command");
+            api_err("failed to execute map command");
         }
 
         // End
@@ -183,11 +200,18 @@ static void process_buffer(const char *buffer, size_t buf_size)
     {
         // Get console command
         char *console_command = (char *)value_string(value_dict_get(value, "command"));
-        if (console_command == NULL)
+        if (console_command == NULL || strlen(console_command) < 1)
         {
-            api_err("A 'command' must be given when using the 'console_command' action");
+            api_err("a 'command' must be given when using the 'console_command' action");
             value_fini(&data);
             return;
+        }
+
+        // Add possible exclamation mark at start of string for 'cmd_exec'
+        if (console_command[0] != '!')
+        {
+            memmove(console_command + 1, console_command, strlen(console_command) + 1); // make space for the exclamation mark
+            memcpy(console_command, "!", 1);                                            // prepend the exclamation mark
         }
 
         // Execute console command
@@ -197,7 +221,7 @@ static void process_buffer(const char *buffer, size_t buf_size)
         }
         else
         {
-            api_err("Failed to execute console command");
+            api_err("failed to execute console command");
         }
 
         // End
@@ -206,7 +230,7 @@ static void process_buffer(const char *buffer, size_t buf_size)
     }
 
     // Return unknown action
-    api_err("Unknown action");
+    api_err("unknown action");
     value_fini(&data);
 }
 
