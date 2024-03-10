@@ -74,7 +74,7 @@ int api_init_server()
     return 0;
 }
 
-void api_event(char eventName)
+void api_event(const char *eventName)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -83,8 +83,9 @@ void api_event(char eventName)
     }
 
     // Create the JSON response and send it to the client
-    const char jsonResponse = sprintf("{\"event\":\"%s\"}", eventName);
-    SDLNet_TCP_Send(api.activeSocket, jsonResponse, strlen(jsonResponse));
+    char buf[512];
+    int len = snprintf(buf, sizeof(buf) - 1, "{\"event\":\"%s\"}", eventName);
+    SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
 static void api_err(const char *err)
