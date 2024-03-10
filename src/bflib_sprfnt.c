@@ -573,12 +573,11 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
     long w;
     long h;
     struct AsianFontWindow awind;
-    TbBool needs_draw;
+    TbBool needs_draw = false;
     awind.buf_ptr = lbDisplay.GraphicsWindowPtr;
     awind.width = lbDisplay.GraphicsWindowWidth;
     awind.height = lbDisplay.GraphicsWindowHeight;
     awind.scanline = lbDisplay.GraphicsScreenWidth;
-    needs_draw = false;
     for (c=sbuf; c < ebuf; c++)
     {
         chr = (unsigned char)(*c);
@@ -657,8 +656,7 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
                   colour = lbDisplay.DrawColour;
 
                 unsigned char dest_pixel[1024] = { 0 };
-                int iDstSizeH = 0;
-
+                int iDstSizeH;
                 if (units_per_px % 8 != 0) // Needs to be a multiple of 8
                 {
                     iDstSizeH = (units_per_px / 8) * 8;
@@ -671,7 +669,7 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
                 int iDstSizeW = iDstSizeH;
                 if (!is_wide_charcode(chr))
                 {
-                    iDstSizeW -= 8; //ANSI is small size
+                    iDstSizeW -= (8 * (iDstSizeW / 16)); // ANSI is small size
                 }
 
                 float scale_factorX = (float)adraw.bits_width / (float)iDstSizeW;
@@ -690,7 +688,7 @@ void put_down_dbctext_sprites_resized(const char *sbuf, const char *ebuf, long x
 
                 dbc_draw_font_sprite_text(&awind, &adraw, x, y, colour, -1, dbc_colour1);
 
-                if(adraw.bits_height == 16)
+                if (adraw.bits_height == 16)
                 {
                    w = (adraw.field_C + adraw.bits_width) * units_per_px / 16;
                 }
