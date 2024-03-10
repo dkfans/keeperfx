@@ -141,7 +141,15 @@ static void process_buffer(const char *buffer, size_t buf_size)
         return;
     }
 
-    // Handle map commands
+    // Get player number for the action (Default: PLAYER0)
+    PlayerNumber player_id = 0;
+    VALUE *player = value_dict_get(value, "player");
+    if (value_type(player) == VALUE_INT32)
+    {
+        player_id = (PlayerNumber)value_int32(player);
+    }
+
+    // Handle map command
     if (strcasecmp("map_command", action) == 0)
     {
         // Get map command
