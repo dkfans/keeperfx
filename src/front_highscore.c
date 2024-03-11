@@ -46,7 +46,6 @@ char high_score_entry[HISCORE_NAME_LENGTH];
 int fe_high_score_table_from_main_menu;
 long high_score_entry_input_active = -1;
 int highscore_scroll_offset = 0;
-int visible_entries;
 unsigned long scores_count;
 /******************************************************************************/
 
@@ -68,14 +67,6 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
     i += col4_width;
     if (idx == high_score_entry_input_active)
     {
-        if (idx <= visible_entries)
-        {
-            highscore_scroll_offset = 0;
-        }
-        else
-        {
-            highscore_scroll_offset = idx - visible_entries;
-        }
         char str[HISCORE_NAME_LENGTH];
         sprintf(str, "%s", high_score_entry);
         // Blinking cursor
@@ -124,11 +115,20 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     long col3_width = LbTextStringWidthM("   9999", tx_units_per_px);
     long col4_width = LbTextStringWidthM(" 99999", tx_units_per_px);
     int k;
-    visible_entries = 0;
+    if (high_score_entry_input_active >= 0)
+    {
+        if (high_score_entry_input_active <= VISIBLE_HIGH_SCORES_COUNT)
+        {
+            highscore_scroll_offset = 0;
+        }
+        else
+        {
+            highscore_scroll_offset = high_score_entry_input_active - (VISIBLE_HIGH_SCORES_COUNT-1);
+        }
+    }
     for (k=highscore_scroll_offset; k < (highscore_scroll_offset+VISIBLE_HIGH_SCORES_COUNT)-1; k++)
     {
         draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
-        visible_entries++;
         pos_y += LbTextLineHeight() * tx_units_per_px / 16;
         if (dbc_language > 0)
         {
@@ -144,7 +144,6 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
         if (pos_y < (gbtn->scr_pos_y + gbtn->height))
         {
             draw_high_score_entry(k, pos_x, pos_y, col1_width, col2_width, col3_width, col4_width, tx_units_per_px);
-            visible_entries++;
         }
     }
 }
@@ -234,6 +233,7 @@ TbBool frontend_high_score_table_input(void)
         } else {
             snprintf(hscore->name, HISCORE_NAME_LENGTH, "%s", high_score_entry);
         }
+        highscore_scroll_offset = high_score_entry_input_active - (VISIBLE_HIGH_SCORES_COUNT-1);
         high_score_entry_input_active = -1;
         save_high_score_table();
         clear_key_pressed(lbInkey);
@@ -324,14 +324,14 @@ void highscore_scroll_down(struct GuiButton *gbtn)
 
 void highscore_scroll(struct GuiButton *gbtn)
 {
-    highscore_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), visible_entries-1, scores_count);
+    highscore_scroll_offset = frontend_scroll_tab_to_offset(gbtn, GetMouseY(), VISIBLE_HIGH_SCORES_COUNT-1, scores_count);
 }
 
 void frontend_highscore_scroll_up_maintain(struct GuiButton *gbtn)
 {
     if (gbtn == NULL)
         return;
-    if (scores_count > visible_entries)
+    if (scores_count > VISIBLE_HIGH_SCORES_COUNT)
         gbtn->flags |= LbBtnF_Visible;
     else
         gbtn->flags &= ~LbBtnF_Visible;
@@ -345,11 +345,11 @@ void frontend_highscore_scroll_down_maintain(struct GuiButton *gbtn)
 {
     if (gbtn == NULL)
         return;
-    if (scores_count > visible_entries)
+    if (scores_count > VISIBLE_HIGH_SCORES_COUNT)
         gbtn->flags |= LbBtnF_Visible;
     else
         gbtn->flags &= ~LbBtnF_Visible;
-    if (highscore_scroll_offset < scores_count-visible_entries)
+    if (highscore_scroll_offset < scores_count-VISIBLE_HIGH_SCORES_COUNT)
         gbtn->flags |= LbBtnF_Enabled;
     else
         gbtn->flags &= ~LbBtnF_Enabled;
@@ -359,7 +359,7 @@ void frontend_highscore_scroll_tab_maintain(struct GuiButton *gbtn)
 {
     if (gbtn == NULL)
         return;
-    if (scores_count > visible_entries)
+    if (scores_count > VISIBLE_HIGH_SCORES_COUNT)
         gbtn->flags |= LbBtnF_Visible;
     else
         gbtn->flags &= ~LbBtnF_Visible;
@@ -367,7 +367,7 @@ void frontend_highscore_scroll_tab_maintain(struct GuiButton *gbtn)
 
 void frontend_draw_highscores_scroll_tab(struct GuiButton *gbtn)
 {
-    frontend_draw_scroll_tab(gbtn, highscore_scroll_offset, visible_entries-1, scores_count);
+    frontend_draw_scroll_tab(gbtn, highscore_scroll_offset, VISIBLE_HIGH_SCORES_COUNT-1, scores_count);
 }
 
 void frontend_high_scores_update()
@@ -380,18 +380,18 @@ void frontend_high_scores_update()
     {
         highscore_scroll_offset = 0;
     } 
-    else if (highscore_scroll_offset > scores_count-visible_entries+1)
+    else if (highscore_scroll_offset > scores_count-VISIBLE_HIGH_SCORES_COUNT+1)
     {
         if (highscore_scroll_offset != high_score_entry_input_active)
         {
-            highscore_scroll_offset = scores_count-visible_entries+1;
+            highscore_scroll_offset = scores_count-VISIBLE_HIGH_SCORES_COUNT+1;
         }
     }
-    if (scores_count > visible_entries)
+    if (scores_count > VISIBLE_HIGH_SCORES_COUNT)
     {
         if (wheel_scrolled_down || (is_key_pressed(KC_DOWN,KMod_NONE)))
         {
-            if (highscore_scroll_offset < scores_count-visible_entries)
+            if (highscore_scroll_offset < scores_count-VISIBLE_HIGH_SCORES_COUNT)
             {
                 highscore_scroll_offset++;
             }
