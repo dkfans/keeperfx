@@ -207,11 +207,10 @@ static void process_buffer(const char *buffer, size_t buf_size)
             return;
         }
 
-        // Add possible exclamation mark at start of string for 'cmd_exec'
-        if (console_command[0] != '!')
+        // If exclamation mark at start of string for 'cmd_exec'
+        if (console_command[0] == '!')
         {
-            memmove(console_command + 1, console_command, strlen(console_command) + 1); // make space for the exclamation mark
-            memcpy(console_command, "!", 1);                                            // prepend the exclamation mark
+            console_command += 1;// skip the exclamation mark
         }
 
         // Execute console command
