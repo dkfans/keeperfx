@@ -318,7 +318,7 @@ void highscore_scroll_up(struct GuiButton *gbtn)
 
 void highscore_scroll_down(struct GuiButton *gbtn)
 {
-  if (highscore_scroll_offset < scores_count)
+  if (highscore_scroll_offset < scores_count-VISIBLE_HIGH_SCORES_COUNT)
     highscore_scroll_offset++;
 }
 
