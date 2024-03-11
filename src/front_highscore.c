@@ -57,15 +57,15 @@ void draw_high_score_entry(int idx, long pos_x, long pos_y, int col1_width, int 
         return;
     }
     struct HighScore* hscore = &campaign.hiscore_table[idx];
-    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_RIGHT;
+    // TODO: These were originally right-aligned, but there's a glitch that causes longer numbers to be aligned weirdly at some resolutions in dbc mode.
+    lbDisplay.DrawFlags = Lb_TEXT_HALIGN_LEFT;
     int i = pos_x + col1_width;
-    LbTextNumberDraw(i, pos_y, units_per_px, idx+1, Fnt_RightJustify);
+    LbTextNumberDraw(i, pos_y, units_per_px, idx+1, Fnt_CenterPos);
     i += col2_width;
-    LbTextNumberDraw(i, pos_y, units_per_px, hscore->score, Fnt_RightJustify);
+    LbTextNumberDraw(i, pos_y, units_per_px, hscore->score, Fnt_LeftJustify);
     i += col3_width;
-    LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_RightJustify);
+    LbTextNumberDraw(i, pos_y, units_per_px, hscore->lvnum, Fnt_LeftJustify);
     i += col4_width;
-    lbDisplay.DrawFlags = 0;
     if (idx == high_score_entry_input_active)
     {
         if (idx <= visible_entries)
@@ -119,10 +119,10 @@ void frontend_draw_high_score_table(struct GuiButton *gbtn)
     int pos_y = gbtn->scr_pos_y + (spr->SHeight + 3) * fs_units_per_px / 16;
     int tx_units_per_px = scale_value_menu(16);
     // The GUI item height should be 11 lines of text
-    long col1_width = LbTextStringWidthM("999", tx_units_per_px);
-    long col2_width = LbTextStringWidthM(" 99999999", tx_units_per_px);
-    long col3_width = LbTextStringWidthM("  99999", tx_units_per_px);
-    long col4_width = LbTextCharWidthM('-', tx_units_per_px) * 2;
+    long col1_width = LbTextStringWidthM("99", tx_units_per_px);
+    long col2_width = LbTextStringWidthM("  999", tx_units_per_px);
+    long col3_width = LbTextStringWidthM("   9999", tx_units_per_px);
+    long col4_width = LbTextStringWidthM(" 99999", tx_units_per_px);
     int k;
     visible_entries = 0;
     for (k=highscore_scroll_offset; k < (highscore_scroll_offset+VISIBLE_HIGH_SCORES_COUNT)-1; k++)
