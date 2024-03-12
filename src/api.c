@@ -1,6 +1,5 @@
 #include "pre_inc.h"
 #define WIN32_LEAN_AND_MEAN 1
-#include <windows.h>
 #include <SDL2/SDL_net.h>
 #include "api.h"
 #include <json.h>
