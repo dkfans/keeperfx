@@ -1208,7 +1208,7 @@ void update_panel_colors(void)
         {
             int i;
             int n;
-            n = 2 * TRAPDOOR_TYPES_MAX * PrevDoorHighlight;
+            n = 2 * PLAYERS_COUNT * PrevDoorHighlight;
             for (i=NumBackColours; i > 0; i--)
             {
                 int k;
