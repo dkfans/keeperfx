@@ -331,7 +331,7 @@ static TbBool cmd_magic_instance(PlayerNumber plyr_idx, char* creature_str, cons
 TbBool cmd_exec(PlayerNumber plyr_idx, char *msg)
 {
     SYNCDBG(2,"Command %d: %s",(int)plyr_idx, msg);
-    char * parstr = msg + 1;
+    char * parstr = msg;
     char * pr2str = cmd_strtok(msg + 1);
     char * pr3str = (pr2str != NULL) ? cmd_strtok(pr2str + 1) : NULL;
     char * pr4str = (pr3str != NULL) ? cmd_strtok(pr3str + 1) : NULL;
