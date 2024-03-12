@@ -1224,11 +1224,11 @@ void update_panel_colors(void)
         {
             int i;
             int n;
-            n = 2 * TRAPDOOR_TYPES_MAX * highlight;
+            n = 2 * PLAYERS_COUNT * highlight;
             for (i = NumBackColours; i > 0; i--)
             {
                 int k;
-                for (k=0; k < TRAPDOOR_TYPES_MAX; k+=2)
+                for (k=0; k < PLAYERS_COUNT; k+=2)
                 {
                   PanelColours[n + PnC_DoorsStart       + k] = Tbp_DoorHighlighted;
                   PanelColours[n + PnC_DoorsStartLocked + k] = Tbp_DoorHighlighted;
