@@ -4,6 +4,7 @@
 #include "api.h"
 #include <json.h>
 #include <json-dom.h>
+#include "config.h"
 #include "lvl_script.h"
 #include "player_data.h"
 #include "console_cmd.h"
@@ -209,7 +210,7 @@ static void process_buffer(const char *buffer, size_t buf_size)
         // If exclamation mark at start of string for 'cmd_exec'
         if (console_command[0] == cmd_char)
         {
-            console_command += 1;// skip the exclamation mark
+            console_command += 1; // skip the exclamation mark
         }
 
         // Execute console command
