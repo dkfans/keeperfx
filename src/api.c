@@ -207,7 +207,7 @@ static void process_buffer(const char *buffer, size_t buf_size)
         }
 
         // If exclamation mark at start of string for 'cmd_exec'
-        if (console_command[0] == '!')
+        if (console_command[0] == cmd_char)
         {
             console_command += 1;// skip the exclamation mark
         }
