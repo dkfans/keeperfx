@@ -117,7 +117,7 @@ REM Killing a player strengthens the other players
 
 IF(PLAYER1,DUNGEON_DESTROYED == 1)
     SET_TIMER(PLAYER0,TIMER1)
-    DISPLAY_INFORMATION(36)
+    DISPLAY_INFORMATION(34)
 ENDIF
 
 IF(PLAYER0,TIMER1 > 1000)
@@ -145,7 +145,7 @@ REM Triggered by PLAYER2 being destroyed
 REM Killing a player strengthens the other players
 
 IF(PLAYER2,DUNGEON_DESTROYED == 1)
-    DISPLAY_INFORMATION(36)
+    DISPLAY_INFORMATION(34)
     SET_TIMER(PLAYER0,TIMER2)
 ENDIF
 
@@ -174,7 +174,7 @@ REM Triggered by PLAYER3 being destroyed
 REM Killing a player strengthens the other players
 
 IF(PLAYER3,DUNGEON_DESTROYED == 1)
-    DISPLAY_INFORMATION(36)
+    DISPLAY_INFORMATION(34)
     SET_TIMER(PLAYER0,TIMER3)
 ENDIF
 
