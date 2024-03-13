@@ -1070,8 +1070,12 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       }
       if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
       {
-          if (creature_is_being_unconscious(trgtng)) {
-              throw_strength++;
+          if (creature_is_being_unconscious(trgtng)) 
+          {
+              if (throw_strength == 0)
+              {
+                  throw_strength++;
+              }
               throw_strength *= 10;
           }
           trgtng->veloc_push_add.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
@@ -1123,7 +1127,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     long i;
     long n;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    long amp = shotst->push_on_hit;
+    long throw_strength = shotst->push_on_hit;
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
@@ -1234,23 +1238,24 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             WARNDBG(8,"The %s index %d owner %d cannot group; invalid parent",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
         }
     }
-    if (shotst->push_on_hit != 0 )
+    if (throw_strength != 0 )
     {
-        i = amp * (long)shotng->velocity.x.val;
+        i = throw_strength * shotng->velocity.x.val;
         trgtng->veloc_push_add.x.val += i / 16;
-        i = amp * (long)shotng->velocity.y.val;
+        i = throw_strength * shotng->velocity.y.val;
         trgtng->veloc_push_add.y.val += i / 16;
         trgtng->state_flags |= TF1_PushAdd;
     }
     if (creature_is_being_unconscious(trgtng))
     {
-        amp ++;
+        if (throw_strength == 0)
+            throw_strength++;
         if (game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
-            amp *= 5;
-            i = amp * (long)shotng->velocity.x.val;
+            throw_strength *= 5;
+            i = throw_strength * shotng->velocity.x.val;
             trgtng->veloc_push_add.x.val += i / 16;
-            i = amp * (long)shotng->velocity.y.val;
+            i = throw_strength * shotng->velocity.y.val;
             trgtng->veloc_push_add.y.val += i / 16;
             trgtng->state_flags |= TF1_PushAdd;
             if (shotst->hit_creature.sndsample_idx != 0)
@@ -1265,26 +1270,26 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             {
                 if (abs(shotng->velocity.x.val) >= abs(shotng->velocity.y.val))
                 {
-                    i = amp * (long)shotng->velocity.x.val;
+                    i = throw_strength * shotng->velocity.x.val;
                     trgtng->veloc_push_add.x.val += i / 64;
-                    i = amp * (long)shotng->velocity.x.val * (CREATURE_RANDOM(shotng, 3) - 1);
+                    i = throw_strength * shotng->velocity.x.val * (CREATURE_RANDOM(shotng, 3) - 1);
                     trgtng->veloc_push_add.y.val += i / 64;
                 }
                 else
                 {
-                    i = amp * (long)shotng->velocity.y.val;
+                    i = throw_strength * shotng->velocity.y.val;
                     trgtng->veloc_push_add.y.val += i / 64;
-                    i = amp * (long)shotng->velocity.y.val * (CREATURE_RANDOM(shotng, 3) - 1);
+                    i = throw_strength * shotng->velocity.y.val * (CREATURE_RANDOM(shotng, 3) - 1);
                     trgtng->veloc_push_add.x.val += i / 64;
                 }
                 trgtng->state_flags |= TF1_PushAdd;
             }
             else // Normal shots blast unconscious units out of the way
             {
-                amp *= 5;
-                i = amp * (long)shotng->velocity.x.val;
+                throw_strength *= 5;
+                i = throw_strength * shotng->velocity.x.val;
                 trgtng->veloc_push_add.x.val += i / 16;
-                i = amp * (long)shotng->velocity.y.val;
+                i = throw_strength * shotng->velocity.y.val;
                 trgtng->veloc_push_add.y.val += i / 16;
                 trgtng->state_flags |= TF1_PushAdd;
             }
