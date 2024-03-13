@@ -7,6 +7,7 @@
 #include "config.h"
 #include "lvl_script.h"
 #include "lvl_script_lib.h"
+#include "dungeon_data.h"
 #include "player_data.h"
 #include "console_cmd.h"
 #include "post_inc.h"
@@ -115,7 +116,7 @@ static void api_ok()
     SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
 }
 
-static void api_return_data_char(const char *data)
+static void api_return_data_char(char data)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -128,7 +129,7 @@ static void api_return_data_char(const char *data)
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
-static void api_return_data_long(long *data)
+static void api_return_data_long(long data)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -267,22 +268,23 @@ static void process_buffer(const char *buffer, size_t buf_size)
             return;
         }
 
-        long variable_type;
-        long variable_id;
-
         // Recognize variable
-        if (!parse_get_varib(variable_name, &variable_id, &variable_type))
+        long variable_id, variable_type;
+        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
         {
             api_err("unknown variable");
             value_fini(&data);
             return;
         }
 
+        api_return_data_long(variable_type);
+        api_return_data_long(variable_id);
+
         // Get the variable
         long variable_value = get_condition_value(player_id, variable_type, variable_id);
 
         // Return the variable to the user
-        api_return_data_long(&variable_value);
+        api_return_data_long(variable_value);
 
         // End
         value_fini(&data);
