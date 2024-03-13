@@ -277,9 +277,6 @@ static void process_buffer(const char *buffer, size_t buf_size)
             return;
         }
 
-        api_return_data_long(variable_type);
-        api_return_data_long(variable_id);
-
         // Get the variable
         long variable_value = get_condition_value(player_id, variable_type, variable_id);
 
