@@ -7,6 +7,7 @@
 #include "config.h"
 #include "lvl_script.h"
 #include "lvl_script_lib.h"
+#include "lvl_script_value.h"
 #include "dungeon_data.h"
 #include "player_data.h"
 #include "console_cmd.h"
@@ -282,6 +283,47 @@ static void process_buffer(const char *buffer, size_t buf_size)
 
         // Return the variable to the user
         api_return_data_long(variable_value);
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
+    // Handle set var command
+    if (strcasecmp("set_var", action) == 0)
+    {
+        // Get variable name
+        char *variable_name = (char *)value_string(value_dict_get(value, "var"));
+        if (variable_name == NULL || strlen(variable_name) < 1)
+        {
+            api_err("a 'var' must be given when using the 'set_var' action");
+            value_fini(&data);
+            return;
+        }
+
+        // Recognize variable
+        long variable_id, variable_type;
+        if (parse_get_varib(variable_name, &variable_id, &variable_type) == false)
+        {
+            api_err("unknown variable");
+            value_fini(&data);
+            return;
+        }
+
+        // Get the new value
+        VALUE *new_value = value_dict_get(value, "value");
+        if (new_value == NULL || value_type(new_value) != VALUE_INT32)
+        {
+            api_err("a 'value' of type int must be given when using the 'set_var' action");
+            value_fini(&data);
+            return;
+        }
+
+        // Set the variable
+        set_variable(player_id, variable_type, variable_id, value_int32(new_value));
+
+        // Return success
+        api_ok();
 
         // End
         value_fini(&data);
