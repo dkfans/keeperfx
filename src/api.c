@@ -207,10 +207,10 @@ static void process_buffer(const char *buffer, size_t buf_size)
             return;
         }
 
-        // If exclamation mark at start of string for 'cmd_exec'
+        // If console prefix char is at start of string for 'cmd_exec' we'll ignore
         if (console_command[0] == cmd_char)
         {
-            console_command += 1; // skip the exclamation mark
+            console_command += 1;
         }
 
         // Execute console command
