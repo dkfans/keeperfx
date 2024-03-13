@@ -6,6 +6,7 @@
 #include <json-dom.h>
 #include "config.h"
 #include "lvl_script.h"
+#include "lvl_script_lib.h"
 #include "player_data.h"
 #include "console_cmd.h"
 #include "post_inc.h"
@@ -112,6 +113,32 @@ static void api_ok()
 
     const char msg[] = "{\"success\":true}";
     SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
+}
+
+static void api_return_data_char(const char *data)
+{
+    // Do nothing if API server is not active
+    if (!api.activeSocket)
+    {
+        return;
+    }
+
+    char buf[1024];
+    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":\"%s\"}", data);
+    SDLNet_TCP_Send(api.activeSocket, buf, len);
+}
+
+static void api_return_data_long(long *data)
+{
+    // Do nothing if API server is not active
+    if (!api.activeSocket)
+    {
+        return;
+    }
+
+    char buf[256];
+    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":%ld}", data);
+    SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
 static void process_buffer(const char *buffer, size_t buf_size)
@@ -222,6 +249,40 @@ static void process_buffer(const char *buffer, size_t buf_size)
         {
             api_err("failed to execute console command");
         }
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
+    // Handle read var command
+    if (strcasecmp("read_var", action) == 0)
+    {
+        // Get variable name
+        char *variable_name = (char *)value_string(value_dict_get(value, "var"));
+        if (variable_name == NULL || strlen(variable_name) < 1)
+        {
+            api_err("a 'var' must be given when using the 'read_var' action");
+            value_fini(&data);
+            return;
+        }
+
+        long variable_type;
+        long variable_id;
+
+        // Recognize variable
+        if (!parse_get_varib(variable_name, &variable_id, &variable_type))
+        {
+            api_err("unknown variable");
+            value_fini(&data);
+            return;
+        }
+
+        // Get the variable
+        long variable_value = get_condition_value(player_id, variable_type, variable_id);
+
+        // Return the variable to the user
+        api_return_data_long(&variable_value);
 
         // End
         value_fini(&data);
