@@ -1085,6 +1085,7 @@ void process_win_and_lose_conditions(PlayerNumber plyr_idx)
       if (is_condition_met(k)) {
           SYNCDBG(8,"Lose condition %d (cond. %d) met for player %d.",(int)i,(int)k,(int)plyr_idx);
           set_player_as_lost_level(player);
+          do_to_players_all_creatures_of_model(plyr_idx, CREATURE_NOT_A_DIGGER, setup_creature_leave_or_die_if_possible);
       }
     }
 }
