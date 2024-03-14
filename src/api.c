@@ -310,6 +310,19 @@ static void process_buffer(const char *buffer, size_t buf_size)
             return;
         }
 
+        // Check if this type of variable can be set dynamically
+        if (
+            variable_type != SVar_FLAG &&
+            variable_type != SVar_CAMPAIGN_FLAG &&
+            variable_type != SVar_BOX_ACTIVATED &&
+            variable_type != SVar_SACRIFICED &&
+            variable_type != SVar_REWARDED)
+        {
+            api_err("setting this variable is not possible");
+            value_fini(&data);
+            return;
+        }
+
         // Get the new value
         VALUE *new_value = value_dict_get(value, "value");
         if (new_value == NULL || value_type(new_value) != VALUE_INT32)
