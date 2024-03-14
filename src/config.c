@@ -60,8 +60,8 @@ unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
 struct InstallInfo install_info;
 char keeper_runtime_directory[152];
-extern TbBool api_enabled = false;
-extern Uint16 api_port = 5599;
+short api_enabled = false;
+uint16_t api_port = 5599;
 
 /**
  * Language 3-char abbreviations.
