@@ -236,7 +236,7 @@ static void process_buffer(const char *buffer, size_t buf_size)
             return;
         }
 
-        // If console prefix char is at start of string for 'cmd_exec' we'll ignore
+        // If the console-prefix-character is at the start of the string we'll ignore that char
         if (console_command[0] == cmd_char)
         {
             console_command += 1;
