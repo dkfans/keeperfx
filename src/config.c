@@ -60,6 +60,8 @@ unsigned short AtmosEnd = 1034;
 TbBool AssignCpuKeepers = 0;
 struct InstallInfo install_info;
 char keeper_runtime_directory[152];
+extern TbBool api_enabled = false;
+extern Uint16 api_port = 5599;
 
 /**
  * Language 3-char abbreviations.
@@ -143,7 +145,9 @@ const struct NamedCommand conf_commands[] = {
   {"MUSIC_FROM_DISK"               , 29},
   {"HAND_SIZE"                     , 30},
   {"LINE_BOX_SIZE"                 , 31},
-  {"COMMAND_CHAR"                 , 32},
+  {"COMMAND_CHAR"                  , 32},
+  {"API_ENABLED"                   , 33},
+  {"API_PORT"                      , 34},
   {NULL,                   0},
   };
 
@@ -1306,10 +1310,31 @@ short load_configuration(void)
               CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
-      case 32:
+      case 32: // COMMAND_CHAR
           if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
           {
               cmd_char = word_buf[0];
+          }
+          break;
+      case 33: // API_ENABLED
+          i = recognize_conf_parameter(buf,&pos,len,logicval_type);
+          if (i <= 0)
+          {
+              CONFWRNLOG("Couldn't recognize \"%s\" command parameter in %s file.",
+                COMMAND_TEXT(cmd_num),config_textname);
+            break;
+          }
+          api_enabled = (i == 1);
+          break;
+      case 34: // API_PORT
+          if (get_conf_parameter_single(buf,&pos,len,word_buf,sizeof(word_buf)) > 0)
+          {
+            i = atoi(word_buf);
+          }
+          if ((i >= 0) && (i <= UINT16_MAX)) {
+              api_port = i;
+          } else {
+              CONFWRNLOG("Invalid API port '%s' in %s file.",COMMAND_TEXT(cmd_num),config_textname);
           }
           break;
       case 0: // comment

@@ -14,9 +14,7 @@
 #include "post_inc.h"
 #include "value_util.h"
 
-#define API_SERVER_PORT 5599
 #define API_SERVER_BUFFER 1024
-#define API_CONFIG_KEY "api"
 
 struct ApiGlobals
 {
@@ -28,13 +26,21 @@ struct ApiGlobals
 // Initialize the TCP API server
 int api_init_server()
 {
-    if (api.serverSocket) // Already inited
+    // Ignore if server is already active
+    if (api.serverSocket)
+    {
         return 0;
+    }
 
-    // TODO: where is keeperfx.cfg dict????
-
-    //    if (value_dict_get(global_config, API_CONFIG_KEY) == NULL)
-    //        return 0;
+    // Check if API is enabled
+    if (api_enabled != true)
+    {
+        return 0;
+    }
+    else
+    {
+        JUSTLOG("API server starting on port: %ld", api_port);
+    }
 
     if (SDLNet_Init() < 0)
     {
@@ -53,7 +59,7 @@ int api_init_server()
     }
 
     IPaddress ip;
-    if (SDLNet_ResolveHost(&ip, NULL, API_SERVER_PORT) < 0)
+    if (SDLNet_ResolveHost(&ip, NULL, api_port) < 0)
     {
         JUSTLOG("SDLNet_ResolveHost failed! SDLNet_Error: %s", SDLNet_GetError());
         api_close_server();
@@ -74,6 +80,8 @@ int api_init_server()
         api_close_server();
         return 1;
     }
+
+    JUSTLOG("API server active");
 
     return 0;
 }

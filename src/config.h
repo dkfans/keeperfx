@@ -253,6 +253,8 @@ extern const struct NamedCommand lang_type[];
 extern const struct NamedCommand logicval_type[];
 extern const struct NamedCommand scrshot_type[];
 extern char cmd_char;
+extern TbBool api_enabled;
+extern Uint16 api_port;
 /******************************************************************************/
 char *prepare_file_path_buf(char *ffullpath,short fgroup,const char *fname);
 char *prepare_file_path(short fgroup,const char *fname);
