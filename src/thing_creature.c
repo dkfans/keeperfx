@@ -5480,8 +5480,8 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
 {
     struct CreatureControl* oldcctrl = creature_control_get_from_thing(oldtng);
     struct CreatureControl* newcctrl = creature_control_get_from_thing(newtng);
+    strcpy(newcctrl->creature_name, oldcctrl->creature_name);
     newcctrl->blood_type = oldcctrl->blood_type;
-    newcctrl->creature_name = oldcctrl->creature_name;
     newcctrl->kills_num = oldcctrl->kills_num;
     newcctrl->joining_age = oldcctrl->joining_age;
     newtng->creature.gold_carried += oldtng->creature.gold_carried;
