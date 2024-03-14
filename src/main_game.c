@@ -217,7 +217,7 @@ static void init_level(void)
     game.manufactr_tooltip = 0;
     JUSTMSG("Started level %d from %s", get_selected_level_number(), campaign.name);
 
-    api_init_server();
+    api_event("GAME_STARTED");
 }
 
 static void post_init_level(void)

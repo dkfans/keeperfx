@@ -2781,6 +2781,7 @@ void update(void)
 
     process_packets();
     api_update_server();
+
     if (quit_game || exit_keeper) {
         return;
     }
@@ -3542,6 +3543,7 @@ void keeper_gameplay_loop(void)
         frametime_end_measurement(Frametime_FullFrame);
     } // end while
     SYNCDBG(0,"Gameplay loop finished after %lu turns",(unsigned long)game.play_gameturn);
+    api_event("GAME_ENDED");
 }
 
 TbBool can_thing_be_queried(struct Thing *thing, PlayerNumber plyr_idx)
@@ -3800,6 +3802,9 @@ static TbBool wait_at_frontend(void)
         LbSleepUntil(fe_last_loop_time + 30);
       }
       fe_last_loop_time = LbTimerClock();
+
+      api_update_server();
+
     } while (!finish_menu);
 
     LbPaletteFade(0, 8, Lb_PALETTE_FADE_CLOSED);
@@ -4326,6 +4331,7 @@ int LbBullfrogMain(unsigned short argc, char *argv[])
     }
     if ( retval )
     {
+        api_init_server();
         game_loop();
     }
     reset_game();

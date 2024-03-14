@@ -10,7 +10,7 @@ extern "C"
     void api_update_server();
     void api_close_server();
 
-    void api_event();
+    void api_event(const char *event_name);
 
 #ifdef __cplusplus
 }

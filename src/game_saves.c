@@ -332,6 +332,7 @@ TbBool save_game(long slot_num)
         return false;
     }
     LbFileClose(handle);
+    api_event("GAME_SAVED");
     return true;
 }
 
@@ -447,7 +448,7 @@ TbBool load_game(long slot_num)
     game.loaded_swipe_idx = -1;
     JUSTMSG("Loaded level %d from %s", game.continue_level_number, campaign.name);
 
-    api_init_server(); // TODO: why here?
+    api_event("GAME_LOADED");
 
     return true;
 }
