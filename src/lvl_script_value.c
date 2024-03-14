@@ -684,11 +684,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 20: // TREMBLING_FAT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_TremblingFat;
+              crconf->model_flags |= CMF_Trembling;
+              crconf->model_flags |= CMF_Fat;
           }
           else
           {
-              crconf->model_flags ^= CMF_TremblingFat;
+              crconf->model_flags ^= CMF_Trembling;
+              crconf->model_flags ^= CMF_Fat;
           }
           break;
       case 21: // FEMALE
@@ -746,6 +748,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
+          break;
+      case 30: // TREMBLING
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_Trembling;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_Fat;
+          }
+          break;
+      case 31: // FAT
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_Fat;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_Fat;
+          }
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
