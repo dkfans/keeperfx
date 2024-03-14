@@ -5476,6 +5476,19 @@ long get_creature_thing_score(const struct Thing *thing)
     return game.creature_scores[crmodel].value[exp];
 }
 
+void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
+{
+    struct CreatureControl* oldcctrl = creature_control_get_from_thing(oldtng);
+    struct CreatureControl* newcctrl = creature_control_get_from_thing(newtng);
+    newcctrl->blood_type = oldcctrl->blood_type;
+    newcctrl->creature_name = oldcctrl->creature_name;
+    newcctrl->kills_num = oldcctrl->kills_num;
+    newcctrl->joining_age = oldcctrl->joining_age;
+    newtng->creature.gold_carried += oldtng->creature.gold_carried;
+    oldtng->creature.gold_carried = 0;
+    return;
+}
+
 long update_creature_levels(struct Thing *thing)
 {
     SYNCDBG(18,"Starting");
@@ -5538,6 +5551,7 @@ long update_creature_levels(struct Thing *thing)
         return 0;
     }
     set_creature_level(newtng, crstat->grow_up_level-1);
+    transfer_creature_data_and_gold(thing, newtng);// Transfer the blood type, creature name, kill count, joined age and carried gold to the new creature.
     update_creature_health_to_max(newtng);
     cctrl = creature_control_get_from_thing(thing);
     cctrl->countdown_282 = 50;
