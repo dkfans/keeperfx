@@ -151,7 +151,7 @@ static void api_return_data_long(long data)
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
-static void process_buffer(const char *buffer, size_t buf_size)
+static void api_process_buffer(const char *buffer, size_t buf_size)
 {
     VALUE data, *value = &data;
 
@@ -418,7 +418,7 @@ void api_update_server()
                     }
 
                     JUSTLOG("Received message from client: %s", buffer);
-                    process_buffer(buffer, received);
+                    api_process_buffer(buffer, received);
                 }
                 else
                 {
