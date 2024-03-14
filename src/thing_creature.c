@@ -5484,6 +5484,7 @@ void transfer_creature_data_and_gold(struct Thing *oldtng, struct Thing *newtng)
     newcctrl->blood_type = oldcctrl->blood_type;
     newcctrl->kills_num = oldcctrl->kills_num;
     newcctrl->joining_age = oldcctrl->joining_age;
+    newtng->creation_turn = oldtng->creation_turn;
     newtng->creature.gold_carried += oldtng->creature.gold_carried;
     oldtng->creature.gold_carried = 0;
     return;
