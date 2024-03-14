@@ -59,7 +59,7 @@ enum CreatureModelFlags {
     CMF_NeverSick        = 0x08000, // Creature will not get disease.
     CMF_NoResurrect      = 0x10000, // Creature will not resurrect.
     CMF_NoTransfer       = 0x20000, // Creature cannot be transferred.
-    CMF_Fat              = 0x40000, // Creature causes ground to tremble when dropped.
+    CMF_Fat              = 0x40000, // Creature to fat too walk a full animation
 };
 
 enum CreatureJobFlags {
