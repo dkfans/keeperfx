@@ -917,21 +917,29 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
     if (target->class_id == TCls_Creature)
     {
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+        if (shotst->hit_creature.effect_model != 0) {
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+        }
         if (creature_affected_by_spell(target, SplK_Freeze))
         {
-            create_effect(&shotng->mappos, shotst->effect_frozen, shotng->owner);
+            if (shotst->effect_frozen != 0) {
+                create_used_effect_or_element(&shotng->mappos, shotst->effect_frozen, shotng->owner);
+            }
         } else
         if (creature_model_bleeds(target->model))
         {
-            create_effect(&shotng->mappos, shotst->effect_bleeding, shotng->owner);
+            if (shotst->effect_bleeding != 0) {
+                create_used_effect_or_element(&shotng->mappos, shotst->effect_bleeding, shotng->owner);
+            }
         }
     }
     if (target->class_id == TCls_Trap)
     {
         // TODO for a later PR: introduces trap/object hit, for now it uses the on hit creature sound and effect.
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
-        create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+        if (shotst->hit_creature.effect_model != 0) {
+            create_used_effect_or_element(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+        }
     }
 }
 
