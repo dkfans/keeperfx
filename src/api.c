@@ -11,6 +11,7 @@
 #include "lvl_script_value.h"
 #include "dungeon_data.h"
 #include "player_data.h"
+#include "game_legacy.h"
 #include "console_cmd.h"
 #include "post_inc.h"
 #include "value_util.h"
@@ -462,6 +463,25 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
 
         // Return data to client
         api_return_data(data_level_info_real);
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
+    // Handle get level info command
+    if (strcasecmp("get_current_game_info", action) == 0)
+    {
+        // Create level data to return to client
+        VALUE data_current_game_info_real;
+        VALUE *data_current_game_info = &data_current_game_info_real;
+        value_init_dict(data_current_game_info);
+
+        // Add stuff to level data
+        value_init_int32(value_dict_add(data_current_game_info, "game_turn"), get_gameturn());
+
+        // Return data to client
+        api_return_data(data_current_game_info_real);
 
         // End
         value_fini(&data);
