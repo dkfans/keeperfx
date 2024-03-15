@@ -919,39 +919,31 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
     {
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
-        switch (shotng->model)
+        if ((!thing_is_invalid(efftng)) && (shotst->hit_creature.effect_model == 13)) //TODO for a later PR: Should not be harcoded to the effect 13.
         {
-        case ShM_PoisonCloud:
-            if ( !thing_is_invalid(efftng) ) {
-                efftng->shot_effect.hit_type = THit_CrtrsOnly;
-            }
-            break;
-        case ShM_Arrow:
-        case ShM_SwingSword:
-        case ShM_SwingFist:
-            if (creature_affected_by_spell(target, SplK_Freeze)) {
-                efftng = create_effect(&shotng->mappos, TngEff_HitFrozenUnit, shotng->owner);
-            } else
-            if (creature_model_bleeds(target->model)) {
-                efftng = create_effect(&shotng->mappos, TngEff_HitBleedingUnit, shotng->owner);
-            }
-            break;
+            efftng->shot_effect.hit_type = THit_CrtrsOnly;
+        }
+        if (creature_affected_by_spell(target, SplK_Freeze))
+        {
+            efftng = create_effect(&shotng->mappos, shotst->effect_frozen, shotng->owner);
+        } else
+        if (creature_model_bleeds(target->model))
+        {
+            efftng = create_effect(&shotng->mappos, shotst->effect_bleeding, shotng->owner);
         }
     }
     if (target->class_id == TCls_Trap)
     {
-        //todo introduce trap/object hit
+        // TODO for a later PR: introduces trap/object hit, for now it uses the on hit creature sound and effect.
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
+        if ((!thing_is_invalid(efftng)) && (shotst->hit_creature.effect_model == 13)) //TODO for a later PR: Should not be harcoded to the effect 13.
+        {
+            efftng->shot_effect.hit_type = THit_CrtrsOnly;
+        }
         switch (shotng->model)
         {
-
-        case ShM_PoisonCloud:
-            if (!thing_is_invalid(efftng)) {
-                efftng->shot_effect.hit_type = THit_CrtrsOnly;
-            }
-            break;
-        case ShM_NaviMissile:
+        case ShM_NaviMissile: // I'm not sure why those 2 are hardcoded, it seems redundant?
         case ShM_Missile:
             efftng = create_effect(&shotng->mappos, TngEff_Blood3, shotng->owner);
             break;
