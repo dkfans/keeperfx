@@ -919,10 +919,6 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
     {
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
-        if ((!thing_is_invalid(efftng)) && (shotst->hit_creature.effect_model == TngEff_Gas3)) // TODO for a later PR: Should not be harcoded to the effect 13.
-        {
-            efftng->shot_effect.hit_type = THit_CrtrsOnly;
-        }
         if (creature_affected_by_spell(target, SplK_Freeze))
         {
             efftng = create_effect(&shotng->mappos, shotst->effect_frozen, shotng->owner);
@@ -937,10 +933,6 @@ void create_relevant_effect_for_shot_hitting_thing(struct Thing *shotng, struct 
         // TODO for a later PR: introduces trap/object hit, for now it uses the on hit creature sound and effect.
         thing_play_sample(target, shotst->hit_creature.sndsample_idx, NORMAL_PITCH, 0, 3, 0, 2, FULL_LOUDNESS);
         efftng = create_effect(&shotng->mappos, shotst->hit_creature.effect_model, shotng->owner);
-        if ((!thing_is_invalid(efftng)) && (shotst->hit_creature.effect_model == TngEff_Gas3)) // TODO for a later PR: Should not be harcoded to the effect 13.
-        {
-            efftng->shot_effect.hit_type = THit_CrtrsOnly;
-        }
     }
     TRACE_THING(efftng);
 }
