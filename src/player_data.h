@@ -257,7 +257,7 @@ short cursor_light_idx;
     MapSubtlCoord cursor_subtile_y;
     MapSubtlCoord previous_cursor_subtile_x;
     MapSubtlCoord previous_cursor_subtile_y;
-    TbBool mouse_is_offmap;
+    TbBool mouse_on_map;
     TbBool roomspace_drag_paint_mode;
     unsigned char roomspace_l_shape;
     TbBool roomspace_horizontal_first;
