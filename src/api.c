@@ -13,6 +13,7 @@
 #include "console_cmd.h"
 #include "post_inc.h"
 #include "value_util.h"
+#include "keeperfx.hpp"
 
 #define API_SERVER_BUFFER 1024
 
@@ -22,6 +23,30 @@ struct ApiGlobals
     TCPsocket activeSocket; // Only one client each time
     SDLNet_SocketSet socketSet;
 } api = {0};
+
+struct dump_buf_state
+{
+    char *out;
+    int out_space;
+};
+
+static int json_value_dump_writer(const unsigned char *str, size_t size, void *dbs)
+{
+
+    // Taken from wolfsentry777
+
+    // Check if buffer is too small
+    if (size > (size_t)((struct dump_buf_state *)dbs)->out_space)
+    {
+        JUSTLOG("buffer too small");
+        return -1;
+    }
+
+    memcpy(((struct dump_buf_state *)dbs)->out, str, size);
+    ((struct dump_buf_state *)dbs)->out += size;
+    ((struct dump_buf_state *)dbs)->out_space -= (int)size;
+    return 0;
+}
 
 // Initialize the TCP API server
 int api_init_server()
@@ -123,6 +148,41 @@ static void api_ok()
 
     const char msg[] = "{\"success\":true}";
     SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
+}
+
+static void api_return_data(VALUE value)
+{
+    // Do nothing if API server is not active
+    if (!api.activeSocket)
+    {
+        return;
+    }
+
+    // Create JSON response object
+    VALUE json_root_real;
+    VALUE *json_root = &json_root_real;
+    value_init_dict(json_root);
+
+    // Create success key
+    VALUE *val_success = value_dict_add(json_root, "success");
+    value_init_bool(val_success, true);
+
+    // Create data key
+    VALUE *val_data = value_dict_add(json_root, "data");
+    val_data = &value;
+
+    // Create JSON response
+    char json_string[1024];
+    struct dump_buf_state dump_state = {&json_string, sizeof(json_string) - 1};
+    int json_dump_return_value = json_dom_dump(json_root, json_value_dump_writer, &dump_state, 0, JSON_DOM_DUMP_MINIMIZE);
+    if (json_dump_return_value != 0)
+    {
+        api_err("failed to create json response");
+        value_fini(&json_root);
+        return;
+    }
+
+    SDLNet_TCP_Send(api.activeSocket, json_string, sizeof(json_string));
 }
 
 static void api_return_data_char(char data)
@@ -345,6 +405,51 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
 
         // Return success
         api_ok();
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
+    // Handle get level info command
+    if (strcasecmp("get_level_info", action) == 0 || strcasecmp("get_map_info", action) == 0)
+    {
+        // Get level info and name
+        const char *lv_name = NULL;
+        LevelNumber lv_number = get_loaded_level_number();
+        struct LevelInformation *lv_info = get_level_info(lv_number);
+        if (lv_info != NULL)
+        {
+            if (lv_info->name_stridx > 0)
+            {
+                lv_name = get_string(lv_info->name_stridx);
+            }
+            else
+            {
+                lv_name = lv_info->name;
+            }
+        }
+        else if (is_multiplayer_level(lv_number))
+        {
+            lv_name = (const char *)level_name;
+        }
+
+        // Create data object to return to client
+        VALUE data_level_info_real;
+        VALUE *data_level_info = &data_level_info_real;
+
+        // Add 'level name'
+        VALUE *val_level_name = value_dict_add(data_level_info, "level_name");
+        value_init_string(val_level_name, lv_name);
+
+        // value_dict_add(&json, "level_number");
+        // value_dict_add(&json, "players");
+        // value_dict_add(&json, "mapsize_x");
+        // value_dict_add(&json, "mapsize_y");
+        // value_dict_add(&json, "is_multiplayer");
+
+        // Return data to client
+        api_return_data(data_level_info_real);
 
         // End
         value_fini(&data);
