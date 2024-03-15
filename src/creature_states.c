@@ -1447,8 +1447,8 @@ short creature_being_dropped(struct Thing *creatng)
     // Most tasks are disabled while creature is a chicken
     if (!creature_affected_by_spell(creatng, SplK_Chicken))
     {
-        // For creatures with trembling fat and not changed to chickens, tremble the camera
-        if ((get_creature_model_flags(creatng) & CMF_TremblingFat) != 0)
+        // For creatures with trembling and not changed to chickens, tremble the camera
+        if ((get_creature_model_flags(creatng) & CMF_Trembling) != 0)
         {
             struct Dungeon* dungeon = get_dungeon(creatng->owner);
             if (!dungeon_invalid(dungeon)) {

@@ -245,6 +245,7 @@ const struct NamedCommand trap_config_desc[] = {
   {"TriggerSound",        38},
   {"RechargeAnimationID", 39},
   {"AttackAnimationID",   40},
+  {"DestroyedEffect",     41},
   {NULL,                   0},
 };
 
@@ -1045,6 +1046,17 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             return;
         }
     }
+    else if (trapvar == 41)  // DestroyedEffect
+    {
+        newvalue = effect_or_effect_element_id(valuestring);
+        if ((newvalue == 0) && (!parameter_is_number(valuestring)))
+        {
+            SCRPTERRLOG("Unknown effect or effect element: '%s'", valuestring);
+            DEALLOCATE_SCRIPT_VALUE
+            return;
+        }
+        value->uarg1 = newvalue;
+    }
     else if ((trapvar != 4) && (trapvar != 12) && (trapvar != 39) && (trapvar != 40))  // PointerSprites && AnimationIDs
     {
         if (parameter_is_number(valuestring))
@@ -1063,7 +1075,7 @@ static void set_trap_configuration_check(const struct ScriptLine* scline)
             newvalue = get_id(object_desc, valuestring);
             if ((newvalue > SHRT_MAX) || (newvalue < 0))
             {
-                SCRPTERRLOG("Unknown crate object: %s", valuestring);
+                SCRPTERRLOG("Unknown crate object: '%s'", valuestring);
                 DEALLOCATE_SCRIPT_VALUE
                 return;
             }
@@ -1579,6 +1591,9 @@ static void new_trap_type_check(const struct ScriptLine* scline)
     trapst->unsellable = 0;
     trapst->notify = 0;
     trapst->placeonbridge = 0;
+    trapst->place_sound_idx = 117; 
+    trapst->trigger_sound_idx = 176;
+    trapst->destroyed_effect = -39;
 
     game.conf.trap_stats[i].health = 0;
     game.conf.trap_stats[i].sprite_anim_idx = 0;
@@ -1836,6 +1851,9 @@ static void set_trap_configuration_process(struct ScriptContext *context)
             break;
         case 40: // AttackAnimationID
             trapstat->attack_sprite_anim_idx = get_anim_id(context->value->str2, &obj_tmp);
+            break;
+        case 41: // DestroyedEffect
+            trapst->destroyed_effect = value;
             break;
         default:
             WARNMSG("Unsupported Trap configuration, variable %d.", context->value->shorts[1]);
@@ -5507,7 +5525,7 @@ const struct CommandDesc command_desc[] = {
   {"KILL_CREATURE",                     "PC!AN   ", Cmd_KILL_CREATURE, NULL, NULL},
   {"COMPUTER_DIG_TO_LOCATION",          "PLL     ", Cmd_COMPUTER_DIG_TO_LOCATION, NULL, NULL},
   {"USE_POWER_ON_CREATURE",             "PC!APANN", Cmd_USE_POWER_ON_CREATURE, NULL, NULL},
-  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANN ", Cmd_USE_SPELL_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
+  {"USE_POWER_ON_PLAYERS_CREATURES",    "PC!PANN ", Cmd_USE_POWER_ON_PLAYERS_CREATURES, &use_power_on_players_creatures_check, &use_power_on_players_creatures_process },
   {"USE_POWER_AT_POS",                  "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},
   {"USE_POWER_AT_SUBTILE",              "PNNANN  ", Cmd_USE_POWER_AT_POS, NULL, NULL},  //todo: Remove after mapmakers have received time to use USE_POWER_AT_POS
   {"USE_POWER_AT_LOCATION",             "PLANN   ", Cmd_USE_POWER_AT_LOCATION, NULL, NULL},

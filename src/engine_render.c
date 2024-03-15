@@ -8446,8 +8446,6 @@ static void draw_keepsprite_unscaled_in_buffer(unsigned short kspr_n, short angl
 
 static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdrant, long w, long h, long qx, long qy)
 {
-    TbBool out_of_bounds = false;
-
     TbGraphicsWindow ewnd;
     struct Column *colmn;
     unsigned long mask;
@@ -8472,10 +8470,6 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
         stl_x = (pos_x >> 8) + x_offs[qdrant];
         stl_y = (pos_y >> 8) + y_offs[qdrant];
         
-        if (stl_x < 0 || stl_x > gameadd.map_subtiles_x - 1 || stl_y < -2 || stl_y > gameadd.map_subtiles_y) {
-            out_of_bounds = true;
-        }
-
         mapblk = get_map_block_at(stl_x, stl_y);
         if (!map_block_invalid(mapblk))
         {
@@ -8514,7 +8508,6 @@ static void update_frontview_pointed_block(unsigned long laaa, unsigned char qdr
     }
     
     struct PlayerInfo *player = get_my_player();
-    player->mouse_is_offmap = out_of_bounds;
 }
 
 void create_frontview_map_volume_box(struct Camera *cam, unsigned char stl_width, TbBool single_subtile, long line_color)
