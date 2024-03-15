@@ -32,7 +32,7 @@ struct dump_buf_state
     int out_space;
 };
 
-static int json_value_dump_writer(const unsigned char *str, size_t size, void *dbs)
+JSON_DUMP_CALLBACK json_value_dump_writer(const unsigned char *str, size_t size, void *dbs)
 {
     // @author: https://github.com/wolfSSL/wolfsentry/blob/857c85d1b3a6c7b297efa2bbb6ea89817aea7b4b/src/kv.c#L395
 
@@ -181,15 +181,15 @@ static void api_return_data(VALUE value)
     if (json_dump_return_value != 0)
     {
         api_err("failed to create json response");
-        value_fini(&json_root);
+        value_fini(json_root);
         return;
     }
 
     SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
-    value_fini(&json_root);
+    value_fini(json_root);
 }
 
-static void api_return_data_char(char data)
+static void api_return_data_string(char data)
 {
     // Do nothing if API server is not active
     if (!api.activeSocket)
@@ -300,7 +300,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     if (strcasecmp("console_command", action) == 0)
     {
         // Get console command
-        const char *console_command = (char *)value_string(value_dict_get(value, "command"));
+        char *console_command = (char *)value_string(value_dict_get(value, "command"));
         if (console_command == NULL || strlen(console_command) < 1)
         {
             api_err("a 'command' must be given when using the 'console_command' action");
@@ -333,7 +333,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     if (strcasecmp("read_var", action) == 0)
     {
         // Get variable name
-        const char *variable_name = (char *)value_string(value_dict_get(value, "var"));
+        char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
             api_err("a 'var' must be given when using the 'read_var' action");
@@ -365,7 +365,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     if (strcasecmp("set_var", action) == 0)
     {
         // Get variable name
-        const char *variable_name = (char *)value_string(value_dict_get(value, "var"));
+        char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
             api_err("a 'var' must be given when using the 'set_var' action");
