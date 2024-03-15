@@ -468,6 +468,25 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         return;
     }
 
+    // Handle get level info command
+    if (strcasecmp("get_kfx_info", action) == 0)
+    {
+        // Create level data to return to client
+        VALUE data_kfx_info_real;
+        VALUE *data_kfx_info = &data_kfx_info_real;
+        value_init_dict(data_kfx_info);
+
+        // Add stuff to level data
+        value_init_string(value_dict_add(data_kfx_info, "kfx_version"), VER_STRING);
+
+        // Return data to client
+        api_return_data(data_kfx_info_real);
+
+        // End
+        value_fini(&data);
+        return;
+    }
+
     // Return unknown action
     api_err("unknown action");
     value_fini(&data);
