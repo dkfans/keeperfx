@@ -34,7 +34,7 @@ struct dump_buf_state
 
 static int json_value_dump_writer(const unsigned char *str, size_t size, void *dbs)
 {
-    // @author: wolfSentry
+    // @author: https://github.com/wolfSSL/wolfsentry/blob/857c85d1b3a6c7b297efa2bbb6ea89817aea7b4b/src/kv.c#L395
 
     // Check if buffer is too small
     if (size > (size_t)((struct dump_buf_state *)dbs)->out_space)
