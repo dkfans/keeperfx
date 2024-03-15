@@ -756,7 +756,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           }
           else
           {
-              crconf->model_flags ^= CMF_Fat;
+              crconf->model_flags ^= CMF_Trembling;
           }
           break;
       case 31: // FAT
