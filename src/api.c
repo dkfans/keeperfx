@@ -32,8 +32,7 @@ struct dump_buf_state
 
 static int json_value_dump_writer(const unsigned char *str, size_t size, void *dbs)
 {
-
-    // Taken from wolfsentry777
+    // @author: wolfSentry
 
     // Check if buffer is too small
     if (size > (size_t)((struct dump_buf_state *)dbs)->out_space)
@@ -169,12 +168,14 @@ static void api_return_data(VALUE value)
 
     // Create data key
     VALUE *val_data = value_dict_add(json_root, "data");
-    val_data = &value;
+    *val_data = value;
 
     // Create JSON response
     char json_string[1024];
-    struct dump_buf_state dump_state = {&json_string, sizeof(json_string) - 1};
+    struct dump_buf_state dump_state = {json_string, sizeof(json_string) - 1};
     int json_dump_return_value = json_dom_dump(json_root, json_value_dump_writer, &dump_state, 0, JSON_DOM_DUMP_MINIMIZE);
+
+    // *dump_state.out = 0;
     if (json_dump_return_value != 0)
     {
         api_err("failed to create json response");
@@ -182,7 +183,8 @@ static void api_return_data(VALUE value)
         return;
     }
 
-    SDLNet_TCP_Send(api.activeSocket, json_string, sizeof(json_string));
+    SDLNet_TCP_Send(api.activeSocket, json_string, dump_state.out - json_string);
+    value_fini(&json_root);
 }
 
 static void api_return_data_char(char data)
@@ -437,16 +439,15 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
         // Create data object to return to client
         VALUE data_level_info_real;
         VALUE *data_level_info = &data_level_info_real;
+        value_init_dict(data_level_info);
 
-        // Add 'level name'
-        VALUE *val_level_name = value_dict_add(data_level_info, "level_name");
-        value_init_string(val_level_name, lv_name);
-
-        // value_dict_add(&json, "level_number");
-        // value_dict_add(&json, "players");
-        // value_dict_add(&json, "mapsize_x");
-        // value_dict_add(&json, "mapsize_y");
-        // value_dict_add(&json, "is_multiplayer");
+        // Add stuff to object
+        value_init_string(value_dict_add(data_level_info, "level_name"), lv_name);
+        value_init_int32(value_dict_add(data_level_info, "level_number"), lv_number);
+        value_init_int32(value_dict_add(data_level_info, "players"), lv_info->players);
+        value_init_int32(value_dict_add(data_level_info, "mapsize_x"), lv_info->mapsize_x);
+        value_init_int32(value_dict_add(data_level_info, "mapsize_y"), lv_info->mapsize_y);
+        value_init_bool(value_dict_add(data_level_info, "is_multiplayer"), is_multiplayer_level(lv_number));
 
         // Return data to client
         api_return_data(data_level_info_real);
