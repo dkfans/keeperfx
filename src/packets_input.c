@@ -58,6 +58,7 @@ extern TbBool packets_process_cheats(
 
 extern void update_double_click_detection(long plyr_idx);
 
+// Returns false if mouse is on map edges or on GUI
 TbBool is_mouse_on_map(struct Packet* pckt)
 {
     int x = (pckt->pos_x >> 8) / 3;
