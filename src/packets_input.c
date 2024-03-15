@@ -58,27 +58,20 @@ extern TbBool packets_process_cheats(
 
 extern void update_double_click_detection(long plyr_idx);
 
-TbBool fix_previous_cursor_subtile_when_offmap;
 void remember_cursor_subtile(struct PlayerInfo *player) {
     struct Packet* pckt = get_packet_direct(player->packet_num);
-    player->previous_cursor_subtile_x = player->cursor_subtile_x;
-    player->previous_cursor_subtile_y = player->cursor_subtile_y;
-    
     TbBool badPacket = (pckt->pos_x == 0) && (pckt->pos_y == 0);
     TbBool onGui = ((pckt->control_flags & PCtr_Gui) != 0);
+    
+    player->previous_cursor_subtile_x = player->cursor_subtile_x;
+    player->previous_cursor_subtile_y = player->cursor_subtile_y;
+    player->cursor_subtile_x = coord_subtile((pckt->pos_x));
+    player->cursor_subtile_y = coord_subtile((pckt->pos_y));
 
+    // Off field
     if (onGui == true || player->mouse_is_offmap == true || badPacket == true) {
-        // Off field
-        fix_previous_cursor_subtile_when_offmap = true;
-    } else {
-        // On field
-        player->cursor_subtile_x = coord_subtile((pckt->pos_x));
-        player->cursor_subtile_y = coord_subtile((pckt->pos_y));
-        if (fix_previous_cursor_subtile_when_offmap == true) {
-            fix_previous_cursor_subtile_when_offmap = false;
-            player->previous_cursor_subtile_x = player->cursor_subtile_x;
-            player->previous_cursor_subtile_y = player->cursor_subtile_y;
-        }
+        player->previous_cursor_subtile_x = player->cursor_subtile_x;
+        player->previous_cursor_subtile_y = player->cursor_subtile_y;
     }
 }
 
