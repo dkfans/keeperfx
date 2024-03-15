@@ -195,17 +195,68 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
     }
     return CTaskRet_Unk4;
 }
+// 100 percent_of_total_to_reassign = num_to_move is high and creatures are moved around more
+// 0 percent_of_total_to_reassign = num_to_move is 0 and all creatures do their default jobs
+int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_of_total_to_reassign)
+{
+    int total_creatures = 0;
+    int creatures_doing_primary_or_secondary_job = 0;
+    unsigned long k = 0;
+    int i = dungeon->creatr_list_start;
+    while (i != 0)
+    {
+        struct Thing* thing = thing_get(i);
+        TRACE_THING(thing);
+        struct CreatureControl* cctrl = creature_control_get_from_thing(thing);
+        if (thing_is_invalid(thing) || creature_control_invalid(cctrl))
+        {
+            ERRORLOG("Jump to invalid creature detected");
+            break;
+        }
+        i = cctrl->players_next_creature_idx;
+        total_creatures += 1;
+        struct CreatureStats* crstat = creature_stats_get(thing->model);
+        if ((cctrl->job_assigned == crstat->job_primary) ||
+            (cctrl->job_assigned == crstat->job_secondary))
+        {
+            creatures_doing_primary_or_secondary_job += 1;
+        }
+        k++;
+        if (k > CREATURES_COUNT)
+        {
+            ERRORLOG("Infinite loop detected when sweeping creatures list");
+            break;
+        }
+    }
+    if (total_creatures <= 0) {return 0;}
+
+    int creatures_doing_other_jobs = total_creatures - creatures_doing_primary_or_secondary_job;
+    int percent_doing_other_jobs = (creatures_doing_other_jobs * 100) / total_creatures;
+    int num_to_move = total_creatures * (percent_of_total_to_reassign - percent_doing_other_jobs) / 100;
+    if (num_to_move < 0) {num_to_move = 0;}
+    
+    JUSTLOG("-----", 0);
+    JUSTLOG("total_creatures = %d (cfg file says %d percent of them should do other jobs)", total_creatures, percent_of_total_to_reassign);
+    JUSTLOG("creatures_doing_primary_or_secondary_job = %d (%d percent)", creatures_doing_primary_or_secondary_job, 100-percent_doing_other_jobs);
+    JUSTLOG("creatures_doing_other_jobs = %d (%d percent)", creatures_doing_other_jobs, percent_doing_other_jobs);
+    JUSTLOG("num_to_move = %d", num_to_move);
+    return num_to_move;
+}
+
 
 long computer_check_move_creatures_to_best_room(struct Computer2 *comp, struct ComputerCheck * check)
 {
     struct Dungeon* dungeon = comp->dungeon;
     SYNCDBG(8,"Starting for player %d",(int)dungeon->owner);
-    int num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
+    
+    int num_to_move = calculate_number_of_creatures_to_move(dungeon, check->param1);
+    
     if (num_to_move <= 0) {
         SYNCDBG(8,"No player %d creatures to move, active %d percentage %d",
             (int)dungeon->owner,(int)dungeon->num_active_creatrs,(int)check->param1);
         return CTaskRet_Unk4;
     }
+
     if (!computer_able_to_use_power(comp, PwrK_HAND, 1, num_to_move)) {
         return CTaskRet_Unk4;
     }
@@ -225,7 +276,7 @@ long computer_check_move_creatures_to_room(struct Computer2 *comp, struct Comput
 {
     struct Dungeon* dungeon = comp->dungeon;
     SYNCDBG(8,"Checking player %d for move to %s", (int)dungeon->owner, room_code_name(check->param2));
-    int num_to_move = check->param1 * dungeon->num_active_creatrs / 100;
+    int num_to_move = calculate_number_of_creatures_to_move(dungeon, check->param1);
     if (num_to_move <= 0) {
         SYNCDBG(8,"No creatures to move, active %d percentage %d", (int)dungeon->num_active_creatrs, (int)check->param1);
         return CTaskRet_Unk4;
