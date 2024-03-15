@@ -300,7 +300,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     if (strcasecmp("console_command", action) == 0)
     {
         // Get console command
-        char *console_command = (char *)value_string(value_dict_get(value, "command"));
+        const char *console_command = (char *)value_string(value_dict_get(value, "command"));
         if (console_command == NULL || strlen(console_command) < 1)
         {
             api_err("a 'command' must be given when using the 'console_command' action");
@@ -333,7 +333,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     if (strcasecmp("read_var", action) == 0)
     {
         // Get variable name
-        char *variable_name = (char *)value_string(value_dict_get(value, "var"));
+        const char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
             api_err("a 'var' must be given when using the 'read_var' action");
@@ -365,7 +365,7 @@ static void api_process_buffer(const char *buffer, size_t buf_size)
     if (strcasecmp("set_var", action) == 0)
     {
         // Get variable name
-        char *variable_name = (char *)value_string(value_dict_get(value, "var"));
+        const char *variable_name = (char *)value_string(value_dict_get(value, "var"));
         if (variable_name == NULL || strlen(variable_name) < 1)
         {
             api_err("a 'var' must be given when using the 'set_var' action");
