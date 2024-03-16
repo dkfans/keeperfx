@@ -125,7 +125,7 @@ void api_event(const char *event_name)
 
     // Create the JSON response and send it to the client
     char buf[512];
-    int len = snprintf(buf, sizeof(buf) - 1, "{\"event\":\"%s\"}", event_name);
+    int len = snprintf(buf, sizeof(buf) - 1, "{\"event\":\"%s\"}\n", event_name);
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
@@ -138,7 +138,7 @@ static void api_err(const char *err)
     }
 
     char buf[256];
-    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":false,\"error\":\"%s\"}", err);
+    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":false,\"error\":\"%s\"}\n", err);
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
@@ -150,7 +150,7 @@ static void api_ok()
         return;
     }
 
-    const char msg[] = "{\"success\":true}";
+    const char msg[] = "{\"success\":true}\n";
     SDLNet_TCP_Send(api.activeSocket, msg, strlen(msg));
 }
 
@@ -201,7 +201,7 @@ static void api_return_data_string(char data)
     }
 
     char buf[1024];
-    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":\"%s\"}", data);
+    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":\"%s\"}\n", data);
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
@@ -214,7 +214,7 @@ static void api_return_data_long(long data)
     }
 
     char buf[256];
-    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":%ld}", data);
+    int len = snprintf(buf, sizeof(buf) - 1, "{\"success\":true,\"data\":%ld}\n", data);
     SDLNet_TCP_Send(api.activeSocket, buf, len);
 }
 
