@@ -30,7 +30,7 @@ extern "C" {
 /******************************************************************************/
 // Limits for GUI arrays
 #define ACTIVE_BUTTONS_COUNT        86
-#define MENU_LIST_ITEMS_COUNT       49
+#define MENU_LIST_ITEMS_COUNT       51
 #define FRONTEND_BUTTON_INFO_COUNT 119
 #define NET_MESSAGES_COUNT           8
 #define NET_MESSAGE_LEN             64
@@ -175,21 +175,55 @@ enum IngameButtonDesignationIDs {
     BID_MENU_TITLE,
     BID_POWER_TD17,
     BID_POWER_TD18,
-    BID_POWER_TD19,
+    BID_POWER_TD19, //85
     BID_POWER_TD20,
     BID_POWER_TD21,
     BID_POWER_TD22,
     BID_POWER_TD23,
-    BID_POWER_TD24,
+    BID_POWER_TD24, //90
     BID_POWER_TD25,
     BID_POWER_TD26,
     BID_POWER_TD27,
     BID_POWER_TD28,
-    BID_POWER_TD29,
+    BID_POWER_TD29, //95
     BID_POWER_TD30,
     BID_POWER_TD31,
     BID_POWER_TD32,
     BID_POWER_NXPG,
+    BID_ROOM_TD17, //100
+    BID_ROOM_TD18,
+    BID_ROOM_TD19,
+    BID_ROOM_TD20,
+    BID_ROOM_TD21,
+    BID_ROOM_TD22, //105
+    BID_ROOM_TD23,
+    BID_ROOM_TD24,
+    BID_ROOM_TD25,
+    BID_ROOM_TD26,
+    BID_ROOM_TD27, //110
+    BID_ROOM_TD28,
+    BID_ROOM_TD29,
+    BID_ROOM_TD30,
+    BID_ROOM_TD31,
+    BID_ROOM_TD32, //115
+    BID_ROOM_NXPG,
+    BID_MNFCT_TD17,
+    BID_MNFCT_TD18,
+    BID_MNFCT_TD19,
+    BID_MNFCT_TD20, //120
+    BID_MNFCT_TD21,
+    BID_MNFCT_TD22,
+    BID_MNFCT_TD23,
+    BID_MNFCT_TD24,
+    BID_MNFCT_TD25, //125
+    BID_MNFCT_TD26,
+    BID_MNFCT_TD27,
+    BID_MNFCT_TD28,
+    BID_MNFCT_TD29,
+    BID_MNFCT_TD30, //130
+    BID_MNFCT_TD31,
+    BID_MNFCT_TD32,
+    BID_MNFCT_NXPG
 };
 
 struct GuiMenu;
