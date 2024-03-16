@@ -116,6 +116,8 @@ const struct NamedCommand creatmodel_properties_commands[] = {
   {"ALLURING_SCVNGR",   27},
   {"NO_RESURRECT",      28},
   {"NO_TRANSFER",       29},
+  {"TREMBLING",         30},
+  {"FAT",               31},
   {NULL,                 0},
   };
 
@@ -711,7 +713,8 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 n++;
                 break;
             case 20: // TREMBLING_FAT
-                crconf->model_flags |= CMF_TremblingFat;
+                crconf->model_flags |= CMF_Trembling;
+                crconf->model_flags |= CMF_Fat;
                 n++;
                 break;
             case 21: // FEMALE
@@ -748,6 +751,14 @@ TbBool parse_creaturemodel_attributes_blocks(long crtr_model,char *buf,long len,
                 break;
             case 29: // NO_TRANSFER
                 crconf->model_flags |= CMF_NoTransfer;
+                n++;
+                break;
+            case 30: // TREMBLING
+                crconf->model_flags |= CMF_Trembling;
+                n++;
+                break;
+            case 31: // FAT
+                crconf->model_flags |= CMF_Fat;
                 n++;
                 break;
             default:
