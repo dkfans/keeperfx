@@ -800,19 +800,22 @@ void frontend_draw_button(struct GuiButton *gbtn, unsigned short btntype, const 
         lbDisplay.DrawFlags = drw_flags;
         LbTextSetFont(frontend_font[fntidx]);
         spr = &frontend_sprite[spridx];
+        int tx_units_per_px;
         if ( (dbc_language == 1) && (gbtn->id_num == BID_MENU_TITLE) )
         {
-            int w = LbTextStringWidthM(text, units_per_px);
+            tx_units_per_px = scale_value_by_horizontal_resolution(16);
+            int w = LbTextStringWidthM(text, tx_units_per_px);
             x = gbtn->scr_pos_x + ((spr->SWidth*units_per_px/16 - w) >> 1);
         }
         else
         {
+            tx_units_per_px = units_per_px;
             x = gbtn->scr_pos_x + ((40*units_per_px/16) >> 1);
         }
         int h = LbTextHeight(text) * units_per_px / 16;
         y = gbtn->scr_pos_y + ((spr->SHeight*units_per_px/16 - h) >> 1);
         LbTextSetWindow(x, y, gbtn->width-40*units_per_px/16, h);
-        LbTextDrawResized(0, 0, units_per_px, text);
+        LbTextDrawResized(0, 0, tx_units_per_px, text);
     }
 }
 
