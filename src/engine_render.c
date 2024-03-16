@@ -7822,18 +7822,21 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     short dim_tw;
     long scaled_x;
     long scaled_y;
-    TbBool needs_xflip;
+    TbBool needs_xflip = false;
     long long lltemp;
     long sprite_group;
     long sprite_rot;
     long cutoff;
     SYNCDBG(17, "At (%d,%d) opts %d %d %d %d", (int)x, (int)y, (int)kspr_base, (int)kspr_angle, (int)sprgroup, (int)scale);
     player = get_my_player();
+    creature_sprites = keepersprite_array(kspr_base);
 
     if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) )
         needs_xflip = 0;
-    else
-        needs_xflip = 1;
+    else if (creature_sprites->Rotable == 2)
+    {
+        needs_xflip = 1; //disable on non-rotatable
+    }
     if ( needs_xflip )
       lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
     else
@@ -7843,7 +7846,6 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     sprite_rot = llabs(lltemp);
     kspr_idx = keepersprite_index(kspr_base);
     global_scaler = scale;
-    creature_sprites = keepersprite_array(kspr_base);
     scaled_x = ((scale * (long)creature_sprites->offset_x) >> 5) + (long)x;
     scaled_y = ((scale * (long)creature_sprites->offset_y) >> 5) + (long)y;
     SYNCDBG(17,"Scaled (%d,%d)",(int)scaled_x,(int)scaled_y);
