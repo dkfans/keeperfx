@@ -32,7 +32,7 @@ struct dump_buf_state
     int out_space;
 };
 
-JSON_DUMP_CALLBACK json_value_dump_writer(const unsigned char *str, size_t size, void *dbs)
+static int json_value_dump_writer(const unsigned char *str, size_t size, void *dbs)
 {
     // @author: https://github.com/wolfSSL/wolfsentry/blob/857c85d1b3a6c7b297efa2bbb6ea89817aea7b4b/src/kv.c#L395
 
