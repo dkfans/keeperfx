@@ -195,9 +195,9 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
     }
     return CTaskRet_Unk4;
 }
-// 100 percent_of_total_to_reassign = num_to_move is high and creatures are moved around more
-// 0 percent_of_total_to_reassign = num_to_move is 0 and all creatures do their default jobs
-int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_of_total_to_reassign)
+// 100 percent_to_reassign = num_to_move is high and creatures are moved around more
+// 0 percent_to_reassign = num_to_move is 0 and all creatures do their default jobs
+int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_to_reassign)
 {
     int creatures_doing_primary_or_secondary_job = 0;
     int creatures_doing_other_jobs = 0;
@@ -233,13 +233,13 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_o
     }
     
     int percent_doing_other_jobs = (creatures_doing_other_jobs * 100) / work_capable_creatures;
-    int num_to_move = work_capable_creatures * (percent_of_total_to_reassign - percent_doing_other_jobs) / 100;
+    int num_to_move = work_capable_creatures * (percent_to_reassign - percent_doing_other_jobs) / 100;
     if (num_to_move <= 0) {return 0;}
 
     //JUSTLOG("-----", 0);
     //JUSTLOG("total creatures = %d", dungeon->num_active_creatrs);
     //JUSTLOG("work_capable_creatures = %d", work_capable_creatures);
-    //JUSTLOG("cfg percent to reassign = %d percent should do other jobs", percent_of_total_to_reassign);
+    //JUSTLOG("cfg percent to reassign = %d percent should do other jobs", percent_to_reassign);
     //JUSTLOG("creatures_doing_primary_or_secondary_job = %d", creatures_doing_primary_or_secondary_job);
     //JUSTLOG("creatures_doing_other_jobs = %d", creatures_doing_other_jobs);
     return num_to_move;
