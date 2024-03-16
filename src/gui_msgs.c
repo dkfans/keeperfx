@@ -43,9 +43,10 @@ void message_draw(void)
     SYNCDBG(7,"Starting");
     LbTextSetFont(winfont);
     int ps_units_per_px;
+    struct TbSprite* spr;
     {
         //just used for height, color irrelevant here
-        struct TbSprite* spr = &gui_panel_sprites[GPS_plyrsym_symbol_player_red_std_b];
+        spr = &gui_panel_sprites[GPS_plyrsym_symbol_player_red_std_b];
         ps_units_per_px = (22 * units_per_pixel) / spr->SHeight;
     }
     TbBool low_res = (MyScreenHeight < 400);
@@ -140,7 +141,7 @@ void message_draw(void)
                 }
                 else
                 {
-                    struct TbSprite* spr = &gui_panel_sprites[spr_idx];
+                    spr = &gui_panel_sprites[spr_idx];
                     LbSpriteDrawResized(x, y, ps_units_per_px, spr);
                 }
             }
