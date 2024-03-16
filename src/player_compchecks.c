@@ -235,11 +235,11 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_o
     int num_to_move = total_creatures * (percent_of_total_to_reassign - percent_doing_other_jobs) / 100;
     if (num_to_move < 0) {num_to_move = 0;}
     
-    JUSTLOG("-----", 0);
-    JUSTLOG("total_creatures = %d (cfg file says %d percent of them should do other jobs)", total_creatures, percent_of_total_to_reassign);
-    JUSTLOG("creatures_doing_primary_or_secondary_job = %d (%d percent)", creatures_doing_primary_or_secondary_job, 100-percent_doing_other_jobs);
-    JUSTLOG("creatures_doing_other_jobs = %d (%d percent)", creatures_doing_other_jobs, percent_doing_other_jobs);
-    JUSTLOG("num_to_move = %d", num_to_move);
+    //JUSTLOG("-----", 0);
+    //JUSTLOG("total_creatures = %d (cfg file says %d percent of them should do other jobs)", total_creatures, percent_of_total_to_reassign);
+    //JUSTLOG("creatures_doing_primary_or_secondary_job = %d (%d percent)", creatures_doing_primary_or_secondary_job, 100-percent_doing_other_jobs);
+    //JUSTLOG("creatures_doing_other_jobs = %d (%d percent)", creatures_doing_other_jobs, percent_doing_other_jobs);
+    //JUSTLOG("num_to_move = %d", num_to_move);
     return num_to_move;
 }
 
