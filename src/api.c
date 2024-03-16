@@ -44,9 +44,11 @@ static int json_value_dump_writer(const unsigned char *str, size_t size, void *d
         return -1;
     }
 
+    // Copy data into current part of buffer
     memcpy(((struct dump_buf_state *)dbs)->out, str, size);
     ((struct dump_buf_state *)dbs)->out += size;
     ((struct dump_buf_state *)dbs)->out_space -= (int)size;
+
     return 0;
 }
 
