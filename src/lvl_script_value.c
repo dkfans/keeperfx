@@ -127,6 +127,29 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
 }
 
 /**
+ * Cast a keeper power on a creature which meets given criteria.
+ * @param plyr_idx The player whose creature will be affected.
+ * @param crmodel Model of the creature to find.
+ * @param criteria Criteria, from CreatureSelectCriteria enumeration.
+ * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
+ * @return TbResult whether the spell was successfully cast
+ */
+TbResult script_use_power_on_creature_matching_criterion(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
+{
+    struct Thing* thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
+    if (thing_is_invalid(thing)) {
+        SYNCDBG(5, "No matching player %d creature of model %d (%s) found to use power on.", (int)plyr_idx, (int)crmodel, creature_code_name(crmodel));
+        return Lb_FAIL;
+    }
+
+    char is_free = (fmcl_bytes >> 24) != 0;
+    PowerKind pwkind = (fmcl_bytes >> 16) & 255;
+    PlayerNumber caster = (fmcl_bytes >> 8) & 255;
+    long splevel = fmcl_bytes & 255;
+    return script_use_power_on_creature(thing, pwkind, splevel, caster, is_free);
+}
+
+/**
  * Cast a spell on a creature which meets given criteria.
  * @param plyr_idx The player whose creature will be affected.
  * @param crmodel Model of the creature to find.
@@ -134,82 +157,6 @@ TbBool script_level_up_creature(PlayerNumber plyr_idx, long crmodel, long criter
  * @param fmcl_bytes encoded bytes: f=cast for free flag,m=power kind,c=caster player index,l=spell level.
  * @return TbResult whether the spell was successfully cast
  */
-TbResult script_use_power_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
-{
-    struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
-    if (thing_is_invalid(thing)) {
-        SYNCDBG(5,"No matching player %d creature of model %d (%s) found to use power on.",(int)plyr_idx,(int)crmodel, creature_code_name(crmodel));
-        return Lb_FAIL;
-    }
-
-    char is_free = (fmcl_bytes >> 24) != 0;
-    PowerKind pwkind = (fmcl_bytes >> 16) & 255;
-    PlayerNumber caster =  (fmcl_bytes >> 8) & 255;
-    long splevel = fmcl_bytes & 255;
-
-    if (thing_is_in_power_hand_list(thing, plyr_idx))
-    {
-        char block = pwkind == PwrK_SLAP;
-        block |= pwkind == PwrK_CALL2ARMS;
-        block |= pwkind == PwrK_CAVEIN;
-        block |= pwkind == PwrK_LIGHTNING;
-        block |= pwkind == PwrK_MKDIGGER;
-        block |= pwkind == PwrK_SIGHT;
-        if (block)
-        {
-          SYNCDBG(5,"Found creature to use power on but it is being held.");
-          return Lb_FAIL;
-        }
-    }
-
-    MapSubtlCoord stl_x = thing->mappos.x.stl.num;
-    MapSubtlCoord stl_y = thing->mappos.y.stl.num;
-    unsigned long spell_flags = is_free ? PwMod_CastForFree : 0;
-
-    switch (pwkind)
-    {
-      case PwrK_HEALCRTR:
-        return magic_use_power_heal(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_SPEEDCRTR:
-        return magic_use_power_speed(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_PROTECT:
-        return magic_use_power_armour(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_REBOUND:
-        return magic_use_power_rebound(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_CONCEAL:
-        return magic_use_power_conceal(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_DISEASE:
-        return magic_use_power_disease(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_CHICKEN:
-        return magic_use_power_chicken(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_FREEZE:
-        return magic_use_power_freeze(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_SLOW:
-        return magic_use_power_slow(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_FLIGHT:
-        return magic_use_power_flight(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_VISION:
-        return magic_use_power_vision(caster, thing, 0, 0, splevel, spell_flags);
-      case PwrK_SLAP:
-        return magic_use_power_slap_thing(caster, thing, spell_flags);
-      case PwrK_CALL2ARMS:
-        return magic_use_power_call_to_arms(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_LIGHTNING:
-        return magic_use_power_lightning(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_CAVEIN:
-        return magic_use_power_cave_in(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_MKDIGGER:
-        return magic_use_power_imp(caster, stl_x, stl_y, spell_flags);
-      case PwrK_SIGHT:
-        return magic_use_power_sight(caster, stl_x, stl_y, splevel, spell_flags);
-      case PwrK_TIMEBOMB:
-        return magic_use_power_time_bomb(caster, thing, splevel, spell_flags);
-      default:
-        SCRPTERRLOG("Power not supported for this command: %s", power_code_name(pwkind));
-        return Lb_FAIL;
-    }
-}
-
 TbResult script_use_spell_on_creature(PlayerNumber plyr_idx, long crmodel, long criteria, long fmcl_bytes)
 {
     struct Thing *thing = script_get_creature_by_criteria(plyr_idx, crmodel, criteria);
@@ -737,11 +684,13 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
       case 20: // TREMBLING_FAT
           if (val4 >= 1)
           {
-              crconf->model_flags |= CMF_TremblingFat;
+              crconf->model_flags |= CMF_Trembling;
+              crconf->model_flags |= CMF_Fat;
           }
           else
           {
-              crconf->model_flags ^= CMF_TremblingFat;
+              crconf->model_flags ^= CMF_Trembling;
+              crconf->model_flags ^= CMF_Fat;
           }
           break;
       case 21: // FEMALE
@@ -799,6 +748,26 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
           break;
       case 27: // ALLURING_SCVNGR
           crstat->entrance_force = val4;
+          break;
+      case 30: // TREMBLING
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_Trembling;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_Trembling;
+          }
+          break;
+      case 31: // FAT
+          if (val4 >= 1)
+          {
+              crconf->model_flags |= CMF_Fat;
+          }
+          else
+          {
+              crconf->model_flags ^= CMF_Fat;
+          }
           break;
       default:
           SCRPTERRLOG("Unknown creature property '%d'", val3);
@@ -886,7 +855,7 @@ void script_process_value(unsigned long var_index, unsigned long plr_range_id, l
     case Cmd_USE_POWER_ON_CREATURE:
       for (i=plr_start; i < plr_end; i++)
       {
-          script_use_power_on_creature(i, val2, val3, val4);
+          script_use_power_on_creature_matching_criterion(i, val2, val3, val4);
       }
       break;
     case Cmd_USE_SPELL_ON_CREATURE:

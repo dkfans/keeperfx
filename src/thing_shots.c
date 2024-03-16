@@ -773,8 +773,11 @@ static TbBool shot_hit_trap_at(struct Thing* shotng, struct Thing* target, struc
     create_relevant_effect_for_shot_hitting_thing(shotng, target);
     if (target->health < 0) 
     {
-        create_effect_element(&target->mappos, TngEffElm_Blast2, target->owner);
         struct TrapConfigStats* trapst = get_trap_model_stats(target->model);
+        if (trapst->destroyed_effect != 0)
+        {
+            create_used_effect_or_element(&target->mappos, trapst->destroyed_effect, target->owner);
+        }
         if (((trapst->unstable == 1) && !(shotst->model_flags & ShMF_Disarming)) || trapst->unstable == 2)
         {
             activate_trap(target, target);
@@ -807,13 +810,18 @@ static TbBool shot_hit_object_at(struct Thing *shotng, struct Thing *target, str
     }
     if (thing_is_dungeon_heart(target))
     {
-        if (shotng->model == ShM_SwingSword) //TODO CONFIG shot model dependency, make config option instead
+        if (shotst->hit_heart.effect_model != 0)
         {
-            thing_play_sample(target, 136, NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
-        } else
-        if (shotng->model == ShM_SwingFist) //TODO CONFIG shot model dependency, make config option instead
+            if (shotst->hit_heart.effect_model > 0)
+            {
+                create_effect(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
+            } else {
+                create_effect_element(&shotng->mappos, shotst->hit_heart.effect_model, shotng->owner);
+            }
+        }
+        if (shotst->hit_heart.sndsample_idx > 0)
         {
-            thing_play_sample(target, 144+UNSYNC_RANDOM(3), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
+            thing_play_sample(target, shotst->hit_heart.sndsample_idx + UNSYNC_RANDOM(shotst->hit_heart.sndsample_range), NORMAL_PITCH, 0, 3, 0, 3, FULL_LOUDNESS);
         }
         event_create_event_or_update_nearby_existing_event(
             shootertng->mappos.x.val, shootertng->mappos.y.val,
@@ -1004,7 +1012,7 @@ void shot_kill_creature(struct Thing *shotng, struct Thing *creatng)
 long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coord3d *pos)
 {
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    long throw_strength = shotng->fall_acceleration;
+    long throw_strength = shotst->push_on_hit;
     long n;
     if (trgtng->health < 0)
         return 0;
@@ -1062,8 +1070,12 @@ long melee_shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, stru
       }
       if ( shotst->push_on_hit || creature_is_being_unconscious(trgtng))
       {
-          if (creature_is_being_unconscious(trgtng)) {
-              throw_strength++;
+          if (creature_is_being_unconscious(trgtng)) 
+          {
+              if (throw_strength == 0)
+              {
+                  throw_strength++;
+              }
               throw_strength *= 10;
           }
           trgtng->veloc_push_add.x.val += (throw_strength * (long)shotng->velocity.x.val) / 16;
@@ -1115,7 +1127,7 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
     long i;
     long n;
     struct ShotConfigStats* shotst = get_shot_model_stats(shotng->model);
-    long amp = shotng->fall_acceleration;
+    long throw_strength = shotst->push_on_hit;
     struct Thing* shooter = INVALID_THING;
     if (shotng->parent_idx != shotng->index) {
         shooter = thing_get(shotng->parent_idx);
@@ -1226,23 +1238,24 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             WARNDBG(8,"The %s index %d owner %d cannot group; invalid parent",thing_model_name(shotng),(int)shotng->index,(int)shotng->owner);
         }
     }
-    if (shotst->push_on_hit != 0 )
+    if (throw_strength != 0 )
     {
-        i = amp * (long)shotng->velocity.x.val;
+        i = throw_strength * shotng->velocity.x.val;
         trgtng->veloc_push_add.x.val += i / 16;
-        i = amp * (long)shotng->velocity.y.val;
+        i = throw_strength * shotng->velocity.y.val;
         trgtng->veloc_push_add.y.val += i / 16;
         trgtng->state_flags |= TF1_PushAdd;
     }
     if (creature_is_being_unconscious(trgtng))
     {
-        amp ++;
+        if (throw_strength == 0)
+            throw_strength++;
         if (game.conf.rules.game.classic_bugs_flags & ClscBug_FaintedImmuneToBoulder)
         {
-            amp *= 5;
-            i = amp * (long)shotng->velocity.x.val;
+            throw_strength *= 5;
+            i = throw_strength * shotng->velocity.x.val;
             trgtng->veloc_push_add.x.val += i / 16;
-            i = amp * (long)shotng->velocity.y.val;
+            i = throw_strength * shotng->velocity.y.val;
             trgtng->veloc_push_add.y.val += i / 16;
             trgtng->state_flags |= TF1_PushAdd;
             if (shotst->hit_creature.sndsample_idx != 0)
@@ -1257,26 +1270,26 @@ long shot_hit_creature_at(struct Thing *shotng, struct Thing *trgtng, struct Coo
             {
                 if (abs(shotng->velocity.x.val) >= abs(shotng->velocity.y.val))
                 {
-                    i = amp * (long)shotng->velocity.x.val;
+                    i = throw_strength * shotng->velocity.x.val;
                     trgtng->veloc_push_add.x.val += i / 64;
-                    i = amp * (long)shotng->velocity.x.val * (CREATURE_RANDOM(shotng, 3) - 1);
+                    i = throw_strength * shotng->velocity.x.val * (CREATURE_RANDOM(shotng, 3) - 1);
                     trgtng->veloc_push_add.y.val += i / 64;
                 }
                 else
                 {
-                    i = amp * (long)shotng->velocity.y.val;
+                    i = throw_strength * shotng->velocity.y.val;
                     trgtng->veloc_push_add.y.val += i / 64;
-                    i = amp * (long)shotng->velocity.y.val * (CREATURE_RANDOM(shotng, 3) - 1);
+                    i = throw_strength * shotng->velocity.y.val * (CREATURE_RANDOM(shotng, 3) - 1);
                     trgtng->veloc_push_add.x.val += i / 64;
                 }
                 trgtng->state_flags |= TF1_PushAdd;
             }
             else // Normal shots blast unconscious units out of the way
             {
-                amp *= 5;
-                i = amp * (long)shotng->velocity.x.val;
+                throw_strength *= 5;
+                i = throw_strength * shotng->velocity.x.val;
                 trgtng->veloc_push_add.x.val += i / 16;
-                i = amp * (long)shotng->velocity.y.val;
+                i = throw_strength * shotng->velocity.y.val;
                 trgtng->veloc_push_add.y.val += i / 16;
                 trgtng->state_flags |= TF1_PushAdd;
             }

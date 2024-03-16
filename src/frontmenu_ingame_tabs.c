@@ -957,11 +957,7 @@ void gui_over_door_button(struct GuiButton *gbtn)
     int manufctr_idx = (long)gbtn->content;
     struct ManufactureData* manufctr = get_manufacture_data(manufctr_idx);
 
-    //todo support more then 5 doors
-    if (manufctr->tngmodel >= 5)
-        gui_door_type_highlighted = 0;
-    else
-        gui_door_type_highlighted = manufctr->tngmodel;
+    gui_door_type_highlighted = manufctr->tngmodel;
 }
 
 void gui_remove_area_for_traps(struct GuiButton *gbtn)
@@ -1261,9 +1257,9 @@ void gui_creature_query_background1(struct GuiMenu *gmnu)
         long spr_idx = get_creature_model_graphics(ctrltng->model, CGI_QuerySymbol);
         if (spr_idx > 0)
         {
-            const struct TbSprite* spr = get_button_sprite(spr_idx);
+            const struct TbSprite* spr = get_button_sprite_for_player(spr_idx, ctrltng->owner);
             int bs_units_per_px = (gmnu->width * 35 / 100) * 16 / spr->SWidth;
-            LbSpriteDrawResized(portrt_x + 12 * units_per_px / 16, portrt_y + 12 * units_per_px / 16, bs_units_per_px, get_button_sprite(spr_idx));
+            LbSpriteDrawResized(portrt_x + 12 * units_per_px / 16, portrt_y + 12 * units_per_px / 16, bs_units_per_px, spr);
         }
     }
     {
@@ -1289,7 +1285,7 @@ void gui_creature_query_background2(struct GuiMenu *gmnu)
         {
             struct TbSprite* spr = &gui_panel_sprites[spr_idx];
             int ps_units_per_px = (gmnu->width * 22 / 100) * 16 / spr->SWidth;
-            draw_gui_panel_sprite_left(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx);
+            draw_gui_panel_sprite_left_player(nambox_x, nambox_y - 22*units_per_px/16, ps_units_per_px, spr_idx,ctrltng->owner);
         }
     }
 }
@@ -1881,7 +1877,7 @@ void gui_area_ally(struct GuiButton *gbtn)
         draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, 44);
     } else
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx);
+        draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, spr_idx, plyr_idx);
     }
 }
 
@@ -2179,17 +2175,17 @@ void gui_area_player_creature_info(struct GuiButton *gbtn)
     PlayerNumber plyr_idx = (int)gbtn->content;
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_rect_wide_up, 100);
     struct PlayerInfo* player = get_player(plyr_idx);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up);
+    draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up, plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     if (player_exists(player) && !dungeon_invalid(dungeon))
     {
         if (((dungeon->num_active_creatrs < dungeon->max_creatures_attracted) && (!game.pool.is_empty))
             || ((game.play_gameturn & 1) != 0))
         {
-            draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
+            draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx, plyr_idx);
         } else
         {
-            draw_gui_panel_sprite_rmleft(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx, 44);
+            draw_gui_panel_sprite_rmleft_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx, 44, plyr_idx);
         }
         long i = dungeon->num_active_creatrs;
         char* text = buf_sprintf("%ld", i);
@@ -2202,11 +2198,11 @@ void gui_area_player_room_info(struct GuiButton *gbtn)
     PlayerNumber plyr_idx = (int)gbtn->content;
     int ps_units_per_px = simple_gui_panel_sprite_height_units_per_px(gbtn, GPS_rpanel_frame_rect_wide_up, 100);
     struct PlayerInfo* player = get_player(plyr_idx);
-    draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up);
+    draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, GPS_rpanel_frame_rect_wide_up, plyr_idx);
     struct Dungeon* dungeon = get_players_dungeon(player);
     if (player_exists(player) && !dungeon_invalid(dungeon))
     {
-        draw_gui_panel_sprite_left(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx);
+        draw_gui_panel_sprite_left_player(gbtn->scr_pos_x, gbtn->scr_pos_y, ps_units_per_px, gbtn->sprite_idx, plyr_idx);
         long i = dungeon->total_rooms;
         char* text = buf_sprintf("%ld", i);
         draw_button_string(gbtn, 60, text);

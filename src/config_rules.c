@@ -105,11 +105,11 @@ const struct NamedField rules_computer_named_fields[] = {
 
 const struct NamedField rules_creatures_named_fields[] = {
   {"RECOVERYFREQUENCY",         &game.conf.rules.creature.recovery_frequency,    var_type(game.conf.rules.creature.recovery_frequency    ),       0,UCHAR_MAX},
-  {"FIGHTMAXHATE",              &game.conf.rules.creature.fight_max_hate,        var_type(game.conf.rules.creature.fight_max_hate        ),       0,USHRT_MAX},
-  {"FIGHTBORDERLINE",           &game.conf.rules.creature.fight_borderline,      var_type(game.conf.rules.creature.fight_borderline      ),       0,USHRT_MAX},
-  {"FIGHTMAXLOVE",              &game.conf.rules.creature.fight_max_love,        var_type(game.conf.rules.creature.fight_max_love        ),       0,USHRT_MAX},
+  {"FIGHTMAXHATE",              &game.conf.rules.creature.fight_max_hate,        var_type(game.conf.rules.creature.fight_max_hate        ),       SHRT_MIN,SHRT_MAX},
+  {"FIGHTBORDERLINE",           &game.conf.rules.creature.fight_borderline,      var_type(game.conf.rules.creature.fight_borderline      ),       SHRT_MIN,SHRT_MAX},
+  {"FIGHTMAXLOVE",              &game.conf.rules.creature.fight_max_love,        var_type(game.conf.rules.creature.fight_max_love        ),       SHRT_MIN,SHRT_MAX},
   {"BODYREMAINSFOR",            &game.conf.rules.creature.body_remains_for,      var_type(game.conf.rules.creature.body_remains_for      ),       0,USHRT_MAX},
-  {"FIGHTHATEKILLVALUE",        &game.conf.rules.creature.fight_hate_kill_value, var_type(game.conf.rules.creature.fight_hate_kill_value ),       0,USHRT_MAX},
+  {"FIGHTHATEKILLVALUE",        &game.conf.rules.creature.fight_hate_kill_value, var_type(game.conf.rules.creature.fight_hate_kill_value ),       SHRT_MIN,SHRT_MAX},
   {"FLEEZONERADIUS",            &game.conf.rules.creature.flee_zone_radius,      var_type(game.conf.rules.creature.flee_zone_radius      ),       0,ULONG_MAX},
   {"GAMETURNSINFLEE",           &game.conf.rules.creature.game_turns_in_flee,    var_type(game.conf.rules.creature.game_turns_in_flee    ),       0,LONG_MAX},
   {"GAMETURNSUNCONSCIOUS",      &game.conf.rules.creature.game_turns_unconscious,var_type(game.conf.rules.creature.game_turns_unconscious),       0,USHRT_MAX},
