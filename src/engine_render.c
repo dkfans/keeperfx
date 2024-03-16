@@ -7822,7 +7822,7 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     short dim_tw;
     long scaled_x;
     long scaled_y;
-    TbBool needs_xflip = false;
+    TbBool needs_xflip;
     long long lltemp;
     long sprite_group;
     long sprite_rot;
@@ -7831,12 +7831,11 @@ void process_keeper_sprite(short x, short y, unsigned short kspr_base, short ksp
     player = get_my_player();
     creature_sprites = keepersprite_array(kspr_base);
 
-    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) )
+    if (((kspr_angle & 0x7FF) <= 1151) || ((kspr_angle & 0x7FF) >= 1919) || (creature_sprites->Rotable != 2) )
         needs_xflip = 0;
-    else if (creature_sprites->Rotable == 2)
-    {
-        needs_xflip = 1; //disable on non-rotatable
-    }
+    else
+        needs_xflip = 1;
+
     if ( needs_xflip )
       lbDisplay.DrawFlags |= Lb_SPRITE_FLIP_HORIZ;
     else
