@@ -199,11 +199,10 @@ long computer_checks_hates(struct Computer2 *comp, struct ComputerCheck * check)
 // 0 percent_of_total_to_reassign = num_to_move is 0 and all creatures do their default jobs
 int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_of_total_to_reassign)
 {
-    int total_creatures = 0;
     int creatures_doing_primary_or_secondary_job = 0;
-    unsigned long k = 0;
-    int i = dungeon->creatr_list_start;
-    while (i != 0)
+    int creatures_doing_other_jobs = 0;
+
+    for (int i = dungeon->creatr_list_start; i != 0;)
     {
         struct Thing* thing = thing_get(i);
         TRACE_THING(thing);
@@ -213,33 +212,36 @@ int calculate_number_of_creatures_to_move(struct Dungeon *dungeon, int percent_o
             ERRORLOG("Jump to invalid creature detected");
             break;
         }
-        i = cctrl->players_next_creature_idx;
-        total_creatures += 1;
-        struct CreatureStats* crstat = creature_stats_get(thing->model);
-        if ((cctrl->job_assigned == crstat->job_primary) ||
-            (cctrl->job_assigned == crstat->job_secondary))
-        {
-            creatures_doing_primary_or_secondary_job += 1;
-        }
-        k++;
-        if (k > CREATURES_COUNT)
-        {
-            ERRORLOG("Infinite loop detected when sweeping creatures list");
-            break;
-        }
-    }
-    if (total_creatures <= 0) {return 0;}
 
-    int creatures_doing_other_jobs = total_creatures - creatures_doing_primary_or_secondary_job;
-    int percent_doing_other_jobs = (creatures_doing_other_jobs * 100) / total_creatures;
-    int num_to_move = total_creatures * (percent_of_total_to_reassign - percent_doing_other_jobs) / 100;
-    if (num_to_move < 0) {num_to_move = 0;}
+        if (!creature_is_being_unconscious(thing) && !thing_is_picked_up(thing) && !creature_is_kept_in_custody_by_enemy(thing))
+        {
+            struct CreatureStats* crstat = creature_stats_get_from_thing(thing);
+            if ((cctrl->job_assigned == crstat->job_primary) || (cctrl->job_assigned == crstat->job_secondary))
+            {
+                creatures_doing_primary_or_secondary_job += 1;
+            } else {
+                creatures_doing_other_jobs += 1;
+            }
+        }
+
+        i = cctrl->players_next_creature_idx;
+    }
+
+    int work_capable_creatures = creatures_doing_primary_or_secondary_job + creatures_doing_other_jobs;
+    if (work_capable_creatures == 0) {
+        return 0;
+    }
     
+    int percent_doing_other_jobs = (creatures_doing_other_jobs * 100) / work_capable_creatures;
+    int num_to_move = work_capable_creatures * (percent_of_total_to_reassign - percent_doing_other_jobs) / 100;
+    if (num_to_move <= 0) {return 0;}
+
     //JUSTLOG("-----", 0);
-    //JUSTLOG("total_creatures = %d (cfg file says %d percent of them should do other jobs)", total_creatures, percent_of_total_to_reassign);
-    //JUSTLOG("creatures_doing_primary_or_secondary_job = %d (%d percent)", creatures_doing_primary_or_secondary_job, 100-percent_doing_other_jobs);
-    //JUSTLOG("creatures_doing_other_jobs = %d (%d percent)", creatures_doing_other_jobs, percent_doing_other_jobs);
-    //JUSTLOG("num_to_move = %d", num_to_move);
+    //JUSTLOG("total creatures = %d", dungeon->num_active_creatrs);
+    //JUSTLOG("work_capable_creatures = %d", work_capable_creatures);
+    //JUSTLOG("cfg percent to reassign = %d percent should do other jobs", percent_of_total_to_reassign);
+    //JUSTLOG("creatures_doing_primary_or_secondary_job = %d", creatures_doing_primary_or_secondary_job);
+    //JUSTLOG("creatures_doing_other_jobs = %d", creatures_doing_other_jobs);
     return num_to_move;
 }
 
