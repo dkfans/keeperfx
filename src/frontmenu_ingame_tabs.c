@@ -2448,10 +2448,11 @@ void update_powers_tab_to_config(void)
 {
     SYNCDBG(8, "Starting");
     int i;
+    struct GuiButtonInit* ibtn;
     // Clear 4x4 area of buttons, no "sell" button at end
     for (i=0; i < 16; i++)
     {
-        struct GuiButtonInit* ibtn = &spell_menu.buttons[i];
+        ibtn = &spell_menu.buttons[i];
         ibtn->sprite_idx = 24;
         ibtn->tooltip_stridx = GUIStr_Empty;
         ibtn->content.lval = PwrK_None;
@@ -2460,22 +2461,21 @@ void update_powers_tab_to_config(void)
         ibtn->ptover_event = NULL;
         ibtn->draw_call = gui_area_new_null_button;
         ibtn->maintain_call = NULL;
-        struct GuiButtonInit* ibtn2 = &spell_menu2.buttons[i];
-        ibtn2->sprite_idx = 24;
-        ibtn2->tooltip_stridx = GUIStr_Empty;
-        ibtn2->content.lval = PwrK_None;
-        ibtn2->click_event = NULL;
-        ibtn2->rclick_event = NULL;
-        ibtn2->ptover_event = NULL;
-        ibtn2->draw_call = gui_area_new_null_button;
-        ibtn2->maintain_call = NULL;
+        ibtn = &spell_menu2.buttons[i];
+        ibtn->sprite_idx = 24;
+        ibtn->tooltip_stridx = GUIStr_Empty;
+        ibtn->content.lval = PwrK_None;
+        ibtn->click_event = NULL;
+        ibtn->rclick_event = NULL;
+        ibtn->ptover_event = NULL;
+        ibtn->draw_call = gui_area_new_null_button;
+        ibtn->maintain_call = NULL;
     }
     for (PowerKind pwkind = PwrK_None; pwkind < game.conf.magic_conf.power_types_count; pwkind++)
     {
         struct PowerConfigStats* powerst = get_power_model_stats(pwkind);
         if (powerst->panel_tab_idx < 1)
             continue;
-        struct GuiButtonInit* ibtn; 
         if (powerst->panel_tab_idx <= 16)
         {
             ibtn = &spell_menu.buttons[powerst->panel_tab_idx - 1];
