@@ -261,7 +261,7 @@ void recreate_rooms_from_room_slabs(struct Room *room, unsigned char gnd_slab)
     room->slabs_count = 0;
 }
 
-TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, unsigned char is_destroyed)
+TbBool delete_room_slab(MapSlabCoord slb_x, MapSlabCoord slb_y, TbBool is_destroyed)
 {
     struct Room* room = slab_room_get(slb_x, slb_y);
     if (room_is_invalid(room))

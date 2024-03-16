@@ -651,6 +651,8 @@ void draw_flame_breath(struct Coord3d *pos1, struct Coord3d *pos2, long delta_st
   int delta_x;
   int delta_y;
   int delta_z;
+  if (delta_step <= 0)
+      delta_step = 1;
   if (dist_x >= 0)
   {
       delta_x = delta_step;
@@ -2210,7 +2212,7 @@ void interp_fix_mouse_light_off_map(struct PlayerInfo *player)
     // This fixes the interpolation issue of moving the mouse off map in one position then back onto the map far elsewhere.
     struct Light* light = &game.lish.lights[player->cursor_light_idx];
 
-    if (player->mouse_is_offmap == true) {
+    if (player->mouse_on_map == false) {
         light->disable_interp_for_turns = 2;
     }
     if (light->disable_interp_for_turns > 0) {
@@ -3182,7 +3184,6 @@ void update_block_pointed(int i,long x, long x_frac, long y, long y_frac)
 
 void update_blocks_pointed(void)
 {
-    TbBool out_of_bounds = false;
     long x;
     long y;
     long x_frac;
@@ -3229,17 +3230,11 @@ void update_blocks_pointed(void)
           if ((x >= 0) && (x < gameadd.map_subtiles_x) && (y >= 0) && (y < gameadd.map_subtiles_y))
           {
               update_block_pointed(i,x,x_frac,y,y_frac);
-          } else {
-                out_of_bounds = true;
           }
           hori_ptr_y -= hori_hdelta_y;
           vert_ptr_y -= vert_hdelta_y;
         }
     }
-
-    struct PlayerInfo *player = get_my_player();
-    player->mouse_is_offmap = out_of_bounds;
-
     SYNCDBG(19,"Finished");
 }
 

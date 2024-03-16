@@ -259,7 +259,7 @@ static void load_system_sprites(short fgroup)
         }
         cnt++;
     }
-    LbJustLog("Found %d sprite zip file(s), loaded %d with animations and %d with icons.\n", cnt, cnt_ok, cnt_icons);
+    LbJustLog("Found %d sprite zip file(s), loaded %d with animations and %d with icons. Used %d/%d sprite slots.\n", cnt, cnt_ok, cnt_icons, next_free_sprite, KEEPERSPRITE_ADD_NUM);
 }
 
 void init_custom_sprites(LevelNumber lvnum)
@@ -1525,9 +1525,9 @@ short get_anim_id(const char *name, struct ObjectConfigStats *objst)
     return 0;
 }
 
-const struct TbSprite *get_button_sprite(short sprite_idx)
+const struct TbSprite *get_button_sprite_for_player(short sprite_idx, PlayerNumber plyr_idx)
 {
-    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx,my_player_number);
+    sprite_idx = get_player_colored_button_sprite_idx(sprite_idx, plyr_idx);
 
     return get_button_sprite_direct(sprite_idx);
 }
